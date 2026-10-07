@@ -552,6 +552,17 @@ export class DynamicDataList {
   public get globalVisibleCount(): number {
     return this.isPagedBySource ? this.knownCount : this.visibleCount;
   }
+  /* How far a number of the whole view reaches: the records counted, or further where the window holds
+     more - a page of a source that pages itself keeps the records added or edited on it, wherever the
+     source put them, so it may end past the total. The counts (globalVisibleCount, count, pageCount)
+     stay the source's. Over the visible records, and over the created ones (owner-hidden included). */
+  public get globalVisibleExtent(): number {
+    return Math.max(this.globalVisibleCount, this.getRecordNumberOffset() + this.visibleCount);
+  }
+  public get globalCreatedExtent(): number {
+    const created = this.getCreatedIndexes().length;
+    return Math.max(this.isPagedBySource ? this.knownCount : created, this.getRecordNumberOffset() + created);
+  }
   // The source reported more records behind the window and no total: navigation may go past the last
   // known record.
   public get hasRecordBeyondKnown(): boolean {
@@ -978,9 +989,15 @@ export class DynamicDataList {
   }
   // -1 when there is none: a remote window holds nothing beyond itself.
   public getIndexAtGlobalVisibleIndex(globalVisibleIndex: number): number {
-    const at = globalVisibleIndex - this.getRecordNumberOffset();
-    const visible = this.getVisibleIndexes();
-    return at < 0 || at >= visible.length ? -1 : visible[at];
+    return this.getIndexAtGlobalPosition(this.getVisibleIndexes(), globalVisibleIndex);
+  }
+  // The same over the created records: a position of the whole view that counts the owner-hidden ones.
+  public getIndexAtGlobalCreatedIndex(globalCreatedIndex: number): number {
+    return this.getIndexAtGlobalPosition(this.getCreatedIndexes(), globalCreatedIndex);
+  }
+  private getIndexAtGlobalPosition(indexes: Array<number>, position: number): number {
+    const at = position - this.getRecordNumberOffset();
+    return at < 0 || at >= indexes.length ? -1 : indexes[at];
   }
   /* The record an insertion at a position of the whole view goes in front of, as a record index of
      the loaded window: the record at that visible position, or loadedCount (append) past the last
@@ -989,13 +1006,19 @@ export class DynamicDataList {
      view, as getGlobalVisibleIndex does. A negative position appends. */
   public getInsertIndexAtVisibleIndex(globalVisibleIndex: number): number {
     if (globalVisibleIndex < 0) return this.loadedCount;
-    const at = globalVisibleIndex - this.getRecordNumberOffset();
-    const visible = this.getVisibleIndexes();
-    if (at >= 0 && at < visible.length) return visible[at];
-    if (at === visible.length) return this.loadedCount;
+    return this.getInsertIndexAtGlobalPosition(this.getVisibleIndexes(), globalVisibleIndex);
+  }
+  // The same over the created records (owner-hidden included); a negative position is the first one.
+  public getInsertIndexAtCreatedIndex(globalCreatedIndex: number): number {
+    return this.getInsertIndexAtGlobalPosition(this.getCreatedIndexes(), Math.max(0, globalCreatedIndex));
+  }
+  private getInsertIndexAtGlobalPosition(indexes: Array<number>, position: number): number {
+    const at = position - this.getRecordNumberOffset();
+    if (at >= 0 && at < indexes.length) return indexes[at];
+    if (at === indexes.length) return this.loadedCount;
     // Outside the window: not loaded while the position is inside the whole view, an append past it.
-    const viewCount = this.isPagedBySource ? this.knownCount : visible.length;
-    return globalVisibleIndex < viewCount ? -1 : this.loadedCount;
+    const viewCount = this.isPagedBySource ? this.knownCount : indexes.length;
+    return position < viewCount ? -1 : this.loadedCount;
   }
   /* The same for a position among the objects (the materialized records, which under paging is the
      page): the record at that position, or loadedCount at or past the last one. A negative position

@@ -12,6 +12,7 @@ import { settings } from "../../src/settings";
 import { IDynamicDataPageState } from "../../src/dynamic-data/dynamic-data-page-validation";
 import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 import { DragDropMatrixRows } from "../../src/dragdrop/matrix-rows";
+import { SurveyTestTargets } from "../../src/tester/test-targets";
 import { Helpers } from "../../src/helpers";
 import { ConditionRunner } from "../../src/conditions/conditionRunner";
 import { ItemValue } from "../../src/itemvalue";
@@ -1047,7 +1048,7 @@ describe("Page window: three indexes", () => {
     matrix.pageIndex = 1;
     const rows = matrix.visibleRows.slice();
     expect(rowIds(matrix), "#1").toEqual([3, 4, 5]);
-    matrix.moveRowByIndex(0, 2);
+    matrix.moveRowByIndex(3, 5);
     expect(matrix.value.map(r => r.id), "#2").toEqual([0, 1, 2, 4, 5, 3, 6]);
     expect(rowIds(matrix), "#3: the rows take the reordered records").toEqual([4, 5, 3]);
     expect(matrix.visibleRows.every((row, i) => row === rows[i]), "#4: the same row objects").toBe(true);
@@ -2730,7 +2731,8 @@ describe("Page window: the question's own writes keep the view", () => {
     q.visibleRows;
     q.nextPage();
     expect(rowAs(q), "#1").toEqual([2, 1]);
-    q.addRowByIndex({ a: 7 }, 1);
+    // In front of the record at position 3 of the sorted view, the second row of page 1.
+    q.addRowByIndex({ a: 7 }, 3);
     expect(q.pageIndex, "#2").toBe(1);
     expect(rowAs(q), "#3: not sorted away").toEqual([2, 7]);
     q.refreshView();
@@ -3647,5 +3649,468 @@ describe("Page window: a confirmed removal of a record on another page", () => {
     } finally {
       confirmations.restore();
     }
+  });
+});
+
+/* Records { a: "r0" } ... { a: "r5" }, two per page: page 1 shows the records at whole-view positions
+   2 and 3 unless owner-hidden records shift them. Under paging a number names a record of the whole
+   view, with the kind it has without paging: a created position counts the owner-hidden records, a
+   visible position does not. */
+describe("Paging: a number names the same record in every method", () => {
+  const sixRecords = (extra?: (i: number) => any): Array<any> => records(6, (i: number) => Object.assign({ a: "r" + i }, !!extra ? extra(i) : {}));
+  const createNumberedMatrix = (json: any, data?: Array<any>, columns?: Array<any>): QuestionMatrixDynamicModel => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "m", rowCount: 0,
+      columns: columns || [{ name: "a", cellType: "text" }] }, json)] });
+    survey.data = { m: data || sixRecords() };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    return matrix;
+  };
+  const createNumberedPanel = (json: any, data?: Array<any>): QuestionPanelDynamicModel => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "paneldynamic", name: "p",
+      templateElements: [{ type: "text", name: "a" }] }, json)] });
+    survey.data = { p: data || sixRecords() };
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    question.panels;
+    return question;
+  };
+  const fixedRows = ["r0", "r1", "r2", "r3", "r4", "r5"];
+  const createNumberedFixed = (json: any, data?: any): QuestionMatrixDropdownModel => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdropdown", name: "f", rows: fixedRows,
+      columns: [{ name: "a", cellType: "text" }] }, json)] });
+    const value: any = {};
+    fixedRows.forEach((name: string, i: number): void => { value[name] = { a: "v" + i }; });
+    survey.data = { f: data || value };
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("f");
+    matrix.visibleRows;
+    return matrix;
+  };
+  const as = (val: Array<any>): Array<any> => val.map((r: any): any => !!r ? r.a : r);
+  const rowA = (m: QuestionMatrixDynamicModel): Array<any> => m.visibleRows.map(row => row.getQuestionByColumnName("a").value);
+  const panelA = (q: QuestionPanelDynamicModel): Array<any> => q.panels.map((panel: PanelModel) => panel.getQuestionByName("a").value);
+  // What each method acts on for the number n, each on a new matrix that shows page `page` first.
+  const probeMatrix = (json: any, n: number, page: number = 0): any => {
+    const create = (): QuestionMatrixDynamicModel => {
+      const m = createNumberedMatrix(json);
+      if (page > 0) m.pageIndex = page;
+      return m;
+    };
+    const res: any = {};
+    let m = create();
+    const rowValue = m.getRowValue(n);
+    res.get = !!rowValue ? rowValue.a : rowValue;
+    m = create();
+    m.setRowValue(n, { a: "X" });
+    res.set = as(m.value);
+    m = create();
+    const question = m.getQuestionFromArray("a", n);
+    res.question = !!question ? question.value : question;
+    m = create();
+    m.moveRowByIndex(0, n);
+    res.move = as(m.value);
+    m = create();
+    m.addRowByIndex({ a: "N" }, n);
+    res.add = as(m.value);
+    m = create();
+    m.removeRowByIndex(n);
+    res.remove = as(m.value);
+    return res;
+  };
+  const r = (...items: Array<number | string>): Array<string> => items.map((i: any): string => typeof i === "number" ? "r" + i : i);
+  const setups: Array<{ name: string, json: any, unpaged: any }> = [
+    { name: "plain", json: {}, unpaged: { get: "r3", set: r(0, 1, 2, "X", 4, 5), question: "r3",
+      move: r(1, 2, 3, 0, 4, 5), add: r(0, 1, 2, "N", 3, 4, 5), remove: r(0, 1, 2, 4, 5) } },
+    { name: "a sort", json: { sortBy: "a-" }, unpaged: { get: "r2", set: r(0, 1, "X", 3, 4, 5), question: "r2",
+      move: r(0, 1, 5, 2, 3, 4), add: r(0, 1, "N", 2, 3, 4, 5), remove: r(0, 1, 3, 4, 5) } },
+    { name: "a filter", json: { filterExpression: "{a} != 'r0'" }, unpaged: { get: "r4", set: r(0, 1, 2, 3, "X", 5), question: "r4",
+      move: r(0, 2, 3, 4, 1, 5), add: r(0, 1, 2, 3, "N", 4, 5), remove: r(0, 1, 2, 3, 5) } },
+    { name: "owner-hidden records", json: { rowsVisibleIf: "{row.a} != 'r1'" }, unpaged: { get: "r3", set: r(0, 1, 2, 3, "X", 5), question: "r4",
+      move: r(1, 2, 3, 0, 4, 5), add: r(0, 1, 2, "N", 3, 4, 5), remove: r(0, 1, 2, 4, 5) } }
+  ];
+  setups.forEach((setup) => {
+    test("matrix, " + setup.name + ": without paging every method keeps its kind, and on page 1 the same number names the same record", () => {
+      expect(probeMatrix(setup.json, 3), "#1: without paging").toEqual(setup.unpaged);
+      const paged = Object.assign({ rowsPerPage: 2 }, setup.json);
+      expect(probeMatrix(paged, 3, 1), "#2: page 1").toEqual(setup.unpaged);
+      [0, 4].forEach((n: number): void => {
+        const expected = Object.assign({}, probeMatrix(setup.json, n), { question: null });
+        expect(probeMatrix(paged, n, 1), "#3: number " + n + " is on another page").toEqual(expected);
+      });
+    });
+  });
+  test("matrix: a record on another page is read and written by value, nothing is built, the page stays, nothing is reported", () => {
+    const m = createNumberedMatrix({ rowsPerPage: 2, rowsVisibleIf: "{row.a} != 'r1'" });
+    m.pageIndex = 1;
+    const survey = <SurveyModel>m.survey;
+    let cells = 0;
+    const errors: Array<string> = [];
+    survey.onMatrixCellCreated.add(() => { cells++; });
+    survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
+    const rows = m.visibleRows.slice();
+    expect(m.getRowValue(1), "#1: a created position, the hidden record").toEqual({ a: "r1" });
+    expect(m.getQuestionFromArray("a", 1), "#2: a visible position, off the page").toBeNull();
+    m.setRowValue(4, { a: "X" });
+    expect(as(m.value), "#3: visible position 4 is r5").toEqual(r(0, 1, 2, 3, 4, "X"));
+    expect(m.pageIndex, "#4").toBe(1);
+    expect(cells, "#5: no row was built").toBe(0);
+    expect(m.visibleRows.every((row, i) => row === rows[i]), "#6: the rows of the page stay").toBe(true);
+    expect(rowA(m), "#7").toEqual(["r3", "r4"]);
+    expect(errors, "#8").toEqual([]);
+  });
+  test("panel: getQuestionFromArray takes a created position of the whole view, null off the page", () => {
+    const hidden = { templateVisibleIf: "{panel.a} != 'r1'" };
+    const unpaged = createNumberedPanel(hidden);
+    expect([0, 1, 3, 5].map(n => unpaged.getQuestionFromArray("a", n).value), "#1: without paging, created positions").toEqual(r(0, 1, 3, 5));
+    const paged = createNumberedPanel(Object.assign({ panelsPerPage: 2 }, hidden));
+    paged.pageIndex = 1;
+    expect(panelA(paged), "#2").toEqual(["r3", "r4"]);
+    let built = 0;
+    paged.survey.onDynamicPanelAdded.add(() => { built++; });
+    expect([3, 4].map(n => paged.getQuestionFromArray("a", n).value), "#3: on page 1").toEqual(r(3, 4));
+    expect([0, 1, 2, 5, 6].map(n => paged.getQuestionFromArray("a", n)), "#4: off the page").toEqual([null, null, null, null, null]);
+    expect(paged.pageIndex, "#5").toBe(1);
+    expect(built, "#6").toBe(0);
+    expect(paged.survey.getQuestionByValueNameFromArray("p", "a", 3).value, "#7: the survey lookup follows").toBe("r3");
+    expect(paged.survey.getQuestionByValueNameFromArray("p", "a", 0), "#8").toBeNull();
+  });
+  test("survey.getQuestionByValueNameFromArray follows the matrix's visible positions", () => {
+    const m = createNumberedMatrix({ rowsPerPage: 2, rowsVisibleIf: "{row.a} != 'r1'" });
+    m.pageIndex = 1;
+    expect(m.survey.getQuestionByValueNameFromArray("m", "a", 3).value, "#1").toBe("r4");
+    expect(m.survey.getQuestionByValueNameFromArray("m", "a", 1), "#2").toBeNull();
+  });
+  test("fixed matrix: getRowValue, setRowValue and getQuestionFromArray name the same rows as without paging", () => {
+    const probe = (json: any, n: number, page: number): any => {
+      const create = (): QuestionMatrixDropdownModel => {
+        const f = createNumberedFixed(json);
+        if (page > 0) f.pageIndex = page;
+        return f;
+      };
+      let f = create();
+      const get = f.getRowValue(n);
+      f = create();
+      f.setRowValue(n, { a: "X" });
+      const set = Object.keys(f.value).filter(key => f.value[key].a === "X");
+      f = create();
+      const question = f.getQuestionFromArray("a", n);
+      return { get: !!get ? get.a : get, set: set, question: !!question ? question.value : question };
+    };
+    const hidden = { rowsVisibleIf: "{item} != 'r1'" };
+    expect(probe(hidden, 3, 0), "#1: without paging").toEqual({ get: "v3", set: ["r4"], question: "v4" });
+    expect(probe(Object.assign({ rowsPerPage: 2 }, hidden), 3, 1), "#2: page 1").toEqual({ get: "v3", set: ["r4"], question: "v4" });
+    expect(probe(Object.assign({ rowsPerPage: 2 }, hidden), 0, 1), "#3: another page").toEqual({ get: "v0", set: ["r0"], question: null });
+    expect(probe({ rowsPerPage: 2 }, 3, 1), "#4: page 1, nothing hidden").toEqual({ get: "v3", set: ["r3"], question: "v3" });
+  });
+  test("one number, one record: getRowValue names what removeRowByIndex removes, getQuestionFromArray what removeRow removes", () => {
+    const removedBy = (json: any, remove: (m: QuestionMatrixDynamicModel) => void): string => {
+      const m = createNumberedMatrix(json);
+      m.pageIndex = 1;
+      const before = as(m.value);
+      remove(m);
+      const after = as(m.value);
+      return before.filter(a => after.indexOf(a) < 0)[0];
+    };
+    [{ rowsPerPage: 2 }, { rowsPerPage: 2, sortBy: "a-" }, { rowsPerPage: 2, filterExpression: "{a} != 'r2'" },
+      { rowsPerPage: 2, rowsVisibleIf: "{row.a} != 'r1' and {row.a} != 'r4'" }].forEach((json: any, i: number): void => {
+      for (let n = 0; n < 6; n++) {
+        const read = createNumberedMatrix(json);
+        read.pageIndex = 1;
+        const value = read.getRowValue(n);
+        expect(removedBy(json, m => m.removeRowByIndex(n)), "#1: setup " + i + ", created position " + n).toBe(!!value ? value.a : undefined);
+        const question = read.getQuestionFromArray("a", n);
+        if (!!question) {
+          expect(removedBy(json, m => m.removeRow(n)), "#2: setup " + i + ", visible position " + n).toBe(question.value);
+        }
+      }
+    });
+  });
+  test("the stored record is read whole, on the page and off it, and unbound", () => {
+    const data = sixRecords((i: number) => ({ id: i, extra: "keep" }));
+    const m = createNumberedMatrix({ rowsPerPage: 2 }, data);
+    m.pageIndex = 1;
+    expect(m.getRowValue(2), "#1: a record with a row").toEqual({ a: "r2", id: 2, extra: "keep" });
+    expect(m.getItemData(m.visibleRows[1]), "#2: getItemData").toEqual({ a: "r3", id: 3, extra: "keep" });
+    const off = m.getRowValue(5);
+    expect(off, "#3: a record off the page").toEqual({ a: "r5", id: 5, extra: "keep" });
+    off.extra = "changed";
+    m.getRowValue(2).extra = "changed";
+    expect(m.value[5].extra, "#4: unbound").toBe("keep");
+    expect(m.value[2].extra, "#5").toBe("keep");
+    const fixedValue: any = {};
+    fixedRows.forEach((name: string, i: number): void => { fixedValue[name] = { a: "v" + i, extra: "keep" }; });
+    const f = createNumberedFixed({ rowsPerPage: 2 }, fixedValue);
+    f.pageIndex = 1;
+    expect(f.getRowValue(3), "#6: fixed matrix, a row on the page").toEqual({ a: "v3", extra: "keep" });
+    expect(f.getRowValue(0), "#7: fixed matrix, off the page").toEqual({ a: "v0", extra: "keep" });
+    expect(f.getItemData(f.visibleRows[0]), "#8").toEqual({ a: "v2", extra: "keep" });
+    f.getRowValue(0).extra = "changed";
+    expect(f.value.r0.extra, "#9: unbound").toBe("keep");
+  });
+  test("an off-page setRowValue writes what assigning a row would: the column fields give way, the others stay", () => {
+    const data = sixRecords((i: number) => ({ id: i, b: "b" + i }));
+    const m = createNumberedMatrix({ rowsPerPage: 2 }, data, [{ name: "a", cellType: "text" }, { name: "b", cellType: "text" }]);
+    const unpaged = createNumberedMatrix({}, sixRecords((i: number) => ({ id: i, b: "b" + i })), [{ name: "a", cellType: "text" }, { name: "b", cellType: "text" }]);
+    m.pageIndex = 1;
+    m.setRowValue(0, { a: "X", c: "new" });
+    unpaged.setRowValue(0, { a: "X", c: "new" });
+    expect(m.value[0], "#1").toEqual({ a: "X", id: 0, c: "new" });
+    expect(m.value[0], "#2: as without paging").toEqual(unpaged.value[0]);
+  });
+});
+
+describe("Paging: the core callers act on the record of their row", () => {
+  const nineRecords = (): Array<any> => records(9, (i: number) => ({ a: "r" + i }));
+  const as = (val: Array<any>): Array<any> => val.map((r: any): any => !!r ? r.a : r);
+  const createCallerSurvey = (json: any, data?: Array<any>, columns?: Array<any>, extra?: Array<any>): SurveyModel => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "m", rowCount: 0,
+      columns: columns || [{ name: "a", cellType: "text" }] }, json)].concat(extra || []) });
+    survey.data = { m: data || nineRecords() };
+    (<QuestionMatrixDynamicModel>survey.getQuestionByName("m")).visibleRows;
+    return survey;
+  };
+  const drop = (survey: SurveyModel, from: QuestionMatrixDynamicModel, row: any, to: QuestionMatrixDynamicModel, toIndex: number): void => {
+    const dd: any = new DragDropMatrixRows(survey, null, true);
+    dd.parentElement = from;
+    dd.draggedElement = row;
+    dd.fromIndex = from.visibleRows.indexOf(row);
+    dd.toIndex = toIndex;
+    dd.toMatrix = to;
+    dd.doDrop();
+  };
+  [{ name: "page 1", page: 1, json: { rowsPerPage: 3 } }, { name: "page 2 of three", page: 2, json: { rowsPerPage: 3 } },
+    { name: "page 1 with an owner-hidden record", page: 1, json: { rowsPerPage: 3, rowsVisibleIf: "{row.a} != 'r4'" } }].forEach((setup) => {
+    test(setup.name + ": a cell edit and getItemData", () => {
+      const survey = createCallerSurvey(setup.json);
+      const m = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+      m.pageIndex = setup.page;
+      const row = m.visibleRows[1];
+      const own = row.getQuestionByColumnName("a").value;
+      expect(m.getItemData(row), "#1").toEqual({ a: own });
+      row.getQuestionByColumnName("a").value = "E";
+      expect(as(m.value).filter(a => a === "E" || a === own), "#2: the row's own record").toEqual(["E"]);
+      expect(as(m.value).indexOf("E"), "#3").toBe(Number(own.substring(1)));
+    });
+  });
+  test("page 1: clearIncorrectValues clears the keys of each row's own record", () => {
+    const data = nineRecords();
+    data[4].junk = 1;
+    data[4].c = "y";
+    const survey = createCallerSurvey({ rowsPerPage: 3 }, data, [{ name: "a", cellType: "text" }, { name: "c", cellType: "dropdown", choices: ["x", "y"] }]);
+    const m = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    m.pageIndex = 1;
+    m.columns[1].choices = ["x"];
+    m.clearIncorrectValues();
+    expect(m.value[4], "#1: the unknown key and the value the choices lost").toEqual({ a: "r4" });
+    expect(m.value.filter((rec: any, i: number) => i !== 4).every((rec: any) => Object.keys(rec).length === 1), "#2: the others are as they were").toBe(true);
+  });
+  test("page 1: a key in the detail panel of rows that never opened it is compared by each row's own record", () => {
+    const data = records(9, (i: number) => ({ a: "r" + i, u: "u" + i }));
+    const survey = createCallerSurvey({ rowsPerPage: 3, keyName: "u", detailPanelMode: "underRow",
+      detailElements: [{ type: "text", name: "u" }] }, data);
+    const m = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    m.pageIndex = 1;
+    const row = m.visibleRows[0];
+    row.showDetailPanel();
+    const key = <Question>row.detailPanel.getQuestionByName("u");
+    const isDuplicated = (value: string): boolean => {
+      key.value = value;
+      return m.checkIfValueInRowDuplicated(row, key);
+    };
+    expect(isDuplicated("u4"), "#1: the key of r4, a row on the page without its detail panel").toBe(true);
+    expect(isDuplicated("u5"), "#2").toBe(true);
+    expect(isDuplicated("u7"), "#3: a record on another page").toBe(true);
+    expect(isDuplicated("zz"), "#4").toBe(false);
+  });
+  test("page 1: a drag inside the matrix moves the dragged record, forward and backward", () => {
+    const move = (json: any, page: number, from: number, to: number): Array<any> => {
+      const survey = createCallerSurvey(json);
+      const m = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+      m.pageIndex = page;
+      drop(survey, m, m.visibleRows[from], m, to);
+      return as(m.value);
+    };
+    expect(move({ rowsPerPage: 3 }, 1, 0, 3), "#1: r3 below r5").toEqual(["r0", "r1", "r2", "r4", "r5", "r3", "r6", "r7", "r8"]);
+    expect(move({ rowsPerPage: 3 }, 1, 2, 0), "#2: r5 above r3").toEqual(["r0", "r1", "r2", "r5", "r3", "r4", "r6", "r7", "r8"]);
+    const hidden = { rowsPerPage: 3, rowsVisibleIf: "{row.a} != 'r4'" };
+    expect(move(hidden, 1, 0, 3), "#3: r3 below r6, r4 hidden").toEqual(["r0", "r1", "r2", "r4", "r5", "r6", "r3", "r7", "r8"]);
+    expect(move(hidden, 1, 2, 1), "#4: r6 above r5").toEqual(["r0", "r1", "r2", "r3", "r4", "r6", "r5", "r7", "r8"]);
+    expect(move({ rowsPerPage: 3 }, 2, 2, 0), "#5: page 2, r8 above r6").toEqual(["r0", "r1", "r2", "r3", "r4", "r5", "r8", "r6", "r7"]);
+  });
+  test("a drag between matrices carries the dragged record into the place it is dropped at", () => {
+    const transfer = (json1: any, page1: number, row: number, json2: any, page2: number, toIndex: number): { from: Array<any>, to: Array<any>, page: number } => {
+      const survey = new SurveyModel({ elements: [
+        Object.assign({ type: "matrixdynamic", name: "m1", rowCount: 0, columns: [{ name: "a", cellType: "text" }] }, json1),
+        Object.assign({ type: "matrixdynamic", name: "m2", rowCount: 0, columns: [{ name: "a", cellType: "text" }] }, json2)] });
+      survey.data = { m1: nineRecords(), m2: records(6, (i: number) => ({ a: "t" + i })) };
+      const m1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("m1");
+      const m2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("m2");
+      m1.visibleRows;
+      m2.visibleRows;
+      m1.pageIndex = page1;
+      m2.pageIndex = page2;
+      drop(survey, m1, m1.visibleRows[row], m2, toIndex);
+      return { from: as(m1.value), to: as(m2.value), page: m2.pageIndex };
+    };
+    const without = (n: number): Array<string> => nineRecords().map((rec: any) => rec.a).filter((a: string) => a !== "r" + n);
+    expect(transfer({ rowsPerPage: 3 }, 1, 1, {}, 0, 2), "#1: from page 1 into an unpaged matrix")
+      .toEqual({ from: without(4), to: ["t0", "t1", "r4", "t2", "t3", "t4", "t5"], page: 0 });
+    expect(transfer({}, 0, 1, { rowsPerPage: 2 }, 1, 0), "#2: into page 1, before the first row")
+      .toEqual({ from: without(1), to: ["t0", "t1", "r1", "t2", "t3", "t4", "t5"], page: 1 });
+    expect(transfer({}, 0, 1, { rowsPerPage: 2 }, 1, 1), "#3: between the rows")
+      .toEqual({ from: without(1), to: ["t0", "t1", "t2", "r1", "t3", "t4", "t5"], page: 1 });
+    expect(transfer({}, 0, 1, { rowsPerPage: 2 }, 1, 2), "#4: after the last row: its page is shown")
+      .toEqual({ from: without(1), to: ["t0", "t1", "t2", "t3", "r1", "t4", "t5"], page: 2 });
+    expect(transfer({ rowsPerPage: 3 }, 2, 0, { rowsPerPage: 2 }, 1, 1), "#5: page to page")
+      .toEqual({ from: without(6), to: ["t0", "t1", "t2", "r6", "t3", "t4", "t5"], page: 1 });
+  });
+  test("without paging the drag passes the numbers it always has, the rowsVisibleIf quirk included", () => {
+    const survey = createCallerSurvey({ rowsVisibleIf: "{row.a} != 'r1'" });
+    const m = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    // r0 dragged below r2: visible positions are passed where created ones are taken, so r1 is the one passed.
+    drop(survey, m, m.visibleRows[0], m, 2);
+    expect(as(m.value).slice(0, 3), "#1").toEqual(["r1", "r0", "r2"]);
+    const plain = createCallerSurvey({});
+    const pm = <QuestionMatrixDynamicModel>plain.getQuestionByName("m");
+    drop(plain, pm, pm.visibleRows[0], pm, 3);
+    expect(as(pm.value).slice(0, 4), "#2").toEqual(["r1", "r2", "r0", "r3"]);
+  });
+  test("getRowViewIndex: a row's created position in the whole view, its position among the rows without paging", () => {
+    const view = (json: any, page: number): Array<number> => {
+      const survey = createCallerSurvey(json);
+      const m = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+      m.pageIndex = page;
+      return m.visibleRows.map(row => m.getRowViewIndex(row));
+    };
+    expect(view({ rowsPerPage: 3 }, 1), "#1: page 1").toEqual([3, 4, 5]);
+    expect(view({ rowsPerPage: 3 }, 2), "#2: page 2").toEqual([6, 7, 8]);
+    expect(view({ rowsPerPage: 3, rowsVisibleIf: "{row.a} != 'r1' and {row.a} != 'r4'" }, 1), "#3: hidden r1 and r4 are counted").toEqual([5, 6, 7]);
+    expect(view({ rowsVisibleIf: "{row.a} != 'r1'" }, 0).slice(0, 3), "#4: without paging, the position in generatedVisibleRows").toEqual([0, 2, 3]);
+    const other = createCallerSurvey({ rowsPerPage: 3 });
+    const m = <QuestionMatrixDynamicModel>other.getQuestionByName("m");
+    const survey = createCallerSurvey({ rowsPerPage: 3 });
+    expect((<QuestionMatrixDynamicModel>survey.getQuestionByName("m")).getRowViewIndex(m.visibleRows[0]), "#5: a row of another matrix").toBe(-1);
+  });
+  test("a tester target addresses the page collection", () => {
+    const survey = createCallerSurvey({ rowsPerPage: 3 }, undefined, undefined,
+      [{ type: "paneldynamic", name: "p", panelsPerPage: 3, templateElements: [{ type: "text", name: "a" }] }]);
+    survey.setValue("p", nineRecords());
+    const m = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const p = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    m.pageIndex = 1;
+    p.pageIndex = 1;
+    expect(SurveyTestTargets.resolve(survey, "m[0].a").obj === m.visibleRows[0].getQuestionByColumnName("a"), "#1").toBe(true);
+    expect(SurveyTestTargets.resolve(survey, "p[1].a").obj === p.panels[1].getQuestionByName("a"), "#2").toBe(true);
+    expect(SurveyTestTargets.resolve(survey, "p[1].a").obj.value, "#3").toBe("r4");
+  });
+});
+
+/* The window of a source that pages itself may hold more records than the source counts: a record
+   added on the page stays shown where it was added (S03), wherever the source put it. */
+describe("Paging: every record shown is reachable by its number", () => {
+  // Stores a new record at the front, an earlier page than the one it was added on.
+  const frontSource = (count: number): PagedSource => {
+    const source: any = new PagedSource(records(count, (i: number) => ({ id: i, a: "r" + i })));
+    source.insert = (record: any): Promise<any> => {
+      const stored = Object.assign({ id: 100 + source.data.length }, record);
+      source.data.unshift(stored);
+      return Promise.resolve(Object.assign({}, stored));
+    };
+    return source;
+  };
+  const setUp = async (kind: string): Promise<{ question: any, source: PagedSource }> => {
+    const source = frontSource(11);
+    const question: any = kind === "matrix" ?
+      createMatrix({ rowsPerPage: 5, defaultRowValue: { a: "new" }, columns: [{ name: "a", cellType: "text" }] }) :
+      createPanel({ panelsPerPage: 5, panelCount: 0, displayMode: "tab", defaultPanelValue: { a: "new" }, templateElements: [{ type: "text", name: "a" }] });
+    if (kind === "matrix") question.visibleRows; else question.panels;
+    question.dataSource = source;
+    await flush();
+    question.pageIndex = 1;
+    await flush();
+    if (kind === "matrix") question.addRow(); else {
+      question.currentIndex = 9;
+      question.addPanel();
+    }
+    await flush();
+    // Two removes, and the refill of the second: the window ends past the total.
+    if (kind === "matrix") question.removeRow(5, false); else question.removePanel(5);
+    await flush();
+    if (kind === "matrix") question.removeRow(5, false); else question.removePanel(5);
+    await flush();
+    return { question: question, source: source };
+  };
+  const shownA = (question: any): Array<any> => (question.visibleRows || question.panels).map((obj: any) => obj.getQuestionByName("a").value);
+  test("matrix: getRowValue, getQuestionFromArray, removeRow and removeRowByIndex reach the last record shown", async () => {
+    const { question, source } = await setUp("matrix");
+    expect(question.rowCount, "#1: the count is the total").toBe(10);
+    expect(question.pageCount, "#2").toBe(2);
+    const shown = shownA(question);
+    const last = shown.length - 1;
+    expect(5 + last >= question.rowCount, "#3: the window ends past the total").toBe(true);
+    expect(question.getRowValue(5 + last).a, "#4").toBe(shown[last]);
+    expect(question.getQuestionFromArray("a", 5 + last).value, "#5").toBe(shown[last]);
+    expect(question.getRowValue(6 + last), "#6: past the window").toBeNull();
+    const removes = (source.removes || []).length;
+    question.removeRowByIndex(6 + last);
+    await flush();
+    expect(source.removes.length, "#7: a number past the shown extent is rejected").toBe(removes);
+    question.removeRow(5 + last, false);
+    await flush();
+    expect(source.removes.length, "#8: removeRow reaches it").toBe(removes + 1);
+  });
+  test("matrix: removeRowByIndex reaches the last record shown", async () => {
+    const { question, source } = await setUp("matrix");
+    const last = shownA(question).length - 1;
+    const removes = source.removes.length;
+    question.removeRowByIndex(5 + last);
+    await flush();
+    expect(source.removes.length, "#1").toBe(removes + 1);
+  });
+  test("panel: getQuestionFromArray, currentIndex and removePanel reach the last record shown", async () => {
+    const { question, source } = await setUp("panel");
+    expect(question.panelCount, "#1: the count is the total").toBe(10);
+    expect(question.visiblePanelCount, "#2").toBe(10);
+    const shown = shownA(question);
+    const last = shown.length - 1;
+    expect(5 + last >= question.panelCount, "#3").toBe(true);
+    expect(question.getQuestionFromArray("a", 5 + last).value, "#4").toBe(shown[last]);
+    question.currentIndex = 5 + last;
+    expect(question.currentIndex, "#5").toBe(5 + last);
+    expect(question.currentPanel.getQuestionByName("a").value, "#6").toBe(shown[last]);
+    question.currentIndex = 99;
+    expect(question.currentIndex, "#7: clamped to the last record shown").toBe(5 + last);
+    const removes = source.removes.length;
+    question.removePanel(6 + last);
+    await flush();
+    expect(source.removes.length, "#8: past the shown extent").toBe(removes);
+    question.removePanel(5 + last);
+    await flush();
+    expect(source.removes.length, "#9").toBe(removes + 1);
+  });
+  test("matrix: a page of five that keeps an added record shows six rows, and the numbers name them where they are shown", async () => {
+    const source: any = new PagedSource(records(12, (i: number) => ({ id: i, a: "r" + i })));
+    // Stores a new record at the end, a later page than the one it was added on.
+    source.insert = (record: any): Promise<any> => {
+      const stored = Object.assign({ id: 500 }, record);
+      source.data.push(stored);
+      return Promise.resolve(Object.assign({}, stored));
+    };
+    const question = createMatrix({ rowsPerPage: 5, defaultRowValue: { a: "new" }, columns: [{ name: "a", cellType: "text" }] });
+    question.visibleRows;
+    question.dataSource = source;
+    await flush();
+    question.addRow();
+    await flush();
+    question.removeRow(0, false);
+    await flush();
+    question.removeRow(0, false);
+    await flush();
+    expect(shownA(question), "#1: six rows, the kept record where it was").toEqual(["r2", "r3", "r4", "new", "r5", "r6"]);
+    expect(question.getRowValue(3).a, "#2").toBe("new");
+    expect(question.getQuestionFromArray("a", 3).value, "#3").toBe("new");
+    expect(question.getRowValue(5).a, "#4").toBe("r6");
+    question.removeRowByIndex(3);
+    await flush();
+    expect(source.removes[source.removes.length - 1], "#5: the kept record is removed by its number").toBe(500);
   });
 });

@@ -643,24 +643,24 @@ describe("Remote data source: adding and removing", () => {
     expect(question.panelCount, "#2").toBe(19);
     expect(panelValues(question), "#3").toEqual(["v5", "v6", "v8", "v9"]);
   });
-  test("matrix: addRowByIndex inserts inside the window with one insert", async () => {
+  test("matrix: addRowByIndex at a number of the whole view inserts inside the window with one insert", async () => {
     const source = new FakeServerSource(serverRecords(20));
     const { question } = await createMatrix(source);
     question.goToPage(1);
     await flush();
     source.reset();
-    question.addRowByIndex({ col1: "inserted" }, 2);
+    question.addRowByIndex({ col1: "inserted" }, 7);
     expect(source.argsOf("insert")[0], "#1").toEqual([{ col1: "inserted" }, 7]);
     expect(source.callsOf("move").length, "#2: no move").toBe(0);
     expect(rowValues(question), "#3").toEqual(["v5", "v6", "inserted", "v7", "v8", "v9"]);
   });
-  test("matrix: moveRowByIndex pushes move with the record key and an absolute target position", async () => {
+  test("matrix: moveRowByIndex takes numbers of the whole view and pushes move with the record key and an absolute target position", async () => {
     const source = new FakeServerSource(serverRecords(20));
     const { question } = await createMatrix(source);
     question.goToPage(1);
     await flush();
     source.reset();
-    question.moveRowByIndex(0, 2);
+    question.moveRowByIndex(5, 7);
     expect(source.argsOf("move")[0], "#1").toEqual([5, 7]);
     expect(rowValues(question), "#2").toEqual(["v6", "v7", "v5", "v8", "v9"]);
   });
@@ -676,7 +676,7 @@ describe("Remote data source: adding and removing", () => {
     const rows = question.visibleRows.slice();
     expect(rowValues(question), "#1").toEqual(["v5", "v6", "v7", "v8", "v9"]);
     source.reset();
-    question.moveRowByIndex(0, 2);
+    question.moveRowByIndex(5, 7);
     expect(rowValues(question), "#2: at once, before the source answers").toEqual(["v6", "v7", "v5", "v8", "v9"]);
     expect(rowValues(question, "col2"), "#3: every cell of the row").toEqual([6, 7, 5, 8, 9]);
     expect(question.visibleRows.every((row, i) => row === rows[i]), "#4: the same row objects").toBe(true);
@@ -696,7 +696,7 @@ describe("Remote data source: adding and removing", () => {
     const rows = question.visibleRows.slice();
     expect(rowValues(question), "#1").toEqual(["v3", "v4", "v5"]);
     source.reset();
-    question.moveRowByIndex(0, 2);
+    question.moveRowByIndex(3, 5);
     await flush();
     expect(source.argsOf("move"), "#2").toEqual([[3, 5]]);
     expect(rowValues(question), "#3").toEqual(["v4", "v5", "v3"]);
@@ -2599,13 +2599,13 @@ describe("Remote data source: a keyed source addresses records by key", () => {
     expect(source.argsOf("remove")[0], "#1").toEqual([107]);
     expect(recordWithKey(source, 107), "#2").toBe(undefined);
   });
-  test("matrix: a drag reorder carries the key and a target position", async () => {
+  test("matrix: a reorder by numbers of the whole view carries the key and a target position", async () => {
     const source = keyedSource(20);
     const { question } = await createMatrix(source);
     question.goToPage(1);
     await flush();
     source.reset();
-    question.moveRowByIndex(0, 2);
+    question.moveRowByIndex(5, 7);
     await flush();
     expect(source.argsOf("move")[0], "#1: the id that moved, and where to").toEqual([105, 7]);
     expect(source.records.slice(5, 10).map((r: any): any => r.id), "#2").toEqual([106, 107, 105, 108, 109]);
@@ -3501,7 +3501,7 @@ describe("Remote data source: removeRowByIndex on a page the list cuts", () => {
     expect(rowValues(moved.question), "#5: one row on the last page").toEqual(["v10"]);
     let cells = 0;
     moved.survey.onMatrixCellCreated.add((): void => { cells++; });
-    moved.question.removeRowByIndex(0);
+    moved.question.removeRowByIndex(10);
     await flush();
     expect(moved.question.pageIndex, "#6: the page moved back").toBe(1);
     expect(rowValues(moved.question), "#7").toEqual(["v5", "v6", "v7", "v8", "v9"]);
@@ -4523,14 +4523,14 @@ describe("Remote data source: a move under a view the source runs is refused", (
     expect(source.argsOf("move"), "#2: the record of row 1 is at 2 in the whole source").toEqual([[0, 2]]);
     expect(errors, "#3").toEqual([]);
   });
-  test("with paging and no view a move on page 2 sends offset + index", async () => {
+  test("with paging and no view a move on page 2 sends the positions of the whole view", async () => {
     const source = new FakeServerSource(groupedRecords(12));
     const { question } = await create(source);
     question.goToPage(1);
     await flush();
     expect(question.isRowsDragAndDrop, "#1").toBe(true);
     source.reset();
-    question.moveRowByIndex(0, 1);
+    question.moveRowByIndex(5, 6);
     await flush();
     expect(source.argsOf("move"), "#2").toEqual([[5, 6]]);
   });
@@ -5244,5 +5244,69 @@ describe("Remote data source: an operation the source cannot take is refused and
         ConsoleWarnings.warn = oldWarn;
       }
     });
+  });
+});
+
+/* A source that pages itself holds one window: a number of the whole view inside it acts on its
+   record, a number outside it reads null and a write to it is refused and reported - it never acts on
+   the record the window holds at that position. */
+describe("Remote data source: a number names the same record in every method", () => {
+  const setUp = async (keyField?: string | null): Promise<{ survey: SurveyModel, question: QuestionMatrixDynamicModel, source: FakeServerSource, errors: Array<string> }> => {
+    const source = new FakeServerSource(serverRecords(12), undefined, keyField);
+    const { survey, question } = await createMatrix(source);
+    question.goToPage(1);
+    await flush();
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
+    source.reset();
+    return { survey: survey, question: question, source: source, errors: errors };
+  };
+  test("matrix, page 1: a number inside the window names its record", async () => {
+    const { question, source, errors } = await setUp();
+    expect(question.getRowValue(6), "#1: the stored record, id included").toEqual({ id: 6, col1: "v6", col2: 6 });
+    expect(question.getItemData(question.visibleRows[1]), "#2").toEqual({ id: 6, col1: "v6", col2: 6 });
+    expect(question.getQuestionFromArray("col1", 6).value, "#3").toBe("v6");
+    question.setRowValue(7, { col1: "X", col2: 7 });
+    await flush();
+    expect(source.argsOf("update").map(args => args[0]), "#4: the record of number 7").toEqual([7]);
+    question.removeRowByIndex(8);
+    await flush();
+    expect(source.argsOf("remove"), "#5").toEqual([[8]]);
+    expect(errors, "#6").toEqual([]);
+  });
+  test("matrix, page 1: a number outside the window reads null and refuses a write once, with nothing sent", async () => {
+    const { question, source, errors } = await setUp();
+    expect(question.getRowValue(0), "#1").toBeNull();
+    expect(question.getQuestionFromArray("col1", 0), "#2").toBeNull();
+    expect(errors, "#3: a read is not reported").toEqual([]);
+    question.setRowValue(0, { col1: "X" });
+    question.moveRowByIndex(0, 6);
+    question.moveRowByIndex(6, 11);
+    question.addRowByIndex({ col1: "N" }, 0);
+    question.removeRowByIndex(0);
+    await flush();
+    expect(errors, "#4").toEqual(["update", "move", "move", "insert", "remove"]);
+    expect(source.calls.length, "#5: no source call").toBe(0);
+    expect(rowValues(question), "#6: the window is as it was").toEqual(["v5", "v6", "v7", "v8", "v9"]);
+  });
+  test("matrix, page 1: a source without keyField refuses every write first, once", async () => {
+    const { question, source, errors } = await setUp(null);
+    question.setRowValue(0, { col1: "X" });
+    question.setRowValue(6, { col1: "X" });
+    question.moveRowByIndex(5, 6);
+    question.addRowByIndex({ col1: "N" }, 6);
+    question.removeRowByIndex(6);
+    await flush();
+    expect(errors, "#1").toEqual(["update", "update", "move", "insert", "remove"]);
+    expect(source.calls.length, "#2").toBe(0);
+    expect(rowValues(question), "#3").toEqual(["v5", "v6", "v7", "v8", "v9"]);
+  });
+  test("panel, page 1: getQuestionFromArray takes a created position of the whole view", async () => {
+    const source = new FakeServerSource(serverRecords(12));
+    const { question } = await createPanel(source);
+    question.goToPage(1);
+    await flush();
+    expect(question.getQuestionFromArray("col1", 6).value, "#1").toBe("v6");
+    expect(question.getQuestionFromArray("col1", 1), "#2").toBeNull();
   });
 });

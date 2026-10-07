@@ -821,6 +821,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * @see template
    * @see panelCount
    */
+  // The panels that exist: under paging the page, and a number of the whole view is not a position in it.
   public get panels(): Array<PanelModel> {
     this.buildPanelsFirstTime(this.canBuildPanels);
     return this.panelsCore;
@@ -829,6 +830,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * An array of currently visible panels ([`PanelModel`](https://surveyjs.io/form-library/documentation/api-reference/panel-model) objects).
    * @see templateVisibleIf
    */
+  // The visible panels that exist: under paging the page.
   public get visiblePanels(): Array<PanelModel> {
     this.buildPanelsFirstTime(this.canBuildPanels);
     return this.visiblePanelsCore;
@@ -895,7 +897,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public set currentIndex(val: number) {
     if (val < 0 || this.visiblePanelCount < 1) return;
     if (this.isRenderModeList || this.useTemplatePanel) return;
-    if (val >= this.visiblePanelCount) val = this.visiblePanelCount - 1;
+    const end = this.getVisibleNumberEnd(this.visiblePanelCount);
+    if (val >= end) val = end - 1;
     this.cancelPendingPageMove();
     this.moveToVisibleIndex(val);
   }
@@ -2378,7 +2381,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     // visiblePanels and not the core array: the getter builds panels that were not built yet.
     const visPanels = this.visiblePanels;
     if (Helpers.isNumber(val) && this.isPagingActive) {
-      if (val < 0 || val >= this.visiblePanelCount) return undefined;
+      if (val < 0 || val >= this.getVisibleNumberEnd(this.visiblePanelCount)) return undefined;
       const target = this.getRecordTargetAtVisibleIndex(val);
       return !!target && !!target.item ? this.createPanelTarget((<QuestionPanelDynamicItem>target.item).panel) : target;
     }
@@ -2638,8 +2641,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.clearIncorrectValuesInPanel(i);
     }
   }
-  // index is a CREATED position - what it has always been for this method.
+  /* index is a CREATED position - what it has always been for this method; under paging a created
+     position of the whole view. A record without a panel on the page answers null: nothing is built and
+     the page stays (getQuestionFromRecord reaches the panel a record has). */
   public getQuestionFromArray(name: string, index: number): IQuestion {
+    if (this.isPagingActive) {
+      const target = this.getRecordTargetAtCreatedIndex(index);
+      return !!target && !!target.item ? (<QuestionPanelDynamicItem>target.item).panel.getQuestionByName(name) : null;
+    }
     if (index < 0 || index >= this.panelsCore.length) return null;
     return this.panelsCore[index].getQuestionByName(name);
   }
@@ -3371,6 +3380,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       oldValue: childQuestion.value
     };
   }
+  // The panel's position in panelsCore: under paging a position on the page.
   getItemIndex(item: ISurveyData): number {
     var res = this.items.indexOf(item);
     return res > -1 ? res : this.items.length;
@@ -3385,7 +3395,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   getItemData(item: ISurveyData): any {
     return this.getPanelItemDataByIndex(this.items.indexOf(item));
   }
-  /* index is a CREATED position, the counterpart of getItemIndex. It used to index visiblePanels,
+  /* index is a CREATED position (under paging, on the page), the counterpart of getItemIndex. It used to index visiblePanels,
      which disagreed with getItemIndex whenever a panel was hidden by templateVisibleIf - the pair is
      what a bound question was addressed through. */
   getItem(index: number): QuestionRecordItem {

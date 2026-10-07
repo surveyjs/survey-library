@@ -59,10 +59,11 @@ export interface IRecordItemWrite {
   isDeleting: boolean;
 }
 /* What a number, a panel or a row names: the record, its position in the whole view, its object when
-   it has one, and the record object a target without one is found again by. */
+   it has one, and the record object a target without one is found again by. A target a created
+   position names (getRecordTargetAtCreatedIndex) has no visibleIndex: nothing it is used for asks. */
 export interface IRecordTarget {
   recordIndex: number;
-  visibleIndex: number;
+  visibleIndex?: number;
   item?: QuestionRecordItem;
   record?: any;
   isNotLoaded?: boolean;
@@ -1192,11 +1193,76 @@ export abstract class QuestionRecordsModel extends Question {
      (getListRecordAt), to be found again later. Range checks against the question's count stay with
      the caller. */
   protected getRecordTargetAtVisibleIndex(visibleIndex: number): IRecordTarget {
-    const recordIndex = this.getRecordIndexAtVisibleIndex(visibleIndex);
+    return this.createRecordTarget(this.getRecordIndexAtVisibleIndex(visibleIndex), visibleIndex);
+  }
+  /* The created-position counterpart, for the numbers that count the owner-hidden records too
+     (getRowValue, moveRowByIndex, the panel's getQuestionFromArray, ...): under paging a position among
+     the created records of the whole view, also on another page. A number past the records shown
+     (globalCreatedExtent) names nothing: undefined. */
+  protected getRecordTargetAtCreatedIndex(createdIndex: number): IRecordTarget {
+    const list = this.dataList;
+    if (createdIndex < 0 || createdIndex >= list.globalCreatedExtent) return undefined;
+    return this.createRecordTarget(list.getIndexAtGlobalCreatedIndex(createdIndex));
+  }
+  private createRecordTarget(recordIndex: number, visibleIndex?: number): IRecordTarget {
     if (recordIndex < 0) return this.isRecordNotLoaded(recordIndex) ? { recordIndex: -1, visibleIndex: visibleIndex, isNotLoaded: true } : undefined;
     const item = this.getItemByRecordIndex(recordIndex);
     if (!!item) return { recordIndex: recordIndex, visibleIndex: visibleIndex, item: item };
     return { recordIndex: recordIndex, visibleIndex: visibleIndex, record: this.getListRecordAt(recordIndex) };
+  }
+  /* The bound of the visible positions a number may name: unpagedCount without paging; under paging
+     the visible records counted, or further where the window holds the records a source that pages
+     itself keeps on a page (globalVisibleExtent). The counts stay the source's. */
+  protected getVisibleNumberEnd(unpagedCount: number): number {
+    return this.isPagingActive ? this.dataList.globalVisibleExtent : unpagedCount;
+  }
+  /* The record a created position of the whole view names, for an operation on it: -1 when there is
+     none, and a record a source that pages itself has not loaded is refused and reported under the
+     operation. */
+  protected getRecordIndexForOperation(createdIndex: number, operation: DynamicDataOperation): number {
+    const target = this.getRecordTargetAtCreatedIndex(createdIndex);
+    if (!target) return -1;
+    if (target.isNotLoaded) {
+      this.reportRecordNotLoaded(operation);
+      return -1;
+    }
+    return target.recordIndex;
+  }
+  /* The two records a move between created positions of the whole view names, each end clamped to the
+     records shown, as the numbers of a move are clamped without paging. undefined: there is nothing to
+     move, or a source that pages itself has not loaded an end - the move is refused and reported once. */
+  protected getMoveTargetsAtCreatedIndexes(fromIndex: number, toIndex: number): { from: IRecordTarget, to: IRecordTarget } {
+    const last = this.dataList.globalCreatedExtent - 1;
+    if (last < 0) return undefined;
+    const from = this.getRecordTargetAtCreatedIndex(Math.max(0, Math.min(fromIndex, last)));
+    const to = this.getRecordTargetAtCreatedIndex(Math.max(0, Math.min(toIndex, last)));
+    if (!from || !to) return undefined;
+    if (from.isNotLoaded || to.isNotLoaded) {
+      this.reportRecordNotLoaded("move");
+      return undefined;
+    }
+    return { from: from, to: to };
+  }
+  /* A write by value of a record that has no object - a record on another page. It is an edit: a
+     source that cannot update refuses it first, and a record a source that pages itself has not loaded
+     is refused; both are reported. merge changes a copy of the stored record; nothing is written when
+     it changes nothing. Under in-memory paging the record is marked edited, as an inserted one is. */
+  protected writeRecordWithoutItem(target: IRecordTarget, merge: (record: any) => void): void {
+    if (this.refuseOperationOfSource("update")) return;
+    if (target.isNotLoaded) {
+      this.reportRecordNotLoaded("update");
+      return;
+    }
+    const index = target.recordIndex;
+    const list = this.dataList;
+    const oldRecord = list.getRecord(index);
+    const record = Object.assign({}, oldRecord);
+    merge(record);
+    if (!DynamicDataList.isValueChanged(record, oldRecord)) return;
+    if (this.isPagedByList) {
+      this.markRecordEdited(index);
+    }
+    this.writeRecords((): boolean => list.setRecord(index, record));
   }
   /* A target without an object, found again after the records or the view changed - a confirmation
      answers later - by its record object. undefined when a write replaced the object or the record

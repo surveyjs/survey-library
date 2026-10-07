@@ -41,6 +41,7 @@ export interface IMatrixDuplicationEntry {
    rows; the rows themselves type their matrix as QuestionMatrixDropdownModelBase. */
 export interface IMatrixDropdownData extends IObjectValueContext, ILocalizableOwner {
   getSurvey(): ISurvey;
+  // getItem and getItemIndex: positions among the rows that exist - under paging, the page.
   getItem(index: number): QuestionRecordItem;
   getItemData(item: ISurveyData): any;
   getItemIndex(item: ISurveyData): number;
@@ -1161,6 +1162,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    * Returns an array of visible matrix rows.
    * @see rowsVisibleIf
    */
+  // The rows that exist: under paging the page, and a number of the whole view is not a position in it.
   public get visibleRows(): Array<MatrixDropdownRowModelBase> {
     return this.getVisibleRows();
   }
@@ -1911,7 +1913,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (!Array.isArray(this.visibleRows)) return;
     const rows = this.generatedVisibleRows;
     for (let i = 0; i < rows.length; i++) {
-      rows[i].clearIncorrectValues(this.getRowValue(i));
+      rows[i].clearIncorrectValues(this.getRowRecordValue(i));
     }
   }
   public localeChanged(): void {
@@ -2326,7 +2328,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     const changedRows: Array<MatrixDropdownRowModelBase> = [];
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
-      if (!row.editingObj && this.isRecordChangedByRow(row, this.getRowValue(i))) {
+      if (!row.editingObj && this.isRecordChangedByRow(row, this.getRowRecordValue(i))) {
         changedRows.push(row);
       }
     }
@@ -2395,14 +2397,18 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    * @param rowIndex A zero-based row index.
    * @see setRowValue
    */
-  // rowIndex is a CREATED position: the position in allRows/generatedVisibleRows.
+  /* rowIndex is a CREATED position: the position in allRows/generatedVisibleRows; under paging a
+     created position of the whole view (owner-hidden records included), and the stored record is
+     read on the page and off it. A record a source that pages itself has not loaded reads null. */
   public getRowValue(rowIndex: number): any {
     if (rowIndex < 0 || !Array.isArray(this.visibleRows)) return null;
+    if (this.isPagingActive) {
+      const target = this.getRecordTargetAtCreatedIndex(rowIndex);
+      return !target || target.isNotLoaded ? null : this.getStoredRecordValue(target.recordIndex);
+    }
     var rows = this.generatedVisibleRows;
     if (rowIndex >= rows.length) return null;
-    const rowVal = this.getRowValueByIndexCore(rowIndex);
-    if (this.isValueSurveyElement(this.value)) return rowVal;
-    return Helpers.getUnbindValue(rowVal);
+    return this.unbindRowValue(this.getRowValueByIndexCore(rowIndex));
   }
   /* The seam for the record storage: matrix dynamic reads the record from its DynamicDataList,
      matrix dropdown keeps reading the object keyed by rowName. The unbinding and the range checks
@@ -2410,8 +2416,24 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected getRowValueByIndexCore(index: number): any {
     return this.getRowValueCore(this.generatedVisibleRows[index], this.value);
   }
+  // A copy, unless the value is a survey element edited in place (Creator): then it is the record itself.
+  private unbindRowValue(rowValue: any): any {
+    if (this.isValueSurveyElement(this.value)) return rowValue;
+    return Helpers.getUnbindValue(rowValue);
+  }
+  /* The record as it is stored - never row.value, which assembles the cells and the detail questions
+     only and would drop the fields without one (a key, server-only fields) - unbound as getRowValue
+     returns it. null for no record. */
+  private getStoredRecordValue(recordIndex: number): any {
+    const record = recordIndex < 0 ? undefined : this.getListRecordAt(recordIndex);
+    return this.unbindRowValue(record !== undefined ? record : null);
+  }
+  // The record of the row at a position in generatedVisibleRows: the row's own, without looking it up.
+  private getRowRecordValue(position: number): any {
+    return this.getStoredRecordValue(this.getRecordIndexAtRowPosition(position));
+  }
   public getItemData(item: ISurveyData): any {
-    return this.getRowValue(this.getItemIndex(item));
+    return this.getStoredRecordValue(this.getRecordIndexOf(item));
   }
   public checkIfValueInRowDuplicated(
     checkedRow: MatrixDropdownRowModelBase,
@@ -2426,13 +2448,30 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    * @param rowValue An object with the following structure: `{ "column_name": columnValue, ... }`
    * @see getRowValue
    */
-  // rowIndex is a VISIBLE position: the position in visibleRows.
+  /* rowIndex is a VISIBLE position: the position in visibleRows; under paging a visible position of
+     the whole view. A record without a row - on another page - is written by value: the record that
+     assigning rowValue to a row of it would write (mergeRecordFields over the questions of the
+     columns), with no cell event (writeRecordWithoutItem). */
   public setRowValue(rowIndex: number, rowValue: any): any {
     if (rowIndex < 0) return null;
     var visRows = this.visibleRows;
-    if (rowIndex >= visRows.length) return null;
-    visRows[rowIndex].value = rowValue;
-    this.updateItemValue(visRows[rowIndex], "", rowValue, false);
+    if (rowIndex >= this.getVisibleNumberEnd(visRows.length)) return null;
+    if (!this.isPagingActive) {
+      this.setRowValueCore(visRows[rowIndex], rowValue);
+      return;
+    }
+    const target = this.getRecordTargetAtVisibleIndex(rowIndex);
+    if (!target) return null;
+    if (!!target.item) {
+      this.setRowValueCore(<MatrixDropdownRowModelBase>target.item, rowValue);
+      return;
+    }
+    const questions = this.columns.map(column => column.templateQuestion).filter(question => !!question);
+    this.writeRecordWithoutItem(target, (record: any): void => { this.mergeRecordFields(record, questions, rowValue); });
+  }
+  private setRowValueCore(row: MatrixDropdownRowModelBase, rowValue: any): void {
+    row.value = rowValue;
+    this.updateItemValue(row, "", rowValue, false);
   }
   protected generateRows(): Array<MatrixDropdownRowModelBase> {
     return null;
@@ -2978,10 +3017,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected createDuplicationRecordReader(): (index: number) => any {
     return (index: number): any => this.getListRecordAt(index);
   }
-  protected getDuplicationValue(row: MatrixDropdownRowModelBase, createdIndex: number, columnName: string): any {
+  /* position: the row's position in generatedVisibleRows, which both callers have. The row's own record
+     is read by it: looking the row up would scan the rows for every row. */
+  protected getDuplicationValue(row: MatrixDropdownRowModelBase, position: number, columnName: string): any {
     const question = !!row ? row.getQuestionByName(columnName) : undefined;
     if (!!question) return question.value;
-    const rowVal = this.getRowValue(createdIndex);
+    const rowVal = this.getRowRecordValue(position);
     return !!rowVal ? rowVal[columnName] : undefined;
   }
   private getDuplicatedRows(columnName: string): Array<MatrixDropdownRowModelBase> {
@@ -3310,7 +3351,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (isDeletingValue) {
       delete rowValue[columnName];
     }
-    row.questions.forEach(q => {
+    this.mergeRecordFields(rowValue, row.questions, newRowValue);
+  }
+  // The fields of the questions give way to the non-empty values of newRowValue; the other fields stay.
+  private mergeRecordFields(rowValue: any, questions: Array<Question>, newRowValue: any): void {
+    questions.forEach(q => {
       delete rowValue[q.getValueName()];
     });
     if (newRowValue) {
@@ -3333,6 +3378,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return { value: newValue, rowValue: rowValue };
   }
   protected correctValueForMinMaxRows(newValue: any): any { return newValue; }
+  // The row's position in generatedVisibleRows: under paging a position on the page.
   getItemIndex(item: ISurveyData): number {
     if (!Array.isArray(this.generatedVisibleRows)) return -1;
     return this.generatedVisibleRows.indexOf(<any>item);
@@ -3342,7 +3388,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
      record the row at that position holds. Without a list the rows are built for every record in
      record order, so the position is the record index; nothing is created for it. */
   protected getRecordIndexOf(item: ISurveyData): number {
-    const position = this.getItemIndex(item);
+    return this.getRecordIndexAtRowPosition(this.getItemIndex(item));
+  }
+  // The record the row at a position in generatedVisibleRows holds; -1 for no position.
+  private getRecordIndexAtRowPosition(position: number): number {
     if (position < 0) return -1;
     const list = this.dataListValue;
     return !!list ? list.materializedIndexToIndex(position) : position;
@@ -3496,7 +3545,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       )
     );
   }
-  // index is a CREATED position.
+  // index is a CREATED position among the rows that exist: under paging a position on the page.
   getItem(index: number): QuestionRecordItem {
     if (index < 0 || !this.generatedVisibleRows || index >= this.generatedVisibleRows.length) return null;
     return this.generatedVisibleRows[index];
@@ -3607,10 +3656,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     const list = this.dataListValue;
     return this.isPagedByList && list.getVisibleIndexes().length !== list.getCreatedIndexes().length;
   }
-  // index is a VISIBLE position - what it has always been for this method.
+  /* index is a VISIBLE position - what it has always been for this method; under paging a visible
+     position of the whole view. A record without a row on the page answers null: nothing is built and
+     the page stays (getQuestionFromRecord reaches the row a record has). */
   public getQuestionFromArray(name: string, index: number): IQuestion {
-    if (index >= this.visibleRows.length) return null;
-    return this.visibleRows[index].getQuestionByName(name);
+    const rows = this.visibleRows;
+    if (this.isPagingActive) {
+      const recordIndex = this.getRecordIndexAtVisibleIndex(index);
+      return recordIndex < 0 ? null : this.getQuestionFromRecord(name, recordIndex);
+    }
+    if (index >= rows.length) return null;
+    return rows[index].getQuestionByName(name);
   }
   // The record-index counterpart of getQuestionFromArray: the object the record has, whatever
   // position it took.

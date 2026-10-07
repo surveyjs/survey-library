@@ -268,14 +268,27 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const val = this.value;
     return !Array.isArray(val) || val.length < this.rowCount;
   }
-  // Takes a created position - what every public index argument of the reordering methods is - and
-  // returns the record it addresses.
+  /* Without paging: takes a created position - what every public index argument of the reordering
+     methods is - clamped to the rows, and returns the record it addresses. Under paging the numbers
+     name records of the whole view (getRecordTargetAtCreatedIndex). */
   private getRecordIndex(index: number): number {
     const list = this.dataList;
     if (!this.hasDataListView) return Math.max(0, Math.min(index, list.count - 1));
-    const created = list.getMaterializedIndexes();
+    const created = list.getCreatedIndexes();
     if (created.length === 0) return -1;
     return created[Math.max(0, Math.min(index, created.length - 1))];
+  }
+  /* Under paging every number of the reordering methods is a created position of the whole view. The
+     list is created first: it is what turns the paging on. A live-object value (Creator) never pages. */
+  private get isNumberedByView(): boolean {
+    return !this.isEditingObjectValue && !!this.dataList && this.isPagingActive;
+  }
+  // For the row drag: a row's created position over the whole view - without paging its position in
+  // generatedVisibleRows; -1 for a row that is not this matrix's.
+  public getRowViewIndex(row: MatrixDropdownRowModelBase): number {
+    const position = this.getItemIndex(row);
+    if (position < 0 || !this.isPagingActive) return position;
+    return this.getRecordViewIndex(this.getRecordIndexOf(row));
   }
   public dragDropMatrixRows: DragDropMatrixRows;
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
@@ -382,11 +395,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected setDefaultValue() {
     if (!this.setDefaultRecordValues(this.defaultRowValue, this.rowCount)) super.setDefaultValue();
   }
+  /* Both numbers are created positions; under paging of the whole view, clamped to the records shown as
+     without paging, and the records move whether or not they have a row. */
   public moveRowByIndex(fromIndex: number, toIndex: number):void {
     if (this.refuseOperationOfSource("move")) return;
     // Refused before anything changes: the list cannot name a position in the whole source.
     if (this.isRemoteData && !this.dataList.canMoveInSource) {
       this.reportOperationRefused("move", "The data source filtered or sorted the loaded page, so the position in the whole source is not known");
+      return;
+    }
+    if (this.isNumberedByView) {
+      this.moveRecordByViewIndex(fromIndex, toIndex);
+      this.draggedRow = null;
       return;
     }
     const maxIndex = Math.max(fromIndex, toIndex);
@@ -419,24 +439,42 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.draggedRow = null;
   }
+  /* The paged half of moveRowByIndex (getMoveTargetsAtCreatedIndexes names the records). The rows
+     that exist stay where they are and take the reordered records (followRecordMove); the detail panel
+     state of two rows that both exist is swapped with them. */
+  private moveRecordByViewIndex(fromIndex: number, toIndex: number): void {
+    const targets = this.getMoveTargetsAtCreatedIndexes(fromIndex, toIndex);
+    if (!targets) return;
+    const from = targets.from;
+    const to = targets.to;
+    const rowFrom = <MatrixDropdownRowModelBase>from.item;
+    const rowTo = <MatrixDropdownRowModelBase>to.item;
+    if (!!rowFrom && !!rowTo && this.getIsDetailPanelShowing(rowFrom) !== this.getIsDetailPanelShowing(rowTo)) {
+      const isRowToShowing = this.getIsDetailPanelShowing(rowTo);
+      this.setIsDetailPanelShowing(rowTo, this.getIsDetailPanelShowing(rowFrom));
+      this.setIsDetailPanelShowing(rowFrom, isRowToShowing);
+    }
+    this.dataList.move(from.recordIndex, to.recordIndex);
+  }
+  /* In front of the record at created position toIndex, at or past the last one an append. Under paging
+     the position is one of the whole view and the page of the new record is shown; a source that pages
+     itself refuses a position its window does not hold, and reports it. */
   public addRowByIndex(rowData: any, toIndex: number):void {
     if (this.refuseOperationOfSource("insert")) return;
     if (this.isRemoteData) {
       // One source.insert at the position the caller named; no count setter and no move.
       const list = this.dataList;
-      let at: number;
-      if (this.isPagedByList) {
-        /* toIndex is a row position on the page; past the last row of the page it is the first
-           record of the next page - the rule the dynamic panel's add follows - and past the last
-           visible record, the end of the storage. */
-        const pageLength = list.getMaterializedIndexes().length;
-        at = list.getInsertIndexAtVisibleIndex(this.pageStartVisibleIndex + Math.max(0, Math.min(toIndex, pageLength)));
-      } else {
-        // A position among the rows of the window.
-        at = list.getInsertIndexAtMaterializedPosition(toIndex);
+      const at = this.isPagingActive ? list.getInsertIndexAtCreatedIndex(toIndex) : list.getInsertIndexAtMaterializedPosition(toIndex);
+      if (at < 0) {
+        this.reportRecordNotLoaded("insert");
+        return;
       }
       this.followInsertedRecord(this.runRecordAdd((): number => list.add(rowData, at)), false);
       this.onRowsChanged();
+      return;
+    }
+    if (this.isNumberedByView) {
+      this.addRecordByViewIndex(rowData, toIndex);
       return;
     }
     if (this.isEditingObjectValue) {
@@ -458,11 +496,28 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       list.setRecord(index, rowData);
     });
   }
+  /* The local paged half of addRowByIndex: the record it goes in front of is taken before the add, by
+     the insert rule of the remote path (getInsertIndexAtCreatedIndex); loadedCount is an append. */
+  private addRecordByViewIndex(rowData: any, toIndex: number): void {
+    const list = this.dataList;
+    const oldCount = list.loadedCount;
+    const before = list.getInsertIndexAtCreatedIndex(toIndex);
+    this.runRecordAdd((): void => { this.rowCount++; });
+    if (list.loadedCount === oldCount) return;
+    const index = before < oldCount ? before : list.loadedCount - 1;
+    list.batch((): void => {
+      list.move(list.count - 1, index);
+      list.setRecord(index, rowData);
+    });
+    this.showPageOfRecord(index);
+  }
+  /* A created position; under paging of the whole view, and a record on another page is removed too.
+     A source that pages itself refuses a record it has not loaded, and reports it. */
   public removeRowByIndex(fromIndex: number):void {
     if (this.refuseOperationOfSource("remove")) return;
     if (this.isRemoteData) {
       const list = this.dataList;
-      const index = this.getRecordIndex(fromIndex);
+      const index = this.isPagingActive ? this.getRecordIndexForOperation(fromIndex, "remove") : this.getRecordIndex(fromIndex);
       if (index < 0) return;
       const position = list.indexToMaterializedIndex(index);
       const rows = this.generatedVisibleRows;
@@ -482,8 +537,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       return;
     }
     const list = this.dataList;
-    if (fromIndex < 0 || fromIndex >= list.count) return;
-    const index = this.getRecordIndex(fromIndex);
+    if (!this.isPagingActive && (fromIndex < 0 || fromIndex >= list.count)) return;
+    const index = this.isPagingActive ? this.getRecordIndexForOperation(fromIndex, "remove") : this.getRecordIndex(fromIndex);
     if (index < 0) return;
     /* The record moves to the end and rowCount-- removes it there: the row objects are spliced
        instead of being re-created, exactly as they are when a row is removed by the UI. Both steps
@@ -1095,7 +1150,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public isRequireConfirmOnRowDelete(index: number): boolean {
     if (!this.confirmDelete) return false;
-    if (index < 0 || index >= this.rowCount) return false;
+    if (index < 0 || index >= this.getVisibleNumberEnd(this.rowCount)) return false;
     // A view or a page: the number is a position among the visible records of the whole view.
     if (this.hasDataListView) {
       const target = this.resolveRowTarget(index);
@@ -1143,7 +1198,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public removeRow(index: number, confirmDelete?: boolean, onRowRemoved?: () => void): void {
     if (this.refuseOperationOfSource("remove")) return;
     if (!this.canRemoveRows) return;
-    if (index < 0 || index >= this.rowCount) return;
+    if (index < 0 || index >= this.getVisibleNumberEnd(this.rowCount)) return;
     const target = this.resolveRowTarget(index);
     if (!target) return;
     if (target.isNotLoaded) {

@@ -2626,9 +2626,11 @@ describe("Remote data source: a keyed source addresses records by key", () => {
       expect(recordWithKey(source, 110).col1, "#3: the record that moved in front is untouched")
         .toBe("v110");
     });
-  test("keyName is not the key: a source without keyField is read-only, whatever keyName says", async () => {
+  test("keyName is not the key: a source without keyField is read-only, whatever keyName says, and an edit from code is refused", async () => {
     const source = new FakeServerSource(serverRecords(20, 100), undefined, null);
-    const { question } = await createMatrix(source, { keyName: "col1" });
+    const { survey, question } = await createMatrix(source, { keyName: "col1" });
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation); });
     question.goToPage(1);
     await flush();
     source.reset();
@@ -2636,9 +2638,12 @@ describe("Remote data source: a keyed source addresses records by key", () => {
     expect(question.visibleRows[0].getQuestionByName("col1").isReadOnly, "#2: the cells are read-only").toBe(true);
     expect(question.canAddRow, "#3: no add").toBe(false);
     expect(question.canRemoveRows, "#4: no remove").toBe(false);
+    const before = question.visibleRows[0].getQuestionByName("col1").value;
     question.visibleRows[0].getQuestionByName("col1").value = "edited";
     await flush();
     expect(source.argsOf("update"), "#5: an edit made from code is not sent").toEqual([]);
+    expect(errors, "#6: it is refused and reported").toEqual(["update"]);
+    expect(question.visibleRows[0].getQuestionByName("col1").value, "#7: the cell shows the stored value").toBe(before);
   });
 });
 
@@ -4266,6 +4271,61 @@ describe("Remote data source: an outside assignment of the value is not made", (
    is reported through onDynamicDataError and does not throw. A cell or panel edit keeps the local
    change; an add, remove or move puts the rows and panels back to the stored records, since such a
    source is addressed by storage index. */
+/* A question with an assigned data source asks the source for each operation it makes: an add needs
+   insert, a remove needs remove, a move needs move and an edit needs update. A source without one
+   refuses the operation before anything changes, on every path, from code and from the UI, and the
+   refusal is reported once. The sources below answer synchronously. */
+class CapabilitySource implements IDynamicDataSource {
+  public calls: Array<string> = [];
+  public keyField: string;
+  public capabilities = { paging: true, filtering: true, sorting: true };
+  public insert?: (record: any, sourceIndex: number) => any;
+  public update?: (key: any, record: any, changedFields: Array<string>) => void;
+  public remove?: (key: any) => void;
+  public move?: (key: any, toSourceIndex: number) => void;
+  private nextKey: number = 1000;
+  // keyed false: no keyField, read-only whatever the methods say.
+  constructor(public records: Array<any>, methods: Array<string> = ["insert", "update", "remove", "move"], keyed: boolean = true) {
+    this.keyField = keyed ? "id" : undefined;
+    const has = (name: string): boolean => methods.indexOf(name) > -1;
+    const indexOfKey = (key: any): number => this.records.map((r: any) => r.id).indexOf(key);
+    if (has("insert")) {
+      this.insert = (record: any, sourceIndex: number): any => {
+        this.calls.push("insert@" + sourceIndex);
+        const stored = Object.assign({}, record, { id: this.nextKey++ });
+        this.records.splice(sourceIndex, 0, stored);
+        return Object.assign({}, stored);
+      };
+    }
+    if (has("update")) {
+      this.update = (key: any, record: any, changedFields: Array<string>): void => {
+        this.calls.push("update:" + key + ":" + changedFields.join(","));
+        const at = indexOfKey(key);
+        if (at > -1)this.records[at] = Object.assign({}, record);
+      };
+    }
+    if (has("remove")) {
+      this.remove = (key: any): void => {
+        this.calls.push("remove:" + key);
+        const at = indexOfKey(key);
+        if (at > -1)this.records.splice(at, 1);
+      };
+    }
+    if (has("move")) {
+      this.move = (key: any, to: number): void => {
+        this.calls.push("move:" + key + ">" + to);
+        const at = indexOfKey(key);
+        if (at < 0) return;
+        const record = this.records.splice(at, 1)[0];
+        this.records.splice(to, 0, record);
+      };
+    }
+  }
+  public read(request: IDynamicDataReadRequest): IDynamicDataReadResult {
+    const take = request.take > 0 ? request.take : this.records.length;
+    return { records: this.records.slice(request.skip, request.skip + take).map((r: any) => Object.assign({}, r)), total: this.records.length };
+  }
+}
 describe("Remote data source: a failed write to an assigned in-memory source is reported", () => {
   function createFailing(): { source: ArrayDynamicDataSource, get: () => Array<any>, failures: { count: number } } {
     let arr: Array<any> = [{ col1: "A" }, { col1: "B" }, { col1: "C" }];
@@ -4322,6 +4382,60 @@ describe("Remote data source: a failed write to an assigned in-memory source is 
         objects[1].getQuestionByName("col1").value = "B-edited";
         expect(col1(failing.get()), "#5").toEqual(["A", "B-edited", "C"]);
       });
+    });
+  });
+  /* A refusal is not a failure: a write the source cannot take is refused before it is attempted and
+     changes nothing, a write the source can take is attempted, and when it fails the window follows the
+     failure rules. */
+  ["matrix", "panel"].forEach((kind: string): void => {
+    test(kind + ": an add or a remove the source cannot take is refused; one that fails was attempted, and the window goes back to the storage", async () => {
+      const operations = kind === "matrix" ? ["insert", "remove", "move"] : ["insert", "remove"];
+      const runs: { [operation: string]: (question: any) => void } = kind === "matrix" ?
+        { insert: (q: any) => { q.addRow(); }, remove: (q: any) => { q.removeRow(0); }, move: (q: any) => { q.moveRowByIndex(0, 2); } } :
+        { insert: (q: any) => { q.addPanel(); }, remove: (q: any) => { q.removePanel(0); } };
+      for (const operation of operations) {
+        const failed = await create(kind);
+        failed.failing.failures.count = 1;
+        runs[operation](failed.question);
+        expect(failed.errors, operation + ": attempted, reported as a failure").toEqual([operation + ":setter"]);
+        expect(shownCol1(failed.question), operation + ": the window goes back to the storage").toEqual(["A", "B", "C"]);
+
+        const others = ["insert", "update", "remove", "move"].filter((name: string): boolean => name !== operation);
+        const source = new CapabilitySource([0, 1, 2].map((i: number): any => ({ id: i, col1: "ABC"[i] })), others);
+        const survey = new SurveyModel({ elements: [ownedElement(kind, { rowsPerPage: 0, panelsPerPage: 0 })] });
+        const refused = <any>survey.getQuestionByName(kind);
+        refused.dataSource = source;
+        const errors: Array<string> = [];
+        survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
+        runs[operation](refused);
+        expect(source.calls, operation + ": not attempted").toEqual([]);
+        expect(errors, operation + ": reported as a refusal").toEqual([operation]);
+        expect(shownCol1(refused), operation + ": nothing changed").toEqual(["A", "B", "C"]);
+      }
+    });
+    test(kind + ": an edit the source cannot take is refused and put back; an update that fails was attempted and is kept", async () => {
+      const failing = new FakeServerSource(serverRecords(3, 0));
+      const { survey, question } = await createOwned(kind, [], {});
+      await attach(question, failing);
+      const errors: Array<string> = [];
+      survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
+      failing.auto = false;
+      editFirst(question, "col1", "edited");
+      failing.callsOf("update")[0].fail(new Error("server"));
+      await flush();
+      expect(errors, "#1: attempted, reported as a failure").toEqual(["update"]);
+      expect(shownCol1(question)[0], "#2: kept").toBe("edited");
+
+      const source = new CapabilitySource([0, 1, 2].map((i: number): any => ({ id: i, col1: "ABC"[i] })), ["insert", "remove", "move"]);
+      const refusedSurvey = new SurveyModel({ elements: [ownedElement(kind, { rowsPerPage: 0, panelsPerPage: 0 })] });
+      const refused = <any>refusedSurvey.getQuestionByName(kind);
+      refused.dataSource = source;
+      const refusals: Array<string> = [];
+      refusedSurvey.onDynamicDataError.add((_, options) => { refusals.push(options.operation); });
+      editFirst(refused, "col1", "edited");
+      expect(source.calls, "#3: not attempted").toEqual([]);
+      expect(refusals, "#4: reported as a refusal").toEqual(["update"]);
+      expect(shownCol1(refused)[0], "#5: put back").toBe("A");
     });
   });
   test("matrix: an assigned SurveyDataDynamicDataSource whose write runs a throwing onValueChanged handler is reported", async () => {
@@ -4834,5 +4948,301 @@ describe("Remote data source: the refill after a remove keeps the touched record
     expect(panelValues(question), "#1: the refill keeps v2 at its index").toEqual(["v1", "v2", "v3", "v4", "v5"]);
     expect(question.currentPanel.getQuestionByName("col1").value, "#2").toBe("v2");
     expect(question.currentIndex, "#3").toBe(1);
+  });
+});
+
+describe("Remote data source: an operation the source cannot take is refused and reported", () => {
+  const sixRecords = (): Array<any> => [0, 1, 2, 3, 4, 5].map((i: number): any => ({ id: i, a: "a" + i }));
+  const elementOf = (kind: string, json?: any): any => kind === "matrix" ?
+    Object.assign({ type: "matrixdynamic", name: "q", rowCount: 0, rowsPerPage: 2,
+      columns: [{ name: "a", cellType: "text" }, { name: "sel", cellType: "dropdown", choices: ["x", "y"] }] }, json) :
+    Object.assign({ type: "paneldynamic", name: "q", panelCount: 0, panelsPerPage: 2,
+      templateElements: [{ type: "text", name: "a" }, { type: "dropdown", name: "sel", choices: ["x", "y"], showCommentArea: true }] }, json);
+  function create(kind: string, source: IDynamicDataSource, json?: any, surveyJson?: any): { survey: SurveyModel, question: any, errors: Array<string> } {
+    const survey = new SurveyModel(Object.assign({ elements: [elementOf(kind, json)] }, surveyJson));
+    const question = <any>survey.getQuestionByName("q");
+    question.dataSource = source;
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
+    return { survey: survey, question: question, errors: errors };
+  }
+  const objectsOf = (question: any): Array<any> => question instanceof QuestionMatrixDynamicModel ? question.visibleRows : question.panels;
+  const shownA = (question: any): Array<any> => objectsOf(question).map((o: any) => o.getQuestionByName("a").value);
+  const stateOf = (question: any): any => ({
+    value: JSON.stringify(question.value), shown: shownA(question), page: question.pageIndex,
+    count: question instanceof QuestionMatrixDynamicModel ? question.rowCount : question.panelCount
+  });
+  const roundTrip = (question: any): void => {
+    question.pageIndex = 1;
+    question.pageIndex = 0;
+  };
+  interface IPath { name: string, operation: string, run: (question: any) => void }
+  const panelPaths: Array<IPath> = [
+    { name: "addPanel()", operation: "insert", run: (q: any) => { q.addPanel(); } },
+    { name: "addPanel(0)", operation: "insert", run: (q: any) => { q.addPanel(0); } },
+    { name: "addPanelUI()", operation: "insert", run: (q: any) => { q.addPanelUI(); } },
+    { name: "removePanel(0)", operation: "remove", run: (q: any) => { q.removePanel(0); } },
+    { name: "removePanelUI(panel)", operation: "remove", run: (q: any) => { q.removePanelUI(q.panels[0]); } },
+    { name: "a panel question's value", operation: "update", run: (q: any) => { q.panels[0].getQuestionByName("a").value = "edited"; } },
+    { name: "a panel question's comment", operation: "update", run: (q: any) => { q.panels[0].getQuestionByName("sel").comment = "note"; } }
+  ];
+  const matrixPaths: Array<IPath> = [
+    { name: "addRow()", operation: "insert", run: (q: any) => { q.addRow(); } },
+    { name: "addRowByIndex()", operation: "insert", run: (q: any) => { q.addRowByIndex({ a: "new" }, 0); } },
+    { name: "addRowUI()", operation: "insert", run: (q: any) => { q.addRowUI(); } },
+    { name: "removeRow(0)", operation: "remove", run: (q: any) => { q.removeRow(0); } },
+    { name: "removeRowUI(row)", operation: "remove", run: (q: any) => { q.removeRowUI(q.visibleRows[0]); } },
+    { name: "moveRowByIndex(0, 1)", operation: "move", run: (q: any) => { q.moveRowByIndex(0, 1); } },
+    { name: "a cell's value", operation: "update", run: (q: any) => { q.visibleRows[0].cells[0].question.value = "edited"; } },
+    { name: "setRowValue(0, ...)", operation: "update", run: (q: any) => { q.setRowValue(0, { a: "edited", sel: "y" }); } }
+  ];
+  const pathsOf = (kind: string): Array<IPath> => kind === "matrix" ? matrixPaths : panelPaths;
+  let confirmations = 0;
+  const oldConfirm = settings.confirmActionAsync;
+  beforeEach(() => {
+    confirmations = 0;
+    settings.confirmActionAsync = (message: string, callback: (res: boolean) => void): boolean => { confirmations++; callback(true); return true; };
+  });
+  afterEach(() => {
+    settings.confirmActionAsync = oldConfirm;
+  });
+
+  ["matrix", "panel"].forEach((kind: string): void => {
+    test(kind + ": a source without keyField refuses every add, remove, move and edit, reports it and keeps nothing locally", () => {
+      pathsOf(kind).forEach((path: IPath): void => {
+        const source = new CapabilitySource(sixRecords(), undefined, false);
+        const { question, errors } = create(kind, source, { confirmDelete: true });
+        const before = stateOf(question);
+        path.run(question);
+        expect(stateOf(question), path.name + ": nothing changed").toEqual(before);
+        expect(source.calls, path.name + ": no source call").toEqual([]);
+        expect(errors, path.name + ": one report").toEqual([path.operation]);
+        expect(confirmations, path.name + ": no confirmation is asked").toBe(0);
+        roundTrip(question);
+        expect(stateOf(question), path.name + ": a page round trip shows the same records").toEqual(before);
+      });
+    });
+    if (kind === "panel") {
+      test("panel: a refused addPanel returns null", () => {
+        const { question } = create(kind, new CapabilitySource(sixRecords(), ["update", "remove", "move"]));
+        expect(question.addPanel() === null, "#1: from code").toBe(true);
+        expect(question.addPanelUI() === null, "#2: from the UI").toBe(true);
+      });
+    }
+    test(kind + ": an edit the source cannot take shows the stored value again", () => {
+      const { question } = create(kind, new CapabilitySource(sixRecords(), ["insert", "remove", "move"]));
+      const first = objectsOf(question)[0];
+      first.getQuestionByName("a").value = "edited";
+      expect(first.getQuestionByName("a").value, "#1").toBe("a0");
+      first.getQuestionByName("sel").value = "x";
+      expect(first.getQuestionByName("sel").value, "#2").toBeUndefined();
+      expect(question.value[0], "#3: the window keeps the record").toEqual({ id: 0, a: "a0" });
+    });
+  });
+  test("matrix: onMatrixRowAdding cannot allow an add the source refuses, and is not raised", () => {
+    const source = new CapabilitySource(sixRecords(), undefined, false);
+    const { survey, question, errors } = create("matrix", source);
+    let raised = 0;
+    survey.onMatrixRowAdding.add((_, options) => { raised++; options.allow = true; });
+    question.addRow();
+    expect(raised, "#1: the handler is not called").toBe(0);
+    expect(question.rowCount, "#2").toBe(6);
+    expect(source.calls, "#3").toEqual([]);
+    expect(errors, "#4").toEqual(["insert"]);
+  });
+
+  ["matrix", "panel"].forEach((kind: string): void => {
+    test(kind + ": a keyed source without insert refuses the adds; its removes and edits still reach it", () => {
+      pathsOf(kind).forEach((path: IPath): void => {
+        const source = new CapabilitySource(sixRecords(), ["update", "remove", "move"]);
+        const { question, errors } = create(kind, source);
+        const before = stateOf(question);
+        path.run(question);
+        if (path.operation === "insert") {
+          expect(stateOf(question), path.name + ": nothing changed").toEqual(before);
+          expect(source.calls, path.name + ": no call").toEqual([]);
+          expect(errors, path.name + ": reported").toEqual(["insert"]);
+          return;
+        }
+        expect(errors, path.name + ": nothing reported").toEqual([]);
+        expect(source.calls.length, path.name + ": one call").toBe(1);
+        expect(source.calls[0].indexOf(path.operation), path.name + ": " + source.calls[0]).toBe(0);
+      });
+      const source = new CapabilitySource(sixRecords(), ["update", "remove"]);
+      const { question } = create(kind, source);
+      objectsOf(question)[0].getQuestionByName("a").value = "edited";
+      expect(source.calls, "#1: the record and the changed field").toEqual(["update:0:a"]);
+      if (kind === "matrix") question.removeRow(1); else question.removePanel(1);
+      expect(source.calls[1], "#2: by its key").toBe("remove:1");
+      expect(shownA(question), "#3: the edit and the remove are shown").toEqual(["edited", "a2"]);
+    });
+    test(kind + ": a keyed source without update refuses the edits and puts them back; insert, remove and move still reach it", () => {
+      pathsOf(kind).forEach((path: IPath): void => {
+        const source = new CapabilitySource(sixRecords(), ["insert", "remove", "move"]);
+        const { question, errors } = create(kind, source);
+        const before = stateOf(question);
+        path.run(question);
+        if (path.operation === "update") {
+          expect(stateOf(question), path.name + ": put back").toEqual(before);
+          expect(source.calls, path.name + ": no call").toEqual([]);
+          expect(errors, path.name + ": reported").toEqual(["update"]);
+          return;
+        }
+        expect(errors, path.name + ": nothing reported").toEqual([]);
+        expect(source.calls.length, path.name + ": one call").toBe(1);
+        expect(source.calls[0].indexOf(path.operation), path.name + ": " + source.calls[0]).toBe(0);
+      });
+    });
+    test(kind + ": a keyed source without remove refuses the removes; insert and update still reach it", () => {
+      pathsOf(kind).forEach((path: IPath): void => {
+        const source = new CapabilitySource(sixRecords(), ["insert", "update", "move"]);
+        const { question, errors } = create(kind, source, { confirmDelete: true });
+        const before = stateOf(question);
+        path.run(question);
+        if (path.operation === "remove") {
+          expect(stateOf(question), path.name + ": nothing changed").toEqual(before);
+          expect(source.calls, path.name + ": no call").toEqual([]);
+          expect(errors, path.name + ": reported").toEqual(["remove"]);
+          expect(confirmations, path.name + ": no confirmation").toBe(0);
+          return;
+        }
+        expect(errors, path.name + ": nothing reported").toEqual([]);
+        expect(source.calls.length, path.name + ": one call").toBe(1);
+      });
+    });
+  });
+
+  test("computed values on a source without update reach the window and the objects, never the source, and are not reported", () => {
+    const run = (kind: string, json: any, read: (question: any) => any, expected: any, extra?: (question: any) => void): void => {
+      const source = new CapabilitySource([0, 1, 2, 3].map((i: number): any => ({ id: i, a: i + 1 })), ["insert", "remove", "move"]);
+      const { survey, question, errors } = create(kind, source, json);
+      if (!!extra) extra(question);
+      // setValueExpression runs when what it reads changes: here a survey variable, for the objects that exist.
+      read(question);
+      survey.setVariable("top", 100);
+      const check = (step: string, index: number): void => {
+        expect(read(question), kind + " " + step + ": the objects show the computed values").toEqual(expected[index]);
+        expect(errors, kind + " " + step + ": nothing reported").toEqual([]);
+        expect(source.calls, kind + " " + step + ": no source call").toEqual([]);
+      };
+      check("page 0", 0);
+      if (expected[0][0].y !== undefined) {
+        expect(question.value[0].y, kind + ": the window holds the chain").toBe(expected[0][0].y);
+      }
+      question.pageIndex = 1;
+      if (!!extra) extra(question);
+      check("page 1", 1);
+      question.pageIndex = 0;
+      if (!!extra) extra(question);
+      check("back on page 0", 2);
+    };
+    const fields = ["x", "y", "d", "e", "s"];
+    const computed = (a: number, s?: number): any => ({ x: a + 1, y: (a + 1) * 2, d: "def", e: a * 10, s: s });
+    /* Page 1 was not shown when the variable changed: its records have no s. An expression question
+       does not run in a read-only object (runIfReadOnly), and every object of this source is read-only:
+       only the panels built when the source is assigned compute them. */
+    const onPage1 = (a: number): any => ({ x: undefined, y: undefined, d: "def", e: a * 10, s: undefined });
+    // Back on page 0 the source pages: the page is read again, and the source never got the computed values.
+    const expected = [[computed(1, 101), computed(2, 102)], [onPage1(3), onPage1(4)], [onPage1(1), onPage1(2)]];
+    // The expression cells of a matrix run in a read-only row, on every page.
+    const expectedInMatrix = [[computed(1, 101), computed(2, 102)], [computed(3), computed(4)], [computed(1), computed(2)]];
+    // A detail panel is created read-only, on every page: its defaults are computed, its expressions do not run.
+    const expectedInDetail = [[onPage1(1), onPage1(2)], [onPage1(3), onPage1(4)], [onPage1(1), onPage1(2)]];
+    const readFields = (objects: Array<any>): Array<any> => objects.map((o: any) => {
+      const res: any = {};
+      fields.forEach((name: string) => { res[name] = o.getQuestionByName(name).value; });
+      return res;
+    });
+    run("panel", { templateElements: [{ type: "text", name: "a", inputType: "number" },
+      { type: "expression", name: "x", expression: "{panel.a} + 1" },
+      { type: "expression", name: "y", expression: "{panel.x} * 2" },
+      { type: "text", name: "d", defaultValue: "def" },
+      { type: "text", name: "e", defaultValueExpression: "{panel.a} * 10" },
+      { type: "text", name: "s", setValueExpression: "{top} + {panel.a}" }] },
+    (q: any) => readFields(q.panels), expected);
+    run("panel", { displayMode: "tab", templateElements: [{ type: "text", name: "a", inputType: "number" },
+      { type: "expression", name: "x", expression: "{panel.a} + 1" },
+      { type: "expression", name: "y", expression: "{panel.x} * 2" },
+      { type: "text", name: "d", defaultValue: "def" },
+      { type: "text", name: "e", defaultValueExpression: "{panel.a} * 10" },
+      { type: "text", name: "s", setValueExpression: "{top} + {panel.a}" }] },
+    (q: any) => readFields(q.panels), expected);
+    run("matrix", { columns: [{ name: "a", cellType: "text", inputType: "number" },
+      { name: "x", cellType: "expression", expression: "{row.a} + 1" },
+      { name: "y", cellType: "expression", expression: "{row.x} * 2" },
+      { name: "d", cellType: "text", defaultValue: "def" },
+      { name: "e", cellType: "text", defaultValueExpression: "{row.a} * 10" },
+      { name: "s", cellType: "text", setValueExpression: "{top} + {row.a}" }] },
+    (q: any) => readFields(q.visibleRows), expectedInMatrix);
+    run("matrix", { detailPanelMode: "underRow", columns: [{ name: "a", cellType: "text", inputType: "number" }],
+      detailElements: [{ type: "expression", name: "x", expression: "{row.a} + 1" },
+        { type: "expression", name: "y", expression: "{row.x} * 2" },
+        { type: "text", name: "d", defaultValue: "def" },
+        { type: "text", name: "e", defaultValueExpression: "{row.a} * 10" },
+        { type: "text", name: "s", setValueExpression: "{top} + {row.a}" }] },
+    (q: any) => readFields(q.visibleRows.map((row: any) => row.detailPanel)), expectedInDetail,
+    (q: any) => { q.visibleRows.forEach((row: any) => row.showDetailPanel()); });
+  });
+
+  test("the in-memory sources refuse nothing: every path is applied and stored, with no report", () => {
+    ["matrix", "panel"].forEach((kind: string): void => {
+      pathsOf(kind).forEach((path: IPath): void => {
+        [false, true].forEach((isSurveyData: boolean): void => {
+          const name = kind + " " + path.name + (isSurveyData ? " over survey data" : " over an array");
+          const survey = new SurveyModel({ elements: [elementOf(kind, { name: "q" })] });
+          const question = <any>survey.getQuestionByName("q");
+          let stored: Array<any> = sixRecords();
+          const source = isSurveyData ? new SurveyDataDynamicDataSource(survey, "store") :
+            new ArrayDynamicDataSource((): Array<any> => stored, (records: Array<any>): void => { stored = records; });
+          if (isSurveyData) survey.setValue("store", sixRecords());
+          question.dataSource = source;
+          const errors: Array<string> = [];
+          survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
+          const before = JSON.stringify(isSurveyData ? survey.getValue("store") : stored);
+          path.run(question);
+          const after = JSON.stringify(isSurveyData ? survey.getValue("store") : stored);
+          expect(errors, name + ": nothing reported").toEqual([]);
+          expect(after !== before, name + ": stored").toBe(true);
+        });
+      });
+    });
+  });
+
+  test("a refusal for another reason stays silent", () => {
+    const checks: Array<{ name: string, kind: string, json: any, run: (q: any) => void }> = [
+      { name: "allowAddPanel false", kind: "panel", json: { allowAddPanel: false }, run: (q: any) => { q.addPanelUI(); } },
+      { name: "allowRemoveRows false", kind: "matrix", json: { allowRemoveRows: false }, run: (q: any) => { q.removeRow(0); } },
+      { name: "maxRowCount reached", kind: "matrix", json: { maxRowCount: 6 }, run: (q: any) => { q.addRow(); } }
+    ];
+    checks.forEach((check) => {
+      const source = new CapabilitySource(sixRecords());
+      const { question, errors } = create(check.kind, source, check.json);
+      const before = stateOf(question);
+      check.run(question);
+      expect(stateOf(question), check.name + ": nothing changed").toEqual(before);
+      expect(errors, check.name + ": silent").toEqual([]);
+      expect(source.calls, check.name).toEqual([]);
+    });
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "fixed", rows: ["r1", "r2"], columns: [{ name: "a", cellType: "text" }] }] });
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
+    expect((<any>survey.getQuestionByName("fixed")).refuseOperationOfSource("insert"), "a fixed matrix: the membership rule is not the source's").toBe(false);
+    expect(errors, "silent").toEqual([]);
+  });
+
+  test("an outside assignment of the value gives the console warning only, no refusal report", () => {
+    ["matrix", "panel"].forEach((kind: string): void => {
+      const warnings: Array<string> = [];
+      const oldWarn = ConsoleWarnings.warn;
+      ConsoleWarnings.warn = (text: string): void => { warnings.push(text); };
+      try {
+        const { question, errors } = create(kind, new CapabilitySource(sixRecords(), undefined, false));
+        question.value = [{ a: "outside" }];
+        expect(warnings.length, kind + ": the console warning").toBe(1);
+        expect(errors, kind + ": no report").toEqual([]);
+      } finally {
+        ConsoleWarnings.warn = oldWarn;
+      }
+    });
   });
 });

@@ -974,6 +974,46 @@ export abstract class QuestionRecordsModel extends Question {
     const list = this._dataList;
     return !list || !list.isRemote || list.hasCapability(operation);
   }
+  /* The source half of canWriteRecords, for an operation the question is about to make: an assigned
+     source without the capability refuses it before any other check, event or change, whichever path
+     asked - code or UI - and the refusal is reported once, under the operation. The membership rule of
+     a question that defines its records itself is not a refusal of the source and stays silent, as
+     does every other reason not to make an operation. Returns true when the operation is refused. */
+  protected refuseOperationOfSource(operation: DynamicDataOperation): boolean {
+    if (this.isRecordMembershipFixed() && operation !== "update") return false;
+    const list = this._dataList;
+    if (!list || !list.isRemote || list.hasCapability(operation)) return false;
+    const reason = !list.keyField ? "The data source has no keyField, so its records are read-only" :
+      "The data source does not implement " + operation;
+    this.reportOperationRefused(operation, reason);
+    return true;
+  }
+  /* The writes the question computes itself - while it builds the objects of its records and while it
+     runs the conditions of its objects: default values, expression results, setValueExpression and
+     defaultValueExpression. They are not edits, and a source without update does not refuse them:
+     they reach the window and question.value, never the source, as they always have. {panel.x} and
+     {row.x} read the record, so a computed value has to reach it - an expression that reads another
+     one would lose it otherwise. A depth: the scopes nest. */
+  private computedWriteDepth: number = 0;
+  protected runComputedWrites<T>(func: () => T): T {
+    this.computedWriteDepth++;
+    try {
+      return func();
+    } finally {
+      this.computedWriteDepth--;
+    }
+  }
+  /* The edit rule both owners' updateItemValue start with: an edit of a record - any write outside
+     runComputedWrites - that the source cannot update is refused and reported, nothing is written, and
+     the object shows its stored record again; updateFromRecord does not write it back.
+     getRecordIndex names the item's record; it is read only for a refusal. Returns true when the edit
+     is refused. */
+  protected refuseRecordEdit(item: QuestionRecordItem, getRecordIndex: () => number): boolean {
+    if (this.computedWriteDepth > 0 || !this.refuseOperationOfSource("update")) return false;
+    const index = getRecordIndex();
+    item.updateFromRecord(index > -1 ? this.dataList.getRecord(index) : undefined);
+    return true;
+  }
   /* A remove on a page the list cuts leaves it one record short, and the first record of the next
      page belongs on it now: the page is refilled, as a data source's remove refill does. A
      remove that emptied the last page moved the page back, and that page change rebuilt it already.
@@ -1790,7 +1830,8 @@ export abstract class QuestionRecordsModel extends Question {
   public abstract getFilteredData(): any;
   /* A write of an item's record: val is the field value for a panel and the whole proposed row for a
      matrix row (see QuestionRecordItem.prepareRecordWrite). */
-  public abstract updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): void;
+  // false: the edit was refused (refuseRecordEdit), and the item stops the write.
+  public abstract updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): boolean | void;
   /* The item's position among the visible records of the whole list ({visiblePanelIndex}, the
      row's visibleIndex), and the item at such a position - an object when the record has one, a
      record read as a value when it has not (the question pages). */
@@ -2101,7 +2142,7 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     if (!write) return;
     const fieldName = isComment ? name + settings.commentSuffix : name;
     if (!this.isValueChanged(fieldName, write.fieldValue)) return;
-    this.data.updateItemValue(this, fieldName, write.ownerValue, write.isDeleting);
+    if (this.data.updateItemValue(this, fieldName, write.ownerValue, write.isDeleting) === false) return;
     this.runTriggersOnSetValue(fieldName, newValue);
     this.notifyRecordWritten();
     this.onRecordWritten(name, isComment);

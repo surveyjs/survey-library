@@ -787,7 +787,10 @@ describe("Page window: events, adding and removing", () => {
     survey.onDynamicPanelAdded.add(() => added++);
     survey.onDynamicPanelRemoved.add(() => removed++);
     question.panels;
-    question.dataSource = new PagedSource(records(20));
+    // A source that inserts: the add of a source without insert is refused.
+    const source = new PagedSource(records(20));
+    (<any>source).insert = (record: any): any => Object.assign({ id: 100 }, record);
+    question.dataSource = source;
     await flush();
     expect(added, "#1: a read fires nothing").toBe(0);
     question.goToPage(1);

@@ -2111,6 +2111,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * @see newPanelPosition
    */
   public addPanel(index?: number, runAdditionalActions?: boolean): PanelModel {
+    if (this.refuseOperationOfSource("insert")) return null;
     const isUI = runAdditionalActions === true;
     if (!isUI) return this.addPanelAndShow(index, false);
     if (!this.canAddPanel) return null;
@@ -2466,6 +2467,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      paging a record on another page is removed too, without a panel - so without the panel events. A
      source that pages itself refuses one it has not loaded and reports it. */
   public removePanel(value: any, confirmDelete?: boolean): void {
+    if (this.refuseOperationOfSource("remove")) return;
     const target = this.resolvePanelTarget(value);
     if (!target) return;
     if (target.isNotLoaded) {
@@ -2888,10 +2890,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected getRecordVisibleIfPropertyName(): string {
     return "templateVisibleIf";
   }
+  // The values the panels' setValueExpression and resetValueIf compute are not edits (runComputedWrites).
   public runTriggers(name: string, value: any, keys?: any): void {
     super.runTriggers(name, value, keys);
-    this.visiblePanelsCore.forEach(p => {
-      (<QuestionRecordItem>p.data).runTriggers(name, value, keys);
+    this.runComputedWrites((): void => {
+      this.visiblePanelsCore.forEach(p => {
+        (<QuestionRecordItem>p.data).runTriggers(name, value, keys);
+      });
     });
   }
   private reRunCondition() {
@@ -2907,7 +2912,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const isPanelsCore = panels === this.panelsCore;
     let visibleIndex = 0;
     try {
-      this.runInternalValueChange((): void => {
+      this.runInternalValueChange((): void => this.runComputedWrites((): void => {
         for (var i = 0; i < panels.length; i++) {
           const panel = panels[i];
           const panelName = settings.expressionVariables.panel;
@@ -2921,7 +2926,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
             visibleIndex++;
           }
         }
-      });
+      }));
     } finally {
       this.isPagingSyncSuspended = prevIsPagingSyncSuspended;
     }
@@ -3203,7 +3208,11 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const notCollpased = panel.state !== "collapsed";
     return (side !== undefined ? this.removePanelButtonLocation === side : true) && canRemove && notCollpased;
   }
+  // The values a new panel writes while it is attached - its defaults - are computed (runComputedWrites).
   protected createNewPanel(): PanelModel {
+    return this.runComputedWrites((): PanelModel => this.createNewPanelCore());
+  }
+  private createNewPanelCore(): PanelModel {
     var panel = this.createAndSetupNewPanelObject();
     var json = this.template.toJSON();
     /* Under paging a record's visibility is decided over the record (updatePagedRecordsVisibility)
@@ -3410,14 +3419,15 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const record = this.dataList.getRecord(recordIndex);
     return record !== undefined ? record : {};
   }
-  updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): void {
-    if (this.isValidatingExpressions || item === this.template.data) return;
+  updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): boolean {
+    if (this.isValidatingExpressions || item === this.template.data) return true;
     var items = this.items;
     var index = items.indexOf(item);
     if (index < 0) index = items.length;
     // index is a created position; the record it writes is the one that panel holds, or the next
     // record for a panel that does not exist yet.
     const recordIndex = this.getRecordIndexByPanelIndex(index);
+    if (this.refuseRecordEdit(<QuestionRecordItem>item, (): number => recordIndex)) return false;
     /* The questions the validation on value change checks: the one being written, and the ones of the
        writes this one runs inside. A nested write adds its question to a copy, so the outer write
        keeps its own list. */
@@ -3459,6 +3469,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     } finally {
       this.changingValueQuestions = prevChangingValueQuestions;
     }
+    return true;
   }
   public getPlainData(options: IPlainDataOptions = { includeEmpty: true }): IQuestionPlainData {
     var questionPlainData = super.getPlainData(options);

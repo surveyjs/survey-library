@@ -236,13 +236,21 @@ describe.each(cases)("Question source contract, shared: %s over a %s source", (_
     expect(source.ops, "#2: by its key").toEqual(["remove@102"]);
     expect(adapter.ids(question), "#3: the page is refilled").toEqual([103, 104]);
   });
-  test("a source without keyField is read-only: an add, a remove and an edit send nothing", () => {
-    const { question, source } = createOnPage1(false);
+  test("a source without keyField is read-only: an add, a remove and an edit are refused, reported and change nothing locally", () => {
+    const { survey, question, source } = createOnPage1(false);
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation); });
+    const ids = adapter.ids(question);
+    const value = JSON.stringify(question.value);
     adapter.remove(question, 0);
     adapter.add(question);
     adapter.edit(question, 0, "name", "edited");
     expect(source.ops, "#1: the source got no write").toEqual([]);
     expect(source.ids, "#2: the storage is as it was").toEqual([100, 101, 102, 103, 104]);
+    expect(errors, "#3: one report per refused call").toEqual(["remove", "insert", "update"]);
+    expect(adapter.ids(question), "#4: the page is as it was").toEqual(ids);
+    expect(adapter.items(question)[0].getQuestionByName("name").value, "#5: the object shows the stored value").toBe("n2");
+    expect(JSON.stringify(question.value), "#6: the value is as it was").toBe(value);
   });
   test("add on page 1 shows the new record", () => {
     const { question, source } = createOnPage1();

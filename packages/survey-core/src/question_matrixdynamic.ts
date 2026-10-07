@@ -383,6 +383,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!this.setDefaultRecordValues(this.defaultRowValue, this.rowCount)) super.setDefaultValue();
   }
   public moveRowByIndex(fromIndex: number, toIndex: number):void {
+    if (this.refuseOperationOfSource("move")) return;
     // Refused before anything changes: the list cannot name a position in the whole source.
     if (this.isRemoteData && !this.dataList.canMoveInSource) {
       this.reportOperationRefused("move", "The data source filtered or sorted the loaded page, so the position in the whole source is not known");
@@ -419,6 +420,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.draggedRow = null;
   }
   public addRowByIndex(rowData: any, toIndex: number):void {
+    if (this.refuseOperationOfSource("insert")) return;
     if (this.isRemoteData) {
       // One source.insert at the position the caller named; no count setter and no move.
       const list = this.dataList;
@@ -457,6 +459,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     });
   }
   public removeRowByIndex(fromIndex: number):void {
+    if (this.refuseOperationOfSource("remove")) return;
     if (this.isRemoteData) {
       const list = this.dataList;
       const index = this.getRecordIndex(fromIndex);
@@ -886,6 +889,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @param setFocus *(Optional)* Pass `true` to focus the cell in the first column.
    */
   public addRow(setFocus?: boolean): void {
+    // Before onMatrixRowAdding: the event cannot allow what the source refuses.
+    if (this.refuseOperationOfSource("insert")) return;
     const oldRowCount = this.rowCount;
     const allow = this.canAddRow;
     var options = { question: this, canAddRow: allow, allow: allow };
@@ -1136,6 +1141,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      a record on another page is removed too, without a row - so without the row events. A source that
      pages itself refuses one it has not loaded and reports it. */
   public removeRow(index: number, confirmDelete?: boolean, onRowRemoved?: () => void): void {
+    if (this.refuseOperationOfSource("remove")) return;
     if (!this.canRemoveRows) return;
     if (index < 0 || index >= this.rowCount) return;
     const target = this.resolveRowTarget(index);

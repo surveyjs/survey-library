@@ -1952,9 +1952,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     this.updateVisibilityBasedOnRows();
   }
+  // The values the cells' setValueExpression and resetValueIf compute are not edits (runComputedWrites).
   public runTriggers(name: string, value: any, keys?: any): void {
     super.runTriggers(name, value, keys);
-    this.runFuncForCellQuestions((q: Question) => { q.runTriggers(name, value, keys); });
+    this.runComputedWrites((): void => {
+      this.runFuncForCellQuestions((q: Question) => { q.runTriggers(name, value, keys); });
+    });
   }
   public updateElementVisibility(): void {
     super.updateElementVisibility();
@@ -1968,7 +1971,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return false;
   }
   private isRunningCellsCondition: boolean;
+  // The values the cells compute are not edits (runComputedWrites).
   protected runCellsCondition(properties: HashTable<any>): boolean {
+    return this.runComputedWrites((): boolean => this.runCellsConditionCore(properties));
+  }
+  private runCellsConditionCore(properties: HashTable<any>): boolean {
     if (this.isDesignMode) return false;
     /* Under paging the records decide the page (rebuildStalePage, in two steps): a record that became
        hidden or visible is a row visibility change even when it has no row, so the answers it hides are
@@ -2273,24 +2280,28 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   private generateVisibleRowsIfNeeded(): void {
     if (!this.isUpdateLocked && !this.generatedVisibleRows) {
-      this.isGenereatingRows = true;
-      this.generatedVisibleRows = this.generateRows();
-      this.isGenereatingRows = false;
-      for (var i = 0; i < this.generatedVisibleRows.length; i++) {
-        const row = this.generatedVisibleRows[i];
-        row.visibleIndex = i;
-        this.onMatrixRowCreated(row);
+      // The values new rows write - their defaults - are computed.
+      this.runComputedWrites((): void => this.generateVisibleRows());
+    }
+  }
+  private generateVisibleRows(): void {
+    this.isGenereatingRows = true;
+    this.generatedVisibleRows = this.generateRows();
+    this.isGenereatingRows = false;
+    for (var i = 0; i < this.generatedVisibleRows.length; i++) {
+      const row = this.generatedVisibleRows[i];
+      row.visibleIndex = i;
+      this.onMatrixRowCreated(row);
+    }
+    if (this.data) {
+      this.runCellsCondition(this.data.getFilteredProperties());
+      if (this.takeValueChangedBeforeBuild()) {
+        this.runTriggersOnNewRows();
       }
-      if (this.data) {
-        this.runCellsCondition(this.data.getFilteredProperties());
-        if (this.takeValueChangedBeforeBuild()) {
-          this.runTriggersOnNewRows();
-        }
-      }
-      if (!!this.generatedVisibleRows) {
-        this.updateValueOnRowsGeneration(this.generatedVisibleRows);
-        this.updateIsAnswered();
-      }
+    }
+    if (!!this.generatedVisibleRows) {
+      this.updateValueOnRowsGeneration(this.generatedVisibleRows);
+      this.updateIsAnswered();
     }
   }
   private runTriggersOnNewRows(): void {
@@ -3220,7 +3231,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     return options.value;
   }
-  updateItemValue(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
+  updateItemValue(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any, isDeletingValue: boolean): boolean {
+    // setRowValue assigned the row before the write: a refusal puts it back as well.
+    if (this.refuseRecordEdit(row, (): number => this.getRecordIndexOf(row))) return false;
     var rowObj = !!columnName ? this.getRowObj(row) : null;
     if (!!rowObj) {
       var oldCellValue = rowObj[columnName];
@@ -3233,7 +3246,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     } else {
       const res = this.updateRowValueInData(row, columnName, newRowValue, isDeletingValue);
       // Nothing changed: the unique-column check is skipped as well, exactly as before.
-      if (!res) return;
+      if (!res) return true;
       if (columnName) {
         this.onCellValueChanged(row, columnName, res.rowValue, res.oldCellValue);
       }
@@ -3241,6 +3254,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (this.getUniqueColumnsNames().indexOf(columnName) > -1) {
       this.isValueInColumnDuplicated(columnName, !!rowObj);
     }
+    return true;
   }
   /* The seam for the record storage: a cell write is a record write of the list - the record the row
      holds, through the question's own source (getListRecords / setListRecords). Returns null when

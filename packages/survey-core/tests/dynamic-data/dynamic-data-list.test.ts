@@ -4427,3 +4427,97 @@ describe("DynamicDataList: a failed write to an assigned source is reported", ()
     expect(errors, "#4").toEqual(["update"]);
   });
 });
+
+/* The window offset is the destination of a refresh only while no page move is pending; otherwise the
+   refresh reads the page the move asked for, and that page commits with its index. */
+describe("DynamicDataList: a refresh during a page move reads the page of the move", () => {
+  // A source that pages, filters ("{field} > n") and sorts, and answers each read when the test says so.
+  class DeferredViewSource implements IDynamicDataSource {
+    public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
+    public requests: Array<IDynamicDataReadRequest> = [];
+    public reads: Array<Deferred> = [];
+    constructor(public records: Array<any>) { }
+    public read(request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> {
+      this.requests.push(request);
+      const deferred = new Deferred();
+      this.reads.push(deferred);
+      return deferred.promise;
+    }
+    public answer(index: number): void {
+      const request = this.requests[index];
+      let view = this.records.slice();
+      const parts = /^\{(\w+)\}\s*>\s*(\d+)$/.exec(request.filter || "");
+      if (!!parts) {
+        view = view.filter((record: any): boolean => record[parts[1]] > Number(parts[2]));
+      }
+      (request.sort || []).slice().reverse().forEach((s: any): void => {
+        const sign = s.direction === "desc" ? -1 : 1;
+        view.sort((a: any, b: any): number => (a[s.field] === b[s.field] ? 0 : (a[s.field] < b[s.field] ? -1 : 1)) * sign);
+      });
+      this.reads[index].resolve({ records: view.slice(request.skip, request.skip + request.take), total: view.length });
+    }
+    public get skips(): Array<number> {
+      return this.requests.map((request: IDynamicDataReadRequest): number => request.skip);
+    }
+  }
+  const setUp = async (page: number): Promise<{ list: DynamicDataList, source: DeferredViewSource }> => {
+    const source = new DeferredViewSource(createRecords(40));
+    const list = new DynamicDataList(source);
+    list.pageSize = 10;
+    list.load();
+    source.answer(0);
+    await flush();
+    if (page > 0) {
+      list.pageIndex = page;
+      source.answer(1);
+      await flush();
+    }
+    source.requests = [];
+    source.reads = [];
+    return { list: list, source: source };
+  };
+  const ids = (list: DynamicDataList): Array<any> => list.getLoadedRecords().map((record: any): any => record.id);
+  test("pageIndex = 1, then refresh(): both read page 1, which commits with index 1 in either order", async () => {
+    for (const order of [[0, 1], [1, 0]]) {
+      const { list, source } = await setUp(0);
+      list.pageIndex = 1;
+      list.refresh();
+      expect(source.skips, "#1: " + order).toEqual([10, 10]);
+      order.forEach((i: number): void => { source.answer(i); });
+      await flush();
+      expect(list.pageIndex, "#2: " + order).toBe(1);
+      expect(list.windowOffset, "#3: " + order).toBe(10);
+      expect(ids(list)[0], "#4: " + order).toBe(10);
+      expect(list.isLoading, "#5: " + order).toBe(false);
+    }
+  });
+  test("no page move pending: a refresh reads the window in force at its own offset", async () => {
+    const { list, source } = await setUp(2);
+    list.refresh();
+    expect(source.skips, "#1").toEqual([20]);
+  });
+  test("a new filter, then refresh(): page 0 of the new view, index 0", async () => {
+    const { list, source } = await setUp(2);
+    list.setView("{id} > 5", []);
+    list.refresh();
+    expect(source.skips, "#1").toEqual([0, 0]);
+    source.answer(1);
+    source.answer(0);
+    await flush();
+    expect(list.pageIndex, "#2").toBe(0);
+    expect(list.windowOffset, "#3").toBe(0);
+    expect(ids(list)[0], "#4").toBe(6);
+  });
+  test("a new sort, then refresh(): the page in force in the new order, its index kept", async () => {
+    const { list, source } = await setUp(2);
+    list.setView("", [{ field: "id", direction: "desc" }]);
+    list.refresh();
+    expect(source.skips, "#1").toEqual([20, 20]);
+    source.answer(0);
+    source.answer(1);
+    await flush();
+    expect(list.pageIndex, "#2").toBe(2);
+    expect(list.windowOffset, "#3").toBe(20);
+    expect(ids(list)[0], "#4").toBe(19);
+  });
+});

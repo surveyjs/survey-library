@@ -1609,9 +1609,14 @@ export class DynamicDataList {
       onSyncPushFailed: (operation: DynamicDataOperation): void => this.onSyncPushFailed(operation)
     };
   }
-  // The page of a pending retry, else the window in force (a refresh) or the page (a load); a source
-  // without paging - and a paging source while the list has a filter or a sort it cannot run - is
-  // read whole: skip 0, take 0, whatever the page size is.
+  /* The page of a pending retry, else the window in force (a refresh) or the page (a load); a source
+     without paging - and a paging source while the list has a filter or a sort it cannot run - is
+     read whole: skip 0, take 0, whatever the page size is.
+     The window offset is the destination of a read only while no navigation is pending; otherwise the
+     destination is the requested page. A page move or a new filter sets the page index before its read
+     commits (pageIndex, setView), so a refresh or the refill after a remove that starts meanwhile -
+     in flight, queued behind writes, or issued again after a write overtook it - reads the page the
+     newest navigation asked for, and that page commits with its index. */
   private getReadRange(useWindowOffset: boolean): { skip: number, take: number } {
     if (!this.isReadPagedBySource) return { skip: 0, take: 0 };
     let skip: number;
@@ -1619,7 +1624,8 @@ export class DynamicDataList {
     if (retryPageIndex !== undefined) {
       skip = retryPageIndex * this._pageSize;
     } else {
-      skip = useWindowOffset && this.isLoaded ? this._windowOffset : this._pageIndex * this._pageSize;
+      const isNavigationPending = this._pageIndex !== this.committedPageIndex;
+      skip = useWindowOffset && this.isLoaded && !isNavigationPending ? this._windowOffset : this._pageIndex * this._pageSize;
     }
     return { skip: skip, take: this._pageSize };
   }
@@ -1679,7 +1685,8 @@ export class DynamicDataList {
   private commitRead(data: any, skip: number, take: number, isPagedRead: boolean, request: IDynamicDataReadRequest): boolean {
     const result = toReadResult(data);
     let records = result.records;
-    // A refill that stepped back to another page (a page past the end) is an ordinary read.
+    /* A refill that stepped back to another page (a page past the end), or that read the page of a
+       pending navigation (getReadRange), is an ordinary read: it did not read the window in force. */
     const isRefill = this.isRefillRead && isPagedRead && skip === this._windowOffset;
     this.isRefillRead = false;
     if (isPagedRead) {

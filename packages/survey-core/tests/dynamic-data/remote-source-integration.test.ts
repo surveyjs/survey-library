@@ -5310,3 +5310,200 @@ describe("Remote data source: a number names the same record in every method", (
     expect(question.getQuestionFromArray("col1", 1), "#2").toBeNull();
   });
 });
+
+/* A refresh or the refill after a remove that starts while the read of another page is pending reads
+   that page, and the page commits with its index: the newest navigation wins. The source answers by
+   hand (auto = false), in the order each test chooses. */
+describe("Remote data source: a refresh during a page move reads the page of the move", () => {
+  const groupedRecords = (count: number): Array<any> => serverRecords(count).map((r: any): any => Object.assign(r, { group: r.id % 2 === 0 ? "even" : "odd" }));
+  const setUp = async (count: number = 12, page: number = 0): Promise<{ survey: SurveyModel, question: QuestionMatrixDynamicModel, source: FakeServerSource, errors: Array<string> }> => {
+    const source = new FakeServerSource(groupedRecords(count));
+    const { survey, question } = await createMatrix(source);
+    if (page > 0) {
+      question.goToPage(page);
+      await flush();
+    }
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
+    source.reset();
+    source.auto = false;
+    return { survey: survey, question: question, source: source, errors: errors };
+  };
+  const settleInOrder = async (source: FakeServerSource, order: Array<number>): Promise<void> => {
+    const calls = source.pending.slice();
+    for (let i = 0; i < order.length; i++) {
+      calls[order[i]].settle();
+      await flush();
+    }
+  };
+  test("nextPage, then a refresh: the answers in order and in reverse order commit page 1 with its rows", async () => {
+    for (const order of [[0, 1], [1, 0]]) {
+      const { question, source, errors } = await setUp();
+      question.nextPage();
+      question.refreshDataSource();
+      expect(source.ranges, "#1: " + order + ": both read page 1").toEqual([[5, 5], [5, 5]]);
+      await settleInOrder(source, order);
+      expect(question.pageIndex, "#2: " + order).toBe(1);
+      expect(rowValues(question), "#3: " + order).toEqual(["v5", "v6", "v7", "v8", "v9"]);
+      expect(question.isDataLoading, "#4: " + order).toBe(false);
+      expect(errors, "#5: " + order).toEqual([]);
+    }
+  });
+  test("nextPage, then a refresh that fails: the committed page stays, one error, and the next Next asks for page 1 again", async () => {
+    const { question, source, errors } = await setUp();
+    question.nextPage();
+    question.refreshDataSource();
+    const calls = source.pending.slice();
+    calls[1].fail(new Error("boom"));
+    await flush();
+    calls[0].settle();
+    await flush();
+    expect(question.pageIndex, "#1").toBe(0);
+    expect(rowValues(question), "#2").toEqual(["v0", "v1", "v2", "v3", "v4"]);
+    expect(errors, "#3").toEqual(["read"]);
+    expect(question.isDataLoading, "#4").toBe(false);
+    source.auto = true;
+    question.nextPage();
+    await flush();
+    expect(source.ranges[source.ranges.length - 1], "#5").toEqual([5, 5]);
+    expect(rowValues(question), "#6").toEqual(["v5", "v6", "v7", "v8", "v9"]);
+  });
+  test("nextPage, then a refresh: a superseded page read that fails late changes nothing", async () => {
+    const { question, source, errors } = await setUp();
+    question.nextPage();
+    question.refreshDataSource();
+    const calls = source.pending.slice();
+    calls[1].settle();
+    await flush();
+    calls[0].fail(new Error("late"));
+    await flush();
+    expect(question.pageIndex, "#1").toBe(1);
+    expect(rowValues(question), "#2").toEqual(["v5", "v6", "v7", "v8", "v9"]);
+    expect(errors, "#3").toEqual([]);
+    expect(question.isDataLoading, "#4").toBe(false);
+  });
+  test("a move back to the committed page while another is pending: a refresh reads the committed window", async () => {
+    const { question, source } = await setUp(20, 1);
+    question.nextPage();
+    question.prevPage();
+    question.refreshDataSource();
+    expect(source.ranges, "#1").toEqual([[10, 5], [5, 5], [5, 5]]);
+    source.settleAll();
+    await flush();
+    expect(question.pageIndex, "#2").toBe(1);
+    expect(rowValues(question), "#3").toEqual(["v5", "v6", "v7", "v8", "v9"]);
+  });
+  test("nextPage, then a remove: the refill reads page 1 and page 1 commits", async () => {
+    const { question, source } = await setUp();
+    question.nextPage();
+    question.removeRow(0, false);
+    // The remove answers first: the refill then starts while the read of page 1 is in flight.
+    source.callsOf("remove")[0].settle();
+    await flush();
+    for (let i = 0; i < 5 && source.pending.length > 0; i++) {
+      source.settleAll();
+      await flush();
+    }
+    expect(source.ranges.some(range => range[0] === 0), "#1: page 0 is not read").toBe(false);
+    expect(question.pageIndex, "#2").toBe(1);
+    expect(rowValues(question), "#3: page 1 of the records left").toEqual(["v6", "v7", "v8", "v9", "v10"]);
+    expect(question.isDataLoading, "#4").toBe(false);
+  });
+  test("a remove, then nextPage: page 1 commits", async () => {
+    const { question, source } = await setUp();
+    question.removeRow(0, false);
+    question.nextPage();
+    for (let i = 0; i < 5 && source.pending.length > 0; i++) {
+      source.settleAll();
+      await flush();
+    }
+    expect(question.pageIndex, "#1").toBe(1);
+    expect(rowValues(question), "#2").toEqual(["v6", "v7", "v8", "v9", "v10"]);
+  });
+  test("a new filter on page 3, then a refresh: page 0 of the filtered view, index 0", async () => {
+    const { question, source } = await setUp(40, 3);
+    question.filterExpression = "{group} = 'even'";
+    question.refreshDataSource();
+    expect(source.ranges, "#1").toEqual([[0, 5], [0, 5]]);
+    await settleInOrder(source, [1, 0]);
+    expect(question.pageIndex, "#2").toBe(0);
+    expect(rowValues(question), "#3").toEqual(["v0", "v2", "v4", "v6", "v8"]);
+  });
+  test("a new sort on page 3, then a refresh: page 3 in the new order, one read each, none of page 0", async () => {
+    const { question, source } = await setUp(40, 3);
+    question.sortOrder = [{ field: "col2", direction: "desc" }];
+    question.refreshDataSource();
+    expect(source.ranges, "#1").toEqual([[15, 5], [15, 5]]);
+    source.settleAll();
+    await flush();
+    expect(question.pageIndex, "#2").toBe(3);
+    expect(rowValues(question), "#3").toEqual(["v24", "v23", "v22", "v21", "v20"]);
+  });
+  test("a pending update, then nextPage and a refresh: one read of page 1 once the write settles", async () => {
+    const { question, source } = await setUp();
+    question.visibleRows[0].getQuestionByName("col1").value = "edited";
+    question.nextPage();
+    question.refreshDataSource();
+    expect(source.pending.map(call => call.op), "#1: the reads wait for the write").toEqual(["update"]);
+    source.settleAll();
+    await flush();
+    source.settleAll();
+    await flush();
+    expect(source.ranges, "#2").toEqual([[5, 5]]);
+    expect(question.pageIndex, "#3").toBe(1);
+    expect(rowValues(question), "#4").toEqual(["v5", "v6", "v7", "v8", "v9"]);
+  });
+  const keepNewAtEnd = (source: FakeServerSource): void => {
+    source.insert = (record: any): Promise<any> => {
+      const stored = Object.assign({ id: 500 }, record);
+      source.records.push(stored);
+      return Promise.resolve(Object.assign({}, stored));
+    };
+  };
+  test("an added record stays through refills in a row, and a refresh drops it", async () => {
+    const run = async (last: (question: QuestionMatrixDynamicModel) => void): Promise<Array<any>> => {
+      const source = new FakeServerSource(serverRecords(12));
+      keepNewAtEnd(source);
+      const { question } = await createMatrix(source, { defaultRowValue: { col1: "new" } });
+      question.addRow();
+      await flush();
+      question.removeRow(0, false);
+      await flush();
+      source.auto = false;
+      question.removeRow(0, false);
+      last(question);
+      for (let i = 0; i < 5 && source.pending.length > 0; i++) {
+        source.settleAll();
+        await flush();
+      }
+      return rowValues(question);
+    };
+    expect((await run(q => q.removeRow(0, false))).indexOf("new") > -1, "#1: a refill behind a refill keeps it").toBe(true);
+    expect((await run(q => q.refreshDataSource())).indexOf("new"), "#2: a refresh is a reload").toBe(-1);
+  });
+  test("panel, tab: a move to a panel on the next page, then a refresh, selects that panel once the page commits", async () => {
+    const source = new FakeServerSource(serverRecords(12));
+    const { question } = await createPanel(source, { displayMode: "tab" });
+    source.auto = false;
+    question.currentIndex = 7;
+    question.refreshDataSource();
+    source.settleAll();
+    await flush();
+    expect(question.pageIndex, "#1").toBe(1);
+    expect(question.currentIndex, "#2").toBe(7);
+    expect(question.currentPanel.getQuestionByName("col1").value, "#3").toBe("v7");
+  });
+  test("panel, carousel: Next from the last panel of a page, then a refresh, selects the first panel of the next page", async () => {
+    const source = new FakeServerSource(serverRecords(12));
+    const { question } = await createPanel(source, { displayMode: "carousel" });
+    question.currentIndex = 4;
+    source.auto = false;
+    question.goToNextPanel();
+    question.refreshDataSource();
+    source.settleAll();
+    await flush();
+    expect(question.pageIndex, "#1").toBe(1);
+    expect(question.currentIndex, "#2").toBe(5);
+    expect(question.currentPanel.getQuestionByName("col1").value, "#3").toBe("v5");
+  });
+});

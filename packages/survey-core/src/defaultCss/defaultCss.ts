@@ -20,6 +20,7 @@ export var defaultCss = {
   rootAnimationDisabled: "sd-root-modern--animation-disabled",
   rootReadOnly: "sd-root--readonly",
   rootFitToContainer: "sd-root-modern--full-container",
+  rootSingleQuestion: "sd-root-modern--single-question",
   rootWrapper: "sd-root-modern__wrapper",
   rootWrapperFixed: "sd-root-modern__wrapper--fixed",
   rootWrapperHasImage: "sd-root-modern__wrapper--has-image",

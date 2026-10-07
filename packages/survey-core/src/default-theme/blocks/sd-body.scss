@@ -82,43 +82,42 @@
 // already gives the root a height (fitToContainer or an explicit height). flex-grow
 // adds no space when that height is missing, so the layout stays top-aligned.
 // No min-height and no viewport units: a survey embedded in a short page must not grow.
-.sd-root-modern:has(.sd-body--single-question) {
+// Descendant selectors also match a survey nested inside this one. A direct-child
+// chain would need a variant for every optional sv-scroll wrapper, so the shorter
+// form is intentional.
+.sd-root-modern--single-question {
   display: flex;
   flex-direction: column;
-}
 
-.sd-root-modern:has(.sd-body--single-question) > .sv-scroll__wrapper,
-.sd-root-modern:has(.sd-body--single-question) > .sd-root-modern__wrapper,
-.sv-scroll__container:has(.sd-body--single-question) > .sd-root-modern__wrapper {
-  flex-grow: 1;
-}
+  > .sv-scroll__wrapper,
+  > .sd-root-modern__wrapper,
+  .sv-scroll__container > .sd-root-modern__wrapper {
+    flex-grow: 1;
+  }
 
-.sd-root-modern__wrapper:has(.sd-body--single-question) {
-  display: flex;
-  flex-direction: column;
-}
+  .sd-root-modern__wrapper {
+    display: flex;
+    flex-direction: column;
 
-.sd-root-modern__wrapper:has(.sd-body--single-question) > form {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-}
+    > form {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+  }
 
-// Leave the collaboration grid alone: collab-changes.scss turns this container into
-// a two-column grid, and a flex display here would drop the changes panel.
-.sd-container-modern:has(.sd-body--single-question):not(:has(> .sv-collab-changes)) {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-}
+  // collab-changes.scss turns this container into a two-column grid.
+  .sd-container-modern:not(:has(> .sv-collab-changes)) {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
 
-// The row stays horizontal: TOC columns sit on its sides.
-.sd-container-modern:has(.sd-body--single-question) > .sv-components-row {
-  flex-grow: 1;
-}
-
-.sv-components-column--expandable:has(.sd-body--single-question) > .sd-body--single-question {
-  flex-grow: 1;
+  // The row stays horizontal: TOC columns sit on its sides.
+  .sd-container-modern > .sv-components-row,
+  .sv-components-column--expandable > .sd-body {
+    flex-grow: 1;
+  }
 }
 
 .sd-body.sd-body--single-question {

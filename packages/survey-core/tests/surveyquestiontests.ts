@@ -833,6 +833,77 @@ describe("Survey_Questions", () => {
     expect(matrix.supportAutoAdvance(), "Matrix stays opted out").toBe(false);
   });
 
+  test("Imagepicker Question: multiSelect autoAdvanceEnabled waits for Enter", () => {
+    const survey = new SurveyModel({
+      autoAdvanceEnabled: true,
+      pages: [
+        { elements: [{ type: "imagepicker", name: "q1", multiSelect: true, choices: [1, 2, 3] }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const question = <QuestionImagePickerModel>survey.getQuestionByName("q1");
+    question.value = [1];
+    expect(survey.currentPageNo, "Selecting a value does not auto-advance").toBe(0);
+
+    let prevented = false;
+    question.onKeyDown({
+      key: "Enter",
+      keyCode: 13,
+      preventDefault: () => { prevented = true; }
+    });
+    expect(prevented, "Enter is prevented when auto-advancing").toBe(true);
+    expect(survey.currentPageNo, "Enter confirms the value and auto-advances").toBe(1);
+  });
+
+  test("Imagepicker Question: Enter does not auto-advance when the value is empty or read-only", () => {
+    const createSurvey = () => new SurveyModel({
+      autoAdvanceEnabled: true,
+      pages: [
+        { elements: [{ type: "imagepicker", name: "q1", multiSelect: true, choices: [1, 2, 3] }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const enterEvent = () => ({ key: "Enter", keyCode: 13, preventDefault: () => {} });
+
+    const emptySurvey = createSurvey();
+    const emptyQuestion = <QuestionImagePickerModel>emptySurvey.getQuestionByName("q1");
+    emptyQuestion.onKeyDown(enterEvent());
+    expect(emptySurvey.currentPageNo, "Empty value stays on the page").toBe(0);
+
+    const readOnlySurvey = createSurvey();
+    const readOnlyQuestion = <QuestionImagePickerModel>readOnlySurvey.getQuestionByName("q1");
+    readOnlyQuestion.value = [1];
+    readOnlyQuestion.readOnly = true;
+    readOnlyQuestion.onKeyDown(enterEvent());
+    expect(readOnlySurvey.currentPageNo, "Read-only stays on the page").toBe(0);
+  });
+
+  test("Imagepicker Question: single-select still auto-advances on selection", () => {
+    const survey = new SurveyModel({
+      autoAdvanceEnabled: true,
+      pages: [
+        { elements: [{ type: "imagepicker", name: "q1", choices: [1, 2, 3] }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const question = <QuestionImagePickerModel>survey.getQuestionByName("q1");
+    question.value = 1;
+    expect(survey.currentPageNo, "Single-select advances on selection").toBe(1);
+  });
+
+  test("Imagepicker Question: Enter does nothing when autoAdvanceEnabled is false", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "imagepicker", name: "q1", multiSelect: true, choices: [1, 2, 3] }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const question = <QuestionImagePickerModel>survey.getQuestionByName("q1");
+    question.value = [1];
+    question.onKeyDown({ key: "Enter", keyCode: 13, preventDefault: () => {} });
+    expect(survey.currentPageNo, "Stay on the first page").toBe(0);
+  });
+
   test("Validators for text question + getAllErrors", () => {
     var mText = new QuestionTextModel("");
     expect(mText.validate(), "There is no error by default").toBe(true);

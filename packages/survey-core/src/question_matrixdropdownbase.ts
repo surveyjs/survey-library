@@ -1575,6 +1575,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected clearGeneratedRows(): void {
     this.clearVisibleRows();
     if (!this.generatedVisibleRows) return;
+    this.keepDetailPanelPageStates(this.generatedVisibleRows);
     // A row that is replaced - a page move, a new value - can still be on screen until the UI rerenders the matrix.
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       this.disposeAfterRerender(this.generatedVisibleRows[i]);
@@ -3431,6 +3432,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return this.getPropertyValue("isRowShowing" + row.id, false);
   }
   setIsDetailPanelShowing(row: MatrixDropdownRowModelBase, val: boolean): void {
+    // A hide is where a row may drop its detail panel (hideDetailPanel(true)): its states are kept first.
+    if (!val && !!row.detailPanel) {
+      this.keepDetailPanelPageStates([row]);
+    }
     if (val == this.getIsDetailPanelShowing(row)) return;
     if (val && this.detailPanelMode === "underRowSingle") {
       var rows = this.visibleRows;
@@ -3449,6 +3454,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       this.matrixCallbacks.matrixDetailPanelVisibleChanged(this, this.getRecordViewIndex(this.getRecordIndexOf(row)), row, val);
     }
   }
+  /* The paged questions of a row's detail panel keep their page states under the row's record when the
+     row is disposed or its detail panel is hidden, and a new detail panel of the record takes them
+     back (createRowDetailPanel). A row whose detail panel was never created hands nothing over. */
+  private keepDetailPanelPageStates(rows: Array<MatrixDropdownRowModelBase>): void {
+    this.keepNestedPageStates(rows, (row: QuestionRecordItem): Array<Question> => {
+      const panel = (<MatrixDropdownRowModelBase>row).detailPanel;
+      return !!panel ? panel.questions : undefined;
+    });
+  }
   createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel {
     if (this.isDesignMode) return this.detailPanel;
     var panel = this.createNewDetailPanel();
@@ -3463,6 +3477,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     panel.questions.forEach(q => q.setParentQuestion(this));
     panel.onSurveyLoad();
+    // The questions hold the row's values by now: a restored page is not reset by them.
+    this.restorePageStatesOfQuestions(row.builtRecordIndex, panel.questions);
     return panel;
   }
   getSharedQuestionByName(

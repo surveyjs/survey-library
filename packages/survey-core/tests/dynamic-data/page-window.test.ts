@@ -425,6 +425,125 @@ describe("Page window: validation", () => {
   });
 });
 
+/* A paged question in a dynamic matrix detail panel keeps its page and the records it edited when the
+   matrix rebuilds its rows, as one in a paged dynamic panel does: completion validates what the
+   respondent edited there, wherever the outer row and the inner page are. */
+describe("Paged question in a matrix detail panel keeps its page state across row rebuilds", () => {
+  type InnerKind = "panel" | "matrix";
+  const innerElement = (kind: InnerKind): any => kind === "panel" ?
+    { type: "paneldynamic", name: "items", panelsPerPage: 1, templateElements: [{ type: "text", name: "r", isRequired: true }] } :
+    { type: "matrixdynamic", name: "items", rowCount: 0, rowsPerPage: 1, columns: [{ name: "r", cellType: "text", isRequired: true }] };
+  const createOuter = (detailElements: Array<any>, rowsPerPage: number = 2): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel } => {
+    const survey = new SurveyModel({ checkErrorsMode: "onComplete", elements: [{ type: "matrixdynamic", name: "outer", rowCount: 0, rowsPerPage: rowsPerPage,
+      columns: [{ name: "id", cellType: "text" }], detailPanelMode: "underRow", detailElements: detailElements }] });
+    survey.data = { outer: records(4, (i: number) => ({ id: i, items: [{ r: "x0" }, { r: "x1" }, { r: "x2" }] })) };
+    return { survey: survey, matrix: <QuestionMatrixDynamicModel>survey.getQuestionByName("outer") };
+  };
+  const rowOf = (matrix: QuestionMatrixDynamicModel, id: number): any => matrix.visibleRows.filter(row => row.getQuestionByName("id").value === id)[0];
+  const innerOf = (matrix: QuestionMatrixDynamicModel, id: number): any => {
+    const row = rowOf(matrix, id);
+    row.showDetailPanel();
+    return row.detailPanel.getQuestionByName("items");
+  };
+  const innerObjects = (inner: any): Array<any> => inner instanceof QuestionMatrixDynamicModel ? inner.visibleRows : inner.panels;
+  // The respondent opens row 0's detail panel, sets the inner page to 1 and empties the required field there.
+  const emptyOnInnerPage1 = (matrix: QuestionMatrixDynamicModel): void => {
+    const inner = innerOf(matrix, 0);
+    inner.pageIndex = 1;
+    innerObjects(inner)[0].getQuestionByName("r").value = "";
+  };
+  const expectErrorShown = (matrix: QuestionMatrixDynamicModel, step: string): void => {
+    expect(matrix.pageIndex, step + ": the outer page that holds the record").toBe(0);
+    const row = rowOf(matrix, 0);
+    expect(row.isDetailPanelShowing, step + ": its detail panel is open").toBe(true);
+    const inner = row.detailPanel.getQuestionByName("items");
+    expect(inner.pageIndex, step + ": the inner page of the edited record").toBe(1);
+    expect(innerObjects(inner)[0].getQuestionByName("r").errors.length, step + ": the error is on the emptied question").toBe(1);
+  };
+  (<Array<InnerKind>>["panel", "matrix"]).forEach((kind: InnerKind): void => {
+    test(kind + " inside: an outer round trip brings the inner page back, and completion fails", () => {
+      const { survey, matrix } = createOuter([innerElement(kind)]);
+      emptyOnInnerPage1(matrix);
+      matrix.pageIndex = 1;
+      matrix.pageIndex = 0;
+      expect(innerOf(matrix, 0).pageIndex, "#1: the inner page").toBe(1);
+      expect(survey.tryComplete(), "#2").toBe(false);
+      expectErrorShown(matrix, "#3");
+    });
+    test(kind + " inside: an outer round trip, then the inner page to 0: the edited record is off the inner page, and completion fails", () => {
+      const { survey, matrix } = createOuter([innerElement(kind)]);
+      emptyOnInnerPage1(matrix);
+      matrix.pageIndex = 1;
+      matrix.pageIndex = 0;
+      innerOf(matrix, 0).pageIndex = 0;
+      expect(survey.tryComplete(), "#1").toBe(false);
+      expectErrorShown(matrix, "#2");
+    });
+    test(kind + " inside: the outer matrix left on its next page: the outer row is off the page, and completion fails", () => {
+      const { survey, matrix } = createOuter([innerElement(kind)]);
+      emptyOnInnerPage1(matrix);
+      matrix.pageIndex = 1;
+      expect(survey.tryComplete(), "#1").toBe(false);
+      expectErrorShown(matrix, "#2: completion shows the page with the error");
+    });
+    test(kind + " inside: the inner page to 0, then the outer matrix left on its next page: both levels off the page, and completion fails", () => {
+      const { survey, matrix } = createOuter([innerElement(kind)]);
+      emptyOnInnerPage1(matrix);
+      innerOf(matrix, 0).pageIndex = 0;
+      matrix.pageIndex = 1;
+      expect(survey.tryComplete(), "#1").toBe(false);
+      expectErrorShown(matrix, "#2");
+    });
+  });
+  test("the detail panel closed and reopened keeps the inner page and the edited records", () => {
+    const { survey, matrix } = createOuter([innerElement("panel")]);
+    emptyOnInnerPage1(matrix);
+    rowOf(matrix, 0).hideDetailPanel(true);
+    expect(rowOf(matrix, 0).detailPanel, "#1: the panel is dropped").toBeFalsy();
+    const inner = innerOf(matrix, 0);
+    expect(inner.pageIndex, "#2: the inner page").toBe(1);
+    inner.pageIndex = 0;
+    expect(survey.tryComplete(), "#3: the edited record is checked").toBe(false);
+    expectErrorShown(matrix, "#4");
+  });
+  test("the kept state follows its outer record when a row is moved, and goes with a removed one", () => {
+    const moved = createOuter([innerElement("panel")]);
+    emptyOnInnerPage1(moved.matrix);
+    moved.matrix.pageIndex = 1;
+    moved.matrix.pageIndex = 0;
+    moved.matrix.moveRowByIndex(0, 1);
+    expect(moved.matrix.value.map((r: any) => r.id), "#1").toEqual([1, 0, 2, 3]);
+    expect(innerOf(moved.matrix, 0).pageIndex, "#2: the state moved with record 0").toBe(1);
+    expect(innerOf(moved.matrix, 1).pageIndex, "#3").toBe(0);
+    expect(moved.survey.tryComplete(), "#4").toBe(false);
+    const removed = createOuter([innerElement("panel")]);
+    emptyOnInnerPage1(removed.matrix);
+    removed.matrix.pageIndex = 1;
+    removed.matrix.pageIndex = 0;
+    removed.matrix.removeRow(0);
+    expect(removed.matrix.value.map((r: any) => r.id), "#5").toEqual([1, 2, 3]);
+    expect(innerOf(removed.matrix, 1).pageIndex, "#6: the record now first does not take the removed record's state").toBe(0);
+    expect(removed.survey.tryComplete(), "#7: nothing edited is left").toBe(true);
+  });
+  test("cost: a rebuild keeps nothing without a nested paged question, and one state per row with an open detail panel", () => {
+    const unpaged = createOuter([{ type: "text", name: "note" }], 0);
+    unpaged.matrix.visibleRows.forEach(row => row.showDetailPanel());
+    unpaged.matrix.sortOrder = [{ field: "id", direction: "desc" }];
+    expect(unpaged.matrix.visibleRows.map(row => row.getQuestionByName("id").value), "#1: the rows were rebuilt").toEqual([3, 2, 1, 0]);
+    expect((<any>unpaged.matrix)._pageValidation, "#2: no page validation was created").toBeUndefined();
+    const plain = createOuter([{ type: "text", name: "note" }]);
+    plain.matrix.visibleRows.forEach(row => row.showDetailPanel());
+    plain.matrix.pageIndex = 1;
+    const validation = (<any>plain.matrix)._pageValidation;
+    expect([0, 1, 2, 3].map((i: number) => validation.getNestedStates(i)), "#3: nothing is kept").toEqual([undefined, undefined, undefined, undefined]);
+    const nested = createOuter([innerElement("panel")]);
+    innerOf(nested.matrix, 0);
+    const keep = vi.spyOn(<any>QuestionMatrixDynamicModel.prototype, "keepPageStatesOfQuestions");
+    nested.matrix.pageIndex = 1;
+    expect(keep.mock.calls.length, "#4: one row of the page had a detail panel").toBe(1);
+    keep.mockRestore();
+  });
+});
 describe("Page window: asynchronous validators and the survey's settings", () => {
   const results: Array<(res: any) => void> = [];
   function asyncPageFunc(params: any): any {

@@ -508,8 +508,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         (): void => { this.keepPendingVisibleIndex(visibleIndex); })) return;
     }
     const count = list.getMaterializedIndexes().length;
-    const oldPanels = [].concat(this.panelsCore);
-    this.keepNestedPageStates(oldPanels);
+    const oldPanels: Array<PanelModel> = [].concat(this.panelsCore);
+    this.keepNestedPageStates(oldPanels.map((panel: PanelModel): QuestionRecordItem => <QuestionRecordItem>panel.data),
+      (item: QuestionRecordItem): Array<Question> => item instanceof QuestionPanelDynamicItem ? item.panel.questions : undefined);
     this.prepareValueForPanelCreating();
     this.isRebuildingPanels = true;
     try {
@@ -597,18 +598,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     this.setPropertyValue("currentPanel", null);
     this.currentPanel = !!panel && panel.visible ? panel : this.visiblePanelsCore[0];
-  }
-  /* The state a paged question keeps for its records outlives its panels (see
-     IDynamicDataPageState): before the panels are disposed, the state of every paged question nested
-     in them is kept under the record the panel was built for, and it is handed back to the question
-     the new panel of that record holds. A panel without such a question hands empty states: they
-     drop what was kept for its record. */
-  private keepNestedPageStates(panels: Array<PanelModel>): void {
-    panels.forEach((panel: PanelModel): void => {
-      const item = <QuestionPanelDynamicItem>panel.data;
-      if (!(item instanceof QuestionPanelDynamicItem) || item.builtRecordIndex < 0) return;
-      this.keepPageStatesOfQuestions(item.builtRecordIndex, panel.questions);
-    });
   }
   private hasNestedPagedQuestions(panels: Array<PanelModel>): boolean {
     return panels.some((panel: PanelModel): boolean => this.hasPagedQuestions(panel.questions));

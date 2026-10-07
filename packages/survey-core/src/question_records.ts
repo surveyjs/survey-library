@@ -725,11 +725,26 @@ export abstract class QuestionRecordsModel extends Question {
   protected hasPagedQuestions(questions: Array<Question>): boolean {
     return questions.some((q: Question): boolean => !!QuestionRecordsModel.getPageStateOf(q));
   }
+  /* The state a paged question keeps for its records outlives the object that holds it (see
+     IDynamicDataPageState): before the objects are disposed - or an object drops its questions - the
+     states of the paged questions of each object are kept under the record the object was built for,
+     and the questions the record's next object holds take them back (restorePageStatesOfQuestions).
+     getQuestions answers an object's questions: the panel's, a matrix row's detail panel's. undefined
+     - a row whose detail panel was never created - hands nothing over and keeps what was kept for the
+     record; questions without a paged one hand empty states, which drop it. */
+  protected keepNestedPageStates(items: Array<QuestionRecordItem>, getQuestions: (item: QuestionRecordItem) => Array<Question>): void {
+    items.forEach((item: QuestionRecordItem): void => {
+      if (!item || item.builtRecordIndex < 0) return;
+      const questions = getQuestions(item);
+      if (!!questions) {
+        this.keepPageStatesOfQuestions(item.builtRecordIndex, questions);
+      }
+    });
+  }
   /* The ancestor side of the states above: what the paged questions nested in one record keep, by
      value name, while their objects are rebuilt. A record without such a question keeps empty
      states, which clear its entry - and need no page validation to be created for that - while states
-     that are not empty create it. Only the panel keeps them: a paged question in a matrix detail
-     panel starts over when its row is rebuilt. */
+     that are not empty create it. */
   protected keepPageStatesOfQuestions(recordIndex: number, questions: Array<Question>): void {
     const states: { [valueName: string]: IDynamicDataPageState } = {};
     questions.forEach((q: Question): void => {

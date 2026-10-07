@@ -5507,3 +5507,110 @@ describe("Remote data source: a refresh during a page move reads the page of the
     expect(question.currentPanel.getQuestionByName("col1").value, "#3").toBe("v5");
   });
 });
+
+/* A source that pages itself rebuilds the panels when a read commits: the current panel follows the
+   removal rule once the page is read, and one event reports a change once, when it is complete. */
+describe("Remote data source: the current panel of a paged dynamic panel", () => {
+  const setUp = async (count: number, json: any): Promise<{ question: QuestionPanelDynamicModel, source: FakeServerSource, events: Array<number> }> => {
+    const source = new FakeServerSource(serverRecords(count));
+    const { survey, question } = await createPanel(source, Object.assign({ displayMode: "tab" }, json));
+    question.currentPanel;
+    const events: Array<number> = [];
+    survey.onDynamicPanelCurrentIndexChanged.add((_, options) => { events.push(options.visiblePanelIndex); });
+    return { question: question, source: source, events: events };
+  };
+  const currentCol1 = (question: QuestionPanelDynamicModel): any => question.currentPanel.getQuestionByName("col1").value;
+  test("a refresh of the same page raises nothing; a move on the page one event", async () => {
+    const { question, events } = await setUp(7, { panelsPerPage: 2 });
+    question.currentIndex = 1;
+    events.splice(0);
+    question.refreshDataSource();
+    await flush();
+    expect(events, "#1").toEqual([]);
+    expect(question.currentIndex, "#2").toBe(1);
+    question.currentIndex = 3;
+    await flush();
+    expect(events, "#3").toEqual([3]);
+    expect(currentCol1(question), "#4").toBe("v3");
+  });
+  test("a move to another page raises one event once its read commits, and none when the read fails", async () => {
+    const { question, source, events } = await setUp(12, {});
+    source.auto = false;
+    question.currentIndex = 7;
+    expect(events, "#1: the read is pending").toEqual([]);
+    source.settleAll();
+    await flush();
+    expect(events, "#2").toEqual([7]);
+    events.splice(0);
+    question.currentIndex = 2;
+    source.pending[0].fail(new Error("boom"));
+    await flush();
+    expect(events, "#3: a failed read").toEqual([]);
+    expect(question.currentIndex, "#4: the current panel stays").toBe(7);
+  });
+  test("the current panel removed with a refill pending: the next record once the read commits, one event", async () => {
+    const { question, source, events } = await setUp(12, {});
+    question.currentIndex = 2;
+    events.splice(0);
+    question.removePanel(question.currentPanel);
+    for (let i = 0; i < 5 && source.pending.length > 0; i++) {
+      source.settleAll();
+      await flush();
+    }
+    await flush();
+    expect(currentCol1(question), "#1").toBe("v3");
+    expect(question.currentIndex, "#2").toBe(2);
+    expect(events, "#3").toEqual([2]);
+  });
+  test("the current panel alone on the last page: the previous record once the previous page is read, one event", async () => {
+    const { question, events } = await setUp(11, {});
+    question.currentIndex = 10;
+    await flush();
+    events.splice(0);
+    question.removePanel(question.currentPanel);
+    await flush();
+    expect(question.pageIndex, "#1").toBe(1);
+    expect(currentCol1(question), "#2").toBe("v9");
+    expect(question.currentIndex, "#3").toBe(9);
+    expect(events, "#4").toEqual([9]);
+  });
+  test("a refill that no longer holds the next record: the first panel of the page", async () => {
+    const { question, source } = await setUp(12, {});
+    question.currentIndex = 2;
+    source.auto = false;
+    question.removePanel(question.currentPanel);
+    // Another user moves record 3 to the end before the refill reads the page.
+    source.callsOf("remove")[0].settle();
+    source.moveRecordBehindTheGrid(2, 10);
+    await flush();
+    source.settleAll();
+    await flush();
+    expect(question.panels.map(panel => panel.getQuestionByName("col1").value), "#1").toEqual(["v0", "v1", "v4", "v5", "v6"]);
+    expect(currentCol1(question), "#2").toBe("v0");
+  });
+});
+
+describe("Remote data source: an add opens and focuses the row of the record it added", () => {
+  [false, true].forEach((isBuilt: boolean): void => {
+    test("matrix, a source that pages itself" + (isBuilt ? ", the rows built" : ", the rows not built yet") + ": the new record's row opens and is focused", async () => {
+      await checkAddOpensNewRow(isBuilt);
+    });
+  });
+  const checkAddOpensNewRow = async (isBuilt: boolean): Promise<void> => {
+    const source = new FakeServerSource(serverRecords(3));
+    const { question } = await createMatrix(source, { detailPanelMode: "underRow", detailPanelShowOnAdding: true,
+      detailElements: [{ type: "text", name: "d" }] });
+    if (isBuilt) question.visibleRows;
+    const focus = vi.spyOn(Question.prototype, "focus").mockImplementation(() => { });
+    try {
+      question.addRow(true);
+      await flush();
+      const newRow = question.visibleRows[3];
+      expect(newRow.isDetailPanelShowing, "#1").toBe(true);
+      expect(focus.mock.instances.length === 1 && focus.mock.instances[0] === newRow.getQuestionByName("col1"), "#2").toBe(true);
+      expect(question.visibleRows.slice(0, 3).some(row => row.isDetailPanelShowing), "#3").toBe(false);
+    } finally {
+      focus.mockRestore();
+    }
+  };
+});

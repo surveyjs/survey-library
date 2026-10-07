@@ -4114,3 +4114,166 @@ describe("Paging: every record shown is reachable by its number", () => {
     expect(source.removes[source.removes.length - 1], "#5: the kept record is removed by its number").toBe(500);
   });
 });
+
+/* Records { a: 0 } ... { a: n - 1 }, two panels per page unless a test says otherwise. events holds
+   every visiblePanelIndex onDynamicPanelCurrentIndexChanged reported since the last clear. */
+describe("Paged dynamic panel: the record the removal rule names becomes current, one event per change", () => {
+  const createCurrent = (json: any, count: number = 5): { question: QuestionPanelDynamicModel, events: Array<number> } => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "paneldynamic", name: "p", panelsPerPage: 2,
+      templateElements: [{ type: "text", name: "a" }] }, json)] });
+    survey.data = { p: records(count, (i: number) => ({ a: i })) };
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    question.panels;
+    question.currentPanel;
+    const events: Array<number> = [];
+    survey.onDynamicPanelCurrentIndexChanged.add((_, options) => { events.push(options.visiblePanelIndex); });
+    return { question: question, events: events };
+  };
+  const currentA = (question: QuestionPanelDynamicModel): any => !!question.currentPanel ? question.currentPanel.getQuestionByName("a").value : undefined;
+  const removeCurrentAt = (json: any, index: number, count?: number): { a: any, index: number, events: Array<number> } => {
+    const { question, events } = createCurrent(json, count);
+    question.currentIndex = index;
+    events.splice(0);
+    question.removePanel(question.currentPanel);
+    return { a: currentA(question), index: question.currentIndex, events: events };
+  };
+  ["carousel", "tab"].forEach((mode: string): void => {
+    test(mode + ": the current panel alone on the last page: the previous record, on the previous page", () => {
+      expect(removeCurrentAt({ displayMode: mode }, 4), "#1").toEqual({ a: 3, index: 3, events: [3] });
+    });
+    test(mode + ": the current panel last on a full page that is not the last: the previous record on the same page", () => {
+      expect(removeCurrentAt({ displayMode: mode }, 1), "#1").toEqual({ a: 0, index: 0, events: [0] });
+    });
+    test(mode + ": first or middle of a page: the next record on the page", () => {
+      expect(removeCurrentAt({ displayMode: mode }, 2), "#1: first").toEqual({ a: 3, index: 2, events: [2] });
+      expect(removeCurrentAt({ displayMode: mode, panelsPerPage: 3 }, 1, 6), "#2: middle").toEqual({ a: 2, index: 1, events: [1] });
+    });
+    test(mode + ": the only record: no current panel, no event", () => {
+      expect(removeCurrentAt({ displayMode: mode }, 0, 1), "#1").toEqual({ a: undefined, index: -1, events: [] });
+    });
+    test(mode + ": under a sort and a filter", () => {
+      const view = { displayMode: mode, sortBy: "a-", filterExpression: "{a} != 1" };
+      expect(removeCurrentAt(view, 3), "#1: a = 0, last of the last page").toEqual({ a: 2, index: 2, events: [2] });
+      expect(removeCurrentAt(view, 2), "#2: a = 2, first of page 1").toEqual({ a: 0, index: 2, events: [2] });
+    });
+    test(mode + ": currentIndex to another page, Next and Prev across a page and nextPage raise one event each", () => {
+      const { question, events } = createCurrent({ displayMode: mode });
+      question.currentIndex = 3;
+      expect(events, "#1: currentIndex = 3 from 0").toEqual([3]);
+      events.splice(0);
+      question.currentIndex = 1;
+      expect(events, "#2: back across the page").toEqual([1]);
+      events.splice(0);
+      question.goToNextPanel();
+      expect(events, "#3: Next across the page").toEqual([2]);
+      events.splice(0);
+      question.goToPrevPanel();
+      expect(events, "#4: Prev across the page").toEqual([1]);
+      events.splice(0);
+      question.currentIndex = 0;
+      expect(events, "#5: on the same page").toEqual([0]);
+      events.splice(0);
+      question.nextPage();
+      expect(events, "#6: nextPage").toEqual([2]);
+      expect(currentA(question), "#7").toBe(2);
+    });
+  });
+  test("tab, sorted: a rebuild of the same record at the same index raises nothing; a remove in front of it and of it one each", () => {
+    const { question, events } = createCurrent({ displayMode: "tab", sortBy: "a" });
+    question.currentIndex = 3;
+    events.splice(0);
+    question.refreshView();
+    expect(events, "#1: refreshView").toEqual([]);
+    expect(currentA(question), "#2").toBe(3);
+    question.removePanel(1);
+    expect(events, "#3: the current record is at index 2 now").toEqual([2]);
+    expect(currentA(question), "#4").toBe(3);
+    events.splice(0);
+    question.removePanel(question.currentPanel);
+    expect(events, "#5: the next record takes over at index 2").toEqual([2]);
+    expect(currentA(question), "#6").toBe(4);
+  });
+  test("leftVisibleIndex after a move across a page is the index the move started from", () => {
+    const { question } = createCurrent({ displayMode: "carousel" });
+    question.currentIndex = 1;
+    question.currentIndex = 3;
+    expect((<any>question).leftVisibleIndex, "#1").toBe(1);
+    question.goToPrevPanel();
+    expect((<any>question).leftVisibleIndex, "#2").toBe(3);
+  });
+  ["carousel", "tab"].forEach((mode: string): void => {
+    test(mode + " without paging: a move, Next and a removal raise one event each, as released", () => {
+      const { question, events } = createCurrent({ displayMode: mode, panelsPerPage: 0 });
+      question.currentIndex = 3;
+      expect(events, "#1").toEqual([3]);
+      events.splice(0);
+      question.currentIndex = 1;
+      question.goToNextPanel();
+      expect(events, "#2").toEqual([1, 2]);
+      events.splice(0);
+      question.removePanel(question.currentPanel);
+      expect(events, "#3").toEqual([2]);
+      expect(currentA(question), "#4").toBe(3);
+    });
+  });
+});
+
+/* Three records, a detail panel that opens on add. A record rowsVisibleIf hides has no row under
+   paging, and an add of one opens and focuses nothing. */
+describe("Paged matrix: an add opens and focuses the row of the record it added, or nothing", () => {
+  const createAdding = (json: any): QuestionMatrixDynamicModel => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "m", rowCount: 0,
+      detailPanelMode: "underRow", detailPanelShowOnAdding: true, detailElements: [{ type: "text", name: "d" }],
+      columns: [{ name: "a", cellType: "text" }] }, json)] });
+    survey.data = { m: records(3, (i: number) => ({ a: "r" + i })) };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    return matrix;
+  };
+  const addWithFocus = (matrix: QuestionMatrixDynamicModel): Array<any> => {
+    const focus = vi.spyOn(Question.prototype, "focus").mockImplementation(() => { });
+    try {
+      matrix.addRow(true);
+      return focus.mock.instances.slice();
+    } finally {
+      focus.mockRestore();
+    }
+  };
+  const openRows = (matrix: QuestionMatrixDynamicModel): Array<any> => matrix.visibleRows.filter(row => row.isDetailPanelShowing).map(row => row.getQuestionByColumnName("a").value);
+  [{ name: "two per page", json: { rowsPerPage: 2 } }, { name: "five per page", json: { rowsPerPage: 5 } }].forEach((setup) => {
+    test(setup.name + ": a record rowsVisibleIf hides opens no detail panel and focuses nothing", () => {
+      const matrix = createAdding(Object.assign({ rowsVisibleIf: "{row.a} notempty" }, setup.json));
+      const rows = matrix.visibleRows.slice();
+      const focused = addWithFocus(matrix);
+      expect(matrix.rowCount, "#1: the record is added").toBe(4);
+      expect(matrix.pageIndex, "#2: the page stays").toBe(0);
+      expect(openRows(matrix), "#3: no detail panel").toEqual([]);
+      expect(focused, "#4: nothing focused").toEqual([]);
+      expect(matrix.visibleRows.map(row => row.getQuestionByColumnName("a").value), "#5: the rows of the page stay").toEqual(rows.map(row => row.getQuestionByColumnName("a").value));
+    });
+  });
+  test("two per page: the new record's row on the next page opens and is focused", () => {
+    const matrix = createAdding({ rowsPerPage: 2 });
+    const focused = addWithFocus(matrix);
+    expect(matrix.pageIndex, "#1").toBe(1);
+    const newRow = matrix.visibleRows[1];
+    expect(newRow.isDetailPanelShowing, "#2").toBe(true);
+    expect(focused.length === 1 && focused[0] === newRow.getQuestionByColumnName("a"), "#3").toBe(true);
+  });
+  test("two per page with a filter the new record does not pass: it is shown, opens and is focused", () => {
+    const matrix = createAdding({ rowsPerPage: 2, filterExpression: "{a} notempty" });
+    const focused = addWithFocus(matrix);
+    const newRow = matrix.visibleRows[matrix.visibleRows.length - 1];
+    expect(newRow.getQuestionByColumnName("a").value, "#1: the new row").toBeUndefined();
+    expect(newRow.isDetailPanelShowing, "#2").toBe(true);
+    expect(focused.length === 1 && focused[0] === newRow.getQuestionByColumnName("a"), "#3").toBe(true);
+  });
+  test("without paging: the hidden new row's detail panel opens, as released", () => {
+    const matrix = createAdding({ rowsVisibleIf: "{row.a} notempty" });
+    addWithFocus(matrix);
+    const rows = matrix.allRows;
+    expect(rows.length, "#1").toBe(4);
+    expect(rows[3].isDetailPanelShowing, "#2").toBe(true);
+    expect(rows.slice(0, 3).some(row => row.isDetailPanelShowing), "#3").toBe(false);
+  });
+});

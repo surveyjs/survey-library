@@ -367,15 +367,14 @@ export abstract class QuestionRecordsModel extends Question {
      is no key to find it by. The first read of a replaced source names nothing of the old one. */
   private followReloadedCurrentRecord(getRemap: () => ((index: number) => number)): void {
     const list = this._dataList;
-    if (this.isCurrentRecordOfOldSource) {
-      this.isCurrentRecordOfOldSource = false;
+    const isLost = this.isCurrentRecordOfOldSource ||
+      list.isPagedBySource && !list.keyField && list.windowOffset !== this.currentRecordWindowOffset;
+    this.isCurrentRecordOfOldSource = false;
+    if (isLost) {
       this.currentRecordIndex = -1;
-    } else if (this.currentRecordIndex > -1) {
-      if (list.isPagedBySource && !list.keyField && list.windowOffset !== this.currentRecordWindowOffset) {
-        this.currentRecordIndex = -1;
-      } else {
-        this.remapCurrentRecord(getRemap());
-      }
+      this.announcedRecordIndex = -1;
+    } else if (this.currentRecordIndex > -1 || this.announcedRecordIndex > -1) {
+      this.remapCurrentRecord(getRemap());
     }
     this.currentRecordWindowOffset = list.windowOffset;
   }
@@ -1297,9 +1296,23 @@ export abstract class QuestionRecordsModel extends Question {
     return this.currentRecordIndex;
   }
   private remapCurrentRecord(remap: (index: number) => number): void {
-    if (this.currentRecordIndex < 0) return;
-    const to = remap(this.currentRecordIndex);
-    this.currentRecordIndex = to === undefined ? -1 : to;
+    const follow = (index: number): number => {
+      if (index < 0) return index;
+      const to = remap(index);
+      return to === undefined ? -1 : to;
+    };
+    this.currentRecordIndex = follow(this.currentRecordIndex);
+    this.announcedRecordIndex = follow(this.announcedRecordIndex);
+  }
+  /* The current record the question last announced (the dynamic panel's current-index event), followed
+     through the same inserts, removes, moves and reloads as the current record, so that an operation
+     that ends on the record and the position it started from announces nothing. -1: none, or gone. */
+  private announcedRecordIndex: number = -1;
+  protected setAnnouncedRecordIndex(recordIndex: number): void {
+    this.announcedRecordIndex = recordIndex;
+  }
+  protected getAnnouncedRecordIndex(): number {
+    return this.announcedRecordIndex;
   }
   /* The visible position a move from code goes to while the objects of its page do not exist yet,
      and the move it belongs to: a move made from inside another one - an event handler - supersedes
@@ -1369,6 +1382,7 @@ export abstract class QuestionRecordsModel extends Question {
         this._pageValidation.clearRecords();
       }
       this.currentRecordIndex = -1;
+      this.announcedRecordIndex = -1;
       this.isCurrentRecordOfOldSource = true;
       this.pendingVisibleIndex = undefined;
     }

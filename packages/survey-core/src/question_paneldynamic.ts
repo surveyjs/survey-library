@@ -490,6 +490,17 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
   }
   private rebuildPanelsFromDataListCore(isPageMove: boolean): void {
+    const prevIsRebuildingView = this.isRebuildingView;
+    this.isRebuildingView = true;
+    try {
+      this.runCurrentPanelChange((): void => { this.rebuildPanelsForView(isPageMove); });
+    } finally {
+      this.isRebuildingView = prevIsRebuildingView;
+    }
+  }
+  // While the panels are rebuilt for the view, the ones added and removed select nothing: restoreCurrentPanel chooses.
+  private isRebuildingView: boolean = false;
+  private rebuildPanelsForView(isPageMove: boolean): void {
     const list = this.dataList;
     // The page is a slice of the visible records: their visibility is decided before it is cut.
     if (!!this.data) {
@@ -852,14 +863,17 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     this.visiblePanelsCore.splice(index, 0, panel);
     this.updateTabbedMenuItems();
-    if (!this.currentPanel) {
+    if (!this.isRebuildingView && !this.currentPanel) {
       this.currentPanel = panel;
     }
     this.requestRenderedPanelsUpdate();
   }
+  /* Without paging the panel at the removed one's position takes over, clamped to the last. A paged
+     removal decides its successor itself (removePanelCore), and a rebuild leaves the choice to
+     restoreCurrentPanel. */
   private onPanelRemoved(panel: PanelModel): void {
     let index = this.onPanelRemovedCore(panel);
-    if (this.currentPanel === panel) {
+    if (!this.isRebuildingView && !this.isPagingActive && this.getPropertyValue("currentPanel", null) === panel) {
       const visPanels = this.visiblePanelsCore;
       if (index >= visPanels.length) index = visPanels.length - 1;
       this.currentPanel = index >= 0 ? visPanels[index] : null;
@@ -906,14 +920,16 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      whose rebuild selects it (restoreCurrentPanelByRecord). A data source that pages itself selects
      it when the read of that page commits; a page that could not change selects at once. */
   private moveToVisibleIndex(visibleIndex: number): void {
-    const panel = this.getVisiblePanelAt(visibleIndex);
-    if (!this.isPagingActive || !!panel && this.getPanelVisibleIndex(panel) === visibleIndex) {
-      this.currentPanel = panel;
-      return;
-    }
-    if (this.showVisibleIndex(visibleIndex)) {
-      this.restoreCurrentPanel(visibleIndex, -1);
-    }
+    this.runCurrentPanelChange((): void => {
+      const panel = this.getVisiblePanelAt(visibleIndex);
+      if (!this.isPagingActive || !!panel && this.getPanelVisibleIndex(panel) === visibleIndex) {
+        this.currentPanel = panel;
+        return;
+      }
+      if (this.showVisibleIndex(visibleIndex)) {
+        this.restoreCurrentPanel(visibleIndex, -1);
+      }
+    });
   }
   /**
    * A `PanelModel` object that is the currently displayed panel.
@@ -951,20 +967,58 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
        for setPropertyValue, so a change of currentPanel between them raises nothing. */
     this.setPropertyValue("currentPanelId", !!val ? val.id : "");
     this.setCurrentRecordIndex(!val ? -1 : this.getPanelRecordIndex(val));
-    if (!!val) {
+    // Inside an operation the change is announced when the operation ends (announceCurrentPanel).
+    const isAnnounced = !!val && this.currentPanelChangeDepth === 0;
+    if (isAnnounced) {
       this.leftVisibleIndex = this.currentVisibleIndexValue;
       this.currentVisibleIndexValue = visibleIndex;
+      this.setAnnouncedRecordIndex(this.getCurrentRecordIndex());
     }
     this.updateRenderedPanels();
     this.updateFooterActions();
     this.fireCallback(this.currentIndexChangedCallback);
-    if (visibleIndex > -1 && this.survey) {
-      const options = {
-        panel: val,
-        visiblePanelIndex: visibleIndex
-      };
-      this.dynamicPanelCallbacks.dynamicPanelCurrentIndexChanged(this, options);
+    if (isAnnounced) {
+      this.raiseCurrentIndexChanged(val, visibleIndex);
     }
+  }
+  private raiseCurrentIndexChanged(panel: PanelModel, visibleIndex: number): void {
+    if (visibleIndex < 0 || !this.survey) return;
+    this.dynamicPanelCallbacks.dynamicPanelCurrentIndexChanged(this, { panel: panel, visiblePanelIndex: visibleIndex });
+  }
+  /* One change, one event. An operation that may change the current panel - a rebuild of the panels for
+     the view, a removal, a move - runs here when the question has a view (without one there is no
+     rebuild, and the panel setter announces as released). The panels it selects on the way are not
+     announced; when the outermost one ends, the current panel is announced once if its record or its
+     visible index differs from the ones announced last. A new panel object for the same record at the
+     same index announces nothing, and neither does a current panel that is not on the page yet - a read
+     of its page is pending, and the rebuild of its commit announces it. */
+  private currentPanelChangeDepth: number = 0;
+  private runCurrentPanelChange(func: () => void): void {
+    if (!this.hasDataListView) {
+      func();
+      return;
+    }
+    this.currentPanelChangeDepth++;
+    try {
+      func();
+    } finally {
+      this.currentPanelChangeDepth--;
+    }
+    if (this.currentPanelChangeDepth === 0) {
+      this.announceCurrentPanel();
+    }
+  }
+  private announceCurrentPanel(): void {
+    if (this.isRenderModeList || this.useTemplatePanel) return;
+    const panel = this.getPropertyValue("currentPanel", null);
+    const visibleIndex = !!panel ? this.getPanelVisibleIndex(panel) : -1;
+    if (visibleIndex < 0) return;
+    const recordIndex = this.getCurrentRecordIndex();
+    if (recordIndex === this.getAnnouncedRecordIndex() && visibleIndex === this.currentVisibleIndexValue) return;
+    this.leftVisibleIndex = this.currentVisibleIndexValue;
+    this.currentVisibleIndexValue = visibleIndex;
+    this.setAnnouncedRecordIndex(recordIndex);
+    this.raiseCurrentIndexChanged(panel, visibleIndex);
   }
   /* The record a panel holds. Under a view it is the record the panel was built for, which
      remapBuiltItems keeps current: a panel selected while another one is spliced out - before the
@@ -2512,6 +2566,22 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private removedPanel: PanelModel;
   // Returns the removed panel's position in visiblePanels, -1 when no panel was removed.
   private removePanelCore(target: IPanelTarget): number {
+    let res = -1;
+    this.runCurrentPanelChange((): void => { res = this.removePanelCoreInScope(target); });
+    return res;
+  }
+  /* The record that becomes current when the current panel is removed under paging: the next panel on
+     its page, or, when it was the last of its page, the previous record - on the previous page when the
+     page is left empty. panel: the successor's panel on the page; visibleIndex: the position the
+     successor has after the removal. */
+  private getRemovalSuccessor(panel: PanelModel, visibleIndex: number): { panel: PanelModel, visibleIndex: number } {
+    const visPanels = this.visiblePanelsCore;
+    const pos = visPanels.indexOf(panel);
+    if (pos > -1 && pos + 1 < visPanels.length) return { panel: visPanels[pos + 1], visibleIndex: visibleIndex };
+    if (pos > 0) return { panel: visPanels[pos - 1], visibleIndex: visibleIndex - 1 };
+    return { panel: null, visibleIndex: visibleIndex - 1 };
+  }
+  private removePanelCoreInScope(target: IPanelTarget): number {
     this.removedPanelIndex = target.visibleIndex;
     const panel = target.panel;
     const visIndex = !!panel ? this.visiblePanelsCore.indexOf(panel) : -1;
@@ -2522,8 +2592,22 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const viewIndex = this.getRecordViewIndex(recordIndex);
     if (!!panel && this.survey && !this.dynamicPanelCallbacks.dynamicPanelRemoving(this, viewIndex, panel)) return -1;
     this.removedPanel = panel;
+    const isCurrentRemoved = !!panel && this.isPagingActive && !this.isRenderModeList && this.getPropertyValue("currentPanel", null) === panel;
+    const successor = isCurrentRemoved ? this.getRemovalSuccessor(panel, target.visibleIndex) : undefined;
     if (index > -1) {
       this.panelsCore.splice(index, 1);
+    }
+    /* The one place the successor is decided. A panel on the page is selected now; its record is held,
+       and the remove renumbers it, so the rebuilds that follow - the refill of the page, the read of a
+       source that pages itself - keep it. A successor on the previous page has no panel yet: its
+       position is kept for the rebuild of that page, which the page clamp of the remove asks for. */
+    if (!!successor) {
+      if (!!successor.panel) {
+        this.currentPanel = successor.panel;
+      } else {
+        this.currentPanel = null;
+        if (successor.visibleIndex > -1)this.keepPendingVisibleIndex(successor.visibleIndex);
+      }
     }
     this.setPropertyValue("panelCount", this.panelCount);
     if (!!panel) {

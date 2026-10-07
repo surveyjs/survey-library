@@ -956,13 +956,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       (allow !== options.canAddRow ? options.canAddRow : allow);
     if (!newAllow) return;
     this.onStartRowAddingRemoving();
-    this.addRowCore();
+    const newRow = this.addRowCore();
     this.onEndRowAdding();
     this.singleInputOnAddItem(false);
-    // The new row is the last one in allRows; visibleRows may end with an existing row when rowsVisibleIf hides the new row
-    const rows = this.allRows;
-    const newRow = oldRowCount !== this.rowCount && rows.length > 0 ? rows[rows.length - 1] : null;
-    if (!newRow) return;
+    if (!newRow || oldRowCount === this.rowCount) return;
     if (this.detailPanelShowOnAdding) {
       newRow.showDetailPanel();
     }
@@ -997,12 +994,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      defaultRowValue and then the copy from the last entry (getLastEntryRecord) - and handed to the
      list once: one source.insert, no move, no follow-up update. question.value and rowCount follow
      the window through the recordAdded notification. */
-  private addRowCoreRemote(): void {
+  private addRowCoreRemote(): MatrixDropdownRowModelBase {
     const defaultValue = this.getDefaultRowValue(true);
     const record = this.isValueEmpty(defaultValue) ? {} : defaultValue;
     const list = this.dataList;
     // Appended to the storage, as the local path appends to question.value; the rows follow the record.
-    const newRow = <MatrixDropdownRowModelBase>this.followInsertedRecord(this.runRecordAdd((): number => list.add(record, list.loadedCount)), false);
+    const index = this.runRecordAdd((): number => list.add(record, list.loadedCount));
+    const newRow = <MatrixDropdownRowModelBase>this.followInsertedRecord(index, false);
     if (this.data) {
       this.runCellsCondition(this.getDataFilteredProperties());
     }
@@ -1011,6 +1009,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.matrixCallbacks.matrixRowAdded(this, newRow);
     }
     this.onRowsChanged();
+    if (!!newRow) return newRow;
+    // Rows that were not built before the add are built for the window now, and hold the record too.
+    return this.allRows.length > 0 ? <MatrixDropdownRowModelBase>this.getItemByRecordIndex(index) || null : null;
   }
   // QuestionRecordsModel hook: one row for a record at the end of the rows; the rows before it keep their state.
   protected appendItemForRecord(recordIndex: number): void {
@@ -1021,11 +1022,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     rows.push(newRow);
     this.onMatrixRowCreated(newRow);
   }
-  private addRowCore() {
-    if (this.isRemoteData) {
-      this.addRowCoreRemote();
-      return;
-    }
+  /* Returns the row of the added record, null when it has none: under paging a record the page does not
+     hold - rowsVisibleIf hides it - has no row. Without paging it is the last row (allRows), a hidden
+     one included, as released. */
+  private addRowCore(): MatrixDropdownRowModelBase {
+    if (this.isRemoteData) return this.addRowCoreRemote();
     var prevRowCount = this.rowCount;
     this.runRecordAdd((): void => { this.rowCount = this.rowCount + 1; });
     var defaultValue = this.getDefaultRowValue(true);
@@ -1048,17 +1049,17 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.isPagedByList && prevRowCount + 1 == this.rowCount) {
       this.showPageOfAddedRecord();
     }
+    const rows = this.allRows;
+    if (prevRowCount + 1 != this.rowCount || rows.length === 0) return null;
+    // Under paging the page may not hold the new record (rowsVisibleIf hides it): no row, no event.
+    const row = this.isPagingActive ? <MatrixDropdownRowModelBase>this.getItemByRecordIndex(this.getLastRowRecordIndex()) || null : rows[rows.length - 1];
     if (this.survey) {
-      const rows = this.allRows;
-      if (prevRowCount + 1 == this.rowCount && rows.length > 0) {
-        // Under paging the page may not hold the new record (rowsVisibleIf hides it): no row, no event.
-        const row = this.isPagingActive ? this.getItemByRecordIndex(this.getLastRowRecordIndex()) : rows[rows.length - 1];
-        if (!!row) {
-          this.matrixCallbacks.matrixRowAdded(this, <MatrixDropdownRowModelBase>row);
-        }
-        this.onRowsChanged();
+      if (!!row) {
+        this.matrixCallbacks.matrixRowAdded(this, row);
       }
+      this.onRowsChanged();
     }
+    return row;
   }
   private getDefaultRowValue(isRowAdded: boolean): any {
     var res = null;

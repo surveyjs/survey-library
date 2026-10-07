@@ -1,6 +1,3 @@
-import { Action } from "../actions/action";
-import { ActionContainer } from "../actions/container";
-import { ComputedUpdater } from "../base";
 import { Helpers } from "../helpers";
 import { DynamicDataSortDirection, IDynamicDataSort } from "./dynamic-data-interfaces";
 import { DynamicDataList } from "./dynamic-data-list";
@@ -41,8 +38,8 @@ export interface IDynamicDataPagingOwner {
   // setSortOrderValue). Base.propertyValueChanged is protected, so the owner raises it.
   raiseSortByChanged(oldValue: string, newValue: string): void;
   /* A move the respondent makes: the owner validates the page it leaves when the move goes forward
-     (see DynamicDataPageValidation.leave) and runs move now, later, or never. Returns false only
-     when an error was found synchronously. Absent -> the move just happens. */
+     (see DynamicDataPageValidation.leave, question-side) and runs move now, later, or never. Returns
+     false only when an error was found synchronously. Absent -> the move just happens. */
   leavePage?(isForward: boolean, move: () => void): boolean;
   // Drops a move that waits for its validators: every change that replaces the page from code.
   cancelPendingPageMove?(): void;
@@ -383,44 +380,5 @@ export class DynamicDataPagingController {
       list.refreshView();
     }
     this.syncState();
-  }
-  /* The pager the renderers show through their action bar: it computes nothing of its own. The page
-     buttons are icons whose localized titles are their accessible names; the page info is a disabled
-     item without a tab stop, text the keyboard passes over. */
-  public createPagerActions(container: ActionContainer): ActionContainer {
-    const prevAction = new Action({
-      id: "sv-pager-prev",
-      iconName: "icon-arrowleft",
-      showTitle: false,
-      title: <any>new ComputedUpdater(() => this.owner.getLocalizationFormatString("pagePrevText")),
-      enabled: <any>new ComputedUpdater(() => this.canGoPrevPage),
-      action: () => { this.prevPage(); }
-    });
-    const pageInfoAction = new Action({
-      id: "sv-pager-info",
-      /* A count nobody knows has no total to show: the page number alone. A known count goes through
-         indexText like every other pager (some locales reverse the order). survey.locale is a property
-         read, so the updater follows it; the global surveyLocalization.currentLocale is not observed.
-         Both texts are computed on every run: a ComputedUpdater collects its dependencies once, on the
-         first run, so a branch not taken then (the total, while the count is unknown) is never
-         observed afterwards. */
-      title: <any>new ComputedUpdater(() => {
-        const page = this.owner.pageIndex + 1;
-        const text = this.owner.getLocalizationFormatString("indexText", page, this.owner.pageCount);
-        return this.isCountKnown ? text : String(page);
-      }),
-      enabled: false,
-      disableTabStop: true
-    });
-    const nextAction = new Action({
-      id: "sv-pager-next",
-      iconName: "icon-arrowright",
-      showTitle: false,
-      title: <any>new ComputedUpdater(() => this.owner.getLocalizationFormatString("pageNextText")),
-      enabled: <any>new ComputedUpdater(() => this.canGoNextPage),
-      action: () => { this.nextPage(); }
-    });
-    container.setItems([prevAction, pageInfoAction, nextAction]);
-    return container;
   }
 }

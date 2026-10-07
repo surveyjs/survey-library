@@ -1,4 +1,4 @@
-import { Base } from "./base";
+import { Base, ComputedUpdater } from "./base";
 import { IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
@@ -14,9 +14,8 @@ import {
   DynamicDataFieldType, DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort,
   IDynamicDataSource
 } from "./dynamic-data/dynamic-data-interfaces";
-import {
-  DynamicDataPageValidation, IDynamicDataPageState, IDynamicDataPageValidationOwner, findDuplicatePages, getReplacedRecordsRemap
-} from "./dynamic-data/dynamic-data-page-validation";
+import { IDynamicDataPageState, findDuplicatePages, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
+import { DynamicDataPageValidation, IDynamicDataPageValidationOwner } from "./question_records_page_validation";
 import { createIndexes } from "./dynamic-data/dynamic-data-filter";
 import { DynamicDataPagingController, IDynamicDataPagingOwner } from "./dynamic-data/dynamic-data-paging";
 import { applyRecordChange } from "./dynamic-data/dynamic-data-record-remap";
@@ -1292,9 +1291,49 @@ export abstract class QuestionRecordsModel extends Question {
   private pagerActionsValue: ActionContainer;
   public get pagerActions(): ActionContainer {
     if (!this.pagerActionsValue) {
-      this.pagerActionsValue = this.paging.createPagerActions(this.createActionContainer());
+      this.pagerActionsValue = this.createPagerActions(this.createActionContainer());
     }
     return this.pagerActionsValue;
+  }
+  /* The pager the renderers show through their action bar: it computes nothing of its own, it shows
+     what the paging helper answers. The page buttons are icons whose localized titles are their
+     accessible names; the page info is a disabled item without a tab stop, text the keyboard passes
+     over. */
+  private createPagerActions(container: ActionContainer): ActionContainer {
+    const prevAction = new Action({
+      id: "sv-pager-prev",
+      iconName: "icon-arrowleft",
+      showTitle: false,
+      title: <any>new ComputedUpdater(() => this.getLocalizationFormatString("pagePrevText")),
+      enabled: <any>new ComputedUpdater(() => this.paging.canGoPrevPage),
+      action: () => { this.paging.prevPage(); }
+    });
+    const pageInfoAction = new Action({
+      id: "sv-pager-info",
+      /* A count nobody knows has no total to show: the page number alone. A known count goes through
+         indexText like every other pager (some locales reverse the order). survey.locale is a property
+         read, so the updater follows it; the global surveyLocalization.currentLocale is not observed.
+         Both texts are computed on every run: a ComputedUpdater collects its dependencies once, on the
+         first run, so a branch not taken then (the total, while the count is unknown) is never
+         observed afterwards. */
+      title: <any>new ComputedUpdater(() => {
+        const page = this.reportedPageIndex + 1;
+        const text = this.getLocalizationFormatString("indexText", page, this.reportedPageCount);
+        return this.paging.isCountKnown ? text : String(page);
+      }),
+      enabled: false,
+      disableTabStop: true
+    });
+    const nextAction = new Action({
+      id: "sv-pager-next",
+      iconName: "icon-arrowright",
+      showTitle: false,
+      title: <any>new ComputedUpdater(() => this.getLocalizationFormatString("pageNextText")),
+      enabled: <any>new ComputedUpdater(() => this.paging.canGoNextPage),
+      action: () => { this.paging.nextPage(); }
+    });
+    container.setItems([prevAction, pageInfoAction, nextAction]);
+    return container;
   }
   // True while a page move waits for the asynchronous validators of the page it leaves.
   public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }

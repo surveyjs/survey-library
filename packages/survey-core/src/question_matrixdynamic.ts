@@ -1374,31 +1374,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!value || !Array.isArray(value)) return value;
-    var values = this.getUnbindValue(value);
-    var rows = this.visibleRows;
-    // A filter, a sort or a page: the rows are not parallel to the records.
-    if (this.hasDataListView) return this.getPagedDisplayValue(keysAsText, values);
-    for (var i = 0; i < rows.length && i < values.length; i++) {
-      var val = values[i];
-      if (!val) continue;
-      values[i] = this.getRowDisplayValue(keysAsText, rows[i], val);
-    }
-    return values;
-  }
-  /* Under a view - a filter, a sort, paging (Andrew's decision 2026-09-25) - a record that has a row
-     reads its display values from the row's cells, a record without one through the column's
-     templateQuestion: nothing is built on this live path. Choices that depend on {row.x}, and a
-     choicesByUrl whose answer is not cached, give the value. */
-  private getPagedDisplayValue(keysAsText: boolean, values: Array<any>): Array<any> {
-    const rows = this.generatedVisibleRows || [];
-    const positions = this.dataList.getMaterializedPositions();
-    for (let i = 0; i < values.length; i++) {
-      const val = values[i];
-      if (!val) continue;
-      const row = positions[i] !== undefined ? rows[positions[i]] : undefined;
-      values[i] = this.getRecordDisplayValue(keysAsText, row, val);
-    }
-    return values;
+    // Reading the rows builds them, as it always has. Under a view - a filter, a sort, paging - a
+    // record without a row is formatted through the columns' template questions.
+    this.visibleRows;
+    return this.getRecordsDisplayValue(keysAsText, this.getUnbindValue(value));
   }
   protected getConditionObjectRowName(index: number): string {
     return "[" + index.toString() + "]";
@@ -1669,12 +1648,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected getRowValueByIndexCore(index: number): any {
     const res = this.getListRecordAt(this.dataList.materializedIndexToIndex(index));
     return res !== undefined ? res : null;
-  }
-  // A row position is not a record index under paging, filtering or sorting: a location names the record.
-  protected getRowDataSegment(row: MatrixDropdownRowModelBase, index: number): string | number {
-    if (!this.hasDataListView) return index;
-    const res = this.getRecordIndexOf(row);
-    return res > -1 ? res : index;
   }
   public getRootCss(): string {
     return toCssClasses(super.getRootCss(), !this.renderedTable?.showTable && this.cssClasses.empty);

@@ -2,7 +2,7 @@ import { Base } from "./base";
 import { IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
-import { Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext } from "./question";
+import { IVerifyDataContext, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext } from "./question";
 import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
@@ -543,6 +543,67 @@ export abstract class QuestionRecordsModel extends Question {
       const index = indexes[i];
       const position = positions[index] !== undefined ? positions[index] : -1;
       func(index, position > -1 ? this.getItem(position) || undefined : undefined, position);
+    }
+  }
+  /* The records 0 ... count-1, each with the object that holds it, undefined for a record without one.
+     Without a view the objects are built in record order - the panel builds a panel before its record
+     exists - so the position is the record index, and the list is not created. */
+  protected forEachStoredRecord(count: number, func: (index: number, item: QuestionRecordItem) => void): void {
+    if (this.hasDataListView) {
+      this.forEachRecordItem(createIndexes(count), (index: number, item: QuestionRecordItem): void => { func(index, item); });
+      return;
+    }
+    for (let i = 0; i < count; i++) {
+      func(i, this.getItem(i) || undefined);
+    }
+  }
+  /* The display values of a records value, in record order: getRecordDisplayValue formats each record
+     with the object that holds it, or with the question's templates. This is a live path - text piping
+     and displayValue() call it - so nothing is built for it. values is a copy the caller owns. */
+  protected getRecordsDisplayValue(keysAsText: boolean, values: Array<any>): Array<any> {
+    this.forEachStoredRecord(values.length, (index: number, item: QuestionRecordItem): void => {
+      const record = values[index];
+      if (!!record) {
+        values[index] = this.getRecordDisplayValue(keysAsText, item, record, index);
+      }
+    });
+    return values;
+  }
+  /* The keys of the value that no question of a record stores, for every loaded record, whatever hides
+     it - the page, the filter, the owner's visibility: an unknown key is a property of the value, not
+     of the view. A source that pages itself checks its window. */
+  protected verifyRecordsUnknownKeys(val: any, context: IVerifyDataContext): void {
+    const list = this.dataListValue;
+    const count = !!list ? list.loadedCount : this.getListRecordCount();
+    this.forEachStoredRecord(count, (index: number, item: QuestionRecordItem): void => {
+      const record = this.getRecordInValue(val, index);
+      const keys = this.getRecordUnknownKeys(index, record, item);
+      if (keys.length === 0) return;
+      context.pushSegment(this.getRecordDataSegment(index));
+      keys.forEach(key => context.addIssue("unknownProperty", key, record[key], this));
+      context.popSegment();
+    });
+  }
+  // The segment of a record in a location: its index, for a value that is an array.
+  protected getRecordDataSegment(index: number): string | number {
+    return index;
+  }
+  /* Adds one record's inputs to a progress count. inputs are what a record has questions for (the
+     columns, the template questions); a question that is empty in the record and has a visibleIf is
+     not counted, since whether it would be shown is not known without its object. */
+  protected addRecordProgress<T>(res: IProgressInfo, record: any, inputs: Array<T>, getQuestion: (input: T) => Question,
+    getKey: (input: T) => string, isRequired: (input: T) => boolean): void {
+    for (let i = 0; i < inputs.length; i++) {
+      const input = inputs[i];
+      const question = getQuestion(input);
+      if (!question || !question.hasInput) continue;
+      const hasValue = !Helpers.isValueEmpty(record[getKey(input)]);
+      if (!hasValue && !!question.visibleIf) continue;
+      const required = isRequired(input) ? 1 : 0;
+      res.questionCount += 1;
+      res.requiredQuestionCount += required;
+      res.answeredQuestionCount += hasValue ? 1 : 0;
+      res.requiredAnsweredQuestionCount += hasValue ? required : 0;
     }
   }
   /* Three indexes: the record index names the record, visibleIndex is its position among the visible
@@ -1733,9 +1794,9 @@ export abstract class QuestionRecordsModel extends Question {
       const item = this.getItem(i);
       if (!item) return;
       const recordIndex = !!list ? list.materializedIndexToIndex(i) : i;
-      const newRecord = this.getItemRecordInValue(newRecords, recordIndex, item);
+      const newRecord = this.getRecordInValue(newRecords, recordIndex);
       if (isEveryChanged || newRecord === undefined && this.isItemWithoutRecordRefreshed() ||
-        QuestionRecordsModel.isRecordChanged(this.getItemRecordInValue(oldRecords, recordIndex, item), newRecord)) {
+        QuestionRecordsModel.isRecordChanged(this.getRecordInValue(oldRecords, recordIndex), newRecord)) {
         item.updateFromRecord(newRecord);
       }
     }
@@ -1744,9 +1805,9 @@ export abstract class QuestionRecordsModel extends Question {
     if (oldRecord === newRecord && oldRecord !== undefined) return true;
     return DynamicDataList.isValueChanged(newRecord, oldRecord);
   }
-  /* The record of an item in a value of the question: by record index in an array answer. The fixed
+  /* The record at a record index in a value of the question: by index in an array answer. The fixed
      matrix keys its answer by row name. */
-  protected getItemRecordInValue(value: any, recordIndex: number, item: QuestionRecordItem): any {
+  protected getRecordInValue(value: any, recordIndex: number): any {
     return Array.isArray(value) && recordIndex > -1 ? value[recordIndex] : undefined;
   }
   /* An object whose record the assigned value does not hold is refreshed by every assignment from
@@ -1878,6 +1939,12 @@ export abstract class QuestionRecordsModel extends Question {
     }
   }
 
+  // Objects that were never built were never shown: there is nothing the respondent could have left
+  // invalid, and validating them would build them.
+  protected validatePageObjects(context: ValidationContext): boolean {
+    return !this.areObjectsBuilt() || this.validateBuiltPageObjects(context);
+  }
+
   // The specialization hooks: what every records question answers.
   /* The records the list works with: the question's own storage, given to
      DynamicDataList.createReadThrough once. */
@@ -1896,8 +1963,15 @@ export abstract class QuestionRecordsModel extends Question {
   // What a write to the survey would have re-run after a write to a data source; guarded by
   // runConditionsAfterRemoteWrite.
   protected abstract runRemoteWriteConditions(): void;
-  // The question's own objects on the page; the rest of the page validation is shared.
-  protected abstract validatePageObjects(context: ValidationContext): boolean;
+  // The question's own objects on the page, once they are built; the rest of the page validation is shared.
+  protected abstract validateBuiltPageObjects(context: ValidationContext): boolean;
+  /* One record of getRecordsDisplayValue, formatted in place: item is the object that holds it, and a
+     record without one is formatted through the question's templates. */
+  protected abstract getRecordDisplayValue(keysAsText: boolean, item: QuestionRecordItem, record: any, recordIndex: number): any;
+  /* The unknown keys of one record of verifyRecordsUnknownKeys: item, when the record has one, applies
+     its own rule; a record without one is checked against the question's templates. The rules for a
+     key - comments, totals, shared questions - are the question's. */
+  protected abstract getRecordUnknownKeys(recordIndex: number, record: any, item: QuestionRecordItem): Array<string>;
   /* One record as the question reads it without an object: the duplicate scan, the record
      visibility and the record items read through it. The matrix pads question.value up to rowCount
      with the default row value; a data source's window and a write in progress are the list's. */

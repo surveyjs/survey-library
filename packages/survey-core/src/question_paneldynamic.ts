@@ -460,10 +460,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   /* False while the data source answers a read without a total: panelCount is then the number of
      records known to exist - a lower bound (see isCountKnown). */
   public get isPanelCountKnown(): boolean { return this.isCountKnown; }
-  // Panels that were never built were never shown: there is nothing the respondent could have left
-  // invalid, and validating them would build them.
-  protected validatePageObjects(context: ValidationContext): boolean {
-    if (!this.hasPanelBuildFirstTime) return true;
+  protected validateBuiltPageObjects(context: ValidationContext): boolean {
     return this.validateInPanels(context);
   }
   /* A full rebuild: the panels are re-created for the records the view - under paging, the page -
@@ -2097,16 +2094,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (!this.isPagedByList) {
       return SurveyElement.getProgressInfoByElements(this.visiblePanelsCore, this.isRequired);
     }
-    const questions = this.template.questions.filter((q: Question): boolean => q.hasInput);
+    const questions = this.template.questions;
+    const getQuestion = (q: Question): Question => q;
+    const getKey = (q: Question): string => q.getValueName();
+    const isRequired = (q: Question): boolean => q.isRequired;
     return this.getProgressInfoByRecords((res: IProgressInfo, record: any): void => {
-      questions.forEach((q: Question): void => {
-        const hasValue = !Helpers.isValueEmpty(record[q.getValueName()]);
-        if (!hasValue && !!q.visibleIf) return;
-        res.questionCount += 1;
-        res.requiredQuestionCount += q.isRequired ? 1 : 0;
-        res.answeredQuestionCount += hasValue ? 1 : 0;
-        res.requiredAnsweredQuestionCount += hasValue && q.isRequired ? 1 : 0;
-      });
+      this.addRecordProgress(res, record, questions, getQuestion, getKey, isRequired);
     });
   }
   protected hasCorrectAnswerValue(): boolean {
@@ -2687,20 +2680,16 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
     if (!super.verifyValueCore(val, context)) return false;
     if (!context.checks.reportUnknownProperties || !Array.isArray(val)) return true;
-    // A panel position is not a record index under paging, filtering or sorting: the record and the
-    // location segment are addressed by the record the panel holds.
-    const panels = this.panels;
-    for (let i = 0; i < panels.length; i++) {
-      const index = this.getRecordIndexByPanelIndex(i);
-      if (index >= val.length || !Helpers.isValueObject(val[index], true)) continue;
-      context.pushSegment(index);
-      for (const key in val[index]) {
-        if (!this.isUnknownValueKey(panels[i], key, index)) continue;
-        context.addIssue("unknownProperty", key, val[index][key], this);
-      }
-      context.popSegment();
-    }
+    // Verification builds the panels, as it always has.
+    this.panels;
+    this.verifyRecordsUnknownKeys(val, context);
     return true;
+  }
+  // A record is checked against its panel's questions, and a record without a panel against the template's.
+  protected getRecordUnknownKeys(recordIndex: number, record: any, item: QuestionRecordItem): Array<string> {
+    if (!Helpers.isValueObject(record, true)) return [];
+    const panel = !!item ? (<QuestionPanelDynamicItem>item).panel : this.template;
+    return Object.keys(record).filter((key: string): boolean => this.isUnknownValueKey(panel, key, recordIndex));
   }
   public initializeForVerification(): void {
     this.panels.forEach(panel => panel.initializeForVerification());
@@ -3164,30 +3153,17 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var values = this.getUnbindValue(value);
     if (!values || !Array.isArray(values)) return values;
-    /* i is a record index: values is the stored value, in record order. A record the page shows reads
-       its display values from its panel's questions; under paging a record without a panel reads them
-       through the template's questions (Andrew's decision 2026-09-25). This is a live path -
-       text piping and displayValue() call it - so nothing is built for it. */
-    const positions = this.hasDataListView ? this.dataList.getMaterializedPositions() : undefined;
-    const useTemplate = this.isPagingActive;
-    for (var i = 0; i < values.length; i++) {
-      var val = values[i];
-      if (!val) continue;
-      const position = !!positions ? (positions[i] !== undefined ? positions[i] : -1) : i;
-      if (position > -1 && position < this.panelsCore.length) {
-        values[i] = this.getRecordDisplayValue(this.panelsCore[position], i, val, keysAsText);
-      } else if (useTemplate) {
-        values[i] = this.getRecordDisplayValue(this.template, i, val, keysAsText);
-      }
-    }
-    return values;
+    return this.getRecordsDisplayValue(keysAsText, values);
   }
-  /* container: the record's panel, or the template for a record without one. The template gives the
-     same text the panel would when the choices do not depend on the panel. Choices that depend on
-     {panel.x}, and a choicesByUrl whose answer is not in the ChoicesRestful cache yet, give the raw
-     value - reading here never starts a request. */
-  private getRecordDisplayValue(container: PanelModel, recordIndex: number, val: any, keysAsText: boolean): any {
-    return this.formatRecordDisplayValue(keysAsText, val,
+  /* The record's panel formats it. Under a view - a filter, a sort, paging - a record without a panel
+     is formatted through the template, which gives the same text the panel would when the choices do
+     not depend on the panel. Choices that depend on {panel.x}, and a choicesByUrl whose answer is not
+     in the ChoicesRestful cache yet, give the raw value - reading here never starts a request. Without
+     a view a record has no panel only while the panels were never built: it keeps its values. */
+  protected getRecordDisplayValue(keysAsText: boolean, item: QuestionRecordItem, record: any, recordIndex: number): any {
+    const container = !!item ? (<QuestionPanelDynamicItem>item).panel : (this.hasDataListView ? this.template : undefined);
+    if (!container) return record;
+    return this.formatRecordDisplayValue(keysAsText, record,
       (key: string): Question => <Question>container.getQuestionByValueName(key) || this.getSharedQuestionFromArray(key, recordIndex));
   }
   private validateInPanels(context: ValidationContext): boolean {

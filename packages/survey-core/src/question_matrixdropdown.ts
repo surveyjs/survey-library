@@ -288,9 +288,10 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   protected getListRecordCount(): number {
     return this.getRecordItems().length;
   }
-  // The keyed answer: a row's record is under its row name.
-  protected getItemRecordInValue(value: any, recordIndex: number, item: QuestionRecordItem): any {
-    return this.isObject(value) ? value[(<MatrixDropdownRowModelBase>item).rowName] : undefined;
+  // The keyed answer: a record is under its row name.
+  protected getRecordInValue(value: any, recordIndex: number): any {
+    const item = recordIndex > -1 ? this.getRecordItems()[recordIndex] : undefined;
+    return !!item && this.isObject(value) ? value[item.value] : undefined;
   }
   protected isItemWithoutRecordRefreshed(): boolean {
     return true;
@@ -548,9 +549,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
     return true;
   }
-  protected getRowDataSegment(row: MatrixDropdownRowModelBase, index: number): string | number {
-    return row.rowName + "";
-  }
   protected hasValueKey(key: string): boolean {
     return this.rows.some(row => row.value + "" === key);
   }
@@ -631,9 +629,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   protected getRecordDataSegment(index: number): string | number {
     return this.getRecordItems()[index].value + "";
-  }
-  protected getRecordValueIn(value: any, index: number): any {
-    return this.isObject(value) ? value[this.getRecordItems()[index].value] : undefined;
   }
   private defaultValuesInRows: any = {};
   protected clearGeneratedRows(): void {

@@ -1823,40 +1823,16 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
     if (!super.verifyValueCore(val, context)) return false;
     if (!context.checks.reportUnknownProperties) return true;
-    if (this.isPagedByList) {
-      this.verifyRecordsUnknownKeys(val, context);
-      return true;
-    }
-    // allRows generates the rows and returns all of them in data order, hidden ones included:
-    // their values are in the data and, for a dynamic matrix, the index into a filtered array is
-    // not the data index.
-    const rows = this.allRows;
-    if (!Array.isArray(rows)) return true;
-    for (let i = 0; i < rows.length; i++) {
-      const rowValue = this.getRowValueCore(rows[i], val);
-      const keys = rows[i].getUnknownValueKeys(rowValue);
-      if (keys.length === 0) continue;
-      context.pushSegment(this.getRowDataSegment(rows[i], i));
-      keys.forEach(key => context.addIssue("unknownProperty", key, rowValue[key], this));
-      context.popSegment();
-    }
+    // Verification builds the rows without paging, as it always has; the page's rows are built already.
+    if (!this.isPagedByList)this.allRows;
+    this.verifyRecordsUnknownKeys(val, context);
     // An unknown key inside a row is not a shape problem: a matrixdropdown still checks its rows.
     return true;
   }
-  /* Under paging the rows are one page: every record is checked, hidden ones included, as every row
-     is without paging. A record on the page is checked by its row, one without a row by the rule the
-     row applies (getUnknownValueKeys), against the columns and the detail panel. */
-  private verifyRecordsUnknownKeys(val: any, context: IVerifyDataContext): void {
-    this.forEachRecordRow(createIndexes(this.dataList.loadedCount), (index: number, row: MatrixDropdownRowModelBase): void => {
-      const recordValue = this.getRecordValueIn(val, index);
-      const keys = !!row ? row.getUnknownValueKeys(recordValue) : this.getRecordUnknownKeys(index, recordValue);
-      if (keys.length === 0) return;
-      context.pushSegment(this.getRecordDataSegment(index));
-      keys.forEach(key => context.addIssue("unknownProperty", key, recordValue[key], this));
-      context.popSegment();
-    });
-  }
-  private getRecordUnknownKeys(index: number, recordValue: any): Array<string> {
+  /* A record with a row is checked by its row; one without a row by the rule the row applies
+     (getUnknownValueKeys), against the columns and the detail panel. */
+  protected getRecordUnknownKeys(index: number, recordValue: any, row: MatrixDropdownRowModelBase): Array<string> {
+    if (!!row) return row.getUnknownValueKeys(recordValue);
     if (!!recordValue && typeof recordValue.getType === "function") return [];
     if (!Helpers.isValueObject(recordValue, true)) return [];
     const names: { [name: string]: boolean } = {};
@@ -1874,18 +1850,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       return !this.getSharedQuestionFromArray(key, index) && key.indexOf(settings.matrix.totalsSuffix) < 0;
     });
   }
-  // A record in a value being verified, and its segment in a location: the dynamic matrix keeps its
-  // records in an array.
-  protected getRecordValueIn(value: any, index: number): any {
-    return Array.isArray(value) ? value[index] : undefined;
-  }
-  protected getRecordDataSegment(index: number): string | number {
-    return index;
-  }
-  // The segment of a row in a location: the row index here, because a dynamic matrix keeps its rows
-  // in an array, and the key of the row in the value for a matrixdropdown, which uses an object.
-  protected getRowDataSegment(row: MatrixDropdownRowModelBase, index: number): string | number {
-    return index;
+  // The segment of the row at a position in a location: the segment of the record it holds.
+  private getRowDataSegment(position: number): string | number {
+    const index = this.getRecordIndexAtRowPosition(position);
+    return this.getRecordDataSegment(index > -1 ? index : position);
   }
   public initializeForVerification(): void {
     const rows = this.allRows;
@@ -1901,7 +1869,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (!Array.isArray(rows)) return;
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
-      context.pushSegment(this.getRowDataSegment(row, i));
+      context.pushSegment(this.getRowDataSegment(i));
       row.cells.forEach(cell => cell?.question?.verifyDataCore(context));
       row.detailPanel?.verifyDataCore(context);
       context.popSegment();
@@ -2709,17 +2677,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return !!this.rowsVisibleIf;
   }
   protected updateProgressInfoByValues(res: IProgressInfo): void { }
+  // A record is counted by its columns: the value is under the column name.
   protected updateProgressInfoByRow(res: IProgressInfo, rowValue: any): void {
-    for (var i = 0; i < this.columns.length; i++) {
-      const col = this.columns[i];
-      if (!col.templateQuestion.hasInput) continue;
-      const hasValue = !Helpers.isValueEmpty(rowValue[col.name]);
-      if (!hasValue && !!col.templateQuestion.visibleIf) continue;
-      res.questionCount += 1;
-      res.requiredQuestionCount += col.isRequired;
-      res.answeredQuestionCount += hasValue ? 1 : 0;
-      res.requiredAnsweredQuestionCount += hasValue && col.isRequired ? 1 : 0;
-    }
+    this.addRecordProgress(res, rowValue, this.columns, (col: MatrixDropdownColumn): Question => col.templateQuestion,
+      (col: MatrixDropdownColumn): string => col.name, (col: MatrixDropdownColumn): boolean => col.isRequired);
   }
   private getCellQuestions(): Array<Question> {
     const res: Array<Question> = [];
@@ -2772,10 +2733,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected areObjectsBuilt(): boolean {
     return Array.isArray(this.generatedVisibleRows);
   }
-  // Rows that were never built were never shown: there is nothing the respondent could have left
-  // invalid, and validating them would build them.
-  protected validatePageObjects(context: ValidationContext): boolean {
-    if (!this.generatedVisibleRows) return true;
+  protected validateBuiltPageObjects(context: ValidationContext): boolean {
     return this.validateRowObjects(context);
   }
   protected getRecordItemVariableName(): string {

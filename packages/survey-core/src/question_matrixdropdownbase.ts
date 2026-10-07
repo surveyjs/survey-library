@@ -1514,15 +1514,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     keys[vriName] = 0;
     // A row's visibleIndex is its position among the visible records of the whole list; the rows of
     // a matrix that pages are one page of them.
-    const start = this.getFirstRowVisibleIndex();
     for (let i = 0; i < rows.length; i ++) {
-      rows[i].visibleIndex = start + i;
-      keys[vriName] = start + i + 1;
-      rows[i].runTriggers(vriName, start + i + 1, keys);
+      const visibleIndex = this.getVisibleIndexAtPosition(i);
+      rows[i].visibleIndex = visibleIndex;
+      keys[vriName] = visibleIndex + 1;
+      rows[i].runTriggers(vriName, visibleIndex + 1, keys);
     }
-  }
-  protected getFirstRowVisibleIndex(): number {
-    return this.pageStartVisibleIndex;
   }
   private lockResetRenderedTable: boolean = false;
   protected onStartRowAddingRemoving() {
@@ -2422,13 +2419,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
      columns), with no cell event (writeRecordWithoutItem). */
   public setRowValue(rowIndex: number, rowValue: any): any {
     if (rowIndex < 0) return null;
-    var visRows = this.visibleRows;
-    if (rowIndex >= this.getVisibleNumberEnd(visRows.length)) return null;
-    if (!this.isPagingActive) {
-      this.setRowValueCore(visRows[rowIndex], rowValue);
-      return;
-    }
-    const target = this.getRecordTargetAtVisibleIndex(rowIndex);
+    const visRows = this.visibleRows;
+    const target = this.resolveRecordTarget(rowIndex, visRows.length, (pos: number): QuestionRecordItem => visRows[pos]);
     if (!target) return null;
     if (!!target.item) {
       this.setRowValueCore(<MatrixDropdownRowModelBase>target.item, rowValue);
@@ -2766,7 +2758,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   // No records, so nothing to write: the fixed membership keeps the count at 0.
   protected setListRecords(records: Array<any>): void { }
   // No records, so no record at any index.
-  protected getListRecordAt(index: number): any {
+  protected getStoredRecordAt(index: number, defaultRecord?: any): any {
     return undefined;
   }
   /* A full rebuild: the rows are re-created for the records the view now holds. It costs the
@@ -3351,7 +3343,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return this.getRecordIndexAtRowPosition(this.getItemIndex(item));
   }
   // The record the row at a position in generatedVisibleRows holds; -1 for no position.
-  private getRecordIndexAtRowPosition(position: number): number {
+  protected getRecordIndexAtRowPosition(position: number): number {
     if (position < 0) return -1;
     const list = this.dataListValue;
     return !!list ? list.materializedIndexToIndex(position) : position;
@@ -3386,8 +3378,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (item instanceof MatrixDropdownRowModelBase) {
       const rows = this.visibleRows;
       if (!rows) return item.visibleIndex;
-      const pos = rows.indexOf(item);
-      return pos < 0 ? -1 : this.pageStartVisibleIndex + pos;
+      return this.getVisibleIndexAtPosition(rows.indexOf(item));
     }
     return this.getRecordItemVisibleIndex(item);
   }
@@ -3397,7 +3388,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (visibleIndex < 0) return null;
     const rows = this.visibleRows;
     if (!rows) return null;
-    const pos = visibleIndex - this.pageStartVisibleIndex;
+    const pos = this.getPositionAtVisibleIndex(visibleIndex);
     if (pos >= 0 && pos < rows.length) return rows[pos];
     return this.getRecordItemByVisibleIndex(visibleIndex);
   }

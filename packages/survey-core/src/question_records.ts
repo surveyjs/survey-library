@@ -617,9 +617,31 @@ export abstract class QuestionRecordsModel extends Question {
   /* Three indexes: the record index names the record, visibleIndex is its position among the visible
      records of the whole list (the list's globalVisibleIndex; what the respondent navigates by),
      pageVisibleIndex its position among the visible objects; visibleIndex = pageStartVisibleIndex +
-     pageVisibleIndex. 0 without a list. */
-  protected get pageStartVisibleIndex(): number {
+     pageVisibleIndex. 0 without a list. The questions convert through the two members below. */
+  private get pageStartVisibleIndex(): number {
     return !!this.dataListValue ? this.dataListValue.getPageStartGlobalVisibleIndex() : 0;
+  }
+  // A position among the visible objects of the page -> the visible index of the whole view; -1 for no position.
+  protected getVisibleIndexAtPosition(position: number): number {
+    return position < 0 ? -1 : this.pageStartVisibleIndex + position;
+  }
+  // The visible index of the whole view -> a position among the visible objects of the page. Not clamped.
+  protected getPositionAtVisibleIndex(visibleIndex: number): number {
+    return visibleIndex - this.pageStartVisibleIndex;
+  }
+  // A sort is set; nothing is created for the answer: every sort creates the list.
+  protected get hasRecordSort(): boolean {
+    return !!this.dataListValue && this.dataListValue.sort.length > 0;
+  }
+  /* One record as the question reads it without an object: the duplicate scan, the record visibility
+     and the record items read through it. A data source's window and a write in progress are the
+     list's - inside list.batch() the writes sit in the source's batch array and the storage does not
+     have them yet; otherwise the storage answers (getStoredRecordAt), and the list is not created.
+     defaultRecord: what a record the storage pads reads as (the matrix). */
+  protected getListRecordAt(index: number, defaultRecord?: any): any {
+    const list = this.dataListValue;
+    if (!!list && (list.isRemote || list.isWriting)) return list.getRecord(index);
+    return this.getStoredRecordAt(index, defaultRecord);
   }
   /* The index the respondent and the expressions see for an item's record ({panelIndex},
      {rowIndex}) is the record index plus this offset: the position of the loaded window in the whole
@@ -868,12 +890,25 @@ export abstract class QuestionRecordsModel extends Question {
      only when the page changes, before the move: the page change rebuilds the objects at once, and
      the rebuild has to find what the question set aside for it. Returns whether the page changed. */
   protected showPageOfVisibleIndex(visibleIndex: number, prepare?: () => void): boolean {
-    const list = this.dataList;
-    const page = list.getPageOfVisibleIndex(visibleIndex);
-    if (page === list.pageIndex) return false;
+    if (this.isVisibleIndexOnPage(visibleIndex)) return false;
     if (!!prepare) prepare();
-    this.paging.pageIndex = page;
+    this.paging.pageIndex = this.dataList.getPageOfVisibleIndex(visibleIndex);
     return true;
+  }
+  // The page that holds a visible index of the whole view is the page in force.
+  protected isVisibleIndexOnPage(visibleIndex: number): boolean {
+    const list = this.dataList;
+    return list.getPageOfVisibleIndex(visibleIndex) === list.pageIndex;
+  }
+  /* Shows the page that holds a record, as a move from code (showPageOfVisibleIndex), under in-memory
+     paging. A record the view does not show has no page: the page stays. keepPosition runs with the
+     record's visible index before the page changes, and only when it does. Returns whether the page
+     changed. */
+  protected showPageOfRecord(recordIndex: number, keepPosition?: (visibleIndex: number) => void): boolean {
+    if (!this.isPagedByList || recordIndex < 0) return false;
+    const visibleIndex = this.dataList.getVisibleIndexes().indexOf(recordIndex);
+    if (visibleIndex < 0) return false;
+    return this.showPageOfVisibleIndex(visibleIndex, !!keepPosition ? (): void => keepPosition(visibleIndex) : undefined);
   }
   /* A question that pages validates the page that exists - Complete included - and then what the
      page cannot show: the edited records on other pages (layer 2) and a duplicate pair both of whose
@@ -1075,11 +1110,19 @@ export abstract class QuestionRecordsModel extends Question {
   protected refuseOperationOfSource(operation: DynamicDataOperation): boolean {
     if (this.isRecordMembershipFixed() && operation !== "update") return false;
     const list = this._dataList;
-    if (!list || !list.isRemote || list.hasCapability(operation)) return false;
-    const reason = !list.keyField ? "The data source has no keyField, so its records are read-only" :
-      "The data source does not implement " + operation;
-    this.reportOperationRefused(operation, reason);
-    return true;
+    if (!list || !list.isRemote) return false;
+    if (!list.hasCapability(operation)) {
+      const reason = !list.keyField ? "The data source has no keyField, so its records are read-only" :
+        "The data source does not implement " + operation;
+      this.reportOperationRefused(operation, reason);
+      return true;
+    }
+    // A move names a position in the whole source, which a page the source filtered or sorted does not know.
+    if (operation === "move" && !list.canMoveInSource) {
+      this.reportOperationRefused("move", "The data source filtered or sorted the loaded page, so the position in the whole source is not known");
+      return true;
+    }
+    return false;
   }
   /* The writes the question computes itself - while it builds the objects of its records and while it
      runs the conditions of its objects: default values, expression results, setValueExpression and
@@ -1156,25 +1199,24 @@ export abstract class QuestionRecordsModel extends Question {
     return this.getItemByRecordIndex(recordIndex);
   }
   /* Step 1 of followInsertedRecord, also for an add whose objects the count setter has built already:
-     under in-memory paging the inserted record is marked edited and the page that holds it is shown,
-     as a move from code. With select the record's position is kept for the rebuild a page change
-     makes. A record the view does not show has no page: the page stays. Returns whether the page
-     changed. */
+     under in-memory paging the inserted record is marked edited and the page that holds it is shown
+     (showPageOfRecord). With select the record's position is kept for the rebuild that follows, a
+     page change or not. Returns whether the page changed. */
   protected showPageOfInsertedRecord(recordIndex: number, select: boolean = false): boolean {
     if (!this.isPagedByList || recordIndex < 0) return false;
     this.markRecordEdited(recordIndex);
-    const visibleIndex = this.dataList.getVisibleIndexes().indexOf(recordIndex);
-    if (visibleIndex < 0) return false;
     if (select) {
-      this.keepPendingVisibleIndex(visibleIndex);
+      const visibleIndex = this.dataList.getVisibleIndexes().indexOf(recordIndex);
+      if (visibleIndex > -1)this.keepPendingVisibleIndex(visibleIndex);
     }
-    return this.showPageOfVisibleIndex(visibleIndex);
+    return this.showPageOfRecord(recordIndex);
   }
   /* The add of a question whose count setter builds the objects (rowCount++, panelCount++ in grow):
      the grow appends the new record at the end, and the record then moves to getIndex() and takes
      getRecord(index) when that answers one - one write, in one list.batch. getIndex runs after the
-     grow. An assignment from outside that the grow defers and follows (see runOwnRecordsChange)
-     stops the add. Returns the record index the new record ended at, or:
+     grow; undefined keeps the record where the grow appended it. An assignment from outside that the
+     grow defers and follows (see runOwnRecordsChange) stops the add. Returns the record index the new
+     record ended at, or:
      -1: an outside assignment happened during the grow - the assigned value stays, none of its records
          is the new one - or getIndex answered none;
      -2: the count did not grow; the caller decides what the add does then. */
@@ -1185,7 +1227,8 @@ export abstract class QuestionRecordsModel extends Question {
     if (this.outsideAssignmentCount !== outsideAssignmentCount) return -1;
     const list = this.dataList;
     if (list.count === oldCount) return -2;
-    const index = getIndex();
+    let index = getIndex();
+    if (index === undefined) index = list.count - 1;
     if (index < 0) return -1;
     list.batch((): void => {
       const lastIndex = list.count - 1;
@@ -2136,10 +2179,9 @@ export abstract class QuestionRecordsModel extends Question {
      its own rule; a record without one is checked against the question's templates. The rules for a
      key - comments, totals, shared questions - are the question's. */
   protected abstract getRecordUnknownKeys(recordIndex: number, record: any, item: QuestionRecordItem): Array<string>;
-  /* One record as the question reads it without an object: the duplicate scan, the record
-     visibility and the record items read through it. The matrix pads question.value up to rowCount
-     with the default row value; a data source's window and a write in progress are the list's. */
-  protected abstract getListRecordAt(index: number): any;
+  /* One record of the question's own storage (see getListRecordAt), without composing the array. The
+     matrix pads question.value up to rowCount with defaultRecord, else the default row value. */
+  protected abstract getStoredRecordAt(index: number, defaultRecord?: any): any;
   // What a duplicate is among the records; asked only when the records without an object are scanned.
   protected abstract getRecordUniqueness(): IDynamicDataRecordUniqueness;
   // The property the authored page size is stored under (see pageSize).

@@ -302,11 +302,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   protected createAssignmentRemap(oldRecords: any, newRecords: any): (index: number) => number {
     return (index: number): number => index;
   }
-  // One record without composing the array. Inside a list write the list answers: the write is not in
-  // the value yet.
-  protected getListRecordAt(index: number): any {
-    const list = this.dataListValue;
-    if (!!list && list.isWriting) return list.getRecord(index);
+  // QuestionRecordsModel hook: one stored record without composing the array, by its row key.
+  protected getStoredRecordAt(index: number, defaultRecord?: any): any {
     const items = this.getRecordItems();
     if (index < 0 || index >= items.length) return undefined;
     const value = this.getStoredRecords();
@@ -579,10 +576,10 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   private isKeyVisible(key: string, isPaged: boolean): boolean {
     const row = isPaged ? undefined : this.getRowByKey(key);
     if (!!row) return row.isVisible;
-    // Under a view a record without a row - off the page or filtered out - decides by its own flag:
-    // the filter is a view, and a filtered-out record keeps its answer.
+    // A record without a row - off the page or filtered out - decides by its own flag: the filter is a
+    // view, and a filtered-out record keeps its answer.
     const list = this.dataListValue;
-    if (!isPaged && !(!!list && list.hasView)) return false;
+    if (!list) return false;
     const index = this.getRecordItemsCache().keys.indexOf(String(key));
     return index > -1 && list.isRecordVisible(index);
   }

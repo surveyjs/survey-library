@@ -541,8 +541,10 @@ The following built-in functions are available:
 - [`max`](#max)
 - [`min`](#min)
 - [`avg`](#avg)
+- [`count`](#count)
 - [`round`](#round)
 - [`trunc`](#trunc)
+- [`substring`](#substring)
 - [`sumInArray`](#suminarray)
 - [`maxInArray`](#maxinarray)
 - [`minInArray`](#mininarray)
@@ -623,8 +625,10 @@ Returns the current date or a date shifted from the current by a given number of
 
 *Examples*:
 
-- `"expression": "today()"`
-- `"expression": "today(2)"`
+```js
+"expression": "today()"
+"expression": "today(2)"
+```
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L530-L542 (linkStyle))
 
@@ -634,9 +638,14 @@ Returns the current date or a date shifted from the current by a given number of
 
 *Definition*: `year(date?: Date): number`
 
-Returns the year of a given date.
+Returns the year of a given date. If the date argument is omitted or empty, returns the current year.
 
-*Example*: `"expression": "year({birthdate})"`
+*Examples*:
+
+```js
+"expression": "year({birthdate})"
+"expression": "year()" // Current year
+```
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L574-L578 (linkStyle))
 
@@ -646,9 +655,14 @@ Returns the year of a given date.
 
 *Definition*: `month(date?: Date): number`
 
-Returns the month of a given date as a value from 1 (January) to 12 (December).
+Returns the month of a given date as a value from 1 (January) to 12 (December). If the date argument is omitted or empty, returns the current month.
 
-*Example*: `"expression": "month({birthdate})"`
+*Examples*:
+
+```js
+"expression": "month({birthdate})"
+"expression": "month()" // Current month
+```
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L580-L584 (linkStyle))
 
@@ -658,9 +672,14 @@ Returns the month of a given date as a value from 1 (January) to 12 (December).
 
 *Definition*: `day(date?: Date): number`
 
-Returns the day of the month for a given date as a value from 1 to 31.
+Returns the day of the month for a given date as a value from 1 to 31. If the date argument is omitted or empty, returns the current day of the month.
 
-*Example*: `"expression": "day({birthdate})"`
+*Examples*:
+
+```js
+"expression": "day({birthdate})"
+"expression": "day()" // Current day of the month
+```
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L586-L590 (linkStyle))
 
@@ -670,9 +689,14 @@ Returns the day of the month for a given date as a value from 1 to 31.
 
 *Definition*: `weekday(date?: Date): number`
 
-Returns the day of the week for a given date as a value from 0 (Sunday) to 6 (Saturday).
+Returns the day of the week for a given date as a value from 0 (Sunday) to 6 (Saturday). If the date argument is omitted or empty, returns the current day of the week.
 
-*Example*: `"expression": "weekday({birthdate})"`
+*Examples*:
+
+```js
+"expression": "weekday({birthdate})"
+"expression": "weekday()" // Current day of the week
+```
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L592-L596 (linkStyle))
 
@@ -762,6 +786,26 @@ Returns the average of passed numbers.
 
 ---
 
+#### `count`
+
+*Definition*: `count(param1: any, param2: any, ...): number`
+
+Returns the number of passed values. Arguments can be individual values or arrays. Array items, including items in nested arrays, are counted individually; `null` and `undefined` values are skipped. Returns 0 if no values are passed.
+
+For example, use `count({questionName})` to count selected choices in a multi-select question.
+
+*Examples*:
+
+```js
+"expression": "count(10, 20, 30, 40)" // 4
+"expression": "count([10, 20], 30)" // 3
+"expression": "count({questionName})"
+```
+
+[View Source Code](https://github.com/surveyjs/survey-library/blob/21cde083a14d3469addc758a58210971f1d79f4a/packages/survey-core/src/functionsfactory.ts#L286-L291 (linkStyle))
+
+---
+
 #### `round`
 
 *Definition*: `round(num: number, precision?: number): number`
@@ -803,6 +847,24 @@ Truncates the given number to the specified number of decimal places. If the `pr
 ```
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L292-L305 (linkStyle))
+
+---
+
+#### `substring`
+
+*Definition*: `substring(text: string, startIndex: number, endIndex?: number): string`
+
+Returns a part of a string between the specified zero-based indices. The character at `startIndex` is included; the character at `endIndex` is excluded. If `endIndex` is omitted, the function returns all characters from `startIndex` to the end of the string. Returns an empty string if the text is empty or is not a string, or if `startIndex` is missing or non-numeric.
+
+*Examples*:
+
+```js
+"expression": "substring({productCode}, 0, 3)" // First three characters
+"expression": "substring('abcdef', 1, 3)" // 'bc'
+"expression": "substring('abcdef', 2)" // 'cdef'
+```
+
+[View Source Code](https://github.com/surveyjs/survey-library/blob/21cde083a14d3469addc758a58210971f1d79f4a/packages/survey-core/src/functionsfactory.ts#L722-L732 (linkStyle))
 
 ---
 
@@ -954,6 +1016,8 @@ Returns the value of a property specified for a given question. Supports questio
 *Example*: `"expression": "propertyValue('question1', 'visible')"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L641-L657 (linkStyle))
+
+---
 
 ### Custom Functions
 

@@ -77,3 +77,83 @@
   left: 0;
   right: 0;
 }
+
+// questionPerPage / inputPerPage. Vertical centering only appears when the host
+// already gives the root a height (fitToContainer or an explicit height). flex-grow
+// adds no space when that height is missing, so the layout stays top-aligned.
+// No min-height and no viewport units: a survey embedded in a short page must not grow.
+// Descendant selectors also match a survey nested inside this one. A direct-child
+// chain would need a variant for every optional sv-scroll wrapper, so the shorter
+// form is intentional.
+.sd-root-modern--single-question {
+  display: flex;
+  flex-direction: column;
+
+  > .sv-scroll__wrapper,
+  > .sd-root-modern__wrapper,
+  .sv-scroll__container > .sd-root-modern__wrapper {
+    flex-grow: 1;
+  }
+
+  .sd-root-modern__wrapper {
+    display: flex;
+    flex-direction: column;
+
+    > form {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+  }
+
+  // collab-changes.scss turns this container into a two-column grid.
+  .sd-container-modern:not(:has(> .sv-collab-changes)) {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  // The row stays horizontal: TOC columns sit on its sides.
+  .sd-container-modern > .sv-components-row,
+  .sv-components-column--expandable > .sd-body {
+    flex-grow: 1;
+  }
+}
+
+.sd-body.sd-body--single-question {
+  > .sd-body__page,
+  > .sv-components-container-contentBottom {
+    flex-grow: 1;
+    flex-shrink: 0;
+  }
+
+  // Header stays at the top of the page. The page and the bottom buttons split the
+  // free space, and the question is pushed to the bottom of the page, so the question
+  // and the buttons meet in the middle.
+  &:has(.sv-components-container-contentBottom) > .sd-body__page > .sd-page__content {
+    margin-top: auto;
+  }
+
+  // No navigation bar: center the question inside the page. Brand info, when
+  // present, stays after the page.
+  &:not(:has(.sv-components-container-contentBottom)) > .sd-body__page > .sd-page__content {
+    margin-block: auto;
+  }
+
+  // Navigation on top lives in contentTop, before the page. Keep that bar against
+  // the question and center the pair. A page header stays the first block of the page.
+  &:has(> .sv-components-container-contentTop):not(:has(> .sv-components-container-contentBottom)) {
+    > .sv-components-container-contentTop {
+      margin-top: auto;
+    }
+
+    > .sd-body__page {
+      flex-grow: 0;
+      margin-bottom: auto;
+    }
+
+    > .sd-body__page > .sd-page__content {
+      margin-block: 0;
+    }
+  }
+}

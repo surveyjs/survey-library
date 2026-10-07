@@ -15778,6 +15778,72 @@ describe("Survey", () => {
     expect(model.calculatedWidthMode).toBe("responsive");
   });
 
+  describe("single question layout classes", () => {
+    const pages = [
+      { elements: [{ type: "text", name: "q1" }] },
+      { elements: [{ type: "text", name: "q2" }] }
+    ];
+    const bodyClass = "sd-body--single-question";
+    const rootClass = "sd-root-modern--single-question";
+    const createSurvey = (json: any = {}) => new SurveyModel({ pages: pages, ...json });
+    const hasModifier = (survey: SurveyModel): boolean => {
+      const onBody = survey.bodyCss.indexOf(bodyClass) > -1;
+      const onRoot = survey.getRootCss().indexOf(rootClass) > -1;
+      expect(onRoot, "root and body classes stay together").toBe(onBody);
+      return onBody;
+    };
+    const expectModifierLast = (survey: SurveyModel, message: string) => {
+      expect(survey.bodyCss.endsWith(bodyClass), message + ", body").toBe(true);
+      expect(survey.getRootCss().endsWith(rootClass), message + ", root").toBe(true);
+    };
+
+    test("is added last for questionPerPage and inputPerPage", () => {
+      expectModifierLast(createSurvey({ questionsOnPageMode: "questionPerPage" }), "questionPerPage");
+      expectModifierLast(createSurvey({ questionsOnPageMode: "inputPerPage" }), "inputPerPage");
+    });
+
+    test("is not added for standard and singlePage", () => {
+      expect(hasModifier(createSurvey({ questionsOnPageMode: "standard" })), "standard").toBe(false);
+      expect(hasModifier(createSurvey({ questionsOnPageMode: "singlePage" })), "singlePage").toBe(false);
+    });
+
+    test("is not added outside the running state", () => {
+      const startPage = createSurvey({ questionsOnPageMode: "questionPerPage", firstPageIsStartPage: true });
+      expect(startPage.state, "start page state").toBe("starting");
+      expect(hasModifier(startPage), "start page").toBe(false);
+
+      const completed = createSurvey({ questionsOnPageMode: "inputPerPage" });
+      completed.doComplete();
+      expect(completed.state, "completed state").toBe("completed");
+      expect(hasModifier(completed), "completed").toBe(false);
+
+      const designMode = createSurvey({ questionsOnPageMode: "questionPerPage" });
+      designMode.setDesignMode(true);
+      expect(hasModifier(designMode), "design mode").toBe(false);
+    });
+
+    test("is removed in preview and restored after cancelPreview", () => {
+      const survey = createSurvey({ questionsOnPageMode: "questionPerPage" });
+      expect(survey.showPreview(), "showPreview").toBe(true);
+      expect(hasModifier(survey), "preview").toBe(false);
+      survey.cancelPreview();
+      expectModifierLast(survey, "after cancelPreview");
+    });
+
+    test("follows questionsOnPageMode changes at runtime", () => {
+      const survey = createSurvey();
+      expect(hasModifier(survey), "standard").toBe(false);
+      survey.questionsOnPageMode = "questionPerPage";
+      expectModifierLast(survey, "questionPerPage");
+      survey.questionsOnPageMode = "standard";
+      expect(hasModifier(survey), "back to standard").toBe(false);
+      survey.questionsOnPageMode = "inputPerPage";
+      expectModifierLast(survey, "inputPerPage");
+      survey.questionsOnPageMode = "singlePage";
+      expect(hasModifier(survey), "singlePage").toBe(false);
+    });
+  });
+
   test("Check survey calculated width mode observability with survey changing", () => {
     const json = {
       "pages": [

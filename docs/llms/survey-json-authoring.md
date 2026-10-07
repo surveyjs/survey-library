@@ -1,6 +1,6 @@
 # SurveyJS survey JSON: an authoring guide
 
-Generated from survey-core 3.1.2 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
+Generated from survey-core 3.2.1 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
 
 ## Output rules
 
@@ -15,7 +15,7 @@ When you are asked for a survey, reply with **one JSON object and nothing else**
 - Give every question a `name` that is unique in the document; it is the key in the result data.
 - An expression may only reference the `name` of a question that exists in the document.
 
-Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@3.1.2/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
+Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@3.2.1/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
 
 ## The shape of a survey
 
@@ -157,24 +157,9 @@ Inherits the properties of `selectbase`.
 | --- | --- | --- | --- |
 | `colCount` | `0, 1, 2, 3, 4, 5` | `1` |  |
 
-### `matrixbase`
-
-A base class for all matrix question types. Inherits the properties of `question`.
-
-[API](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixbasemodel.md)
-
-| Property | Type | Default | Description |
-| --- | --- | --- | --- |
-| `columnsVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each matrix column. |
-| `rowsVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each matrix row. |
-| `verticalAlign` | `top, middle` | `"middle"` | Aligns matrix cell content in the vertical direction. |
-| `alternateRows` | `boolean` | `false` | Specifies whether to apply shading to alternate matrix rows. |
-| `columnMinWidth` | `string` |  | Minimum column width in CSS values. |
-| `showHeader` | `boolean` | `true` | Specifies whether to display the table header that contains column captions. |
-
 ### `matrixdropdownbase`
 
-A base class for the `QuestionMatrixDropdownModel` and `QuestionMatrixDynamicModel` classes. Inherits the properties of `matrixbase`.
+A base class for the `QuestionMatrixDropdownModel` and `QuestionMatrixDynamicModel` classes. Inherits the properties of `question`.
 
 [API](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixdropdownmodelbase.md)
 
@@ -183,13 +168,19 @@ A base class for the `QuestionMatrixDropdownModel` and `QuestionMatrixDynamicMod
 | `choices` | `array` of `itemvalue` | `[]` | Gets or sets choice items for Dropdown, Checkbox, and Radiogroup matrix cells. |
 | `columns` | `array` of `matrixdropdowncolumn` |  | An array of matrix columns. |
 | `detailElements` | `array` of `question` |  | An array of survey elements (questions and panels) to be displayed in detail sections. |
+| `columnsVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each matrix column. |
+| `rowsVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each matrix row. |
 | `cellErrorLocation` | `default, top, bottom` | `"default"` | Specifies the error message position relative to matrix cells. |
 | `cellType` | `dropdown, checkbox, radiogroup, tagbox, text, comment, boolean, expression, rating, slider` | `"dropdown"` | Specifies the type of matrix cells. |
 | `columnColCount` | `0, 1, 2, 3, 4` | `0` | Specifies the number of columns in Radiogroup and Checkbox cells. |
 | `detailErrorLocation` | `default, top, bottom` | `"default"` | Specifies the error message position for questions within detail sections. |
 | `detailPanelMode` | `none, underRow, underRowSingle` | `"none"` | Specifies the location of detail sections. |
+| `verticalAlign` | `top, middle` | `"middle"` | Aligns matrix cell content in the vertical direction. |
+| `alternateRows` | `boolean` | `false` | Specifies whether to apply shading to alternate matrix rows. |
+| `columnMinWidth` | `string` |  | Minimum column width in CSS values. |
 | `keyDuplicationError` *(loc)* | `string` |  | An error message displayed when users enter a duplicate value into a column that accepts only unique values (`isUnique` is set to `true` or `keyName` is specified). |
 | `placeholder` *(loc)* | `string` |  | A placeholder for Dropdown matrix cells. |
+| `showHeader` | `boolean` | `true` | Specifies whether to display the table header that contains column captions. |
 | `singleInputTitleTemplate` *(loc)* | `string` |  | A title template that applies when the survey is in input-per-page mode. |
 | `transposeData` | `boolean` |  | Specifies whether to display `columns` as rows and `rows` as columns. |
 
@@ -543,7 +534,7 @@ A class that describes the Image Picker question type. Inherits the properties o
 
 ### `matrix`
 
-A class that describes the Single-Select Matrix question type. Inherits the properties of `matrixbase`.
+A class that describes the Single-Select Matrix question type. Inherits the properties of `question`.
 
 [API](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixmodel.md) · [Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/)
 
@@ -551,13 +542,19 @@ A class that describes the Single-Select Matrix question type. Inherits the prop
 | --- | --- | --- | --- |
 | `columns` | `array` of `matrixcolumn` | `[]` | An array of matrix columns. |
 | `rows` | `array` of `itemvalue` | `[]` | An array of matrix rows. |
+| `columnsVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each matrix column. |
+| `rowsVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each matrix row. |
 | `cellType` | `radio, checkbox` | `"radio"` | Specifies the type of matrix cells. |
 | `rowOrder` | `initial, random` | `"initial"` | Specifies a sort order for matrix rows. |
+| `verticalAlign` | `top, middle` | `"middle"` | Aligns matrix cell content in the vertical direction. |
+| `alternateRows` | `boolean` | `false` | Specifies whether to apply shading to alternate matrix rows. |
 | `cells` | `string` |  | An array of matrix cells. |
+| `columnMinWidth` | `string` |  | Minimum column width in CSS values. |
 | `eachRowRequired` | `boolean` |  | Specifies whether each row requires an answer. |
 | `eachRowUnique` | `boolean` |  | Specifies whether answers in all rows should be unique. |
 | `hideIfRowsEmpty` | `boolean` |  | Specifies whether to hide the question when the matrix has no visible rows. |
 | `rowTitleWidth` | `string` |  | A width for the column that displays row titles (first column). |
+| `showHeader` | `boolean` | `true` | Specifies whether to display the table header that contains column captions. |
 
 ```json
 {

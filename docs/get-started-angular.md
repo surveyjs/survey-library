@@ -85,13 +85,6 @@ To add SurveyJS themes to your Angular application, open the `angular.json` file
 }
 ```
 
-When [using standalone components](https://github.com/surveyjs/code-examples/tree/main/get-started-library/angular-standalone-components), import the style sheet directly in the component file:
-
-```js
-// survey.component.ts
-import "survey-core/survey-core.css";
-```
-
 This style sheet applies the Default theme. If you want to apply a different predefined theme or create a custom theme, refer to the following help topic for detailed instructions:
 
 [Themes](/documentation/themes-and-custom-styles (linkStyle))
@@ -108,51 +101,12 @@ npm install @fontsource/open-sans
 
 The configuration below includes the font style sheets for weights 400, 600, and 700. Add them once to your application's global styles.
 
-<details>
-    <summary>NgModule-based components</summary>  
-
-```js
-// angular.json
-{
-  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-  // ...
-  "projects": {
-    "project-name": {
-      "projectType": "application",
-      // ...
-      "architect": {
-        "build": {
-          // ...
-          "options": {
-            // ...
-            "styles": [
-              "src/styles.css",
-              "node_modules/@fontsource/open-sans/400.css",
-              "node_modules/@fontsource/open-sans/600.css",
-              "node_modules/@fontsource/open-sans/700.css",
-              "node_modules/survey-core/survey-core.css",
-            ],
-            // ...
-          }
-        }
-      }
-    }
-  }
-}
+```css
+/* styles.css */
+@import '@fontsource/open-sans/400.css';
+@import '@fontsource/open-sans/600.css';
+@import '@fontsource/open-sans/700.css';
 ```
-</details>
-
-<details>
-    <summary>Standalone components</summary>  
-
-```js
-// survey.component.ts
-import "@fontsource/open-sans/400.css";
-import "@fontsource/open-sans/600.css";
-import "@fontsource/open-sans/700.css";
-import "survey-core/survey-core.css";
-```
-</details>
 
 ## Create a Model
 

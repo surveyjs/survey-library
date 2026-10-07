@@ -15,6 +15,10 @@ name: Add release column to project board
 # ---------------------------------------------------------------------------
 
 on:
+  # Run after Create Release completed.
+  workflow_run:
+    workflows: ["Create Release"]
+    types: [completed]
   # Auto-run whenever a GitHub Release is published.
   release:
     types: [published]
@@ -67,6 +71,27 @@ jobs:
       # -------------------------------------------------------------------
       - name: Validate inputs
         run: |
+          # ---- version gate -------------------------------------------------
+          # Minimum version (exclusive) required to run this workflow.
+          MIN_VERSION="3.0.0"
+
+          RAW="${RELEASED_TAG#v}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$RAW"
+          MINOR="${MINOR:-0}"; PATCH="${PATCH:-0}"
+
+          RAW_MIN="${MIN_VERSION#v}"
+          IFS='.' read -r MIN_MAJOR MIN_MINOR MIN_PATCH <<< "$RAW_MIN"
+          MIN_MINOR="${MIN_MINOR:-0}"; MIN_PATCH="${MIN_PATCH:-0}"
+
+          if ! { [ "$MAJOR" -gt "$MIN_MAJOR" ] \
+              || { [ "$MAJOR" -eq "$MIN_MAJOR" ] \
+                   && { [ "$MINOR" -gt "$MIN_MINOR" ] \
+                        || { [ "$MINOR" -eq "$MIN_MINOR" ] && [ "$PATCH" -gt "$MIN_PATCH" ]; }; }; }; }; then
+            echo "::error::Release $RELEASED_TAG is not greater than v${MIN_VERSION} — skipping."
+            exit 1
+          fi
+          # -------------------------------------------------------------------
+
           if [ -z "$RELEASED_TAG" ]; then
             echo "::error::No release tag available. Provide 'tag_name' when running manually."
             exit 1
@@ -248,88 +273,88 @@ jobs:
       # update its actions so that its Status assignment points at the new
       # single-select option id.
       # -------------------------------------------------------------------
-      - name: Point "Item closed" project workflow at the new column
-        run: |
-          set -euo pipefail
+      # - name: Point "Item closed" project workflow at the new column
+      #   run: |
+      #     set -euo pipefail
 
-          PROJECT_ID='${{ steps.lookup.outputs.project_id }}'
-          FIELD_ID='${{ steps.lookup.outputs.field_id }}'
-          COLUMN_NAME='${{ steps.next.outputs.column_name }}'
+      #     PROJECT_ID='${{ steps.lookup.outputs.project_id }}'
+      #     FIELD_ID='${{ steps.lookup.outputs.field_id }}'
+      #     COLUMN_NAME='${{ steps.next.outputs.column_name }}'
 
-          # Re-fetch the Status options — we need the *id* of the option we
-          # just added, and updateProjectV2Field doesn't return ids for new
-          # options in a stable way.
-          OPTION_ID=$(gh api graphql -f query='
-            query($p: ID!) {
-              node(id: $p) {
-                ... on ProjectV2 {
-                  fields(first: 50) {
-                    nodes {
-                      ... on ProjectV2SingleSelectField {
-                        name
-                        options { id name }
-                      }
-                    }
-                  }
-                }
-              }
-            }' -f p="$PROJECT_ID" \
-            | jq -r --arg n "$COLUMN_NAME" \
-                '.data.node.fields.nodes[]
-                 | select(.name=="Status")
-                 | .options[]
-                 | select(.name==$n)
-                 | .id')
+      #     # Re-fetch the Status options — we need the *id* of the option we
+      #     # just added, and updateProjectV2Field doesn't return ids for new
+      #     # options in a stable way.
+      #     OPTION_ID=$(gh api graphql -f query='
+      #       query($p: ID!) {
+      #         node(id: $p) {
+      #           ... on ProjectV2 {
+      #             fields(first: 50) {
+      #               nodes {
+      #                 ... on ProjectV2SingleSelectField {
+      #                   name
+      #                   options { id name }
+      #                 }
+      #               }
+      #             }
+      #           }
+      #         }
+      #       }' -f p="$PROJECT_ID" \
+      #       | jq -r --arg n "$COLUMN_NAME" \
+      #           '.data.node.fields.nodes[]
+      #            | select(.name=="Status")
+      #            | .options[]
+      #            | select(.name==$n)
+      #            | .id')
 
-          if [ -z "$OPTION_ID" ] || [ "$OPTION_ID" = "null" ]; then
-            echo "::error::New option '$COLUMN_NAME' not found on the Status field."
-            exit 1
-          fi
-          echo "New option id: $OPTION_ID"
+      #     if [ -z "$OPTION_ID" ] || [ "$OPTION_ID" = "null" ]; then
+      #       echo "::error::New option '$COLUMN_NAME' not found on the Status field."
+      #       exit 1
+      #     fi
+      #     echo "New option id: $OPTION_ID"
 
-          # List the project's built-in workflows and find the one named
-          # "Item closed" (this is the exact name shown in the Project UI).
-          WORKFLOWS=$(gh api graphql -f query='
-            query($p: ID!) {
-              node(id: $p) {
-                ... on ProjectV2 {
-                  workflows(first: 50) {
-                    nodes { id name enabled }
-                  }
-                }
-              }
-            }' -f p="$PROJECT_ID")
+      #     # List the project's built-in workflows and find the one named
+      #     # "Item closed" (this is the exact name shown in the Project UI).
+      #     WORKFLOWS=$(gh api graphql -f query='
+      #       query($p: ID!) {
+      #         node(id: $p) {
+      #           ... on ProjectV2 {
+      #             workflows(first: 50) {
+      #               nodes { id name enabled }
+      #             }
+      #           }
+      #         }
+      #       }' -f p="$PROJECT_ID")
 
-          WORKFLOW_ID=$(echo "$WORKFLOWS" | jq -r \
-            '.data.node.workflows.nodes[] | select(.name=="Item closed") | .id')
+      #     WORKFLOW_ID=$(echo "$WORKFLOWS" | jq -r \
+      #       '.data.node.workflows.nodes[] | select(.name=="Item closed") | .id')
 
-          if [ -z "$WORKFLOW_ID" ] || [ "$WORKFLOW_ID" = "null" ]; then
-            echo "::error::'Item closed' built-in workflow not found on project."
-            exit 1
-          fi
-          echo "Item closed workflow id: $WORKFLOW_ID"
+      #     if [ -z "$WORKFLOW_ID" ] || [ "$WORKFLOW_ID" = "null" ]; then
+      #       echo "::error::'Item closed' built-in workflow not found on project."
+      #       exit 1
+      #     fi
+      #     echo "Item closed workflow id: $WORKFLOW_ID"
 
-          # Update the workflow so its Status action targets the new option.
-          # The API mutation is updateProjectV2Workflow; we pass the new
-          # option id inside a "singleSelectOptionId" field on the Status
-          # field action.
-          gh api graphql -f query='
-            mutation($workflow: ID!, $field: ID!, $option: String!) {
-              updateProjectV2Workflow(input: {
-                workflowId: $workflow,
-                enabled: true,
-                actions: [{
-                  setFieldValue: {
-                    fieldId: $field,
-                    singleSelectOptionId: $option
-                  }
-                }]
-              }) {
-                projectV2Workflow { id name enabled }
-              }
-            }' \
-            -f workflow="$WORKFLOW_ID" \
-            -f field="$FIELD_ID" \
-            -f option="$OPTION_ID"
+      #     # Update the workflow so its Status action targets the new option.
+      #     # The API mutation is updateProjectV2Workflow; we pass the new
+      #     # option id inside a "singleSelectOptionId" field on the Status
+      #     # field action.
+      #     gh api graphql -f query='
+      #       mutation($workflow: ID!, $field: ID!, $option: String!) {
+      #         updateProjectV2Workflow(input: {
+      #           workflowId: $workflow,
+      #           enabled: true,
+      #           actions: [{
+      #             setFieldValue: {
+      #               fieldId: $field,
+      #               singleSelectOptionId: $option
+      #             }
+      #           }]
+      #         }) {
+      #           projectV2Workflow { id name enabled }
+      #         }
+      #       }' \
+      #       -f workflow="$WORKFLOW_ID" \
+      #       -f field="$FIELD_ID" \
+      #       -f option="$OPTION_ID"
 
-          echo "::notice::'Item closed' project workflow now sets Status to '$COLUMN_NAME'."
+      #     echo "::notice::'Item closed' project workflow now sets Status to '$COLUMN_NAME'."

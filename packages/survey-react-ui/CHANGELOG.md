@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## 3.2.0 (2026-10-06)
+
 ## 3.1.2 (2026-09-29)
 
 ## 3.1.1 (2026-09-23)

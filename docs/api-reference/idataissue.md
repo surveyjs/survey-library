@@ -10,6 +10,8 @@ source: https://surveyjs.io/form-library/documentation/api-reference/idataissue
 
 Describes an issue reported by the [`SurveyModel.setData()`](/form-library/documentation/api-reference/survey-data-model#setData) method.
 
+Available since: v3.1.2
+
 ## Properties
 
 ### `expressionResult`

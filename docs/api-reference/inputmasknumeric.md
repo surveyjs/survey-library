@@ -15,7 +15,7 @@ The following code shows how to specify the properties of this class within a su
 ```js
 const surveyJson = {
   "elements": [{
-    "name": "textquestion1"
+    "name": "textquestion1",
     "type": "text",
     "maskType": "numeric",
     "maskSettings": {

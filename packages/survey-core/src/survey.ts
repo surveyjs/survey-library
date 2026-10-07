@@ -1465,11 +1465,16 @@ export class SurveyModel extends SurveyElementCore
   public get cssTitle(): string {
     return this.css.title;
   }
+  // Shared by the root and the body so the two classes cannot drift apart.
+  private get isSingleQuestionLayout(): boolean {
+    return this.isSingleVisibleQuestion && this.state === "running";
+  }
   public get bodyCss(): string {
     return toCssClasses(
       this.css.body,
       this.showTimer && this.state === "running" && this.css.bodyWithTimer,
-      this.css.body + "--" + this.calculatedWidthMode
+      this.css.body + "--" + this.calculatedWidthMode,
+      this.isSingleQuestionLayout && this.css.bodySingleQuestion
     );
   }
   public get bodyContainerCss(): string {
@@ -5835,7 +5840,8 @@ export class SurveyModel extends SurveyElementCore
       this.isMobile && this.css.rootMobile,
       (reducedMotion || !settings.animationEnabled) && this.css.rootAnimationDisabled,
       this.readOnly && !this.isDesignMode && this.css.rootReadOnly,
-      this.fitToContainer && this.css.rootFitToContainer
+      this.fitToContainer && this.css.rootFitToContainer,
+      this.isSingleQuestionLayout && this.css.rootSingleQuestion
     );
   }
   private isSmoothScrollEnabled = false;

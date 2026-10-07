@@ -12,6 +12,8 @@ import { settings } from "../../src/settings";
 import { IDynamicDataPageState } from "../../src/dynamic-data/dynamic-data-page-validation";
 import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 import { DragDropMatrixRows } from "../../src/dragdrop/matrix-rows";
+import { Helpers } from "../../src/helpers";
+import { ConditionRunner } from "../../src/conditions/conditionRunner";
 import { ItemValue } from "../../src/itemvalue";
 import {
   IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSource
@@ -3312,6 +3314,188 @@ describe("Page window: record semantics without an object", () => {
       expect(run(mode, [2, 0, 1]), mode + ": the visit order does not matter").toEqual(forward);
       expect(forward.total, mode + ": every record is computed").toBe(36);
     });
+  });
+});
+/* A dynamic panel that pages in memory builds panels for one page. Clearing invisible values gives
+   the answer the same panel gives without paging: the records without a panel are cleared over their
+   stored values, without building one. */
+describe("Paged dynamic panel: clearing invisible values gives the unpaged answer", () => {
+  const sixRecords = (create: (i: number) => any): Array<any> => records(6, create);
+  const secretIfYes = [{ type: "text", name: "show" }, { type: "text", name: "secret", visibleIf: "{panel.show} = 'yes'" }];
+  const showOnThree = (i: number): any => ({ show: i === 3 ? "yes" : "no", secret: "s" + i });
+  const onlyThreeKeepsSecret = sixRecords((i: number): any => i === 3 ? { show: "yes", secret: "s3" } : { show: "no" });
+  const complete = (panelJson: any, data: Array<any>, surveyJson?: any, extra?: Array<any>,
+    before?: (survey: SurveyModel, question: QuestionPanelDynamicModel) => void): SurveyModel => {
+    const survey = new SurveyModel(Object.assign({ clearInvisibleValues: "onComplete", elements:
+      [Object.assign({ type: "paneldynamic", name: "pd" }, panelJson)].concat(extra || []) }, surveyJson));
+    survey.mergeData({ pd: data });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+    question.panels;
+    if (!!before) before(survey, question);
+    survey.completeLastPage();
+    return survey;
+  };
+  // The same JSON and data with panelsPerPage 2 and without paging; returns the unpaged answer.
+  const expectSameAsUnpaged = (panelJson: any, data: Array<any>, surveyJson?: any, extra?: Array<any>,
+    before?: (survey: SurveyModel, question: QuestionPanelDynamicModel) => void): any => {
+    const unpaged = complete(panelJson, Helpers.getUnbindValue(data), surveyJson, extra, before).data;
+    const paged = complete(Object.assign({ panelsPerPage: 2 }, panelJson), Helpers.getUnbindValue(data), surveyJson, extra, before).data;
+    expect(paged, "paged equals unpaged").toEqual(unpaged);
+    return unpaged;
+  };
+  test("a template question hidden by its visibleIf loses its answer in every record", () => {
+    expect(expectSameAsUnpaged({ templateElements: secretIfYes }, sixRecords(showOnThree)).pd).toEqual(onlyThreeKeepsSecret);
+  });
+  test("a question in a template panel hidden by the panel's visibleIf loses its answer in every record", () => {
+    const template = [{ type: "text", name: "show" },
+      { type: "panel", name: "box", visibleIf: "{panel.show} = 'yes'", elements: [{ type: "text", name: "secret" }] }];
+    expect(expectSameAsUnpaged({ templateElements: template }, sixRecords(showOnThree)).pd).toEqual(onlyThreeKeepsSecret);
+  });
+  test("a record templateVisibleIf hides keeps its visible answers and loses the invisible ones", () => {
+    const template = [{ type: "text", name: "show" }, { type: "text", name: "a" }, { type: "text", name: "secret", visibleIf: "{panel.a} = 'x'" }];
+    const data = sixRecords((i: number): any => ({ show: i % 2 === 1 ? "hide" : "no", a: "y", secret: "s" + i }));
+    expect(expectSameAsUnpaged({ templateVisibleIf: "{panel.show} != 'hide'", templateElements: template }, data).pd)
+      .toEqual(sixRecords((i: number): any => ({ show: i % 2 === 1 ? "hide" : "no", a: "y" })));
+  });
+  test("clearIfInvisible none keeps every answer", () => {
+    const template = [{ type: "text", name: "show" }, { type: "text", name: "secret", visibleIf: "{panel.show} = 'yes'", clearIfInvisible: "none" }];
+    expect(expectSameAsUnpaged({ templateElements: template }, sixRecords(showOnThree)).pd).toEqual(sixRecords(showOnThree));
+  });
+  test("a hidden dropdown with an other answer loses the value and the comment", () => {
+    const template = [{ type: "text", name: "show" },
+      { type: "dropdown", name: "sel", choices: [1, 2], showOtherItem: true, visibleIf: "{panel.show} = 'yes'" }];
+    const data = sixRecords((i: number): any => ({ show: i === 3 ? "yes" : "no", sel: "other", "sel-Comment": "text" + i }));
+    expect(expectSameAsUnpaged({ templateElements: template }, data).pd)
+      .toEqual(sixRecords((i: number): any => i === 3 ? { show: "yes", sel: "other", "sel-Comment": "text3" } : { show: "no" }));
+  });
+  test("a template question hidden by a survey value loses its answer in every record", () => {
+    const template = [{ type: "text", name: "show" }, { type: "text", name: "secret", visibleIf: "{top} = 'yes'" }];
+    const res = expectSameAsUnpaged({ templateElements: template }, sixRecords(showOnThree), undefined, [{ type: "text", name: "top" }],
+      (survey: SurveyModel): void => { survey.setValue("top", "no"); });
+    expect(res.pd).toEqual(sixRecords((i: number): any => ({ show: i === 3 ? "yes" : "no" })));
+  });
+  test("a template question with visible false loses its answer in every record", () => {
+    const template = [{ type: "text", name: "show" }, { type: "text", name: "secret", visible: false }];
+    expect(expectSameAsUnpaged({ templateElements: template }, sixRecords(showOnThree)).pd)
+      .toEqual(sixRecords((i: number): any => ({ show: i === 3 ? "yes" : "no" })));
+  });
+  test("a page visited and left is cleared as a page never opened", () => {
+    const visit = (survey: SurveyModel, question: QuestionPanelDynamicModel): void => {
+      question.pageIndex = 1;
+      question.pageIndex = 0;
+    };
+    expect(expectSameAsUnpaged({ templateElements: secretIfYes }, sixRecords(showOnThree), undefined, undefined, visit).pd).toEqual(onlyThreeKeepsSecret);
+  });
+  test("clearInvisibleValues onHidden clears every record at completion", () => {
+    expect(expectSameAsUnpaged({ templateElements: secretIfYes }, sixRecords(showOnThree), { clearInvisibleValues: "onHidden" }).pd)
+      .toEqual(onlyThreeKeepsSecret);
+  });
+  test("onHiddenContainer: the dynamic panel hidden clears its value", () => {
+    const res = expectSameAsUnpaged({ templateElements: secretIfYes, visibleIf: "{top} != 'hide'" }, sixRecords(showOnThree),
+      { clearInvisibleValues: "onHiddenContainer" }, [{ type: "text", name: "top" }],
+      (survey: SurveyModel): void => { survey.setValue("top", "hide"); });
+    expect(res.pd).toBeUndefined();
+  });
+  test("onHiddenContainer: a template panel hidden by its visibleIf loses its questions' answers at completion and when the dynamic panel is hidden", () => {
+    const template = [{ type: "text", name: "show" },
+      { type: "panel", name: "box", visibleIf: "{panel.show} = 'yes'", elements: [{ type: "text", name: "secret" }] }];
+    const surveyJson = { clearInvisibleValues: "onHiddenContainer" };
+    expect(expectSameAsUnpaged({ templateElements: template }, sixRecords(showOnThree), surveyJson).pd, "#1: at completion").toEqual(onlyThreeKeepsSecret);
+    // The dynamic panel keeps its value (clearIfInvisible none): only its records are cleaned up when it is hidden.
+    const hideQuestion = (survey: SurveyModel): void => { survey.setValue("top", "hide"); };
+    const res = expectSameAsUnpaged({ templateElements: template, visibleIf: "{top} != 'hide'", clearIfInvisible: "none" }, sixRecords(showOnThree),
+      { clearInvisibleValues: "onHiddenContainer" }, [{ type: "text", name: "top" }], hideQuestion);
+    expect(res.pd, "#2: the dynamic panel is the hidden container of every template question").toEqual(sixRecords((): any => ({})));
+  });
+  test("a record the filter excludes keeps its hidden answer, paged and unpaged", () => {
+    const data = sixRecords(showOnThree);
+    data[4].show = "out";
+    const res = expectSameAsUnpaged({ templateElements: secretIfYes, filterExpression: "{show} != 'out'" }, data);
+    expect(res.pd[4], "#1: excluded, kept").toEqual({ show: "out", secret: "s4" });
+    expect(res.pd[5], "#2: shown and hidden, cleared").toEqual({ show: "no" });
+  });
+  test("known limitation: a records question nested in a record without a panel keeps the hidden values its own clean-up would clear", () => {
+    const nestedPanel = { type: "paneldynamic", name: "inner", templateElements: [{ type: "text", name: "h", visibleIf: "false" }] };
+    const nestedMatrix = { type: "matrixdynamic", name: "inner", rowCount: 0, rowsVisibleIf: "{row.c} != 'hide'", columns: [{ name: "c", cellType: "text" }] };
+    [{ template: nestedPanel, record: (i: number): any => ({ inner: [{ h: "h" + i }] }), cleared: { inner: [{}] } },
+      { template: nestedMatrix, record: (i: number): any => ({ inner: [{ c: "hide" }, { c: "c" + i }] }), cleared: (i: number): any => ({ inner: [{ c: "c" + i }] }) }]
+      .forEach((nested: any, k: number) => {
+        const res = complete({ panelsPerPage: 2, templateElements: [nested.template] }, sixRecords(nested.record)).data.pd;
+        const cleared = (i: number): any => typeof nested.cleared === "function" ? nested.cleared(i) : nested.cleared;
+        expect(res.slice(0, 2), "#" + k + ": the records with a panel are cleared").toEqual([cleared(0), cleared(1)]);
+        expect(res.slice(2), "#" + k + ": the records without one keep the nested values").toEqual(sixRecords(nested.record).slice(2));
+      });
+  });
+  test("an edit, a page move and a hide under onHidden do not run the pass", () => {
+    const proto = <any>QuestionPanelDynamicModel.prototype;
+    const walk = vi.spyOn(proto, "clearValueInRecordsWithoutPanel");
+    try {
+      const survey = new SurveyModel({ clearInvisibleValues: "onHidden", elements: [
+        { type: "paneldynamic", name: "pd", panelsPerPage: 2, templateElements: secretIfYes }] });
+      survey.data = { pd: sixRecords(showOnThree) };
+      const question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+      question.panels[0].getQuestionByName("show").value = "yes";
+      question.panels[0].getQuestionByName("show").value = "no";
+      question.pageIndex = 1;
+      question.pageIndex = 0;
+      expect(walk.mock.calls.length, "#1").toBe(0);
+      expect(survey.data.pd[4], "#2: a record that never had a panel is not touched").toEqual({ show: "no", secret: "s4" });
+      expect(survey.data.pd[0], "#3: the object hidden by the edit reacts, as released").toEqual({ show: "no" });
+    } finally {
+      walk.mockRestore();
+    }
+  });
+  test("the pass builds no panel, writes the value once and runs one condition per record without a panel", () => {
+    let runs = 0;
+    FunctionFactory.Instance.register("countedShow", function (params: Array<any>): boolean { runs++; return params[0] === "yes"; });
+    const template = [{ type: "text", name: "show" }, { type: "text", name: "secret", visibleIf: "countedShow({panel.show})" },
+      { type: "text", name: "other", visibleIf: "countedShow({panel.show})" }];
+    const proto = <any>QuestionPanelDynamicModel.prototype;
+    const clear = proto.clearValueInRecordsWithoutPanel;
+    try {
+      const run = (count: number): { created: number, writes: number, runs: number, runners: number, data: Array<any> } => {
+        const survey = new SurveyModel({ clearInvisibleValues: "onComplete", elements: [
+          { type: "paneldynamic", name: "pd", panelsPerPage: 2, templateElements: template }] });
+        // The page shown holds nothing to clear: the writes counted are the pass's.
+        survey.data = { pd: records(count, (i: number): any => ({ show: i < 2 ? "yes" : "no", secret: "s" + i, other: "o" + i })) };
+        const question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+        question.panels;
+        let writes = 0;
+        survey.onValueChanged.add((_: SurveyModel, options: any): void => { if (options.name === "pd") writes++; });
+        const created = vi.spyOn(proto, "createNewPanel");
+        const runners: Array<ConditionRunner> = [];
+        const runContext = ConditionRunner.prototype.runContext;
+        const runnerSpy = vi.spyOn(ConditionRunner.prototype, "runContext");
+        let passRuns = -1;
+        const spy = vi.spyOn(proto, "clearValueInRecordsWithoutPanel").mockImplementation(function (this: any, reason: string): void {
+          runnerSpy.mockImplementation(function (this: ConditionRunner, ...args: Array<any>): any {
+            if (runners.indexOf(this) < 0) runners.push(this);
+            return runContext.apply(this, <any>args);
+          });
+          const before = runs;
+          clear.call(this, reason);
+          passRuns = runs - before;
+          runnerSpy.mockRestore();
+        });
+        survey.completeLastPage();
+        spy.mockRestore();
+        const res = { created: created.mock.calls.length, writes: writes, runs: passRuns, runners: runners.length, data: survey.data.pd };
+        created.mockRestore();
+        return res;
+      };
+      const small = run(6);
+      const large = run(50);
+      expect(large.data.slice(0, 3), "#1").toEqual([{ show: "yes", secret: "s0", other: "o0" }, { show: "yes", secret: "s1", other: "o1" }, { show: "no" }]);
+      expect(large.created, "#2: no panel is built for the pass").toBe(small.created);
+      expect(large.writes, "#3: one value write").toBe(1);
+      expect(large.runs, "#4: two template conditions, 48 records without a panel").toBeLessThanOrEqual(48 * 2);
+      expect(large.runners, "#5: one runner per expression text").toBe(1);
+    } finally {
+      FunctionFactory.Instance.unregister("countedShow");
+    }
+  });
+  test("page size 0: the unpaged answer is the released one", () => {
+    expect(complete({ templateElements: secretIfYes }, sixRecords(showOnThree)).data.pd).toEqual(onlyThreeKeepsSecret);
   });
 });
 // A confirmation asked about a record on another page names it by its record object.

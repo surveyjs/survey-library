@@ -3056,6 +3056,16 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         q.clearValueIfInvisible(reason);
       }
     }
+    this.clearValueInRecordsWithoutPanel(reason);
+  }
+  /* Under paging in memory only the page has panels: the records without one are cleared over their
+     stored values (getRecordsWithoutInvisibleAnswers), and the result is written once, as one of the
+     question's own changes. */
+  private clearValueInRecordsWithoutPanel(reason: string): void {
+    const records = this.getRecordsWithoutInvisibleAnswers(reason, this.template);
+    if (!!records) {
+      this.runInternalValueChange((): void => this.setOwnRecordsValue(records));
+    }
   }
   // What puts a panel into visiblePanels.
   protected isItemVisible(item: QuestionRecordItem): boolean {

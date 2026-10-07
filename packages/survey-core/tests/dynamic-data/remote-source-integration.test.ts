@@ -3980,6 +3980,19 @@ describe("Remote data source: survey clean-ups and outside assignments leave the
         .toEqual(["v0", undefined]);
     });
   });
+  test("panel: paged in memory over a source that reads every record, completion runs no clearing pass", async () => {
+    const walk = vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "clearValueInRecordsWithoutPanel");
+    try {
+      const { survey, question, source } = await createOwned("panel", ownedRecords(20), hiddenTemplateQuestion("panel"), undefined, ["insert", "update", "remove", "move"]);
+      expect((<any>question).isPagedByList, "#1: the list pages the records in memory").toBe(true);
+      const before = takeState(question);
+      expect(survey.tryComplete(), "#2").toBe(true);
+      expectUntouched(survey, question, source, before);
+      expect(walk.mock.calls.length, "#3: the pass is not run").toBe(0);
+    } finally {
+      walk.mockRestore();
+    }
+  });
   test("matrix: completing with rowsVisibleIf hiding a row and a hidden column sends nothing", async () => {
     const json = { rowsVisibleIf: "{row.col1} != 'v1'", columns: [{ name: "col1" }, { name: "col2" }, { name: "hidden1", visibleIf: "false" }] };
     const { survey, question, source } = await createOwned("matrix", ownedRecords(5), json);

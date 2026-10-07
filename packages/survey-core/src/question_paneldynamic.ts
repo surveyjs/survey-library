@@ -107,9 +107,6 @@ export class PanelDynamicValueGetterContext extends QuestionRecordsValueGetterCo
 }
 
 // What a removal acts on (QuestionPanelDynamicModel.resolvePanelTarget): a panel, or a record without one.
-interface IPanelTarget extends IRecordTarget {
-  panel?: PanelModel;
-}
 interface IPanelDynamicTabbedMenuItem extends IAction {
   panelId: string;
 }
@@ -272,10 +269,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   public dispose(): void {
     super.dispose();
+    this.templateValue.dispose();
+  }
+  // The panels kept for a later dispose (still animated out) go with the question, before the list.
+  protected disposeRecordObjects(): void {
     const left = this.panelsToDispose;
     this.panelsToDispose = [];
     left.forEach((panel: PanelModel): void => { this.disposePanelObject(panel); });
-    this.templateValue.dispose();
   }
   public validateExpressions(options: IExpressionValidationOptions = { functions: true, variables: true, semantics: true }): IExpressionValidationResult[] {
     if (!this.useTemplatePanel) {
@@ -435,14 +435,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public get panelsOnPage(): Array<PanelModel> {
     return this.visiblePanels;
   }
-  /* The page size the list gets: the authored one in every display mode. A carousel without
-     panelsPerPage builds every panel, as it always has; with it, it pages like list and tab mode and
-     shows one panel of the page. Single-input mode walks every panel and shows its own summary of them
-     - it is its own paging - so it builds every panel and the list does not page. */
-  protected get listPageSize(): number {
-    if (this.isSingleInputActive) return 0;
-    // settings.panel.maxPanelCount is the number of panels one page may hold.
-    return Math.min(this.pageSize, settings.panel.maxPanelCount);
+  // settings.panel.maxPanelCount is the number of panels one page may hold, in every display mode.
+  protected get maxRecordsPerPage(): number {
+    return settings.panel.maxPanelCount;
   }
   /* The number of panels on one page, 0 = no paging. In list mode the page is what is shown; in tab
      and carousel mode it is the panels of one page, of which one is shown. */
@@ -1670,14 +1665,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      value is kept (panelCountLimit). */
   public get maxPanelCount(): number {
     const val = this.getPropertyValue("maxPanelCount");
-    return this.pageSize > 0 ? val : Math.min(val, settings.panel.maxPanelCount);
+    return this.pageSize > 0 ? val : Math.min(val, this.maxRecordsPerPage);
   }
   public set maxPanelCount(val: number) {
     this.setPropertyValue("maxPanelCount", val <= 0 ? 1 : val);
   }
   // internal: the limit panelCount is checked against (see getRecordCountLimit).
   public get panelCountLimit(): number {
-    return this.getRecordCountLimit(this.maxPanelCount, this.getPropertyValueWithoutDefault("maxPanelCount"), settings.panel.maxPanelCount);
+    return this.getRecordCountLimit(this.maxPanelCount, this.getPropertyValueWithoutDefault("maxPanelCount"));
   }
 
   private onMaxPanelCountChanged(): void {
@@ -2390,42 +2385,25 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public isRequireConfirmOnDelete(val: any): boolean {
     if (!this.confirmDelete) return false;
     const target = this.resolvePanelTarget(val);
-    if (!target || !target.panel && target.recordIndex < 0) return false;
-    const panelValue = !!target.panel ? target.panel.getValue() : this.dataList.getRecord(target.recordIndex);
+    if (!target || !target.item && target.recordIndex < 0) return false;
+    const panelValue = !!target.item ? (<QuestionPanelDynamicItem>target.item).panel.getValue() : this.dataList.getRecord(target.recordIndex);
     return !this.isValueEmpty(panelValue) &&
       (this.isValueEmpty(this.defaultPanelValue) || !this.isTwoValueEquals(panelValue, this.defaultPanelValue));
   }
   /* What removePanel and isRequireConfirmOnDelete act on. A panel, or its item, names itself. A number
-     is a position among the visible records of the whole view, as currentIndex is - without paging, a
-     position in visiblePanels - and under paging the record it names may be on another page and have
-     no panel. undefined: there is nothing to act on; isNotLoaded: a source that pages itself holds
-     another window. record: the record a target without a panel is found again by. */
-  private resolvePanelTarget(val: any): IPanelTarget {
+     is a position among the visible records of the whole view, as currentIndex is (resolveRecordTarget):
+     without paging a position in visiblePanels, under paging the record it names may be on another
+     page and have no panel. A disposed panel is not in visiblePanels: it names nothing. */
+  private resolvePanelTarget(val: any): IRecordTarget {
     // visiblePanels and not the core array: the getter builds panels that were not built yet.
     const visPanels = this.visiblePanels;
-    if (Helpers.isNumber(val) && this.isPagingActive) {
-      if (val < 0 || val >= this.getVisibleNumberEnd(this.visiblePanelCount)) return undefined;
-      const target = this.getRecordTargetAtVisibleIndex(val);
-      return !!target && !!target.item ? this.createPanelTarget((<QuestionPanelDynamicItem>target.item).panel) : target;
+    if (Helpers.isNumber(val)) {
+      return this.resolveRecordTarget(val, this.visiblePanelCount, (pos: number): QuestionRecordItem => <QuestionRecordItem>visPanels[pos]?.data);
     }
     const pos = this.getVisualPanelIndex(val);
     if (pos < 0 || pos >= visPanels.length) return undefined;
-    return this.createPanelTarget(visPanels[pos]);
-  }
-  private createPanelTarget(panel: PanelModel): IPanelTarget {
-    const visibleIndex = this.getPanelVisibleIndex(panel);
-    if (visibleIndex < 0) return undefined;
-    return { panel: panel, recordIndex: this.getRecordIndexByPanelIndex(this.panelsCore.indexOf(panel)), visibleIndex: visibleIndex };
-  }
-  /* A confirmation answers later: by then the page, the sort or the records may have changed. A panel
-     still names its record - the remap layer keeps it in step - and a panel that is gone names none.
-     A record without a panel is found again by its object; a write replaced it, and then it is stale. */
-  private resolvePanelTargetAgain(target: IPanelTarget): IPanelTarget {
-    if (!!target.panel) {
-      if (target.panel.isDisposed || this.panelsCore.indexOf(target.panel) < 0) return undefined;
-      return this.createPanelTarget(target.panel);
-    }
-    return this.findRecordTargetAgain(target);
+    const item = <QuestionRecordItem>visPanels[pos].data;
+    return { item: item, recordIndex: this.getItemRecordIndex(item), visibleIndex: this.pageStartVisibleIndex + pos };
   }
   /**
    * Switches Dynamic Panel to the next panel. Returns `true` in case of success, or `false` if `displayMode` is `"list"` or the current panel contains validation errors.
@@ -2482,18 +2460,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      paging a record on another page is removed too, without a panel - so without the panel events. A
      source that pages itself refuses one it has not loaded and reports it. */
   public removePanel(value: any, confirmDelete?: boolean): void {
-    if (this.refuseOperationOfSource("remove")) return;
-    const target = this.resolvePanelTarget(value);
+    const target = this.getRemoveTarget((): IRecordTarget => this.resolvePanelTarget(value));
     if (!target) return;
-    if (target.isNotLoaded) {
-      this.reportRecordNotLoaded("remove");
-      return;
-    }
     const isUI = confirmDelete !== undefined;
     if (isUI) {
       if (!this.canRemovePanel) return;
       const removePanel = () => {
-        const current = this.resolvePanelTargetAgain(target);
+        const current = this.findRemoveTargetAgain(target);
         if (!current) return;
         const visIndex = this.removePanelCore(current);
         if (visIndex < 0) return;
@@ -2534,7 +2507,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private removedPanelIndex: number;
   private removedPanel: PanelModel;
   // Returns the removed panel's position in visiblePanels, -1 when no panel was removed.
-  private removePanelCore(target: IPanelTarget): number {
+  private removePanelCore(target: IRecordTarget): number {
     let res = -1;
     this.runCurrentPanelChange((): void => { res = this.removePanelCoreInScope(target); });
     return res;
@@ -2550,9 +2523,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (pos > 0) return { panel: visPanels[pos - 1], visibleIndex: visibleIndex - 1 };
     return { panel: null, visibleIndex: visibleIndex - 1 };
   }
-  private removePanelCoreInScope(target: IPanelTarget): number {
+  private removePanelCoreInScope(target: IRecordTarget): number {
     this.removedPanelIndex = target.visibleIndex;
-    const panel = target.panel;
+    const panel = !!target.item ? (<QuestionPanelDynamicItem>target.item).panel : undefined;
     const visIndex = !!panel ? this.visiblePanelsCore.indexOf(panel) : -1;
     const index = !!panel ? this.panelsCore.indexOf(panel) : -1;
     if (!!panel && index < 0) return -1;

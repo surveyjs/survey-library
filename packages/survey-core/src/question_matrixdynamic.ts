@@ -28,13 +28,9 @@ import { ComputedUpdater } from "./base";
 import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { IRecordTarget, QuestionRecordsValueGetterContext } from "./question_records";
+import { IRecordTarget, QuestionRecordItem, QuestionRecordsValueGetterContext } from "./question_records";
 import { DynamicDataOperation, IDynamicDataListChange, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 
-// What a removal acts on (QuestionMatrixDynamicModel.resolveRowTarget): a row, or a record without one.
-interface IRowTarget extends IRecordTarget {
-  row?: MatrixDropdownRowModelBase;
-}
 export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
   // The design row answers any path; isRoot is left as it is.
   protected getDesignValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
@@ -800,14 +796,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      value is kept (rowCountLimit). */
   public get maxRowCount(): number {
     const val = this.getPropertyValue("maxRowCount");
-    return this.pageSize > 0 ? val : Math.min(val, settings.matrix.maxRowCount);
+    return this.pageSize > 0 ? val : Math.min(val, this.maxRecordsPerPage);
   }
   public set maxRowCount(val: number) {
     this.setPropertyValue("maxRowCount", val <= 0 ? 1 : val);
   }
   // internal: the limit rowCount is checked against (see getRecordCountLimit).
   public get rowCountLimit(): number {
-    return this.getRecordCountLimit(this.maxRowCount, this.getPropertyValueWithoutDefault("maxRowCount"), settings.matrix.maxRowCount);
+    return this.getRecordCountLimit(this.maxRowCount, this.getPropertyValueWithoutDefault("maxRowCount"));
   }
 
   private onMaxRowCountChanged(): void {
@@ -1103,44 +1099,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.focusActionCellOrAddButton(rowIndex > -1 ? rows[rowIndex] : undefined);
     }, 10);
   }
+  // The record of the row removeRow(index) removes - its row's value, or the stored record of a record without a row.
   public isRequireConfirmOnRowDelete(index: number): boolean {
     if (!this.confirmDelete) return false;
-    if (index < 0 || index >= this.getVisibleNumberEnd(this.rowCount)) return false;
-    // A view or a page: the number is a position among the visible records of the whole view.
-    if (this.hasDataListView) {
-      const target = this.resolveRowTarget(index);
-      const record = !target ? undefined : (!!target.row ? target.row.value : this.getListRecordAt(target.recordIndex));
-      return !this.isValueEmpty(record);
-    }
-    var value = this.createNewValue();
-    if (this.isValueEmpty(value) || !Array.isArray(value)) return false;
-    if (index >= value.length) return false;
-    return !this.isValueEmpty(value[index]);
+    const target = this.resolveRowTarget(index);
+    const record = !target ? undefined : (!!target.item ? (<MatrixDropdownRowModelBase>target.item).value : this.getListRecordAt(target.recordIndex));
+    return !this.isValueEmpty(record);
   }
-  /* What removeRow acts on. index is a position among the visible rows - under paging among the
-     visible records of the whole view, and the record it names may be on another page and have no row.
-     undefined: there is nothing to act on; isNotLoaded: a source that pages itself holds another
-     window. record: the record a target without a row is found again by. */
-  private resolveRowTarget(index: number): IRowTarget {
+  /* What removeRow acts on (resolveRecordTarget): index is a position among the visible rows - under
+     paging among the visible records of the whole view. The rows are built first. */
+  private resolveRowTarget(index: number): IRecordTarget {
     const rows = this.visibleRows;
-    if (!this.isPagingActive) {
-      const row = !!rows && index < rows.length ? rows[index] : null;
-      return !row ? undefined : { row: row, recordIndex: this.getRecordIndexOf(row), visibleIndex: index };
-    }
-    const target = this.getRecordTargetAtVisibleIndex(index);
-    return !target || !target.item ? target : { row: <MatrixDropdownRowModelBase>target.item, recordIndex: target.recordIndex, visibleIndex: index };
-  }
-  /* A confirmation answers later: by then the page, the sort or the records may have changed. A row
-     still names its record - the remap layer keeps it in step - and a row that is gone names none. A
-     record without a row is found again by its object; a write replaced it, and then it is stale. */
-  private resolveRowTargetAgain(target: IRowTarget): IRowTarget {
-    const rows = this.generatedVisibleRows;
-    if (!!target.row) {
-      if (!Array.isArray(rows) || rows.indexOf(target.row) < 0) return undefined;
-      const pos = this.visibleRows.indexOf(target.row);
-      return pos < 0 ? undefined : { row: target.row, recordIndex: this.getRecordIndexOf(target.row), visibleIndex: this.pageStartVisibleIndex + pos };
-    }
-    return this.findRecordTargetAgain(target);
+    return this.resolveRecordTarget(index, this.rowCount, (pos: number): QuestionRecordItem => !!rows ? rows[pos] : undefined);
   }
   /**
    * Removes a matrix row with a specified index.
@@ -1151,15 +1121,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      a record on another page is removed too, without a row - so without the row events. A source that
      pages itself refuses one it has not loaded and reports it. */
   public removeRow(index: number, confirmDelete?: boolean, onRowRemoved?: () => void): void {
-    if (this.refuseOperationOfSource("remove")) return;
-    if (!this.canRemoveRows) return;
-    if (index < 0 || index >= this.getVisibleNumberEnd(this.rowCount)) return;
-    const target = this.resolveRowTarget(index);
+    const target = this.getRemoveTarget((): IRecordTarget => this.canRemoveRows ? this.resolveRowTarget(index) : undefined);
     if (!target) return;
-    if (target.isNotLoaded) {
-      this.reportRecordNotLoaded("remove");
-      return;
-    }
     if (confirmDelete === undefined) {
       confirmDelete = this.isRequireConfirmOnRowDelete(index);
     }
@@ -1167,7 +1130,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       confirmActionAsync({
         message: this.confirmDeleteText,
         funcOnYes: () => {
-          const current = this.resolveRowTargetAgain(target);
+          const current = this.findRemoveTargetAgain(target);
           if (!current) return;
           this.removeRowAsync(current);
           onRowRemoved && onRowRemoved();
@@ -1181,8 +1144,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.removeRowAsync(target);
     onRowRemoved && onRowRemoved();
   }
-  private removeRowAsync(target: IRowTarget): void {
-    const row = target.row;
+  private removeRowAsync(target: IRecordTarget): void {
+    const row = <MatrixDropdownRowModelBase>target.item;
     if (!!row && !!this.survey && !this.matrixCallbacks.matrixRowRemoving(this, target.visibleIndex, row)) return;
     this.onStartRowAddingRemoving();
     this.removeRowCore(target);
@@ -1192,8 +1155,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.initialRowCount = this.rowCount;
     }
   }
-  private removeRowCore(target: IRowTarget) {
-    const row = target.row;
+  private removeRowCore(target: IRecordTarget) {
+    const row = <MatrixDropdownRowModelBase>target.item;
     const rows = this.generatedVisibleRows;
     const index = !!row && Array.isArray(rows) ? rows.indexOf(row) : -1;
     if (!!row && index < 0) return;

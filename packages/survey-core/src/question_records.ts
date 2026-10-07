@@ -674,18 +674,27 @@ export abstract class QuestionRecordsModel extends Question {
     }
     return record;
   }
-  /* The setting (settings.matrix.maxRowCount, settings.panel.maxPanelCount) is the number of objects
-     one page may hold: without paging every object is on the one page, so it limits the total as
-     well; with paging it limits the page size only (listPageSize). */
+  /* The page maximum (maxRecordsPerPage) is the number of objects one page may hold: without paging
+     every object is on the one page, so it limits the total as well; with paging it limits the page
+     size only (listPageSize). */
   protected get isRecordCountLimitedByPageMax(): boolean {
     return this.isDesignMode || !(this.listPageSize > 0);
   }
-  /* The limit the record count is checked against: maxCount and the page maximum pageMax without
-     paging; with paging explicitMaxCount alone - when the question sets it, since the default of
-     maxCount is the setting. */
-  protected getRecordCountLimit(maxCount: number, explicitMaxCount: number, pageMax: number): number {
-    if (this.isRecordCountLimitedByPageMax) return Math.min(maxCount, pageMax);
+  /* The limit the record count is checked against: maxCount and the page maximum without paging; with
+     paging explicitMaxCount alone - when the question sets it, since the default of maxCount is the
+     setting. */
+  protected getRecordCountLimit(maxCount: number, explicitMaxCount: number): number {
+    if (this.isRecordCountLimitedByPageMax) return Math.min(maxCount, this.maxRecordsPerPage);
     return explicitMaxCount > 0 ? explicitMaxCount : Number.MAX_SAFE_INTEGER;
+  }
+  /* The page size the list gets: the authored one, capped by the number of objects one page may hold
+     (maxRecordsPerPage). Single-input mode walks every object and lists them in its own summary - it
+     is its own paging - so it builds every object and the list does not page. A carousel without
+     panelsPerPage builds every panel, as it always has; with it, it pages like list and tab mode and
+     shows one panel of the page. */
+  protected get listPageSize(): number {
+    if (this.isSingleInputActive) return 0;
+    return Math.min(this.pageSize, this.maxRecordsPerPage);
   }
   protected collectNestedQuestionsOfItems(
     items: Array<{ questions: Array<Question> }>,
@@ -1406,10 +1415,44 @@ export abstract class QuestionRecordsModel extends Question {
     }
     this.writeRecords((): boolean => list.setRecord(index, record));
   }
+  /* The start of a removal: the remove a source cannot make is refused, resolve names the target, and
+     a record a source that pages itself has not loaded is reported. undefined: nothing to remove. */
+  protected getRemoveTarget(resolve: () => IRecordTarget): IRecordTarget {
+    if (this.refuseOperationOfSource("remove")) return undefined;
+    const target = resolve();
+    if (!target) return undefined;
+    if (target.isNotLoaded) {
+      this.reportRecordNotLoaded("remove");
+      return undefined;
+    }
+    return target;
+  }
+  /* What a removal by number acts on. index is a position among the visible records of the whole
+     view, below getVisibleNumberEnd(unpagedCount); under paging the record it names may be on another
+     page and have no object. Without paging getVisibleItem answers the object at the position. */
+  protected resolveRecordTarget(index: number, unpagedCount: number, getVisibleItem: (index: number) => QuestionRecordItem): IRecordTarget {
+    if (index < 0 || index >= this.getVisibleNumberEnd(unpagedCount)) return undefined;
+    if (this.isPagingActive) return this.getRecordTargetAtVisibleIndex(index);
+    const item = getVisibleItem(index);
+    return !item ? undefined : { item: item, recordIndex: this.getItemRecordIndex(item), visibleIndex: index };
+  }
+  /* A removal target found again when a confirmation answers: by then the page, the sort or the
+     records may have changed. A target captured with an object names its record for as long as the
+     object is built and visible - the remap layer keeps it in step - and none once the object is gone.
+     A target captured without one is found again by its record (findRecordTargetAgain). The two kinds
+     never stand in for each other: a target with an object holds no record, and looking that up could
+     name another one - a stored undefined or empty entry. */
+  protected findRemoveTargetAgain(target: IRecordTarget): IRecordTarget {
+    if (this.isDisposed) return undefined;
+    if (!target.item) return this.findRecordTargetAgain(target);
+    const visibleIndex = this.getItemVisibleIndex(target.item);
+    if (visibleIndex < 0) return undefined;
+    return { item: target.item, recordIndex: this.getItemRecordIndex(target.item), visibleIndex: visibleIndex };
+  }
   /* A target without an object, found again after the records or the view changed - a confirmation
      answers later - by its record object. undefined when a write replaced the object or the record
      left the view. */
-  protected findRecordTargetAgain(target: IRecordTarget): IRecordTarget {
+  private findRecordTargetAgain(target: IRecordTarget): IRecordTarget {
     const list = this.dataList;
     const recordIndex = list.indexOfRecord(target.record);
     const visibleIndex = recordIndex < 0 ? -1 : list.getGlobalVisibleIndex(recordIndex);
@@ -2004,9 +2047,6 @@ export abstract class QuestionRecordsModel extends Question {
   }
   // The objects that have to go before the list does.
   protected disposeRecordObjects(): void { }
-  /* The tail of setSurveyImpl, which the subclasses call last: isDesignMode is known only once the
-     survey is attached, and the list may have been created before that - paging is off in the
-     Creator, whatever the page size says. */
   /* The sort and the filter the JSON authored reach the list once the load is over. An authored one
      created the paging helper when it was set, so a question without one has nothing pending and
      nothing is created for it. */
@@ -2015,6 +2055,9 @@ export abstract class QuestionRecordsModel extends Question {
       this._paging.flushAuthoredView();
     }
   }
+  /* The tail of setSurveyImpl, which the subclasses call last: isDesignMode is known only once the
+     survey is attached, and the list may have been created before that - paging is off in the
+     Creator, whatever the page size says. */
   protected syncPageSizeWithSurvey(): void {
     if (!!this.dataListValue) {
       this.paging.updatePageSize();
@@ -2064,9 +2107,8 @@ export abstract class QuestionRecordsModel extends Question {
   protected abstract getPageSizePropertyName(): string;
   // The property the record visibility expression is stored under (rowsVisibleIf, templateVisibleIf).
   protected abstract getRecordVisibleIfPropertyName(): string;
-  /* The page size the list gets at runtime: the authored one, except in single-input mode, which is
-     its own paging and builds every object. */
-  protected abstract get listPageSize(): number;
+  // The number of objects one page may hold (settings.matrix.maxRowCount, settings.panel.maxPanelCount).
+  protected abstract get maxRecordsPerPage(): number;
   // The objects, by created position (getItemByRecordIndex looks them up by record).
   public abstract getItem(index: number): QuestionRecordItem;
   // An object the question shows: a hidden one reports no errors (see getAllErrors).

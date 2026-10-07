@@ -2795,10 +2795,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       this.runTotalsCondition(this.getDataFilteredProperties());
     }
   }
-  // Single-input mode is its own paging: it walks every row and lists them in its summary.
-  protected get listPageSize(): number {
-    // settings.matrix.maxRowCount is the number of rows one page may hold.
-    return this.isSingleInputActive ? 0 : Math.min(this.pageSize, settings.matrix.maxRowCount);
+  // settings.matrix.maxRowCount is the number of rows one page may hold.
+  protected get maxRecordsPerPage(): number {
+    return settings.matrix.maxRowCount;
   }
   /* The renderers show a pager under the table while the matrix has more than one page: never in design
      mode or in single-input mode, which do not page. pageCount is the synced property, so a change of it

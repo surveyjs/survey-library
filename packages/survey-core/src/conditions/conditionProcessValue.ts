@@ -195,6 +195,37 @@ export class ValueGetter {
     return res;
   }
 }
+function getNameByPath(path: Array<IValueGetterItem>, start: number, end: number): string {
+  let name = "";
+  for (let i = start; i < end; i++) {
+    if (i > start) name += ".";
+    name += path[i].name;
+  }
+  return name;
+}
+function getMaxIndexByPath(path: Array<IValueGetterItem>, start: number): number {
+  let index = start;
+  while(index < path.length) {
+    if (path[index].index !== undefined) break;
+    index++;
+  }
+  return index < path.length ? index : path.length - 1;
+}
+// A name may itself contain dots ("address.city"), so the path items from start are joined back
+// into progressively longer names until isFound accepts one. The join stops at the first item
+// with an index - "[n]" walks into the value. isRevert tries the longest name first. Answers the
+// index of the last item the found name spans, or -1. Exported so that a tool reading the JSON
+// resolves dotted names the way the runtime does (survey-core/linter).
+export function findNameByPath(path: Array<IValueGetterItem>, start: number, isRevert: boolean,
+  isFound: (name: string) => boolean): number {
+  const endIndex = getMaxIndexByPath(path, start);
+  let index = isRevert ? endIndex : start;
+  while(index <= endIndex && index >= start) {
+    if (isFound(getNameByPath(path, start, index + 1))) return index;
+    index += isRevert ? -1 : 1;
+  }
+  return -1;
+}
 export class ValueGetterContextCore implements IValueGetterContext {
   constructor() {}
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
@@ -222,36 +253,11 @@ export class ValueGetterContextCore implements IValueGetterContext {
   }
   protected isSearchNameRevert(): boolean { return false; }
   private checkValueByPath(path: Array<IValueGetterItem>, pIndex: number, res: IValueGetterInfo): number {
-    const isRevert = this.isSearchNameRevert();
-    const initialIndex = pIndex;
-    const endIndex = this.getMaxIndexByPath(path, pIndex);
     res.isFound = false;
-    if (isRevert) {
-      pIndex = endIndex;
-    }
-    while(!res.isFound && pIndex <= endIndex && pIndex >= initialIndex) {
-      const name = this.getNameByPath(path, initialIndex, pIndex + 1);
+    return findNameByPath(path, pIndex, this.isSearchNameRevert(), name => {
       this.updateValueByItem(name, res);
-      if (res.isFound) break;
-      pIndex += isRevert ? -1 : 1;
-    }
-    return pIndex;
-  }
-  private getNameByPath(path: Array<IValueGetterItem>, start: number, end: number): string {
-    let name = "";
-    for (let i = start; i < end; i++) {
-      if (i > start) name += ".";
-      name += path[i].name;
-    }
-    return name;
-  }
-  private getMaxIndexByPath(path: Array<IValueGetterItem>, start: number): number {
-    let index = start;
-    while(index < path.length) {
-      if (path[index].index !== undefined) break;
-      index++;
-    }
-    return index < path.length ? index : path.length - 1;
+      return res.isFound;
+    });
   }
   public getTextValue(name: string, value: any, isDisplayValue: boolean): string {
     if (!isDisplayValue) return value;

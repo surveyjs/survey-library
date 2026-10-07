@@ -1,4 +1,4 @@
-import { ArrayOperand, BinaryOperand, ConditionsParser, Const, FunctionOperand, getBuiltInVariableNames, IExpressionError, isReturnColumnParam, Operand, ValueGetter, Variable } from "survey-core";
+import { ArrayOperand, BinaryOperand, ConditionsParser, Const, findNameByPath, FunctionOperand, getBuiltInVariableNames, IExpressionError, isReturnColumnParam, Operand, ValueGetter, Variable } from "survey-core";
 import { FUNCTION_NAME_ARGS, FunctionArgNameScope } from "./catalog";
 import { ISurveyLintOptions, LintReproductionStep } from "./types";
 import { SurveyLintHintReasons, SurveyLintReasons } from "./reasons";
@@ -67,6 +67,16 @@ const pathParser = new ValueGetter();
 
 export function splitRefSegments(name: string): Array<ParsedRefSegment> {
   return pathParser.getPath(name);
+}
+
+// Element, row, column and item names may contain dots ("address.city"), so a name is found
+// through the runtime's own walk over the segments, longest name first - the order the survey
+// resolves a root name in. The order a container uses only decides between two names that both
+// exist; whether a name is found does not depend on it. Answers the index of the last segment
+// the found name spans, or -1.
+function findDottedName(segments: Array<ParsedRefSegment>, start: number,
+  isKnown: (name: string) => boolean): number {
+  return findNameByPath(segments, start, true, isKnown);
 }
 
 function findFrame<T extends ScopeFrame>(scope: Array<ScopeFrame>, kind: T["kind"]): T | undefined {
@@ -241,17 +251,16 @@ function scopedUnknown(ref: ParsedRef, prefix: string, segmentIndex: number, can
 function validateInnerName(ref: ParsedRef, prefix: string, map: CIMultiMap<ElementRecord>,
   lintSettings: ILintResolvedSettings): ParsedRef {
   if (ref.segments.length < 2) return scopedResolved(ref, prefix);
-  // inner names may contain dots too ({row.col.a} for a column named "col.a") -
-  // try progressively longer joins, longest first, like the runtime value walk
-  for (let end = ref.segments.length; end > 1; end--) {
-    if (!isFoldableRange(ref.segments, 1, end)) continue;
-    const inner = ref.segments.slice(1, end).map(seg => seg.name).join(".");
-    const record = map.first(inner);
-    if (record) {
-      scopedResolved(ref, prefix);
-      ref.resolvedTo = record;
-      return ref;
-    }
+  // inner names may contain dots too ({row.col.a} for a column named "col.a")
+  let record: ElementRecord | undefined;
+  const found = findDottedName(ref.segments, 1, name => {
+    record = map.first(name);
+    return !!record;
+  });
+  if (found > -1) {
+    scopedResolved(ref, prefix);
+    ref.resolvedTo = record;
+    return ref;
   }
   // a comment lives next to its value inside the row/panel too ({row.col1-Comment}):
   // resolvedTo stays unset, the comment is a plain string, not the base question
@@ -330,9 +339,10 @@ function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, sc
     const staticPanel = getStaticPanelAncestor(site.owner);
     if (staticPanel && staticPanel.panelDescendantNames) {
       if (ref.segments.length < 2) return { handled: true, ref: scopedResolved(ref, vars.panel) };
-      const inner = ref.segments[1].name;
-      if (staticPanel.panelDescendantNames.has(inner)) return { handled: true, ref: scopedResolved(ref, vars.panel) };
-      const commentBase = stripCommentSuffix(inner, lintSettings);
+      if (findDottedName(ref.segments, 1, name => staticPanel.panelDescendantNames.has(name)) > -1) {
+        return { handled: true, ref: scopedResolved(ref, vars.panel) };
+      }
+      const commentBase = stripCommentSuffix(ref.segments[1].name, lintSettings);
       if (commentBase && staticPanel.panelDescendantNames.has(commentBase)) {
         const commentRef = scopedResolved(ref, vars.panel);
         commentRef.resolvedKind = "comment";
@@ -379,8 +389,9 @@ function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, sc
     if (compositeFrame.fieldNames.size === 0 || ref.segments.length < 2) {
       return { handled: true, ref: scopedResolved(ref, vars.composite) };
     }
-    const inner = ref.segments[1].name;
-    if (compositeFrame.fieldNames.has(inner)) return { handled: true, ref: scopedResolved(ref, vars.composite) };
+    if (findDottedName(ref.segments, 1, name => compositeFrame.fieldNames.has(name)) > -1) {
+      return { handled: true, ref: scopedResolved(ref, vars.composite) };
+    }
     return { handled: true, ref: scopedUnknown(ref, vars.composite, 1, compositeFrame.fieldNames.names()) };
   }
   if (equalsCI(root, vars.self) || equalsCI(root, vars.parent) || equalsCI(root, vars.survey)) {
@@ -397,25 +408,32 @@ function markUnknownSegment(ref: ParsedRef, index: number, candidates: Array<str
   ref.suggestion = closestMatch(ref.segments[index].name, candidates);
 }
 
+// The segments from start name nothing the container holds, not even joined into a dotted
+// name. The segments stay as written: a found dotted name is not collapsed into one.
+function isUnknownName(ref: ParsedRef, start: number, map: { has(name: string): boolean }): boolean {
+  return findDottedName(ref.segments, start, name => map.has(name)) < 0;
+}
+
 function validateElementSubPath(ref: ParsedRef, record: ElementRecord): void {
   if (ref.segments.length < 2) return;
-  const seg1 = ref.segments[1];
   const type = getEffectiveType(record);
   if (type === "multipletext" && record.multipleTextItems) {
-    if (!record.multipleTextItems.has(seg1.name)) {
+    if (isUnknownName(ref, 1, record.multipleTextItems)) {
       markUnknownSegment(ref, 1, record.multipleTextItems.names());
     }
     return;
   }
   if ((type === "matrix" || type === "matrixdropdown") && Array.isArray(record.matrixRowValues)) {
     const rowNames = record.matrixRowValues.map(v => String(v));
-    if (!rowNames.some(name => equalsCI(name, seg1.name))) {
+    const rowEnd = findDottedName(ref.segments, 1, name => rowNames.some(row => equalsCI(row, name)));
+    if (rowEnd < 0) {
       markUnknownSegment(ref, 1, rowNames);
       return;
     }
-    if (type === "matrixdropdown" && ref.segments.length > 2 && record.matrixColumns) {
-      if (!record.matrixColumns.has(ref.segments[2].name)) {
-        markUnknownSegment(ref, 2, record.matrixColumns.names());
+    const columnStart = rowEnd + 1;
+    if (type === "matrixdropdown" && ref.segments.length > columnStart && record.matrixColumns) {
+      if (isUnknownName(ref, columnStart, record.matrixColumns)) {
+        markUnknownSegment(ref, columnStart, record.matrixColumns.names());
       }
     }
     return;
@@ -423,20 +441,20 @@ function validateElementSubPath(ref: ParsedRef, record: ElementRecord): void {
   if (type === "matrixdynamic" && record.matrixColumns) {
     // {mdyn[0].col} - the index is attached to the root segment
     if (ref.segments[0].index === undefined) return;
-    if (!record.matrixColumns.has(seg1.name)) {
+    if (isUnknownName(ref, 1, record.matrixColumns)) {
       markUnknownSegment(ref, 1, record.matrixColumns.names());
     }
     return;
   }
   if (type === "paneldynamic" && record.templateNames) {
     if (ref.segments[0].index === undefined) return;
-    if (!record.templateNames.has(seg1.name)) {
+    if (isUnknownName(ref, 1, record.templateNames)) {
       markUnknownSegment(ref, 1, record.templateNames.names());
     }
     return;
   }
   if (record.componentFieldNames && record.componentFieldNames.size > 0) {
-    if (!record.componentFieldNames.has(seg1.name)) {
+    if (isUnknownName(ref, 1, record.componentFieldNames)) {
       markUnknownSegment(ref, 1, record.componentFieldNames.names());
     }
     return;
@@ -444,26 +462,23 @@ function validateElementSubPath(ref: ParsedRef, record: ElementRecord): void {
   // every other type (custom/unknown, expression, checkbox indexes, ...): stay lenient
 }
 
-// Element/calculated-value names may themselves contain dots ("address.city").
-// The runtime resolver re-joins progressively longer dotted prefixes and prefers
-// the longest (ValueGetterContextCore.checkValueByPath with isSearchNameRevert),
-// so a longer registered name must win over "first segment plus sub-path".
-// When a prefix of 2+ segments matches a registered name, collapse it into the
-// root segment; the remaining segments stay a sub-path to validate as usual.
+// Element/calculated-value names may themselves contain dots ("address.city"), and the
+// survey prefers the longest registered name (findNameByPath, longest first), so it must
+// win over "first segment plus sub-path". When a prefix of 2+ segments matches a
+// registered name, collapse it into the root segment; the remaining segments stay a
+// sub-path to validate as usual.
 function collapseLongestRootName(ref: ParsedRef, index: SurveyIndex, options: ISurveyLintOptions): void {
-  for (let end = ref.segments.length; end > 1; end--) {
-    if (!isFoldableRange(ref.segments, 0, end)) continue;
-    const joined = ref.segments.slice(0, end).map(seg => seg.name).join(".");
-    if (!index.byName.has(joined) && !index.byValueName.has(joined) &&
-      !index.calculatedValues.has(joined) && !isKnownVariable(joined, index, options)) {
-      continue;
-    }
-    const last = ref.segments[end - 1];
-    const collapsed: ParsedRefSegment = last.index === undefined
-      ? { name: joined } : { name: joined, index: last.index };
-    ref.segments = [collapsed].concat(ref.segments.slice(end));
-    return;
-  }
+  let joined = "";
+  const last = findDottedName(ref.segments, 0, name => {
+    joined = name;
+    return index.byName.has(name) || index.byValueName.has(name) ||
+      index.calculatedValues.has(name) || isKnownVariable(name, index, options);
+  });
+  if (last < 1) return;
+  const lastIndex = ref.segments[last].index;
+  const collapsed: ParsedRefSegment = lastIndex === undefined
+    ? { name: joined } : { name: joined, index: lastIndex };
+  ref.segments = [collapsed].concat(ref.segments.slice(last + 1));
 }
 
 function stripUnwrapPostfix(name: string, postfix: string): string {
@@ -485,7 +500,7 @@ function tryResolveMatrixTotal(ref: ParsedRef, root: string, index: SurveyIndex)
   ref.status = "resolved";
   ref.resolvedTo = record;
   ref.resolvedKind = "element";
-  if (ref.segments.length > 1 && record.matrixColumns && !record.matrixColumns.has(ref.segments[1].name)) {
+  if (ref.segments.length > 1 && record.matrixColumns && isUnknownName(ref, 1, record.matrixColumns)) {
     markUnknownSegment(ref, 1, record.matrixColumns.names());
   }
   return true;
@@ -509,14 +524,16 @@ function tryResolveCommentSuffix(ref: ParsedRef, root: string, index: SurveyInde
 function tryResolveArrayItem(ref: ParsedRef, scope: Array<ScopeFrame>, settings: ILintResolvedSettings): boolean {
   const frame = findFrame<ScopeFrameArrayItem>(scope || [], "arrayItem");
   if (!frame) return false;
-  for (let end = ref.segments.length; end > 0; end--) {
-    if (!isFoldableRange(ref.segments, 0, end)) continue;
-    const name = ref.segments.slice(0, end).map(segment => segment.name).join(".");
-    const record = frame.names.first(name);
-    if (!record) continue;
-    const last = ref.segments[end - 1];
-    const root: ParsedRefSegment = { name: name, index: last.index };
-    ref.segments = [root].concat(ref.segments.slice(end));
+  let joined = "";
+  let record: ElementRecord | undefined;
+  const last = findDottedName(ref.segments, 0, name => {
+    joined = name;
+    record = frame.names.first(name);
+    return !!record;
+  });
+  if (last > -1) {
+    const root: ParsedRefSegment = { name: joined, index: ref.segments[last].index };
+    ref.segments = [root].concat(ref.segments.slice(last + 1));
     scopedResolved(ref, "");
     ref.resolvedTo = record;
     validateElementSubPath(ref, record);

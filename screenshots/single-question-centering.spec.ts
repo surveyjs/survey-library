@@ -37,6 +37,14 @@ async function pinHost(page: Page, height?: number): Promise<void> {
       container.style.bottom = "0";
       container.style.left = "0";
     }
+    // survey-js-ui renders into a shadow root. The wrapper between the sized host
+    // and the survey does not stretch on its own, so height: 100% on the root
+    // never reaches the host.
+    const inner = container.shadowRoot && container.shadowRoot.querySelector(".root-element") as HTMLElement;
+    if (inner) {
+      inner.style.width = "100%";
+      inner.style.height = "100%";
+    }
   }, height);
 }
 

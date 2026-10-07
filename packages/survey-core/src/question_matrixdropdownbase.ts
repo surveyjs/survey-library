@@ -2706,17 +2706,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         questions.push(column.templateQuestion);
       }
     });
-    const res = this.getFieldsOfQuestions(questions);
-    questions.forEach(q => {
-      // storeOthersAsComment writes the "other" text into the comment key of the same record.
-      if (!q.hasComment && (<any>q).hasOther === true) {
-        const name = q.getValueName() + settings.commentSuffix;
-        if (!res.some(f => f.name === name)) {
-          res.push({ name: name, dataType: "string" });
-        }
-      }
-    });
-    return res;
+    return this.getFieldsOfQuestions(questions);
   }
   protected refreshRenderedPage(): void {
     this.resetRenderedTable();

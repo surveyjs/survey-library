@@ -219,13 +219,22 @@ export abstract class QuestionRecordsModel extends Question {
   }
   /* The record fields the template questions of a dynamic panel or the column questions of a matrix
      contribute to the list: one per question, under its value name, and one more for a comment,
-     which is stored under an ordinary key of the same record. */
+     which is stored under an ordinary key of the same record. A question with an "other" item and no
+     comment stores the other text under the same comment key (storeOthersAsComment): a string field,
+     declared after the others. */
   protected getFieldsOfQuestions(questions: Array<Question>): Array<IDynamicDataField> {
     const res = new Array<IDynamicDataField>();
     (questions || []).forEach((question: Question): void => {
       res.push({ name: question.getValueName(), dataType: getFieldType(question) });
       if (question.hasComment) {
         res.push({ name: question.getValueName() + settings.commentSuffix, dataType: "string" });
+      }
+    });
+    (questions || []).forEach((question: Question): void => {
+      if (question.hasComment || (<any>question).hasOther !== true) return;
+      const name = question.getValueName() + settings.commentSuffix;
+      if (!res.some(f => f.name === name)) {
+        res.push({ name: name, dataType: "string" });
       }
     });
     return res;

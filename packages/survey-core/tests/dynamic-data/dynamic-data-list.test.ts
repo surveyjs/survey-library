@@ -4668,3 +4668,33 @@ describe("DynamicDataList: source.batch with an asynchronous source", () => {
     expect(source.records.map((r: any) => r.a), "#3").toEqual(["r1", "e2", "r3"]);
   });
 });
+
+describe("DynamicDataList: the owner is told the list settled", () => {
+  class SettleOwner extends TestOwner {
+    public settled: number = 0;
+    public onDataSettled(): void {
+      this.settled++;
+    }
+  }
+  test("a synchronous read after a source swap tells the owner the list settled", async () => {
+    const owner = new SettleOwner();
+    const oldSource = new FakeNamedAsyncWriteSource("old", [{ id: 0, a: 1 }]);
+    const list = new DynamicDataList(oldSource, owner);
+    list.load();
+    list.setValue(0, "a", 2);
+    list.source = new FakeNamedAsyncWriteSource("new", createRecords(3));
+    owner.settled = 0;
+    oldSource.pendingWrites[0].resolve();
+    await flush();
+    expect(list.count, "#1: the new source is read").toBe(3);
+    expect(owner.settled > 0, "#2").toBe(true);
+    expect(list.hasPendingRead || list.hasPendingWrites, "#3").toBe(false);
+  });
+  test("a synchronous read that fails tells the owner the list settled", () => {
+    const owner = new SettleOwner();
+    const list = new DynamicDataList(<IDynamicDataSource>{ read: (): Array<any> => { throw new Error("read"); } }, owner);
+    list.onError = (): void => {};
+    list.load();
+    expect(owner.settled, "#1").toBe(1);
+  });
+});

@@ -119,6 +119,8 @@ export interface ISurveyDynamicPanelCallbacks {
 // are the source method names (DynamicDataOperation).
 export interface ISurveyDynamicDataCallbacks {
   dynamicDataError(question: IQuestion, operation: string, error: any): void;
+  // The question's reads and writes settled: a completion held for its pending writes goes on.
+  dynamicDataSettled(question: IQuestion): void;
 }
 export interface ISurveyChoiceCallbacks {
   storeOthersAsComment: boolean;

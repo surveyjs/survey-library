@@ -92,6 +92,7 @@ import {
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
+import { hasPendingSourceWrites } from "./question_records";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
@@ -4320,6 +4321,7 @@ export class SurveyModel extends SurveyElementCore
     this.onCurrentPageChanging.fire(this, options, () => onComplete(), () => this.setIsNavigationBlocked(true));
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
+    this.completionHeldPage = undefined;
     this.notifyQuestionsOnHidingContent(oldValue);
     if (oldValue && !oldValue.isDisposed && !oldValue.passed) {
       if (oldValue.validate(false)) {
@@ -5055,6 +5057,7 @@ export class SurveyModel extends SurveyElementCore
     return this.validateOnNavigate(doComplete) === true;
   }
   private doCurrentPageCompleteCore(doComplete: boolean): boolean {
+    if (doComplete && this.holdCompletionForSourceWrites()) return false;
     if (this.doServerValidation(doComplete)) return false;
     if (doComplete) {
       if (this.currentPage)this.currentPage.passed = true;
@@ -5692,8 +5695,9 @@ export class SurveyModel extends SurveyElementCore
         if (page) {
           this.currentPage = page;
         } else {
-          if (self.isLastPage) self.doComplete();
-          else self.doNextPage();
+          if (self.isLastPage) {
+            if (!self.holdCompletionForSourceWrites()) self.doComplete();
+          } else self.doNextPage();
         }
       }
     }
@@ -6239,6 +6243,31 @@ export class SurveyModel extends SurveyElementCore
   // failures are the application's business too.
   dynamicDataError(question: IQuestion, operation: string, error: any): void {
     this.onDynamicDataError.fire(this, { question: <Question>question, operation: operation, error: error });
+  }
+  /* A completion the respondent or tryComplete started waits while a records question has a write
+     its data source has not answered: a write is part of what is submitted. A pending read does not
+     hold it. The page it was started on is kept; a page change drops it (currentPageChanged), and so
+     does a state other than running. doComplete() completes regardless and is not held. */
+  private completionHeldPage: PageModel;
+  private holdCompletionForSourceWrites(): boolean {
+    if (!this.hasPendingSourceWrites()) return false;
+    this.completionHeldPage = this.currentPage;
+    return true;
+  }
+  private hasPendingSourceWrites(): boolean {
+    return this.getAllQuestions(false, false, true).some((question: Question): boolean => hasPendingSourceWrites(question));
+  }
+  // ISurveyDynamicDataCallbacks: a question's data operations settled. The held completion runs again, and validates again.
+  dynamicDataSettled(question: IQuestion): void {
+    const page = this.completionHeldPage;
+    if (!page) return;
+    if (page !== this.currentPage || this.state !== "running") {
+      this.completionHeldPage = undefined;
+      return;
+    }
+    if (this.hasPendingSourceWrites()) return;
+    this.completionHeldPage = undefined;
+    this.doCurrentPageComplete(true);
   }
   dragAndDropAllow(options: DragDropAllowEvent): boolean {
     this.onDragDropAllow.fire(this, options);

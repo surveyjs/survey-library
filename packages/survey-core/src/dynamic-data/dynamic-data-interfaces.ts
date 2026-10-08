@@ -39,7 +39,8 @@
 //     // read-only. The source assigns the key and decides where the record is kept: return the
 //     // stored record (or a promise of it) so that the list learns the key.
 //     insert: (record, sourceIndex) => post("/api/orders", { at: sourceIndex, record }),
-//     update: (key, record, changedFields) => put(`/api/orders/${key}`, record),
+//     // Send the changed fields only: another question on the same source may hold an older copy.
+//     update: (key, record, changedFields) => patch(`/api/orders/${key}`, pick(record, changedFields)),
 //     remove: (key) => del(`/api/orders/${key}`),
 //     // The key names the record; the target is still a position, that is what a move is.
 //     move: (key, toSourceIndex) => post("/api/orders/move", { id: key, to: toSourceIndex })
@@ -49,8 +50,8 @@
 // A source WITHOUT keyField is read-only: the list sends it no insert, update, remove or move, so no
 // write ever names a record by its position. It may still page, sort and filter on its side. The
 // in-memory sources (ArrayDynamicDataSource and SurveyDataDynamicDataSource) are the exception: the
-// list is their only writer and writes them synchronously, so a write names a record by its storage
-// index. sourceIndex, where it is passed on its own, is the position in the WHOLE source - the list
+// list writes them synchronously, so a write names a record by its storage index. Such a source has
+// one writer: assigned to a second question, it is read-only there (changeSourceWriter). sourceIndex, where it is passed on its own, is the position in the WHOLE source - the list
 // has already added the offset of the page the edit was made on.
 //
 // Where an added record is kept is the source's to decide: insert receives the position the
@@ -151,6 +152,9 @@ export interface IDynamicDataSource {
   // the answer is the one the list keeps. A source that wants client-generated keys generates them
   // here, where it sees the record.
   insert?(record: any, sourceIndex: number): any | Promise<any>;
+  // record is the question's own copy of the record with the change applied; changedFields names the
+  // fields that changed. A source shared by several questions applies changedFields only: another
+  // question's copy of the same record may be older in the other fields.
   update?(key: any, record: any, changedFields: Array<string>): void | Promise<void>;
   remove?(key: any): void | Promise<void>;
   // The key names the record; the target is still a position, that is what a move is.

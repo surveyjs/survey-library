@@ -7,6 +7,7 @@ import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
+import { isSourceWrittenByAnother } from "./dynamic-data/dynamic-data-sources";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { TextContextProcessor } from "./textPreProcessor";
 import { SurveyError } from "./survey-error";
@@ -105,6 +106,14 @@ interface IRecordItemOwner {
 const recordItemOwners: WeakMap<QuestionRecordsModel, IRecordItemOwner> = new WeakMap<QuestionRecordsModel, IRecordItemOwner>();
 function getRecordItemOwner(question: QuestionRecordsModel): IRecordItemOwner {
   return recordItemOwners.get(question);
+}
+/* The survey's question to a records question: has its assigned source a write it has not answered?
+   Not a member of the exported class: a question registers its reader when a source is assigned to it,
+   and a question that never had one answers false. */
+const sourceWriteReaders: WeakMap<object, () => boolean> = new WeakMap<object, () => boolean>();
+export function hasPendingSourceWrites(question: object): boolean {
+  const reader = sourceWriteReaders.get(question);
+  return !!reader && reader();
 }
 
 /* The question side shared by every question whose answer is a collection of records, and the
@@ -1308,8 +1317,9 @@ export abstract class QuestionRecordsModel extends Question {
     const list = this._dataList;
     if (!list || !list.isRemote) return false;
     if (!list.hasCapability(operation)) {
-      const reason = !list.keyField ? "The data source has no keyField, so its records are read-only" :
-        "The data source does not implement " + operation;
+      const reason = isSourceWrittenByAnother(list.assignedSource, list) ?
+        "The data source is written by position by another question, so the records of this question are read-only" :
+        !list.keyField ? "The data source has no keyField, so its records are read-only" : "The data source does not implement " + operation;
       this.reportOperationRefused(operation, reason);
       return true;
     }
@@ -1973,8 +1983,24 @@ export abstract class QuestionRecordsModel extends Question {
   }
   // The survey-data side of the swap. The question follows the call with its own refresh, also for
   // the same source.
+  /* While a source is assigned the list may read it synchronously and settle inside the swap: what
+     waits for the settle (onDataSettled) runs once at the end, after the source's capabilities are
+     applied. */
+  private isAssigningDataSource: boolean;
   protected setDataSource(val: IDynamicDataSource): void {
+    this.isAssigningDataSource = true;
+    try {
+      this.setDataSourceCore(val);
+    } finally {
+      this.isAssigningDataSource = false;
+    }
+    this.onDataSettled();
+  }
+  private setDataSourceCore(val: IDynamicDataSource): void {
     const newValue = val || undefined;
+    if (!!newValue && !sourceWriteReaders.has(this)) {
+      sourceWriteReaders.set(this, (): boolean => this.isWritingToSource);
+    }
     /* Another storage: the records layer 2 tracks and the states kept for them name records of the
        old one, and so do the current record and the position a move is going to. Dropped before the
        swap, whose first read may commit inside it. */
@@ -2031,9 +2057,17 @@ export abstract class QuestionRecordsModel extends Question {
      first read. It is one ordinary value change - attaching is a developer action, not a page load -
      and it is the only way to keep a stale local answer, which nobody can see any more, out of the
      submitted data. */
+  /* The answer stays when another question that has no data source stores the same value name: it
+     is that question's answer, and a detach shows it here again. */
   private clearValueInSurveyData(): void {
     if (!this.data || this.isValueEmpty(this.data.getValue(this.getValueName()))) return;
+    if (this.isValueStoredByAnotherQuestion()) return;
     this.data.setValue(this.getValueName(), undefined, false, true, this.name);
+  }
+  private isValueStoredByAnotherQuestion(): boolean {
+    if (!this.survey) return false;
+    return this.survey.getQuestionsByValueName(this.getValueName()).some((question: IQuestion): boolean =>
+      question !== this && !(question instanceof QuestionRecordsModel && question.isRemoteData));
   }
   // Detaching: the window is dropped and the question reads the survey hash again.
   private restoreValueFromSurveyData(): void {
@@ -2547,9 +2581,12 @@ export abstract class QuestionRecordsModel extends Question {
   /* A validation that answers through a callback - complete, the next page, the preview,
      validate(callback) - waits while the question's data is read or written: the records the source
      has not brought yet, or not taken yet, cannot be validated. The context waits for the question
-     (addElement) until the list settles, then the question is validated again into it. A write that
-     never settles keeps the context waiting; a disposed question releases it. A synchronous
-     validation (isCurrentPageValid, validate() without a callback) answers at once, as before. */
+     (addElement) until the list settles - its last read or write answered or failed, or a new source,
+     or none, was assigned and its first read committed - then the question is validated again into
+     it. A write that never settles keeps the context waiting, and so does a write of a replaced
+     source that never settles (the new source is read after it); a disposed question releases it. A
+     synchronous validation (isCurrentPageValid, validate() without a callback) answers at once, as
+     before. */
   private dataWaits: Array<ValidationContext>;
   protected validateElementCore(context: ValidationContext): boolean {
     const res = super.validateElementCore(context);
@@ -2566,21 +2603,44 @@ export abstract class QuestionRecordsModel extends Question {
     this.dataWaits.push(context);
     context.addElement(this.dataWaitId);
   }
-  // IDynamicDataOwner.onDataSettled.
+  /* IDynamicDataOwner.onDataSettled, and the end of setDataSource. The survey is told too: a
+     completion it holds for this question's writes goes on. */
   private onDataSettled(): void {
-    if (!this.dataWaits || this.isDynamicDataRunning) return;
-    this.releaseDataWaits(true);
+    if (this.isAssigningDataSource) return;
+    try {
+      if (!!this.dataWaits && !this.isDynamicDataRunning) {
+        this.releaseDataWaits(true);
+      }
+    } finally {
+      if (!!this.survey && !this.isWritingToSource) {
+        this.survey.dynamicDataSettled(this);
+      }
+    }
   }
+  // A write the assigned source has not answered (see hasPendingSourceWrites).
+  private get isWritingToSource(): boolean {
+    const list = this._dataList;
+    return !!list && list.isRemote && list.hasPendingWrites;
+  }
+  /* Every held context is released, also when the validation of one throws: the first error is
+     rethrown once all of them are released. */
   private releaseDataWaits(isValidated: boolean): void {
     const waits = this.dataWaits;
     this.dataWaits = undefined;
     if (!waits) return;
+    let error: { error: any } = undefined;
     waits.forEach((context: ValidationContext): void => {
-      if (isValidated) {
-        this.validateElement(context);
+      try {
+        if (isValidated) {
+          this.validateElement(context);
+        }
+      } catch(e) {
+        if (!error) error = { error: e };
+      } finally {
+        context.removeElement(this.dataWaitId);
       }
-      context.removeElement(this.dataWaitId);
     });
+    if (!!error) throw error.error;
   }
   // Objects that were never built were never shown: there is nothing the respondent could have left
   // invalid, and validating them would build them.

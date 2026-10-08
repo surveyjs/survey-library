@@ -10,7 +10,7 @@ import {
   isRecordValueChanged, mergeInsertAnswer, toReadResult
 } from "./dynamic-data-channel";
 import { DynamicDataCount } from "./dynamic-data-count";
-import { ArrayDynamicDataSource } from "./dynamic-data-sources";
+import { ArrayDynamicDataSource, changeSourceWriter, isSourceWrittenByAnother } from "./dynamic-data-sources";
 import { DynamicDataMembership } from "./dynamic-data-membership";
 import { DynamicDataReadState } from "./dynamic-data-read-state";
 import { DynamicDataRecordVisibility, IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data-record-visibility";
@@ -131,6 +131,7 @@ export class DynamicDataList {
     const newValue = source || undefined;
     if (this.assignedSourceValue === newValue) return;
     this.checkSourceReplaceable();
+    changeSourceWriter(this, this.assignedSourceValue, newValue);
     this.assignedSourceValue = newValue;
     if (!!onAssigning) onAssigning();
     if (!!newValue) {
@@ -1113,6 +1114,7 @@ export class DynamicDataList {
   }
   public dispose(): void {
     this.isDisposed = true;
+    changeSourceWriter(this, this.assignedSourceValue, undefined);
     this.channel.cancelReads();
     // No notification: a disposed list raises nothing, and a read in flight will never clear it.
     this._isLoading = false;
@@ -1171,7 +1173,7 @@ export class DynamicDataList {
     if (this.isMembershipFixed && (operation === "insert" || operation === "remove" || operation === "move")) return false;
     const source: any = this._source;
     if (!source || typeof source[operation] !== "function") return false;
-    return operation === "read" || !!this.keyField || source instanceof ArrayDynamicDataSource;
+    return operation === "read" || !!this.keyField || source instanceof ArrayDynamicDataSource && !isSourceWrittenByAnother(source, this);
   }
   private getFields(): Array<IDynamicDataField> {
     return !!this.owner && !!this.owner.getFields ? this.owner.getFields() : undefined;

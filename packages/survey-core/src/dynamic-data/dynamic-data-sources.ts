@@ -118,3 +118,27 @@ export class SurveyDataDynamicDataSource extends ArrayDynamicDataSource {
     super(() => data.getValue(valueName), (arr: Array<any>): void => { data.setValue(valueName, arr, false); });
   }
 }
+
+/* An in-memory source without keyField is written by position: the index a list sends is the
+   position in the array as that list last read it. Two lists that write one such array would each
+   send positions the other one's writes have shifted, and a write would land on another record. So
+   such a source has one writer: the first list it is assigned to (DynamicDataList.assignSource). A
+   list assigned it while another list writes it only reads it - its write capabilities are false,
+   and the question reports each refused write. Assigning another source, or none, and disposing the
+   list release the claim; a list that only reads does not take it over until the source is assigned
+   to it again. A keyed source is written by key and stays shared. The question's own default source
+   is never assigned, so it is not tracked. */
+const sourceWriters: WeakMap<IDynamicDataSource, object> = new WeakMap<IDynamicDataSource, object>();
+function isWrittenByPosition(source: IDynamicDataSource): boolean {
+  return !!source && !source.keyField && source instanceof ArrayDynamicDataSource;
+}
+// The list leaves oldSource and is assigned newSource (undefined for none).
+export function changeSourceWriter(writer: object, oldSource: IDynamicDataSource, newSource: IDynamicDataSource): void {
+  if (!!oldSource && sourceWriters.get(oldSource) === writer) sourceWriters.delete(oldSource);
+  if (isWrittenByPosition(newSource) && !sourceWriters.has(newSource)) sourceWriters.set(newSource, writer);
+}
+export function isSourceWrittenByAnother(source: IDynamicDataSource, list: object): boolean {
+  if (!isWrittenByPosition(source)) return false;
+  const writer = sourceWriters.get(source);
+  return !!writer && writer !== list;
+}

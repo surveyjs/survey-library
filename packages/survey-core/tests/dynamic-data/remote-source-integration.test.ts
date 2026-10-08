@@ -836,6 +836,23 @@ describe("Remote data source: capabilities", () => {
 });
 
 describe("Remote data source: survey data", () => {
+  test("attaching a source keeps the answer of another question with the same valueName, and a detach shows it", async () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m", valueName: "v", rowCount: 0, columns: [{ name: "col1", cellType: "text" }] },
+      { type: "paneldynamic", name: "p", valueName: "v", templateElements: [{ type: "text", name: "col1" }] }] });
+    survey.data = { v: [{ col1: "keep1" }, { col1: "keep2" }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    matrix.dataSource = new FakeServerSource(serverRecords(2));
+    await flush();
+    expect(rowValues(matrix), "#1: the matrix shows the source").toEqual(["v0", "v1"]);
+    expect(panel.value, "#2: the panel keeps its answer").toEqual([{ col1: "keep1" }, { col1: "keep2" }]);
+    expect(survey.data, "#3").toEqual({ v: [{ col1: "keep1" }, { col1: "keep2" }] });
+    panel.panels[0].getQuestionByName("col1").value = "edited";
+    expect(survey.data.v[0], "#4: the panel's edits reach the survey data").toEqual({ col1: "edited" });
+    matrix.dataSource = undefined;
+    expect(rowValues(matrix), "#5: a detach shows the survey value").toEqual(["edited", "keep2"]);
+  });
   test("attaching a source clears the answer from the survey hash", async () => {
     const survey = new SurveyModel({
       elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 2, columns: [{ name: "col1" }] }]
@@ -5828,6 +5845,144 @@ describe("Remote data source: a validated navigation waits for the question's pe
     expect(survey.tryComplete(), "#1").toBe(true);
     expect(completed, "#2").toEqual([true]);
   });
+  async function createEdited(): Promise<{ survey: SurveyModel, question: QuestionMatrixDynamicModel, source: FakeServerSource, completed: Array<boolean> }> {
+    const res = await createSurvey([{ id: 1, col1: "a", col2: 1 }]);
+    res.source.settleAll();
+    await flush();
+    res.question.visibleRows[0].getQuestionByName("col2").value = 5;
+    expect(res.source.pending.map(call => call.op), "the update is pending").toEqual(["update"]);
+    return res;
+  }
+  test("a validation waiting for a write is answered over the new records when the source is replaced by an in-memory one", async () => {
+    const { survey, question, source, completed } = await createEdited();
+    expect(survey.tryComplete(), "#1").toBe(false);
+    question.dataSource = ArrayDynamicDataSource.fromArray([{ col1: "", col2: 2 }]);
+    // The new source is read once the write of the replaced one settled.
+    source.settleAll();
+    await flush();
+    expect(completed, "#2: validated over the new records").toEqual([]);
+    expect(question.visibleRows[0].getQuestionByName("col1").errors.length, "#3: the new record's error is shown").toBe(1);
+    question.visibleRows[0].getQuestionByName("col1").value = "b";
+    expect(survey.tryComplete(), "#4").toBe(true);
+    expect(completed, "#5").toEqual([true]);
+  });
+  test("a validation waiting for a write is answered over the survey value when the source is set to undefined", async () => {
+    const { survey, question } = await createEdited();
+    let answer = "not called";
+    survey.validate(false, false, (hasErrors: boolean) => { answer = "called " + hasErrors; });
+    expect(answer, "#1: waits for the write").toBe("not called");
+    question.dataSource = undefined;
+    expect(answer, "#2: answered at once, as a validation of the survey value answers").toBe("called " + !survey.validate(false, false));
+  });
+  test("a validation waiting for a write is answered when the new source answers asynchronously, once its first read commits", async () => {
+    const { survey, question, source, completed } = await createEdited();
+    expect(survey.tryComplete(), "#1").toBe(false);
+    const newSource = new FakeServerSource([{ id: 7, col1: "n", col2: 1 }], undefined, "id");
+    newSource.auto = false;
+    question.dataSource = newSource;
+    source.settleAll();
+    await flush();
+    expect(completed, "#2: the read is pending").toEqual([]);
+    newSource.settleAll();
+    await flush();
+    expect(completed, "#3").toEqual([true]);
+  });
+  test("a failed read whose error handler throws still releases the waiting completion", async () => {
+    const { survey, source, completed } = await createSurvey([{ id: 1, col1: "a", col2: 1 }]);
+    survey.onDynamicDataError.add(() => { throw new Error("handler"); });
+    expect(survey.tryComplete(), "#1").toBe(false);
+    const rejections: Array<any> = [];
+    const onRejection = (reason: any): void => { rejections.push(reason); };
+    process.on("unhandledRejection", onRejection);
+    try {
+      source.pending[0].fail(new Error("read"));
+      await flush();
+      await new Promise(resolve => setTimeout(resolve, 0));
+    } finally {
+      process.off("unhandledRejection", onRejection);
+    }
+    expect(completed, "#2: released").toEqual([true]);
+    expect(rejections.map(error => error.message), "#3: the handler's exception reaches no caller, as before").toEqual(["handler"]);
+  });
+  test("every waiting validation is released when the first one's validation throws", async () => {
+    const { survey, question } = await createEdited();
+    const answers: Array<string> = [];
+    survey.validate(false, false, (hasErrors: boolean) => { answers.push("first " + hasErrors); });
+    survey.validate(false, false, (hasErrors: boolean) => { answers.push("second " + hasErrors); });
+    expect(answers, "#1: both wait").toEqual([]);
+    let throwOnce = true;
+    survey.onValidateQuestion.add((_, options) => {
+      if (options.name === "matrix" && throwOnce) {
+        throwOnce = false;
+        throw new Error("validator");
+      }
+    });
+    expect(() => { question.dataSource = undefined; }, "#2: the first error is rethrown").toThrow("validator");
+    expect(answers.filter(answer => answer.indexOf("second") === 0), "#3: the second one is answered").toEqual(["second false"]);
+    expect(answers.filter(answer => answer.indexOf("first") === 0).length, "#4: the first one is released too").toBe(1);
+  });
+  test("completing from another page waits for a pending write of a remote question, then completes", async () => {
+    const { survey, question, source, completed } = await createSurvey([{ id: 1, col1: "a", col2: 1 }],
+      { elements: undefined, pages: [{ elements: [requiredMatrix()] }, { elements: [{ type: "text", name: "q2" }] }] });
+    source.settleAll();
+    await flush();
+    question.visibleRows[0].getQuestionByName("col2").value = 5;
+    survey.currentPageNo = 1;
+    expect(survey.tryComplete(), "#1").toBe(false);
+    expect(survey.state, "#2").toBe("running");
+    source.settleAll();
+    await flush();
+    expect(completed, "#3").toEqual([true]);
+    expect(survey.state, "#4").toBe("completed");
+  });
+  test("a page change while the completion waits cancels it", async () => {
+    const { survey, question, source, completed } = await createSurvey([{ id: 1, col1: "a", col2: 1 }],
+      { elements: undefined, pages: [{ elements: [requiredMatrix()] }, { elements: [{ type: "text", name: "q2" }] }] });
+    source.settleAll();
+    await flush();
+    question.visibleRows[0].getQuestionByName("col2").value = 5;
+    survey.currentPageNo = 1;
+    expect(survey.tryComplete(), "#1").toBe(false);
+    survey.currentPageNo = 0;
+    source.settleAll();
+    await flush();
+    expect(completed, "#2").toEqual([]);
+    expect(survey.state, "#3").toBe("running");
+    expect(survey.currentPageNo, "#4").toBe(0);
+  });
+  test("with validation disabled the completion still waits for a pending write", async () => {
+    const { survey, source, completed } = await createEdited();
+    survey.validationEnabled = false;
+    expect(survey.tryComplete(), "#1").toBe(false);
+    expect(completed, "#2").toEqual([]);
+    source.settleAll();
+    await flush();
+    expect(completed, "#3").toEqual([true]);
+  });
+  test("a write that starts while server validation is pending holds the completion until it settles", async () => {
+    const { survey, question, source, completed } = await createSurvey([{ id: 1, col1: "a", col2: 1 }]);
+    source.settleAll();
+    await flush();
+    let serverComplete: () => void = undefined;
+    let serverCalls = 0;
+    survey.onServerValidateQuestions.add((_, options) => {
+      serverCalls++;
+      serverComplete = options.complete;
+    });
+    expect(survey.tryComplete(), "#1").toBe(false);
+    expect(serverCalls, "#2").toBe(1);
+    question.visibleRows[0].getQuestionByName("col2").value = 5;
+    expect(source.pending.map(call => call.op), "#3").toEqual(["update"]);
+    serverComplete();
+    expect(survey.state, "#4: the write holds the completion").toBe("running");
+    source.settleAll();
+    await flush();
+    // The held completion runs again, and so does the server validation.
+    expect(serverCalls, "#5").toBe(2);
+    serverComplete();
+    expect(completed, "#6").toEqual([true]);
+    expect(survey.state, "#7").toBe("completed");
+  });
 });
 
 describe("Remote data source: what a developer assigns through the survey is stored as assigned", () => {
@@ -6156,5 +6311,70 @@ describe("a data source and the record count limits", () => {
     question.panels;
     question.removePanel(0);
     expect(getArray().length, "#1").toBe(1);
+  });
+});
+
+describe("one in-memory source assigned to two questions", () => {
+  async function createTwo(): Promise<{ survey: SurveyModel, matrix: QuestionMatrixDynamicModel, panel: QuestionPanelDynamicModel,
+    source: ArrayDynamicDataSource, errors: Array<string>, }> {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m", rowCount: 0, columns: [{ name: "name", cellType: "text" }, { name: "qty", cellType: "text" }] },
+      { type: "paneldynamic", name: "p", templateElements: [{ type: "text", name: "name" }, { type: "text", name: "qty" }] }] });
+    const source = ArrayDynamicDataSource.fromArray([{ name: "A", qty: 1 }, { name: "B", qty: 2 }, { name: "C", qty: 3 }]);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_, options) => { errors.push(options.question.name + ":" + options.operation + ":" + options.error.message); });
+    matrix.dataSource = source;
+    panel.dataSource = source;
+    await flush();
+    return { survey: survey, matrix: matrix, panel: panel, source: source, errors: errors };
+  }
+  test("the second question is read-only for that source: its edit is refused and reported, and the records stay as the first one wrote them", async () => {
+    const { matrix, panel, source, errors } = await createTwo();
+    matrix.removeRow(0);
+    await flush();
+    expect(source.array, "#1: the first question writes").toEqual([{ name: "B", qty: 2 }, { name: "C", qty: 3 }]);
+    expect(panel.canAddPanel, "#2: no add button").toBe(false);
+    expect(panel.canRemovePanel, "#3: no remove button").toBe(false);
+    expect(panel.panels[1].getQuestionByName("qty").isReadOnly, "#4: read-only cells").toBe(true);
+    panel.panels[1].getQuestionByName("qty").value = 20;
+    await flush();
+    expect(source.array, "#5: nothing is written").toEqual([{ name: "B", qty: 2 }, { name: "C", qty: 3 }]);
+    expect(errors.length, "#6: one report").toBe(1);
+    expect(errors[0].indexOf("p:update:The data source is written by position by another question"), "#7: " + errors[0]).toBe(0);
+    expect(panel.panels[1].getQuestionByName("qty").value, "#8: the panel shows its record again").toBe(2);
+  });
+  test("the second question shows the first one's writes after refreshDataSource", async () => {
+    const { matrix, panel } = await createTwo();
+    matrix.visibleRows[1].getQuestionByName("qty").value = 20;
+    matrix.removeRow(0);
+    await flush();
+    panel.refreshDataSource();
+    await flush();
+    expect(panel.panels.map(item => item.getQuestionByName("qty").value), "#1").toEqual([20, 3]);
+  });
+  test("when the first question leaves the source, a question assigned it afterwards writes", async () => {
+    const { matrix, panel, source, errors } = await createTwo();
+    matrix.dataSource = undefined;
+    panel.dataSource = undefined;
+    panel.dataSource = source;
+    await flush();
+    panel.panels[1].getQuestionByName("qty").value = 20;
+    await flush();
+    expect(source.array[1], "#1: a new source releases the claim").toEqual({ name: "B", qty: 20 });
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m2", rowCount: 0, columns: [{ name: "qty", cellType: "text" }] }] });
+    const other = <QuestionMatrixDynamicModel>survey.getQuestionByName("m2");
+    other.dataSource = source;
+    await flush();
+    expect(other.canAddRow, "#2: the panel still writes it").toBe(false);
+    panel.dispose();
+    other.dataSource = undefined;
+    other.dataSource = source;
+    await flush();
+    other.visibleRows[2].getQuestionByName("qty").value = 30;
+    await flush();
+    expect(source.array[2], "#3: dispose releases the claim").toEqual({ name: "C", qty: 30 });
+    expect(errors, "#4").toEqual([]);
   });
 });

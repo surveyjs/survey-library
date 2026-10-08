@@ -164,9 +164,11 @@ export function getUpdatePayload(pending: IPendingInsert, record: any, ownedFiel
 }
 
 /* The asynchronous writes in flight, per source object and per channel: the tail of each channel's
-   push chain while it has pending pushes. A source object shared by two questions is written by two
-   channels, and each one's reads wait for the other's writes (see getForeignWrites). Two different
-   objects over one backend are not known to be one. */
+   push chain while it has pending pushes. It orders reads after writes: a keyed source object shared
+   by two questions is written by two channels, and each one's reads wait for the other's writes (see
+   getForeignWrites). An in-memory source written by position has one writing list
+   (changeSourceWriter), so only that list's channel writes it. Two different objects over one backend
+   are not known to be one. */
 const writesBySource = new WeakMap<object, Map<DynamicDataSourceChannel, Promise<void>>>();
 
 export class DynamicDataSourceChannel {
@@ -366,7 +368,11 @@ export class DynamicDataSourceChannel {
     } catch(e) {
       // This read superseded whatever was in flight, so it also owns the loading state it inherited.
       this.inFlightRead = undefined;
-      host.onReadFailed(e);
+      try {
+        host.onReadFailed(e);
+      } finally {
+        this.notifySettled();
+      }
       return;
     }
     if (isPromiseLike(res)) {
@@ -389,21 +395,31 @@ export class DynamicDataSourceChannel {
            place, and it is returned, so that a caller awaiting load()/refresh() waits for the window
            that is committed and not for the answer that was discarded. It inherits the loading
            state, as a superseding read does. */
-        if (!this.commitRead(data, skip, take, isPagedRead, request)) return this.startRead(false);
-        host.setIsLoading(false);
-        this.notifySettled();
+        try {
+          if (!this.commitRead(data, skip, take, isPagedRead, request)) return this.startRead(false);
+          host.setIsLoading(false);
+        } finally {
+          this.notifySettled();
+        }
       }, (error: any): void => {
         if (host.isDisposed() || requestId !== this.readRequestId) return;
         this.inFlightRead = undefined;
-        host.onReadFailed(error);
-        this.notifySettled();
+        try {
+          host.onReadFailed(error);
+        } finally {
+          this.notifySettled();
+        }
       });
     }
     this.inFlightRead = undefined;
-    if (!this.commitRead(res, skip, take, isPagedRead, request)) return this.startRead(false);
-    // A synchronous answer (a source that reads from a cache) can supersede a pending asynchronous
-    // read of the same source; the flag that read set is this one's to clear.
-    host.setIsLoading(false);
+    try {
+      if (!this.commitRead(res, skip, take, isPagedRead, request)) return this.startRead(false);
+      // A synchronous answer (a source that reads from a cache) can supersede a pending asynchronous
+      // read of the same source; the flag that read set is this one's to clear.
+      host.setIsLoading(false);
+    } finally {
+      this.notifySettled();
+    }
   }
   /* The commit announces the window to the owner, which runs user code (a rebuild runs expressions and
      survey events). An exception there reaches whoever awaits the read, and the read is over: it
@@ -672,9 +688,11 @@ export class DynamicDataSourceChannel {
       this.notifySettled();
     }
   }
-  /* The end of the asynchronous work: the last pending push settled, or the read in flight committed
-     or failed, and nothing else is pending. What waits for the source's answers (the owner's
-     validation) goes on from here. */
+  /* The end of the work the source was asked for: the last pending push settled, or a read -
+     synchronous or asynchronous - committed or failed (also when the commit or the error handler
+     threw), and nothing else is pending. What waits for the source's answers (the owner's validation
+     and completion) goes on from here. A pending read or write makes it a no-op, so it may be called
+     more often than once per settle. */
   private notifySettled(): void {
     if (this.hasPendingWrites || this.hasPendingRead || this.host.isDisposed()) return;
     this.host.onSettled();

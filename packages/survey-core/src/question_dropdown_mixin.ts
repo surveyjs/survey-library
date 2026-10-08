@@ -112,7 +112,7 @@ export function questionDropdownMixin<TBase extends Constructor<QuestionSelectBa
 
     protected ensureQuestionIsReady(): void {
       super.ensureQuestionIsReady();
-      if (!!this.dropdownListModel && this.choicesLazyLoadEnabled) {
+      if (this.choicesLazyLoadEnabled && !!this.dropdownListModel) {
         this.dropdownListModel.loadQuestionChoices();
       }
     }

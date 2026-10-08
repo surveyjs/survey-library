@@ -2,7 +2,7 @@ import { describe, test, expect, vi, afterEach } from "vitest";
 import { SurveyModel } from "../../src/survey";
 import { FunctionFactory } from "../../src/functionsfactory";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
-import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { QuestionPanelDynamicItem, QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import {
   IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSource, IDynamicDataSourceCapabilities
 } from "../../src/dynamic-data/dynamic-data-interfaces";
@@ -165,7 +165,7 @@ const matrixAdapter: IQuestionAdapter = {
   edit: (question: QuestionMatrixDynamicModel, position: number, field: string, value: any) => {
     question.visibleRows[position].getQuestionByName(field).value = value;
   },
-  visibleIndex: (question: QuestionMatrixDynamicModel, position: number) => question.getItemVisibleIndex(<any>question.visibleRows[position]),
+  visibleIndex: (question: QuestionMatrixDynamicModel, position: number) => question.visibleRows[position].visibleIndex,
   countCreated: (question: QuestionMatrixDynamicModel) => {
     let count = 0;
     (<SurveyModel>question.survey).onMatrixCellCreated.add((_, options) => { if (options.columnName === "id") count++; });
@@ -191,7 +191,7 @@ const panelAdapter: IQuestionAdapter = {
   edit: (question: QuestionPanelDynamicModel, position: number, field: string, value: any) => {
     question.panels[position].getQuestionByName(field).value = value;
   },
-  visibleIndex: (question: QuestionPanelDynamicModel, position: number) => question.getItemVisibleIndex(<any>question.panels[position].data),
+  visibleIndex: (question: QuestionPanelDynamicModel, position: number) => (<QuestionPanelDynamicItem>question.panels[position].data).visibleIndex,
   countCreated: (question: QuestionPanelDynamicModel) => {
     const created: Array<any> = [];
     (<SurveyModel>question.survey).onQuestionCreated.add((_, options) => {
@@ -273,7 +273,7 @@ describe.each(cases)("Question source contract, shared: %s over a %s source", (_
     expect(ids[ids.length - 1], "#3: the new record, with the key the source assigned, is the last object of the page shown").toBe(1000);
     expect(ids.filter(id => id >= 1000).length, "#4: and the only new one").toBe(1);
   });
-  test("getItemVisibleIndex counts the whole list, not the page", () => {
+  test("the visible index of an object counts the whole list, not the page", () => {
     const { question } = createOnPage1();
     expect(adapter.visibleIndex(question, 0), "#1").toBe(2);
     expect(adapter.visibleIndex(question, 1), "#2").toBe(3);

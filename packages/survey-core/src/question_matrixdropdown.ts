@@ -82,11 +82,12 @@ function createKeyRemap(oldKeys: Array<string>, newKeys: Array<string>): (index:
 /* The row context of a record without a row - off the page: {item}, {rowName}, {rowValue} and
    {rowTitle} are its rows item's, read through the record index. */
 class MatrixDropdownRecordGetterContext extends MatrixRowGetterContext {
-  constructor(private matrix: QuestionMatrixDropdownModel, private record: QuestionRecordItem) {
+  // getRecordItems: the rows items of the matrix's records, in record order.
+  constructor(private getRecordItems: () => Array<ItemValue>, private record: QuestionRecordItem) {
     super(<any>record);
   }
   private get rowItem(): ItemValue {
-    return this.matrix.getRecordItems()[this.record.getIndex()];
+    return this.getRecordItems()[this.record.getIndex()];
   }
   protected getRowName(): any {
     const item = this.rowItem;
@@ -232,12 +233,12 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     const names = virtualFields.map((field: IDynamicDataField): string => field.name);
     return super.getFields().filter((field: IDynamicDataField): boolean => names.indexOf(field.name) < 0).concat(virtualFields);
   }
-  // internal: the rows items of the records, in record order.
-  public getRecordItems(): Array<ItemValue> {
+  // The rows items of the records, in record order.
+  protected getRecordItems(): Array<ItemValue> {
     return this.getRecordItemsCache().items;
   }
   protected createRecordItemContext(item: QuestionRecordItem): IValueGetterContext {
-    return new MatrixDropdownRecordGetterContext(this, item);
+    return new MatrixDropdownRecordGetterContext((): Array<ItemValue> => this.getRecordItems(), item);
   }
   // Under paging a record is visible when its row's visibleIf passes and the row is visible, besides rowsVisibleIf.
   protected getRecordConditionReader(): (index: number) => IDynamicDataRecordCondition {
@@ -408,7 +409,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   private finishIncrementalRowChange(updateRendered: (table: QuestionMatrixDropdownRenderedTable) => void): void {
     // Without a view every row is built, in record order: a row's position is its record index.
-    this.generatedVisibleRows.forEach((row: MatrixDropdownRowModelBase, index: number): void => { row.builtRecordIndex = index; });
+    this.generatedVisibleRows.forEach((row: MatrixDropdownRowModelBase, index: number): void => { this.setBuiltRecordIndex(row, index); });
     this.clearVisibleRows();
     if (this.isRendredTableCreated) {
       updateRendered(this.renderedTable);

@@ -4374,6 +4374,31 @@ describe("DynamicDataList: a failed write to an assigned source is reported", ()
       }
     });
   });
+  /* A source without keyField that answers asynchronously: a remove that fails in the queue behind a
+     pending update is reported, and the window keeps the local removal - the array is not in sync with
+     the window while the update is in flight, so there is nothing to go back to. */
+  test("a failed remove queued behind an asynchronous update is reported, and the window keeps the local removal", async () => {
+    let settle: () => void;
+    class AsyncArraySource extends ArrayDynamicDataSource {
+      public update(sourceIndex: number, record: any): Promise<void> {
+        return new Promise<void>((resolve: () => void): void => {
+          settle = (): void => { super.update(sourceIndex, record); resolve(); };
+        });
+      }
+      public remove(): void { throw new Error("remove"); }
+    }
+    let stored: Array<any> = [{ name: "A" }, { name: "B" }, { name: "C" }];
+    const { list } = createOwnList();
+    list.assignSource(new AsyncArraySource((): Array<any> => stored, (arr: Array<any>): void => { stored = arr; }));
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation + ":" + error.message); };
+    list.setValue(1, "name", "b");
+    list.remove(0);
+    settle();
+    for (let i = 0; i < 10; i++) await Promise.resolve();
+    expect(errors, "#1").toEqual(["remove:remove"]);
+    expect([names(list.getLoadedRecords()), names(stored)], "#2: the window and the array").toEqual([["b", "C"], ["A", "b", "C"]]);
+  });
   test("a batch with a remove and an update that fails at commit: reported once, the window goes back, the next edit lands right", () => {
     const { list, assigned, errors, changes } = attachFailing();
     assigned.failures.count = 1;

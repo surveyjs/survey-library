@@ -946,7 +946,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     return this.getItemIndex() - 1;
   }
   protected getItemIndex(): number {
-    return !!this.data ? this.data.getItemRecordIndex(this) + 1 : -1;
+    return !!this.data ? this.getOwnRecordIndex() + 1 : -1;
   }
   public get editingObj(): Base {
     return this.editingObjValue;
@@ -2426,7 +2426,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected createRowsForRecords<T extends MatrixDropdownRowModelBase>(indexes: Array<number>, createRow: (index: number) => T): Array<T> {
     return indexes.map((index: number): T => {
       const row = createRow(index);
-      row.builtRecordIndex = index;
+      this.setBuiltRecordIndex(row, index);
       return row;
     });
   }
@@ -2434,7 +2434,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
      what is kept under the record (a detail panel's paged question) finds it, put at position in the
      rows - the end when it is undefined - and announced. The list is not created. */
   protected addRowForRecord<T extends MatrixDropdownRowModelBase>(row: T, recordIndex: number, position?: number): T {
-    row.builtRecordIndex = recordIndex;
+    this.setBuiltRecordIndex(row, recordIndex);
     if (position === undefined) {
       this.generatedVisibleRows.push(row);
     } else {
@@ -3357,7 +3357,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     const list = this.dataListValue;
     return !!list ? list.materializedIndexToIndex(position) : position;
   }
-  getItemRecordIndex(item: ISurveyData): number {
+  protected getItemRecordIndex(item: ISurveyData): number {
     return this.getRecordIndexOf(item);
   }
   /* One row per record in the view. Without a filter and a sort that is one row per record, in
@@ -3383,7 +3383,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected get isEditingObjectValue(): boolean {
     return this.isValueSurveyElement(this.value);
   }
-  getItemVisibleIndex(item: ISurveyData): number {
+  protected getItemVisibleIndex(item: ISurveyData): number {
     if (item instanceof MatrixDropdownRowModelBase) {
       const rows = this.visibleRows;
       if (!rows) return item.visibleIndex;
@@ -3393,7 +3393,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   /* The neighbour comes from the view: the row when the record has one, the record read as a value
      when the matrix pages and it has none. */
-  getItemByVisibleIndex(visibleIndex: number): QuestionRecordItem {
+  protected getItemByVisibleIndex(visibleIndex: number): QuestionRecordItem {
     if (visibleIndex < 0) return null;
     const rows = this.visibleRows;
     if (!rows) return null;
@@ -3401,9 +3401,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (pos >= 0 && pos < rows.length) return rows[pos];
     return this.getRecordItemByVisibleIndex(visibleIndex);
   }
-  // internal: the item {matrix[index].x} reads. index is a record index; a record without a row -
-  // filtered out, off the page or not built - is read as a value.
-  public getExpressionItem(index: number): QuestionRecordItem {
+  // The item {matrix[index].x} reads. index is a record index; a record without a row - filtered
+  // out, off the page or not built - is read as a value.
+  protected getExpressionItem(index: number): QuestionRecordItem {
     // Reading allRows builds the rows, so that a record that has a row is answered by the row.
     const rows = this.allRows;
     // A row past the record count is on its way out: a lower rowCount truncates the value before the
@@ -3487,7 +3487,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     panel.questions.forEach(q => q.setParentQuestion(this));
     panel.onSurveyLoad();
     // The questions hold the row's values by now: a restored page is not reset by them.
-    this.restorePageStatesOfQuestions(row.builtRecordIndex, panel.questions);
+    this.restorePageStatesOfQuestions(this.getBuiltRecordIndex(row), panel.questions);
     return panel;
   }
   getSharedQuestionByName(

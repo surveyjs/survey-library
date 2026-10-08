@@ -8401,7 +8401,8 @@ describe("Survey_QuestionPanelDynamic", () => {
       survey.setDesignMode(true);
       survey.fromJSON({ elements: [{ type: "paneldynamic", name: "pd", panelCount: 2, panelsPerPage: 3, templateElements: [{ type: "text", name: "id" }] }] });
       const question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
-      expect(question.panelCountLimit, "#1: design mode does not page").toBe(5);
+      question.panelCount = 5;
+      expect(question.panelCount, "#1: design mode does not page: the setting is the limit").toBe(5);
       question.panelCount = 7;
       expect(question.panelCount, "#2: above the setting is limited").toBe(5);
     } finally {
@@ -10313,7 +10314,7 @@ describe("Question Panel Dynamic: panels follow the view", () => {
     expect(question.visiblePanels.length, "#2: visible panels").toBe(2);
     expect((<Question>question.getQuestionFromArray("q2", 0)).value, "#3: a created position").toBe("0");
     expect((<Question>question.getQuestionFromRecord("q2", 3)).value, "#4: a record index").toBe("3");
-    expect((<any>question).getItemByRecordIndex(1), "#5: the filtered-out record has no panel").toBe(undefined);
+    expect(question.getQuestionFromRecord("q2", 1), "#5: the filtered-out record has no panel").toBeNull();
     expect(question.getItem(2) === <any>question.panels[2].data, "#6: getItem is a created position").toBe(true);
   });
   test("the current panel follows its record across a re-sort", () => {
@@ -11083,6 +11084,17 @@ describe("value assigned by a handler during an add or remove", () => {
     });
   };
 
+  test("a value assigned by a handler while an added panel is being created wins over the panel being built", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelCount: 0,
+      templateElements: [{ type: "text", name: "a", defaultValueExpression: "1" }] }] });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    runOnce(survey.onDynamicPanelItemValueChanged, () => { question.value = [{ a: 5 }, { a: 6 }]; });
+    question.panels;
+    question.addPanel();
+    expect(question.value, "#1: the handler's assignment is the newer intent").toEqual([{ a: 5 }, { a: 6 }]);
+    expect(question.panelCount, "#2").toBe(2);
+    expect(getPanelValues(question), "#3").toEqual([{ a: 5 }, { a: 6 }]);
+  });
   test("a value assigned on value changed while a panel is removed replaces the panels", () => {
     const { survey, question } = createSurvey();
     runOnce(survey.onValueChanged, () => survey.setValue("q", [{ a: "x" }]));

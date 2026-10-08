@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { SurveyModel } from "../../src/survey";
-import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { QuestionPanelDynamicItem, QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionMatrixDropdownModel } from "../../src/question_matrixdropdown";
 import {
@@ -135,7 +135,7 @@ describe("a panel names its record after a removal, an assignment and a count ch
   test("an assignment from outside builds the new panels while the old ones are still there", () => {
     const panel = createPanel({ panelCount: 3, displayMode: "tab" });
     panel.survey.data = { p: [{ a: "c" }, { a: "a" }, { a: "b" }] };
-    expect(panel.panels.map(p => (<any>p.data).builtRecordIndex), "#1: the built indexes count on").toEqual([3, 4, 5]);
+    expect(panel.panels.map(p => p.getQuestionByName("a").value), "#1: the panels show the assigned records").toEqual(["c", "a", "b"]);
     panel.currentIndex = 2;
     expect(panel["getCurrentRecordIndex"](), "#2: the position names the record").toBe(2);
   });
@@ -152,8 +152,7 @@ describe("a panel names its record after a removal, an assignment and a count ch
   test("a rebuild for the view gives every panel the record of its position", () => {
     const panel = createPanel({ panelCount: 0, panelsPerPage: 2 }, records(5));
     panel.pageIndex = 1;
-    const list = panel["dataList"];
-    expect(panel.panels.map(p => (<any>p.data).builtRecordIndex), "#1").toEqual([0, 1].map(i => list.materializedIndexToIndex(i)));
+    expect(panel.panels.map(p => (<QuestionPanelDynamicItem>p.data).getIndex()), "#1: the record each panel names").toEqual([2, 3]);
     expect(panelValues(panel), "#2").toEqual([2, 3]);
   });
 });
@@ -246,12 +245,10 @@ describe("numbers name the same record with and without paging", () => {
     matrix.removeRowUI(matrix.visibleRows[1]);
     expect(values(matrix.value), "#1").toEqual([0, 1, 2]);
   });
-  test("a row's visible index and the row at a visible index on the second page", () => {
+  test("a row's visible index on the second page", () => {
     const matrix = createMatrix({ rowsPerPage: 2 }, records(4));
     matrix.pageIndex = 1;
     expect(matrix.visibleRows.map(row => row.visibleIndex), "#1").toEqual([2, 3]);
-    expect(matrix.getItemVisibleIndex(matrix.visibleRows[1]), "#2").toBe(3);
-    expect(matrix.getItemByVisibleIndex(2), "#3").toBe(matrix.visibleRows[0]);
   });
 });
 

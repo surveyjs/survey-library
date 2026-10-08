@@ -139,7 +139,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /* rowCount follows the loaded total here and not through its setter: the setter clamps to
      settings.matrix.maxRowCount, truncates the storage and creates one row object per counted
      record - none of which applies to a window of a larger table. With a source that answers
-     without a total it is the count of the rows known to exist, a lower bound - isRowCountKnown
+     without a total it is the count of the rows known to exist, a lower bound - isCountKnown
      says which of the two it is. */
   protected storeLoadedRecords(): void {
     super.storeLoadedRecords();
@@ -159,7 +159,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected followRecordMove(remap: (index: number) => number): void {
     const indexes = this.getRecordIndexesForRows();
     (this.generatedVisibleRows || []).forEach((row: MatrixDropdownRowModelBase, position: number): void => {
-      if (row.builtRecordIndex > -1 && position < indexes.length) row.builtRecordIndex = indexes[position];
+      if (this.getBuiltRecordIndex(row) > -1 && position < indexes.length)this.setBuiltRecordIndex(row, indexes[position]);
     });
   }
   /* The values half of a move made through a data source. With the array source over question.value
@@ -176,9 +176,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       }
     });
   }
-  /* False while the data source answers a read without a total: rowCount is then the number of rows
-     known to exist - a lower bound (see isCountKnown). */
-  public get isRowCountKnown(): boolean { return this.isCountKnown; }
   /* The records the list works with: question.value padded up to rowCount, exactly as
      createNewValue() pads it. The padding is virtual - it reaches question.value only when a write
      materializes it - and the array is never truncated here: the rowCount setter needs the records
@@ -213,17 +210,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return records;
   }
-  /* The value shape rules of a write, as each kind of write has always had them. Every write is
-     truncated to rowCount. A cell edit - the writes are updates - drops a value whose records are all
+  /* The value shape rules of a write, as each kind of write has always had them. A cell edit - the writes are updates - drops a value whose records are all
      empty and keeps minRowCount empty records instead; a row the matrix removes itself drops such a
      value and keeps no empty records; an insert, a move and the records a lower rowCount cuts off are
      stored as they are. operations: the writes the default source made, one or every write of a batch
      (ArrayDynamicDataSource.write and batch, the only callers). */
   private normalizeRecords(records: Array<any>, operations: Array<DynamicDataOperation>): any {
-    let res = Array.isArray(records) ? records : [];
-    if (res.length > this.rowCount) {
-      res = res.slice(0, this.rowCount);
-    }
+    const res = Array.isArray(records) ? records : [];
     const isOnly = (operation: DynamicDataOperation): boolean => operations.every((op: DynamicDataOperation): boolean => op === operation);
     if (isOnly("update")) return this.correctValueForMinMaxRows(this.deleteRowValue(res, null));
     if (this.isWritingRecords && isOnly("remove")) return this.deleteRowValue(res, null);
@@ -781,8 +774,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public set maxRowCount(val: number) {
     this.setPropertyValue("maxRowCount", val <= 0 ? 1 : val);
   }
-  // internal: the limit rowCount is checked against (see getRecordCountLimit).
-  public get rowCountLimit(): number {
+  // The limit rowCount is checked against (see getRecordCountLimit).
+  protected get rowCountLimit(): number {
     return this.getRecordCountLimit(this.maxRowCount, this.getPropertyValueWithoutDefault("maxRowCount"));
   }
 
@@ -983,7 +976,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         const row = rows[rows.length - 1];
         // A live-object value is never written back from the row here, as before. Under paging the
         // last row of the page is the new record's only when the page has room for it.
-        const isNewRow = !this.isPagingActive || row.builtRecordIndex === this.getLastRowRecordIndex();
+        const isNewRow = !this.isPagingActive || this.getBuiltRecordIndex(row) === this.getLastRowRecordIndex();
         if (isNewRow && !this.isValueEmpty(row.value) && !this.isEditingObjectValue) {
           this.setLastRowRecord(row.value);
         }

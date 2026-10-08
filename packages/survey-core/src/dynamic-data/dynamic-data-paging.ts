@@ -137,13 +137,6 @@ export class DynamicDataPagingController {
     const target = this.owner.pageIndex - 1;
     return this.leavePage(false, (): void => { this.movePage(target); });
   }
-  /* With an unknown count this goes one page forward, which is the last page known to exist: the
-     source has told the list that there is something behind the window and nothing more. It is not
-     disabled - a caller that asks for the last page of a table nobody can count gets the last one
-     that has been found, and asking again goes on. */
-  public goToLastPage(): boolean {
-    return this.goToPage(this.owner.pageCount - 1);
-  }
   private get listPageSize(): number {
     const size = this.owner.listPageSize;
     return size !== undefined ? size : this.owner.pageSize;

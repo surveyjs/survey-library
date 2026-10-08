@@ -3060,7 +3060,7 @@ describe("Fixed matrix: the records are the rows' answers", () => {
     expect(list.getRecord(1), "#3: a row without an answer").toBeUndefined();
     expect(list.getRecord(2) === matrix.value.r3, "#4").toBe(true);
     expect(matrix.value, "#5: reading writes nothing").toEqual({ r1: { c1: "a" }, r3: { c2: "b" } });
-    expect(matrix.visibleRows.map(row => row.builtRecordIndex), "#6: every row knows its record").toEqual([0, 1, 2]);
+    expect(matrix.visibleRows.map(row => row.getIndex()), "#6: every row knows its record").toEqual([0, 1, 2]);
   });
   test("a cell edit is one write: one value change, one cell event, and the old value is the previous answer", () => {
     const survey = createSurvey({ rows: ["r1", "r2"] }, { r1: { c1: "a" }, r2: { c2: "b" } });
@@ -3122,7 +3122,7 @@ describe("Fixed matrix: the records are the rows' answers", () => {
     };
     const getState = (matrix: QuestionMatrixDropdownModel): any => ({
       rows: matrix.visibleRows.map(row => row.rowName),
-      built: matrix.visibleRows.map(row => row.builtRecordIndex),
+      built: matrix.visibleRows.map(row => row.getIndex()),
       count: matrix["dataList"].loadedCount
     });
     test("a pushed row is a new record at the end", () => {
@@ -3166,7 +3166,7 @@ describe("Fixed matrix: the records are the rows' answers", () => {
       const list = matrix["dataList"];
       survey.randomSeed = 12345;
       expect(matrix.visibleRows.map(row => row.rowName), "#1: the randomized order").toEqual(["r9", "r8", "r1", "r3", "r4", "r7", "r6", "r2", "r5"]);
-      expect(matrix.visibleRows.map(row => row.builtRecordIndex), "#2").toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+      expect(matrix.visibleRows.map(row => row.getIndex()), "#2: the record each row names").toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
       expect(list.getRecord(7), "#3: r2 is record 7").toEqual({ c1: "2" });
       expect(list.loadedCount, "#4").toBe(9);
       expect(matrix.value, "#5").toEqual({ r2: { c1: "2" } });

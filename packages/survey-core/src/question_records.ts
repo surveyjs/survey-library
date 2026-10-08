@@ -86,6 +86,23 @@ function getFieldType(question: Question): DynamicDataFieldType {
 }
 // What the list, the page validation and the paging helper call: one object, see helperOwner.
 type RecordsHelperOwner = IDynamicDataOwner & IDynamicDataPageValidationOwner & IDynamicDataPagingOwner;
+/* What the objects of a records question - its rows or panels -, their contexts and the single-input
+   behavior ask the question for. The members stay protected on the question: it registers one object
+   of closures over them (registerRecordItemOwner), the code of this module reads it through
+   getRecordItemOwner, and the rows and the panel items of the other modules ask the protected
+   helpers of QuestionRecordItem. Not exported. */
+interface IRecordItemOwner {
+  getItemRecordIndex(item: ISurveyData): number;
+  getItemVisibleIndex(item: ISurveyData): number;
+  getItemByVisibleIndex(visibleIndex: number): QuestionRecordItem;
+  getItemByRecordIndex(recordIndex: number): QuestionRecordItem;
+  getExpressionItem(index: number): QuestionRecordItem;
+  syncPageSizeWithMode(): void;
+}
+const recordItemOwners: WeakMap<QuestionRecordsModel, IRecordItemOwner> = new WeakMap<QuestionRecordsModel, IRecordItemOwner>();
+function getRecordItemOwner(question: QuestionRecordsModel): IRecordItemOwner {
+  return recordItemOwners.get(question);
+}
 
 /* The question side shared by every question whose answer is a collection of records, and the
    coordination between such a question and its record list. The list computes
@@ -114,6 +131,9 @@ export abstract class QuestionRecordsModel extends Question {
   private _paging: DynamicDataPagingController;
   private _pageValidation: DynamicDataPageValidation;
   private helperOwnerValue: RecordsHelperOwner;
+  // Registered when the question is created: the objects and the contexts read it through getRecordItemOwner.
+  private recordItemOwner: IRecordItemOwner = this.registerRecordItemOwner();
+  private builtRecordIndexes: WeakMap<QuestionRecordItem, number>;
   /* The owner the list (IDynamicDataOwner), the page validation (IDynamicDataPageValidationOwner) and
      the paging helper (IDynamicDataPagingOwner) talk to. It is built with the first helper, and its
      functions call the question's members when they are called, so an override or a spy on the
@@ -155,6 +175,35 @@ export abstract class QuestionRecordsModel extends Question {
       leavePage: (isForward: boolean, move: () => void): boolean => question.leavePage(isForward, move),
       cancelPendingPageMove: (): void => { question.cancelPendingPageMove(); }
     };
+  }
+  private registerRecordItemOwner(): IRecordItemOwner {
+    const question = this;
+    const res: IRecordItemOwner = {
+      getItemRecordIndex: (item: ISurveyData): number => question.getItemRecordIndex(item),
+      getItemVisibleIndex: (item: ISurveyData): number => question.getItemVisibleIndex(item),
+      getItemByVisibleIndex: (visibleIndex: number): QuestionRecordItem => question.getItemByVisibleIndex(visibleIndex),
+      getItemByRecordIndex: (recordIndex: number): QuestionRecordItem => question.getItemByRecordIndex(recordIndex),
+      getExpressionItem: (index: number): QuestionRecordItem => question.getExpressionItem(index),
+      syncPageSizeWithMode: (): void => { question.syncPageSizeWithMode(); }
+    };
+    recordItemOwners.set(this, res);
+    return res;
+  }
+  /* The record an object - a row or a panel - was built for, kept in step with the list's inserts
+     and removes. When the page changes the list already names the records of the new page: whether
+     the objects are the page is decided by comparing the two, and an object that is about to be
+     disposed can no longer be asked for its record through the mapping - a panel's record is where
+     the state of the paged questions nested in it is kept. -1: built for no record (a total row, a
+     record read as a value, an object whose record is gone). */
+  protected getBuiltRecordIndex(item: QuestionRecordItem): number {
+    const res = !!this.builtRecordIndexes ? this.builtRecordIndexes.get(item) : undefined;
+    return res === undefined ? -1 : res;
+  }
+  protected setBuiltRecordIndex(item: QuestionRecordItem, recordIndex: number): void {
+    if (!this.builtRecordIndexes) {
+      this.builtRecordIndexes = new WeakMap<QuestionRecordItem, number>();
+    }
+    this.builtRecordIndexes.set(item, recordIndex);
   }
   // A peek: it never creates the list.
   protected get dataListValue(): DynamicDataList {
@@ -369,13 +418,23 @@ export abstract class QuestionRecordsModel extends Question {
       if (!!this._pageValidation && list.isPagedBySource)this._pageValidation.clearEditedRecords();
       return;
     }
-    const validation = this._pageValidation;
-    const hasRecords = !!validation && validation.hasRecords;
-    if (!hasRecords && !this.hasKeptRecordIndexes()) return;
-    if (hasRecords) {
+    this.followKeptRecordIndexes(getRemap, (validation: DynamicDataPageValidation, remap: (index: number) => number): void => {
       const newRecords = this.getStoredRecords();
       validation.cancelPendingMove();
-      validation.onRecordsReplaced(oldArray, Array.isArray(newRecords) ? newRecords : [], getRemap());
+      validation.onRecordsReplaced(oldArray, Array.isArray(newRecords) ? newRecords : [], remap);
+    });
+  }
+  /* The record indexes kept besides the records follow one remap of them: the page validation's edited
+     set and the states of nested paged questions (followValidation hands the remap to the validation as
+     the change needs it), and what the question keeps (remapKeptRecordIndexes: the records the panels
+     were built for). The remap is asked for only when something keeps record indexes. */
+  private followKeptRecordIndexes(getRemap: () => ((index: number) => number),
+    followValidation: (validation: DynamicDataPageValidation, remap: (index: number) => number) => void): void {
+    const validation = this._pageValidation;
+    const hasValidationRecords = !!validation && validation.hasRecords;
+    if (!hasValidationRecords && !this.hasKeptRecordIndexes()) return;
+    if (hasValidationRecords) {
+      followValidation(validation, getRemap());
     }
     this.remapKeptRecordIndexes(getRemap());
   }
@@ -520,7 +579,7 @@ export abstract class QuestionRecordsModel extends Question {
   /* The object that holds a record, undefined for a record without one. Without a view the objects
      are built in record order, so the record index is the position - also for a panel whose record
      is not stored yet. Nothing is created: neither the list nor an object. */
-  public getItemByRecordIndex(recordIndex: number): QuestionRecordItem {
+  protected getItemByRecordIndex(recordIndex: number): QuestionRecordItem {
     const position = this.hasDataListView ? this.dataListValue.indexToMaterializedIndex(recordIndex) : recordIndex;
     return position < 0 ? undefined : this.getItem(position);
   }
@@ -535,7 +594,7 @@ export abstract class QuestionRecordsModel extends Question {
     for (let i = 0; i < records.length; i++) {
       const item = this.getItem(i);
       if (!item && isAppendAllowed) return false;
-      if (!(item instanceof QuestionRecordItem) || item.builtRecordIndex !== records[i]) return true;
+      if (!(item instanceof QuestionRecordItem) || this.getBuiltRecordIndex(item) !== records[i]) return true;
     }
     return !!this.getItem(records.length);
   }
@@ -546,9 +605,11 @@ export abstract class QuestionRecordsModel extends Question {
     for (let i = 0; ; i++) {
       const item = this.getItem(i);
       if (!item) return;
-      if (item instanceof QuestionRecordItem && item.builtRecordIndex > -1) {
-        const to = remap(item.builtRecordIndex);
-        item.builtRecordIndex = to === undefined ? -1 : to;
+      if (!(item instanceof QuestionRecordItem)) continue;
+      const from = this.getBuiltRecordIndex(item);
+      if (from > -1) {
+        const to = remap(from);
+        this.setBuiltRecordIndex(item, to === undefined ? -1 : to);
       }
     }
   }
@@ -903,10 +964,11 @@ export abstract class QuestionRecordsModel extends Question {
      record; questions without a paged one hand empty states, which drop it. */
   protected keepNestedPageStates(items: Array<QuestionRecordItem>, getQuestions: (item: QuestionRecordItem) => Array<Question>): void {
     items.forEach((item: QuestionRecordItem): void => {
-      if (!item || item.builtRecordIndex < 0) return;
+      const recordIndex = !!item ? this.getBuiltRecordIndex(item) : -1;
+      if (recordIndex < 0) return;
       const questions = getQuestions(item);
       if (!!questions) {
-        this.keepPageStatesOfQuestions(item.builtRecordIndex, questions);
+        this.keepPageStatesOfQuestions(recordIndex, questions);
       }
     });
   }
@@ -1369,8 +1431,8 @@ export abstract class QuestionRecordsModel extends Question {
     if (!list || !list.isRemote) return;
     return list.refresh();
   }
-  // internal: single-input mode reads every object, and nothing tells the list that it became active.
-  public syncPageSizeWithMode(): void {
+  // Single-input mode reads every object, and nothing tells the list that it became active.
+  protected syncPageSizeWithMode(): void {
     this.syncListPageSize();
   }
   // A zero-based page index; always 0 while paging is off.
@@ -1906,6 +1968,10 @@ export abstract class QuestionRecordsModel extends Question {
     }
     list.invalidateViews(remap, !!created ? created : undefined);
     this.syncPagingState();
+    if (this.isPagedByList && areRecordsReplaced) {
+      this.followReplacedRecords(oldRecords, (): ((index: number) => number) =>
+        remap || (remap = this.createAssignmentRemap(oldRecords, this.getStoredRecords())));
+    }
     const isMembershipChanged = created === null
       ? list.hasView && this.isPageStale()
       : !!created && !Helpers.isTwoValueEquals(created, list.getCreatedIndexes());
@@ -1913,23 +1979,26 @@ export abstract class QuestionRecordsModel extends Question {
       this.rebuildFromDataList(false);
     }
     if (!this.isPagedByList) return;
-    if (areRecordsReplaced) {
-      this.onRecordsReplaced(oldRecords, this.getStoredRecords(), remap);
-    }
     // The page is rebuilt when it names other records than its objects hold now.
     if (this.isPageStale()) {
       this.rebuildFromDataList(false);
     }
   }
-  /* The validation half of an assignment from outside, for a list that pages in memory: the edited
-     set follows the records it names across the insert, remove or move the assignment made
-     (DynamicDataPageValidation.onRecordsReplaced), and a move that waits for its validators is
-     dropped. */
-  private onRecordsReplaced(oldRecords: any, newRecords: any, remap?: (index: number) => number): void {
+  /* The record indexes kept besides the records follow an assignment from outside, for a list that
+     pages in memory: the edited set and the nested states follow the records they name across the
+     insert, remove or move the assignment made (DynamicDataPageValidation.onRecordsReplaced), the
+     records the objects were built for move with them, and a move that waits for its validators is
+     dropped. It runs before any rebuild: a rebuild keeps the nested states of the objects it replaces
+     under the records they were built for, and the new objects read them under their own. */
+  private followReplacedRecords(oldRecords: any, getRemap: () => ((index: number) => number)): void {
     const validation = this._pageValidation;
-    if (!validation) return;
-    validation.cancelPendingMove();
-    validation.onRecordsReplaced(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : [], remap);
+    if (!!validation) {
+      validation.cancelPendingMove();
+    }
+    this.followKeptRecordIndexes(getRemap, (validation: DynamicDataPageValidation, remap: (index: number) => number): void => {
+      const newRecords = this.getStoredRecords();
+      validation.onRecordsReplaced(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : [], remap);
+    });
   }
   /* A reload - survey.data =, setData, mergeData, survey.clear(), each of which assigns under the
      survey's data pass - and clearValue() start over: the records the respondent touched are decided
@@ -1973,13 +2042,9 @@ export abstract class QuestionRecordsModel extends Question {
     if (!!validation) {
       validation.cancelPendingMove();
     }
-    const hasValidationRecords = !!validation && validation.hasRecords;
-    if (hasValidationRecords) {
-      validation.onRecordRemap(getRemap());
-    }
-    if (hasValidationRecords || this.hasKeptRecordIndexes()) {
-      this.remapKeptRecordIndexes(getRemap());
-    }
+    this.followKeptRecordIndexes(getRemap, (validation: DynamicDataPageValidation, remap: (index: number) => number): void => {
+      validation.onRecordRemap(remap);
+    });
     const list = this._dataList;
     if (!list) return;
     list.invalidateViews(list.hasTouchedRecords ? getRemap() : undefined);
@@ -2302,7 +2367,7 @@ export abstract class QuestionRecordsModel extends Question {
   /* The index of the item record in the question storage. It is the only index two questions bound
      to one value share: they may create objects for a different set of records (a filtered list) or
      in a different order (a sorted one). */
-  public abstract getItemRecordIndex(item: ISurveyData): number;
+  protected abstract getItemRecordIndex(item: ISurveyData): number;
   // The value an item's {matrix} / {panel} variable reads.
   public abstract getFilteredData(): any;
   /* A write of an item's record: val is the field value for a panel and the whole proposed row for a
@@ -2312,11 +2377,11 @@ export abstract class QuestionRecordsModel extends Question {
   /* The item's position among the visible records of the whole list ({visiblePanelIndex}, the
      row's visibleIndex), and the item at such a position - an object when the record has one, a
      record read as a value when it has not (the question pages). */
-  public abstract getItemVisibleIndex(item: ISurveyData): number;
-  public abstract getItemByVisibleIndex(visibleIndex: number): QuestionRecordItem;
-  // internal: the item {matrix[index].x} / {panel[index].x} reads. index is a record index; a record
-  // without a row or a panel - filtered out, off the page or not built - is read as a value.
-  public abstract getExpressionItem(index: number): QuestionRecordItem;
+  protected abstract getItemVisibleIndex(item: ISurveyData): number;
+  protected abstract getItemByVisibleIndex(visibleIndex: number): QuestionRecordItem;
+  // The item {matrix[index].x} / {panel[index].x} reads. index is a record index; a record without a
+  // row or a panel - filtered out, off the page or not built - is read as a value.
+  protected abstract getExpressionItem(index: number): QuestionRecordItem;
   // A record without an object, read as a value: the variable name ({row}, {panel}) and the context
   // the record is read through are the question's.
   protected abstract getRecordItemVariableName(): string;
@@ -2406,7 +2471,7 @@ export abstract class QuestionRecordsValueGetterContext extends QuestionValueGet
     if (index > -1) {
       // The index names a record of the value, and so does the index a bound question passes: the
       // row or panel that holds it, or - when the record has none - the record read as a value.
-      const item = (<QuestionRecordsModel>this.question).getExpressionItem(index);
+      const item = getRecordItemOwner(<QuestionRecordsModel>this.question).getExpressionItem(index);
       if (!!item) {
         params.isRoot = false;
         return item.getValueGetterContext().getValue(params);
@@ -2495,12 +2560,12 @@ export abstract class QuestionRecordItemGetterContext extends QuestionItemValueG
      with the record read as a value. */
   protected getVisibleItem(index: number): QuestionRecordItem {
     const data = this.item.data;
-    return !!data ? data.getItemByVisibleIndex(index) : null;
+    return !!data ? getRecordItemOwner(data).getItemByVisibleIndex(index) : null;
   }
   // The position among the visible records of the whole list, not among the objects of the page.
   protected get visibleIndex(): number {
     const data = this.item.data;
-    return !!data ? data.getItemVisibleIndex(this.item) : -1;
+    return !!data ? getRecordItemOwner(data).getItemVisibleIndex(this.item) : -1;
   }
   /* The RECORD index, so that a stored {panelIndex} / {rowIndex} expression keeps meaning the same
      record when a filter or a sort changes which objects exist - and in the whole list, so that
@@ -2511,9 +2576,7 @@ export abstract class QuestionRecordItemGetterContext extends QuestionItemValueG
     const data = this.item.data;
     return this.item.getIndex() + (!!data ? data.getRecordNumberOffset() : 0);
   }
-  protected getItemVariableNames(): Array<string> {
-    return [];
-  }
+  protected abstract getItemVariableNames(): Array<string>;
   public getContextKeys(keys?: any): { [key: string]: any } {
     const res: { [key: string]: any } = {};
     let names = this.getItemVariableNames();
@@ -2533,9 +2596,7 @@ export abstract class QuestionRecordItemGetterContext extends QuestionItemValueG
     });
     return res;
   }
-  protected getRelatedItemNames(): Array<string> {
-    return [];
-  }
+  protected abstract getRelatedItemNames(): Array<string>;
   /* An item whose expressions calculate over filtered (visible) data - a matrix total row -
      can change on any value change (e.g. row visibility), so its dependencies cannot be
      analyzed statically and its context names are always reported as changed */
@@ -2563,15 +2624,16 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
 
   protected isSettingValue: boolean = false;
   private textPreProcessor: TextContextProcessor;
-  /* The record the object - a row or a panel - was built for, kept in step with the list's inserts
-     and removes. When the page changes the list already names the records of the new page: whether
-     the objects are the page is decided by comparing the two, and an object that is about to be
-     disposed can no longer be asked for its record through the mapping - a panel's record is where
-     the state of the paged questions nested in it is kept. -1: built for no record (a total row, a
-     record read as a value, an object whose record is gone). */
-  public builtRecordIndex: number = -1;
   constructor(public data: QuestionRecordsModel) {
     this.textPreProcessor = new TextContextProcessor(this);
+  }
+  // The record this object holds, and its position among the visible records of the whole view: the
+  // question's lookups are protected (IRecordItemOwner).
+  protected getOwnRecordIndex(): number {
+    return getRecordItemOwner(this.data).getItemRecordIndex(this);
+  }
+  protected getOwnVisibleIndex(): number {
+    return getRecordItemOwner(this.data).getItemVisibleIndex(this);
   }
   abstract getValueGetterContext(): IValueGetterContext;
   getSurveyData(): ISurveyData {
@@ -2733,12 +2795,12 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     }
     /* The record index, not the position of this item: a question bound to the same value may have
        created its objects for a different set of records or in a different order. */
-    const index = this.data.getItemRecordIndex(this);
+    const index = this.getOwnRecordIndex();
     if (index < 0) return;
     const bindedQuestions = this.data.getBindedQuestions();
     bindedQuestions.forEach((q: IQuestion) => {
       if (q === this.data || !(q instanceof QuestionRecordsModel)) return;
-      const item = q.getItemByRecordIndex(index);
+      const item = getRecordItemOwner(q).getItemByRecordIndex(index);
       if (!!item) {
         const triggerName = item.getVariableName() + "." + name;
         item.runTriggers(triggerName, newValue);
@@ -2764,9 +2826,7 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   }
 
   protected getSharedQuestionByName(columnName: string): Question {
-    return !!this.data
-      ? this.data.getSharedQuestionFromArray(columnName, this.getIndex())
-      : null;
+    return this.data.getSharedQuestionFromArray(columnName, this.getIndex());
   }
 }
 
@@ -2840,13 +2900,13 @@ export abstract class QuestionRecordsSingleInputBehavior<TRecord extends ISingle
 
   // Single-input mode is its own paging and walks every record: the list is told before they are read.
   protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
-    this.recordsQuestion.syncPageSizeWithMode();
+    getRecordItemOwner(this.recordsQuestion).syncPageSizeWithMode();
     return super.getSingleInputQuestionsCore(question, checkDynamic);
   }
   // The steps of a question that adds and removes records: the questions of every record that is
   // empty or invalid, the questions of the current record when it is complete, and the summary.
   protected getDynamicSingleInputQuestions(question: Question, checkDynamic: boolean): Array<Question> {
-    this.recordsQuestion.syncPageSizeWithMode();
+    getRecordItemOwner(this.recordsQuestion).syncPageSizeWithMode();
     const unfinished = new Array<Question>();
     if (checkDynamic) {
       const records = this.getRecords();
@@ -2899,7 +2959,7 @@ export abstract class QuestionRecordsSingleInputBehavior<TRecord extends ISingle
     }
   }
   protected createRecordsSummary(options: IRecordsSingleInputSummaryOptions<TRecord>): QuestionSingleInputSummary {
-    this.recordsQuestion.syncPageSizeWithMode();
+    getRecordItemOwner(this.recordsQuestion).syncPageSizeWithMode();
     const res = new QuestionSingleInputSummary(this.question, options.noEntriesText);
     const items = new Array<QuestionSingleInputSummaryItem>();
     this.getRecords().forEach(record => {

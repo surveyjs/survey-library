@@ -353,6 +353,9 @@ describe("Records questions: one API across the three types", () => {
       expect(kind.hiddenRecord(filtered.value), "#6: the value keeps it").toEqual({ a: "2" });
     });
   });
+  test("the three records questions are composite questions", () => {
+    expect(kinds.map(kind => create(kind).isCompositeQuestion), "#1").toEqual([true, true, true]);
+  });
   test("the single-select matrix has none of these members, and its answer, rows and JSON are its own", () => {
     const json = { type: "matrix", name: "m", columns: ["c1", "c2"], rows: ["r1", "r2"] };
     const survey = new SurveyModel({ elements: [json] });
@@ -924,7 +927,7 @@ describe("Records questions: error walks", () => {
       expect(q.getAllErrors().length, "#1").toBe(0);
       expect(q.isRunningValidators, "#1").toBe(false);
       expect(objects().length, "#2: the page only").toBe(5);
-      expect(q.getItemByRecordIndex(6), "#2: no object for the edited record").toBeUndefined();
+      expect(q.getQuestionFromRecord("name", 6), "#2: no object for the edited record").toBeNull();
       expect(q.validate(true), "#3: a full validation finds the edited record").toBe(false);
       expect(q.pageIndex, "#3: on its page").toBe(1);
     });
@@ -941,17 +944,19 @@ describe("Records questions: the object of a record", () => {
     survey.data = { q: records };
     return survey.getQuestionByName("q");
   }
-  // The object a lookup by record answers: a row, or a panel's item.
+  // The objects a lookup by record answers: the rows, or the panels.
   function getObjects(q: any, isMatrix: boolean): Array<any> {
-    return isMatrix ? q.visibleRows : q.panels.map((p: any) => p.data);
+    return isMatrix ? q.visibleRows : q.panels;
   }
+  // The object of a record, through its question "a": getQuestionFromRecord answers null for a record without one.
+  const isObjectOf = (q: any, recordIndex: number, object: any): boolean => q.getQuestionFromRecord("a", recordIndex) === object.getQuestionByName("a");
   test("fixed matrix without a list: a record's row is found, a missing one is not, and no list is created", () => {
     const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "q", rows: ["r1", "r2"], columns: [{ name: "a" }] }] });
     const q: any = survey.getQuestionByName("q");
     const rows = q.visibleRows;
-    expect(q.getItemByRecordIndex(1) === rows[1], "#1: the row of the second record").toBe(true);
-    expect(q.getItemByRecordIndex(2), "#2: past the rows").toBeFalsy();
-    expect(q.getItemByRecordIndex(-1), "#3: a negative index").toBeUndefined();
+    expect(isObjectOf(q, 1, rows[1]), "#1: the row of the second record").toBe(true);
+    expect(q.getQuestionFromRecord("a", 2), "#2: past the rows").toBeFalsy();
+    expect(q.getQuestionFromRecord("a", -1), "#3: a negative index").toBeNull();
     expect(hasNoRecordList(q), "#4: no list").toBe(true);
   });
   [true, false].forEach((isMatrix: boolean) => {
@@ -960,17 +965,17 @@ describe("Records questions: the object of a record", () => {
       const q = createDynamic(isMatrix, [{ a: "1" }, { a: "2" }, { a: "3" }]);
       q["dataList"];
       const objects = getObjects(q, isMatrix);
-      expect(q.getItemByRecordIndex(2) === objects[2], "#1: the object of the last record").toBe(true);
-      expect(q.getItemByRecordIndex(3), "#2: past the records").toBeFalsy();
-      expect(q.getItemByRecordIndex(-1), "#3: a negative index").toBeUndefined();
+      expect(isObjectOf(q, 2, objects[2]), "#1: the object of the last record").toBe(true);
+      expect(q.getQuestionFromRecord("a", 3), "#2: past the records").toBeFalsy();
+      expect(q.getQuestionFromRecord("a", -1), "#3: a negative index").toBeNull();
     });
     test(name + ": under a sort, a record is found at the position the sort gave it", () => {
       const q = createDynamic(isMatrix, [{ a: "1" }, { a: "3" }, { a: "2" }]);
       q.sortBy = "a-";
       const objects = getObjects(q, isMatrix);
-      expect(q.getItemByRecordIndex(1) === objects[0], "#1: the largest value is first").toBe(true);
-      expect(q.getItemByRecordIndex(2) === objects[1], "#2: then the middle one").toBe(true);
-      expect(q.getItemByRecordIndex(0) === objects[2], "#3: the smallest value is last").toBe(true);
+      expect(isObjectOf(q, 1, objects[0]), "#1: the largest value is first").toBe(true);
+      expect(isObjectOf(q, 2, objects[1]), "#2: then the middle one").toBe(true);
+      expect(isObjectOf(q, 0, objects[2]), "#3: the smallest value is last").toBe(true);
     });
     test(name + ": under paging, a record off the page has no object and the lookup builds none", () => {
       const records: Array<any> = [];
@@ -979,9 +984,9 @@ describe("Records questions: the object of a record", () => {
       q.pageIndex = 1;
       const objects = getObjects(q, isMatrix);
       expect(objects.length, "#1: the page only").toBe(5);
-      expect(q.getItemByRecordIndex(7) === objects[2], "#2: a record on the page").toBe(true);
-      expect(q.getItemByRecordIndex(2), "#3: a record on another page").toBeUndefined();
-      expect(q.getItemByRecordIndex(12), "#4: past the records").toBeUndefined();
+      expect(isObjectOf(q, 7, objects[2]), "#2: a record on the page").toBe(true);
+      expect(q.getQuestionFromRecord("a", 2), "#3: a record on another page").toBeNull();
+      expect(q.getQuestionFromRecord("a", 12), "#4: past the records").toBeNull();
       const after = getObjects(q, isMatrix);
       expect(after.length === objects.length && after.every((o: any, i: number) => o === objects[i]), "#5: no object was built").toBe(true);
     });

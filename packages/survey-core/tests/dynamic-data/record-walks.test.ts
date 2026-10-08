@@ -106,6 +106,11 @@ describe("unknown keys: every loaded record is checked, whatever hides it", () =
     const issues = getIssues(Object.assign({ rowsPerPage: 2 }, matrixJson), { m: data() });
     expect(getPaths(issues), "#1").toEqual(["m[3].zzz"]);
   });
+  test("paged matrix with a detail panel: the detail keys of a record off the page are known keys", () => {
+    const json = Object.assign({ rowsPerPage: 2, detailPanelMode: "underRow", detailElements: [{ type: "text", name: "d" }] }, matrixJson);
+    const issues = getIssues(json, { m: [{ a: 1 }, { a: 2 }, { a: 3, d: "x" }, { a: 4, d: "y", zzz: 1 }] });
+    expect(getPaths(issues), "#1").toEqual(["m[3].zzz"]);
+  });
   test("unpaged matrix: an unknown key is reported with its record", () => {
     expect(getPaths(getIssues(matrixJson, { m: data() })), "#1").toEqual(["m[3].zzz"]);
   });
@@ -168,6 +173,16 @@ describe("progress: one count per record", () => {
     survey.data = { p: data() };
     (<QuestionPanelDynamicModel>survey.getQuestionByName("p")).panels;
     expect(progress(survey.getQuestionByName("p")), "#1").toEqual([7, 5, 3, 2]);
+  });
+  test("a required dynamic panel without required questions counts itself, paged as unpaged", () => {
+    const json = { type: "paneldynamic", name: "p", isRequired: true, templateElements: [{ type: "text", name: "a" }] };
+    const unpaged = new SurveyModel({ elements: [json] });
+    unpaged.data = { p: [{ a: 1 }, { a: 2 }, { a: 3 }] };
+    expect(progress(unpaged.getQuestionByName("p")), "#1: unpaged").toEqual([3, 3, 1, 1]);
+    const paged = new SurveyModel({ elements: [Object.assign({ panelsPerPage: 2 }, json)] });
+    paged.data = { p: [{ a: 1 }, { a: 2 }, { a: 3 }] };
+    (<QuestionPanelDynamicModel>paged.getQuestionByName("p")).panels;
+    expect(progress(paged.getQuestionByName("p")), "#2: paged").toEqual([3, 3, 1, 1]);
   });
   test("matrix with fixed rows", () => {
     const json = { type: "matrixdropdown", name: "d", rows: ["r1", "r2", "r3"], columns: matrixColumns };

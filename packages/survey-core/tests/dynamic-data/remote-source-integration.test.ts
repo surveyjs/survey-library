@@ -1,7 +1,7 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import { SurveyModel } from "../../src/survey";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
-import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { QuestionPanelDynamicItem, QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { Question } from "../../src/question";
 import { QuestionMatrixDropdownRenderedTable } from "../../src/question_matrixdropdownrendered";
 import { SurveyElement } from "../../src/survey-element";
@@ -680,7 +680,7 @@ describe("Remote data source: adding and removing", () => {
     expect(rowValues(question), "#2: at once, before the source answers").toEqual(["v6", "v7", "v5", "v8", "v9"]);
     expect(rowValues(question, "col2"), "#3: every cell of the row").toEqual([6, 7, 5, 8, 9]);
     expect(question.visibleRows.every((row, i) => row === rows[i]), "#4: the same row objects").toBe(true);
-    expect(rows.map(row => (<any>row).builtRecordIndex), "#5: each names the record of its position")
+    expect(rows.map(row => row.getIndex()), "#5: each names the record of its position")
       .toEqual(question["dataList"].getMaterializedIndexes());
     await flush();
     question.visibleRows[0].getQuestionByName("col1").value = "edited";
@@ -701,7 +701,7 @@ describe("Remote data source: adding and removing", () => {
     expect(source.argsOf("move"), "#2").toEqual([[3, 5]]);
     expect(rowValues(question), "#3").toEqual(["v4", "v5", "v3"]);
     expect(question.visibleRows.every((row, i) => row === rows[i]), "#4: the same row objects").toBe(true);
-    expect(rows.map(row => (<any>row).builtRecordIndex), "#5").toEqual([3, 4, 5]);
+    expect(rows.map(row => row.getIndex()), "#5: the record each row names").toEqual([3, 4, 5]);
     expect(question.value.map((r: any): any => r.id), "#6").toEqual([0, 1, 2, 4, 5, 3, 6, 7]);
   });
 });
@@ -1240,6 +1240,14 @@ describe("Remote data source: attaching and detaching a source", () => {
     expect(values, "#6: value changes after the read: the window").toEqual([["v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9", "v10", "v11"]]);
     expect(question.value.map((r: any): any => r.col1), "#7: the window is the value").toEqual(["v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9", "v10", "v11"]);
   });
+  test("panel: a question created in code builds its panels from a source assigned before it joins a survey", () => {
+    const question = new QuestionPanelDynamicModel("created");
+    question.template.addNewQuestion("text", "a");
+    question.dataSource = { keyField: "id", read: (): Array<any> => [{ id: 1, a: "x" }, { id: 2, a: "y" }] };
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q" }] });
+    survey.pages[0].addElement(question);
+    expect(question.panels.map(panel => panel.getQuestionByName("a").value), "#1").toEqual(["x", "y"]);
+  });
 });
 
 describe("Remote data source: design mode gives unpaged positions", () => {
@@ -1256,7 +1264,7 @@ describe("Remote data source: design mode gives unpaged positions", () => {
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     const rows = question.visibleRows;
     expect(question["dataList"].pageSize, "#1: the list does not page").toBe(0);
-    expect(rows.map(row => question.getItemVisibleIndex(<any>row)), "#2").toEqual([0, 1, 2, 3, 4, 5]);
+    expect(rows.map(row => row.visibleIndex), "#2").toEqual([0, 1, 2, 3, 4, 5]);
     expect(rows.map(row => readVariable(row, "visibleRowIndex")), "#3").toEqual([1, 2, 3, 4, 5, 6]);
   });
   /* setDesignMode notifies no question, so the list keeps the page size and the page it had until the
@@ -1267,12 +1275,12 @@ describe("Remote data source: design mode gives unpaged positions", () => {
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     question.visibleRows;
     question.pageIndex = 1;
-    expect(question.getItemVisibleIndex(<any>question.visibleRows[0]), "#1: paged").toBe(2);
+    expect(question.visibleRows[0].visibleIndex, "#1: paged").toBe(2);
     survey.setDesignMode(true);
     const rows = question.visibleRows;
     expect(question["dataList"].pageSize, "#2: the list still pages").toBe(2);
     expect(question["dataList"].pageIndex, "#3: on the page it was on").toBe(1);
-    expect(rows.map(row => question.getItemVisibleIndex(<any>row)), "#4: the rows of that page, numbered as on that page").toEqual([2, 3]);
+    expect(rows.map(row => row.visibleIndex), "#4: the rows of that page, numbered as on that page").toEqual([2, 3]);
     expect(rows.map(row => readVariable(row, "visibleRowIndex")), "#5").toEqual([3, 4]);
   });
   test("panel: design mode set before the JSON", () => {
@@ -1282,7 +1290,7 @@ describe("Remote data source: design mode gives unpaged positions", () => {
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
     const panels = question.panels;
     expect(question["dataList"].pageSize, "#1: the list does not page").toBe(0);
-    expect(panels.map(panel => question.getItemVisibleIndex(<any>panel.data)), "#2: the template").toEqual([0]);
+    expect(panels.map(panel => (<QuestionPanelDynamicItem>panel.data).visibleIndex), "#2: the template").toEqual([0]);
     expect(panels.map(panel => readVariable(panel.data, "visiblePanelIndex")), "#3").toEqual([0]);
   });
   test("panel: design mode set on a question that pages, on its second page", () => {
@@ -1290,12 +1298,12 @@ describe("Remote data source: design mode gives unpaged positions", () => {
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
     question.panels;
     question.goToPage(1);
-    expect(question.getItemVisibleIndex(<any>question.panels[0].data), "#1: paged").toBe(2);
+    expect((<QuestionPanelDynamicItem>question.panels[0].data).visibleIndex, "#1: paged").toBe(2);
     survey.setDesignMode(true);
     const panels = question.panels;
     expect(question["dataList"].pageSize, "#2: the list still pages").toBe(2);
     expect(question["dataList"].pageIndex, "#3: on the page it was on").toBe(1);
-    expect(panels.map(panel => question.getItemVisibleIndex(<any>panel.data)), "#4: the panels of that page, numbered as on that page").toEqual([2, 3]);
+    expect(panels.map(panel => (<QuestionPanelDynamicItem>panel.data).visibleIndex), "#4: the panels of that page, numbered as on that page").toEqual([2, 3]);
     expect(panels.map(panel => readVariable(panel.data, "visiblePanelIndex")), "#5").toEqual([2, 3]);
   });
 });
@@ -1961,7 +1969,7 @@ describe("Remote data source: the objects an added record keeps", () => {
     expect(question["generatedVisibleRows"], "#1: no rows").toBeNull();
     question.addRowByIndex({ col1: "new" }, 1);
     const rows = question["generatedVisibleRows"];
-    expect(rows.map((row: any) => row.builtRecordIndex), "#2").toEqual([0, 1, 2, 3, 4, 5]);
+    expect(rows.map((row: any) => row.getIndex()), "#2: the record each row names").toEqual([0, 1, 2, 3, 4, 5]);
     expect(rowValues(question), "#3").toEqual(["v0", "new", "v1", "v2", "v3", "v4"]);
     await flush();
     expect(source.argsOf("insert").map(args => args[1]), "#4: one insert").toEqual([1]);
@@ -2438,7 +2446,7 @@ describe("Remote data source: a total the source does not know", () => {
   test("matrix: the row count is a lower bound and the pager walks to the end", async () => {
     const source = createNoTotalSource(25);
     const { question } = await createMatrix(source, { rowsPerPage: 10 });
-    expect(question.isRowCountKnown, "#1").toBe(false);
+    expect(question.isCountKnown, "#1").toBe(false);
     expect(question.rowCount, "#2: the rows known to exist").toBe(10);
     expect(question.pageCount, "#3").toBe(2);
     expect(question.canGoNextPage, "#4").toBe(true);
@@ -2482,10 +2490,10 @@ describe("Remote data source: a total the source does not know", () => {
     (<SurveyModel>question.survey).locale = "de";
     expect(info.title, "#3: the locale is observed").toBe("3 von 3");
   });
-  test("panel: the panel count is a lower bound and isPanelCountKnown says so", async () => {
+  test("panel: the panel count is a lower bound and isCountKnown says so", async () => {
     const source = createNoTotalSource(25);
     const { question } = await createPanel(source, { panelsPerPage: 10 });
-    expect(question.isPanelCountKnown, "#1").toBe(false);
+    expect(question.isCountKnown, "#1").toBe(false);
     expect(question.panelCount, "#2: the records known to exist").toBe(10);
     expect(question.pageCount, "#3").toBe(2);
     question.nextPage();
@@ -2495,29 +2503,12 @@ describe("Remote data source: a total the source does not know", () => {
     expect(question.panels.length, "#4").toBe(5);
     expect(question.panelCount, "#5").toBe(25);
     // Reaching the end settles the count: there is nothing behind the last record.
-    expect(question.isPanelCountKnown, "#6").toBe(true);
+    expect(question.isCountKnown, "#6").toBe(true);
     expect(question.pageCount, "#7").toBe(3);
-  });
-  test("isCountKnown answers as isRowCountKnown and isPanelCountKnown", async () => {
-    const { question: matrix } = await createMatrix(createNoTotalSource(25), { rowsPerPage: 10 });
-    const { question: panel } = await createPanel(createNoTotalSource(25), { panelsPerPage: 10 });
-    expect(matrix.isCountKnown, "#1: matrix, not known").toBe(false);
-    expect(matrix.isRowCountKnown, "#2").toBe(false);
-    expect(panel.isCountKnown, "#3: panel, not known").toBe(false);
-    expect(panel.isPanelCountKnown, "#4").toBe(false);
-    for (let i = 0; i < 2; i++) {
-      matrix.nextPage();
-      panel.nextPage();
-      await flush();
-    }
-    expect(matrix.isCountKnown, "#5: matrix, the end was reached").toBe(true);
-    expect(matrix.isRowCountKnown, "#6").toBe(true);
-    expect(panel.isCountKnown, "#7: panel, the end was reached").toBe(true);
-    expect(panel.isPanelCountKnown, "#8").toBe(true);
   });
   test("a source that reports its total leaves both questions knowing it", async () => {
     const { question } = await createMatrix(new FakeServerSource(serverRecords(25)), { rowsPerPage: 10 });
-    expect(question.isRowCountKnown, "#1").toBe(true);
+    expect(question.isCountKnown, "#1").toBe(true);
     expect(question.rowCount, "#2").toBe(25);
     expect(question.pageCount, "#3").toBe(3);
   });
@@ -3364,18 +3355,18 @@ describe("Remote data source: a read that commits again", () => {
     });
   });
 
-  test("matrix: the rows the read replaces keep the record they were built for", async () => {
+  test("matrix: the rows the read replaces show their records until the rebuild, and the edit follows its record", async () => {
     const source = readAllSource(12, "id");
     const { survey, question } = await createMatrix(source, { rowsVisibleIf: "{row.col2} >= 0" });
     const row: any = question.visibleRows[0];
     row.getQuestionByName("col1").value = "edited";
     await flush();
     expect(getPageState(question).edited, "#1: the reload has an edited set to follow").toEqual([0]);
-    expect(row.builtRecordIndex, "#2").toBe(0);
-    const seen: Array<number> = [];
+    expect(row.getIndex(), "#2").toBe(0);
+    const seen: Array<any> = [];
     // The rebuild decides the visibility of the records before it clears the rows it replaces.
     survey.onExpressionRunning.add((_: SurveyModel, options: any): void => {
-      if (options.propertyName === "rowsVisibleIf") seen.push(row.builtRecordIndex);
+      if (options.propertyName === "rowsVisibleIf") seen.push(row.getQuestionByName("col1").value);
     });
     insertBehindTheGrid(source, 0, 100);
     question.refreshDataSource();
@@ -3383,10 +3374,9 @@ describe("Remote data source: a read that commits again", () => {
     expect(question.rowCount, "#3: the read committed").toBe(13);
     expect(getPageState(question).edited, "#4: the edited set followed its record").toEqual([1]);
     expect(seen.length > 0, "#5: the handler ran").toBe(true);
-    expect(seen[0], "#6: while the old rows still exist, row 0 names the record it was built for").toBe(0);
-    expect(row.builtRecordIndex, "#7: and after the read committed").toBe(0);
+    expect(seen[0], "#6: while the old rows still exist, row 0 shows the record it was built for").toBe("edited");
     expect(question.visibleRows[0] === row, "#8: the rebuilt row 0 is another object").toBe(false);
-    expect((<any>question.visibleRows[1]).builtRecordIndex, "#9: which names the record that moved").toBe(1);
+    expect(question.visibleRows[1].getIndex(), "#9: row 1 names the record that moved").toBe(1);
     expect(rowValues(question)[1], "#10").toBe("edited");
   });
 });

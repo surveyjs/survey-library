@@ -218,6 +218,23 @@ describe("Page window: the objects that exist are the page", () => {
     expect(question.validate(true), "#2: on validation").toBe(false);
     expect(keyQuestion.errors.length, "#3").toBe(1);
   });
+  test("a template change at runtime rebuilds the page only", () => {
+    const survey = createPanelSurvey({ panelsPerPage: 2, templateElements: [{ type: "text", name: "a" }] }, records(5, (i: number) => ({ a: i })));
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+    question.panels;
+    question.pageIndex = 1;
+    // The template announces its own new question before it holds it.
+    const created: Array<Question> = [];
+    survey.onQuestionCreated.add((_, options) => {
+      const parent = options.question.parent;
+      if (options.question.name === "b" && !!parent && parent !== question.template && created.indexOf(options.question) < 0) created.push(options.question);
+    });
+    question.template.addNewQuestion("text", "b");
+    expect(question.pageIndex, "#1").toBe(1);
+    expect(question.panels.map(panel => panel.getQuestionByName("a").value), "#2").toEqual([2, 3]);
+    expect(question.panels.every(panel => !!panel.getQuestionByName("b")), "#3: every panel of the page has the new question").toBe(true);
+    expect(created.length, "#4: one new question per panel of the page").toBe(2);
+  });
 });
 
 describe("Page window: validation", () => {
@@ -1021,7 +1038,7 @@ describe("Page window: three indexes", () => {
     expect(matrix.value.map(r => r.id), "#2").toEqual([0, 1, 2, 4, 5, 3, 6]);
     expect(rowIds(matrix), "#3: the rows take the reordered records").toEqual([4, 5, 3]);
     expect(matrix.visibleRows.every((row, i) => row === rows[i]), "#4: the same row objects").toBe(true);
-    expect(rows.map(row => (<any>row).builtRecordIndex), "#5").toEqual([3, 4, 5]);
+    expect(rows.map(row => row.getIndex()), "#5: the record each row names").toEqual([3, 4, 5]);
     const short = createMatrix({ rowsPerPage: 5 }, records(3));
     const shortRows = short.visibleRows.slice();
     short.moveRowByIndex(0, 2);
@@ -1763,6 +1780,34 @@ describe("Page window: the page state of a nested paged matrix", () => {
     expect(matrixOf(0).pageIndex, "#8: page 0 stays page 0").toBe(0);
     expect(getPageState(matrixOf(0)), "#9").toEqual({ pageIndex: 0, edited: [], nested: {} });
   });
+  test("an outside assignment that inserts a record in front of the page keeps the matrix of each record on its page", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "paneldynamic", name: "p", panelsPerPage: 1,
+        templateElements: [{ type: "text", name: "id" }, { type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 1, columns: [{ name: "a", cellType: "text" }] }]
+      }]
+    });
+    const r0 = { id: "r0", m: [{ a: "r0-0" }, { a: "r0-1" }, { a: "r0-2" }] };
+    const r1 = { id: "r1", m: [{ a: "r1-0" }, { a: "r1-1" }] };
+    survey.data = { p: [r0, r1] };
+    const p = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    const shown = (): Array<any> => {
+      const panel = p.panels[0];
+      const m = <QuestionMatrixDynamicModel>panel.getQuestionByName("m");
+      return [panel.getQuestionByName("id").value, m.pageIndex];
+    };
+    (<QuestionMatrixDynamicModel>p.panels[0].getQuestionByName("m")).pageIndex = 2;
+    p.pageIndex = 1;
+    expect(shown(), "#1").toEqual(["r1", 0]);
+    survey.setValue("p", [{ id: "x", m: [{ a: "x-0" }] }, r0, r1]);
+    expect(shown(), "#2: page 1 holds r0 now, with its matrix on its page").toEqual(["r0", 2]);
+    p.pageIndex = 2;
+    expect(shown(), "#3").toEqual(["r1", 0]);
+    p.pageIndex = 1;
+    expect(shown(), "#4: r0's matrix is still on its page").toEqual(["r0", 2]);
+    p.pageIndex = 0;
+    expect(shown(), "#5: the inserted record starts on page 0").toEqual(["x", 0]);
+  });
   test("a state with page 0 leaves the page alone and does not drop a move that waits for its validators", () => {
     const results: Array<(res: any) => void> = [];
     FunctionFactory.Instance.register("asyncPageStateFunc", function (): any {
@@ -2044,7 +2089,7 @@ describe("Fixed matrix pages its rows", () => {
     expect(matrix.renderedTable.rows.filter(row => row.row && !row.isDetailRow).map(row => row.row.rowName), "#5: the rendered page").toEqual(["r4", "r5", "r6"]);
     matrix.nextPage();
     expect(names(matrix.visibleRows), "#6: the one-row last page").toEqual(["r7"]);
-    expect(matrix.visibleRows.map(row => row.builtRecordIndex), "#7: built for its record").toEqual([6]);
+    expect(matrix.visibleRows.map(row => row.getIndex()), "#7: it names its record").toEqual([6]);
   });
   test("a cell edit on another page writes the row's own key", () => {
     const { survey, matrix } = createFixed(undefined, { r1: { a: "1" } });
@@ -2402,7 +2447,7 @@ describe("Fixed matrix pages its rows under a sort and a filter", () => {
     matrix.nextPage();
     const row = matrix.visibleRows[1];
     expect(row.rowName, "#1: page 1 holds Delta and Echo").toBe("r2");
-    expect([row.builtRecordIndex, row.visibleIndex, row.pageVisibleIndex], "#2: record 1, visible 3, page-local 1").toEqual([1, 3, 1]);
+    expect([row.getIndex(), row.visibleIndex, row.pageVisibleIndex], "#2: record 1, visible 3, page-local 1").toEqual([1, 3, 1]);
     row.cells[0].question.value = "echo";
     expect(matrix.value, "#3: the row's own key").toEqual({ r2: { a: "echo" } });
   });
@@ -3217,6 +3262,18 @@ describe("Page window: the records the respondent touched stay shown", () => {
     q.survey.setValue("p", v);
     expect(panelAs(q), "#1").toEqual([0, 1, 3, 4, 5]);
   });
+  test("a touched record that an assignment moves from one end of the records to the other keeps its place", () => {
+    const first = createStableMatrix({ sortBy: "a" }, 6);
+    first.visibleRows[0].getQuestionByColumnName("a").value = 100;
+    expect(rowAs(first), "#1: the edit keeps its place").toEqual([100, 1, 2, 3, 4, 5]);
+    first.survey.setValue("m", [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }, { a: 5 }, { a: 100 }]);
+    expect(rowAs(first), "#2: moved from the first record to the last, it stays first").toEqual([100, 1, 2, 3, 4, 5]);
+    const last = createStableMatrix({ sortBy: "a" }, 6);
+    last.visibleRows[5].getQuestionByColumnName("a").value = -100;
+    expect(rowAs(last), "#3").toEqual([0, 1, 2, 3, 4, -100]);
+    last.survey.setValue("m", [{ a: -100 }, { a: 0 }, { a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }]);
+    expect(rowAs(last), "#4: moved from the last record to the first, it stays last").toEqual([0, 1, 2, 3, 4, -100]);
+  });
 });
 /* A row of the fixed matrix the respondent edited keeps its place through an answer assignment - its
    own answer may change or go: the row is the record. A rows change keeps it by row name, and a
@@ -3260,6 +3317,19 @@ describe("Fixed matrix: the rows the respondent edited stay shown", () => {
     matrix.clearValue();
     survey.setValue("m", { r1: { a: "b" }, r2: { a: "c" }, r3: { a: "d" }, r4: { a: "a" } });
     expect(rowNames(matrix), "#1").toEqual(["r3", "r2", "r1", "r4"]);
+  });
+  test("paged: a rows change keeps an edited row of another page by its name, and the validation goes to its page", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", rowsPerPage: 2,
+      rows: ["r1", "r2", "r3", "r4"], columns: [{ name: "a", cellType: "text", validators: [{ type: "numeric" }] }] }] });
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
+    matrix.nextPage();
+    matrix.visibleRows[0].getQuestionByColumnName("a").value = "abc";
+    matrix.prevPage();
+    expect(matrix.pageIndex, "#1: a move back does not validate").toBe(0);
+    matrix.rows.splice(0, 0, new ItemValue("x1"), new ItemValue("x2"));
+    expect(survey.validate(), "#2: the edited row is still validated").toBe(false);
+    expect(matrix.pageIndex, "#3: on the page of r3").toBe(2);
+    expect(rowNames(matrix), "#4").toEqual(["r3", "r4"]);
   });
 });
 /* What a record contributes without an object. Page size 0 keeps every released result. With paging:

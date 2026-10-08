@@ -379,7 +379,7 @@ describe("Dynamic questions: the item getter contexts", () => {
       { name: "vis", cellType: "expression", expression: "{visibleRowIndex}" }, { name: "next", cellType: "expression", expression: "{nextRow.c1}" }] }] });
     survey.data = { d: { a: { c1: 1 }, b: { c1: 2 }, c: { c1: 3 } } };
     const matrix: any = survey.getQuestionByName("d");
-    expect(matrix.visibleRows.map((row: any) => matrix.getItemVisibleIndex(row)), "#0: the positions in visibleRows").toEqual([0, 1, 2]);
+    expect(matrix.visibleRows.map((row: any) => row.visibleIndex), "#0: the positions in visibleRows").toEqual([0, 1, 2]);
     const values = matrix.visibleRows.map((row: any) => ["prev", "vis", "next"].map(name => row.getQuestionByName(name).value));
     expect(values, "#1").toEqual([[undefined, 1, 2], [1, 2, 3], [2, 3, undefined]]);
   });
@@ -427,6 +427,19 @@ describe("Dynamic questions: the item getter contexts", () => {
     remote.nextPage();
     await flush();
     expect(remote.panels.map(p => p.getQuestionByName("id").value), "#4: a record item's value is 0-based plus the offset").toEqual([10, 12, 13, 14]);
+  });
+  test("an expression reads the visible index of a record off the page: {m[3].visibleRowIndex} and {p[3].visiblePanelIndex}", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 2, columns: [{ name: "a", cellType: "text" }] },
+      { type: "paneldynamic", name: "p", panelsPerPage: 2, templateElements: [{ type: "text", name: "a" }] },
+      { type: "expression", name: "mv", expression: "{m[3].visibleRowIndex}" },
+      { type: "expression", name: "pv", expression: "{p[3].visiblePanelIndex}" }
+    ] });
+    survey.data = { m: ids(5), p: ids(5) };
+    (<QuestionMatrixDynamicModel>survey.getQuestionByName("m")).visibleRows;
+    (<QuestionPanelDynamicModel>survey.getQuestionByName("p")).panels;
+    expect(survey.getValue("mv"), "#1: 1-based in the whole list").toBe(4);
+    expect(survey.getValue("pv"), "#2: 0-based in the whole list, as released").toBe(3);
   });
 });
 

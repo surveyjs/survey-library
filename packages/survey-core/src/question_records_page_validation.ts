@@ -1,6 +1,6 @@
 import { ValidationContext } from "./question";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { IDynamicDataPageState, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
+import { IDynamicDataPageState } from "./dynamic-data/dynamic-data-page-validation";
 
 export interface IDynamicDataPageValidationOwner {
   getDataList(): DynamicDataList;
@@ -38,9 +38,6 @@ export class DynamicDataPageValidation {
   private isPendingValue: boolean = false;
   constructor(private owner: IDynamicDataPageValidationOwner) { }
 
-  public get isMovePending(): boolean {
-    return this.isPendingValue;
-  }
   private setIsPending(val: boolean): void {
     this.isPendingValue = val;
     this.owner.setPropertyValue("isPageMovePending", val);
@@ -141,13 +138,10 @@ export class DynamicDataPageValidation {
   /* The records were assigned from outside the list - a sibling on the same valueName wrote them.
      The edited set and the nested states follow the records they name (getReplacedRecordsRemap); a
      change the remap cannot place marks every record of the changed part as edited. */
-  /* remap: the caller's own, when it has to move record indexes of its own with the same mapping (the
-     dynamic panel's builtRecordIndex). */
-  public onRecordsReplaced(oldRecords: Array<any>, newRecords: Array<any>, remap?: (index: number) => number): void {
+  /* remap: where each old record went, built by the caller (getReplacedRecordsRemap), which moves the
+     record indexes of its own with it (the records the dynamic panel's panels were built for). */
+  public onRecordsReplaced(oldRecords: Array<any>, newRecords: Array<any>, remap: (index: number) => number): void {
     if (!this.hasRecords) return;
-    if (!remap) {
-      remap = getReplacedRecordsRemap(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : []);
-    }
     const edited: Array<number> = [];
     let isUnplaced = false;
     const add = (index: number): void => { if (index > -1 && edited.indexOf(index) < 0) edited.push(index); };

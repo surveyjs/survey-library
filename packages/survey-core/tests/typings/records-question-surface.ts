@@ -83,8 +83,11 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // Every records question shares the paging, sorting and filtering API, the fixed matrix included.
   const ddApi: Array<DeclaredKeys<QuestionMatrixDropdownModel>> = ["pageIndex", "pageCount", "isCountKnown", "sortBy",
     "filterExpression", "sortOrder", "toggleSort", "clearSort", "refreshView", "canGoNextPage", "canGoPrevPage", "goToPage",
-    "nextPage", "prevPage", "isPageMovePending", "pagerActions", "syncPageSizeWithMode", "pageSize"];
+    "nextPage", "prevPage", "isPageMovePending", "pagerActions", "pageSize"];
   res.push(ddApi);
+  // @ts-expect-error the single-input behavior reaches it through the question's owner object
+  const ddSync: DeclaredKeys<QuestionMatrixDropdownModel> = "syncPageSizeWithMode";
+  res.push(ddSync);
   // The record list is not public on any records question: refreshDataSource() reads a source again.
   // @ts-expect-error the record list
   const ddList: DeclaredKeys<QuestionMatrixDropdownModel> = "getDataList";
@@ -104,11 +107,11 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // The feature's public API stays public on the dynamic questions.
   const mdApi: Array<DeclaredKeys<QuestionMatrixDynamicModel>> = ["dataSource", "pageIndex", "pageCount", "pageSize",
     "isCountKnown", "canGoNextPage", "canGoPrevPage", "goToPage", "nextPage", "prevPage", "sortOrder", "sortBy", "toggleSort",
-    "clearSort", "filterExpression", "refreshView", "isDataLoading", "isPageMovePending", "isRowCountKnown", "getRecordNumberOffset",
+    "clearSort", "filterExpression", "refreshView", "isDataLoading", "isPageMovePending", "getRecordNumberOffset",
     "refreshDataSource"];
   const pdApi: Array<DeclaredKeys<QuestionPanelDynamicModel>> = ["dataSource", "pageIndex", "pageCount", "pageSize",
     "isCountKnown", "canGoNextPage", "canGoPrevPage", "goToPage", "nextPage", "prevPage", "sortOrder", "sortBy", "toggleSort",
-    "clearSort", "filterExpression", "refreshView", "isDataLoading", "isPageMovePending", "isPanelCountKnown", "getRecordNumberOffset",
+    "clearSort", "filterExpression", "refreshView", "isDataLoading", "isPageMovePending", "getRecordNumberOffset",
     "refreshDataSource"];
   res.push(mdApi, pdApi);
   // The paging state shared by the records questions is protected on every one of them.
@@ -293,8 +296,13 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   const pdItems7: DeclaredKeys<QuestionPanelDynamicModel> = "createRecordItem";
   res.push(ddItems1, ddItems2, ddItems3, ddItems4, ddItems5, ddItems6, ddItems7, mdItems1, mdItems2, mdItems3, mdItems4, mdItems5, mdItems6,
     mdItems7, pdItems1, pdItems2, pdItems3, pdItems4, pdItems5, pdItems6, pdItems7);
-  // The fixed matrix answers the visible-index and expression-item lookups the matrix rows ask for.
-  const ddItemLookups: Array<DeclaredKeys<QuestionMatrixDropdownModel>> = ["getItemVisibleIndex", "getItemByVisibleIndex", "getExpressionItem"];
-  res.push(ddItemLookups);
+  // The lookups the matrix rows and their contexts ask for are protected: they reach them through the question's owner object.
+  // @ts-expect-error protected
+  const ddItemLookup1: DeclaredKeys<QuestionMatrixDropdownModel> = "getItemVisibleIndex";
+  // @ts-expect-error protected
+  const ddItemLookup2: DeclaredKeys<QuestionMatrixDropdownModel> = "getItemByVisibleIndex";
+  // @ts-expect-error protected
+  const ddItemLookup3: DeclaredKeys<QuestionMatrixDropdownModel> = "getExpressionItem";
+  res.push(ddItemLookup1, ddItemLookup2, ddItemLookup3);
   return res;
 }

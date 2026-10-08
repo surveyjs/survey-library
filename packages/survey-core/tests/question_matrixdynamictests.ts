@@ -24,7 +24,7 @@ import { setOldTheme } from "./oldTheme";
 import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { ArrayDynamicDataSource } from "../src/dynamic-data/dynamic-data-sources";
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 describe("Survey_QuestionMatrixDynamic", () => {
   test("Matrixdropdown cells tests", () => {
     var question = new QuestionMatrixDropdownModel("matrixDropdown");
@@ -10060,9 +10060,10 @@ describe("Survey_QuestionMatrixDynamic", () => {
       survey.setDesignMode(true);
       survey.fromJSON({ elements: [{ type: "matrixdynamic", name: "md", rowCount: 2, rowsPerPage: 3, columns: [{ name: "id" }] }] });
       const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("md");
-      expect(matrix.rowCountLimit, "#1: design mode does not page").toBe(5);
       matrix.rowCount = 7;
       expect(matrix.rowCount, "#2: above the setting is rejected").toBe(2);
+      matrix.rowCount = 5;
+      expect(matrix.rowCount, "#1: design mode does not page: the setting is the limit").toBe(5);
     } finally {
       settings.matrix.maxRowCount = 1000;
     }
@@ -10843,8 +10844,8 @@ describe("Survey_QuestionMatrixDynamic: rows follow the view", () => {
     expect(matrix.getRowValue(0), "#3: getRowValue takes a created position").toEqual({ c1: "h", c2: "0" });
     expect(matrix.getItemIndex(<any>matrix.allRows[1]), "#4: getItemIndex is a created position").toBe(1);
     expect(matrix.getItem(1), "#5: getItem is a created position").toBe(<any>matrix.allRows[1]);
-    expect((<any>matrix).getItemByRecordIndex(3), "#6: by record").toBe(<any>matrix.allRows[2]);
-    expect((<any>matrix).getItemByRecordIndex(1), "#7: the filtered-out record has no row").toBe(undefined);
+    expect(matrix.getQuestionFromRecord("c2", 3), "#6: by record").toBe(matrix.allRows[2].getQuestionByName("c2"));
+    expect(matrix.getQuestionFromRecord("c2", 1), "#7: the filtered-out record has no row").toBeNull();
     expect((<Question>matrix.getQuestionFromArray("c2", 0)).value, "#8: getQuestionFromArray is a visible position").toBe("2");
     expect((<Question>matrix.getQuestionFromRecord("c2", 0)).value, "#9: getQuestionFromRecord is a record index").toBe("0");
     matrix.setRowValue(0, { c1: "a", c2: "22" });
@@ -12084,5 +12085,22 @@ describe("Dynamic matrix without paging keeps its released behaviour", () => {
     expect(second.isDisposed, "#2: not before the UI rerendered").toBe(false);
     matrix.afterRerender();
     expect(second.isDisposed, "#3: after it").toBe(true);
+  });
+});
+
+describe("Survey_QuestionMatrixDynamic: the focus after removeRowUI", () => {
+  test("removing the last row focuses the Add button", () => {
+    vi.useFakeTimers();
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "a", cellType: "text" }] }] });
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+      const focusAdd = vi.spyOn(matrix, "focusAddBUtton").mockImplementation(() => { });
+      matrix.removeRowUI(matrix.visibleRows[0]);
+      vi.advanceTimersByTime(20);
+      expect(matrix.rowCount, "#1").toBe(0);
+      expect(focusAdd, "#2").toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

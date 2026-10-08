@@ -147,11 +147,11 @@ export class QuestionPanelDynamicItem extends QuestionRecordItem {
   // The window-local RECORD index: what the owner's storage is addressed by. The number the
   // respondent sees ({panelIndex}) adds the window offset of a source that pages itself.
   public getIndex(): number {
-    return this.data.getItemRecordIndex(this);
+    return this.getOwnRecordIndex();
   }
   // The panel's position among the visible records of the whole list ({visiblePanelIndex} - 1).
   public get visibleIndex(): number {
-    return !!this.data ? this.data.getItemVisibleIndex(this) : -1;
+    return !!this.data ? this.getOwnVisibleIndex() : -1;
   }
   // The panel's position in visiblePanels: the page it is on, when the question pages.
   public get pageVisibleIndex(): number {
@@ -332,11 +332,11 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     // The view, not the page: a question that pages still answers for every record it shows.
     return list.getCreatedIndexes().map((index: number): any => list.getRecord(index));
   }
-  getItemVisibleIndex(item: ISurveyData): number {
+  protected getItemVisibleIndex(item: ISurveyData): number {
     if (item instanceof QuestionPanelDynamicItem) return this.getPanelVisibleIndex(item.panel);
     return this.getRecordItemVisibleIndex(item);
   }
-  getItemByVisibleIndex(visibleIndex: number): QuestionRecordItem {
+  protected getItemByVisibleIndex(visibleIndex: number): QuestionRecordItem {
     if (visibleIndex < 0) return null;
     const panels = this.visiblePanels;
     const pos = this.getPositionAtVisibleIndex(visibleIndex);
@@ -354,9 +354,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected createRecordItemContext(item: QuestionRecordItem): IValueGetterContext {
     return new PanelDynamicItemGetterContext(item);
   }
-  // internal: the item {panel[index].x} reads. index is a record index; a record the page does not
-  // show is read as a value.
-  public getExpressionItem(index: number): QuestionRecordItem {
+  // The item {panel[index].x} reads. index is a record index; a record the page does not show is
+  // read as a value.
+  protected getExpressionItem(index: number): QuestionRecordItem {
     const panels = this.panels;
     if (!this.hasDataListView) return index < panels.length ? <QuestionRecordItem>panels[index].data : null;
     return this.getViewExpressionItem(index);
@@ -462,9 +462,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected onPageSizeAssigned(): void {
     this.updateRenderedPanels();
   }
-  /* False while the data source answers a read without a total: panelCount is then the number of
-     records known to exist - a lower bound (see isCountKnown). */
-  public get isPanelCountKnown(): boolean { return this.isCountKnown; }
   protected validateBuiltPageObjects(context: ValidationContext): boolean {
     return this.validateInPanels(context);
   }
@@ -617,7 +614,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     for (let i = 0; i < panels.length; i++) {
       const item = <QuestionPanelDynamicItem>panels[i].data;
       if (!(item instanceof QuestionPanelDynamicItem)) continue;
-      this.restorePageStatesOfQuestions(item.builtRecordIndex, panels[i].questions);
+      this.restorePageStatesOfQuestions(this.getBuiltRecordIndex(item), panels[i].questions);
     }
   }
   private assignOnPropertyChangedToTemplate() {
@@ -1026,7 +1023,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      from the old ones. */
   private getPanelRecordIndex(panel: PanelModel): number {
     const item = <QuestionPanelDynamicItem>panel.data;
-    if (this.hasDataListView && item instanceof QuestionPanelDynamicItem && item.builtRecordIndex > -1) return item.builtRecordIndex;
+    const builtRecordIndex = item instanceof QuestionPanelDynamicItem ? this.getBuiltRecordIndex(item) : -1;
+    if (this.hasDataListView && builtRecordIndex > -1) return builtRecordIndex;
     return this.getRecordIndexByPanelIndex(this.panelsCore.indexOf(panel));
   }
   protected getUIState(): any {
@@ -1670,8 +1668,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public set maxPanelCount(val: number) {
     this.setPropertyValue("maxPanelCount", val <= 0 ? 1 : val);
   }
-  // internal: the limit panelCount is checked against (see getRecordCountLimit).
-  public get panelCountLimit(): number {
+  // The limit panelCount is checked against (see getRecordCountLimit).
+  protected get panelCountLimit(): number {
     return this.getRecordCountLimit(this.maxPanelCount, this.getPropertyValueWithoutDefault("maxPanelCount"));
   }
 
@@ -2578,11 +2576,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected removeStoredRecord(removal: IRecordRemoval, refill: () => void): void {
     const list = this.dataList;
     const recordIndex = removal.recordIndex;
-    if (recordIndex < 0 || recordIndex >= list.loadedCount) {
-      this.updateFooterActions();
-      refill();
-      return;
-    }
     const panel = !!removal.item ? (<QuestionPanelDynamicItem>removal.item).panel : undefined;
     this.runInternalValueChange((): void => {
       list.remove(recordIndex);
@@ -3264,7 +3257,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (isLight) {
       this.lightBuiltPanels.push(panel);
     }
-    item.builtRecordIndex = this.getRecordIndexByPanelIndex(this.panelsCore.length);
+    this.setBuiltRecordIndex(item, this.getRecordIndexByPanelIndex(this.panelsCore.length));
     panel.onGetFooterActionsCallback = () => {
       return this.getPanelActions(panel);
     };
@@ -3410,7 +3403,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     var res = this.items.indexOf(item);
     return res > -1 ? res : this.items.length;
   }
-  getItemRecordIndex(item: ISurveyData): number {
+  protected getItemRecordIndex(item: ISurveyData): number {
     const items = this.items;
     const position = items.indexOf(item);
     // A panel that is being created is about to take the position at the end: the record it names is

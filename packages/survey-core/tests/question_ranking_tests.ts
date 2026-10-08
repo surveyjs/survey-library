@@ -939,6 +939,100 @@ describe("question ranking", () => {
     expect(q1.rankingChoices.map(item => item.value)).toEqual(["Item 3"]);
   });
 
+  test("Ranking Question: reordering does not auto-advance, Enter does", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "ranking", name: "q1", choices: ["a", "b", "c"] }] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      const question = <QuestionRankingModel>survey.getQuestionByName("q1");
+      question["focusItem"] = () => {};
+      question.handleKeydown(<any>{ key: "ArrowDown", preventDefault: () => {} }, question.choices[0]);
+      expect(survey.currentPageNo, "ArrowDown does not auto-advance").toBe(0);
+      question.handleKeydown(<any>{ key: "ArrowUp", preventDefault: () => {} }, question.choices[0]);
+      expect(survey.currentPageNo, "ArrowUp does not auto-advance").toBe(0);
+
+      question.setValue();
+      expect(survey.currentPageNo, "Drag-and-drop drop does not auto-advance").toBe(0);
+
+      let prevented = false;
+      question.handleKeydown(<any>{
+        key: "Enter",
+        keyCode: 13,
+        preventDefault: () => { prevented = true; }
+      }, question.choices[0]);
+      expect(prevented, "Enter is prevented when auto-advancing").toBe(true);
+      expect(survey.currentPageNo, "Enter confirms the order and auto-advances").toBe(1);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+
+  test("Ranking Question: selectToRank Space does not auto-advance, Enter does", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "ranking", name: "q1", choices: ["a", "b", "c"], selectToRankEnabled: true }] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      const question = <QuestionRankingModel>survey.getQuestionByName("q1");
+      question["focusItem"] = () => {};
+      question.handleKeydown(<any>{ key: " ", preventDefault: () => {} }, question.choices[1]);
+      expect(question.rankingChoices.map((item) => item.value)).toEqual(["b"]);
+      expect(survey.currentPageNo, "Space does not auto-advance").toBe(0);
+
+      question.handleKeydown(<any>{ key: "Enter", keyCode: 13, preventDefault: () => {} }, question.choices[1]);
+      expect(survey.currentPageNo, "Enter confirms the ranked items and auto-advances").toBe(1);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+
+  test("Ranking Question: Enter does not auto-advance when empty, read-only, or autoAdvanceEnabled is false", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const createSurvey = (autoAdvanceEnabled?: boolean) => new SurveyModel({
+        autoAdvanceEnabled,
+        pages: [
+          { elements: [{ type: "ranking", name: "q1", choices: ["a", "b", "c"] }] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      const pressEnter = (question: QuestionRankingModel) => {
+        question.handleKeydown(<any>{ key: "Enter", keyCode: 13, preventDefault: () => {} }, question.choices[0]);
+      };
+
+      const emptySurvey = createSurvey(true);
+      pressEnter(<QuestionRankingModel>emptySurvey.getQuestionByName("q1"));
+      expect(emptySurvey.currentPageNo, "Unchanged order stays on the page").toBe(0);
+
+      const readOnlySurvey = createSurvey(true);
+      const readOnlyQuestion = <QuestionRankingModel>readOnlySurvey.getQuestionByName("q1");
+      readOnlyQuestion.value = ["c", "b", "a"];
+      readOnlyQuestion.readOnly = true;
+      pressEnter(readOnlyQuestion);
+      expect(readOnlySurvey.currentPageNo, "Read-only stays on the page").toBe(0);
+
+      const disabledSurvey = createSurvey(false);
+      const disabledQuestion = <QuestionRankingModel>disabledSurvey.getQuestionByName("q1");
+      disabledQuestion.value = ["c", "b", "a"];
+      pressEnter(disabledQuestion);
+      expect(disabledSurvey.currentPageNo, "autoAdvanceEnabled false stays on the page").toBe(0);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+
   test("A11Y", () => {
     expect(new QuestionRankingModel("q1").ariaRole, "aria-role").toEqual("group");
   });

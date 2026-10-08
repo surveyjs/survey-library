@@ -3071,4 +3071,92 @@ describe("Dropdown question", () => {
     expect(dropdownListModel.customItemValue.text, "customItemValue is set correctly").toBe("Add \"new Item\" as a new");
 
   });
+  test("dropdownListModel is a lazy property, Issue#9014", () => {
+    const json = { elements: [
+      { type: "dropdown", name: "q1", choices: ["item1", "item2"], defaultValue: "item1" },
+      { type: "dropdown", name: "q2", choices: ["item1", "item2"], renderAs: "select" }
+    ] };
+    for (const isDesign of [false, true]) {
+      const survey = new SurveyModel();
+      survey.setDesignMode(isDesign);
+      survey.fromJSON(json);
+      const caption = isDesign ? "design: " : "runtime: ";
+      const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+      const q2 = <QuestionDropdownModel>survey.getQuestionByName("q2");
+      expect(!!q1["dropdownListModelValue"], caption + "not created on load").toBe(false);
+      const model = q1.dropdownListModel;
+      expect(!!model, caption + "created on the first access").toBe(true);
+      expect(q1.dropdownListModel, caption + "the same instance on the next access").toBe(model);
+      expect(q2.dropdownListModel, caption + "renderAs: select never creates it").toBeFalsy();
+      expect(!!q2["dropdownListModelValue"], caption + "renderAs: select").toBe(false);
+      q1.dispose();
+      expect(model.isDisposed, caption + "disposed with the question").toBe(true);
+      expect(q1.dropdownListModel, caption + "not re-created after dispose").toBeFalsy();
+    }
+  });
+  test("Loading and using a survey does not create dropdownListModel, Issue#9014", () => {
+    const choices = ["item1", "item2", "item3"];
+    const json = {
+      elements: [
+        { type: "dropdown", name: "dropdown", choices, isRequired: true },
+        { type: "tagbox", name: "tagbox", choices, isRequired: true },
+        { type: "rating", name: "rating", displayMode: "dropdown" },
+        { type: "buttongroup", name: "buttongroup", choices },
+        { type: "matrixdropdown", name: "matrix", rows: ["row1", "row2"], columns: [
+          { name: "col1", cellType: "dropdown", choices },
+          { name: "col2", cellType: "tagbox", choices },
+          { name: "col3", cellType: "rating", displayMode: "dropdown" }] },
+        { type: "matrixdynamic", name: "dynamicMatrix", rowCount: 1, columns: [{ name: "col1", cellType: "dropdown", choices }] },
+        { type: "paneldynamic", name: "panel", panelCount: 1, templateElements: [
+          { type: "dropdown", name: "panelDropdown", choices },
+          { type: "tagbox", name: "panelTagbox", choices }] }
+      ]
+    };
+    const data = {
+      dropdown: "item2", tagbox: ["item1", "item3"], rating: 4, buttongroup: "item1",
+      matrix: { row1: { col1: "item1", col2: ["item2"], col3: 2 } },
+      dynamicMatrix: [{ col1: "item3" }],
+      panel: [{ panelDropdown: "item1", panelTagbox: ["item2"] }, { panelDropdown: "item2" }]
+    };
+    const getQuestions = (survey: SurveyModel): Array<Question> => survey.getAllQuestions(false, false, true);
+    const getCreated = (survey: SurveyModel): Array<string> => getQuestions(survey).filter(q => !!q["dropdownListModelValue"]).map(q => q.name);
+    for (const isDesign of [false, true]) {
+      const caption = isDesign ? "design: " : "runtime: ";
+      const survey = new SurveyModel();
+      survey.setDesignMode(isDesign);
+      survey.fromJSON(json);
+      expect(getCreated(survey), caption + "load").toEqual([]);
+
+      survey.data = data;
+      survey.setValue("dropdown", "item3");
+      (<any>survey.getQuestionByName("dynamicMatrix")).addRow();
+      (<any>survey.getQuestionByName("panel")).addPanel();
+      expect(getCreated(survey), caption + "set data").toEqual([]);
+
+      survey.locale = "de";
+      survey.locale = "";
+      expect(getCreated(survey), caption + "locale").toEqual([]);
+
+      survey.mode = "display";
+      survey.mode = "edit";
+      expect(getCreated(survey), caption + "display mode and back").toEqual([]);
+
+      survey.validate();
+      survey.toJSON();
+      survey.getPlainData();
+      const dropdown = <QuestionDropdownModel>survey.getQuestionByName("dropdown");
+      dropdown.choices = ["item1", "item2", "item3", "item4"];
+      expect(getCreated(survey), caption + "validate, serialize, change choices").toEqual([]);
+
+      getQuestions(survey).forEach((q: any) => {
+        const _values = [q.cssClasses, q.getControlClass?.(), q.displayValue, q.readOnlyText, q.isEmpty(), q.selectedItem, q.selectedItems];
+        q.waitForQuestionIsReady();
+      });
+      expect(getCreated(survey), caption + "read css, display value, read-only text, selected items").toEqual([]);
+
+      survey.clear();
+      expect(getCreated(survey), caption + "clear").toEqual([]);
+      survey.dispose();
+    }
+  });
 });

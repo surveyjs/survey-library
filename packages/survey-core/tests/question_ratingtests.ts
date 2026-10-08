@@ -2741,3 +2741,20 @@ test("clearIncorrectValues respects survey.keepIncorrectValues", () => {
   survey.clearIncorrectValues();
   expect(q1.isEmpty(), "incorrect value is cleared").toBeTruthy();
 });
+test("dropdownListModel is a lazy property, Issue#9014", () => {
+  const survey = new SurveyModel({ elements: [
+    { type: "rating", name: "q1" },
+    { type: "rating", name: "q2", displayMode: "dropdown", defaultValue: 3 }
+  ] });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionRatingModel>survey.getQuestionByName("q2");
+  expect(q1.dropdownListModel, "buttons mode never creates it").toBeFalsy();
+  const _values = [q2.displayValue, q2.readOnlyText, q2.cssClasses, q2.getControlClass(), q2.renderedRateItems];
+  expect(!!q2["dropdownListModelValue"], "dropdown mode, not created on load and reads").toBe(false);
+  const model = q2.dropdownListModel;
+  expect(!!model, "dropdown mode, created on the first access").toBe(true);
+  expect(q2.dropdownListModel, "the same instance on the next access").toBe(model);
+  q2.dispose();
+  expect(model.isDisposed, "disposed with the question").toBe(true);
+  expect(q2.dropdownListModel, "not re-created after dispose").toBeFalsy();
+});

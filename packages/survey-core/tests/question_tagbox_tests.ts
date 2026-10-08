@@ -2802,4 +2802,24 @@ describe("Tagbox question", () => {
     expect(dropdownListModel.customItemValue.text, "customItemValue is set correctly").toBe("Add \"new Item\" as a new");
 
   });
+  test("dropdownListModel is a lazy property, Issue#9014", () => {
+    const json = { elements: [{ type: "tagbox", name: "q1", choices: ["item1", "item2"], defaultValue: ["item1"] }] };
+    for (const isDesign of [false, true]) {
+      const survey = new SurveyModel();
+      survey.setDesignMode(isDesign);
+      survey.fromJSON(json);
+      const caption = isDesign ? "design: " : "runtime: ";
+      const question = <QuestionTagboxModel>survey.getQuestionByName("q1");
+      const _values = [question.displayValue, question.readOnlyText, question.selectedChoices, question.cssClasses, question.getControlClass()];
+      expect(!!question["dropdownListModelValue"], caption + "not created on load and reads").toBe(false);
+      const popup = question.popupModel;
+      const model = question.dropdownListModel;
+      expect(!!model, caption + "popupModel creates it").toBe(true);
+      expect(model.popupModel, caption + "the popup belongs to the model").toBe(popup);
+      expect(question.dropdownListModel, caption + "the same instance on the next access").toBe(model);
+      question.dispose();
+      expect(model.isDisposed, caption + "disposed with the question").toBe(true);
+      expect(question.dropdownListModel, caption + "not re-created after dispose").toBeFalsy();
+    }
+  });
 });

@@ -1675,6 +1675,20 @@ describe("DropdownRenderState, Issue#9014", () => {
     expect(hasModel(q2), "not rendered, display").toBe(false);
   });
 
+  test("Button group dropdownListModel is a lazy property, Issue#9014", () => {
+    const survey = new SurveyModel({ elements: [{ type: "buttongroup", name: "q1", choices, defaultValue: "item2" }] });
+    const question = <QuestionButtonGroupModel>survey.getQuestionByName("q1");
+    expect(question.dropdownListModel, "default mode never creates it").toBeFalsy();
+    question.renderAs = "dropdown";
+    const _values = [question.displayValue, question.readOnlyText, question.cssClasses, question.getControlClass(), question.showSelectedItemLocText];
+    expect(hasModel(question), "dropdown mode, not created by the renderAs switch and reads").toBe(false);
+    const model = question.dropdownListModel;
+    expect(!!model, "dropdown mode, created on the first access").toBe(true);
+    expect(question.dropdownListModel, "the same instance on the next access").toBe(model);
+    question.dispose();
+    expect(model.isDisposed, "disposed with the question").toBe(true);
+    expect(question.dropdownListModel, "not re-created after dispose").toBeFalsy();
+  });
   test("Editor buttons work without a model, Issue#9014", () => {
     const survey = new SurveyModel({
       elements: [

@@ -1,7 +1,7 @@
 <template>
   <div :class="question.cssClasses.hint">
-    <div v-if="model.showHintPrefix" :class="question.cssClasses.hintPrefix">
-      <span>{{ model.hintStringPrefix }}</span>
+    <div v-if="renderState.showHintPrefix" :class="question.cssClasses.hintPrefix">
+      <span>{{ renderState.hintStringPrefix }}</span>
     </div>
 
     <div :class="question.cssClasses.hintSuffixWrapper">
@@ -10,31 +10,31 @@
         v-if="question.showSelectedItemLocText"
         :locString="question.selectedItemLocText"
       />
-      <div v-if="model.showHintString" :class="question.cssClasses.hintSuffix">
-        <span style="visibility: hidden">{{ model.inputStringRendered }}</span>
-        <span>{{ model.hintStringSuffix }}</span>
+      <div v-if="renderState.showHintString" :class="question.cssClasses.hintSuffix">
+        <span style="visibility: hidden">{{ renderState.inputStringRendered }}</span>
+        <span>{{ renderState.hintStringSuffix }}</span>
       </div>
       <input
         type="text"
         autocomplete="off"
         v-model="renderedValue"
         :class="question.cssClasses.filterStringInput"
-        :placeholder="model.filterStringPlaceholder"
+        :placeholder="renderState.filterStringPlaceholder"
         :disabled="question.isDisabledAttr"
-        :inputmode="model.inputMode"
-        :role="model.ariaInputRole"
-        :aria-required="model.ariaInputRequired"
-        :aria-invalid="model.ariaInputInvalid"
-        :aria-errormessage="model.ariaInputErrorMessage"
-        :aria-expanded="model.ariaInputExpanded"
-        :aria-label="model.ariaInputLabel"
-        :aria-labelledby="model.ariaInputLabelledby"
-        :aria-describedby="model.ariaInputDescribedby"
-        :aria-controls="model.ariaInputControls"
-        :aria-activedescendant="model.ariaInputActivedescendant"
+        :inputmode="renderState.inputMode"
+        :role="renderState.ariaInputRole"
+        :aria-required="renderState.ariaInputRequired"
+        :aria-invalid="renderState.ariaInputInvalid"
+        :aria-errormessage="renderState.ariaInputErrorMessage"
+        :aria-expanded="renderState.ariaInputExpanded"
+        :aria-label="renderState.ariaInputLabel"
+        :aria-labelledby="renderState.ariaInputLabelledby"
+        :aria-describedby="renderState.ariaInputDescribedby"
+        :aria-controls="renderState.ariaInputControls"
+        :aria-activedescendant="renderState.ariaInputActivedescendant"
         :id="question.getInputId()"
-        :readonly="model.filterReadOnly ? true : undefined"
-        :size="!model.inputStringRendered ? 1 : undefined"
+        :readonly="renderState.filterReadOnly ? true : undefined"
+        :size="!renderState.inputStringRendered ? 1 : undefined"
         @change="inputChange"
         @keydown="inputKeyHandler"
         @blur="blur"
@@ -48,20 +48,25 @@ import SvComponent from "@/SvComponent.vue";
 import { useBase } from "@/base";
 import type {
   DropdownMultiSelectListModel,
+  DropdownMultiSelectRenderState,
   QuestionTagboxModel,
 } from "survey-core";
 import { computed } from "vue";
 
 const props = defineProps<{
   question: QuestionTagboxModel;
-  model: DropdownMultiSelectListModel;
+  model?: DropdownMultiSelectListModel;
 }>();
+// The model is passed once it exists; the closed control is rendered from the render state.
+const renderState = computed<DropdownMultiSelectRenderState>(() => {
+  return props.question.dropdownRenderState as DropdownMultiSelectRenderState;
+});
 const inputChange = (event: any) => {
-  const model = props.model;
+  const model = props.question.dropdownListModel;
   model.inputStringRendered = event.target.value;
 };
 const inputKeyHandler = (event: any) => {
-  props.model.inputKeyHandler(event);
+  props.question.dropdownListModel.inputKeyHandler(event);
 };
 const blur = (event: any) => {
   props.question.onBlur(event);
@@ -71,10 +76,10 @@ const focus = (event: any) => {
 };
 const renderedValue = computed({
   get() {
-    return props.model.inputStringRendered ?? "";
+    return renderState.value.inputStringRendered ?? "";
   },
   set(val) {
-    const model = props.model;
+    const model = props.question.dropdownListModel;
     model.inputStringRendered = val;
   },
 });

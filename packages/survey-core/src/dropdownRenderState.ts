@@ -66,6 +66,11 @@ export class DropdownRenderState {
     const model = this.model;
     return !!model ? model.ariaActivedescendant : undefined;
   }
+  // The model copies it from the question on creation and on value changes only.
+  public get showInputFieldComponent(): boolean {
+    const model = this.model;
+    return !!model ? model.showInputFieldComponent : this.question.showInputFieldComponent;
+  }
 
   public get listElementId(): string {
     return this.question.inputId + "_list";
@@ -283,6 +288,15 @@ export function dropdownQuestionMixin<TBase extends Constructor<Question>>(Base:
       this.dropdownListModelValue = val;
       this.onDropdownListModelAssigned();
     }
+    // An editable control switching to the compact (dropdown) renderer mounts the popup on the next render.
+    // Create the model before that render, as the popup would otherwise create it inside the render: building its list
+    // re-owns the choice items, which notifies the item texts that are still rendered.
+    protected onBeforeSetCompactRenderer(): void {
+      super.onBeforeSetCompactRenderer();
+      if (!this.dropdownListModelValue && !this.isDisposed && !this.isInputReadOnly) {
+        this.dropdownListModelValue = this.createDropdownListModel();
+      }
+    }
     protected canCreateDropdownListModel(): boolean { return true; }
     protected createDropdownListModel(): DropdownListModel { return undefined; }
     protected onDropdownListModelAssigned(): void { }
@@ -313,6 +327,11 @@ export function dropdownQuestionMixin<TBase extends Constructor<Question>>(Base:
       super.onPropertyValueChanged(name, oldValue, newValue);
       if (!!this.dropdownEditorButtonsValue && DropdownEditorButtons.questionPropertiesToUpdate.indexOf(name) > -1) {
         this.dropdownEditorButtonsValue.updateState();
+      }
+      // A rendered control becomes editable: the next render mounts the popup. Create the model now, for the same reason
+      // as in onBeforeSetCompactRenderer.
+      if (name === "isInputReadOnly" && !newValue && !!this.dropdownRenderStateValue && this.canCreateDropdownListModel()) {
+        this.getDropdownListModel();
       }
     }
     public updateElementCss(reNew?: boolean): void {

@@ -2401,6 +2401,22 @@ test("Rating in dropdown mode creates the model on focus and keeps keyboard sele
   question2.onFocus({});
   expect(!!question2["dropdownListModelValue"], "focus outside dropdown mode creates nothing").toBe(false);
 });
+test("Switching to the compact renderer creates the model for an editable rating only, Issue#9014", () => {
+  const json = { elements: [{ type: "rating", name: "q1" }] };
+  const survey = new SurveyModel(json);
+  const question = <QuestionRatingModel>survey.getQuestionByName("q1");
+  expect(!!question["dropdownListModelValue"], "editable, desktop").toBe(false);
+  question["processResponsiveness"](600, 500);
+  expect(question.renderAs, "editable, compact").toBe("dropdown");
+  expect(!!question["dropdownListModelValue"], "editable, compact: the popup is mounted").toBe(true);
+
+  const displaySurvey = new SurveyModel(json);
+  displaySurvey.mode = "display";
+  const displayQuestion = <QuestionRatingModel>displaySurvey.getQuestionByName("q1");
+  displayQuestion["processResponsiveness"](600, 500);
+  expect(displayQuestion.renderAs, "display, compact").toBe("dropdown");
+  expect(!!displayQuestion["dropdownListModelValue"], "display, compact: no popup").toBe(false);
+});
 test("Check dropdown rating text, #8953", () => {
   const survey = new SurveyModel({
     elements: [{

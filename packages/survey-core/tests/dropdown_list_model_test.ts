@@ -1447,7 +1447,7 @@ describe("DropdownListModel", () => {
 
 describe("DropdownRenderState, Issue#9014", () => {
   const choices = ["item1", "item2", "item3"];
-  const RENDER_STATE_MEMBERS = ["focused", "hintString", "ariaExpanded", "ariaActivedescendant", "listElementId",
+  const RENDER_STATE_MEMBERS = ["focused", "hintString", "ariaExpanded", "ariaActivedescendant", "showInputFieldComponent", "listElementId",
     "inputAvailable", "noTabIndex", "filterReadOnly", "filterStringEnabled", "inputMode", "popupEnabled", "canShowSelectedItem",
     "needRenderInput", "inputStringRendered", "placeholderRendered", "showHintPrefix", "hintStringPrefix", "showHintString",
     "hintStringSuffix", "hintStringMiddle",
@@ -1647,6 +1647,34 @@ describe("DropdownRenderState, Issue#9014", () => {
     expect(hasModel(q2), "focus outside dropdown mode creates nothing").toBe(false);
   });
 
+  test("Switching to the compact renderer creates the model for an editable button group only, Issue#9014", () => {
+    const json = { elements: [{ type: "buttongroup", name: "q1", choices }] };
+    const survey = new SurveyModel(json);
+    const question = <QuestionButtonGroupModel>survey.getQuestionByName("q1");
+    question["processResponsiveness"](600, 500);
+    expect(question.renderAs, "editable, compact").toBe("dropdown");
+    expect(hasModel(question), "editable, compact: the popup is mounted").toBe(true);
+
+    const designSurvey = new SurveyModel();
+    designSurvey.setDesignMode(true);
+    designSurvey.fromJSON(json);
+    const designQuestion = <QuestionButtonGroupModel>designSurvey.getQuestionByName("q1");
+    designQuestion["processResponsiveness"](600, 500);
+    expect(designQuestion.renderAs, "design, compact").toBe("dropdown");
+    expect(hasModel(designQuestion), "design, compact: no popup").toBe(false);
+  });
+  test("A rendered control that becomes editable creates the model before the next render, Issue#9014", () => {
+    const survey = new SurveyModel({ mode: "display", elements: [{ type: "dropdown", name: "q1", choices }, { type: "tagbox", name: "q2", choices }] });
+    const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionTagboxModel>survey.getQuestionByName("q2");
+    q1.dropdownRenderState.ariaQuestionRole;
+    survey.mode = "edit";
+    expect(hasModel(q1), "rendered, editable").toBe(true);
+    expect(hasModel(q2), "not rendered").toBe(false);
+    survey.mode = "display";
+    expect(hasModel(q2), "not rendered, display").toBe(false);
+  });
+
   test("Editor buttons work without a model, Issue#9014", () => {
     const survey = new SurveyModel({
       elements: [
@@ -1668,6 +1696,7 @@ describe("DropdownRenderState, Issue#9014", () => {
     expect(clear.visible, "allowClear is false").toBe(false);
     q1.allowClear = true;
     expect(clear.visible, "allowClear is true").toBe(true);
+    expect(hasModel(q1), "no model yet").toBe(false);
     q1.readOnly = true;
     expect(clear.visible, "readOnly, clear visible").toBe(false);
     expect(clear.enabled, "readOnly, clear enabled").toBe(false);
@@ -1683,16 +1712,21 @@ describe("DropdownRenderState, Issue#9014", () => {
     expect(clear.visible, "edit mode, clear visible").toBe(true);
     expect(clear.enabled, "edit mode, clear enabled").toBe(true);
     expect(chevron.enabled, "edit mode, chevron enabled").toBe(true);
-    expect(hasModel(q1), "no model yet").toBe(false);
+    expect(hasModel(q1), "the rendered control became editable").toBe(true);
 
     clear.action();
-    expect(hasModel(q1), "clear creates the model").toBe(true);
     expect(q1.isEmpty(), "clear clears the value").toBe(true);
     expect(q1.dropdownListModel.editorButtons, "the model returns the question's container").toBe(buttons);
     q1.dropdownListModel.popupModel.isVisible = true;
     expect(chevron.popupActive, "popup is opened").toBe(true);
     q1.dropdownListModel.popupModel.isVisible = false;
     expect(chevron.popupActive, "popup is closed").toBe(false);
+
+    const clearSurvey = new SurveyModel({ elements: [{ type: "dropdown", name: "q1", choices, defaultValue: "item2" }] });
+    const clearQuestion = <QuestionDropdownModel>clearSurvey.getQuestionByName("q1");
+    clearQuestion.dropdownEditorButtons.getActionById("clear").action();
+    expect(hasModel(clearQuestion), "clear creates the model").toBe(true);
+    expect(clearQuestion.isEmpty(), "clear clears the value").toBe(true);
 
     const q2 = <QuestionDropdownModel>survey.getQuestionByName("q2");
     const selectChevron = q2.inputActionBar.getActionById("chevron");

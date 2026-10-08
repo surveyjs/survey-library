@@ -112,6 +112,23 @@ frameworks.forEach((framework) => {
       expect(await getSurveyData(page)).toEqual({ q1: ["a"] });
     });
 
+    test("Comment Enter confirms the answer", async ({ page }) => {
+      await init(page, framework, { type: "comment", name: "q1" });
+      const comment = page.locator("textarea").first();
+      await expect(comment).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expectFirstPage(page);
+      expect(await getSurveyData(page)).toEqual({});
+      await page.keyboard.press("Backspace");
+      await page.keyboard.type("line1");
+      await page.keyboard.press("Shift+Enter");
+      await page.keyboard.type("line2");
+      await expectFirstPage(page);
+      await page.keyboard.press("Enter");
+      await expectSecondPage(page);
+      expect(await getSurveyData(page)).toEqual({ q1: "line1\nline2" });
+    });
+
     test("Ranking Enter confirms the answer", async ({ page }) => {
       await init(page, framework, { type: "ranking", name: "q1", choices: ["a", "b", "c"] });
       await expect(page.locator(".sv-ranking-item").first()).toBeFocused();

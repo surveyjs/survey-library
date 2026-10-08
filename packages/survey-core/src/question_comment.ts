@@ -24,13 +24,6 @@ export class QuestionCommentModel extends QuestionTextBase {
     return this.textAreaModelValue;
   }
   protected getTextAreaOptions(): ITextArea {
-    const _this = this;
-    const updateQuestionValue = (newValue: any) => {
-      if (!Helpers.isTwoValueEquals(_this.value, newValue, false, true, false)) {
-        _this.value = newValue;
-      }
-    };
-
     const options: ITextArea = {
       question: this,
       id: () => this.inputId,
@@ -57,7 +50,7 @@ export class QuestionCommentModel extends QuestionTextBase {
       ariaInvalid: () => this.a11y_input_ariaInvalid,
       ariaErrormessage: () => this.a11y_input_ariaErrormessage,
       getTextValue: () => { return this.value; },
-      onTextAreaChange: (e) => { updateQuestionValue(e.target.value); },
+      onTextAreaChange: (e) => { this.updateValueFromTextArea(e.target.value); },
       onTextAreaInput: (event) => { this.onInput(event); },
       onTextAreaKeyDown: (event) => { this.onKeyDown(event); },
       onTextAreaFocus: (event) => { this.onFocus(event); },
@@ -118,6 +111,9 @@ export class QuestionCommentModel extends QuestionTextBase {
   public getType(): string {
     return "comment";
   }
+  supportAutoAdvance(): boolean {
+    return this.isAutoAdvanceRequested === true;
+  }
   public afterRenderQuestionElement(el: HTMLElement): void {
     this.element = el?.querySelector(`#${this.inputId}`) || el;
     super.afterRenderQuestionElement(el);
@@ -136,9 +132,21 @@ export class QuestionCommentModel extends QuestionTextBase {
   }
   public onKeyDown(event: any): void {
     this.onKeyDownPreprocess && this.onKeyDownPreprocess(event);
+    if (this.isAutoAdvanceEnter(event)) {
+      this.updateValueFromTextArea(event?.target?.value);
+      if (!this.isEmpty()) {
+        this.commitAutoAdvance(event);
+        return;
+      }
+    }
     if (!this.acceptCarriageReturn && (event.key === "Enter" || event.keyCode === 13)) {
       event.preventDefault();
       event.stopPropagation();
+    }
+  }
+  private updateValueFromTextArea(newValue: any): void {
+    if (!Helpers.isTwoValueEquals(this.value, newValue, false, true, false)) {
+      this.value = newValue;
     }
   }
   protected setNewValue(newValue: string): any {

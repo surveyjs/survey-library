@@ -1162,19 +1162,21 @@ describe("DynamicDataList: a replaced source", () => {
     expect(newSource.ops, "#3: the new source got nothing").toEqual([]);
     expect(newSource.records, "#4: the new record was not overwritten").toEqual([{ id: 0, a: 1 }]);
   });
-  test("the new source is read at once: the detached pushes are not waited for", async () => {
+  test("the new source is read once the pushes of the replaced one settled, and they are not counted", async () => {
     const oldSource = new FakeNamedAsyncWriteSource("old", [{ id: 0, a: 1 }]);
     const list = new DynamicDataList(oldSource);
     list.load();
     list.setValue(0, "a", 2);
     expect(list.hasPendingWrites, "#1").toBe(true);
     list.source = new FakeNamedAsyncWriteSource("new", createRecords(3));
-    expect(list.count, "#2: the new source was read, the push chain was not waited for").toBe(3);
-    expect(list.hasPendingWrites, "#3: a replaced source is no longer the storage of the list").toBe(false);
+    expect(list.count, "#2: the read waits for the pushes of the replaced source").toBe(0);
+    expect(list.hasPendingRead, "#3").toBe(true);
+    expect(list.hasPendingWrites, "#4: a replaced source is no longer the storage of the list").toBe(false);
     oldSource.pendingWrites[0].resolve();
     await flush();
-    expect(list.count, "#4: the settled push does not touch the list").toBe(3);
-    expect(list.hasPendingWrites, "#5").toBe(false);
+    expect(list.count, "#5: then the new source is read").toBe(3);
+    expect(list.hasPendingRead, "#6").toBe(false);
+    expect(list.hasPendingWrites, "#7").toBe(false);
   });
   test("a new source clears an isLoading left by a read that never settles", () => {
     const list = new DynamicDataList(new FakeSwitchableSource());
@@ -1882,8 +1884,9 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     newSource.auto = true;
     list.source = newSource;
     await flush(SETTLE_TURNS);
-    expect(newSource.argsOf("read"), "#1: the new source is read once").toEqual([[0, 10]]);
+    expect(newSource.argsOf("read"), "#1: the new source waits for the remove of the old one").toEqual([]);
     await settleEverything(oldSource);
+    expect(newSource.argsOf("read"), "#1a: then it is read once").toEqual([[0, 10]]);
     expect(oldSource.argsOf("read").length, "#2: the old source is not read again").toBe(1);
     expect(newSource.argsOf("read").length, "#3: nor the new one").toBe(1);
     expect(windowIds(list), "#4").toEqual(idRange(0, 4));
@@ -4568,5 +4571,113 @@ describe("DynamicDataList: a refresh during a page move reads the page of the mo
     expect(list.pageIndex, "#2").toBe(2);
     expect(list.windowOffset, "#3").toBe(20);
     expect(ids(list)[0], "#4").toBe(19);
+  });
+});
+
+/* The contract of source.batch with a source whose writes answer asynchronously: the first write of a
+   group runs inside batch, the later ones follow in order, each after the previous one settled - a
+   write of a record the group inserted carries the key its insert answered, and a rejected write is
+   reported and does not stop the ones queued behind it. */
+describe("DynamicDataList: source.batch with an asynchronous source", () => {
+  class AsyncBatchSource implements IDynamicDataSource {
+    public keyField: string = "id";
+    public log: Array<string> = [];
+    public rejectNext: string = undefined;
+    private isInBatch: boolean = false;
+    private nextKey: number = 100;
+    constructor(public records: Array<any>) { }
+    public read(): Array<any> {
+      return this.records.map((record: any): any => Object.assign({}, record));
+    }
+    public batch(func: () => void): void {
+      this.isInBatch = true;
+      try {
+        func();
+      } finally {
+        this.isInBatch = false;
+      }
+    }
+    private answer(name: string, run: () => any): Promise<any> {
+      this.log.push(name + (this.isInBatch ? ":in" : ":out"));
+      if (this.rejectNext === name.split(":")[0]) {
+        this.rejectNext = undefined;
+        return Promise.reject(new Error(name));
+      }
+      return Promise.resolve().then(run);
+    }
+    public insert(record: any, at: number): Promise<any> {
+      return this.answer("insert", (): any => {
+        const stored = Object.assign({}, record, { id: this.nextKey++ });
+        this.records.splice(at, 0, stored);
+        return Object.assign({}, stored);
+      });
+    }
+    public update(key: any, record: any): Promise<void> {
+      return this.answer("update:" + key, (): void => {
+        const at = this.records.map((r: any) => r.id).indexOf(key);
+        if (at > -1)this.records[at] = Object.assign({}, record);
+      });
+    }
+    public remove(key: any): Promise<void> {
+      return this.answer("remove:" + key, (): void => {
+        const at = this.records.map((r: any) => r.id).indexOf(key);
+        if (at > -1)this.records.splice(at, 1);
+      });
+    }
+    public move(key: any, to: number): Promise<void> {
+      return this.answer("move:" + key, (): void => {
+        const at = this.records.map((r: any) => r.id).indexOf(key);
+        const record = this.records.splice(at, 1)[0];
+        this.records.splice(to, 0, record);
+      });
+    }
+  }
+  const createBatchList = (): { list: DynamicDataList, source: AsyncBatchSource, errors: Array<string> } => {
+    const source = new AsyncBatchSource([{ id: 1, a: "r1" }, { id: 2, a: "r2" }, { id: 3, a: "r3" }]);
+    const list = new DynamicDataList(source);
+    list.load();
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation); };
+    return { list: list, source: source, errors: errors };
+  };
+  test("move then update: the move runs inside batch, the update follows it", async () => {
+    const { list, source } = createBatchList();
+    list.batch((): void => {
+      list.move(0, 2);
+      list.setValue(2, "a", "moved");
+    });
+    await flush();
+    expect(source.log, "#1").toEqual(["move:1:in", "update:1:out"]);
+    expect(source.records.map((r: any) => r.a), "#2").toEqual(["r2", "r3", "moved"]);
+  });
+  test("insert then update and insert then remove of one record: the later write carries the key the insert answered", async () => {
+    let { list, source } = createBatchList();
+    list.batch((): void => {
+      list.add({ a: "new" }, 0);
+      list.setValue(0, "a", "new-edited");
+    });
+    await flush();
+    expect(source.log, "#1").toEqual(["insert:in", "update:100:out"]);
+    expect(source.records[0], "#2").toEqual({ id: 100, a: "new-edited" });
+    ({ list, source } = createBatchList());
+    list.batch((): void => {
+      list.add({ a: "new" }, 0);
+      list.remove(0);
+    });
+    await flush();
+    expect(source.log, "#3").toEqual(["insert:in", "remove:100:out"]);
+    expect(source.records.map((r: any) => r.id), "#4").toEqual([1, 2, 3]);
+  });
+  test("a rejected first write is reported, and the write queued behind it still runs", async () => {
+    const { list, source, errors } = createBatchList();
+    source.rejectNext = "update";
+    list.batch((): void => {
+      list.setValue(0, "a", "e1");
+      list.setValue(1, "a", "e2");
+    });
+    await flush();
+    expect(source.log, "#1").toEqual(["update:1:in", "update:2:out"]);
+    expect(errors, "#2").toEqual(["update"]);
+    expect(source.records.map((r: any) => r.a), "#3").toEqual(["r1", "e2", "r3"]);
   });
 });

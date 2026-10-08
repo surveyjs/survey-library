@@ -421,16 +421,22 @@ export class DynamicDataList {
     return this.openWriteDepth > 0;
   }
   private openWriteDepth: number = 0;
+  // An error listener's exception the channel kept for a push of this write is rethrown at its end.
   private runOpenWrite<T>(func: () => T): T {
     this.openWriteDepth++;
+    let listenerError: { error: any } = undefined;
+    let res: T;
     try {
-      return func();
+      res = func();
     } finally {
       this.openWriteDepth--;
-      if (this.openWriteDepth === 0 && !this.isDisposed && !!this.owner && !!this.owner.onWriteEnded) {
-        this.owner.onWriteEnded();
+      if (this.openWriteDepth === 0) {
+        listenerError = this.channel.takeListenerError();
+        if (!this.isDisposed && !!this.owner && !!this.owner.onWriteEnded)this.owner.onWriteEnded();
       }
     }
+    if (!!listenerError) throw listenerError.error;
+    return res;
   }
   /* Every write of the list runs here. The code inside runs user code - the owner's createRecord,
      the notifications of a nested write or a clamp, onError, a read-through source's setter and the
@@ -1010,8 +1016,9 @@ export class DynamicDataList {
     if (!this.isPagedBySource) return Math.max(1, Math.ceil(this.visibleCount / this._pageSize));
     /* An unknown total: the pages known to exist - the one that is loaded, the ones before it, and
        one more when the source said there is something behind the window. The pager then offers
-       "next" one page at a time, which is exactly what the source has told the list. */
-    if (!this.isCountKnown) return this._pageIndex + 1 + (this.hasMore ? 1 : 0);
+       "next" one page at a time, which is exactly what the source has told the list: counted from the
+       committed window, not from a page whose read is pending. */
+    if (!this.isCountKnown) return this.readState.getCommittedPageIndex(this._pageIndex) + 1 + (this.hasMore ? 1 : 0);
     return Math.max(1, Math.ceil(this.count / this._pageSize));
   }
   public getPageIndexes(): Array<number> {

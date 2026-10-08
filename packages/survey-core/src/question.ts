@@ -3276,6 +3276,29 @@ export class Question extends SurveyElement<Question>
   protected isValueCorrectToClear(): boolean {
     return !this.hasIncorrectValue(this.getClearIncorrectValuesChecks());
   }
+  /* What clearIncorrectValues() keeps of val as the value of question, without assigning it: the
+     value-only clean-up of a record that has no object (QuestionRecordsModel), checked by the question
+     of the record's template. An item of an array and a key of an object the checks name are dropped;
+     any other finding drops the value; undefined when nothing is kept. The checks that read the
+     question's own state - a choicesByUrl, a shared value name, the other item - read question's. A
+     finding inside a nested value (a record of a matrix in the record) is left to that question's own
+     clean-up, which does not run without an object. */
+  protected static getValueKeptOnClear(question: Question, val: any): any {
+    if (question.isValueEmpty(val) || question.isNonDataValue(val)) return val;
+    const context = createVerifyDataContext(question.getClearIncorrectValuesChecks());
+    question.verifyValueCore(val, context);
+    const paths = context.issues.map((issue: IDataIssue): string => issue.path);
+    if (paths.length === 0) return val;
+    if (paths.indexOf("") > -1) return undefined;
+    if (Array.isArray(val)) {
+      const res = val.filter((item: any, index: number): boolean => paths.indexOf("[" + index + "]") < 0);
+      return res.length > 0 ? res : undefined;
+    }
+    if (!Helpers.isValueObject(val, true)) return val;
+    const res = Object.assign({}, val);
+    paths.forEach((path: string): void => { delete res[path]; });
+    return Object.keys(res).length > 0 ? res : undefined;
+  }
   // A question that can drop the incorrect part of its value only, an unknown choice or row, overrides this function.
   protected clearIncorrectValuesCore(): void {
     this.clearValue(true);

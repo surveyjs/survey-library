@@ -3669,6 +3669,34 @@ describe("Page window: a confirmed removal of a record on another page", () => {
       confirmations.restore();
     }
   });
+  test("matrix: the removal survives the question's own write of the record, and follows an insert in front of it", () => {
+    const confirmations = holdConfirmations();
+    try {
+      const matrix = createMatrix({ rowsPerPage: 2 }, records(4));
+      matrix.removeRow(3, true);
+      matrix.setRowValue(3, { id: 3, name: "edited" });
+      confirmations.answer(0, true);
+      expect(matrix.value.map((r: any) => r.id), "#1: the record written by the question is removed").toEqual([0, 1, 2]);
+      matrix.removeRow(2, true);
+      matrix.addRowByIndex({ id: 9, name: "n9" }, 0);
+      confirmations.answer(1, true);
+      expect(matrix.value.map((r: any) => r.id), "#2: the record moved by the insert is removed").toEqual([9, 0, 1]);
+    } finally {
+      confirmations.restore();
+    }
+  });
+  test("panel: the removal follows an insert in front of the record", () => {
+    const confirmations = holdConfirmations();
+    try {
+      const panel = createPanel({ panelsPerPage: 2 }, records(4));
+      panel.removePanel(3, true);
+      panel.addPanel(0);
+      confirmations.answer(0, true);
+      expect(panel.value.map((r: any) => r.id), "#1").toEqual([undefined, 0, 1, 2]);
+    } finally {
+      confirmations.restore();
+    }
+  });
 });
 
 /* Records { a: "r0" } ... { a: "r5" }, two per page: page 1 shows the records at whole-view positions
@@ -4294,5 +4322,93 @@ describe("Paged matrix: an add opens and focuses the row of the record it added,
     expect(rows.length, "#1").toBe(4);
     expect(rows[3].isDetailPanelShowing, "#2").toBe(true);
     expect(rows.slice(0, 3).some(row => row.isDetailPanelShowing), "#3").toBe(false);
+  });
+});
+
+describe("Page window: clearIncorrectValues clears incorrect answers on every page", () => {
+  const dropdown = { cellType: "dropdown", choices: [1, 2] };
+  const kinds: Array<{ name: string, element: (isPaged: boolean) => any, data: any, expected: any }> = [
+    { name: "dynamic matrix", element: (isPaged: boolean): any => ({ type: "matrixdynamic", name: "q", rowCount: 0, rowsPerPage: isPaged ? 1 : 0,
+      columns: [Object.assign({ name: "a" }, dropdown)] }), data: [{ a: 1 }, { a: 7 }], expected: [{ a: 1 }, {}] },
+    { name: "dynamic panel", element: (isPaged: boolean): any => ({ type: "paneldynamic", name: "q", panelsPerPage: isPaged ? 1 : 0,
+      templateElements: [{ type: "dropdown", name: "a", choices: [1, 2] }] }), data: [{ a: 1 }, { a: 7 }], expected: [{ a: 1 }, {}] },
+    { name: "fixed matrix", element: (isPaged: boolean): any => ({ type: "matrixdropdown", name: "q", rowsPerPage: isPaged ? 1 : 0, rows: ["r1", "r2"],
+      columns: [Object.assign({ name: "a" }, dropdown)] }), data: { r1: { a: 1 }, r2: { a: 7 } }, expected: { r1: { a: 1 } } }
+  ];
+  kinds.forEach(kind => {
+    test(kind.name + ": an incorrect answer on another page is cleared, as without paging", () => {
+      [false, true].forEach((isPaged: boolean): void => {
+        const survey = new SurveyModel({ elements: [kind.element(isPaged)] });
+        survey.data = { q: JSON.parse(JSON.stringify(kind.data)) };
+        const question: any = survey.getQuestionByName("q");
+        if (!!question.visibleRows) question.visibleRows;
+        survey.clearIncorrectValues();
+        expect(survey.data.q, "#1: " + (isPaged ? "paged" : "unpaged")).toEqual(kind.expected);
+      });
+    });
+  });
+});
+
+describe("Page window: the remove events under a sort", () => {
+  test("matrix: the events report the removed row's view position and name the removed row", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, sortBy: "a-", columns: [{ name: "a", cellType: "text" }] }] });
+    survey.data = { m: [{ a: 1 }, { a: 3 }, { a: 2 }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    expect(matrix.visibleRows.map(row => row.getQuestionByColumnName("a").value), "#1").toEqual([3, 2, 1]);
+    const log: Array<any> = [];
+    survey.onMatrixRowRemoving.add((_, options) => { log.push(["removing", options.rowIndex, options.row.getQuestionByColumnName("a").value]); });
+    survey.onMatrixRowRemoved.add((_, options) => { log.push(["removed", options.rowIndex, options.row.getQuestionByColumnName("a").value]); });
+    matrix.removeRow(2);
+    expect(log, "#2").toEqual([["removing", 2, 1], ["removed", 2, 1]]);
+    expect(matrix.value, "#3").toEqual([{ a: 3 }, { a: 2 }]);
+  });
+  test("panel: the events report the removed panel's view position and name the removed panel", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", sortBy: "a-", templateElements: [{ type: "text", name: "a" }] }] });
+    survey.data = { p: [{ a: 1 }, { a: 3 }, { a: 2 }] };
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    expect(panel.panels.map(p => p.getQuestionByName("a").value), "#1").toEqual([3, 2, 1]);
+    const log: Array<any> = [];
+    survey.onDynamicPanelRemoving.add((_, options) => { log.push(["removing", options.panelIndex, options.panel.getQuestionByName("a").value]); });
+    survey.onDynamicPanelRemoved.add((_, options) => { log.push(["removed", options.panelIndex, options.panel.getQuestionByName("a").value]); });
+    panel.removePanel(2);
+    expect(log, "#2").toEqual([["removing", 2, 1], ["removed", 2, 1]]);
+    expect(panel.value, "#3").toEqual([{ a: 3 }, { a: 2 }]);
+  });
+});
+
+describe("Page window: a late asynchronous result of a page the respondent left", () => {
+  test("it does not move the respondent back, and the survey does not complete while the record they edited is invalid", () => {
+    let isSlow = true;
+    const results: Array<(res: any) => void> = [];
+    FunctionFactory.Instance.register("lateAsyncCheck", function (params: Array<any>): any {
+      if (isSlow && params[0] === "x") {
+        isSlow = false;
+        results.push(this.returnResult);
+        return false;
+      }
+      this.returnResult(1);
+      return false;
+    }, true);
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 1, columns: [
+        { name: "a", cellType: "text", validators: [{ type: "expression", expression: "lateAsyncCheck({row.a}) = 1" }] },
+        { name: "b", cellType: "text", validators: [{ type: "expression", expression: "{row.b} != 'bad'" }] }] }] });
+      survey.data = { m: [{ a: "x" }, { a: "y" }, { a: "z" }] };
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+      matrix.visibleRows[0].getQuestionByColumnName("b").value = "ok";
+      matrix.pageIndex = 1;
+      survey.tryComplete();
+      expect(matrix.pageIndex, "#1: the walk waits on page 0").toBe(0);
+      matrix.pageIndex = 2;
+      matrix.visibleRows[0].getQuestionByColumnName("b").value = "bad";
+      results[0](1);
+      expect(matrix.pageIndex, "#2: the respondent's page stays").toBe(2);
+      expect(survey.state, "#3: not completed").toBe("running");
+      expect(survey.tryComplete(), "#4: the record edited on that page is validated").toBe(false);
+      expect(matrix.pageIndex, "#5").toBe(2);
+      expect(matrix.visibleRows[0].getQuestionByColumnName("b").errors.length, "#6").toBe(1);
+    } finally {
+      FunctionFactory.Instance.unregister("lateAsyncCheck");
+    }
   });
 });

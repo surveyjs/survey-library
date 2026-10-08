@@ -205,6 +205,23 @@ export abstract class QuestionRecordsModel extends Question {
       this.builtRecordIndexes = new WeakMap<QuestionRecordItem, number>();
     }
     this.builtRecordIndexes.set(item, recordIndex);
+    const list = this._dataList;
+    if (!!list && list.isPagedBySource) {
+      if (!this.builtStateKeys)this.builtStateKeys = new WeakMap<QuestionRecordItem, number | string>();
+      this.builtStateKeys.set(item, this.getNestedStateKey(recordIndex));
+    }
+  }
+  /* The name the states of a record's nested paged questions are kept under: the record index, which
+     the remaps keep in step. A window of a source that pages itself names another record on every
+     page: there it is the record's key, or its index in the whole source - taken when the object is
+     built, since the window has changed by the time its states are kept (builtStateKeys). */
+  private builtStateKeys: WeakMap<QuestionRecordItem, number | string>;
+  private getNestedStateKey(recordIndex: number): number | string {
+    const list = this._dataList;
+    if (!list || !list.isPagedBySource || recordIndex < 0) return recordIndex;
+    const field = list.keyField;
+    const key = !!field ? list.getValue(recordIndex, field) : undefined;
+    return key !== undefined ? "k" + JSON.stringify(key) : "i" + (list.windowOffset + recordIndex);
   }
   // A peek: it never creates the list.
   protected get dataListValue(): DynamicDataList {
@@ -335,6 +352,7 @@ export abstract class QuestionRecordsModel extends Question {
         }
         // The current record follows its record, also on a move: it is a record, not a position.
         this.remapCurrentRecord(remap);
+        this.remapHeldRemoveTargets(remap);
       });
     /* A write the list pushed to a data source: with the array source over question.value the push
        IS the value write, a remote source has no such setter, so the question follows the window
@@ -399,6 +417,7 @@ export abstract class QuestionRecordsModel extends Question {
      follows every committed read (followReloadedCurrentRecord). The remap is built once per commit,
      and only when something asks for it. */
   private followReloadedRecords(oldRecords: any): void {
+    this.heldRemoveTargets = undefined;
     const list = this._dataList;
     const oldArray = Array.isArray(oldRecords) ? oldRecords : [];
     let remap: (index: number) => number = undefined;
@@ -969,7 +988,8 @@ export abstract class QuestionRecordsModel extends Question {
       if (recordIndex < 0) return;
       const questions = getQuestions(item);
       if (!!questions) {
-        this.keepPageStatesOfQuestions(recordIndex, questions);
+        const stateKey = !!this.builtStateKeys ? this.builtStateKeys.get(item) : undefined;
+        this.keepPageStatesOfQuestions(stateKey !== undefined ? stateKey : recordIndex, questions);
       }
     });
   }
@@ -977,7 +997,7 @@ export abstract class QuestionRecordsModel extends Question {
      value name, while their objects are rebuilt. A record without such a question keeps empty
      states, which clear its entry - and need no page validation to be created for that - while states
      that are not empty create it. */
-  protected keepPageStatesOfQuestions(recordIndex: number, questions: Array<Question>): void {
+  protected keepPageStatesOfQuestions(recordIndex: number | string, questions: Array<Question>): void {
     const states: { [valueName: string]: IDynamicDataPageState } = {};
     questions.forEach((q: Question): void => {
       const state = QuestionRecordsModel.getPageStateOf(q);
@@ -991,7 +1011,7 @@ export abstract class QuestionRecordsModel extends Question {
   // The questions of the object built for a record take what was kept for it; a peek: nothing is
   // created for it.
   protected restorePageStatesOfQuestions(recordIndex: number, questions: Array<Question>): void {
-    const states = !!this._pageValidation ? this._pageValidation.getNestedStates(recordIndex) : undefined;
+    const states = !!this._pageValidation ? this._pageValidation.getNestedStates(this.getNestedStateKey(recordIndex)) : undefined;
     if (!states) return;
     questions.forEach((q: Question): void => {
       const state = states[q.getValueName()];
@@ -1130,6 +1150,41 @@ export abstract class QuestionRecordsModel extends Question {
     return { item: item, properties: newProps };
   }
 
+  /* The incorrect answers of the records that have no object - the records of the pages never opened
+     or left - cleared value-only (Question.getValueKeptOnClear, by the question getRecordTemplateQuestion
+     names for a key), with the keys no question stores (getRecordUnknownKeys): the unpaged result for
+     the records of the view. A record the filter excludes keeps its answers, as it does without
+     paging; an assigned source is skipped, as every survey clean-up skips it (D16). The records are
+     written in one batch of the list. */
+  protected clearIncorrectValuesWithoutObjects(): void {
+    if (!this.isPagedByList || this.isRemoteData || this.isEmpty()) return;
+    const list = this.dataList;
+    const changes: Array<{ index: number, record: any }> = [];
+    this.forEachRecordItem(list.getCreatedIndexes(), (index: number, item: QuestionRecordItem): void => {
+      const record = this.getListRecordAt(index);
+      if (!!item || !Helpers.isValueObject(record, true)) return;
+      const unknownKeys = this.getRecordUnknownKeys(index, record, undefined);
+      let cleared: any = undefined;
+      Object.keys(record).forEach((key: string): void => {
+        const question = unknownKeys.indexOf(key) < 0 ? this.getRecordTemplateQuestion(key) : undefined;
+        const kept = !!question ? Question.getValueKeptOnClear(question, record[key]) : unknownKeys.indexOf(key) < 0 ? record[key] : undefined;
+        if (kept === record[key]) return;
+        if (!cleared) cleared = Object.assign({}, record);
+        if (kept === undefined) {
+          delete cleared[key];
+        } else {
+          cleared[key] = kept;
+        }
+      });
+      if (!!cleared) changes.push({ index: index, record: cleared });
+    });
+    if (changes.length === 0) return;
+    this.writeRecords((): void => list.batch((): void => {
+      changes.forEach((change: { index: number, record: any }): void => { list.setRecord(change.index, change.record); });
+    }));
+  }
+  // The question of a record's template that stores key, for the value-only clean-ups.
+  protected abstract getRecordTemplateQuestion(key: string): Question;
   /* The invisible answers of the records that have no object, cleared the way an object clears its
      own questions (Question.clearValueIfInvisible), over the stored records and without building an
      object: the records of the pages never opened or visited and left, and the records the
@@ -1680,13 +1735,33 @@ export abstract class QuestionRecordsModel extends Question {
     return { item: target.item, recordIndex: this.getItemRecordIndex(target.item), visibleIndex: visibleIndex };
   }
   /* A target without an object, found again after the records or the view changed - a confirmation
-     answers later - by its record object. undefined when a write replaced the object or the record
-     left the view. */
+     answers later. A held target (holdRemoveTarget) names its record by index; any other one by its
+     record object. undefined when the record is gone or left the view, or an assignment from outside
+     replaced the records. */
   private findRecordTargetAgain(target: IRecordTarget): IRecordTarget {
     const list = this.dataList;
-    const recordIndex = list.indexOfRecord(target.record);
+    const held = !!this.heldRemoveTargets ? this.heldRemoveTargets.indexOf(target) : -1;
+    if (held > -1)this.heldRemoveTargets.splice(held, 1);
+    const recordIndex = held > -1 ? target.recordIndex : list.indexOfRecord(target.record);
     const visibleIndex = recordIndex < 0 ? -1 : list.getGlobalVisibleIndex(recordIndex);
-    return visibleIndex < 0 ? undefined : { recordIndex: recordIndex, visibleIndex: visibleIndex, record: target.record };
+    return visibleIndex < 0 ? undefined : { recordIndex: recordIndex, visibleIndex: visibleIndex, record: list.getRecord(recordIndex) };
+  }
+  /* The removals a confirmation holds for records without an object (another page). Every write of a
+     record replaces its object, so a held target names its record by index, kept in step with the
+     question's own inserts, removes and moves; an assignment from outside, a read and a new source drop
+     the held targets, and their answers fall back to the record object. */
+  private heldRemoveTargets: Array<IRecordTarget>;
+  protected holdRemoveTarget(target: IRecordTarget): void {
+    if (!!target.item) return;
+    if (!this.heldRemoveTargets)this.heldRemoveTargets = [];
+    this.heldRemoveTargets.push(target);
+  }
+  private remapHeldRemoveTargets(remap: (index: number) => number): void {
+    if (!this.heldRemoveTargets) return;
+    this.heldRemoveTargets.forEach((target: IRecordTarget): void => {
+      const to = target.recordIndex < 0 ? -1 : remap(target.recordIndex);
+      target.recordIndex = to === undefined ? -1 : to;
+    });
   }
   /* The record a question that shows one record at a time keeps shown (the dynamic panel's current
      panel), held across rebuilds. It names its record for as long as the record exists: every
@@ -1801,6 +1876,7 @@ export abstract class QuestionRecordsModel extends Question {
       this.announcedRecordIndex = -1;
       this.isCurrentRecordOfOldSource = true;
       this.pendingVisibleIndex = undefined;
+      this.heldRemoveTargets = undefined;
     }
     const list = this.dataList;
     if (list.assignedSource === newValue) return;
@@ -1962,6 +2038,7 @@ export abstract class QuestionRecordsModel extends Question {
      edited set follows the same remap. areRecordsReplaced: false for a change that replaced no record
      (the row titles of the fixed matrix) - the edited set stays and a pending page move is kept. */
   protected decideViewAgain(created: Array<number>, oldRecords: any, isTouchedSetDropped: boolean, areRecordsReplaced: boolean = true): void {
+    if (areRecordsReplaced)this.heldRemoveTargets = undefined;
     const list = this._dataList;
     let remap: (index: number) => number = undefined;
     if (!isTouchedSetDropped && list.hasTouchedRecords) {
@@ -2293,6 +2370,10 @@ export abstract class QuestionRecordsModel extends Question {
     this.owedAssignment = undefined;
     super.dispose();
     this.disposeRecordObjects();
+    if (!!this.pagerActionsValue) {
+      this.pagerActionsValue.dispose();
+      this.pagerActionsValue = undefined;
+    }
     if (!!this._dataList) {
       this._dataList.dispose();
     }

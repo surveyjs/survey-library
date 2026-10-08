@@ -1880,6 +1880,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     for (let i = 0; i < rows.length; i++) {
       rows[i].clearIncorrectValues(this.getRowRecordValue(i));
     }
+    this.clearIncorrectValuesWithoutObjects();
+  }
+  protected getRecordTemplateQuestion(key: string): Question {
+    for (let i = 0; i < this.columns.length; i++) {
+      const question = this.columns[i].templateQuestion;
+      if (!!question && question.getValueName() === key) return question;
+    }
+    return this.detailPanelMode !== "none" ? <Question>this.detailPanel.getQuestionByValueName(key) || undefined : undefined;
   }
   public localeChanged(): void {
     super.localeChanged();

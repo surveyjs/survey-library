@@ -130,7 +130,11 @@ export class DynamicDataPageValidation {
   public clearRecords(): void {
     this.edited = [];
     this.nested = {};
+    this.nestedBySourceKey = {};
   }
+  /* The states kept under a name that is not a record index (a record's key, or its index in the whole
+     source of a source that pages itself): no remap of the window touches them. */
+  private nestedBySourceKey: { [key: string]: { [valueName: string]: IDynamicDataPageState } } = {};
   // The records are not tracked any more (canTrackEditedRecords): the indexes name nothing.
   public clearEditedRecords(): void {
     this.edited = [];
@@ -257,10 +261,18 @@ export class DynamicDataPageValidation {
       if (res === undefined) {
         const id = "dynamic-data-page-" + (++DynamicDataPageValidation.asyncPageId);
         context.addElement(id);
+        const page = pages[i];
+        const pageRecords = this.owner.getDataList().getMaterializedIndexes().slice();
         onLateResult = (pageRes: boolean): void => {
           onLateResult = undefined;
           if (!this.owner.isDisposed) {
-            if (!pageRes) {
+            if (this.owner.getDataList().pageIndex !== page) {
+              /* The respondent moved while the page was validated: the result covers the records of
+                 that page only, the walk stops where they are, and the validation it served fails -
+                 what is still owed (the records edited meanwhile) is validated the next time. */
+              if (pageRes)this.markValidated(pageRecords);
+              context.setErrorElement(undefined);
+            } else if (!pageRes) {
               context.setErrorElement(pageContext.firstErrorQuestion);
             } else {
               this.markPageValidated();
@@ -288,15 +300,21 @@ export class DynamicDataPageValidation {
     this.nested = state.nested || {};
   }
   // The ancestor side: the states of the paged questions nested in one of its records.
-  public keepNestedStates(recordIndex: number, states: { [valueName: string]: IDynamicDataPageState }): void {
+  public keepNestedStates(recordIndex: number | string, states: { [valueName: string]: IDynamicDataPageState }): void {
+    const isEmpty = !states || Object.keys(states).length === 0;
+    if (typeof recordIndex === "string") {
+      if (isEmpty) delete this.nestedBySourceKey[recordIndex];
+      else this.nestedBySourceKey[recordIndex] = states;
+      return;
+    }
     if (recordIndex < 0) return;
-    if (!states || Object.keys(states).length === 0) {
+    if (isEmpty) {
       delete this.nested[recordIndex];
     } else {
       this.nested[recordIndex] = states;
     }
   }
-  public getNestedStates(recordIndex: number): { [valueName: string]: IDynamicDataPageState } {
-    return this.nested[recordIndex];
+  public getNestedStates(recordIndex: number | string): { [valueName: string]: IDynamicDataPageState } {
+    return typeof recordIndex === "string" ? this.nestedBySourceKey[recordIndex] : this.nested[recordIndex];
   }
 }

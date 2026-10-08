@@ -151,6 +151,10 @@ export class DynamicDataReadState {
   public commitPageIndex(pageIndex: number): void {
     this.committedPageIndex = pageIndex;
   }
+  // The page the window in force was read for; pageIndex while no window was committed.
+  public getCommittedPageIndex(pageIndex: number): number {
+    return this.committedPageIndex !== undefined ? this.committedPageIndex : pageIndex;
+  }
   // The page index a failed read goes back to, undefined when it stays (see committedPageIndex).
   public getPageIndexToRestore(pageIndex: number): number {
     if (!this._isLoaded || !this.isWindowPagedBySource || this.committedPageIndex === undefined) return undefined;

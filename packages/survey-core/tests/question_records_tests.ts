@@ -297,6 +297,22 @@ describe("Records question: dispose", () => {
   });
 });
 
+describe("Records question: dispose of the pager", () => {
+  test("dispose disposes the pager actions of the matrix and the panel", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m", rowCount: 3, rowsPerPage: 2, columns: [{ name: "a", cellType: "text" }] },
+      { type: "paneldynamic", name: "p", panelCount: 3, panelsPerPage: 2, templateElements: [{ type: "text", name: "a" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    const matrixPager = matrix.pagerActions;
+    const panelPager = panel.pagerActions;
+    matrix.dispose();
+    panel.dispose();
+    expect(matrixPager.isDisposed, "#1: matrix").toBe(true);
+    expect(panelPager.isDisposed, "#2: panel").toBe(true);
+  });
+});
+
 describe("Records questions: one API across the three types", () => {
   interface IKind {
     type: string;

@@ -2886,8 +2886,10 @@ describe("Remote data source: a record without a key", () => {
       const target = createTarget();
       question.dataSource = target;
       await flush();
-      const window = question.value.map((r: any): any => Object.assign({}, r));
+      expect(target.callsOf(target.capabilities ? "pagedRead" : "read").length, "#0: the new source waits for the writes of the old one").toBe(0);
       await drain(source);
+      await flush();
+      const window = target.records.map((r: any): any => Object.assign({}, r));
       expect(source.argsOf("update").map((args: Array<any>): Array<any> => [args[0], args[1]]), "#1: the old source, the assigned key")
         .toEqual([[1000, { id: 1000, col1: "typed" }]]);
       expect(recordWithKey(source, 1000).col1, "#2").toBe("typed");
@@ -5853,5 +5855,186 @@ describe("Remote data source: what a developer assigns through the survey is sto
       warn.mockRestore();
     }
     expect(rowValues(question), "#2").toEqual(["v100", "v101"]);
+  });
+});
+
+describe("Remote data source: a source replaced while a write is pending", () => {
+  test("a new object over the same storage does not bring a removed record back, and the next removal works", async () => {
+    const source = new FakeServerSource([{ id: 1, a: "r0" }, { id: 2, a: "r1" }, { id: 3, a: "r2" }], undefined, "id");
+    source.auto = false;
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 5, columns: [{ name: "a" }] }] });
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    question.dataSource = source;
+    source.settleAll();
+    await flush();
+    question.removeRowUI(question.visibleRows[0]);
+    question.dataSource = <any>Object.assign({}, source, { read: (request: IDynamicDataReadRequest): any => source.read(request) });
+    const reads = source.callsOf("pagedRead").filter(call => !call.isSettled);
+    if (reads.length > 0) reads[reads.length - 1].settle();
+    await flush();
+    source.callsOf("remove").forEach(call => call.settle());
+    await flush();
+    while(source.pending.length > 0) {
+      source.pending[0].settle();
+      await flush();
+    }
+    source.auto = true;
+    expect(rowValues(question, "a"), "#1: the removed record stays removed").toEqual(["r1", "r2"]);
+    question.removeRowUI(question.visibleRows[0]);
+    await flush();
+    expect(errors, "#2").toEqual([]);
+    expect(source.records.map(r => r.a), "#3").toEqual(["r2"]);
+    expect(rowValues(question, "a"), "#4").toEqual(["r2"]);
+  });
+});
+
+describe("Remote data source: Next with an unknown total", () => {
+  test("Next does not move past the pages the source reported while a page read is pending", async () => {
+    const source = new FakeServerSource([0, 1, 2, 3, 4].map(i => ({ id: i, a: "r" + i })), undefined, "id");
+    source.reportTotal = false;
+    source.auto = false;
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 2, columns: [{ name: "a" }] }] });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    question.dataSource = source;
+    source.settleAll();
+    await flush();
+    const moved: Array<boolean> = [];
+    const canNext: Array<boolean> = [];
+    for (let i = 0; i < 5; i++) {
+      moved.push(question.nextPage());
+      canNext.push(question.canGoNextPage);
+    }
+    expect(moved, "#1: one move is accepted").toEqual([true, false, false, false, false]);
+    expect(canNext, "#2: no Next while the read is pending").toEqual([false, false, false, false, false]);
+    source.auto = true;
+    while(source.pending.length > 0) {
+      source.pending[0].settle();
+      await flush();
+    }
+    const skips = (): Array<number> => source.ranges.slice(1).map(range => range[0]);
+    expect(skips(), "#3: one read").toEqual([2]);
+    expect(question.pageIndex, "#4").toBe(1);
+    expect(rowValues(question, "a"), "#5").toEqual(["r2", "r3"]);
+    expect(question.canGoNextPage, "#6: the page was full, more may follow").toBe(true);
+    expect(question.nextPage(), "#7").toBe(true);
+    await flush();
+    expect(question.pageIndex, "#8").toBe(2);
+    expect(rowValues(question, "a"), "#9").toEqual(["r4"]);
+    expect(skips(), "#10").toEqual([2, 4]);
+    expect(question.canGoNextPage, "#11").toBe(false);
+  });
+});
+
+describe("Remote data source: the page of a nested paged question follows its record", () => {
+  test("another record of a remote outer panel starts its nested question on the first page, its own record keeps the page", async () => {
+    const items = (name: string): Array<any> => [0, 1, 2, 3, 4, 5].map(i => ({ x: name + "-" + i }));
+    const source = new FakeServerSource([{ id: 1, a: "A", items: items("A") }, { id: 2, a: "B", items: items("B") },
+      { id: 3, a: "C", items: items("C") }], undefined, "id");
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelsPerPage: 1,
+      templateElements: [{ type: "text", name: "a" },
+        { type: "paneldynamic", name: "items", panelsPerPage: 2, templateElements: [{ type: "text", name: "x" }] }] }] });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    question.dataSource = source;
+    await flush();
+    const inner = (): QuestionPanelDynamicModel => <QuestionPanelDynamicModel>question.panels[0].getQuestionByName("items");
+    const shownInner = (): any => ({ page: inner().pageIndex, shown: inner().panels.map(panel => panel.getQuestionByName("x").value) });
+    inner().pageIndex = 2;
+    question.pageIndex = 1;
+    await flush();
+    expect(shownInner(), "#1: record B").toEqual({ page: 0, shown: ["B-0", "B-1"] });
+    question.pageIndex = 0;
+    await flush();
+    expect(shownInner(), "#2: back on record A").toEqual({ page: 2, shown: ["A-4", "A-5"] });
+  });
+});
+
+describe("Remote data source: two questions share one source object", () => {
+  const createShared = async (): Promise<{ m1: QuestionMatrixDynamicModel, m2: QuestionMatrixDynamicModel, source: FakeServerSource }> => {
+    const source = keyedSource(3);
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m1", rowCount: 0, rowsPerPage: 5, columns: [{ name: "col1" }] },
+      { type: "matrixdynamic", name: "m2", rowCount: 0, rowsPerPage: 5, columns: [{ name: "col1" }] }] });
+    const m1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("m1");
+    const m2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("m2");
+    m1.dataSource = source;
+    m2.dataSource = source;
+    await flush();
+    return { m1: m1, m2: m2, source: source };
+  };
+  test("each question reads and writes the source", async () => {
+    const { m1, m2, source } = await createShared();
+    m2.visibleRows[0].getQuestionByName("col1").value = "edited";
+    await flush();
+    expect(recordWithKey(source, 100).col1, "#1").toBe("edited");
+    m1.refreshDataSource();
+    await flush();
+    expect(rowValues(m1), "#2: the other question reads the write after a refresh").toEqual(["edited", "v101", "v102"]);
+  });
+  test("a refresh of one question while the other's write is pending reads after the write", async () => {
+    const { m1, m2, source } = await createShared();
+    source.auto = false;
+    m1.removeRowUI(m1.visibleRows[0]);
+    m2.refreshDataSource();
+    source.callsOf("pagedRead").filter(call => !call.isSettled).forEach(call => call.settle());
+    await flush();
+    source.callsOf("remove").forEach(call => call.settle());
+    await flush();
+    while(source.pending.length > 0) {
+      source.pending[0].settle();
+      await flush();
+    }
+    expect(rowValues(m2), "#1").toEqual(["v101", "v102"]);
+    expect(rowValues(m1), "#2").toEqual(["v101", "v102"]);
+  });
+});
+
+describe("Remote data source: a throwing error handler", () => {
+  test("a synchronous failed write: the exception reaches the caller, and the cell and question.value agree", () => {
+    const records = [{ id: 1, a: "r0" }];
+    const source: any = { keyField: "id", read: (): Array<any> => records.map(r => Object.assign({}, r)),
+      update: (): void => { throw new Error("server down"); } };
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, columns: [{ name: "a", cellType: "text" }] }] });
+    survey.onDynamicDataError.add(() => { throw new Error("handler"); });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    question.dataSource = source;
+    let thrown: any = undefined;
+    try {
+      question.visibleRows[0].getQuestionByColumnName("a").value = "edited";
+    } catch(e) {
+      thrown = e;
+    }
+    expect(!!thrown ? thrown.message : undefined, "#1").toBe("handler");
+    expect(question.visibleRows[0].getValue("a"), "#2: the cell").toBe("edited");
+    expect(question.value[0].a, "#3: question.value").toBe("edited");
+  });
+  test("an asynchronous failure: later writes still go out, and the exception is a rejection of that answer's continuation", async () => {
+    const listeners = process.listeners("unhandledRejection");
+    process.removeAllListeners("unhandledRejection");
+    const unhandled: Array<any> = [];
+    const onRejection = (reason: any): void => { unhandled.push(reason); };
+    process.on("unhandledRejection", onRejection);
+    try {
+      const source = keyedSource(2);
+      const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+      survey.onDynamicDataError.add(() => { throw new Error("handler"); });
+      source.auto = false;
+      question.visibleRows[0].getQuestionByName("col1").value = "e0";
+      question.visibleRows[1].getQuestionByName("col1").value = "e1";
+      source.callsOf("update")[0].fail(new Error("down"));
+      await flush();
+      source.auto = true;
+      source.settleAll();
+      await flush();
+      await new Promise<void>(resolve => setTimeout(resolve, 0));
+      await flush();
+      expect(recordWithKey(source, 101).col1, "#1: the later write went out").toBe("e1");
+      expect(rowValues(question), "#2: the window has both edits").toEqual(["e0", "e1"]);
+      expect(unhandled.map((e: any) => e.message), "#3").toEqual(["handler"]);
+    } finally {
+      process.removeListener("unhandledRejection", onRejection);
+      listeners.forEach((listener: any) => process.on("unhandledRejection", listener));
+    }
   });
 });

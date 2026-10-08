@@ -2381,8 +2381,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     if (!context.checks.reportInvalidChoiceValues) return true;
     // The guards below are about the definition and not about the value: a choicesByUrl that has
     // not loaded, a question that allows custom choices, a valueName shared by several questions.
-    // The choices of such a question are not known here, so nothing is reported.
-    if (!this.canClearIncorrectValues() || !this.hasValueToClearIncorrectValues()) return true;
+    // The choices of such a question are not known here, so nothing is reported. val is not empty:
+    // the question's own value is not read, so that a template question can check a record's value.
+    if (!this.canClearIncorrectValues()) return true;
     if (!this.canClearValueAnUnknown(val)) return true;
     if (!Array.isArray(val)) {
       context.addIssue("invalidChoiceValue", undefined, val, this);

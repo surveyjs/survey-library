@@ -1112,6 +1112,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       confirmDelete = this.isRequireConfirmOnRowDelete(index);
     }
     if (confirmDelete) {
+      this.holdRemoveTarget(target);
       confirmActionAsync({
         message: this.confirmDeleteText,
         funcOnYes: () => {

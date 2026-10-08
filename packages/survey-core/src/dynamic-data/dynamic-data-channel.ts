@@ -163,6 +163,12 @@ export function getUpdatePayload(pending: IPendingInsert, record: any, ownedFiel
   return !!pending ? mergeInsertAnswer(pending, record, ownedFields) : record;
 }
 
+/* The asynchronous writes in flight, per source object and per channel: the tail of each channel's
+   push chain while it has pending pushes. A source object shared by two questions is written by two
+   channels, and each one's reads wait for the other's writes (see getForeignWrites). Two different
+   objects over one backend are not known to be one. */
+const writesBySource = new WeakMap<object, Map<DynamicDataSourceChannel, Promise<void>>>();
+
 export class DynamicDataSourceChannel {
   private readRequestId: number = 0;
   // The push chain: one write in flight at a time, the next starts when the previous settles. It
@@ -222,6 +228,16 @@ export class DynamicDataSourceChannel {
      first read. The pushes of a replaced source are therefore invisible to hasPendingWrites: a source
      that is no longer the storage of this list no longer gates its reads. */
   public detach(): void {
+    /* The writes of the old source are still on their way to the storage the new source may read
+       too (the same backend behind another object): its first read waits for the tail of the chain.
+       It is awaited only - nothing of it is reported into the list. */
+    if (!!this.pushChain) {
+      const tail = !this.detachedTail ? this.pushChain : Promise.all([this.detachedTail, this.pushChain]).then((): void => undefined);
+      this.detachedTail = tail;
+      tail.then((): void => {
+        if (this.detachedTail === tail)this.detachedTail = undefined;
+      });
+    }
     this.sourceEpoch++;
     this.pushChain = undefined;
     this.pendingPushes = 0;
@@ -255,7 +271,51 @@ export class DynamicDataSourceChannel {
 
   public startRead(useWindowOffset: boolean): void | Promise<void> {
     if (this.hasPendingWrites) return this.queueRead(useWindowOffset);
+    const foreign = this.getForeignWrites();
+    if (!!foreign) {
+      const res = this.queueRead(useWindowOffset);
+      this.startQueuedReadAfter(foreign);
+      return res;
+    }
     return this.doRead(useWindowOffset);
+  }
+  // The tail of a chain detached by a source change, kept until it settles.
+  private detachedTail: Promise<void> = undefined;
+  /* The writes a read has to wait for that hasPendingWrites does not count: the detached chain of the
+     previous source, and the pending writes other channels make to the same source object. */
+  private getForeignWrites(): Promise<void> {
+    const waits: Array<Promise<void>> = [];
+    if (!!this.detachedTail) waits.push(this.detachedTail);
+    const source = this.host.getSource();
+    const chains = !!source ? writesBySource.get(source) : undefined;
+    if (!!chains) {
+      chains.forEach((tail: Promise<void>, channel: DynamicDataSourceChannel): void => {
+        if (channel !== this) waits.push(tail);
+      });
+    }
+    if (waits.length === 0) return undefined;
+    return waits.length === 1 ? waits[0] : Promise.all(waits).then((): void => undefined);
+  }
+  private startQueuedReadAfter(foreign: Promise<void>): void {
+    const epoch = this.sourceEpoch;
+    foreign.then((): void => {
+      // A new source starts its own read; a pending write of this channel starts it when it settles.
+      if (epoch !== this.sourceEpoch || this.host.isDisposed() || this.hasPendingWrites) return;
+      this.startQueuedRead();
+    });
+  }
+  // The tail of this channel's chain is the one other channels on the source wait for.
+  private trackChain(source: IDynamicDataSource): void {
+    let chains = writesBySource.get(source);
+    if (!chains) {
+      chains = new Map<DynamicDataSourceChannel, Promise<void>>();
+      writesBySource.set(source, chains);
+    }
+    const tail = this.pushChain;
+    chains.set(this, tail);
+    tail.then((): void => {
+      if (chains.get(this) === tail) chains.delete(this);
+    });
   }
   private queueRead(useWindowOffset: boolean): Promise<void> {
     this.queuedReadUseOffset = this.isReadQueued ? this.queuedReadUseOffset && useWindowOffset : useWindowOffset;
@@ -268,6 +328,11 @@ export class DynamicDataSourceChannel {
   }
   private startQueuedRead(): void {
     if (!this.isReadQueued) return;
+    const foreign = this.getForeignWrites();
+    if (!!foreign) {
+      this.startQueuedReadAfter(foreign);
+      return;
+    }
     const useWindowOffset = this.queuedReadUseOffset;
     const waiter = this.queuedReadWaiter;
     this.queuedReadWaiter = undefined;
@@ -396,13 +461,14 @@ export class DynamicDataSourceChannel {
        an in-memory one the developer assigned included. */
     const isOwnStorage = host.isOwnStorage(source);
     if (!this.pushChain) {
-      const res = this.runPush(operation, action, onAnswer, onFailed, isOwnStorage);
+      const res = this.runPush(operation, action, onAnswer, onFailed, isOwnStorage, true);
       if (!isPromiseLike(res)) {
         this.settleSyncPush(epoch, res === "failed", onFailed);
         return;
       }
       this.pendingPushes = 1;
       this.pushChain = this.createFirstLink(<Promise<void>>res, epoch);
+      this.trackChain(source);
       return;
     }
     this.pendingPushes++;
@@ -428,6 +494,7 @@ export class DynamicDataSourceChannel {
         }
       });
     });
+    this.trackChain(source);
   }
   /* The link after the first, asynchronous push. Every link of the chain fulfills, so that a later
      write always runs after an earlier one has settled - see runPush. */
@@ -537,14 +604,14 @@ export class DynamicDataSourceChannel {
      onFailed runs after a reported failure, synchronous or asynchronous - for a synchronous one the
      caller runs it, once the result is known. */
   private runPush(operation: DynamicDataOperation, action: () => any,
-    onAnswer: (answer: any) => void, onFailed: () => void, isOwnStorage: boolean): PushResult {
+    onAnswer: (answer: any) => void, onFailed: () => void, isOwnStorage: boolean, isInWrite: boolean = false): PushResult {
     let res: any;
     try {
       res = action();
     } catch(e) {
       if (!!onAnswer) onAnswer(undefined);
       if (isOwnStorage) throw e;
-      this.host.raiseError(e, operation);
+      this.reportSyncFailure(e, operation, isInWrite);
       return "failed";
     }
     if (!isPromiseLike(res)) {
@@ -569,6 +636,28 @@ export class DynamicDataSourceChannel {
         onFailed();
       });
     });
+  }
+  /* An error listener that throws for a push the list makes inside its write would unwind that write
+     before the list told its owner: the window would hold the change and the owner would not. The
+     write finishes as failed, and the list rethrows the exception when its outermost write has ended
+     (takeListenerError). A queued push has no write around it: its listener's exception is the
+     rejection of that link, as before. */
+  private listenerError: { error: any } = undefined;
+  private reportSyncFailure(error: any, operation: DynamicDataOperation, isInWrite: boolean): void {
+    if (!isInWrite) {
+      this.host.raiseError(error, operation);
+      return;
+    }
+    try {
+      this.host.raiseError(error, operation);
+    } catch(e) {
+      if (!this.listenerError)this.listenerError = { error: e };
+    }
+  }
+  public takeListenerError(): { error: any } {
+    const res = this.listenerError;
+    this.listenerError = undefined;
+    return res;
   }
   private onPushSettled(epoch: number, wasSync: boolean): void {
     // A chain detached by a source change runs to its end against its own source, but the counters

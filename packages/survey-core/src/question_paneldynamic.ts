@@ -2478,6 +2478,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         this.keepFocusIndexForRead(visIndex);
       };
       if (confirmDelete) {
+        this.holdRemoveTarget(target);
         confirmActionAsync({
           message: this.confirmDeleteText,
           funcOnYes: () => { removePanel(); },
@@ -2684,6 +2685,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     for (var i = 0; i < this.panelsCore.length; i++) {
       this.clearIncorrectValuesInPanel(i);
     }
+    this.clearIncorrectValuesWithoutObjects();
+  }
+  protected getRecordTemplateQuestion(key: string): Question {
+    return <Question>this.template.getQuestionByValueName(key) || undefined;
   }
   /* index is a CREATED position - what it has always been for this method; under paging a created
      position of the whole view. A record without a panel on the page answers null: nothing is built and

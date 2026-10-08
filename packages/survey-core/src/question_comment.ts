@@ -4,6 +4,7 @@ import { QuestionFactory } from "./questionfactory";
 import { QuestionTextBase } from "./question_textbase";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { Helpers } from "./helpers";
+import { IsTouch } from "./utils/devices";
 
 /**
  * A class that describes the Long Text question type.
@@ -108,6 +109,10 @@ export class QuestionCommentModel extends QuestionTextBase {
   }
   supportAutoAdvance(): boolean {
     return this.isAutoAdvanceRequested === true;
+  }
+  // IsTouch means an on-screen keyboard. question.isMobile follows layout width, so a narrow desktop window must keep Enter.
+  protected isAutoAdvanceEnter(event: any): boolean {
+    return !IsTouch && super.isAutoAdvanceEnter(event);
   }
   // validate(false) refuses navigation without showing errors. Page validation would display them.
   public supportGoNextPageError(): boolean {

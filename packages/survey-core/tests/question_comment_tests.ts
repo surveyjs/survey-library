@@ -4,6 +4,7 @@ import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { SurveyElement } from "../src/survey-element";
 import { settings } from "../src/settings";
+import { _setIsTouch } from "../src/utils/devices";
 
 import { describe, test, expect } from "vitest";
 describe("Comment question", () => {
@@ -568,6 +569,70 @@ describe("Comment question", () => {
       expect(survey.currentPageNo, "Composition Enter stays on the page").toBe(0);
       expect(survey.data).toEqual({});
     } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+
+  test("Comment Question: Enter on a touch device inserts a line break", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    _setIsTouch(true);
+    try {
+      const createSurvey = () => new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "comment", name: "q1" }] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      const survey = createSurvey();
+      const question = <QuestionCommentModel>survey.getQuestionByName("q1");
+      let prevented = false;
+      question.onKeyDown({
+        key: "Enter",
+        keyCode: 13,
+        target: { value: "abc" },
+        preventDefault: () => { prevented = true; }
+      });
+      expect(prevented, "Enter is not prevented").toBe(false);
+      expect(question.value, "Keydown does not write the textarea value").toBeUndefined();
+      expect(survey.currentPageNo, "Stay on the first page").toBe(0);
+
+      question.textAreaModel.onTextAreaBlur({ target: { value: "abc" } });
+      expect(question.value, "Blur commits the textarea value").toBe("abc");
+      expect(survey.currentPageNo, "Blur does not auto-advance").toBe(0);
+
+      const blocked = createSurvey();
+      const blockedQuestion = <QuestionCommentModel>blocked.getQuestionByName("q1");
+      blockedQuestion.acceptCarriageReturn = false;
+      let blockedPrevented = false;
+      let stopped = false;
+      blockedQuestion.onKeyDown({
+        key: "Enter",
+        keyCode: 13,
+        target: { value: "abc" },
+        preventDefault: () => { blockedPrevented = true; },
+        stopPropagation: () => { stopped = true; }
+      });
+      expect(blockedPrevented, "Enter is prevented when carriage return is disabled").toBe(true);
+      expect(stopped, "Enter does not propagate when carriage return is disabled").toBe(true);
+      expect(blocked.currentPageNo, "Stay on the first page").toBe(0);
+
+      _setIsTouch(false);
+      const desktop = createSurvey();
+      const desktopQuestion = <QuestionCommentModel>desktop.getQuestionByName("q1");
+      let desktopPrevented = false;
+      desktopQuestion.onKeyDown({
+        key: "Enter",
+        keyCode: 13,
+        target: { value: "abc" },
+        preventDefault: () => { desktopPrevented = true; },
+        get defaultPrevented() { return desktopPrevented; }
+      });
+      expect(desktopPrevented, "Desktop Enter is prevented when auto-advancing").toBe(true);
+      expect(desktop.currentPageNo, "Desktop Enter auto-advances").toBe(1);
+    } finally {
+      _setIsTouch(false);
       settings.autoAdvanceDelay = prevDelay;
     }
   });

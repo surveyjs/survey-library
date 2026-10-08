@@ -3495,7 +3495,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
           if (!this.isAddingNewPanels && DynamicDataList.isValueChanged(newValue, this.dataList.getValue(recordIndex, name))) {
             this.markRecordTouchedBy(recordIndex, changedQuestion);
           }
-          this.dataList.setValue(recordIndex, name, newValue);
+          // The values new panels write only show a record the source holds: they go with its next update.
+          if (this.isAddingNewPanels) {
+            this.dataList.runShowingRecords((): boolean => this.dataList.setValue(recordIndex, name, newValue));
+          } else {
+            this.dataList.setValue(recordIndex, name, newValue);
+          }
         });
       });
     } finally {

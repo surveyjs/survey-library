@@ -185,4 +185,6 @@ export interface IDynamicDataOwner {
   /* The outermost write of the list has ended: after its notifications, or when it unwound with an
      exception. Raised once per outermost write (see DynamicDataList.isWriteOpen). */
   onWriteEnded?(): void;
+  // No read and no write is pending any more: what the source was asked for has arrived or failed.
+  onDataSettled?(): void;
 }

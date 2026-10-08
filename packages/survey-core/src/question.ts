@@ -325,6 +325,8 @@ export class ValidationContext extends AsyncElementsRunner {
   }
   public get isOnValueChanged(): boolean { return this.isOnValueChangedValue; }
   public get isOnValueChanging(): boolean { return this.isOnValueChangingValue; }
+  // The result goes to a callback: the validation can wait for elements that answer later (addElement).
+  public get hasCallback(): boolean { return !!this.callbackResult; }
   public get focusOnFirstError(): boolean { return this.focusOnFirstErrorValue; }
   public get result(): boolean { return this.res; }
   public get runningResult(): boolean {

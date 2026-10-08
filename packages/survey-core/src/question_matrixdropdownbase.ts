@@ -3265,12 +3265,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     const isChanged = this.writeRecords((): boolean => list.setRecord(index, rowValue));
     return isChanged ? { rowValue: rowValue, oldCellValue: oldCellValue } : null;
   }
-  // The question of a row - a cell or a detail panel question - that writes a record field.
+  // The question of a row - a cell or a detail panel question - that writes a record field: a field is a value name.
   private getRowQuestionOfField(row: MatrixDropdownRowModelBase, field: string): Question {
     if (!field) return undefined;
     const suffix = settings.commentSuffix;
     const name = field.endsWith(suffix) ? field.substring(0, field.length - suffix.length) : field;
-    return row.getQuestionByName(name) || undefined;
+    return row.getQuestionsByValueName(name)[0] || undefined;
   }
   /* The cell write of a value that is edited in place (isEditingObjectValue): the whole value is
      composed and assigned, and the list is not involved. */

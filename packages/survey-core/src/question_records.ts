@@ -151,6 +151,7 @@ export abstract class QuestionRecordsModel extends Question {
       getFields: (): Array<IDynamicDataField> => question.getFields(),
       onDataListChanged: (change: IDynamicDataListChange): void => { question.onDataListChanged(change); },
       onWriteEnded: (): void => { question.onListWriteEnded(); },
+      onDataSettled: (): void => { question.onDataSettled(); },
       // IDynamicDataPageValidationOwner: the rules every records question shares; the rest is the question's.
       getDataList: (): DynamicDataList => question.dataList,
       isPageLeaveValidated: (): boolean => question.isPageLeaveValidated(),
@@ -2285,6 +2286,7 @@ export abstract class QuestionRecordsModel extends Question {
   /* The list goes after the question's objects: it drops its pending-request counter, so a page or a
      push that is still in flight cannot write into a question that is gone. */
   public dispose(): void {
+    this.releaseDataWaits(false);
     this.cancelPendingPageMove();
     this.currentRecordIndex = -1;
     this.pendingVisibleIndex = undefined;
@@ -2314,6 +2316,44 @@ export abstract class QuestionRecordsModel extends Question {
     }
   }
 
+  /* A validation that answers through a callback - complete, the next page, the preview,
+     validate(callback) - waits while the question's data is read or written: the records the source
+     has not brought yet, or not taken yet, cannot be validated. The context waits for the question
+     (addElement) until the list settles, then the question is validated again into it. A write that
+     never settles keeps the context waiting; a disposed question releases it. A synchronous
+     validation (isCurrentPageValid, validate() without a callback) answers at once, as before. */
+  private dataWaits: Array<ValidationContext>;
+  protected validateElementCore(context: ValidationContext): boolean {
+    const res = super.validateElementCore(context);
+    this.waitForDataOperations(context);
+    return res;
+  }
+  private get dataWaitId(): string {
+    return this.id + "_data";
+  }
+  private waitForDataOperations(context: ValidationContext): void {
+    if (!context.hasCallback || context.isOnValueChanged || context.isOnValueChanging || !this.isDynamicDataRunning) return;
+    if (!this.dataWaits)this.dataWaits = [];
+    if (this.dataWaits.indexOf(context) > -1) return;
+    this.dataWaits.push(context);
+    context.addElement(this.dataWaitId);
+  }
+  // IDynamicDataOwner.onDataSettled.
+  private onDataSettled(): void {
+    if (!this.dataWaits || this.isDynamicDataRunning) return;
+    this.releaseDataWaits(true);
+  }
+  private releaseDataWaits(isValidated: boolean): void {
+    const waits = this.dataWaits;
+    this.dataWaits = undefined;
+    if (!waits) return;
+    waits.forEach((context: ValidationContext): void => {
+      if (isValidated) {
+        this.validateElement(context);
+      }
+      context.removeElement(this.dataWaitId);
+    });
+  }
   // Objects that were never built were never shown: there is nothing the respondent could have left
   // invalid, and validating them would build them.
   protected validatePageObjects(context: ValidationContext): boolean {

@@ -7,7 +7,7 @@ import {
 } from "./dynamic-data-interfaces";
 import {
   DynamicDataSourceChannel, IDynamicDataChannelHost, IDynamicDataPushInfo, IPendingInsert, getChangedFields, getOwnedFields, getUpdatePayload,
-  mergeInsertAnswer, toReadResult
+  isRecordValueChanged, mergeInsertAnswer, toReadResult
 } from "./dynamic-data-channel";
 import { DynamicDataCount } from "./dynamic-data-count";
 import { ArrayDynamicDataSource } from "./dynamic-data-sources";
@@ -77,7 +77,7 @@ export class DynamicDataList {
   // The exact comparison QuestionRecordItem.isValueChanged uses, so that the questions can
   // delegate to it instead of keeping their own copy.
   public static isValueChanged(newValue: any, oldValue: any): boolean {
-    return !Helpers.isTwoValueEquals(newValue, oldValue, false, true, false);
+    return isRecordValueChanged(newValue, oldValue);
   }
   /* The list both questions use: an ArrayDynamicDataSource over the owner's own storage - a
      getter/setter pair, never a captured array, so that every write replaces the array instead of
@@ -339,10 +339,17 @@ export class DynamicDataList {
      later write: removing A from [A, B, C] fails, the window is [B, C], and the next edit of B
      overwrites A. That window goes back to what the source stores, and the owner is told to start over
      once the write has notified. Any other failure keeps the local change. Inside a batch the commit
-     decides (onBatchFailed). */
-  private onSyncPushFailed(operation: DynamicDataOperation): void {
+     decides (onBatchFailed). A push queued behind an asynchronous one fails when no write is open: the
+     writes made since have changed the window, and the array the source holds is what is stored. The
+     writes queued behind it are dropped by the channel. */
+  private onPushFailed(operation: DynamicDataOperation): void {
     if (operation === "update" || !!this.keyField || this.batchDepth > 0) return;
-    this.restoreWindowToStorage(this._source, this.windowAtWriteStart || this.windowRecords);
+    if (this.writeDepth > 0) {
+      this.restoreWindowToStorage(this._source, this.windowAtWriteStart || this.windowRecords);
+      return;
+    }
+    this.restoreWindowToStorage(this._source, undefined);
+    this.raisePendingReset();
   }
   /* An array source assigns its array once, when its batch ends, and the setter may store something
      else than it was handed: trimmed strings, a normalized shape. The writes inside the batch synced
@@ -370,11 +377,11 @@ export class DynamicDataList {
      source holds now, or the window the write started with when that array is not the list's to
      take (syncWindowAfterSyncPush). Which writes survived is not known, so everything derived is
      decided again as after a read, and the owner, which was notified of the writes, is told to start
-     over. A read-through list has no window to put back. */
+     over. A read-through list has no window to put back. before undefined: the array is read. */
   private restoreWindowToStorage(source: IDynamicDataSource, before: Array<any>): void {
     if (this._source !== source || !this.isWindowWholeStorage || this.useReadThrough) return;
     if (!(source instanceof ArrayDynamicDataSource)) return;
-    const stored = this.isAssignedSourceInUse && !this.isAssignedArrayInSync ? before : source.read();
+    const stored = before !== undefined && this.isAssignedSourceInUse && !this.isAssignedArrayInSync ? before : source.read();
     this.records = Array.isArray(stored) ? stored : [];
     this.resetWindowState();
     this.isResetPending = true;
@@ -595,6 +602,26 @@ export class DynamicDataList {
   public setValue(index: number, field: string, value: any): boolean {
     return this.runOpenWrite((): boolean => this.setValueCore(index, field, value));
   }
+  /* What an owner computes while it builds its objects for records the source already holds - a
+     template default, an expression - only shows the record: inside this scope a write of such a record
+     reaches the window and not the source. The record keeps the fields written so (unsentFields), and
+     its next update lists them in changedFields: the source receives them with the first change the
+     respondent makes. A record whose insert has not answered is still sent its writes, and an in-memory
+     array - the owner's own storage or an assigned one - takes every write: nothing is sent anywhere. */
+  public runShowingRecords<T>(func: () => T): T {
+    this.showingRecordsDepth++;
+    try {
+      return func();
+    } finally {
+      this.showingRecordsDepth--;
+    }
+  }
+  private showingRecordsDepth: number = 0;
+  private isShowingWrite(index: number): boolean {
+    if (this.showingRecordsDepth === 0) return false;
+    const source = this._source;
+    return !!source && !(source instanceof ArrayDynamicDataSource) && !this.findPendingInsert(index);
+  }
   private setValueCore(index: number, field: string, value: any): boolean {
     const record = this.getRecord(index);
     if (!record) return false;
@@ -610,13 +637,19 @@ export class DynamicDataList {
     // the one the respondent edited, and the copy made on write is not in the window yet.
     const key = this.getRecordKey(index);
     const pending = this.findPendingInsert(index);
+    const isShowing = this.isShowingWrite(index);
     this.runWrite((): void => {
+      const fields = this.channel.takeUnsentFields(record, [field]);
       this.replaceRecord(index, newRecord);
+      if (isShowing) {
+        this.channel.keepUnsentFields(newRecord, fields);
+        return;
+      }
       const ownedFields = getOwnedFields(pending);
       // The push comes before the notification: with a read-through source the push IS the local
       // write, so the owner must not be notified of a change it cannot read yet.
       this.pushToSource("update",
-        (source: IDynamicDataSource, runKey: any): any => source.update(runKey, getUpdatePayload(pending, newRecord, ownedFields), [field]),
+        (source: IDynamicDataSource, runKey: any): any => source.update(runKey, getUpdatePayload(pending, newRecord, ownedFields), fields),
         { key: key, pendingInsert: pending });
     });
     this.notifyWrite({ type: "recordChanged", index: index, field: field });
@@ -632,7 +665,7 @@ export class DynamicDataList {
     const oldRecord = this.getRecord(index);
     if (index < 0 || index >= this.recordCount) return false;
     if (!force && !DynamicDataList.isValueChanged(record, oldRecord)) return false;
-    const changedFields = getChangedFields(oldRecord, record);
+    const changedFields = this.channel.takeUnsentFields(oldRecord, getChangedFields(oldRecord, record));
     // As in setValue: the key belongs to the record being replaced, not to the one replacing it.
     const key = this.getRecordKey(index);
     const pending = this.findPendingInsert(index);
@@ -1263,7 +1296,10 @@ export class DynamicDataList {
       applyInsertAnswer: (entry: IPendingInsert): void => this.applyInsertAnswer(entry),
       syncWindowAfterSyncPush: (): void => this.syncWindowAfterSyncPush(),
       isOwnStorage: (source: IDynamicDataSource): boolean => this.isOwnStorage(source),
-      onSyncPushFailed: (operation: DynamicDataOperation): void => this.onSyncPushFailed(operation)
+      onPushFailed: (operation: DynamicDataOperation): void => this.onPushFailed(operation),
+      onSettled: (): void => {
+        if (!!this.owner && !!this.owner.onDataSettled)this.owner.onDataSettled();
+      }
     };
   }
   // The range of the next read (see DynamicDataReadState.getReadRange).

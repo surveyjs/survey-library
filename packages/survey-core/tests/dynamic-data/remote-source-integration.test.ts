@@ -5623,3 +5623,235 @@ describe("Remote data source: addRowByIndex with a negative number counts from t
     expect(rowValues(question), "#3: the window is as it was").toEqual(["v0", "v1", "v2", "v3", "v4"]);
   });
 });
+
+describe("Remote data source: an update lists every field the record changed", () => {
+  const editCell = (kind: string, question: Question, value: any): void => {
+    if (kind === "matrix") {
+      (<QuestionMatrixDynamicModel>question).visibleRows[0].getQuestionByName("col1").value = value;
+    } else {
+      (<QuestionPanelDynamicModel>question).panels[0].getQuestionByName("col1").value = value;
+    }
+  };
+  ["matrix", "panel"].forEach((kind: string): void => {
+    test(kind + ": a case-only and a whitespace-only edit list the edited field", async () => {
+      const source = keyedSource(3);
+      const { question } = kind === "matrix" ? await createMatrix(source) : await createPanel(source);
+      source.reset();
+      editCell(kind, question, "V100");
+      await flush();
+      editCell(kind, question, "V100 ");
+      await flush();
+      expect(source.argsOf("update").map(args => args[2]), "#1").toEqual([["col1"], ["col1"]]);
+      expect(recordWithKey(source, 100).col1, "#2").toBe("V100 ");
+    });
+  });
+  test("matrix: a case-only edit of a record whose insert is pending is sent with its field and kept", async () => {
+    const source = keyedSource(3);
+    const { question } = await createMatrix(source);
+    source.auto = false;
+    question.addRow();
+    const rows = question.visibleRows;
+    const cell = rows[rows.length - 1].getQuestionByName("col1");
+    cell.value = "n";
+    cell.value = "N";
+    for (let i = 0; i < 4; i++) {
+      source.settleAll();
+      await flush();
+    }
+    const updates = source.argsOf("update");
+    expect(updates[updates.length - 1][2], "#1").toEqual(["col1"]);
+    expect(rowValues(question)[rows.length - 1], "#2: the answer does not overwrite it").toBe("N");
+    expect(source.records[source.records.length - 1].col1, "#3").toBe("N");
+  });
+});
+
+describe("Remote data source: showing records sends nothing", () => {
+  function pagingSource(): FakeServerSource {
+    return new FakeServerSource(serverRecords(6, 100), undefined, "id");
+  }
+  const panelTemplate = (extra?: Array<any>): any => ({ templateElements: [{ type: "text", name: "col1" },
+    { type: "text", name: "st", defaultValue: "new" }].concat(extra || []) });
+  const matrixColumns = (extra?: Array<any>): any => ({ columns: [{ name: "col1", cellType: "text" },
+    { name: "st", cellType: "text", defaultValue: "new" }].concat(extra || []) });
+  test("panel: moving between pages sends no update for the template default", async () => {
+    const source = pagingSource();
+    const { question } = await createPanel(source, Object.assign({ panelsPerPage: 2 }, panelTemplate()));
+    question.nextPage();
+    await flush();
+    question.prevPage();
+    await flush();
+    expect(source.argsOf("update"), "#1").toEqual([]);
+    expect(question.panels[0].getQuestionByName("st").value, "#2: the panel shows the default").toBe("new");
+  });
+  test("matrix: moving between pages sends no update for the column default", async () => {
+    const source = pagingSource();
+    const { question } = await createMatrix(source, Object.assign({ rowsPerPage: 2 }, matrixColumns()));
+    question.visibleRows;
+    question.nextPage();
+    await flush();
+    question.visibleRows;
+    question.prevPage();
+    await flush();
+    question.visibleRows;
+    expect(source.argsOf("update"), "#1").toEqual([]);
+  });
+  test("panel: building the panels of a source without paging sends no update", async () => {
+    const source = new FakeServerSource(serverRecords(3, 100), ["insert", "update", "remove", "move"], "id");
+    const { question } = await createPanel(source, Object.assign({ panelsPerPage: 0 }, panelTemplate()));
+    expect(question.panels.length, "#1").toBe(3);
+    expect(source.argsOf("update"), "#2").toEqual([]);
+  });
+  test("panel: an expression question sends nothing on a page view, and an edit sends the edit and the recomputed expression", async () => {
+    const source = pagingSource();
+    const { question } = await createPanel(source, Object.assign({ panelsPerPage: 2 },
+      panelTemplate([{ type: "expression", name: "ex", expression: "{panel.col1} + '!'" }])));
+    question.nextPage();
+    await flush();
+    question.prevPage();
+    await flush();
+    expect(source.argsOf("update"), "#1").toEqual([]);
+    question.panels[0].getQuestionByName("col1").value = "e";
+    await flush();
+    const updates = source.argsOf("update");
+    const last = updates[updates.length - 1];
+    expect(last[0], "#2").toBe(100);
+    expect(last[1], "#3: the record holds the edit, the default and the expression").toEqual({ id: 100, col1: "e", col2: 100, st: "new", ex: "e!" });
+    expect(recordWithKey(source, 100), "#4").toEqual({ id: 100, col1: "e", col2: 100, st: "new", ex: "e!" });
+  });
+  test("the first edit of a record shown with a default lists the edited field and the default's field", async () => {
+    const panelSource = pagingSource();
+    const panel = (await createPanel(panelSource, Object.assign({ panelsPerPage: 2 }, panelTemplate()))).question;
+    panel.panels[0].getQuestionByName("col1").value = "e";
+    await flush();
+    expect(panelSource.argsOf("update"), "#1: panel").toEqual([[100, { id: 100, col1: "e", col2: 100, st: "new" }, ["col1", "st"]]]);
+    const matrixSource = pagingSource();
+    const matrix = (await createMatrix(matrixSource, Object.assign({ rowsPerPage: 2 },
+      matrixColumns([{ name: "ex", cellType: "expression", expression: "{row.st} + '!'" }])))).question;
+    matrix.visibleRows[0].getQuestionByName("col1").value = "e";
+    await flush();
+    expect(matrixSource.argsOf("update").map(args => args[2]), "#2: matrix").toEqual([["col1", "st", "ex"]]);
+  });
+  test("panel: another expression reads the default while nothing was sent", async () => {
+    const source = pagingSource();
+    const { question } = await createPanel(source, Object.assign({ panelsPerPage: 2 },
+      panelTemplate([{ type: "expression", name: "copy", expression: "{panel.st}" }])));
+    expect(question.panels[0].getQuestionByName("copy").value, "#1").toBe("new");
+    expect(source.argsOf("update"), "#2").toEqual([]);
+  });
+  test("panel: addPanel sends the default in the insert", async () => {
+    const source = pagingSource();
+    const { question } = await createPanel(source, Object.assign({ panelsPerPage: 2 }, panelTemplate()));
+    question.addPanel();
+    await flush();
+    expect(source.argsOf("insert").map(args => args[0]), "#1").toEqual([{ st: "new" }]);
+    expect(source.argsOf("update"), "#2").toEqual([]);
+  });
+});
+
+describe("Remote data source: a validated navigation waits for the question's pending data operations", () => {
+  const requiredMatrix = (extra?: any): any => Object.assign({ type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: 5,
+    columns: [{ name: "col1", isRequired: true }, { name: "col2" }] }, extra);
+  async function createSurvey(records: Array<any>, json?: any):
+    Promise<{ survey: SurveyModel, question: QuestionMatrixDynamicModel, source: FakeServerSource, completed: Array<boolean> }> {
+    const survey = new SurveyModel(Object.assign({ elements: [requiredMatrix()] }, json));
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const source = new FakeServerSource(records, undefined, "id");
+    source.auto = false;
+    question.dataSource = source;
+    await flush();
+    const completed = new Array<boolean>();
+    survey.onComplete.add(() => { completed.push(true); });
+    return { survey: survey, question: question, source: source, completed: completed };
+  }
+  test("tryComplete during the first read waits, then the survey stays on an empty required cell", async () => {
+    const { survey, question, source, completed } = await createSurvey([{ id: 1, col1: "", col2: 1 }]);
+    expect(source.pending.length, "#1: the read is pending").toBe(1);
+    expect(survey.tryComplete(), "#2").toBe(false);
+    source.settleAll();
+    await flush();
+    expect(completed, "#3").toEqual([]);
+    expect(survey.state, "#4").toBe("running");
+    expect(question.visibleRows[0].getQuestionByName("col1").errors.length, "#5: the error is shown").toBe(1);
+  });
+  test("tryComplete during the first read completes once the read brings valid records", async () => {
+    const { survey, source, completed } = await createSurvey([{ id: 1, col1: "a", col2: 1 }]);
+    expect(survey.tryComplete(), "#1").toBe(false);
+    source.settleAll();
+    await flush();
+    expect(completed, "#2: onComplete once").toEqual([true]);
+    expect(survey.state, "#3").toBe("completed");
+  });
+  test("tryComplete during a pending update waits for the write, then validates", async () => {
+    const { survey, question, source, completed } = await createSurvey([{ id: 1, col1: "a", col2: 1 }]);
+    source.settleAll();
+    await flush();
+    question.visibleRows[0].getQuestionByName("col2").value = 5;
+    expect(source.pending.map(call => call.op), "#1").toEqual(["update"]);
+    expect(survey.tryComplete(), "#2").toBe(false);
+    expect(completed, "#3").toEqual([]);
+    source.settleAll();
+    await flush();
+    expect(completed, "#4").toEqual([true]);
+  });
+  test("nextPage waits as well, and isCurrentPageValid answers at once", async () => {
+    const { survey, source } = await createSurvey([{ id: 1, col1: "a", col2: 1 }],
+      { elements: undefined, pages: [{ elements: [requiredMatrix()] }, { elements: [{ type: "text", name: "q2" }] }] });
+    expect(survey.isCurrentPageValid, "#1: no callback, an answer at once").toBe(true);
+    survey.nextPage();
+    expect(survey.currentPageNo, "#2: waits for the read").toBe(0);
+    source.settleAll();
+    await flush();
+    expect(survey.currentPageNo, "#3").toBe(1);
+  });
+  test("a question disposed during the wait releases it", async () => {
+    const { survey, question, completed } = await createSurvey([{ id: 1, col1: "a", col2: 1 }]);
+    expect(survey.tryComplete(), "#1").toBe(false);
+    question.dispose();
+    await flush();
+    expect(completed, "#2: the survey is not held by a question that is gone").toEqual([true]);
+  });
+  test("a write that never settles keeps the survey from completing", async () => {
+    const { survey, question, source, completed } = await createSurvey([{ id: 1, col1: "a", col2: 1 }]);
+    source.settleAll();
+    await flush();
+    question.visibleRows[0].getQuestionByName("col2").value = 5;
+    expect(survey.tryComplete(), "#1").toBe(false);
+    await flush();
+    expect(completed, "#2").toEqual([]);
+    expect(survey.state, "#3").toBe("running");
+  });
+  test("with validation disabled the survey completes at once", async () => {
+    const { survey, completed } = await createSurvey([{ id: 1, col1: "", col2: 1 }]);
+    survey.validationEnabled = false;
+    expect(survey.tryComplete(), "#1").toBe(true);
+    expect(completed, "#2").toEqual([true]);
+  });
+});
+
+describe("Remote data source: what a developer assigns through the survey is stored as assigned", () => {
+  test("survey.setValue and mergeData reach survey.data, the rows keep showing the source and nothing is sent", async () => {
+    const source = keyedSource(2);
+    const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+    source.reset();
+    survey.setValue("matrix", [{ col1: "assigned" }]);
+    expect(survey.data.matrix, "#1").toEqual([{ col1: "assigned" }]);
+    expect(rowValues(question), "#2: the rows show the source").toEqual(["v100", "v101"]);
+    survey.mergeData({ matrix: [{ col1: "merged" }] });
+    expect(survey.data.matrix, "#3").toEqual([{ col1: "merged" }]);
+    expect(rowValues(question), "#4").toEqual(["v100", "v101"]);
+    await flush();
+    expect(source.calls.map(call => call.op), "#5: nothing is sent").toEqual([]);
+  });
+  test("question.value is ignored with a warning", async () => {
+    const source = keyedSource(2);
+    const { question } = await createMatrix(source, { rowsPerPage: 0 });
+    const warn = vi.spyOn(ConsoleWarnings, "warn").mockImplementation(() => { });
+    try {
+      question.value = [{ col1: "x" }];
+      expect(warn, "#1").toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+    }
+    expect(rowValues(question), "#2").toEqual(["v100", "v101"]);
+  });
+});

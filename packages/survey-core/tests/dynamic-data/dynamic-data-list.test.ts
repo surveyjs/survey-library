@@ -4375,14 +4375,15 @@ describe("DynamicDataList: a failed write to an assigned source is reported", ()
     });
   });
   /* A source without keyField that answers asynchronously: a remove that fails in the queue behind a
-     pending update is reported, and the window keeps the local removal - the array is not in sync with
-     the window while the update is in flight, so there is nothing to go back to. */
-  test("a failed remove queued behind an asynchronous update is reported, and the window keeps the local removal", async () => {
-    let settle: () => void;
+     pending update is reported, and the window is read again from the array - the local removal would
+     have every later write address the record after the one it was made in. The writes queued before
+     the failure carry those positions too: they are dropped and reported. */
+  function attachAsyncArray(): { list: DynamicDataList, settle: () => void, stored: () => Array<any>, errors: Array<string>, changes: Array<string> } {
+    let settleUpdate: () => void;
     class AsyncArraySource extends ArrayDynamicDataSource {
       public update(sourceIndex: number, record: any): Promise<void> {
         return new Promise<void>((resolve: () => void): void => {
-          settle = (): void => { super.update(sourceIndex, record); resolve(); };
+          settleUpdate = (): void => { super.update(sourceIndex, record); resolve(); };
         });
       }
       public remove(): void { throw new Error("remove"); }
@@ -4392,12 +4393,35 @@ describe("DynamicDataList: a failed write to an assigned source is reported", ()
     list.assignSource(new AsyncArraySource((): Array<any> => stored, (arr: Array<any>): void => { stored = arr; }));
     const errors: Array<string> = [];
     list.onError = (error: any, operation: string): void => { errors.push(operation + ":" + error.message); };
+    return { list: list, settle: (): void => settleUpdate(), stored: (): Array<any> => stored, errors: errors, changes: recordChanges(list) };
+  }
+  test("a failed remove queued behind an asynchronous update is reported, and the window is read again from the array", async () => {
+    const { list, settle, stored, errors, changes } = attachAsyncArray();
     list.setValue(1, "name", "b");
     list.remove(0);
+    changes.length = 0;
     settle();
     for (let i = 0; i < 10; i++) await Promise.resolve();
-    expect(errors, "#1").toEqual(["remove:remove"]);
-    expect([names(list.getLoadedRecords()), names(stored)], "#2: the window and the array").toEqual([["b", "C"], ["A", "b", "C"]]);
+    expect(errors, "#1: reported once").toEqual(["remove:remove"]);
+    expect([names(list.getLoadedRecords()), names(stored())], "#2: the window and the array").toEqual([["A", "b", "C"], ["A", "b", "C"]]);
+    expect(changes, "#3: the owner starts over").toEqual(["reset"]);
+    list.setValue(0, "name", "A-edited");
+    settle();
+    for (let i = 0; i < 10; i++) await Promise.resolve();
+    expect(names(stored()), "#4: the next edit lands on its record").toEqual(["A-edited", "b", "C"]);
+  });
+  test("an update queued after a failing remove is dropped and reported, and the array keeps every record", async () => {
+    const { list, settle, stored, errors } = attachAsyncArray();
+    list.setValue(1, "name", "b");
+    list.remove(0);
+    list.setValue(0, "name", "b-edited");
+    settle();
+    for (let i = 0; i < 10; i++) await Promise.resolve();
+    expect(errors.length, "#1: the remove and the dropped update").toBe(2);
+    expect(errors[0], "#2").toBe("remove:remove");
+    expect(errors[1].indexOf("update:"), "#3").toBe(0);
+    expect(names(stored()), "#4: no record is overwritten").toEqual(["A", "b", "C"]);
+    expect(names(list.getLoadedRecords()), "#5").toEqual(["A", "b", "C"]);
   });
   test("a batch with a remove and an update that fails at commit: reported once, the window goes back, the next edit lands right", () => {
     const { list, assigned, errors, changes } = attachFailing();

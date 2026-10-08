@@ -3278,6 +3278,43 @@ describe("Page window: the records the respondent touched stay shown", () => {
 /* A row of the fixed matrix the respondent edited keeps its place through an answer assignment - its
    own answer may change or go: the row is the record. A rows change keeps it by row name, and a
    removed row leaves the set. */
+describe("Page window: an edit through a question with a valueName touches its record", () => {
+  const value = (): Array<any> => [{ a: 1, b: "x" }, { a: 2, b: "x" }, { a: 3, b: "z" }];
+  const assignKeepingEveryRecord = (q: any): void => {
+    const val = copyRecords(q.value);
+    val[1].a = 22;
+    q.value = val;
+  };
+  const runMatrix = (detailQuestion: any): Array<Array<any>> => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, filterExpression: "{b} = 'x'",
+      columns: [{ name: "a", cellType: "text" }], detailPanelMode: "underRow", detailElements: [detailQuestion] }] });
+    const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    q.value = value();
+    const rows = q.visibleRows;
+    rows[0].showDetailPanel();
+    rows[0].detailPanel.getQuestionByName(detailQuestion.name).value = "y";
+    const afterEdit = q.visibleRows.map(r => r.getValue("a"));
+    assignKeepingEveryRecord(q);
+    return [afterEdit, q.visibleRows.map(r => r.getValue("a"))];
+  };
+  test("matrix: a detail question named after its field keeps the edited record shown after an outside assignment", () => {
+    expect(runMatrix({ type: "text", name: "b" }), "#1").toEqual([[1, 2], [1, 22]]);
+  });
+  test("matrix: a detail question with a valueName keeps the edited record shown after an outside assignment", () => {
+    expect(runMatrix({ type: "text", name: "bq", valueName: "b" }), "#1").toEqual([[1, 2], [1, 22]]);
+  });
+  test("panel: a template question with a valueName keeps the edited record shown after an outside assignment", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", filterExpression: "{b} = 'x'",
+      templateElements: [{ type: "text", name: "a" }, { type: "text", name: "bq", valueName: "b" }] }] });
+    const q = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    q.value = value();
+    q.panels[0].getQuestionByName("bq").value = "y";
+    expect(q.panels.map(p => p.getQuestionByName("a").value), "#1").toEqual([1, 2]);
+    assignKeepingEveryRecord(q);
+    expect(q.panels.map(p => p.getQuestionByName("a").value), "#2").toEqual([1, 22]);
+  });
+});
+
 describe("Fixed matrix: the rows the respondent edited stay shown", () => {
   const createSorted = (): { survey: SurveyModel, matrix: QuestionMatrixDropdownModel } => {
     const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", sortBy: "a-",

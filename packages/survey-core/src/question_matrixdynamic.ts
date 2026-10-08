@@ -371,7 +371,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.minRowCount < 1 || this.isEditingSurveyElement || this.isEmpty()) return super.valueFromData(val);
     return this.correctValueForMinMaxRows(val);
   }
+  /* A row built past the stored value writes it, as the released build did: the value then gets the
+     minRowCount empty records (correctValueForMinMaxRows). Not with a data source or a live object value. */
+  protected isRowWrittenOnBuild(row: MatrixDropdownRowModelBase): boolean {
+    if (this.isRemoteData || this.isEditingObjectValue) return false;
+    const val = this.value;
+    return this.getBuiltRecordIndex(row) >= (Array.isArray(val) ? val.length : 0);
+  }
+  // With a data source minRowCount only gates the removal: the value is never padded.
   protected correctValueForMinMaxRows(val: any): any {
+    if (this.isRemoteData) return val;
     if (!Array.isArray(val)) val = [];
     for (var i = val.length; i < this.minRowCount; i++) val.push({});
     return val;
@@ -385,7 +394,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   /* Both numbers are created positions; under paging of the whole view, clamped to the records shown as
      without paging, and the records move whether or not they have a row. */
+  // A row number that is not an integer names no row: the call does nothing.
+  private static isRowIndex(index: number): boolean {
+    return typeof index === "number" && Number.isInteger(index);
+  }
   public moveRowByIndex(fromIndex: number, toIndex: number):void {
+    if (!QuestionMatrixDynamicModel.isRowIndex(fromIndex) || !QuestionMatrixDynamicModel.isRowIndex(toIndex)) return;
     if (this.refuseOperationOfSource("move")) return;
     if (this.isNumberedByView) {
       this.moveRecordByViewIndex(fromIndex, toIndex);
@@ -444,6 +458,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      itself refuses a position its window does not hold, and reports it. A negative number counts from
      the end of the whole view, as the released splice did: -1 goes in front of the last record. */
   public addRowByIndex(rowData: any, toIndex: number):void {
+    if (!QuestionMatrixDynamicModel.isRowIndex(toIndex)) return;
     if (this.refuseOperationOfSource("insert")) return;
     if (toIndex < 0) {
       toIndex = Math.max(0, this.dataList.globalCreatedExtent + toIndex);
@@ -486,6 +501,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /* A created position; under paging of the whole view, and a record on another page is removed too.
      A source that pages itself refuses a record it has not loaded, and reports it. */
   public removeRowByIndex(fromIndex: number):void {
+    if (!QuestionMatrixDynamicModel.isRowIndex(fromIndex)) return;
     if (this.refuseOperationOfSource("remove")) return;
     if (this.isRemoteData) {
       const target = this.getRecordTargetForOperation(fromIndex, "remove");
@@ -1293,14 +1309,29 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       errors.push(new MinRowCountError(this.minRowCount, this));
     }
   }
+  /* With a data source minRowCount only gates the add and remove, so it is not checked. Under paging
+     the rows are built for the page only: the visible records of every page are counted, a record
+     without a row by its stored value, as its row would count it. */
   private validateMinRows(): boolean {
-    if (this.minRowCount <= 0 || !this.isRequired || !this.generatedVisibleRows)
-      return true;
+    if (this.minRowCount <= 0 || !this.isRequired || this.isRemoteData) return true;
     let setRowCount = 0;
-    this.generatedVisibleRows.forEach(row => {
-      if (!row.isEmpty) setRowCount++;
-    });
+    if (this.isPagedByList) {
+      this.forEachRecordItem(this.dataList.getVisibleIndexes(), (index: number, item: QuestionRecordItem): void => {
+        const isEmpty = !!item ? (<MatrixDropdownRowModelBase>item).isEmpty : !this.hasRecordAnswer(this.getListRecordAt(index));
+        if (!isEmpty) setRowCount++;
+      });
+    } else {
+      if (!this.generatedVisibleRows) return true;
+      this.generatedVisibleRows.forEach(row => {
+        if (!row.isEmpty) setRowCount++;
+      });
+    }
     return setRowCount >= this.minRowCount;
+  }
+  // The rule of a row's isEmpty, for a record that has no row.
+  private hasRecordAnswer(record: any): boolean {
+    if (Helpers.isValueEmpty(record)) return false;
+    return Object.keys(record).some((key: string): boolean => record[key] !== undefined && record[key] !== null);
   }
   protected getUniqueColumnsNames(): Array<string> {
     var res = super.getUniqueColumnsNames();

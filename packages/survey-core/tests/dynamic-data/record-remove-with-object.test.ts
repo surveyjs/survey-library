@@ -319,6 +319,70 @@ describe("a removing handler that adds a record in front of the removed one", ()
   });
 });
 
+describe("a removing handler that assigns the value from outside", () => {
+  function createPanelSurvey(displayMode?: string): { survey: SurveyModel, q: QuestionPanelDynamicModel, removed: Array<any> } {
+    const json: any = { type: "paneldynamic", name: "p", templateElements: [{ type: "text", name: "a" }] };
+    if (!!displayMode) json.displayMode = displayMode;
+    const survey = new SurveyModel({ elements: [json] });
+    survey.data = { p: [{ a: 1 }, { a: 2 }, { a: 3 }] };
+    const q = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    q.panels;
+    const removed: Array<any> = [];
+    survey.onDynamicPanelRemoved.add((_, options) => removed.push([options.panelIndex, options.panel.getValue()]));
+    return { survey: survey, q: q, removed: removed };
+  }
+  function createMatrixSurvey(): { survey: SurveyModel, q: QuestionMatrixDynamicModel, removed: Array<any> } {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", columns: [{ name: "a", cellType: "text" }] }] });
+    survey.data = { m: [{ a: 1 }, { a: 2 }, { a: 3 }] };
+    const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    q.visibleRows;
+    const removed: Array<any> = [];
+    survey.onMatrixRowRemoved.add((_, options) => removed.push([options.rowIndex, options.row.value]));
+    return { survey: survey, q: q, removed: removed };
+  }
+  test("a removing handler that assigns a shorter value removes nothing and raises no removed event: panel", () => {
+    ["list", "carousel"].forEach(displayMode => {
+      const { survey, q, removed } = createPanelSurvey(displayMode);
+      let isAssigned = false;
+      survey.onDynamicPanelRemoving.add(() => { if (!isAssigned) { isAssigned = true; survey.setValue("p", [{ a: 9 }]); } });
+      q.removePanel(1);
+      expect(q.value, displayMode + " #1").toEqual([{ a: 9 }]);
+      expect(q.panelCount, displayMode + " #2").toBe(1);
+      expect(removed, displayMode + " #3").toEqual([]);
+    });
+  });
+  test("a removing handler that assigns a shorter value removes nothing and raises no removed event: matrix", () => {
+    [[{ a: 9 }], []].forEach(assigned => {
+      const { survey, q, removed } = createMatrixSurvey();
+      let isAssigned = false;
+      survey.onMatrixRowRemoving.add(() => { if (!isAssigned) { isAssigned = true; survey.setValue("m", assigned); } });
+      q.removeRow(1);
+      if (assigned.length > 0) expect(q.value, "#1").toEqual(assigned);
+      else expect(q.isEmpty(), "#1: empty").toBe(true);
+      expect(q.rowCount, assigned.length + " #2: the row count matches the rows").toBe(q.visibleRows.length);
+      expect(removed, assigned.length + " #3").toEqual([]);
+    });
+  });
+  test("a removing handler that assigns a value with the index still in range removes the record now at that index, as the released rule: matrix", () => {
+    const { survey, q, removed } = createMatrixSurvey();
+    let isAssigned = false;
+    survey.onMatrixRowRemoving.add(() => { if (!isAssigned) { isAssigned = true; survey.setValue("m", [{ a: 7 }, { a: 8 }]); } });
+    q.removeRow(1);
+    expect(q.value, "#1").toEqual([{ a: 7 }]);
+    expect(q.rowCount, "#2").toBe(1);
+    expect(removed, "#3: the row now at that index").toEqual([[1, { a: 8 }]]);
+  });
+  test("a removing handler that assigns a value with the index still in range removes the record now at that index, as the released rule: panel", () => {
+    const { survey, q, removed } = createPanelSurvey();
+    let isAssigned = false;
+    survey.onDynamicPanelRemoving.add(() => { if (!isAssigned) { isAssigned = true; survey.setValue("p", [{ a: 7 }, { a: 8 }]); } });
+    q.removePanel(1);
+    expect(q.value, "#1").toEqual([{ a: 7 }]);
+    expect(q.panelCount, "#2").toBe(1);
+    expect(removed, "#3: the panel now at that index").toEqual([[1, { a: 8 }]]);
+  });
+});
+
 describe("the focus after a removal from the UI that a handler cancels", () => {
   test("panel: the focus moves as when the panel is removed", () => {
     vi.useFakeTimers();

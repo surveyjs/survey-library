@@ -1372,7 +1372,9 @@ export abstract class QuestionRecordsModel extends Question {
      before the splice (extend), and the record is removed (removeResolvedRecord). A handler of the
      event may insert, remove or move records: the removal follows its record by index through the
      list's own changes, and the object that shows it then is the one removed. An assignment from
-     outside during the event leaves the removal as it was resolved. undefined: nothing was removed. */
+     outside during the event replaces the objects: as the released rule, the removal takes the object
+     now at the resolved position, and nothing is removed when there is none. undefined: nothing was
+     removed. */
   protected removeTarget<T extends IRecordRemoval>(target: IRecordTarget, raiseRemoving: (removal: IRecordRemoval) => boolean,
     extend?: (removal: IRecordRemoval) => T): T {
     let removal = this.resolveRecordRemoval(target);
@@ -1392,6 +1394,11 @@ export abstract class QuestionRecordsModel extends Question {
     if (followed.recordIndex !== removal.recordIndex && this.heldRemoveTargets === held) {
       if (followed.recordIndex < 0) return undefined;
       removal = this.resolveRecordRemoval(this.createRecordTargetOf(followed.recordIndex));
+      if (!removal) return undefined;
+    } else if (!!removal.item && this.getItemPosition(removal.item) < 0) {
+      const item = this.getItem(removal.position);
+      if (!item) return undefined;
+      removal = this.resolveRecordRemoval({ item: item, recordIndex: this.getItemRecordIndex(item) });
       if (!removal) return undefined;
     }
     const res = !!extend ? extend(removal) : <T>removal;

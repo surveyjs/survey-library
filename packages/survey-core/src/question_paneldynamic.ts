@@ -1620,8 +1620,16 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected getRecordCountNames(): { count: string, expression: string } {
     return QuestionPanelDynamicModel.recordCountNames;
   }
+  /* The count the expression sets writes the value it truncates or pads, also while the count follows
+     an assigned value (setPanelCountBasedOnValue): the expression's count wins over the assigned one. */
   protected setRecordCountByExpression(val: any): void {
-    this.panelCount = this.getRecordCountByExpressionValue(val, this.minPanelCount, this.panelCountLimit);
+    const isSettingByValue = this.settingPanelCountBasedOnValue;
+    this.settingPanelCountBasedOnValue = false;
+    try {
+      this.panelCount = this.getRecordCountByExpressionValue(val, this.minPanelCount, this.panelCountLimit);
+    } finally {
+      this.settingPanelCountBasedOnValue = isSettingByValue;
+    }
   }
   /**
    * A minimum number of panels in Dynamic Panel. Users cannot delete panels if `panelCount` equals `minPanelCount`.
@@ -3470,10 +3478,17 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       question: this,
       panel: panel,
       name: childQuestion.name,
-      panelIndex: position < 0 ? position : this.getPanelViewIndex(position),
+      panelIndex: this.getChangingPanelIndex(<PanelModel>panel, position),
       panelData: this.getPanelItemDataByIndex(position),
       oldValue: childQuestion.value
     };
+  }
+  /* A panel that is not among the panels yet is being created for its record: its questions' defaults
+     are announced under the index the record takes. The template stays at -1. */
+  private getChangingPanelIndex(panel: PanelModel, position: number): number {
+    if (position > -1) return this.getPanelViewIndex(position);
+    if (panel === this.template) return -1;
+    return this.getRecordViewIndex(this.getItemRecordIndex(panel.data));
   }
   // The panel's position in panelsCore: under paging a position on the page.
   getItemIndex(item: ISurveyData): number {

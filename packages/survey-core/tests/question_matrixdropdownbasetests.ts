@@ -3489,3 +3489,39 @@ describe("Fixed matrix: display values leave the value they format unchanged", (
     });
   });
 });
+
+describe("a shared valueName with a matrix whose rows were never built", () => {
+  const siblingJson = { type: "matrixdynamic", name: "b", valueName: "v", columns: [{ name: "c", cellType: "text" }, { name: "d", cellType: "text" }] };
+  test("clearIncorrectValues keeps the columns of the sibling matrix", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "a", valueName: "v", columns: [{ name: "c", cellType: "text" }] }, siblingJson] });
+    survey.data = { v: [{ c: 1, d: "keep" }, { c: 2, d: "keep2" }] };
+    (<QuestionMatrixDynamicModel>survey.getQuestionByName("a")).visibleRows;
+    survey.clearIncorrectValues();
+    expect(survey.data).toEqual({ v: [{ c: 1, d: "keep" }, { c: 2, d: "keep2" }] });
+  });
+  test("isValueCorrect is true when the sibling matrix owns the other column", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "a", valueName: "v", columns: [{ name: "c", cellType: "text" }] }, siblingJson] });
+    survey.data = { v: [{ c: 1, d: "keep" }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("a");
+    matrix.visibleRows;
+    expect(matrix.isValueCorrect()).toBe(true);
+  });
+  test("a Dynamic Panel keeps the column of a sibling matrix", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "paneldynamic", name: "p", valueName: "v", templateElements: [{ type: "text", name: "c" }] }, siblingJson] });
+    survey.data = { v: [{ c: 1, d: "keep" }, { c: 2, d: "keep2" }] };
+    (<any>survey.getQuestionByName("p")).panels;
+    survey.clearIncorrectValues();
+    expect(survey.data).toEqual({ v: [{ c: 1, d: "keep" }, { c: 2, d: "keep2" }] });
+  });
+  test("the lookup creates no record list for the sibling matrix", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "a", valueName: "v", columns: [{ name: "c", cellType: "text" }] }, siblingJson] });
+    survey.data = { v: [{ c: 1, d: "keep" }] };
+    (<QuestionMatrixDynamicModel>survey.getQuestionByName("a")).visibleRows;
+    survey.clearIncorrectValues();
+    expect((<any>survey.getQuestionByName("b"))._dataList).toBeUndefined();
+  });
+});

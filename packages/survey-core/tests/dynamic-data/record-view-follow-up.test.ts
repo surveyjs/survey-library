@@ -182,3 +182,17 @@ describe("a template element added at runtime rebuilds the panels of the view", 
     expect(panel.panels.every(p => !!p.getQuestionByName("b")), "#3: with the new element").toBe(true);
   });
 });
+
+describe("an emptying assignment to a Dynamic Panel with a view", () => {
+  test("under a filter without a data source, an emptying assignment keeps minPanelCount panels", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelCount: 4, minPanelCount: 2,
+      filterExpression: "{a} != 5", templateElements: [{ type: "text", name: "a" }] }] });
+    survey.data = { p: [{ a: 1 }, { a: 2 }, { a: 3 }] };
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    expect(panel.panels.length, "#1").toBe(3);
+    panel.value = [];
+    // The view builds its panels for its records: the stored panelCount is not padded, minPanelCount is.
+    expect(panel.panelCount, "#2").toBe(2);
+    expect(panel.panels.length, "#3").toBe(2);
+  });
+});

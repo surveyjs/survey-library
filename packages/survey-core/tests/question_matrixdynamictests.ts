@@ -12237,3 +12237,154 @@ describe("a cell question of a removed row", () => {
     expect(counter, "#2").toBe(0);
   });
 });
+
+describe("minRowCount and rowCount when the rows are built", () => {
+  function build(json: any, data?: any): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel, log: Array<any> } {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "m", columns: [{ name: "a", cellType: "text" }] }, json)] });
+    if (!!data) survey.data = { m: data };
+    const log = new Array<any>();
+    survey.onValueChanged.add((_, options) => { log.push(options.value); });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    return { survey: survey, matrix: matrix, log: log };
+  }
+  test("minRowCount 1 with rowCount 2: building the rows stores one empty row", () => {
+    const { survey, matrix, log } = build({ minRowCount: 1 });
+    expect(survey.data, "#1").toEqual({ m: [{}] });
+    expect(log, "#2: one value event").toEqual([[{}]]);
+    expect(survey.runExpression("{m.length}"), "#3").toBe(1);
+    expect(matrix.visibleRows.length, "#4: the rows stay").toBe(2);
+  });
+  test("the minimum empty records are stored when the rows are built, as released", () => {
+    const check = (json: any, data: any, expectedData: any, rows: number, events: Array<any>, label: string): void => {
+      const { survey, matrix, log } = build(json, data);
+      expect(survey.data, label + " data").toEqual(expectedData);
+      expect(matrix.visibleRows.length, label + " rows").toBe(rows);
+      expect(log, label + " events").toEqual(events);
+    };
+    check({ minRowCount: 2, rowCount: 3 }, undefined, { m: [{}, {}] }, 3, [[{}, {}]], "min 2, rowCount 3");
+    check({ minRowCount: 3, rowCount: 1 }, undefined, { m: [{}, {}, {}] }, 1, [[{}, {}, {}]], "min 3, rowCount 1");
+    check({ minRowCount: 1, rowCount: 3 }, [{ a: 1 }], { m: [{ a: 1 }] }, 1, [], "a value shorter than rowCount");
+    check({ minRowCount: 2, rowCount: 2 }, undefined, {}, 2, [], "min equal to rowCount");
+    check({ minRowCount: 0, rowCount: 2 }, undefined, {}, 2, [], "no minimum");
+  });
+  test("minRowCount 1 and isRequired: validate reports only the minimum row error", () => {
+    const { matrix } = build({ minRowCount: 1, isRequired: true });
+    matrix.validate();
+    expect(matrix.errors.map(error => error.getErrorType())).toEqual(["minrowcounterror"]);
+  });
+});
+
+describe("the minimum row count check of a required matrix", () => {
+  function create(json: any, data: Array<any>): QuestionMatrixDynamicModel {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "m", minRowCount: 3, isRequired: true,
+      columns: [{ name: "a", cellType: "text" }] }, json)] });
+    survey.data = { m: data };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    return matrix;
+  }
+  const errorsOf = (matrix: QuestionMatrixDynamicModel): Array<string> => {
+    matrix.validate();
+    return matrix.errors.map(error => error.getErrorType());
+  };
+  test("without paging the check counts the filled rows", () => {
+    expect(errorsOf(create({}, [{ a: 1 }, { a: 2 }, { a: 3 }])), "#1").toEqual([]);
+    expect(errorsOf(create({}, [{ a: 1 }, {}, { a: 3 }])), "#2").toEqual(["minrowcounterror"]);
+  });
+  test("under paging the check counts the filled records of every page", () => {
+    expect(errorsOf(create({ rowsPerPage: 1 }, [{ a: 1 }, { a: 2 }, { a: 3 }])), "#1: three filled records, one per page").toEqual([]);
+    expect(errorsOf(create({ rowsPerPage: 1 }, [{ a: 1 }, {}, { a: 3 }])), "#2: two filled records").toEqual(["minrowcounterror"]);
+  });
+  test("under a filter without paging the check counts the filled records the view shows", () => {
+    expect(errorsOf(create({ filterExpression: "{a} != 2" }, [{ a: 1 }, { a: 2 }, { a: 3 }])), "#1").toEqual(["minrowcounterror"]);
+    expect(errorsOf(create({ filterExpression: "{a} != 5" }, [{ a: 1 }, { a: 2 }, { a: 3 }])), "#2").toEqual([]);
+  });
+  test("with a data source the minimum row count is not checked", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", minRowCount: 3, isRequired: true,
+      columns: [{ name: "a", cellType: "text" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    let arr: Array<any> = [{ a: 1 }];
+    matrix.dataSource = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a; });
+    matrix.visibleRows;
+    expect(errorsOf(matrix), "#1").toEqual([]);
+    expect(matrix.canRemoveRows, "#2: the removal is still gated").toBe(false);
+  });
+});
+
+describe("row numbers that are not integers", () => {
+  const invalid: Array<any> = [1.5, NaN, Infinity, -Infinity, "1", null, undefined, {}];
+  function create(): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel, log: Array<string> } {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", columns: [{ name: "a", cellType: "text" }] }] });
+    survey.data = { m: [{ a: 1 }, { a: 2 }, { a: 3 }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    const log = new Array<string>();
+    survey.onValueChanged.add(() => { log.push("changed"); });
+    survey.onMatrixRowRemoving.add(() => { log.push("removing"); });
+    survey.onMatrixRowRemoved.add(() => { log.push("removed"); });
+    return { survey: survey, matrix: matrix, log: log };
+  }
+  function checkNothing(run: (matrix: QuestionMatrixDynamicModel, index: any) => void, name: string): void {
+    invalid.forEach(index => {
+      const { survey, matrix, log } = create();
+      run(matrix, index);
+      const label = name + "(" + String(index) + ")";
+      expect(survey.data, label + " data").toEqual({ m: [{ a: 1 }, { a: 2 }, { a: 3 }] });
+      expect(matrix.rowCount, label + " rowCount").toBe(3);
+      expect(log, label + " events").toEqual([]);
+    });
+  }
+  test("removeRowByIndex with a number that is not an integer writes nothing and raises no event", () => {
+    checkNothing((matrix, index) => matrix.removeRowByIndex(index), "removeRowByIndex");
+  });
+  test("removeRowByIndex with a negative integer counts from the end", () => {
+    const { survey, matrix } = create();
+    matrix.removeRowByIndex(-1);
+    expect(survey.data).toEqual({ m: [{ a: 1 }, { a: 2 }] });
+  });
+  test("moveRowByIndex with a number that is not an integer writes nothing", () => {
+    checkNothing((matrix, index) => matrix.moveRowByIndex(index, 0), "moveRowByIndex from");
+    checkNothing((matrix, index) => matrix.moveRowByIndex(0, index), "moveRowByIndex to");
+  });
+  test("addRowByIndex with a number that is not an integer writes nothing", () => {
+    checkNothing((matrix, index) => matrix.addRowByIndex({ a: 9 }, index), "addRowByIndex");
+  });
+  test("removeRow and removePanel with a number that is not an integer behave as the released methods", () => {
+    const ignored: Array<any> = [1.5, NaN, Infinity, null, undefined, {}];
+    ignored.forEach(index => {
+      const { survey, matrix } = create();
+      matrix.removeRow(index);
+      expect(survey.data, "removeRow(" + String(index) + ")").toEqual({ m: [{ a: 1 }, { a: 2 }, { a: 3 }] });
+    });
+    const { survey, matrix } = create();
+    matrix.removeRow(<any>"1");
+    expect(survey.data, "removeRow with \"1\" removes row 1").toEqual({ m: [{ a: 1 }, { a: 3 }] });
+    const createPanel = (): { survey: SurveyModel, panel: QuestionPanelDynamicModel } => {
+      const panelSurvey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [{ type: "text", name: "a" }] }] });
+      panelSurvey.data = { p: [{ a: 1 }, { a: 2 }, { a: 3 }] };
+      return { survey: panelSurvey, panel: <QuestionPanelDynamicModel>panelSurvey.getQuestionByName("p") };
+    };
+    ignored.forEach(index => {
+      const { survey, panel } = createPanel();
+      panel.removePanel(index);
+      expect(survey.data, "removePanel(" + String(index) + ")").toEqual({ p: [{ a: 1 }, { a: 2 }, { a: 3 }] });
+    });
+    const panelCase = createPanel();
+    panelCase.panel.removePanel("1");
+    expect(panelCase.survey.data, "removePanel with \"1\" removes panel 1").toEqual({ p: [{ a: 1 }, { a: 3 }] });
+  });
+});
+
+describe("rowCountExpression and removeRowByIndex", () => {
+  test("the rows match the expression's row count after removeRowByIndex", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCountExpression: "3", columns: [{ name: "a", cellType: "text" }] }] });
+    survey.data = { m: [{ a: 1 }, { a: 2 }, { a: 3 }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    matrix.removeRowByIndex(0);
+    expect(matrix.rowCount, "#1").toBe(3);
+    expect(matrix.visibleRows.length, "#2: one row per counted row").toBe(3);
+    expect(survey.data, "#3").toEqual({ m: [{ a: 2 }, { a: 3 }] });
+  });
+});

@@ -6070,3 +6070,91 @@ describe("Remote data source: a source without insert shows the read-only empty 
     expect(question.noEntriesText, "#2").toBe(question.getLocalizationString("noEntriesReadonlyText"));
   });
 });
+
+describe("a data source and the record count limits", () => {
+  function createSourceMatrix(json: any, records: Array<any>): { question: QuestionMatrixDynamicModel, getArray: () => Array<any> } {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "m",
+      columns: [{ name: "id", cellType: "text" }, { name: "b", cellType: "text", defaultValue: 5 }] }, json)] });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    let arr = records;
+    question.dataSource = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a; });
+    return { question: question, getArray: () => arr };
+  }
+  function createSourcePanel(json: any, records: Array<any>): { question: QuestionPanelDynamicModel, getArray: () => Array<any> } {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "paneldynamic", name: "p",
+      templateElements: [{ type: "text", name: "id" }] }, json)] });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    let arr = records;
+    question.dataSource = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a; });
+    return { question: question, getArray: () => arr };
+  }
+  test("with a data source minRowCount never pads the value when the rows are built", () => {
+    const { question, getArray } = createSourceMatrix({ minRowCount: 3 }, [{ id: 1 }]);
+    question.visibleRows;
+    expect(question.value.length, "#1: one record").toBe(1);
+    expect(getArray().length, "#2: the source keeps one record").toBe(1);
+    question.minRowCount = 4;
+    expect(question.value.length, "#3: a later minRowCount does not pad either").toBe(1);
+  });
+  test("with a data source maxRowCount and minRowCount gate the add and remove buttons", () => {
+    const { question, getArray } = createSourceMatrix({ minRowCount: 1, maxRowCount: 2 }, [{ id: 1 }, { id: 2 }]);
+    question.visibleRows;
+    expect(question.canAddRow, "#1: at maxRowCount").toBe(false);
+    question.addRow();
+    expect(getArray().length, "#2: addRow is refused").toBe(2);
+    question.removeRow(0);
+    expect(getArray().length, "#3: above minRowCount a row is removed").toBe(1);
+    expect(question.canRemoveRows, "#4: at minRowCount").toBe(false);
+    question.removeRow(0);
+    expect(getArray().length, "#5: removeRow is refused").toBe(1);
+    expect(question.canAddRow, "#6: below maxRowCount").toBe(true);
+  });
+  test("with a data source maxPanelCount and minPanelCount gate the add and remove buttons", () => {
+    const { question, getArray } = createSourcePanel({ minPanelCount: 1, maxPanelCount: 2 }, [{ id: 1 }, { id: 2 }]);
+    question.panels;
+    expect(question.canAddPanel, "#1: at maxPanelCount").toBe(false);
+    question.addPanelUI();
+    expect(getArray().length, "#2: addPanelUI is refused").toBe(2);
+    question.removePanelUI(question.panels[0]);
+    expect(getArray().length, "#3: above minPanelCount a panel is removed").toBe(1);
+    expect(question.canRemovePanel, "#4: at minPanelCount").toBe(false);
+    question.removePanelUI(question.panels[0]);
+    expect(getArray().length, "#5: removePanelUI is refused").toBe(1);
+  });
+  test("with a data source the record count above maxRowCount is shown", () => {
+    const { question, getArray } = createSourceMatrix({ maxRowCount: 2 }, [{ id: 1 }, { id: 2 }, { id: 3 }]);
+    expect(question.visibleRows.length, "#1").toBe(3);
+    expect(question.rowCount, "#2").toBe(3);
+    expect(getArray().length, "#3: nothing is truncated").toBe(3);
+    expect(question.canAddRow, "#4").toBe(false);
+  });
+  test("with a data source the record count below minPanelCount is shown", () => {
+    const { question, getArray } = createSourcePanel({ minPanelCount: 3 }, [{ id: 1 }]);
+    expect(question.panels.length, "#1").toBe(1);
+    expect(getArray().length, "#2: nothing is padded").toBe(1);
+  });
+  test("addRowByIndex is not limited by maxRowCount, as without a data source", () => {
+    const { question, getArray } = createSourceMatrix({ maxRowCount: 2 }, [{ id: 1 }, { id: 2 }]);
+    question.visibleRows;
+    question.addRowByIndex({ id: 3 }, 0);
+    expect(getArray().length, "#1").toBe(3);
+  });
+  test("removeRowByIndex is not limited by minRowCount, as without a data source", () => {
+    const { question, getArray } = createSourceMatrix({ minRowCount: 2 }, [{ id: 1 }, { id: 2 }]);
+    question.visibleRows;
+    question.removeRowByIndex(0);
+    expect(getArray().length, "#1").toBe(1);
+  });
+  test("addPanel with an index is not limited by maxPanelCount, as without a data source", () => {
+    const { question, getArray } = createSourcePanel({ maxPanelCount: 2 }, [{ id: 1 }, { id: 2 }]);
+    question.panels;
+    question.addPanel(0);
+    expect(getArray().length, "#1").toBe(3);
+  });
+  test("removePanel with an index is not limited by minPanelCount, as without a data source", () => {
+    const { question, getArray } = createSourcePanel({ minPanelCount: 2 }, [{ id: 1 }, { id: 2 }]);
+    question.panels;
+    question.removePanel(0);
+    expect(getArray().length, "#1").toBe(1);
+  });
+});

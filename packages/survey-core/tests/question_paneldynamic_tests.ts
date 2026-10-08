@@ -11432,3 +11432,91 @@ describe("rows and panels follow a value an onValueChanging handler rewrites", (
     expect(panel.panelCount, "#1").toBe(1);
   });
 });
+
+describe("the value a new panel's default announces", () => {
+  const templateElements = [{ type: "text", name: "q1" }, { type: "text", name: "q2", defaultValueExpression: "{panelIndex}+10" }];
+  function createSurvey(json: any, data: Array<any>): { survey: SurveyModel, panel: QuestionPanelDynamicModel, log: Array<any> } {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "paneldynamic", name: "p", templateElements: templateElements }, json)] });
+    survey.data = { p: data };
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    panel.panels;
+    const log = new Array<any>();
+    survey.onDynamicPanelValueChanged.add((_, options) => { log.push([options.name, options.panelIndex, options.value]); });
+    return { survey: survey, panel: panel, log: log };
+  }
+  test("addPanel announces a defaultValueExpression value once, with the new panel's index", () => {
+    const { panel, log } = createSurvey({}, [{ q1: "a" }, { q1: "b" }, { q1: "c" }]);
+    panel.addPanel();
+    expect(log, "#1").toEqual([["q2", 3, 13]]);
+    expect(panel.value[3], "#2").toEqual({ q2: 13 });
+  });
+  test("a record that survey.data appends announces its default with its index", () => {
+    const { survey, log } = createSurvey({}, [{ q1: "a" }]);
+    survey.data = { p: [{ q1: "a", q2: 10 }, { q1: "b" }] };
+    expect(log.filter(entry => entry[1] !== 1), "#1: every announcement names the new panel").toEqual([]);
+    expect(log.length > 0, "#2").toBe(true);
+    expect(survey.data, "#3").toEqual({ p: [{ q1: "a", q2: 10 }, { q1: "b", q2: 11 }] });
+  });
+  test("a paged addPanel announces the default with the new panel's index", () => {
+    const { panel, log } = createSurvey({ panelsPerPage: 2 }, [{ q1: "a" }, { q1: "b" }, { q1: "c" }]);
+    panel.addPanel();
+    // The page moves to the new panel: the panel of record 2 is built there and takes its default too.
+    expect(log.filter(entry => entry[0] === "q2"), "#1").toEqual([["q2", 2, 12], ["q2", 3, 13]]);
+  });
+  test("addPanel announces a static defaultValue with the new panel's index", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p",
+      templateElements: [{ type: "text", name: "q1" }, { type: "text", name: "q2", defaultValue: 5 }] }] });
+    survey.data = { p: [{ q1: "a" }, { q1: "b" }, { q1: "c" }] };
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    panel.panels;
+    const log = new Array<any>();
+    survey.onDynamicPanelValueChanged.add((_, options) => { log.push([options.name, options.panelIndex, options.value]); });
+    panel.addPanel();
+    expect(log, "#1").toEqual([["q2", 3, 5]]);
+  });
+  test("a template question's own edit keeps panel index -1, as released", () => {
+    const { survey, panel, log } = createSurvey({}, [{ q1: "a" }]);
+    panel.template.getQuestionByName("q1").value = "x";
+    expect(log, "#1").toEqual([["q1", -1, "x"]]);
+    expect(survey.data, "#2: nothing is stored").toEqual({ p: [{ q1: "a", q2: 10 }] });
+  });
+});
+
+describe("panelCountExpression and an assigned value", () => {
+  const four = () => [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }];
+  function check(assign: (survey: SurveyModel, panel: QuestionPanelDynamicModel) => void, events: Array<any>, label: string): void {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelCountExpression: "2", templateElements: [{ type: "text", name: "a" }] }] });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    const log = new Array<any>();
+    survey.onValueChanged.add((_, options) => { log.push(options.value); });
+    assign(survey, panel);
+    expect(panel.panelCount, label + " #1").toBe(2);
+    expect(survey.data, label + " #2").toEqual({ p: [{ a: 1 }, { a: 2 }] });
+    expect(panel.panels.length, label + " #3").toBe(2);
+    expect(log, label + " #4: the value events, as released").toEqual(events);
+  }
+  test("panelCountExpression truncates a longer value assigned by value, survey.data, setValue and mergeData", () => {
+    const two = [{ a: 1 }, { a: 2 }];
+    check((_, panel) => { panel.value = four(); }, [two], "value");
+    check((survey) => { survey.data = { p: four() }; }, [two], "survey.data");
+    check((survey) => { survey.setValue("p", four()); }, [two, four()], "setValue");
+    check((survey) => { survey.mergeData({ p: four() }); }, [two], "mergeData");
+  });
+  test("panelCountExpression pads a shorter assigned value", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelCountExpression: "2", templateElements: [{ type: "text", name: "a" }] }] });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    panel.value = [{ a: 1 }];
+    expect(panel.panelCount, "#1").toBe(2);
+    expect(survey.data, "#2").toEqual({ p: [{ a: 1 }, {}] });
+  });
+  test("rowCountExpression truncates a longer value assigned to a matrix", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCountExpression: "2", columns: [{ name: "a" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const log = new Array<any>();
+    survey.onValueChanged.add((_, options) => { log.push(options.value); });
+    matrix.value = four();
+    expect(matrix.rowCount, "#1").toBe(2);
+    expect(survey.data, "#2").toEqual({ m: [{ a: 1 }, { a: 2 }] });
+    expect(log, "#3").toEqual([[{ a: 1 }, { a: 2 }]]);
+  });
+});

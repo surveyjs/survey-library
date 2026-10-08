@@ -2279,7 +2279,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     const changedRows: Array<MatrixDropdownRowModelBase> = [];
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
-      if (!row.editingObj && this.isRecordChangedByRow(row, this.getRowRecordValue(i))) {
+      if (!row.editingObj && (this.isRowWrittenOnBuild(row) || this.isRecordChangedByRow(row, this.getRowRecordValue(i)))) {
         changedRows.push(row);
       }
     }
@@ -2292,6 +2292,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     if (this.isTwoValueEquals(oldValue, newValue)) return;
     this.writeRecords((): void => this.setOwnRecordsValue(newValue));
+  }
+  // A row whose build writes the value even when it holds nothing new (see the Dynamic Matrix).
+  protected isRowWrittenOnBuild(row: MatrixDropdownRowModelBase): boolean {
+    return false;
   }
   /* Would the row's value, merged into its record as a write merges it, change the record? A record
      may hold fields no column shows - the key of a data source - which the row neither holds nor
@@ -3587,9 +3591,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (index >= rows.length) return null;
     return rows[index].getQuestionByName(name);
   }
-  // The record-index counterpart of getQuestionFromArray: the object the record has, whatever
-  // position it took.
+  /* The record-index counterpart of getQuestionFromArray: the object the record has, whatever
+     position it took. Without a view the rows are built first, as the released lookup built them:
+     another question on the same value name asks for a column of a row it reads. A view builds
+     nothing here (the page stays). */
   public getQuestionFromRecord(name: string, recordIndex: number): IQuestion {
+    if (!this.generatedVisibleRows && !this.hasDataListView)this.visibleRows;
     const row = <MatrixDropdownRowModelBase>this.getItemByRecordIndex(recordIndex);
     return !!row ? row.getQuestionByName(name) : null;
   }

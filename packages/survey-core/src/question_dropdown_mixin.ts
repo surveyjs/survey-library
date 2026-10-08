@@ -4,12 +4,11 @@ import type { EventBase } from "./event";
 import type { ItemValue } from "./itemvalue";
 import { QuestionSelectBase } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
+import { dropdownQuestionMixin, IDropdownQuestion } from "./dropdownRenderState";
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
-export interface IQuestionDropdownMixin {
-  dropdownListModelValue: DropdownListModel;
-  dropdownListModel: DropdownListModel;
+export interface IQuestionDropdownMixin extends IDropdownQuestion {
   readonly popupModel: PopupModel;
   readonly showClearButton: boolean;
   onOpenedCallBack(): void;
@@ -18,8 +17,7 @@ export interface IQuestionDropdownMixin {
 }
 
 export function questionDropdownMixin<TBase extends Constructor<QuestionSelectBase>>(Base: TBase): TBase & Constructor<IQuestionDropdownMixin> {
-  class QuestionDropdownMixinClass extends Base implements IQuestionDropdownMixin {
-    dropdownListModelValue: DropdownListModel;
+  class QuestionDropdownMixinClass extends dropdownQuestionMixin(Base) implements IQuestionDropdownMixin {
     private _isChoicesLoading: boolean;
 
     declare choicesLazyLoadEnabled: boolean;
@@ -27,13 +25,6 @@ export function questionDropdownMixin<TBase extends Constructor<QuestionSelectBa
     declare allowClear: boolean;
     declare placeholder: string;
     declare onOpened: EventBase<any>;
-
-    public get dropdownListModel(): DropdownListModel {
-      return this.dropdownListModelValue;
-    }
-    public set dropdownListModel(val: DropdownListModel) {
-      this.dropdownListModelValue = val;
-    }
 
     public get popupModel(): PopupModel {
       return this.dropdownListModel.popupModel;
@@ -137,35 +128,9 @@ export function questionDropdownMixin<TBase extends Constructor<QuestionSelectBa
 
     protected supportEmptyValidation(): boolean { return true; }
 
-    protected onBlurCore(event: any): void {
-      this.dropdownListModel.onBlur(event);
-      super.onBlurCore(event);
-    }
-
-    protected onFocusCore(event: any): void {
-      this.dropdownListModel.onFocus(event);
-      super.onFocusCore(event);
-    }
-
-    protected calcCssClasses(css: any): any {
-      const classes = super.calcCssClasses(css);
-      if (this.dropdownListModelValue) {
-        this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
-      }
-      return classes;
-    }
-
     protected onClearValue(): void {
       super.onClearValue();
       this.dropdownListModelValue?.clear();
-    }
-
-    public dispose(): void {
-      super.dispose();
-      if (!!this.dropdownListModelValue) {
-        this.dropdownListModelValue.dispose();
-        this.dropdownListModelValue = undefined;
-      }
     }
   }
 

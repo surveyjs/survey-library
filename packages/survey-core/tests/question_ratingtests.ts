@@ -2375,6 +2375,32 @@ test("Check dropdoun rating close on blur, #8862", () => {
   expect(popup.isVisible).toBeFalsy();
 });
 
+test("Rating in dropdown mode creates the model on focus and keeps keyboard selection, Issue#9014", () => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "rating", name: "q1", displayMode: "dropdown" },
+      { type: "rating", name: "q2" }
+    ]
+  });
+  const question = <QuestionRatingModel>survey.getQuestionByName("q1");
+  expect(question.renderAs, "dropdown mode").toBe("dropdown");
+  expect(!!question["dropdownListModelValue"], "no model before focus").toBe(false);
+  question.onFocus({});
+  expect(!!question["dropdownListModelValue"], "focus creates the model").toBe(true);
+  const dropdownListModel = question.dropdownListModel;
+  expect(dropdownListModel.focused, "model is focused").toBe(true);
+  const event = (keyCode: number) => ({ keyCode, preventDefault: () => { }, stopPropagation: () => { } });
+  dropdownListModel.keyHandler(event(40));
+  expect(dropdownListModel.popupModel.isVisible, "ArrowDown opens the popup").toBe(true);
+  dropdownListModel.keyHandler(event(40));
+  dropdownListModel.keyHandler(event(13));
+  expect(question.value, "Enter selects the focused item").toBe(2);
+  expect(dropdownListModel.popupModel.isVisible, "Enter closes the popup").toBe(false);
+
+  const question2 = <QuestionRatingModel>survey.getQuestionByName("q2");
+  question2.onFocus({});
+  expect(!!question2["dropdownListModelValue"], "focus outside dropdown mode creates nothing").toBe(false);
+});
 test("Check dropdown rating text, #8953", () => {
   const survey = new SurveyModel({
     elements: [{

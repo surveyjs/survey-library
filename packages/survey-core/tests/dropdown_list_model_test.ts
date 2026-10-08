@@ -7,6 +7,11 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { SurveyModel } from "../src/survey";
 import { _setIsTouch } from "../src/utils/devices";
 import { PopupDropdownViewModel } from "../src/popup-dropdown-view-model";
+import { QuestionTagboxModel } from "../src/question_tagbox";
+import "../src/question_rating";
+import { QuestionButtonGroupModel } from "../src/question_buttongroup";
+import { Question } from "../src/question";
+import { Action } from "../src/actions/action";
 
 import { describe, test, expect } from "vitest";
 describe("DropdownListModel", () => {
@@ -1437,5 +1442,315 @@ describe("DropdownListModel", () => {
     } finally {
       _setIsTouch(false);
     }
+  });
+});
+
+describe("DropdownRenderState, Issue#9014", () => {
+  const choices = ["item1", "item2", "item3"];
+  const RENDER_STATE_MEMBERS = ["focused", "hintString", "ariaExpanded", "ariaActivedescendant", "listElementId",
+    "inputAvailable", "noTabIndex", "filterReadOnly", "filterStringEnabled", "inputMode", "popupEnabled", "canShowSelectedItem",
+    "needRenderInput", "inputStringRendered", "placeholderRendered", "showHintPrefix", "hintStringPrefix", "showHintString",
+    "hintStringSuffix", "hintStringMiddle",
+    "ariaQuestionRole", "ariaQuestionRequired", "ariaQuestionInvalid", "ariaQuestionErrorMessage", "ariaQuestionLabel",
+    "ariaQuestionLabelledby", "ariaQuestionDescribedby", "ariaQuestionControls", "ariaQuestionExpanded", "ariaQuestionActivedescendant",
+    "ariaInputRole", "ariaInputRequired", "ariaInputInvalid", "ariaInputErrorMessage", "ariaInputLabel",
+    "ariaInputLabelledby", "ariaInputDescribedby", "ariaInputControls", "ariaInputExpanded", "ariaInputActivedescendant"];
+  const MULTI_RENDER_STATE_MEMBERS = ["filterString", "filterStringPlaceholder"];
+
+  function readRenderState(state: any, isMulti: boolean): any {
+    const res: any = {};
+    RENDER_STATE_MEMBERS.forEach(name => res[name] = state[name]);
+    if (isMulti) {
+      MULTI_RENDER_STATE_MEMBERS.forEach(name => res[name] = state[name]);
+    }
+    res.selectedAction = state.getSelectedAction()?.value;
+    res.editorButtons = state.editorButtons.actions.map((action: Action) => ({
+      id: action.id, visible: action.visible, enabled: action.enabled, title: action.title,
+      iconName: action.iconName, iconSize: action.iconSize, css: action.css, disableTabStop: action.disableTabStop
+    }));
+    return res;
+  }
+  function readQuestion(q: any): any {
+    return {
+      showInputFieldComponent: q.showInputFieldComponent,
+      showSelectedItemLocText: q.showSelectedItemLocText,
+      selectedItemText: q.selectedItemLocText?.renderedHtml,
+      readOnlyText: q.locReadOnlyText.renderedHtml,
+      controlClass: q.getControlClass()
+    };
+  }
+  function hasModel(q: Question): boolean {
+    return !!q["dropdownListModelValue"];
+  }
+  function createSurvey(json: any, mode: "design" | "display" | "readOnly" | "edit"): SurveyModel {
+    let survey: SurveyModel;
+    if (mode === "design") {
+      survey = new SurveyModel();
+      survey.setDesignMode(true);
+      survey.fromJSON(json);
+    } else {
+      survey = new SurveyModel(json);
+    }
+    if (mode === "display") survey.mode = "display";
+    if (mode === "readOnly") survey.getAllQuestions().forEach(q => q.readOnly = true);
+    survey.getAllQuestions().forEach(q => {
+      if (q.getType() === "rating" || q.getType() === "buttongroup") q.renderAs = "dropdown";
+    });
+    return survey;
+  }
+  const renderJson = {
+    elements: [
+      { type: "dropdown", name: "dropdown", choices },
+      { type: "dropdown", name: "dropdownComponent", choices, itemComponent: "my-item" },
+      { type: "tagbox", name: "tagbox", choices },
+      { type: "rating", name: "rating", displayMode: "dropdown" },
+      { type: "buttongroup", name: "buttongroup", choices }
+    ]
+  };
+  const prefill: any = { dropdown: "item2", dropdownComponent: "item2", tagbox: ["item1", "item3"], rating: 3, buttongroup: "item2" };
+
+  test("Rendering a closed control creates no model, empty and prefilled, Issue#9014", () => {
+    for (const mode of ["design", "display", "readOnly"]) {
+      for (const isPrefilled of [false, true]) {
+        const survey = createSurvey(renderJson, <any>mode);
+        const questions = survey.getAllQuestions();
+        if (isPrefilled) {
+          questions.forEach(q => q.value = prefill[q.name]);
+        }
+        questions.forEach(q => {
+          const caption = mode + ", " + (isPrefilled ? "prefilled" : "empty") + ", " + q.name;
+          expect(q.isEmpty(), caption + ", value").toBe(!isPrefilled);
+          readQuestion(q);
+          const state = readRenderState(q.dropdownRenderState, q.getType() === "tagbox");
+          expect(state.editorButtons.map((b: any) => b.id), caption + ", editor buttons").toEqual(["clear", "chevron"]);
+          expect(state.editorButtons.map((b: any) => b.title), caption + ", editor button titles").toEqual(["Clear", "Select"]);
+          expect(hasModel(q), caption + ", model is not created").toBe(false);
+        });
+        expect((<QuestionDropdownModel>survey.getQuestionByName("dropdownComponent")).showInputFieldComponent, mode + ", showInputFieldComponent").toBe(isPrefilled);
+        survey.dispose();
+      }
+    }
+  });
+
+  test("The render state reports the same values without and with the model, Issue#9014", () => {
+    const check = (json: any, mode: "design" | "edit" | "readOnly", value: any, caption: string): void => {
+      const survey = createSurvey({ elements: [json] }, mode);
+      const q = survey.getAllQuestions()[0];
+      if (value !== undefined) q.value = value;
+      const isMulti = q.getType() === "tagbox";
+      const withoutModel = readRenderState(q.dropdownRenderState, isMulti);
+      const questionWithoutModel = readQuestion(q);
+      expect(hasModel(q), caption + ", no model yet").toBe(false);
+      const model = q.dropdownListModel;
+      expect(!!model, caption + ", model is created").toBe(true);
+      expect(readRenderState(q.dropdownRenderState, isMulti), caption + ", render state").toEqual(withoutModel);
+      expect(readRenderState(model, isMulti), caption + ", model").toEqual(withoutModel);
+      expect(readQuestion(q), caption + ", question").toEqual(questionWithoutModel);
+      survey.dispose();
+    };
+    let counter = 0;
+    for (const type of ["dropdown", "tagbox"]) {
+      for (const searchEnabled of [true, false]) {
+        for (const allowCustomChoices of [false, true]) {
+          for (const choicesLazyLoadEnabled of [false, true]) {
+            for (const mode of ["edit", "readOnly", "design"]) {
+              for (const placeholder of [undefined, "Pick one"]) {
+                for (const hasValue of [false, true]) {
+                  const json: any = { type, name: "q1", choices, searchEnabled, allowCustomChoices, choicesLazyLoadEnabled };
+                  if (placeholder) json.placeholder = placeholder;
+                  const value = hasValue ? (type === "tagbox" ? ["item2"] : "item2") : undefined;
+                  check(json, <any>mode, value, [type, "searchEnabled: " + searchEnabled, "allowCustomChoices: " + allowCustomChoices,
+                    "lazy: " + choicesLazyLoadEnabled, mode, "placeholder: " + placeholder, "value: " + hasValue].join(", "));
+                  counter++;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    for (const type of ["rating", "buttongroup"]) {
+      for (const mode of ["edit", "readOnly", "design"]) {
+        for (const hasValue of [false, true]) {
+          const value = hasValue ? (type === "rating" ? 3 : "item2") : undefined;
+          check({ type, name: "q1", choices, displayMode: "dropdown" }, <any>mode, value, [type, mode, "value: " + hasValue].join(", "));
+          counter++;
+        }
+      }
+    }
+    expect(counter).toBe(204);
+  });
+
+  test("The render state delegates to the model after it is created, Issue#9014", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "dropdown", name: "q1", choices },
+        { type: "dropdown", name: "q2", choices, searchEnabled: false },
+        { type: "dropdown", name: "q3", choices, defaultValue: "item2" }
+      ]
+    });
+    const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+    const state1 = q1.dropdownRenderState;
+    expect(state1.ariaInputExpanded, "q1 closed").toBe("false");
+    const model1 = q1.dropdownListModel;
+    model1.popupModel.isVisible = true;
+    expect(state1.ariaInputExpanded, "q1 opened").toBe("true");
+    expect(state1.ariaQuestionExpanded, "q1 has the input role").toBeUndefined();
+    model1.keyHandler({ keyCode: 40, preventDefault: () => { }, stopPropagation: () => { } });
+    const list = model1.popupModel.contentComponentData.model as ListModel;
+    expect(!!state1.ariaInputActivedescendant, "q1 active descendant is set").toBe(true);
+    expect(state1.ariaInputActivedescendant, "q1 active descendant").toBe(list.focusedItem.elementId);
+    model1.inputStringRendered = "it";
+    expect(state1.inputStringRendered, "q1 input string").toBe("it");
+    expect(state1.hintString, "q1 hint string").toBe("item1");
+    expect(state1.showHintString, "q1 show hint string").toBe(true);
+    expect(state1.showHintPrefix, "q1 show hint prefix").toBe(false);
+    expect(state1.hintStringSuffix, "q1 hint suffix").toBe("em1");
+
+    const q2 = <QuestionDropdownModel>survey.getQuestionByName("q2");
+    const state2 = q2.dropdownRenderState;
+    expect(state2.ariaQuestionExpanded, "q2 closed").toBe("false");
+    q2.dropdownListModel.popupModel.isVisible = true;
+    expect(state2.ariaQuestionExpanded, "q2 opened").toBe("true");
+    expect(state2.ariaInputExpanded, "q2 has no input role").toBeUndefined();
+
+    const q3 = <QuestionDropdownModel>survey.getQuestionByName("q3");
+    const state3 = q3.dropdownRenderState;
+    expect(state3.canShowSelectedItem, "q3 not focused").toBe(true);
+    expect(q3.showSelectedItemLocText, "q3 shows the selected item").toBe(true);
+    expect(hasModel(q3), "q3 has no model").toBe(false);
+    q3.onFocus({});
+    expect(hasModel(q3), "q3 focus creates the model").toBe(true);
+    expect(state3.focused, "q3 focused").toBe(true);
+    expect(state3.canShowSelectedItem, "q3 focused, searchable").toBe(false);
+    expect(q3.showSelectedItemLocText, "q3 focused").toBe(false);
+  });
+
+  test("Button group in dropdown mode creates the model on focus, Issue#9014", () => {
+    const survey = new SurveyModel({ elements: [{ type: "buttongroup", name: "q1", choices }, { type: "buttongroup", name: "q2", choices }] });
+    const q1 = <QuestionButtonGroupModel>survey.getQuestionByName("q1");
+    q1.renderAs = "dropdown";
+    expect(hasModel(q1), "no model in dropdown mode").toBe(false);
+    q1.onFocus({});
+    expect(hasModel(q1), "focus creates the model").toBe(true);
+    const model = q1.dropdownListModel;
+    expect(model.focused, "model is focused").toBe(true);
+    const event = (keyCode: number) => ({ keyCode, preventDefault: () => { }, stopPropagation: () => { } });
+    model.keyHandler(event(40));
+    expect(model.popupModel.isVisible, "ArrowDown opens the popup").toBe(true);
+    model.keyHandler(event(13));
+    expect(q1.value, "Enter selects the focused item").toBe("item1");
+    expect(model.popupModel.isVisible, "Enter closes the popup").toBe(false);
+
+    const q2 = <QuestionButtonGroupModel>survey.getQuestionByName("q2");
+    q2.onFocus({});
+    expect(hasModel(q2), "focus outside dropdown mode creates nothing").toBe(false);
+  });
+
+  test("Editor buttons work without a model, Issue#9014", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "dropdown", name: "q1", choices },
+        { type: "dropdown", name: "q2", choices, renderAs: "select" }
+      ]
+    });
+    const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+    const buttons = q1.dropdownRenderState.editorButtons;
+    expect(buttons, "the render state returns the question's container").toBe(q1.dropdownEditorButtons);
+    const clear = buttons.getActionById("clear");
+    const chevron = buttons.getActionById("chevron");
+    expect(clear.title, "clear title").toBe("Clear");
+    expect(chevron.title, "chevron title").toBe("Select");
+    expect(clear.visible, "empty").toBe(false);
+    q1.value = "item1";
+    expect(clear.visible, "has value").toBe(true);
+    q1.allowClear = false;
+    expect(clear.visible, "allowClear is false").toBe(false);
+    q1.allowClear = true;
+    expect(clear.visible, "allowClear is true").toBe(true);
+    q1.readOnly = true;
+    expect(clear.visible, "readOnly, clear visible").toBe(false);
+    expect(clear.enabled, "readOnly, clear enabled").toBe(false);
+    expect(chevron.enabled, "readOnly, chevron enabled").toBe(false);
+    q1.readOnly = false;
+    expect(clear.visible, "editable, clear visible").toBe(true);
+    expect(chevron.enabled, "editable, chevron enabled").toBe(true);
+    survey.mode = "display";
+    expect(clear.visible, "display mode, clear visible").toBe(false);
+    expect(clear.enabled, "display mode, clear enabled").toBe(false);
+    expect(chevron.enabled, "display mode, chevron enabled").toBe(false);
+    survey.mode = "edit";
+    expect(clear.visible, "edit mode, clear visible").toBe(true);
+    expect(clear.enabled, "edit mode, clear enabled").toBe(true);
+    expect(chevron.enabled, "edit mode, chevron enabled").toBe(true);
+    expect(hasModel(q1), "no model yet").toBe(false);
+
+    clear.action();
+    expect(hasModel(q1), "clear creates the model").toBe(true);
+    expect(q1.isEmpty(), "clear clears the value").toBe(true);
+    expect(q1.dropdownListModel.editorButtons, "the model returns the question's container").toBe(buttons);
+    q1.dropdownListModel.popupModel.isVisible = true;
+    expect(chevron.popupActive, "popup is opened").toBe(true);
+    q1.dropdownListModel.popupModel.isVisible = false;
+    expect(chevron.popupActive, "popup is closed").toBe(false);
+
+    const q2 = <QuestionDropdownModel>survey.getQuestionByName("q2");
+    const selectChevron = q2.inputActionBar.getActionById("chevron");
+    expect(q2.locSelectCaption, "the question has no locSelectCaption").toBeUndefined();
+    expect(selectChevron.locTitle.localizationName, "select-mode chevron has no localized title").toBeFalsy();
+    expect(selectChevron.title, "select-mode chevron has no title").toBeFalsy();
+
+    const forcedSurvey = new SurveyModel({ elements: [{ type: "tagbox", name: "q1", choices }] });
+    const forcedQuestion = <QuestionTagboxModel>forcedSurvey.getQuestionByName("q1");
+    forcedQuestion.forceIsInputReadOnly = true;
+    const forcedChevron = forcedQuestion.dropdownEditorButtons.getActionById("chevron");
+    expect(forcedChevron.enabled, "forceIsInputReadOnly is true").toBe(false);
+    forcedQuestion.forceIsInputReadOnly = undefined;
+    expect(forcedChevron.enabled, "forceIsInputReadOnly is reset").toBe(true);
+    forcedSurvey.mode = "display";
+    expect(forcedChevron.enabled, "forceIsInputReadOnly is reset, display mode").toBe(false);
+
+    const designSurvey = new SurveyModel();
+    designSurvey.setDesignMode(true);
+    designSurvey.fromJSON({ elements: [{ type: "dropdown", name: "q1", choices }] });
+    const designChevron = (<QuestionDropdownModel>designSurvey.getQuestionByName("q1")).dropdownEditorButtons.getActionById("chevron");
+    expect(designChevron.enabled, "design mode, chevron enabled").toBe(false);
+    expect(designChevron.visible, "design mode, chevron visible").toBe(true);
+
+    const previewSurvey = new SurveyModel({ showPreviewBeforeComplete: true, elements: [{ type: "dropdown", name: "q1", choices }] });
+    const previewQuestion = <QuestionDropdownModel>previewSurvey.getQuestionByName("q1");
+    const previewChevron = previewQuestion.dropdownEditorButtons.getActionById("chevron");
+    expect(previewChevron.visible, "edit mode, chevron visible").toBe(true);
+    previewSurvey.showPreview();
+    expect(previewSurvey.state, "survey is in preview").toBe("preview");
+    expect(previewChevron.visible, "preview, chevron visible").toBe(false);
+  });
+
+  test("Captions keep working through DropdownListModel, Issue#9014", () => {
+    const survey = new SurveyModel({ elements: [{ type: "tagbox", name: "q1", choices }] });
+    const q1 = <QuestionTagboxModel>survey.getQuestionByName("q1");
+    const model = q1.dropdownListModel;
+    expect(model.selectCaption, "selectCaption").toBe("Select");
+    expect(model.clearCaption, "clearCaption").toBe("Clear");
+    expect(model.locSelectCaption, "locSelectCaption is the question's string").toBe(q1.getDropdownLocCaption("selectCaption"));
+    model.clearCaption = "Remove";
+    expect(model.editorButtons.getActionById("clear").title, "clear title is changed").toBe("Remove");
+  });
+
+  test("Disposing the question disposes the editor buttons and the model, Issue#9014", () => {
+    const survey = new SurveyModel({ elements: [{ type: "dropdown", name: "q1", choices }, { type: "tagbox", name: "q2", choices }] });
+    const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+    const buttons1 = q1.dropdownEditorButtons;
+    q1.dispose();
+    expect(buttons1.isDisposed, "q1, buttons are disposed").toBe(true);
+    expect(hasModel(q1), "q1, no model is created on dispose").toBe(false);
+
+    const q2 = <QuestionTagboxModel>survey.getQuestionByName("q2");
+    const buttons2 = q2.dropdownEditorButtons;
+    const model2 = q2.dropdownListModel;
+    q2.dispose();
+    expect(buttons2.isDisposed, "q2, buttons are disposed").toBe(true);
+    expect(model2.isDisposed, "q2, model is disposed").toBe(true);
+    expect(hasModel(q2), "q2, model is released").toBe(false);
   });
 });

@@ -210,9 +210,11 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
             aria-label={item.locText.renderedHtml}
             aria-invalid={this.question.ariaInvalid}
             aria-errormessage={this.question.ariaErrormessage}
+            aria-keyshortcuts={this.question.getItemAriaKeyShortcuts(item)}
           />
           <div className={this.question.cssClasses.itemDecorator}>
             <div className={this.question.cssClasses.imageContainer}>
+              {this.question.getChoiceKeyBadge(item) ? <span className={this.question.getItemShortcutKeyClass(item)} aria-hidden="true">{this.question.getChoiceKeyBadge(item)}</span> : null}
               {!!this.question.cssClasses.checkedItemDecorator ?
                 <span className={this.question.cssClasses.checkedItemDecorator} aria-hidden="true">
                   {!!this.question.cssClasses.checkedItemSvgIconId ? <SvgIcon size={"auto"} className={this.question.cssClasses.checkedItemSvgIcon} iconName={this.question.cssClasses.checkedItemSvgIconId}></SvgIcon> : null}

@@ -70,6 +70,7 @@ export class SurveyQuestionRadioItem extends SurveyQuestionSelectBaseItem {
     var labelClass = this.question.getLabelClass(this.item);
     var controlLabelClass = this.question.getControlLabelClass(this.item);
     const itemLabel = !this.hideCaption ? <span className={controlLabelClass} id={this.question.getItemLabelId(this.item)} aria-hidden={this.question.isItemLabelAriaHidden ? "true" : undefined}>{this.renderLocString(this.item.locText, this.textStyle)}</span> : null;
+    const shortcutKey = this.question.getChoiceKeyBadge(this.item);
     return (
       <div
         className={itemClass}
@@ -77,6 +78,7 @@ export class SurveyQuestionRadioItem extends SurveyQuestionSelectBaseItem {
         ref={this.rootRef}
       >
         <label onMouseDown={this.handleOnMouseDown} className={labelClass}>
+          {shortcutKey ? <span className={this.question.getItemShortcutKeyClass(this.item)} aria-hidden="true">{shortcutKey}</span> : null}
           <input
             aria-errormessage={this.question.ariaErrormessage}
             className={this.cssClasses.itemControl}
@@ -92,6 +94,7 @@ export class SurveyQuestionRadioItem extends SurveyQuestionSelectBaseItem {
             onBlur={this.handleOnBlur}
             aria-label={this.ariaLabel}
             aria-labelledby={!this.ariaLabel && !this.hideCaption ? this.question.getItemLabelId(this.item) : undefined}
+            aria-keyshortcuts={this.question.getItemAriaKeyShortcuts(this.item)}
           />
           {
             this.cssClasses.materialDecorator ?

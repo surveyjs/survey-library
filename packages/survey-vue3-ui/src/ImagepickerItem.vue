@@ -14,6 +14,7 @@
         :aria-label="item.locText.renderedHtml"
         :aria-invalid="question.ariaInvalid"
         :aria-errormessage="question.ariaErrormessage"
+        :aria-keyshortcuts="question.getItemAriaKeyShortcuts(item)"
         :class="question.cssClasses.itemControl"
         @keydown="question.onChoiceKeyDown?.($event)"
         @focusout="question.onChoiceFocusOut?.($event)"
@@ -31,12 +32,18 @@
         :aria-label="item.locText.renderedHtml"
         :aria-invalid="question.ariaInvalid"
         :aria-errormessage="question.ariaErrormessage"
+        :aria-keyshortcuts="question.getItemAriaKeyShortcuts(item)"
         :class="question.cssClasses.itemControl"
         @keydown="question.onChoiceKeyDown?.($event)"
         @focusout="question.onChoiceFocusOut?.($event)"
       />
       <div :class="question.cssClasses.itemDecorator">
         <div :class="question.cssClasses.imageContainer">
+          <span
+            v-if="question.getChoiceKeyBadge(item)"
+            :class="question.getItemShortcutKeyClass(item)"
+            aria-hidden="true"
+          >{{ question.getChoiceKeyBadge(item) }}</span>
           <span
             v-if="question.cssClasses.checkedItemDecorator"
             :class="question.cssClasses.checkedItemDecorator"

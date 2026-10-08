@@ -119,7 +119,7 @@ test("showChoiceShortcutKeys serialization and inheritance", () => {
   expect(plain.showChoiceShortcutKeys).toBe(false);
   expect(plain.toJSON().showChoiceShortcutKeys).toBeUndefined();
   const plainQuestion = questionOf<QuestionRadiogroupModel>(plain);
-  expect(plainQuestion.showShortcutKeys).toBeUndefined();
+  expect(plainQuestion.showShortcutKeys).toBe(false);
   expect(plainQuestion.toJSON().showShortcutKeys).toBeUndefined();
   expect(plainQuestion.isChoiceKeyboardSelectionEnabled).toBe(false);
 
@@ -238,15 +238,19 @@ test("radiogroup letters select by position, including multi-letter codes", () =
   expect(wide.value).toBe("c703");
 });
 
-test("disabled and special choices are indexed from visible enabled items", () => {
+test("disabled choices keep their letter and special choices share the sequence", () => {
   const survey = createSurvey("radiogroup", 3, {
     choices: ["a", { value: "b", enableIf: "false" }, "c"]
   });
   const q = questionOf<QuestionRadiogroupModel>(survey);
+  expect(q.getChoiceKeyBadge(q.visibleChoices[0])).toBe("A");
+  expect(q.getChoiceKeyBadge(q.visibleChoices[1])).toBe("B");
+  expect(q.getChoiceKeyBadge(q.visibleChoices[2])).toBe("C");
+  expect(q.getItemShortcutKeyClass(q.visibleChoices[1])).toContain("sd-item__shortcut-key--disabled");
   press(q, "a");
   expect(q.value).toBe("a");
   press(q, "b");
-  expect(q.value).toBe("c");
+  expect(q.value).toBe("a");
   press(q, "c");
   expect(q.value).toBe("c");
 
@@ -344,6 +348,8 @@ test("choice keys ignore modifiers, composition, repeat, digits, comments and re
   const checks = questionOf<QuestionCheckboxModel>(createSurvey("checkbox", 3));
   checks.visibleChoices[1].setIsEnabled(false);
   press(checks, "b", { item: checks.visibleChoices[1], target: inputFor(checks, checks.visibleChoices[1], "checkbox") });
+  expect(checks.value).toEqual([]);
+  press(checks, "c", { item: checks.visibleChoices[2], target: inputFor(checks, checks.visibleChoices[2], "checkbox") });
   expect(checks.value).toEqual(["c3"]);
 });
 
@@ -418,7 +424,7 @@ test("an applied code moves focus to the target input", () => {
   }
 });
 
-test("imagepicker letters select, toggle, skip disabled items and honor the question flag", () => {
+test("imagepicker letters select, toggle, keep disabled letters and honor the question flag", () => {
   vi.useFakeTimers();
   const single = questionOf<QuestionImagePickerModel>(createSurvey("imagepicker", 4, { choices: imageChoices(4) }));
   expect(single.supportsChoiceKeyboardSelection()).toBe(true);
@@ -446,11 +452,14 @@ test("imagepicker letters select, toggle, skip disabled items and honor the ques
       { value: "c4", imageLink: "img4" }
     ]
   }));
+  expect(skipped.visibleChoices.map((item) => skipped.getChoiceKeyBadge(item))).toEqual(["A", "B", "C", "D"]);
   press(skipped, "a");
   expect(skipped.value).toBe("c1");
   press(skipped, "b");
-  expect(skipped.value).toBe("c4");
+  expect(skipped.value).toBe("c1");
   press(skipped, "c");
+  expect(skipped.value).toBe("c1");
+  press(skipped, "d");
   expect(skipped.value).toBe("c4");
 
   const off = questionOf<QuestionImagePickerModel>(createSurvey("imagepicker", 4, {
@@ -469,6 +478,151 @@ test("imagepicker letters select, toggle, skip disabled items and honor the ques
   press(wide, "a");
   press(wide, "b");
   expect(wide.value).toBe("c28");
+});
+
+test("badges track the visible position for every supported type", () => {
+  const types = ["radiogroup", "checkbox", "imagepicker"];
+  for (let t = 0; t < types.length; t++) {
+    const question = questionOf<QuestionCheckboxBase>(createSurvey(types[t], 3, types[t] === "imagepicker" ? { choices: imageChoices(3) } : {}));
+    expect(question.canShowChoiceKeys).toBe(true);
+    expect(question.visibleChoices.map((item) => question.getChoiceKeyBadge(item))).toEqual(["A", "B", "C"]);
+    expect(question.getItemAriaKeyShortcuts(question.visibleChoices[0])).toBe("A");
+    expect(question.getItemShortcutKeyClass(question.visibleChoices[0])).toBe(question.cssClasses.itemShortcutKey);
+  }
+});
+
+test("badges follow visibleIf, choicesVisibleIf and choicesEnableIf", () => {
+  const survey = new SurveyModel({
+    showChoiceShortcutKeys: true,
+    elements: [
+      { type: "text", name: "gate" },
+      {
+        type: "radiogroup",
+        name: "q",
+        choices: ["c1", { value: "c2", visibleIf: "{gate} = 'yes'" }, "c3"]
+      }
+    ]
+  });
+  const q = questionOf<QuestionRadiogroupModel>(survey);
+  expect(q.visibleChoices.map((item) => q.getChoiceKeyBadge(item))).toEqual(["A", "B"]);
+  expect(q.visibleChoices.map((item) => item.value)).toEqual(["c1", "c3"]);
+  survey.setValue("gate", "yes");
+  expect(q.visibleChoices.map((item) => item.value)).toEqual(["c1", "c2", "c3"]);
+  expect(q.visibleChoices.map((item) => q.getChoiceKeyBadge(item))).toEqual(["A", "B", "C"]);
+
+  const filtered = questionOf<QuestionRadiogroupModel>(createSurvey("radiogroup", 3, {
+    choicesVisibleIf: "{item} != 'c2'"
+  }));
+  expect(filtered.visibleChoices.map((item) => item.value)).toEqual(["c1", "c3"]);
+  expect(filtered.visibleChoices.map((item) => filtered.getChoiceKeyBadge(item))).toEqual(["A", "B"]);
+
+  const enabled = questionOf<QuestionCheckboxModel>(createSurvey("checkbox", 3, {
+    choicesEnableIf: "{item} != 'c2'"
+  }));
+  expect(enabled.visibleChoices.map((item) => enabled.getChoiceKeyBadge(item))).toEqual(["A", "B", "C"]);
+  expect(enabled.getItemEnabled(enabled.visibleChoices[1])).toBe(false);
+  press(enabled, "b");
+  expect(enabled.value).toEqual([]);
+  press(enabled, "c");
+  expect(enabled.value).toEqual(["c3"]);
+});
+
+test("special choices keep visual order with and without separateSpecialChoices", () => {
+  const joined = questionOf<QuestionCheckboxModel>(createSurvey("checkbox", 2, {
+    showSelectAllItem: true,
+    showNoneItem: true,
+    showOtherItem: true,
+    separateSpecialChoices: false
+  }));
+  expect(joined.visibleChoices.map((item) => joined.getChoiceKeyBadge(item))).toEqual(["A", "B", "C", "D", "E"]);
+  expect(joined.getChoiceKeyBadge(joined.selectAllItem)).toBe("A");
+  expect(joined.getChoiceKeyBadge(joined.noneItem)).toBe("D");
+  expect(joined.getChoiceKeyBadge(joined.otherItem)).toBe("E");
+
+  const separated = questionOf<QuestionCheckboxModel>(createSurvey("checkbox", 2, {
+    showSelectAllItem: true,
+    showNoneItem: true,
+    showOtherItem: true,
+    separateSpecialChoices: true
+  }));
+  const rendered = separated.headItems.concat(separated.bodyItems, separated.footItems);
+  expect(rendered.map((item) => separated.getChoiceKeyBadge(item))).toEqual(
+    separated.visibleChoices.map((item) => separated.getChoiceKeyBadge(item))
+  );
+  expect(separated.getChoiceKeyBadge(separated.selectAllItem)).toBe("A");
+  expect(separated.getChoiceKeyBadge(separated.noneItem)).toBe("D");
+});
+
+test("a question flag false hides badges even when the survey flag is on", () => {
+  const q = questionOf<QuestionRadiogroupModel>(createSurvey("radiogroup", 2, { showShortcutKeys: false }));
+  expect(q.canShowChoiceKeys).toBe(false);
+  expect(q.getChoiceKeyBadge(q.visibleChoices[0])).toBe("");
+  expect(q.getItemAriaKeyShortcuts(q.visibleChoices[0])).toBeUndefined();
+  q.showShortcutKeys = undefined;
+  expect(q.getChoiceKeyBadge(q.visibleChoices[0])).toBe("A");
+  q.showShortcutKeys = false;
+  expect(q.getChoiceKeyBadge(q.visibleChoices[0])).toBe("");
+});
+
+test("badges hide and keys stop on mobile, readonly and preview", () => {
+  const mobile = questionOf<QuestionRadiogroupModel>(createSurvey("radiogroup", 3));
+  mobile.isMobile = true;
+  expect(mobile.canShowChoiceKeys).toBe(false);
+  expect(mobile.getChoiceKeyBadge(mobile.visibleChoices[0])).toBe("");
+  press(mobile, "a");
+  expect(mobile.value).toBeUndefined();
+  mobile.isMobile = false;
+  expect(mobile.getChoiceKeyBadge(mobile.visibleChoices[0])).toBe("A");
+  press(mobile, "b");
+  expect(mobile.value).toBe("c2");
+
+  const readOnly = questionOf<QuestionRadiogroupModel>(createSurvey("radiogroup", 3));
+  readOnly.readOnly = true;
+  expect(readOnly.getChoiceKeyBadge(readOnly.visibleChoices[0])).toBe("");
+  press(readOnly, "a");
+  expect(readOnly.value).toBeUndefined();
+
+  const preview = createSurvey("radiogroup", 3);
+  expect(preview.showPreview()).toBe(true);
+  const previewQuestion = questionOf<QuestionRadiogroupModel>(preview);
+  expect(previewQuestion.isPreviewStyle).toBe(true);
+  expect(previewQuestion.getChoiceKeyBadge(previewQuestion.visibleChoices[0])).toBe("");
+  press(previewQuestion, "a");
+  expect(previewQuestion.value).toBeUndefined();
+});
+
+test("design mode shows badges without keyboard selection and skips creator service items", () => {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    showChoiceShortcutKeys: true,
+    elements: [{
+      type: "checkbox",
+      name: "q",
+      choices: ["a", "b"],
+      showNoneItem: true
+    }]
+  });
+  const q = questionOf<QuestionCheckboxModel>(survey);
+  expect(q.canShowChoiceKeys).toBe(true);
+  expect(q.getChoiceKeyBadge(q.choices[0])).toBe("A");
+  expect(q.getChoiceKeyBadge(q.choices[1])).toBe("B");
+  expect(q.getChoiceKeyBadge(q.noneItem)).toBe("C");
+  expect(q.getChoiceKeyBadge(q.newItem)).toBe("");
+  expect(q.getChoiceKeyBadge(q.selectAllItem)).toBe("");
+  press(q, "a");
+  expect(q.isEmpty()).toBe(true);
+});
+
+test("aria-keyshortcuts is set only for a single letter", () => {
+  const q = questionOf<QuestionRadiogroupModel>(createSurvey("radiogroup", 27));
+  expect(q.getChoiceKeyBadge(q.visibleChoices[0])).toBe("A");
+  expect(q.getItemAriaKeyShortcuts(q.visibleChoices[0])).toBe("A");
+  expect(q.getChoiceKeyBadge(q.visibleChoices[26])).toBe("AA");
+  expect(q.getItemAriaKeyShortcuts(q.visibleChoices[26])).toBeUndefined();
+  q.visibleChoices[0].setIsEnabled(false);
+  expect(q.getChoiceKeyBadge(q.visibleChoices[0])).toBe("A");
+  expect(q.getItemAriaKeyShortcuts(q.visibleChoices[0])).toBeUndefined();
 });
 
 test("dispose drops a pending choice code", () => {

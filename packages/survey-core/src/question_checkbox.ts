@@ -561,7 +561,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
 
   public isItemInList(item: ItemValue): boolean {
-    if (item == this.selectAllItem) return this.showSelectAllItem;
+    if (item === this.selectAllItemValue) return this.showSelectAllItem;
     return super.isItemInList(item);
   }
   protected getDisplayValueEmpty(): string {

@@ -316,6 +316,10 @@
 
   --sjs2-color-border-basic-primary: var(--foreground);
   --sjs2-color-border-basic-secondary: var(--border);
+  --sjs2-color-component-shortcut-key-bg: var(--card);
+  --sjs2-color-component-shortcut-key-border: var(--border);
+  --sjs2-color-component-shortcut-key-text: var(--card-foreground);
+  --sjs2-radius-component-shortcut-key: var(--radius);
   --sjs2-color-utility-shadow-surface-default: var(--border);
   --sjs2-color-utility-shadow-trigger-default: transparent;
 

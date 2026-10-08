@@ -21,11 +21,11 @@ import { AnimationGroup, IAnimationGroupConsumer, AnimationBoolean } from "./uti
 import { TextContextProcessor } from "./textPreProcessor";
 import { ValidationContext } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
-import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
+import { Base, ComputedUpdater, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
 import { ExpressionErrorType } from "./expressions/expressionError";
 import { EventBase } from "./event";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { choiceKeyCodeHasLongerMatch, choiceKeyCodeToIndex } from "./utils/choice-key-codes";
+import { choiceKeyCodeHasLongerMatch, choiceKeyCodeToIndex, indexToChoiceKeyCode } from "./utils/choice-key-codes";
 import { KeySequenceBuffer } from "./utils/key-sequence-buffer";
 
 const OTHER_ITEM_VALUE = "other";
@@ -2883,25 +2883,113 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
   }
-  // undefined inherits survey.showChoiceShortcutKeys. defaultFunc keeps an unset value
-  // out of JSON and lets an explicit false override a survey-level true.
-  @property() showShortcutKeys: boolean | undefined;
+  // Default is false. An unset value still inherits survey.showChoiceShortcutKeys;
+  // an explicit true or false overrides it and is kept in JSON.
+  public get showShortcutKeys(): boolean {
+    return this.getPropertyValueWithoutDefault("showShortcutKeys") === true;
+  }
+  public set showShortcutKeys(val: boolean) {
+    const prev = this.getPropertyValueWithoutDefault("showShortcutKeys");
+    const next = val === true ? true : val === false ? false : undefined;
+    if (prev === next) return;
+    if (next === undefined) {
+      this.clearPropertyValue("showShortcutKeys");
+    } else {
+      this.setPropertyValueDirectly("showShortcutKeys", next);
+    }
+    this.propertyValueChanged("showShortcutKeys", prev === true, next === true);
+  }
   public supportsChoiceKeyboardSelection(): boolean {
     return false;
   }
   public get isChoiceKeyboardSelectionEnabled(): boolean {
     if (!this.supportsChoiceKeyboardSelection()) return false;
-    const own = this.showShortcutKeys;
+    const own = this.getPropertyValueWithoutDefault("showShortcutKeys");
     if (own === true || own === false) return own;
     return this.survey?.showChoiceShortcutKeys === true;
   }
+  // Badges and the key handler share this gate. Design mode is the one exception:
+  // badges stay visible there, but canUseChoiceKeys keeps the keys inert.
+  // isReadOnly covers readonly and preview. isInputReadOnly also includes design mode,
+  // which would hide the badges in Creator.
+  public get canShowChoiceKeys(): boolean {
+    const surveyShortcut = !!this.survey && this.survey.showChoiceShortcutKeys === true;
+    if (!this.supportsChoiceKeyboardSelection() || this.isMobile || this.isReadOnly) return false;
+    const own = this.getPropertyValueWithoutDefault("showShortcutKeys");
+    if (own === true || own === false) return own;
+    return surveyShortcut;
+  }
   private choiceKeys: KeySequenceBuffer = new KeySequenceBuffer();
+  private choiceKeyedItems: Array<ItemValue> = [];
   private get canUseChoiceKeys(): boolean {
-    return this.isChoiceKeyboardSelectionEnabled && !this.isDesignMode && !this.isInputReadOnly;
+    return this.canShowChoiceKeys && !this.isDesignMode;
+  }
+  public onSurveyLoad(): void {
+    super.onSurveyLoad();
+    this.bindChoiceKeyBadges();
   }
   public dispose(): void {
     this.choiceKeys.reset();
     super.dispose();
+  }
+  @property({
+    onSet: (_val: string, obj: QuestionCheckboxBase) => obj.applyChoiceKeyBadges()
+  })
+  private choiceKeyState: string;
+  private bindChoiceKeyBadges(): void {
+    this.choiceKeyState = new ComputedUpdater(() => this.buildChoiceKeyState()) as any;
+  }
+  private buildChoiceKeyState(): string {
+    const items = this.getChoiceKeyItems();
+    if (!this.canShowChoiceKeys) return "";
+    const parts = new Array<string>(items.length);
+    for (let i = 0; i < items.length; i++) {
+      parts[i] = items[i].id + "=" + indexToChoiceKeyCode(i + 1);
+    }
+    return parts.join(";");
+  }
+  private isApplyingChoiceKeyBadges = false;
+  private applyChoiceKeyBadges(): void {
+    if (this.isApplyingChoiceKeyBadges) return;
+    this.isApplyingChoiceKeyBadges = true;
+    try {
+      const next = new Map<ItemValue, string>();
+      if (this.canShowChoiceKeys) {
+        const items = this.getChoiceKeyItems();
+        for (let i = 0; i < items.length; i++) {
+          next.set(items[i], indexToChoiceKeyCode(i + 1));
+        }
+      }
+      const previous = this.choiceKeyedItems;
+      for (let i = 0; i < previous.length; i++) {
+        if (!next.has(previous[i])) {
+          previous[i].setPropertyValue("choiceKey", "");
+        }
+      }
+      next.forEach((code, item) => {
+        if (item.getPropertyValue("choiceKey") !== code) {
+          item.setPropertyValue("choiceKey", code);
+        }
+      });
+      this.choiceKeyedItems = Array.from(next.keys());
+    } finally {
+      this.isApplyingChoiceKeyBadges = false;
+    }
+  }
+  public getChoiceKeyBadge(item: ItemValue): string {
+    if (!item || !this.canShowChoiceKeys) return "";
+    return item.getPropertyValue("choiceKey") || "";
+  }
+  public getItemShortcutKeyClass(item: ItemValue): string {
+    return toCssClasses(
+      this.cssClasses.itemShortcutKey,
+      !this.getItemEnabled(item) && this.cssClasses.itemShortcutKeyDisabled
+    );
+  }
+  public getItemAriaKeyShortcuts(item: ItemValue): string | undefined {
+    if (!this.canUseChoiceKeys || !this.getItemEnabled(item)) return undefined;
+    const code = this.getChoiceKeyBadge(item);
+    return code && code.length === 1 ? code : undefined;
   }
   public onChoiceKeyDown(event: any): void {
     if (!this.canUseChoiceKeys) return;
@@ -2930,13 +3018,18 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     if (!id) return false;
     return this.visibleChoices.some((item) => this.getItemId(item) === id);
   }
-  private getChoiceKeyboardItems(): Array<ItemValue> {
+  private getChoiceKeyItems(): Array<ItemValue> {
     const items = this.visibleChoices;
     const res = new Array<ItemValue>();
     for (let i = 0; i < items.length; i++) {
-      if (this.getItemEnabled(items[i])) res.push(items[i]);
+      const item = items[i];
+      if (!this.isItemInList(item) || res.indexOf(item) > -1) continue;
+      res.push(item);
     }
     return res;
+  }
+  private getChoiceKeyboardItems(): Array<ItemValue> {
+    return this.getChoiceKeyItems();
   }
   private appendChoiceKeyLetter(letter: string): void {
     const code = this.choiceKeys.append(letter);
@@ -2962,6 +3055,10 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     const index = choiceKeyCodeToIndex(code);
     if (index < 1 || index > items.length) return;
     const item = items[index - 1];
+    if (!this.getItemEnabled(item)) {
+      this.choiceKeys.reset();
+      return;
+    }
     this.applyChoiceKeyboardSelection(item);
     SurveyElement.FocusElement(this.getItemId(item), false, this.survey?.rootElement, this.shouldHandleFocusScroll);
   }
@@ -3136,8 +3233,9 @@ Serializer.addClass(
     },
     {
       name: "showShortcutKeys:boolean",
-      defaultFunc: () => undefined,
-      visibleIf: (obj: any): boolean => !!obj.supportsChoiceKeyboardSelection && obj.supportsChoiceKeyboardSelection()
+      default: false,
+      visibleIf: (obj: any): boolean => !!obj.supportsChoiceKeyboardSelection && obj.supportsChoiceKeyboardSelection(),
+      onSerializeValue: (obj: any) => obj.getPropertyValueWithoutDefault("showShortcutKeys")
     }
   ],
   null,

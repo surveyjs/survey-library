@@ -1,6 +1,11 @@
 <template>
   <div role="presentation" :class="question.getItemClass(item)" ref="root">
     <label @mousedown="question.onMouseDown()" :class="getLabelClass(item)">
+      <span
+        v-if="question.getChoiceKeyBadge(item)"
+        :class="question.getItemShortcutKeyClass(item)"
+        aria-hidden="true"
+      >{{ question.getChoiceKeyBadge(item) }}</span>
       <input
         type="radio"
         :name="question.questionName"
@@ -20,6 +25,7 @@
         :class="question.cssClasses.itemControl"
         :aria-label="ariaLabel"
         :aria-labelledby="!ariaLabel && !hideLabel ? question.getItemLabelId(item) : undefined"
+        :aria-keyshortcuts="question.getItemAriaKeyShortcuts(item)"
       /><span
         v-if="question.cssClasses.materialDecorator"
         :class="question.cssClasses.materialDecorator"

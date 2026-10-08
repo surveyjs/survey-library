@@ -1,0 +1,27 @@
+@use "../typography-mixins.scss" as *;
+
+.sd-item__shortcut-key {
+  @include sjs2--typography--small-strong;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  min-width: var(--sjs2-size-x300);
+  height: var(--sjs2-size-x300);
+  padding: var(--sjs2-spacing-x050) var(--sjs2-spacing-x100);
+  margin-inline-end: var(--sjs2-layout-component-labeled-item-box-gap-horizontal);
+  border-radius: var(--sjs2-radius-component-shortcut-key);
+  background: var(--sjs2-color-component-shortcut-key-bg);
+  color: var(--sjs2-color-component-shortcut-key-text);
+  box-shadow:
+    inset 0 0 0 1px var(--sjs2-color-component-shortcut-key-border),
+    0 1px 0 0 var(--sjs2-color-component-shortcut-key-border);
+  white-space: nowrap;
+  text-align: center;
+}
+
+.sd-item__shortcut-key--disabled {
+  opacity: var(--sjs2-opacity-component-shortcut-key-disabled);
+}

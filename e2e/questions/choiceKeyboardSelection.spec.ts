@@ -203,6 +203,48 @@ frameworks.forEach((framework) => {
       expect(await questionValue(page)).toEqual(["Item 2"]);
     });
 
+    test("badges show the letter that selects the choice", async ({ page }) => {
+      await initSurvey(page, framework, {
+        showChoiceShortcutKeys: true,
+        elements: [{ type: "radiogroup", name: "q", choices: numberedChoices(4) }]
+      });
+      const badges = page.locator(".sd-item__shortcut-key");
+      await expect(badges).toHaveText(["A", "B", "C", "D"]);
+      const radios = page.locator("input[type=radio]");
+      await expect(radios.nth(1)).toHaveAttribute("aria-keyshortcuts", "B");
+      await radios.first().focus();
+      await page.keyboard.press("c");
+      await expect(radios.nth(2)).toBeChecked();
+      expect(await questionValue(page)).toBe("Item 3");
+    });
+
+    test("badges are hidden on mobile and in readonly", async ({ page }) => {
+      await initSurvey(page, framework, {
+        showChoiceShortcutKeys: true,
+        elements: [{ type: "checkbox", name: "q", choices: numberedChoices(3) }]
+      });
+      await expect(page.locator(".sd-item__shortcut-key")).toHaveCount(3);
+      await page.evaluate(() => {
+        (window as any).survey.getQuestionByName("q").isMobile = true;
+      });
+      await expect(page.locator(".sd-item__shortcut-key")).toHaveCount(0);
+      const checks = page.locator("input[type=checkbox]");
+      await checks.first().focus();
+      await page.keyboard.press("a");
+      await expect(checks.first()).not.toBeChecked();
+      expect(await questionValue(page)).toEqual([]);
+
+      await page.evaluate(() => {
+        const question = (window as any).survey.getQuestionByName("q");
+        question.isMobile = false;
+        question.readOnly = true;
+      });
+      await expect(page.locator(".sd-item__shortcut-key")).toHaveCount(0);
+      await page.keyboard.press("b");
+      await expect(checks.first()).not.toBeChecked();
+      expect(await questionValue(page)).toEqual([]);
+    });
+
     test("letter does not auto-advance and Enter does", async ({ page }) => {
       await initSurvey(page, framework, {
         showChoiceShortcutKeys: true,

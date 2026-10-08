@@ -57,9 +57,11 @@ export class SurveyQuestionCheckboxItem extends SurveyQuestionSelectBaseItem {
     const labelClass = this.question.getLabelClass(this.item);
     const itemLabel = !this.hideCaption ? <span className={this.cssClasses.controlLabel} id={this.question.getItemLabelId(this.item)} aria-hidden={this.question.isItemLabelAriaHidden ? "true" : undefined}>{this.renderLocString(this.item.locText, this.textStyle)}</span> : null;
 
+    const shortcutKey = this.question.getChoiceKeyBadge(this.item);
     return (
       <div className={itemClass} role="presentation" ref={this.rootRef}>
         <label className={labelClass}>
+          {shortcutKey ? <span className={this.question.getItemShortcutKeyClass(this.item)} aria-hidden="true">{shortcutKey}</span> : null}
           <input
             className={this.cssClasses.itemControl}
             type="checkbox"
@@ -76,6 +78,7 @@ export class SurveyQuestionCheckboxItem extends SurveyQuestionSelectBaseItem {
             required={this.question.hasRequiredError()}
             aria-label={this.ariaLabel}
             aria-labelledby={!this.ariaLabel && !this.hideCaption ? this.question.getItemLabelId(this.item) : undefined}
+            aria-keyshortcuts={this.question.getItemAriaKeyShortcuts(this.item)}
           />
           {
             this.cssClasses.materialDecorator ?

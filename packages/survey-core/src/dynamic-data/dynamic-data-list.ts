@@ -277,6 +277,7 @@ export class DynamicDataList {
         // A throw from func is the caller's own exception; any other is the commit's.
         let isFuncError = false;
         try {
+          // With asynchronous writes only the writes the chain sends at once run inside it (IDynamicDataSource.batch).
           source.batch((): void => {
             try {
               func();
@@ -610,11 +611,10 @@ export class DynamicDataList {
     return this.runOpenWrite((): boolean => this.setValueCore(index, field, value));
   }
   /* What an owner computes while it builds its objects for records the source already holds - a
-     template default, an expression - only shows the record: inside this scope a write of such a record
-     reaches the window and not the source. The record keeps the fields written so (unsentFields), and
-     its next update lists them in changedFields: the source receives them with the first change the
-     respondent makes. A record whose insert has not answered is still sent its writes, and an in-memory
-     array - the owner's own storage or an assigned one - takes every write: nothing is sent anywhere. */
+     template default, an expression - only shows the record: inside this scope a field write (setValue)
+     reaches the window and not the source, and the record keeps the field (unsentFields) for the
+     changedFields of its next update; a whole-record write (setRecord) is sent as usual. A record whose
+     insert has not answered, and an in-memory array, take every write: nothing is held back. */
   public runShowingRecords<T>(func: () => T): T {
     this.showingRecordsDepth++;
     try {

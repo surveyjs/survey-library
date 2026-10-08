@@ -194,13 +194,6 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
   }
 }
 
-/**
-  * A class that describes the Dynamic Panel question type.
-  *
-  * Dynamic Panel allows respondents to add panels based on a panel template and delete them. Specify the [`templateElements`](https://surveyjs.io/form-library/documentation/questionpaneldynamicmodel#templateElements) property to configure panel template elements.
-  *
-  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
-  */
 /* A panel removal (QuestionRecordsModel.removeResolvedRecord) with what the panel decided before the
    splice: the panel's position in visiblePanels, and the panel that takes over when the current one is
    removed (getRemovalSuccessor). */
@@ -209,6 +202,13 @@ interface IPanelRemoval extends IRecordRemoval {
   successor: { panel: PanelModel, visibleIndex: number };
 }
 
+/**
+  * A class that describes the Dynamic Panel question type.
+  *
+  * Dynamic Panel allows respondents to add panels based on a panel template and delete them. Specify the [`templateElements`](https://surveyjs.io/form-library/documentation/questionpaneldynamicmodel#templateElements) property to configure panel template elements.
+  *
+  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
+  */
 export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private templateValue: PanelModel;
   private isValueChangingInternally: boolean;
@@ -1977,6 +1977,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     return this.canAddRecordCore(this.allowAddPanel, this.panelCount, this.panelCountLimit);
   }
+  protected getRecordAddText(): string {
+    return this.canAddPanel ? this.addPanelText : undefined;
+  }
+  protected addRecordFromUI(): void {
+    this.addPanelUI();
+  }
   /**
    * Indicates whether it is possible to delete panels.
    *
@@ -1991,12 +1997,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * @see minPanelCount
    * @see canAddPanel
    */
-  protected getRecordAddText(): string {
-    return this.canAddPanel ? this.addPanelText : undefined;
-  }
-  protected addRecordFromUI(): void {
-    this.addPanelUI();
-  }
   public get canRemovePanel(): boolean {
     if (this.isDesignMode) return false;
     return this.canRemoveRecordCore(this.allowRemovePanel, this.panelCount, this.minPanelCount);

@@ -161,6 +161,13 @@ export interface IDynamicDataSource {
   move?(key: any, toSourceIndex: number): void | Promise<void>;
   // Present -> the source collects the writes of func and applies them as one; absent -> the list
   // just runs func. See DynamicDataList.batch.
+  // The order contract with a source whose writes answer asynchronously: the push chain sends one write
+  // at a time, so only the writes the list makes while the chain is idle reach the source inside batch -
+  // the group's first write, and each later one only while the previous ones answered synchronously.
+  // The other writes of the group are sent after batch returned, in the group's order, each once the
+  // previous one settled: a write of a record the group inserted carries the key the insert answered,
+  // and a rejected write is reported (onError) without stopping the writes behind it. Sending the whole
+  // group inside batch would send a write before its insert answered the key.
   batch?(func: () => void): void;
 }
 export interface IDynamicDataField {

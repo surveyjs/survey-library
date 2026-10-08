@@ -226,9 +226,11 @@ export class DynamicDataSourceChannel {
 
   /* The source was replaced. The push chain is detached, not drained: the queued edits belong to the
      old source and keep running against it (they still report their failures through onError), but
-     they must not report back into the list - and the new source must not wait for them before its
-     first read. The pushes of a replaced source are therefore invisible to hasPendingWrites: a source
-     that is no longer the storage of this list no longer gates its reads. */
+     they do not report back into the list, and hasPendingWrites no longer counts them. The new
+     source's first read does wait for them (detachedTail, see getForeignWrites): the two objects may
+     front one storage, and a read issued before the old writes land would show records the
+     respondent has removed or changed. A write of the old source that never settles therefore keeps
+     the new source unread. */
   public detach(): void {
     /* The writes of the old source are still on their way to the storage the new source may read
        too (the same backend behind another object): its first read waits for the tail of the chain.

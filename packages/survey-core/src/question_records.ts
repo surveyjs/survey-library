@@ -858,11 +858,6 @@ export abstract class QuestionRecordsModel extends Question {
   protected setMaxRecordCount(propertyName: string, val: number): void {
     this.setPropertyValue(propertyName, val <= 0 ? 1 : val);
   }
-  /* The count expression of a type (rowCountExpression, panelCountExpression) over the count it sets
-     (getRecordCountNames). A data source owns the number of records, so the expression is ignored
-     while one is attached - including the add/remove gating it otherwise imposes. No error: a question
-     may carry both and only the source decides. The result is clamped by the type's limits, so
-     changing a limit runs it again (rerunRecordCountExpression): the raw result is not stored. */
   /* The core of the add and remove gates of the dynamic types: the type's allow flag, the read-only
      state, the count expression, the capability of the source and the count limit. The released
      clauses of one type stay with it (the panel's design mode and newPanelPosition, the matrix's
@@ -887,6 +882,11 @@ export abstract class QuestionRecordsModel extends Question {
     return undefined;
   }
   protected setRecordCountByExpression(val: any): void { }
+  /* The count expression of a type (rowCountExpression, panelCountExpression) over the count it sets
+     (getRecordCountNames). A data source owns the number of records, so the expression is ignored
+     while one is attached - including the add/remove gating it otherwise imposes. No error: a question
+     may carry both and only the source decides. The result is clamped by the type's limits, so
+     changing a limit runs it again (rerunRecordCountExpression): the raw result is not stored. */
   protected get hasRecordCountExpression(): boolean {
     const names = this.getRecordCountNames();
     return !!names && !!this.getPropertyValue(names.expression) && !this.isRemoteData;
@@ -2869,7 +2869,7 @@ export abstract class QuestionRecordsModel extends Question {
   public abstract getFilteredData(): any;
   /* A write of an item's record: val is the field value for a panel and the whole proposed row for a
      matrix row (see QuestionRecordItem.prepareRecordWrite). */
-  // false: the edit was refused (refuseRecordEdit), and the item stops the write.
+  // A refused or ignored write never reaches it (writeItemValue).
   public abstract updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): void;
   /* The write of an item - a cell of a row, a question of a panel - into its record. A write the type
      ignores (isItemWriteIgnored) writes nothing and is not refused; a refused edit (refuseItemWrite)

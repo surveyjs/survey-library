@@ -92,42 +92,46 @@ function getContentKey(value: any, caseSensitive: boolean): string {
   return value === undefined ? "undefined" : JSON.stringify(foldKeyText(value, caseSensitive));
 }
 
-/* The off-page half of a duplicate check (layer 2): the records are scanned without an object
-   (O(records)) and grouped by getDuplicateKey; a group of two or more gives the page of its latest
-   visible record, which is where the error goes. A group with no visible record gives no page: it
-   has no record to put the error on. Returns the pages, without repeats.
-   The questions differ in which records take part and how values compare, and each call site spells
-   its options out: includeHidden - owner-hidden records take part too (the matrix); includeFilteredOut -
-   the records the filter excludes take part too, otherwise only the visible ones are scanned; caseSensitive -
-   false folds strings with toLocaleLowerCase. Empty means what Base.isValueEmpty means: a
-   whitespace-only string is empty. The groups are a Map: the keys are respondent input, and
-   "__proto__" in a plain object is the prototype, not a group. */
-export function findDuplicatePages(list: DynamicDataList, readKey: (index: number) => any,
-  options: { caseSensitive: boolean, includeHidden: boolean, includeFilteredOut?: boolean }): Array<number> {
-  const visiblePos: { [index: number]: number } = {};
-  const visible = list.getVisibleIndexes();
-  visible.forEach((index: number, pos: number): void => { visiblePos[index] = pos; });
-  const groups = new Map<string, { count: number, target: number }>();
-  const count = options.includeFilteredOut !== false ? list.loadedCount : visible.length;
-  for (let j = 0; j < count; j++) {
-    const i = options.includeFilteredOut !== false ? j : visible[j];
-    if (!options.includeHidden && !list.isRecordVisible(i)) continue;
-    const val = readKey(i);
-    if (Helpers.isValueEmpty(typeof val === "string" ? val.trim() : val)) continue;
-    const key = getDuplicateKey(val, options.caseSensitive);
+/* The entries grouped by the duplicate key of their value (getDuplicateKey), in the order of their
+   first entries; an empty value takes no part - empty as Base.isValueEmpty means it, so a
+   whitespace-only string is empty. caseSensitive false folds strings with toLocaleLowerCase. One
+   grouping for the duplicate check on the page and the scan off it. The groups are a Map: the keys
+   are respondent input, and "__proto__" in a plain object is the prototype, not a group. */
+export function groupByDuplicateKey<T>(entries: Array<T>, getValue: (entry: T) => any, caseSensitive: boolean): Array<Array<T>> {
+  const groups = new Map<string, Array<T>>();
+  entries.forEach((entry: T): void => {
+    const val = getValue(entry);
+    if (Helpers.isValueEmpty(typeof val === "string" ? val.trim() : val)) return;
+    const key = getDuplicateKey(val, caseSensitive);
     let group = groups.get(key);
     if (!group) {
-      group = { count: 0, target: -1 };
+      group = [];
       groups.set(key, group);
     }
-    group.count++;
-    const pos = visiblePos[i];
-    if (pos !== undefined && pos > group.target) group.target = pos;
-  }
+    group.push(entry);
+  });
+  const res: Array<Array<T>> = [];
+  groups.forEach((group: Array<T>): void => { res.push(group); });
+  return res;
+}
+/* The off-page half of a duplicate check (layer 2): the records that take part (indexes, as the
+   question names them) are scanned without an object (O(records)) and grouped; a group of two or more
+   gives the page of its latest visible record, which is where the error goes. A group with no visible
+   record gives no page: it has no record to put the error on. Returns the pages, without repeats. */
+export function findDuplicatePages(list: DynamicDataList, indexes: Array<number>, readKey: (index: number) => any,
+  caseSensitive: boolean): Array<number> {
+  const visiblePos: { [index: number]: number } = {};
+  list.getVisibleIndexes().forEach((index: number, pos: number): void => { visiblePos[index] = pos; });
   const pages: Array<number> = [];
-  groups.forEach((group: { count: number, target: number }): void => {
-    if (group.count < 2 || group.target < 0) return;
-    const page = list.getPageOfVisibleIndex(group.target);
+  groupByDuplicateKey(indexes, readKey, caseSensitive).forEach((group: Array<number>): void => {
+    if (group.length < 2) return;
+    let target = -1;
+    group.forEach((index: number): void => {
+      const pos = visiblePos[index];
+      if (pos !== undefined && pos > target) target = pos;
+    });
+    if (target < 0) return;
+    const page = list.getPageOfVisibleIndex(target);
     if (pages.indexOf(page) < 0) pages.push(page);
   });
   return pages;

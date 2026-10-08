@@ -218,3 +218,50 @@ describe("displayValue: a record without a row is formatted as its row would be"
     expect(matrix.displayValue, "#2").toEqual([{ a: "x", b: "One" }, { a: "y", b: "Two" }]);
   });
 });
+
+describe("the keys of a record no question stores", () => {
+  const run = (json: any, data: Array<any>, isPaged: boolean): any => {
+    const element = Object.assign({}, json);
+    element[element.type === "paneldynamic" ? "panelsPerPage" : "rowsPerPage"] = isPaged ? 1 : 0;
+    const survey = new SurveyModel({ elements: [element] });
+    survey.data = { q: JSON.parse(JSON.stringify(data)) };
+    const question: any = survey.getQuestionByName("q");
+    if (element.type === "paneldynamic") question.panels; else question.visibleRows;
+    survey.clearIncorrectValues();
+    return survey.data.q;
+  };
+  test("matrix: a comment key of a column and a key with the totals suffix anywhere are kept, as released", () => {
+    const json = { type: "matrixdynamic", name: "q", rowCount: 0, columns: [{ name: "c", cellType: "text" }] };
+    const record = { "c": 1, "x-total-y": 5, "zz-Comment": "a", "c-Comment": "b", "zz": 2 };
+    const expected = { "c": 1, "x-total-y": 5, "c-Comment": "b" };
+    [false, true].forEach(isPaged => {
+      expect(run(json, [Object.assign({}, record), Object.assign({}, record)], isPaged), "paged " + isPaged).toEqual([expected, expected]);
+    });
+  });
+  test("panel: a comment or totals suffix is kept at the end of a question's name only, as released", () => {
+    const json = { type: "paneldynamic", name: "q", templateElements: [{ type: "text", name: "q1" }] };
+    const record = { "q1": 1, "q1-total": 2, "x-total-y": 3, "q1-Comment": "b", "zz-Comment": "c" };
+    const expected = { "q1": 1, "q1-total": 2, "q1-Comment": "b" };
+    [false, true].forEach(isPaged => {
+      expect(run(json, [Object.assign({}, record), Object.assign({}, record)], isPaged), "paged " + isPaged).toEqual([expected, expected]);
+    });
+  });
+});
+
+describe("the question that formats a field of a record without a row", () => {
+  test("the display value of a record without a row formats a detail-panel field by value name", () => {
+    const displayValue = (rowsPerPage: number): any => {
+      const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: rowsPerPage, detailPanelMode: "underRow",
+        columns: [{ name: "c", cellType: "dropdown", choices: [{ value: 1, text: "One" }] }],
+        detailElements: [{ type: "dropdown", name: "d", choices: [{ value: 2, text: "Two" }] }] }] });
+      survey.data = { m: [{ c: 1, d: 2 }, { c: 1, d: 2 }] };
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+      matrix.visibleRows;
+      return matrix.displayValue;
+    };
+    const paged = displayValue(1);
+    expect(paged[1], "#1: the record on the other page, formatted by the column and the detail panel question").toEqual({ c: "One", d: "Two" });
+    // A row formats a detail panel field once its detail panel exists, as released.
+    expect(displayValue(0)[1], "#2: a row whose detail panel was never shown").toEqual({ c: "One", d: 2 });
+  });
+});

@@ -196,3 +196,35 @@ describe("an emptying assignment to a Dynamic Panel with a view", () => {
     expect(panel.panels.length, "#3").toBe(2);
   });
 });
+
+describe("the progress of a records question under a view", () => {
+  test("progress of a dynamic panel under a filter counts the records before the panels are built", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", filterExpression: "{a} != 5",
+      templateElements: [{ type: "text", name: "a" }, { type: "text", name: "b" }] }] });
+    survey.data = { p: [{ a: 1, b: "x" }, { a: 5 }, { a: 2 }] };
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    const before = panel.getProgressInfo();
+    expect(before.questionCount, "#1: two records shown, two inputs each").toBe(4);
+    expect(before.answeredQuestionCount, "#2").toBe(3);
+    panel.panels;
+    const after = panel.getProgressInfo();
+    expect(after.questionCount, "#3: the panels count the same").toBe(before.questionCount);
+    expect(after.answeredQuestionCount, "#4").toBe(before.answeredQuestionCount);
+  });
+});
+
+describe("the objects follow a record count change under a view", () => {
+  test("under a filter, a record appended by a value assignment keeps the other panels' state", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", filterExpression: "{a} != 5", panelsState: "collapsed",
+      templateElements: [{ type: "text", name: "a" }] }] });
+    survey.data = { p: [{ a: 1 }, { a: 5 }, { a: 2 }] };
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    const first = panel.panels[0];
+    first.expand();
+    expect(first.isExpanded, "#1: the respondent expanded it").toBe(true);
+    survey.setValue("p", [{ a: 1 }, { a: 5 }, { a: 2 }, { a: 3 }]);
+    expect(panel.panels.length, "#2: the appended record has a panel").toBe(3);
+    expect(panel.panels[0], "#3: the first panel stays").toBe(first);
+    expect(first.isExpanded, "#4: expanded").toBe(true);
+  });
+});

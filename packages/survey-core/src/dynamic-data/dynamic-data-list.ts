@@ -652,12 +652,9 @@ export class DynamicDataList {
         this.channel.keepUnsentFields(newRecord, fields);
         return;
       }
-      const ownedFields = getOwnedFields(pending);
       // The push comes before the notification: with a read-through source the push IS the local
       // write, so the owner must not be notified of a change it cannot read yet.
-      this.pushToSource("update",
-        (source: IDynamicDataSource, runKey: any): any => source.update(runKey, getUpdatePayload(pending, newRecord, ownedFields), fields),
-        { key: key, pendingInsert: pending });
+      this.pushUpdate(key, pending, newRecord, fields);
     });
     this.notifyWrite({ type: "recordChanged", index: index, field: field });
     return true;
@@ -678,13 +675,16 @@ export class DynamicDataList {
     const pending = this.findPendingInsert(index);
     this.runWrite((): void => {
       this.replaceRecord(index, record);
-      const ownedFields = getOwnedFields(pending);
-      this.pushToSource("update",
-        (source: IDynamicDataSource, runKey: any): any => source.update(runKey, getUpdatePayload(pending, record, ownedFields), changedFields),
-        { key: key, pendingInsert: pending });
+      this.pushUpdate(key, pending, record, changedFields);
     });
     this.notifyWrite({ type: "recordChanged", index: index, field: undefined });
     return true;
+  }
+  // The update of a record replaced in the window; key and pending belong to the record it replaced.
+  private pushUpdate(key: any, pending: IPendingInsert, record: any, fields: Array<string>): void {
+    const ownedFields = getOwnedFields(pending);
+    this.pushToSource("update", (source: IDynamicDataSource, runKey: any): any =>
+      source.update(runKey, getUpdatePayload(pending, record, ownedFields), fields), { key: key, pendingInsert: pending });
   }
   /* The source assigns the key: with a keyField, a key the record carries - copied from the last
      entry, or put on a default value - is taken out before anything else sees the record. */

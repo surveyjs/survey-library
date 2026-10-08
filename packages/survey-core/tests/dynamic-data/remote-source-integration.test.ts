@@ -6378,3 +6378,80 @@ describe("one in-memory source assigned to two questions", () => {
     expect(errors, "#4").toEqual([]);
   });
 });
+
+describe("a data source owns the record count", () => {
+  test("with a data source the row count and the panel count follow the source's count after a read and after an add", async () => {
+    const matrixSource = new FakeServerSource(serverRecords(3));
+    const { question: matrix } = await createMatrix(matrixSource, { rowsPerPage: 0 });
+    expect(matrix.rowCount, "#1: after the read").toBe(3);
+    matrix.addRow();
+    expect(matrix.rowCount, "#2: right after the add").toBe(4);
+    await flush();
+    expect(matrix.rowCount, "#3: after the insert answered").toBe(4);
+    matrix.removeRow(0);
+    await flush();
+    expect(matrix.rowCount, "#4: after a remove").toBe(3);
+    const panelSource = new FakeServerSource(serverRecords(3));
+    const { question: panel } = await createPanel(panelSource, { panelsPerPage: 0 });
+    expect(panel.panelCount, "#5: after the read").toBe(3);
+    panel.addPanel();
+    expect(panel.panelCount, "#6: right after the add").toBe(4);
+    await flush();
+    expect(panel.panelCount, "#7: after the insert answered").toBe(4);
+  });
+});
+
+describe("the page of a nested paged question follows its record through a re-read", () => {
+  test("a nested paged question in a detail panel keeps its page after a re-read that moves its record", async () => {
+    const records = [0, 1, 2].map((i: number): any => ({ id: i, col1: "r" + i, inner: [{ a: 1 }, { a: 2 }, { a: 3 }] }));
+    const source = new FakeServerSource(records, ["insert", "update", "remove", "move"]);
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: 5, detailPanelMode: "underRow",
+      columns: [{ name: "col1" }], detailElements: [{ type: "matrixdynamic", name: "inner", rowCount: 0, rowsPerPage: 1, columns: [{ name: "a" }] }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix.dataSource = source;
+    await flush();
+    matrix.visibleRows[1].showDetailPanel();
+    const inner = <QuestionMatrixDynamicModel>matrix.visibleRows[1].detailPanel.getQuestionByName("inner");
+    inner.visibleRows;
+    inner.pageIndex = 2;
+    source.moveRecordBehindTheGrid(1, 2);
+    matrix.refreshDataSource();
+    await flush();
+    const row = matrix.visibleRows.filter(r => r.getQuestionByColumnName("col1").value === "r1")[0];
+    expect(matrix.visibleRows.indexOf(row), "#1: the record moved").toBe(2);
+    row.showDetailPanel();
+    expect((<QuestionMatrixDynamicModel>row.detailPanel.getQuestionByName("inner")).pageIndex, "#2").toBe(2);
+    const other = matrix.visibleRows[1];
+    other.showDetailPanel();
+    expect((<QuestionMatrixDynamicModel>other.detailPanel.getQuestionByName("inner")).pageIndex, "#3: the record now at its old place").toBe(0);
+  });
+});
+
+describe("the focus kept for a re-read after a removal from the UI", () => {
+  test("a cancelled removal while a read is pending keeps no focus position for that read", async () => {
+    const proto = <any>QuestionMatrixDynamicModel.prototype;
+    const focused = vi.spyOn(proto, "focusItemAfterRead");
+    const source = new FakeServerSource(serverRecords(3));
+    const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+    survey.onMatrixRowRemoving.add((_, options) => { options.allow = false; });
+    source.auto = false;
+    question.refreshDataSource();
+    question.removeRowUI(question.visibleRows[1]);
+    source.settleAll();
+    await flush();
+    expect(rowValues(question).length, "#1: nothing was removed").toBe(3);
+    expect(focused.mock.calls.length, "#2").toBe(0);
+    const panelProto = <any>QuestionPanelDynamicModel.prototype;
+    const panelFocused = vi.spyOn(panelProto, "focusItemAfterRead");
+    const panelSource = new FakeServerSource(serverRecords(3));
+    const { survey: panelSurvey, question: panel } = await createPanel(panelSource, { panelsPerPage: 0 });
+    panelSurvey.onDynamicPanelRemoving.add((_, options) => { options.allow = false; });
+    panelSource.auto = false;
+    panel.refreshDataSource();
+    panel.removePanelUI(panel.panels[1]);
+    panelSource.settleAll();
+    await flush();
+    expect(panel.panels.length, "#3").toBe(3);
+    expect(panelFocused.mock.calls.length, "#4").toBe(0);
+  });
+});

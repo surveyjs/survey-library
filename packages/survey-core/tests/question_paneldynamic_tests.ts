@@ -11310,3 +11310,125 @@ describe("Dynamic panel without paging keeps its released behaviour", () => {
     expect(second.isDisposed, "#3: after it").toBe(true);
   });
 });
+
+describe("a question of a removed panel", () => {
+  const createPanel = (json?: any): { survey: SurveyModel, panel: QuestionPanelDynamicModel, log: Array<any> } => {
+    const survey = new SurveyModel({
+      elements: [Object.assign({ type: "paneldynamic", name: "p", templateElements: [{ type: "text", name: "a" }] }, json || {})]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    const log = new Array<any>();
+    survey.onDynamicPanelValueChanged.add((_, options) => { log.push(options.panelIndex); });
+    return { survey: survey, panel: panel, log: log };
+  };
+  test("a question of a panel removed by removePanel writes nothing", () => {
+    const { panel, log } = createPanel();
+    panel.value = [{ a: 1 }, { a: 2 }, { a: 3 }];
+    const q = panel.panels[0].getQuestionByName("a");
+    panel.removePanel(0);
+    q.value = "late";
+    expect(panel.value, "#1").toEqual([{ a: 2 }, { a: 3 }]);
+    expect(panel.panelCount, "#2").toBe(2);
+    expect(log, "#3: no onDynamicPanelValueChanged").toEqual([]);
+  });
+  test("a question of a panel that left the page writes nothing", () => {
+    const { panel, log } = createPanel({ panelsPerPage: 1 });
+    panel.value = [{ a: 1 }, { a: 2 }, { a: 3 }];
+    const q = panel.panels[0].getQuestionByName("a");
+    panel.nextPage();
+    expect(panel.panels[0].getQuestionByName("a").value, "#1").toBe(2);
+    q.value = "late";
+    expect(panel.value, "#2").toEqual([{ a: 1 }, { a: 2 }, { a: 3 }]);
+    expect(log, "#3: no onDynamicPanelValueChanged").toEqual([]);
+  });
+  test("a question of a panel removed by a lower panelCount writes nothing", () => {
+    const { panel, log } = createPanel();
+    panel.value = [{ a: 1 }, { a: 2 }, { a: 3 }];
+    const q = panel.panels[2].getQuestionByName("a");
+    panel.panelCount = 2;
+    q.value = "late";
+    expect(panel.value, "#1").toEqual([{ a: 1 }, { a: 2 }]);
+    expect(panel.panelCount, "#2").toBe(2);
+    expect(log, "#3: no onDynamicPanelValueChanged").toEqual([]);
+  });
+});
+
+describe("the value-change events of a dynamic panel's add and remove", () => {
+  test("addPanel announces an expression question of the new panel once, with the panel's index", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "p", panelCount: 1,
+        templateElements: [{ type: "text", name: "a" }, { type: "expression", name: "e", expression: "{panelIndex}" }] }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    const log = new Array<any>();
+    survey.onDynamicPanelValueChanged.add((_, options) => { log.push([options.name, options.panelIndex, options.value]); });
+    panel.addPanel();
+    expect(log, "#1").toEqual([["e", 1, 1]]);
+  });
+  test("addPanel in tab mode raises no value-changing event that changes nothing", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "p", panelCount: 2, displayMode: "tab", templateElements: [{ type: "text", name: "a" }] }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    const log = new Array<any>();
+    survey.onValueChanging.add((_, options) => { log.push(JSON.stringify(options.oldValue) + "->" + JSON.stringify(options.value)); });
+    panel.addPanel();
+    expect(log.filter((s: string) => s.split("->")[0] === s.split("->")[1]), "#1").toEqual([]);
+    expect(panel.panelCount, "#2").toBe(3);
+  });
+  test("removing a panel without a stored record raises onDynamicPanelRemoved and the count callback", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "p", panelCount: 3, templateElements: [{ type: "text", name: "a" }] }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    panel.value = [];
+    const log = new Array<string>();
+    survey.onDynamicPanelRemoving.add((_, options) => { log.push("removing " + options.panelIndex); });
+    survey.onDynamicPanelRemoved.add((_, options) => { log.push("removed " + options.panelIndex); });
+    panel.panelCountChangedCallback = () => { log.push("count"); };
+    panel.removePanel(0);
+    expect(log, "#1").toEqual(["removing 0", "count", "removed 0"]);
+    expect(panel.panelCount, "#2").toBe(2);
+  });
+});
+
+describe("rows and panels follow a value an onValueChanging handler rewrites", () => {
+  test("a panel shows the value the handler stores", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "p", panelCount: 1, templateElements: [{ type: "text", name: "a" }] }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    survey.onValueChanging.add((_, options) => {
+      if (options.name !== "p" || !Array.isArray(options.value) || !options.value[0] || options.value[0].a !== "typed") return;
+      options.value = [{ a: "R" }];
+    });
+    panel.panels[0].getQuestionByName("a").value = "typed";
+    expect(panel.value, "#1").toEqual([{ a: "R" }]);
+    expect(panel.panels[0].getQuestionByName("a").value, "#2").toBe("R");
+  });
+  test("a matrix row shows the value the handler stores", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }] }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    survey.onValueChanging.add((_, options) => {
+      if (options.name !== "m" || !Array.isArray(options.value) || !options.value[0]) return;
+      options.value = [Object.assign({}, options.value[0], { c2: "z" })];
+    });
+    matrix.visibleRows[0].getQuestionByColumnName("c1").value = "x";
+    expect(matrix.value, "#1").toEqual([{ c1: "x", c2: "z" }]);
+    expect(matrix.visibleRows[0].getQuestionByColumnName("c2").value, "#2").toBe("z");
+  });
+  test("a handler that truncates the value, then addPanel, leaves one panel", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "p", panelCount: 1, templateElements: [{ type: "text", name: "a" }] }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    survey.onValueChanging.add((_, options) => {
+      if (options.name !== "p" || !Array.isArray(options.value)) return;
+      options.value = options.value.slice(0, 1);
+    });
+    panel.addPanel();
+    expect(panel.panelCount, "#1").toBe(1);
+  });
+});

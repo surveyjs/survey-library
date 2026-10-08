@@ -12104,3 +12104,136 @@ describe("Survey_QuestionMatrixDynamic: the focus after removeRowUI", () => {
     }
   });
 });
+
+describe("removeRowByIndex on a matrix whose value is shorter than rowCount", () => {
+  const createMatrix = (json: any): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel } => {
+    const survey = new SurveyModel({
+      elements: [Object.assign({ type: "matrixdynamic", name: "m", columns: [{ name: "c1", cellType: "text" }] }, json)]
+    });
+    return { survey: survey, matrix: <QuestionMatrixDynamicModel>survey.getQuestionByName("m") };
+  };
+  test("removing the first row after an added row removes its record and keeps the padded row", () => {
+    const { matrix } = createMatrix({ rowCount: 3 });
+    matrix.value = [{ c1: 1 }, { c1: 2 }, { c1: 3 }];
+    matrix.addRow();
+    matrix.removeRowByIndex(0);
+    expect(matrix.value, "#1").toEqual([{ c1: 2 }, { c1: 3 }, {}]);
+    expect(matrix.rowCount, "#2").toBe(3);
+  });
+  test("removing the only stored record leaves the padded rows", () => {
+    const { matrix } = createMatrix({ rowCount: 3 });
+    matrix.value = [{ c1: 1 }];
+    matrix.removeRowByIndex(0);
+    expect(matrix.value, "#1").toEqual([{}, {}]);
+    expect(matrix.rowCount, "#2").toBe(2);
+  });
+  test("each removal raises one value-change pair", () => {
+    const { survey, matrix } = createMatrix({ rowCount: 3 });
+    matrix.value = [{ c1: 1 }];
+    const log = new Array<string>();
+    survey.onValueChanging.add((_, options) => { log.push("changing:" + JSON.stringify(options.value)); });
+    survey.onValueChanged.add((_, options) => { log.push("changed:" + JSON.stringify(options.value)); });
+    matrix.removeRowByIndex(0);
+    expect(log, "#1").toEqual(["changing:[{},{}]", "changed:[{},{}]"]);
+    log.length = 0;
+    matrix.value = [{ c1: 1 }, { c1: 2 }, { c1: 3 }];
+    log.length = 0;
+    matrix.removeRowByIndex(0);
+    expect(log, "#2").toEqual(["changing:[{\"c1\":2},{\"c1\":3}]", "changed:[{\"c1\":2},{\"c1\":3}]"]);
+  });
+});
+
+describe("removeRowByIndex numbers without paging", () => {
+  const createMatrix = (value?: Array<any>): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel } => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "m", rowCount: 3, columns: [{ name: "c1", cellType: "text" }] }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    if (!!value) matrix.value = value;
+    return { survey: survey, matrix: matrix };
+  };
+  test("removeRowByIndex with a negative number counts from the end", () => {
+    let { matrix } = createMatrix([{ c1: 1 }, { c1: 2 }, { c1: 3 }]);
+    matrix.removeRowByIndex(-1);
+    expect(matrix.value, "#1: -1 removes the last row").toEqual([{ c1: 1 }, { c1: 2 }]);
+    expect(matrix.rowCount, "#2").toBe(2);
+    matrix = createMatrix([{ c1: 1 }, { c1: 2 }, { c1: 3 }]).matrix;
+    matrix.removeRowByIndex(-2);
+    expect(matrix.value, "#3: -2 removes the row before the last").toEqual([{ c1: 1 }, { c1: 3 }]);
+    matrix = createMatrix([{ c1: 1 }, { c1: 2 }, { c1: 3 }]).matrix;
+    matrix.removeRowByIndex(-5);
+    expect(matrix.value, "#4: a number below minus the row count removes the first row").toEqual([{ c1: 2 }, { c1: 3 }]);
+    matrix = createMatrix().matrix;
+    matrix.removeRowByIndex(-1);
+    expect(matrix.value, "#5: no value").toEqual([{}, {}]);
+    expect(matrix.rowCount, "#6").toBe(2);
+  });
+  test("removeRowByIndex past the last row changes nothing and raises no event", () => {
+    const { survey, matrix } = createMatrix([{ c1: 1 }, { c1: 2 }, { c1: 3 }]);
+    let counter = 0;
+    survey.onValueChanging.add(() => { counter++; });
+    survey.onValueChanged.add(() => { counter++; });
+    matrix.removeRowByIndex(3);
+    matrix.removeRowByIndex(5);
+    expect(matrix.value, "#1").toEqual([{ c1: 1 }, { c1: 2 }, { c1: 3 }]);
+    expect(matrix.rowCount, "#2").toBe(3);
+    expect(counter, "#3").toBe(0);
+  });
+});
+
+describe("the padded rows of a dynamic matrix show their defaults after a clear", () => {
+  const createMatrix = (json?: any): QuestionMatrixDynamicModel => {
+    const survey = new SurveyModel({
+      elements: [Object.assign({ type: "matrixdynamic", name: "m", rowCount: 2, defaultRowValue: { c1: "d" },
+        columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }] }, json || {})]
+    });
+    return <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+  };
+  const cells = (matrix: QuestionMatrixDynamicModel): Array<Array<any>> =>
+    matrix.visibleRows.map(row => row.cells.map(cell => cell.question.value));
+  test("clearValue shows the default row value in every row", () => {
+    const matrix = createMatrix();
+    matrix.visibleRows;
+    matrix.clearValue();
+    expect(cells(matrix), "#1").toEqual([["d", undefined], ["d", undefined]]);
+    expect(matrix.getRowValue(0), "#2").toEqual({ c1: "d" });
+    expect(matrix.isEmpty(), "#3").toBe(true);
+  });
+  test("an edit of a row after clearValue keeps the default row value of every row", () => {
+    const matrix = createMatrix();
+    matrix.visibleRows;
+    matrix.clearValue();
+    matrix.visibleRows[0].getQuestionByColumnName("c2").value = "n";
+    expect(matrix.value, "#1").toEqual([{ c1: "d", c2: "n" }, { c1: "d" }]);
+  });
+  test("an empty array shows the default row value in every row", () => {
+    const matrix = createMatrix();
+    matrix.visibleRows;
+    matrix.value = [];
+    expect(cells(matrix), "#1").toEqual([["d", undefined], ["d", undefined]]);
+  });
+  test("clearValue shows the column default value", () => {
+    const matrix = createMatrix({ defaultRowValue: undefined });
+    matrix.columns[0].defaultValue = "cd";
+    matrix.visibleRows;
+    matrix.clearValue();
+    expect(cells(matrix), "#1").toEqual([["cd", undefined], ["cd", undefined]]);
+  });
+});
+
+describe("a cell question of a removed row", () => {
+  test("a cell question of a row removed by removeRow writes nothing", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, columns: [{ name: "a", cellType: "text" }] }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.value = [{ a: 1 }, { a: 2 }, { a: 3 }];
+    const q = matrix.visibleRows[0].getQuestionByColumnName("a");
+    let counter = 0;
+    survey.onMatrixCellValueChanged.add(() => { counter++; });
+    matrix.removeRow(0);
+    q.value = "late";
+    expect(matrix.value, "#1").toEqual([{ a: 2 }, { a: 3 }]);
+    expect(counter, "#2").toBe(0);
+  });
+});

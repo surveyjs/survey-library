@@ -301,13 +301,15 @@ describe("removeRowByIndex with a source and no paging refuses an out-of-range n
     matrix.removeRowByIndex(2);
     expect(source.records.map(r => r.a), "#2").toEqual([0, 1]);
   });
-  test("a local matrix under a filter: a number below the record count is clamped to the records the view shows", () => {
+  test("a local matrix under a filter refuses a number past the rows the view shows", () => {
     const matrix = createMatrix({}, [{ a: 1 }, { a: 2 }, { a: 3 }]);
     matrix.filterExpression = "{a} != 2";
     matrix.removeRowByIndex(3);
     expect(values(matrix.value), "#1: past the record count").toEqual([1, 2, 3]);
     matrix.removeRowByIndex(2);
-    expect(values(matrix.value), "#2: the last record the view shows").toEqual([1, 2]);
+    expect(values(matrix.value), "#2: past the rows shown, below the record count").toEqual([1, 2, 3]);
+    matrix.removeRowByIndex(1);
+    expect(values(matrix.value), "#3: the last row shown").toEqual([1, 2]);
   });
 });
 

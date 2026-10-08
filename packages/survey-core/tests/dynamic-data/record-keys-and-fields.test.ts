@@ -3,6 +3,7 @@ import { SurveyModel } from "../../src/survey";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { Question } from "../../src/question";
+import { getDuplicateKey } from "../../src/dynamic-data/dynamic-data-page-validation";
 
 /* The record keys a records question compares for keyName duplicates, and the record fields it gives
    its sort and filter. Both questions compare keys as text, and both declare the field the other text
@@ -74,6 +75,49 @@ describe("keyName duplicates: the panel compares keys as text", () => {
     const panel3 = createKeyPanel(["a", "b", "c", "1.0"], { panelsPerPage: 2 });
     panel3.panels[0].getQuestionByName("k").value = 1;
     expect(panel3.validate(), "#3: 1 and \"1.0\"").toBe(true);
+  });
+});
+
+describe("keyName and isUnique compare object and array values by content", () => {
+  const panelHasDuplicate = (template: any, keys: Array<any>): boolean => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", keyName: "k",
+      templateElements: [Object.assign({ name: "k" }, template)] }] });
+    survey.data = { p: keys.map((k: any): any => ({ k: k })) };
+    return !(<QuestionPanelDynamicModel>survey.getQuestionByName("p")).validate();
+  };
+  const matrixHasDuplicate = (column: any, keys: Array<any>): boolean => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0,
+      columns: [Object.assign({ name: "k", isUnique: true }, column)] }] });
+    survey.data = { m: keys.map((k: any): any => ({ k: k })) };
+    return !(<QuestionMatrixDynamicModel>survey.getQuestionByName("m")).validate();
+  };
+  const multipleText = { type: "multipletext", items: [{ name: "x" }, { name: "y" }] };
+  const checkbox = { type: "checkbox", choices: [1, 2, "a", "b", "1,2"] };
+  const rows: Array<{ name: string, template: any, keys: Array<any>, isDuplicate: boolean }> = [
+    { name: "two objects with different content are different keys", template: multipleText, keys: [{ x: "1" }, { x: "2" }], isDuplicate: false },
+    { name: "two objects with the same content are duplicates", template: multipleText, keys: [{ x: "1" }, { x: "1" }], isDuplicate: true },
+    { name: "two objects with their keys in another order are duplicates", template: multipleText, keys: [{ x: "1", y: "2" }, { y: "2", x: "1" }], isDuplicate: true },
+    { name: "an array and a string of its items joined by commas are different keys", template: checkbox, keys: [[1, 2], ["1,2"]], isDuplicate: false },
+    { name: "two arrays with the same items are duplicates", template: checkbox, keys: [["a", "b"], ["a", "b"]], isDuplicate: true },
+    { name: "two arrays with the same items in another order are different keys", template: checkbox, keys: [["a", "b"], ["b", "a"]], isDuplicate: false },
+    { name: "two arrays with different items are different keys", template: checkbox, keys: [["a"], ["b"]], isDuplicate: false }
+  ];
+  rows.forEach(row => {
+    test("panel: " + row.name, () => {
+      expect(panelHasDuplicate(row.template, row.keys), "#1").toBe(row.isDuplicate);
+    });
+  });
+  rows.filter(row => row.template === checkbox).forEach(row => {
+    test("matrix column: " + row.name, () => {
+      expect(matrixHasDuplicate({ cellType: "checkbox", choices: [1, 2, "a", "b", "1,2"] }, row.keys), "#1").toBe(row.isDuplicate);
+    });
+  });
+  test("panel: an object and a string equal to the object's key are different keys", () => {
+    expect(panelHasDuplicate({ type: "text" }, [{ x: "1" }, getDuplicateKey({ x: "1" }, true)]), "#1").toBe(false);
+  });
+  test("matrix column: the strings of two objects compare as the column compares text, case-insensitively", () => {
+    expect(matrixHasDuplicate({ cellType: "checkbox", choices: ["a", "A"] }, [["a"], ["A"]]), "#1").toBe(true);
+    expect(panelHasDuplicate(checkbox, [["a"], ["A"]]), "#2: the panel compares case-sensitively").toBe(false);
   });
 });
 

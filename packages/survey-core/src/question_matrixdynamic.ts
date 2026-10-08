@@ -202,6 +202,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (index < 0 || index >= this.rowCount) return undefined;
     return defaultRecord !== undefined ? defaultRecord : this.getDefaultRowValue(false) || {};
   }
+  /* A row past the value reads the padded record, as getStoredRecordAt does: a cleared value shows
+     the default row value again. A data source's window and a live-object value are not padded. */
+  protected getAssignedRecord(value: any, recordIndex: number): any {
+    const record = super.getAssignedRecord(value, recordIndex);
+    if (record !== undefined || recordIndex < 0 || recordIndex >= this.rowCount || this.isRemoteData || this.isEditingObjectValue) return record;
+    return this.getDefaultRowValue(false) || {};
+  }
   // Appends default row values until the array holds rowCount records; the array is modified.
   private padRecords(records: Array<any>): Array<any> {
     const rowValue = this.getDefaultRowValue(false) || {};
@@ -495,16 +502,22 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       return;
     }
     const list = this.dataList;
-    // Without paging a number below the record count is clamped to the records the view shows.
-    if (!this.isPagingActive && (fromIndex < 0 || fromIndex >= list.count)) return;
-    const index = this.isPagingActive ? this.getRecordIndexForOperation(fromIndex, "remove") : this.getRecordIndex(fromIndex);
+    // A negative number counts from the end of the rows shown, as the released splice did.
+    if (fromIndex < 0) {
+      fromIndex = Math.max(0, list.globalCreatedExtent + fromIndex);
+    }
+    // One rule with or without paging: a number past the rows shown names nothing.
+    const index = this.getRecordIndexForOperation(fromIndex, "remove");
     if (index < 0) return;
     /* The record moves to the end and rowCount-- removes it there: the row objects are spliced
-       instead of being re-created, exactly as they are when a row is removed by the UI. Both steps
+       instead of being re-created, exactly as they are when a row is removed by the UI. All steps
        are one write of question.value - the value used to be assigned twice here, the intermediate
-       assignment carrying a row the caller never asked to remove. */
+       assignment carrying a row the caller never asked to remove. The window is truncated in the
+       batch: question.value can be shorter than rowCount (padded rows), so the rowCount setter,
+       which compares the stored value, would not drop the moved record. */
     list.batch((): void => {
       list.move(index, list.count - 1);
+      list.truncate(list.count - 1);
       this.rowCount--;
     });
   }

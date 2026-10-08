@@ -2163,7 +2163,7 @@ export abstract class QuestionRecordsModel extends Question {
       const item = this.getItem(i);
       if (!item) return;
       const recordIndex = !!list ? list.materializedIndexToIndex(i) : i;
-      const newRecord = this.getRecordInValue(newRecords, recordIndex);
+      const newRecord = this.getAssignedRecord(newRecords, recordIndex);
       if (isEveryChanged || newRecord === undefined && this.isItemWithoutRecordRefreshed() ||
         QuestionRecordsModel.isRecordChanged(this.getRecordInValue(oldRecords, recordIndex), newRecord)) {
         item.updateFromRecord(newRecord);
@@ -2178,6 +2178,12 @@ export abstract class QuestionRecordsModel extends Question {
      matrix keys its answer by row name. */
   protected getRecordInValue(value: any, recordIndex: number): any {
     return Array.isArray(value) && recordIndex > -1 ? value[recordIndex] : undefined;
+  }
+  /* The record an object shows after an assignment: the record the value holds there. The dynamic
+     matrix pads a row past the value with its default record; the record the object showed before
+     is compared as the value held it. */
+  protected getAssignedRecord(value: any, recordIndex: number): any {
+    return this.getRecordInValue(value, recordIndex);
   }
   /* An object whose record the assigned value does not hold is refreshed by every assignment from
      outside, although it had no record before either: one updateFromRecord(undefined) per such object.

@@ -117,6 +117,12 @@ class PanelDynamicTabbedMenuItem extends Action {
   }
 }
 
+/* The items of the panels that left panelsCore: removed, cut off by a lower panelCount, rebuilt or
+   off the page. A question of such a panel can still be written - a kept reference, a deferred
+   dispose - and writes nothing, as a cell question of a removed matrix row. A panel that is being
+   created is not in panelsCore yet either, and writes. */
+const leftPanelItems = new WeakSet<ISurveyData>();
+
 export class QuestionPanelDynamicItem extends QuestionRecordItem {
   private panelValue: PanelModel;
   // isLight: the questions are attached without running their conditions; the owner runs them later.
@@ -549,13 +555,18 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
        own setter after the rebuild returns. Its panel is disposed at the next rebuild instead. */
     const isWriting = this.isWritingRecords;
     panels.forEach((panel: PanelModel): void => {
-      if (panel.isDisposed || this.panelsCore.indexOf(panel) > -1) return;
+      if (this.panelsCore.indexOf(panel) > -1) return;
+      this.markPanelsLeft([panel]);
+      if (panel.isDisposed) return;
       if (isWriting || this._renderedPanels.indexOf(panel) > -1) {
         if (this.panelsToDispose.indexOf(panel) < 0)this.panelsToDispose.push(panel);
       } else {
         this.disposePanelObject(panel);
       }
     });
+  }
+  private markPanelsLeft(panels: Array<PanelModel>): void {
+    panels.forEach((panel: PanelModel): void => { if (!!panel.data)leftPanelItems.add(panel.data); });
   }
   private disposeLeftPanels(rendered: Array<PanelModel>): void {
     if (this.panelsToDispose.length === 0) return;
@@ -1458,7 +1469,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.singleInputOnAddItem(this.settingPanelCountBasedOnValue);
     }
     if (val < this.panelCount) {
-      this.panelsCore.splice(val, this.panelCount - val);
+      this.markPanelsLeft(this.panelsCore.splice(val, this.panelCount - val));
     }
     this.disablePanelsAnimations();
     this.setValueAfterPanelsCreating();
@@ -2551,7 +2562,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (removal.position > -1) {
       this.isDetachingPanel = true;
       try {
-        this.panelsCore.splice(removal.position, 1);
+        this.markPanelsLeft(this.panelsCore.splice(removal.position, 1));
       } finally {
         this.isDetachingPanel = false;
       }
@@ -3389,6 +3400,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     const panel = pnl;
     const position = this.panels.indexOf(<PanelModel>panel);
+    // A question of a removed panel writes nothing: there is no change to announce.
+    if (position < 0 && leftPanelItems.has((<PanelModel>panel).data)) return undefined;
     return {
       question: this,
       panel: panel,
@@ -3440,6 +3453,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (this.isValidatingExpressions || item === this.template.data) return true;
     var items = this.items;
     var index = items.indexOf(item);
+    // Nothing is written, so nothing is notified: a stop, as a refusal.
+    if (index < 0 && leftPanelItems.has(item)) return false;
     if (index < 0) index = items.length;
     // index is a created position; the record it writes is the one that panel holds, or the next
     // record for a panel that does not exist yet.

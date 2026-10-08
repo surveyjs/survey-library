@@ -71,18 +71,29 @@ function getRecordsRemapByContent(oldRecords: Array<any>, newRecords: Array<any>
   };
 }
 
-/* The group key of a value the duplicate checks compare by: one String() key, so that 1 and "1" are
-   one key, with strings folded by toLocaleLowerCase when the comparison is not case-sensitive. What
-   is empty, and so takes no part, each check decides before it asks for the key. */
+/* The group key of a value the duplicate checks compare by, in two namespaces that never meet. A
+   scalar is one String() key, so that 1 and "1" are one key; an object or an array is keyed by its
+   content - object keys sorted, array items in order. Strings are folded by toLocaleLowerCase when
+   the comparison is not case-sensitive. The keys only group values in memory. What is empty, and so
+   takes no part, each check decides before it asks for the key. */
 export function getDuplicateKey(value: any, caseSensitive: boolean): string {
-  if (!caseSensitive && typeof value === "string") {
-    value = value.toLocaleLowerCase();
+  if (!!value && typeof value === "object") return "o" + getContentKey(value, caseSensitive);
+  return "s" + String(foldKeyText(value, caseSensitive));
+}
+function foldKeyText(value: any, caseSensitive: boolean): any {
+  return !caseSensitive && typeof value === "string" ? value.toLocaleLowerCase() : value;
+}
+function getContentKey(value: any, caseSensitive: boolean): string {
+  if (Array.isArray(value)) return "[" + value.map((item: any): string => getContentKey(item, caseSensitive)).join(",") + "]";
+  if (!!value && typeof value === "object") {
+    const keys = Object.keys(value).filter((key: string): boolean => value[key] !== undefined).sort();
+    return "{" + keys.map((key: string): string => JSON.stringify(key) + ":" + getContentKey(value[key], caseSensitive)).join(",") + "}";
   }
-  return String(value);
+  return value === undefined ? "undefined" : JSON.stringify(foldKeyText(value, caseSensitive));
 }
 
 /* The off-page half of a duplicate check (layer 2): the records are scanned without an object
-   (O(records)) and grouped by String(value); a group of two or more gives the page of its latest
+   (O(records)) and grouped by getDuplicateKey; a group of two or more gives the page of its latest
    visible record, which is where the error goes. A group with no visible record gives no page: it
    has no record to put the error on. Returns the pages, without repeats.
    The questions differ in which records take part and how values compare, and each call site spells

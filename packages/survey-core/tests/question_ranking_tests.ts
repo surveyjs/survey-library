@@ -1033,6 +1033,29 @@ describe("question ranking", () => {
     }
   });
 
+  test("Ranking Question: Enter with keyCode 13 and no key auto-advances", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "ranking", name: "q1", choices: ["a", "b", "c"] }] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      const question = <QuestionRankingModel>survey.getQuestionByName("q1");
+      question["focusItem"] = () => {};
+      question.handleKeydown(<any>{ key: "ArrowDown", preventDefault: () => {} }, question.choices[0]);
+      let prevented = false;
+      question.handleKeydown(<any>{ keyCode: 13, preventDefault: () => { prevented = true; } }, question.choices[0]);
+      expect(prevented, "Enter is prevented when auto-advancing").toBe(true);
+      expect(survey.currentPageNo, "keyCode 13 confirms the order and auto-advances").toBe(1);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+
   test("A11Y", () => {
     expect(new QuestionRankingModel("q1").ariaRole, "aria-role").toEqual("group");
   });

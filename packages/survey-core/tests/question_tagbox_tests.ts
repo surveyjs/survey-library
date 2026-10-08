@@ -2908,4 +2908,36 @@ describe("Tagbox question", () => {
       settings.autoAdvanceDelay = prevDelay;
     }
   });
+
+  test("Tagbox Question: Enter keeps enterKeyAction when another question is empty", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [
+            { type: "tagbox", name: "q1", choices: ["item1", "item2", "item3"] },
+            { type: "text", name: "q2" }
+          ] },
+          { elements: [{ type: "text", name: "q3" }] },
+        ],
+      });
+      survey.enterKeyAction = "loseFocus";
+      const question = <QuestionTagboxModel>survey.getQuestionByName("q1");
+      question.value = ["item1"];
+      let blurred = false;
+      question.dropdownListModel.keyHandler({
+        key: "Enter",
+        keyCode: 13,
+        target: { blur: () => { blurred = true; } },
+        preventDefault: () => { },
+        stopPropagation: () => { }
+      });
+      expect(blurred, "enterKeyAction blurs the input").toBe(true);
+      expect(survey.currentPageNo, "Stay on the first page").toBe(0);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
 });

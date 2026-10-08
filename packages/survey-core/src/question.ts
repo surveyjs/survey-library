@@ -3173,7 +3173,7 @@ export class Question extends SurveyElement<Question>
   // Emptiness is checked separately: comment writes the textarea text before deciding to advance.
   protected isAutoAdvanceEnter(event: any): boolean {
     if (!event || (event.key !== "Enter" && event.keyCode !== 13)) return false;
-    if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey || event.isComposing || event.defaultPrevented) return false;
+    if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey || event.isComposing || event.keyCode === 229 || event.defaultPrevented) return false;
     if (this.isDesignMode || this.isInputReadOnly) return false;
     const survey = this.survey as SurveyModel;
     return !!survey && survey.autoAdvanceEnabled === true;
@@ -3181,14 +3181,21 @@ export class Question extends SurveyElement<Question>
   protected canCommitAutoAdvanceOnEnter(event: any): boolean {
     return this.isAutoAdvanceEnter(event) && !this.isEmpty();
   }
-  protected commitAutoAdvance(event?: any): void {
-    if (event?.preventDefault) event.preventDefault();
+  protected requestAutoAdvance(): boolean {
+    const survey = this.survey as SurveyModel;
+    // getQuestionByValueName only sees top-level questions. A nested question with the same
+    // name must not advance on behalf of that other question.
+    if (!survey || survey.getQuestionByValueName(this.getValueName()) !== this) return false;
     this.isAutoAdvanceRequested = true;
     try {
-      (this.survey as SurveyModel).tryGoNextPageAutomatic(this.getValueName());
+      return survey.tryGoNextPageAutomaticCore(this.getValueName());
     } finally {
       this.isAutoAdvanceRequested = false;
     }
+  }
+  protected commitAutoAdvance(event?: any): void {
+    if (event?.preventDefault) event.preventDefault();
+    this.requestAutoAdvance();
   }
   public supportGoNextPageError(): boolean {
     return true;

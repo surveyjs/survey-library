@@ -129,6 +129,30 @@ frameworks.forEach((framework) => {
       expect(await getSurveyData(page)).toEqual({ q1: "line1\nline2" });
     });
 
+    test("Comment Enter inserts a line break when another question is empty", async ({ page }) => {
+      await initSurvey(page, framework, {
+        autoFocusFirstQuestion: true,
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [
+            { type: "comment", name: "q1", title: "First page" },
+            { type: "text", name: "q2", title: "Also first page" },
+          ] },
+          { elements: [{ type: "text", name: "q3", title: "Second page" }] },
+        ],
+      });
+      await page.evaluate(() => {
+        (window as any).Survey.settings.autoAdvanceDelay = 0;
+      });
+      const comment = page.locator("textarea").first();
+      await expect(comment).toBeFocused();
+      await page.keyboard.type("line1");
+      await page.keyboard.press("Enter");
+      await page.keyboard.type("line2");
+      await expectFirstPage(page);
+      await expect(comment).toHaveValue("line1\nline2");
+    });
+
     test("Ranking Enter confirms the answer", async ({ page }) => {
       await init(page, framework, { type: "ranking", name: "q1", choices: ["a", "b", "c"] });
       await expect(page.locator(".sv-ranking-item").first()).toBeFocused();

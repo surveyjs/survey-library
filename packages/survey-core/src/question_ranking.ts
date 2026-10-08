@@ -493,7 +493,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   public handleKeydown = (event: KeyboardEvent, choice: ItemValue): void => {
     if (this.isReadOnlyAttr) return;
-    if (event.key === "Enter") {
+    if (event.key === "Enter" || event.keyCode === 13) {
       if (this.canCommitAutoAdvanceOnEnter(event)) {
         this.commitAutoAdvance(event);
       }

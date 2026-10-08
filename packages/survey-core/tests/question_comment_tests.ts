@@ -1,6 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { QuestionCommentModel } from "../src/question_comment";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { SurveyElement } from "../src/survey-element";
 import { settings } from "../src/settings";
 
@@ -350,7 +351,7 @@ describe("Comment question", () => {
         preventDefault: () => { prevented = true; },
         get defaultPrevented() { return prevented; }
       });
-      expect(prevented, "Enter still suppresses the newline").toBe(true);
+      expect(prevented, "Enter inserts a newline when the page cannot advance").toBe(false);
       expect(survey.currentPageNo, "Stay until all questions on the page are answered").toBe(0);
       expect(survey.data).toEqual({ q1: "abc" });
     } finally {
@@ -374,5 +375,200 @@ describe("Comment question", () => {
     expect(cellQuestion.getType(), "Cell question type").toBe("comment");
     expect(cellQuestion.supportAutoAdvance(), "Comment cell stays opted out").toBe(false);
     expect(matrix.supportAutoAdvance(), "Matrix stays opted out").toBe(false);
+  });
+
+  test("Comment cell Enter inserts a newline", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        elements: [{
+          type: "matrixdropdown",
+          name: "q1",
+          columns: [{ name: "col1", cellType: "comment" }],
+          rows: ["row1"]
+        }]
+      });
+      const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+      const cellQuestion = <QuestionCommentModel>matrix.visibleRows[0].cells[0].question;
+      let prevented = false;
+      cellQuestion.onKeyDown({
+        key: "Enter",
+        keyCode: 13,
+        target: { value: "abc" },
+        preventDefault: () => { prevented = true; }
+      });
+      expect(prevented, "Enter in a comment cell inserts a newline").toBe(false);
+      expect(survey.currentPageNo, "Comment cell stays on the page").toBe(0);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+
+  test("Comment inside a dynamic panel does not auto-advance on Enter", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{
+            type: "paneldynamic",
+            name: "panel",
+            panelCount: 1,
+            templateElements: [{ type: "comment", name: "c1" }]
+          }] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+      const comment = <QuestionCommentModel>panel.panels[0].getQuestionByName("c1");
+      let prevented = false;
+      comment.onKeyDown({
+        key: "Enter",
+        keyCode: 13,
+        target: { value: "abc" },
+        preventDefault: () => { prevented = true; }
+      });
+      expect(prevented, "Enter inserts a newline").toBe(false);
+      expect(survey.currentPageNo, "Stay on the first page").toBe(0);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+
+  test("Comment Question: last page Enter completes only when autoAdvanceAllowComplete is true", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const blocked = new SurveyModel({
+        autoAdvanceEnabled: true,
+        autoAdvanceAllowComplete: false,
+        elements: [{ type: "comment", name: "q1" }]
+      });
+      const blockedQuestion = <QuestionCommentModel>blocked.getQuestionByName("q1");
+      let blockedPrevented = false;
+      blockedQuestion.onKeyDown({
+        key: "Enter",
+        keyCode: 13,
+        target: { value: "abc" },
+        preventDefault: () => { blockedPrevented = true; }
+      });
+      expect(blockedPrevented, "Enter inserts a newline when complete is not allowed").toBe(false);
+      expect(blocked.state, "Survey stays running").not.toBe("completed");
+
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        autoAdvanceAllowComplete: true,
+        elements: [{ type: "comment", name: "q1" }]
+      });
+      const question = <QuestionCommentModel>survey.getQuestionByName("q1");
+      let prevented = false;
+      question.onKeyDown({
+        key: "Enter",
+        keyCode: 13,
+        target: { value: "abc" },
+        preventDefault: () => { prevented = true; }
+      });
+      expect(prevented, "Enter is prevented when the survey completes").toBe(true);
+      expect(survey.state, "Survey is completed").toBe("completed");
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+
+  test("Comment Question: Enter does not advance or show errors when validation fails", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{
+            type: "comment",
+            name: "q1",
+            validators: [{ type: "text", minLength: 10 }]
+          }] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      const question = <QuestionCommentModel>survey.getQuestionByName("q1");
+      let prevented = false;
+      question.onKeyDown({
+        key: "Enter",
+        keyCode: 13,
+        target: { value: "abc" },
+        preventDefault: () => { prevented = true; }
+      });
+      expect(prevented, "Enter inserts a newline").toBe(false);
+      expect(survey.currentPageNo, "Stay on the first page").toBe(0);
+      expect(question.errors, "Validation stays silent").toHaveLength(0);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+
+  test("Comment cell Enter does not advance a top-level question with the same name", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [
+            { type: "text", name: "col1" },
+            {
+              type: "matrixdropdown",
+              name: "m1",
+              columns: [{ name: "col1", cellType: "comment" }],
+              rows: ["row1"]
+            }
+          ] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      survey.getQuestionByName("col1").value = "ready";
+      const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m1");
+      const cellQuestion = <QuestionCommentModel>matrix.visibleRows[0].cells[0].question;
+      let prevented = false;
+      cellQuestion.onKeyDown({
+        key: "Enter",
+        keyCode: 13,
+        target: { value: "abc" },
+        preventDefault: () => { prevented = true; }
+      });
+      expect(prevented, "Enter in the cell inserts a newline").toBe(false);
+      expect(survey.currentPageNo, "The top-level question does not advance the page").toBe(0);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+
+  test("Comment Question: IME Enter does not auto-advance", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "comment", name: "q1" }] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      const question = <QuestionCommentModel>survey.getQuestionByName("q1");
+      let prevented = false;
+      question.onKeyDown({
+        key: "Enter",
+        keyCode: 229,
+        target: { value: "abc" },
+        preventDefault: () => { prevented = true; }
+      });
+      expect(prevented, "Composition Enter is not prevented").toBe(false);
+      expect(survey.currentPageNo, "Composition Enter stays on the page").toBe(0);
+      expect(survey.data).toEqual({});
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
   });
 });

@@ -56,9 +56,12 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
   public set dropdownListModel(val: DropdownMultiSelectListModel) {
     this.dropdownListModelValue = val;
   }
+  // Internal. DropdownMultiSelectListModel calls this so a closed tagbox can advance on Enter.
+  // Stays public because that model is not a subclass and must not import this class.
   public tryCommitAutoAdvanceOnEnter(event: any): boolean {
     if (!this.canCommitAutoAdvanceOnEnter(event)) return false;
-    this.commitAutoAdvance(event);
+    if (!this.requestAutoAdvance()) return false;
+    if (event?.preventDefault) event.preventDefault();
     return true;
   }
   /**

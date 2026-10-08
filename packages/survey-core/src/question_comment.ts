@@ -109,6 +109,10 @@ export class QuestionCommentModel extends QuestionTextBase {
   supportAutoAdvance(): boolean {
     return this.isAutoAdvanceRequested === true;
   }
+  // validate(false) refuses navigation without showing errors. Page validation would display them.
+  public supportGoNextPageError(): boolean {
+    return false;
+  }
   public afterRenderQuestionElement(el: HTMLElement): void {
     this.element = el?.querySelector(`#${this.inputId}`) || el;
     super.afterRenderQuestionElement(el);
@@ -129,8 +133,9 @@ export class QuestionCommentModel extends QuestionTextBase {
     this.onKeyDownPreprocess && this.onKeyDownPreprocess(event);
     if (this.isAutoAdvanceEnter(event)) {
       this.updateValueFromTextArea(event?.target?.value);
-      if (!this.isEmpty()) {
-        this.commitAutoAdvance(event);
+      // Suppress the newline only when navigation was scheduled.
+      if (!this.isEmpty() && this.requestAutoAdvance()) {
+        if (event?.preventDefault) event.preventDefault();
         return;
       }
     }

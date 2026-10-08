@@ -212,7 +212,8 @@ Serializer.addClass(
     {
       name: "locale:string",
       category: regionalFormatCategory,
-      choices: () => getLocaleDataLocales(),
+      // The leading empty item lets the Creator clear the value (inherit the survey's locale)
+      choices: () => [""].concat(getLocaleDataLocales()),
       onSerializeValue: serializeStoredValue("locale"),
     },
     { name: "datePattern:string", category: regionalFormatCategory, onSerializeValue: serializeStoredValue("datePattern") },

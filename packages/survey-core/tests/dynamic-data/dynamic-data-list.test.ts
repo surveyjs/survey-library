@@ -1022,20 +1022,17 @@ describe("DynamicDataList: read-through over an array source", () => {
   const createList = (): { list: DynamicDataList, get: () => Array<any>, writes: Array<Array<any>> } => {
     let stored: Array<any> = [{ a: 1 }, { a: 2 }];
     const writes = new Array<Array<any>>();
-    const source = new ArrayDynamicDataSource(() => stored, (arr: Array<any>): void => {
+    const list = DynamicDataList.createReadThrough(undefined, () => stored, (arr: Array<any>): void => {
       stored = arr;
       writes.push(arr);
     });
-    const list = new DynamicDataList(source);
-    list["isReadThroughValue"] = true;
-    list.load();
     return { list: list, get: (): Array<any> => stored, writes: writes };
   };
   test("reads the owner array on demand, without a load", () => {
-    let stored: Array<any> = [{ a: 1 }];
-    const list = new DynamicDataList(new ArrayDynamicDataSource(() => stored, (arr) => { stored = arr; }));
-    list["isReadThroughValue"] = true;
-    expect(list.count, "No load() was called").toBe(1);
+    let stored: Array<any> = [];
+    const list = DynamicDataList.createReadThrough(undefined, () => stored, (arr) => { stored = arr; });
+    stored = [{ a: 1 }];
+    expect(list.count, "No read was made since").toBe(1);
     stored = [{ a: 1 }, { a: 2 }, { a: 3 }];
     expect(list.count, "An assignment made behind the back of the list is seen at once").toBe(3);
     expect(list.getRecord(2).a).toBe(3);
@@ -1092,11 +1089,9 @@ describe("DynamicDataList: read-through over an array source", () => {
   });
   test("read-through is ignored for a source that is not an array source", () => {
     const source: IDynamicDataSource = { read: (): Array<any> => [{ a: 1 }, { a: 2 }] };
-    const list = new DynamicDataList(source);
-    list["isReadThroughValue"] = true;
-    expect(list.count, "Nothing is loaded yet").toBe(0);
-    list.load();
-    expect(list.count).toBe(2);
+    const list = DynamicDataList.createReadThrough(undefined, () => [], () => { });
+    list.source = source;
+    expect(list.count, "the list that was loaded reads the new source").toBe(2);
     list.setValue(0, "a", 11);
     expect(list.getRecord(0).a, "A source without update keeps the change in the window").toBe(11);
   });
@@ -1138,10 +1133,7 @@ class FakeSwitchableSource implements IDynamicDataSource {
 }
 function createReadThrough(records: Array<any>): { list: DynamicDataList, set: (arr: Array<any>) => void } {
   let stored: Array<any> = records;
-  const source = new ArrayDynamicDataSource(() => stored, (arr: Array<any>): void => { stored = arr; });
-  const list = new DynamicDataList(source);
-  list["isReadThroughValue"] = true;
-  list.load();
+  const list = DynamicDataList.createReadThrough(undefined, () => stored, (arr: Array<any>): void => { stored = arr; });
   return { list: list, set: (arr: Array<any>): void => { stored = arr; } };
 }
 
@@ -1452,17 +1444,14 @@ describe("DynamicDataList: frozen membership", () => {
   test("invalidateViews reported by the storage the write assigns is ignored", () => {
     let records: Array<any> = [{ a: 1 }, { a: 1 }];
     let writing = false;
-    const list = new DynamicDataList(new ArrayDynamicDataSource(
+    const list = DynamicDataList.createReadThrough(undefined,
       () => records,
       (arr: Array<any>) => {
         records = arr;
         // The owner reports every assignment of its storage, this one included.
         writing = list.isWriting;
         list.invalidateViews();
-      }));
-    list["isReadThroughValue"] = true;
-    list.isViewFrozenOnEdit = true;
-    list.load();
+      });
     list.filter = "{a} = 1";
     list.setValue(1, "a", 2);
     expect(writing, "#1: the assignment came from the list itself").toBe(true);
@@ -3062,9 +3051,7 @@ describe("DynamicDataList: the assigned source", () => {
   });
   test("a standalone list that reads through keeps doing so; one that was assigned a source does not", () => {
     const own = createAssignedArray(2);
-    const list = new DynamicDataList(own.source);
-    list["isReadThroughValue"] = true;
-    list.load();
+    const list = DynamicDataList.createReadThrough(undefined, own.get, own.set);
     own.set(createRecords(4));
     expect(list.loadedCount, "#1: the source it was constructed with is its own").toBe(4);
     const assigned = createAssignedArray(3);

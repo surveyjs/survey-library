@@ -706,20 +706,42 @@ describe.each(namedAdapters)("Question source contract, paging without a declare
     expect(adapter.ids(question), "#12: the server page").toEqual([104]);
     expect(errors, "#13").toEqual([]);
   });
-  test("the records edited in the whole storage of a sort are not carried onto the page that replaces it", () => {
-    const { question, errors } = createPagingOnly();
-    const editedRecords = (): Array<number> => question._pageValidation.editedRecords;
-    question.sortBy = "id-";
+  // Every record has its required name: a record the respondent edits is the only invalid one.
+  function createNamedPagingOnly(): { survey: SurveyModel, question: any, errors: Array<string> } {
+    const records = contractRecords(5);
+    records.forEach((record: any): void => { record.name = "n" + record.id; });
+    const source = new ContractSource(records, { kind: "paging", capabilities: { paging: true } });
+    const { survey, question } = adapter.create(source, 2);
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation); });
+    return { survey: survey, question: question, errors: errors };
+  }
+  // The edit of the record shown first on page 1 of the view, made invalid, then the page is left.
+  const editOffThePage = (question: any, setView: (question: any) => void): void => {
+    setView(question);
     question.pageIndex = 1;
     adapter.edit(question, 0, "name", "");
     question.pageIndex = 0;
-    expect(editedRecords(), "#1: record 102, off the page and not validated").toEqual([2]);
+  };
+  test("a record edited on another page of a sort's whole storage is validated before the survey completes", () => {
+    const { survey, question, errors } = createNamedPagingOnly();
+    editOffThePage(question, (q: any): void => { q.sortBy = "id-"; });
+    expect(survey.tryComplete(), "#1").toBe(false);
+    expect(adapter.ids(question), "#2: the page of the edited record").toEqual([102, 101]);
+    expect(errors, "#3").toEqual([]);
+  });
+  test("the records edited in the whole storage of a sort are not carried onto the page that replaces it", () => {
+    const { survey, question, errors } = createNamedPagingOnly();
+    editOffThePage(question, (q: any): void => { q.sortBy = "id-"; });
     question.sortBy = "";
-    expect(adapter.ids(question), "#2: the server page").toEqual([100, 101]);
-    expect(editedRecords(), "#3: an index of the whole storage names nothing on a page").toEqual([]);
+    expect(adapter.ids(question), "#1: the server page").toEqual([100, 101]);
+    expect(question.validate(true), "#2: an index of the whole storage names nothing on a page").toBe(true);
+    expect(question.pageIndex, "#3").toBe(0);
     question.sortBy = "id-";
-    expect(editedRecords(), "#4: nothing is remapped into the next whole storage").toEqual([]);
-    expect(errors, "#5").toEqual([]);
+    expect(question.validate(true), "#4: nothing is remapped into the next whole storage").toBe(true);
+    expect(question.pageIndex, "#5").toBe(0);
+    expect(survey.tryComplete(), "#6").toBe(true);
+    expect(errors, "#7").toEqual([]);
   });
   test("a sort in the JSON: the first read is the whole storage", () => {
     const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
@@ -752,20 +774,25 @@ describe.each(namedAdapters)("Question source contract, paging without a declare
     expect(adapter.ids(question), "#12: the server page").toEqual([100, 101]);
     expect(errors, "#13").toEqual([]);
   });
+  test("a record edited on another page of a filter's whole storage is validated before the survey completes", () => {
+    const { survey, question, errors } = createNamedPagingOnly();
+    editOffThePage(question, (q: any): void => { q.filterExpression = "{id} > 100"; });
+    expect(survey.tryComplete(), "#1").toBe(false);
+    expect(adapter.ids(question), "#2: the page of the edited record").toEqual([103, 104]);
+    expect(errors, "#3").toEqual([]);
+  });
   test("the records edited in the whole storage are not carried onto the page that replaces it", () => {
-    const { question, errors } = createPagingOnly();
-    const editedRecords = (): Array<number> => question._pageValidation.editedRecords;
-    question.filterExpression = "{id} > 100";
-    question.pageIndex = 1;
-    adapter.edit(question, 0, "name", "");
-    question.pageIndex = 0;
-    expect(editedRecords(), "#1: record 103, off the page and not validated").toEqual([3]);
+    const { survey, question, errors } = createNamedPagingOnly();
+    editOffThePage(question, (q: any): void => { q.filterExpression = "{id} > 100"; });
     question.filterExpression = "";
-    expect(adapter.ids(question), "#2: the server page").toEqual([100, 101]);
-    expect(editedRecords(), "#3: an index of the whole storage names nothing on a page").toEqual([]);
+    expect(adapter.ids(question), "#1: the server page").toEqual([100, 101]);
+    expect(question.validate(true), "#2: an index of the whole storage names nothing on a page").toBe(true);
+    expect(question.pageIndex, "#3").toBe(0);
     question.filterExpression = "{id} > 100";
-    expect(editedRecords(), "#4: nothing is remapped into the next whole storage").toEqual([]);
-    expect(errors, "#5").toEqual([]);
+    expect(question.validate(true), "#4: nothing is remapped into the next whole storage").toBe(true);
+    expect(question.pageIndex, "#5").toBe(0);
+    expect(survey.tryComplete(), "#6").toBe(true);
+    expect(errors, "#7").toEqual([]);
   });
   test("a source assigned while a sort it cannot run is set is read whole; a source that sorts gets the sort", () => {
     const { survey, question } = adapter.create(undefined, 2, { sortBy: "id-" });

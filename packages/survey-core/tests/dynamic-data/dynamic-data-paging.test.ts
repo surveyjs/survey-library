@@ -76,7 +76,7 @@ const abc = (): Array<any> => [{ c1: "c" }, { c1: "a" }, { c1: "b" }];
 const asc: Array<IDynamicDataSort> = [{ field: "c1", direction: "asc" }];
 const desc: Array<IDynamicDataSort> = [{ field: "c1", direction: "desc" }];
 
-describe("DynamicDataPagingController: runtime (invariant 2)", () => {
+describe("DynamicDataPagingController: at runtime the list holds the view and the hash mirrors it", () => {
   test("the list holds the sort and the filter, the hash mirrors it, the accessors read the hash", () => {
     const owner = new FakePagingOwner(abc());
     owner.paging.sortOrder = asc;
@@ -167,7 +167,7 @@ describe("DynamicDataPagingController: design mode (invariants 1 and 4)", () => 
   });
 });
 
-describe("DynamicDataPagingController: loading (invariant 3)", () => {
+describe("DynamicDataPagingController: while loading the view is stored and reaches the list once", () => {
   test("a setter stores into the hash only and creates no list", () => {
     const owner = new FakePagingOwner(abc());
     owner.isLoadingFromJson = true;
@@ -245,7 +245,7 @@ describe("DynamicDataPagingController: loading (invariant 3)", () => {
   });
 });
 
-describe("DynamicDataPagingController: the rejected filter (invariant 5)", () => {
+describe("DynamicDataPagingController: a filter the list cannot run is not handed back", () => {
   test("a filter the list cannot run is not handed back on the next sync", () => {
     const owner = new FakePagingOwner(abc());
     owner.isLoadingFromJson = true;
@@ -260,7 +260,7 @@ describe("DynamicDataPagingController: the rejected filter (invariant 5)", () =>
   });
 });
 
-describe("DynamicDataPagingController: a source swap (invariant 6)", () => {
+describe("DynamicDataPagingController: a source swap keeps the view", () => {
   // A source that pages, and so owns the view: it comes inside every request it is asked.
   class SortingSource implements IDynamicDataSource {
     public requests: Array<IDynamicDataReadRequest> = [];

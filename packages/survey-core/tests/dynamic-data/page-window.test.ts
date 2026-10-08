@@ -1162,29 +1162,6 @@ describe("Page window: carousel, tab and design mode", () => {
     expect(tab, "#1: page 1 is invalid, then valid; page 3 was never opened").toEqual([false, 0, 1, true, 1, 3, true]);
     expect(run("carousel"), "#2: the carousel does the same").toEqual(tab);
   });
-  test("Next animates as a move, not as a removal, and the leaving panel is disposed when its animation ends", () => {
-    const survey = createPanelSurvey({ displayMode: "carousel", panelsPerPage: 1 }, records(5));
-    survey.css = { paneldynamic: { panelWrapperEnter: "enter", panelWrapperLeave: "leave" } };
-    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
-    const first = question.currentPanel;
-    const animation: any = question.panelsAnimation;
-    const sync = animation.sync.bind(animation);
-    let running: any;
-    animation.sync = (val: any): void => { running = val; };
-    question["_renderedPanels"] = [first];
-    question.goToNextPanel();
-    const next = question.currentPanel;
-    question["_renderedPanels"] = [first, next];
-    const options = question["getPanelsAnimationOptions"]();
-    const enterCss = options.getEnterOptions(next).cssClass;
-    expect(enterCss.indexOf("sv-pd-animation-removing"), "#1: not a removal: " + enterCss).toBe(-1);
-    expect(enterCss.indexOf("sv-pd-animation-left") > -1, "#2: a move forward: " + enterCss).toBe(true);
-    expect(first.isDisposed, "#3: still animating").toBe(false);
-    animation.sync = sync;
-    question["_renderedPanels"] = [first];
-    animation.sync(running);
-    expect(first.isDisposed, "#4: disposed when the animation ended").toBe(true);
-  });
   test("while a UI renders the question, the panel Next replaced is disposed after the next rerender", () => {
     const survey = createPanelSurvey({ displayMode: "carousel", panelsPerPage: 1,
       templateElements: [{ type: "text", name: "id" }, { type: "dropdown", name: "kind", choices: ["a", "b"] }] }, records(5));

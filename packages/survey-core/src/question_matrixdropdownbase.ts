@@ -2423,9 +2423,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     const questions = this.columns.map(column => column.templateQuestion).filter(question => !!question);
     this.writeRecordWithoutItem(target, (record: any): void => { this.mergeRecordFields(record, questions, rowValue); });
   }
+  // setRowValue assigned the row before the write: a refusal puts it back as well.
   private setRowValueCore(row: MatrixDropdownRowModelBase, rowValue: any): void {
     row.value = rowValue;
-    this.updateItemValue(row, "", rowValue, false);
+    this.writeItemValue(row, "", rowValue, false);
   }
   protected generateRows(): Array<MatrixDropdownRowModelBase> {
     return null;
@@ -3228,9 +3229,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     return options.value;
   }
-  updateItemValue(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any, isDeletingValue: boolean): boolean {
-    // setRowValue assigned the row before the write: a refusal puts it back as well.
-    if (this.refuseRecordEdit(row, (): number => this.getRecordIndexOf(row))) return false;
+  updateItemValue(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
     var rowObj = !!columnName ? this.getRowObj(row) : null;
     if (!!rowObj) {
       var oldCellValue = rowObj[columnName];
@@ -3243,7 +3242,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     } else {
       const res = this.updateRowValueInData(row, columnName, newRowValue, isDeletingValue);
       // Nothing changed: the unique-column check is skipped as well, exactly as before.
-      if (!res) return true;
+      if (!res) return;
       if (columnName) {
         this.onCellValueChanged(row, columnName, res.rowValue, res.oldCellValue);
       }
@@ -3251,7 +3250,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (this.getUniqueColumnsNames().indexOf(columnName) > -1) {
       this.isValueInColumnDuplicated(columnName, !!rowObj);
     }
-    return true;
   }
   /* The seam for the record storage: a cell write is a record write of the list - the record the row
      holds, through the question's own source (getListRecords / setListRecords). Returns null when

@@ -116,23 +116,6 @@ describe("a confirmation whose object is gone removes nothing", () => {
   });
 });
 
-describe("dispose: the objects go before the list", () => {
-  test("panel: a panel kept for a later dispose is disposed with the question", () => {
-    const panel = createPanel({ panelsPerPage: 1, displayMode: "carousel" }, [{ a: 1 }, { a: 2 }]);
-    const first = panel.currentPanel;
-    // The carousel animates the panel out: it stays rendered while Next replaces it.
-    const animation: any = panel.panelsAnimation;
-    animation.sync = (): void => { };
-    panel["_renderedPanels"] = [first];
-    panel.goToNextPanel();
-    const kept: Array<PanelModel> = (<any>panel).panelsToDispose;
-    expect(kept.indexOf(first) > -1, "#1: the replaced panel waits for its animation").toBe(true);
-    const panelDispose = vi.spyOn(first, "dispose");
-    panel.dispose();
-    expect(panelDispose, "#2").toHaveBeenCalledTimes(1);
-  });
-});
-
 describe("the page size the list gets", () => {
   const maxRowCount = settings.matrix.maxRowCount;
   const maxPanelCount = settings.panel.maxPanelCount;

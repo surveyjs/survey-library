@@ -15,7 +15,7 @@ import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
 import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
 import { Question, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType, IVerifyDataContext } from "./question";
-import { PanelModel } from "./panel";
+import { PanelModel, PanelModelBase } from "./panel";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
@@ -39,6 +39,8 @@ import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInf
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
+import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
+import { ConditionRunner } from "./conditions/conditionRunner";
 import { getDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, IDynamicDataRecordUniqueness, QuestionRecordsModel,
@@ -1598,7 +1600,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     // it up to the count would pad the page with records the server does not have.
     if (this.isRemoteData) return;
     const panelCount = this.panelCount;
-    if (this.dataList.count === panelCount) return;
+    if (this.storedRecordCount === panelCount) return;
     this.syncRecordCount(panelCount, (i: number): any => {
       // A record past the page has no panel to take its value from.
       const panel = this.panels[i];
@@ -2083,11 +2085,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   public get isValueArray(): boolean { return true; }
   public isEmpty(): boolean {
-    const list = this.dataList;
     // loadedCount, not count: with a data source that pages, count is the server total and only the
-    // records of the loaded window can be looked at. Equal for every local source.
-    for (let i = 0; i < list.loadedCount; i++) {
-      if (!this.isRowEmpty(list.getRecord(i))) return false;
+    // records of the loaded window can be looked at. Equal for every local source. A read: the list
+    // is not created for it.
+    const count = this.loadedRecordCount;
+    for (let i = 0; i < count; i++) {
+      if (!this.isRowEmpty(this.getListRecordAt(i))) return false;
     }
     return true;
   }
@@ -3114,11 +3117,103 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      stored values (getRecordsWithoutInvisibleAnswers), and the result is written once, as one of the
      question's own changes. */
   private clearValueInRecordsWithoutPanel(reason: string): void {
-    const records = this.getRecordsWithoutInvisibleAnswers(reason, this.template);
+    const records = this.getRecordsWithoutInvisibleAnswers(reason);
     if (!!records) {
       this.runInternalValueChange((): void => this.setOwnRecordsValue(records));
     }
   }
+  /* The invisible answers of the records that have no object, cleared the way an object clears its
+     own questions (Question.clearValueIfInvisible), over the stored records and without building an
+     object: the records of the pages never opened or visited and left, and the records the
+     visibility condition hides. The template holds the questions of a record and the panels around
+     them. The matrix has no such walk - it clears no answer inside a row it keeps, and drops a hidden
+     row whole (clearInvisibleValuesInRows).
+     - A record the list filter excludes has no object without paging either and keeps its answers.
+     - A record the visibility condition hides keeps the answers of its questions that are visible
+       themselves; the others go, as in a hidden panel.
+     - A question is visible in a record when its visible / visibleIf and those of the template
+       panels around it pass over the record; the question and the record are its parents too
+       (onHiddenContainer).
+     - Clearing removes the value name and its comment key, the keys clearValue() removes.
+     - A question that holds records or panels of its own is one question here: cleared whole when it
+       is invisible, left as it is otherwise - its own clean-up does not run in a record without an
+       object (a paging limitation). The same holds for any other clean-up inside one question.
+     Cost: one condition run per condition per record, one runner per expression text, only when the
+     survey clears invisible values. Returns the new records, undefined when nothing was cleared: the
+     owner writes them once. */
+  private getRecordsWithoutInvisibleAnswers(reason: string): Array<any> {
+    const template = this.template;
+    if (!this.isPagedByList || !this.survey || !this.data || this.areInvisibleElementsShowing || this.isEmpty()) return undefined;
+    const properties = this.getDataFilteredProperties();
+    this.updatePagedRecordsVisibility(properties);
+    const questions = template.questions.filter((q: Question): boolean => this.canRecordQuestionBeCleared(q, reason));
+    if (questions.length === 0) return undefined;
+    const survey = this.survey;
+    const list = this.dataList;
+    const isStartPage = !!this.page && this.page.isStartPage;
+    const runners = new Map<string, ConditionRunner>();
+    let scope: IDynamicDataRecordScope;
+    let visibility: Map<Question | PanelModelBase, boolean>;
+    // An element's visible, or its visibleIf over the record; once per element and record.
+    const isVisibleInRecord = (el: Question | PanelModelBase): boolean => {
+      let res = visibility.get(el);
+      if (res !== undefined) return res;
+      const expression = !!el.visibleIf ? survey.beforeExpressionRunning(el, "visibleIf", el.visibleIf) : "";
+      if (!expression) {
+        res = el.visible;
+      } else {
+        let runner = runners.get(expression);
+        if (!runner) {
+          runner = new ConditionRunner(expression);
+          runners.set(expression, runner);
+        }
+        scope.properties["question"] = el;
+        res = runner.runContext(scope.item.getValueGetterContext(), scope.properties) === true;
+      }
+      visibility.set(el, res);
+      return res;
+    };
+    let newValue: Array<any>;
+    this.forEachRecordItem(list.getCreatedIndexes(), (index: number, item: QuestionRecordItem): void => {
+      const record = this.getListRecordAt(index);
+      if (!!item || !record) return;
+      if (!scope) scope = this.createRecordVisibilityScope(properties);
+      scope.item.reset(index, record);
+      visibility = new Map<Question | PanelModelBase, boolean>();
+      // The parents every question of the record has: the question that owns the records and the record.
+      const areQuestionAndRecordVisible = this.isVisible && list.isRecordVisible(index);
+      let cleared: any;
+      questions.forEach((q: Question): void => {
+        const isSelfVisible = isVisibleInRecord(q);
+        if (isSelfVisible && !list.isRecordVisible(index)) return;
+        let isParentVisible = areQuestionAndRecordVisible;
+        for (let el = <PanelModelBase><any>q.parent; isParentVisible && !!el && el !== template; el = <PanelModelBase><any>el.parent) {
+          isParentVisible = isVisibleInRecord(el);
+        }
+        const canClear = reason === "onHiddenContainer" && !isParentVisible ||
+          !(isSelfVisible && isParentVisible) && !isStartPage && !survey.hasVisibleQuestionByValueName(q);
+        if (!canClear) return;
+        const name = q.getValueName();
+        [name, name + settings.commentSuffix].forEach((key: string): void => {
+          if ((cleared || record)[key] === undefined) return;
+          if (!cleared) cleared = Object.assign({}, record);
+          delete cleared[key];
+        });
+      });
+      if (!cleared) return;
+      if (!newValue) newValue = [].concat(this.value);
+      newValue[index] = cleared;
+    });
+    return newValue;
+  }
+  // The question's clearIfInvisible allows a clear for the reason (Question.clearValueIfInvisible).
+  private canRecordQuestionBeCleared(q: Question, reason: string): boolean {
+    const clearIf = this.survey.getQuestionClearIfInvisible(q.clearIfInvisible);
+    if (clearIf === "none") return false;
+    if (reason === "onHidden" && clearIf === "onComplete") return false;
+    return reason !== "onHiddenContainer" || clearIf === reason;
+  }
+
   // What puts a panel into visiblePanels.
   protected isItemVisible(item: QuestionRecordItem): boolean {
     return (<QuestionPanelDynamicItem>item).panel.visible;
@@ -3295,7 +3390,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       position = this.panelsCore.indexOf(panel);
     }
     if (position < 0) return;
-    this.setItemRecordVisible(this.dataList, this.getRecordIndexByPanelIndex(position), panel.visible);
+    // A visible panel records nothing a list without flags does not answer already, and paging ignores
+    // the flag here: only a hidden panel creates the list.
+    const list = panel.visible || this.isPagingActive ? this.dataListValue : this.dataList;
+    this.setItemRecordVisible(list, this.getRecordIndexByPanelIndex(position), panel.visible);
   }
   protected createAndSetupNewPanelObject(): PanelModel {
     var panel = this.createNewPanelObject();
@@ -3323,7 +3421,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (this.isValidatingExpressions || this.isValueChangingInternally || this.useTemplatePanel) return;
     // The count of a remote-backed question comes from the read, never from the length of the window.
     if (this.isRemoteData) return;
-    var newPanelCount = this.dataList.count;
+    var newPanelCount = this.storedRecordCount;
     if (newPanelCount == 0 && this.getPropertyValue("panelCount") > 0) {
       newPanelCount = this.getPropertyValue("panelCount");
     }
@@ -3445,26 +3543,31 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
        position it is about to take is the one at the end. */
     if (index < 0) {
       const items = this.items;
-      const created = this.hasDataListView ? this.dataList.getMaterializedIndexes().length : this.dataList.count;
+      const created = this.hasDataListView ? this.dataList.getMaterializedIndexes().length : this.storedRecordCount;
       if (created <= items.length) return {};
       index = items.length;
     }
     const recordIndex = this.getRecordIndexByPanelIndex(index);
     if (recordIndex < 0) return {};
-    const record = this.dataList.getRecord(recordIndex);
+    const record = this.getListRecordAt(recordIndex);
     return record !== undefined ? record : {};
   }
-  updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): boolean {
-    if (this.isValidatingExpressions || item === this.template.data) return true;
+  // The template's questions and the expression validation write nothing.
+  protected isItemWriteIgnored(item: QuestionRecordItem): boolean {
+    return this.isValidatingExpressions || item === this.template.data;
+  }
+  // A question of a panel that left the panels writes nothing, so nothing is notified: a stop, as a refusal.
+  protected refuseItemWrite(item: QuestionRecordItem): boolean {
+    if (this.items.indexOf(item) < 0 && leftPanelItems.has(item)) return true;
+    return super.refuseItemWrite(item);
+  }
+  updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): void {
     var items = this.items;
     var index = items.indexOf(item);
-    // Nothing is written, so nothing is notified: a stop, as a refusal.
-    if (index < 0 && leftPanelItems.has(item)) return false;
     if (index < 0) index = items.length;
     // index is a created position; the record it writes is the one that panel holds, or the next
     // record for a panel that does not exist yet.
     const recordIndex = this.getRecordIndexByPanelIndex(index);
-    if (this.refuseRecordEdit(<QuestionRecordItem>item, (): number => recordIndex)) return false;
     /* The questions the validation on value change checks: the one being written, and the ones of the
        writes this one runs inside. A nested write adds its question to a copy, so the outer write
        keeps its own list. */
@@ -3511,7 +3614,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     } finally {
       this.changingValueQuestions = prevChangingValueQuestions;
     }
-    return true;
   }
   public getPlainData(options: IPlainDataOptions = { includeEmpty: true }): IQuestionPlainData {
     var questionPlainData = super.getPlainData(options);

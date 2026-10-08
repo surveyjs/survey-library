@@ -10947,7 +10947,7 @@ describe("Question Panel Dynamic: the sort and the filter in JSON", () => {
     question["dataList"].sort = [];
     expect(changed, "#4: the list changed it on its own").toEqual([" -> q1", "q1 -> q1-", "q1- -> "]);
   });
-  test("the JSON key order does not decide the sort (invariant 3)", () => {
+  test("the JSON key order does not decide the sort", () => {
     const before = createQuestion({ sortBy: "q1-", panelsPerPage: 2, panelCount: 3 }, cba);
     expect(before.sortBy, "#1: sortBy before panelsPerPage").toBe("q1-");
     expect(values(before), "#2: the first page of the sorted records").toEqual(["c", "b"]);
@@ -11003,7 +11003,7 @@ describe("Question Panel Dynamic: the sort and the filter in JSON", () => {
     expect(question["dataList"].sort, "#7: the way back").toEqual([{ field: "q1", direction: "desc" }]);
     expect(values(question), "#8").toEqual(["c", "b", "a"]);
   });
-  test("a filter the list cannot run is not handed back after a load (invariant 5)", () => {
+  test("a filter the list cannot run is not handed back after a load", () => {
     const question = createQuestion({ panelCount: 3, filterExpression: "{q1} = " }, cba);
     expect(question.filterExpression, "#1: the mirror takes what the list ended up with").toBe("");
     expect(values(question), "#2: showing every panel beats showing none").toEqual(["c", "a", "b"]);

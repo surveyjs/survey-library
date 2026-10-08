@@ -7,7 +7,8 @@
 // records question shares the paging, sorting and filtering API; the fixed matrix exposes no data source.
 import { Question } from "../../src/question";
 import { QuestionRecordsModel } from "../../src/question_records";
-import { QuestionMatrixDropdownModelBase } from "../../src/question_matrixdropdownbase";
+import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "../../src/question_matrixdropdownbase";
+import { ISurveyData } from "../../src/base-interfaces";
 import { QuestionMatrixDropdownModel } from "../../src/question_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
@@ -19,6 +20,17 @@ export class MatrixWithOverrides extends QuestionMatrixDropdownModelBase {
   }
   public dispose(): void {
     super.dispose();
+  }
+}
+// updateItemValue is released with a void return: an application override with a void body compiles.
+export class MatrixWithItemWrite extends QuestionMatrixDynamicModel {
+  public updateItemValue(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
+    super.updateItemValue(row, columnName, newRowValue, isDeletingValue);
+  }
+}
+export class PanelWithItemWrite extends QuestionPanelDynamicModel {
+  public updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): void {
+    super.updateItemValue(item, name, val, isDeletingValue);
   }
 }
 export class PanelWithOverrides extends QuestionPanelDynamicModel {

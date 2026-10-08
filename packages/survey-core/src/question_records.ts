@@ -98,6 +98,7 @@ interface IRecordItemOwner {
   getItemByRecordIndex(recordIndex: number): QuestionRecordItem;
   getExpressionItem(index: number): QuestionRecordItem;
   syncPageSizeWithMode(): void;
+  writeItemValue(item: QuestionRecordItem, name: string, val: any, isDeleting: boolean): boolean;
 }
 const recordItemOwners: WeakMap<QuestionRecordsModel, IRecordItemOwner> = new WeakMap<QuestionRecordsModel, IRecordItemOwner>();
 function getRecordItemOwner(question: QuestionRecordsModel): IRecordItemOwner {
@@ -185,7 +186,8 @@ export abstract class QuestionRecordsModel extends Question {
       getItemByVisibleIndex: (visibleIndex: number): QuestionRecordItem => question.getItemByVisibleIndex(visibleIndex),
       getItemByRecordIndex: (recordIndex: number): QuestionRecordItem => question.getItemByRecordIndex(recordIndex),
       getExpressionItem: (index: number): QuestionRecordItem => question.getExpressionItem(index),
-      syncPageSizeWithMode: (): void => { question.syncPageSizeWithMode(); }
+      syncPageSizeWithMode: (): void => { question.syncPageSizeWithMode(); },
+      writeItemValue: (item: QuestionRecordItem, name: string, val: any, isDeleting: boolean): boolean => question.writeItemValue(item, name, val, isDeleting)
     };
     recordItemOwners.set(this, res);
     return res;
@@ -541,6 +543,16 @@ export abstract class QuestionRecordsModel extends Question {
   protected get isAssigningOwnValue(): boolean {
     return this.isOwnAssignmentInForce;
   }
+  // The one writer of isOwnAssignmentInForce: the kind is in force for func's extent, however it exits.
+  private runAssignmentOfKind(isOwn: boolean, func: () => void): void {
+    const prev = this.isOwnAssignmentInForce;
+    this.isOwnAssignmentInForce = isOwn;
+    try {
+      func();
+    } finally {
+      this.isOwnAssignmentInForce = prev;
+    }
+  }
   protected setNewValue(newValue: any): void {
     const isOwn = this.isOwnValueAssignment;
     this.isOwnValueAssignment = false;
@@ -548,13 +560,7 @@ export abstract class QuestionRecordsModel extends Question {
       this.warnOutsideAssignment();
       return;
     }
-    const prev = this.isOwnAssignmentInForce;
-    this.isOwnAssignmentInForce = isOwn;
-    try {
-      super.setNewValue(newValue);
-    } finally {
-      this.isOwnAssignmentInForce = prev;
-    }
+    this.runAssignmentOfKind(isOwn, (): void => { super.setNewValue(newValue); });
   }
   protected setOwnRecordsValue(newValue: any): void {
     this.isOwnValueAssignment = true;
@@ -673,9 +679,7 @@ export abstract class QuestionRecordsModel extends Question {
      it - the page, the filter, the owner's visibility: an unknown key is a property of the value, not
      of the view. A source that pages itself checks its window. */
   protected verifyRecordsUnknownKeys(val: any, context: IVerifyDataContext): void {
-    const list = this.dataListValue;
-    const count = !!list ? list.loadedCount : this.getListRecordCount();
-    this.forEachStoredRecord(count, (index: number, item: QuestionRecordItem): void => {
+    this.forEachStoredRecord(this.loadedRecordCount, (index: number, item: QuestionRecordItem): void => {
       const record = this.getRecordInValue(val, index);
       const keys = this.getRecordUnknownKeys(index, record, item);
       if (keys.length === 0) return;
@@ -1143,7 +1147,7 @@ export abstract class QuestionRecordsModel extends Question {
     return isChanged;
   }
   // Called only when the expression runs, once per run: one item is reset to every record.
-  private createRecordVisibilityScope(properties: HashTable<any>): IDynamicDataRecordScope {
+  protected createRecordVisibilityScope(properties: HashTable<any>): IDynamicDataRecordScope {
     const item = this.createRecordItem(-1);
     const newProps = Helpers.createCopy(properties);
     newProps[this.getRecordItemVariableName()] = item;
@@ -1185,97 +1189,6 @@ export abstract class QuestionRecordsModel extends Question {
   }
   // The question of a record's template that stores key, for the value-only clean-ups.
   protected abstract getRecordTemplateQuestion(key: string): Question;
-  /* The invisible answers of the records that have no object, cleared the way an object clears its
-     own questions (Question.clearValueIfInvisible), over the stored records and without building an
-     object: the records of the pages never opened or visited and left, and the records the
-     visibility condition hides. template holds the questions of a record and the panels around
-     them: the dynamic panel's template. The matrix has none - it clears no answer inside a row it
-     keeps, and drops a hidden row whole (clearInvisibleValuesInRows) - and does not call it.
-     - A record the list filter excludes has no object without paging either and keeps its answers.
-     - A record the visibility condition hides keeps the answers of its questions that are visible
-       themselves; the others go, as in a hidden panel.
-     - A question is visible in a record when its visible / visibleIf and those of the template
-       panels around it pass over the record; the question and the record are its parents too
-       (onHiddenContainer).
-     - Clearing removes the value name and its comment key, the keys clearValue() removes.
-     - A question that holds records or panels of its own is one question here: cleared whole when it
-       is invisible, left as it is otherwise - its own clean-up does not run in a record without an
-       object (a paging limitation). The same holds for any other clean-up inside one question.
-     Cost: one condition run per condition per record, one runner per expression text, only when the
-     survey clears invisible values. Returns the new records, undefined when nothing was cleared: the
-     owner writes them once. */
-  protected getRecordsWithoutInvisibleAnswers(reason: string, template: PanelModelBase): Array<any> {
-    if (!this.isPagedByList || !this.survey || !this.data || this.areInvisibleElementsShowing || this.isEmpty()) return undefined;
-    const properties = this.getDataFilteredProperties();
-    this.updatePagedRecordsVisibility(properties);
-    const questions = template.questions.filter((q: Question): boolean => this.canRecordQuestionBeCleared(q, reason));
-    if (questions.length === 0) return undefined;
-    const survey = this.survey;
-    const list = this.dataList;
-    const isStartPage = !!this.page && this.page.isStartPage;
-    const runners = new Map<string, ConditionRunner>();
-    let scope: IDynamicDataRecordScope;
-    let visibility: Map<Question | PanelModelBase, boolean>;
-    // An element's visible, or its visibleIf over the record; once per element and record.
-    const isVisibleInRecord = (el: Question | PanelModelBase): boolean => {
-      let res = visibility.get(el);
-      if (res !== undefined) return res;
-      const expression = !!el.visibleIf ? survey.beforeExpressionRunning(el, "visibleIf", el.visibleIf) : "";
-      if (!expression) {
-        res = el.visible;
-      } else {
-        let runner = runners.get(expression);
-        if (!runner) {
-          runner = new ConditionRunner(expression);
-          runners.set(expression, runner);
-        }
-        scope.properties["question"] = el;
-        res = runner.runContext(scope.item.getValueGetterContext(), scope.properties) === true;
-      }
-      visibility.set(el, res);
-      return res;
-    };
-    let newValue: Array<any>;
-    this.forEachRecordItem(list.getCreatedIndexes(), (index: number, item: QuestionRecordItem): void => {
-      const record = this.getListRecordAt(index);
-      if (!!item || !record) return;
-      if (!scope) scope = this.createRecordVisibilityScope(properties);
-      scope.item.reset(index, record);
-      visibility = new Map<Question | PanelModelBase, boolean>();
-      // The parents every question of the record has: the question that owns the records and the record.
-      const areQuestionAndRecordVisible = this.isVisible && list.isRecordVisible(index);
-      let cleared: any;
-      questions.forEach((q: Question): void => {
-        const isSelfVisible = isVisibleInRecord(q);
-        if (isSelfVisible && !list.isRecordVisible(index)) return;
-        let isParentVisible = areQuestionAndRecordVisible;
-        for (let el = <PanelModelBase><any>q.parent; isParentVisible && !!el && el !== template; el = <PanelModelBase><any>el.parent) {
-          isParentVisible = isVisibleInRecord(el);
-        }
-        const canClear = reason === "onHiddenContainer" && !isParentVisible ||
-          !(isSelfVisible && isParentVisible) && !isStartPage && !survey.hasVisibleQuestionByValueName(q);
-        if (!canClear) return;
-        const name = q.getValueName();
-        [name, name + settings.commentSuffix].forEach((key: string): void => {
-          if ((cleared || record)[key] === undefined) return;
-          if (!cleared) cleared = Object.assign({}, record);
-          delete cleared[key];
-        });
-      });
-      if (!cleared) return;
-      if (!newValue) newValue = [].concat(this.value);
-      newValue[index] = cleared;
-    });
-    return newValue;
-  }
-  // The question's clearIfInvisible allows a clear for the reason (Question.clearValueIfInvisible).
-  private canRecordQuestionBeCleared(q: Question, reason: string): boolean {
-    const clearIf = this.survey.getQuestionClearIfInvisible(q.clearIfInvisible);
-    if (clearIf === "none") return false;
-    if (reason === "onHidden" && clearIf === "onComplete") return false;
-    return reason !== "onHiddenContainer" || clearIf === reason;
-  }
-
   /* The write capabilities of a data source are declared by the presence of its optional methods (its
      read capabilities by flags, see dynamic-data-interfaces.ts), and need a keyField for any source
      that is not an in-memory array (DynamicDataList.hasCapability): a source without insert gets no
@@ -1964,13 +1877,7 @@ export abstract class QuestionRecordsModel extends Question {
   public updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     if (this.isRemoteData) return;
     // Always an assignment from outside, also when it runs inside one of the question's own.
-    const prev = this.isOwnAssignmentInForce;
-    this.isOwnAssignmentInForce = false;
-    try {
-      super.updateValueFromSurvey(newValue, clearData);
-    } finally {
-      this.isOwnAssignmentInForce = prev;
-    }
+    this.runAssignmentOfKind(false, (): void => { super.updateValueFromSurvey(newValue, clearData); });
   }
   /* The list side of an assignment is the begin/end pair below: every assignment of the value passes
      through here. The subclasses do their own work in two hooks - inside the list-side pair
@@ -2500,7 +2407,23 @@ export abstract class QuestionRecordsModel extends Question {
   /* A write of an item's record: val is the field value for a panel and the whole proposed row for a
      matrix row (see QuestionRecordItem.prepareRecordWrite). */
   // false: the edit was refused (refuseRecordEdit), and the item stops the write.
-  public abstract updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): boolean | void;
+  public abstract updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): void;
+  /* The write of an item - a cell of a row, a question of a panel - into its record. A write the type
+     ignores (isItemWriteIgnored) writes nothing and is not refused; a refused edit (refuseItemWrite)
+     stops the item's write before its triggers and notification; every other write reaches
+     updateItemValue, the released member, which a subclass may override. Returns false for a refusal. */
+  protected writeItemValue(item: QuestionRecordItem, name: string, val: any, isDeleting: boolean): boolean {
+    if (this.isItemWriteIgnored(item)) return true;
+    if (this.refuseItemWrite(item)) return false;
+    this.updateItemValue(item, name, val, isDeleting);
+    return true;
+  }
+  protected isItemWriteIgnored(item: QuestionRecordItem): boolean {
+    return false;
+  }
+  protected refuseItemWrite(item: QuestionRecordItem): boolean {
+    return this.refuseRecordEdit(item, (): number => this.getItemRecordIndex(item));
+  }
   /* The item's position among the visible records of the whole list ({visiblePanelIndex}, the
      row's visibleIndex), and the item at such a position - an object when the record has one, a
      record read as a value when it has not (the question pages). */
@@ -2542,6 +2465,17 @@ export abstract class QuestionRecordsModel extends Question {
   protected getListRecordCount(): number {
     const records = this.getListRecords();
     return Array.isArray(records) ? records.length : 0;
+  }
+  /* The record counts a read needs, peeked: the list's when it exists, the storage's otherwise - a
+     read never creates the list. loadedRecordCount: the records that can be looked at (a source that
+     pages itself holds one window); storedRecordCount: the count of the records, the total of such a source. */
+  protected get loadedRecordCount(): number {
+    const list = this.dataListValue;
+    return !!list ? list.loadedCount : this.getListRecordCount();
+  }
+  protected get storedRecordCount(): number {
+    const list = this.dataListValue;
+    return !!list ? list.count : this.getListRecordCount();
   }
   /* Mirrors the paging state of the list into the question (see DynamicDataPagingController.syncState).
      The list announces a page index it had to clamp, but not a page count that changed because a
@@ -2808,7 +2742,7 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     if (!write) return;
     const fieldName = isComment ? name + settings.commentSuffix : name;
     if (!this.isValueChanged(fieldName, write.fieldValue)) return;
-    if (this.data.updateItemValue(this, fieldName, write.ownerValue, write.isDeleting) === false) return;
+    if (!getRecordItemOwner(this.data).writeItemValue(this, fieldName, write.ownerValue, write.isDeleting)) return;
     this.runTriggersOnSetValue(fieldName, newValue);
     this.notifyRecordWritten();
     this.onRecordWritten(name, isComment);

@@ -11749,7 +11749,7 @@ describe("Survey_QuestionMatrixDynamic: the sort and the filter in JSON", () => 
     matrix["dataList"].sort = [];
     expect(changed, "#4: the list changed it on its own").toEqual([" -> c1", "c1 -> c1-", "c1- -> "]);
   });
-  test("the JSON key order does not decide the sort (invariant 3)", () => {
+  test("the JSON key order does not decide the sort", () => {
     const before = createMatrix({ sortBy: "c1-", rowsPerPage: 2, rowCount: 3 }, cba);
     expect(before.sortBy, "#1: sortBy before rowsPerPage").toBe("c1-");
     expect(values(before), "#2: the first page of the sorted records").toEqual(["c", "b"]);
@@ -11807,7 +11807,7 @@ describe("Survey_QuestionMatrixDynamic: the sort and the filter in JSON", () => 
     expect(matrix["dataList"].sort, "#7: the way back").toEqual([{ field: "c1", direction: "desc" }]);
     expect(values(matrix), "#8").toEqual(["c", "b", "a"]);
   });
-  test("a filter the list cannot run is not handed back after a load (invariant 5)", () => {
+  test("a filter the list cannot run is not handed back after a load", () => {
     const matrix = createMatrix({ rowCount: 3, filterExpression: "{c1} = " }, cba);
     expect(matrix.filterExpression, "#1: the mirror takes what the list ended up with").toBe("");
     expect(values(matrix), "#2: showing every row beats showing none").toEqual(["c", "a", "b"]);

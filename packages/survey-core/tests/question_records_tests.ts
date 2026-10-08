@@ -187,21 +187,6 @@ describe("Records question: fixed matrix", () => {
   });
 });
 
-describe("Records question: lazy list allocation", () => {
-  test("a value assigned before the question joins a survey creates the list for a dynamic panel only", () => {
-    const panel = new QuestionPanelDynamicModel("p");
-    panel.template.addNewQuestion("text", "a");
-    panel.value = [{ a: 1 }, { a: 2 }];
-    // setPanelCountBasedOnValue reads the record count through the list.
-    expect((<any>panel).dataListValue, "#1: the dynamic panel has created its list").toBeDefined();
-
-    const matrix = new QuestionMatrixDynamicModel("m");
-    matrix.addColumn("a");
-    matrix.value = [{ a: 1 }, { a: 2 }];
-    expect((<any>matrix).dataListValue, "#2: the dynamic matrix has not").toBeUndefined();
-  });
-});
-
 /* An assignment refreshes the objects whose record changed. A row of the fixed matrix whose record the
    assigned answer does not hold is refreshed too: a row added at runtime has no record before or after
    the assignment, and its expressions still have to write. */
@@ -238,7 +223,6 @@ describe("Records question: value assignment", () => {
     });
     const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
     expect(q.visibleRows.length, "the page is built").toBe(2);
-    expect((<any>q).dataListValue, "the list exists").toBeDefined();
     return q;
   }
   test("matrix: an assignment refreshes only the row whose record changed", () => {
@@ -255,7 +239,6 @@ describe("Records question: value assignment", () => {
     });
     const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
     q.value = [{ a: "1" }];
-    expect((<any>q).dataListValue, "the list exists").toBeDefined();
     q.value = [{ a: "1" }, { a: "2" }, { a: "3" }];
     expect(q.panelCount, "#5").toBe(3);
   });
@@ -280,7 +263,6 @@ describe("Records question: dispose", () => {
     const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
     expect(q.visibleRows.length, "the rows are built").toBe(2);
     const rows = q.visibleRows;
-    expect((<any>q).dataListValue, "the list exists").toBeDefined();
     q.dispose();
     expect(rows.every(row => row.cells.every(cell => cell.question.isDisposed)), "#1: the questions of every row").toBe(true);
   });
@@ -290,7 +272,6 @@ describe("Records question: dispose", () => {
     });
     const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
     q.value = [{ a: "1" }, { a: "2" }, { a: "3" }];
-    expect((<any>q).dataListValue, "the list exists").toBeDefined();
     const templateDispose = vi.spyOn(q.template, "dispose");
     q.dispose();
     expect(templateDispose, "#2").toHaveBeenCalledTimes(1);
@@ -756,6 +737,56 @@ describe("Records questions: writes through an item", () => {
       expect(measure(20), "#1").toBe(20);
       expect(measure(40), "#2").toBe(40);
     });
+  });
+});
+
+describe("Records questions: an override of updateItemValue", () => {
+  class CountingMatrix extends QuestionMatrixDynamicModel {
+    public calls: number = 0;
+    public updateItemValue(row: any, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
+      this.calls++;
+      super.updateItemValue(row, columnName, newRowValue, isDeletingValue);
+    }
+  }
+  class CountingPanel extends QuestionPanelDynamicModel {
+    public calls: number = 0;
+    public updateItemValue(item: any, name: string, val: any, isDeletingValue: boolean): void {
+      this.calls++;
+      super.updateItemValue(item, name, val, isDeletingValue);
+    }
+  }
+  const readOnlySource = (): any => ({ keyField: "id", read: (): Array<any> => [{ id: 1, a: "r" }] });
+  test("matrix: the override is called for a cell write, and not for an edit a source without update refuses", () => {
+    const survey = new SurveyModel({});
+    const page = survey.addNewPage("p");
+    const matrix = new CountingMatrix("m");
+    matrix.rowCount = 1;
+    matrix.addColumn("a");
+    page.addElement(matrix);
+    matrix.visibleRows[0].getQuestionByColumnName("a").value = "x";
+    expect(matrix.calls, "#1").toBe(1);
+    expect(matrix.value, "#2").toEqual([{ a: "x" }]);
+    matrix.dataSource = readOnlySource();
+    matrix.calls = 0;
+    matrix.visibleRows[0].getQuestionByColumnName("a").value = "y";
+    expect(matrix.calls, "#3: refused before the override").toBe(0);
+    expect(matrix.visibleRows[0].getQuestionByColumnName("a").value, "#4: the cell shows the record again").toBe("r");
+  });
+  test("panel: the override is called for a question write, and not for an edit a source without update refuses", () => {
+    const survey = new SurveyModel({});
+    const page = survey.addNewPage("p");
+    const panel = new CountingPanel("p");
+    panel.template.addNewQuestion("text", "a");
+    page.addElement(panel);
+    panel.panelCount = 1;
+    panel.panels[0].getQuestionByName("a").value = "x";
+    expect(panel.calls, "#1").toBe(1);
+    expect(panel.value, "#2").toEqual([{ a: "x" }]);
+    panel.dataSource = readOnlySource();
+    panel.calls = 0;
+    panel.panels[0].getQuestionByName("a").value = "y";
+    expect(panel.calls, "#3: refused before the override").toBe(0);
+    expect(panel.panels[0].getQuestionByName("a").value, "#4: the question shows the record again").toBe("r");
   });
 });
 

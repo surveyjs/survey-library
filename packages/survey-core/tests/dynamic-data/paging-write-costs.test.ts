@@ -1233,4 +1233,73 @@ describe("the record list's lifecycle: it is disposed after the objects that rea
     expect(panelDispose.mock.invocationCallOrder[0] < listDispose.mock.invocationCallOrder[0], "#4: the panel goes first").toBe(true);
     expect(listDispose.mock.invocationCallOrder[0] < templateDispose.mock.invocationCallOrder[0], "#5: the template goes last").toBe(true);
   });
+  // The carousel animation keeps the panel Next replaced rendered: it is disposed when the animation ends, or with the question.
+  const createCarousel = (count: number): QuestionPanelDynamicModel => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "pd", displayMode: "carousel", panelsPerPage: 1,
+      templateElements: [{ type: "text", name: "id" }] }] });
+    survey.css = { paneldynamic: { panelWrapperEnter: "enter", panelWrapperLeave: "leave" } };
+    survey.data = { pd: records(count, (i: number) => ({ id: i })) };
+    return <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+  };
+  test("panel: a panel kept for a later dispose is disposed with the question", () => {
+    const panel = createCarousel(2);
+    const first = panel.currentPanel;
+    const animation: any = panel.panelsAnimation;
+    animation.sync = (): void => { };
+    panel["_renderedPanels"] = [first];
+    panel.goToNextPanel();
+    const kept: Array<PanelModel> = (<any>panel).panelsToDispose;
+    expect(kept.indexOf(first) > -1, "#1: the replaced panel waits for its animation").toBe(true);
+    const panelDispose = vi.spyOn(first, "dispose");
+    panel.dispose();
+    expect(panelDispose, "#2").toHaveBeenCalledTimes(1);
+  });
+  test("panel: Next animates as a move, not as a removal, and the leaving panel is disposed when its animation ends", () => {
+    const question = createCarousel(5);
+    const first = question.currentPanel;
+    const animation: any = question.panelsAnimation;
+    const sync = animation.sync.bind(animation);
+    let running: any;
+    animation.sync = (val: any): void => { running = val; };
+    question["_renderedPanels"] = [first];
+    question.goToNextPanel();
+    const next = question.currentPanel;
+    question["_renderedPanels"] = [first, next];
+    const options = question["getPanelsAnimationOptions"]();
+    const enterCss = options.getEnterOptions(next).cssClass;
+    expect(enterCss.indexOf("sv-pd-animation-removing"), "#1: not a removal: " + enterCss).toBe(-1);
+    expect(enterCss.indexOf("sv-pd-animation-left") > -1, "#2: a move forward: " + enterCss).toBe(true);
+    expect(first.isDisposed, "#3: still animating").toBe(false);
+    animation.sync = sync;
+    question["_renderedPanels"] = [first];
+    animation.sync(running);
+    expect(first.isDisposed, "#4: disposed when the animation ended").toBe(true);
+  });
+});
+
+describe("reading a dynamic panel creates no record list", () => {
+  const hasList = (question: any): boolean => !!question.dataListValue;
+  test("a value assigned before the question joins a survey creates no list, for either question", () => {
+    const panel = new QuestionPanelDynamicModel("p");
+    panel.template.addNewQuestion("text", "a");
+    panel.value = [{ a: 1 }, { a: 2 }];
+    expect(hasList(panel), "#1: the dynamic panel").toBe(false);
+    const matrix = new QuestionMatrixDynamicModel("m");
+    matrix.addColumn("a");
+    matrix.value = [{ a: 1 }, { a: 2 }];
+    expect(hasList(matrix), "#2: the dynamic matrix").toBe(false);
+  });
+  test("loading a survey of dynamic panels with values, and reading isEmpty, panelCount and the values, creates no list", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "paneldynamic", name: "p1", templateElements: [{ type: "text", name: "a" }] },
+      { type: "paneldynamic", name: "p2", templateElements: [{ type: "text", name: "a" }] },
+      { type: "paneldynamic", name: "p3", templateElements: [{ type: "text", name: "a" }] }] });
+    survey.data = { p1: [{ a: 1 }, { a: 2 }], p2: [{ a: 3 }] };
+    const panels = ["p1", "p2", "p3"].map(name => <QuestionPanelDynamicModel>survey.getQuestionByName(name));
+    expect(panels.map(hasList), "#1: after the load").toEqual([false, false, false]);
+    expect(panels.map(p => p.isEmpty()), "#2").toEqual([false, false, true]);
+    expect(panels.map(p => p.panelCount), "#3").toEqual([2, 1, 0]);
+    expect(panels.map(p => p.value), "#4").toEqual([[{ a: 1 }, { a: 2 }], [{ a: 3 }], undefined]);
+    expect(panels.map(hasList), "#5: after the reads").toEqual([false, false, false]);
+  });
 });

@@ -107,9 +107,6 @@ export class DynamicDataPageValidation {
     this.markValidated(this.owner.getDataList().getMaterializedIndexes());
   }
 
-  public get editedRecords(): Array<number> {
-    return this.edited;
-  }
   // Holds anything a record index names: edited records or the states of nested paged questions.
   public get hasRecords(): boolean {
     return this.edited.length > 0 || Object.keys(this.nested).length > 0;

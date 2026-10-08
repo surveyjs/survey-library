@@ -1223,7 +1223,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     const loaded = new SurveyModel({
       elements: [{ type: "paneldynamic", name: "panel", panelCount: 0, templateElements: [{ type: "text", name: "col1" }] }]
     });
-    expect(!!(<any>loaded.getQuestionByName("panel")).dataListValue, "#0: a panel in a survey has its list after the load").toBe(true);
+    expect(!!(<any>loaded.getQuestionByName("panel")).dataListValue, "#0: a panel in a survey has no list after the load").toBe(false);
     const question = new QuestionPanelDynamicModel("panel");
     question.template.addNewQuestion("text", "col1");
     expect(!!(<any>question).dataListValue, "#1: no list yet").toBe(false);

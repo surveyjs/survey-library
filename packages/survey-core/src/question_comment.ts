@@ -76,11 +76,6 @@ export class QuestionCommentModel extends QuestionTextBase {
    */
   @property() rows: number;
   @property() cols: number;
-  /**
-   * Specifies whether the question allows line breaks.
-   *
-   * When this property is enabled, a user can press Enter to insert line breaks. They are saved as `\n` in survey results. The Comment question also recognizes and interprets the `\n` sequence as a line break when you set the question `value` in code.
-   */
   @property() acceptCarriageReturn: boolean;
   /**
    * Specifies whether the comment area automatically increases its height to accomodate multi-line content.

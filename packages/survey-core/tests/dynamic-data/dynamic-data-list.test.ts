@@ -1639,7 +1639,7 @@ function watchList(list: DynamicDataList): { changes: Array<string>, resetsWhile
 }
 
 describe("DynamicDataList: a removed record refills the page of a source that pages itself", () => {
-  test("[R] a remove on the first page of three reads the page again", async () => {
+  test("a remove on the first page of three reads the page again", async () => {
     const source = new FakeTableSource(tableRecords(30));
     source.auto = true;
     const list = await createTableList(source);
@@ -1651,7 +1651,7 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
     expect(windowIds(list), "#4: the first record of the old second page moved up").toEqual(idRange(1, 10));
     expect(list.isLoading, "#5").toBe(false);
   });
-  test("[R] removing every record of the first page one by one keeps it full", async () => {
+  test("removing every record of the first page one by one keeps it full", async () => {
     const source = new FakeTableSource(tableRecords(30));
     source.auto = true;
     const list = await createTableList(source);
@@ -1666,7 +1666,7 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
     expect(windowIds(list), "#5").toEqual(idRange(10, 19));
     expect(source.records.length, "#6: the server did its part").toBe(20);
   });
-  test("[R] ten removes without settling end in one committed window", async () => {
+  test("ten removes without settling end in one committed window", async () => {
     const source = new FakeTableSource(tableRecords(30));
     const list = await createTableList(source);
     const watch = watchList(list);
@@ -1683,7 +1683,7 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
     expect(watch.resetsWhilePushPending, "#5: no reset while a push was pending").toBe(0);
     expect(source.removedIds, "#6").toEqual(idRange(0, 9));
   });
-  test("[P] a remove on the last page reads nothing", async () => {
+  test("a remove on the last page reads nothing", async () => {
     const shortSource = new FakeTableSource(tableRecords(25));
     shortSource.auto = true;
     const shortList = await createTableList(shortSource);
@@ -1707,7 +1707,7 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
     expect(fullList.loadedCount, "#4: one shorter").toBe(9);
     expect(fullList.count, "#5").toBe(29);
   });
-  test("[P] removing the only record of the last page reads the previous page once", async () => {
+  test("removing the only record of the last page reads the previous page once", async () => {
     const source = new FakeTableSource(tableRecords(21));
     source.auto = true;
     const list = await createTableList(source);
@@ -1723,7 +1723,7 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
     expect(list.pageIndex, "#4").toBe(1);
     expect(windowIds(list), "#5").toEqual(idRange(10, 19));
   });
-  test("[P] pageSize 0 with a paging source: no refill read", async () => {
+  test("pageSize 0 with a paging source: no refill read", async () => {
     const source = new FakeTableSource(tableRecords(5));
     source.auto = true;
     const list = await createTableList(source, 0);
@@ -1733,7 +1733,7 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
     expect(source.argsOf("read").length, "#2").toBe(1);
     expect(list.loadedCount, "#3").toBe(4);
   });
-  test("[R] a rejected refill read keeps the short window", async () => {
+  test("a rejected refill read keeps the short window", async () => {
     const source = new FakeTableSource(tableRecords(30));
     const list = await createTableList(source);
     const errors: Array<string> = [];
@@ -1749,7 +1749,7 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
     expect(list.isLoading, "#4").toBe(false);
     expect(list.hasPendingRead, "#5").toBe(false);
   });
-  test("[R] a rejected remove: the refill brings the record back", async () => {
+  test("a rejected remove: the refill brings the record back", async () => {
     const source = new FakeTableSource(tableRecords(30));
     const list = await createTableList(source);
     const errors: Array<string> = [];
@@ -1765,7 +1765,7 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
 });
 
 describe("DynamicDataList: a read never commits over a pending write", () => {
-  test("[R] two deferred removes: the refill waits for both", async () => {
+  test("two deferred removes: the refill waits for both", async () => {
     const source = new FakeTableSource(tableRecords(30));
     const list = await createTableList(source);
     const watch = watchList(list);
@@ -1795,7 +1795,7 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     expect(list.count, "#9").toBe(28);
     expect(watch.resetsWhilePushPending, "#10: no reset while a push was pending").toBe(0);
   });
-  test("[R] a remove made after a re-read deletes the record that was asked for", async () => {
+  test("a remove made after a re-read deletes the record that was asked for", async () => {
     const source = new FakeTableSource(tableRecords(30));
     const list = await createTableList(source);
     // refresh() by hand stands in for the refill, as in the probe; with the refill in place the two
@@ -1817,7 +1817,7 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     expect(source.removedIds.slice().sort((a, b) => a - b), "#3: by identity").toEqual([0, 1, 3]);
     expect(windowIds(list), "#4").toEqual([2].concat(idRange(4, 12)));
   });
-  test("[R] an edit enqueued while a read is in flight: the stale answer is not committed", async () => {
+  test("an edit enqueued while a read is in flight: the stale answer is not committed", async () => {
     const editSource = new FakeTableSource(tableRecords(30));
     const editList = await createTableList(editSource);
     const editWatch = watchList(editList);
@@ -1835,7 +1835,7 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     expect(editWatch.resetsWhilePushPending, "#5").toBe(0);
     expect(editList.isLoading, "#6").toBe(false);
   });
-  test("[R] a remove enqueued while a page read is in flight: the stale page is not committed", async () => {
+  test("a remove enqueued while a page read is in flight: the stale page is not committed", async () => {
     const source = new FakeTableSource(tableRecords(30));
     const list = await createTableList(source);
     const watch = watchList(list);
@@ -1852,7 +1852,7 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     expect(list.isLoading, "#5").toBe(false);
     expect(watch.resetsWhilePushPending, "#6").toBe(0);
   });
-  test("[R] hasPendingRead spans the wait for the chain and the read itself", async () => {
+  test("hasPendingRead spans the wait for the chain and the read itself", async () => {
     const source = new FakeTableSource(tableRecords(30));
     const list = new DynamicDataList(new FakeTableSource([]));
     list.pageSize = 10;
@@ -1874,7 +1874,7 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     expect(list.hasPendingRead, "#10: committed").toBe(false);
     expect(list.isLoading, "#11").toBe(false);
   });
-  test("[P] a source change while a refill is queued: the queued read dies with the chain", async () => {
+  test("a source change while a refill is queued: the queued read dies with the chain", async () => {
     const oldSource = new FakeTableSource(tableRecords(30));
     const list = await createTableList(oldSource);
     list.remove(0);

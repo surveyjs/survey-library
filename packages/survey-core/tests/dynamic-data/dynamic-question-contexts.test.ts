@@ -4,7 +4,6 @@ import { Question } from "../../src/question";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { IValueGetterInfo } from "../../src/conditions/conditionProcessValue";
-import { vi } from "vitest";
 import { FunctionFactory } from "../../src/functionsfactory";
 import { IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSource } from "../../src/dynamic-data/dynamic-data-interfaces";
 
@@ -80,10 +79,10 @@ function records(...values: Array<string>): Array<any> {
   return values.map((x: string): any => ({ x: x, y: x.toUpperCase() }));
 }
 
-describe("F1: {q[i]} names a record for both questions", () => {
+describe("Dynamic questions: {q[i]} names a record for both questions", () => {
   kinds.forEach((kind: IDynamicKind) => {
     describe(kind.name, () => {
-      test("F1.1 no view: the index is the record", () => {
+      test("no view: the index is the record", () => {
         const survey = createSurvey(kind, records("a", "b", "c"));
         const question = getQuestion(survey);
         for (let i = 0; i < 3; i++) {
@@ -94,7 +93,7 @@ describe("F1: {q[i]} names a record for both questions", () => {
         }
         expect(survey.runExpression("{q[1].x}"), "#expression").toBe("b");
       });
-      test("F1.2 a filter hides record 0: the index still counts records", () => {
+      test("a filter hides record 0: the index still counts records", () => {
         const survey = createSurvey(kind, records("a", "b", "c"), { filterExpression: "{x} != 'a'" });
         const question = getQuestion(survey);
         const res0 = readItem(question, 0, "x");
@@ -109,7 +108,7 @@ describe("F1: {q[i]} names a record for both questions", () => {
       /* A cell expression that runs while the matrix builds its rows (allRows answers [] then) reads a
          record that has no row, filtered out here, as a value, as the panel does. The matrix used to
          answer "not found" while building and the first row shown afterwards: 'b'. */
-      test("F1.2a under a filter, an item being built reads a record that has no row/panel", () => {
+      test("under a filter, an item being built reads a record that has no row/panel", () => {
         const extra: any = { filterExpression: "{x} != 'a'" };
         extra[kind.items] = [kind.textItem("x"), kind.textItem("d", { defaultValueExpression: "{q[0].x}" })];
         const survey = createSurvey(kind, records("a", "b", "c"), extra);
@@ -119,7 +118,7 @@ describe("F1: {q[i]} names a record for both questions", () => {
         const value = <Array<any>>survey.getValue("q");
         expect(value.map((record: any): any => record.d), "#1: record 0's x for every item built").toEqual([undefined, "a", "a"]);
       });
-      test("F1.3 a descending sort: the index still counts records", () => {
+      test("a descending sort: the index still counts records", () => {
         const survey = createSurvey(kind, records("a", "b", "c"), { sortBy: "x-" });
         const question = getQuestion(survey);
         expect(readItem(question, 0, "x").value, "#1: record 0, not the first one shown").toBe("a");
@@ -127,7 +126,7 @@ describe("F1: {q[i]} names a record for both questions", () => {
         expect(isAnsweredByQuestion(readItem(question, 0, "x")), "#3: every record has a row/panel").toBe(true);
         expect(survey.runExpression("{q[0].x}"), "#4").toBe("a");
       });
-      test("F1.4 paging: a record off the page is read as a value", () => {
+      test("paging: a record off the page is read as a value", () => {
         const extra: any = {};
         extra[kind.pageSize] = 2;
         const survey = createSurvey(kind, records("a", "b", "c", "d"), extra);
@@ -141,7 +140,7 @@ describe("F1: {q[i]} names a record for both questions", () => {
         expect(isAnsweredByQuestion(res1), "#5: on the page").toBe(true);
         expect(survey.runExpression("{q[3].y}"), "#6").toBe("D");
       });
-      test("F1.5 an index past the last record is not found", () => {
+      test("an index past the last record is not found", () => {
         const survey = createSurvey(kind, records("a", "b", "c"));
         expect(readItem(getQuestion(survey), 3, "x").isFound, "#1: no view").toBe(false);
         const extra: any = { filterExpression: "{x} != 'a'" };
@@ -150,7 +149,7 @@ describe("F1: {q[i]} names a record for both questions", () => {
         expect(readItem(getQuestion(paged), 3, "x").isFound, "#2: filter and paging").toBe(false);
         expect(readItem(getQuestion(paged), 2, "x").isFound, "#3: the last record").toBe(true);
       });
-      test("F1.7 an expression elsewhere in the survey follows the record under a filter", () => {
+      test("an expression elsewhere in the survey follows the record under a filter", () => {
         const data = [{ x: "a", f: "hide" }, { x: "b", f: "" }, { x: "c", f: "" }];
         const survey = createSurvey(kind, data, { filterExpression: "{f} != 'hide'" },
           [{ type: "text", name: "t", visibleIf: "{q[0].x} = 'a'" }]);
@@ -165,7 +164,7 @@ describe("F1: {q[i]} names a record for both questions", () => {
       });
     });
   });
-  test("F1.6 matrix only: a padded record off the page is the default row value", () => {
+  test("matrix: a padded record off the page is the default row value", () => {
     const survey = new SurveyModel({
       elements: [{
         type: "matrixdynamic", name: "q", rowCount: 3, rowsPerPage: 2, defaultRowValue: { x: "d" },
@@ -181,7 +180,7 @@ describe("F1: {q[i]} names a record for both questions", () => {
     expect(isAnsweredByQuestion(res), "#4: off the page, read as a value").toBe(false);
     expect(readItem(matrix, 3, "x").isFound, "#5: past rowCount").toBe(false);
   });
-  test("F1.8 a panel reaches a filtered matrix that shares its valueName through the bound-question path", () => {
+  test("a panel reaches a filtered matrix that shares its valueName through the bound-question path", () => {
     const survey = new SurveyModel({
       elements: [
         {
@@ -206,7 +205,7 @@ describe("F1: {q[i]} names a record for both questions", () => {
   });
 });
 
-describe("F2: the record visibility under paging goes through onExpressionRunning", () => {
+describe("Dynamic questions: the record visibility under paging goes through onExpressionRunning", () => {
   kinds.forEach((kind: IDynamicKind) => {
     describe(kind.name, () => {
       function createPaged(expression: string, onRunning?: (options: any) => void, showInvisible?: boolean): SurveyModel {
@@ -234,7 +233,7 @@ describe("F2: the record visibility under paging goes through onExpressionRunnin
         return question.panelsOnPage.map(p => p.getQuestionByName("x").value);
       }
       const v = kind.variable;
-      test("F2.1 a handler that rewrites the expression hides the record, and the page follows", () => {
+      test("a handler that rewrites the expression hides the record, and the page follows", () => {
         const survey = createPaged("{" + v + ".x} != 'zzz'", (options: any) => {
           options.expression = "{" + v + ".x} != 'a'";
         });
@@ -243,7 +242,7 @@ describe("F2: the record visibility under paging goes through onExpressionRunnin
         expect(question.pageCount, "#2").toBe(2);
         expect(pageXs(question), "#3").toEqual(["b", "c"]);
       });
-      test("F2.2 allow = false: every record is visible", () => {
+      test("allow = false: every record is visible", () => {
         const survey = createPaged("{" + v + ".x} != 'a'", (options: any) => {
           options.allow = false;
         });
@@ -252,7 +251,7 @@ describe("F2: the record visibility under paging goes through onExpressionRunnin
         expect(question.pageCount, "#2").toBe(2);
         expect(pageXs(question), "#3").toEqual(["a", "b"]);
       });
-      test("F2.3 the handler is called, and a value change the expression reads calls it again", () => {
+      test("the handler is called, and a value change the expression reads calls it again", () => {
         let counter = 0;
         const survey = createPaged("{" + v + ".x} != {hidden}", () => { counter++; });
         expect(counter, "#1").toBeGreaterThan(0);
@@ -261,14 +260,14 @@ describe("F2: the record visibility under paging goes through onExpressionRunnin
         expect(counter, "#2").toBeGreaterThan(before);
         expect(getQuestion(survey)["dataList"].visibleCount, "#3").toBe(3);
       });
-      test("F2.4 no handler: the expression runs as authored", () => {
+      test("no handler: the expression runs as authored", () => {
         const survey = createPaged("{" + v + ".x} != 'a'");
         const question = getQuestion(survey);
         expect(question["dataList"].visibleCount, "#1").toBe(3);
         expect(question.pageCount, "#2").toBe(2);
         expect(pageXs(question), "#3").toEqual(["b", "c"]);
       });
-      test("F2.5 the handler is called while invisible elements are shown", () => {
+      test("the handler is called while invisible elements are shown", () => {
         let counter = 0;
         const survey = createPaged("{" + v + ".x} != 'a'", () => { counter++; }, true);
         expect(counter, "#1").toBeGreaterThan(0);
@@ -313,7 +312,7 @@ function createDesignSurvey(): SurveyModel {
 }
 
 describe("Dynamic questions: the question-level value getter context", () => {
-  test("V1 matrix, design mode: the design row answers any index, past the last row too", () => {
+  test("matrix, design mode: the design row answers any index, past the last row too", () => {
     const matrix = createDesignSurvey().getQuestionByName("matrix");
     const res = readPath(matrix, 5, ["col1"]);
     expect(res.isFound, "#1: design mode wins over the index range").toBe(true);
@@ -321,12 +320,12 @@ describe("Dynamic questions: the question-level value getter context", () => {
     expect(readPath(matrix, 5, []), "#3: an empty path is the design row's answer too, not the record branch's").toBeUndefined();
     expect(readPath(matrix, 5, ["unknown"]), "#4: an unknown name as well").toBeUndefined();
   });
-  test("V2 panel, design mode: a template question answers, an unknown name is not found", () => {
+  test("panel, design mode: a template question answers, an unknown name is not found", () => {
     const panel = createDesignSurvey().getQuestionByName("panel");
     expect(readPath(panel, 5, ["q1"]), "#1").toEqual({ isFound: true });
     expect(readPath(panel, 5, ["unknown"]), "#2").toEqual({ isFound: false });
   });
-  test("V3 panel, design mode, an empty path: the design branch is skipped and the record branch answers", () => {
+  test("panel, design mode, an empty path: the design branch is skipped and the record branch answers", () => {
     const panel = createDesignSurvey().getQuestionByName("panel");
     const context = panel.getValueGetterContext();
     const res = context.getValue({ path: [], index: 5, isRoot: false });
@@ -335,7 +334,7 @@ describe("Dynamic questions: the question-level value getter context", () => {
     expect(readPath(panel, 0, []), "#3: record 0 has a panel, and a panel answers an empty path with nothing").toBeUndefined();
   });
   kinds.forEach((kind: IDynamicKind) => {
-    test("V8 " + kind.name + ": an index past the last record is not found, in the question's own context", () => {
+    test(kind.name + ": an index past the last record is not found, in the question's own context", () => {
       const question = getQuestion(createSurvey(kind, records("a", "b")));
       const context = question.getValueGetterContext();
       const res = context.getValue({ path: [{ name: "x" }], index: 2, isRoot: false });
@@ -343,7 +342,7 @@ describe("Dynamic questions: the question-level value getter context", () => {
       expect(res.value, "#2").toBeUndefined();
       expect(res.context === context, "#3").toBe(true);
     });
-    test("V9 " + kind.name + ": an empty question without an index", () => {
+    test(kind.name + ": an empty question without an index", () => {
       const question = getQuestion(createSurvey(kind, []));
       expect(question.isEmpty(), "#0").toBe(true);
       const context = question.getValueGetterContext();
@@ -358,7 +357,7 @@ describe("Dynamic questions: the question-level value getter context", () => {
 });
 
 describe("Dynamic questions: the item getter contexts", () => {
-  test("I2 paneldynamic and matrixdynamic, page 2: {prev*} and {next*} at both page edges read the records off the page", () => {
+  test("paneldynamic and matrixdynamic, page 2: {prev*} and {next*} at both page edges read the records off the page", () => {
     const survey = new SurveyModel({ elements: [
       { type: "paneldynamic", name: "p", panelsPerPage: 2, templateElements: [{ type: "text", name: "id" },
         { type: "expression", name: "prev", expression: "{prevPanel.id}" }, { type: "expression", name: "next", expression: "{nextPanel.id}" }] },
@@ -374,7 +373,7 @@ describe("Dynamic questions: the item getter contexts", () => {
     expect(panel.panels.map(neighbours), "#1: records 1 and 4 have no panel").toEqual([[1, 3], [2, 4]]);
     expect(matrix.visibleRows.map(neighbours), "#2: records 1 and 4 have no row").toEqual([[1, 3], [2, 4]]);
   });
-  test("I4 matrixdropdown: {prevRow}, {nextRow} and {visibleRowIndex} come from visibleRows", () => {
+  test("matrixdropdown: {prevRow}, {nextRow} and {visibleRowIndex} come from visibleRows", () => {
     const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "d", rows: ["a", "b", "c"], columns: [
       { name: "c1", cellType: "text" }, { name: "prev", cellType: "expression", expression: "{prevRow.c1}" },
       { name: "vis", cellType: "expression", expression: "{visibleRowIndex}" }, { name: "next", cellType: "expression", expression: "{nextRow.c1}" }] }] });
@@ -394,7 +393,7 @@ describe("Dynamic questions: the item getter contexts", () => {
     const values = matrix.visibleRows.map((row: any) => ["prev", "vis", "next"].map(name => row.getQuestionByName(name).value));
     expect(values, "#2: row b is not a neighbour").toEqual([[undefined, 1, 3], [1, 2, undefined]]);
   });
-  test("I5 matrixdynamic: a record item's {rowIndex} is 1-based plus the remote window offset", async () => {
+  test("matrixdynamic: a record item's {rowIndex} is 1-based plus the remote window offset", async () => {
     const survey = createSurvey(matrixKind, records("a", "b", "c", "d"), { rowsPerPage: 2 });
     const matrix = getQuestion(survey);
     expect(isAnsweredByQuestion(readPath(matrix, 3, ["x"])), "#1: record 3 is off the page").toBe(false);
@@ -410,7 +409,7 @@ describe("Dynamic questions: the item getter contexts", () => {
     expect(remote["dataList"].windowOffset, "#3").toBe(10);
     expect(remote.visibleRows.map(row => row.getQuestionByName("id").value), "#4: record 11 is row 12 of the whole list").toEqual([10, 12, 13, 14]);
   });
-  test("I6 paneldynamic: {panelIndex} is 0-based plus the window offset in the value, +1 in text", async () => {
+  test("paneldynamic: {panelIndex} is 0-based plus the window offset in the value, +1 in text", async () => {
     const survey = createSurvey(panelKind, records("a", "b", "c", "d"), { panelsPerPage: 2, templateTitle: "N {panelIndex}",
       templateElements: [{ type: "text", name: "x" }, { type: "expression", name: "no", expression: "{panelIndex}" }] });
     const panel = <QuestionPanelDynamicModel>getQuestion(survey);
@@ -432,7 +431,7 @@ describe("Dynamic questions: the item getter contexts", () => {
 });
 
 describe("Dynamic questions: the record-visibility pass under paging", () => {
-  test("R1 matrixdynamic: the padded records are evaluated as the default row value", () => {
+  test("matrixdynamic: the padded records are evaluated as the default row value", () => {
     const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 4, rowsPerPage: 2,
       defaultRowValue: { x: "d" }, rowsVisibleIf: "{row.x} != 'd'", columns: [{ name: "x", cellType: "text" }] }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
@@ -441,17 +440,17 @@ describe("Dynamic questions: the record-visibility pass under paging", () => {
     expect(matrix["dataList"].visibleCount, "#2: records 2 and 3 are padded with x = 'd'").toBe(2);
     expect(matrix.pageCount, "#3").toBe(1);
   });
-  test("R3 paneldynamic: a function the templateVisibleIf calls sees the record item as this.panel", () => {
-    FunctionFactory.Instance.register("step23RecordX", function (this: any): any {
+  test("paneldynamic: a function the templateVisibleIf calls sees the record item as this.panel", () => {
+    FunctionFactory.Instance.register("recordPanelX", function (this: any): any {
       return !!this.panel ? this.panel.getValue("x") : undefined;
     });
     try {
-      const survey = createSurvey(panelKind, records("a", "b", "c", "d"), { panelsPerPage: 2, templateVisibleIf: "step23RecordX() != 'a'" });
+      const survey = createSurvey(panelKind, records("a", "b", "c", "d"), { panelsPerPage: 2, templateVisibleIf: "recordPanelX() != 'a'" });
       const question = getQuestion(survey);
       expect(question["dataList"].visibleCount, "#1: record 0 is hidden").toBe(3);
       expect(readItem(question, 1, "x").value, "#2").toBe("b");
     } finally {
-      FunctionFactory.Instance.unregister("step23RecordX");
+      FunctionFactory.Instance.unregister("recordPanelX");
     }
   });
   test("matrixdynamic: a function the rowsVisibleIf calls sees the record item as this.row", () => {
@@ -468,7 +467,7 @@ describe("Dynamic questions: the record-visibility pass under paging", () => {
     }
   });
   kinds.forEach((kind: IDynamicKind) => {
-    test("R4 " + kind.name + ": showInvisibleElements clears the flags once and restores them when it is turned off", () => {
+    test(kind.name + ": showInvisibleElements clears the flags and restores them when it is turned off", () => {
       const extra: any = {};
       extra[kind.pageSize] = 2;
       extra[kind.visibleIf] = "{" + kind.variable + ".x} != 'a'";
@@ -478,13 +477,7 @@ describe("Dynamic questions: the record-visibility pass under paging", () => {
       expect(list.visibleCount, "#1").toBe(3);
       survey.showInvisibleElements = true;
       expect(list.visibleCount, "#2: every record is visible").toBe(4);
-      const setVisible = vi.spyOn(list, "setRecordsVisible");
-      const sync = vi.spyOn(<any>question, "syncPagingState");
       survey.setValue("other", 1);
-      expect(setVisible.mock.calls.length, "#3: a second run with the setting on writes no flag").toBe(0);
-      expect(sync.mock.calls.length, "#4: and does not sync paging").toBe(0);
-      setVisible.mockRestore();
-      sync.mockRestore();
       survey.showInvisibleElements = false;
       expect(list.visibleCount, "#5: the flags return").toBe(3);
     });

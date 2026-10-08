@@ -143,7 +143,8 @@ interface IQuestionAdapter {
   edit(question: any, position: number, field: string, value: any): void;
   visibleIndex(question: any, position: number): number;
   // The object creations a page change is allowed to make: one per record on the page.
-  createSpy(): { calls: Array<any> };
+  // Counts the objects the question creates from now on, through a public survey event.
+  countCreated(question: any): () => number;
 }
 const matrixAdapter: IQuestionAdapter = {
   name: "matrix",
@@ -165,7 +166,11 @@ const matrixAdapter: IQuestionAdapter = {
     question.visibleRows[position].getQuestionByName(field).value = value;
   },
   visibleIndex: (question: QuestionMatrixDynamicModel, position: number) => question.getItemVisibleIndex(<any>question.visibleRows[position]),
-  createSpy: () => vi.spyOn(<any>QuestionMatrixDynamicModel.prototype, "createMatrixRow").mock
+  countCreated: (question: QuestionMatrixDynamicModel) => {
+    let count = 0;
+    (<SurveyModel>question.survey).onMatrixCellCreated.add((_, options) => { if (options.columnName === "id") count++; });
+    return () => count;
+  }
 };
 const panelAdapter: IQuestionAdapter = {
   name: "panel",
@@ -187,7 +192,14 @@ const panelAdapter: IQuestionAdapter = {
     question.panels[position].getQuestionByName(field).value = value;
   },
   visibleIndex: (question: QuestionPanelDynamicModel, position: number) => question.getItemVisibleIndex(<any>question.panels[position].data),
-  createSpy: () => vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "createNewPanel").mock
+  countCreated: (question: QuestionPanelDynamicModel) => {
+    const created: Array<any> = [];
+    (<SurveyModel>question.survey).onQuestionCreated.add((_, options) => {
+      const q = options.question;
+      if (q.name === "id" && q.parentQuestion === question && q.parent !== question.template && created.indexOf(q) < 0) created.push(q);
+    });
+    return () => created.length;
+  }
 };
 const adapters = [matrixAdapter, panelAdapter];
 const namedAdapters: Array<[string, IQuestionAdapter]> = adapters.map((adapter: IQuestionAdapter): [string, IQuestionAdapter] => [adapter.name, adapter]);
@@ -219,12 +231,12 @@ describe.each(cases)("Question source contract, shared: %s over a %s source", (_
   });
   test("a page change: the objects of the destination page and nothing else", () => {
     const { question, source } = createOnPage1();
-    const created = adapter.createSpy();
+    const created = adapter.countCreated(question);
     const readsBefore = source.readCount;
     const pagedReadsBefore = source.pagedReadCount;
     question.pageIndex = 0;
     expect(adapter.ids(question), "#1").toEqual([100, 101]);
-    expect(created.calls.length, "#2: one object per record on the page").toBe(2);
+    expect(created(), "#2: one object per record on the page").toBe(2);
     expect(source.readCount, "#3: the whole storage is never read again").toBe(readsBefore);
     expect(source.pagedReadCount - pagedReadsBefore, kind === "not paging"
       ? "#4: the list pages what it holds - no source call" : "#4: the source is asked for the page").toBe(kind === "not paging" ? 0 : 1);
@@ -302,7 +314,7 @@ describe.each(namedAdapters)("Question source contract, not paging: the list pag
     const { survey, question } = create();
     question.pageIndex = 1;
     // Record 0 is empty and its page was never edited: layer 2 visits edited pages only,
-    // so it is not walked - validating every page is a design decision, not this contract.
+    // so it is not walked - validating every page is not part of this contract.
     expect(survey.tryComplete(), "#1").toBe(true);
   });
   test("progress counts every visible record", () => {

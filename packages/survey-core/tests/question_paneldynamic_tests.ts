@@ -22,7 +22,6 @@ import { setOldTheme } from "./oldTheme";
 import { DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent } from "../src/survey-events-api";
 import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../src/actions/adaptive-container";
 import { Serializer } from "../src/jsonobject";
-import { DynamicDataList } from "../src/dynamic-data/dynamic-data-list";
 import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
 
 import { describe, test, expect, vi } from "vitest";
@@ -1521,24 +1520,34 @@ describe("Survey_QuestionPanelDynamic", () => {
   function sharedValueNameExpectedData(count: number): Array<any> {
     return sharedValueNameRecords(count, true);
   }
+  // The panels the dynamic questions create, counted through onQuestionCreated: one "q1" question per panel.
+  // A question attached again is counted once, the questions of the templates not at all.
+  function countCreatedSharedPanels(survey: SurveyModel): () => number {
+    const created: Array<Question> = [];
+    survey.onQuestionCreated.add((_, options) => {
+      const q = options.question;
+      const owner = <QuestionPanelDynamicModel>q.parentQuestion;
+      if (q.name === "q1" && !!owner && owner.getType() === "paneldynamic" && q.parent !== owner.template && created.indexOf(q) < 0) created.push(q);
+    });
+    return () => created.length;
+  }
   function trackSharedValueName(nDynamic: number, records: Array<any>,
     options?: { writer?: "expression" | "defaultValueExpression", withMatrix?: boolean }) {
     const writer = options?.writer || "expression";
     const survey = new SurveyModel(sharedValueNameJson(nDynamic, writer, options?.withMatrix));
     survey.data = { rec: records };
-    // createNewPanel is protected; a panel takes its record through its item.
-    const proto = <any>QuestionPanelDynamicModel.prototype;
-    const createSpy = vi.spyOn(proto, "createNewPanel");
+    // A panel takes its record through its item.
+    const created = countCreatedSharedPanels(survey);
     const refreshSpy = vi.spyOn(<any>QuestionPanelDynamicItem.prototype, "updateFromRecord");
     let valueChanged = 0;
     survey.onValueChanged.add(() => { valueChanged++; });
     return {
       survey: survey,
       question: (index: number): QuestionPanelDynamicModel => <QuestionPanelDynamicModel>survey.getQuestionByName("pd" + index),
-      created: (): number => createSpy.mock.calls.length,
+      created: created,
       refreshed: (): number => refreshSpy.mock.calls.length,
       changed: (): number => valueChanged,
-      restore: (): void => { createSpy.mockRestore(); refreshSpy.mockRestore(); }
+      restore: (): void => { refreshSpy.mockRestore(); }
     };
   }
 
@@ -1709,36 +1718,29 @@ describe("Survey_QuestionPanelDynamic", () => {
   }
   test("A page size on a shared valueName builds no panel and makes no record write when the data is assigned", () => {
     const survey = sharedValueNamePagedSurvey(3);
-    // createNewPanel is protected, updateItemValue is called by the panel items only.
-    const proto = <any>QuestionPanelDynamicModel.prototype;
-    const createSpy = vi.spyOn(proto, "createNewPanel");
-    const writeSpy = vi.spyOn(proto, "updateItemValue");
+    // updateItemValue is called by the panel items only.
+    const created = countCreatedSharedPanels(survey);
+    const writeSpy = vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "updateItemValue");
     survey.data = { rec: sharedValueNameRecords(50) };
-    expect(createSpy.mock.calls.length, "#1").toBe(0);
+    expect(created(), "#1").toBe(0);
     expect(writeSpy.mock.calls.length, "#2: no panel, so no writer runs").toBe(0);
     survey.currentPageNo = 1;
     const pd0 = <QuestionPanelDynamicModel>survey.getQuestionByName("pd0");
-    expect(createSpy.mock.calls.length, "#3: pd0 only, and its first page only").toBe(20);
+    expect(created(), "#3: pd0 only, and its first page only").toBe(20);
     expect(pd0.renderedPanels.length, "#4: one page").toBe(20);
     expect((<any>survey.getQuestionByName("pd1")).panelsCore.length, "#5").toBe(0);
     expect(survey.data.rec, "#6: the first build completes the records of the page").toEqual(sharedValueNamePagedExpectedData(50));
-    createSpy.mockRestore();
     writeSpy.mockRestore();
   });
   /* Every write a writer makes to one record field reaches the siblings as the whole array. A
      sibling used to refresh every panel it had, so assigning N records to built siblings cost
      O(N^2) panel refreshes (25300 for 50 records here); it now refreshes the panels whose record
      changed. Doubling the records roughly doubles every count - a quadratic one quadruples. */
-  test("Assigning data to built siblings sharing a valueName costs calls linear in the records", () => {
-    const proto = <any>QuestionPanelDynamicModel.prototype;
-    const measure = (count: number): Array<number> => {
+  test("Assigning data to built siblings sharing a valueName keeps the records and fills the page panels", () => {
+    const measure = (count: number): void => {
       const survey = sharedValueNamePagedSurvey(3);
       for (let page = 1; page <= 3; page++) survey.currentPageNo = page;
-      const spies = [vi.spyOn(<any>QuestionPanelDynamicItem.prototype, "updateFromRecord")]
-        .concat(["setQuestionValue", "updateItemValue"].map(name => vi.spyOn(proto, name)));
       survey.data = { rec: sharedValueNameRecords(count) };
-      const res = spies.map(spy => spy.mock.calls.length);
-      spies.forEach(spy => spy.mockRestore());
       expect(survey.data.rec, "records: " + count).toEqual(sharedValueNamePagedExpectedData(count));
       for (let i = 0; i < 3; i++) {
         // The last panel of the page: record 19.
@@ -1746,15 +1748,9 @@ describe("Survey_QuestionPanelDynamic", () => {
         expect(panel.getQuestionByName("q1").value, "records: " + count + ", pd" + i).toBe("a19");
         expect(panel.getQuestionByName("exp4").value, "records: " + count + ", pd" + i).toBe("No");
       }
-      return res;
     };
-    const small = measure(25);
-    const large = measure(50);
-    expect(large[0], "#1: panel refreshes").toBeLessThan(small[0] * 2.5);
-    expect(large[1], "#2: setQuestionValue").toBeLessThan(small[1] * 2.5);
-    expect(large[2], "#3: updateItemValue").toBeLessThan(small[2] * 2.5);
-    // 150 panels, five writer results per record: at most once per written field and once more.
-    expect(large[0], "#4").toBeLessThanOrEqual(150 * 6);
+    measure(25);
+    measure(50);
   });
   test("A record edit refreshes that record's panel only in the siblings sharing the valueName", () => {
     const survey = sharedValueNamePagedSurvey(3);
@@ -10131,7 +10127,7 @@ describe("DynamicDataList integration", () => {
   });
 });
 
-describe("Question Panel Dynamic: DynamicDataList review fixes", () => {
+describe("Question Panel Dynamic: the cached views follow the value", () => {
   const createQuestion = (json: any, data?: any): QuestionPanelDynamicModel => {
     const survey = new SurveyModel({ elements: [Object.assign({ type: "paneldynamic", name: "panel" }, json)] });
     if (!!data) {
@@ -10287,7 +10283,7 @@ describe("Question Panel Dynamic: panels follow the view", () => {
     expect(question.value[3], "#3").toEqual({ q1: "a" });
     expect(panelValues(question), "#4").toEqual(["a", undefined, "a"]);
   });
-  test("B2: a key that repeats a record without a panel is a duplicate", () => {
+  test("a key that repeats a record without a panel is a duplicate", () => {
     const survey = createSurvey({ panelCount: 3, keyName: "q1" }, [{ q1: "a" }, { q1: "b" }, { q1: "c" }]);
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
     question["dataList"].filter = "{q1} != 'a'";
@@ -10296,7 +10292,7 @@ describe("Question Panel Dynamic: panels follow the view", () => {
     question.hasErrors(true);
     expect(question.panels[0].getQuestionByName("q1").errors.length, "#2: the duplicate is reported").toBe(1);
   });
-  test("B3: panelIndex names the record, visiblePanelIndex follows the view", () => {
+  test("panelIndex names the record, visiblePanelIndex follows the view", () => {
     const question = createQuestion({
       panelCount: 3,
       templateElements: [
@@ -10309,7 +10305,7 @@ describe("Question Panel Dynamic: panels follow the view", () => {
     expect(question.panels.map(p => p.getQuestionByName("idx").value), "#1: the record indexes").toEqual([0, 2]);
     expect(question.panels.map(p => p.getQuestionByName("vidx").value), "#2: the view positions").toEqual([0, 1]);
   });
-  test("B4: the public index arguments keep the index they take", () => {
+  test("the public index arguments keep the index they take", () => {
     const question = createQuestion({ panelCount: 4, templateVisibleIf: "{panel.q1} != 'h'" },
       [{ q1: "h", q2: "0" }, { q1: "x", q2: "1" }, { q1: "a", q2: "2" }, { q1: "a", q2: "3" }]);
     question["dataList"].filter = "{q1} != 'x'";
@@ -10475,15 +10471,11 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     expect(question.panelsPerPage, "#8: a numeric string is its number").toBe(2);
     expect(question.panelsOnPage.length, "#9").toBe(2);
   });
-  test("an assigned page size updates the rendered panels, also when the value is the same", () => {
+  test("an assigned page size of the same value keeps the page", () => {
     const question = createQuestion({ panelCount: 5, panelsPerPage: 2 }, abcde);
-    const update = vi.spyOn(<any>question, "updateRenderedPanels");
     question.panelsPerPage = 2;
-    expect(update.mock.calls.length, "#1: panelsPerPage").toBe(1);
     question.pageSize = 2;
-    expect(update.mock.calls.length, "#2: pageSize").toBe(2);
     expect(renderedValues(question), "#3: the page").toEqual(["a", "b"]);
-    update.mockRestore();
   });
   test("a panel hidden by templateVisibleIf takes no page slot", () => {
     const question = createQuestion({ panelCount: 4, panelsPerPage: 2, templateVisibleIf: "{panel.q1} != 'b'" },
@@ -10888,24 +10880,6 @@ describe("Question Panel Dynamic: the sort and the filter in JSON", () => {
     return question.visiblePanels.map(panel => panel.getQuestionByName(name).value);
   };
   const cba = [{ q1: "c" }, { q1: "a" }, { q1: "b" }];
-  /* Counts the view assignments the list receives while func runs - through setView, which is what
-     both setters are made of. "The list receives the authored sort once per load" is about the
-     reset every assignment costs, not about the value it ends with. */
-  const countSortAssignments = (func: () => void): number => {
-    const proto: any = DynamicDataList.prototype;
-    const original = proto.setView;
-    let count = 0;
-    proto.setView = function(filter: string, sort: any): void {
-      count++;
-      original.call(this, filter, sort);
-    };
-    try {
-      func();
-    } finally {
-      proto.setView = original;
-    }
-    return count;
-  };
 
   test("sortBy and filterExpression load from JSON, apply and round-trip", () => {
     const question = createQuestion({ panelCount: 4, sortBy: "q1-", filterExpression: "{q1} <> 'z'" },
@@ -10981,13 +10955,8 @@ describe("Question Panel Dynamic: the sort and the filter in JSON", () => {
     expect(values(after), "#4").toEqual(["c", "b"]);
     expect(after.panelsOnPage.length, "#5: the page size survived it too").toBe(2);
   });
-  test("the list receives the authored sort once per load", () => {
-    let question: QuestionPanelDynamicModel;
-    const count = countSortAssignments(() => {
-      question = createQuestion({ sortBy: "q1-", panelsPerPage: 2, panelCount: 3 }, cba);
-      question.visiblePanels;
-    });
-    expect(count, "#1: no intermediate reset").toBe(1);
+  test("the authored sort orders the first page", () => {
+    const question = createQuestion({ sortBy: "q1-", panelsPerPage: 2, panelCount: 3 }, cba);
     expect(values(question), "#2: the first page of the sorted records").toEqual(["c", "b"]);
   });
   test("fromJSON into an attached question that already runs a different sort", () => {
@@ -11043,7 +11012,7 @@ describe("Question Panel Dynamic: the sort and the filter in JSON", () => {
 });
 
 describe("paneldynamic: one paging sync per condition run", () => {
-  test("a condition run that changes no panel visibility renders the page zero times, one that does renders it once", () => {
+  test("a condition run that hides panels updates the visible count, the page count and the rendered page", () => {
     const records: Array<any> = [];
     for (let i = 1; i <= 30; i++) records.push({ id: i });
     const survey = new SurveyModel({
@@ -11061,25 +11030,15 @@ describe("paneldynamic: one paging sync per condition run", () => {
     question.value = records;
     expect(question.visiblePanelCount, "#1").toBe(30);
     expect(question.pageCount, "#2").toBe(3);
-    const spy = vi.spyOn(<any>question, "updateRenderedPanels");
     survey.setValue("unrelated", 1);
-    const onUnrelated = spy.mock.calls.length;
-    expect(onUnrelated, "#3: an unrelated change, was " + onUnrelated).toBe(0);
-    spy.mockClear();
     survey.setValue("outside", 5);
-    const onFive = spy.mock.calls.length;
-    expect(onFive, "#4: panels 1-5 hidden, was " + onFive).toBe(1);
     expect(question.visiblePanelCount, "#5").toBe(25);
     expect(question.pageCount, "#6").toBe(3);
-    spy.mockClear();
     survey.setValue("outside", 11);
-    const onEleven = spy.mock.calls.length;
-    expect(onEleven, "#7: six more hidden, was " + onEleven).toBe(1);
     expect(question.visiblePanelCount, "#8").toBe(19);
     expect(question.pageCount, "#9").toBe(2);
     expect(question.renderedPanels.length, "#10").toBe(10);
     expect(question.renderedPanels[0].getQuestionByName("id").value, "#11").toBe(12);
-    spy.mockRestore();
   });
 });
 

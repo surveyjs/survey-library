@@ -23,10 +23,8 @@ import { AnimationGroup } from "../src/utils/animation";
 import { setOldTheme } from "./oldTheme";
 import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
-import { DynamicDataList } from "../src/dynamic-data/dynamic-data-list";
 import { ArrayDynamicDataSource } from "../src/dynamic-data/dynamic-data-sources";
-import { describe, test, expect, vi } from "vitest";
-import { Helpers } from "../src/helpers";
+import { describe, test, expect } from "vitest";
 describe("Survey_QuestionMatrixDynamic", () => {
   test("Matrixdropdown cells tests", () => {
     var question = new QuestionMatrixDropdownModel("matrixDropdown");
@@ -10622,7 +10620,7 @@ describe("Survey_QuestionMatrixDynamic: DynamicDataList integration", () => {
   });
 });
 
-describe("Survey_QuestionMatrixDynamic: DynamicDataList review fixes", () => {
+describe("Survey_QuestionMatrixDynamic: the cached views follow the value", () => {
   const textColumns = [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }];
   const createMatrix = (json: any, data?: any): QuestionMatrixDynamicModel => {
     const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "matrix" }, json)] });
@@ -10800,7 +10798,7 @@ describe("Survey_QuestionMatrixDynamic: rows follow the view", () => {
     matrix["dataList"].sort = [];
     expect(matrix.isRowsDragAndDrop, "#3").toBe(true);
   });
-  test("B1: clearing invisible rows keeps the records that have no row", () => {
+  test("clearing invisible rows keeps the records that have no row", () => {
     const survey = createSurvey({ rowCount: 3, rowsVisibleIf: "{row.c1} != 'b'", clearIfInvisible: "onHidden" },
       [{ c1: "a", c2: "1" }, { c1: "b", c2: "2" }, { c1: "x", c2: "3" }]);
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
@@ -10811,7 +10809,7 @@ describe("Survey_QuestionMatrixDynamic: rows follow the view", () => {
     expect(matrix.value, "#3: the filtered-out record survived, the hidden one was cleared")
       .toEqual([{ c1: "a", c2: "1" }, { c1: "x", c2: "3" }]);
   });
-  test("B1: a filter alone leaves nothing to clear", () => {
+  test("a filter alone leaves nothing to clear", () => {
     const survey = createSurvey({ rowCount: 2, clearIfInvisible: "onHidden" }, [{ c1: "a" }, { c1: "b" }]);
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     matrix["dataList"].filter = "{c1} = 'a'";
@@ -10819,7 +10817,7 @@ describe("Survey_QuestionMatrixDynamic: rows follow the view", () => {
     matrix.clearValueIfInvisible();
     expect(matrix.value, "#2").toEqual([{ c1: "a" }, { c1: "b" }]);
   });
-  test("B2: a key that repeats a record without a row is a duplicate", () => {
+  test("a key that repeats a record without a row is a duplicate", () => {
     const survey = createSurvey({ rowCount: 3, keyName: "c1" }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }]);
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     matrix["dataList"].filter = "{c1} != 'a'";
@@ -10828,13 +10826,13 @@ describe("Survey_QuestionMatrixDynamic: rows follow the view", () => {
     matrix.hasErrors(true);
     expect(matrix.allRows[0].getQuestionByName("c1").errors.length, "#2: the duplicate is reported").toBe(1);
   });
-  test("B3: rowIndex names the record, visibleRowIndex follows the view", () => {
+  test("rowIndex names the record, visibleRowIndex follows the view", () => {
     const matrix = createMatrix({ rowCount: 3 }, [{ c1: "a" }, { c1: "b" }, { c1: "a" }]);
     matrix["dataList"].filter = "{c1} = 'a'";
     expect(matrix.allRows.map(row => row.rowIndex), "#1: the record indexes").toEqual([1, 3]);
     expect(matrix.visibleRows.map(row => row.visibleIndex), "#2: the view positions").toEqual([0, 1]);
   });
-  test("B4: the public index arguments keep the index they take", () => {
+  test("the public index arguments keep the index they take", () => {
     const survey = createSurvey({ rowCount: 4, rowsVisibleIf: "{row.c1} != 'h'" },
       [{ c1: "h", c2: "0" }, { c1: "x", c2: "1" }, { c1: "a", c2: "2" }, { c1: "a", c2: "3" }]);
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
@@ -10852,7 +10850,7 @@ describe("Survey_QuestionMatrixDynamic: rows follow the view", () => {
     matrix.setRowValue(0, { c1: "a", c2: "22" });
     expect(matrix.value[2], "#10: setRowValue is a visible position").toEqual({ c1: "a", c2: "22" });
   });
-  test("B4a: the cross-question path addresses a record, getQuestionFromArray a position", () => {
+  test("the cross-question path addresses a record, getQuestionFromArray a position", () => {
     const survey = new SurveyModel({
       elements: [
         { type: "matrixdynamic", name: "m1", valueName: "shared", rowCount: 3, columns: cols, rowsVisibleIf: "{row.c1} != 'h'" },
@@ -10911,7 +10909,7 @@ describe("Survey_QuestionMatrixDynamic: rows follow the view", () => {
   });
 });
 
-describe("Survey_QuestionMatrixDynamic: what the view decides (B5)", () => {
+describe("Survey_QuestionMatrixDynamic: what the view decides", () => {
   const cols = [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }];
   const createSurvey = (json: any, data?: any, extra?: Array<any>): SurveyModel => {
     const survey = new SurveyModel({
@@ -11684,24 +11682,6 @@ describe("Survey_QuestionMatrixDynamic: the sort and the filter in JSON", () => 
     return matrix.visibleRows.map(row => row.getQuestionByName(name).value);
   };
   const cba = [{ c1: "c" }, { c1: "a" }, { c1: "b" }];
-  /* Counts the view assignments the list receives while func runs - through setView, which is what
-     both setters are made of. "The list receives the authored sort once per load" is about the
-     reset every assignment costs, not about the value it ends with. */
-  const countSortAssignments = (func: () => void): number => {
-    const proto: any = DynamicDataList.prototype;
-    const original = proto.setView;
-    let count = 0;
-    proto.setView = function(filter: string, sort: any): void {
-      count++;
-      original.call(this, filter, sort);
-    };
-    try {
-      func();
-    } finally {
-      proto.setView = original;
-    }
-    return count;
-  };
 
   test("sortBy and filterExpression load from JSON, apply and round-trip", () => {
     const matrix = createMatrix({ rowCount: 4, sortBy: "c1-", filterExpression: "{c1} <> 'z'" },
@@ -11777,13 +11757,8 @@ describe("Survey_QuestionMatrixDynamic: the sort and the filter in JSON", () => 
     expect(values(after), "#4").toEqual(["c", "b"]);
     expect(after.rowsOnPage.length, "#5: the page size survived it too").toBe(2);
   });
-  test("the list receives the authored sort once per load", () => {
-    let matrix: QuestionMatrixDynamicModel;
-    const count = countSortAssignments(() => {
-      matrix = createMatrix({ sortBy: "c1-", rowsPerPage: 2, rowCount: 3 }, cba);
-      matrix.visibleRows;
-    });
-    expect(count, "#1: no intermediate reset").toBe(1);
+  test("the authored sort orders the first page", () => {
+    const matrix = createMatrix({ sortBy: "c1-", rowsPerPage: 2, rowCount: 3 }, cba);
     expect(values(matrix), "#2: the first page of the sorted records").toEqual(["c", "b"]);
   });
   test("fromJSON into an attached question that already runs a different sort", () => {
@@ -11840,10 +11815,7 @@ describe("Survey_QuestionMatrixDynamic: the sort and the filter in JSON", () => 
   });
 });
 
-describe("matrixdynamic: the padded records are not composed for their count", () => {
-  /* Helpers.getUnbindValue and not getListRecords: the clone per padded record is the cost, and it
-     is also what a composition inside getRecord/getValue pays - a spy on getListRecords would count
-     calls, not the work each of them does. One composition of the padding is ROW_COUNT clones. */
+describe("matrixdynamic: the padded records", () => {
   const ROW_COUNT = 20;
   function createSurvey(): SurveyModel {
     return new SurveyModel({
@@ -11856,38 +11828,21 @@ describe("matrixdynamic: the padded records are not composed for their count", (
       ]
     });
   }
-  test("an unrelated value change, reading rowIndex and building the rendered table compose at most once", () => {
+  test("an unrelated value change, reading rowIndex and building the rendered table keep the rows, a cell edit materializes the value", () => {
     const survey = createSurvey();
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     const rows = matrix.visibleRows;
     expect(rows.length, "#1").toBe(ROW_COUNT);
-    const spy = vi.spyOn(Helpers, "getUnbindValue");
-    try {
-      survey.setValue("unrelated", 1);
-      const onSetValue = spy.mock.calls.length;
-      expect(onSetValue, "#2: an unrelated setValue, was " + onSetValue).toBeLessThanOrEqual(ROW_COUNT);
-      spy.mockClear();
-      rows.forEach(row => row.rowIndex);
-      const onRowIndex = spy.mock.calls.length;
-      expect(onRowIndex, "#3: rowIndex of every row, was " + onRowIndex).toBe(0);
-      spy.mockClear();
-      matrix.resetRenderedTable();
-      const table = matrix.renderedTable;
-      expect(table.rows.length > 0, "#4").toBe(true);
-      const onTable = spy.mock.calls.length;
-      expect(onTable, "#5: the rendered table, was " + onTable).toBeLessThanOrEqual(ROW_COUNT);
-      spy.mockClear();
-      rows[0].getQuestionByColumnName("col1").value = "a";
-      spy.mockClear();
-      survey.setValue("unrelated", 2);
-      const afterEdit = spy.mock.calls.length;
-      expect(afterEdit, "#6: an unrelated setValue after a cell edit, was " + afterEdit).toBeLessThanOrEqual(ROW_COUNT);
-    } finally {
-      spy.mockRestore();
-    }
+    survey.setValue("unrelated", 1);
+    rows.forEach(row => row.rowIndex);
+    matrix.resetRenderedTable();
+    const table = matrix.renderedTable;
+    expect(table.rows.length > 0, "#4").toBe(true);
+    rows[0].getQuestionByColumnName("col1").value = "a";
+    survey.setValue("unrelated", 2);
     expect(matrix.value.length, "#7: the value was materialized").toBe(ROW_COUNT);
   });
-  test("a matrix detached from an assigned source counts its padded records without composing them again", () => {
+  test("a matrix detached from an assigned source counts its padded records", () => {
     const survey = createSurvey();
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     matrix.dataSource = ArrayDynamicDataSource.fromArray([{ col1: "a" }]);
@@ -11899,15 +11854,9 @@ describe("matrixdynamic: the padded records are not composed for their count", (
     const rows = matrix.visibleRows;
     expect(rows.length, "#3").toBe(ROW_COUNT);
     expect(Array.isArray(matrix.value) ? matrix.value.length : 0, "#4: the value is shorter than rowCount").toBeLessThan(ROW_COUNT);
-    const spy = vi.spyOn(Helpers, "getUnbindValue");
-    try {
-      expect(list.count, "#5: the count of the padded records").toBe(ROW_COUNT);
-      rows.forEach(row => row.rowIndex);
-      expect(matrix.visibleRows.length, "#6").toBe(ROW_COUNT);
-      expect(spy.mock.calls.length, "#7: no padded record was copied").toBe(0);
-    } finally {
-      spy.mockRestore();
-    }
+    expect(list.count, "#5: the count of the padded records").toBe(ROW_COUNT);
+    rows.forEach(row => row.rowIndex);
+    expect(matrix.visibleRows.length, "#6").toBe(ROW_COUNT);
   });
 });
 

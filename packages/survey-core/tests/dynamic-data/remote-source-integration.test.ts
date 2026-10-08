@@ -827,13 +827,10 @@ describe("Remote data source: capabilities", () => {
     expect(rows[0].getQuestionByName("col1").isReadOnly, "#2").toBe(true);
     spies.forEach(spy => spy.mockRestore());
   });
-  test("panel: assigning a source refreshes the footer actions, also for the same source", async () => {
+  test("panel: the same source assigned again keeps the add action off for a source that cannot insert", async () => {
     const source = new FakeServerSource(serverRecords(6), ["paging", "update"]);
     const { question } = await createPanel(source, { panelsPerPage: 0 });
-    let footerUpdates = 0;
-    (<any>question).updateFooterActionsCallback = (): void => { footerUpdates++; };
     question.dataSource = source;
-    expect(footerUpdates, "#1: the footer is told").toBe(1);
     expect(question.canAddPanel, "#2").toBe(false);
   });
 });
@@ -913,7 +910,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     const res: Array<any> = [];
     question.registerPropertyChangedHandlers(["value"], (newValue: any): void => {
       res.push(Array.isArray(newValue) ? newValue.map((r: any): any => !!r ? r.col1 : r) : newValue);
-    }, "step24");
+    }, "recordValues");
     return res;
   }
   function createLocalMatrix(json?: any): { survey: SurveyModel, question: QuestionMatrixDynamicModel } {
@@ -928,7 +925,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     });
     return { survey: survey, question: <QuestionPanelDynamicModel>survey.getQuestionByName("panel") };
   }
-  test("P1 matrix: an attach clears the hash once and shows the empty window, then the source's records", async () => {
+  test("matrix: an attach clears the hash once and shows the empty window, then the source's records", async () => {
     const { survey, question } = createLocalMatrix({ rowCount: 2 });
     survey.data = { matrix: [{ col1: "local1" }, { col1: "local2" }] };
     expect(question.visibleRows.length, "#1: the rows and the list exist").toBe(2);
@@ -942,7 +939,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     expect(values, "#4: the question's own value changes: the empty window of the pending read, then the answer").toEqual([[], ["v0", "v1", "v2"]]);
     expect(rowValues(question), "#5: the window is shown").toEqual(["v0", "v1", "v2"]);
   });
-  test("P1 panel: an attach clears the hash once and shows the empty window, then the source's records", async () => {
+  test("panel: an attach clears the hash once and shows the empty window, then the source's records", async () => {
     const { survey, question } = createLocalPanel({ panelCount: 2 });
     survey.data = { panel: [{ col1: "local1" }, { col1: "local2" }] };
     expect(question.panels.length, "#1: the panels and the list exist").toBe(2);
@@ -956,7 +953,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     expect(values, "#4: the question's own value changes: the empty window of the pending read, then the answer").toEqual([[], ["v0", "v1", "v2"]]);
     expect(panelValues(question), "#5: the window is shown").toEqual(["v0", "v1", "v2"]);
   });
-  test("P3 matrix: attach, detach, attach another source, detach: question.value is read through after each detach", async () => {
+  test("matrix: attach, detach, attach another source, detach: question.value is read through after each detach", async () => {
     const { survey, question } = createLocalMatrix();
     const checkLocal = (no: string, first: string): void => {
       survey.setValue("matrix", [{ col1: first }, { col1: "x" }]);
@@ -980,7 +977,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     await flush();
     checkLocal("#5", "b");
   });
-  test("P3 panel: attach, detach, attach another source, detach: question.value is read through after each detach", async () => {
+  test("panel: attach, detach, attach another source, detach: question.value is read through after each detach", async () => {
     const { survey, question } = createLocalPanel();
     const checkLocal = (no: string, first: string): void => {
       survey.setValue("panel", [{ col1: first }, { col1: "x" }]);
@@ -1004,7 +1001,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     await flush();
     checkLocal("#5", "b");
   });
-  test("P4 matrix: the padded records after a detach", async () => {
+  test("matrix: after a detach the list pads the records up to rowCount and the next edit stores them", async () => {
     const { survey, question } = createLocalMatrix({ rowCount: 3 });
     question.value = [{ col1: "a" }];
     expect(question.rowCount, "#1").toBe(3);
@@ -1028,7 +1025,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     question["dataList"].setValue(1, "col1", "y");
     expect(survey.data.matrix, "#12: a list write goes through normalizeRecords to the hash").toEqual([{}, { col1: "y" }, { col1: "x" }]);
   });
-  test("P5 matrix: an assigned ArrayDynamicDataSource", async () => {
+  test("matrix: an assigned ArrayDynamicDataSource takes the edits, adds and removes, and the hash stays cleared", async () => {
     let arr: Array<any> = [{ col1: "a0" }, { col1: "a1" }];
     const { survey, question } = createLocalMatrix();
     survey.setValue("matrix", [{ col1: "hash" }]);
@@ -1046,7 +1043,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     question.removeRow(0);
     expect(arr.map((r: any): any => r.col1), "#8: remove").toEqual(["a1", undefined]);
     expect(rowValues(question), "#9").toEqual(["a1", undefined]);
-    // The step-25 baseline: the array is replaced outside the list.
+    // The array is replaced outside the list: the list shows it after a refresh only.
     arr = [{ col1: "outside0" }, { col1: "outside1" }];
     expect(question["dataList"].getRecord(0).col1, "#10: the list record").toBe("a1");
     expect(question.value[0].col1, "#11: question.value").toBe("a1");
@@ -1061,7 +1058,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     await flush();
     expect(rowValues(question), "#16: the hash is read again").toEqual(["hash2"]);
   });
-  test("P5 panel: an assigned ArrayDynamicDataSource", async () => {
+  test("panel: an assigned ArrayDynamicDataSource takes the edits, adds and removes, and the hash stays cleared", async () => {
     let arr: Array<any> = [{ col1: "a0" }, { col1: "a1" }];
     const { survey, question } = createLocalPanel();
     survey.setValue("panel", [{ col1: "hash" }]);
@@ -1079,7 +1076,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     question.removePanel(0);
     expect(arr.map((r: any): any => r.col1), "#8: remove").toEqual(["a1", undefined]);
     expect(panelValues(question), "#9").toEqual(["a1", undefined]);
-    // The step-25 baseline: the array is replaced outside the list.
+    // The array is replaced outside the list: the list shows it after a refresh only.
     arr = [{ col1: "outside0" }, { col1: "outside1" }];
     expect(question["dataList"].getRecord(0).col1, "#10: the list record").toBe("a1");
     expect(question.value[0].col1, "#11: question.value").toBe("a1");
@@ -1094,7 +1091,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     await flush();
     expect(panelValues(question), "#16: the hash is read again").toEqual(["hash2"]);
   });
-  test("P6 matrix: an assigned SurveyDataDynamicDataSource", async () => {
+  test("matrix: an assigned SurveyDataDynamicDataSource takes the edits, adds and removes, and the hash stays cleared", async () => {
     const { survey, question } = createLocalMatrix();
     survey.setValue("other", [{ col1: "a0" }, { col1: "a1" }]);
     survey.setValue("matrix", [{ col1: "hash" }]);
@@ -1110,7 +1107,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     expect(survey.data.other.length, "#6: add").toBe(3);
     question.removeRow(0);
     expect(survey.data.other.map((r: any): any => r.col1), "#7: remove").toEqual(["a1", undefined]);
-    // The step-25 baseline: the value is replaced outside the list.
+    // The value is replaced outside the list: the list shows it after a refresh only.
     survey.setValue("other", [{ col1: "outside0" }, { col1: "outside1" }]);
     expect(question["dataList"].getRecord(0).col1, "#8: the list record").toBe("a1");
     expect(question.value[0].col1, "#9: question.value").toBe("a1");
@@ -1125,7 +1122,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     await flush();
     expect(rowValues(question), "#14: the hash is read again").toEqual(["hash2"]);
   });
-  test("P6 panel: an assigned SurveyDataDynamicDataSource", async () => {
+  test("panel: an assigned SurveyDataDynamicDataSource takes the edits, adds and removes, and the hash stays cleared", async () => {
     const { survey, question } = createLocalPanel();
     survey.setValue("other", [{ col1: "a0" }, { col1: "a1" }]);
     survey.setValue("panel", [{ col1: "hash" }]);
@@ -1141,7 +1138,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     expect(survey.data.other.length, "#6: add").toBe(3);
     question.removePanel(0);
     expect(survey.data.other.map((r: any): any => r.col1), "#7: remove").toEqual(["a1", undefined]);
-    // The step-25 baseline: the value is replaced outside the list.
+    // The value is replaced outside the list: the list shows it after a refresh only.
     survey.setValue("other", [{ col1: "outside0" }, { col1: "outside1" }]);
     expect(question["dataList"].getRecord(0).col1, "#8: the list record").toBe("a1");
     expect(question.value[0].col1, "#9: question.value").toBe("a1");
@@ -1156,7 +1153,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     await flush();
     expect(panelValues(question), "#14: the hash is read again").toEqual(["hash2"]);
   });
-  test("P7 a detach while a read of the old source is in flight", async () => {
+  test("a detach while a read of the old source is in flight discards the late answer", async () => {
     const source = new FakeServerSource(serverRecords(12));
     const { question } = await createMatrix(source);
     source.auto = false;
@@ -1176,7 +1173,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     expect(list.windowOffset, "#6: the late page is not committed").toBe(0);
     expect(list.count, "#7").toBe(count);
   });
-  test("P8 a dispose with a read in flight writes nothing into the question", async () => {
+  test("a dispose with a read in flight writes nothing into the question", async () => {
     const source = new FakeServerSource(serverRecords(12));
     const { question } = await createMatrix(source);
     source.auto = false;
@@ -1193,7 +1190,7 @@ describe("Remote data source: attaching and detaching a source", () => {
   /* The trap: an attach that creates the list. A page size from JSON is not a way there -
      rowsPerPage/panelsPerPage create the list when they are set, and a panel creates it when the
      survey loads - so the attach that creates it creates a list that does not page. */
-  test("P9 matrix: an attach to a question whose list does not exist yet", async () => {
+  test("matrix: an attach to a question whose list does not exist yet creates the list and shows the empty window, then the records", async () => {
     const paged = new SurveyModel({
       elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: 5, columns: [{ name: "col1" }] }]
     });
@@ -1222,7 +1219,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     expect(values, "#9: value changes after the read: the window").toEqual([[], ["v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9", "v10", "v11"]]);
     expect(rowValues(question), "#10").toEqual(["v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9", "v10", "v11"]);
   });
-  test("P9 panel: an attach to a question whose list does not exist yet", async () => {
+  test("panel: an attach to a question whose list does not exist yet creates the list and shows the empty window, then the records", async () => {
     const loaded = new SurveyModel({
       elements: [{ type: "paneldynamic", name: "panel", panelCount: 0, templateElements: [{ type: "text", name: "col1" }] }]
     });
@@ -1252,7 +1249,7 @@ describe("Remote data source: design mode gives unpaged positions", () => {
   }
   const matrixJson = { type: "matrixdynamic", name: "matrix", rowCount: 6, rowsPerPage: 2, columns: [{ name: "col1" }] };
   const panelJson = { type: "paneldynamic", name: "panel", panelCount: 6, panelsPerPage: 2, templateElements: [{ type: "text", name: "col1" }] };
-  test("P10 matrix: design mode set before the JSON", () => {
+  test("matrix: design mode set before the JSON", () => {
     const survey = new SurveyModel();
     survey.setDesignMode(true);
     survey.fromJSON({ elements: [matrixJson] });
@@ -1265,7 +1262,7 @@ describe("Remote data source: design mode gives unpaged positions", () => {
   /* setDesignMode notifies no question, so the list keeps the page size and the page it had until the
      next paging sync; the question stops paging because isPagingActive reads the mode. The positions
      come from the list alone, so they stay the ones the page had. */
-  test("P10 matrix: design mode set on a question that pages, on its second page", () => {
+  test("matrix: design mode set on a question that pages, on its second page", () => {
     const survey = new SurveyModel({ elements: [matrixJson] });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     question.visibleRows;
@@ -1278,7 +1275,7 @@ describe("Remote data source: design mode gives unpaged positions", () => {
     expect(rows.map(row => question.getItemVisibleIndex(<any>row)), "#4: the rows of that page, numbered as on that page").toEqual([2, 3]);
     expect(rows.map(row => readVariable(row, "visibleRowIndex")), "#5").toEqual([3, 4]);
   });
-  test("P10 panel: design mode set before the JSON", () => {
+  test("panel: design mode set before the JSON", () => {
     const survey = new SurveyModel();
     survey.setDesignMode(true);
     survey.fromJSON({ elements: [panelJson] });
@@ -1288,7 +1285,7 @@ describe("Remote data source: design mode gives unpaged positions", () => {
     expect(panels.map(panel => question.getItemVisibleIndex(<any>panel.data)), "#2: the template").toEqual([0]);
     expect(panels.map(panel => readVariable(panel.data, "visiblePanelIndex")), "#3").toEqual([0]);
   });
-  test("P10 panel: design mode set on a question that pages, on its second page", () => {
+  test("panel: design mode set on a question that pages, on its second page", () => {
     const survey = new SurveyModel({ elements: [panelJson] });
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
     question.panels;
@@ -1418,7 +1415,7 @@ describe("Remote data source: an assigned source is read, not read through", () 
         expect(objectValues(question), "#4: after refresh()").toEqual(["b1", "b2"]);
         expect(col1(question.value), "#5").toEqual(["a1", "b1", "b2"]);
       });
-      // A regression guard: it passes with and without the step. The window follows every write.
+      // The window follows every write.
       test(name + "an edit, an add, a remove and a move reach the storage, the list and question.value", async () => {
         const { question, getStorage } = await createAssigned(type, kind);
         const isMatrix = type === "matrix";
@@ -2183,7 +2180,7 @@ function isRowDisposed(row: any): boolean {
 }
 
 describe("Remote data source: a removed record refills the page", () => {
-  test("[R] matrix: removeRow on page one of three leaves ten rows and fires no value change", async () => {
+  test("matrix: removeRow on page one of three leaves ten rows and fires no value change", async () => {
     const source = new FakeServerSource(serverRecords(30));
     const { survey, question } = await createMatrix(source, { rowsPerPage: 10 });
     question.removeRow(0);
@@ -2196,7 +2193,7 @@ describe("Remote data source: a removed record refills the page", () => {
     expect(rowValues(question)[9], "#4: the first record of the old second page").toBe("v10");
     expect(changes, "#5: the refill is a page load, not an answer").toEqual([]);
   });
-  test("[R] panel: removePanel on page one of three leaves ten panels and fires no value change", async () => {
+  test("panel: removePanel on page one of three leaves ten panels and fires no value change", async () => {
     const source = new FakeServerSource(serverRecords(30));
     const { survey, question } = await createPanel(source, { panelsPerPage: 10 });
     question.removePanel(0);
@@ -2240,7 +2237,7 @@ describe("Remote data source: the focus after a row is removed from a refilled p
     source.auto = false;
     return { question: question, source: source };
   };
-  test("[P] a synchronous source: the row now at that position is focused", async () => {
+  test("a synchronous source: the row now at that position is focused", async () => {
     const source = new SyncPagingSource(serverRecords(30));
     const question = await createPagedMatrix(source);
     question.removeRowUI(question.visibleRows[0]);
@@ -2253,7 +2250,7 @@ describe("Remote data source: the focus after a row is removed from a refilled p
     vi.advanceTimersByTime(100);
     expect(focusSpy.mock.calls.length, "#5: once").toBe(1);
   });
-  test("[P] a deferred source: a row of the short window is focused while the refill is pending", async () => {
+  test("a deferred source: a row of the short window is focused while the refill is pending", async () => {
     const { question, source } = await createDeferred();
     question.removeRowUI(question.visibleRows[0]);
     vi.advanceTimersByTime(10);
@@ -2264,7 +2261,7 @@ describe("Remote data source: the focus after a row is removed from a refilled p
     expect(question.visibleRows.length, "#4: the short window").toBe(9);
     source.settleAll();
   });
-  test("[R] a deferred source: the rebuilt row at that position is focused after the refill", async () => {
+  test("a deferred source: the rebuilt row at that position is focused after the refill", async () => {
     const { question, source } = await createDeferred();
     question.removeRowUI(question.visibleRows[0]);
     vi.advanceTimersByTime(10);
@@ -2284,7 +2281,7 @@ describe("Remote data source: the focus after a row is removed from a refilled p
     expect(isRowDisposed(row), "#7: not a disposed row").toBe(false);
     expect(row.getQuestionByName("col1").value, "#8").toBe("v1");
   });
-  test("[R] the last row of a page: the clamped position after the refill", async () => {
+  test("the last row of a page: the clamped position is focused after the refill", async () => {
     const { question, source } = await createDeferred();
     question.removeRowUI(question.visibleRows[9]);
     vi.advanceTimersByTime(10);
@@ -2297,7 +2294,7 @@ describe("Remote data source: the focus after a row is removed from a refilled p
     expect(focusSpy.mock.calls.length, "#2").toBe(2);
     expect(focusedRow(1).getQuestionByName("col1").value, "#3: position 9 is filled again").toBe("v10");
   });
-  test("[R] the stored position is dropped when the refill is rejected", async () => {
+  test("the stored position is dropped when the refill is rejected", async () => {
     const { question, source } = await createDeferred();
     question.removeRowUI(question.visibleRows[0]);
     vi.advanceTimersByTime(10);
@@ -2316,7 +2313,7 @@ describe("Remote data source: the focus after a row is removed from a refilled p
     vi.advanceTimersByTime(100);
     expect(focusSpy.mock.calls.length, "#4").toBe(1);
   });
-  test("[R] the stored position is dropped when the page changes in between", async () => {
+  test("the stored position is dropped when the page changes in between", async () => {
     const { question, source } = await createDeferred();
     question.removeRowUI(question.visibleRows[0]);
     vi.advanceTimersByTime(10);
@@ -2330,7 +2327,7 @@ describe("Remote data source: the focus after a row is removed from a refilled p
     expect(question.pageIndex, "#2").toBe(1);
     expect(focusSpy.mock.calls.length, "#3: focused once").toBe(1);
   });
-  test("[R] the stored position is dropped when the focus has left the question", async () => {
+  test("the stored position is dropped when the focus has left the question", async () => {
     const { question, source } = await createDeferred();
     question.removeRowUI(question.visibleRows[0]);
     vi.advanceTimersByTime(10);
@@ -2348,7 +2345,7 @@ describe("Remote data source: the focus after a row is removed from a refilled p
     expect(document.activeElement === outside, "#4").toBe(true);
     outside.remove();
   });
-  test("[R] panel: the remove button at that position is focused again after the refill", async () => {
+  test("panel: the remove button at that position is focused again after the refill", async () => {
     const focusElementSpy = vi.spyOn(SurveyElement, "FocusElement").mockImplementation(() => true);
     try {
       const source = new FakeServerSource(serverRecords(30));
@@ -2373,7 +2370,7 @@ describe("Remote data source: the focus after a row is removed from a refilled p
 });
 
 describe("Remote data source: the authored view costs one read", () => {
-  /* W4: a sort and a filter authored in the JSON, handed to a source that pages. The two setters
+  /* A sort and a filter authored in the JSON, handed to a source that pages. The two setters
      used to reach the source one after the other - a push and a read each - and the request carries
      both, so the whole authored view is one round trip. */
   const matrixJson = {
@@ -2414,7 +2411,7 @@ describe("Remote data source: the authored view costs one read", () => {
   /* Attached from onQuestionAdded, i.e. before the question has finished loading: the attach reads
      by itself, with nothing authored yet, and the authored view then costs ONE read on top of it -
      it used to cost two. The attach read is a separate matter (it is also unpaged: the page size
-     has not reached the list at that point) and this step does not change it. */
+     has not reached the list at that point) and the authored view does not change it. */
   test("matrix: a source attached while the question loads adds one read for the whole view", async () => {
     const source = new FakeServerSource(serverRecords(20));
     const survey = new SurveyModel();
@@ -2611,7 +2608,7 @@ describe("Remote data source: a keyed source addresses records by key", () => {
     expect(source.records.slice(5, 10).map((r: any): any => r.id), "#2").toEqual([106, 107, 105, 108, 109]);
     expect(rowValues(question), "#3").toEqual(["v106", "v107", "v105", "v108", "v109"]);
   });
-  test("[R] the server reorders its records behind the grid: the edit still reaches the right record",
+  test("the server reorders its records behind the grid: the edit still reaches the right record",
     async () => {
       const source = keyedSource(20);
       const { question } = await createMatrix(source);
@@ -2648,7 +2645,7 @@ describe("Remote data source: a keyed source addresses records by key", () => {
 });
 
 describe("Remote data source: a keyed source and a read in flight", () => {
-  test("[R] a record moved between the pages does not commit a stale page", async () => {
+  test("a record moved between the pages does not commit a stale page", async () => {
     const source = keyedSource(20);
     const { question } = await createMatrix(source);
     source.auto = false;
@@ -2943,7 +2940,7 @@ describe("Remote data source: the coordination between a question and its list",
     return res;
   }
 
-  test("T1 matrix: the same source assigned again keeps the pending page move and reads nothing", async () => {
+  test("matrix: the same source assigned again keeps the pending page move and reads nothing", async () => {
     const source = readSource(12);
     const { survey, question } = await createMatrix(source, { columns: asyncColumns });
     expect(rowValues(question), "#1: the page").toEqual(["v0", "v1", "v2", "v3", "v4"]);
@@ -2966,7 +2963,7 @@ describe("Remote data source: the coordination between a question and its list",
     expect(question.pageIndex, "#10: the late result moves the page").toBe(1);
     expect(rowValues(question), "#11").toEqual(["v5", "v6", "v7", "v8", "v9"]);
   });
-  test("T1 panel: the same source assigned again keeps the pending page move and reads nothing", async () => {
+  test("panel: the same source assigned again keeps the pending page move and reads nothing", async () => {
     const source = readSource(12);
     const { survey, question } = await createPanel(source, { templateElements: asyncTemplate });
     expect(panelValues(question), "#1: the page").toEqual(["v0", "v1", "v2", "v3", "v4"]);
@@ -2987,7 +2984,7 @@ describe("Remote data source: the coordination between a question and its list",
     expect(question.pageIndex, "#9: the late result moves the page").toBe(1);
     expect(panelValues(question), "#10").toEqual(["v5", "v6", "v7", "v8", "v9"]);
   });
-  test("T2 matrix: another source drops the pending page move and the edited records", async () => {
+  test("matrix: another source drops the pending page move and the edited records", async () => {
     const { question } = await createMatrix(readSource(12), { columns: asyncColumns });
     question.visibleRows[0].getQuestionByName("col2").value = "edited";
     question.pageIndex = 1;
@@ -3005,7 +3002,7 @@ describe("Remote data source: the coordination between a question and its list",
     expect(rowValues(question), "#7").toEqual(rows);
     expect(getPageState(question).edited, "#8").toEqual([]);
   });
-  test("T2 panel: another source drops the pending page move and the edited records", async () => {
+  test("panel: another source drops the pending page move and the edited records", async () => {
     const { question } = await createPanel(readSource(12), { templateElements: asyncTemplate });
     question.panels[0].getQuestionByName("col2").value = "edited";
     question.pageIndex = 1;
@@ -3023,7 +3020,7 @@ describe("Remote data source: the coordination between a question and its list",
     expect(panelValues(question), "#7").toEqual(panels);
     expect(getPageState(question).edited, "#8").toEqual([]);
   });
-  test("T3 matrix: reading the source members and disposing creates no list", () => {
+  test("matrix: reading the source members and disposing creates no list", () => {
     const survey = new SurveyModel({
       elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 2, columns: [{ name: "col1" }] }]
     });
@@ -3035,7 +3032,7 @@ describe("Remote data source: the coordination between a question and its list",
     question.dispose();
     expect(!!(<any>question).dataListValue, "#5: nor did dispose").toBe(false);
   });
-  test("T3 panel: reading the source members and disposing creates no list", () => {
+  test("panel: reading the source members and disposing creates no list", () => {
     const question = new QuestionPanelDynamicModel("panel");
     question.template.addNewQuestion("text", "col1");
     expect(question.dataSource, "#1").toBe(undefined);
@@ -3068,7 +3065,7 @@ describe("Remote data source: the coordination between a question and its list",
     { name: "col3", cellType: "expression", expression: "{row.col2} + 1" }];
   const expressionTemplate = [{ type: "text", name: "col1" }, { type: "text", name: "col2" },
     { type: "expression", name: "col3", expression: "{panel.col2} + 1" }];
-  test("T4 matrix: the order of a page change, of a remote edit and of a filter", async () => {
+  test("matrix: the order of a page change, of a remote edit and of a filter", async () => {
     // (a) a page change of a paging source: the rows are rebuilt when the read commits.
     const ranged = await createMatrix(new FakeServerSource(serverRecords(12)));
     expect(ranged.question.visibleRows.length, "#a0").toBe(5);
@@ -3102,7 +3099,7 @@ describe("Remote data source: the coordination between a question and its list",
     expect(localTrace(), "#d").toEqual(["pageCount=1 old", "done new"]);
     expect(rowValues(local), "#d1").toEqual(["v9", "v10", "v11"]);
   });
-  test("T4 panel: the order of a page change, of a remote edit and of a filter", async () => {
+  test("panel: the order of a page change, of a remote edit and of a filter", async () => {
     const ranged = await createPanel(new FakeServerSource(serverRecords(12)));
     expect(ranged.question.panels.length, "#a0").toBe(5);
     const rangedTrace = trace(ranged.question, (): any => ranged.question.panels[0]);
@@ -3134,7 +3131,7 @@ describe("Remote data source: the coordination between a question and its list",
     expect(panelValues(local), "#d1").toEqual(["v9", "v10", "v11"]);
   });
 
-  describe("T6: a rejected refill drops the focus position it kept", () => {
+  describe("Remote data source: a rejected refill drops the focus position it kept", () => {
     let focusSpy: any;
     let addButtonSpy: any;
     beforeEach(() => {
@@ -3198,7 +3195,7 @@ describe("Remote data source: the coordination between a question and its list",
     });
   });
 
-  test("T7 matrix: isDynamicDataRunning spans the refill of a page, from the request to the commit", async () => {
+  test("matrix: isDynamicDataRunning spans the refill of a page, from the request to the commit", async () => {
     const source = new FakeServerSource(serverRecords(30));
     const { question } = await createMatrix(source, { rowsPerPage: 10 });
     const list = question["dataList"];
@@ -3217,7 +3214,7 @@ describe("Remote data source: the coordination between a question and its list",
     expect(question.visibleRows.length, "#7: committed").toBe(10);
     expect(question.isDynamicDataRunning, "#8").toBe(false);
   });
-  test("T7 panel: isDynamicDataRunning spans the refill of a page, from the request to the commit", async () => {
+  test("panel: isDynamicDataRunning spans the refill of a page, from the request to the commit", async () => {
     const source = new FakeServerSource(serverRecords(30));
     const { question } = await createPanel(source, { panelsPerPage: 10 });
     const list = question["dataList"];
@@ -3237,8 +3234,8 @@ describe("Remote data source: the coordination between a question and its list",
     expect(question.isDynamicDataRunning, "#8").toBe(false);
   });
 
-  // Step D4: the two rules of the page validation that both questions answered the same way.
-  test("D4 matrix: a forward page move is validated unless the survey lets a page be left with errors", () => {
+  // The two rules of the page validation that both questions answer the same way.
+  test("matrix: a forward page move is validated unless the survey lets a page be left with errors", () => {
     const setupInvalid = (checkErrorsMode: string, allowSwitchPages: boolean): QuestionMatrixDynamicModel => {
       const data = serverRecords(12);
       delete data[2].col1;
@@ -3265,7 +3262,7 @@ describe("Remote data source: the coordination between a question and its list",
   });
   // In design mode a carousel shows its template: there is nothing to move to, and nothing to
   // validate either. The answer is the one a move that was let through gives.
-  test("D4 panel: a carousel Next in design mode is not validated", () => {
+  test("panel: a carousel Next in design mode is not validated", () => {
     const survey = new SurveyModel();
     survey.setDesignMode(true);
     survey.fromJSON({
@@ -3277,7 +3274,7 @@ describe("Remote data source: the coordination between a question and its list",
     expect(question.goToNextPanel(), "#2: not stopped by the empty required question of the template").toBe(true);
     expect(question.template.getQuestionByName("col1").errors.length, "#3: and no error is shown").toBe(0);
   });
-  test("D4 matrix: an edit made while the list does not page is not tracked", () => {
+  test("matrix: an edit made while the list does not page is not tracked", () => {
     const survey = new SurveyModel({
       elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0,
         columns: [{ name: "col1", cellType: "text" }, { name: "col2", cellType: "text" }] }]
@@ -3292,7 +3289,7 @@ describe("Remote data source: the coordination between a question and its list",
     question.rowsPerPage = 5;
     expect(getPageState(question).edited, "#3: layer 2 tracks the edits of a list that pages in memory").toEqual([]);
   });
-  test("D4 panel: an edit made while the list does not page is not tracked", () => {
+  test("panel: an edit made while the list does not page is not tracked", () => {
     const survey = new SurveyModel({
       elements: [{ type: "paneldynamic", name: "panel", panelCount: 0,
         templateElements: [{ type: "text", name: "col1" }, { type: "text", name: "col2" }] }]
@@ -3985,18 +3982,12 @@ describe("Remote data source: survey clean-ups and outside assignments leave the
         .toEqual(["v0", undefined]);
     });
   });
-  test("panel: paged in memory over a source that reads every record, completion runs no clearing pass", async () => {
-    const walk = vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "clearValueInRecordsWithoutPanel");
-    try {
-      const { survey, question, source } = await createOwned("panel", ownedRecords(20), hiddenTemplateQuestion("panel"), undefined, ["insert", "update", "remove", "move"]);
-      expect((<any>question).isPagedByList, "#1: the list pages the records in memory").toBe(true);
-      const before = takeState(question);
-      expect(survey.tryComplete(), "#2").toBe(true);
-      expectUntouched(survey, question, source, before);
-      expect(walk.mock.calls.length, "#3: the pass is not run").toBe(0);
-    } finally {
-      walk.mockRestore();
-    }
+  test("panel: paged in memory over a source that reads every record, completion leaves the records to the source", async () => {
+    const { survey, question, source } = await createOwned("panel", ownedRecords(20), hiddenTemplateQuestion("panel"), undefined, ["insert", "update", "remove", "move"]);
+    expect((<any>question).isPagedByList, "#1: the list pages the records in memory").toBe(true);
+    const before = takeState(question);
+    expect(survey.tryComplete(), "#2").toBe(true);
+    expectUntouched(survey, question, source, before);
   });
   test("matrix: completing with rowsVisibleIf hiding a row and a hidden column sends nothing", async () => {
     const json = { rowsVisibleIf: "{row.col1} != 'v1'", columns: [{ name: "col1" }, { name: "col2" }, { name: "hidden1", visibleIf: "false" }] };

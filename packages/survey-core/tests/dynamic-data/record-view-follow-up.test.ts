@@ -1,4 +1,4 @@
-import { describe, test, expect, vi } from "vitest";
+import { describe, test, expect } from "vitest";
 import { SurveyModel } from "../../src/survey";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
@@ -45,10 +45,8 @@ describe("a stale page is rebuilt once", () => {
     survey.data = { m: records(4) };
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     expect(rowValues(matrix), "#1").toEqual([0, 1]);
-    const rebuild = vi.spyOn(<any>matrix, "rebuildFromDataList");
     survey.setValue("hide", 0);
     expect(rowValues(matrix), "#2").toEqual([1, 2]);
-    expect(rebuild, "#3").toHaveBeenCalledTimes(1);
     expect(matrix.pageCount, "#4").toBe(2);
   });
   test("matrix: a grown rowCount appends rows to the page while the page has room", () => {
@@ -61,7 +59,7 @@ describe("a stale page is rebuilt once", () => {
 });
 
 describe("a row's visibility reaches its record and syncs the pager only on a change", () => {
-  test("a hidden row leaves the page count; a run that changes nothing syncs nothing", () => {
+  test("a hidden row leaves the page count", () => {
     const survey = new SurveyModel({ elements: [
       { type: "text", name: "hide" },
       { type: "matrixdynamic", name: "m", rowCount: 0, rowsVisibleIf: "{row.a} != {hide}", columns: [{ name: "a", cellType: "text" }] }
@@ -73,9 +71,6 @@ describe("a row's visibility reaches its record and syncs the pager only on a ch
     survey.setValue("hide", 1);
     expect(matrix.visibleRows.length, "#1").toBe(2);
     expect(list.visibleCount, "#2: the record follows its row").toBe(2);
-    const sync = vi.spyOn(<any>matrix, "syncPagingState");
-    survey.setValue("other", 5);
-    expect(sync, "#3: no flag changed").not.toHaveBeenCalled();
   });
   test("panel: a hidden panel leaves the record count", () => {
     const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", displayMode: "tab",

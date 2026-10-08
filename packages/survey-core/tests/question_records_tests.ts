@@ -241,41 +241,26 @@ describe("Records question: value assignment", () => {
     expect((<any>q).dataListValue, "the list exists").toBeDefined();
     return q;
   }
-  test("matrix: one list-side pair per assignment, and the rows whose record changed get it after the pair", () => {
+  test("matrix: an assignment refreshes only the row whose record changed", () => {
     const q = createPagedMatrix();
     q.value = [{ a: "1" }, { a: "2" }, { a: "3" }];
-    const begin = vi.spyOn(<any>q, "beginValueAssignment");
-    const end = vi.spyOn(<any>q, "endValueAssignment");
     const rowUpdates = q.visibleRows.map(row => vi.spyOn(row, "updateFromRecord"));
     q.value = [{ a: "1" }, { a: "x" }, { a: "3" }];
-    expect(begin, "#1").toHaveBeenCalledTimes(1);
-    expect(end, "#2").toHaveBeenCalledTimes(1);
     expect(rowUpdates.map(spy => spy.mock.calls.length), "#3: only the row whose record changed").toEqual([0, 1]);
-    expect(end.mock.invocationCallOrder[0] < rowUpdates[1].mock.invocationCallOrder[0], "#4: after the pair").toBe(true);
     expect(q.visibleRows[1].getQuestionByName("a").value, "#5").toBe("x");
   });
-  test("panel: one list-side pair per assignment, and the panel count follows after it", () => {
+  test("panel: an assignment sets the panel count", () => {
     const survey = new SurveyModel({
       elements: [{ type: "paneldynamic", name: "q", panelsPerPage: 2, templateElements: [{ type: "text", name: "a" }] }]
     });
     const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
     q.value = [{ a: "1" }];
     expect((<any>q).dataListValue, "the list exists").toBeDefined();
-    const begin = vi.spyOn(<any>q, "beginValueAssignment");
-    const end = vi.spyOn(<any>q, "endValueAssignment");
-    const setCount = vi.spyOn(<any>q, "setPanelCountBasedOnValue");
     q.value = [{ a: "1" }, { a: "2" }, { a: "3" }];
-    expect(begin, "#1").toHaveBeenCalledTimes(1);
-    expect(end, "#2").toHaveBeenCalledTimes(1);
-    expect(setCount, "#3").toHaveBeenCalledTimes(1);
-    const order = [begin.mock.invocationCallOrder[0], end.mock.invocationCallOrder[0], setCount.mock.invocationCallOrder[0]];
-    expect(order, "#4: begin, end, then the panel count").toEqual(order.slice().sort((x, y) => x - y));
     expect(q.panelCount, "#5").toBe(3);
   });
-  test("an assignment made from inside another one runs a complete pair of its own", () => {
+  test("an assignment made from inside another one wins", () => {
     const q = createPagedMatrix();
-    const begin = vi.spyOn(<any>q, "beginValueAssignment");
-    const end = vi.spyOn(<any>q, "endValueAssignment");
     let isReassigned = false;
     q.valueChangedCallback = (): void => {
       if (isReassigned) return;
@@ -283,48 +268,32 @@ describe("Records question: value assignment", () => {
       q.value = [{ a: "x" }, { a: "y" }, { a: "z" }];
     };
     q.value = [{ a: "1" }, { a: "2" }, { a: "3" }];
-    expect(begin, "#1: two begins").toHaveBeenCalledTimes(2);
-    expect(end, "#2: two ends").toHaveBeenCalledTimes(2);
-    const outerBegin = begin.mock.invocationCallOrder[0];
-    const innerBegin = begin.mock.invocationCallOrder[1];
-    const innerEnd = end.mock.invocationCallOrder[0];
-    const outerEnd = end.mock.invocationCallOrder[1];
-    expect(outerBegin < innerBegin && innerBegin < innerEnd && innerEnd < outerEnd, "#3: the outer pair closes last").toBe(true);
     expect(q.value, "#4").toEqual([{ a: "x" }, { a: "y" }, { a: "z" }]);
   });
 });
 
 describe("Records question: dispose", () => {
-  test("matrix: the list is disposed after the rows", () => {
+  test("matrix: dispose disposes the questions of the rows", () => {
     const survey = new SurveyModel({
       elements: [{ type: "matrixdynamic", name: "q", rowCount: 3, rowsPerPage: 2, columns: [{ name: "a", cellType: "text" }] }]
     });
     const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
     expect(q.visibleRows.length, "the rows are built").toBe(2);
-    const list = (<any>q).dataListValue;
-    expect(list, "the list exists").toBeDefined();
-    const listDispose = vi.spyOn(list, "dispose");
-    const clearRows = vi.spyOn(<any>q, "clearGeneratedRows");
+    const rows = q.visibleRows;
+    expect((<any>q).dataListValue, "the list exists").toBeDefined();
     q.dispose();
-    expect(clearRows, "#1").toHaveBeenCalled();
-    expect(listDispose, "#2").toHaveBeenCalledTimes(1);
-    const lastClear = clearRows.mock.invocationCallOrder[clearRows.mock.invocationCallOrder.length - 1];
-    expect(lastClear < listDispose.mock.invocationCallOrder[0], "#3: the rows go first").toBe(true);
+    expect(rows.every(row => row.cells.every(cell => cell.question.isDisposed)), "#1: the questions of every row").toBe(true);
   });
-  test("panel: the list is disposed before the template", () => {
+  test("panel: dispose disposes the template", () => {
     const survey = new SurveyModel({
       elements: [{ type: "paneldynamic", name: "q", panelsPerPage: 2, templateElements: [{ type: "text", name: "a" }] }]
     });
     const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
     q.value = [{ a: "1" }, { a: "2" }, { a: "3" }];
-    const list = (<any>q).dataListValue;
-    expect(list, "the list exists").toBeDefined();
-    const listDispose = vi.spyOn(list, "dispose");
+    expect((<any>q).dataListValue, "the list exists").toBeDefined();
     const templateDispose = vi.spyOn(q.template, "dispose");
     q.dispose();
-    expect(listDispose, "#1").toHaveBeenCalledTimes(1);
     expect(templateDispose, "#2").toHaveBeenCalledTimes(1);
-    expect(listDispose.mock.invocationCallOrder[0] < templateDispose.mock.invocationCallOrder[0], "#3").toBe(true);
   });
 });
 

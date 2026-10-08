@@ -4389,3 +4389,34 @@ describe("Page window: a late asynchronous result of a page the respondent left"
     }
   });
 });
+
+describe("Page window: an object whose question is writing is not disposed by the rebuild the write causes", () => {
+  test("matrix: the row of a cell that hides its record is disposed after the write, with the next page", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 2, rowsVisibleIf: "{row.a} != 'hide'",
+      columns: [{ name: "a", cellType: "text" }] }] });
+    survey.data = { m: [{ a: "r0" }, { a: "r1" }, { a: "r2" }, { a: "r3" }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const cell = matrix.visibleRows[0].getQuestionByColumnName("a");
+    let isDisposedInWrite: boolean = undefined;
+    survey.onValueChanged.add(() => { isDisposedInWrite = cell.isDisposed; });
+    cell.value = "hide";
+    expect(isDisposedInWrite, "#1: not while its value is being set").toBe(false);
+    expect(matrix.visibleRows.map(row => row.getValue("a")), "#2: the page is rebuilt").toEqual(["r1", "r2"]);
+    expect(cell.isDisposed, "#3: not yet").toBe(false);
+    matrix.pageIndex = 1;
+    expect(cell.isDisposed, "#4: with the next replacement").toBe(true);
+  });
+  test("panel: the panel of a question that hides its record is disposed after the write, with the next page", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelsPerPage: 2, templateVisibleIf: "{panel.a} != 'hide'",
+      templateElements: [{ type: "text", name: "a" }] }] });
+    survey.data = { p: [{ a: "r0" }, { a: "r1" }, { a: "r2" }, { a: "r3" }] };
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    const question = panel.panels[0].getQuestionByName("a");
+    let isDisposedInWrite: boolean = undefined;
+    survey.onValueChanged.add(() => { isDisposedInWrite = question.isDisposed; });
+    question.value = "hide";
+    expect(isDisposedInWrite, "#1: not while its value is being set").toBe(false);
+    panel.pageIndex = 1;
+    expect(question.isDisposed, "#2: with the next replacement").toBe(true);
+  });
+});

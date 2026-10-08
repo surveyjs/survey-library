@@ -1,4 +1,7 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
+import { SurveyElement } from "../../src/survey-element";
+import { Question } from "../../src/question";
+import { PanelModel } from "../../src/panel";
 import { SurveyModel } from "../../src/survey";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
@@ -272,5 +275,64 @@ describe("the view index a removal reports", () => {
     panel.removePanel(panel.panels[1]);
     expect(reported, "#1").toEqual([["removing", 3], ["removed", 3]]);
     expect(values(panel.value), "#2").toEqual([0, 1, 2, 4]);
+  });
+});
+
+describe("a removing handler that adds a record in front of the removed one", () => {
+  test("panel: the panel asked for is removed", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [{ type: "text", name: "a" }] }] });
+    const q = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    q.value = [{ a: 1 }, { a: 2 }, { a: 3 }];
+    let removed: PanelModel = undefined;
+    let isAdded = false;
+    survey.onDynamicPanelRemoving.add(() => {
+      if (isAdded) return;
+      isAdded = true;
+      q.addPanel(0);
+      q.panels[0].getQuestionByName("a").value = 0;
+      // The panels keep their places and take the reordered records: the record asked for is on panel 2 now.
+      removed = q.panels[2];
+    });
+    q.removePanel(q.panels[1]);
+    expect(q.value.map((r: any) => r.a), "#1").toEqual([0, 1, 3]);
+    expect(q.panels.indexOf(removed), "#2: its own panel left").toBe(-1);
+    expect(q.panels.map(panel => panel.getQuestionByName("a").value), "#3: the others show their records").toEqual([0, 1, 3]);
+  });
+  test("matrix: the row asked for is removed", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, columns: [{ name: "a", cellType: "text" }] }] });
+    const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    q.value = [{ a: 1 }, { a: 2 }, { a: 3 }];
+    let removedCell: Question = undefined;
+    let isAdded = false;
+    survey.onMatrixRowRemoving.add(() => {
+      if (isAdded) return;
+      isAdded = true;
+      q.addRowByIndex({}, 0);
+      q.visibleRows[0].getQuestionByColumnName("a").value = 0;
+      // The rows keep their places and take the reordered records: the record asked for is on row 2 now.
+      removedCell = q.visibleRows[2].getQuestionByColumnName("a");
+    });
+    q.removeRow(1);
+    expect(q.value.map((r: any) => r.a), "#1").toEqual([0, 1, 3]);
+    expect(q.visibleRows.map(row => row.getQuestionByColumnName("a")).indexOf(removedCell), "#2: the row that showed it left").toBe(-1);
+    expect(q.visibleRows.map(row => row.getQuestionByColumnName("a").value), "#3: the others show their records").toEqual([0, 1, 3]);
+  });
+});
+
+describe("the focus after a removal from the UI that a handler cancels", () => {
+  test("panel: the focus moves as when the panel is removed", () => {
+    vi.useFakeTimers();
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [{ type: "text", name: "a" }] }] });
+      const q = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+      q.value = [{ a: 1 }, { a: 2 }];
+      survey.onDynamicPanelRemoving.add((_, options) => { options.allow = false; });
+      const focus = vi.spyOn(SurveyElement, "FocusElement").mockImplementation(() => true);
+      q.removePanel(q.panels[0], false);
+      expect(q.panels.length, "#1: the panel stays").toBe(2);
+      expect(focus, "#2: as released").toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

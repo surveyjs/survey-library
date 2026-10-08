@@ -212,10 +212,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
      re-sort the table under the respondent; the view picks the new title up at its next re-decision
      (refreshView(), an assignment from outside, a rows change, a locale change). */
   private redecideViewOfRows(): void {
-    const list = this.dataListValue;
-    if (!list || !list.hasView) return;
+    if (!this.hasRecordView) return;
     // No record changes: the touched rows keep their places (createAssignmentRemap), and the edited set stays.
-    this.decideViewAgain(list.getCreatedIndexes(), undefined, false, false);
+    this.decideViewAgain(this.dataListValue.getCreatedIndexes(), undefined, false, false);
   }
   /* The record fields: the columns', and the row itself, which the answer never stores - item, rowName
      and rowValue are the row value, rowTitle its text, under the names the row context answers in
@@ -455,7 +454,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     const res = super.isVisibleCore();
     if (!res || !this.hideIfRowsEmpty) return res;
     // Under paging the rows are one page: the visible records count.
-    if (this.isPagingActive) return this.dataListValue.visibleCount > 0;
+    const count = this.visibleRecordCount;
+    if (count !== undefined) return count > 0;
     return this.visibleRows?.length > 0;
   }
 
@@ -501,7 +501,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
         rowName = ItemValue.getTextOrHtmlByValue(this.rows, rowName) || rowName;
       }
       if (Object.prototype.hasOwnProperty.call(res, rowName)) return;
-      res[rowName] = this.getRecordDisplayValue(keysAsText, row, this.getUnbindValue(val));
+      res[rowName] = this.getRecordDisplayValue(keysAsText, row, this.getUnbindValue(val), index);
     });
     return res;
   }

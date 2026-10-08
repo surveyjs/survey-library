@@ -6038,3 +6038,35 @@ describe("Remote data source: a throwing error handler", () => {
     }
   });
 });
+
+describe("Remote data source: the source owns the record count", () => {
+  const source = (): FakeServerSource => new FakeServerSource(serverRecords(3), ["insert", "update", "remove", "move"]);
+  test("panel: before its first render panelCount reports the source's count, and toJSON writes it", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "panel", panelCount: 1, templateElements: [{ type: "text", name: "col1" }] }] });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    question.dataSource = source();
+    await flush();
+    expect(question.panelCount, "#1").toBe(3);
+    expect(question.toJSON().panelCount, "#2").toBe(3);
+  });
+  test("matrix: rowCount reports the source's count, and toJSON writes it", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 1, columns: [{ name: "col1" }] }] });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    question.dataSource = source();
+    await flush();
+    expect(question.rowCount, "#1").toBe(3);
+    expect(question.toJSON().rowCount, "#2").toBe(3);
+  });
+});
+
+describe("Remote data source: a source without insert shows the read-only empty text", () => {
+  test("panel: assigning the source refreshes the no-entries text", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "panel", panelCount: 0, templateElements: [{ type: "text", name: "col1" }] }] });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const editable = question.noEntriesText;
+    question.dataSource = new FakeServerSource([], ["update"]);
+    await flush();
+    expect(question.noEntriesText, "#1: the read-only text").not.toBe(editable);
+    expect(question.noEntriesText, "#2").toBe(question.getLocalizationString("noEntriesReadonlyText"));
+  });
+});

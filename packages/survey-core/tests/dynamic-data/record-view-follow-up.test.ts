@@ -169,3 +169,16 @@ describe("a dynamic panel with an authored filter and a value builds its panels"
     expect(panel.panels.map(p => p.getQuestionByName("a").value), "#1").toEqual([2, 1]);
   });
 });
+
+describe("a template element added at runtime rebuilds the panels of the view", () => {
+  test("panel with a local filter: the panels are the records the filter shows", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", filterExpression: "{a} != 2",
+      templateElements: [{ type: "text", name: "a" }] }] });
+    survey.data = { p: [{ a: 1 }, { a: 2 }, { a: 3 }] };
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    expect(panel.panels.map(p => p.getQuestionByName("a").value), "#1").toEqual([1, 3]);
+    panel.template.addNewQuestion("text", "b");
+    expect(panel.panels.map(p => p.getQuestionByName("a").value), "#2").toEqual([1, 3]);
+    expect(panel.panels.every(p => !!p.getQuestionByName("b")), "#3: with the new element").toBe(true);
+  });
+});

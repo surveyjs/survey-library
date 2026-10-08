@@ -1,5 +1,5 @@
 import { Base, ComputedUpdater } from "./base";
-import { IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
+import { IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
 import { IVerifyDataContext, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext } from "./question";
@@ -14,7 +14,7 @@ import {
   DynamicDataFieldType, DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort,
   IDynamicDataSource
 } from "./dynamic-data/dynamic-data-interfaces";
-import { IDynamicDataPageState, findDuplicatePages, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
+import { IDynamicDataPageState, findDuplicatePages, getDuplicateKey, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
 import { DynamicDataPageValidation, IDynamicDataPageValidationOwner } from "./question_records_page_validation";
 import { createIndexes } from "./dynamic-data/dynamic-data-filter";
 import { DynamicDataPagingController, IDynamicDataPagingOwner } from "./dynamic-data/dynamic-data-paging";
@@ -99,6 +99,8 @@ interface IRecordItemOwner {
   getExpressionItem(index: number): QuestionRecordItem;
   syncPageSizeWithMode(): void;
   writeItemValue(item: QuestionRecordItem, name: string, val: any, isDeleting: boolean): boolean;
+  getRecordAddText(): string;
+  addRecordFromUI(): void;
 }
 const recordItemOwners: WeakMap<QuestionRecordsModel, IRecordItemOwner> = new WeakMap<QuestionRecordsModel, IRecordItemOwner>();
 function getRecordItemOwner(question: QuestionRecordsModel): IRecordItemOwner {
@@ -187,7 +189,9 @@ export abstract class QuestionRecordsModel extends Question {
       getItemByRecordIndex: (recordIndex: number): QuestionRecordItem => question.getItemByRecordIndex(recordIndex),
       getExpressionItem: (index: number): QuestionRecordItem => question.getExpressionItem(index),
       syncPageSizeWithMode: (): void => { question.syncPageSizeWithMode(); },
-      writeItemValue: (item: QuestionRecordItem, name: string, val: any, isDeleting: boolean): boolean => question.writeItemValue(item, name, val, isDeleting)
+      writeItemValue: (item: QuestionRecordItem, name: string, val: any, isDeleting: boolean): boolean => question.writeItemValue(item, name, val, isDeleting),
+      getRecordAddText: (): string => question.getRecordAddText(),
+      addRecordFromUI: (): void => { question.addRecordFromUI(); }
     };
     recordItemOwners.set(this, res);
     return res;
@@ -254,8 +258,21 @@ export abstract class QuestionRecordsModel extends Question {
       // The list is created on demand, so a page size that came from JSON has to be pushed here and
       // not only from its setter.
       this.paging.updatePageSize();
+      this.seedItemRecordsVisibility();
     }
     return this._dataList;
+  }
+  /* A list created after the objects were built starts with their visibility: a hidden object's record
+     takes no place in the visible count. Without paging and without a view (a new list has none) the
+     objects are in record order. */
+  private seedItemRecordsVisibility(): void {
+    if (this.isPagingActive) return;
+    const list = this._dataList;
+    for (let i = 0; ; i++) {
+      const item = this.getItem(i);
+      if (!item) return;
+      if (!this.isItemVisible(item)) list.setRecordVisible(i, false);
+    }
   }
   /* The paging helper gets an accessor and not the list: the list is created on demand, and the
      helper is first used while the list is being created. */
@@ -511,8 +528,21 @@ export abstract class QuestionRecordsModel extends Question {
   }
   public clearValueIfInvisible(reason: string = "onHidden"): void {
     if (this.isRemoteData) return;
+    this.clearObjectsIfInvisible(reason);
     super.clearValueIfInvisible(reason);
   }
+  // What a type clears inside its objects before the question clears itself (the panel's questions).
+  protected clearObjectsIfInvisible(reason: string): void { }
+  /* The survey's clean-up of incorrect answers: nothing for a source-owned question; the answer as a
+     whole, then the objects (clearIncorrectValuesInObjects), then the records without one
+     (clearIncorrectValuesWithoutObjects). */
+  public clearIncorrectValues(): void {
+    if (this.isRemoteData) return;
+    this.clearIncorrectValueInData();
+    this.clearIncorrectValuesInObjects();
+    this.clearIncorrectValuesWithoutObjects();
+  }
+  protected abstract clearIncorrectValuesInObjects(): void;
   public clearValue(keepComment?: boolean, fromUI?: boolean): void {
     if (this.isRemoteData) {
       this.warnOutsideAssignment();
@@ -725,6 +755,10 @@ export abstract class QuestionRecordsModel extends Question {
   protected getPositionAtVisibleIndex(visibleIndex: number): number {
     return visibleIndex - this.pageStartVisibleIndex;
   }
+  // A filter or a sort is set (the view a question decides); a peek, nothing is created for it.
+  protected get hasRecordView(): boolean {
+    return !!this.dataListValue && this.dataListValue.hasView;
+  }
   // A sort is set; nothing is created for the answer: every sort creates the list.
   protected get hasRecordSort(): boolean {
     return !!this.dataListValue && this.dataListValue.sort.length > 0;
@@ -800,9 +834,67 @@ export abstract class QuestionRecordsModel extends Question {
   /* The limit the record count is checked against: maxCount and the page maximum without paging; with
      paging explicitMaxCount alone - when the question sets it, since the default of maxCount is the
      setting. */
-  protected getRecordCountLimit(maxCount: number, explicitMaxCount: number): number {
+  private getRecordCountLimit(maxCount: number, explicitMaxCount: number): number {
     if (this.isRecordCountLimitedByPageMax) return Math.min(maxCount, this.maxRecordsPerPage);
     return explicitMaxCount > 0 ? explicitMaxCount : Number.MAX_SAFE_INTEGER;
+  }
+  /* The maximum record count a type stores under propertyName (maxRowCount, maxPanelCount): paging
+     lifts the page maximum from it; at least 1. The limit the count is checked against follows from it. */
+  protected getMaxRecordCount(propertyName: string): number {
+    const val = this.getPropertyValue(propertyName);
+    return this.pageSize > 0 ? val : Math.min(val, this.maxRecordsPerPage);
+  }
+  protected setMaxRecordCount(propertyName: string, val: number): void {
+    this.setPropertyValue(propertyName, val <= 0 ? 1 : val);
+  }
+  /* The count expression of a type (rowCountExpression, panelCountExpression) over the count it sets
+     (getRecordCountNames). A data source owns the number of records, so the expression is ignored
+     while one is attached - including the add/remove gating it otherwise imposes. No error: a question
+     may carry both and only the source decides. The result is clamped by the type's limits, so
+     changing a limit runs it again (rerunRecordCountExpression): the raw result is not stored. */
+  /* The core of the add and remove gates of the dynamic types: the type's allow flag, the read-only
+     state, the count expression, the capability of the source and the count limit. The released
+     clauses of one type stay with it (the panel's design mode and newPanelPosition, the matrix's
+     canRemoveRowsCallback). */
+  protected canAddRecordCore(isAllowed: boolean, count: number, limit: number): boolean {
+    return isAllowed && !this.isReadOnly && !this.hasRecordCountExpression && this.canWriteRecords("insert") && count < limit;
+  }
+  protected canRemoveRecordCore(isAllowed: boolean, count: number, min: number): boolean {
+    return isAllowed && !this.isReadOnly && !this.hasRecordCountExpression && this.canWriteRecords("remove") && count > min;
+  }
+  // The add a respondent makes (the single-input add button): its text while an add is possible, undefined otherwise.
+  protected getRecordAddText(): string {
+    return undefined;
+  }
+  protected addRecordFromUI(): void { }
+  // Nothing in the records may be edited: the question is read-only, or its source cannot update.
+  protected get areRecordsReadOnly(): boolean {
+    return this.isReadOnly || !this.canWriteRecords("update");
+  }
+  // undefined: the type has no count expression (the fixed matrix).
+  protected getRecordCountNames(): { count: string, expression: string } {
+    return undefined;
+  }
+  protected setRecordCountByExpression(val: any): void { }
+  protected get hasRecordCountExpression(): boolean {
+    const names = this.getRecordCountNames();
+    return !!names && !!this.getPropertyValue(names.expression) && !this.isRemoteData;
+  }
+  protected rerunRecordCountExpression(): void {
+    if (this.isLoadingFromJson || !this.canRunConditions()) return;
+    this.runExpressionByProperty(this.getRecordCountNames().expression, this.getDataFilteredProperties(),
+      (val: any): void => { this.setRecordCountByExpression(val); });
+  }
+  protected updateBindings(propertyName: string, value: any): void {
+    if (this.hasRecordCountExpression && propertyName === this.getRecordCountNames().count) return;
+    super.updateBindings(propertyName, value);
+  }
+  protected updateBindingProp(propName: string, value: any): void {
+    if (this.hasRecordCountExpression && propName === this.getRecordCountNames().count) return;
+    super.updateBindingProp(propName, value);
+  }
+  protected getRecordCountLimitOf(propertyName: string): number {
+    return this.getRecordCountLimit(this.getMaxRecordCount(propertyName), this.getPropertyValueWithoutDefault(propertyName));
   }
   /* The page size the list gets: the authored one, capped by the number of objects one page may hold
      (maxRecordsPerPage). Single-input mode walks every object and lists them in its own summary - it
@@ -879,10 +971,11 @@ export abstract class QuestionRecordsModel extends Question {
   }
   /* An object's visibility reaches its record: the owner-visibility layer of the list, which the
      visible count and the page count follow. Under paging the records decide the flags and nothing is
-     written. The page state is synced only when the flag changed. list: the caller's - the panel creates
-     it (dataList), the matrix writes only one that exists (dataListValue). Returns whether the flag
+     written. The page state is synced only when the flag changed. Nothing is created for it: a list
+     created later starts from the objects (seedItemRecordsVisibility). Returns whether the flag
      changed. */
-  protected setItemRecordVisible(list: DynamicDataList, recordIndex: number, visible: boolean): boolean {
+  protected setItemRecordVisible(recordIndex: number, visible: boolean): boolean {
+    const list = this._dataList;
     if (!list || this.isPagingActive || recordIndex < 0) return false;
     if (!list.setRecordVisible(recordIndex, visible)) return false;
     this.syncPagingState();
@@ -890,7 +983,8 @@ export abstract class QuestionRecordsModel extends Question {
   }
   /* The same for the objects that exist at once (count of them, by position), with one sync for the
      run. */
-  protected setItemRecordsVisible(list: DynamicDataList, count: number, isVisible: (position: number) => boolean): boolean {
+  protected setItemRecordsVisible(count: number, isVisible: (position: number) => boolean): boolean {
+    const list = this._dataList;
     if (!list || this.isPagingActive) return false;
     let isChanged = false;
     for (let i = 0; i < count; i++) {
@@ -1108,7 +1202,7 @@ export abstract class QuestionRecordsModel extends Question {
   protected forEachUniquenessRecord(func: (index: number, item: QuestionRecordItem, position: number) => void): void {
     const list = this.dataList;
     const uniqueness = this.getRecordUniqueness();
-    const indexes = uniqueness.includeFilteredOut ? createIndexes(list.loadedCount) : list.getVisibleIndexes();
+    const indexes = uniqueness.includeFilteredOut ? this.getLoadedRecordIndexes() : list.getVisibleIndexes();
     this.forEachRecordItem(indexes, (index: number, item: QuestionRecordItem, position: number): void => {
       if (!item && !uniqueness.includeHidden && !list.isRecordVisible(index)) return;
       func(index, item, position);
@@ -1160,7 +1254,7 @@ export abstract class QuestionRecordsModel extends Question {
      the records of the view. A record the filter excludes keeps its answers, as it does without
      paging; an assigned source is skipped, as every survey clean-up skips it (D16). The records are
      written in one batch of the list. */
-  protected clearIncorrectValuesWithoutObjects(): void {
+  private clearIncorrectValuesWithoutObjects(): void {
     if (!this.isPagedByList || this.isRemoteData || this.isEmpty()) return;
     const list = this.dataList;
     const changes: Array<{ index: number, record: any }> = [];
@@ -1200,7 +1294,9 @@ export abstract class QuestionRecordsModel extends Question {
   protected canWriteRecords(operation: DynamicDataOperation): boolean {
     if (this.isRecordMembershipFixed() && (operation === "insert" || operation === "remove" || operation === "move")) return false;
     const list = this._dataList;
-    return !list || !list.isRemote || list.hasCapability(operation);
+    if (!list || !list.isRemote) return true;
+    // A move of a page the list filtered or sorted itself cannot be told to the source.
+    return list.hasCapability(operation) && (operation !== "move" || list.canMoveInSource);
   }
   /* The source half of canWriteRecords, for an operation the question is about to make: an assigned
      source without the capability refuses it before any other check, event or change, whichever path
@@ -1271,6 +1367,55 @@ export abstract class QuestionRecordsModel extends Question {
     const recordIndex = !!item ? this.getItemRecordIndex(item) : target.recordIndex;
     return { item: item, position: position, recordIndex: recordIndex, viewIndex: this.getRecordViewIndex(recordIndex) };
   }
+  /* A removal from its target, in the order every type keeps: the record is resolved, the type's
+     removing event is raised (raiseRemoving answers false to cancel), the type adds what it decides
+     before the splice (extend), and the record is removed (removeResolvedRecord). A handler of the
+     event may insert, remove or move records: the removal follows its record by index through the
+     list's own changes, and the object that shows it then is the one removed. An assignment from
+     outside during the event leaves the removal as it was resolved. undefined: nothing was removed. */
+  protected removeTarget<T extends IRecordRemoval>(target: IRecordTarget, raiseRemoving: (removal: IRecordRemoval) => boolean,
+    extend?: (removal: IRecordRemoval) => T): T {
+    let removal = this.resolveRecordRemoval(target);
+    if (!removal) return undefined;
+    const followed: IRecordTarget = { recordIndex: removal.recordIndex };
+    if (!this.heldRemoveTargets)this.heldRemoveTargets = [];
+    const held = this.heldRemoveTargets;
+    held.push(followed);
+    let isAllowed: boolean;
+    try {
+      isAllowed = raiseRemoving(removal);
+    } finally {
+      const at = held.indexOf(followed);
+      if (at > -1) held.splice(at, 1);
+    }
+    if (!isAllowed) return undefined;
+    if (followed.recordIndex !== removal.recordIndex && this.heldRemoveTargets === held) {
+      if (followed.recordIndex < 0) return undefined;
+      removal = this.resolveRecordRemoval(this.createRecordTargetOf(followed.recordIndex));
+      if (!removal) return undefined;
+    }
+    const res = !!extend ? extend(removal) : <T>removal;
+    this.removeResolvedRecord(res);
+    return res;
+  }
+  /* The key the duplicate checks group a value by (getDuplicateKey); caseSensitive defaults to the
+     question's uniqueness rule. */
+  protected getRecordKey(value: any, caseSensitive?: boolean): string {
+    return getDuplicateKey(value, caseSensitive !== undefined ? caseSensitive : this.getRecordUniqueness().caseSensitive);
+  }
+  // The indexes of every loaded record, in record order.
+  protected getLoadedRecordIndexes(): Array<number> {
+    return createIndexes(this.dataList.loadedCount);
+  }
+  // The target of an object, at a visible index of the whole view.
+  protected createItemTarget(item: QuestionRecordItem, visibleIndex: number): IRecordTarget {
+    return { item: item, recordIndex: this.getItemRecordIndex(item), visibleIndex: visibleIndex };
+  }
+  // The target of a record index: with its object when it has one.
+  private createRecordTargetOf(recordIndex: number): IRecordTarget {
+    const item = this.getItemByRecordIndex(recordIndex);
+    return !!item ? { item: item, recordIndex: recordIndex } : { recordIndex: recordIndex, record: this.getListRecordAt(recordIndex) };
+  }
   /* The removal, in order: the page index is read (the splice and what the type does after it do not
      move the page), the object leaves its array (detachItem), and the storage write runs
      (removeStoredRecord), which calls the refill of the page the list cuts once, where the type
@@ -1326,18 +1471,20 @@ export abstract class QuestionRecordsModel extends Question {
      the grow appends the new record at the end, and the record then moves to getIndex() and takes
      getRecord(index) when that answers one - one write, in one list.batch. getIndex runs after the
      grow; undefined keeps the record where the grow appended it. An assignment from outside that the
-     grow defers and follows (see runOwnRecordsChange) stops the add. Returns the record index the new
-     record ended at, or:
-     -1: an outside assignment happened during the grow - the assigned value stays, none of its records
-         is the new one - or getIndex answered none;
-     -2: the count did not grow; the caller decides what the add does then. */
-  protected growAndMoveRecord(grow: () => void, getIndex: () => number, getRecord: (index: number) => any): number {
+     grow defers and follows (see runOwnRecordsChange) stops the add. A count that did not grow runs
+     onNotGrown: the caller decides what the add does then. Returns the record index the new record
+     ended at, or -1: the count did not grow, an outside assignment happened during the grow - the
+     assigned value stays, none of its records is the new one - or getIndex answered none. */
+  protected growAndMoveRecord(grow: () => void, getIndex: () => number, getRecord: (index: number) => any, onNotGrown?: () => void): number {
     const outsideAssignmentCount = this.outsideAssignmentCount;
     const oldCount = this.getListRecordCount();
     this.runRecordAdd(grow);
     if (this.outsideAssignmentCount !== outsideAssignmentCount) return -1;
     const list = this.dataList;
-    if (list.count === oldCount) return -2;
+    if (list.count === oldCount) {
+      if (!!onNotGrown) onNotGrown();
+      return -1;
+    }
     let index = getIndex();
     if (index === undefined) index = list.count - 1;
     if (index < 0) return -1;
@@ -1510,6 +1657,36 @@ export abstract class QuestionRecordsModel extends Question {
     const pos = list.indexToCreatedIndex(recordIndex);
     return pos < 0 ? -1 : pos + list.getRecordNumberOffset();
   }
+  /* One entry of the plain data: a record as its object (a row, a panel) gives it, or as the matrix's
+     record walk gives it without one. data: the entries of its questions; calcSource: what the
+     calculations read - none for a record without an object. */
+  protected createRecordPlainData(name: any, title: string, value: any, displayValue: any,
+    data: Array<any>, calcSource: any, options: IPlainDataOptions): any {
+    const res: any = {
+      name: name, title: title, value: value, displayValue: displayValue,
+      getString: (val: any): string => this.getValueAsString(val),
+      isNode: true,
+      data: data.filter((d: any) => !!d)
+    };
+    if (!!calcSource) {
+      (options.calculations || []).forEach((calculation) => { res[calculation.propertyName] = calcSource[calculation.propertyName]; });
+    }
+    return res;
+  }
+  /* The object at a visible index of the whole view: the visible object at its position on the page,
+     or the record read as a value when the page does not show it. getVisibleItemAt reads the type's
+     cached visible objects - no copy per call - and answers null when the type has none built. */
+  protected getItemByVisibleIndex(visibleIndex: number): QuestionRecordItem {
+    if (visibleIndex < 0) return null;
+    const item = this.getVisibleItemAt(this.getPositionAtVisibleIndex(visibleIndex));
+    if (item === null) return null;
+    return item || this.getRecordItemByVisibleIndex(visibleIndex);
+  }
+  protected abstract getVisibleItemAt(position: number): QuestionRecordItem;
+  // The reported index of an object's record (getRecordViewIndex).
+  protected getItemViewIndex(item: QuestionRecordItem): number {
+    return this.getRecordViewIndex(this.getItemRecordIndex(item));
+  }
   /* The record a number a caller passes - removePanel(n), addPanel(n), removeRow(n) - names under
      paging: a position among the visible records of the whole view, as currentIndex is, also on
      another page. -1 when there is none; isRecordNotLoaded tells whether a source that pages itself
@@ -1577,6 +1754,20 @@ export abstract class QuestionRecordsModel extends Question {
     }
     return at;
   }
+  // The record of the last object of the page: -1 when there is none.
+  protected getLastMaterializedRecordIndex(): number {
+    const created = this.dataList.getMaterializedIndexes();
+    return created.length > 0 ? created[created.length - 1] : -1;
+  }
+  /* Where an insert at a created position of the whole view goes: the record index (-1: refused and
+     reported, getInsertIndexForOperation) and the visible index the new record will have - an append's
+     when it goes in front of a record the view hides. */
+  protected getInsertTargetForOperation(createdIndex: number): { at: number, visibleIndex: number } {
+    const list = this.dataList;
+    const at = this.getInsertIndexForOperation(createdIndex);
+    const visibleIndex = at < list.loadedCount ? list.getGlobalVisibleIndex(at) : -1;
+    return { at: at, visibleIndex: visibleIndex > -1 ? visibleIndex : list.visibleCount };
+  }
   /* The two records a move between created positions of the whole view names, each end clamped to the
      records shown, as the numbers of a move are clamped without paging. undefined: there is nothing to
      move, or a source that pages itself has not loaded an end - the move is refused and reported once. */
@@ -1632,7 +1823,7 @@ export abstract class QuestionRecordsModel extends Question {
     if (index < 0 || index >= this.getVisibleNumberEnd(unpagedCount)) return undefined;
     if (this.isPagingActive) return this.getRecordTargetAtVisibleIndex(index);
     const item = getVisibleItem(index);
-    return !item ? undefined : { item: item, recordIndex: this.getItemRecordIndex(item), visibleIndex: index };
+    return !item ? undefined : this.createItemTarget(item, index);
   }
   /* A removal target found again when a confirmation answers: by then the page, the sort or the
      records may have changed. A target captured with an object names its record for as long as the
@@ -1645,7 +1836,7 @@ export abstract class QuestionRecordsModel extends Question {
     if (!target.item) return this.findRecordTargetAgain(target);
     const visibleIndex = this.getItemVisibleIndex(target.item);
     if (visibleIndex < 0) return undefined;
-    return { item: target.item, recordIndex: this.getItemRecordIndex(target.item), visibleIndex: visibleIndex };
+    return this.createItemTarget(target.item, visibleIndex);
   }
   /* A target without an object, found again after the records or the view changed - a confirmation
      answers later. A held target (holdRemoveTarget) names its record by index; any other one by its
@@ -1792,7 +1983,10 @@ export abstract class QuestionRecordsModel extends Question {
       this.heldRemoveTargets = undefined;
     }
     const list = this.dataList;
-    if (list.assignedSource === newValue) return;
+    if (list.assignedSource === newValue) {
+      this.onSourceCapabilitiesChanged();
+      return;
+    }
     const wasRemote = list.isRemote;
     /* The list resets its window and starts the first read. The two flags the questions need are
        already on it: isViewFrozenOnEdit (the membership of a view may not be re-decided by an edit
@@ -1813,7 +2007,11 @@ export abstract class QuestionRecordsModel extends Question {
     } else if (!list.isWindowCommitted) {
       this.showUnreadWindow();
     }
+    this.onSourceCapabilitiesChanged();
   }
+  /* The capabilities of the source just assigned decide whether the objects are editable and whether
+     the add and remove buttons are shown: each type refreshes what it shows from them. */
+  protected onSourceCapabilitiesChanged(): void { }
   /* The first read of an attached source is pending, or failed at once: the question shows the
      source's window, which is empty until a read commits, and not the records it held before - they
      belong to no storage any more, and an edit made on them would be dropped. A read that commits
@@ -2003,9 +2201,26 @@ export abstract class QuestionRecordsModel extends Question {
      the record - and so does code that assigns it, setValueExpression and a trigger included: the
      write does not say where it came from. A value an expression computes does not, or every record
      with an expression would be touched by its first recalculation. */
+  // The values the objects' setValueExpression and resetValueIf compute are not edits (runComputedWrites).
+  public runTriggers(name: string, value: any, keys?: any): void {
+    super.runTriggers(name, value, keys);
+    this.runComputedWrites((): void => { this.runTriggersInObjects(name, value, keys); });
+  }
+  protected abstract runTriggersInObjects(name: string, value: any, keys: any): void;
   protected markRecordTouchedBy(recordIndex: number, question: Question): void {
     if (!question || !question.hasInput) return;
     this.dataList.markRecordTouched(recordIndex);
+  }
+  // The question of an object - a cell, a detail or panel question - that writes a record field: a
+  // field is a value name, or its comment key.
+  protected getRecordFieldQuestion(item: QuestionRecordItem, field: string): Question {
+    if (!item || !field) return undefined;
+    const suffix = settings.commentSuffix;
+    const name = field.endsWith(suffix) ? field.substring(0, field.length - suffix.length) : field;
+    return item.getQuestionsByValueName(name)[0] || undefined;
+  }
+  protected markRecordTouchedByField(recordIndex: number, item: QuestionRecordItem, field: string): void {
+    this.markRecordTouchedBy(recordIndex, this.getRecordFieldQuestion(item, field));
   }
   // The question's add: the records it inserts are touched as they enter the list. Nothing is created
   // for it: without a list there is no view to keep them in.
@@ -2276,6 +2491,7 @@ export abstract class QuestionRecordsModel extends Question {
     this.pendingVisibleIndex = undefined;
     this.owedAssignment = undefined;
     super.dispose();
+    this.disposeItemsLeftByWrites();
     this.disposeRecordObjects();
     if (!!this.pagerActionsValue) {
       this.pagerActionsValue.dispose();
@@ -2287,6 +2503,23 @@ export abstract class QuestionRecordsModel extends Question {
   }
   // The objects that have to go before the list does.
   protected disposeRecordObjects(): void { }
+  /* A rebuild can run inside a write one of the old objects' questions is making - the record it edits
+     leaves the page - and that question still finishes its own setter after the rebuild returns. Such an
+     object is disposed with the next replacement instead, or with the question. */
+  private itemsToDisposeAfterWrite: Array<() => void> = [];
+  protected disposeReplacedItem(dispose: () => void): void {
+    if (this.isWritingRecords) {
+      this.itemsToDisposeAfterWrite.push(dispose);
+      return;
+    }
+    this.disposeItemsLeftByWrites();
+    dispose();
+  }
+  private disposeItemsLeftByWrites(): void {
+    const left = this.itemsToDisposeAfterWrite;
+    this.itemsToDisposeAfterWrite = [];
+    left.forEach((dispose: () => void): void => dispose());
+  }
   /* The sort and the filter the JSON authored reach the list once the load is over. An authored one
      created the paging helper when it was set, so a question without one has nothing pending and
      nothing is created for it. */
@@ -2428,7 +2661,6 @@ export abstract class QuestionRecordsModel extends Question {
      row's visibleIndex), and the item at such a position - an object when the record has one, a
      record read as a value when it has not (the question pages). */
   protected abstract getItemVisibleIndex(item: ISurveyData): number;
-  protected abstract getItemByVisibleIndex(visibleIndex: number): QuestionRecordItem;
   // The item {matrix[index].x} / {panel[index].x} reads. index is a record index; a record without a
   // row or a panel - filtered out, off the page or not built - is read as a value.
   protected abstract getExpressionItem(index: number): QuestionRecordItem;
@@ -2953,6 +3185,12 @@ interface IRecordsSingleInputSummaryOptions<TRecord> {
 export abstract class QuestionRecordsSingleInputBehavior<TRecord extends ISingleInputRecord> extends QuestionSingleInputBehavior {
   protected get recordsQuestion(): QuestionRecordsModel {
     return this.question as QuestionRecordsModel;
+  }
+  public getSingleInputAddTextCore(): string {
+    return getRecordItemOwner(this.recordsQuestion).getRecordAddText();
+  }
+  public singleInputAddItemCore(): void {
+    getRecordItemOwner(this.recordsQuestion).addRecordFromUI();
   }
   protected abstract getRecords(): Array<TRecord>;
   // Not always a record: the lookup is also asked for the question itself and for its parents.

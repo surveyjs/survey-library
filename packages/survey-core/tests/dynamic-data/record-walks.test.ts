@@ -206,3 +206,15 @@ describe("page validation: objects that were never built are valid", () => {
     expect(panel.template.questions[0].errors.length, "#2: no error on the template").toBe(0);
   });
 });
+
+describe("displayValue: a record without a row is formatted as its row would be", () => {
+  test("matrix with a filter: a field a shared question stores is formatted by that question", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m", valueName: "shared", rowCount: 0, filterExpression: "{a} != 'x'", columns: [{ name: "a", cellType: "text" }] },
+      { type: "paneldynamic", name: "p", valueName: "shared", templateElements: [{ type: "dropdown", name: "b", choices: choices }] }] });
+    survey.data = { shared: [{ a: "x", b: 1 }, { a: "y", b: 2 }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    expect(matrix.visibleRows.length, "#1: one row").toBe(1);
+    expect(matrix.displayValue, "#2").toEqual([{ a: "x", b: "One" }, { a: "y", b: "Two" }]);
+  });
+});

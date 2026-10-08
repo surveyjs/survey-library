@@ -39,11 +39,9 @@ import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInf
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
-import { ConditionRunner } from "./conditions/conditionRunner";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, IDynamicDataRecordUniqueness, QuestionRecordsModel,
-  QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval
+  QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility
 } from "./question_records";
 
 export class PanelDynamicItemGetterContext extends QuestionRecordItemGetterContext {
@@ -2241,7 +2239,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       if (added < 0) return null;
       position = added;
     } else {
-      this.updateValueOnAddingPanel(curPos < 0 ? this.panelCount - 1 : curPos, position);
+      this.updateValueOnAddingPanel(curPos < 0 ? this.panelCount - 1 : this.getRecordIndexByPanelIndex(curPos), position);
     }
     if (!this.isRenderModeList) {
       this.currentIndex = this.getVisibleIndexAtPosition(position);
@@ -2290,16 +2288,17 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.defaultPanelValue, copyFrom);
   }
   /* The record copyDefaultValueFromLastEntry copies from in the record-first adds (the paged and the
-     remote one), read before the insert: the current panel's in carousel and tab mode, the last
-     panel's in list mode - the panels that exist, which under paging are the page and for a source
-     that pages itself the window. undefined: none, or the property is off. */
+     remote one), read before the insert: the current panel's in carousel and tab mode, the last entry
+     in list mode, as the matrix copies it (getLastEntryRecordIndex) - the last record, whatever page
+     the view shows; for a source that pages itself the window's last. undefined: none, or the
+     property is off. */
   private getCopySourceRecord(): any {
     if (!this.copyDefaultValueFromLastEntry) return undefined;
     const list = this.dataList;
     const current = this.isRenderModeList ? null : this.currentPanel;
     let index = !!current ? this.getPanelRecordIndex(current) : -1;
     if (index < 0 || index >= list.loadedCount) {
-      index = this.getLastMaterializedRecordIndex();
+      index = this.getLastEntryRecordIndex(list.count);
     }
     return index > -1 ? list.getRecord(index) : undefined;
   }
@@ -2339,7 +2338,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
   }
   /* The unpaged add: panelCount++ creates the panel and appends its record, which then moves to the
-     created position index. The panel object exists before its record is moved into place:
+     created position index. prevIndex is a record index. The panel object exists before its record is moved into place:
      onPanelAdded must see the same state it sees today. A handler that assigned the value meanwhile
      keeps it: the records are its own, and none of them is the new one. */
   private updateValueOnAddingPanel(prevIndex: number, index: number): void {
@@ -2350,14 +2349,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       // index is a created position; the record it names is where the list moves the new one.
       return index < lastIndex ? this.getRecordIndexByPanelIndex(index) : lastIndex;
     }, (recordIndex: number): any => {
-      /* The released copy source: prevIndex - the current panel in carousel and tab mode, the last one
-         in list mode - read after the move, so an insert in front of it reads the record that has
-         shifted into its position. The record-first adds read it before the insert
+      /* The released copy source: prevIndex - the current panel's record in carousel and tab mode, the
+         last record in list mode - read after the move, so an insert in front of it reads the record
+         that has shifted into its place. The record-first adds read it before the insert
          (getCopySourceRecord). */
       let copyFrom: any = undefined;
       if (this.copyDefaultValueFromLastEntry && list.count > 1) {
         const lastIndex = list.count - 1;
-        const fromIndex = this.getRecordIndexByPanelIndex(prevIndex > -1 && prevIndex <= lastIndex ? prevIndex : lastIndex);
+        const fromIndex = prevIndex > -1 && prevIndex <= lastIndex ? prevIndex : lastIndex;
         copyFrom = fromIndex > -1 ? list.getRecord(fromIndex) || {} : undefined;
       }
       if (this.isValueEmpty(this.defaultPanelValue) && !copyFrom) return undefined;
@@ -2957,6 +2956,22 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (!this.isPagingSyncSuspended) {
       this.runDeferredPagingSync();
     }
+    if (isPanelsCore) {
+      this.clearHiddenAnswersWithoutObjects(properties);
+    }
+  }
+  // QuestionRecordsModel hooks of clearHiddenAnswersWithoutObjects: the template questions and the panels around them.
+  protected getRecordConditionalInputs(): Array<Question> {
+    const template = this.template;
+    return template.questions.filter((q: Question): boolean => {
+      for (let el: any = q; !!el && el !== template; el = el.parent) {
+        if (!!el.visibleIf) return true;
+      }
+      return false;
+    });
+  }
+  protected getRecordInputContainer(): PanelModelBase {
+    return this.template;
   }
   private isPagingSyncSuspended: boolean;
   private isPagingSyncPending: boolean;
@@ -3098,8 +3113,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      own questions (Question.clearValueIfInvisible), over the stored records and without building an
      object: the records of the pages never opened or visited and left, and the records the
      visibility condition hides. The template holds the questions of a record and the panels around
-     them. The matrix has no such walk - it clears no answer inside a row it keeps, and drops a hidden
-     row whole (clearInvisibleValuesInRows).
+     them. The matrix has no such walk at clear time - its cells clear their answers only when they are
+     hidden under onHidden (clearHiddenAnswersWithoutObjects follows that for the records without a
+     row), and it drops a hidden row whole (clearInvisibleValuesInRows).
      - A record the list filter excludes has no object without paging either and keeps its answers.
      - A record the visibility condition hides keeps the answers of its questions that are visible
        themselves; the others go, as in a hidden panel.
@@ -3123,35 +3139,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const survey = this.survey;
     const list = this.dataList;
     const isStartPage = !!this.page && this.page.isStartPage;
-    const runners = new Map<string, ConditionRunner>();
-    let scope: IDynamicDataRecordScope;
-    let visibility: Map<Question | PanelModelBase, boolean>;
-    // An element's visible, or its visibleIf over the record; once per element and record.
-    const isVisibleInRecord = (el: Question | PanelModelBase): boolean => {
-      let res = visibility.get(el);
-      if (res !== undefined) return res;
-      const expression = !!el.visibleIf ? survey.beforeExpressionRunning(el, "visibleIf", el.visibleIf) : "";
-      if (!expression) {
-        res = el.visible;
-      } else {
-        let runner = runners.get(expression);
-        if (!runner) {
-          runner = new ConditionRunner(expression);
-          runners.set(expression, runner);
-        }
-        scope.properties["question"] = el;
-        res = runner.runContext(scope.item.getValueGetterContext(), scope.properties) === true;
-      }
-      visibility.set(el, res);
-      return res;
-    };
+    let visibility: IRecordElementVisibility;
+    const isVisibleInRecord = (el: Question | PanelModelBase): boolean => visibility.isVisible(el);
     let newValue: Array<any>;
     this.forEachRecordItem(list.getCreatedIndexes(), (index: number, item: QuestionRecordItem): void => {
       const record = this.getListRecordAt(index);
       if (!!item || !record) return;
-      if (!scope) scope = this.createRecordVisibilityScope(properties);
-      scope.item.reset(index, record);
-      visibility = new Map<Question | PanelModelBase, boolean>();
+      if (!visibility) visibility = this.createRecordElementVisibility(properties);
+      visibility.reset(index, record);
       // The parents every question of the record has: the question that owns the records and the record.
       const areQuestionAndRecordVisible = this.isVisible && list.isRecordVisible(index);
       let cleared: any;
@@ -3177,13 +3172,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       newValue[index] = cleared;
     });
     return newValue;
-  }
-  // The question's clearIfInvisible allows a clear for the reason (Question.clearValueIfInvisible).
-  private canRecordQuestionBeCleared(q: Question, reason: string): boolean {
-    const clearIf = this.survey.getQuestionClearIfInvisible(q.clearIfInvisible);
-    if (clearIf === "none") return false;
-    if (reason === "onHidden" && clearIf === "onComplete") return false;
-    return reason !== "onHiddenContainer" || clearIf === reason;
   }
 
   // What puts a panel into visiblePanels.

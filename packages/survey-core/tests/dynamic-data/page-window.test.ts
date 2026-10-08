@@ -4324,6 +4324,73 @@ describe("Page window: clearIncorrectValues clears incorrect answers on every pa
       });
     });
   });
+  // The paged result, with the first record on the page and the others without an object, equals the unpaged one.
+  function clearPagedAndUnpaged(json: any, data: any, change?: (question: any) => void): { paged: any, unpaged: any } {
+    const run = (isPaged: boolean): any => {
+      const surveyJson = JSON.parse(JSON.stringify(json));
+      const element = surveyJson.elements[0];
+      element[element.type === "paneldynamic" ? "panelsPerPage" : "rowsPerPage"] = isPaged ? 1 : 0;
+      const survey = new SurveyModel(surveyJson);
+      survey.data = { q: JSON.parse(JSON.stringify(data)) };
+      const question: any = survey.getQuestionByName("q");
+      if (element.type === "paneldynamic") question.panels; else question.visibleRows;
+      if (!!change) change(question);
+      survey.clearIncorrectValues();
+      return survey.data.q;
+    };
+    return { paged: run(true), unpaged: run(false) };
+  }
+  const withOther = (cellType: string): any => ({ cellType: cellType, choices: ["a", "b"], showOtherItem: true });
+  const otherKinds: Array<{ name: string, json: (cellType: string) => any, data: (cellType: string) => any }> = [
+    { name: "dynamic panel", json: (cellType: string): any => ({ type: "paneldynamic", name: "q",
+      templateElements: [Object.assign({ type: cellType, name: "c" }, withOther(cellType), { cellType: undefined })] }),
+    data: (cellType: string): any => cellType === "checkbox" ? [{ c: ["a"] }, { c: ["a", "zzz"] }, { c: ["q"] }] : [{ c: "a" }, { c: "zzz" }, { c: "b" }] },
+    { name: "dynamic matrix", json: (cellType: string): any => ({ type: "matrixdynamic", name: "q", rowCount: 0,
+      columns: [Object.assign({ name: "c" }, withOther(cellType))] }),
+    data: (cellType: string): any => cellType === "checkbox" ? [{ c: ["a"] }, { c: ["a", "zzz"] }, { c: ["q"] }] : [{ c: "a" }, { c: "zzz" }, { c: "b" }] },
+    { name: "multi-select matrix", json: (cellType: string): any => ({ type: "matrixdropdown", name: "q", rows: ["r1", "r2", "r3"],
+      columns: [Object.assign({ name: "c" }, withOther(cellType))] }),
+    data: (cellType: string): any => cellType === "checkbox" ? { r1: { c: ["a"] }, r2: { c: ["a", "zzz"] }, r3: { c: ["q"] } } : { r1: { c: "a" }, r2: { c: "zzz" }, r3: { c: "b" } } }
+  ];
+  otherKinds.forEach(kind => {
+    test(kind.name + ": an other-item answer on another page is kept as without paging", () => {
+      ["dropdown", "checkbox"].forEach(cellType => {
+        [undefined, false].forEach(storeOthersAsComment => {
+          const json: any = { elements: [kind.json(cellType)] };
+          if (storeOthersAsComment === false) json.storeOthersAsComment = false;
+          const res = clearPagedAndUnpaged(json, kind.data(cellType));
+          expect(res.paged, cellType + ", storeOthersAsComment " + storeOthersAsComment).toEqual(res.unpaged);
+        });
+      });
+    });
+  });
+  test("a choice a record hides by choicesVisibleIf is cleared on another page as without paging", () => {
+    const choices = [{ value: "a", visibleIf: "{row.t} = 'x'" }, "b"];
+    const cases: Array<{ name: string, json: any, data: any }> = [
+      { name: "dynamic matrix", json: { type: "matrixdynamic", name: "q", rowCount: 0,
+        columns: [{ name: "t", cellType: "text" }, { name: "c", cellType: "dropdown", choices: choices }] },
+      data: [{ t: "y", c: "a" }, { t: "y", c: "a" }, { t: "x", c: "a" }] },
+      { name: "multi-select matrix", json: { type: "matrixdropdown", name: "q", rows: ["r1", "r2", "r3"],
+        columns: [{ name: "t", cellType: "text" }, { name: "c", cellType: "dropdown", choices: choices }] },
+      data: { r1: { t: "y", c: "a" }, r2: { t: "y", c: "a" }, r3: { t: "x", c: "a" } } },
+      { name: "dynamic panel", json: { type: "paneldynamic", name: "q", templateElements: [{ type: "text", name: "t" },
+        { type: "dropdown", name: "c", choices: [{ value: "a", visibleIf: "{panel.t} = 'x'" }, "b"] }] },
+      data: [{ t: "y", c: "a" }, { t: "y", c: "a" }, { t: "x", c: "a" }] }
+    ];
+    cases.forEach(item => {
+      const res = clearPagedAndUnpaged({ elements: [item.json] }, item.data);
+      expect(res.paged, item.name).toEqual(res.unpaged);
+      expect(JSON.stringify(res.paged).indexOf("\"t\":\"x\",\"c\":\"a\"") > -1, item.name + ": the record that shows the choice keeps it").toBe(true);
+    });
+  });
+  test("a column choice list changed after load: the records of other pages lose the value the cell would lose", () => {
+    const json = { elements: [{ type: "matrixdynamic", name: "q", rowCount: 0, columns: [{ name: "c", cellType: "dropdown", choices: ["a", "b", "c"] }] }] };
+    const res = clearPagedAndUnpaged(json, [{ c: "a" }, { c: "c" }, { c: "b" }], (question: QuestionMatrixDynamicModel): void => {
+      question.getColumnByName("c").choices = ["a", "b"];
+    });
+    expect(res.paged, "#1").toEqual(res.unpaged);
+    expect(res.paged, "#2").toEqual([{ c: "a" }, {}, { c: "b" }]);
+  });
 });
 
 describe("Page window: the remove events under a sort", () => {
@@ -4418,5 +4485,88 @@ describe("Page window: an object whose question is writing is not disposed by th
     expect(isDisposedInWrite, "#1: not while its value is being set").toBe(false);
     panel.pageIndex = 1;
     expect(question.isDisposed, "#2: with the next replacement").toBe(true);
+  });
+});
+
+describe("clearInvisibleValues and a column or template question hidden on other pages", () => {
+  const records = (): Array<any> => [{ a: 1, b: "x" }, { a: 2, b: "x" }, { a: 3, b: "x" }];
+  const matrixJson = (visibleIf: string): any => ({ type: "matrixdynamic", name: "q", rowCount: 0,
+    columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", visibleIf: visibleIf }] });
+  const fixedJson = (visibleIf: string): any => ({ type: "matrixdropdown", name: "q", rows: ["r1", "r2", "r3"],
+    columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", visibleIf: visibleIf }] });
+  const panelJson = (visibleIf: string): any => ({ type: "paneldynamic", name: "q",
+    templateElements: [{ type: "text", name: "a" }, { type: "text", name: "b", visibleIf: visibleIf.replace("{row.", "{panel.") }] });
+  const fixedData = (): any => ({ r1: { a: 1, b: "x" }, r2: { a: 2, b: "x" }, r3: { a: 3, b: "x" } });
+  /* The stored value after each step, paged (the first record on the page, the others without an
+     object) and unpaged. */
+  function run(mode: string, element: any, data: any, values: any, steps: Array<any>): { paged: Array<any>, unpaged: Array<any> } {
+    const runOne = (isPaged: boolean): Array<any> => {
+      const json = JSON.parse(JSON.stringify(element));
+      json[json.type === "paneldynamic" ? "panelsPerPage" : "rowsPerPage"] = isPaged ? 1 : 0;
+      const survey = new SurveyModel({ clearInvisibleValues: mode, elements: [{ type: "text", name: "hasB" }, { type: "text", name: "limit" }, json] });
+      survey.data = Object.assign({ q: JSON.parse(JSON.stringify(data)) }, values);
+      const question: any = survey.getQuestionByName("q");
+      if (json.type === "paneldynamic") question.panels; else question.visibleRows;
+      const res: Array<any> = [];
+      steps.forEach(step => {
+        if (step === "complete") {
+          survey.doComplete();
+        } else {
+          survey.setValue(step.name, step.value);
+        }
+        res.push(JSON.parse(JSON.stringify(survey.data.q || null)));
+      });
+      return res;
+    };
+    return { paged: runOne(true), unpaged: runOne(false) };
+  }
+  const hideAndComplete = [{ name: "hasB", value: "no" }, "complete"];
+  test("under onHidden, hiding a column clears it in the records of every page", () => {
+    [["dynamic matrix", matrixJson("{hasB} = 'yes'"), records()], ["multi-select matrix", fixedJson("{hasB} = 'yes'"), fixedData()]]
+      .forEach(([name, json, data]) => {
+        const res = run("onHidden", json, data, { hasB: "yes" }, hideAndComplete);
+        expect(res.paged, name + ": after the hide and after complete").toEqual(res.unpaged);
+        expect(JSON.stringify(res.paged[0]).indexOf("\"b\""), name + ": cleared at the hide").toBe(-1);
+      });
+  });
+  test("under onHidden, a condition over the record hides a column in some records of other pages", () => {
+    const res = run("onHidden", matrixJson("{row.a} > {limit}"), records(), { limit: 0 }, [{ name: "limit", value: 1 }, { name: "limit", value: 0 }, { name: "limit", value: 2 }, "complete"]);
+    expect(res.paged, "#1").toEqual(res.unpaged);
+    expect(res.paged[0], "#2: the first record lost b").toEqual([{ a: 1 }, { a: 2, b: "x" }, { a: 3, b: "x" }]);
+    expect(res.paged[2], "#3: the second record too").toEqual([{ a: 1 }, { a: 2 }, { a: 3, b: "x" }]);
+  });
+  test("under onHidden, hiding a template question clears it in the panels of every page at the hide", () => {
+    const res = run("onHidden", panelJson("{hasB} = 'yes'"), records(), { hasB: "yes" }, hideAndComplete);
+    expect(res.paged, "#1").toEqual(res.unpaged);
+    expect(res.paged[0], "#2: at the hide").toEqual([{ a: 1 }, { a: 2 }, { a: 3 }]);
+  });
+  test("under onHidden, answers hidden since load are kept, as without paging", () => {
+    const steps = [{ name: "limit", value: 5 }, "complete"];
+    const matrix = run("onHidden", matrixJson("{hasB} = 'yes'"), records(), { hasB: "no" }, steps);
+    expect(matrix.paged, "matrix").toEqual(matrix.unpaged);
+    expect(matrix.paged[1], "matrix: kept after complete").toEqual(records());
+    const panel = run("onHidden", panelJson("{hasB} = 'yes'"), records(), { hasB: "no" }, steps);
+    expect(panel.paged, "panel").toEqual(panel.unpaged);
+    expect(panel.paged[0], "panel: kept until complete").toEqual(records());
+  });
+  test("under onComplete, a matrix keeps hidden-column answers, as without paging", () => {
+    const res = run("onComplete", matrixJson("{hasB} = 'yes'"), records(), { hasB: "yes" }, hideAndComplete);
+    expect(res.paged, "#1").toEqual(res.unpaged);
+    expect(res.paged[1], "#2").toEqual(records());
+  });
+  test("under onComplete, a panel clears them at complete", () => {
+    const res = run("onComplete", panelJson("{hasB} = 'yes'"), records(), { hasB: "yes" }, hideAndComplete);
+    expect(res.paged, "#1").toEqual(res.unpaged);
+    expect(res.paged[0], "#2: kept at the hide").toEqual(records());
+    expect(res.paged[1], "#3: cleared at complete").toEqual([{ a: 1 }, { a: 2 }, { a: 3 }]);
+  });
+  test("an expression over the records reads the cleared value at once", () => {
+    const survey = new SurveyModel({ clearInvisibleValues: "onHidden", elements: [{ type: "text", name: "hasB" },
+      Object.assign(matrixJson("{hasB} = 'yes'"), { rowsPerPage: 1 }), { type: "expression", name: "count", expression: "countInArray({q}, 'b')" }] });
+    survey.data = { hasB: "yes", q: records() };
+    (<QuestionMatrixDynamicModel>survey.getQuestionByName("q")).visibleRows;
+    expect(survey.getValue("count"), "#1").toBe(3);
+    survey.setValue("hasB", "no");
+    expect(survey.getValue("count"), "#2").toBe(0);
   });
 });

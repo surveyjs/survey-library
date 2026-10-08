@@ -830,7 +830,7 @@ describe("the clearing pass of invisible values over records without an object",
       FunctionFactory.Instance.unregister("countedVisible");
     }
   });
-  test("panel: an edit, a page move and a hide under onHidden do not run the pass", () => {
+  test("panel: an edit, a page move and a hide under onHidden do not run the complete-time pass", () => {
     const proto = <any>QuestionPanelDynamicModel.prototype;
     const walk = vi.spyOn(proto, "clearValueInRecordsWithoutPanel");
     const survey = new SurveyModel({ clearInvisibleValues: "onHidden", elements: [
@@ -1301,5 +1301,61 @@ describe("reading a dynamic panel creates no record list", () => {
     expect(panels.map(p => p.panelCount), "#3").toEqual([2, 1, 0]);
     expect(panels.map(p => p.value), "#4").toEqual([[{ a: 1 }, { a: 2 }], [{ a: 3 }], undefined]);
     expect(panels.map(hasList), "#5: after the reads").toEqual([false, false, false]);
+  });
+});
+
+describe("the clean-up of incorrect answers over records without an object", () => {
+  const kinds: Array<{ name: string, proto: any, json: any }> = [
+    { name: "matrix", proto: QuestionMatrixDynamicModel.prototype, json: { type: "matrixdynamic", name: "q", rowCount: 0, rowsPerPage: 2,
+      columns: [{ name: "a", cellType: "dropdown", choices: [1, 2] }, { name: "b", cellType: "text" }] } },
+    { name: "panel", proto: QuestionPanelDynamicModel.prototype, json: { type: "paneldynamic", name: "q", panelsPerPage: 2,
+      templateElements: [{ type: "dropdown", name: "a", choices: [1, 2] }, { type: "text", name: "b" }] } }
+  ];
+  kinds.forEach(kind => {
+    test(kind.name + ": clearIncorrectValues builds one short-lived question per key of each record without an object, an edit, a page move and a render build none", () => {
+      const created = vi.spyOn(kind.proto, "createRecordCleanupQuestion");
+      const survey = new SurveyModel({ elements: [kind.json] });
+      survey.data = { q: records(6, (i: number): any => ({ a: 1, b: "b" + i })) };
+      const question: any = survey.getQuestionByName("q");
+      const firstQuestion = (): Question => kind.name === "matrix" ? question.visibleRows[0].getQuestionByColumnName("b") : question.panels[0].getQuestionByName("b");
+      firstQuestion().value = "edited";
+      question.pageIndex = 1;
+      question.pageIndex = 0;
+      expect(created.mock.calls.length, "#1").toBe(0);
+      survey.clearIncorrectValues();
+      expect(created.mock.calls.length, "#2: four records without an object, two keys each").toBe(8);
+    });
+  });
+});
+
+describe("the onHidden pass over records without an object", () => {
+  const createMatrix = (mode: string, rowsPerPage: number): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel } => {
+    const survey = new SurveyModel({ clearInvisibleValues: mode, elements: [{ type: "text", name: "hasB" },
+      { type: "matrixdynamic", name: "q", rowCount: 0, rowsPerPage: rowsPerPage,
+        columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", visibleIf: "{hasB} = 'yes'" }] }] });
+    survey.data = { hasB: "yes", q: records(6, (i: number): any => ({ a: i, b: "x" })) };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+    matrix.visibleRows;
+    return { survey: survey, matrix: matrix };
+  };
+  test("it runs only under onHidden with paging", () => {
+    const evaluators = vi.spyOn(<any>QuestionMatrixDynamicModel.prototype, "createRecordElementVisibility");
+    createMatrix("onComplete", 2).survey.setValue("hasB", "no");
+    createMatrix("onHidden", 0).survey.setValue("hasB", "no");
+    expect(evaluators.mock.calls.length, "#1").toBe(0);
+    createMatrix("onHidden", 2).survey.setValue("hasB", "no");
+    expect(evaluators.mock.calls.length > 0, "#2").toBe(true);
+  });
+  test("an edit and a page move without a visibility change write no record", () => {
+    const { survey, matrix } = createMatrix("onHidden", 2);
+    const writes: Array<string> = [];
+    survey.onValueChanged.add((_, options) => { writes.push(options.name); });
+    matrix.visibleRows[0].getQuestionByColumnName("a").value = 10;
+    expect(writes, "#1: the edit").toEqual(["q"]);
+    matrix.pageIndex = 1;
+    matrix.pageIndex = 2;
+    matrix.pageIndex = 0;
+    expect(writes, "#2: nothing more").toEqual(["q"]);
+    expect(survey.data.q.filter((record: any) => record.b === "x").length, "#3").toBe(6);
   });
 });

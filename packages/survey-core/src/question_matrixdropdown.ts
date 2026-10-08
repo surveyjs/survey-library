@@ -266,6 +266,10 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     const isObject = this.isObject(value);
     return this.getRecordItems().map((item: ItemValue): any => isObject ? value[item.value] : undefined);
   }
+  // A write of one row copies every row object of the answer: the row item is what stays.
+  protected getRecordStateKey(recordIndex: number, record: any): any {
+    return this.getRecordItems()[recordIndex] || record;
+  }
   // Composed once per answer and rows revision: the list reads through on every record access.
   protected getListRecords(): Array<any> {
     const value = this.getStoredRecords();

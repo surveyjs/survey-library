@@ -1016,21 +1016,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       (column: MatrixDropdownColumn): string => column.name, this.defaultRowValue, copyFrom);
     return Object.keys(res).length > 0 ? res : null;
   }
-  /* The record copyDefaultValueFromLastEntry copies from. The local path runs after rowCount was
-     already grown, so the last entry is the record before the new one. The remote path builds the
-     record before the insert: a source without paging holds the whole storage, so it is the last record of
-     it, as for question.value; a source that pages itself holds one window, so it is the last
-     record of the window - the record beyond it is on the server. */
+  /* The record copyDefaultValueFromLastEntry copies from (getLastEntryRecordIndex). The local path runs
+     after rowCount was already grown, so the count before the add is rowCount - 1; the remote path
+     builds the record before the insert. */
   private getLastEntryRecord(): any {
-    if (this.isRemoteData) {
-      const list = this.dataList;
-      if (!list.isPagedBySource) return list.getRecord(list.loadedCount - 1);
-      const last = this.getLastMaterializedRecordIndex();
-      return last > -1 ? list.getRecord(last) : undefined;
-    }
+    const index = this.getLastEntryRecordIndex(this.rowCount - 1);
+    if (this.isRemoteData) return index > -1 ? this.dataList.getRecord(index) : undefined;
     const val = this.value;
-    if (!!val && Array.isArray(val) && val.length >= this.rowCount - 1) return val[this.rowCount - 2];
-    return undefined;
+    return Array.isArray(val) && index > -1 && index < val.length ? val[index] : undefined;
   }
   public focusAddBUtton(): void {
     this.toolbar.getActionById("sv-md-add-btn")?.getInputElement()?.focus();

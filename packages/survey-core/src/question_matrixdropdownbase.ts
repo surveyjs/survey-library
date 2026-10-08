@@ -1885,6 +1885,35 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     return this.detailPanelMode !== "none" ? <Question>this.detailPanel.getQuestionByValueName(key) || undefined : undefined;
   }
+  // QuestionRecordsModel hook of clearHiddenAnswersWithoutObjects: the cell questions a column condition hides.
+  protected getRecordConditionalInputs(): Array<Question> {
+    return this.columns.filter((column: MatrixDropdownColumn): boolean => !!column.visibleIf).map((column: MatrixDropdownColumn): Question => column.templateQuestion);
+  }
+  // A column's key gets a cell question, made as a row makes it (the matrix-level choices included).
+  protected createRecordCleanupQuestion(key: string, template: Question): Question {
+    const column = this.columns.filter((col: MatrixDropdownColumn): boolean => col.templateQuestion === template)[0];
+    if (!column) return super.createRecordCleanupQuestion(key, template);
+    const res = column.createCellQuestion(null);
+    res.setParentQuestion(this);
+    res.inMatrixMode = true;
+    return res;
+  }
+  // A cell question is loaded as a row builds its cells (buildCells): the value and the comment are assigned, not written.
+  protected loadRecordCleanupQuestion(question: Question, record: any, withoutWrites: (func: () => void) => void): void {
+    if (!question.inMatrixMode) {
+      super.loadRecordCleanupQuestion(question, record, withoutWrites);
+      return;
+    }
+    withoutWrites((): void => {
+      const name = question.getValueName();
+      if (Helpers.isValueEmpty(record[name])) return;
+      question.value = record[name];
+      const comment = record[name + Base.commentSuffix];
+      if (!Helpers.isValueEmpty(comment)) {
+        question.comment = comment;
+      }
+    });
+  }
   public localeChanged(): void {
     super.localeChanged();
     this.runFuncForCellQuestions((q: Question) => { q.localeChanged(); });
@@ -1919,6 +1948,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (isRowVisiblilityChanged && this.isClearValueOnHidden) {
       this.clearInvisibleValuesInRows();
     }
+    this.clearHiddenAnswersWithoutObjects(properties);
     if (isColumnChanged) {
       this.resetRenderedTable(true);
     }

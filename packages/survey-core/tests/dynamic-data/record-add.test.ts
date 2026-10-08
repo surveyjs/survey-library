@@ -126,7 +126,41 @@ describe("addPanel(n) takes a created position in every mode", () => {
 describe("copyDefaultValueFromLastEntry: the record a panel copies", () => {
   const data = (): Array<any> => [{ a: 1 }, { a: 2 }, { a: 3 }];
   const copy = { copyDefaultValueFromLastEntry: true };
-  test("paged list mode: addPanel(0) copies the last panel", () => {
+  test("under a filter, addPanel() copies the last record, as the matrix does", () => {
+    const json = Object.assign({ filterExpression: "{a} < 3" }, copy);
+    const panel = createPanel(json, [{ a: 1 }, { a: 5 }, { a: 2 }]);
+    panel.panels;
+    panel.addPanel();
+    expect(panel.value[3], "#1: the last record").toEqual({ a: 2 });
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, filterExpression: "{a} < 3", copyDefaultValueFromLastEntry: true,
+      columns: [{ name: "a", cellType: "text" }] }] });
+    survey.data = { m: [{ a: 1 }, { a: 5 }, { a: 2 }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    matrix.addRow();
+    expect(matrix.value[3], "#2: the matrix copies the same record").toEqual({ a: 2 });
+  });
+  test("under a sort, addPanel() copies the last stored record", () => {
+    const panel = createPanel(Object.assign({ sortBy: "a" }, copy), [{ a: 1 }, { a: 5 }, { a: 2 }]);
+    panel.panels;
+    panel.addPanel();
+    expect(panel.value[3], "#1").toEqual({ a: 2 });
+  });
+  test("paged list mode with records on later pages copies the last record, not the page's last panel", () => {
+    const panel = createPanel(Object.assign({ panelsPerPage: 2 }, copy), [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }]);
+    panel.panels;
+    expect(panel.panels.length, "#1: the first page").toBe(2);
+    panel.addPanel();
+    expect(panel.value[4], "#2").toEqual({ a: 4 });
+  });
+  test("paged carousel mode keeps copying the current panel", () => {
+    const panel = createPanel(Object.assign({ panelsPerPage: 2, displayMode: "carousel" }, copy), [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }]);
+    panel.panels;
+    panel.currentIndex = 1;
+    panel.addPanel();
+    expect(panel.value, "#1: inserted after the current panel, with its record").toEqual([{ a: 1 }, { a: 2 }, { a: 2 }, { a: 3 }, { a: 4 }]);
+  });
+  test("paged list mode: addPanel(0) copies the last record", () => {
     const panel = createPanel(Object.assign({ panelsPerPage: 10 }, copy), data());
     panel.panels;
     panel.addPanel(0);

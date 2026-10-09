@@ -2850,8 +2850,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     super.localeChanged();
     this.panelsCore.forEach(panel => panel.localeChanged());
   }
-  protected runConditionCore(properties: HashTable<any>): void {
-    super.runConditionCore(properties);
+  protected runItemsCondition(properties: HashTable<any>): void {
     // One paging sync and one render for the whole run, a page rebuild included.
     const prevIsPagingSyncSuspended = this.isPagingSyncSuspended;
     this.isPagingSyncSuspended = true;

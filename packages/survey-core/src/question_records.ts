@@ -274,7 +274,7 @@ export abstract class QuestionRecordsModel extends Question {
       // onDataListChanged drops it.
       this._dataList = DynamicDataList.createReadThrough(this.helperOwner,
         (): Array<any> => this.getListRecords(),
-        (records: Array<any>, operations?: Array<DynamicDataOperation>): void => { this.setListRecords(records, operations); },
+        (records: Array<any>, operations?: Array<DynamicDataOperation>): void => { this.storeListRecords(records, operations); },
         (): number => this.getListRecordCount(), this.isRecordMembershipFixed());
       this._dataList.onError = (error: any, operation: DynamicDataOperation): void => {
         this.onSourceError(error, operation);
@@ -1918,7 +1918,9 @@ export abstract class QuestionRecordsModel extends Question {
   protected removeResolvedRecord(removal: IRecordRemoval): void {
     const pageIndex = !!this.dataListValue ? this.dataListValue.pageIndex : 0;
     this.detachItem(removal);
-    this.removeStoredRecord(removal, (): void => { this.refillPageAfterRemove(pageIndex); });
+    this.runObjectsFollowingWrite((): void => {
+      this.removeStoredRecord(removal, (): void => { this.refillPageAfterRemove(pageIndex); });
+    });
   }
   /* The objects follow one record the list has just inserted. recordIndex is what list.add returned,
      a record index of the loaded window. In order:
@@ -2915,8 +2917,50 @@ export abstract class QuestionRecordsModel extends Question {
   }
   // The outermost write of the list has ended (IDynamicDataOwner.onWriteEnded).
   private onListWriteEnded(): void {
-    if (this.ownRecordsChangeDepth > 0 || !this.owedAssignment) return;
-    this.followOwedAssignment();
+    if (this.ownRecordsChangeDepth === 0 && !!this.owedAssignment)this.followOwedAssignment();
+    this.runHeldItemsCondition();
+  }
+  /* An insert, a removal or a move of the list stores the value before the objects follow it: an
+     in-memory source stores it inside the push, and the list notifies the owner after the push. Under
+     paging a row or a panel of the page addresses its record by its position until then, so the
+     conditions that storing runs would have the objects compute values and write them into the
+     records those positions held before. The objects' part of such a run waits until the objects have
+     followed the write: when the list's write ends (onListWriteEnded), or - for a removal, whose page
+     is refilled after the write - when the removal ends (runObjectsFollowingWrite). */
+  private structuralStoreDepth: number = 0;
+  private followingWriteDepth: number = 0;
+  private heldItemsCondition: { properties: HashTable<any> };
+  private storeListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void {
+    const isStructural = this.isPagedByList && (operations || []).some((operation: DynamicDataOperation): boolean => operation !== "update");
+    if (isStructural)this.structuralStoreDepth++;
+    try {
+      this.setListRecords(records, operations);
+    } finally {
+      if (isStructural)this.structuralStoreDepth--;
+    }
+  }
+  protected runConditionCore(properties: HashTable<any>): void {
+    super.runConditionCore(properties);
+    if (this.structuralStoreDepth > 0) {
+      this.heldItemsCondition = { properties: properties };
+    } else {
+      this.runItemsCondition(properties);
+    }
+  }
+  private runObjectsFollowingWrite(func: () => void): void {
+    this.followingWriteDepth++;
+    try {
+      func();
+    } finally {
+      this.followingWriteDepth--;
+      this.runHeldItemsCondition();
+    }
+  }
+  private runHeldItemsCondition(): void {
+    if (this.followingWriteDepth > 0) return;
+    const held = this.heldItemsCondition;
+    this.heldItemsCondition = undefined;
+    if (!!held && !this.isDisposed)this.runItemsCondition(held.properties);
   }
   private followOwedAssignment(): void {
     const owed = this.owedAssignment;
@@ -3240,6 +3284,8 @@ export abstract class QuestionRecordsModel extends Question {
   protected abstract getListRecords(): Array<any>;
   // operations: the writes the default source made (DynamicDataOperation names), in order.
   protected abstract setListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void;
+  // The conditions of the objects, and of what the type derives from them (the matrix's columns and totals).
+  protected abstract runItemsCondition(properties: HashTable<any>): void;
   // The record fields the list knows (see getFieldsOfQuestions).
   protected abstract getFields(): Array<IDynamicDataField>;
   // The objects are re-created for the records the view - under paging, the page - holds now.

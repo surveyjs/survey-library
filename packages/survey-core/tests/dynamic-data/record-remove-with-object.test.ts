@@ -436,3 +436,57 @@ describe("a removal under a view after a removing handler assigned the value", (
     expect(panelSurvey.data.p, "panel").toEqual([{ a: 3 }, { a: 2.5 }]);
   });
 });
+
+describe("removing a record of another page by number keeps the other records", () => {
+  const letters = ["a", "b", "c", "d", "e", "f"];
+  const numbers = [1, 5, 3, 4, 2, 6];
+  const getData = (): Array<any> => numbers.map((n, i) => ({ n: n, t: letters[i] }));
+  const strip = (value: Array<any>): Array<string> => (value || []).map(record => "" + record.n + record.t);
+  function removeRow(perPage: number, json: any, expression: string): any {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "m", rowsPerPage: perPage,
+      columns: [{ name: "n", cellType: "text" }, { name: "t", cellType: "text" }, { name: "e", cellType: "expression", expression: expression }] }, json)] });
+    survey.setValue("m", getData());
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    if (perPage > 0) matrix.pageIndex = 1;
+    matrix.removeRow(0, false);
+    return { values: strip(survey.getValue("m")), count: matrix.rowCount };
+  }
+  function removePanel(perPage: number, json: any, expression: string): any {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "paneldynamic", name: "p", panelsPerPage: perPage,
+      templateElements: [{ type: "text", name: "n" }, { type: "text", name: "t" }, { type: "expression", name: "e", expression: expression }] }, json)] });
+    survey.setValue("p", getData());
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    panel.panels;
+    if (perPage > 0) {
+      if (panel.displayMode === "carousel") panel.currentIndex = 4; else panel.pageIndex = 2;
+    }
+    panel.removePanel(0);
+    return { values: strip(survey.getValue("p")), count: panel.panelCount };
+  }
+  test("the matrix, with an expression column on the record count", () => {
+    const paged = removeRow(2, {}, "{m.length}");
+    expect(paged.values, "#1").toEqual(["5b", "3c", "4d", "2e", "6f"]);
+    expect(paged, "#2: as without paging").toEqual(removeRow(0, {}, "{m.length}"));
+  });
+  test("the sorted matrix, with an expression column on the row index", () => {
+    const paged = removeRow(2, { sortBy: "n" }, "{rowIndex}");
+    expect(paged.values, "#1: the first record of the sorted view goes").toEqual(["5b", "3c", "4d", "2e", "6f"]);
+    expect(paged, "#2: as without paging").toEqual(removeRow(0, { sortBy: "n" }, "{rowIndex}"));
+  });
+  test("the dynamic panel in list mode, with an expression on the record count", () => {
+    const paged = removePanel(2, { displayMode: "list" }, "{p.length}");
+    expect(paged, "#1").toEqual({ values: ["5b", "3c", "4d", "2e", "6f"], count: 5 });
+    expect(paged, "#2: as without paging").toEqual(removePanel(0, { displayMode: "list" }, "{p.length}"));
+  });
+  test("the dynamic panel in carousel mode, with an expression on the record count", () => {
+    const paged = removePanel(2, { displayMode: "carousel" }, "{p.length}");
+    expect(paged, "#1").toEqual({ values: ["5b", "3c", "4d", "2e", "6f"], count: 5 });
+    expect(paged, "#2: as without paging").toEqual(removePanel(0, { displayMode: "carousel" }, "{p.length}"));
+  });
+  test("the sorted dynamic panel, with an expression on the panel index", () => {
+    const paged = removePanel(2, { displayMode: "list", sortBy: "n" }, "{panelIndex}");
+    expect(paged, "#1: the first record of the sorted view goes").toEqual({ values: ["5b", "3c", "4d", "2e", "6f"], count: 5 });
+    expect(paged, "#2: as without paging").toEqual(removePanel(0, { displayMode: "list", sortBy: "n" }, "{panelIndex}"));
+  });
+});

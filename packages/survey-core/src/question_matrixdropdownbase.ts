@@ -1183,10 +1183,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    * @see rowsVisibleIf
    */
   @property() columnsVisibleIf: string;
-  protected runConditionCore(properties: HashTable<any>): void {
-    super.runConditionCore(properties);
-    this.runItemsCondition(properties);
-  }
   protected onColumnsChanged(): void { }
   // The points where the visible rows may have changed; the fixed matrix hides itself without rows
   // (hideIfRowsEmpty).

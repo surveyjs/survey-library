@@ -12620,6 +12620,22 @@ describe("row actions the application supplies", () => {
     expect(cached.isDisposed, "#2: the table reset leaves the application's action").toBe(false);
     expect(getActions(getContainers(matrix)).indexOf(cached) > -1, "#3: the rebuilt table shows it").toBe(true);
   });
+  test("a row action the application caches keeps the rebuilt table as its owner when a UI disposes the old table later", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "a", cellType: "text" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const cached = new Action({ id: "my", title: "My", location: "end", action: () => { } });
+    survey.onGetMatrixRowActions.add((_, options) => { options.actions.push(cached); });
+    matrix.enableOnElementRerenderedEvent();
+    const oldTable = matrix.renderedTable;
+    matrix.addColumn("b");
+    const containers = getContainers(matrix);
+    expect(matrix.renderedTable !== oldTable, "#1: the table is rebuilt before the old one is disposed").toBe(true);
+    expect(containers.indexOf(cached.owner) > -1, "#2: the rebuilt table owns the action").toBe(true);
+    matrix.afterRerender();
+    expect(oldTable.isDisposed, "#3: the old table is disposed after the rerender").toBe(true);
+    expect(cached.isDisposed, "#4").toBe(false);
+    expect(containers.indexOf(cached.owner) > -1, "#5: the rebuilt table still owns the action").toBe(true);
+  });
   test("a table reset disposes the row actions the matrix created", () => {
     const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow",
       detailElements: [{ type: "text", name: "d" }], columns: [{ name: "a", cellType: "text" }] }] });

@@ -742,7 +742,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   /* The table disposes what it built: its rows and the containers of their actions, with the actions
      the table created and the ones a container made from plain objects. An Action instance the
-     application supplied stays usable: a handler may cache it and push it into the next table. */
+     application supplied stays usable: a handler may cache it and push it into the next table. Under a
+     UI the next table is built before this one is disposed (disposeAfterRerender), so such an action
+     can already belong to the next table's container: taking it out of this container must not take
+     it from its owner. */
   public dispose(): void {
     this.rows.forEach((row: QuestionMatrixDropdownRenderedRow): void => {
       row.cells.forEach((cell: QuestionMatrixDropdownRenderedCell): void => {
@@ -750,7 +753,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         if (!container || typeof container.dispose !== "function") return;
         const actions = container.actions;
         for (let i = actions.length - 1; i >= 0; i--) {
-          if (this.suppliedRowActions.indexOf(actions[i]) > -1) actions.splice(i, 1);
+          const action = actions[i];
+          if (this.suppliedRowActions.indexOf(action) < 0) continue;
+          const owner = action.owner;
+          actions.splice(i, 1);
+          if (!!owner && owner !== <any>container) action.owner = owner;
         }
         container.dispose();
       });

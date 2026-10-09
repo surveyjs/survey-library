@@ -155,7 +155,6 @@ describe("Page window: the objects that exist are the page", () => {
     expect(rowIds(matrix), "#3: records 60-79").toEqual(range(60, 79));
     expect(matrix.rowCount, "#4").toBe(100);
     expect(matrix.value.length, "#5").toBe(100);
-    expect(matrix.visibleRows === matrix.rowsOnPage, "#6: the page is visibleRows itself").toBe(true);
   });
   test("siblings on one valueName: a write through A's page reaches B's panel only when B shows that record", () => {
     const survey = new SurveyModel({
@@ -2059,7 +2058,6 @@ describe("Fixed matrix pages its rows", () => {
   test("the rows are the page, and the visible index is global", () => {
     const { matrix } = createFixed();
     expect(names(matrix.visibleRows), "#1: page 0").toEqual(["r1", "r2", "r3"]);
-    expect(matrix.rowsOnPage === matrix.visibleRows, "#1: the page is visibleRows itself").toBe(true);
     expect(matrix.pageCount, "#2").toBe(3);
     expect(matrix.nextPage(), "#3").toBe(true);
     expect(names(matrix.visibleRows), "#3: page 1").toEqual(["r4", "r5", "r6"]);
@@ -2210,7 +2208,7 @@ describe("Fixed matrix pages its rows", () => {
     }
     expect(titles, "#1: every row").toEqual(sevenRows);
     expect(matrix.pageCount, "#2: no paging while single input is active").toBe(1);
-    expect(matrix.rowsOnPage.length, "#3").toBe(7);
+    expect(matrix.visibleRows.length, "#3").toBe(7);
   });
   test("design mode builds every row", () => {
     const survey = new SurveyModel();

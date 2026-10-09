@@ -1521,8 +1521,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (this.renderedTable.isRequireReset() || this.isPagingActive) {
       this.resetRenderedTable();
     } else {
-      const index = this.rowsOnPage.length - 1;
-      this.renderedTable.onAddedRow(this.rowsOnPage[index], index);
+      const index = this.visibleRows.length - 1;
+      this.renderedTable.onAddedRow(this.visibleRows[index], index);
     }
   }
   protected onEndRowRemoving(row: MatrixDropdownRowModelBase) {
@@ -2242,13 +2242,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (this.isGenereatingRows) return [];
     this.generateVisibleRowsIfNeeded();
     return this.generatedVisibleRows;
-  }
-  /* The rows the rendered table shows. The rows that exist are the page: which rows exist is decided
-     by the list filter and the list sort (they create the rows), and with paging on visibleRows holds
-     the current page only, whatever the source, so the page is visibleRows itself - the same
-     instance - and never a slice of it. */
-  public get rowsOnPage(): Array<MatrixDropdownRowModelBase> {
-    return this.visibleRows;
   }
   private generateVisibleRowsIfNeeded(): void {
     if (!this.isUpdateLocked && !this.generatedVisibleRows) {

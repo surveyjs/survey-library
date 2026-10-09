@@ -2058,13 +2058,11 @@ describe("Remote data source: the window is the page", () => {
   test("matrix: the rows of a source-paged page are the page, not a slice of it", async () => {
     const source = new FakeServerSource(serverRecords(12));
     const { question } = await createMatrix(source);
-    expect(question.rowsOnPage.length, "#1: the first page").toBe(5);
+    expect(question.visibleRows.length, "#1: the first page").toBe(5);
     question.nextPage();
     await flush();
-    expect(question.visibleRows.length, "#2: the rows exist for the window").toBe(5);
-    expect(question.rowsOnPage.length, "#3: and they ARE the page - no second slice by pageIndex").toBe(5);
-    expect(question.rowsOnPage === question.visibleRows, "#4: the same instance").toBe(true);
-    expect(question.renderedTable.rows.length > 0, "#5: the table renders them").toBe(true);
+    expect(question.visibleRows.length, "#2: the rows exist for the window - no second slice by pageIndex").toBe(5);
+    expect(question.renderedTable.rows.length > 0, "#3: the table renders them").toBe(true);
   });
   test("panel: the panels of a source-paged page are the page", async () => {
     const source = new FakeServerSource(serverRecords(12));
@@ -2084,7 +2082,7 @@ describe("Remote data source: the window is the page", () => {
     question.addRow();
     await flush();
     expect(question.pageIndex, "#1: the record went into this window, so the page does not move").toBe(1);
-    expect(question.rowsOnPage.length, "#2: the new row is on it").toBe(6);
+    expect(question.visibleRows.length, "#2: the new row is on it").toBe(6);
     expect(source.callsOf("pagedRead").length, "#3: no page was re-read").toBe(0);
   });
   test("panel: addPanel keeps the page the panel was added to", async () => {

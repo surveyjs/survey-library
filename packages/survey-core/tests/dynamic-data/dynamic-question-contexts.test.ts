@@ -228,7 +228,7 @@ describe("Dynamic questions: the record visibility under paging goes through onE
       }
       function pageXs(question: DynamicQuestion): Array<any> {
         if (question instanceof QuestionMatrixDynamicModel) {
-          return question.rowsOnPage.map(r => r.getQuestionByName("x").value);
+          return question.visibleRows.map(r => r.getQuestionByName("x").value);
         }
         return question.panelsOnPage.map(p => p.getQuestionByName("x").value);
       }
@@ -474,7 +474,7 @@ describe("Dynamic questions: the record-visibility pass under paging", () => {
       const survey = createSurvey(matrixKind, records("a", "b", "c", "d"), { rowsPerPage: 2, rowsVisibleIf: "recordRowX() != 'a'" });
       const question = getQuestion(survey);
       expect(question["dataList"].visibleCount, "#1: record 0 is hidden").toBe(3);
-      expect((<QuestionMatrixDynamicModel>question).rowsOnPage.map(r => r.getValue("x")), "#2: the page starts at record 1").toEqual(["b", "c"]);
+      expect((<QuestionMatrixDynamicModel>question).visibleRows.map(r => r.getValue("x")), "#2: the page starts at record 1").toEqual(["b", "c"]);
     } finally {
       FunctionFactory.Instance.unregister("recordRowX");
     }

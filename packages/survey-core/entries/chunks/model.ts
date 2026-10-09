@@ -183,7 +183,6 @@ export {
   runBinaryOperator
 } from "../../src/expressions/expressions";
 export { ConditionsParser } from "../../src/conditions/conditionsParser";
-export { expressionGuideVersion, expressionGuideSections, getExpressionGuideText, IExpressionGuideSection, IExpressionGuideExample } from "../../src/expressions/expression-guide";
 export { ConditionEditorItem, SurveyConditionEditorItem, ConditionEditorItemsBuilder } from "../../src/conditions/conditionEditorItems";
 export {
   isConditionOperatorEnabled,

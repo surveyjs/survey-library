@@ -1960,9 +1960,9 @@ export class SurveyModel extends SurveyElementCore
    *
    * If you enable this property, the survey is also completed automatically. Set the [`autoAdvanceAllowComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceAllowComplete) property to `false` if you want to disable this behavior.
    *
-   * > If any of the following questions is answered last, the survey does not switch to the next page: Yes/No (Boolean) (rendered as Checkbox), Signature, File Upload, Single-Select Matrix (not all rows are answered), Dynamic Matrix, Dynamic Panel.
+   * > If any of the following questions is answered last, the survey does not switch to the next page: Signature, File Upload, Single-Select Matrix (not all rows are answered), Dynamic Matrix, Dynamic Panel.
    * >
-   * > For Checkboxes, Tag Box, Image Picker (with Multi Select), Ranking and Long Text, the survey switches to the next page when the respondent presses Enter after answering. In Long Text, Shift+Enter inserts a line break.
+   * > For Checkboxes, Tag Box, Image Picker (with Multi Select), Ranking, Yes/No (Boolean) (rendered as Checkbox) and Long Text, the survey switches to the next page when the respondent presses Enter after answering. In Long Text, Shift+Enter inserts a line break.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)

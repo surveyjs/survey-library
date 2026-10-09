@@ -153,6 +153,21 @@ frameworks.forEach((framework) => {
       await expect(comment).toHaveValue("line1\nline2");
     });
 
+    test("Boolean checkbox Enter confirms the answer", async ({ page }) => {
+      await init(page, framework, { type: "boolean", name: "q1", displayMode: "checkbox" });
+      const checkbox = page.locator("input[type=checkbox]").first();
+      await expect(checkbox).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expectFirstPage(page);
+      expect(await getSurveyData(page)).toEqual({});
+      await page.keyboard.press("Space");
+      await expect(checkbox).toBeChecked();
+      await expectFirstPage(page);
+      await page.keyboard.press("Enter");
+      await expectSecondPage(page);
+      expect(await getSurveyData(page)).toEqual({ q1: true });
+    });
+
     test("Ranking Enter confirms the answer", async ({ page }) => {
       await init(page, framework, { type: "ranking", name: "q1", choices: ["a", "b", "c"] });
       await expect(page.locator(".sv-ranking-item").first()).toBeFocused();

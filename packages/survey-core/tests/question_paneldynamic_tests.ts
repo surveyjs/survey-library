@@ -22,6 +22,7 @@ import { setOldTheme } from "./oldTheme";
 import { DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent } from "../src/survey-events-api";
 import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../src/actions/adaptive-container";
 import { Serializer } from "../src/jsonobject";
+import { surveyLocalization } from "../src/surveyStrings";
 import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
 
 import { describe, test, expect, vi } from "vitest";
@@ -9440,5 +9441,36 @@ describe("Survey_QuestionPanelDynamic", () => {
     });
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("details");
     expect(question.toJSON().panelCountExpression, "The expression is serialized").toBe("{n}");
+  });
+  test("Prev/Next navigation buttons titles are updated on changing survey locale, Bug#11979", () => {
+    const survey = new SurveyModel({
+      locale: "de",
+      elements: [
+        {
+          type: "paneldynamic", name: "panel",
+          displayMode: "carousel",
+          panelCount: 3,
+          templateElements: [{ type: "text", name: "q1" }]
+        }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    question.currentIndex = 1;
+    const prevBtn = question.footerToolbar.getActionById("sv-pd-prev-btn");
+    const nextBtn = question.footerToolbar.getActionById("sv-pd-next-btn");
+    expect(prevBtn.visible, "prev button is visible").toBe(true);
+    expect(nextBtn.visible, "next button is visible").toBe(true);
+    const dePrevText = surveyLocalization.getString("pagePrevText", "de");
+    expect(dePrevText, "German prev text differs from English").not.toBe("Previous");
+    expect(prevBtn.title, "prev button, de").toBe(dePrevText);
+    expect(nextBtn.title, "next button, de").toBe("Weiter");
+    survey.locale = "";
+    expect(question.prevPanelText, "prevPanelText, en").toBe("Previous");
+    expect(question.nextPanelText, "nextPanelText, en").toBe("Next");
+    expect(prevBtn.title, "prev button, en").toBe("Previous");
+    expect(nextBtn.title, "next button, en").toBe("Next");
+    survey.locale = "de";
+    expect(prevBtn.title, "prev button, de again").toBe(dePrevText);
+    expect(nextBtn.title, "next button, de again").toBe("Weiter");
   });
 });

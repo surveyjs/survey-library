@@ -115,11 +115,14 @@ test("bijective base-26 choice codes", () => {
 });
 
 test("showChoiceShortcutKeys serialization and inheritance", () => {
+  expect(Serializer.findProperty("survey", "showChoiceShortcutKeys").getDefaultValue(undefined)).toBe(false);
+  expect(Serializer.findProperty("checkbox", "showShortcutKeys").defaultValueFunc(undefined)).toBeUndefined();
+
   const plain = new SurveyModel({ elements: [{ type: "radiogroup", name: "q", choices: ["a", "b"] }] });
   expect(plain.showChoiceShortcutKeys).toBe(false);
   expect(plain.toJSON().showChoiceShortcutKeys).toBeUndefined();
   const plainQuestion = questionOf<QuestionRadiogroupModel>(plain);
-  expect(plainQuestion.showShortcutKeys).toBe(false);
+  expect(plainQuestion.showShortcutKeys).toBeUndefined();
   expect(plainQuestion.toJSON().showShortcutKeys).toBeUndefined();
   expect(plainQuestion.isChoiceKeyboardSelectionEnabled).toBe(false);
 
@@ -141,12 +144,16 @@ test("showChoiceShortcutKeys serialization and inheritance", () => {
   const inherited = survey.getQuestionByName("q1") as QuestionRadiogroupModel;
   const turnedOff = survey.getQuestionByName("q2") as QuestionCheckboxModel;
   const turnedOn = survey.getQuestionByName("q3") as QuestionRadiogroupModel;
+  expect(inherited.showShortcutKeys).toBeUndefined();
+  expect(turnedOff.showShortcutKeys).toBe(false);
+  expect(turnedOn.showShortcutKeys).toBe(true);
   expect(inherited.isChoiceKeyboardSelectionEnabled).toBe(true);
   expect(turnedOff.isChoiceKeyboardSelectionEnabled).toBe(false);
   expect(turnedOn.isChoiceKeyboardSelectionEnabled).toBe(true);
 
   survey.showChoiceShortcutKeys = false;
   turnedOn.showShortcutKeys = undefined;
+  expect(turnedOn.showShortcutKeys).toBeUndefined();
   expect(turnedOn.isChoiceKeyboardSelectionEnabled).toBe(false);
   turnedOn.showShortcutKeys = true;
   expect(turnedOn.isChoiceKeyboardSelectionEnabled).toBe(true);

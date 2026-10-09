@@ -2883,12 +2883,13 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
   }
-  // Default is false. An unset value still inherits survey.showChoiceShortcutKeys;
-  // an explicit true or false overrides it and is kept in JSON.
-  public get showShortcutKeys(): boolean {
-    return this.getPropertyValueWithoutDefault("showShortcutKeys") === true;
+  // undefined inherits survey.showChoiceShortcutKeys. An explicit true or false overrides it and is kept in JSON.
+  public get showShortcutKeys(): boolean | undefined {
+    const own = this.getPropertyValueWithoutDefault("showShortcutKeys");
+    if (own === true || own === false) return own;
+    return undefined;
   }
-  public set showShortcutKeys(val: boolean) {
+  public set showShortcutKeys(val: boolean | undefined) {
     const prev = this.getPropertyValueWithoutDefault("showShortcutKeys");
     const next = val === true ? true : val === false ? false : undefined;
     if (prev === next) return;
@@ -2897,7 +2898,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     } else {
       this.setPropertyValueDirectly("showShortcutKeys", next);
     }
-    this.propertyValueChanged("showShortcutKeys", prev === true, next === true);
+    this.propertyValueChanged("showShortcutKeys", prev, next);
   }
   public supportsChoiceKeyboardSelection(): boolean {
     return false;
@@ -3233,7 +3234,7 @@ Serializer.addClass(
     },
     {
       name: "showShortcutKeys:boolean",
-      default: false,
+      defaultFunc: () => undefined,
       visibleIf: (obj: any): boolean => !!obj.supportsChoiceKeyboardSelection && obj.supportsChoiceKeyboardSelection(),
       onSerializeValue: (obj: any) => obj.getPropertyValueWithoutDefault("showShortcutKeys")
     }

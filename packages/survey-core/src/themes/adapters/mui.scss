@@ -540,6 +540,9 @@
     background-color: transparent;
 
     max-width: calc(100% - 12px);
+    &>.sd-question__description {
+      display: none;
+    }
   }
 
   .sd-question__title:not(:has(.svc-string-editor)) {
@@ -601,6 +604,10 @@
       --sjs2-color-component-question-default-title: var(--mui-palette-error-main);
       color: var(--mui-palette-error-main);
     }
+  }
+  .sd-question__erbox {
+    order: 1;
+    margin-top: 3px;
   }
 }
 
@@ -1103,4 +1110,8 @@
 .sd-slider__track:after,
 input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   height: 4px;
+}
+
+.svc-question__content--title-bottom .sd-question__content {
+  margin-top: 12px;
 }

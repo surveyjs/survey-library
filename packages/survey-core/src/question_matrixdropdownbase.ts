@@ -3266,17 +3266,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (this.isEditingObjectValue) return this.updateRowValueInWholeValue(row, columnName, newRowValue, isDeletingValue);
     const index = this.getRecordIndexOf(row);
     if (index < 0) return null;
-    const list = this.dataList;
-    const oldRecord = list.getRecord(index);
+    const oldRecord = this.dataList.getRecord(index);
     const oldCellValue = oldRecord?.[columnName];
-    // The merge is the base's; the record it works on is a copy of the one the list holds.
-    const rowValue = Object.assign({}, oldRecord);
-    this.mergeRowValue(rowValue, row, columnName, newRowValue, isDeletingValue);
-    if (DynamicDataList.isValueChanged(rowValue, oldRecord)) {
-      this.markRecordTouchedByField(index, row, columnName);
-    }
-    const isChanged = this.writeRecords((): boolean => list.setRecord(index, rowValue));
-    return isChanged ? { rowValue: rowValue, oldCellValue: oldCellValue } : null;
+    // The merge is the base's, over a copy of the record (writeRecordAt).
+    const rowValue = this.writeRecordAt(index, (record: any): void => this.mergeRowValue(record, row, columnName, newRowValue, isDeletingValue),
+      (): void => this.markRecordTouchedByField(index, row, columnName));
+    return !!rowValue ? { rowValue: rowValue, oldCellValue: oldCellValue } : null;
   }
   /* The cell write of a value that is edited in place (isEditingObjectValue): the whole value is
      composed and assigned, and the list is not involved. */

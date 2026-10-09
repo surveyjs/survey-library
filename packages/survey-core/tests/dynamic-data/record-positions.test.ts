@@ -291,15 +291,16 @@ describe("addPanel with a filter and no paging returns the new panel and announc
 });
 
 describe("removeRowByIndex with a source and no paging refuses an out-of-range number", () => {
-  test("a number past the records and a negative one remove nothing", () => {
+  test("a number past the records removes nothing, and a negative one counts from the end", () => {
     const source = new SyncSource(keyedRecords(3));
     const matrix = createMatrix({});
     matrix.dataSource = source;
     matrix.removeRowByIndex(99);
-    matrix.removeRowByIndex(-1);
     expect(source.records.map(r => r.a), "#1").toEqual([0, 1, 2]);
-    matrix.removeRowByIndex(2);
+    matrix.removeRowByIndex(-1);
     expect(source.records.map(r => r.a), "#2").toEqual([0, 1]);
+    matrix.removeRowByIndex(1);
+    expect(source.records.map(r => r.a), "#3").toEqual([0]);
   });
   test("a local matrix under a filter refuses a number past the rows the view shows", () => {
     const matrix = createMatrix({}, [{ a: 1 }, { a: 2 }, { a: 3 }]);

@@ -928,16 +928,37 @@ export abstract class QuestionRecordsModel extends Question {
   protected get areRecordsReadOnly(): boolean {
     return this.isReadOnly || !this.canWriteRecords("update");
   }
+  /* The value of the array types - the types with a record count of their own (getRecordCountNames):
+     every record is a plain object, an empty one may be null. A keyed answer (the fixed matrices) keeps
+     the rule of its type. */
+  protected isDataValueCorrect(val: any): boolean {
+    if (!this.getRecordCountNames()) return super.isDataValueCorrect(val);
+    return Array.isArray(val) && val.every((record: any): boolean => Helpers.isValueEmpty(record) || Helpers.isValueObject(record, true));
+  }
   // The count properties of a type; undefined: the type has no count of its own (the fixed matrix).
-  protected getRecordCountNames(): { count: string, expression: string, min: string, max: string } {
+  protected getRecordCountNames(): IRecordCountNames {
     return undefined;
   }
-  protected setRecordCountByExpression(val: any): void { }
-  // The count getRecordCountNames names (rowCount, panelCount), read and set through its accessor.
-  protected getRecordCountValue(): number {
-    return 0;
+  /* The count the expression computes, clamped to the type's limits, set through the count's accessor.
+     A type runs the assignment in its own frame (runRecordCountExpressionWrite). */
+  protected setRecordCountByExpression(val: any): void {
+    const names = this.getRecordCountNames();
+    if (!names) return;
+    const count = this.getRecordCountByExpressionValue(val, this.getPropertyValue(names.min), this.getRecordCountLimitOf(names.max));
+    this.runRecordCountExpressionWrite((): void => this.setRecordCountValue(count));
   }
-  protected setRecordCountValue(val: number): void { }
+  protected runRecordCountExpressionWrite(write: () => void): void {
+    write();
+  }
+  // The count getRecordCountNames names (rowCount, panelCount), read and set through its public accessor.
+  protected getRecordCountValue(): number {
+    const names = this.getRecordCountNames();
+    return !!names ? (<any>this)[names.count] : 0;
+  }
+  protected setRecordCountValue(val: number): void {
+    const names = this.getRecordCountNames();
+    if (!!names)(<any>this)[names.count] = val;
+  }
   /* A change of the minimum or the maximum count (getRecordCountNames): the other limit and the count
      follow, and the count expression runs again over the new limits. The type adds its own steps:
      onMinRecordCountApplied before the count follows a new minimum, onMaxRecordCountApplied last. */
@@ -952,14 +973,14 @@ export abstract class QuestionRecordsModel extends Question {
       this.onMaxRecordCountChanged(names);
     }
   }
-  private onMinRecordCountChanged(names: { count: string, expression: string, min: string, max: string }): void {
+  private onMinRecordCountChanged(names: IRecordCountNames): void {
     const val = this.getPropertyValue(names.min);
     if (val > this.getMaxRecordCount(names.max))this.setMaxRecordCount(names.max, val);
     this.onMinRecordCountApplied(val);
     if (this.getRecordCountValue() < val)this.setRecordCountValue(val);
     this.rerunRecordCountExpression();
   }
-  private onMaxRecordCountChanged(names: { count: string, expression: string, min: string, max: string }): void {
+  private onMaxRecordCountChanged(names: IRecordCountNames): void {
     const val = this.getMaxRecordCount(names.max);
     if (val < this.getPropertyValue(names.min))this.setPropertyValue(names.min, val);
     const limit = this.getRecordCountLimitOf(names.max);
@@ -2274,16 +2295,25 @@ export abstract class QuestionRecordsModel extends Question {
       this.reportRecordNotLoaded("update");
       return;
     }
-    const index = target.recordIndex;
+    this.writeRecordAt(target.recordIndex, merge);
+  }
+  /* One record written by the question: a copy of the stored record, changed by merge - the stored
+     one is never mutated - and written as the question's own change when it differs. A change is
+     marked for the page validation: by default the record (markRecordEdited), or as markEdited says
+     (the matrix marks the field a row touched). Returns the record written, undefined when nothing
+     changed. */
+  protected writeRecordAt(index: number, merge: (record: any) => void, markEdited?: () => void): any {
     const list = this.dataList;
     const oldRecord = list.getRecord(index);
     const record = Object.assign({}, oldRecord);
     merge(record);
-    if (!DynamicDataList.isValueChanged(record, oldRecord)) return;
-    if (this.isPagedByList) {
+    if (!DynamicDataList.isValueChanged(record, oldRecord)) return undefined;
+    if (!!markEdited) {
+      markEdited();
+    } else if (this.isPagedByList) {
       this.markRecordEdited(index);
     }
-    this.writeRecords((): boolean => list.setRecord(index, record));
+    return this.writeRecords((): boolean => list.setRecord(index, record)) ? record : undefined;
   }
   /* The start of a removal: the remove a source cannot make is refused, resolve names the target, and
      a record a source that pages itself has not loaded is reported. undefined: nothing to remove. */
@@ -2339,6 +2369,17 @@ export abstract class QuestionRecordsModel extends Question {
   /* A removal the respondent confirms first (confirmDeleteText): the target is held while the dialog
      is open, found again when they confirm (findRemoveTargetAgain), and handed to remove; nothing is
      removed when it is gone. */
+  /* The removal flow of both types: with a confirmation the target is found again when the respondent
+     answers (confirmRecordRemoval), without one at once - the object or record the caller named, where
+     it is now. */
+  protected runRecordRemoval(target: IRecordTarget, isConfirmed: boolean, message: string, remove: (current: IRecordTarget) => void): void {
+    if (isConfirmed) {
+      this.confirmRecordRemoval(target, message, remove);
+      return;
+    }
+    const current = this.findRemoveTargetAgain(target);
+    if (!!current) remove(current);
+  }
   protected confirmRecordRemoval(target: IRecordTarget, message: string, remove: (current: IRecordTarget) => void): void {
     this.holdRemoveTarget(target);
     confirmActionAsync({
@@ -3314,9 +3355,19 @@ export abstract class QuestionRecordsModel extends Question {
   /* The storage half alone: used after every write the list pushed to the source. The object the
      respondent is typing in already holds the new value, and a rebuild would dispose it under the
      edit (the frozen-membership rule). */
+  /* The window of a source becomes the stored value, and the source's count the record count: it is
+     stored on every transition that stores the window (a committed read, the unread window of an
+     attach, each write pushed to the source before it answers) and read from there
+     (storedSourceRecordCount) - a live read of the list while a source is being attached counts the
+     question's own value, which reads the count back. */
   protected storeLoadedRecords(): void {
     this.storeQuestionValue(this.dataList.getLoadedRecords());
+    this.storedSourceRecordCount = this.dataList.count;
+    this.onSourceRecordCountStored(this.storedSourceRecordCount);
   }
+  protected storedSourceRecordCount: number = 0;
+  // The type's count follows the stored count of the source (the matrix's rowCount).
+  protected onSourceRecordCountStored(count: number): void { }
   // After a write to a data source was stored, before the conditions run; not guarded against
   // re-entrancy. The default: nothing to prepare.
   protected prepareRemoteWrite(change: IDynamicDataListChange): void { }
@@ -3810,6 +3861,13 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
     json[key].forEach((el: any): void => { if (!!el && el.type === "panel") removeRecordCleanupSkipped(el, names); });
   });
   return json;
+}
+/* The count properties of a type with a record count (getRecordCountNames): rowCount, rowCountExpression,
+   minRowCount, maxRowCount for "Row". */
+export interface IRecordCountNames { count: string, expression: string, min: string, max: string }
+export function getRecordCountNamesOf(entity: string): IRecordCountNames {
+  const name = entity.charAt(0).toLowerCase() + entity.substring(1);
+  return { count: name + "Count", expression: name + "CountExpression", min: "min" + entity + "Count", max: "max" + entity + "Count" };
 }
 // A temporary row or panel of the records clean-up (createRecordCleanupObject).
 export interface IRecordCleanupObject {

@@ -173,11 +173,18 @@ describe("copyDefaultValueFromLastEntry: the record a panel copies", () => {
     panel.addPanel(0);
     expect(panel.value, "#1").toEqual([{ a: 2 }, { a: 1 }, { a: 2 }, { a: 3 }]);
   });
-  test("unpaged list mode: addPanel(0) copies the record at the last position after the insert", () => {
+  test("unpaged list mode: addPanel(0) copies the last record, as paged", () => {
     const panel = createPanel(copy, data());
     panel.panels;
     panel.addPanel(0);
-    expect(panel.value, "#1").toEqual([{ a: 2 }, { a: 1 }, { a: 2 }, { a: 3 }]);
+    expect(panel.value, "#1").toEqual([{ a: 3 }, { a: 1 }, { a: 2 }, { a: 3 }]);
+  });
+  test("unpaged carousel mode: addPanel copies the current panel", () => {
+    const panel = createPanel(Object.assign({ displayMode: "carousel" }, copy), data());
+    panel.panels;
+    panel.currentIndex = 1;
+    panel.addPanel();
+    expect(panel.value, "#1").toEqual([{ a: 1 }, { a: 2 }, { a: 2 }, { a: 3 }]);
   });
   test("unpaged tab mode: addPanel(0) copies the record at the current position after the insert", () => {
     const panel = createPanel(Object.assign({ displayMode: "tab" }, copy), data());

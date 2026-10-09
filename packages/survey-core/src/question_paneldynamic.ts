@@ -40,7 +40,8 @@ import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-da
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, IDynamicDataRecordUniqueness, QuestionRecordsModel,
-  QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped
+  QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
+  IRecordCountNames, getRecordCountNamesOf
 } from "./question_records";
 
 export class PanelDynamicItemGetterContext extends QuestionRecordItemGetterContext {
@@ -362,7 +363,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   /* A data source that supplies the panel records (IDynamicDataSource): the question reads them from
      it, a page at a time when it pages, and pushes every edit, insertion and deletion to it. Not
-     serialized - a data source is code, not survey JSON. undefined goes back to question.value. */
+     serialized - a data source is code, not survey JSON. undefined goes back to question.value.
+     Declared here and in the Dynamic Matrix, not in QuestionRecordsModel: the Multi-Select Matrix shares
+     the base and has no data source. The body is the shared one (getDataSource / setDataSource). */
   public get dataSource(): IDynamicDataSource {
     return this.getDataSource();
   }
@@ -1386,8 +1389,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * @see panelCountExpression
    */
   // The RECORD count. It stops being the panel count while a filter is active.
+  // With a data source the source owns the count: the one stored with its window (storeLoadedRecords).
   public get panelCount(): number {
     if (!this.canBuildPanels || this.wasNotRenderedInSurvey) return this.getPropertyValue("panelCount");
+    if (this.isRemoteData) return this.storedSourceRecordCount;
     return this.hasDataListView ? this.dataList.count : this.panelsCore.length;
   }
   public set panelCount(val: number) {
@@ -1586,23 +1591,15 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    */
   @property() panelCountExpression: string;
   // The count expression (QuestionRecordsModel.hasRecordCountExpression) sets panelCount.
-  private static recordCountNames = { count: "panelCount", expression: "panelCountExpression", min: "minPanelCount", max: "maxPanelCount" };
-  protected getRecordCountNames(): { count: string, expression: string, min: string, max: string } {
-    return QuestionPanelDynamicModel.recordCountNames;
-  }
-  protected getRecordCountValue(): number {
-    return this.panelCount;
-  }
-  protected setRecordCountValue(val: number): void {
-    this.panelCount = val;
-  }
+  private static recordCountNames = getRecordCountNamesOf("Panel");
+  protected getRecordCountNames(): IRecordCountNames { return QuestionPanelDynamicModel.recordCountNames; }
   /* The count the expression sets writes the value it truncates or pads, also while the count follows
      an assigned value (setPanelCountBasedOnValue): the expression's count wins over the assigned one. */
-  protected setRecordCountByExpression(val: any): void {
+  protected runRecordCountExpressionWrite(write: () => void): void {
     const isSettingByValue = this.settingPanelCountBasedOnValue;
     this.settingPanelCountBasedOnValue = false;
     try {
-      this.panelCount = this.getRecordCountByExpressionValue(val, this.minPanelCount, this.panelCountLimit);
+      write();
     } finally {
       this.settingPanelCountBasedOnValue = isSettingByValue;
     }
@@ -2297,18 +2294,18 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   private updateValueOnAddingPanelCore(prevIndex: number, index: number): void {
     const list = this.dataList;
+    // List mode copies the last record, read before the insert, as every other add (getCopySourceRecord).
+    const listCopyFrom = this.isRenderModeList ? this.getCopySourceRecord() : undefined;
     this.growAndMoveRecord((): void => { this.panelCount++; }, (): number => {
       if (list.count !== this.panelCount) return -1;
       const lastIndex = this.panelCount - 1;
       // index is a created position; the record it names is where the list moves the new one.
       return index < lastIndex ? this.getRecordIndexAtCreatedPosition(index) : lastIndex;
     }, (recordIndex: number): any => {
-      /* The released copy source: prevIndex - the current panel's record in carousel and tab mode, the
-         last record in list mode - read after the move, so an insert in front of it reads the record
-         that has shifted into its place. The record-first adds read it before the insert
-         (getCopySourceRecord). */
-      let copyFrom: any = undefined;
-      if (this.copyDefaultValueFromLastEntry && list.count > 1) {
+      /* Carousel and tab mode copy the current panel's record (prevIndex), read after the move as
+         released: an insert in front of it reads the record that has shifted into its place. */
+      let copyFrom: any = listCopyFrom;
+      if (!this.isRenderModeList && this.copyDefaultValueFromLastEntry && list.count > 1) {
         const lastIndex = list.count - 1;
         const fromIndex = prevIndex > -1 && prevIndex <= lastIndex ? prevIndex : lastIndex;
         copyFrom = fromIndex > -1 ? list.getRecord(fromIndex) || {} : undefined;
@@ -2410,12 +2407,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         this.focusAfterPanelRemoved(visIndex > -1 ? visIndex : shownAt);
         this.keepFocusForReadAfterRemoval(visIndex);
       };
-      if (confirmDelete) {
-        this.confirmRecordRemoval(target, this.confirmDeleteText, removePanel);
-      } else {
-        const current = this.findRemoveTargetAgain(target);
-        if (!!current) removePanel(current);
-      }
+      this.runRecordRemoval(target, confirmDelete, this.confirmDeleteText, removePanel);
     } else {
       this.removePanelCore(target);
     }
@@ -2668,10 +2660,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (!record) return;
     const keys = this.getRecordUnknownKeys(index, record, <QuestionPanelDynamicItem>panel.data);
     if (keys.length === 0) return;
-    // A copy: the stored record is never mutated, the list replaces it.
-    const values = Object.assign({}, record);
-    keys.forEach((key: string): void => { delete values[key]; });
-    this.dataList.setRecord(index, values);
+    this.writeRecordAt(index, (values: any): void => { keys.forEach((key: string): void => { delete values[key]; }); });
   }
   private iscorrectValueWithPostPrefix(
     panel: PanelModel,
@@ -2907,12 +2896,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
           newProps[panelName] = panel;
           panel.runCondition(newProps);
           // The owner-visibility layer of the list: visiblePanels stays incrementally maintained by the
-          // "visible" property-changed handler, this only keeps the list flags in step with it.
-          this.setPanelRecordVisible(panel, isPanelsCore ? i : undefined);
+          // "visible" property-changed handler, this only keeps the list flags in step with it - for
+          // the panels of the question at once after the loop (setItemRecordsVisible, as the matrix's rows).
+          if (!isPanelsCore)this.setPanelRecordVisible(panel);
           if (panel.isVisible) {
             visibleIndex++;
           }
         }
+        if (isPanelsCore)this.setItemRecordsVisible(panels.length, (position: number): boolean => panels[position].visible);
       }));
     } finally {
       this.isPagingSyncSuspended = prevIsPagingSyncSuspended;
@@ -3412,10 +3403,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.setTemplatePanelSurveyImpl();
       this.rebuildPanels();
     }
-  }
-  protected isDataValueCorrect(val: any): boolean {
-    // Every row is a plain object; an empty one may be null.
-    return Array.isArray(val) && val.every(row => Helpers.isValueEmpty(row) || Helpers.isValueObject(row, true));
   }
   public getValueChangingOptions(childQuestion: Question): any {
     let pnl = childQuestion.parent;

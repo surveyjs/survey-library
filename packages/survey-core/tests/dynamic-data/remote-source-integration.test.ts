@@ -6580,6 +6580,49 @@ describe("one in-memory source assigned to two questions", () => {
 });
 
 describe("a data source owns the record count", () => {
+  test("the count of both types equals the records shown on every transition of an asynchronous source", async () => {
+    const kinds: Array<any> = [
+      { name: "matrix", json: { type: "matrixdynamic", name: "q", rowCount: 0, columns: [{ name: "col1" }] },
+        count: (q: any): number => q.rowCount, shown: (q: any): number => q.visibleRows.length,
+        add: (q: any): void => q.addRow(), remove: (q: any): void => q.removeRow(0) },
+      { name: "panel", json: { type: "paneldynamic", name: "q", templateElements: [{ type: "text", name: "col1" }] },
+        count: (q: any): number => q.panelCount, shown: (q: any): number => q.panels.length,
+        add: (q: any): void => { q.addPanel(); }, remove: (q: any): void => q.removePanel(0) }
+    ];
+    for (const kind of kinds) {
+      const survey = new SurveyModel({ elements: [kind.json] });
+      const question: any = survey.getQuestionByName("q");
+      const source = new FakeServerSource(serverRecords(3), ["insert", "update", "remove", "move"], "id");
+      source.auto = false;
+      question.dataSource = source;
+      const check = (label: string): void => {
+        expect(kind.count(question), kind.name + " " + label).toBe(kind.shown(question));
+      };
+      check("#1: attached, the first read pending");
+      source.settleAll();
+      await flush();
+      check("#2: after the first read");
+      expect(kind.count(question), kind.name + " #2b").toBe(3);
+      kind.add(question);
+      check("#3: right after the add, before the source answers");
+      source.settleAll();
+      await flush();
+      check("#4: after the insert answered");
+      kind.remove(question);
+      check("#5: right after the remove, before the source answers");
+      source.settleAll();
+      await flush();
+      check("#6: after the remove answered");
+      kind.add(question);
+      source.pending[0].fail(new Error("refused"));
+      await flush();
+      check("#7: after a rejected insert");
+      kind.remove(question);
+      source.pending[0].fail(new Error("refused"));
+      await flush();
+      check("#8: after a rejected remove");
+    }
+  });
   test("with a data source the row count and the panel count follow the source's count after a read and after an add", async () => {
     const matrixSource = new FakeServerSource(serverRecords(3));
     const { question: matrix } = await createMatrix(matrixSource, { rowsPerPage: 0 });
@@ -6653,5 +6696,65 @@ describe("the focus kept for a re-read after a removal from the UI", () => {
     await flush();
     expect(panel.panels.length, "#3").toBe(3);
     expect(panelFocused.mock.calls.length, "#4").toBe(0);
+  });
+});
+
+describe("a negative row number with a data source", () => {
+  test("the last record is in the loaded window: removeRowByIndex(-1) removes it and addRowByIndex(data, -1) inserts before it", async () => {
+    const source = keyedSource(3);
+    const { question } = await createMatrix(source);
+    question.removeRowByIndex(-1);
+    await flush();
+    expect(source.records.map((r: any) => r.id), "#1").toEqual([100, 101]);
+    question.addRowByIndex({ col1: "new" }, -1);
+    await flush();
+    expect(source.records.map((r: any) => r.col1), "#2").toEqual(["v100", "new", "v101"]);
+  });
+  test("the last record is outside the loaded window: removeRowByIndex(-1) is refused and reported once", async () => {
+    const source = keyedSource(20);
+    const { survey, question } = await createMatrix(source);
+    const errors = new Array<string>();
+    survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
+    question.removeRowByIndex(-1);
+    await flush();
+    expect(source.records.length, "#1: nothing changes").toBe(20);
+    expect(errors, "#2: one report, as for its positive number").toEqual(["remove"]);
+    errors.length = 0;
+    question.removeRowByIndex(19);
+    await flush();
+    expect(errors, "#3: the positive number is reported the same way").toEqual(["remove"]);
+  });
+  test("a source without a total: a negative number does nothing", async () => {
+    const source = keyedSource(20);
+    source.reportTotal = false;
+    const { survey, question } = await createMatrix(source);
+    const errors = new Array<string>();
+    survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
+    question.removeRowByIndex(-1);
+    question.addRowByIndex({ col1: "new" }, -1);
+    await flush();
+    expect(source.records.length, "#1").toBe(20);
+    expect(errors, "#2").toEqual([]);
+  });
+  test("without a source a negative number counts from the end, as released", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, columns: [{ name: "a" }] }] });
+    survey.data = { m: [{ a: 1 }, { a: 2 }, { a: 3 }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    matrix.removeRowByIndex(-1);
+    expect(survey.data.m, "#1").toEqual([{ a: 1 }, { a: 2 }]);
+    matrix.addRowByIndex({ a: 9 }, -1);
+    expect(survey.data.m, "#2").toEqual([{ a: 1 }, { a: 9 }, { a: 2 }]);
+  });
+});
+
+describe("a record written with no change", () => {
+  test("with a source, writing a cell's own value sends no update", async () => {
+    const source = keyedSource(3);
+    const { question } = await createMatrix(source);
+    source.reset();
+    question.visibleRows[1].getQuestionByName("col1").value = "v101";
+    await flush();
+    expect(source.calls.map(call => call.op), "#1").toEqual([]);
   });
 });

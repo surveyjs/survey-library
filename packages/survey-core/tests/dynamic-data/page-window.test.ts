@@ -4847,3 +4847,25 @@ describe("quiet validation of other pages' records", () => {
     expect(run(1), "#2").toBe(true);
   });
 });
+
+describe("one record added under in-memory paging", () => {
+  test("the value events of the new record equal those of the unpaged add, for both types", () => {
+    const run = (type: string, pageSize: number): Array<any> => {
+      const json = type === "matrix" ?
+        { type: "matrixdynamic", name: "q", rowCount: 0, rowsPerPage: pageSize, columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", defaultValue: 7 }] } :
+        { type: "paneldynamic", name: "q", panelsPerPage: pageSize, templateElements: [{ type: "text", name: "a" }, { type: "text", name: "b", defaultValue: 7 }] };
+      const survey = new SurveyModel({ elements: [json] });
+      survey.data = { q: [{ a: 1, b: 1 }, { a: 2, b: 2 }, { a: 3, b: 3 }] };
+      const question: any = survey.getQuestionByName("q");
+      if (type === "matrix") question.visibleRows; else question.panels;
+      const events = new Array<any>();
+      survey.onValueChanged.add((_, options) => { events.push(options.value[3]); });
+      if (type === "matrix") question.addRow(); else question.addPanel();
+      return events;
+    };
+    ["matrix", "panel"].forEach(type => {
+      expect(run(type, 2), type + " #1").toEqual(run(type, 0));
+      expect(run(type, 2), type + " #2").toEqual([{ b: 7 }]);
+    });
+  });
+});

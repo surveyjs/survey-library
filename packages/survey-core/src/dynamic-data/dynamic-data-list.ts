@@ -612,11 +612,9 @@ export class DynamicDataList {
   public setValue(index: number, field: string, value: any): boolean {
     return this.runOpenWrite((): boolean => this.setValueCore(index, field, value));
   }
-  /* What an owner computes while it builds its objects for records the source already holds - a
-     template default, an expression - only shows the record: inside this scope a field write (setValue)
-     reaches the window and not the source, and the record keeps the field (unsentFields) for the
-     changedFields of its next update; a whole-record write (setRecord) is sent as usual. A record whose
-     insert has not answered, and an in-memory array, take every write: nothing is held back. */
+  /* What an owner computes while it builds its objects for records the source holds (a default, an
+     expression) only shows the record: a write reaches the window, not the source, and its fields wait
+     (unsentFields) for the record's next update. A pending insert and an in-memory array take it all. */
   public runShowingRecords<T>(func: () => T): T {
     this.showingRecordsDepth++;
     try {
@@ -675,8 +673,10 @@ export class DynamicDataList {
     // As in setValue: the key belongs to the record being replaced, not to the one replacing it.
     const key = this.getRecordKey(index);
     const pending = this.findPendingInsert(index);
+    const isShowing = this.isShowingWrite(index);
     this.runWrite((): void => {
       this.replaceRecord(index, record);
+      if (isShowing) return this.channel.keepUnsentFields(record, changedFields);
       this.pushUpdate(key, pending, record, changedFields);
     });
     this.notifyWrite({ type: "recordChanged", index: index, field: undefined });

@@ -2245,8 +2245,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   private generateVisibleRowsIfNeeded(): void {
     if (!this.isUpdateLocked && !this.generatedVisibleRows) {
-      // The values new rows write - their defaults - are computed.
-      this.runComputedWrites((): void => this.generateVisibleRows());
+      /* The values new rows write - their defaults and expression results - are computed, and they
+         only show the records a data source holds: they go with a record's next update, so showing a
+         page sends nothing (DynamicDataList.runShowingRecords). */
+      const list = this.dataListValue;
+      this.runComputedWrites((): void => {
+        if (!!list) {
+          list.runShowingRecords((): void => this.generateVisibleRows());
+        } else {
+          this.generateVisibleRows();
+        }
+      });
     }
   }
   // The one writer of a row's released visibleIndex field: the visible index of the whole view at a page position.

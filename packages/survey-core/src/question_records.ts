@@ -119,8 +119,8 @@ function getRecordNumberOf(item: QuestionRecordItem): number {
   return item.getIndex() + (!!item.data ? item.data.getRecordNumberOffset() : 0);
 }
 /* The survey side that waits for the writes of a records question (ISurveyDynamicDataWrites). It is
-   not part of ISurvey, so a survey is asked for it by its member: a custom ISurvey without it is
-   never asked to wait. */
+   not part of ISurvey, and SurveyModel keeps it private, so a survey is asked for it by its member: a
+   custom ISurvey without it is never asked to wait. */
 function getSurveyDynamicDataWrites(survey: ISurvey): ISurveyDynamicDataWrites {
   const writes = <ISurveyDynamicDataWrites><any>survey;
   return !!writes && typeof writes.dynamicDataWritesChanged === "function" ? writes : undefined;

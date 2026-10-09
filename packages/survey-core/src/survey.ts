@@ -6273,11 +6273,11 @@ export class SurveyModel extends SurveyElementCore
     this.heldCompletion = { page: this.currentPage, state: this.state };
     return true;
   }
-  /* ISurveyDynamicDataWrites (interfaces/survey-callbacks.ts), not a member of ISurvey: a records
-     question's writes started or settled. When the last one settles, the held completion runs again,
-     and validates again. A write the source rejected (isFailed) never reached it: the completion is
+  /* ISurveyDynamicDataWrites (interfaces/survey-callbacks.ts), not a member of ISurvey and private, so
+     it is not API: the records questions reach it by duck typing. A records question's writes started
+     or settled. When the last one settles, the held completion runs again, and validates again. A write the source rejected (isFailed) never reached it: the completion is
      dropped, the survey stays where it is and the respondent can complete again. */
-  dynamicDataWritesChanged(question: IQuestion, hasPendingWrites: boolean, isFailed?: boolean): void {
+  private dynamicDataWritesChanged(question: IQuestion, hasPendingWrites: boolean, isFailed?: boolean): void {
     const questions = this.questionsWithPendingWrites;
     const index = questions.indexOf(question);
     if (hasPendingWrites) {

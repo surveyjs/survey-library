@@ -5735,6 +5735,48 @@ describe("Remote data source: showing records sends nothing", () => {
     expect(last[1], "#3: the record holds the edit, the default and the expression").toEqual({ id: 100, col1: "e", col2: 100, st: "new", ex: "e!" });
     expect(recordWithKey(source, 100), "#4").toEqual({ id: 100, col1: "e", col2: 100, st: "new", ex: "e!" });
   });
+  test("matrix: an expression column sends nothing on a page view, and an edit sends the edit and the recomputed expression", async () => {
+    const source = pagingSource();
+    const { question } = await createMatrix(source, Object.assign({ rowsPerPage: 2 },
+      matrixColumns([{ name: "ex", cellType: "expression", expression: "{row.col1} + '!'" }])));
+    question.visibleRows;
+    question.nextPage();
+    await flush();
+    question.visibleRows;
+    question.prevPage();
+    await flush();
+    question.visibleRows;
+    expect(source.argsOf("update"), "#1").toEqual([]);
+    question.visibleRows[0].getQuestionByName("col1").value = "e";
+    await flush();
+    const updates = source.argsOf("update");
+    const last = updates[updates.length - 1];
+    expect(last[0], "#2").toBe(100);
+    expect(last[1], "#3: the record holds the edit, the default and the expression").toEqual({ id: 100, col1: "e", col2: 100, st: "new", ex: "e!" });
+  });
+  test("matrix: a sorted page with an expression column on the row index sends nothing when it is shown", async () => {
+    const records = [1, 2, 3, 4, 5].map(i => ({ id: i, n: i }));
+    const updates: Array<any> = [];
+    const source: IDynamicDataSource = {
+      keyField: "id",
+      read: () => Promise.resolve(records.map(record => Object.assign({}, record))),
+      update: (key: any, record: any, fields: Array<string>) => { updates.push([key, fields]); return Promise.resolve(); }
+    };
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowsPerPage: 2, sortBy: "n-", rowCount: 0,
+      columns: [{ name: "n", cellType: "text" }, { name: "e", cellType: "expression", expression: "{rowIndex}" }] }] });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    question.dataSource = source;
+    await flush();
+    question.visibleRows;
+    question.pageIndex = 1;
+    question.visibleRows;
+    await flush();
+    expect(updates, "#1: showing the pages sends nothing").toEqual([]);
+    expect(question.visibleRows.map(row => row.getQuestionByColumnName("e").value), "#2: the page shows the computed values").toEqual([3, 2]);
+    question.visibleRows[0].getQuestionByColumnName("n").value = "x";
+    await flush();
+    expect(updates, "#3: the next edit carries the computed field").toEqual([[3, ["n", "e"]]]);
+  });
   test("the first edit of a record shown with a default lists the edited field and the default's field", async () => {
     const panelSource = pagingSource();
     const panel = (await createPanel(panelSource, Object.assign({ panelsPerPage: 2 }, panelTemplate()))).question;

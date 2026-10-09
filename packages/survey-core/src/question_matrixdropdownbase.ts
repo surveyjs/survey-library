@@ -1564,19 +1564,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   /* A table that is replaced - a page move, a column change - holds the actions of its rows: each keeps
      listeners on the matrix's strings and on the survey's locale. They go with the table, once the UI
-     no longer shows it (disposeAfterRerender). */
+     no longer shows it (disposeAfterRerender). The table disposes its rows and their actions. */
   private disposeRenderedTable(table: QuestionMatrixDropdownRenderedTable): void {
     if (!table || table.isDisposed) return;
-    this.disposeAfterRerender(table, (): void => {
-      table.rows.forEach((row: QuestionMatrixDropdownRenderedRow): void => {
-        row.cells.forEach((cell: QuestionMatrixDropdownRenderedCell): void => {
-          const actions = cell.isActionsCell && !!cell.item ? cell.item.value : undefined;
-          if (!!actions && typeof actions.dispose === "function")actions.dispose();
-        });
-        row.dispose();
-      });
-      table.dispose();
-    });
+    this.disposeAfterRerender(table);
   }
   protected clearGeneratedRows(): void {
     this.clearVisibleRows();

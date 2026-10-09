@@ -12600,3 +12600,36 @@ describe("rowCountExpression and removeRowByIndex", () => {
     expect(survey.data, "#3").toEqual({ m: [{ a: 2 }, { a: 3 }] });
   });
 });
+
+describe("row actions the application supplies", () => {
+  const getContainers = (matrix: QuestionMatrixDynamicModel): Array<any> => {
+    const res: Array<any> = [];
+    matrix.renderedTable.rows.forEach(row => row.cells.forEach(cell => {
+      if (cell.isActionsCell && !!cell.item) res.push(cell.item.value);
+    }));
+    return res;
+  };
+  const getActions = (containers: Array<any>): Array<any> => [].concat(...containers.map(container => container.actions));
+  test("a row action the application caches survives a table reset", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "a", cellType: "text" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const cached = new Action({ id: "my", title: "My", location: "end", action: () => { } });
+    survey.onGetMatrixRowActions.add((_, options) => { options.actions.push(cached); });
+    expect(getActions(getContainers(matrix)).indexOf(cached) > -1, "#1").toBe(true);
+    matrix.addColumn("b");
+    expect(cached.isDisposed, "#2: the table reset leaves the application's action").toBe(false);
+    expect(getActions(getContainers(matrix)).indexOf(cached) > -1, "#3: the rebuilt table shows it").toBe(true);
+  });
+  test("a table reset disposes the row actions the matrix created", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow",
+      detailElements: [{ type: "text", name: "d" }], columns: [{ name: "a", cellType: "text" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    survey.onGetMatrixRowActions.add((_, options) => { options.actions.push({ id: "plain", title: "Plain", location: "end", action: () => { } }); });
+    const containers = getContainers(matrix);
+    const actions = getActions(containers);
+    expect(actions.map(action => action.id).sort(), "#1").toEqual(["plain", "remove-row", "show-detail"]);
+    matrix.addColumn("b");
+    expect(containers.map(container => container.isDisposed), "#2: the containers of the dropped table").toEqual(containers.map(() => true));
+    expect(actions.map(action => action.isDisposed), "#3: the actions the matrix built or made from plain objects").toEqual([true, true, true]);
+  });
+});

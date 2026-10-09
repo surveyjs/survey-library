@@ -1,6 +1,7 @@
 import { Action, IAction } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { DropdownListModel } from "./dropdownListModel";
+import { DropdownMultiSelectRenderState, DropdownRenderState } from "./dropdownRenderState";
 import { ItemValue } from "./itemvalue";
 import { property } from "./decorators";
 import { IMultiSelectListModel, MultiSelectListModel } from "./multiSelectListModel";
@@ -12,8 +13,8 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   @property({ defaultValue: "" }) filterStringPlaceholder: string;
   @property({ defaultValue: true }) closeOnSelect: boolean;
 
-  public get needRenderInput(): boolean {
-    return !this.question.isInputReadOnly || !!this.filterStringPlaceholder;
+  protected createRenderState(): DropdownRenderState {
+    return new DropdownMultiSelectRenderState(this.question, this);
   }
 
   public locStrsChanged(): void {

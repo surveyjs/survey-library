@@ -6,6 +6,7 @@ import { toCssClasses } from "./utils/cssClassBuilder";
 import { QuestionCheckboxModel } from "./question_checkbox";
 import { PopupModel } from "./popup";
 import { DropdownMultiSelectListModel } from "./dropdownMultiSelectListModel";
+import { DropdownMultiSelectRenderState, DropdownRenderState } from "./dropdownRenderState";
 import { EventBase } from "./event";
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
@@ -48,13 +49,16 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
     return "";
   }
   public get dropdownListModel(): DropdownMultiSelectListModel {
-    if (!this.isDisposed && !this.dropdownListModelValue) {
-      this.dropdownListModelValue = new DropdownMultiSelectListModel(this);
-    }
-    return this.dropdownListModelValue as DropdownMultiSelectListModel;
+    return this.getDropdownListModel() as DropdownMultiSelectListModel;
   }
   public set dropdownListModel(val: DropdownMultiSelectListModel) {
-    this.dropdownListModelValue = val;
+    this.setDropdownListModel(val);
+  }
+  protected createDropdownListModel(): DropdownMultiSelectListModel {
+    return new DropdownMultiSelectListModel(this);
+  }
+  protected createDropdownRenderState(): DropdownRenderState {
+    return new DropdownMultiSelectRenderState(this);
   }
   /**
    * Specifies a comparison operation used to filter the drop-down list. Applies only if [`searchEnabled`](#searchEnabled) is `true`.

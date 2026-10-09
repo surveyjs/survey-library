@@ -3,21 +3,21 @@
     <div
       v-if="!question.isReadOnly"
       :id="question.inputId"
-      :tabindex="model.noTabIndex ? undefined : 0"
+      :tabindex="renderState.noTabIndex ? undefined : 0"
       v-bind:disabled="question.isDisabledAttr ? true : null"
       @keydown="keyhandler"
       @blur="blur"
       :class="question.getControlClass()"
-      :role="model.ariaQuestionRole"
-      :aria-required="model.ariaQuestionRequired"
-      :aria-label="model.ariaQuestionLabel" 
-      :aria-labelledby="model.ariaQuestionLabelledby" 
-      :aria-describedby="model.ariaQuestionDescribedby" 
-      :aria-invalid="model.ariaQuestionInvalid"
-      :aria-errormessage="model.ariaQuestionErrorMessage" 
-      :aria-controls="model.ariaQuestionControls"
-      :aria-expanded="model.ariaQuestionExpanded"
-      :aria-activedescendant="model.ariaQuestionActivedescendant"
+      :role="renderState.ariaQuestionRole"
+      :aria-required="renderState.ariaQuestionRequired"
+      :aria-label="renderState.ariaQuestionLabel" 
+      :aria-labelledby="renderState.ariaQuestionLabelledby" 
+      :aria-describedby="renderState.ariaQuestionDescribedby" 
+      :aria-invalid="renderState.ariaQuestionInvalid"
+      :aria-errormessage="renderState.ariaQuestionErrorMessage" 
+      :aria-controls="renderState.ariaQuestionControls"
+      :aria-expanded="renderState.ariaQuestionExpanded"
+      :aria-activedescendant="renderState.ariaQuestionActivedescendant"
       :required="question.isRequired ? true : null"
     >
       <div :class="question.cssClasses.controlValue">
@@ -30,25 +30,25 @@
         ></SvComponent>
         <SvComponent
           :is="'sv-tagbox-filter'"
-          v-if="model.needRenderInput"
-          :model="model"
+          v-if="renderState.needRenderInput"
+          :model="stateModel"
           :question="question"
         ></SvComponent>
       </div>
-      <SvComponent :is="'sv-action-bar'" :model="model.editorButtons" />
+      <SvComponent :is="'sv-action-bar'" :model="renderState.editorButtons" />
     </div>
     <SvComponent
       :is="'sv-popup'"
       v-if="!question.isInputReadOnly"
-      :model="model.popupModel"
+      :model="question.dropdownListModel.popupModel"
     ></SvComponent>
     <div
       v-if="question.isReadOnly"
       :id="question.inputId"
-      :role="model?.ariaQuestionRole"
-      :aria-label="model?.ariaQuestionLabel"
-      :aria-labelledby="model?.ariaQuestionLabelledby"
-      :aria-describedby="model?.ariaQuestionDescribedby"
+      :role="renderState.ariaQuestionRole"
+      :aria-label="renderState.ariaQuestionLabel"
+      :aria-labelledby="renderState.ariaQuestionLabelledby"
+      :aria-describedby="renderState.ariaQuestionDescribedby"
       :aria-expanded="false"
       :aria-readonly="true"
       :aria-disabled="true"
@@ -58,7 +58,7 @@
       <div v-if="question.readOnlyText" :class="question.cssClasses.controlValue">
         <SvComponent :is="'survey-string'" :locString="question.locReadOnlyText" />
       </div>
-      <SvComponent :is="'sv-action-bar'" :model="model.editorButtons" />
+      <SvComponent :is="'sv-action-bar'" :model="renderState.editorButtons" />
     </div>
   </div>
 </template>
@@ -66,25 +66,30 @@
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
 import { useBase } from "@/base";
-import { DropdownMultiSelectListModel, QuestionTagboxModel } from "survey-core";
-import { computed } from "vue";
+import type { DropdownMultiSelectListModel, QuestionTagboxModel } from "survey-core";
+import { computed, ref } from "vue";
 
 const props = defineProps<{ question: QuestionTagboxModel }>();
-const model = computed(() => {
-  const question = props.question;
-  if (!question.dropdownListModel) {
-    question.dropdownListModel = new DropdownMultiSelectListModel(question);
-  }
-  return props.question.dropdownListModel;
+// The closed control is rendered from the render state, which does not create DropdownListModel.
+const renderState = computed(() => {
+  return props.question.dropdownRenderState;
+});
+// The model is created when the popup is rendered (an editable control) or on an interaction.
+// modelVersion is bumped after an interaction, so useBase subscribes to a model created by it.
+const modelVersion = ref(0);
+const stateModel = computed<DropdownMultiSelectListModel>(() => {
+  return modelVersion.value >= 0 && props.question.isInputReadOnly ? props.question.dropdownListModelValue as DropdownMultiSelectListModel : props.question.dropdownListModel;
 });
 const click = (event: any) => {
-  model.value?.onClick(event);
+  props.question.dropdownListModel?.onClick(event);
+  modelVersion.value++;
 };
 const keyhandler = (event: any) => {
-  model.value?.keyHandler(event);
+  props.question.dropdownListModel?.keyHandler(event);
+  modelVersion.value++;
 };
 const blur = (event: any) => {
-  model.value?.onBlur(event);
+  props.question.dropdownListModelValue?.onBlur(event);
 };
-useBase(() => model.value);
+useBase(() => stateModel.value);
 </script>

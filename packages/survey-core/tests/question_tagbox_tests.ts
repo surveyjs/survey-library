@@ -2446,7 +2446,9 @@ describe("Tagbox question", () => {
 
       const done = __done;
       const survey = new SurveyModel({ elements: [{ "type": "tagbox", "name": "q1", "choicesLazyLoadEnabled": true }] });
+      let callCount = 0;
       survey.onChoicesLazyLoad.add((_, options) => {
+        callCount++;
         options.setItems(getNumberArray(1, 25), 25);
       });
 
@@ -2454,13 +2456,23 @@ describe("Tagbox question", () => {
       expect(question.choicesLazyLoadEnabled, "#1").toBe(true);
       expect(question.choices.length, "#1").toBe(0);
       expect(question.isReady, "#1").toBe(true);
+      expect(!!question["dropdownListModelValue"], "#1 model is not created").toBe(false);
 
       question.waitForQuestionIsReady(() => {
         expect(question.choices.length, "#2").toBe(25);
         expect(question.isReady, "#2").toBe(true);
+        expect(callCount, "#2 onChoicesLazyLoad is called once").toBe(1);
+        expect(!!question["dropdownListModelValue"], "#2 model is created for lazy loading").toBe(true);
         done();
       });
     });
+  });
+  test("waitForQuestionIsReady doesn't create dropdownListModel without lazy loading, Issue#9014", async () => {
+    const survey = new SurveyModel({ elements: [{ "type": "tagbox", "name": "q1", "choices": ["Item1", "Item2"] }] });
+    const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+    await question.waitForQuestionIsReady();
+    expect(!!question["dropdownListModelValue"], "model is not created").toBe(false);
+    expect(question.isReady, "question is ready").toBe(true);
   });
   test("Tagbox doesn't support showCommentArea functionality", assert => {
     const survey = new SurveyModel(
@@ -2789,5 +2801,25 @@ describe("Tagbox question", () => {
     list.flushUpdates();
     expect(dropdownListModel.customItemValue.text, "customItemValue is set correctly").toBe("Add \"new Item\" as a new");
 
+  });
+  test("dropdownListModel is a lazy property, Issue#9014", () => {
+    const json = { elements: [{ type: "tagbox", name: "q1", choices: ["item1", "item2"], defaultValue: ["item1"] }] };
+    for (const isDesign of [false, true]) {
+      const survey = new SurveyModel();
+      survey.setDesignMode(isDesign);
+      survey.fromJSON(json);
+      const caption = isDesign ? "design: " : "runtime: ";
+      const question = <QuestionTagboxModel>survey.getQuestionByName("q1");
+      const _values = [question.displayValue, question.readOnlyText, question.selectedChoices, question.cssClasses, question.getControlClass()];
+      expect(!!question["dropdownListModelValue"], caption + "not created on load and reads").toBe(false);
+      const popup = question.popupModel;
+      const model = question.dropdownListModel;
+      expect(!!model, caption + "popupModel creates it").toBe(true);
+      expect(model.popupModel, caption + "the popup belongs to the model").toBe(popup);
+      expect(question.dropdownListModel, caption + "the same instance on the next access").toBe(model);
+      question.dispose();
+      expect(model.isDisposed, caption + "disposed with the question").toBe(true);
+      expect(question.dropdownListModel, caption + "not re-created after dispose").toBeFalsy();
+    }
   });
 });

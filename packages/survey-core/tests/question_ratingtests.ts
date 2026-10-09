@@ -2375,6 +2375,48 @@ test("Check dropdoun rating close on blur, #8862", () => {
   expect(popup.isVisible).toBeFalsy();
 });
 
+test("Rating in dropdown mode creates the model on focus and keeps keyboard selection, Issue#9014", () => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "rating", name: "q1", displayMode: "dropdown" },
+      { type: "rating", name: "q2" }
+    ]
+  });
+  const question = <QuestionRatingModel>survey.getQuestionByName("q1");
+  expect(question.renderAs, "dropdown mode").toBe("dropdown");
+  expect(!!question["dropdownListModelValue"], "no model before focus").toBe(false);
+  question.onFocus({});
+  expect(!!question["dropdownListModelValue"], "focus creates the model").toBe(true);
+  const dropdownListModel = question.dropdownListModel;
+  expect(dropdownListModel.focused, "model is focused").toBe(true);
+  const event = (keyCode: number) => ({ keyCode, preventDefault: () => { }, stopPropagation: () => { } });
+  dropdownListModel.keyHandler(event(40));
+  expect(dropdownListModel.popupModel.isVisible, "ArrowDown opens the popup").toBe(true);
+  dropdownListModel.keyHandler(event(40));
+  dropdownListModel.keyHandler(event(13));
+  expect(question.value, "Enter selects the focused item").toBe(2);
+  expect(dropdownListModel.popupModel.isVisible, "Enter closes the popup").toBe(false);
+
+  const question2 = <QuestionRatingModel>survey.getQuestionByName("q2");
+  question2.onFocus({});
+  expect(!!question2["dropdownListModelValue"], "focus outside dropdown mode creates nothing").toBe(false);
+});
+test("Switching to the compact renderer creates the model for an editable rating only, Issue#9014", () => {
+  const json = { elements: [{ type: "rating", name: "q1" }] };
+  const survey = new SurveyModel(json);
+  const question = <QuestionRatingModel>survey.getQuestionByName("q1");
+  expect(!!question["dropdownListModelValue"], "editable, desktop").toBe(false);
+  question["processResponsiveness"](600, 500);
+  expect(question.renderAs, "editable, compact").toBe("dropdown");
+  expect(!!question["dropdownListModelValue"], "editable, compact: the popup is mounted").toBe(true);
+
+  const displaySurvey = new SurveyModel(json);
+  displaySurvey.mode = "display";
+  const displayQuestion = <QuestionRatingModel>displaySurvey.getQuestionByName("q1");
+  displayQuestion["processResponsiveness"](600, 500);
+  expect(displayQuestion.renderAs, "display, compact").toBe("dropdown");
+  expect(!!displayQuestion["dropdownListModelValue"], "display, compact: no popup").toBe(false);
+});
 test("Check dropdown rating text, #8953", () => {
   const survey = new SurveyModel({
     elements: [{
@@ -2698,4 +2740,21 @@ test("clearIncorrectValues respects survey.keepIncorrectValues", () => {
   survey.keepIncorrectValues = false;
   survey.clearIncorrectValues();
   expect(q1.isEmpty(), "incorrect value is cleared").toBeTruthy();
+});
+test("dropdownListModel is a lazy property, Issue#9014", () => {
+  const survey = new SurveyModel({ elements: [
+    { type: "rating", name: "q1" },
+    { type: "rating", name: "q2", displayMode: "dropdown", defaultValue: 3 }
+  ] });
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionRatingModel>survey.getQuestionByName("q2");
+  expect(q1.dropdownListModel, "buttons mode never creates it").toBeFalsy();
+  const _values = [q2.displayValue, q2.readOnlyText, q2.cssClasses, q2.getControlClass(), q2.renderedRateItems];
+  expect(!!q2["dropdownListModelValue"], "dropdown mode, not created on load and reads").toBe(false);
+  const model = q2.dropdownListModel;
+  expect(!!model, "dropdown mode, created on the first access").toBe(true);
+  expect(q2.dropdownListModel, "the same instance on the next access").toBe(model);
+  q2.dispose();
+  expect(model.isDisposed, "disposed with the question").toBe(true);
+  expect(q2.dropdownListModel, "not re-created after dispose").toBeFalsy();
 });

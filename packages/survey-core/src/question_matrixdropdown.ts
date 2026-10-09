@@ -316,13 +316,30 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
         newValue[key] = records[index];
       }
     });
-    // As without paging, where every row writes its value again: a row whose record is empty has no key.
     const writtenKeys = changed.map((index: number): any => items[index].value);
-    items.forEach((item: ItemValue, index: number): void => {
-      if (writtenKeys.indexOf(item.value) < 0 && this.isEmptyRecord(records[index]) && newValue[item.value] !== undefined) delete newValue[item.value];
+    items.forEach((item: ItemValue): void => {
+      if (writtenKeys.indexOf(item.value) < 0)this.dropEmptyColumnKeys(newValue, item.value);
     });
     this.setOwnRecordsValue(Object.keys(newValue).length > 0 ? newValue : null);
     this.refreshRowsOfSameKeys(changed);
+  }
+  /* The record of a row that was not written changes only as a built row changes it, as without
+     paging: a column key holding an empty value goes, and so does the row's key when that leaves the
+     record with no key. An empty record, a value that is not an object and a key that is not a
+     column stay. */
+  private dropEmptyColumnKeys(value: any, key: any): void {
+    const record = value[key];
+    if (!this.isObject(record)) return;
+    const emptyKeys = this.columns.map(column => column.name)
+      .filter((name: string): boolean => record.hasOwnProperty(name) && this.isValueEmpty(record[name]));
+    if (emptyKeys.length === 0) return;
+    const rest = Object.assign({}, record);
+    emptyKeys.forEach((name: string): void => { delete rest[name]; });
+    if (Object.keys(rest).length > 0) {
+      value[key] = rest;
+    } else {
+      delete value[key];
+    }
   }
   private isEmptyRecord(record: any): boolean {
     return isRecordEmpty(record);

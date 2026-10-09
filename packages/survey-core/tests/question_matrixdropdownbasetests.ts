@@ -3554,6 +3554,25 @@ describe("the Multi-Select Matrix rows and their answers", () => {
     expect(matrix.visibleRows[1] === row, "#1").toBe(false);
     expect(matrix.visibleRows[1].isDetailPanelShowing, "#2").toBe(false);
   });
+  test("editing one row keeps the empty record of another row", () => {
+    const edit = (rowsPerPage: number, r3: any): any => {
+      const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", rowsPerPage: rowsPerPage, rows: ["r1", "r2", "r3"], columns: [{ name: "a", cellType: "text" }] }] });
+      survey.data = { m: { r1: { a: 1 }, r2: { a: 2 }, r3: r3 } };
+      (<QuestionMatrixDropdownModel>survey.getQuestionByName("m")).visibleRows[0].cells[0].question.value = 5;
+      return survey.data.m;
+    };
+    [0, 1].forEach(rowsPerPage => {
+      const name = "rowsPerPage " + rowsPerPage + ": ";
+      expect(edit(rowsPerPage, {}), name + "an empty record").toEqual({ r1: { a: 5 }, r2: { a: 2 }, r3: {} });
+      expect(edit(rowsPerPage, 7), name + "a record that is not an object").toEqual({ r1: { a: 5 }, r2: { a: 2 }, r3: 7 });
+      expect(edit(rowsPerPage, { b: null }), name + "an empty key that is not a column").toEqual({ r1: { a: 5 }, r2: { a: 2 }, r3: { b: null } });
+      expect(edit(rowsPerPage, { a: null, b: null }), name + "an empty column key goes").toEqual({ r1: { a: 5 }, r2: { a: 2 }, r3: { b: null } });
+    });
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", rows: ["r1", "r2"], columns: [{ name: "c1", cellType: "text" }] }] });
+    survey.setValue("m", { r1: {}, r2: { c1: "a" } });
+    (<QuestionMatrixDropdownModel>survey.getQuestionByName("m")).visibleRows[1].cells[0].question.value = "b";
+    expect(survey.getValue("m"), "the edited row is the second one").toEqual({ r1: {}, r2: { c1: "b" } });
+  });
 });
 
 describe("the shared record rules of the matrices, on the released path", () => {

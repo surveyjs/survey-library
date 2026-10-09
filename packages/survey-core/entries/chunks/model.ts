@@ -143,7 +143,7 @@ export {
   getConditionOperatorNames,
   getConditionDefaultOperator
 } from "../../src/conditions/conditionOperators";
-export { ProcessValue, ValueGetter, VariableGetterContext } from "../../src/conditions/conditionProcessValue";
+export { ProcessValue, ValueGetter, VariableGetterContext, findNameByPath, parseValuePath } from "../../src/conditions/conditionProcessValue";
 export {
   JsonError,
   JsonIncorrectTypeError,

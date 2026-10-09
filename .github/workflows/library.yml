@@ -1,0 +1,21 @@
+# survey-library CI on GitHub Actions. Everything lives in surveyjs/azure-pipelines
+# (.github/workflows/library.yml); this file only triggers it.
+name: Library
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  # A new push to the PR cancels the previous run.
+  group: library-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  library:
+    name: library
+    uses: surveyjs/azure-pipelines/.github/workflows/library.yml@gha-migration
+    secrets: inherit

@@ -122,23 +122,35 @@ export class SurveyDataDynamicDataSource extends ArrayDynamicDataSource {
 /* An in-memory source without keyField is written by position: the index a list sends is the
    position in the array as that list last read it. Two lists that write one such array would each
    send positions the other one's writes have shifted, and a write would land on another record. So
-   such a source has one writer: the first list it is assigned to (DynamicDataList.assignSource). A
-   list assigned it while another list writes it only reads it - its write capabilities are false,
-   and the question reports each refused write. Assigning another source, or none, and disposing the
-   list release the claim; a list that only reads does not take it over until the source is assigned
-   to it again. A keyed source is written by key and stays shared. The question's own default source
-   is never assigned, so it is not tracked. */
+   such a source has one writer: the list it was assigned to last (DynamicDataList.assignSource) -
+   also when it is assigned again to a list that holds it already. A list that holds it while another
+   list writes it only reads it: its write capabilities are false, and the question reports each
+   refused write. When the writer changes, the earlier writer is told (onChanged), so that its
+   question refreshes what it shows. A list that leaves the source or is disposed releases the claim,
+   and a list that only reads stays read-only until the source is assigned to it again. A keyed source
+   is written by key and stays shared. The question's own default source is never assigned, so it is
+   not tracked.
+   The claim is a token object the list owns, not the list: the source does not keep an earlier
+   writer, or the survey around it, alive. Only the current writer's onChanged is reachable from the
+   source, until another list claims it. */
 const sourceWriters: WeakMap<IDynamicDataSource, object> = new WeakMap<IDynamicDataSource, object>();
+const writerCallbacks: WeakMap<object, () => void> = new WeakMap<object, () => void>();
+// The claim a writer that left keeps in place: the lists that only read stay read-only. A source that was never assigned (a standalone list) has no claim.
+const releasedClaim: object = {};
 function isWrittenByPosition(source: IDynamicDataSource): boolean {
   return !!source && !source.keyField && source instanceof ArrayDynamicDataSource;
 }
-// The list leaves oldSource and is assigned newSource (undefined for none).
-export function changeSourceWriter(writer: object, oldSource: IDynamicDataSource, newSource: IDynamicDataSource): void {
-  if (!!oldSource && sourceWriters.get(oldSource) === writer) sourceWriters.delete(oldSource);
-  if (isWrittenByPosition(newSource) && !sourceWriters.has(newSource)) sourceWriters.set(newSource, writer);
+// The list of token leaves oldSource and is assigned newSource (undefined for none; the same source to claim it again).
+export function changeSourceWriter(token: object, oldSource: IDynamicDataSource, newSource: IDynamicDataSource, onChanged: () => void): void {
+  if (!!oldSource && oldSource !== newSource && sourceWriters.get(oldSource) === token) sourceWriters.set(oldSource, releasedClaim);
+  if (!isWrittenByPosition(newSource)) return;
+  const previous = sourceWriters.get(newSource);
+  sourceWriters.set(newSource, token);
+  writerCallbacks.set(token, onChanged);
+  const notify = !!previous && previous !== token ? writerCallbacks.get(previous) : undefined;
+  if (!!notify) notify();
 }
-export function isSourceWrittenByAnother(source: IDynamicDataSource, list: object): boolean {
-  if (!isWrittenByPosition(source)) return false;
-  const writer = sourceWriters.get(source);
-  return !!writer && writer !== list;
+export function isSourceWrittenByAnother(source: IDynamicDataSource, token: object): boolean {
+  const writer = isWrittenByPosition(source) ? sourceWriters.get(source) : undefined;
+  return !!writer && writer !== token;
 }

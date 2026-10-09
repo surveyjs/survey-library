@@ -48,6 +48,8 @@ export class DynamicDataList {
   private _pageSize: number = 0;
   private _pageIndex: number = 0;
   private isDisposed: boolean = false;
+  private writerToken: object = {};
+  private onWriterChanged = (): void => { if (!!this.owner && !!this.owner.onSourceWriterChanged)this.owner.onSourceWriterChanged(); };
   // The reads, the push chain and the pending inserts: everything that orders the requests to the
   // source (see the header of dynamic-data-channel.ts).
   private channel: DynamicDataSourceChannel = new DynamicDataSourceChannel(this.createChannelHost());
@@ -129,9 +131,9 @@ export class DynamicDataList {
      keeps its source on a detach - there is nothing to go back to - and only the flag changes. */
   public assignSource(source: IDynamicDataSource, onAssigning?: () => void): void {
     const newValue = source || undefined;
-    if (this.assignedSourceValue === newValue) return;
+    if (this.assignedSourceValue === newValue) return changeSourceWriter(this.writerToken, newValue, newValue, this.onWriterChanged);
     this.checkSourceReplaceable();
-    changeSourceWriter(this, this.assignedSourceValue, newValue);
+    changeSourceWriter(this.writerToken, this.assignedSourceValue, newValue, this.onWriterChanged);
     this.assignedSourceValue = newValue;
     if (!!onAssigning) onAssigning();
     if (!!newValue) {
@@ -1025,8 +1027,7 @@ export class DynamicDataList {
   public getPageIndexes(): Array<number> {
     return this.membership.getPageIndexes(this._pageSize, this._pageIndex, this.isPagedBySource);
   }
-  // The page that holds a visibleIndex (unpaged, see the vocabulary above); 0 while the list does
-  // not page.
+  // The page that holds a visibleIndex (unpaged, see the vocabulary above); 0 while the list does not page.
   public getPageOfVisibleIndex(visibleIndex: number): number {
     if (this._pageSize <= 0 || visibleIndex < 0) return 0;
     return Math.floor(visibleIndex / this._pageSize);
@@ -1114,7 +1115,7 @@ export class DynamicDataList {
   }
   public dispose(): void {
     this.isDisposed = true;
-    changeSourceWriter(this, this.assignedSourceValue, undefined);
+    changeSourceWriter(this.writerToken, this.assignedSourceValue, undefined, undefined);
     this.channel.cancelReads();
     // No notification: a disposed list raises nothing, and a read in flight will never clear it.
     this._isLoading = false;
@@ -1173,7 +1174,7 @@ export class DynamicDataList {
     if (this.isMembershipFixed && (operation === "insert" || operation === "remove" || operation === "move")) return false;
     const source: any = this._source;
     if (!source || typeof source[operation] !== "function") return false;
-    return operation === "read" || !!this.keyField || source instanceof ArrayDynamicDataSource && !isSourceWrittenByAnother(source, this);
+    return operation === "read" || !!this.keyField || source instanceof ArrayDynamicDataSource && !isSourceWrittenByAnother(source, this.writerToken);
   }
   private getFields(): Array<IDynamicDataField> {
     return !!this.owner && !!this.owner.getFields ? this.owner.getFields() : undefined;

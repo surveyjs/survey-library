@@ -7,7 +7,7 @@ import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { isSourceWrittenByAnother } from "./dynamic-data/dynamic-data-sources";
+import { ArrayDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { TextContextProcessor } from "./textPreProcessor";
 import { SurveyError } from "./survey-error";
@@ -175,6 +175,7 @@ export abstract class QuestionRecordsModel extends Question {
       onWriteEnded: (): void => { question.onListWriteEnded(); },
       onDataSettled: (): void => { question.onDataSettled(); },
       onWritesStarted: (): void => { question.onWritesStarted(); },
+      onSourceWriterChanged: (): void => { question.onSourceCapabilitiesChanged(); },
       // IDynamicDataPageValidationOwner: the rules every records question shares; the rest is the question's.
       getDataList: (): DynamicDataList => question.dataList,
       isPageLeaveValidated: (): boolean => question.isPageLeaveValidated(),
@@ -1617,7 +1618,9 @@ export abstract class QuestionRecordsModel extends Question {
     const list = this._dataList;
     if (!list || !list.isRemote) return false;
     if (!list.hasCapability(operation)) {
-      const reason = isSourceWrittenByAnother(list.assignedSource, list) ?
+      // An in-memory array without keyField has every write method: it is refused only because another question writes it.
+      const source = list.assignedSource;
+      const reason = source instanceof ArrayDynamicDataSource && !list.keyField ?
         "The data source is written by position by another question, so the records of this question are read-only" :
         !list.keyField ? "The data source has no keyField, so its records are read-only" : "The data source does not implement " + operation;
       this.reportOperationRefused(operation, reason);
@@ -2368,6 +2371,8 @@ export abstract class QuestionRecordsModel extends Question {
     }
     const list = this.dataList;
     if (list.assignedSource === newValue) {
+      // Assigned again: the question claims an in-memory source written by position (changeSourceWriter).
+      list.assignSource(newValue);
       this.onSourceCapabilitiesChanged();
       return;
     }
@@ -2431,6 +2436,8 @@ export abstract class QuestionRecordsModel extends Question {
     if (operation === "read") {
       this.forgetFocusIndex();
       this.pendingVisibleIndex = undefined;
+    } else if (!!this.reportedWritesSurvey) {
+      this.hasRejectedWrite = true;
     }
     if (!!this.survey) {
       this.survey.dynamicDataError(this, operation, error);
@@ -2986,13 +2993,17 @@ export abstract class QuestionRecordsModel extends Question {
      for, as the validation waits for. A disposed question and one that leaves its survey are taken
      off. reportedWritesSurvey is the survey that was told the question writes. */
   private reportedWritesSurvey: ISurvey;
+  // A write reported to the survey was rejected by the source (onSourceError).
+  private hasRejectedWrite: boolean;
   private reportPendingWrites(): void {
     const survey = !this.isDisposed && this.isWritingToSource ? this.survey : undefined;
     const reported = this.reportedWritesSurvey;
     if (survey === reported) return;
     this.reportedWritesSurvey = survey;
+    const isFailed = !!this.hasRejectedWrite;
+    this.hasRejectedWrite = false;
     const oldWrites = getSurveyDynamicDataWrites(reported);
-    if (!!oldWrites) oldWrites.dynamicDataWritesChanged(this, false);
+    if (!!oldWrites) oldWrites.dynamicDataWritesChanged(this, false, isFailed);
     const newWrites = getSurveyDynamicDataWrites(survey);
     if (!!newWrites) newWrites.dynamicDataWritesChanged(this, true);
   }

@@ -124,9 +124,10 @@ export interface ISurveyDynamicDataCallbacks {
    that a completion waits for them. Not part of ISurvey and not exported by the entries: a survey
    that does not implement it is never asked to wait (see getSurveyDynamicDataWrites in
    question_records.ts). hasPendingWrites is true when the question's first unanswered write starts,
-   and false when its writes have settled, when it is disposed and when it leaves the survey. */
+   and false when its writes have settled, when it is disposed and when it leaves the survey. isFailed:
+   the source rejected one of the writes that settled. */
 export interface ISurveyDynamicDataWrites {
-  dynamicDataWritesChanged(question: IQuestion, hasPendingWrites: boolean): void;
+  dynamicDataWritesChanged(question: IQuestion, hasPendingWrites: boolean, isFailed?: boolean): void;
 }
 export interface ISurveyChoiceCallbacks {
   storeOthersAsComment: boolean;

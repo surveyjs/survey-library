@@ -1319,6 +1319,9 @@ export class SurveyModel extends SurveyElementCore
     if (updateStateProps.indexOf(name) > -1) {
       this.updateState();
     }
+    if (name === "state") {
+      this.dropHeldCompletion();
+    }
     const curPageStateProps = ["state", "currentPage", "showPreviewBeforeComplete"];
     if (curPageStateProps.indexOf(name) > -1) {
       this.onStateAndCurrentPageChanged();
@@ -3357,6 +3360,7 @@ export class SurveyModel extends SurveyElementCore
   }
   // The data setter and setData() both assign through here, so the two can never drift apart.
   private assignData(data: any): void {
+    this.dropHeldCompletion();
     this.valuesHash = createHash();
     this.setDataCore(data, !data);
     this.markAnsweredPagesAsShown();
@@ -3372,6 +3376,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public mergeData(data: any): void {
     if (!data) return;
+    this.dropHeldCompletion();
     const newData = this.data;
     this.mergeValues(data, newData);
     this.setDataCore(newData);
@@ -4249,6 +4254,7 @@ export class SurveyModel extends SurveyElementCore
    * @param goToFirstPage *(Optional)* Specifies whether to switch the survey to the first page. Default value: `true`.
    */
   public clear(clearData: boolean = true, goToFirstPage: boolean = true): void {
+    this.dropHeldCompletion();
     this.isCompleted = false;
     this.isCompletedBefore = false;
     this.isLoading = false;
@@ -4320,7 +4326,7 @@ export class SurveyModel extends SurveyElementCore
     this.onCurrentPageChanging.fire(this, options, () => onComplete(), () => this.setIsNavigationBlocked(true));
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
-    this.completionHeldPage = undefined;
+    this.dropHeldCompletion();
     this.notifyQuestionsOnHidingContent(oldValue);
     if (oldValue && !oldValue.isDisposed && !oldValue.passed) {
       if (oldValue.validate(false)) {
@@ -4596,8 +4602,10 @@ export class SurveyModel extends SurveyElementCore
       doFunc();
       return true;
     }
+    // A validation that waits for a records question's pending write is dropped with the held completion.
+    const epoch = this.questionsWithPendingWrites.length > 0 ? this.heldCompletionEpoch : undefined;
     const func = (hasErrors: boolean) => {
-      if (!hasErrors) {
+      if (!hasErrors && (epoch === undefined || epoch === this.heldCompletionEpoch)) {
         doFunc();
       }
     };
@@ -6245,22 +6253,31 @@ export class SurveyModel extends SurveyElementCore
   }
   /* A completion the respondent or tryComplete started waits while a records question has a write
      its data source has not answered: a write is part of what is submitted. A pending read does not
-     hold it. The page it was started on is kept; a page change drops it (currentPageChanged), and so
-     does a state other than running. doComplete() completes regardless and is not held. */
-  private completionHeldPage: PageModel;
+     hold it. Where it was started is kept - the page, or the preview - and it completes from there when
+     the writes have settled. A page change (currentPageChanged), a state change, clear(), assigning
+     or merging data and a rejected write drop it. doComplete() completes regardless and is not held. */
+  private heldCompletion: { page: PageModel, state: string };
+  /* Bumped whenever a held completion is dropped. A validation that started while a write was pending
+     waits for the question's data and answers later: it completes only if nothing dropped it meanwhile. */
+  private heldCompletionEpoch: number = 0;
+  private dropHeldCompletion(): void {
+    this.heldCompletion = undefined;
+    this.heldCompletionEpoch++;
+  }
   /* The records questions that have a write their source has not answered. The questions report it
      themselves (dynamicDataWritesChanged), nested ones included, so nothing walks the survey and no
      question is built for it. */
   private questionsWithPendingWrites: Array<IQuestion> = [];
   private holdCompletionForSourceWrites(): boolean {
     if (this.questionsWithPendingWrites.length === 0) return false;
-    this.completionHeldPage = this.currentPage;
+    this.heldCompletion = { page: this.currentPage, state: this.state };
     return true;
   }
   /* ISurveyDynamicDataWrites (interfaces/survey-callbacks.ts), not a member of ISurvey: a records
      question's writes started or settled. When the last one settles, the held completion runs again,
-     and validates again. */
-  dynamicDataWritesChanged(question: IQuestion, hasPendingWrites: boolean): void {
+     and validates again. A write the source rejected (isFailed) never reached it: the completion is
+     dropped, the survey stays where it is and the respondent can complete again. */
+  dynamicDataWritesChanged(question: IQuestion, hasPendingWrites: boolean, isFailed?: boolean): void {
     const questions = this.questionsWithPendingWrites;
     const index = questions.indexOf(question);
     if (hasPendingWrites) {
@@ -6269,17 +6286,38 @@ export class SurveyModel extends SurveyElementCore
     }
     if (index < 0) return;
     questions.splice(index, 1);
+    if (isFailed) {
+      this.dropHeldCompletion();
+      return;
+    }
     this.continueHeldCompletion();
   }
+  /* A records question that left the survey - removed from its page, inside a removed panel or page -
+     stops holding a completion: what it writes is no longer submitted. */
+  private dropRemovedQuestionsWithPendingWrites(): void {
+    const questions = this.questionsWithPendingWrites;
+    if (questions.length === 0) return;
+    this.questionsWithPendingWrites = questions.filter((question: IQuestion): boolean => this.isElementInPages(<any>question));
+    if (this.questionsWithPendingWrites.length !== questions.length)this.continueHeldCompletion();
+  }
+  // The element is inside one of the survey's pages: its parents, or the dynamic question it is nested in, lead to one.
+  private isElementInPages(element: { parent?: any, parentQuestion?: any, isPage?: boolean, isDisposed?: boolean }): boolean {
+    let el = element;
+    while(!!el && !el.isDisposed) {
+      if (el.isPage) return this.pages.indexOf(<any>el) > -1;
+      el = el.parent || el.parentQuestion;
+    }
+    return false;
+  }
   private continueHeldCompletion(): void {
-    const page = this.completionHeldPage;
-    if (!page) return;
-    if (page !== this.currentPage || this.state !== "running") {
-      this.completionHeldPage = undefined;
+    const held = this.heldCompletion;
+    if (!held) return;
+    if (held.state !== this.state || held.state === "running" && held.page !== this.currentPage) {
+      this.heldCompletion = undefined;
       return;
     }
     if (this.questionsWithPendingWrites.length > 0) return;
-    this.completionHeldPage = undefined;
+    this.heldCompletion = undefined;
     this.doCurrentPageComplete(true);
   }
   dragAndDropAllow(options: DragDropAllowEvent): boolean {
@@ -7989,6 +8027,7 @@ export class SurveyModel extends SurveyElementCore
     return !this.isMovingQuestion;
   }
   questionRemoved(question: Question): void {
+    this.dropRemovedQuestionsWithPendingWrites();
     this.questionHashesRemoved(
       <Question>question,
       question.name,
@@ -8122,6 +8161,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   panelRemoved(panel: PanelModel): void {
+    this.dropRemovedQuestionsWithPendingWrites();
     this.updateVisibleIndexes(panel.page);
     this.onPanelRemoved.fire(this, { panel: panel, name: panel.name });
     this.updateLazyRenderingRowsOnRemovingElements();

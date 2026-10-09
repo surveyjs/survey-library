@@ -200,4 +200,6 @@ export interface IDynamicDataOwner {
   onDataSettled?(): void;
   // The first write the source has not answered was sent.
   onWritesStarted?(): void;
+  // Another list took the claim on the in-memory source this list wrote (changeSourceWriter): it only reads it now.
+  onSourceWriterChanged?(): void;
 }

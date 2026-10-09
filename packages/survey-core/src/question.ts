@@ -28,6 +28,7 @@ import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 import { ActionContainer } from "./actions/container";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { isAnimationEnabled } from "./utils/reduced-motion";
+import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choices";
 
 export interface IConditionObject {
   name: string;
@@ -829,50 +830,14 @@ export class Question extends SurveyElement<Question>
   protected updateDependedQuestion(): void { }
   protected resetDependedQuestion(): void { }
   private valueRevision: number = 0;
-  private arrayValueChoices: { [key: string]: { value: any, revision: number, choices: Array<{ value: any, text: any }> } };
-  /* internal: the choices a question with choicesFromQuestion takes from this question's array value -
-     one { value, text } per record that has a value in valueField (the first key of the record when
-     valueField is empty). Every dependent asks on every write of any field of any record, so the
-     projection is made once per value change and per field pair, not once per dependent. A value
-     change does not drop it: the next read recomputes it and returns the previous instance when the
-     values and texts are the same, which is how a dependent tells that its choices did not change. */
-  public getArrayValueChoices(valueField: string, textField: string): Array<{ value: any, text: any }> {
-    const val = this.value;
-    const key = (valueField || "") + "\n" + (textField || "");
+  // Created on the first read: only a question that a choicesFromQuestion points at needs it.
+  private arrayValueChoices: ArrayValueChoices;
+  // internal: called by the questions whose choicesFromQuestion is this question (see ArrayValueChoices).
+  public getArrayValueChoices(valueField: string, textField: string): Array<IArrayValueChoice> {
     if (!this.arrayValueChoices) {
-      this.arrayValueChoices = {};
+      this.arrayValueChoices = new ArrayValueChoices();
     }
-    const cached = this.arrayValueChoices[key];
-    if (!!cached && cached.value === val && cached.revision === this.valueRevision) return cached.choices;
-    const choices = this.createArrayValueChoices(val, valueField, textField);
-    const res = !!cached && this.isSameArrayValueChoices(cached.choices, choices) ? cached.choices : choices;
-    this.arrayValueChoices[key] = { value: val, revision: this.valueRevision, choices: res };
-    return res;
-  }
-  private createArrayValueChoices(val: any, valueField: string, textField: string): Array<{ value: any, text: any }> {
-    const res: Array<{ value: any, text: any }> = [];
-    if (!Array.isArray(val)) return res;
-    for (let i = 0; i < val.length; i++) {
-      const obj = val[i];
-      if (!Helpers.isValueObject(obj)) continue;
-      const key = valueField || Object.keys(obj)[0];
-      // Base.isValueEmpty (trimmed) without the call through the question: made on the source
-      // question, it met another object shape than the dropdowns and V8 deoptimized it in a loop.
-      const keyValue = !!key ? obj[key] : undefined;
-      if (!!key && !Helpers.isValueEmpty(typeof keyValue === "string" || keyValue instanceof String ? keyValue.trim() : keyValue)) {
-        res.push({ value: obj[key], text: !!textField ? obj[textField] : undefined });
-      }
-    }
-    return res;
-  }
-  private isSameArrayValueChoices(a: Array<{ value: any, text: any }>, b: Array<{ value: any, text: any }>): boolean {
-    if (a.length !== b.length) return false;
-    // Exact: a key renamed by case or by a trailing space is a new choice.
-    const isSame = (x: any, y: any): boolean => x === y || Helpers.isTwoValueEquals(x, y, false, true, false);
-    for (let i = 0; i < a.length; i++) {
-      if (!isSame(a[i].value, b[i].value) || !isSame(a[i].text, b[i].text)) return false;
-    }
-    return true;
+    return this.arrayValueChoices.getChoices(this.value, this.valueRevision, valueField, textField);
   }
   public get isFlowLayout(): boolean {
     return this.getLayoutType() === "flow";

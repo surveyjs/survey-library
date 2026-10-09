@@ -7,6 +7,7 @@ import { PanelModel } from "../../src/panel";
 import { FunctionFactory } from "../../src/functionsfactory";
 import { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
 import { Question } from "../../src/question";
+import { ArrayValueChoices } from "../../src/utils/array-value-choices";
 import { QuestionRecordsModel } from "../../src/question_records";
 import { QuestionSelectBase } from "../../src/question_baseselect";
 import { ItemValue } from "../../src/itemvalue";
@@ -158,7 +159,7 @@ describe("choicesFromQuestion over an array question projects once per source va
   test("a write to a field that is neither the value nor the text field: one projection, no ItemValue comparison, no search", () => {
     const question = createChoicesPanel(50);
     const toJSON = vi.spyOn(ItemValue.prototype, "toJSON");
-    const projections = vi.spyOn(<any>Question.prototype, "createArrayValueChoices");
+    const projections = vi.spyOn(<any>ArrayValueChoices.prototype, "createChoices");
     const searches = vi.spyOn(ItemValue, "getItemByValue");
     question.panels[10].getQuestionByName("name").value = "changed";
     expect(question.value[10].name, "#1: the write reached the record").toBe("changed");

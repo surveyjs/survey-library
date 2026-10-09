@@ -553,6 +553,20 @@ test("special choices keep visual order with and without separateSpecialChoices"
   expect(separated.getChoiceKeyBadge(separated.noneItem)).toBe("D");
 });
 
+test("dropdown choices rendered as radio items have no shortcut badge", () => {
+  const survey = new SurveyModel({
+    showChoiceShortcutKeys: true,
+    elements: [{ type: "dropdown", name: "q", choices: ["a", "b"] }]
+  });
+  const q = survey.getQuestionByName("q");
+  expect(q.getChoiceKeyBadge(q.visibleChoices[0])).toBe("");
+  expect(q.getItemAriaKeyShortcuts(q.visibleChoices[0])).toBeUndefined();
+  expect(q.getItemShortcutKeyClass(q.visibleChoices[0])).toBe("");
+  q.onChoiceKeyDown({ key: "a", target: { tagName: "input", type: "radio", id: "x" } });
+  q.onChoiceFocusOut({});
+  expect(q.value).toBeUndefined();
+});
+
 test("a question flag false hides badges even when the survey flag is on", () => {
   const q = questionOf<QuestionRadiogroupModel>(createSurvey("radiogroup", 2, { showShortcutKeys: false }));
   expect(q.canShowChoiceKeys).toBe(false);

@@ -1,7 +1,7 @@
 import { Helpers, createDate, normalizeTextForSearch } from "../src/helpers";
 import { EmailValidator } from "../src/validator";
 import { SurveyModel } from "../src/survey";
-import { ValueGetter, VariableGetterContext } from "../src/conditions/conditionProcessValue";
+import { findNameByPath, parseValuePath, ValueGetter, VariableGetterContext } from "../src/conditions/conditionProcessValue";
 import { Base } from "../src/base";
 import { property } from "../src/decorators";
 import { settings } from "../src/settings";
@@ -102,6 +102,26 @@ describe("Helpers", () => {
     expect(valueGetter.getValueInfo({ name: "region", context: new VariableGetterContext({}) }).value, "Return null string").toBeUndefined();
     //Test for bug: https://surveyjs.answerdesk.io/ticket/details/t2558
     expect(valueGetter.getValueInfo({ name: "a.b.c.D", context: new VariableGetterContext({ "a.b": 1, "a.b.c.D": 2 }) }).value, "Ignore a.b").toBe(2);
+  });
+  test("findNameByPath joins path items back into dotted names", () => {
+    const known = (names: Array<string>) => (name: string) => names.indexOf(name) > -1;
+    const path = [{ name: "a" }, { name: "b" }, { name: "c" }];
+    expect(findNameByPath(path, 0, true, known(["a", "a.b"])), "revert: the longest name wins").toBe(1);
+    expect(findNameByPath(path, 0, false, known(["a", "a.b"])), "forward: the shortest name wins").toBe(0);
+    expect(findNameByPath(path, 0, true, known(["a.b.c"])), "the whole path is one name").toBe(2);
+    expect(findNameByPath(path, 0, true, known(["b", "x"])), "no name starts at start").toBe(-1);
+    expect(findNameByPath(path, 1, true, known(["b.c", "a.b.c"])), "the join starts at start").toBe(2);
+    const indexed = [{ name: "a" }, { name: "b", index: 0 }, { name: "c" }];
+    expect(findNameByPath(indexed, 0, true, known(["a.b", "a.b.c"])), "the indexed item ends the name").toBe(1);
+    expect(findNameByPath(indexed, 0, true, known(["a.b.c"])), "a name never spans an index").toBe(-1);
+  });
+  test("parseValuePath splits a reference and, on request, locates each name in it", () => {
+    expect(parseValuePath("a.b[0].cc"), "no positions unless asked").toEqual(
+      [{ name: "a" }, { name: "b", index: 0 }, { name: "cc" }]);
+    expect(parseValuePath("a.b[0].cc", true), "the index is no part of the name").toEqual([
+      { name: "a", from: 0, to: 1 }, { name: "b", index: 0, from: 2, to: 3 }, { name: "cc", from: 7, to: 9 }]);
+    expect(parseValuePath("a[x]", true), "a bracket that is no index stays in the name").toEqual(
+      [{ name: "a[x]", from: 0, to: 4 }]);
   });
 
   test("isConvertibleToNumber", () => {

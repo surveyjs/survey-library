@@ -1,7 +1,8 @@
-import { Action, IAction } from "./actions/action";
+import { IAction } from "./actions/action";
 import { ActionContainer } from "./actions/container";
 import { Base } from "./base";
 import { IDropdownMenuOptions } from "./base-interfaces";
+import { DropdownEditorButtons, DropdownRenderState } from "./dropdownRenderState";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { Helpers, normalizeTextForSearch } from "./helpers";
 import { ItemValue } from "./itemvalue";
@@ -29,8 +30,8 @@ export class DropdownListModel extends Base {
   private _markdownMode = false;
   private skipListFilterUpdate = false;
   private _popupModel: PopupModel;
-  private chevronButton: Action;
-  private clearButton: Action;
+  private renderStateValue: DropdownRenderState;
+  private ownEditorButtons: DropdownEditorButtons;
   private filteredItems: Array<ItemValue> = undefined;
   @property({ defaultValue: false }) focused: boolean;
   private get focusFirstInputSelector(): string {
@@ -59,7 +60,24 @@ export class DropdownListModel extends Base {
       }
     }
   };
-  public editorButtons: ActionContainer;
+  // The chevron and clear buttons belong to the question, so a closed control renders them without a model.
+  public get editorButtons(): ActionContainer {
+    const question: any = this.question;
+    if (!!question.getDropdownLocCaption) return question.dropdownEditorButtons;
+    if (!this.ownEditorButtons) {
+      this.ownEditorButtons = new DropdownEditorButtons(this.question, this.locSelectCaption, this.locClearCaption, () => this);
+    }
+    return this.ownEditorButtons;
+  }
+  protected get renderState(): DropdownRenderState {
+    if (!this.renderStateValue) {
+      this.renderStateValue = this.createRenderState();
+    }
+    return this.renderStateValue;
+  }
+  protected createRenderState(): DropdownRenderState {
+    return new DropdownRenderState(this.question, this);
+  }
 
   private resetItemsSettings() {
     this.itemsSettings.skip = 0;
@@ -167,59 +185,6 @@ export class DropdownListModel extends Base {
     return (rootElement && rootElement.contains(event.relatedTarget));
   }
 
-  protected createButtons(): void {
-    this.editorButtons = new ActionContainer();
-    this.editorButtons.locOwner = this.question;
-    this.editorButtons.containerCss = this.question.cssClasses?.group;
-    this.editorButtons.setActionsAppearance({ mode: "tertiary", style: "neutral", size: "small" });
-
-    this.chevronButton = new Action({
-      id: "chevron",
-      css: "sd-editor-chevron-button",
-      iconName: this.question.cssClasses.chevronButtonIconId || "icon-chevron",
-      iconSize: "auto",
-      showTitle: false,
-      locTitle: this.locSelectCaption,
-      disableTabStop: true,
-      enabled: !this.question.isInputReadOnly,
-      visible: !this.question.isPreviewStyle,
-      action: (context: any) => {
-        this.onClick();
-      }
-    });
-
-    this.clearButton = new Action({
-      id: "clear",
-      css: "sd-editor-clean-button",
-      iconName: this.question.cssClasses.cleanButtonIconId || "icon-cancel-24x24",
-      iconSize: "auto",
-      showTitle: false,
-      locTitle: this.locClearCaption,
-      disableTabStop: true,
-      enabled: !this.question.isInputReadOnly,
-      visible: this.isClearButtonVisible,
-      action: (context: any) => {
-        this.onClear();
-      }
-    });
-
-    this.editorButtons.setItems([this.clearButton, this.chevronButton]);
-  }
-  private get isClearButtonVisible(): boolean {
-    return this.question.allowClear && !this.question.isEmpty() && !this.question.isReadOnly;
-  }
-
-  protected updateButtonsState(): void {
-    if (this.chevronButton) {
-      this.chevronButton.setEnabled(!this.question.isInputReadOnly);
-      this.chevronButton.setVisible(!this.question.isPreviewStyle);
-    }
-    if (this.clearButton) {
-      this.clearButton.setEnabled(!this.question.isInputReadOnly);
-      this.clearButton.setVisible(this.isClearButtonVisible);
-    }
-  }
-
   protected createPopup(): void {
     const popupOptions: IPopupOptionsBase = { verticalPosition: "bottom", horizontalPosition: "center", showPointer: false };
     this._popupModel = new PopupModel("sv-list", { model: this.listModel }, popupOptions);
@@ -235,7 +200,10 @@ export class DropdownListModel extends Base {
     });
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
       this.popupVisibilityChanged(option.isVisible);
-      this.chevronButton.popupActive = option.isVisible;
+      const chevronButton = this.editorButtons.getActionById("chevron");
+      if (!!chevronButton) {
+        chevronButton.popupActive = option.isVisible;
+      }
     });
   }
 
@@ -490,11 +458,14 @@ export class DropdownListModel extends Base {
   }
 
   public get canShowSelectedItem(): boolean {
-    return !this.focused || this._markdownMode || !this.searchEnabled;
+    return this.renderState.canShowSelectedItem;
+  }
+  public get markdownMode(): boolean {
+    return this._markdownMode;
   }
 
   public get needRenderInput(): boolean {
-    return !this.question.isInputReadOnly || !!this.placeholderRendered;
+    return this.renderState.needRenderInput;
   }
 
   public updateCustomItemValue(): void {
@@ -591,7 +562,7 @@ export class DropdownListModel extends Base {
   }
 
   public get inputStringRendered() {
-    return this.inputString || "";
+    return this.renderState.inputStringRendered;
   }
 
   public set inputStringRendered(val: string) {
@@ -609,59 +580,38 @@ export class DropdownListModel extends Base {
 
   @property() inputPlaceholder: string;
   public get placeholderRendered() {
-    return (this.hintString || this.question.readOnly || !this.question.isEmpty()) ? "" : this.inputPlaceholder;
+    return this.renderState.placeholderRendered;
   }
 
   public get listElementId(): string {
-    return this.question.inputId + "_list";
+    return this.renderState.listElementId;
   }
 
   @property({ defaultValue: "" }) hintString: string;
 
-  private get hintStringLC(): string {
-    return this.hintString?.toLowerCase() || "";
-  }
-  private get inputStringLC(): string {
-    return this.inputString?.toLowerCase() || "";
-  }
-
   public get showHintPrefix(): boolean {
-    return !!this.inputString && this.hintStringLC.indexOf(this.inputStringLC) > 0;
+    return this.renderState.showHintPrefix;
   }
   public get hintStringPrefix(): string {
-    if (!this.inputString) return null;
-    return this.hintString.substring(0, this.hintStringLC.indexOf(this.inputStringLC));
+    return this.renderState.hintStringPrefix;
   }
   public get showHintString(): boolean {
-    return !!this.searchEnabled && !!(this.hintStringLC || this.inputStringLC) ||
-      !this.searchEnabled && this.hintStringLC && this.question.isEmpty();
+    return this.renderState.showHintString;
   }
   public get hintStringSuffix(): string {
-    return this.hintStringLC.indexOf(this.inputStringLC) >= 0 ? this.hintString.substring(this.hintStringLC.indexOf(this.inputStringLC) + this.inputStringLC.length) : "";
+    return this.renderState.hintStringSuffix;
   }
   public get hintStringMiddle(): string {
-    const start = this.hintStringLC.indexOf(this.inputStringLC);
-    if (start == -1) return null;
-    return this.hintString.substring(start, start + this.inputStringLC.length);
+    return this.renderState.hintStringMiddle;
   }
   private questionPropertyChangedHandler = (sender: any, options: any) => {
     this.onPropertyChangedHandler(sender, options);
   };
-  private surveyPropertyChangedHandler = (sender: any, options: any) => {
-    if (options.name === "state") {
-      this.updateButtonsState();
-    }
-  };
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
     this.ariaExpanded = "false";
-    this.createLocalizableString("clearCaption", this.question, false, true);
-    this.createLocalizableString("selectCaption", this.question, false, true);
     this.htmlCleanerElement = DomDocumentHelper.createElement("div") as HTMLDivElement;
     question.onPropertyChanged.add(this.questionPropertyChangedHandler);
-    if (question.survey) {
-      (<any>question.survey).onPropertyChanged.add(this.surveyPropertyChangedHandler);
-    }
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 
     this.listModel = this.createListModel();
@@ -672,7 +622,6 @@ export class DropdownListModel extends Base {
     this.setAllowCustomChoices(this.question.allowCustomChoices);
     this.setTextWrapEnabled(this.question.textWrapEnabled);
     this.createPopup();
-    this.createButtons();
     this.resetItemsSettings();
     const classes = question.cssClasses;
     this.updateCssClasses(classes.popup, classes.list);
@@ -682,66 +631,73 @@ export class DropdownListModel extends Base {
     return this._popupModel;
   }
 
+  // The captions belong to the question together with the editor buttons. A question without the dropdown plumbing
+  // gets them from the model, as before.
+  private getLocCaption(name: "selectCaption" | "clearCaption"): LocalizableString {
+    const question: any = this.question;
+    if (!!question.getDropdownLocCaption) return question.getDropdownLocCaption(name);
+    return this.getLocalizableString(name) || this.createLocalizableString(name, this.question, false, true);
+  }
   public get clearCaption(): string {
-    return this.getLocalizableStringText("clearCaption");
+    return this.locClearCaption.text;
   }
   public set clearCaption(value: string) {
-    this.setLocalizableStringText("clearCaption", value);
+    this.locClearCaption.text = value;
   }
   get locClearCaption(): LocalizableString {
-    return this.getLocalizableString("clearCaption");
+    return this.getLocCaption("clearCaption");
   }
 
   public get selectCaption(): string {
-    return this.getLocalizableStringText("selectCaption");
+    return this.locSelectCaption.text;
   }
   public set selectCaption(value: string) {
-    this.setLocalizableStringText("selectCaption", value);
+    this.locSelectCaption.text = value;
   }
   get locSelectCaption(): LocalizableString {
-    return this.getLocalizableString("selectCaption");
+    return this.getLocCaption("selectCaption");
   }
 
   public get inputAvailable(): boolean {
-    return this.searchEnabled || this.allowCustomChoices;
+    return this.renderState.inputAvailable;
   }
   public get noTabIndex(): boolean {
-    return this.question.isInputReadOnly || this.inputAvailable;
+    return this.renderState.noTabIndex;
   }
   public get filterReadOnly(): boolean {
-    return !this.filterStringEnabled || !this.focused;
+    return this.renderState.filterReadOnly;
   }
   public get filterStringEnabled(): boolean {
-    return !this.question.isInputReadOnly && this.inputAvailable;
+    return this.renderState.filterStringEnabled;
   }
   public get inputMode(): "none" | "text" {
-    return IsTouch ? "none" : "text";
+    return this.renderState.inputMode;
   }
   public get popupEnabled(): boolean {
-    return !this.question.isInputReadOnly;
+    return this.renderState.popupEnabled;
   }
 
-  public get ariaQuestionRole(): string | undefined { return this.filterStringEnabled ? undefined : "combobox"; }
-  public get ariaQuestionRequired(): "true" | "false" | undefined { return this.ariaQuestionRole ? this.question.a11y_input_ariaRequired : undefined; }
-  public get ariaQuestionInvalid(): "true" | "false" | undefined { return this.ariaQuestionRole ? this.question.a11y_input_ariaInvalid : undefined; }
-  public get ariaQuestionErrorMessage(): string | undefined { return this.ariaQuestionRole ? this.question.a11y_input_ariaErrormessage : undefined; }
-  public get ariaQuestionLabel(): string | undefined { return this.ariaQuestionRole ? this.question.a11y_input_ariaLabel : undefined; }
-  public get ariaQuestionLabelledby(): string | undefined { return this.ariaQuestionRole ? this.question.a11y_input_ariaLabelledBy : undefined; }
-  public get ariaQuestionDescribedby(): string | undefined { return this.ariaQuestionRole ? this.question.a11y_input_ariaDescribedBy : undefined; }
-  public get ariaQuestionControls(): string | undefined { return this.ariaQuestionRole && this.popupEnabled ? this.listElementId : undefined; }
-  public get ariaQuestionExpanded(): "true" | "false" { return this.ariaQuestionRole ? (this.popupEnabled ? this.ariaExpanded : "false") : undefined; }
-  public get ariaQuestionActivedescendant(): string | undefined { return this.ariaQuestionRole ? this.ariaActivedescendant : undefined; }
+  public get ariaQuestionRole(): string | undefined { return this.renderState.ariaQuestionRole; }
+  public get ariaQuestionRequired(): "true" | "false" | undefined { return this.renderState.ariaQuestionRequired; }
+  public get ariaQuestionInvalid(): "true" | "false" | undefined { return this.renderState.ariaQuestionInvalid; }
+  public get ariaQuestionErrorMessage(): string | undefined { return this.renderState.ariaQuestionErrorMessage; }
+  public get ariaQuestionLabel(): string | undefined { return this.renderState.ariaQuestionLabel; }
+  public get ariaQuestionLabelledby(): string | undefined { return this.renderState.ariaQuestionLabelledby; }
+  public get ariaQuestionDescribedby(): string | undefined { return this.renderState.ariaQuestionDescribedby; }
+  public get ariaQuestionControls(): string | undefined { return this.renderState.ariaQuestionControls; }
+  public get ariaQuestionExpanded(): "true" | "false" { return this.renderState.ariaQuestionExpanded; }
+  public get ariaQuestionActivedescendant(): string | undefined { return this.renderState.ariaQuestionActivedescendant; }
 
-  public get ariaInputRole(): string { return this.filterStringEnabled ? "combobox" : undefined; }
-  public get ariaInputRequired(): "true" | "false" { return this.ariaInputRole ? this.question.a11y_input_ariaRequired : undefined; }
-  public get ariaInputInvalid(): "true" | "false" { return this.ariaInputRole ? this.question.a11y_input_ariaInvalid : undefined; }
-  public get ariaInputErrorMessage(): string { return this.ariaInputRole ? this.question.a11y_input_ariaErrormessage : undefined; }
-  public get ariaInputLabel(): string { return this.ariaInputRole ? this.question.a11y_input_ariaLabel : undefined; }
-  public get ariaInputLabelledby(): string { return this.ariaInputRole ? this.question.a11y_input_ariaLabelledBy : undefined; }
-  public get ariaInputDescribedby(): string { return this.ariaInputRole ? this.question.a11y_input_ariaDescribedBy : undefined; }
-  public get ariaInputControls(): string { return this.ariaInputRole && this.popupEnabled ? this.listElementId : undefined; }
-  public get ariaInputExpanded(): "true" | "false" { return this.ariaInputRole ? (this.popupEnabled ? this.ariaExpanded : "false") : undefined; }
-  public get ariaInputActivedescendant(): string { return this.ariaInputRole ? this.ariaActivedescendant : undefined; }
+  public get ariaInputRole(): string { return this.renderState.ariaInputRole; }
+  public get ariaInputRequired(): "true" | "false" { return this.renderState.ariaInputRequired; }
+  public get ariaInputInvalid(): "true" | "false" { return this.renderState.ariaInputInvalid; }
+  public get ariaInputErrorMessage(): string { return this.renderState.ariaInputErrorMessage; }
+  public get ariaInputLabel(): string { return this.renderState.ariaInputLabel; }
+  public get ariaInputLabelledby(): string { return this.renderState.ariaInputLabelledby; }
+  public get ariaInputDescribedby(): string { return this.renderState.ariaInputDescribedby; }
+  public get ariaInputControls(): string { return this.renderState.ariaInputControls; }
+  public get ariaInputExpanded(): "true" | "false" { return this.renderState.ariaInputExpanded; }
+  public get ariaInputActivedescendant(): string { return this.renderState.ariaInputActivedescendant; }
 
   public setSearchEnabled(newValue: boolean): void {
     this.listModel.setSearchEnabled(IsTouch && (newValue || this.question.allowCustomChoices));
@@ -787,10 +743,9 @@ export class DropdownListModel extends Base {
   protected onPropertyChangedHandler(sender: any, options: any) {
     if (options.name == "value") {
       this.showInputFieldComponent = this.question.showInputFieldComponent;
-      this.updateButtonsState();
     }
-    if (options.name === "readOnly" || options.name === "isInputReadOnly" || options.name === "isDesignMode" || options.name === "forceIsInputReadOnly" || options.name === "allowClear") {
-      this.updateButtonsState();
+    if (!!this.ownEditorButtons && DropdownEditorButtons.questionPropertiesToUpdate.indexOf(options.name) > -1) {
+      this.ownEditorButtons.updateState();
     }
     if (options.name == "textWrapEnabled") {
       this.setTextWrapEnabled(options.newValue);
@@ -1011,11 +966,11 @@ export class DropdownListModel extends Base {
   public dispose(): void {
     super.dispose();
     this.question && this.question.onPropertyChanged.remove(this.questionPropertyChangedHandler);
-    if (this.question && this.question.survey) {
-      (<any>this.question.survey).onPropertyChanged.remove(this.surveyPropertyChangedHandler);
-    }
     this.questionPropertyChangedHandler = undefined;
-    this.surveyPropertyChangedHandler = undefined;
+    if (!!this.ownEditorButtons) {
+      this.ownEditorButtons.dispose();
+      this.ownEditorButtons = undefined;
+    }
     if (!!this.listModel) {
       this.listModel.dispose();
     }

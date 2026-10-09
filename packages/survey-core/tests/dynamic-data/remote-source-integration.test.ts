@@ -5985,6 +5985,47 @@ describe("Remote data source: a validated navigation waits for the question's pe
   });
 });
 
+describe("Remote data source: the survey learns of pending writes from the records questions", () => {
+  test("a records question nested in a dynamic panel holds the completion while its write is pending", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelCount: 1, templateElements: [
+      { type: "matrixdynamic", name: "matrix", rowCount: 0, columns: [{ name: "col1" }] }] }] });
+    survey.validationEnabled = false;
+    const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("p")).panels[0];
+    const question = <QuestionMatrixDynamicModel>panel.getQuestionByName("matrix");
+    const source = new FakeServerSource([{ id: 1, col1: "a" }]);
+    source.auto = false;
+    question.dataSource = source;
+    source.settleAll();
+    await flush();
+    const completed = new Array<boolean>();
+    survey.onComplete.add(() => { completed.push(true); });
+    question.visibleRows[0].getQuestionByName("col1").value = "b";
+    expect(source.pending.map(call => call.op), "#1").toEqual(["update"]);
+    expect(survey.tryComplete(), "#2").toBe(false);
+    expect(survey.state, "#3").toBe("running");
+    source.settleAll();
+    await flush();
+    expect(completed, "#4").toEqual([true]);
+  });
+  test("a survey without the pending-writes member: a records question reads, writes and settles, and the completion is not held", async () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, columns: [{ name: "col1" }] }] });
+    (<any>survey).dynamicDataWritesChanged = undefined;
+    survey.validationEnabled = false;
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const source = new FakeServerSource([{ id: 1, col1: "a" }]);
+    source.auto = false;
+    question.dataSource = source;
+    source.settleAll();
+    await flush();
+    question.visibleRows[0].getQuestionByName("col1").value = "b";
+    expect(source.pending.map(call => call.op), "#1").toEqual(["update"]);
+    expect(survey.tryComplete(), "#2").toBe(true);
+    source.settleAll();
+    await flush();
+    expect(source.records, "#3").toEqual([{ id: 1, col1: "b" }]);
+  });
+});
+
 describe("Remote data source: what a developer assigns through the survey is stored as assigned", () => {
   test("survey.setValue and mergeData reach survey.data, the rows keep showing the source and nothing is sent", async () => {
     const source = keyedSource(2);

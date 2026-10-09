@@ -3525,3 +3525,34 @@ describe("a shared valueName with a matrix whose rows were never built", () => {
     expect((<any>survey.getQuestionByName("b"))._dataList).toBeUndefined();
   });
 });
+describe("the Multi-Select Matrix rows and their answers", () => {
+  test("a cell of a row that rows = [...] removed writes nothing", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", rows: ["r1", "r2"], columns: [{ name: "c1" }] }] });
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
+    matrix.value = { r1: { c1: 1 }, r2: { c1: 2 } };
+    const cell = matrix.visibleRows[1].cells[0].question;
+    matrix.rows = <any>["r1"];
+    let events = 0;
+    survey.onValueChanged.add(() => { events++; });
+    cell.value = "late";
+    expect(survey.data, "#1: the cell of the removed row does not bring its record back").toEqual({});
+    expect(events, "#2").toBe(0);
+  });
+  test("clearIncorrectValues keeps the answers of numeric row values", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", rows: [1, 2], columns: [{ name: "a", cellType: "text" }] }] });
+    survey.data = { m: { 1: { a: "x" }, 2: { a: "y" }, 3: { a: "z" } } };
+    survey.clearIncorrectValues();
+    expect(survey.data).toEqual({ m: { 1: { a: "x" }, 2: { a: "y" } } });
+  });
+  test("renaming a row value builds the rows again and closes the detail panel", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", rows: ["r1", "r2"], detailPanelMode: "underRow",
+      detailElements: [{ type: "text", name: "d" }], columns: [{ name: "a", cellType: "text" }] }] });
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
+    const row = matrix.visibleRows[1];
+    row.showDetailPanel();
+    matrix.rows[0].value = "r1x";
+    expect(matrix.visibleRows[1] === row, "#1").toBe(false);
+    expect(matrix.visibleRows[1].isDetailPanelShowing, "#2").toBe(false);
+  });
+});
+

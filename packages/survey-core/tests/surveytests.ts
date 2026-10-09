@@ -22127,3 +22127,42 @@ describe("Survey: Object.prototype member names and the __proto__ key", () => {
     survey.dispose();
   });
 });
+
+describe("completing a survey builds nothing the respondent did not see", () => {
+  function completeWithHiddenPage(clearInvisibleValues: string): { data: any, events: Array<string> } {
+    const survey = new SurveyModel({
+      clearInvisibleValues: clearInvisibleValues,
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        { visibleIf: "{q1} = 'show'", elements: [
+          { type: "matrixdynamic", name: "m", rowCount: 2, columns: [{ name: "c1", cellType: "text", defaultValue: "d" }] },
+          { type: "paneldynamic", name: "p", panelCount: 1, templateElements: [{ type: "text", name: "t", defaultValue: "pd" }] }] }]
+    });
+    const events: Array<string> = [];
+    survey.onDynamicPanelAdded.add(() => events.push("panelAdded"));
+    survey.onMatrixCellCreated.add(() => events.push("cell"));
+    survey.onValueChanged.add((_, options) => events.push("valueChanged:" + options.name));
+    survey.tryComplete();
+    return { data: survey.data, events: events };
+  }
+  test("completing does not build the questions of a hidden page", () => {
+    const res = completeWithHiddenPage("none");
+    expect(res.data, "#1").toEqual({});
+    expect(res.events, "#2").toEqual([]);
+  });
+  test("completing with the default clean-up fires no build event for a hidden page", () => {
+    expect(completeWithHiddenPage("onComplete").events).toEqual([]);
+  });
+  test("completing a survey with 30 hidden matrices builds no row", () => {
+    const elements = new Array<any>();
+    for (let i = 0; i < 30; i++) {
+      elements.push({ type: "matrixdynamic", name: "m" + i, rowCount: 3, columns: [{ name: "a", cellType: "text" }] });
+    }
+    const survey = new SurveyModel({ pages: [{ elements: [{ type: "text", name: "q1" }] }, { visibleIf: "{q1} = 1", elements: elements }] });
+    let cells = 0;
+    survey.onMatrixCellCreated.add(() => { cells++; });
+    expect(survey.tryComplete(), "#1").toBe(true);
+    expect(survey.state, "#2").toBe("completed");
+    expect(cells, "#3").toBe(0);
+  });
+});

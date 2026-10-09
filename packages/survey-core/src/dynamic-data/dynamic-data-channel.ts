@@ -60,6 +60,8 @@ export interface IDynamicDataChannelHost {
   onPushFailed(operation: DynamicDataOperation): void;
   // No read and no push is pending any more (see notifySettled).
   onSettled(): void;
+  // The first push the source has not answered was sent: hasPendingWrites has become true.
+  onWritesStarted(): void;
 }
 /* What runPush answers: the promise of an asynchronous push, or how a synchronous one ended. Private
    to the channel. */
@@ -487,6 +489,7 @@ export class DynamicDataSourceChannel {
       this.pendingPushes = 1;
       this.pushChain = this.createFirstLink(<Promise<void>>res, epoch);
       this.trackChain(source);
+      host.onWritesStarted();
       return;
     }
     this.pendingPushes++;

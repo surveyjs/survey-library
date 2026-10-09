@@ -2284,7 +2284,18 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      created position index. prevIndex is a record index. The panel object exists before its record is moved into place:
      onPanelAdded must see the same state it sees today. A handler that assigned the value meanwhile
      keeps it: the records are its own, and none of them is the new one. */
+  /* addPanel(index) creates the new panel at the end and then moves its record to index: its
+     questions announce their defaults under the position the panel ends up at (getChangingPanelIndex). */
+  private addingPanelPosition: number;
   private updateValueOnAddingPanel(prevIndex: number, index: number): void {
+    this.addingPanelPosition = index;
+    try {
+      this.updateValueOnAddingPanelCore(prevIndex, index);
+    } finally {
+      this.addingPanelPosition = undefined;
+    }
+  }
+  private updateValueOnAddingPanelCore(prevIndex: number, index: number): void {
     const list = this.dataList;
     this.growAndMoveRecord((): void => { this.panelCount++; }, (): number => {
       if (list.count !== this.panelCount) return -1;
@@ -2592,7 +2603,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
   }
   private isUnknownValueKey(panel: PanelModel, key: string, index: number): boolean {
-    if (!!this.getSharedQuestionFromArray(key, index) || !!panel.getQuestionByValueName(key)) return false;
+    if (!!panel.getQuestionByValueName(key) || this.isRecordKeyStoredByAnotherQuestion(key) || !!this.getSharedQuestionFromArray(key, index)) return false;
     return !this.iscorrectValueWithPostPrefix(panel, key, settings.commentSuffix) &&
       !this.iscorrectValueWithPostPrefix(panel, key, settings.matrix.totalsSuffix);
   }
@@ -3390,6 +3401,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private getChangingPanelIndex(panel: PanelModel, position: number): number {
     if (position > -1) return this.getPanelViewIndex(position);
     if (panel === this.template) return -1;
+    const insertAt = this.addingPanelPosition;
+    if (insertAt !== undefined && insertAt < this.items.length) return this.getPanelViewIndex(insertAt);
     return this.getRecordViewIndex(this.getItemRecordIndex(panel.data));
   }
   // The panel's position in panelsCore: under paging a position on the page.

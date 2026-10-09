@@ -29,8 +29,8 @@ import { ConsoleWarnings } from "./console-warnings";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import { Serializer } from "./jsonobject";
-import { QuestionSelectBase } from "./question_baseselect";
 import type { PanelModelBase } from "./panel";
+import type { ISurveyDynamicDataWrites } from "./interfaces/survey-callbacks";
 
 export interface IDynamicDataRecordUniqueness {
   // The record keys whose values have to be unique; empty when none has to be.
@@ -118,13 +118,12 @@ function getRecordItemOwner(question: QuestionRecordsModel): IRecordItemOwner {
 function getRecordNumberOf(item: QuestionRecordItem): number {
   return item.getIndex() + (!!item.data ? item.data.getRecordNumberOffset() : 0);
 }
-/* The survey's question to a records question: has its assigned source a write it has not answered?
-   Not a member of the exported class: a question registers its reader when a source is assigned to it,
-   and a question that never had one answers false. */
-const sourceWriteReaders: WeakMap<object, () => boolean> = new WeakMap<object, () => boolean>();
-export function hasPendingSourceWrites(question: object): boolean {
-  const reader = sourceWriteReaders.get(question);
-  return !!reader && reader();
+/* The survey side that waits for the writes of a records question (ISurveyDynamicDataWrites). It is
+   not part of ISurvey, so a survey is asked for it by its member: a custom ISurvey without it is
+   never asked to wait. */
+function getSurveyDynamicDataWrites(survey: ISurvey): ISurveyDynamicDataWrites {
+  const writes = <ISurveyDynamicDataWrites><any>survey;
+  return !!writes && typeof writes.dynamicDataWritesChanged === "function" ? writes : undefined;
 }
 
 /* The question side shared by every question whose answer is a collection of records, and the
@@ -175,6 +174,7 @@ export abstract class QuestionRecordsModel extends Question {
       onDataListChanged: (change: IDynamicDataListChange): void => { question.onDataListChanged(change); },
       onWriteEnded: (): void => { question.onListWriteEnded(); },
       onDataSettled: (): void => { question.onDataSettled(); },
+      onWritesStarted: (): void => { question.onWritesStarted(); },
       // IDynamicDataPageValidationOwner: the rules every records question shares; the rest is the question's.
       getDataList: (): DynamicDataList => question.dataList,
       isPageLeaveValidated: (): boolean => question.isPageLeaveValidated(),
@@ -323,6 +323,14 @@ export abstract class QuestionRecordsModel extends Question {
   // another set of records or in another order.
   public getSharedQuestionFromArray(name: string, recordIndex: number): Question {
     return !!this.survey && !!this.valueName ? <Question>(this.survey.getQuestionByValueNameFromRecord(this.valueName, name, recordIndex)) : null;
+  }
+  /* A key another records question on the same value name can store is known, whether or not that
+     question built its rows or panels: its columns, its template or its detail panel decide
+     (getRecordTemplateQuestion), so nothing is built for the check. */
+  protected isRecordKeyStoredByAnotherQuestion(key: string): boolean {
+    if (!this.survey || !this.valueName) return false;
+    return this.survey.getQuestionsByValueName(this.valueName).some((question: IQuestion): boolean =>
+      question !== this && question instanceof QuestionRecordsModel && !!question.getRecordTemplateQuestion(key));
   }
   public getBindedQuestions(): Array<IQuestion> {
     if (!this.survey || !this.valueName) return [];
@@ -2344,9 +2352,6 @@ export abstract class QuestionRecordsModel extends Question {
   }
   private setDataSourceCore(val: IDynamicDataSource): void {
     const newValue = val || undefined;
-    if (!!newValue && !sourceWriteReaders.has(this)) {
-      sourceWriteReaders.set(this, (): boolean => this.isWritingToSource);
-    }
     /* Another storage: the records layer 2 tracks and the states kept for them name records of the
        old one, and so do the current record and the position a move is going to. Dropped before the
        swap, whose first read may commit inside it. */
@@ -2657,6 +2662,7 @@ export abstract class QuestionRecordsModel extends Question {
         return func();
       } finally {
         this.recordWriteDepth--;
+        if (this.recordWriteDepth === 0)this.disposeItemsLeftByWrites();
       }
     });
   }
@@ -2887,15 +2893,17 @@ export abstract class QuestionRecordsModel extends Question {
     if (!!this._dataList) {
       this._dataList.dispose();
     }
+    this.reportPendingWrites();
   }
   // The objects that have to go before the list does.
   protected disposeRecordObjects(): void { }
   /* A rebuild can run inside a write one of the old objects' questions is making - the record it edits
      leaves the page - and that question still finishes its own setter after the rebuild returns. Such an
-     object is disposed with the next replacement instead, or with the question. */
+     object is disposed when the question's write ends, or with the question: a question disposed
+     inside its own write disposes its objects at once. */
   private itemsToDisposeAfterWrite: Array<() => void> = [];
   protected disposeReplacedItem(dispose: () => void): void {
-    if (this.isWritingRecords) {
+    if (this.isWritingRecords && !this.isDisposed) {
       this.itemsToDisposeAfterWrite.push(dispose);
       return;
     }
@@ -2964,15 +2972,36 @@ export abstract class QuestionRecordsModel extends Question {
         this.releaseDataWaits(true);
       }
     } finally {
-      if (!!this.survey && !this.isWritingToSource) {
-        this.survey.dynamicDataSettled(this);
-      }
+      this.reportPendingWrites();
     }
   }
-  // A write the assigned source has not answered (see hasPendingSourceWrites).
+  // A write the assigned source has not answered.
   private get isWritingToSource(): boolean {
     const list = this._dataList;
     return !!list && list.isRemote && list.hasPendingWrites;
+  }
+  /* The survey keeps the records questions that have unanswered writes, and a completion waits for
+     them (ISurveyDynamicDataWrites). It is told when the first write starts (IDynamicDataOwner.
+     onWritesStarted) and when the writes have settled with everything else the source was asked
+     for, as the validation waits for. A disposed question and one that leaves its survey are taken
+     off. reportedWritesSurvey is the survey that was told the question writes. */
+  private reportedWritesSurvey: ISurvey;
+  private reportPendingWrites(): void {
+    const survey = !this.isDisposed && this.isWritingToSource ? this.survey : undefined;
+    const reported = this.reportedWritesSurvey;
+    if (survey === reported) return;
+    this.reportedWritesSurvey = survey;
+    const oldWrites = getSurveyDynamicDataWrites(reported);
+    if (!!oldWrites) oldWrites.dynamicDataWritesChanged(this, false);
+    const newWrites = getSurveyDynamicDataWrites(survey);
+    if (!!newWrites) newWrites.dynamicDataWritesChanged(this, true);
+  }
+  private onWritesStarted(): void {
+    if (!this.reportedWritesSurvey)this.reportPendingWrites();
+  }
+  protected setSurveyCore(value: ISurvey): void {
+    super.setSurveyCore(value);
+    if (this.reportedWritesSurvey !== undefined && this.reportedWritesSurvey !== value)this.reportPendingWrites();
   }
   /* Every held context is released, also when the validation of one throws: the first error is
      rethrown once all of them are released. */
@@ -3637,11 +3666,13 @@ class RecordCleanupItem extends RecordValueItem {
 }
 /* The choices of such a question come from a request: they are not known here, and a short-lived
    question would send it. A question that holds records of its own is not cleaned up without an
-   object either. */
+   object either. The select question is recognized by its serializer type: this module does not
+   import the select question classes. */
 function isRecordCleanupSkipped(template: Question): boolean {
   if (template instanceof QuestionRecordsModel) return true;
-  if (!(template instanceof QuestionSelectBase)) return false;
-  return !!template.choicesByUrl && !!template.choicesByUrl.url || template.getPropertyValue("choicesLazyLoadEnabled") === true;
+  if (!template.isDescendantOf("selectbase")) return false;
+  const byUrl = template.getPropertyValue("choicesByUrl");
+  return !!byUrl && !!byUrl.url || template.getPropertyValue("choicesLazyLoadEnabled") === true;
 }
 // The visibility of template elements in one record after another (createRecordElementVisibility).
 export interface IRecordElementVisibility {

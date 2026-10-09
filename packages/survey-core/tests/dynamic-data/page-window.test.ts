@@ -4459,7 +4459,7 @@ describe("Page window: a late asynchronous result of a page the respondent left"
 });
 
 describe("Page window: an object whose question is writing is not disposed by the rebuild the write causes", () => {
-  test("matrix: the row of a cell that hides its record is disposed after the write, with the next page", () => {
+  test("matrix: the row of a cell that hides its record is disposed when the write ends", () => {
     const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 2, rowsVisibleIf: "{row.a} != 'hide'",
       columns: [{ name: "a", cellType: "text" }] }] });
     survey.data = { m: [{ a: "r0" }, { a: "r1" }, { a: "r2" }, { a: "r3" }] };
@@ -4470,9 +4470,7 @@ describe("Page window: an object whose question is writing is not disposed by th
     cell.value = "hide";
     expect(isDisposedInWrite, "#1: not while its value is being set").toBe(false);
     expect(matrix.visibleRows.map(row => row.getValue("a")), "#2: the page is rebuilt").toEqual(["r1", "r2"]);
-    expect(cell.isDisposed, "#3: not yet").toBe(false);
-    matrix.pageIndex = 1;
-    expect(cell.isDisposed, "#4: with the next replacement").toBe(true);
+    expect(cell.isDisposed, "#3: when the write ends").toBe(true);
   });
   test("panel: the panel of a question that hides its record is disposed after the write, with the next page", () => {
     const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelsPerPage: 2, templateVisibleIf: "{panel.a} != 'hide'",

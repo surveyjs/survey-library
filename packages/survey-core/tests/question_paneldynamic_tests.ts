@@ -11474,11 +11474,35 @@ describe("the value a new panel's default announces", () => {
     panel.addPanel();
     expect(log, "#1").toEqual([["q2", 3, 5]]);
   });
+  test("addPanel(1) announces the default with the index the new panel ends up at", () => {
+    const { panel, log } = createSurvey({}, [{ q1: "a" }, { q1: "b" }]);
+    panel.addPanel(1);
+    // The expression runs while the panel is created at the end, and its value is kept, as released.
+    expect(log, "#1").toEqual([["q2", 1, 12]]);
+    expect(panel.value, "#2").toEqual([{ q1: "a", q2: 10 }, { q2: 12 }, { q1: "b", q2: 11 }]);
+  });
   test("a template question's own edit keeps panel index -1, as released", () => {
     const { survey, panel, log } = createSurvey({}, [{ q1: "a" }]);
     panel.template.getQuestionByName("q1").value = "x";
     expect(log, "#1").toEqual([["q1", -1, "x"]]);
     expect(survey.data, "#2: nothing is stored").toEqual({ p: [{ q1: "a", q2: 10 }] });
+  });
+});
+
+describe("a shared valueName with a panel whose panels were never built", () => {
+  test("clearIncorrectValues keeps the answers of a Dynamic Panel on another page that shares the valueName", () => {
+    const survey = new SurveyModel({ pages: [
+      { elements: [{ type: "matrixdynamic", name: "m", valueName: "v", columns: [{ name: "a", cellType: "text" }] }] },
+      { elements: [{ type: "paneldynamic", name: "p", valueName: "v", templateElements: [{ type: "text", name: "b" }] }] }] });
+    survey.data = { v: [{ a: 1, b: "x" }, { a: 2, b: "y" }, { a: 3, b: "z" }] };
+    const events = new Array<string>();
+    survey.onMatrixCellCreated.add(() => { events.push("cell"); });
+    survey.onQuestionCreated.add((_, options) => { events.push("question:" + options.question.name); });
+    survey.onDynamicPanelAdded.add(() => { events.push("panel"); });
+    survey.clearIncorrectValues();
+    expect(survey.data.v, "#1: nothing is removed").toEqual([{ a: 1, b: "x" }, { a: 2, b: "y" }, { a: 3, b: "z" }]);
+    expect(events.filter(e => e === "panel" || e === "question:b"), "#2: the panel builds nothing for the check").toEqual([]);
+    expect(events.filter(e => e === "cell").length, "#3: the matrix builds its own rows, as released").toBe(3);
   });
 });
 

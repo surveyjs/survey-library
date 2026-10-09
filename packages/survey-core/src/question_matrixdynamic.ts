@@ -404,6 +404,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.draggedRow = null;
       return;
     }
+    // A row past the last one is not moved: nothing is guessed, as for a number that is not an integer.
+    if (fromIndex >= this.rowCount) return;
     const maxIndex = Math.max(fromIndex, toIndex);
     const rows = this.generatedVisibleRows;
     // The row objects stay where they are and get the reordered records; the detail panel state is
@@ -456,6 +458,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      itself refuses a position its window does not hold, and reports it. A negative number counts from
      the end of the whole view, as the released splice did: -1 goes in front of the last record. */
   public addRowByIndex(rowData: any, toIndex: number):void {
+    // An omitted index inserts the row first, as the released call did.
+    if (toIndex === undefined) toIndex = 0;
     if (!QuestionMatrixDynamicModel.isRowIndex(toIndex)) return;
     if (this.refuseOperationOfSource("insert")) return;
     if (toIndex < 0) {
@@ -892,7 +896,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.singleInputOnAddItem(false);
     if (!newRow || oldRowCount === this.rowCount) return;
     if (this.detailPanelShowOnAdding) {
-      newRow.showDetailPanel();
+      /* Without a view the last row shows its detail panel, as released: a row an onMatrixRowAdded
+         handler added is the last one then. */
+      const rows = this.allRows;
+      const shownRow = !this.hasDataListView && rows.length > 0 ? rows[rows.length - 1] : newRow;
+      shownRow.showDetailPanel();
     }
     if (setFocus) {
       const q = this.getQuestionToFocusOnAddingRow(newRow);
@@ -1050,6 +1058,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   // The record of the row removeRow(index) removes - its row's value, or the stored record of a record without a row.
   public isRequireConfirmOnRowDelete(index: number): boolean {
     if (!this.confirmDelete) return false;
+    /* Rows that were never built, with nothing that hides a record: the position is the record, and
+       the stored value answers without building the rows, as released. */
+    if (!this.generatedVisibleRows && !this.hasDataListView && !this.rowsVisibleIf) {
+      const value = this.value;
+      return Array.isArray(value) && index >= 0 && index < this.rowCount && !this.isValueEmpty(value[index]);
+    }
     const target = this.resolveRowTarget(index);
     const record = !target ? undefined : (!!target.item ? (<MatrixDropdownRowModelBase>target.item).value : target.record);
     return !this.isValueEmpty(record);
@@ -1070,7 +1084,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      pages itself refuses one it has not loaded and reports it. */
   public removeRow(index: number, confirmDelete?: boolean, onRowRemoved?: () => void): void {
     const target = this.getRemoveTarget((): IRecordTarget => this.canRemoveRows ? this.resolveRowTarget(index) : undefined);
-    if (!target) return;
+    if (!target) {
+      // A position within rowCount that names no visible row removes nothing, and the callback runs, as released.
+      if (!!onRowRemoved && !this.isRemoteData && this.canRemoveRows && index >= 0 && index < this.rowCount) onRowRemoved();
+      return;
+    }
     if (confirmDelete === undefined) {
       confirmDelete = this.isRequireConfirmOnRowDelete(index);
     }
@@ -1119,14 +1137,22 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       return;
     }
     /* A record beyond question.value is padding: a row that was added and never filled, or every
-       row of a matrix with no value. There is nothing to write, and the list cannot remove it
-       either - the padded window has just lost it together with rowCount. The list learns the new
-       count instead, or a page index left past the last page would show an empty page. */
+       row of a matrix with no value. The list cannot remove it - the padded window has just lost it
+       together with rowCount. A matrix with no value has nothing to write: the list learns the new
+       count instead, or a page index left past the last page would show an empty page. A matrix with
+       a value writes it again from the rows that stay, and an empty one goes, as released. */
     const recordIndex = removal.recordIndex;
     const val = this.value;
     const isPaddingRecord = !Array.isArray(val) || recordIndex >= val.length;
     this.rowCountValue--;
     if (isPaddingRecord) {
+      if (Array.isArray(val) && val.length > 0 && !this.isEditingObjectValue) {
+        this.writeRecords((): void => {
+          const next = this.createNewValue();
+          next.splice(recordIndex, 1);
+          this.setOwnRecordsValue(this.deleteRowValue(next, null));
+        });
+      }
       this.followRecordCountChange();
     } else if (this.value) {
       this.writeRecords((): void => {

@@ -1306,9 +1306,8 @@ export class DynamicDataList {
       syncWindowAfterSyncPush: (): void => this.syncWindowAfterSyncPush(),
       isOwnStorage: (source: IDynamicDataSource): boolean => this.isOwnStorage(source),
       onPushFailed: (operation: DynamicDataOperation): void => this.onPushFailed(operation),
-      onSettled: (): void => {
-        if (!!this.owner && !!this.owner.onDataSettled)this.owner.onDataSettled();
-      }
+      onSettled: (): void => { if (!!this.owner && !!this.owner.onDataSettled)this.owner.onDataSettled(); },
+      onWritesStarted: (): void => { if (!!this.owner && !!this.owner.onWritesStarted)this.owner.onWritesStarted(); }
     };
   }
   // The range of the next read (see DynamicDataReadState.getReadRange).

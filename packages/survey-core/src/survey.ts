@@ -92,7 +92,6 @@ import {
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
-import { hasPendingSourceWrites } from "./question_records";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
@@ -6249,23 +6248,37 @@ export class SurveyModel extends SurveyElementCore
      hold it. The page it was started on is kept; a page change drops it (currentPageChanged), and so
      does a state other than running. doComplete() completes regardless and is not held. */
   private completionHeldPage: PageModel;
+  /* The records questions that have a write their source has not answered. The questions report it
+     themselves (dynamicDataWritesChanged), nested ones included, so nothing walks the survey and no
+     question is built for it. */
+  private questionsWithPendingWrites: Array<IQuestion> = [];
   private holdCompletionForSourceWrites(): boolean {
-    if (!this.hasPendingSourceWrites()) return false;
+    if (this.questionsWithPendingWrites.length === 0) return false;
     this.completionHeldPage = this.currentPage;
     return true;
   }
-  private hasPendingSourceWrites(): boolean {
-    return this.getAllQuestions(false, false, true).some((question: Question): boolean => hasPendingSourceWrites(question));
+  /* ISurveyDynamicDataWrites (interfaces/survey-callbacks.ts), not a member of ISurvey: a records
+     question's writes started or settled. When the last one settles, the held completion runs again,
+     and validates again. */
+  dynamicDataWritesChanged(question: IQuestion, hasPendingWrites: boolean): void {
+    const questions = this.questionsWithPendingWrites;
+    const index = questions.indexOf(question);
+    if (hasPendingWrites) {
+      if (index < 0) questions.push(question);
+      return;
+    }
+    if (index < 0) return;
+    questions.splice(index, 1);
+    this.continueHeldCompletion();
   }
-  // ISurveyDynamicDataCallbacks: a question's data operations settled. The held completion runs again, and validates again.
-  dynamicDataSettled(question: IQuestion): void {
+  private continueHeldCompletion(): void {
     const page = this.completionHeldPage;
     if (!page) return;
     if (page !== this.currentPage || this.state !== "running") {
       this.completionHeldPage = undefined;
       return;
     }
-    if (this.hasPendingSourceWrites()) return;
+    if (this.questionsWithPendingWrites.length > 0) return;
     this.completionHeldPage = undefined;
     this.doCurrentPageComplete(true);
   }

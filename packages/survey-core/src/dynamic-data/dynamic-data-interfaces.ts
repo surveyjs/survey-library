@@ -198,4 +198,6 @@ export interface IDynamicDataOwner {
   onWriteEnded?(): void;
   // No read and no write is pending any more: what the source was asked for has arrived or failed.
   onDataSettled?(): void;
+  // The first write the source has not answered was sent.
+  onWritesStarted?(): void;
 }

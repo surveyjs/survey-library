@@ -744,11 +744,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     actions: Array<IAction>
   ) {
     const matrix = <QuestionMatrixDynamicModel>this.matrix;
-    // lockedRowCount counts records, so the lock is tested against the row's own record index and
-    // not against its position on the page - the first row of page 2 is not the first record.
-    const recordIndex = row.rowIndex - 1;
+    /* The drag handle is locked by the row's position among the visible rows, as released - under
+       paging among the visible rows of the whole view, not on the page (the row's visibleIndex). */
+    const visibleIndex = row.visibleIndex > -1 ? row.visibleIndex : this.matrix.visibleRows.indexOf(row);
     const lockedRows = (<QuestionMatrixDynamicModel>this.matrix).lockedRowCount;
-    if (this.isRowsDragAndDrop && (lockedRows < 1 || recordIndex >= lockedRows)) {
+    if (this.isRowsDragAndDrop && (lockedRows < 1 || visibleIndex >= lockedRows)) {
       actions.push(new Action({
         id: "drag-drop",
         action: () => {},

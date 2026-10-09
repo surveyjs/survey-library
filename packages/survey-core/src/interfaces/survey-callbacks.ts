@@ -119,8 +119,14 @@ export interface ISurveyDynamicPanelCallbacks {
 // are the source method names (DynamicDataOperation).
 export interface ISurveyDynamicDataCallbacks {
   dynamicDataError(question: IQuestion, operation: string, error: any): void;
-  // The question's reads and writes settled: a completion held for its pending writes goes on.
-  dynamicDataSettled(question: IQuestion): void;
+}
+/* What a records question tells the survey about the writes its data source has not answered, so
+   that a completion waits for them. Not part of ISurvey and not exported by the entries: a survey
+   that does not implement it is never asked to wait (see getSurveyDynamicDataWrites in
+   question_records.ts). hasPendingWrites is true when the question's first unanswered write starts,
+   and false when its writes have settled, when it is disposed and when it leaves the survey. */
+export interface ISurveyDynamicDataWrites {
+  dynamicDataWritesChanged(question: IQuestion, hasPendingWrites: boolean): void;
 }
 export interface ISurveyChoiceCallbacks {
   storeOthersAsComment: boolean;

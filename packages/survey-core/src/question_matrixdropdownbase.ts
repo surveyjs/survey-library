@@ -1042,9 +1042,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   private detailPanelValue: PanelModel;
   private useCaseSensitiveComparisonValue: boolean;
-  // The matrix is writing its records itself (see QuestionRecordsModel.writeRecords).
+  /* The matrix is writing its records itself (see QuestionRecordsModel.writeRecords). A subclass may
+     still set it, as it could before: the value it sets counts too. */
+  private isRowChangingValue: boolean = false;
   protected get isRowChanging(): boolean {
-    return this.isWritingRecords;
+    return this.isRowChangingValue || this.isWritingRecords;
+  }
+  protected set isRowChanging(val: boolean) {
+    this.isRowChangingValue = val;
   }
   columnsChangedCallback: () => void;
   onRenderedTableResetCallback: () => void;
@@ -1828,7 +1833,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     const suffix = settings.commentSuffix;
     const at = key.lastIndexOf(suffix);
     const valueName = at > 0 && at === key.length - suffix.length ? key.substring(0, at) : key;
-    if (!!this.getRecordTemplateQuestion(valueName)) return false;
+    if (!!this.getRecordTemplateQuestion(valueName) || this.isRecordKeyStoredByAnotherQuestion(valueName)) return false;
     return !this.getSharedQuestionFromArray(key, index) && key.indexOf(settings.matrix.totalsSuffix) < 0;
   }
   // The segment of the row at a position in a location: the segment of the record it holds.
@@ -3378,9 +3383,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected getExpressionItem(index: number): QuestionRecordItem {
     // Reading allRows builds the rows, so that a record that has a row is answered by the row.
     const rows = this.allRows;
-    // A row past the record count is on its way out: a lower rowCount truncates the value before the
-    // rows follow, and the survey runs the expressions in between.
-    if (!this.hasDataListView) return index < rows.length && index < this.getRecordCountForRows() ? rows[index] : null;
+    /* A row past the record count is on its way out: a lower rowCount truncates the value before the
+       rows follow, and the survey runs the expressions in between. The row still answers, from the
+       truncated value, as released: its fields are found and empty. */
+    if (!this.hasDataListView) return index < rows.length ? rows[index] : null;
     return this.getViewExpressionItem(index);
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {

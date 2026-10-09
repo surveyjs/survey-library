@@ -1954,19 +1954,20 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * Specifies whether the survey switches to the next page automatically after a user answers all questions on the current page.
+   * Specifies whether the survey advances to the next page automatically after a respondent answers all questions on the current page and the answers pass validation.
    *
    * Default value: `false`
    *
-   * If you enable this property, the survey is also completed automatically. Set the [`autoAdvanceAllowComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceAllowComplete) property to `false` if you want to disable this behavior.
+   * Auto-advance behavior depends on the question type:
    *
-   * > If any of the following questions is answered last, the survey does not switch to the next page: Signature, File Upload, Single-Select Matrix (not all rows are answered), Dynamic Matrix, Dynamic Panel.
-   * >
-   * > For Checkboxes, Tag Box, Image Picker (with Multi Select), Ranking, Yes/No (Boolean) (rendered as Checkbox) and Long Text, the survey switches to the next page when the respondent presses Enter after answering. In Long Text, Shift+Enter inserts a line break.
-   * >
-   * > For Radio Button Group and Image Picker (with Single Select), a mouse or touch selection switches to the next page immediately. A keyboard selection waits until the respondent presses Enter.
+   * - The survey does not auto-advance if the last answered question is a Signature, File Upload, Dynamic Matrix, or Dynamic Panel.
+   * - A Single-Select Matrix can trigger auto-advance only when all its rows are answered.
+   * - For Checkboxes, Multi-Select Dropdown (Tag Box), Image Picker with `multiSelect: true`, Ranking, Yes/No (Boolean) rendered as a checkbox, and Long Text, respondents must press Enter after answering to trigger auto-advance.
+   * - For Radio Button Group and single-select Image Picker, a mouse or touch selection triggers auto-advance. After a keyboard selection, respondents must press Enter to trigger auto-advance.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
+   * If you set `autoAdvanceEnabled` to `true`, the survey also completes automatically after the last page. To require respondents to complete it manually, set the [`autoAdvanceAllowComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceAllowComplete) property to `false`.
+   *
+   * [Demo: Move to the Next Page Automatically](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
    * @since 2.0.0
    */

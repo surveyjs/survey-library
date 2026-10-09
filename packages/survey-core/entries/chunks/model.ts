@@ -166,7 +166,7 @@ export {
 } from "../../src/localizablestring";
 export { HtmlConditionItem, UrlConditionItem } from "../../src/expressionItems";
 export { ChoicesRestful, ChoicesRestfull } from "../../src/choicesRestful";
-export { FunctionFactory, registerFunction, IFunctionRegistration, isReturnColumnParam } from "../../src/functionsfactory";
+export { FunctionFactory, registerFunction, IFunctionRegistration, IFunctionParameter, isReturnColumnParam } from "../../src/functionsfactory";
 export { IExpressionError, ExpressionErrorType } from "../../src/expressions/expressionError";
 export { ExpressionRunner } from "../../src/expressions/expressionRunner";
 export { ExpressionExecutorRunner } from "../../src/expressions/expressionExecutor";
@@ -183,6 +183,7 @@ export {
   runBinaryOperator
 } from "../../src/expressions/expressions";
 export { ConditionsParser } from "../../src/conditions/conditionsParser";
+export { expressionGuideVersion, expressionGuideSections, getExpressionGuideText, IExpressionGuideSection, IExpressionGuideExample } from "../../src/expressions/expression-guide";
 export { ConditionEditorItem, SurveyConditionEditorItem, ConditionEditorItemsBuilder } from "../../src/conditions/conditionEditorItems";
 export {
   isConditionOperatorEnabled,

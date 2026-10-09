@@ -25,7 +25,7 @@ import { ValidationContext } from "./question";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, IDynamicDataRecordUniqueness, IRecordItemWrite, QuestionRecordsModel,
-  QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped
+  QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, isRecordEmpty, getRecordViewProperties
 } from "./question_records";
 import { DynamicDataOperation, IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
@@ -633,12 +633,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     return !this.data.checkIfValueInRowDuplicated(this, question);
   }
   public get isEmpty() {
-    var val = this.value;
-    if (Helpers.isValueEmpty(val)) return true;
-    for (var key in val) {
-      if (val[key] !== undefined && val[key] !== null) return false;
-    }
-    return true;
+    return isRecordEmpty(this.value);
   }
   // The detail panel's own errors as well; a panel that was never created has none.
   public clearErrors(): void {
@@ -1844,15 +1839,16 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (!!recordValue && typeof recordValue.getType === "function") return [];
     return super.getRecordUnknownKeys(index, recordValue, row);
   }
-  /* One rule for a row and a record without a row: a key - a comment key by the name in front of the
-     suffix - that a column or a detail panel question stores under its value name is known, and so is
-     a key a question on the same value name reads, and a key with the totals suffix anywhere in it. */
-  protected isRecordKeyUnknown(key: string, index: number, row: QuestionRecordItem): boolean {
+  /* QuestionRecordsModel hooks of isRecordKeyUnknown, one rule for a row and a record without a row, as
+     released: a key a column or a detail panel question stores under its value name - a comment key by
+     the name in front of the suffix -, or a key with the totals suffix anywhere in it. */
+  protected isRecordKeyOfType(key: string, row: QuestionRecordItem): boolean {
+    return !!this.getRecordTemplateQuestion(this.getRecordKeyValueName(key)) || key.indexOf(settings.matrix.totalsSuffix) > -1;
+  }
+  protected getRecordKeyValueName(key: string): string {
     const suffix = settings.commentSuffix;
     const at = key.lastIndexOf(suffix);
-    const valueName = at > 0 && at === key.length - suffix.length ? key.substring(0, at) : key;
-    if (!!this.getRecordTemplateQuestion(valueName) || this.isRecordKeyStoredByAnotherQuestion(valueName)) return false;
-    return !this.getSharedQuestionFromArray(key, index) && key.indexOf(settings.matrix.totalsSuffix) < 0;
+    return at > 0 && at === key.length - suffix.length ? key.substring(0, at) : key;
   }
   // The segment of the row at a position in a location: the segment of the record it holds.
   private getRowDataSegment(position: number): string | number {
@@ -2536,10 +2532,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   // shares the value name and stores the field.
   protected getRecordDisplayValue(keysAsText: boolean, row: MatrixDropdownRowModelBase, record: any, recordIndex: number): any {
     if (!!row) return this.getRowDisplayValue(keysAsText, row, record);
-    // One resolver for a field of a record without a row (getRecordTemplateQuestion): a column or a detail
-    // panel question by value name, then a question that shares the value name.
-    return this.formatRecordDisplayValue(keysAsText, record, (key: string): Question =>
-      this.getRecordTemplateQuestion(key) || (recordIndex > -1 ? this.getSharedQuestionFromArray(key, recordIndex) : undefined));
+    return this.formatRecordWithoutObject(keysAsText, record, recordIndex);
   }
   public getPlainData(options: IPlainDataOptions = { includeEmpty: true }): IQuestionPlainData {
     var questionPlainData = super.getPlainData(options);
@@ -2819,8 +2812,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   public set rowsPerPage(val: number) {
     this.pageSize = val;
   }
-  protected getPageSizePropertyName(): string {
-    return "rowsPerPage";
+  protected getRecordEntityName(): string {
+    return "Row";
   }
   protected onPageSizeAssigned(): void {
     this.resetRenderedTable();
@@ -2968,21 +2961,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   // Under a view the records forEachUniquenessRecord names take part; a row that exists takes part when it is visible.
   private getRecordDuplicationEntries(columnName: string): Array<IMatrixDuplicationEntry> {
     const res = new Array<IMatrixDuplicationEntry>();
-    const readRecord = this.createDuplicationRecordReader();
-    this.forEachUniquenessRecord((index: number, item: QuestionRecordItem, position: number): void => {
+    this.forEachUniquenessValue(columnName, (item: QuestionRecordItem, position: number): void => {
       const row = <MatrixDropdownRowModelBase>item;
-      if (!!row) {
-        if (row.isVisible) res.push({ row: row, value: this.getDuplicationValue(row, position, columnName) });
-        return;
-      }
-      const record = readRecord(index);
-      res.push({ row: undefined, value: !!record ? record[columnName] : undefined });
-    });
+      if (row.isVisible) res.push({ row: row, value: this.getDuplicationValue(row, position, columnName) });
+    }, (index: number, value: any): void => { res.push({ row: undefined, value: value }); });
     return res;
-  }
-  // Reads a record without a row for the duplicate scan.
-  protected createDuplicationRecordReader(): (index: number) => any {
-    return (index: number): any => this.getListRecordAt(index);
   }
   /* position: the row's position in generatedVisibleRows, which both callers have. The row's own record
      is read by it: looking the row up would scan the rows for every row. */
@@ -3804,6 +3787,8 @@ Serializer.addClass(
     },
     { name: "columnColCount", default: 0, choices: [0, 1, 2, 3, 4] },
     { name: "allowAdaptiveActions:boolean", default: false, visible: false },
+    // The paging, the sort and the filter of every matrix with rows (the Dynamic Matrix and the Multi-Select Matrix inherit them).
+    ...getRecordViewProperties("rowsPerPage"),
   ],
   function () {
     return new QuestionMatrixDropdownModelBase("");

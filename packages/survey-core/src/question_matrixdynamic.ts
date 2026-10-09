@@ -27,7 +27,7 @@ import { ComputedUpdater } from "./base";
 import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsValueGetterContext, IRecordCountNames, getRecordCountNamesOf } from "./question_records";
+import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsValueGetterContext, IRecordCountNames, getRecordCountNamesOf, isRecordEmpty } from "./question_records";
 import { DynamicDataOperation, IDynamicDataListChange, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 
 export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
@@ -1300,8 +1300,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   // The rule of a row's isEmpty, for a record that has no row.
   private hasRecordAnswer(record: any): boolean {
-    if (Helpers.isValueEmpty(record)) return false;
-    return Object.keys(record).some((key: string): boolean => record[key] !== undefined && record[key] !== null);
+    return !isRecordEmpty(record);
   }
   protected getUniqueColumnsNames(): Array<string> {
     var res = super.getUniqueColumnsNames();
@@ -1686,17 +1685,8 @@ Serializer.addClass(
       },
     },
     { name: "allowRowReorder:switch", alternativeName: "allowRowsDragAndDrop" },
-    /* Invisible in the property grid until the UI series ships a pager and sortable headers: the
-       properties load from and save to JSON, but a switch that renders nothing is a support
-       ticket. */
-    { name: "rowsPerPage:number", default: 0, minValue: 0, visible: false },
+    // Invisible in the property grid until the UI series ships sortable headers (rowsPerPage, sortBy and filterExpression are the base's).
     { name: "allowSortRows:boolean", default: false, visible: false },
-    /* The sort and the filter of the rows. Plain strings and not ":condition"/":expression": both
-       of those make JsonObjectProperty.isExpression true, and everything that discovers expressions
-       by type - Base.validateExpressions(), the linter - would then read them with the survey as
-       the variable context, while their variables are record fields. */
-    { name: "sortBy", default: "", visible: false },
-    { name: "filterExpression", default: "", visible: false },
   ],
   function() {
     return new QuestionMatrixDynamicModel("");

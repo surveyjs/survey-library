@@ -1,6 +1,7 @@
 import { describe, test, expect } from "vitest";
 import { IDynamicDataListChange } from "../../src/dynamic-data/dynamic-data-interfaces";
-import { getRecordRemap, insertRemap, moveRemap, removeRemap } from "../../src/dynamic-data/dynamic-data-record-remap";
+import { createKeyRemap, getRecordRemap, insertRemap, moveRemap, removeRemap } from "../../src/dynamic-data/dynamic-data-record-remap";
+import { getReplacedRecordsRemap } from "../../src/dynamic-data/dynamic-data-page-validation";
 
 describe("the record remap rules", () => {
   // Each case maps the record indexes 0 ... 4.
@@ -42,5 +43,24 @@ describe("getRecordRemap", () => {
     changes.forEach((change: IDynamicDataListChange): void => {
       expect(getRecordRemap(change), change.type).toBeUndefined();
     });
+  });
+});
+
+describe("old to new record positions by key", () => {
+  test("a source whose records swap the keys 1 and \"1\" maps them as two records", () => {
+    const remap = getReplacedRecordsRemap([{ id: 1 }, { id: "1" }], [{ id: "1" }, { id: 1 }], "id");
+    expect([remap(0), remap(1)], "#1").toEqual([1, 0]);
+  });
+  test("duplicate and missing keys of a source fall back to the content comparison", () => {
+    const duplicate = getReplacedRecordsRemap([{ id: 1, a: 1 }, { id: 2, a: 2 }], [{ id: 1, a: 1 }, { id: 1, a: 2 }], "id");
+    expect([duplicate(0), duplicate(1)], "#1: by content").toEqual([0, 1]);
+    const missing = getReplacedRecordsRemap([{ id: 1, a: 1 }, { a: 2 }], [{ id: 1, a: 1 }, { a: 2 }], "id");
+    expect([missing(0), missing(1)], "#2: by content").toEqual([0, 1]);
+  });
+  test("the matrix's row values compare as strings and map duplicates occurrence by occurrence", () => {
+    const remap = createKeyRemap(["a", "1", "a"], ["1", "a", "b", "a"], String, true);
+    expect([remap(0), remap(1), remap(2), remap(3)], "#1").toEqual([1, 0, 3, -1]);
+    const asStrings = createKeyRemap([1], ["1"], String, true);
+    expect(asStrings(0), "#2: 1 and \"1\" are one key").toBe(0);
   });
 });

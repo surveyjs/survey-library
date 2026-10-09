@@ -2,6 +2,7 @@
 // that validates the objects (DynamicDataPageValidation) is question-side: question_records_page_validation.ts.
 import { Helpers } from "../helpers";
 import { DynamicDataList } from "./dynamic-data-list";
+import { createKeyRemap } from "./dynamic-data-record-remap";
 
 /* How the records of an array assigned from outside map onto the records it replaced: a sibling on
    the same valueName inserted, removed or moved one, or changed one in place. The common prefix and
@@ -18,21 +19,9 @@ export function getReplacedRecordsRemap(oldRecords: Array<any>, newRecords: Arra
   const byKey = !!keyField ? getRecordsRemapByKey(oldRecords, newRecords, keyField) : undefined;
   return byKey || getRecordsRemapByContent(oldRecords, newRecords);
 }
+// Typed keys: 1 and "1" are two records.
 function getRecordsRemapByKey(oldRecords: Array<any>, newRecords: Array<any>, keyField: string): (index: number) => number {
-  const getKey = (record: any): any => !!record && typeof record === "object" ? record[keyField] : undefined;
-  // A Map and not a plain object: the keys are data, and "__proto__" in an object is the prototype.
-  const positions = new Map<any, number>();
-  for (let i = 0; i < newRecords.length; i++) {
-    const key = getKey(newRecords[i]);
-    if (key === undefined || key === null || positions.has(key)) return undefined;
-    positions.set(key, i);
-  }
-  const res = oldRecords.map((record: any): number => {
-    const key = getKey(record);
-    if (key === undefined || key === null) return undefined;
-    return positions.has(key) ? positions.get(key) : -1;
-  });
-  return (index: number): number => index >= 0 && index < res.length ? res[index] : undefined;
+  return createKeyRemap(oldRecords, newRecords, (record: any): any => !!record && typeof record === "object" ? record[keyField] : undefined, false);
 }
 function getRecordsRemapByContent(oldRecords: Array<any>, newRecords: Array<any>): (index: number) => number {
   const oldLen = oldRecords.length;

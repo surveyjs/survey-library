@@ -3556,3 +3556,29 @@ describe("the Multi-Select Matrix rows and their answers", () => {
   });
 });
 
+describe("the shared record rules of the matrices, on the released path", () => {
+  test("a matrix keeps a comment key, a totals key and drops an unknown key, as released", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, columns: [{ name: "a", cellType: "text" }] }] });
+    survey.data = { m: [{ a: 1, "a-Comment": "c", "x-total-y": 2, zz: 3, "b-Comment": 4 }] };
+    (<QuestionMatrixDynamicModel>survey.getQuestionByName("m")).visibleRows;
+    survey.clearIncorrectValues();
+    expect(survey.data).toEqual({ m: [{ "a-Comment": "c", "x-total-y": 2, a: 1 }] });
+  });
+  test("a cleared cell removes the row's key, and a write drops a record holding only null, on and off the page", () => {
+    [0, 1].forEach(rowsPerPage => {
+      const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", rowsPerPage: rowsPerPage, rows: ["r1", "r2", "r3"], columns: [{ name: "a", cellType: "text" }] }] });
+      survey.data = { m: { r1: { a: 1 }, r2: { a: 2 }, r3: { a: null } } };
+      const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
+      matrix.visibleRows[0].cells[0].question.value = null;
+      expect(survey.data, "rowsPerPage " + rowsPerPage).toEqual({ m: { r2: { a: 2 } } });
+    });
+  });
+  test("the display value and the filtered data of two rows with one key, as released", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", rows: ["r1", "r1"], columns: [{ name: "a", cellType: "dropdown", choices: [{ value: 1, text: "one" }] }] }] });
+    survey.data = { m: { r1: { a: 1 } } };
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    expect(matrix.getDisplayValue(true), "#1").toEqual({ r1: { a: "one" } });
+    expect(matrix.getFilteredValue(), "#2").toEqual({ r1: { a: 1 } });
+  });
+});

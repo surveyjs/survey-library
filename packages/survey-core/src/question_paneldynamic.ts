@@ -41,7 +41,7 @@ import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, IDynamicDataRecordUniqueness, QuestionRecordsModel,
   QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
-  IRecordCountNames, getRecordCountNamesOf
+  IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties
 } from "./question_records";
 
 export class PanelDynamicItemGetterContext extends QuestionRecordItemGetterContext {
@@ -443,8 +443,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public set panelsPerPage(val: number) {
     this.pageSize = val;
   }
-  protected getPageSizePropertyName(): string {
-    return "panelsPerPage";
+  protected getRecordEntityName(): string {
+    return "Panel";
   }
   protected onPageSizeAssigned(): void {
     this.updateRenderedPanels();
@@ -2579,9 +2579,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.verifyRecordsUnknownKeys(val, context);
     return true;
   }
-  // A record is checked against its panel's questions, and a record without a panel against the template's.
-  protected isRecordKeyUnknown(key: string, recordIndex: number, item: QuestionRecordItem): boolean {
-    return this.isUnknownValueKey(!!item ? (<QuestionPanelDynamicItem>item).panel : this.template, key, recordIndex);
+  /* QuestionRecordsModel hook of isRecordKeyUnknown, as released: a key a question of the record's panel
+     - of the template for a record without a panel - stores under its value name, or a comment or
+     totals key of such a question by its name, the suffix at the end. */
+  protected isRecordKeyOfType(key: string, item: QuestionRecordItem): boolean {
+    const panel = !!item ? (<QuestionPanelDynamicItem>item).panel : this.template;
+    return !!panel.getQuestionByValueName(key) || this.iscorrectValueWithPostPrefix(panel, key, settings.commentSuffix) ||
+      this.iscorrectValueWithPostPrefix(panel, key, settings.matrix.totalsSuffix);
   }
   public initializeForVerification(): void {
     this.panels.forEach(panel => panel.initializeForVerification());
@@ -2593,11 +2597,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       panels[i].verifyDataCore(context);
       context.popSegment();
     }
-  }
-  private isUnknownValueKey(panel: PanelModel, key: string, index: number): boolean {
-    if (!!panel.getQuestionByValueName(key) || this.isRecordKeyStoredByAnotherQuestion(key) || !!this.getSharedQuestionFromArray(key, index)) return false;
-    return !this.iscorrectValueWithPostPrefix(panel, key, settings.commentSuffix) &&
-      !this.iscorrectValueWithPostPrefix(panel, key, settings.matrix.totalsSuffix);
   }
   protected clearIncorrectValuesInObjects(): void {
     for (var i = 0; i < this.panelsCore.length; i++) {
@@ -2643,7 +2642,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public getQuestionFromArray(name: string, index: number): IQuestion {
     if (this.isPagingActive) {
       const target = this.getRecordTargetAtCreatedIndex(index);
-      return !!target && !!target.item ? (<QuestionPanelDynamicItem>target.item).panel.getQuestionByName(name) : null;
+      return !!target && target.recordIndex > -1 ? this.getQuestionFromRecord(name, target.recordIndex) : null;
     }
     if (index < 0 || index >= this.panelsCore.length) return null;
     return this.panelsCore[index].getQuestionByName(name);
@@ -3149,10 +3148,11 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      in the ChoicesRestful cache yet, give the raw value - reading here never starts a request. Without
      a view a record has no panel only while the panels were never built: it keeps its values. */
   protected getRecordDisplayValue(keysAsText: boolean, item: QuestionRecordItem, record: any, recordIndex: number): any {
-    const container = !!item ? (<QuestionPanelDynamicItem>item).panel : (this.hasDataListView ? this.template : undefined);
-    if (!container) return record;
+    // Without a view a record without a panel is shown as it is stored, as released.
+    if (!item) return this.hasDataListView ? this.formatRecordWithoutObject(keysAsText, record, recordIndex) : record;
+    const panel = (<QuestionPanelDynamicItem>item).panel;
     return this.formatRecordDisplayValue(keysAsText, record,
-      (key: string): Question => <Question>container.getQuestionByValueName(key) || this.getSharedQuestionFromArray(key, recordIndex));
+      (key: string): Question => <Question>panel.getQuestionByValueName(key) || this.getSharedQuestionFromArray(key, recordIndex));
   }
   private validateInPanels(context: ValidationContext): boolean {
     let res = true;
@@ -3182,10 +3182,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     // A key constraint over a whole remote table cannot be checked here. An owner-hidden record does not
     // take part (getRecordUniqueness), as it does not without paging, where its hidden panel is skipped.
     // A record the page holds is compared through its panel.
-    this.forEachUniquenessRecord((index: number, item: QuestionRecordItem, position: number): void => {
-      if (position > -1) return;
-      const record = this.getListRecordAt(index);
-      const val = !!record ? record[this.keyName] : undefined;
+    this.forEachUniquenessValue(this.keyName, (): void => { }, (index: number, val: any): void => {
       if (!this.isValueEmpty(val)) {
         res.add(this.getKeyOf(val));
       }
@@ -3537,7 +3534,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (!!questionPlainData) {
       questionPlainData.isNode = true;
       const prevData = Array.isArray(questionPlainData.data) ? [].concat(questionPlainData.data) : [];
-      // The panels of the page, as decided: the matrix gives every visible record (createRecordPlainData is shared).
+      /* The panels of the page, as decided: the matrix gives every visible record (createRecordPlainData is
+         shared). Kept per type: a panel record off the page would need its panel built to give the plain
+         data of its questions, and the decision was not to build one for it. */
       questionPlainData.data = this.panels.map((panel: PanelModel, index: number) =>
         this.createRecordPlainData(panel.name || index, panel.title || "Panel", panel.getValue(), panel.getValue(),
           panel.questions.map((question: Question) => question.getPlainData(options)), panel, options));
@@ -3981,11 +3980,7 @@ Serializer.addClass(
       return sQN === "onpanel" || sQN === "recursive";
     } },
     { name: "renderMode", visible: false, isSerializable: false },
-    /* Invisible in the property grid until the UI series ships a pager: the property loads from and
-       saves to JSON, but a switch that renders nothing is a support ticket. */
-    { name: "panelsPerPage:number", default: 0, minValue: 0, visible: false },
-    { name: "sortBy", default: "", visible: false },
-    { name: "filterExpression", default: "", visible: false },
+    ...getRecordViewProperties("panelsPerPage"),
     { name: "displayMode", default: "list", choices: ["list", "carousel", "tab"] },
     {
       name: "showProgressBar:boolean", alternativeName: "showRangeInProgress",

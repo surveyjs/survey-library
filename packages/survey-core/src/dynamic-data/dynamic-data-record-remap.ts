@@ -42,3 +42,33 @@ export function applyRecordChange(change: IDynamicDataListChange,
   remapObjects(remap);
   if (!!validation) validation.onRecordRemap(remap);
 }
+/* Where each old record is among the new ones, by key: getKey reads a record's key and normalizes it
+   (the Multi-Select Matrix compares its row values as strings, a data source compares typed keys).
+   Duplicates: byOccurrence pairs the n-th old record of a key with the n-th new one; otherwise there
+   is no map (undefined) when two new records share a key or one has none, and the caller decides
+   another way. A record whose key is gone maps to -1; an old record without a key, and an index out
+   of range, to -1 by occurrence and to undefined otherwise. */
+export function createKeyRemap(oldRecords: Array<any>, newRecords: Array<any>, getKey: (record: any) => any,
+  byOccurrence: boolean): (index: number) => number {
+  // A Map and not a plain object: the keys are data, and "__proto__" in an object is the prototype.
+  const positions = new Map<any, Array<number>>();
+  for (let i = 0; i < newRecords.length; i++) {
+    const key = getKey(newRecords[i]);
+    const isMissing = key === undefined || key === null;
+    if (!byOccurrence && (isMissing || positions.has(key))) return undefined;
+    if (isMissing) continue;
+    if (!positions.has(key)) positions.set(key, []);
+    positions.get(key).push(i);
+  }
+  const notFound = byOccurrence ? -1 : undefined;
+  const occurrences = new Map<any, number>();
+  const res = oldRecords.map((record: any): number => {
+    const key = getKey(record);
+    if (key === undefined || key === null) return notFound;
+    const occurrence = byOccurrence && occurrences.has(key) ? occurrences.get(key) : 0;
+    occurrences.set(key, occurrence + 1);
+    const indexes = positions.get(key);
+    return !!indexes && occurrence < indexes.length ? indexes[occurrence] : -1;
+  });
+  return (index: number): number => index >= 0 && index < res.length ? res[index] : notFound;
+}

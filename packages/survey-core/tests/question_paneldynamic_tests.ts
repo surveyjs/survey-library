@@ -11544,3 +11544,18 @@ describe("panelCountExpression and an assigned value", () => {
     expect(log, "#3").toEqual([[{ a: 1 }, { a: 2 }]]);
   });
 });
+
+describe("the shared record rules of the dynamic panel, on the released path", () => {
+  test("a panel keeps a comment key and a totals key at the end and drops another unknown key, as released", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [{ type: "text", name: "a" }] }] });
+    survey.data = { p: [{ a: 1, "a-Comment": "c", "a-total": 2, "x-total-y": 2, zz: 3 }] };
+    (<QuestionPanelDynamicModel>survey.getQuestionByName("p")).panels;
+    survey.clearIncorrectValues();
+    expect(survey.data).toEqual({ p: [{ a: 1, "a-Comment": "c", "a-total": 2 }] });
+  });
+  test("the display value of a panel record without a view, as released", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [{ type: "dropdown", name: "a", choices: [{ value: 1, text: "one" }] }] }] });
+    survey.data = { p: [{ a: 1 }] };
+    expect(survey.getQuestionByName("p").getDisplayValue(true)).toEqual([{ a: "one" }]);
+  });
+});

@@ -1386,6 +1386,26 @@ export abstract class QuestionRecordsModel extends Question {
       func(index, item, position);
     });
   }
+  /* The duplicate checks of both types walk the records here (forEachUniquenessRecord): a record with an
+     object is the type's to compare (onObject: the object and its position), a record without one
+     gives the value of field, read by one reader (createDuplicationRecordReader). How a group of
+     duplicates is marked stays the type's. */
+  protected forEachUniquenessValue(field: string, onObject: (item: QuestionRecordItem, position: number) => void,
+    onRecord: (index: number, value: any) => void): void {
+    const read = this.createDuplicationRecordReader();
+    this.forEachUniquenessRecord((index: number, item: QuestionRecordItem, position: number): void => {
+      if (!!item) {
+        onObject(item, position);
+        return;
+      }
+      const record = read(index);
+      onRecord(index, !!record ? record[field] : undefined);
+    });
+  }
+  // Reads a record without an object for the duplicate checks.
+  protected createDuplicationRecordReader(): (index: number) => any {
+    return (index: number): any => this.getListRecordAt(index);
+  }
   // Layer 1 is on: design mode never validates a page leave.
   private isPageLeaveValidated(): boolean {
     if (this.isDesignMode) return false;
@@ -3231,6 +3251,12 @@ export abstract class QuestionRecordsModel extends Question {
   /* One record of getRecordsDisplayValue, formatted in place: item is the object that holds it, and a
      record without one is formatted through the question's templates. */
   protected abstract getRecordDisplayValue(keysAsText: boolean, item: QuestionRecordItem, record: any, recordIndex: number): any;
+  /* A record without an object, formatted by the question that would hold each field: the template's
+     (getRecordTemplateQuestion), then a question that shares the value name and reads the record. */
+  protected formatRecordWithoutObject(keysAsText: boolean, record: any, recordIndex: number): any {
+    return this.formatRecordDisplayValue(keysAsText, record, (key: string): Question =>
+      this.getRecordTemplateQuestion(key) || (recordIndex > -1 ? this.getSharedQuestionFromArray(key, recordIndex) : undefined));
+  }
   /* The keys of one record that no question of the type stores - for verifyRecordsUnknownKeys and the
      clean-ups -, with or without the record's object: the walk is shared, the rule for a key
      (comments, totals, shared questions) is the type's (isRecordKeyUnknown). */
@@ -3238,7 +3264,19 @@ export abstract class QuestionRecordsModel extends Question {
     if (!Helpers.isValueObject(record, true)) return [];
     return Object.keys(record).filter((key: string): boolean => this.isRecordKeyUnknown(key, recordIndex, item));
   }
-  protected abstract isRecordKeyUnknown(key: string, recordIndex: number, item: QuestionRecordItem): boolean;
+  /* One rule for a key of a record, with or without its object: the type's own questions and its
+     released suffix rule know a key (isRecordKeyOfType), and so do another records question on the same
+     value name - asked for the name the type stores the key under (getRecordKeyValueName) - and a
+     question on the same value name that reads the record (getSharedQuestionFromArray). */
+  protected isRecordKeyUnknown(key: string, recordIndex: number, item: QuestionRecordItem): boolean {
+    if (this.isRecordKeyOfType(key, item)) return false;
+    if (this.isRecordKeyStoredByAnotherQuestion(this.getRecordKeyValueName(key))) return false;
+    return !this.getSharedQuestionFromArray(key, recordIndex);
+  }
+  protected abstract isRecordKeyOfType(key: string, item: QuestionRecordItem): boolean;
+  protected getRecordKeyValueName(key: string): string {
+    return key;
+  }
   /* One record of the question's own storage (see getListRecordAt), without composing the array. The
      matrix pads question.value up to rowCount with defaultRecord, else the default row value. */
   protected abstract getStoredRecordAt(index: number, defaultRecord?: any): any;
@@ -3250,8 +3288,13 @@ export abstract class QuestionRecordsModel extends Question {
   protected abstract removeStoredRecord(removal: IRecordRemoval, refill: () => void): void;
   // What a duplicate is among the records; asked only when the records without an object are scanned.
   protected abstract getRecordUniqueness(): IDynamicDataRecordUniqueness;
-  // The property the authored page size is stored under (see pageSize).
-  protected abstract getPageSizePropertyName(): string;
+  /* What a record object is called in the type's property names ("Row", "Panel"): the page size is
+     rowsPerPage / panelsPerPage, the count names follow it too (getRecordCountNamesOf). */
+  protected abstract getRecordEntityName(): string;
+  protected getPageSizePropertyName(): string {
+    const name = this.getRecordEntityName();
+    return name.charAt(0).toLowerCase() + name.substring(1) + "sPerPage";
+  }
   // The property the record visibility expression is stored under (rowsVisibleIf, templateVisibleIf).
   protected abstract getRecordVisibleIfPropertyName(): string;
   // The number of objects one page may hold (settings.matrix.maxRowCount, settings.panel.maxPanelCount).
@@ -3861,6 +3904,25 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
     json[key].forEach((el: any): void => { if (!!el && el.type === "panel") removeRecordCleanupSkipped(el, names); });
   });
   return json;
+}
+/* The released rule of a row: a record is empty when it holds no value but undefined or null. One rule
+   for an object and for a stored record without one (a cleared cell removes the row's key). */
+export function isRecordEmpty(record: any): boolean {
+  if (Helpers.isValueEmpty(record)) return true;
+  for (const key in record) {
+    if (record[key] !== undefined && record[key] !== null) return false;
+  }
+  return true;
+}
+/* The serializer entries of the paging, the sort and the filter of a records question (rowsPerPage or
+   panelsPerPage, sortBy, filterExpression). Invisible in the property grid until the UI series ships a
+   pager and sortable headers: they load from and save to JSON. sortBy and filterExpression are plain
+   strings and not ":condition"/":expression": both of those make JsonObjectProperty.isExpression true,
+   and everything that discovers expressions by type - Base.validateExpressions(), the linter - would
+   then read them with the survey as the variable context, while their variables are record fields. */
+export function getRecordViewProperties(pageSizeName: string): Array<any> {
+  return [{ name: pageSizeName + ":number", default: 0, minValue: 0, visible: false },
+    { name: "sortBy", default: "", visible: false }, { name: "filterExpression", default: "", visible: false }];
 }
 /* The count properties of a type with a record count (getRecordCountNames): rowCount, rowCountExpression,
    minRowCount, maxRowCount for "Row". */

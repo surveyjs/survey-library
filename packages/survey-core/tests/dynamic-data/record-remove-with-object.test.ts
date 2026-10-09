@@ -569,6 +569,31 @@ describe("a sorted or filtered view keeps the records of a count change and a re
     matrix.removeRowUI(matrix.visibleRows.filter(row => row.getQuestionByColumnName("id").value === id)[0]);
     return { value: survey.getValue("m"), rowCount: matrix.rowCount };
   }
+  function setPanelCountFromHandler(json: any): any {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "paneldynamic", name: "p", displayMode: "list",
+      templateElements: [{ type: "text", name: "name" }, { type: "expression", name: "no", expression: "{panelIndex} + 1" },
+        { type: "expression", name: "len", expression: "{p.length}" }, { type: "text", name: "d", defaultValueExpression: "{p.length} * 10" }] }, json)] });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    let changes = 0;
+    survey.onDynamicPanelValueChanged.add(() => {
+      changes++;
+      if (changes > 1000) throw new Error("the records keep growing");
+      if (changes === 1) panel.panelCount = 2;
+    });
+    panel.panels;
+    panel.panelCount = 5;
+    // d, a default value expression, is computed when each panel is created (as without a view), so it is not compared.
+    const value = survey.getValue("p").map((record: any) => ({ no: record.no, len: record.len }));
+    return { value: value, count: panel.panelCount, records: value.length };
+  }
+  test("a dynamic panel under a view: a handler that sets panelCount while a count change runs leaves the running change's count, as without a view", () => {
+    const unsorted = setPanelCountFromHandler({});
+    expect({ count: unsorted.count, records: unsorted.records }, "#1").toEqual({ count: 5, records: 5 });
+    const paged = setPanelCountFromHandler({ panelsPerPage: 2 });
+    expect({ count: paged.count, records: paged.records }, "#2 paged: the records stop growing").toEqual({ count: 5, records: 5 });
+    expect(setPanelCountFromHandler({ sortBy: "name" }), "#3 sorted").toEqual(unsorted);
+    expect(setPanelCountFromHandler({ filterExpression: "{name} <> 'x'" }), "#4 filtered").toEqual(unsorted);
+  });
   function removeWithHandlerAssignment(json: any, action: string): any {
     const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "m", rowCount: 0,
       columns: [{ name: "id", cellType: "text" }, { name: "a", cellType: "text", inputType: "number" }, { name: "len", cellType: "expression", expression: "{m.length}" }] }, json)] });

@@ -1448,15 +1448,25 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   /* panelCount counts records while a filter is active, so it grows and shrinks the storage and the
      panels follow the view afterwards. The records that appear are always in the view, which keeps
-     "the new panel is the last one" true for addPanel. */
+     "the new panel is the last one" true for addPanel.
+     A count set while a count change runs - a handler of a panel the change creates - is ignored, and
+     the running change decides the count, as without a view. Applied inside it, it would truncate the
+     records the change is still adding, and the panels left past them would pad the records again on
+     every write. */
+  private isSettingPanelCountInView: boolean = false;
   private setPanelCountInView(val: number): void {
     const list = this.dataList;
-    if (val === list.count || this.useTemplatePanel) return;
+    if (val === list.count || this.useTemplatePanel || this.isSettingPanelCountInView) return;
     this.updateBindings("panelCount", val);
-    this.runObjectsFollowingWrite((): void => {
-      this.syncRecordCount(val);
-      this.followRecordsWithObjects((recordIndex: number): void => { this.appendItemForRecord(recordIndex); });
-    });
+    this.isSettingPanelCountInView = true;
+    try {
+      this.runObjectsFollowingWrite((): void => {
+        this.syncRecordCount(val);
+        this.followRecordsWithObjects((recordIndex: number): void => { this.appendItemForRecord(recordIndex); });
+      });
+    } finally {
+      this.isSettingPanelCountInView = false;
+    }
   }
   /* Grows or truncates the records to a count. createRecord makes a new record; by default, under
      paging most of the new records never get a panel, so they are created with the defaults their

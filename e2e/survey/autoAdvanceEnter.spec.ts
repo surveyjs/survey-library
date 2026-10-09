@@ -112,6 +112,42 @@ frameworks.forEach((framework) => {
       expect(await getSurveyData(page)).toEqual({ q1: ["a"] });
     });
 
+    test("Single-select imagepicker keyboard selection waits for Enter", async ({ page }) => {
+      await init(page, framework, {
+        type: "imagepicker",
+        name: "q1",
+        choices: [
+          { value: "a", text: "A", imageLink: pixel },
+          { value: "b", text: "B", imageLink: pixel },
+        ],
+      });
+      const imageChoice = page.locator("input[type=radio]").first();
+      await expect(imageChoice).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expectFirstPage(page);
+      expect(await getSurveyData(page)).toEqual({});
+      await page.keyboard.press("Space");
+      await expect(imageChoice).toBeChecked();
+      await expectFirstPage(page);
+      await page.keyboard.press("Enter");
+      await expectSecondPage(page);
+      expect(await getSurveyData(page)).toEqual({ q1: "a" });
+    });
+
+    test("Single-select imagepicker click auto-advances", async ({ page }) => {
+      await init(page, framework, {
+        type: "imagepicker",
+        name: "q1",
+        choices: [
+          { value: "a", text: "A", imageLink: pixel },
+          { value: "b", text: "B", imageLink: pixel },
+        ],
+      });
+      await page.locator("label").filter({ has: page.locator("input[type=radio]") }).nth(1).click();
+      await expectSecondPage(page);
+      expect(await getSurveyData(page)).toEqual({ q1: "b" });
+    });
+
     test("Comment Enter confirms the answer", async ({ page }) => {
       await init(page, framework, { type: "comment", name: "q1" });
       const comment = page.locator("textarea").first();

@@ -1963,6 +1963,8 @@ export class SurveyModel extends SurveyElementCore
    * > If any of the following questions is answered last, the survey does not switch to the next page: Signature, File Upload, Single-Select Matrix (not all rows are answered), Dynamic Matrix, Dynamic Panel.
    * >
    * > For Checkboxes, Tag Box, Image Picker (with Multi Select), Ranking, Yes/No (Boolean) (rendered as Checkbox) and Long Text, the survey switches to the next page when the respondent presses Enter after answering. In Long Text, Shift+Enter inserts a line break.
+   * >
+   * > For Radio Button Group and Image Picker (with Single Select), a mouse or touch selection switches to the next page immediately. A keyboard selection waits until the respondent presses Enter.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)

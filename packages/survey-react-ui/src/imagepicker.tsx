@@ -189,7 +189,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
 
     const renderedItem = (
       <div className={itemClass}>
-        <label className={cssClasses.label}>
+        <label className={cssClasses.label} onMouseDown={() => this.question.onMouseDown()}>
           <input
             className={cssClasses.itemControl}
             id={this.question.getItemId(item)}

@@ -878,7 +878,7 @@ describe("Survey_Questions", () => {
     expect(readOnlySurvey.currentPageNo, "Read-only stays on the page").toBe(0);
   });
 
-  test("Imagepicker Question: single-select still auto-advances on selection", () => {
+  test("Imagepicker Question: single-select auto-advances on a mouse selection", () => {
     const survey = new SurveyModel({
       autoAdvanceEnabled: true,
       pages: [
@@ -888,7 +888,78 @@ describe("Survey_Questions", () => {
     });
     const question = <QuestionImagePickerModel>survey.getQuestionByName("q1");
     question.value = 1;
-    expect(survey.currentPageNo, "Single-select advances on selection").toBe(1);
+    expect(survey.currentPageNo, "Programmatic selection does not auto-advance").toBe(0);
+    expect(question.supportAutoAdvance(), "Programmatic selection does not opt in").toBe(false);
+    question.onMouseDown();
+    question.value = 2;
+    expect(survey.currentPageNo, "Mouse selection advances").toBe(1);
+  });
+
+  test("Imagepicker Question: single-select keyboard selection waits for Enter", () => {
+    const survey = new SurveyModel({
+      autoAdvanceEnabled: true,
+      pages: [
+        { elements: [{ type: "imagepicker", name: "q1", choices: [1, 2, 3] }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const question = <QuestionImagePickerModel>survey.getQuestionByName("q1");
+    const createKeyEvent = (key: string, keyCode: number) => {
+      let prevented = false;
+      return {
+        key,
+        keyCode,
+        preventDefault: () => { prevented = true; },
+        get defaultPrevented() { return prevented; }
+      };
+    };
+
+    question.value = 1;
+    expect(survey.currentPageNo, "Keyboard selection does not auto-advance").toBe(0);
+
+    const arrowEvent = createKeyEvent("ArrowDown", 40);
+    question.onKeyDown(arrowEvent);
+    expect(survey.currentPageNo, "ArrowDown does not auto-advance").toBe(0);
+    expect(arrowEvent.defaultPrevented, "ArrowDown is not prevented").toBe(false);
+
+    const enterEvent = createKeyEvent("Enter", 13);
+    question.onKeyDown(enterEvent);
+    expect(enterEvent.defaultPrevented, "Enter is prevented when auto-advancing").toBe(true);
+    expect(survey.currentPageNo, "Enter confirms the value and auto-advances").toBe(1);
+  });
+
+  test("Imagepicker Question: single-select Enter does not auto-advance when empty, read-only, with Shift, or disabled", () => {
+    const createSurvey = (autoAdvanceEnabled?: boolean) => new SurveyModel({
+      autoAdvanceEnabled,
+      pages: [
+        { elements: [{ type: "imagepicker", name: "q1", choices: [1, 2, 3] }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const enterEvent = () => ({ key: "Enter", keyCode: 13, preventDefault: () => {} });
+
+    const emptySurvey = createSurvey(true);
+    (<QuestionImagePickerModel>emptySurvey.getQuestionByName("q1")).onKeyDown(enterEvent());
+    expect(emptySurvey.currentPageNo, "Empty value stays on the page").toBe(0);
+
+    const readOnlySurvey = createSurvey(true);
+    const readOnlyQuestion = <QuestionImagePickerModel>readOnlySurvey.getQuestionByName("q1");
+    readOnlyQuestion.value = 1;
+    readOnlyQuestion.readOnly = true;
+    readOnlyQuestion.onKeyDown(enterEvent());
+    expect(readOnlySurvey.currentPageNo, "Read-only stays on the page").toBe(0);
+
+    const shiftSurvey = createSurvey(true);
+    const shiftQuestion = <QuestionImagePickerModel>shiftSurvey.getQuestionByName("q1");
+    shiftQuestion.value = 1;
+    shiftQuestion.onKeyDown({ key: "Enter", keyCode: 13, shiftKey: true, preventDefault: () => {} });
+    expect(shiftSurvey.currentPageNo, "Shift+Enter stays on the page").toBe(0);
+
+    const disabledSurvey = createSurvey(false);
+    const disabledQuestion = <QuestionImagePickerModel>disabledSurvey.getQuestionByName("q1");
+    disabledQuestion.value = 1;
+    disabledQuestion.onKeyDown(enterEvent());
+    expect(disabledSurvey.currentPageNo, "autoAdvanceEnabled false stays on the page").toBe(0);
   });
 
   test("Imagepicker Question: Enter does nothing when autoAdvanceEnabled is false", () => {
@@ -3457,9 +3528,11 @@ describe("Survey_Questions", () => {
   });
   test("QuestionImagePickerModel.supportAutoAdvance", () => {
     const q = new QuestionImagePickerModel("q");
-    expect(q.supportAutoAdvance(), "It supports by default").toBe(true);
+    expect(q.supportAutoAdvance(), "Single-select waits for a mouse selection").toBe(false);
+    q.onMouseDown();
+    expect(q.supportAutoAdvance(), "Single-select supports it after mousedown").toBe(true);
     q.multiSelect = true;
-    expect(q.supportAutoAdvance(), "It doesn't support it for multiselect").toBe(false);
+    expect(q.supportAutoAdvance(), "It doesn't support it for multiselect even after mousedown").toBe(false);
     q.multiSelect = false;
     expect(q.supportAutoAdvance(), "multiselect is false").toBe(true);
   });

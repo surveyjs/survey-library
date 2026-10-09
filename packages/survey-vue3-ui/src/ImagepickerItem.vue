@@ -1,6 +1,6 @@
 <template>
   <div :class="getItemClass(item)">
-    <label :class="question.cssClasses.label">
+    <label :class="question.cssClasses.label" @mousedown="question.onMouseDown()">
       <input
         v-if="question.multiSelect"
         type="checkbox"

@@ -654,6 +654,11 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   protected createMatrixRow(item: ItemValue, value: any): MatrixDropdownRowModel {
     return new MatrixDropdownRowModel(item.value, item, this, value);
   }
+  // The temporary row of the records clean-up: the record is the rows item at index.
+  protected createRowForRecordCleanup(index: number, record: any): MatrixDropdownRowModelBase {
+    const item = this.getRecordItemsCache().items[index];
+    return !!item ? this.createMatrixRow(item, record) : undefined;
+  }
   protected getFilteredDataCore(): any {
     const res: any = {};
     this.generatedVisibleRows.forEach(row => {

@@ -1312,8 +1312,8 @@ describe("the clean-up of incorrect answers over records without an object", () 
       templateElements: [{ type: "dropdown", name: "a", choices: [1, 2] }, { type: "text", name: "b" }] } }
   ];
   kinds.forEach(kind => {
-    test(kind.name + ": clearIncorrectValues builds one short-lived question per key of each record without an object, an edit, a page move and a render build none", () => {
-      const created = vi.spyOn(kind.proto, "createRecordCleanupQuestion");
+    test(kind.name + ": clearIncorrectValues builds one temporary row or panel per record without an object, an edit, a page move and a render build none", () => {
+      const created = vi.spyOn(kind.proto, "createRecordCleanupObject");
       const survey = new SurveyModel({ elements: [kind.json] });
       survey.data = { q: records(6, (i: number): any => ({ a: 1, b: "b" + i })) };
       const question: any = survey.getQuestionByName("q");
@@ -1323,7 +1323,7 @@ describe("the clean-up of incorrect answers over records without an object", () 
       question.pageIndex = 0;
       expect(created.mock.calls.length, "#1").toBe(0);
       survey.clearIncorrectValues();
-      expect(created.mock.calls.length, "#2: four records without an object, two keys each").toBe(8);
+      expect(created.mock.calls.length, "#2: one object for each of the four records without an object").toBe(4);
     });
   });
 });
@@ -1357,5 +1357,58 @@ describe("the onHidden pass over records without an object", () => {
     matrix.pageIndex = 0;
     expect(writes, "#2: nothing more").toEqual(["q"]);
     expect(survey.data.q.filter((record: any) => record.b === "x").length, "#3").toBe(6);
+  });
+});
+
+describe("the cost of the off-page clean-ups", () => {
+  test("the onHidden pass evaluates a condition that reads no record variable once per run", () => {
+    let runs = 0;
+    FunctionFactory.Instance.register("countedEquals", function (params: Array<any>): boolean { runs++; return params[0] === params[1]; });
+    try {
+      const survey = new SurveyModel({ clearInvisibleValues: "onHidden", elements: [{ type: "text", name: "x" }, { type: "text", name: "y" },
+        { type: "matrixdynamic", name: "q", rowCount: 0, rowsPerPage: 10,
+          columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", visibleIf: "countedEquals({x}, 1)" }] }] });
+      survey.data = { x: 1, q: records(1000, (i: number): any => ({ a: i, b: "b" })) };
+      (<QuestionMatrixDynamicModel>survey.getQuestionByName("q")).visibleRows;
+      survey.setValue("y", 1);
+      runs = 0;
+      survey.setValue("y", 2);
+      expect(runs <= 10 + 2, "#1: the rows of the page and one run for the records without a row: " + runs).toBe(true);
+      runs = 0;
+      survey.setValue("x", 2);
+      expect(survey.data.q[500], "#2: the hide still reaches every record").toEqual({ a: 500 });
+    } finally {
+      FunctionFactory.Instance.unregister("countedEquals");
+    }
+  });
+  test("a condition over the record is still evaluated per record", () => {
+    let runs = 0;
+    FunctionFactory.Instance.register("countedEquals", function (params: Array<any>): boolean { runs++; return params[0] === params[1]; });
+    try {
+      const survey = new SurveyModel({ clearInvisibleValues: "onHidden", elements: [{ type: "text", name: "y" },
+        { type: "matrixdynamic", name: "q", rowCount: 0, rowsPerPage: 10,
+          columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", visibleIf: "countedEquals({row.a}, 1)" }] }] });
+      survey.data = { q: records(100, (i: number): any => ({ a: 1, b: "b" })) };
+      (<QuestionMatrixDynamicModel>survey.getQuestionByName("q")).visibleRows;
+      runs = 0;
+      survey.setValue("y", 2);
+      expect(runs >= 90, "#1: " + runs).toBe(true);
+    } finally {
+      FunctionFactory.Instance.unregister("countedEquals");
+    }
+  });
+  test("at complete a paged Dynamic Panel builds one temporary panel per record without a panel", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "q", panelsPerPage: 2,
+      templateElements: [{ type: "text", name: "a" }, { type: "dropdown", name: "c", choices: [1, 2] }] }] });
+    survey.data = { q: records(6, (i: number): any => ({ a: i, c: 1 })) };
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+    question.panels;
+    const created = vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "createRecordCleanupObject");
+    try {
+      survey.doComplete();
+      expect(created.mock.calls.length, "#1: four records without a panel").toBe(4);
+    } finally {
+      created.mockRestore();
+    }
   });
 });

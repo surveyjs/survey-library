@@ -40,7 +40,7 @@ import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-da
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, IDynamicDataRecordUniqueness, QuestionRecordsModel,
-  QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility
+  QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped
 } from "./question_records";
 
 export class PanelDynamicItemGetterContext extends QuestionRecordItemGetterContext {
@@ -2615,6 +2615,35 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected getRecordTemplateQuestion(key: string): Question {
     return <Question>this.template.getQuestionByValueName(key) || undefined;
   }
+  /* QuestionRecordsModel hook: a temporary panel for a record without one, built from the template as
+     a page builds a panel (onQuestionCreated is raised), without the questions the clean-up does not
+     judge. It is not among the panels and no add event fires. The panel's own released
+     clearIncorrectValues judges the record. */
+  protected createRecordCleanupObject(index: number, record: any): IRecordCleanupObject {
+    const panel = this.createAndSetupNewPanelObject();
+    const json = this.template.toJSON();
+    delete json.visibleIf;
+    const skipped = this.template.questions.filter((q: Question): boolean => this.isRecordCleanupSkipped(q)).map((q: Question): string => q.name);
+    new JsonObject().toObject(removeRecordCleanupSkipped(json, skipped), panel);
+    panel.questions.forEach(q => q.setParentQuestion(this));
+    // Attached without running its conditions: they run once the record is loaded (runCondition).
+    const item = new QuestionPanelDynamicItem(this, panel, true);
+    return {
+      item: item,
+      runCondition: (properties: HashTable<any>): void => {
+        // The panels a build creates take their records once more after it (setValueAfterPanelsCreating).
+        item.updateFromRecord(this.getRecordCleanupCopy(item, false));
+        const newProps = Helpers.createCopy(properties);
+        newProps[settings.expressionVariables.panel] = panel;
+        panel.runCondition(newProps);
+        // A page build renders its panels next (panelOnFirstRendering): a select question takes its other value then.
+        panel.onFirstRendering();
+      },
+      clearIncorrectValues: (): void => { panel.clearIncorrectValues(); },
+      clearValueIfInvisible: (reason: string): void => { this.clearValueInPanelIfInvisible(panel, reason); },
+      dispose: (): void => { panel.dispose(); }
+    };
+  }
   /* index is a CREATED position - what it has always been for this method; under paging a created
      position of the whole view. A record without a panel on the page answers null: nothing is built and
      the page stays (getQuestionFromRecord reaches the panel a record has). */
@@ -3022,15 +3051,16 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   private clearValueInPanelsIfInvisible(reason: string): void {
     for (var i = 0; i < this.panelsCore.length; i++) {
-      const panel = this.panelsCore[i];
-      var questions = panel.questions;
-      for (var j = 0; j < questions.length; j++) {
-        const q = questions[j];
-        if (q.visible && !panel.isVisible) continue;
-        q.clearValueIfInvisible(reason);
-      }
+      this.clearValueInPanelIfInvisible(this.panelsCore[i], reason);
     }
     this.clearValueInRecordsWithoutPanel(reason);
+    this.clearValueInRecordsWithoutPanelAtComplete(reason);
+  }
+  private clearValueInPanelIfInvisible(panel: PanelModel, reason: string): void {
+    panel.questions.forEach((q: Question): void => {
+      if (q.visible && !panel.isVisible) return;
+      q.clearValueIfInvisible(reason);
+    });
   }
   /* Under paging in memory only the page has panels: the records without one are cleared over their
      stored values (getRecordsWithoutInvisibleAnswers), and the result is written once, as one of the
@@ -3040,6 +3070,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (!!records) {
       this.runInternalValueChange((): void => this.setOwnRecordsValue(records));
     }
+  }
+  /* At complete a built panel's questions run their own clean-up (a select question drops an answer
+     its choices do not have): a record without a panel gets it from a temporary panel, one per record
+     (cleanRecordWithObject), after the invisible answers are cleared. */
+  private clearValueInRecordsWithoutPanelAtComplete(reason: string): void {
+    if (reason !== "onComplete" || !this.isPagedByList || this.isRemoteData || this.isEmpty()) return;
+    this.cleanRecordsWithoutObjects((index: number, record: any): any =>
+      this.cleanRecordWithObject(index, record, (cleanupObject: IRecordCleanupObject): void => cleanupObject.clearValueIfInvisible(reason)));
   }
   /* The invisible answers of the records that have no object, cleared the way an object clears its
      own questions (Question.clearValueIfInvisible), over the stored records and without building an
@@ -3413,11 +3451,15 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected getItemRecordIndex(item: ISurveyData): number {
     const items = this.items;
     const position = items.indexOf(item);
+    const cleanupIndex = this.getRecordCleanupIndex(item, position < 0);
+    if (cleanupIndex > -1) return cleanupIndex;
     // A panel that is being created is about to take the position at the end: the record it names is
     // the one updateItemValue writes and getPanelItemDataByIndex reads for it, not the record count.
     return this.getRecordIndexAtCreatedPosition(position < 0 ? items.length : position);
   }
   getItemData(item: ISurveyData): any {
+    const copy = this.getRecordCleanupCopy(item, this.items.indexOf(item) < 0);
+    if (copy !== undefined) return copy;
     return this.getPanelItemDataByIndex(this.items.indexOf(item));
   }
   /* index is a CREATED position (under paging, on the page), the counterpart of getItemIndex. It used to index visiblePanels,
@@ -3453,6 +3495,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return super.refuseItemWrite(item);
   }
   updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): void {
+    if (this.writeRecordCleanupCopy(item, this.items.indexOf(item) < 0, name, isDeletingValue ? undefined : val)) return;
     var items = this.items;
     var index = items.indexOf(item);
     if (index < 0) index = items.length;

@@ -402,6 +402,7 @@ export abstract class QuestionRecordsModel extends Question {
         }
         // The current record follows its record, also on a move: it is a record, not a position.
         this.remapCurrentRecord(remap);
+        this.remapHiddenAnswerStates(remap);
         this.remapHeldRemoveTargets(remap);
       });
     /* A write the list pushed to a data source: with the array source over question.value the push
@@ -1386,6 +1387,8 @@ export abstract class QuestionRecordsModel extends Question {
     const survey = this.survey;
     const scope = this.createRecordVisibilityScope(properties);
     const runners = new Map<string, ConditionRunner>();
+    // The result of a condition that reads no record variable, computed once for the run.
+    const recordIndependent = new Map<string, boolean>();
     let visibility = new Map<Question | PanelModelBase, boolean>();
     return {
       reset: (index: number, record: any): void => {
@@ -1399,18 +1402,33 @@ export abstract class QuestionRecordsModel extends Question {
         if (!expression) {
           res = el.visible;
         } else {
-          let runner = runners.get(expression);
-          if (!runner) {
-            runner = new ConditionRunner(expression);
-            runners.set(expression, runner);
+          res = recordIndependent.get(expression);
+          if (res === undefined) {
+            let runner = runners.get(expression);
+            if (!runner) {
+              runner = new ConditionRunner(expression);
+              runners.set(expression, runner);
+            }
+            scope.properties["question"] = el;
+            res = runner.runContext(scope.item.getValueGetterContext(), scope.properties) === true;
+            if (!this.readsRecordVariable(runner))recordIndependent.set(expression, res);
           }
-          scope.properties["question"] = el;
-          res = runner.runContext(scope.item.getValueGetterContext(), scope.properties) === true;
         }
         visibility.set(el, res);
         return res;
       }
     };
+  }
+  /* The variables the runner reports name a record: the record item and its neighbours ({row}, {panel},
+     ...), the index variables, or a field of the record. */
+  private readsRecordVariable(runner: ConditionRunner): boolean {
+    const names = settings.expressionVariables;
+    const roots = [names.row, names.prevRow, names.nextRow, names.rowIndex, names.visibleRowIndex, names.rowValue, names.rowName,
+      names.rowTitle, names.panel, names.prevPanel, names.nextPanel, names.parentPanel, names.panelIndex, names.visiblePanelIndex];
+    return runner.getVariables().some((name: string): boolean => {
+      const root = name.split(/[.[]/)[0];
+      return roots.indexOf(root) > -1 || !!this.getRecordTemplateQuestion(root);
+    });
   }
   // The question's clearIfInvisible allows a clear for the reason (Question.clearValueIfInvisible).
   protected canRecordQuestionBeCleared(q: Question, reason: string): boolean {
@@ -1419,23 +1437,29 @@ export abstract class QuestionRecordsModel extends Question {
     if (reason === "onHidden" && clearIf === "onComplete") return false;
     return reason !== "onHiddenContainer" || clearIf === reason;
   }
-  /* clearInvisibleValues: "onHidden" under paging in memory. A question of a row or a panel clears its
-     answer when it turns from visible to hidden, never because it is built hidden; a record without an
-     object has no question to do it, so the transition is followed over the stored record. For the
-     inputs the type names (getRecordConditionalInputs) and every record without an object, the last
-     visibility is kept per record (getRecordStateKey); a record seen for the first time - also a record
-     that has just lost its object, or whose record object was replaced - is only noted. On visible -> hidden
-     the input's key and its comment go, as clearValue() removes them; the writes of one run go in one
-     batch of the list. A record that has an object leaves it to its questions. The survey's other
-     modes do not run it: under "onComplete" the matrix keeps a hidden cell's answer and the panel
-     clears at complete, as without paging. Cost: one condition run per conditional input and record
-     without an object, per condition run of the question, in this mode only. */
-  private hiddenAnswerStates: WeakMap<any, HashTable<boolean>>;
+  /* clearIfInvisible "onHidden" / "onHiddenContainer" under paging in memory. A question of a row or a
+     panel clears its answer when it turns from visible to hidden, never because it is built hidden; a
+     record without an object has no question to do it, so the transition is followed over the stored
+     record, for the inputs the type names (getRecordConditionalInputs) whose own effective mode clears
+     on hiding - the survey's setting or the question's clearIfInvisible. Each input keeps two flags per
+     record: the question's own visibility and that of the panels around it (up to
+     getRecordInputContainer). A built question clears for its own hiding under either mode, and for a
+     hidden container only under "onHiddenContainer"; the pass does the same. A record that has an
+     object takes its flags from the object's questions, so the history goes on when it loses the
+     object; a record seen for the first time is only noted. On a transition the input's key and its
+     comment go, as clearValue() removes them; the writes of one run go in one batch of the list.
+     The flags are kept per record (getRecordStateKey): by record index for the array types, shifted by
+     the question's own insert, remove and move and kept across an assignment from outside as a built
+     object keeps them (followHiddenAnswerStatesOnAssignment).
+     Cost: one condition run per conditional input and record without an object, per condition run of
+     the question, while an input clears on hiding - except a condition that reads no record variable,
+     which runs once per run (createRecordElementVisibility). */
+  private hiddenAnswerStates: Map<any, HashTable<number>>;
   protected clearHiddenAnswersWithoutObjects(properties: HashTable<any>): void {
-    if (!this.isPagedByList || !this.isClearValueOnHidden || this.areInvisibleElementsShowing || this.isRemoteData || !this.survey) return;
+    if (!this.isPagedByList || this.areInvisibleElementsShowing || this.isRemoteData || !this.survey) return;
     const inputs = this.getRecordConditionalInputs().filter((q: Question): boolean => this.canRecordQuestionBeCleared(q, "onHidden"));
     if (inputs.length === 0) return;
-    if (!this.hiddenAnswerStates)this.hiddenAnswerStates = new WeakMap<any, HashTable<boolean>>();
+    if (!this.hiddenAnswerStates)this.hiddenAnswerStates = new Map<any, HashTable<number>>();
     const states = this.hiddenAnswerStates;
     const container = this.getRecordInputContainer();
     const list = this.dataList;
@@ -1443,31 +1467,70 @@ export abstract class QuestionRecordsModel extends Question {
     const changes: Array<{ index: number, record: any }> = [];
     this.forEachRecordItem(list.getCreatedIndexes(), (index: number, item: QuestionRecordItem): void => {
       const record = this.getListRecordAt(index);
-      if (!Helpers.isValueObject(record, true)) return;
       const key = this.getRecordStateKey(index, record);
       if (!!item) {
-        states.delete(key);
+        states.set(key, this.getItemHiddenAnswerState(item, inputs, container));
         return;
       }
+      if (!Helpers.isValueObject(record, true)) return;
       if (!visibility) visibility = this.createRecordElementVisibility(properties);
       visibility.reset(index, record);
       const prevState = states.get(key);
-      const state: HashTable<boolean> = {};
+      const state: HashTable<number> = {};
       let cleared: any = undefined;
       inputs.forEach((q: Question): void => {
-        let isVisible = visibility.isVisible(q);
-        for (let el = <PanelModelBase><any>q.parent; isVisible && !!el && el !== container; el = <PanelModelBase><any>el.parent) {
-          isVisible = visibility.isVisible(el);
-        }
         const name = q.getValueName();
-        state[name] = isVisible;
-        if (isVisible || !prevState || prevState[name] !== true) return;
+        const flags = getHiddenAnswerFlags(visibility.isVisible(q), (el: PanelModelBase): boolean => visibility.isVisible(el), q, container);
+        state[name] = flags;
+        if (!prevState || !this.isHiddenAnswerCleared(q, prevState[name], flags)) return;
         cleared = this.removeRecordAnswer(record, cleared, name);
       });
       states.set(key, state);
       if (!!cleared) changes.push({ index: index, record: cleared });
     });
     this.writeRecordChanges(changes);
+  }
+  // The flags a built object's questions give the inputs (see clearHiddenAnswersWithoutObjects).
+  private getItemHiddenAnswerState(item: QuestionRecordItem, inputs: Array<Question>, container: PanelModelBase): HashTable<number> {
+    const state: HashTable<number> = {};
+    inputs.forEach((input: Question): void => {
+      const name = input.getValueName();
+      const q = item.getQuestionsByValueName(name)[0];
+      if (!q) return;
+      state[name] = getHiddenAnswerFlags(q.visible, (el: PanelModelBase): boolean => el.visible, q, null);
+    });
+    return state;
+  }
+  // A transition that clears: the question hid itself, or - under "onHiddenContainer" - a panel around it hid.
+  private isHiddenAnswerCleared(q: Question, prev: number, flags: number): boolean {
+    if (prev === undefined) return false;
+    if ((prev & HIDDEN_ANSWER_SELF) && !(flags & HIDDEN_ANSWER_SELF)) return true;
+    return (prev & HIDDEN_ANSWER_CONTAINER) && !(flags & HIDDEN_ANSWER_CONTAINER) && this.canRecordQuestionBeCleared(q, "onHiddenContainer");
+  }
+  // The question's own insert, remove and move renumber the flags kept by record index.
+  private remapHiddenAnswerStates(remap: (index: number) => number): void {
+    const states = this.hiddenAnswerStates;
+    if (!states || states.size === 0) return;
+    const res = new Map<any, HashTable<number>>();
+    states.forEach((state: HashTable<number>, key: any): void => {
+      const newKey = typeof key === "number" ? remap(key) : key;
+      if (newKey !== -1) res.set(newKey, state);
+    });
+    this.hiddenAnswerStates = res;
+  }
+  /* An assignment from outside: the flags a built object would keep are kept. By default (the panel)
+     the panels at the positions that stay keep theirs; a type that rebuilds its objects drops them
+     (keepsHiddenAnswerStates). */
+  private followHiddenAnswerStatesOnAssignment(oldCount: number, newCount: number): void {
+    const states = this.hiddenAnswerStates;
+    if (!states || states.size === 0) return;
+    const keep = this.keepsHiddenAnswerStates(oldCount, newCount);
+    Array.from(states.keys()).forEach((key: any): void => {
+      if (typeof key === "number" && (!keep || key >= newCount)) states.delete(key);
+    });
+  }
+  protected keepsHiddenAnswerStates(oldCount: number, newCount: number): boolean {
+    return true;
   }
   /* The record without the answer stored under name and its comment, the keys clearValue() removes.
      cleared: the copy made so far, undefined for none; the result is that copy, made when needed. */
@@ -1487,10 +1550,9 @@ export abstract class QuestionRecordsModel extends Question {
       changes.forEach((change: { index: number, record: any }): void => { list.setRecord(change.index, change.record); });
     }));
   }
-  /* What the visibility kept for a record is stored under: the record object, which a write of another
-     record leaves as it is. */
+  // What the visibility kept for a record is stored under: the record index (see clearHiddenAnswersWithoutObjects).
   protected getRecordStateKey(recordIndex: number, record: any): any {
-    return record;
+    return recordIndex;
   }
   /* The template questions whose visibility can differ by record or change while the survey runs: a
      visibleIf of their own or of a panel around them (up to getRecordInputContainer). */
@@ -1521,77 +1583,114 @@ export abstract class QuestionRecordsModel extends Question {
 
   /* The incorrect answers of the records that have no object - the records of the pages never opened
      or left - cleared as their own objects would clear them, so that the result equals the unpaged
-     one for the records of the view. The keys no question stores go (getRecordUnknownKeys). For each
-     other key a short-lived question of the type (createRecordCleanupQuestion) is attached to a copy
-     of the record (RecordCleanupItem), loaded the way the type loads a built object
-     (loadRecordCleanupQuestion), its conditions run over the record, and its own
-     clearIncorrectValues() writes into the copy; then it is disposed. It raises onQuestionCreated, as
-     a question of a built object does; onMatrixCellCreated is not raised, there is no row.
+     one. The keys no question stores go (getRecordUnknownKeys). For each record a temporary object of
+     the type is built for a copy of it, as a page build builds one (createRecordCleanupObject): the
+     same factory and the survey's creation events (onMatrixCellCreating, onMatrixCellCreated,
+     onQuestionCreated), the detail panel of a matrix that has one. It is loaded without writes, its
+     conditions run, and its own released clearIncorrectValues() writes into the copy
+     (recordCleanup); then it is disposed. It is not attached to the rows or panels and no add event
+     fires.
      - A record the filter excludes keeps its answers, as it does without paging.
      - An assigned source is skipped, as every survey clean-up skips a source-owned question.
-     - Kept as they are: an answer whose choices come from a request (choicesByUrl, lazy loading) -
-       they are not known here, and a short-lived question would send the request - and the value of
-       a question that holds records of its own, whose clean-up does not run without an object.
-     Cost: one question per record without an object and key, only on an explicit
-     clearIncorrectValues. The changed records are written in one batch of the list. */
+     - Kept as they are (isRecordCleanupSkipped): an answer whose choices come from a request
+       (choicesByUrl, lazy loading) - no request is sent -, the value of a question that holds records
+       of its own, whose clean-up does not run without an object, and a file question's value - no
+       download starts. The object is built without them, or with them still loading, and their
+       values are copied back unchanged.
+     - A handler that changes the records during the walk wins: a cleaned copy is written only to a
+       record whose stored object is still the one the walk read.
+     Cost: one object per record without an object, only on an explicit clearIncorrectValues (the
+     unpaged question builds one per record too). The changed records are written in one batch. */
   private clearIncorrectValuesWithoutObjects(): void {
     if (!this.isPagedByList || this.isRemoteData || this.isEmpty()) return;
+    this.cleanRecordsWithoutObjects((index: number, record: any): any =>
+      this.cleanRecordWithObject(index, record, (cleanupObject: IRecordCleanupObject): void => cleanupObject.clearIncorrectValues()));
+  }
+  /* The records without an object that the view creates, each passed to clean (which returns the
+     cleaned record), and the changed ones written back - only where the stored object is still the one
+     clean read: a handler that ran inside it may have changed the records. */
+  protected cleanRecordsWithoutObjects(clean: (index: number, record: any) => any): void {
     const list = this.dataList;
-    const changes: Array<{ index: number, record: any }> = [];
-    let properties: HashTable<any> = undefined;
+    const read: Array<{ index: number, record: any, cleared: any }> = [];
     this.forEachRecordItem(list.getCreatedIndexes(), (index: number, item: QuestionRecordItem): void => {
       const record = this.getListRecordAt(index);
       if (!!item || !Helpers.isValueObject(record, true)) return;
-      if (!properties) properties = this.getDataFilteredProperties();
-      const cleared = this.clearIncorrectValuesInRecord(index, record, properties);
-      if (!Helpers.isTwoValueEquals(cleared, record)) changes.push({ index: index, record: cleared });
+      read.push({ index: index, record: record, cleared: clean(index, record) });
+    });
+    const changes: Array<{ index: number, record: any }> = [];
+    read.forEach((entry: { index: number, record: any, cleared: any }): void => {
+      if (Helpers.isTwoValueEquals(entry.cleared, entry.record)) return;
+      if (entry.index >= list.loadedCount || this.getListRecordAt(entry.index) !== entry.record) return;
+      changes.push({ index: entry.index, record: entry.cleared });
     });
     this.writeRecordChanges(changes);
   }
   // The question of a record's template that stores key, for the value-only clean-ups.
   protected abstract getRecordTemplateQuestion(key: string): Question;
-  // A copy of the record, cleared by short-lived questions of the type (clearIncorrectValuesWithoutObjects).
-  private clearIncorrectValuesInRecord(index: number, record: any, properties: HashTable<any>): any {
+  /* The record a temporary object of the clean-up judges: the object reads and writes a copy of it,
+     never the list. item is the object once it is built; while it is built (isBuilding) the object the
+     type does not know is it, and its writes are dropped - a build loads the record without writing. */
+  private recordCleanup: { index: number, copy: any, item: ISurveyData, isBuilding: boolean };
+  // The copy a temporary object reads; isUnknownItem: the type does not know the item as one of its objects.
+  protected getRecordCleanupCopy(item: ISurveyData, isUnknownItem: boolean): any {
+    const cleanup = this.recordCleanup;
+    return !!cleanup && (cleanup.item === item || !cleanup.item && isUnknownItem) ? cleanup.copy : undefined;
+  }
+  /* A write of a temporary object goes into its copy (an empty value removes the key, as a write of
+     a row or a panel does), or nowhere while it is built. Returns false for any other object. */
+  protected writeRecordCleanupCopy(item: ISurveyData, isUnknownItem: boolean, name: string, val: any): boolean {
+    const copy = this.getRecordCleanupCopy(item, isUnknownItem);
+    if (copy === undefined) return false;
+    if (this.recordCleanup.isBuilding) return true;
+    if (Helpers.isValueEmpty(val)) {
+      delete copy[name];
+    } else {
+      copy[name] = Helpers.getUnbindValue(val);
+    }
+    return true;
+  }
+  // A temporary object is being built: the types build the questions the clean-up skips without starting their requests.
+  protected get isRecordCleanupBuilding(): boolean {
+    return !!this.recordCleanup && this.recordCleanup.isBuilding;
+  }
+  // The record index of a temporary object, -1 for any other object.
+  protected getRecordCleanupIndex(item: ISurveyData, isUnknownItem: boolean): number {
+    return this.getRecordCleanupCopy(item, isUnknownItem) !== undefined ? this.recordCleanup.index : -1;
+  }
+  /* A copy of the record, cleaned by a temporary object of the type (clearIncorrectValuesWithoutObjects):
+     clean runs the object's own released clean-up. */
+  protected cleanRecordWithObject(index: number, record: any, clean: (cleanupObject: IRecordCleanupObject) => void): any {
     const copy = Object.assign({}, record);
     this.getRecordUnknownKeys(index, record, undefined).forEach((key: string): void => { delete copy[key]; });
-    const variableName = this.getRecordItemVariableName();
-    const item = new RecordCleanupItem(this, index, copy, variableName,
-      (cleanupItem: RecordValueItem): IValueGetterContext => this.createRecordItemContext(cleanupItem));
-    const newProps = Helpers.createCopy(properties);
-    newProps[variableName] = item;
+    const cleanup = { index: index, copy: copy, item: <ISurveyData>undefined, isBuilding: true };
+    const prev = this.recordCleanup;
+    this.recordCleanup = cleanup;
+    let cleanupObject: IRecordCleanupObject = undefined;
+    try {
+      cleanupObject = this.createRecordCleanupObject(index, copy);
+      if (!cleanupObject) return record;
+      cleanup.item = cleanupObject.item;
+      // Loaded: what its conditions and its clean-up change is written into the copy, as a built object writes it.
+      cleanup.isBuilding = false;
+      cleanupObject.runCondition(this.getDataFilteredProperties());
+      clean(cleanupObject);
+    } finally {
+      this.recordCleanup = prev;
+      if (!!cleanupObject) cleanupObject.dispose();
+    }
+    // What the clean-up does not judge is copied back as it was.
     Object.keys(record).forEach((key: string): void => {
-      if (copy[key] === undefined) return;
       const template = this.getRecordTemplateQuestion(key);
-      if (!template || isRecordCleanupSkipped(template)) return;
-      const question = this.createRecordCleanupQuestion(key, template);
-      if (!question) return;
-      try {
-        question.setSurveyImpl(item);
-        this.loadRecordCleanupQuestion(question, copy, (func: () => void): void => item.load(func));
-        question.runCondition(newProps);
-        question.clearIncorrectValues();
-      } finally {
-        question.dispose();
-      }
+      if (!!template && isRecordCleanupSkipped(template)) copy[key] = record[key];
     });
     return copy;
   }
-  /* The short-lived question of clearIncorrectValuesWithoutObjects for a key of a record: a copy of
-     the template question's JSON, by default. undefined: the key is kept as it is. */
-  protected createRecordCleanupQuestion(key: string, template: Question): Question {
-    const res = <Question>Serializer.createClass(template.getType());
-    if (!res) return undefined;
-    res.fromJSON(template.toJSON());
-    res.setParentQuestion(this);
-    return res;
-  }
-  /* Loads the record into the short-lived question the way the type loads a built object: by default
-     as a panel loads its questions (updateValueFromSurvey), which may write what the load completes -
-     a panel does that too. withoutWrites runs a load whose writes are dropped. */
-  protected loadRecordCleanupQuestion(question: Question, record: any, withoutWrites: (func: () => void) => void): void {
-    const name = question.getValueName();
-    question.updateValueFromSurvey(record[name]);
-    question.updateCommentFromSurvey(record[name + settings.commentSuffix]);
+  /* The temporary object of clearIncorrectValuesWithoutObjects for the record at index, built and
+     loaded as a page build builds one; undefined keeps the record as it is. */
+  protected abstract createRecordCleanupObject(index: number, record: any): IRecordCleanupObject;
+  // A template question the clean-up does not judge (see clearIncorrectValuesWithoutObjects).
+  protected isRecordCleanupSkipped(question: Question): boolean {
+    return isRecordCleanupSkipped(question);
   }
   /* The write capabilities of a data source are declared by the presence of its optional methods (its
      read capabilities by flags, see dynamic-data-interfaces.ts), and need a keyField for any source
@@ -2489,6 +2588,10 @@ export abstract class QuestionRecordsModel extends Question {
     super.setQuestionValue(newValue, false);
     this.onRecordsValueStored();
     this.endValueAssignment(assignment, oldRecords);
+    if (!this.isAssigningOwnValue) {
+      const newRecords = this.getStoredRecords();
+      this.followHiddenAnswerStatesOnAssignment(Array.isArray(oldRecords) ? oldRecords.length : 0, Array.isArray(newRecords) ? newRecords.length : 0);
+    }
     this.onRecordsValueAssigned(oldRecords);
   }
   /* The list side of a value assignment. Every assignment of the question's value - by the survey,
@@ -3653,37 +3756,45 @@ class RecordValueItem extends QuestionRecordItem {
     return [];
   }
 }
-/* A copy of a record without an object that the short-lived questions of the records clean-up write
-   into (clearIncorrectValuesWithoutObjects): an empty value removes the key, as a write of a row or a
-   panel does, and nothing is written while load runs. */
-class RecordCleanupItem extends RecordValueItem {
-  public load(func: () => void): void {
-    this.runSettingValue(func);
+// The visibility flags of an input in a record (clearHiddenAnswersWithoutObjects).
+const HIDDEN_ANSWER_SELF = 1;
+const HIDDEN_ANSWER_CONTAINER = 2;
+function getHiddenAnswerFlags(isSelfVisible: boolean, isVisible: (el: PanelModelBase) => boolean, q: Question, container: PanelModelBase): number {
+  let isContainerVisible = true;
+  for (let el = <PanelModelBase><any>q.parent; isContainerVisible && !!el && el !== container && !el.isPage; el = <PanelModelBase><any>el.parent) {
+    isContainerVisible = isVisible(el);
   }
-  public setValue(name: string, newValue: any): void {
-    if (!this.isSettingValue)this.setField(name, Helpers.isValueEmpty(newValue) ? undefined : newValue);
-  }
-  public setComment(name: string, newValue: string, locNotification: boolean): void {
-    if (!this.isSettingValue)this.setField(name + settings.commentSuffix, !newValue ? undefined : newValue);
-  }
-  private setField(name: string, val: any): void {
-    const record = this.getAllValues();
-    if (val === undefined) {
-      delete record[name];
-    } else {
-      record[name] = val;
-    }
-  }
+  return (isSelfVisible ? HIDDEN_ANSWER_SELF : 0) | (isContainerVisible ? HIDDEN_ANSWER_CONTAINER : 0);
 }
-/* The choices of such a question come from a request: they are not known here, and a short-lived
-   question would send it. A question that holds records of its own is not cleaned up without an
-   object either. The select question is recognized by its serializer type: this module does not
-   import the select question classes. */
+/* The choices of such a question come from a request: they are not known here, and a temporary
+   object would send it. A file question would download its files. A question that holds records of
+   its own is not cleaned up without an object either. The select and file questions are recognized
+   by their serializer type: this module does not import those classes. */
 function isRecordCleanupSkipped(template: Question): boolean {
-  if (template instanceof QuestionRecordsModel) return true;
+  if (template instanceof QuestionRecordsModel || template.isDescendantOf("file")) return true;
   if (!template.isDescendantOf("selectbase")) return false;
   const byUrl = template.getPropertyValue("choicesByUrl");
   return !!byUrl && !!byUrl.url || template.getPropertyValue("choicesLazyLoadEnabled") === true;
+}
+/* The JSON of a panel the records clean-up builds, without the questions it does not judge (names),
+   at any depth: they are not created, so they start no request. */
+export function removeRecordCleanupSkipped(json: any, names: Array<string>): any {
+  if (names.length === 0 || !json) return json;
+  ["elements", "questions", "templateElements"].forEach((key: string): void => {
+    if (!Array.isArray(json[key])) return;
+    json[key] = json[key].filter((el: any): boolean => !el || names.indexOf(el.name) < 0);
+    json[key].forEach((el: any): void => { if (!!el && el.type === "panel") removeRecordCleanupSkipped(el, names); });
+  });
+  return json;
+}
+// A temporary row or panel of the records clean-up (createRecordCleanupObject).
+export interface IRecordCleanupObject {
+  item: ISurveyData;
+  runCondition(properties: HashTable<any>): void;
+  clearIncorrectValues(): void;
+  // The clean-up of invisible answers a built object runs when the survey clears them; optional.
+  clearValueIfInvisible?(reason: string): void;
+  dispose(): void;
 }
 // The visibility of template elements in one record after another (createRecordElementVisibility).
 export interface IRecordElementVisibility {

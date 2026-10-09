@@ -25,7 +25,7 @@ import { ValidationContext } from "./question";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, IDynamicDataRecordUniqueness, IRecordItemWrite, QuestionRecordsModel,
-  QuestionRecordsSingleInputBehavior, IRecordRemoval
+  QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped
 } from "./question_records";
 import { DynamicDataOperation, IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
@@ -1879,30 +1879,23 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected getRecordConditionalInputs(): Array<Question> {
     return this.columns.filter((column: MatrixDropdownColumn): boolean => !!column.visibleIf).map((column: MatrixDropdownColumn): Question => column.templateQuestion);
   }
-  // A column's key gets a cell question, made as a row makes it (the matrix-level choices included).
-  protected createRecordCleanupQuestion(key: string, template: Question): Question {
-    const column = this.columns.filter((col: MatrixDropdownColumn): boolean => col.templateQuestion === template)[0];
-    if (!column) return super.createRecordCleanupQuestion(key, template);
-    const res = column.createCellQuestion(null);
-    res.setParentQuestion(this);
-    res.inMatrixMode = true;
-    return res;
+  /* QuestionRecordsModel hook: a temporary row for a record without one, built as a page builds a row
+     (createRowForRecordCleanup: the cells raise onMatrixCellCreating and onMatrixCellCreated) with its
+     detail panel. The row's own released clearIncorrectValues judges the record. */
+  protected createRecordCleanupObject(index: number, record: any): IRecordCleanupObject {
+    const row = this.createRowForRecordCleanup(index, record);
+    if (!row) return undefined;
+    this.onMatrixRowCreated(row);
+    row.ensureDetailPanel();
+    return {
+      item: row,
+      runCondition: (properties: HashTable<any>): void => { row.runCondition(properties, this.getRowsVisibleIfForRows(), true); },
+      clearIncorrectValues: (): void => { row.clearIncorrectValues(Object.assign({}, this.getRecordCleanupCopy(row, false))); },
+      dispose: (): void => { row.dispose(); }
+    };
   }
-  // A cell question is loaded as a row builds its cells (buildCells): the value and the comment are assigned, not written.
-  protected loadRecordCleanupQuestion(question: Question, record: any, withoutWrites: (func: () => void) => void): void {
-    if (!question.inMatrixMode) {
-      super.loadRecordCleanupQuestion(question, record, withoutWrites);
-      return;
-    }
-    withoutWrites((): void => {
-      const name = question.getValueName();
-      if (Helpers.isValueEmpty(record[name])) return;
-      question.value = record[name];
-      const comment = record[name + Base.commentSuffix];
-      if (!Helpers.isValueEmpty(comment)) {
-        question.comment = comment;
-      }
-    });
+  protected createRowForRecordCleanup(index: number, record: any): MatrixDropdownRowModelBase {
+    return undefined;
   }
   public localeChanged(): void {
     super.localeChanged();
@@ -2411,6 +2404,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return this.getStoredRecordValue(this.getRecordIndexAtRowPosition(position));
   }
   public getItemData(item: ISurveyData): any {
+    const copy = this.getRecordCleanupCopy(item, this.getItemIndex(item) < 0);
+    if (copy !== undefined) return this.unbindRowValue(copy);
     return this.getStoredRecordValue(this.getRecordIndexOf(item));
   }
   public checkIfValueInRowDuplicated(
@@ -3072,6 +3067,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     column: MatrixDropdownColumn
   ): Question {
     var question = column.createCellQuestion(row);
+    // A temporary row of the records clean-up: a question it does not judge stays loading, so it sends no request.
+    if (this.isRecordCleanupBuilding && this.isRecordCleanupSkipped(column.templateQuestion))question.startLoadingFromJson();
     question.setSurveyImpl(row);
     question.setParentQuestion(this);
     question.inMatrixMode = true;
@@ -3214,6 +3211,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return options.value;
   }
   updateItemValue(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
+    const cellValue = !!newRowValue && !isDeletingValue ? newRowValue[columnName] : undefined;
+    if (this.writeRecordCleanupCopy(row, this.getItemIndex(row) < 0, columnName, cellValue)) return;
     var rowObj = !!columnName ? this.getRowObj(row) : null;
     if (!!rowObj) {
       var oldCellValue = rowObj[columnName];
@@ -3339,6 +3338,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return position < 0 ? -1 : this.getRecordIndexAtCreatedPosition(position);
   }
   protected getItemRecordIndex(item: ISurveyData): number {
+    const cleanupIndex = this.getRecordCleanupIndex(item, this.getItemIndex(item) < 0);
+    if (cleanupIndex > -1) return cleanupIndex;
     return this.getRecordIndexOf(item);
   }
   /* One row per record in the view. Without a filter and a sort that is one row per record, in
@@ -3458,6 +3459,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     panel.readOnly = this.isMatrixReadOnly() || !row.isRowEnabled();
     panel.setSurveyImpl(row);
     var json = this.detailPanel.toJSON();
+    if (this.isRecordCleanupBuilding) {
+      removeRecordCleanupSkipped(json, this.detailPanel.questions.filter((q: Question): boolean => this.isRecordCleanupSkipped(q)).map((q: Question): string => q.name));
+    }
     new JsonObject().toObject(json, panel);
     panel.renderWidth = "100%";
     panel.updateCustomWidgets();
@@ -3568,11 +3572,21 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     // records of the loaded window can be looked at. Equal for every local source.
     return this.collectRecordValues(this.getLoadedRecordIndexes(), (index: number, row: MatrixDropdownRowModelBase, add: (value: any) => void): void => {
       if (!row) {
-        if (this.isRecordKeptWithoutRow(index)) add(this.getListRecordAt(index));
+        // A row's filteredValue holds the keys its questions store: a record without a row loses the others too.
+        if (this.isRecordKeptWithoutRow(index)) add(this.getRecordWithoutUnknownKeys(index));
       } else if (row.isVisible && !row.isEmpty) {
         add(row.filteredValue);
       }
     });
+  }
+  private getRecordWithoutUnknownKeys(index: number): any {
+    const record = this.getListRecordAt(index);
+    if (!Helpers.isValueObject(record, true)) return record;
+    const keys = this.getRecordUnknownKeys(index, record, undefined);
+    if (keys.length === 0) return record;
+    const res = Object.assign({}, record);
+    keys.forEach((key: string): void => { delete res[key]; });
+    return res;
   }
   /* A record without a row keeps its answer when invisible values are cleared - one the list filter
      excludes is unrepresented, not invisible - except a record rowsVisibleIf hides in a list that

@@ -1366,6 +1366,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected createMatrixRow(value: any): MatrixDynamicRowModel {
     return new MatrixDynamicRowModel(this.rowCounter++, this, value);
   }
+  /* An assignment from outside keeps the rows - and the visibility their questions remember - when it
+     keeps the count or adds one record; any other count rebuilds the rows (onBeforeValueChanged), as
+     released. */
+  protected keepsHiddenAnswerStates(oldCount: number, newCount: number): boolean {
+    return newCount === oldCount || newCount === oldCount + 1;
+  }
+  // The temporary row of the records clean-up takes no row number: it is never shown.
+  protected createRowForRecordCleanup(index: number, record: any): MatrixDropdownRowModelBase {
+    return new MatrixDynamicRowModel(this.rowCounter, this, record);
+  }
   private lastDeletedRow: MatrixDropdownRowModelBase;
   private getInsertedDeletedIndex(rows: MatrixDropdownRowModelBase[], val: any[]): number {
     const len = Math.min(rows.length, val.length);

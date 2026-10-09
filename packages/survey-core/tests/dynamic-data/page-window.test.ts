@@ -15,6 +15,7 @@ import { DragDropMatrixRows } from "../../src/dragdrop/matrix-rows";
 import { SurveyTestTargets } from "../../src/tester/test-targets";
 import { Helpers } from "../../src/helpers";
 import { ItemValue } from "../../src/itemvalue";
+import { ChoicesRestful } from "../../src/choicesRestful";
 import {
   IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSource
 } from "../../src/dynamic-data/dynamic-data-interfaces";
@@ -4326,12 +4327,13 @@ describe("Page window: clearIncorrectValues clears incorrect answers on every pa
     });
   });
   // The paged result, with the first record on the page and the others without an object, equals the unpaged one.
-  function clearPagedAndUnpaged(json: any, data: any, change?: (question: any) => void): { paged: any, unpaged: any } {
+  function clearPagedAndUnpaged(json: any, data: any, change?: (question: any) => void, prepare?: (survey: SurveyModel) => void): { paged: any, unpaged: any } {
     const run = (isPaged: boolean): any => {
       const surveyJson = JSON.parse(JSON.stringify(json));
       const element = surveyJson.elements[0];
       element[element.type === "paneldynamic" ? "panelsPerPage" : "rowsPerPage"] = isPaged ? 1 : 0;
       const survey = new SurveyModel(surveyJson);
+      if (!!prepare) prepare(survey);
       survey.data = { q: JSON.parse(JSON.stringify(data)) };
       const question: any = survey.getQuestionByName("q");
       if (element.type === "paneldynamic") question.panels; else question.visibleRows;
@@ -4383,6 +4385,131 @@ describe("Page window: clearIncorrectValues clears incorrect answers on every pa
       expect(res.paged, item.name).toEqual(res.unpaged);
       expect(JSON.stringify(res.paged).indexOf("\"t\":\"x\",\"c\":\"a\"") > -1, item.name + ": the record that shows the choice keeps it").toBe(true);
     });
+  });
+  test("choices set in onMatrixCellCreated", () => {
+    const json = { elements: [{ type: "matrixdynamic", name: "q", rowCount: 0, columns: [{ name: "k", cellType: "text" }, { name: "c", cellType: "dropdown" }] }] };
+    const res = clearPagedAndUnpaged(json, [{ k: 1, c: "x" }, { k: 2, c: "y" }, { k: 3, c: "q" }], undefined, (survey: SurveyModel): void => {
+      survey.onMatrixCellCreated.add((_, options) => { options.cellQuestion.choices = ["x", "y", "z"]; });
+    });
+    expect(res.paged, "#1").toEqual(res.unpaged);
+    expect(res.paged, "#2").toEqual([{ k: 1, c: "x" }, { k: 2, c: "y" }, { k: 3 }]);
+  });
+  test("the cell type set in onMatrixCellCreating", () => {
+    const json = { elements: [{ type: "matrixdynamic", name: "q", rowCount: 0, columns: [{ name: "c", cellType: "dropdown", choices: ["a"] }] }] };
+    const res = clearPagedAndUnpaged(json, [{ c: "a" }, { c: "free" }, { c: "text" }], undefined, (survey: SurveyModel): void => {
+      survey.onMatrixCellCreating.add((_, options) => { options.cellType = "text"; });
+    });
+    expect(res.paged, "#1").toEqual(res.unpaged);
+    expect(res.paged, "#2: a text cell keeps any answer").toEqual([{ c: "a" }, { c: "free" }, { c: "text" }]);
+  });
+  test("a rows change of a paged Multi-Select Matrix keeps other pages' answers", () => {
+    const run = (rowsPerPage: number): any => {
+      const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "q", rowsPerPage: rowsPerPage, rows: ["r1", "r2", "r3"],
+        columns: [{ name: "a", cellType: "dropdown", choices: ["base"] }] }] });
+      survey.onMatrixCellCreated.add((_, options) => { options.cellQuestion.choices = ["x", "y"]; });
+      survey.data = { q: { r1: { a: "x" }, r2: { a: "y" }, r3: { a: "x" } } };
+      const question = <QuestionMatrixDropdownModel>survey.getQuestionByName("q");
+      question.visibleRows;
+      question.rows.push(new ItemValue("r4"));
+      return survey.data.q;
+    };
+    expect(run(1), "#1").toEqual(run(0));
+    expect(run(1), "#2").toEqual({ r1: { a: "x" }, r2: { a: "y" }, r3: { a: "x" } });
+  });
+  test("choicesFromQuestion with panel.a in a Dynamic Panel", () => {
+    const json = { elements: [{ type: "paneldynamic", name: "q", templateElements: [
+      { type: "checkbox", name: "a", choices: ["p", "q", "r"] },
+      { type: "dropdown", name: "b", choicesFromQuestion: "panel.a", choicesFromQuestionMode: "selected" },
+      { type: "ranking", name: "rk", choicesFromQuestion: "panel.a", choicesFromQuestionMode: "selected" }] }] };
+    const data = [{ a: ["p", "q"], b: "q", rk: ["q", "p"] }, { a: ["p", "q"], b: "q", rk: ["q", "p"] }];
+    const res = clearPagedAndUnpaged(json, data);
+    expect(res.paged, "#1").toEqual(res.unpaged);
+    expect(res.paged, "#2").toEqual(data);
+  });
+  test("a detail-panel dropdown with showOtherItem", () => {
+    const json = { elements: [{ type: "matrixdynamic", name: "q", rowCount: 0, detailPanelMode: "underRow",
+      columns: [{ name: "k", cellType: "text" }], detailElements: [{ type: "dropdown", name: "d", choices: ["a", "b"], showOtherItem: true }] }] };
+    const res = clearPagedAndUnpaged(json, [{ k: 1, d: "a" }, { k: 2, d: "zzz" }, { k: 3, d: "b" }]);
+    expect(res.paged, "#1").toEqual(res.unpaged);
+  });
+  test("an incorrect value of a choicesByUrl question on another page is kept, and no request is sent", () => {
+    const proto: any = ChoicesRestful.prototype;
+    const sendRequest = proto.sendRequest;
+    let requests = 0;
+    proto.sendRequest = function (): void { requests++; };
+    ChoicesRestful.clearCache();
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "q", panelsPerPage: 1, templateElements: [{ type: "text", name: "k" },
+        { type: "dropdown", name: "c", choicesByUrl: { url: "http://test/colors" } }] }] });
+      survey.data = { q: [{ k: 1, c: "zzz" }, { k: 2, c: "zzz" }, { k: 3, c: "zzz" }] };
+      (<QuestionPanelDynamicModel>survey.getQuestionByName("q")).panels;
+      const before = requests;
+      survey.clearIncorrectValues();
+      expect(requests - before, "#1: no request").toBe(0);
+      expect(survey.data.q.slice(1), "#2").toEqual([{ k: 2, c: "zzz" }, { k: 3, c: "zzz" }]);
+    } finally {
+      proto.sendRequest = sendRequest;
+      ChoicesRestful.clearCache();
+    }
+  });
+  test("an incorrect value of a lazily loaded question on another page is kept, and onChoicesLazyLoad is not raised", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", rowCount: 0, rowsPerPage: 1,
+      columns: [{ name: "c", cellType: "dropdown", choicesLazyLoadEnabled: true }] }] });
+    let loads = 0;
+    survey.onChoicesLazyLoad.add(() => { loads++; });
+    survey.data = { q: [{ c: "zzz" }, { c: "zzz" }, { c: "zzz" }] };
+    (<QuestionMatrixDynamicModel>survey.getQuestionByName("q")).visibleRows;
+    const before = loads;
+    survey.clearIncorrectValues();
+    expect(loads - before, "#1").toBe(0);
+    expect(survey.data.q, "#2").toEqual([{ c: "zzz" }, { c: "zzz" }, { c: "zzz" }]);
+  });
+  test("a records question nested in another page's record keeps its value, and its own clean-up does not run", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "q", panelsPerPage: 1, templateElements: [{ type: "text", name: "k" },
+      { type: "matrixdynamic", name: "inner", rowCount: 0, columns: [{ name: "x", cellType: "dropdown", choices: ["a"] }] }] }] });
+    const nested = [{ x: "a" }, { x: "zzz", unknown: 1 }];
+    survey.data = { q: [{ k: 1 }, { k: 2, inner: nested }, { k: 3, inner: nested }] };
+    (<QuestionPanelDynamicModel>survey.getQuestionByName("q")).panels;
+    survey.clearIncorrectValues();
+    expect(survey.data.q[1].inner, "#1").toEqual(nested);
+    expect(survey.data.q[2].inner, "#2").toEqual(nested);
+  });
+  test("the clean-up downloads no file", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "q", panelsPerPage: 1, templateElements: [{ type: "text", name: "k" },
+      { type: "file", name: "f", storeDataAsText: false }] }] });
+    let downloads = 0;
+    survey.onDownloadFile.add((_, options) => { downloads++; options.callback("success", "data:,x"); });
+    const file = [{ name: "a.txt", type: "text/plain", content: "http://test/a.txt" }];
+    survey.data = { q: [{ k: 1 }, { k: 2, f: file }, { k: 3, f: file }] };
+    (<QuestionPanelDynamicModel>survey.getQuestionByName("q")).panels;
+    const before = downloads;
+    survey.clearIncorrectValues();
+    expect(downloads - before, "#1").toBe(0);
+    expect(survey.data.q[2].f, "#2").toEqual(file);
+  });
+  test("an onQuestionCreated handler that assigns the value during the clean-up keeps its assignment", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "q", panelsPerPage: 1,
+      templateElements: [{ type: "dropdown", name: "c", choices: ["a", "new"] }] }] });
+    survey.data = { q: [{ c: "a" }, { c: "zzz" }, { c: "zzz" }] };
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+    question.panels;
+    let isAssigned = false;
+    survey.onQuestionCreated.add(() => { if (!isAssigned) { isAssigned = true; survey.setValue("q", [{ c: "a" }, { c: "new" }, { c: "new" }]); } });
+    survey.clearIncorrectValues();
+    expect(isAssigned, "#1").toBe(true);
+    expect(survey.data.q.slice(1), "#2: the cleaned copies of the old records are not written over it").toEqual([{ c: "new" }, { c: "new" }]);
+  });
+  test("a handler that removes a panel during the clean-up overwrites no record", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "q", panelsPerPage: 1,
+      templateElements: [{ type: "dropdown", name: "c", choices: ["a"] }, { type: "text", name: "k" }] }] });
+    survey.data = { q: [{ c: "a", k: 0 }, { c: "zzz", k: 1 }, { c: "zzz", k: 2 }, { c: "a", k: 3 }] };
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+    question.panels;
+    let isRemoved = false;
+    survey.onQuestionCreated.add(() => { if (!isRemoved) { isRemoved = true; question.removePanel(1); } });
+    survey.clearIncorrectValues();
+    expect(isRemoved, "#1").toBe(true);
+    expect(survey.data.q.map((record: any) => record.k), "#2: every record is its own").toEqual([0, 2, 3]);
   });
   test("a column choice list changed after load: the records of other pages lose the value the cell would lose", () => {
     const json = { elements: [{ type: "matrixdynamic", name: "q", rowCount: 0, columns: [{ name: "c", cellType: "dropdown", choices: ["a", "b", "c"] }] }] };
@@ -4510,6 +4637,8 @@ describe("clearInvisibleValues and a column or template question hidden on other
       steps.forEach(step => {
         if (step === "complete") {
           survey.doComplete();
+        } else if (typeof step === "function") {
+          step(survey, question);
         } else {
           survey.setValue(step.name, step.value);
         }
@@ -4520,6 +4649,91 @@ describe("clearInvisibleValues and a column or template question hidden on other
     return { paged: runOne(true), unpaged: runOne(false) };
   }
   const hideAndComplete = [{ name: "hasB", value: "no" }, "complete"];
+  test("a paged Dynamic Panel clears an invalid choice value of another page's record at complete", () => {
+    const json = { type: "paneldynamic", name: "q", templateElements: [{ type: "text", name: "a" }, { type: "dropdown", name: "c", choices: [1, 2] }] };
+    const res = run("onComplete", json, [{ a: 1, c: 5 }, { a: 2, c: 9 }, { a: 3, c: 1 }], {}, ["complete"]);
+    expect(res.paged, "#1").toEqual(res.unpaged);
+    expect(res.paged[0], "#2").toEqual([{ a: 1 }, { a: 2 }, { a: 3, c: 1 }]);
+  });
+  test("a paged Multi-Select Matrix drops unknown keys of other pages' records at complete", () => {
+    const json = { type: "matrixdropdown", name: "q", rows: ["r1", { value: "r2", visibleIf: "{hasB} = 'yes'" }, "r3"],
+      columns: [{ name: "a", cellType: "text" }, { name: "c", cellType: "text" }] };
+    const data = { r1: { a: 1, c: "C", b: 1 }, r2: { a: 2, c: "C", b: 2 }, r3: { a: 3, c: "C", b: 3, dq: "x" } };
+    const res = run("onComplete", json, data, { hasB: "no" }, ["complete"]);
+    expect(res.paged, "#1").toEqual(res.unpaged);
+    expect(res.paged[0].r3, "#2").toEqual({ a: 3, c: "C" });
+  });
+  const innerPanelJson = (): any => ({ type: "paneldynamic", name: "q", templateElements: [{ type: "text", name: "a" },
+    { type: "panel", name: "inner", visibleIf: "{hasB} = 'yes'", elements: [{ type: "text", name: "b" }] }] });
+  test("a hidden inner panel keeps the answers of its questions under onHidden", () => {
+    const res = run("onHidden", innerPanelJson(), records(), { hasB: "yes" }, [{ name: "hasB", value: "no" }]);
+    expect(res.paged, "#1").toEqual(res.unpaged);
+    expect(res.paged[0], "#2").toEqual(records());
+  });
+  test("a hidden inner panel clears them under onHiddenContainer", () => {
+    const res = run("onHiddenContainer", innerPanelJson(), records(), { hasB: "yes" }, [{ name: "hasB", value: "no" }]);
+    expect(res.paged, "#1").toEqual(res.unpaged);
+    expect(res.paged[0], "#2").toEqual([{ a: 1 }, { a: 2 }, { a: 3 }]);
+  });
+  test("a records question hidden by templateVisibleIf keeps its answers", () => {
+    const json = Object.assign(panelJson("true"), { templateVisibleIf: "{hasB} = 'yes'" });
+    const res = run("onHidden", json, records(), { hasB: "yes" }, [{ name: "hasB", value: "no" }]);
+    expect(res.paged, "#1").toEqual(res.unpaged);
+  });
+  test("a column with clearIfInvisible onHidden is cleared on every page when the survey clears on complete", () => {
+    const json = matrixJson("{hasB} = 'yes'");
+    json.columns[1].clearIfInvisible = "onHidden";
+    const res = run("onComplete", json, records(), { hasB: "yes" }, [{ name: "hasB", value: "no" }, "complete"]);
+    expect(res.paged, "#1").toEqual(res.unpaged);
+    expect(res.paged[1], "#2").toEqual([{ a: 1 }, { a: 2 }, { a: 3 }]);
+  });
+  test("an outside assignment of the value keeps the hidden state of other pages' records", () => {
+    [["dynamic matrix", matrixJson("{row.a} = 1")], ["dynamic panel", panelJson("{row.a} = 1")]].forEach(([name, json]) => {
+      const same = [{ a: 1, b: "x" }, { a: 1, b: "x" }, { a: 1, b: "x" }];
+      const hidden = [{ a: 1, b: "x" }, { a: 2, b: "x" }, { a: 2, b: "x" }];
+      const res = run("onHidden", json, same, {}, [{ name: "q", value: same.map(r => Object.assign({}, r)) }, { name: "q", value: hidden }]);
+      expect(res.paged, name + " #1").toEqual(res.unpaged);
+      expect(res.paged[1], name + " #2").toEqual([{ a: 1, b: "x" }, { a: 2 }, { a: 2 }]);
+    });
+  });
+  const hideRecord = (index: number) => (survey: SurveyModel, question: any): void => {
+    const value = JSON.parse(JSON.stringify(question.value));
+    value[index].a = 2;
+    survey.setValue("q", value);
+  };
+  test("inserting a record before other pages' records keeps their hidden state", () => {
+    [["dynamic matrix", matrixJson("{row.a} = 1"), (q: any) => q.addRowByIndex({ a: 1 }, 0)],
+      ["dynamic panel", panelJson("{row.a} = 1"), (q: any) => q.addPanel(0)]].forEach(([name, json, insert]: Array<any>) => {
+      const data = [{ a: 1, b: "x" }, { a: 1, b: "x" }, { a: 1, b: "x" }];
+      const res = run("onHidden", json, data, {}, [(survey: SurveyModel, question: any) => insert(question), hideRecord(3)]);
+      expect(res.paged, name + " #1").toEqual(res.unpaged);
+      expect(res.paged[1][3], name + " #2").toEqual({ a: 2 });
+    });
+  });
+  test("removing a record before other pages' records keeps their hidden state", () => {
+    [["dynamic matrix", matrixJson("{row.a} = 1"), (q: any) => q.removeRowByIndex(0)],
+      ["dynamic panel", panelJson("{row.a} = 1"), (q: any) => q.removePanel(0)]].forEach(([name, json, remove]: Array<any>) => {
+      const data = [{ a: 1, b: "x" }, { a: 1, b: "x" }, { a: 1, b: "x" }];
+      const res = run("onHidden", json, data, {}, [(survey: SurveyModel, question: any) => remove(question), hideRecord(1)]);
+      expect(res.paged, name + " #1").toEqual(res.unpaged);
+      expect(res.paged[1][1], name + " #2").toEqual({ a: 2 });
+    });
+  });
+  test("moving a record keeps its hidden state with it", () => {
+    const json = matrixJson("{row.a} = 1");
+    const data = [{ a: 1, b: "x" }, { a: 1, b: "y" }, { a: 1, b: "z" }];
+    const res = run("onHidden", json, data, {}, [(survey: SurveyModel, question: any) => question.moveRowByIndex(2, 1), hideRecord(1)]);
+    expect(res.paged, "#1").toEqual(res.unpaged);
+    expect(res.paged[1], "#2").toEqual([{ a: 1, b: "x" }, { a: 2 }, { a: 1, b: "y" }]);
+  });
+  test("a sort or a filter keeps the hidden state of every record", () => {
+    const json = Object.assign(matrixJson("{row.a} = 1"), { sortBy: "c" });
+    json.columns.push({ name: "c", cellType: "text" });
+    const data = [{ a: 1, b: "x", c: 3 }, { a: 1, b: "y", c: 1 }, { a: 1, b: "z", c: 2 }];
+    const res = run("onHidden", json, data, {}, [(survey: SurveyModel, question: any) => { question.sortBy = "-c"; }, hideRecord(2)]);
+    expect(res.paged, "#1").toEqual(res.unpaged);
+    expect(res.paged[1][2], "#2").toEqual({ a: 2, c: 2 });
+  });
   test("under onHidden, hiding a column clears it in the records of every page", () => {
     [["dynamic matrix", matrixJson("{hasB} = 'yes'"), records()], ["multi-select matrix", fixedJson("{hasB} = 'yes'"), fixedData()]]
       .forEach(([name, json, data]) => {

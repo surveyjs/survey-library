@@ -12347,6 +12347,18 @@ describe("the dynamic matrix without paging, as released", () => {
     if (!!data) survey.data = { m: data };
     return { survey: survey, matrix: <QuestionMatrixDynamicModel>survey.getQuestionByName("m") };
   }
+  test("the delete confirmation sees a column default value before the rows are built", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 2, confirmDelete: true, columns: [{ name: "a", cellType: "text", defaultValue: "x" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    let cells = 0;
+    survey.onMatrixCellCreated.add(() => { cells++; });
+    const answers = [0, 1, 2, -1].map(index => matrix.isRequireConfirmOnRowDelete(index));
+    expect(answers, "#1: the rows hold the default value; an index outside the rows has no record").toEqual([true, true, false, false]);
+    expect(cells, "#2: no row is built").toBe(0);
+    matrix.visibleRows;
+    expect(cells > 0, "#3: the rows are built now").toBe(true);
+    expect([0, 1, 2, -1].map(index => matrix.isRequireConfirmOnRowDelete(index)), "#4: the built rows answer the same").toEqual(answers);
+  });
   test("the drag handle of a locked row counts the visible rows", () => {
     const { matrix } = create({ rowCount: 3, allowRowReorder: true, rowsVisibleIf: "{row.a} != 1" }, [{ a: 1 }, { a: 2 }, { a: 3 }]);
     matrix.lockedRowCount = 1;

@@ -1049,10 +1049,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public isRequireConfirmOnRowDelete(index: number): boolean {
     if (!this.confirmDelete) return false;
     /* Rows that were never built, with nothing that hides a record: the position is the record, and
-       the stored value answers without building the rows, as released. */
+       the stored value, padded with the default row value, answers without building the rows, as released. */
     if (!this.generatedVisibleRows && !this.hasDataListView && !this.rowsVisibleIf) {
-      const value = this.value;
-      return Array.isArray(value) && index >= 0 && index < this.rowCount && !this.isValueEmpty(value[index]);
+      return index >= 0 && index < this.rowCount && !this.isValueEmpty(this.getStoredRecordAt(index));
     }
     const target = this.resolveRowTarget(index);
     const record = !target ? undefined : (!!target.item ? (<MatrixDropdownRowModelBase>target.item).value : target.record);

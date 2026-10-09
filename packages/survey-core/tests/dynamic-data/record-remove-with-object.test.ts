@@ -442,17 +442,31 @@ describe("removing a record of another page by number keeps the other records", 
   const numbers = [1, 5, 3, 4, 2, 6];
   const getData = (): Array<any> => numbers.map((n, i) => ({ n: n, t: letters[i] }));
   const strip = (value: Array<any>): Array<string> => (value || []).map(record => "" + record.n + record.t);
-  function removeRow(perPage: number, json: any, expression: string): any {
+  // throwOnce: a value-changed handler throws once during the removal; the caller gets its error.
+  function throwOnceOnValueChanged(survey: SurveyModel): void {
+    let isThrown = false;
+    survey.onValueChanged.add(() => {
+      if (isThrown) return;
+      isThrown = true;
+      throw new Error("handler");
+    });
+  }
+  function removeRow(perPage: number, json: any, expression: string, throwOnce: boolean = false): any {
     const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "m", rowsPerPage: perPage,
       columns: [{ name: "n", cellType: "text" }, { name: "t", cellType: "text" }, { name: "e", cellType: "expression", expression: expression }] }, json)] });
     survey.setValue("m", getData());
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     matrix.visibleRows;
     if (perPage > 0) matrix.pageIndex = 1;
-    matrix.removeRow(0, false);
+    if (throwOnce) {
+      throwOnceOnValueChanged(survey);
+      expect(() => matrix.removeRow(0, false), "the handler's error reaches the caller").toThrow("handler");
+    } else {
+      matrix.removeRow(0, false);
+    }
     return { values: strip(survey.getValue("m")), count: matrix.rowCount };
   }
-  function removePanel(perPage: number, json: any, expression: string): any {
+  function removePanel(perPage: number, json: any, expression: string, throwOnce: boolean = false): any {
     const survey = new SurveyModel({ elements: [Object.assign({ type: "paneldynamic", name: "p", panelsPerPage: perPage,
       templateElements: [{ type: "text", name: "n" }, { type: "text", name: "t" }, { type: "expression", name: "e", expression: expression }] }, json)] });
     survey.setValue("p", getData());
@@ -461,7 +475,12 @@ describe("removing a record of another page by number keeps the other records", 
     if (perPage > 0) {
       if (panel.displayMode === "carousel") panel.currentIndex = 4; else panel.pageIndex = 2;
     }
-    panel.removePanel(0);
+    if (throwOnce) {
+      throwOnceOnValueChanged(survey);
+      expect(() => panel.removePanel(0), "the handler's error reaches the caller").toThrow("handler");
+    } else {
+      panel.removePanel(0);
+    }
     return { values: strip(survey.getValue("p")), count: panel.panelCount };
   }
   test("the matrix, with an expression column on the record count", () => {
@@ -488,5 +507,98 @@ describe("removing a record of another page by number keeps the other records", 
     const paged = removePanel(2, { displayMode: "list", sortBy: "n" }, "{panelIndex}");
     expect(paged, "#1: the first record of the sorted view goes").toEqual({ values: ["5b", "3c", "4d", "2e", "6f"], count: 5 });
     expect(paged, "#2: as without paging").toEqual(removePanel(0, { displayMode: "list", sortBy: "n" }, "{panelIndex}"));
+  });
+  test("the matrix, when a value-changed handler throws during the removal", () => {
+    const paged = removeRow(2, {}, "{m.length}", true);
+    expect(paged.values, "#1: no record is written by a stale position").toEqual(["5b", "3c", "4d", "2e", "6f"]);
+    expect(paged.values, "#2: as without paging").toEqual(removeRow(0, {}, "{m.length}", true).values);
+  });
+  test("the dynamic panel in list mode, when a value-changed handler throws during the removal", () => {
+    const paged = removePanel(2, { displayMode: "list" }, "{p.length}", true);
+    expect(paged.values, "#1: no record is written by a stale position").toEqual(["5b", "3c", "4d", "2e", "6f"]);
+    expect(paged.values, "#2: as without paging").toEqual(removePanel(0, { displayMode: "list" }, "{p.length}", true).values);
+  });
+});
+
+describe("a sorted or filtered view keeps the records of a count change and a removal", () => {
+  function lowerPanelCount(json: any, data: Array<any>, count: number): any {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "paneldynamic", name: "p",
+      templateElements: [{ type: "text", name: "name" }, { type: "expression", name: "no", expression: "{panelIndex} + 1" }] }, json)] });
+    survey.data = { p: data };
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    panel.panels;
+    panel.panelCount = count;
+    return { names: (survey.getValue("p") || []).map((record: any) => record.name), count: panel.panelCount };
+  }
+  const names = [{ name: "Zoe" }, { name: "Adam" }, { name: "Mia" }];
+  test("the sorted dynamic panel: panelCount 0 empties the value", () => {
+    expect(lowerPanelCount({ sortBy: "name" }, names, 0)).toEqual({ names: [], count: 0 });
+  });
+  test("the sorted dynamic panel: a lower panelCount keeps the first records, as without a sort", () => {
+    expect(lowerPanelCount({ sortBy: "name" }, names, 1), "#1").toEqual({ names: ["Zoe"], count: 1 });
+    expect(lowerPanelCount({ sortBy: "name" }, names, 1), "#2").toEqual(lowerPanelCount({}, names, 1));
+  });
+  test("the filtered dynamic panel: a lower panelCount keeps the first records", () => {
+    expect(lowerPanelCount({ filterExpression: "{name} <> 'Adam'" }, names, 1)).toEqual({ names: ["Zoe"], count: 1 });
+  });
+  function removeAfterCountGrows(json: any): any {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "m", rowCount: 0,
+      columns: [{ name: "id", cellType: "text" }, { name: "a", cellType: "text", inputType: "number" }, { name: "i", cellType: "expression", expression: "{rowIndex}" }] }, json)] });
+    survey.data = { m: [{ id: "C", a: 3 }, { id: "A", a: 1 }, { id: "B", a: 2 }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const getRow = (id: string) => matrix.visibleRows.filter(row => row.getQuestionByColumnName("id").value === id)[0];
+    getRow("B").getQuestionByColumnName("a").value = 9;
+    matrix.rowCount = 4;
+    matrix.removeRowUI(getRow("A"));
+    return { value: survey.getValue("m"), rowCount: matrix.rowCount, rows: matrix.visibleRows.map(row => row.getQuestionByColumnName("id").value) };
+  }
+  test("the sorted matrix: a removal after an edited sort key and a grown rowCount keeps the other records", () => {
+    const sorted = removeAfterCountGrows({ sortBy: "a" });
+    expect(sorted.value, "#1").toEqual([{ id: "C", a: 3, i: 1 }, { id: "B", a: 9, i: 2 }, { i: 3 }]);
+    expect(sorted.rowCount, "#2").toBe(3);
+    expect(sorted.rows, "#3: the edited record keeps its place").toEqual(["B", "C", undefined]);
+    expect(sorted.value, "#4: as without a sort").toEqual(removeAfterCountGrows({}).value);
+  });
+  function removeWithRecordCount(json: any, id: string): any {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "m",
+      columns: [{ name: "id", cellType: "text" }, { name: "a", cellType: "text", inputType: "number" }, { name: "len", cellType: "expression", expression: "{m.length}" }] }, json)] });
+    survey.data = { m: [{ id: "C", a: 3 }, { id: "A", a: 1 }, { id: "B", a: 2 }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    matrix.rowCount = 5;
+    matrix.removeRowUI(matrix.visibleRows.filter(row => row.getQuestionByColumnName("id").value === id)[0]);
+    return { value: survey.getValue("m"), rowCount: matrix.rowCount };
+  }
+  function removeWithHandlerAssignment(json: any, action: string): any {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "m", rowCount: 0,
+      columns: [{ name: "id", cellType: "text" }, { name: "a", cellType: "text", inputType: "number" }, { name: "len", cellType: "expression", expression: "{m.length}" }] }, json)] });
+    survey.data = { m: [{ id: "C", a: 3 }, { id: "A", a: 1 }, { id: "B", a: 2 }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    let isDone = false;
+    survey.onMatrixCellValueChanged.add((_, options) => {
+      if (isDone || options.columnName !== "len") return;
+      isDone = true;
+      if (action === "assign") survey.setValue("m", survey.getValue("m").map((record: any) => Object.assign({}, record, { z: 1 })));
+      if (action === "addRow") matrix.addRow();
+      if (action === "clear") survey.clearValue("m");
+    });
+    matrix.visibleRows;
+    matrix.removeRowUI(matrix.visibleRows.filter(row => row.getQuestionByColumnName("id").value === "A")[0]);
+    return { value: survey.getValue("m"), rowCount: matrix.rowCount };
+  }
+  test("a sorted or filtered matrix: a value a handler assigns while the expressions follow a removal is kept, as without a view", () => {
+    ["assign", "addRow", "clear"].forEach(action => {
+      const unsorted = removeWithHandlerAssignment({}, action);
+      expect(removeWithHandlerAssignment({ sortBy: "a" }, action), "#1 sorted, " + action).toEqual(unsorted);
+      expect(removeWithHandlerAssignment({ filterExpression: "{a} <> 99" }, action), "#2 filtered, " + action).toEqual(unsorted);
+    });
+  });
+  test("a sorted or filtered matrix with padded rows: an expression on the record count is computed after the removal, as without a view", () => {
+    ["A", "B", "C"].forEach(id => {
+      const unsorted = removeWithRecordCount({}, id);
+      expect(unsorted.value.map((record: any) => record.len), "#1 " + id).toEqual([4, 4, 4, 4]);
+      expect(removeWithRecordCount({ sortBy: "a" }, id), "#2 sorted, " + id).toEqual(unsorted);
+      expect(removeWithRecordCount({ filterExpression: "{a} <> 9" }, id), "#3 filtered, " + id).toEqual(unsorted);
+    });
   });
 });

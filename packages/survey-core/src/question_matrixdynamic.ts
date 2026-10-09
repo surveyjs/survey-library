@@ -182,6 +182,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.padRecords(Array.isArray(val) ? val.slice() : []);
   }
   protected setListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void {
+    // A removal whose count-down waits for the store (removeStoredRecord): the padding stays virtual.
+    if ((operations || []).indexOf("remove") > -1) {
+      const length = this.takeRowCountDown();
+      if (length > -1 && Array.isArray(records) && records.length > length) {
+        records = records.slice(0, length);
+      }
+    }
     this.setOwnRecordsValue(this.normalizeRecords(records, operations));
   }
   // The length getListRecords() would return: value.length padded up to rowCount, never truncated.
@@ -1128,7 +1135,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const recordIndex = removal.recordIndex;
     const val = this.value;
     const isPaddingRecord = !Array.isArray(val) || recordIndex >= val.length;
-    this.rowCountValue--;
+    /* While padding follows question.value, rowCount is the list's record count: counted down before
+       the list removes the record, the list would read a count one short of the window it splices,
+       and a sorted or filtered view would no longer fit its records and be decided again under the
+       rows. The count goes down when the list stores the removal (setListRecords). */
+    const isCountDownDeferred = !isPaddingRecord && !this.isRemoteData && !this.isEditingObjectValue && recordIndex > -1 &&
+      val.length < this.rowCount;
+    if (!isCountDownDeferred) {
+      this.rowCountValue--;
+    }
     if (isPaddingRecord) {
       if (Array.isArray(val) && val.length > 0 && !this.isEditingObjectValue) {
         this.writeRecords((): void => {
@@ -1139,18 +1154,32 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       }
       this.followRecordCountChange();
     } else if (this.value) {
-      this.writeRecords((): void => {
-        if (this.isEditingObjectValue) {
-          // The live array is spliced in place: that is what removes the row from the edited object.
-          const val = this.createValueCopy();
-          val.splice(removal.position, 1);
-          this.value = val;
-        } else if (recordIndex > -1) {
-          this.dataList.remove(recordIndex);
-        }
-      });
+      this.rowCountDownLength = isCountDownDeferred ? val.length - 1 : -1;
+      try {
+        this.writeRecords((): void => {
+          if (this.isEditingObjectValue) {
+            // The live array is spliced in place: that is what removes the row from the edited object.
+            const val = this.createValueCopy();
+            val.splice(removal.position, 1);
+            this.value = val;
+          } else if (recordIndex > -1) {
+            this.dataList.remove(recordIndex);
+          }
+        });
+      } finally {
+        this.takeRowCountDown();
+      }
     }
     refill();
+  }
+  // The length question.value has after a removal whose count-down waits for the store; -1 for none.
+  private rowCountDownLength: number = -1;
+  private takeRowCountDown(): number {
+    const length = this.rowCountDownLength;
+    if (length < 0) return -1;
+    this.rowCountDownLength = -1;
+    this.rowCountValue--;
+    return length;
   }
   protected createSingleInputBehavior(): QuestionSingleInputBehavior {
     return new MatrixDynamicSingleInputBehavior(this);

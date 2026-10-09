@@ -1453,8 +1453,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const list = this.dataList;
     if (val === list.count || this.useTemplatePanel) return;
     this.updateBindings("panelCount", val);
-    this.syncRecordCount(val);
-    this.followRecordsWithObjects((recordIndex: number): void => { this.appendItemForRecord(recordIndex); });
+    this.runObjectsFollowingWrite((): void => {
+      this.syncRecordCount(val);
+      this.followRecordsWithObjects((recordIndex: number): void => { this.appendItemForRecord(recordIndex); });
+    });
   }
   /* Grows or truncates the records to a count. createRecord makes a new record; by default, under
      paging most of the new records never get a panel, so they are created with the defaults their

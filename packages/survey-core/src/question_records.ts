@@ -2922,16 +2922,18 @@ export abstract class QuestionRecordsModel extends Question {
   }
   /* An insert, a removal or a move of the list stores the value before the objects follow it: an
      in-memory source stores it inside the push, and the list notifies the owner after the push. Under
-     paging a row or a panel of the page addresses its record by its position until then, so the
-     conditions that storing runs would have the objects compute values and write them into the
-     records those positions held before. The objects' part of such a run waits until the objects have
-     followed the write: when the list's write ends (onListWriteEnded), or - for a removal, whose page
-     is refilled after the write - when the removal ends (runObjectsFollowingWrite). */
+     a view - paging, a sort, a filter - a row or a panel addresses its record by its position until
+     then, so the conditions that storing runs would have the objects compute values and write them
+     into the records those positions held before. The objects' part of such a run waits until the
+     objects have followed the write: when the list's write ends (onListWriteEnded), or - for a removal,
+     whose page is refilled after the write, and a count change, whose objects follow it afterwards -
+     when that operation ends (runObjectsFollowingWrite). Without a view a position is the record
+     index, so nothing is held. */
   private structuralStoreDepth: number = 0;
   private followingWriteDepth: number = 0;
   private heldItemsCondition: { properties: HashTable<any> };
   private storeListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void {
-    const isStructural = this.isPagedByList && (operations || []).some((operation: DynamicDataOperation): boolean => operation !== "update");
+    const isStructural = this.hasDataListView && (operations || []).some((operation: DynamicDataOperation): boolean => operation !== "update");
     if (isStructural)this.structuralStoreDepth++;
     try {
       this.setListRecords(records, operations);
@@ -2947,20 +2949,38 @@ export abstract class QuestionRecordsModel extends Question {
       this.runItemsCondition(properties);
     }
   }
-  private runObjectsFollowingWrite(func: () => void): void {
+  protected runObjectsFollowingWrite(func: () => void): void {
     this.followingWriteDepth++;
+    let isFollowed = false;
     try {
       func();
+      isFollowed = true;
     } finally {
       this.followingWriteDepth--;
+      // A write that threw (a handler's error) left the objects where they were: a held run would
+      // have them write into the records their positions held before, so it is dropped.
+      if (!isFollowed && this.followingWriteDepth === 0)this.heldItemsCondition = undefined;
       this.runHeldItemsCondition();
     }
   }
+  /* An object's write during the held run can change how many records are stored - a padded record
+     it fills in. The run that write makes skips the object that is still computing, so a record count
+     that object read before is stale: the objects compute once more when the count changed. */
   private runHeldItemsCondition(): void {
     if (this.followingWriteDepth > 0) return;
     const held = this.heldItemsCondition;
     this.heldItemsCondition = undefined;
-    if (!!held && !this.isDisposed)this.runItemsCondition(held.properties);
+    if (!held || this.isDisposed) return;
+    const count = this.getStoredRecordCount();
+    this.runItemsCondition(held.properties);
+    if (!this.isDisposed && this.getStoredRecordCount() !== count) {
+      this.runItemsCondition(held.properties);
+    }
+  }
+  private getStoredRecordCount(): number {
+    const records = this.getStoredRecords();
+    if (Array.isArray(records)) return records.length;
+    return Helpers.isValueObject(records) ? Object.keys(records).length : 0;
   }
   private followOwedAssignment(): void {
     const owed = this.owedAssignment;

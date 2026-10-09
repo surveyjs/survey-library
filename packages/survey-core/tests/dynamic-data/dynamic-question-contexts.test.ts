@@ -230,7 +230,7 @@ describe("Dynamic questions: the record visibility under paging goes through onE
         if (question instanceof QuestionMatrixDynamicModel) {
           return question.visibleRows.map(r => r.getQuestionByName("x").value);
         }
-        return question.panelsOnPage.map(p => p.getQuestionByName("x").value);
+        return question.visiblePanels.map(p => p.getQuestionByName("x").value);
       }
       const v = kind.variable;
       test("a handler that rewrites the expression hides the record, and the page follows", () => {

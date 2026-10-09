@@ -10378,18 +10378,18 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     return <QuestionPanelDynamicModel>createSurvey(json, data, extra).getQuestionByName("panel");
   };
   const pageValues = (question: QuestionPanelDynamicModel, name: string = "q1"): Array<any> => {
-    return question.panelsOnPage.map(panel => panel.getQuestionByName(name).value);
+    return question.visiblePanels.map(panel => panel.getQuestionByName(name).value);
   };
   const renderedValues = (question: QuestionPanelDynamicModel, name: string = "q1"): Array<any> => {
     return question.renderedPanels.map(panel => panel.getQuestionByName(name).value);
   };
   const abcde = [{ q1: "a" }, { q1: "b" }, { q1: "c" }, { q1: "d" }, { q1: "e" }];
 
-  test("paging is off by default: the page is every visible panel, the same instance", () => {
+  test("paging is off by default: the page is every visible panel", () => {
     const question = createQuestion({ panelCount: 3 }, [{ q1: "a" }, { q1: "b" }, { q1: "c" }]);
     expect(question.panelsPerPage, "#1: off").toBe(0);
     expect(question.pageSize, "#2: the alias reads it").toBe(0);
-    expect(question.panelsOnPage === question.visiblePanels, "#3: the same array instance").toBe(true);
+    expect(question.visiblePanels.length, "#3: every panel").toBe(3);
     expect(question.pageCount, "#4: one page").toBe(1);
     expect(question.pageIndex, "#5").toBe(0);
     expect(question.canGoNextPage, "#6").toBe(false);
@@ -10442,7 +10442,7 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     const question = createQuestion({ panelCount: 5, panelsPerPage: 2 }, abcde);
     question.goToPage(2);
     question.panelsPerPage = 0;
-    expect(question.panelsOnPage === question.visiblePanels, "#1: the same instance again").toBe(true);
+    expect(question.visiblePanels.length, "#1: every panel again").toBe(5);
     expect(question.pageCount, "#2").toBe(1);
     expect(question.pageIndex, "#3").toBe(0);
     expect(question.renderedPanels.length, "#4").toBe(5);
@@ -10452,16 +10452,16 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     expect(question.panelsPerPage, "#1: JSON is clamped too - the onSettingValue hook would be skipped").toBe(0);
     question.panelsPerPage = -1;
     expect(question.panelsPerPage, "#2").toBe(0);
-    expect(question.panelsOnPage.length, "#3").toBe(3);
+    expect(question.visiblePanels.length, "#3").toBe(3);
     question.panelsPerPage = 2;
-    expect(question.panelsOnPage.length, "#4").toBe(2);
+    expect(question.visiblePanels.length, "#4").toBe(2);
   });
   test("panelsPerPage and pageSize are one value, from code and from JSON", () => {
     const question = createQuestion({ panelCount: 5, panelsPerPage: 2 }, abcde);
     expect(question.pageSize, "#1: JSON, read through pageSize").toBe(2);
     question.pageSize = 3;
     expect(question.panelsPerPage, "#2: pageSize writes panelsPerPage").toBe(3);
-    expect(question.panelsOnPage.length, "#3").toBe(3);
+    expect(question.visiblePanels.length, "#3").toBe(3);
     expect(question.toJSON().panelsPerPage, "#4: and its JSON").toBe(3);
     question.panelsPerPage = 4;
     expect(question.pageSize, "#5: panelsPerPage writes pageSize").toBe(4);
@@ -10470,7 +10470,7 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     expect(question.pageCount, "#7: no paging").toBe(1);
     question.pageSize = <any>"2";
     expect(question.panelsPerPage, "#8: a numeric string is its number").toBe(2);
-    expect(question.panelsOnPage.length, "#9").toBe(2);
+    expect(question.visiblePanels.length, "#9").toBe(2);
   });
   test("an assigned page size of the same value keeps the page", () => {
     const question = createQuestion({ panelCount: 5, panelsPerPage: 2 }, abcde);
@@ -10525,7 +10525,7 @@ describe("Question Panel Dynamic: paging and sorting", () => {
   test("removing the last panel of the last page moves the page index back", () => {
     const question = createQuestion({ panelCount: 5, panelsPerPage: 2 }, abcde);
     question.goToPage(2);
-    expect(question.panelsOnPage.length, "#1").toBe(1);
+    expect(question.visiblePanels.length, "#1").toBe(1);
     question.removePanel(4);
     expect(question.panelCount, "#2").toBe(4);
     expect(question.pageCount, "#3").toBe(2);
@@ -10538,7 +10538,7 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     question.addPanelUI();
     expect(question.pageCount, "#1").toBe(3);
     expect(question.pageIndex, "#2").toBe(2);
-    question.removePanelUI(question.panelsOnPage[0]);
+    question.removePanelUI(question.visiblePanels[0]);
     expect(question.panelCount, "#3").toBe(4);
     expect(question.pageCount, "#4").toBe(2);
     expect(question.pageIndex, "#5").toBe(1);
@@ -10548,12 +10548,12 @@ describe("Question Panel Dynamic: paging and sorting", () => {
   test("removing the last panel of the last page moves the page index back when the question has no value", () => {
     const question = createQuestion({ panelCount: 5, panelsPerPage: 2 });
     question.goToPage(2);
-    expect(question.panelsOnPage.length, "#1").toBe(1);
+    expect(question.visiblePanels.length, "#1").toBe(1);
     question.removePanelUI(question.panels[0]);
     expect(question.panelCount, "#2").toBe(4);
     expect(question.pageCount, "#3").toBe(2);
     expect(question.pageIndex, "#4").toBe(1);
-    expect(question.panelsOnPage.length, "#5").toBe(2);
+    expect(question.visiblePanels.length, "#5").toBe(2);
     expect(question.renderedPanels.length, "#6: the rendered panels are the page it fell back to").toBe(2);
   });
   test("a paged carousel shows one panel of its page, tab mode pages its tabs", () => {
@@ -10602,7 +10602,7 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     expect(question.hasErrors(true), "#2").toBe(false);
   });
   const keyErrors = (question: QuestionPanelDynamicModel): Array<number> => {
-    return question.panelsOnPage.map(panel => panel.getQuestionByName("q1").errors.length);
+    return question.visiblePanels.map(panel => panel.getQuestionByName("q1").errors.length);
   };
   test("a key typed on a sorted page repeats a record of another page: only the page's own check runs without callbacks", () => {
     const create = (): QuestionPanelDynamicModel => {
@@ -10614,18 +10614,18 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     };
     const question = create();
     expect(pageValues(question), "#1: the second page of the sorted list").toEqual(["c", "b"]);
-    question.panelsOnPage[1].getQuestionByName("q1").value = "x";
+    question.visiblePanels[1].getQuestionByName("q1").value = "x";
     expect(question.validate(false), "#2: the record of page 1 takes part").toBe(false);
     expect(question.hasErrors(true), "#3").toBe(true);
     expect(question.pageIndex, "#4").toBe(1);
     expect(keyErrors(question), "#5: only the panel that repeats the key").toEqual([0, 1]);
     const pair = create();
-    pair.panelsOnPage[0].getQuestionByName("q1").value = "b";
+    pair.visiblePanels[0].getQuestionByName("q1").value = "b";
     expect(pair.hasErrors(true), "#6: a pair on the page").toBe(true);
     expect(keyErrors(pair), "#7: only the later panel of the pair").toEqual([0, 1]);
     const typed = create();
     typed["dataList"].source.update(0, { q1: 1, q2: "1" });
-    typed.panelsOnPage[1].getQuestionByName("q1").value = "1";
+    typed.visiblePanels[1].getQuestionByName("q1").value = "1";
     expect(typed.validate(false), "#8: 1 and \"1\" are the same key").toBe(false);
     expect(typed.hasErrors(true), "#9").toBe(true);
     expect(keyErrors(typed), "#10").toEqual([0, 1]);
@@ -10634,7 +10634,7 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     const question = createQuestion({ panelCount: 4, panelsPerPage: 2, keyName: "q1", filterExpression: "{q2} != 'out'" },
       [{ q1: "x", q2: "out" }, { q1: "a" }, { q1: "b" }, { q1: "c" }]);
     expect(pageValues(question), "#1").toEqual(["a", "b"]);
-    question.panelsOnPage[1].getQuestionByName("q1").value = "x";
+    question.visiblePanels[1].getQuestionByName("q1").value = "x";
     expect(question.validate(false), "#2").toBe(false);
     expect(question.hasErrors(true), "#3").toBe(true);
     expect(keyErrors(question), "#4").toEqual([0, 1]);
@@ -10643,7 +10643,7 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     const question = createQuestion({ panelCount: 4, panelsPerPage: 2, keyName: "q1", templateVisibleIf: "{panel.q2} != 'hide'" },
       [{ q1: "x", q2: "hide" }, { q1: "a" }, { q1: "b" }, { q1: "c" }]);
     expect(pageValues(question), "#1").toEqual(["a", "b"]);
-    question.panelsOnPage[1].getQuestionByName("q1").value = "x";
+    question.visiblePanels[1].getQuestionByName("q1").value = "x";
     expect(question.validate(false), "#2").toBe(true);
     expect(question.hasErrors(true), "#3").toBe(false);
     expect(keyErrors(question), "#4").toEqual([0, 0]);
@@ -10672,7 +10672,7 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     survey.setValue("q0", 5);
     expect(question.panelCount, "#1").toBe(5);
     expect(question.pageCount, "#2").toBe(3);
-    expect(question.panelsOnPage.length, "#3").toBe(2);
+    expect(question.visiblePanels.length, "#3").toBe(2);
     survey.setValue("q0", 1);
     expect(question.pageCount, "#4").toBe(1);
   });
@@ -10794,7 +10794,7 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
     expect(question.singleInputSummary?.items.length, "#1: every visible panel, not the page - single input is its own paging").toBe(4);
     expect(question.pageCount, "#2: the question does not page while single input is active").toBe(1);
-    expect(question.panelsOnPage.length, "#3").toBe(4);
+    expect(question.visiblePanels.length, "#3").toBe(4);
   });
   test("getStructuredValue and the progress answer for every visible panel", () => {
     const question = createQuestion({ panelCount: 4, panelsPerPage: 2 }, [{ q1: "a" }, { q1: "b" }, { q1: "c" }, { q1: "d" }]);
@@ -10954,7 +10954,7 @@ describe("Question Panel Dynamic: the sort and the filter in JSON", () => {
     const after = createQuestion({ panelsPerPage: 2, sortBy: "q1-", panelCount: 3 }, cba);
     expect(after.sortBy, "#3: and after it").toBe("q1-");
     expect(values(after), "#4").toEqual(["c", "b"]);
-    expect(after.panelsOnPage.length, "#5: the page size survived it too").toBe(2);
+    expect(after.visiblePanels.length, "#5: the page size survived it too").toBe(2);
   });
   test("the authored sort orders the first page", () => {
     const question = createQuestion({ sortBy: "q1-", panelsPerPage: 2, panelCount: 3 }, cba);

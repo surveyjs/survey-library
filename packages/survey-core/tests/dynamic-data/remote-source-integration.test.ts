@@ -2069,7 +2069,7 @@ describe("Remote data source: the window is the page", () => {
     const { question } = await createPanel(source);
     question.nextPage();
     await flush();
-    expect(question.panelsOnPage.length, "#1").toBe(5);
+    expect(question.visiblePanels.length, "#1").toBe(5);
     expect(question.renderedPanels.length, "#2: the renderers see them").toBe(5);
     expect(panelValues(question), "#3").toEqual(["v5", "v6", "v7", "v8", "v9"]);
   });
@@ -2094,7 +2094,7 @@ describe("Remote data source: the window is the page", () => {
     question.addPanel();
     await flush();
     expect(question.pageIndex, "#1").toBe(1);
-    expect(question.panelsOnPage.length, "#2").toBe(6);
+    expect(question.visiblePanels.length, "#2").toBe(6);
     expect(source.callsOf("pagedRead").length, "#3: no page was re-read").toBe(0);
   });
 });

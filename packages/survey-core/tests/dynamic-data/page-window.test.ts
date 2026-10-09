@@ -144,7 +144,6 @@ describe("Page window: the objects that exist are the page", () => {
     expect(panelIds(question), "#3: records 60-79").toEqual(range(60, 79));
     expect(question.panelCount, "#4: the record count").toBe(100);
     expect(question.value.length, "#5: the value keeps every record").toBe(100);
-    expect(question.visiblePanels === question.panelsOnPage, "#6: the page is visiblePanels itself").toBe(true);
   });
   test("matrixdynamic: 100 records, 20 per page - 20 rows are created, a page change holds the next 20 records", () => {
     const matrix = createMatrix({ rowsPerPage: 20 }, records(100));

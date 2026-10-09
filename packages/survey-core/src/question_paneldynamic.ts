@@ -424,13 +424,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.updateRenderedPanels();
     }
   }
-  /* The panels that exist are the page: with paging on, panels and visiblePanels hold
-     the current page only, whatever the source, so the page is visiblePanels itself - the same
-     instance - and never a slice of it. renderedPanels is what is shown: the page in list mode,
-     [currentPanel] in carousel and tab mode. */
-  public get panelsOnPage(): Array<PanelModel> {
-    return this.visiblePanels;
-  }
   // settings.panel.maxPanelCount is the number of panels one page may hold, in every display mode.
   protected get maxRecordsPerPage(): number {
     return settings.panel.maxPanelCount;
@@ -1039,7 +1032,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.isUpdatingRenderedPanels = true;
     try {
       if (this.isRenderModeList) {
-        panels = [].concat(this.panelsOnPage);
+        panels = [].concat(this.visiblePanels);
       } else if (this.currentPanel) {
         panels = [this.currentPanel];
       }

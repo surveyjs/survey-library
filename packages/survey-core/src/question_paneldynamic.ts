@@ -2640,6 +2640,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         panel.onFirstRendering();
       },
       clearIncorrectValues: (): void => { panel.clearIncorrectValues(); },
+      validate: (): boolean => panel.validate(false) !== false,
       clearValueIfInvisible: (reason: string): void => { this.clearValueInPanelIfInvisible(panel, reason); },
       dispose: (): void => { panel.dispose(); }
     };

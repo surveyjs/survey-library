@@ -1294,13 +1294,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
   }
   /* With a data source minRowCount only gates the add and remove, so it is not checked. Under paging
-     the rows are built for the page only: the visible records of every page are counted, a record
-     without a row by its stored value, as its row would count it. */
+     the rows are built for the page only: the records of every page are counted - also those
+     rowsVisibleIf hides, as the generated rows without paging are -, a record without a row by its
+     stored value, as its row would count it. */
   private validateMinRows(): boolean {
     if (this.minRowCount <= 0 || !this.isRequired || this.isRemoteData) return true;
     let setRowCount = 0;
     if (this.isPagedByList) {
-      this.forEachRecordItem(this.dataList.getVisibleIndexes(), (index: number, item: QuestionRecordItem): void => {
+      this.forEachRecordItem(this.dataList.getCreatedIndexes(), (index: number, item: QuestionRecordItem): void => {
         const isEmpty = !!item ? (<MatrixDropdownRowModelBase>item).isEmpty : !this.hasRecordAnswer(this.getListRecordAt(index));
         if (!isEmpty) setRowCount++;
       });

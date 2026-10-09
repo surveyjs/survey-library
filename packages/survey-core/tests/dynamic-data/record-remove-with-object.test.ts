@@ -400,3 +400,39 @@ describe("the focus after a removal from the UI that a handler cancels", () => {
     }
   });
 });
+
+describe("a removal under a view after a removing handler assigned the value", () => {
+  test("a removing handler that assigns the value and refreshes a sorted view: the clicked record is removed", () => {
+    const data = [{ a: 3 }, { a: 2 }, { a: 1 }];
+    const assigned = [{ a: 3 }, { a: 2 }, { a: 2.5 }];
+    // Sorted by a: [1, 2, 3]; position 1 is the record { a: 2 }. After the assignment the view is [2, 2.5, 3].
+    const matrixSurvey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, sortBy: "a",
+      columns: [{ name: "a", cellType: "text", inputType: "number" }] }] });
+    matrixSurvey.data = { m: JSON.parse(JSON.stringify(data)) };
+    const matrix = <QuestionMatrixDynamicModel>matrixSurvey.getQuestionByName("m");
+    matrix.visibleRows;
+    let isMatrixAssigned = false;
+    matrixSurvey.onMatrixRowRemoving.add(() => {
+      if (isMatrixAssigned) return;
+      isMatrixAssigned = true;
+      matrixSurvey.setValue("m", JSON.parse(JSON.stringify(assigned)));
+      matrix.refreshView();
+    });
+    matrix.removeRow(1);
+    expect(matrixSurvey.data.m, "matrix").toEqual([{ a: 3 }, { a: 2.5 }]);
+    const panelSurvey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", sortBy: "a",
+      templateElements: [{ type: "text", name: "a", inputType: "number" }] }] });
+    panelSurvey.data = { p: JSON.parse(JSON.stringify(data)) };
+    const panel = <QuestionPanelDynamicModel>panelSurvey.getQuestionByName("p");
+    panel.panels;
+    let isPanelAssigned = false;
+    panelSurvey.onDynamicPanelRemoving.add(() => {
+      if (isPanelAssigned) return;
+      isPanelAssigned = true;
+      panelSurvey.setValue("p", JSON.parse(JSON.stringify(assigned)));
+      panel.refreshView();
+    });
+    panel.removePanel(1);
+    expect(panelSurvey.data.p, "panel").toEqual([{ a: 3 }, { a: 2.5 }]);
+  });
+});

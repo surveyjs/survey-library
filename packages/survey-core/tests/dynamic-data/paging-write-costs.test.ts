@@ -1412,3 +1412,38 @@ describe("the cost of the off-page clean-ups", () => {
     }
   });
 });
+
+describe("page moves leak nothing", () => {
+  const createMatrix = (extra?: any): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel } => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "q", rowCount: 0, rowsPerPage: 5,
+      columns: [{ name: "a", cellType: "text" }] }, extra)] });
+    survey.data = { q: records(50, (i: number): any => ({ a: i })) };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+    matrix.renderedTable;
+    return { survey: survey, matrix: matrix };
+  };
+  const movePages = (matrix: QuestionMatrixDynamicModel, count: number): void => {
+    for (let i = 0; i < count; i++) {
+      matrix.pageIndex = (matrix.pageIndex + 1) % matrix.pageCount;
+      matrix.renderedTable;
+    }
+  };
+  test("page moves leave no listeners of dropped rows", () => {
+    const { matrix } = createMatrix();
+    movePages(matrix, 1);
+    const afterFirst = matrix.locRemoveRowText.onStringChanged.length;
+    movePages(matrix, 100);
+    expect(matrix.locRemoveRowText.onStringChanged.length, "#1").toBe(afterFirst);
+  });
+  test("page moves of a matrix with a detail panel leave no survey property handlers", () => {
+    const { survey, matrix } = createMatrix({ detailPanelMode: "underRow", detailElements: [{ type: "text", name: "d" }] });
+    const countHandlers = (): number => {
+      const hash = (<any>survey).onPropChangeFunctions;
+      return Array.isArray(hash) ? hash.length : 0;
+    };
+    movePages(matrix, 1);
+    const afterFirst = countHandlers();
+    movePages(matrix, 100);
+    expect(countHandlers() - afterFirst <= 5, "#1: " + (countHandlers() - afterFirst)).toBe(true);
+  });
+});

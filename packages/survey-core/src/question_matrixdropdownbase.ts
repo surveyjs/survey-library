@@ -1561,9 +1561,27 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         this.renderedTable.requireReset();
       }
     } else {
+      const table = <QuestionMatrixDropdownRenderedTable>this.getPropertyValueWithoutDefault("renderedTable");
       this.resetPropertyValue("renderedTable");
+      this.disposeRenderedTable(table);
       this.fireCallback(this.onRenderedTableResetCallback);
     }
+  }
+  /* A table that is replaced - a page move, a column change - holds the actions of its rows: each keeps
+     listeners on the matrix's strings and on the survey's locale. They go with the table, once the UI
+     no longer shows it (disposeAfterRerender). */
+  private disposeRenderedTable(table: QuestionMatrixDropdownRenderedTable): void {
+    if (!table || table.isDisposed) return;
+    this.disposeAfterRerender(table, (): void => {
+      table.rows.forEach((row: QuestionMatrixDropdownRenderedRow): void => {
+        row.cells.forEach((cell: QuestionMatrixDropdownRenderedCell): void => {
+          const actions = cell.isActionsCell && !!cell.item ? cell.item.value : undefined;
+          if (!!actions && typeof actions.dispose === "function")actions.dispose();
+        });
+        row.dispose();
+      });
+      table.dispose();
+    });
   }
   protected clearGeneratedRows(): void {
     this.clearVisibleRows();
@@ -1891,6 +1909,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       item: row,
       runCondition: (properties: HashTable<any>): void => { row.runCondition(properties, this.getRowsVisibleIfForRows(), true); },
       clearIncorrectValues: (): void => { row.clearIncorrectValues(Object.assign({}, this.getRecordCleanupCopy(row, false))); },
+      validate: (): boolean => {
+        const context = new ValidationContext({ fireCallback: false });
+        const res = row.validate(context);
+        context.finish();
+        return res && context.runningResult !== false;
+      },
       dispose: (): void => { row.dispose(); }
     };
   }

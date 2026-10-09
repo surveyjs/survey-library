@@ -15,6 +15,8 @@ export interface IDynamicDataPageValidationOwner {
   validatePageObjects(context: ValidationContext): boolean;
   // A page move from code: no validation, the objects are rebuilt at once.
   goToPageFromCode(pageIndex: number): void;
+  // A record of another page judged without its page being shown (validateEditedRecordsQuietly).
+  isRecordValidQuietly(recordIndex: number): boolean;
   setPropertyValue(name: string, val: any): void;
   isDisposed: boolean;
 }
@@ -209,8 +211,25 @@ export class DynamicDataPageValidation {
     if (!this.owner.canTrackEditedRecords()) return true;
     const list = this.owner.getDataList();
     this.markValidated(list.getMaterializedIndexes());
+    if (list.pageSize <= 0) return true;
+    return this.validatePages(context, this.getPagesToValidate(extraPages));
+  }
+  /* The quiet counterpart (validate(false), isCurrentPageHasErrors): the same pages, their records
+     judged without visiting them - no error is shown, the page stays and the edited set is kept. */
+  public validateEditedRecordsQuietly(extraPages?: Array<number>): boolean {
+    if (!this.owner.canTrackEditedRecords()) return true;
+    const list = this.owner.getDataList();
     const pageSize = list.pageSize;
     if (pageSize <= 0) return true;
+    const visible = list.getVisibleIndexes();
+    const startPage = list.pageIndex;
+    return this.getPagesToValidate(extraPages).every((page: number): boolean => page === startPage ||
+      visible.slice(page * pageSize, (page + 1) * pageSize).every((index: number): boolean => this.owner.isRecordValidQuietly(index)));
+  }
+  // The pages a full validation visits: extraPages and the pages of the edited records, in order.
+  private getPagesToValidate(extraPages: Array<number>): Array<number> {
+    const list = this.owner.getDataList();
+    const pageSize = list.pageSize;
     const pages: Array<number> = Array.isArray(extraPages) ? extraPages.slice() : [];
     if (this.edited.length > 0) {
       const editedHash: { [index: number]: boolean } = {};
@@ -223,7 +242,7 @@ export class DynamicDataPageValidation {
       }
     }
     pages.sort((a: number, b: number): number => a - b);
-    return this.validatePages(context, pages);
+    return pages;
   }
   /* Visits the pages and validates their objects, each with a context of its own. The first page
      with an error is where the question stays: the error goes to the caller's context. A page whose

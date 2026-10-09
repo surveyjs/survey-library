@@ -1713,9 +1713,9 @@ describe("Page window: which validation visits the pages of the edited records",
       expect(question.pageIndex, "#3: an assignment of the value, the page stays").toBe(0);
       expect(getPageState(question).edited, "#4").toEqual([0, 6]);
     });
-    test(kind + ": a validation that fires no callback stays on the page", () => {
+    test(kind + ": a validation that fires no callback stays on the page and reports the edited record's error", () => {
       const { question } = setup();
-      expect(question.validate(false), "#1: the page has no error").toBe(true);
+      expect(question.validate(false), "#1: the edited record of another page has an error").toBe(false);
       expect(question.pageIndex, "#2: the page stays").toBe(0);
       expect(question.validate(true), "#3: a full validation finds the edited record").toBe(false);
       expect(question.pageIndex, "#4: on its page").toBe(1);
@@ -4804,5 +4804,46 @@ describe("the validation of a paged records question: its objects, the question,
       expect(offPage.mock.calls.length > 0, json.type + ": everything passes").toBe(true);
       offPage.mockRestore();
     });
+  });
+});
+
+describe("quiet validation of other pages' records", () => {
+  const createFixed = (): { survey: SurveyModel, matrix: QuestionMatrixDropdownModel } => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "q", rowsPerPage: 2, rows: ["r1", "r2", "r3", "r4", "r5"],
+      columns: [{ name: "a", cellType: "text", isRequired: true }] }] });
+    survey.data = { q: { r1: { a: 1 }, r2: { a: 2 }, r3: { a: 3 }, r5: { a: 5 } } };
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("q");
+    matrix.visibleRows;
+    return { survey: survey, matrix: matrix };
+  };
+  test("validate(false) reports the errors of other pages' records that validate(true) reports", () => {
+    const { survey, matrix } = createFixed();
+    expect(survey.validate(false), "#1: quiet").toBe(false);
+    expect(matrix.pageIndex, "#2: the page stays").toBe(0);
+    expect(matrix.visibleRows.every(row => row.cells[0].question.errors.length === 0), "#3: no error is shown").toBe(true);
+    expect(survey.validate(true), "#4: full").toBe(false);
+    expect(matrix.pageIndex, "#5: the full validation shows the page with the error").toBe(1);
+  });
+  test("isCurrentPageHasErrors validates as a full validation does: it shows the page with the error", () => {
+    const { survey, matrix } = createFixed();
+    expect(survey.isCurrentPageHasErrors, "#1").toBe(true);
+    expect(matrix.pageIndex, "#2").toBe(1);
+  });
+  test("validate(false) of a records question whose other pages are valid passes", () => {
+    const { survey, matrix } = createFixed();
+    survey.setValue("q", { r1: { a: 1 }, r2: { a: 2 }, r3: { a: 3 }, r4: { a: 4 }, r5: { a: 5 } });
+    expect(survey.validate(false), "#1").toBe(true);
+    expect(matrix.pageIndex, "#2").toBe(0);
+  });
+  test("a paged required matrix counts its rows for minRowCount as without paging", () => {
+    const run = (rowsPerPage: number): boolean => {
+      const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", rowCount: 0, rowsPerPage: rowsPerPage, isRequired: true,
+        minRowCount: 3, rowsVisibleIf: "{row.a} != 2", columns: [{ name: "a", cellType: "text" }] }] });
+      survey.data = { q: [{ a: 1 }, { a: 2 }, { a: 3 }] };
+      (<QuestionMatrixDynamicModel>survey.getQuestionByName("q")).visibleRows;
+      return survey.validate(false);
+    };
+    expect(run(1), "#1").toBe(run(0));
+    expect(run(1), "#2").toBe(true);
   });
 });

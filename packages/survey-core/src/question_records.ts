@@ -181,6 +181,7 @@ export abstract class QuestionRecordsModel extends Question {
       isPageLeaveValidated: (): boolean => question.isPageLeaveValidated(),
       canTrackEditedRecords: (): boolean => question.isPagedByList,
       goToPageFromCode: (pageIndex: number): void => { question.paging.pageIndex = pageIndex; },
+      isRecordValidQuietly: (recordIndex: number): boolean => question.isRecordValidQuietly(recordIndex),
       validatePageObjects: (context: ValidationContext): boolean => question.validatePageObjects(context),
       setPropertyValue: (name: string, val: any): void => { question.setPropertyValue(name, val); },
       get isDisposed(): boolean { return question.isDisposed; },
@@ -1299,15 +1300,32 @@ export abstract class QuestionRecordsModel extends Question {
      validation on a value change and a quiet one stay on the page, and so does a source that pages
      itself. The question calls it once its page has passed. Returns true when there is nothing to
      visit. */
+  /* The records of other pages: a full validation visits their pages and shows the errors there; a
+     quiet one (no callback) judges the same records without showing anything or moving the page, so
+     both give the same answer. */
   protected validateOffPage(context: ValidationContext): boolean {
-    if (!this.isPagedByList || !context.fireCallback || context.isOnValueChanged) return true;
+    if (!this.isPagedByList || context.isOnValueChanged) return true;
     const pages = this.getOffPageDuplicatePages();
     if (this.isEveryPageValidated()) {
       for (let i = 0; i < this.dataList.pageCount; i++) {
         if (pages.indexOf(i) < 0) pages.push(i);
       }
     }
+    if (!context.fireCallback) {
+      if (this.pageValidation.validateEditedRecordsQuietly(pages)) return true;
+      context.setErrorElement(this);
+      return false;
+    }
     return this.pageValidation.validateEditedRecords(context, pages);
+  }
+  // IDynamicDataPageValidationOwner: a record of another page judged by a temporary object (cleanRecordWithObject).
+  private isRecordValidQuietly(recordIndex: number): boolean {
+    const record = this.getListRecordAt(recordIndex);
+    let isValid = true;
+    this.cleanRecordWithObject(recordIndex, Helpers.isValueObject(record, true) ? record : {}, (cleanupObject: IRecordCleanupObject): void => {
+      isValid = cleanupObject.validate();
+    });
+    return isValid;
   }
   /* The duplicates are looked for only when they are visited: the scan is O(records) per unique
      field, and a pair whose records both have no object has none the question's own check could put
@@ -1809,9 +1827,15 @@ export abstract class QuestionRecordsModel extends Question {
       removal = this.resolveRecordRemoval(this.createRecordTargetOf(followed.recordIndex));
       if (!removal) return undefined;
     } else if (!!removal.item && this.getItemPosition(removal.item) < 0) {
-      const item = this.getItem(removal.position);
-      if (!item) return undefined;
-      removal = this.resolveRecordRemoval({ item: item, recordIndex: this.getItemRecordIndex(item) });
+      /* An assignment from outside replaced the objects. Without a view the object now at the position
+         is removed, as released; under a view a position names another record once the view is
+         decided again, so the record is found again by its index. */
+      if (this.hasDataListView) {
+        removal = this.resolveRecordRemoval(this.createRecordTargetOf(removal.recordIndex));
+      } else {
+        const item = this.getItem(removal.position);
+        removal = !!item ? this.resolveRecordRemoval({ item: item, recordIndex: this.getItemRecordIndex(item) }) : undefined;
+      }
       if (!removal) return undefined;
     }
     const res = !!extend ? extend(removal) : <T>removal;
@@ -3792,6 +3816,8 @@ export interface IRecordCleanupObject {
   item: ISurveyData;
   runCondition(properties: HashTable<any>): void;
   clearIncorrectValues(): void;
+  // A quiet validation: false when a question of the object has an error; nothing is shown.
+  validate(): boolean;
   // The clean-up of invisible answers a built object runs when the survey clears them; optional.
   clearValueIfInvisible?(reason: string): void;
   dispose(): void;

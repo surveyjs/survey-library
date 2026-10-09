@@ -10977,7 +10977,7 @@ describe("Question Panel Dynamic: the sort and the filter in JSON", () => {
     expect(question.sortBy, "#1").toBe("q1-");
     expect(values(question), "#2").toEqual(["c", "b", "a"]);
   });
-  test("design mode set before the load, the Creator's order (invariants 1 and 4)", () => {
+  test("design mode set before the load, the Creator's order: the authored view is stored and not applied", () => {
     const question = createQuestion({ panelCount: 3, sortBy: "q1-", filterExpression: "{q1} = 'a'" }, undefined, true);
     expect(question.sortBy, "#1: authored and read back").toBe("q1-");
     expect(question.filterExpression, "#2").toBe("{q1} = 'a'");
@@ -10987,7 +10987,7 @@ describe("Question Panel Dynamic: the sort and the filter in JSON", () => {
     expect(json.sortBy, "#5: and both are serialized").toBe("q1-");
     expect(json.filterExpression, "#6").toBe("{q1} = 'a'");
   });
-  test("a design-mode switch after the load takes effect at the next sync (the section 3.4 limit)", () => {
+  test("a design-mode switch after the load takes effect at the next sync", () => {
     const survey = createSurvey({ panelCount: 3, sortBy: "q1-" }, cba);
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
     expect(values(question), "#1").toEqual(["c", "b", "a"]);

@@ -7,6 +7,7 @@ import { PanelModel } from "../../src/panel";
 import { FunctionFactory } from "../../src/functionsfactory";
 import { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
 import { Question } from "../../src/question";
+import { QuestionRecordsModel } from "../../src/question_records";
 import { QuestionSelectBase } from "../../src/question_baseselect";
 import { ItemValue } from "../../src/itemvalue";
 import { Helpers } from "../../src/helpers";
@@ -1445,5 +1446,84 @@ describe("page moves leak nothing", () => {
     const afterFirst = countHandlers();
     movePages(matrix, 100);
     expect(countHandlers() - afterFirst <= 5, "#1: " + (countHandlers() - afterFirst)).toBe(true);
+  });
+});
+
+describe("the validation of a paged records question: its objects, the question, then the records off the page", () => {
+  test("the records off the page are checked only when the question and its objects pass", () => {
+    const kinds: Array<any> = [
+      { type: "matrixdynamic", name: "q", rowCount: 0, rowsPerPage: 1, columns: [{ name: "a", cellType: "text" }] },
+      { type: "paneldynamic", name: "q", panelsPerPage: 1, templateElements: [{ type: "text", name: "a" }] }
+    ];
+    kinds.forEach(json => {
+      const offPage = vi.spyOn(<any>QuestionRecordsModel.prototype, "validateOffPage");
+      const survey = new SurveyModel({ elements: [Object.assign({ validators: [{ type: "expression", expression: "{flag} != 1" }] }, json)] });
+      survey.data = { q: [{ a: 1 }, { a: 2 }] };
+      const question: any = survey.getQuestionByName("q");
+      if (json.type === "paneldynamic") question.panels; else question.visibleRows;
+      survey.setValue("flag", 1);
+      survey.validate(true);
+      expect(offPage.mock.calls.length, json.type + ": the question has an error").toBe(0);
+      survey.setValue("flag", 2);
+      survey.validate(true);
+      expect(offPage.mock.calls.length > 0, json.type + ": everything passes").toBe(true);
+      offPage.mockRestore();
+    });
+  });
+});
+
+describe("the focus kept for a re-read after a removal from the UI", () => {
+  // A keyed source whose reads wait until release() is called.
+  const createSource = (): { source: IDynamicDataSource, release: () => void } => {
+    const records = [{ id: 1, col1: "a" }, { id: 2, col1: "b" }, { id: 3, col1: "c" }];
+    const pending: Array<() => void> = [];
+    let isHolding = false;
+    const source: any = {
+      keyField: "id",
+      read: (): any => {
+        const answer = { records: records.map(record => Object.assign({}, record)), total: records.length };
+        if (!isHolding) return Promise.resolve(answer);
+        return new Promise<any>(resolve => { pending.push(() => resolve(answer)); });
+      },
+      update: (): Promise<void> => Promise.resolve(),
+      remove: (key: any): Promise<void> => { records.splice(records.findIndex(r => r.id === key), 1); return Promise.resolve(); }
+    };
+    return { source: source, release: (): void => { isHolding = true; pending.splice(0).forEach(answer => answer()); } };
+  };
+  const flushAll = async (): Promise<void> => { for (let i = 0; i < 20; i++) await new Promise(r => setTimeout(r, 0)); };
+  test("a cancelled removal while a read is pending keeps no focus position for that read", async () => {
+    const matrixFocused = vi.spyOn(<any>QuestionMatrixDynamicModel.prototype, "focusItemAfterRead");
+    const panelFocused = vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "focusItemAfterRead");
+    try {
+      const matrixSurvey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", rowCount: 0, columns: [{ name: "col1" }] }] });
+      const matrix = <QuestionMatrixDynamicModel>matrixSurvey.getQuestionByName("q");
+      const matrixSource = createSource();
+      matrix.dataSource = matrixSource.source;
+      await flushAll();
+      matrixSurvey.onMatrixRowRemoving.add((_, options) => { options.allow = false; });
+      matrixSource.release();
+      matrix.refreshDataSource();
+      matrix.removeRowUI(matrix.visibleRows[1]);
+      matrixSource.release();
+      await flushAll();
+      expect(matrix.visibleRows.length, "#1: nothing was removed").toBe(3);
+      expect(matrixFocused.mock.calls.length, "#2").toBe(0);
+      const panelSurvey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "q", templateElements: [{ type: "text", name: "col1" }] }] });
+      const panel = <QuestionPanelDynamicModel>panelSurvey.getQuestionByName("q");
+      const panelSource = createSource();
+      panel.dataSource = panelSource.source;
+      await flushAll();
+      panelSurvey.onDynamicPanelRemoving.add((_, options) => { options.allow = false; });
+      panelSource.release();
+      panel.refreshDataSource();
+      panel.removePanelUI(panel.panels[1]);
+      panelSource.release();
+      await flushAll();
+      expect(panel.panels.length, "#3").toBe(3);
+      expect(panelFocused.mock.calls.length, "#4").toBe(0);
+    } finally {
+      matrixFocused.mockRestore();
+      panelFocused.mockRestore();
+    }
   });
 });

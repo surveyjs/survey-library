@@ -3,7 +3,7 @@ import { SurveyModel } from "../../src/survey";
 import { SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 import { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
 
-// The check Andrew asked for: can a DynamicDataList get and post its records through ISurveyData?
+// Can a DynamicDataList get and post its records through ISurveyData?
 // getValue/setValue are all it needs - comments are ordinary keys inside a record, so getComment and
 // setComment never come into play.
 describe("SurveyDataDynamicDataSource over a real SurveyModel", () => {

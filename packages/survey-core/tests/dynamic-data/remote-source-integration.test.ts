@@ -6670,35 +6670,6 @@ describe("the page of a nested paged question follows its record through a re-re
   });
 });
 
-describe("the focus kept for a re-read after a removal from the UI", () => {
-  test("a cancelled removal while a read is pending keeps no focus position for that read", async () => {
-    const proto = <any>QuestionMatrixDynamicModel.prototype;
-    const focused = vi.spyOn(proto, "focusItemAfterRead");
-    const source = new FakeServerSource(serverRecords(3));
-    const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
-    survey.onMatrixRowRemoving.add((_, options) => { options.allow = false; });
-    source.auto = false;
-    question.refreshDataSource();
-    question.removeRowUI(question.visibleRows[1]);
-    source.settleAll();
-    await flush();
-    expect(rowValues(question).length, "#1: nothing was removed").toBe(3);
-    expect(focused.mock.calls.length, "#2").toBe(0);
-    const panelProto = <any>QuestionPanelDynamicModel.prototype;
-    const panelFocused = vi.spyOn(panelProto, "focusItemAfterRead");
-    const panelSource = new FakeServerSource(serverRecords(3));
-    const { survey: panelSurvey, question: panel } = await createPanel(panelSource, { panelsPerPage: 0 });
-    panelSurvey.onDynamicPanelRemoving.add((_, options) => { options.allow = false; });
-    panelSource.auto = false;
-    panel.refreshDataSource();
-    panel.removePanelUI(panel.panels[1]);
-    panelSource.settleAll();
-    await flush();
-    expect(panel.panels.length, "#3").toBe(3);
-    expect(panelFocused.mock.calls.length, "#4").toBe(0);
-  });
-});
-
 describe("a negative row number with a data source", () => {
   test("the last record is in the loaded window: removeRowByIndex(-1) removes it and addRowByIndex(data, -1) inserts before it", async () => {
     const source = keyedSource(3);

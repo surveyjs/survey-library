@@ -11779,7 +11779,7 @@ describe("Survey_QuestionMatrixDynamic: the sort and the filter in JSON", () => 
     expect(matrix.sortBy, "#1").toBe("c1-");
     expect(values(matrix), "#2").toEqual(["c", "b", "a"]);
   });
-  test("design mode set before the load, the Creator's order (invariants 1 and 4)", () => {
+  test("design mode set before the load, the Creator's order: the authored view is stored and not applied", () => {
     const matrix = createMatrix({ rowCount: 3, sortBy: "c1-", filterExpression: "{c1} = 'a'" }, undefined, true);
     matrix.value = cba;
     expect(matrix.sortBy, "#1: authored and read back").toBe("c1-");
@@ -11791,7 +11791,7 @@ describe("Survey_QuestionMatrixDynamic: the sort and the filter in JSON", () => 
     expect(json.sortBy, "#6: and both are serialized").toBe("c1-");
     expect(json.filterExpression, "#7").toBe("{c1} = 'a'");
   });
-  test("a design-mode switch after the load takes effect at the next sync (the section 3.4 limit)", () => {
+  test("a design-mode switch after the load takes effect at the next sync", () => {
     const survey = createSurvey({ rowCount: 3, sortBy: "c1-" }, cba);
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     expect(values(matrix), "#1").toEqual(["c", "b", "a"]);

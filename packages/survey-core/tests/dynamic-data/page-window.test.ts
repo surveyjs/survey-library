@@ -5,7 +5,6 @@ import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionMatrixDropdownModel } from "../../src/question_matrixdropdown";
 import { QuestionDropdownModel } from "../../src/question_dropdown";
 import { Question } from "../../src/question";
-import { QuestionRecordsModel } from "../../src/question_records";
 import { PanelModel } from "../../src/panel";
 import { FunctionFactory } from "../../src/functionsfactory";
 import { settings } from "../../src/settings";
@@ -4781,29 +4780,6 @@ describe("clearInvisibleValues and a column or template question hidden on other
     expect(survey.getValue("count"), "#1").toBe(3);
     survey.setValue("hasB", "no");
     expect(survey.getValue("count"), "#2").toBe(0);
-  });
-});
-
-describe("the validation of a paged records question: its objects, the question, then the records off the page", () => {
-  test("the records off the page are checked only when the question and its objects pass", () => {
-    const kinds: Array<any> = [
-      { type: "matrixdynamic", name: "q", rowCount: 0, rowsPerPage: 1, columns: [{ name: "a", cellType: "text" }] },
-      { type: "paneldynamic", name: "q", panelsPerPage: 1, templateElements: [{ type: "text", name: "a" }] }
-    ];
-    kinds.forEach(json => {
-      const offPage = vi.spyOn(<any>QuestionRecordsModel.prototype, "validateOffPage");
-      const survey = new SurveyModel({ elements: [Object.assign({ validators: [{ type: "expression", expression: "{flag} != 1" }] }, json)] });
-      survey.data = { q: [{ a: 1 }, { a: 2 }] };
-      const question: any = survey.getQuestionByName("q");
-      if (json.type === "paneldynamic") question.panels; else question.visibleRows;
-      survey.setValue("flag", 1);
-      survey.validate(true);
-      expect(offPage.mock.calls.length, json.type + ": the question has an error").toBe(0);
-      survey.setValue("flag", 2);
-      survey.validate(true);
-      expect(offPage.mock.calls.length > 0, json.type + ": everything passes").toBe(true);
-      offPage.mockRestore();
-    });
   });
 });
 

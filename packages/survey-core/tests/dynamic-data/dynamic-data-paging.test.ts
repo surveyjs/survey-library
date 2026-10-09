@@ -109,7 +109,7 @@ describe("DynamicDataPagingController: at runtime the list holds the view and th
   });
 });
 
-describe("DynamicDataPagingController: design mode (invariants 1 and 4)", () => {
+describe("DynamicDataPagingController: design mode stores the authored view and applies nothing", () => {
   test("the authored sort and filter are stored, read back and not applied", () => {
     const owner = new FakePagingOwner(abc());
     owner.isDesignMode = true;
@@ -288,7 +288,7 @@ describe("DynamicDataPagingController: a source swap keeps the view", () => {
   });
 });
 
-describe("DynamicDataPagingController: the sortBy notification (section 4)", () => {
+describe("DynamicDataPagingController: the sortBy notification", () => {
   test("it fires once per real change when sortOrder is assigned", () => {
     const owner = new FakePagingOwner(abc());
     owner.getDataList();

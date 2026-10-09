@@ -2514,9 +2514,10 @@ export abstract class QuestionRecordsModel extends Question {
   protected reportRecordNotLoaded(operation: DynamicDataOperation): void {
     this.reportOperationRefused(operation, "The record is not in the loaded page of the data source");
   }
-  // An operation the question refused before it changed anything, reported under that operation.
+  /* An operation the question refused before it changed anything, reported under that operation. No
+     write was made, so none was rejected: a completion that waits for the pending writes keeps waiting. */
   protected reportOperationRefused(operation: DynamicDataOperation, reason: string): void {
-    this.onSourceError(new Error(reason + "; the " + operation + " was not made."), operation);
+    this.reportDataError(new Error(reason + "; the " + operation + " was not made."), operation);
   }
   // The assigned data source, read back from the list (assignedSource); nothing is created for it.
   protected getDataSource(): IDynamicDataSource {
@@ -2613,15 +2614,20 @@ export abstract class QuestionRecordsModel extends Question {
   private restoreValueFromSurveyData(): void {
     this.updateValueFromSurvey(!!this.data ? this.data.getValue(this.getValueName()) : undefined);
   }
+  // An error of the source: a write it rejected releases a completion that waits for the writes.
+  private onSourceError(error: any, operation: DynamicDataOperation): void {
+    if (operation !== "read" && !!this.reportedWritesSurvey) {
+      this.hasRejectedWrite = true;
+    }
+    this.reportDataError(error, operation);
+  }
   /* A rejected read leaves the short window and its focused item in place: the kept position goes,
      and so does the position a move went to - the current object stays the one of the window in
      force. */
-  private onSourceError(error: any, operation: DynamicDataOperation): void {
+  private reportDataError(error: any, operation: DynamicDataOperation): void {
     if (operation === "read") {
       this.forgetFocusIndex();
       this.pendingVisibleIndex = undefined;
-    } else if (!!this.reportedWritesSurvey) {
-      this.hasRejectedWrite = true;
     }
     if (!!this.survey) {
       this.survey.dynamicDataError(this, operation, error);

@@ -6146,6 +6146,39 @@ describe("Remote data source: the survey learns of pending writes from the recor
     await flush();
     expect(source.records, "#3").toEqual([{ id: 1, col1: "b" }]);
   });
+  test("a refusal while a write is pending keeps the completion waiting, and it completes when the write succeeds", async () => {
+    const run = async (name: string, source: FakeServerSource, json: any, prepare: (question: QuestionMatrixDynamicModel) => void,
+      refuse: (question: QuestionMatrixDynamicModel) => void): Promise<void> => {
+      const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "matrix", rowCount: 0, columns: [{ name: "col1" }] }, json)] });
+      survey.validationEnabled = false;
+      const errors: Array<string> = [];
+      survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
+      const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+      source.auto = false;
+      question.dataSource = source;
+      source.settleAll();
+      await flush();
+      prepare(question);
+      source.settleAll();
+      await flush();
+      question.visibleRows[0].getQuestionByName("col1").value = "z";
+      expect(source.pending.map(call => call.op), name + " #1: an update is pending").toEqual(["update"]);
+      expect(survey.tryComplete(), name + " #2: the completion is held").toBe(false);
+      refuse(question);
+      expect(errors, name + " #3: the refusal is reported").toEqual(["remove"]);
+      await flush();
+      expect(survey.state, name + " #4: the update is still pending, the completion keeps waiting").toBe("running");
+      for (let i = 0; i < 3; i++) {
+        source.settleAll();
+        await flush();
+      }
+      expect(survey.state, name + " #5: the update succeeded, the held completion runs").toBe("completed");
+    };
+    await run("a source that cannot remove", new FakeServerSource([{ id: 1, col1: "x" }, { id: 2, col1: "y" }], ["update"]), {},
+      () => { }, question => question.removeRowByIndex(1));
+    await run("a record a paging source has not loaded", new FakeServerSource(serverRecords(12)), { rowsPerPage: 5 },
+      question => question.goToPage(1), question => question.removeRowByIndex(0));
+  });
 });
 
 describe("Remote data source: what a developer assigns through the survey is stored as assigned", () => {

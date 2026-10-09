@@ -216,6 +216,11 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     this.listModel.selectFocusedItem();
     this.onFocus(event);
   }
+  protected handleEnterWhenPopupHidden(event: any): void {
+    const question = <Question & { tryCommitAutoAdvanceOnEnter?(event: any): boolean }>this.question;
+    if (question.tryCommitAutoAdvanceOnEnter?.(event)) return;
+    super.handleEnterWhenPopupHidden(event);
+  }
 
   protected onPropertyChangedHandler(sender: any, options: any) {
     super.onPropertyChangedHandler(sender, options);

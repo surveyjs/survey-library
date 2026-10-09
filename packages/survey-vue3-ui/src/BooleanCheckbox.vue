@@ -1,5 +1,5 @@
 <template>
-  <div :class="question.cssClasses.rootCheckbox" ref="root">
+  <div :class="question.cssClasses.rootCheckbox" ref="root" @keydown="question.onKeyDown($event)">
     <div :class="question.getCheckboxItemCss()">
       <label :class="question.cssClasses.checkboxLabel">
         <input

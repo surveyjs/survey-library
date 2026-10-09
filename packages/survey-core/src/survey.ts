@@ -1954,15 +1954,20 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * Specifies whether the survey switches to the next page automatically after a user answers all questions on the current page.
+   * Specifies whether the survey advances to the next page automatically after a respondent answers all questions on the current page and the answers pass validation.
    *
    * Default value: `false`
    *
-   * If you enable this property, the survey is also completed automatically. Set the [`autoAdvanceAllowComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceAllowComplete) property to `false` if you want to disable this behavior.
+   * Auto-advance behavior depends on the question type:
    *
-   * > If any of the following questions is answered last, the survey does not switch to the next page: Checkboxes, Yes/No (Boolean) (rendered as Checkbox), Long Text, Signature, Image Picker (with Multi Select), File Upload, Single-Select Matrix (not all rows are answered), Dynamic Matrix, Dynamic Panel.
+   * - The survey does not auto-advance if the last answered question is a Signature, File Upload, Dynamic Matrix, or Dynamic Panel.
+   * - A Single-Select Matrix can trigger auto-advance only when all its rows are answered.
+   * - For Checkboxes, Multi-Select Dropdown (Tag Box), Image Picker with `multiSelect: true`, Ranking, Yes/No (Boolean) rendered as a checkbox, and Long Text, respondents must press Enter after answering to trigger auto-advance.
+   * - For Radio Button Group and single-select Image Picker, a mouse or touch selection triggers auto-advance. After a keyboard selection, respondents must press Enter to trigger auto-advance.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
+   * If you set `autoAdvanceEnabled` to `true`, the survey also completes automatically after the last page. To require respondents to complete it manually, set the [`autoAdvanceAllowComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceAllowComplete) property to `false`.
+   *
+   * [Demo: Move to the Next Page Automatically](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
    * @since 2.0.0
    */
@@ -7721,10 +7726,14 @@ export class SurveyModel extends SurveyElementCore
     return this.generateNewName(elements, baseName);
   }
   public tryGoNextPageAutomatic(name: string): void {
-    if (!!this.isEndLoadingFromJson || !this.autoAdvanceEnabled || !this.currentPage) return;
+    this.tryGoNextPageAutomaticCore(name);
+  }
+  public tryGoNextPageAutomaticCore(name: string): boolean {
+    if (!!this.isEndLoadingFromJson || !this.autoAdvanceEnabled || !this.currentPage) return false;
     const question = <Question>this.getQuestionByValueName(name);
-    if (!question || (!!question && (!question.visible || !question.supportAutoAdvance()))) return;
-    if (!question.validate(false) && !question.supportGoNextPageError()) return;
+    if (!question || (!!question && (!question.visible || !question.supportAutoAdvance()))) return false;
+    if (!question.validate(false) && !question.supportGoNextPageError()) return false;
+    let scheduled = false;
     if (!!this.currentSingleElement) {
       const curQuestion = this.currentSingleElement;
       const goNextQuestion = () => {
@@ -7738,14 +7747,15 @@ export class SurveyModel extends SurveyElementCore
         }
       };
       surveyTimerFunctions.safeTimeOut(goNextQuestion, settings.autoAdvanceDelay);
+      scheduled = true;
     }
     var questions = this.getCurrentPageQuestions();
-    if (questions.indexOf(question) < 0) return;
+    if (questions.indexOf(question) < 0) return scheduled;
     for (var i = 0; i < questions.length; i++) {
-      if (questions[i].hasInput && questions[i].isEmpty()) return;
+      if (questions[i].hasInput && questions[i].isEmpty()) return scheduled;
     }
-    if (this.isLastPage && (this.autoAdvanceEnabled !== true || !this.autoAdvanceAllowComplete)) return;
-    if (!this.validateActivePage(false)) return;
+    if (this.isLastPage && (this.autoAdvanceEnabled !== true || !this.autoAdvanceAllowComplete)) return scheduled;
+    if (!this.validateActivePage(false)) return scheduled;
     const curPage = this.currentPage;
     const goNextPage = () => {
       if (curPage !== this.currentPage) return;
@@ -7756,6 +7766,7 @@ export class SurveyModel extends SurveyElementCore
       }
     };
     surveyTimerFunctions.safeTimeOut(goNextPage, settings.autoAdvanceDelay);
+    return true;
   }
   private tryCompleteOrShowPreview(): void {
     if (this.showPreviewBeforeComplete) {

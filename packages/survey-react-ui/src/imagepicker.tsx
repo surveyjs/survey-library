@@ -15,7 +15,11 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
   protected renderElement(): React.JSX.Element {
     var cssClasses = this.question.cssClasses;
     return (
-      <fieldset className={this.question.getSelectBaseRootCss()} style={this.question.getContainerStyle()}>
+      <fieldset
+        className={this.question.getSelectBaseRootCss()}
+        style={this.question.getContainerStyle()}
+        onKeyDown={(event) => this.question.onKeyDown?.(event)}
+      >
         <legend className="sv-hidden">{this.question.locTitle.renderedHtml}</legend>
         {this.question.hasColumns ? this.getColumns(cssClasses) : this.getItems(cssClasses)}
       </fieldset>
@@ -185,7 +189,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
 
     const renderedItem = (
       <div className={itemClass}>
-        <label className={cssClasses.label}>
+        <label className={cssClasses.label} onMouseDown={() => this.question.onMouseDown()}>
           <input
             className={cssClasses.itemControl}
             id={this.question.getItemId(item)}

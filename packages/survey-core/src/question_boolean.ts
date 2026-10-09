@@ -34,7 +34,24 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
     return true;
   }
   supportAutoAdvance(): boolean {
-    return this.getRenderAsValue() !== "checkbox";
+    return this.getRenderAsValue() !== "checkbox" || this.isAutoAdvanceRequested === true;
+  }
+  // Space toggles the checkbox. Enter is the completion signal, and only from the input
+  // or the question root. Title-action buttons inside the label must keep Enter.
+  public onKeyDown(event: any): void {
+    if (this.getRenderAsValue() !== "checkbox") return;
+    if (!this.isCheckboxAutoAdvanceTarget(event)) return;
+    if (this.canCommitAutoAdvanceOnEnter(event)) {
+      this.commitAutoAdvance(event);
+    }
+  }
+  private isCheckboxAutoAdvanceTarget(event: any): boolean {
+    const target = event?.target;
+    if (!target || target === event.currentTarget) return true;
+    const tag = (target.tagName || target.nodeName || "").toString().toLowerCase();
+    if (tag !== "input") return false;
+    const type = (target.type || "text").toString().toLowerCase();
+    return type === "checkbox";
   }
   public get isIndeterminate(): boolean {
     return this.isEmpty();

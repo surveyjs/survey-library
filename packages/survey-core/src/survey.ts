@@ -1995,6 +1995,8 @@ export class SurveyModel extends SurveyElementCore
   public set allowCompleteSurveyAutomatic(val: boolean) {
     this.autoAdvanceAllowComplete = val;
   }
+  // Opt-in letter codes (A, B, ... AA) for Radiogroup and Checkbox. Off unless a survey turns it on.
+  @property({ defaultValue: false }) showChoiceShortcutKeys: boolean;
   /**
    * Specifies when the survey validates answers.
    *
@@ -9300,6 +9302,7 @@ Serializer.addClass("survey", [
     name: "autoAdvanceAllowComplete:boolean", default: true, alternativeName: "allowCompleteSurveyAutomatic",
     visibleIf: (obj: any): boolean => obj.autoAdvanceEnabled === true
   },
+  { name: "showChoiceShortcutKeys:boolean", default: false },
   {
     name: "clearInvisibleValues",
     default: "onComplete",

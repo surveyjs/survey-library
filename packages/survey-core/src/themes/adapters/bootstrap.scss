@@ -242,6 +242,10 @@
 
   --sjs2-color-fg-alert-on-primary: #fff;
   --sjs2-color-fg-basic-primary: var(--bs-body-color);
+  --sjs2-color-component-shortcut-key-bg: var(--bs-body-bg);
+  --sjs2-color-component-shortcut-key-border: var(--bs-border-color);
+  --sjs2-color-component-shortcut-key-text: var(--bs-body-color);
+  --sjs2-radius-component-shortcut-key: var(--bs-border-radius-sm, 0.25rem);
   --sjs2-color-fg-basic-secondary: var(--bs-secondary-color);
   --sjs2-color-fg-brand-on-primary: var(--sjs-bs-on-primary);
   --sjs2-color-fg-brand-on-secondary: var(--sjs-bs-on-secondary);

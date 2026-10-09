@@ -38,6 +38,12 @@ export class SurveyQuestionCheckboxItem extends SurveyQuestionSelectBaseItem {
   protected doOnItemChange(event: any): void {
     this.question.clickItemHandler(this.item, event.target.checked);
   }
+  handleOnKeyDown = (event: any) => {
+    this.question.onChoiceKeyDown(event.nativeEvent);
+  };
+  handleOnBlur = (event: any) => {
+    this.question.onChoiceFocusOut(event.nativeEvent);
+  };
   protected renderElementContent(): React.JSX.Element {
     const isChecked = this.question.isItemSelected(this.item);
     return this.renderCheckbox(isChecked);
@@ -51,9 +57,11 @@ export class SurveyQuestionCheckboxItem extends SurveyQuestionSelectBaseItem {
     const labelClass = this.question.getLabelClass(this.item);
     const itemLabel = !this.hideCaption ? <span className={this.cssClasses.controlLabel} id={this.question.getItemLabelId(this.item)} aria-hidden={this.question.isItemLabelAriaHidden ? "true" : undefined}>{this.renderLocString(this.item.locText, this.textStyle)}</span> : null;
 
+    const shortcutKey = this.question.getChoiceKeyBadge(this.item);
     return (
       <div className={itemClass} role="presentation" ref={this.rootRef}>
         <label className={labelClass}>
+          {shortcutKey ? <span className={this.question.getItemShortcutKeyClass(this.item)} aria-hidden="true">{shortcutKey}</span> : null}
           <input
             className={this.cssClasses.itemControl}
             type="checkbox"
@@ -65,9 +73,12 @@ export class SurveyQuestionCheckboxItem extends SurveyQuestionSelectBaseItem {
             readOnly={this.question.isReadOnlyAttr}
             checked={isChecked}
             onChange={this.handleOnChange}
+            onKeyDown={this.handleOnKeyDown}
+            onBlur={this.handleOnBlur}
             required={this.question.hasRequiredError()}
             aria-label={this.ariaLabel}
             aria-labelledby={!this.ariaLabel && !this.hideCaption ? this.question.getItemLabelId(this.item) : undefined}
+            aria-keyshortcuts={this.question.getItemAriaKeyShortcuts(this.item)}
           />
           {
             this.cssClasses.materialDecorator ?

@@ -291,6 +291,7 @@ export {
   ButtonGroupItemModel,
   ButtonGroupItemValue
 } from "../../src/question_buttongroup";
+export { indexToChoiceKeyCode, choiceKeyCodeToIndex } from "../../src/utils/choice-key-codes";
 export { IsMobile, IsTouch, _setIsTouch, _setIsTablet } from "../../src/utils/devices";
 export * from "../../src/utils/browser";
 export * from "../../src/utils/color";

@@ -255,6 +255,10 @@
 
   --sjs2-color-border-basic-primary: var(--mui-palette-text-primary);
   --sjs2-color-border-basic-secondary: var(--mui-palette-divider);
+  --sjs2-color-component-shortcut-key-bg: var(--mui-palette-background-paper);
+  --sjs2-color-component-shortcut-key-border: var(--mui-palette-divider);
+  --sjs2-color-component-shortcut-key-text: var(--mui-palette-text-primary);
+  --sjs2-radius-component-shortcut-key: var(--mui-shape-borderRadius, 4px);
 
   --sjs2-color-component-slider-default-thumb: var(--mui-palette-primary-main);
   --sjs2-color-component-slider-default-dot: var(--mui-palette-primary-main);

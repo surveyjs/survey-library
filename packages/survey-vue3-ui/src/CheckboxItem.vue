@@ -1,6 +1,11 @@
 <template>
   <div role="presentation" :class="question.getItemClass(item)" ref="root">
     <label :class="question.getLabelClass(item)">
+      <span
+        v-if="question.getChoiceKeyBadge(item)"
+        :class="question.getItemShortcutKeyClass(item)"
+        aria-hidden="true"
+      >{{ question.getChoiceKeyBadge(item) }}</span>
       <input
         type="checkbox"
         :name="question.name + item.id"
@@ -10,6 +15,8 @@
             change(e);
           }
         "
+        @keydown="question.onChoiceKeyDown?.($event)"
+        @focusout="question.onChoiceFocusOut?.($event)"
         :value="item.value"
         :id="question.getItemId(item)"
         :disabled="!question.getItemEnabled(item)"
@@ -18,6 +25,7 @@
         :required="question.hasRequiredError()"
         :aria-label="ariaLabel"
         :aria-labelledby="!ariaLabel && !hideLabel ? question.getItemLabelId(item) : undefined"
+        :aria-keyshortcuts="question.getItemAriaKeyShortcuts(item)"
       /><span
         v-if="question.cssClasses.materialDecorator"
         :class="question.cssClasses.materialDecorator"

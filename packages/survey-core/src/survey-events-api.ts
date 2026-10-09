@@ -937,8 +937,9 @@ export interface DynamicPanelRemovingEvent extends DynamicPanelModifiedEvent {
   allow: boolean;
 }
 export interface DynamicDataErrorEvent extends QuestionEventMixin {
-  // The data source operation that failed: "read", "insert", "update" or "remove". "move" is only
-  // reported as refused: a matrix with a data source does not reorder its rows.
+  // The data source operation that failed: "read", "insert", "update" or "remove". "move" and "count"
+  // are only reported as refused: a matrix with a data source does not reorder its rows, and the
+  // source owns the record count, so rowCount and panelCount cannot be set while it is assigned.
   operation: string;
   // The error the data source reported: whatever its promise was rejected with or its method threw.
   error: any;

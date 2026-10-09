@@ -541,10 +541,10 @@ export abstract class QuestionRecordsModel extends Question {
     }
   }
   /* "the records are owned by a data source": the survey hash, the write routing, the capabilities
-     and the count setters ask it. It is deliberately not "the list pages itself": a source that
-     returns everything in one read is still a source, and its records are still not the question's
-     to grow or truncate - but the list pages them exactly as it pages question.value. Who pages is
-     isPagedByList.
+     and the record count (recordCount) ask it. It is deliberately not "the list pages itself": a
+     source that returns everything in one read is still a source, and its records are still not the
+     question's to grow or truncate - but the list pages them exactly as it pages question.value. Who
+     pages is isPagedByList.
      It also decides who owns the records. While it is set, the survey's clean-ups return before any
      record or value work: clearValueIfInvisible (complete, a container hide, the question's own hide),
      clearValueOnHidding, the matrix's rowsVisibleIf pass under onHidden (clearInvisibleValuesInRows)
@@ -938,25 +938,55 @@ export abstract class QuestionRecordsModel extends Question {
   protected getRecordCountNames(): IRecordCountNames {
     return undefined;
   }
-  /* The count the expression computes, clamped to the type's limits, set through the count's accessor.
-     A type runs the assignment in its own frame (runRecordCountExpressionWrite). */
+  /* The record count of a type with a count of its own (getRecordCountNames): rowCount and panelCount
+     delegate to it. Two counts live apart.
+     While a data source is assigned, the source owns the number of records: the count is the one
+     stored with its window (storedSourceRecordCount), and the question never asks the source to grow
+     or shrink - records are added and removed one by one (an insert or a remove the source can
+     refuse). The type's count property (getRecordCountNames().count) keeps the authored count then:
+     only a JSON load and a binding write it, the survey JSON leaves it out (isRecordCountSerializable),
+     and a detach shows it again (restoreValueFromSurveyData).
+     Without a source the type keeps its count itself (getRecordCountCore / setRecordCountCore). */
+  protected get recordCount(): number {
+    return this.isRemoteData ? this.storedSourceRecordCount : this.getRecordCountCore();
+  }
+  protected set recordCount(val: number) {
+    this.writeRecordCount(val, this.isLoadingFromJson ? "authored" : "code");
+  }
+  protected getRecordCountCore(): number {
+    return 0;
+  }
+  protected setRecordCountCore(val: number): void { }
+  /* The type's own writes of its count property (a removal that counts down, a clamp on load): while a
+     source is assigned the property holds the authored count, so they leave it alone. */
+  protected setRecordCountProperty(val: number): void {
+    if (!this.isRemoteData) {
+      this.setPropertyValue(this.getRecordCountNames().count, val);
+    }
+  }
+  /* The one write of the record count. Without a source it reaches the type. While a source is
+     assigned: an authored write (a JSON load, a binding) keeps the count in the type's property and
+     does nothing else; a write from code that would change the count is reported once; an internal
+     write (the limits, the count expression) is silent. */
+  private writeRecordCount(val: number, origin: "code" | "authored" | "internal"): void {
+    if (!this.isRemoteData) {
+      this.setRecordCountCore(val);
+    } else if (origin === "authored") {
+      this.setPropertyValue(this.getRecordCountNames().count, Helpers.getNumber(val));
+    } else if (origin === "code" && Helpers.getNumber(val) !== this.recordCount) {
+      this.reportDataError(new Error("The data source owns the record count; add or remove records instead"), "count");
+    }
+  }
+  /* The count the expression computes, clamped to the type's limits. A type runs the assignment in its
+     own frame (runRecordCountExpressionWrite). */
   protected setRecordCountByExpression(val: any): void {
     const names = this.getRecordCountNames();
     if (!names) return;
     const count = this.getRecordCountByExpressionValue(val, this.getPropertyValue(names.min), this.getRecordCountLimitOf(names.max));
-    this.runRecordCountExpressionWrite((): void => this.setRecordCountValue(count));
+    this.runRecordCountExpressionWrite((): void => this.writeRecordCount(count, "internal"));
   }
   protected runRecordCountExpressionWrite(write: () => void): void {
     write();
-  }
-  // The count getRecordCountNames names (rowCount, panelCount), read and set through its public accessor.
-  protected getRecordCountValue(): number {
-    const names = this.getRecordCountNames();
-    return !!names ? (<any>this)[names.count] : 0;
-  }
-  protected setRecordCountValue(val: number): void {
-    const names = this.getRecordCountNames();
-    if (!!names)(<any>this)[names.count] = val;
   }
   /* A change of the minimum or the maximum count (getRecordCountNames): the other limit and the count
      follow, and the count expression runs again over the new limits. The type adds its own steps:
@@ -976,14 +1006,14 @@ export abstract class QuestionRecordsModel extends Question {
     const val = this.getPropertyValue(names.min);
     if (val > this.getMaxRecordCount(names.max))this.setMaxRecordCount(names.max, val);
     this.onMinRecordCountApplied(val);
-    if (this.getRecordCountValue() < val)this.setRecordCountValue(val);
+    if (this.recordCount < val)this.writeRecordCount(val, "internal");
     this.rerunRecordCountExpression();
   }
   private onMaxRecordCountChanged(names: IRecordCountNames): void {
     const val = this.getMaxRecordCount(names.max);
     if (val < this.getPropertyValue(names.min))this.setPropertyValue(names.min, val);
     const limit = this.getRecordCountLimitOf(names.max);
-    if (this.getRecordCountValue() > limit)this.setRecordCountValue(limit);
+    if (this.recordCount > limit)this.writeRecordCount(limit, "internal");
     this.rerunRecordCountExpression();
     this.onMaxRecordCountApplied();
   }
@@ -1007,9 +1037,14 @@ export abstract class QuestionRecordsModel extends Question {
     if (this.hasRecordCountExpression && propertyName === this.getRecordCountNames().count) return;
     super.updateBindings(propertyName, value);
   }
+  // A bound count is an authored write: while a source is assigned it keeps the authored count only.
   protected updateBindingProp(propName: string, value: any): void {
-    if (this.hasRecordCountExpression && propName === this.getRecordCountNames().count) return;
-    super.updateBindingProp(propName, value);
+    const names = this.getRecordCountNames();
+    if (!names || propName !== names.count) {
+      super.updateBindingProp(propName, value);
+    } else if (!this.hasRecordCountExpression) {
+      this.writeRecordCount(value, "authored");
+    }
   }
   protected getRecordCountLimitOf(propertyName: string): number {
     return this.getRecordCountLimit(this.getMaxRecordCount(propertyName), this.getPropertyValueWithoutDefault(propertyName));
@@ -1982,7 +2017,7 @@ export abstract class QuestionRecordsModel extends Question {
     }
     return this.showPageOfRecord(recordIndex);
   }
-  /* The add of a question whose count setter builds the objects (rowCount++, panelCount++ in grow):
+  /* The add of a question whose count setter builds the objects (setRecordCountCore in grow):
      the grow appends the new record at the end, and the record then moves to getIndex() and takes
      getRecord(index) when that answers one - one write, in one list.batch. getIndex runs after the
      grow; undefined keeps the record where the grow appended it. An assignment from outside that the
@@ -2607,9 +2642,18 @@ export abstract class QuestionRecordsModel extends Question {
     return this.survey.getQuestionsByValueName(this.getValueName()).some((question: IQuestion): boolean =>
       question !== this && !(question instanceof QuestionRecordsModel && question.isRemoteData));
   }
-  // Detaching: the window is dropped and the question reads the survey hash again.
+  /* Detaching: the window is dropped and the question reads the survey hash again. With an answer
+     there the count follows its records. With none the question shows the authored count again: the
+     type's count property kept it while the source was assigned (recordCount). It is read before the
+     restore, which can follow the empty answer down (the matrix sets rowCount to its length). */
   private restoreValueFromSurveyData(): void {
-    this.updateValueFromSurvey(!!this.data ? this.data.getValue(this.getValueName()) : undefined);
+    const names = this.getRecordCountNames();
+    const authoredCount = !!names ? this.getPropertyValue(names.count) : undefined;
+    const value = !!this.data ? this.data.getValue(this.getValueName()) : undefined;
+    this.updateValueFromSurvey(value);
+    if (!!names && this.isValueEmpty(value)) {
+      this.setRecordCountCore(authoredCount);
+    }
   }
   // An error of the source: a write it rejected releases a completion that waits for the writes.
   private onSourceError(error: any, operation: DynamicDataOperation): void {
@@ -3465,19 +3509,18 @@ export abstract class QuestionRecordsModel extends Question {
   /* The storage half alone: used after every write the list pushed to the source. The object the
      respondent is typing in already holds the new value, and a rebuild would dispose it under the
      edit (the frozen-membership rule). */
-  /* The window of a source becomes the stored value, and the source's count the record count: it is
-     stored on every transition that stores the window (a committed read, the unread window of an
-     attach, each write pushed to the source before it answers) and read from there
+  /* The window of a source becomes the stored value, and the source's count the record count
+     (recordCount): it is stored on every transition that stores the window (a committed read, the
+     unread window of an attach, each write pushed to the source before it answers) and read from there
      (storedSourceRecordCount) - a live read of the list while a source is being attached counts the
-     question's own value, which reads the count back. */
+     question's own value, which reads the count back. It can be above settings.matrix.maxRowCount: that
+     clamp limits what a caller may ask for. With a source that answers without a total it is the count
+     of the records known to exist, a lower bound (isCountKnown says which of the two it is). */
   protected storeLoadedRecords(): void {
     this.storeQuestionValue(this.dataList.getLoadedRecords());
     this.storedSourceRecordCount = this.dataList.count;
-    this.onSourceRecordCountStored(this.storedSourceRecordCount);
   }
   protected storedSourceRecordCount: number = 0;
-  // The type's count follows the stored count of the source (the matrix's rowCount).
-  protected onSourceRecordCountStored(count: number): void { }
   /* Record indexes the question keeps besides the edited set and the current record: the records its
      objects were built for, while a question nested in one of them pages - its state is kept under that
      record (keepNestedPageStates). A read that commits again renumbers them with its remap, so that the
@@ -3994,6 +4037,11 @@ export interface IRecordCountNames { count: string, expression: string, min: str
 export function getRecordCountNamesOf(entity: string): IRecordCountNames {
   const name = entity.charAt(0).toLowerCase() + entity.substring(1);
   return { count: name + "Count", expression: name + "CountExpression", min: "min" + entity + "Count", max: "max" + entity + "Count" };
+}
+/* The serializer rule of the count property (rowCount, panelCount): left out while a data source is
+   assigned, since the source owns the number of records (QuestionRecordsModel.recordCount). */
+export function isRecordCountSerializable(obj: any): boolean {
+  return !obj.isRemoteData;
 }
 // A temporary row or panel of the records clean-up (createRecordCleanupObject).
 export interface IRecordCleanupObject {

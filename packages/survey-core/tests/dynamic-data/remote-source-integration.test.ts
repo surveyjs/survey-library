@@ -974,19 +974,17 @@ describe("Remote data source: attaching and detaching a source", () => {
     expect(question.rowCount, "#3: the window").toBe(2);
     question.dataSource = undefined;
     await flush();
-    // The hash was cleared by the attach, so the detach restores an empty value.
-    expect(question.rowCount, "#4").toBe(0);
-    expect(question["dataList"].loadedCount, "#5").toBe(0);
-    expect(question.value, "#6").toEqual([]);
-    question.rowCount = 3;
-    expect(question["dataList"].loadedCount, "#7: padded up to rowCount again").toBe(3);
-    expect(question["dataList"].getRecord(2), "#8: a padded record").toEqual({});
-    expect(question.visibleRows.length, "#9").toBe(3);
+    // The hash was cleared by the attach: the detach restores an empty value and the authored rowCount.
+    expect(question.rowCount, "#4: the authored count").toBe(3);
+    expect(question.value, "#5").toEqual([]);
+    expect(question["dataList"].loadedCount, "#6: padded up to rowCount again").toBe(3);
+    expect(question["dataList"].getRecord(2), "#7: a padded record").toEqual({});
+    expect(question.visibleRows.length, "#8").toBe(3);
     question.visibleRows[2].getQuestionByName("col1").value = "x";
-    expect(question.value, "#10: the padded records are stored with the edit").toEqual([{}, {}, { col1: "x" }]);
-    expect(survey.data.matrix, "#11").toEqual([{}, {}, { col1: "x" }]);
+    expect(question.value, "#9: the padded records are stored with the edit").toEqual([{}, {}, { col1: "x" }]);
+    expect(survey.data.matrix, "#10").toEqual([{}, {}, { col1: "x" }]);
     question["dataList"].setValue(1, "col1", "y");
-    expect(survey.data.matrix, "#12: a list write goes through normalizeRecords to the hash").toEqual([{}, { col1: "y" }, { col1: "x" }]);
+    expect(survey.data.matrix, "#11: a list write goes through normalizeRecords to the hash").toEqual([{}, { col1: "y" }, { col1: "x" }]);
   });
   test("matrix: an assigned ArrayDynamicDataSource takes the edits, adds and removes, and the hash stays cleared", async () => {
     let arr: Array<any> = [{ col1: "a0" }, { col1: "a1" }];
@@ -6169,21 +6167,300 @@ describe("Remote data source: a throwing error handler", () => {
 
 describe("Remote data source: the source owns the record count", () => {
   const source = (): FakeServerSource => new FakeServerSource(serverRecords(3), ["insert", "update", "remove", "move"]);
-  test("panel: before its first render panelCount reports the source's count, and toJSON writes it", async () => {
+  test("panel: before its first render panelCount reports the source's count, and toJSON leaves it out", async () => {
     const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "panel", panelCount: 1, templateElements: [{ type: "text", name: "col1" }] }] });
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
     question.dataSource = source();
     await flush();
     expect(question.panelCount, "#1").toBe(3);
-    expect(question.toJSON().panelCount, "#2").toBe(3);
+    expect(question.toJSON().panelCount, "#2").toBe(undefined);
   });
-  test("matrix: rowCount reports the source's count, and toJSON writes it", async () => {
+  test("matrix: rowCount reports the source's count, and toJSON leaves it out", async () => {
     const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 1, columns: [{ name: "col1" }] }] });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     question.dataSource = source();
     await flush();
     expect(question.rowCount, "#1").toBe(3);
-    expect(question.toJSON().rowCount, "#2").toBe(3);
+    expect(question.toJSON().rowCount, "#2").toBe(undefined);
+  });
+});
+
+/* While a data source is assigned, the source owns the number of records: rowCount and panelCount read
+   its count, a write from code changes nothing and is reported under "count", the silent writes (the
+   limits, the count expression, a binding, a JSON load) change nothing either, and the survey JSON
+   leaves the count out. The authored count stays in the count property, and a detach shows it again.
+   Each case runs for both types, over an assigned in-memory source and over a keyed source whose read
+   is held until the test settles it. */
+describe("Remote data source: the record count is read-only", () => {
+  const countNameOf = (kind: string): string => kind === "matrix" ? "rowCount" : "panelCount";
+  const COUNT_REASON = "The data source owns the record count; add or remove records instead";
+  interface ICountCase {
+    survey: SurveyModel;
+    question: any;
+    source: IDynamicDataSource;
+    server: FakeServerSource;
+    countName: string;
+    // "operation: message" for every onDynamicDataError.
+    errors: Array<string>;
+    count: () => number;
+    setCount: (val: number) => void;
+    // The rows or the panels.
+    objects: () => number;
+    sourceRecords: () => Array<any>;
+    // The writes the source was sent.
+    sent: () => number;
+    attach: () => Promise<void>;
+  }
+  function createCountCase(kind: string, sourceKind: string, json?: any, extra?: Array<any>, isDesignMode: boolean = false): ICountCase {
+    const survey = new SurveyModel();
+    if (isDesignMode) survey.setDesignMode(true);
+    const element = kind === "matrix" ?
+      { type: "matrixdynamic", name: "q", rowCount: 7, columns: [{ name: "id" }, { name: "col1" }] } :
+      { type: "paneldynamic", name: "q", panelCount: 7, templateElements: [{ type: "text", name: "id" }, { type: "text", name: "col1" }] };
+    survey.fromJSON({ elements: [Object.assign(element, json)].concat(extra || []) });
+    const question: any = survey.getQuestionByName("q");
+    const countName = countNameOf(kind);
+    let arr: Array<any> = [{ id: 1, col1: "a" }, { id: 2, col1: "b" }, { id: 3, col1: "c" }];
+    let arrWrites = 0;
+    const server = keyedSource(3, ["insert", "update", "remove"]);
+    const source: IDynamicDataSource = sourceKind === "array" ?
+      new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a; arrWrites++; }) : server;
+    const res: ICountCase = {
+      survey: survey, question: question, source: source, server: server, countName: countName, errors: [],
+      count: (): number => question[countName],
+      setCount: (val: number): void => { question[countName] = val; },
+      objects: (): number => kind === "matrix" ? question.visibleRows.length : question.panels.length,
+      sourceRecords: (): Array<any> => sourceKind === "array" ? arr : server.records,
+      sent: (): number => sourceKind === "array" ? arrWrites : server.calls.filter((call: IServerCall): boolean => call.op !== "read").length,
+      attach: async (): Promise<void> => {
+        question.dataSource = source;
+        await flush();
+      }
+    };
+    survey.onDynamicDataError.add((sender: SurveyModel, options: any): void => {
+      res.errors.push(options.operation + ": " + options.error.message);
+    });
+    return res;
+  }
+  const refused = (times: number): Array<string> => {
+    const res: Array<string> = [];
+    for (let i = 0; i < times; i++) res.push("count: " + COUNT_REASON);
+    return res;
+  };
+  ["matrix", "panel"].forEach((kind: string): void => {
+    ["array", "keyed"].forEach((sourceKind: string): void => {
+      test(kind + ", " + sourceKind + " source: the setter from code changes nothing and reports each refused write once", async () => {
+        const c = createCountCase(kind, sourceKind);
+        await c.attach();
+        let valueChanged = 0;
+        c.survey.onValueChanged.add((): void => { valueChanged++; });
+        const value = JSON.stringify(c.question.value);
+        const records = JSON.stringify(c.sourceRecords());
+        const check = (label: string, errors: number): void => {
+          expect(c.count(), label + ": the count").toBe(3);
+          expect(c.objects(), label + ": the objects").toBe(3);
+          expect(JSON.stringify(c.sourceRecords()), label + ": the source").toBe(records);
+          expect(JSON.stringify(c.question.value), label + ": the value").toBe(value);
+          expect(c.sent(), label + ": nothing is sent").toBe(0);
+          expect(c.errors, label + ": the refusals").toEqual(refused(errors));
+        };
+        check("#1", 0);
+        c.setCount(5);
+        check("#2: larger", 1);
+        c.setCount(1);
+        check("#3: smaller", 2);
+        c.setCount(3);
+        check("#4: the current count is no refusal", 2);
+        expect(valueChanged, "#5: onValueChanged").toBe(0);
+      });
+      test(kind + ", " + sourceKind + " source: the limits, the count expression, a binding and a JSON load change the count silently", async () => {
+        const min = kind === "matrix" ? "minRowCount" : "minPanelCount";
+        const max = kind === "matrix" ? "maxRowCount" : "maxPanelCount";
+        const c = createCountCase(kind, sourceKind, { bindings: { [countNameOf(kind)]: "n" } }, [{ type: "text", name: "n" }, { type: "text", name: "e" }]);
+        await c.attach();
+        const check = (label: string): void => {
+          expect(c.count(), label + ": the count").toBe(3);
+          expect(c.objects(), label + ": the objects").toBe(3);
+          expect(c.sent(), label + ": nothing is sent").toBe(0);
+          expect(c.errors, label + ": nothing is reported").toEqual([]);
+        };
+        c.question[min] = 5;
+        check("#1: the minimum above the count");
+        c.question[min] = 0;
+        c.question[max] = 2;
+        check("#2: the maximum below the count");
+        c.question[max] = 10;
+        c.question[c.countName + "Expression"] = "{e}";
+        c.survey.setValue("e", 6);
+        check("#3: the count expression");
+        c.survey.setValue("n", 5);
+        check("#4: a binding");
+        c.question.fromJSON({ [c.countName]: 4 });
+        check("#5: a JSON load");
+      });
+      test(kind + ", " + sourceKind + " source: design mode reads the source's count and refuses a write", async () => {
+        const c = createCountCase(kind, sourceKind, undefined, undefined, true);
+        const panels = kind === "panel" ? [].concat(c.question.panels) : undefined;
+        await c.attach();
+        expect(c.count(), "#1").toBe(3);
+        c.setCount(5);
+        expect(c.count(), "#2: unchanged").toBe(3);
+        expect(c.sent(), "#3: nothing is sent").toBe(0);
+        expect(c.errors, "#4").toEqual(refused(1));
+        if (kind === "panel") {
+          expect(c.question.panels.length, "#5: the design surface").toBe(panels.length);
+          expect(c.question.panels.every((panel: any, index: number): boolean => panel === panels[index]), "#6: the same panels").toBe(true);
+          expect(c.question.panels[0] === c.question.template, "#7: the template").toBe(true);
+        }
+      });
+      test(kind + ", " + sourceKind + " source: the survey JSON leaves the count out, and the detach shows the authored count", async () => {
+        const c = createCountCase(kind, sourceKind);
+        expect(c.question.toJSON()[c.countName], "#1: without a source").toBe(7);
+        await c.attach();
+        expect(c.count(), "#2: the source's count").toBe(3);
+        expect(c.question.toJSON()[c.countName], "#3: left out").toBe(undefined);
+        c.question.dataSource = undefined;
+        await flush();
+        expect(c.count(), "#4: the authored count").toBe(7);
+        expect(c.objects(), "#5").toBe(7);
+        expect(c.question.toJSON()[c.countName], "#6").toBe(7);
+      });
+      test(kind + ", " + sourceKind + " source: a binding or a JSON load while the source is assigned is shown after the detach", async () => {
+        const c = createCountCase(kind, sourceKind, { bindings: { [countNameOf(kind)]: "n" } }, [{ type: "text", name: "n" }]);
+        await c.attach();
+        c.survey.setValue("n", 5);
+        expect(c.question.toJSON()[c.countName], "#1: a binding, left out").toBe(undefined);
+        c.question.dataSource = undefined;
+        await flush();
+        expect(c.count(), "#2: the bound count").toBe(5);
+        expect(c.objects(), "#3").toBe(5);
+        c.question.dataSource = createCountCase(kind, sourceKind).source;
+        await flush();
+        c.question.fromJSON({ [c.countName]: 4 });
+        expect(c.count(), "#4: the source's count").toBe(3);
+        expect(c.question.toJSON()[c.countName], "#5: a JSON load, left out").toBe(undefined);
+        c.question.dataSource = undefined;
+        await flush();
+        expect(c.count(), "#6: the loaded count").toBe(4);
+        expect(c.objects(), "#7").toBe(4);
+      });
+      test(kind + ", " + sourceKind + " source: a detach with an answer in the survey shows its records", async () => {
+        const c = createCountCase(kind, sourceKind);
+        await c.attach();
+        c.survey.setValue("q", [{ col1: "x" }, { col1: "y" }]);
+        expect(c.count(), "#1: the hash does not reach the question").toBe(3);
+        c.question.dataSource = undefined;
+        await flush();
+        expect(c.count(), "#2").toBe(2);
+        expect(c.objects(), "#3").toBe(2);
+      });
+      test(kind + ", " + sourceKind + " source: an add and a remove go to the source and leave the authored count alone", async () => {
+        const c = createCountCase(kind, sourceKind);
+        await c.attach();
+        if (kind === "matrix") {
+          c.question.addRow();
+        } else {
+          c.question.addPanel();
+        }
+        await flush();
+        expect(c.sourceRecords().length, "#1: the source holds the new record").toBe(4);
+        expect(c.count(), "#2").toBe(4);
+        expect(c.question.toJSON()[c.countName], "#3: left out").toBe(undefined);
+        if (kind === "matrix") {
+          c.question.removeRow(0);
+        } else {
+          c.question.removePanel(0);
+        }
+        await flush();
+        expect(c.sourceRecords().length, "#4: the source lost one").toBe(3);
+        expect(c.count(), "#5").toBe(3);
+        expect(c.question.toJSON()[c.countName], "#6: left out").toBe(undefined);
+        expect(c.errors, "#7: nothing is refused").toEqual([]);
+        c.question.dataSource = undefined;
+        await flush();
+        expect(c.count(), "#8: the authored count").toBe(7);
+        expect(c.objects(), "#9").toBe(7);
+        expect(c.question.toJSON()[c.countName], "#10").toBe(7);
+      });
+    });
+    test(kind + ": while the first read is pending the count is 0, a write is refused, and the read brings the count", async () => {
+      const c = createCountCase(kind, "keyed");
+      c.server.auto = false;
+      await c.attach();
+      expect(c.server.pending.length, "#1: the read is held").toBe(1);
+      expect(c.count(), "#2").toBe(0);
+      c.setCount(5);
+      expect(c.count(), "#3: unchanged").toBe(0);
+      expect(c.errors, "#4").toEqual(refused(1));
+      c.server.settleAll();
+      await flush();
+      expect(c.count(), "#5: the read committed").toBe(3);
+      expect(c.objects(), "#6").toBe(3);
+      expect(c.sent(), "#7: nothing is sent").toBe(0);
+    });
+    /* The minimum changed while the source owned the count: the authored count is shown as it was
+       authored, below the new minimum. */
+    test(kind + ": a detach after the minimum was raised above the authored count shows the authored count", async () => {
+      const c = createCountCase(kind, "array");
+      await c.attach();
+      c.question[kind === "matrix" ? "minRowCount" : "minPanelCount"] = 9;
+      c.question.dataSource = undefined;
+      await flush();
+      expect(c.count(), "#1").toBe(7);
+      expect(c.objects(), "#2").toBe(7);
+    });
+  });
+  test("matrix: the rendered table follows the source's count after a read that changes it", async () => {
+    let arr: Array<any> = [{ col1: "a" }, { col1: "b" }, { col1: "c" }];
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", rowCount: 7, columns: [{ name: "col1" }] }] });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+    question.dataSource = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a; });
+    await flush();
+    const dataRows = (): number => question.renderedTable.rows.filter((row: any): boolean => !!row.row).length;
+    expect(dataRows(), "#1").toBe(3);
+    arr = arr.concat([{ col1: "d" }]);
+    await question.refreshDataSource();
+    await flush();
+    expect(question.rowCount, "#2").toBe(4);
+    expect(dataRows(), "#3: the table was rebuilt").toBe(4);
+  });
+  test("panel: panelCountChangedCallback fires after a read that changes the count", async () => {
+    let arr: Array<any> = [{ col1: "a" }, { col1: "b" }, { col1: "c" }];
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "q", panelCount: 7, templateElements: [{ type: "text", name: "col1" }] }] });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+    question.dataSource = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a; });
+    await flush();
+    let fired = 0;
+    question.panelCountChangedCallback = (): void => { fired++; };
+    arr = arr.concat([{ col1: "d" }]);
+    await question.refreshDataSource();
+    await flush();
+    expect(question.panelCount, "#1").toBe(4);
+    expect(question.panels.length, "#2").toBe(4);
+    expect(fired > 0, "#3: the renderer is told").toBe(true);
+  });
+});
+
+/* Without a source the count serializes as it always has: through the accessor, which the panel's
+   property lags behind once its panels are built. */
+describe("the record count without a data source serializes the accessor", () => {
+  test("panel: a set count, an add and a remove", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "q", panelCount: 2, templateElements: [{ type: "text", name: "col1" }] }] });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+    question.onFirstRendering();
+    question.panelCount = 7;
+    expect(question.toJSON().panelCount, "#1").toBe(7);
+    question.addPanel();
+    expect(question.toJSON().panelCount, "#2").toBe(8);
+    question.removePanel(0);
+    expect(question.toJSON().panelCount, "#3").toBe(7);
+  });
+  test("matrix: a set count and an add", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", rowCount: 2, columns: [{ name: "col1" }] }] });
+    const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+    question.rowCount = 7;
+    question.addRow();
+    expect(question.toJSON().rowCount, "#1").toBe(8);
   });
 });
 

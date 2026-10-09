@@ -41,7 +41,7 @@ import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, IDynamicDataRecordUniqueness, QuestionRecordsModel,
   QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
-  IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties
+  IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties, isRecordCountSerializable
 } from "./question_records";
 
 export class PanelDynamicItemGetterContext extends QuestionRecordItemGetterContext {
@@ -1382,13 +1382,21 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * @see panelCountExpression
    */
   // The RECORD count. It stops being the panel count while a filter is active.
-  // With a data source the source owns the count: the one stored with its window (storeLoadedRecords).
+  // Read-only while a data source is assigned: the source owns the count (recordCount).
   public get panelCount(): number {
-    if (!this.canBuildPanels || this.wasNotRenderedInSurvey) return this.getPropertyValue("panelCount");
-    if (this.isRemoteData) return this.storedSourceRecordCount;
-    return this.hasDataListView ? this.dataList.count : this.panelsCore.length;
+    return this.recordCount;
   }
   public set panelCount(val: number) {
+    this.recordCount = val;
+  }
+  /* The count without a source. Before the panels can be built (loading, design mode, not rendered
+     yet) it is the panelCount property; after that the records of the list, or the panels. */
+  protected getRecordCountCore(): number {
+    if (!this.canBuildPanels || this.wasNotRenderedInSurvey) return this.getPropertyValue("panelCount");
+    return this.hasDataListView ? this.dataList.count : this.panelsCore.length;
+  }
+  // The panelCount setter without a source.
+  protected setRecordCountCore(val: number): void {
     if (val < 0) return;
     if (!this.isLoadingFromJson && this.isDesignMode) {
       const min = this.minPanelCount;
@@ -1405,10 +1413,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.updateFooterActions();
       return;
     }
-    /* The data source owns the count: the question never grows or truncates its storage, and the
-       getter reads the loaded total, so there is nothing to store either. The count reaches the
-       question the other way round - through storeLoadedRecords, from a read that committed. */
-    if (this.isRemoteData) return;
     if (this.hasDataListView) {
       this.setPanelCountInView(val);
       return;
@@ -2301,7 +2305,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const list = this.dataList;
     // List mode copies the last record, read before the insert, as every other add (getCopySourceRecord).
     const listCopyFrom = this.isRenderModeList ? this.getCopySourceRecord() : undefined;
-    this.growAndMoveRecord((): void => { this.panelCount++; }, (): number => {
+    this.growAndMoveRecord((): void => { this.setRecordCountCore(this.panelCount + 1); }, (): number => {
       if (list.count !== this.panelCount) return -1;
       const lastIndex = this.panelCount - 1;
       // index is a created position; the record it names is where the list moves the new one.
@@ -2504,7 +2508,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         if (successor.visibleIndex > -1)this.keepPendingVisibleIndex(successor.visibleIndex);
       }
     }
-    this.setPropertyValue("panelCount", this.panelCount);
+    this.setRecordCountProperty(this.panelCount);
     if (!!removal.item) {
       this.singleInputOnRemoveItem(removal.visiblePosition);
     }
@@ -2761,7 +2765,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.template.onSurveyLoad();
     const newPanelCount = this.adjustPanelCount();
     if (newPanelCount > -1) {
-      this.setPropertyValue("panelCount", newPanelCount);
+      this.setRecordCountProperty(newPanelCount);
     }
     super.onSurveyLoad();
     // The one hook every load ends with: the sort and the filter the JSON authored reach the list
@@ -2793,9 +2797,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const panelsBefore: Array<PanelModel> = [].concat(this.panelsCore);
     if (this.isRemoteData) {
       /* The records come from a data source: the panels are built for the loaded window and the
-         stored panelCount says nothing about them - the panelCount setter is a no-op while a source
-         is attached. Without this branch a question that gets its source before its first rendering
-         would never build a panel. */
+         stored panelCount says nothing about them - it is the authored count, and the source owns the
+         record count (recordCount). Without this branch a question that gets its source before its
+         first rendering would never build a panel. */
       this.rebuildPanelsFromDataList();
     } else if (this.isPagingActive) {
       /* The records first, then the panels of the page: the panelCount setter would compare the count
@@ -2807,7 +2811,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       }
       this.rebuildPanelsFromDataList();
     } else if (this.getPropertyValue("panelCount") > 0) {
-      this.panelCount = this.getPropertyValue("panelCount");
+      this.setRecordCountCore(this.getPropertyValue("panelCount"));
     }
     if (this.useTemplatePanel) {
       this.rebuildPanels();
@@ -3346,14 +3350,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
        write coming back here; under the flag below setQuestionValue would drop it. */
     if (this.hasDataListView && this.hasPanelBuildFirstTime) {
       if (this.dataList.count < this.minPanelCount) {
-        this.panelCount = this.minPanelCount;
+        this.setRecordCountCore(this.minPanelCount);
       } else {
         this.followRecordsWithObjects((recordIndex: number): void => { this.appendItemForRecord(recordIndex); });
       }
       return;
     }
     this.settingPanelCountBasedOnValue = true;
-    this.panelCount = newPanelCount;
+    this.setRecordCountCore(newPanelCount);
     this.settingPanelCountBasedOnValue = false;
   }
   // The list side of an assignment is QuestionRecordsModel's; the panels follow in onRecordsValueAssigned.
@@ -3923,6 +3927,7 @@ Serializer.addClass(
       isBindable: true,
       default: 0,
       choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      isSerializableFunc: isRecordCountSerializable,
       onSettingValue: (obj: any, val: any): any => {
         if (val < obj.minPanelCount) return obj.minPanelCount;
         if (val > obj.panelCountLimit) return obj.panelCountLimit;

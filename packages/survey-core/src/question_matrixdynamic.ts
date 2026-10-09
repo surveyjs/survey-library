@@ -27,7 +27,7 @@ import { ComputedUpdater } from "./base";
 import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsValueGetterContext, IRecordCountNames, getRecordCountNamesOf, isRecordEmpty } from "./question_records";
+import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsValueGetterContext, IRecordCountNames, getRecordCountNamesOf, isRecordCountSerializable, isRecordEmpty } from "./question_records";
 import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 
 export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
@@ -131,15 +131,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   // Reads the data source again (see QuestionRecordsModel.refreshSource).
   public refreshDataSource(): void | Promise<void> {
     return this.refreshSource();
-  }
-  /* rowCount follows the loaded total here and not through its setter: the setter clamps to
-     settings.matrix.maxRowCount, truncates the storage and creates one row object per counted
-     record - none of which applies to a window of a larger table. With a source that answers
-     without a total it is the count of the rows known to exist, a lower bound - isCountKnown
-     says which of the two it is. */
-  // The source owns the count: rowCount takes the count stored with the window (storeLoadedRecords).
-  protected onSourceRecordCountStored(count: number): void {
-    this.rowCountValue = count;
   }
   // The respondent adds, removes and reorders the rows: the records are the question's to change.
   protected isRecordMembershipFixed(): boolean {
@@ -469,7 +460,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.isEditingObjectValue) {
       const value = this.createNewValue();
       value.splice(toIndex, 0, rowData);
-      this.rowCount++;
+      this.setRecordCountCore(this.rowCount + 1);
       this.value = value;
       return;
     }
@@ -480,7 +471,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const oldCount = this.getListRecordCount();
     const before = this.getInsertIndexForOperation(toIndex);
     let isGrown = true;
-    const index = this.growAndMoveRecord((): void => { this.runOwnRecordsChange((): void => { this.rowCount++; }); },
+    const index = this.growAndMoveRecord((): void => { this.runOwnRecordsChange((): void => { this.setRecordCountCore(this.rowCount + 1); }); },
       (): number => before < oldCount ? before : undefined, (): any => rowData, (): void => {
         // The count did not grow - settings.matrix.maxRowCount without paging: the value takes the
         // record and the count follows the value, as released.
@@ -512,7 +503,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.isEditingObjectValue) {
       const value = this.createNewValue();
       value.splice(fromIndex, 1);
-      this.rowCount--;
+      this.setRecordCountCore(this.rowCount - 1);
       this.value = value;
       return;
     }
@@ -529,7 +520,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     list.batch((): void => {
       list.move(index, list.count - 1);
       list.truncate(list.count - 1);
-      this.rowCount--;
+      this.setRecordCountCore(this.rowCount - 1);
     });
   }
   protected getRecordAddText(): string {
@@ -558,17 +549,21 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see maxRowCount
    * @see rowCountExpression
    */
+  // Read-only while a data source is assigned: the source owns the count (recordCount).
   public get rowCount(): number {
-    return this.rowCountValue;
+    return this.recordCount;
   }
   public set rowCount(val: number) {
+    this.recordCount = val;
+  }
+  // The count without a source: the rowCount property.
+  protected getRecordCountCore(): number {
+    return this.rowCountValue;
+  }
+  // The rowCount setter without a source.
+  protected setRecordCountCore(val: number): void {
     val = Helpers.getNumber(val);
-    /* The data source owns the count: the question never grows or truncates its storage, and the
-       count reaches it the other way round - through storeLoadedRecords, from a read that committed.
-       An incoming total above settings.matrix.maxRowCount is accepted there; the clamp below stays
-       what it has always been, a limit on what a caller may ask for. */
-    if (this.isRemoteData) return;
-    if (val < 0 || val === this.rowCount) return;
+    if (val < 0 || val === this.rowCountValue) return;
     if (val > settings.matrix.maxRowCount) {
       // The page size is not known yet while loading: rowsPerPage may follow rowCount in the JSON.
       if (this.isLoadingFromJson) {
@@ -726,8 +721,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private get rowCountValue(): number {
     return this.getPropertyValue("rowCount");
   }
+  // Leaves the authored count alone while a data source is assigned (setRecordCountProperty).
   private set rowCountValue(val: number) {
-    this.setPropertyValue("rowCount", val);
+    this.setRecordCountProperty(val);
   }
   /**
    * A minimum number of rows in the matrix. Users cannot delete rows if `rowCount` equals `minRowCount`.
@@ -937,7 +933,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private addRowCore(): MatrixDropdownRowModelBase {
     if (this.isRemoteData) return this.addRowCoreRemote();
     var prevRowCount = this.rowCount;
-    this.runRecordAdd((): void => { this.rowCount = this.rowCount + 1; });
+    this.runRecordAdd((): void => { this.setRecordCountCore(this.rowCount + 1); });
     var defaultValue = this.getDefaultRowValue(true);
     if (!this.isValueEmpty(defaultValue)) {
       this.setLastRowRecord(defaultValue, true);
@@ -1101,7 +1097,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
   }
   /* QuestionRecordsModel hook: the storage write of a row removal. removeRowByIndex over a data source
-     makes one source.remove, and question.value and rowCount follow its notification; every other
+     makes one source.remove, and question.value and the count follow its notification; every other
      removal counts the row down first and writes inside writeRecords. The refill follows the write's
      scope. */
   protected removeStoredRecord(removal: IRowRemoval, refill: () => void): void {
@@ -1652,7 +1648,7 @@ Serializer.addClass(
   [
     { name: "allowAddRows:boolean", default: true },
     { name: "allowRemoveRows:boolean", default: true },
-    { name: "rowCount:number", default: 2, minValue: 0, isBindable: true },
+    { name: "rowCount:number", default: 2, minValue: 0, isBindable: true, isSerializableFunc: isRecordCountSerializable },
     "rowCountExpression:expression",
     { name: "minRowCount:number", default: 0, minValue: 0 },
     {

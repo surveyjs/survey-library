@@ -98,7 +98,7 @@
 
 export type DynamicDataSortDirection = "asc" | "desc";
 export type DynamicDataFieldType = "string" | "number" | "date" | "boolean" | "any";
-export type DynamicDataOperation = "read" | "insert" | "update" | "remove" | "move";
+export type DynamicDataOperation = "read" | "insert" | "update" | "remove" | "move" | "count";
 
 export interface IDynamicDataSort {
   field: string;

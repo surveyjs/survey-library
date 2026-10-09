@@ -3567,6 +3567,9 @@ describe("the Multi-Select Matrix rows and their answers", () => {
       expect(edit(rowsPerPage, 7), name + "a record that is not an object").toEqual({ r1: { a: 5 }, r2: { a: 2 }, r3: 7 });
       expect(edit(rowsPerPage, { b: null }), name + "an empty key that is not a column").toEqual({ r1: { a: 5 }, r2: { a: 2 }, r3: { b: null } });
       expect(edit(rowsPerPage, { a: null, b: null }), name + "an empty column key goes").toEqual({ r1: { a: 5 }, r2: { a: 2 }, r3: { b: null } });
+      [null, 0, false, ""].forEach(falsy => {
+        expect(edit(rowsPerPage, falsy), name + "a falsy record goes, as a built row drops it: " + JSON.stringify(falsy)).toEqual({ r1: { a: 5 }, r2: { a: 2 } });
+      });
     });
     const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", rows: ["r1", "r2"], columns: [{ name: "c1", cellType: "text" }] }] });
     survey.setValue("m", { r1: {}, r2: { c1: "a" } });

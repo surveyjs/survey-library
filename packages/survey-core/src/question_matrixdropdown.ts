@@ -324,11 +324,15 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     this.refreshRowsOfSameKeys(changed);
   }
   /* The record of a row that was not written changes only as a built row changes it, as without
-     paging: a column key holding an empty value goes, and so does the row's key when that leaves the
-     record with no key. An empty record, a value that is not an object and a key that is not a
-     column stay. */
+     paging: a falsy value (null, 0, false, "") is no record and its key goes, a column key holding an
+     empty value goes, and so does the row's key when that leaves the record with no key. An empty
+     record, a value that is not an object and a key that is not a column stay. */
   private dropEmptyColumnKeys(value: any, key: any): void {
     const record = value[key];
+    if (!record && value.hasOwnProperty(key)) {
+      delete value[key];
+      return;
+    }
     if (!this.isObject(record)) return;
     const emptyKeys = this.columns.map(column => column.name)
       .filter((name: string): boolean => record.hasOwnProperty(name) && this.isValueEmpty(record[name]));

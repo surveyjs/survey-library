@@ -35,19 +35,21 @@
 //     // its key. Required for writing: a source without it is read-only, whatever methods it has.
 //     keyField: "id",
 //     // Optional, one capability each. Missing insert -> no add button; missing remove -> no
-//     // delete button; missing move -> no drag reorder; missing update -> the question is
-//     // read-only. The source assigns the key and decides where the record is kept: return the
-//     // stored record (or a promise of it) so that the list learns the key.
+//     // delete button; missing update -> the question is read-only. The source assigns the key and
+//     // decides where the record is kept: return the stored record (or a promise of it) so that the
+//     // list learns the key.
 //     insert: (record, sourceIndex) => post("/api/orders", { at: sourceIndex, record }),
 //     // Send the changed fields only: another question on the same source may hold an older copy.
 //     update: (key, record, changedFields) => patch(`/api/orders/${key}`, pick(record, changedFields)),
-//     remove: (key) => del(`/api/orders/${key}`),
-//     // The key names the record; the target is still a position, that is what a move is.
-//     move: (key, toSourceIndex) => post("/api/orders/move", { id: key, to: toSourceIndex })
+//     remove: (key) => del(`/api/orders/${key}`)
 //   };
 //   matrixQuestion.dataSource = source;   // or panelQuestion.dataSource = source
 //
-// A source WITHOUT keyField is read-only: the list sends it no insert, update, remove or move, so no
+// A source is never asked to move a record: a matrix whose records come from a data source does not
+// reorder its rows (allowRowReorder is ignored), because a position in the whole source is not
+// something every source can honor.
+//
+// A source WITHOUT keyField is read-only: the list sends it no insert, update or remove, so no
 // write ever names a record by its position. It may still page, sort and filter on its side. The
 // in-memory sources (ArrayDynamicDataSource and SurveyDataDynamicDataSource) are the exception: the
 // list writes them synchronously, so a write names a record by its storage index. Such a source has
@@ -59,7 +61,7 @@
 // source put it. Until the next page, sort or filter change the record stays shown where it was added.
 //
 // A keyed source and a new record: the list addresses a record by the key the source assigned, so
-// return the stored record from insert. The edits, removes and moves made to the new record before
+// return the stored record from insert. The edits and removes made to the new record before
 // that answer lands are queued behind the insert and sent, in order, with the key once it arrives;
 // an update sent then carries the fields the source filled in as well. What is still lost is a write
 // to a record whose insert failed or answered without the key: it stays in the window,
@@ -157,8 +159,6 @@ export interface IDynamicDataSource {
   // question's copy of the same record may be older in the other fields.
   update?(key: any, record: any, changedFields: Array<string>): void | Promise<void>;
   remove?(key: any): void | Promise<void>;
-  // The key names the record; the target is still a position, that is what a move is.
-  move?(key: any, toSourceIndex: number): void | Promise<void>;
   // Present -> the source collects the writes of func and applies them as one; absent -> the list
   // just runs func. See DynamicDataList.batch.
   // The order contract with a source whose writes answer asynchronously: the push chain sends one write

@@ -28,7 +28,7 @@ import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsValueGetterContext, IRecordCountNames, getRecordCountNamesOf, isRecordEmpty } from "./question_records";
-import { DynamicDataOperation, IDynamicDataListChange, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 
 export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
   // The design row answers any path; isRoot is left as it is.
@@ -145,10 +145,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected isRecordMembershipFixed(): boolean {
     return false;
   }
-  // A move through a data source hands the rows their records before the conditions run.
-  protected prepareRemoteWrite(change: IDynamicDataListChange): void {
-    if (change.type === "recordMoved")this.updateRowsFromRecords();
-  }
   /* A move does not carry the row objects (moveRowByIndex): they stay where they are and take the
      reordered records, so each row names the record its position holds now, not the record it held
      before. The positions decide, so the remap of the move is not used. */
@@ -156,20 +152,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const indexes = this.getRecordIndexesForRows();
     (this.generatedVisibleRows || []).forEach((row: MatrixDropdownRowModelBase, position: number): void => {
       if (this.getBuiltRecordIndex(row) > -1 && position < indexes.length)this.setBuiltRecordIndex(row, indexes[position]);
-    });
-  }
-  /* The values half of a move made through a data source. With the array source over question.value
-     the push assigns the value, and that assignment hands the rows whose position now holds another
-     record that record (onRecordsValueAssigned); a data source has no such assignment, so the rows
-     are given theirs here. */
-  private updateRowsFromRecords(): void {
-    const rows = this.generatedVisibleRows;
-    if (!Array.isArray(rows)) return;
-    const indexes = this.getRecordIndexesForRows();
-    this.writeRecords((): void => {
-      for (let i = 0; i < rows.length && i < indexes.length; i++) {
-        rows[i].updateFromRecord(this.getNewRowValue(indexes[i]));
-      }
     });
   }
   /* The records the list works with: question.value padded up to rowCount, exactly as
@@ -724,7 +706,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public get isRowsDragAndDrop(): boolean {
     // Under a sort the row order is the sort's: dragging a row would say nothing about where the
-    // record goes. A data source that cannot be told about a reorder has no drag either (canWriteRecords).
+    // record goes. A matrix with a data source has no drag either: no source takes a move (canWriteRecords).
     return this.allowRowReorder && !this.isReadOnly && !this.hasRecordSort && this.canWriteRecords("move");
   }
   @property({ defaultValue: 0 }) lockedRowCount: number;

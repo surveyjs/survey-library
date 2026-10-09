@@ -61,13 +61,6 @@ class SyncSource implements IDynamicDataSource {
     const at = this.indexOfKey(key);
     if (at > -1)this.records.splice(at, 1);
   }
-  public move(key: any, toIndex: number): void {
-    const at = this.indexOfKey(key);
-    if (at < 0) return;
-    const rec = this.records[at];
-    this.records.splice(at, 1);
-    this.records.splice(toIndex, 0, rec);
-  }
 }
 function keyedRecords(count: number): Array<any> {
   return records(count).map((r, i) => Object.assign({ id: i + 1 }, r));
@@ -82,7 +75,7 @@ describe("a reorderable matrix builds its table without creating a record list",
   });
 });
 
-describe("the drag answer under a sort, a filtered source page and design mode", () => {
+describe("the drag answer under a sort, a data source and design mode", () => {
   test("a sort turns the drag off and clearing it turns it on again", () => {
     const matrix = createMatrix({ allowRowReorder: true }, records(3));
     expect(matrix.isRowsDragAndDrop, "#1").toBe(true);
@@ -99,17 +92,16 @@ describe("the drag answer under a sort, a filtered source page and design mode",
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     expect(matrix.isRowsDragAndDrop, "#1").toBe(true);
   });
-  test("a page the source filtered: the drag is off and moveRowByIndex is refused with its reason", () => {
+  test("a data source: the drag is off and moveRowByIndex is refused with its reason", () => {
     const source = new SyncSource(keyedRecords(6), { paging: true, filtering: true, sorting: false });
     const matrix = createMatrix({ allowRowReorder: true, rowsPerPage: 2 });
+    expect(matrix.isRowsDragAndDrop, "#1: no data source").toBe(true);
     matrix.dataSource = source;
-    expect(matrix.isRowsDragAndDrop, "#1: a page read without a view").toBe(true);
+    expect(matrix.isRowsDragAndDrop, "#2: a data source").toBe(false);
     const errors: Array<string> = [];
     (<SurveyModel>matrix.survey).onDynamicDataError.add((_, options) => { errors.push(options.operation + ": " + options.error.message); });
-    matrix.filterExpression = "{a} > 0";
-    expect(matrix.isRowsDragAndDrop, "#2: a filtered page").toBe(false);
     matrix.moveRowByIndex(0, 1);
-    expect(errors, "#3").toEqual(["move: The data source filtered or sorted the loaded page, so the position in the whole source is not known; the move was not made."]);
+    expect(errors, "#3").toEqual(["move: Rows cannot be reordered while a data source is assigned; the move was not made."]);
     expect(source.records.map(r => r.a), "#4: nothing moved").toEqual([0, 1, 2, 3, 4, 5]);
   });
 });

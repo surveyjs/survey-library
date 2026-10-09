@@ -899,8 +899,7 @@ describe("the clearing pass of invisible values over records without an object",
       read: (): Promise<Array<any>> => Promise.resolve(owned.map(r => Object.assign({}, r))),
       insert: (record: any, sourceIndex: number): Promise<any> => { owned.splice(sourceIndex, 0, Object.assign({}, record)); return Promise.resolve(Object.assign({}, record)); },
       update: (key: any, record: any): Promise<void> => { owned[indexOfKey(key)] = Object.assign({}, record); return Promise.resolve(); },
-      remove: (key: any): Promise<void> => { owned.splice(indexOfKey(key), 1); return Promise.resolve(); },
-      move: (key: any, to: number): Promise<void> => { const record = owned.splice(indexOfKey(key), 1)[0]; owned.splice(to, 0, record); return Promise.resolve(); }
+      remove: (key: any): Promise<void> => { owned.splice(indexOfKey(key), 1); return Promise.resolve(); }
     };
     const walk = vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "clearValueInRecordsWithoutPanel");
     const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "panel", panelCount: 0, panelsPerPage: 5,

@@ -760,14 +760,14 @@ export class DynamicDataList {
   public move(fromIndex: number, toIndex: number): void {
     this.runOpenWrite((): void => { this.moveCore(fromIndex, toIndex); });
   }
+  // Refused before any state changes unless the source can take a move (hasCapability).
   private moveCore(fromIndex: number, toIndex: number): void {
-    if (this.isMembershipFixed || !this.canMoveInSource) return;
+    if (!this.hasCapability("move")) return;
     const length = this.recordCount;
     if (fromIndex < 0 || fromIndex >= length || toIndex < 0 || toIndex >= length) return;
     if (fromIndex === toIndex) return;
-    // Before the splice, for the same reason as in remove.
+    // Before the splice, for the same reason as in remove. A storage index: the source has no keyField.
     const key = this.getRecordKey(fromIndex);
-    const pending = this.findPendingInsert(fromIndex);
     this.runWrite((): void => {
       this.editWindow((records: Array<any>): void => {
         const record = records[fromIndex];
@@ -776,8 +776,8 @@ export class DynamicDataList {
       });
       this.membership.onRecordMoved(fromIndex, toIndex, length);
       const toSourceIndex = this.windowOffset + toIndex;
-      this.pushToSource("move", (source: IDynamicDataSource, runKey: any): any => source.move(runKey, toSourceIndex),
-        { key: key, pendingInsert: pending });
+      this.pushToSource("move", (source: IDynamicDataSource, runKey: any): any =>
+        (<ArrayDynamicDataSource>source).move(runKey, toSourceIndex), { key: key });
     });
     this.notifyWrite({ type: "recordMoved", from: fromIndex, to: toIndex });
   }
@@ -1143,10 +1143,6 @@ export class DynamicDataList {
   public get isWindowCommitted(): boolean {
     return this.readState.isLoaded;
   }
-  // Can a move name a position in the whole source now (see DynamicDataReadState.canMoveInSource)?
-  public get canMoveInSource(): boolean {
-    return this.readState.canMoveInSource;
-  }
   // The next read asks the source for a page.
   private get isReadPagedBySource(): boolean {
     return this.readState.isReadPagedBySource(this._filter, this._sort);
@@ -1169,10 +1165,13 @@ export class DynamicDataList {
      position - the list is its only writer, it writes synchronously, and the remap layer renumbers
      what holds an index. Any other source without keyField is read-only, whatever methods it has: a
      position it resolves another way - it sorts or filters on its side, another writer changed it -
-     would name another record. */
+     would name another record. A move is not part of the source contract: only an in-memory array
+     that is not assigned, written by storage index, takes one. An assigned source - in-memory ones
+     included - and a standalone list's keyed source never do, whatever methods they have. */
   public hasCapability(operation: DynamicDataOperation): boolean {
     if (this.isMembershipFixed && (operation === "insert" || operation === "remove" || operation === "move")) return false;
     const source: any = this._source;
+    if (operation === "move") return !this.isRemote && source instanceof ArrayDynamicDataSource && !this.keyField && !isSourceWrittenByAnother(source, this.writerToken);
     if (!source || typeof source[operation] !== "function") return false;
     return operation === "read" || !!this.keyField || source instanceof ArrayDynamicDataSource && !isSourceWrittenByAnother(source, this.writerToken);
   }
@@ -1298,8 +1297,8 @@ export class DynamicDataList {
       isReadPagedBySource: (): boolean => this.isReadPagedBySource,
       getReadRange: (useWindowOffset: boolean): { skip: number, take: number } => this.getReadRange(useWindowOffset),
       createReadRequest: (skip: number, take: number): IDynamicDataReadRequest => this.createReadRequest(skip, take),
-      commitRead: (data: any, skip: number, take: number, isPagedRead: boolean, request: IDynamicDataReadRequest): boolean =>
-        this.commitRead(data, skip, take, isPagedRead, request),
+      commitRead: (data: any, skip: number, take: number, isPagedRead: boolean): boolean =>
+        this.commitRead(data, skip, take, isPagedRead),
       onReadFailed: (error: any): void => this.onReadFailed(error),
       setIsLoading: (val: boolean): void => this.setIsLoading(val),
       raiseError: (error: any, operation: DynamicDataOperation): void => this.raiseError(error, operation),
@@ -1364,7 +1363,7 @@ export class DynamicDataList {
   /* The window, its offset, the total and what is known about it are committed together: while a
      read is pending or after it was rejected, the previous window and its own offset stay in force.
      Returns whether the window was committed - an empty page past the end is not. */
-  private commitRead(data: any, skip: number, take: number, isPagedRead: boolean, request: IDynamicDataReadRequest): boolean {
+  private commitRead(data: any, skip: number, take: number, isPagedRead: boolean): boolean {
     const result = toReadResult(data);
     let records = result.records;
     const isRefill = this.readState.takeRefill(isPagedRead, skip);
@@ -1387,7 +1386,7 @@ export class DynamicDataList {
     }
     this.records = records;
     // Before resetWindowState: the page clamp reads the window as the mode it was read in.
-    this.readState.commitWindow(isPagedRead, skip, request);
+    this.readState.commitWindow(isPagedRead, skip);
     // The touched records a refill kept are where keepTouchedRecords put them.
     this.resetWindowState(isRefill);
     this.readState.commitPageIndex(this._pageIndex);

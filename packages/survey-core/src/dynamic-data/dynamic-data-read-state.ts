@@ -1,4 +1,4 @@
-import { IDynamicDataReadRequest, IDynamicDataSort, IDynamicDataSource, IDynamicDataSourceCapabilities } from "./dynamic-data-interfaces";
+import { IDynamicDataSort, IDynamicDataSource, IDynamicDataSourceCapabilities } from "./dynamic-data-interfaces";
 
 /* What the window of DynamicDataList in force is and how it was read: its offset, whether a read has
    committed one, whether the source paged it and with which view, the page it was read for, the
@@ -10,12 +10,6 @@ export class DynamicDataReadState {
   private _windowOffset: number = 0;
   private _isLoaded: boolean = false;
   private isWindowPagedBySource: boolean = false;
-  /* The filter and the sort the source ran for the window in force: those of the read request that
-     committed a page the source read, undefined for a whole storage, which the list views itself.
-     Taken from the request and not from the view assigned since: a filter cleared while its read is
-     pending, or after that read failed, leaves the filtered page in force. A superseded read never
-     commits, so it never sets it. */
-  private windowSourceView: { filter: string, sort: Array<IDynamicDataSort> };
   /* The page index a read asked for is set when the read is requested (pageIndex, setView), and the
      page the window in force was read for is committed with it (commitPageIndex). A read that fails
      leaves that window in force, so the page index goes back to the committed page: the page
@@ -85,16 +79,6 @@ export class DynamicDataReadState {
   public isWindowWholeStorage(filter: string, sort: Array<IDynamicDataSort>): boolean {
     return !this.isPagedBySource(filter, sort);
   }
-  /* Can a move name a position in the whole source now? Not while the window in force is a page the
-     source read with a filter or a sort: windowOffset + index is then a position in the source's
-     filtered or sorted order. A whole storage, the list's own view of it (a source without paging, the
-     local filter and sort fallback) and a page read with no view are positions in the whole source.
-     Not hasCapability, which answers whether the source can be told about a move at all. */
-  public get canMoveInSource(): boolean {
-    if (!this._isLoaded || !this.isWindowPagedBySource) return true;
-    const view = this.windowSourceView;
-    return !view || !view.filter && view.sort.length === 0;
-  }
   // A paging source answered with the whole storage, because it cannot run the view the list has, and
   // that window is in force.
   public get isWholeStorageInForce(): boolean {
@@ -141,10 +125,9 @@ export class DynamicDataReadState {
     return res;
   }
   // The window a read answered with is in force: a page the source read at skip, or the whole storage.
-  public commitWindow(isPagedRead: boolean, skip: number, request: IDynamicDataReadRequest): void {
+  public commitWindow(isPagedRead: boolean, skip: number): void {
     this._windowOffset = isPagedRead ? skip : 0;
     this.isWindowPagedBySource = isPagedRead;
-    this.windowSourceView = isPagedRead && !!request ? { filter: request.filter, sort: request.sort || [] } : undefined;
     this._isLoaded = true;
   }
   // The page index the committed window was read for, once the list has clamped it.

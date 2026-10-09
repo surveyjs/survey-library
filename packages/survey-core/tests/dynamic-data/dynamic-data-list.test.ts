@@ -233,15 +233,6 @@ class FakeKeyedSource implements IDynamicDataSource {
     const at = this.indexOfKey(key);
     if (at > -1)this.records.splice(at, 1);
   }
-  public move(key: any, toSourceIndex: number): void {
-    this.ops.push("move:" + key + ">" + toSourceIndex);
-    this.payloads.push([key, toSourceIndex]);
-    const at = this.indexOfKey(key);
-    if (at < 0) return;
-    const record = this.records[at];
-    this.records.splice(at, 1);
-    this.records.splice(toSourceIndex, 0, record);
-  }
   private indexOfKey(key: any): number {
     for (let i = 0; i < this.records.length; i++) {
       if (this.records[i].id === key) return i;
@@ -703,9 +694,6 @@ describe("DynamicDataList: a source that pages itself", () => {
     expect(source.ops[1]).toBe("insert:3");
     list.remove(0);
     expect(source.ops[2]).toBe("remove:2");
-    // The new record took the key the source assigned it, and a move targets a position.
-    list.move(0, 1);
-    expect(source.ops[3]).toBe("move:1002>3");
   });
   test("refresh re-reads the current window, load re-reads the requested page", () => {
     const source = new FakeRangeSource(createRecords(6));
@@ -779,8 +767,7 @@ describe("DynamicDataList: write-through and the push chain", () => {
     list.setValue(0, "name", "changed");
     list.add({ id: 9 }, 1);
     list.remove(0);
-    list.move(0, 1);
-    expect(source.ops).toEqual(["update:0:name", "insert:1", "remove:0", "move:1002>1"]);
+    expect(source.ops).toEqual(["update:0:name", "insert:1", "remove:0"]);
   });
   test("a read-only source keeps the edit in the window", () => {
     const source = new FakeAsyncSource();
@@ -3029,16 +3016,13 @@ describe("DynamicDataList: the assigned source", () => {
     list.remove(0);
     expect(names(assigned.get()), "#5 remove").toEqual(["edited", "r2", "added"]);
     expect(names(list.getLoadedRecords()), "#6").toEqual(["edited", "r2", "added"]);
-    list.move(0, 2);
-    expect(names(assigned.get()), "#7 move").toEqual(["r2", "added", "edited"]);
-    expect(names(list.getLoadedRecords()), "#8").toEqual(["r2", "added", "edited"]);
     list.batch((): void => {
       list.add({ name: "b1" });
       list.setValue(0, "name", "b0");
     });
-    expect(names(assigned.get()), "#9 batch").toEqual(["b0", "added", "edited", "b1"]);
-    expect(names(list.getLoadedRecords()), "#10").toEqual(["b0", "added", "edited", "b1"]);
-    expect(list.count, "#11").toBe(4);
+    expect(names(assigned.get()), "#7 batch").toEqual(["b0", "r2", "added", "b1"]);
+    expect(names(list.getLoadedRecords()), "#8").toEqual(["b0", "r2", "added", "b1"]);
+    expect(list.count, "#9").toBe(4);
   });
   test("a detach from an assigned ArrayDynamicDataSource reads through the owner's storage again", () => {
     const { list, setArray } = createOwnerList();
@@ -4338,8 +4322,7 @@ describe("DynamicDataList: a failed write to an assigned source is reported", ()
   });
   const structuralWrites: Array<{ operation: string, run: (list: DynamicDataList) => void, notification: string }> = [
     { operation: "insert", run: (list: DynamicDataList): void => { list.add({ name: "X" }, 0); }, notification: "recordAdded:0" },
-    { operation: "remove", run: (list: DynamicDataList): void => { list.remove(0); }, notification: "recordRemoved:0" },
-    { operation: "move", run: (list: DynamicDataList): void => { list.move(0, 2); }, notification: "recordMoved:0>2" }
+    { operation: "remove", run: (list: DynamicDataList): void => { list.remove(0); }, notification: "recordRemoved:0" }
   ];
   structuralWrites.forEach((write): void => {
     test("a failed " + write.operation + " is reported and the window goes back to what the source stores", () => {
@@ -4611,13 +4594,6 @@ describe("DynamicDataList: source.batch with an asynchronous source", () => {
         if (at > -1)this.records.splice(at, 1);
       });
     }
-    public move(key: any, to: number): Promise<void> {
-      return this.answer("move:" + key, (): void => {
-        const at = this.records.map((r: any) => r.id).indexOf(key);
-        const record = this.records.splice(at, 1)[0];
-        this.records.splice(to, 0, record);
-      });
-    }
   }
   const createBatchList = (): { list: DynamicDataList, source: AsyncBatchSource, errors: Array<string> } => {
     const source = new AsyncBatchSource([{ id: 1, a: "r1" }, { id: 2, a: "r2" }, { id: 3, a: "r3" }]);
@@ -4627,16 +4603,6 @@ describe("DynamicDataList: source.batch with an asynchronous source", () => {
     list.onError = (error: any, operation: string): void => { errors.push(operation); };
     return { list: list, source: source, errors: errors };
   };
-  test("move then update: the move runs inside batch, the update follows it", async () => {
-    const { list, source } = createBatchList();
-    list.batch((): void => {
-      list.move(0, 2);
-      list.setValue(2, "a", "moved");
-    });
-    await flush();
-    expect(source.log, "#1").toEqual(["move:1:in", "update:1:out"]);
-    expect(source.records.map((r: any) => r.a), "#2").toEqual(["r2", "r3", "moved"]);
-  });
   test("insert then update and insert then remove of one record: the later write carries the key the insert answered", async () => {
     let { list, source } = createBatchList();
     list.batch((): void => {
@@ -4696,5 +4662,81 @@ describe("DynamicDataList: the owner is told the list settled", () => {
     list.onError = (): void => {};
     list.load();
     expect(owner.settled, "#1").toBe(1);
+  });
+});
+
+/* A move is not part of the source contract: the list moves a record only in an in-memory array it was
+   not assigned, which it writes synchronously by storage index. Every other source - a standalone
+   list's keyed source, given to the constructor or swapped in by the source setter, and any assigned
+   source - is refused before anything changes, whatever methods it has. */
+describe("DynamicDataList: a list moves records only in an in-memory array it was not assigned", () => {
+  const ids = (records: Array<any>): Array<any> => records.map((r: any): any => r.id);
+  function expectMoveRefused(list: DynamicDataList, stored: () => Array<any>, sourceWrites: () => number, label: string): void {
+    list.setRecordVisible(1, false);
+    const changes = recordChanges(list);
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation); };
+    const loaded = ids(list.getLoadedRecords());
+    const storedBefore = ids(stored());
+    const count = list.count;
+    const writes = sourceWrites();
+    expect(list.hasCapability("move"), label + " #1: no capability").toBe(false);
+    list.move(0, 2);
+    expect(ids(list.getLoadedRecords()), label + " #2: the window").toEqual(loaded);
+    expect(ids(stored()), label + " #3: the storage").toEqual(storedBefore);
+    expect(list.count, label + " #4: the count").toBe(count);
+    expect([0, 1, 2].map((i: number): boolean => list.isRecordVisible(i)), label + " #5: the visibility flags").toEqual([true, false, true]);
+    expect(changes, label + " #6: no notification").toEqual([]);
+    expect(errors, label + " #7: no error").toEqual([]);
+    expect(sourceWrites(), label + " #8: nothing sent").toBe(writes);
+  }
+  function createOwnerArray(): { list: DynamicDataList, get: () => Array<any> } {
+    let arr: Array<any> = createRecords(3);
+    const list = DynamicDataList.createReadThrough(undefined, (): Array<any> => arr, (a: Array<any>): void => { arr = a; });
+    return { list: list, get: (): Array<any> => arr };
+  }
+  test("a standalone list constructed with a keyed source that has a move method", () => {
+    const source = new FakeRangeSource(createRecords(3));
+    const list = new DynamicDataList(source);
+    list.load();
+    expectMoveRefused(list, () => source.records, () => source.ops.length, "constructed");
+  });
+  test("a standalone list whose source setter swapped in a keyed source after an array it moved through", () => {
+    const list = createList(createRecords(3));
+    list.move(0, 2);
+    expect(ids(list.getLoadedRecords()), "#1: the array moves").toEqual([1, 2, 0]);
+    const source = new FakeRangeSource(createRecords(3));
+    list.source = source;
+    expect(ids(list.getLoadedRecords()), "#2: the keyed source is read").toEqual([0, 1, 2]);
+    expectMoveRefused(list, () => source.records, () => source.ops.length, "swapped");
+  });
+  test("a keyed source assigned to the list", () => {
+    const { list } = createOwnerArray();
+    const source = new FakeRangeSource(createRecords(3));
+    list.assignSource(source);
+    expectMoveRefused(list, () => source.records, () => source.ops.length, "assigned keyed");
+  });
+  test("an ArrayDynamicDataSource assigned to the list", () => {
+    const { list } = createOwnerArray();
+    let arr: Array<any> = createRecords(3);
+    let writes = 0;
+    list.assignSource(new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { writes++; arr = a; }));
+    expectMoveRefused(list, () => arr, () => writes, "assigned array");
+  });
+  test("a standalone array and the owner's own storage still move a record", () => {
+    const records = createRecords(3);
+    const standalone = createList(records);
+    const standaloneChanges = recordChanges(standalone);
+    expect(standalone.hasCapability("move"), "#1").toBe(true);
+    standalone.move(0, 2);
+    expect(ids(standalone.getLoadedRecords()), "#2: the window").toEqual([1, 2, 0]);
+    expect(ids(<Array<any>>standalone.source.read(undefined)), "#3: the storage").toEqual([1, 2, 0]);
+    expect(standaloneChanges, "#4").toEqual(["recordMoved:0>2"]);
+    const own = createOwnerArray();
+    const ownChanges = recordChanges(own.list);
+    expect(own.list.hasCapability("move"), "#5").toBe(true);
+    own.list.move(0, 2);
+    expect(ids(own.get()), "#6: the owner's storage").toEqual([1, 2, 0]);
+    expect(ownChanges, "#7").toEqual(["recordMoved:0>2"]);
   });
 });

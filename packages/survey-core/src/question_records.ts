@@ -412,7 +412,6 @@ export abstract class QuestionRecordsModel extends Question {
        the path that made the change. */
     if (list.isRemote && change.type !== "reset") {
       this.storeLoadedRecords();
-      this.prepareRemoteWrite(change);
       if (change.type === "recordChanged" && change.isInsertAnswer) {
         this.showInsertAnswer(change.index);
       }
@@ -1754,17 +1753,17 @@ export abstract class QuestionRecordsModel extends Question {
   /* The write capabilities of a data source are declared by the presence of its optional methods (its
      read capabilities by flags, see dynamic-data-interfaces.ts), and need a keyField for any source
      that is not an in-memory array (DynamicDataList.hasCapability): a source without insert gets no
-     add button, one without remove no delete button, one without move no drag handles, and one
-     without update makes every object read-only - a silently unsaved edit is worse than a disabled
-     field. A source without keyField is read-only as a whole. A question without a data source has
-     every capability, except the membership operations of a question that defines its records itself
-     (isRecordMembershipFixed). The list is not created for the answer. */
+     add button, one without remove no delete button, and one without update makes every object
+     read-only - a silently unsaved edit is worse than a disabled field. A source without keyField is
+     read-only as a whole. No data source takes a move, so a question with one has no drag handles. A
+     question without a data source has every capability, except the membership operations of a
+     question that defines its records itself (isRecordMembershipFixed). The list is not created for
+     the answer. */
   protected canWriteRecords(operation: DynamicDataOperation): boolean {
     if (this.isRecordMembershipFixed() && (operation === "insert" || operation === "remove" || operation === "move")) return false;
     const list = this._dataList;
     if (!list || !list.isRemote) return true;
-    // A move of a page the list filtered or sorted itself cannot be told to the source.
-    return list.hasCapability(operation) && (operation !== "move" || list.canMoveInSource);
+    return list.hasCapability(operation);
   }
   /* The source half of canWriteRecords, for an operation the question is about to make: an assigned
      source without the capability refuses it before any other check, event or change, whichever path
@@ -1775,6 +1774,11 @@ export abstract class QuestionRecordsModel extends Question {
     if (this.isRecordMembershipFixed() && operation !== "update") return false;
     const list = this._dataList;
     if (!list || !list.isRemote) return false;
+    // Before the capability: a source is refused a move whatever methods it has.
+    if (operation === "move") {
+      this.reportOperationRefused("move", "Rows cannot be reordered while a data source is assigned");
+      return true;
+    }
     if (!list.hasCapability(operation)) {
       // An in-memory array without keyField has every write method: it is refused only because another question writes it.
       const source = list.assignedSource;
@@ -1782,11 +1786,6 @@ export abstract class QuestionRecordsModel extends Question {
         "The data source is written by position by another question, so the records of this question are read-only" :
         !list.keyField ? "The data source has no keyField, so its records are read-only" : "The data source does not implement " + operation;
       this.reportOperationRefused(operation, reason);
-      return true;
-    }
-    // A move names a position in the whole source, which a page the source filtered or sorted does not know.
-    if (operation === "move" && !list.canMoveInSource) {
-      this.reportOperationRefused("move", "The data source filtered or sorted the loaded page, so the position in the whole source is not known");
       return true;
     }
     return false;
@@ -2294,17 +2293,13 @@ export abstract class QuestionRecordsModel extends Question {
   }
   /* The two records a move between created positions of the whole view names, each end clamped to the
      records shown, as the numbers of a move are clamped without paging. undefined: there is nothing to
-     move, or a source that pages itself has not loaded an end - the move is refused and reported once. */
+     move. Every end is loaded: a question with a data source refuses a move before it gets here. */
   protected getMoveTargetsAtCreatedIndexes(fromIndex: number, toIndex: number): { from: IRecordTarget, to: IRecordTarget } {
     const last = this.dataList.globalCreatedExtent - 1;
     if (last < 0) return undefined;
     const from = this.getRecordTargetAtCreatedIndex(Math.max(0, Math.min(fromIndex, last)));
     const to = this.getRecordTargetAtCreatedIndex(Math.max(0, Math.min(toIndex, last)));
     if (!from || !to) return undefined;
-    if (from.isNotLoaded || to.isNotLoaded) {
-      this.reportRecordNotLoaded("move");
-      return undefined;
-    }
     return { from: from, to: to };
   }
   /* A write by value of a record that has no object - a record on another page. It is an edit: a
@@ -3483,9 +3478,6 @@ export abstract class QuestionRecordsModel extends Question {
   protected storedSourceRecordCount: number = 0;
   // The type's count follows the stored count of the source (the matrix's rowCount).
   protected onSourceRecordCountStored(count: number): void { }
-  // After a write to a data source was stored, before the conditions run; not guarded against
-  // re-entrancy. The default: nothing to prepare.
-  protected prepareRemoteWrite(change: IDynamicDataListChange): void { }
   /* Record indexes the question keeps besides the edited set and the current record: the records its
      objects were built for, while a question nested in one of them pages - its state is kept under that
      record (keepNestedPageStates). A read that commits again renumbers them with its remap, so that the

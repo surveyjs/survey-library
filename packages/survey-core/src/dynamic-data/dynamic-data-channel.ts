@@ -42,8 +42,7 @@ export interface IDynamicDataChannelHost {
      inside the read's error handling: a refused read takes the path of a source that throws. */
   createReadRequest(skip: number, take: number): IDynamicDataReadRequest;
   // The window commit. Returns whether the window was committed - an empty page past the end is not.
-  // request: what the read asked for, the view the source ran included.
-  commitRead(data: any, skip: number, take: number, isPagedRead: boolean, request: IDynamicDataReadRequest): boolean;
+  commitRead(data: any, skip: number, take: number, isPagedRead: boolean): boolean;
   // A read failed: the window in force stays, and so does the page it was read for.
   onReadFailed(error: any): void;
   setIsLoading(val: boolean): void;
@@ -400,7 +399,7 @@ export class DynamicDataSourceChannel {
            that is committed and not for the answer that was discarded. It inherits the loading
            state, as a superseding read does. */
         try {
-          if (!this.commitRead(data, skip, take, isPagedRead, request)) return this.startRead(false);
+          if (!this.commitRead(data, skip, take, isPagedRead)) return this.startRead(false);
           host.setIsLoading(false);
         } finally {
           this.notifySettled();
@@ -417,7 +416,7 @@ export class DynamicDataSourceChannel {
     }
     this.inFlightRead = undefined;
     try {
-      if (!this.commitRead(res, skip, take, isPagedRead, request)) return this.startRead(false);
+      if (!this.commitRead(res, skip, take, isPagedRead)) return this.startRead(false);
       // A synchronous answer (a source that reads from a cache) can supersede a pending asynchronous
       // read of the same source; the flag that read set is this one's to clear.
       host.setIsLoading(false);
@@ -428,9 +427,9 @@ export class DynamicDataSourceChannel {
   /* The commit announces the window to the owner, which runs user code (a rebuild runs expressions and
      survey events). An exception there reaches whoever awaits the read, and the read is over: it
      does not leave the list loading. */
-  private commitRead(data: any, skip: number, take: number, isPagedRead: boolean, request: IDynamicDataReadRequest): boolean {
+  private commitRead(data: any, skip: number, take: number, isPagedRead: boolean): boolean {
     try {
-      return this.host.commitRead(data, skip, take, isPagedRead, request);
+      return this.host.commitRead(data, skip, take, isPagedRead);
     } catch(e) {
       this.host.setIsLoading(false);
       throw e;

@@ -3985,6 +3985,25 @@ describe("Paging: the core callers act on the record of their row", () => {
     expect(transfer({ rowsPerPage: 3 }, 2, 0, { rowsPerPage: 2 }, 1, 1), "#5: page to page")
       .toEqual({ from: without(6), to: ["t0", "t1", "t2", "r6", "t3", "t4", "t5"], page: 1 });
   });
+  // A matrix with a data source has no drag of its own, but a row dropped into it is a remove and an insert, not a move.
+  test("a row dropped into a matrix with a data source is inserted into the source at the drop position", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m1", rowCount: 0, allowRowReorder: true, columns: [{ name: "a", cellType: "text" }] },
+      { type: "matrixdynamic", name: "m2", rowCount: 0, allowRowReorder: true, columns: [{ name: "a", cellType: "text" }] }] });
+    survey.data = { m1: nineRecords() };
+    const m1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("m1");
+    const m2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("m2");
+    let stored: Array<any> = records(6, (i: number) => ({ a: "t" + i }));
+    m2.dataSource = new ArrayDynamicDataSource((): Array<any> => stored, (arr: Array<any>): void => { stored = arr; });
+    m1.visibleRows;
+    m2.visibleRows;
+    expect(m1.isRowsDragAndDrop, "#1: the matrix without a source drags").toBe(true);
+    expect(m2.isRowsDragAndDrop, "#2: the matrix with a source does not").toBe(false);
+    drop(survey, m1, m1.visibleRows[1], m2, 2);
+    expect(as(stored), "#3: the source").toEqual(["t0", "t1", "r1", "t2", "t3", "t4", "t5"]);
+    expect(as(m2.value), "#4").toEqual(["t0", "t1", "r1", "t2", "t3", "t4", "t5"]);
+    expect(as(m1.value), "#5").toEqual(["r0", "r2", "r3", "r4", "r5", "r6", "r7", "r8"]);
+  });
   test("without paging the drag passes the numbers it always has, the rowsVisibleIf quirk included", () => {
     const survey = createCallerSurvey({ rowsVisibleIf: "{row.a} != 'r1'" });
     const m = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");

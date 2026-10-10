@@ -11,8 +11,9 @@ import { ArrayValueChoices } from "../../src/utils/array-value-choices";
 import { QuestionRecordsModel } from "../../src/question_records";
 import { QuestionSelectBase } from "../../src/question_baseselect";
 import { ItemValue } from "../../src/itemvalue";
-import { Helpers } from "../../src/helpers";
+import { HashTable, Helpers } from "../../src/helpers";
 import { ConditionRunner } from "../../src/conditions/conditionRunner";
+import { createIndexes } from "../../src/dynamic-data/dynamic-data-filter";
 import { ChoicesRestful } from "../../src/choicesRestful";
 import { settings } from "../../src/settings";
 import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
@@ -1748,5 +1749,328 @@ describe("the plain data of a paged matrix reads the view once", () => {
       }
     };
     expect(reads(500), "#1").toBe(reads(50));
+  });
+});
+
+/* Three paged Dynamic Panels on one value, behind an intro page, as on a survey whose records come after a
+   start page. The first template reads x, which only the second template computes: the read builds the
+   second question's page (getValueFromBindedQuestions). The values the new panels compute are stored as
+   one write of the question that built them, and the others receive it as an update in place. */
+describe("siblings on one value: a page build updates the records in place", () => {
+  const siblingTemplates: HashTable<Array<any>> = {
+    p1: [{ type: "text", name: "a" }, { type: "expression", name: "e1", expression: "{panel.x} + 1" }],
+    p2: [{ type: "text", name: "a" }, { type: "expression", name: "x", expression: "{panel.a} * 2" }],
+    p3: [{ type: "text", name: "a" }, { type: "expression", name: "e3", expression: "{panel.a} + 3" }]
+  };
+  const siblingNames = ["p1", "p2", "p3"];
+  // bound: false gives each question a value of its own - what each question does alone.
+  // computedPages: the records of that many first pages already hold their computed values.
+  function createSiblings(options: { paged?: boolean, bound?: boolean, computedPages?: number } = {}): SurveyModel {
+    const paged = options.paged !== false;
+    const bound = options.bound !== false;
+    const survey = new SurveyModel({ pages: [{ elements: [{ type: "html", name: "intro" }] }].concat(siblingNames.map((name: string) => ({
+      elements: [{ type: "paneldynamic", name: name, valueName: bound ? "recs" : name + "Recs", panelsPerPage: paged ? 10 : 0,
+        templateElements: siblingTemplates[name] }] }))) });
+    const data = records(100, (i: number): any => i < 10 * (options.computedPages || 0) ? { a: i, x: 2 * i, e1: 2 * i + 1, e3: i + 3 } : { a: i });
+    if (bound) {
+      survey.data = { recs: data };
+    } else {
+      const copy = (): Array<any> => data.map((record: any) => Object.assign({}, record));
+      survey.data = { p1Recs: copy(), p2Recs: copy(), p3Recs: copy() };
+    }
+    return survey;
+  }
+  const sibling = (survey: SurveyModel, name: string): QuestionPanelDynamicModel => <QuestionPanelDynamicModel>survey.getQuestionByName(name);
+  // What the built panels show next to the records the survey stores for their page.
+  const panelValues = (question: QuestionPanelDynamicModel): Array<any> => question.panels.map((panel: PanelModel) => panel.getQuestionByName("a").value);
+  const pageRecordValues = (question: QuestionPanelDynamicModel): Array<any> =>
+    question.value.slice(question.pageIndex * 10, question.pageIndex * 10 + 10).map((record: any) => record.a);
+  function countBuilds(): { panels: HashTable<number>, rebuilds: HashTable<number>, reset: () => void } {
+    const proto = <any>QuestionPanelDynamicModel.prototype;
+    const res = { panels: <HashTable<number>>{}, rebuilds: <HashTable<number>>{}, reset: (): void => { res.panels = {}; res.rebuilds = {}; } };
+    const create = proto.createAndSetupNewPanelObject;
+    vi.spyOn(proto, "createAndSetupNewPanelObject").mockImplementation(function (this: any, ...args: Array<any>): any {
+      res.panels[this.name] = (res.panels[this.name] || 0) + 1;
+      return create.apply(this, args);
+    });
+    const rebuild = proto.rebuildFromDataList;
+    vi.spyOn(proto, "rebuildFromDataList").mockImplementation(function (this: any, ...args: Array<any>): any {
+      res.rebuilds[this.name] = (res.rebuilds[this.name] || 0) + 1;
+      return rebuild.apply(this, args);
+    });
+    return res;
+  }
+  // Each decision a receiver makes while a sibling stores its in-place write: "writer>receiver:result".
+  function recordInPlaceDecisions(): Array<string> {
+    const res: Array<string> = [];
+    const proto = <any>QuestionRecordsModel.prototype;
+    const decide = proto.isInPlaceWriteOfSibling;
+    vi.spyOn(proto, "isInPlaceWriteOfSibling").mockImplementation(function (this: any, ...args: Array<any>): boolean {
+      const isInPlace = decide.apply(this, args);
+      const writers = siblingNames.filter((name: string) => name !== this.name && !!(<any>this.survey.getQuestionByName(name)).inPlaceWrite);
+      if (writers.length > 0) res.push(writers.join("+") + ">" + this.name + ":" + isInPlace);
+      return isInPlace;
+    });
+    return res;
+  }
+  function countRecordWrites(survey: SurveyModel): { count: number } {
+    const res = { count: 0 };
+    survey.onValueChanged.add((_: SurveyModel, options: any): void => { if (options.name === "recs") res.count++; });
+    return res;
+  }
+
+  const scenarios: Array<{ name: string, setup: (survey: SurveyModel) => void, run: (survey: SurveyModel) => void }> = [
+    { name: "validate()", setup: (): void => {}, run: (survey: SurveyModel): void => { survey.validate(false); } },
+    { name: "every page in turn", setup: (): void => {}, run: (survey: SurveyModel): void => { for (let i = 1; i <= 3; i++) survey.currentPageNo = i; } },
+    { name: "getPlainData()", setup: (): void => {}, run: (survey: SurveyModel): void => { survey.getPlainData(); } },
+    { name: "prevPage() after every page",
+      setup: (survey: SurveyModel): void => { for (let i = 1; i <= 3; i++) survey.currentPageNo = i; }, run: (survey: SurveyModel): void => { survey.prevPage(); } },
+    { name: "nextPage() from the second question's page",
+      setup: (survey: SurveyModel): void => { survey.currentPageNo = 1; survey.currentPageNo = 2; }, run: (survey: SurveyModel): void => { survey.nextPage(); } }
+  ];
+  scenarios.forEach((scenario) => {
+    test(scenario.name + ": each question builds its page once, as it does on a value of its own", () => {
+      const builds = countBuilds();
+      const measure = (bound: boolean): { panels: HashTable<number>, rebuilds: HashTable<number> } => {
+        const survey = createSiblings({ bound: bound });
+        scenario.setup(survey);
+        builds.reset();
+        scenario.run(survey);
+        return { panels: Object.assign({}, builds.panels), rebuilds: Object.assign({}, builds.rebuilds) };
+      };
+      const alone = measure(false);
+      const shared = measure(true);
+      expect(shared.panels, "#1: the panels created").toEqual(alone.panels);
+      expect(shared.rebuilds, "#2: the page builds").toEqual(alone.rebuilds);
+    });
+  });
+  test("validate(): 10 panels and one page build per question, and no question places the records by their content", () => {
+    const builds = countBuilds();
+    const remaps = vi.spyOn(<any>QuestionRecordsModel.prototype, "createAssignmentRemap");
+    const survey = createSiblings();
+    builds.reset();
+    survey.validate(false);
+    expect(builds.panels, "#1").toEqual({ p1: 10, p2: 10, p3: 10 });
+    expect(builds.rebuilds, "#2: the first build only").toEqual({ p1: 1, p2: 1, p3: 1 });
+    expect(remaps.mock.calls.length, "#3").toBe(0);
+  });
+  test("validate(): the records a page build computed equal the unpaged ones, and the other records stay as loaded", () => {
+    // Under paging an expression question computes only for a record with a panel: the comparison is
+    // over the records the questions built.
+    const paged = createSiblings();
+    const unpaged = createSiblings({ paged: false });
+    paged.validate(false);
+    unpaged.validate(false);
+    const built: Array<number> = [];
+    siblingNames.forEach((name: string) => {
+      (<any>sibling(paged, name)).dataList.getMaterializedIndexes().forEach((index: number) => { if (built.indexOf(index) < 0) built.push(index); });
+    });
+    expect(built.sort((a: number, b: number) => a - b), "#1: the first page of each question").toEqual(createIndexes(10));
+    const pagedRecords = paged.getValue("recs");
+    const unpagedRecords = unpaged.getValue("recs");
+    built.forEach((index: number) => { expect(pagedRecords[index], "#2: record " + index).toEqual(unpagedRecords[index]); });
+    for (let i = 10; i < 100; i++) {
+      expect(pagedRecords[i], "#3: record " + i).toEqual({ a: i });
+    }
+  });
+  test("validate(): the records are written once per page build, not again by the siblings that receive them", () => {
+    const survey = createSiblings();
+    const writes = countRecordWrites(survey);
+    survey.validate(false);
+    // 30 expression values change: 10 records, one expression per question.
+    expect(writes.count <= 30, "#1: at most the values that change: " + writes.count).toBe(true);
+    expect(writes.count, "#2: one write per question's page build").toBe(3);
+  });
+  test("a page build reaches the siblings as an update in place: their panels and their edited records stay", () => {
+    const survey = createSiblings({ computedPages: 1 });
+    survey.currentPageNo = 1;
+    const p1 = sibling(survey, "p1");
+    p1.panels[3].getQuestionByName("a").value = 1003;
+    expect((<any>p1).getPageState().edited, "#1").toEqual([3]);
+    const builds = countBuilds();
+    const decisions = recordInPlaceDecisions();
+    const remaps = vi.spyOn(<any>QuestionRecordsModel.prototype, "createAssignmentRemap");
+    sibling(survey, "p2").pageIndex = 1;
+    expect(decisions, "#2: the second question's page build stores x for records 10-19").toEqual(["p2>p1:true", "p2>p3:true"]);
+    expect(builds.rebuilds, "#3: only the question whose page moved builds").toEqual({ p2: 1 });
+    expect(remaps.mock.calls.length, "#4").toBe(0);
+    expect((<any>p1).getPageState().edited, "#5").toEqual([3]);
+    expect(survey.getValue("recs")[15], "#6").toEqual({ a: 15, x: 30 });
+  });
+  test("an add and a remove inside the writer's own change reach the siblings by their content", () => {
+    const survey = createSiblings({ computedPages: 1 });
+    survey.currentPageNo = 1;
+    const p1 = sibling(survey, "p1");
+    const p2 = sibling(survey, "p2");
+    p1.panels[3].getQuestionByName("a").value = 1003;
+    const remaps = vi.spyOn(<any>QuestionRecordsModel.prototype, "createAssignmentRemap");
+    p2.addPanel(0);
+    expect(remaps.mock.instances.indexOf(p1) > -1, "#1: the first question places the records").toBe(true);
+    expect((<any>p1).getPageState().edited, "#2: the edited record moved to 4, the inserted one is new").toEqual([0, 4]);
+    expect(panelValues(p1), "#3").toEqual(pageRecordValues(p1));
+    expect(panelValues(p1)[4], "#4").toBe(1003);
+    remaps.mockClear();
+    p2.removePanel(p2.panels[0]);
+    expect(remaps.mock.instances.indexOf(p1) > -1, "#5").toBe(true);
+    expect((<any>p1).getPageState().edited, "#6").toEqual([3]);
+    expect(panelValues(p1), "#7").toEqual(pageRecordValues(p1));
+  });
+  test("a value assigned by a handler while the panels are built is stored as an assignment from outside", () => {
+    const survey = createSiblings({ computedPages: 1 });
+    survey.currentPageNo = 1;
+    const p2 = sibling(survey, "p2");
+    let isAssigned = false;
+    survey.onQuestionCreated.add((_: SurveyModel, options: any): void => {
+      if (isAssigned || options.question.parentQuestion !== p2) return;
+      isAssigned = true;
+      // The first record moves to the end.
+      const value = [].concat(survey.getValue("recs"));
+      p2.value = value.slice(1).concat(value.slice(0, 1));
+    });
+    const decisions = recordInPlaceDecisions();
+    const remaps = vi.spyOn(<any>QuestionRecordsModel.prototype, "createAssignmentRemap");
+    p2.pageIndex = 1;
+    expect(isAssigned, "#1").toBe(true);
+    expect(decisions.filter((decision: string) => decision.indexOf("p2>") === 0), "#2: the second question makes no in-place write").toEqual([]);
+    ["p1", "p3"].forEach((name: string) => {
+      expect(remaps.mock.instances.indexOf(sibling(survey, name)) > -1, "#3: " + name + " places the records").toBe(true);
+      expect(panelValues(sibling(survey, name)), "#4: " + name).toEqual(pageRecordValues(sibling(survey, name)));
+    });
+    expect(survey.getValue("recs")[99].a, "#5").toBe(0);
+  });
+  test("an onValueChanging handler that moves a record during the in-place write: both writes reach the siblings from outside", () => {
+    const survey = createSiblings({ computedPages: 1 });
+    survey.currentPageNo = 1;
+    const p1 = sibling(survey, "p1");
+    let calls = 0;
+    survey.onValueChanging.add((_: SurveyModel, options: any): void => {
+      if (options.name !== "recs" || calls++ > 0) return;
+      const value = [].concat(survey.getValue("recs"));
+      survey.setValue("recs", value.slice(1).concat(value.slice(0, 1)));
+    });
+    const decisions = recordInPlaceDecisions();
+    sibling(survey, "p2").pageIndex = 1;
+    expect(calls > 0, "#1").toBe(true);
+    const fromSecond = decisions.filter((decision: string) => decision.indexOf("p2>p1:") === 0);
+    expect(fromSecond.length > 0, "#2").toBe(true);
+    expect(fromSecond.filter((decision: string) => decision === "p2>p1:true"), "#3: the first question's records are the handler's, not the ones the write replaced").toEqual([]);
+    expect(panelValues(p1), "#4").toEqual(pageRecordValues(p1));
+  });
+  test("an in-place write owed to a question's own write: kept in place alone, placed by content with an insert from outside", () => {
+    const owed: Array<string> = [];
+    const proto = <any>QuestionRecordsModel.prototype;
+    const owe = proto.oweOutsideAssignment;
+    vi.spyOn(proto, "oweOutsideAssignment").mockImplementation(function (this: any, ...args: Array<any>): void {
+      owed.push(this.name + ":" + args[2]);
+      owe.apply(this, args);
+    });
+    const remaps = vi.spyOn(proto, "createAssignmentRemap");
+    let survey = createSiblings();
+    survey.validate(false);
+    expect(owed, "#1: the first question reads x inside its own condition run").toEqual(["p1:true"]);
+    expect(remaps.mock.calls.length, "#2").toBe(0);
+
+    owed.length = 0;
+    survey = createSiblings();
+    let calls = 0;
+    survey.onValueChanged.add((_: SurveyModel, options: any): void => {
+      if (options.name !== "recs" || calls++ > 0) return;
+      survey.setValue("recs", [{ a: -1 }].concat(survey.getValue("recs")));
+    });
+    survey.validate(false);
+    expect(owed.slice(0, 2), "#3: the insert joins the owed assignment").toEqual(["p1:true", "p1:false"]);
+    expect(remaps.mock.instances.indexOf(sibling(survey, "p1")) > -1, "#4: the follow-up places the records by their content").toBe(true);
+    const p1 = sibling(survey, "p1");
+    expect(panelValues(p1), "#5").toEqual(pageRecordValues(p1));
+    expect(panelValues(p1)[0], "#6").toBe(-1);
+  });
+});
+
+describe("the completion pass judges only the questions a record answers", () => {
+  /* q1 and q2 are in a panel that shows for show = 'yes'; q3 reads only a survey variable; q4 and q5 read the
+     record. q1 and q4 are answered in the even records, q3 in every fourth one from 1, q5 has only its
+     comment in every tenth one from 1, and q2 is never answered. */
+  const json = (paged: boolean): any => ({ elements: [{ type: "paneldynamic", name: "pd", panelsPerPage: paged ? 10 : 0, templateElements: [
+    { type: "text", name: "show" }, { type: "text", name: "k" },
+    { type: "panel", name: "grp", visibleIf: "{panel.show} = 'yes'", elements: [
+      { type: "text", name: "q1", visibleIf: "{panel.k} > 0" }, { type: "text", name: "q2", visibleIf: "{panel.k} > 1" }] },
+    { type: "text", name: "q3", visibleIf: "{flag} = 1" },
+    { type: "text", name: "q4", visibleIf: "{panel.k} > 3" },
+    { type: "text", name: "q5", visibleIf: "{panel.k} > 4", showCommentArea: true }] }] });
+  const createRecord = (i: number): any => {
+    const record: any = { show: i % 3 === 0 ? "yes" : "no", k: i % 6 };
+    if (i % 2 === 0) {
+      record.q1 = "v1";
+      record.q4 = "v4";
+    }
+    if (i % 4 === 1) record.q3 = "v3";
+    if (i % 10 === 1) record["q5-Comment"] = "c5";
+    return record;
+  };
+  test("the conditions of the records without a panel: one per answered question and per panel around one, a survey-only one once", () => {
+    const survey = new SurveyModel(json(true));
+    survey.data = { pd: records(100, createRecord) };
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+    question.panels;
+    // The helper's rules (createRecordElementVisibility, clearValueInRecordsWithoutPanel), per record without
+    // a panel: an answered question with a visibleIf is judged once; the panel around q1 is judged once
+    // with it; an unanswered question is not judged. A judged condition runs, except the one that reads no
+    // record variable (q3's), which runs once for the walk.
+    let judged = 0;
+    let q3Judged = 0;
+    for (let i = 10; i < 100; i++) {
+      const record = createRecord(i);
+      if (record.q1 !== undefined) judged += 2;
+      if (record.q3 !== undefined) { judged++; q3Judged++; }
+      if (record.q4 !== undefined) judged++;
+      if (record["q5-Comment"] !== undefined) judged++;
+    }
+    const expectedRuns = judged - q3Judged + 1;
+    let isInPass = false;
+    let isWalking = false;
+    const proto = <any>QuestionPanelDynamicModel.prototype;
+    const clear = proto.clearValueInRecordsWithoutPanel;
+    vi.spyOn(proto, "clearValueInRecordsWithoutPanel").mockImplementation(function (this: any, ...args: Array<any>): void {
+      isInPass = true;
+      try {
+        clear.apply(this, args);
+      } finally {
+        isInPass = false;
+      }
+    });
+    const walk = proto.collectRecordChangesWithoutObjects;
+    vi.spyOn(proto, "collectRecordChangesWithoutObjects").mockImplementation(function (this: any, ...args: Array<any>): any {
+      isWalking = isInPass;
+      try {
+        return walk.apply(this, args);
+      } finally {
+        isWalking = false;
+      }
+    });
+    let judgedInWalk = 0;
+    const beforeRunning = survey.beforeExpressionRunning;
+    vi.spyOn(survey, "beforeExpressionRunning").mockImplementation(function (this: SurveyModel, ...args: Array<any>): string {
+      if (isWalking) judgedInWalk++;
+      return beforeRunning.apply(this, <any>args);
+    });
+    let runsInWalk = 0;
+    const runContext = ConditionRunner.prototype.runContext;
+    vi.spyOn(ConditionRunner.prototype, "runContext").mockImplementation(function (this: ConditionRunner, ...args: Array<any>): any {
+      if (isWalking) runsInWalk++;
+      return runContext.apply(this, <any>args);
+    });
+    survey.completeLastPage();
+    expect(judgedInWalk, "#1: the judged elements").toBe(judged);
+    expect(runsInWalk, "#2: the condition runs").toBe(expectedRuns);
+  });
+  test("the records at completion equal the unpaged ones", () => {
+    const complete = (paged: boolean): any => {
+      const survey = new SurveyModel(json(paged));
+      survey.data = { pd: records(100, createRecord) };
+      (<QuestionPanelDynamicModel>survey.getQuestionByName("pd")).panels;
+      survey.completeLastPage();
+      return survey.data;
+    };
+    expect(complete(true), "#1").toEqual(complete(false));
   });
 });

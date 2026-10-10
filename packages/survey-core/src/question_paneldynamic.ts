@@ -1289,8 +1289,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.isNewPanelsValueAssignedFromOutside = false;
   }
   /* The values the new panels wrote - their defaults and expression results - are stored as one
-     assignment of the question's own: it keeps the view. An assignment from outside made while the
-     panels were built (a handler that set question.value) went into the same buffer, and then the
+     assignment of the question's own: it keeps the view, and the siblings bound to the same value
+     receive it as an update in place (setOwnRecordsValueInPlace). An assignment from outside made while
+     the panels were built (a handler that set question.value) went into the same buffer, and then the
      store is one from outside. */
   private isNewPanelsValueAssignedFromOutside: boolean;
   private setValueAfterPanelsCreating() {
@@ -1302,7 +1303,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         if (this.isNewPanelsValueAssignedFromOutside) {
           this.value = value;
         } else {
-          this.setOwnRecordsValue(value);
+          this.setOwnRecordsValueInPlace(value);
         }
       });
     }
@@ -3053,7 +3054,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      - A question is visible in a record when its visible / visibleIf and those of the template
        panels around it pass over the record (isRecordInputContainerVisible); the question and the record are its
        parents too (onHiddenContainer).
-     - Clearing removes the value name and its comment key, the keys clearValue() removes.
+     - Clearing removes the value name and its comment key, the keys clearValue() removes. A question
+       without an answer is not judged: no condition runs for it.
      - A question that holds records or panels of its own is one question here: cleared whole when it
        is invisible, left as it is otherwise - its own clean-up does not run in a record without an
        object (a paging limitation). The same holds for any other clean-up inside one question.
@@ -3072,6 +3074,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       const areQuestionAndRecordVisible = this.isVisible && list.isRecordVisible(index);
       let cleared: any;
       questions.forEach((q: Question): void => {
+        if (!this.hasRecordQuestionAnswer(cleared || record, q.getValueName())) return;
         const isSelfVisible = visibility.isVisible(q);
         if (isSelfVisible && !list.isRecordVisible(index)) return;
         const isParentVisible = areQuestionAndRecordVisible && this.isRecordInputContainerVisible(visibility, q);

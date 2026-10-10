@@ -53,6 +53,10 @@ interface IDynamicDataValueAssignment {
   oldRecords?: any;
   // An owed assignment only: one of the assignments it stands for drops the touched records.
   isTouchedSetDropped?: boolean;
+  /* A sibling's write that updated records in place (QuestionRecordsModel.isInPlaceWriteOfSibling): no
+     record was inserted, removed or moved. An owed assignment is in place only while every assignment
+     it stands for is. */
+  isUpdatedInPlace?: boolean;
 }
 // A write of one record field through an item, as the item prepared it (QuestionRecordItem.prepareRecordWrite).
 export interface IRecordItemWrite {
@@ -636,6 +640,47 @@ export abstract class QuestionRecordsModel extends Question {
     } finally {
       this.isOwnValueAssignment = false;
     }
+  }
+  /* An own write that only updates records in place - the values new objects computed into the records
+     they were built for: as many records as are stored, none inserted, removed or moved. The records it
+     replaces (before) and the ones it stores (after) are held for the extent of that one write. A
+     sibling that receives the write through the survey reads them (isInPlaceWriteOfSibling) and keeps
+     its objects. */
+  private inPlaceWrite: { before: Array<any>, after: Array<any> } = undefined;
+  protected setOwnRecordsValueInPlace(newValue: any): void {
+    const stored = this.getStoredRecords();
+    if (!Array.isArray(newValue) || !Array.isArray(stored) || newValue.length !== stored.length) {
+      this.setOwnRecordsValue(newValue);
+      return;
+    }
+    const prev = this.inPlaceWrite;
+    // A copy: the stored array is updated in place when the value is stored (Base.setArrayPropertyDirectly).
+    this.inPlaceWrite = { before: [].concat(stored), after: newValue };
+    try {
+      this.setOwnRecordsValue(newValue);
+    } finally {
+      this.inPlaceWrite = prev;
+    }
+  }
+  /* The assignment the question receives is a sibling's in-place write: a question bound to the same
+     value is making one, the received value equals the records it stores, and the records the question
+     held equal the ones it replaces. The survey stores a copy, so the records are compared by content,
+     not by identity. An assignment made while the sibling writes - a survey.onValueChanging handler
+     that calls survey.setValue, any user code before the store - has other content and stays one from
+     outside, and so does the sibling's write that follows it: the question's records are the handler's
+     then, not the ones the sibling replaces. One with equal content on both sides is taken as in place,
+     which is right for it too. Cost: two comparisons of the records, only while a sibling makes an
+     in-place write. */
+  private isInPlaceWriteOfSibling(newValue: any, oldRecords: any): boolean {
+    if (!Array.isArray(newValue) || !Array.isArray(oldRecords) || newValue.length !== oldRecords.length || !this.survey) return false;
+    // Null for a question inside a panel or a matrix: the survey does not hash it.
+    const questions = this.survey.getQuestionsByValueName(this.getValueName());
+    return !!questions && questions.some((question: IQuestion): boolean => {
+      if (question === this || !(question instanceof QuestionRecordsModel)) return false;
+      const write = question.inPlaceWrite;
+      return !!write && write.after.length === newValue.length &&
+        !DynamicDataList.isValueChanged(newValue, write.after) && !DynamicDataList.isValueChanged(oldRecords, write.before);
+    });
   }
   // Once per question until its source changes.
   private warnedSource: IDynamicDataSource;
@@ -1727,12 +1772,16 @@ export abstract class QuestionRecordsModel extends Question {
   /* The record without the answer stored under name and its comment, the keys clearValue() removes.
      cleared: the copy made so far, undefined for none; the result is that copy, made when needed. */
   protected removeRecordAnswer(record: any, cleared: any, name: string): any {
-    [name, name + settings.commentSuffix].forEach((key: string): void => {
+    getRecordAnswerKeys(name).forEach((key: string): void => {
       if ((cleared || record)[key] === undefined) return;
       if (!cleared) cleared = Object.assign({}, record);
       delete cleared[key];
     });
     return cleared;
+  }
+  // The record holds an answer of the question: one of the keys removeRecordAnswer removes.
+  protected hasRecordQuestionAnswer(record: any, name: string): boolean {
+    return getRecordAnswerKeys(name).some((key: string): boolean => record[key] !== undefined);
   }
   // The records a clean-up pass changed, written in one batch of the list as the question's own change.
   protected writeRecordChanges(changes: Array<{ index: number, record: any }>): void {
@@ -2926,6 +2975,9 @@ export abstract class QuestionRecordsModel extends Question {
      - Any other one from outside decides the view again at once: the created indexes are taken
        before it and compared after it, and the objects are rebuilt when it changed which records
        have one.
+     Begin also reads whether an assignment from outside is a sibling's in-place write
+     (isInPlaceWriteOfSibling), and the answer travels with it - also when it is owed - to
+     decideViewAgain.
      Begin answers nothing for the first two and allocates nothing. The list is not created for any
      of this.
      The state is handed back in by setQuestionValue, never kept in a field: an assignment made from
@@ -2934,12 +2986,12 @@ export abstract class QuestionRecordsModel extends Question {
   private beginValueAssignment(newValue: any, oldRecords: any): IDynamicDataValueAssignment {
     if (this.isAssigningOwnValue) return undefined;
     if (this.isOwnWriteOpen) {
-      this.oweOutsideAssignment(newValue, oldRecords);
+      this.oweOutsideAssignment(newValue, oldRecords, this.isInPlaceWriteOfSibling(newValue, oldRecords));
       return undefined;
     }
     const list = this._dataList;
     if (!list) return undefined;
-    return { created: list.hasView ? list.getCreatedIndexes() : undefined };
+    return { created: list.hasView ? list.getCreatedIndexes() : undefined, isUpdatedInPlace: this.isInPlaceWriteOfSibling(newValue, oldRecords) };
   }
   /* oldRecords: the question's copy of the value it replaced. The new records are read here and not
      passed in: the rebuild of a changed membership can write the value. */
@@ -2955,20 +3007,30 @@ export abstract class QuestionRecordsModel extends Question {
       }
       return;
     }
-    this.decideViewAgain(assignment.created, oldRecords, this.isTouchedSetDropped());
+    this.decideViewAgain(assignment.created, oldRecords, this.isTouchedSetDropped(), true, assignment.isUpdatedInPlace);
   }
   /* The view is decided again over the records as they are now, and the objects follow: created and
      oldRecords are what the view and the value were before the assignment (see
      IDynamicDataValueAssignment). The records the respondent touched keep their places: the list
      gets the remap of the assignment, built once and only when there are touched records, and the
      edited set follows the same remap. areRecordsReplaced: false for a change that replaced no record
-     (the row titles of the fixed matrix) - the edited set stays and a pending page move is kept. */
-  protected decideViewAgain(created: Array<number>, oldRecords: any, isTouchedSetDropped: boolean, areRecordsReplaced: boolean = true): void {
+     (the row titles of the fixed matrix) - the edited set stays and a pending page move is kept.
+     isUpdatedInPlace: a sibling's write that updated records in place (isInPlaceWriteOfSibling). It
+     replaced no record either, and every record stays where it was: the remap is the identity, so the
+     objects keep their records, the page is not stale, and the objects take the new values from the
+     records as they do after a write of their own sibling. Guessed from the content instead, a write
+     that changed many records of the page could not be placed and the page was rebuilt - and the new
+     objects computed and wrote again, which reached the next sibling. Still checked against the record
+     count: an owed assignment is followed after the question's own write, which may have changed it. */
+  protected decideViewAgain(created: Array<number>, oldRecords: any, isTouchedSetDropped: boolean, areRecordsReplaced: boolean = true,
+    isUpdatedInPlace: boolean = false): void {
+    const isInPlace = isUpdatedInPlace && Array.isArray(oldRecords) && oldRecords.length === this.getStoredRecordCount();
+    if (isInPlace) areRecordsReplaced = false;
     if (areRecordsReplaced)this.heldRemoveTargets = undefined;
     const list = this._dataList;
     let remap: (index: number) => number = undefined;
     if (!isTouchedSetDropped && list.hasTouchedRecords) {
-      remap = this.createAssignmentRemap(oldRecords, this.getStoredRecords());
+      remap = isInPlace ? (index: number): number => index : this.createAssignmentRemap(oldRecords, this.getStoredRecords());
     }
     list.invalidateViews(remap, !!created ? created : undefined);
     this.syncPagingState();
@@ -2988,8 +3050,9 @@ export abstract class QuestionRecordsModel extends Question {
       this.rebuildFromDataList(false);
     }
   }
-  /* The record indexes kept besides the records follow an assignment from outside, for a list that
-     pages in memory: the edited set and the nested states follow the records they name across the
+  /* The record indexes kept besides the records follow an assignment from outside that replaced
+     records - not a sibling's in-place write, which moved none - for a list that pages in memory: the
+     edited set and the nested states follow the records they name across the
      insert, remove or move the assignment made (DynamicDataPageValidation.onRecordsReplaced), the
      records the objects were built for move with them, and a move that waits for its validators is
      dropped. It runs before any rebuild: a rebuild keeps the nested states of the objects it replaces
@@ -3012,7 +3075,8 @@ export abstract class QuestionRecordsModel extends Question {
   }
   /* Where each record of an assignment from outside went: the new index of an old record, -1 for a
      removed one, undefined for one it cannot place. The records of an array answer are compared by
-     key, or by content (getReplacedRecordsRemap); the fixed matrix answers for its keyed answer. */
+     key, or by content (getReplacedRecordsRemap); the fixed matrix answers for its keyed answer. Not
+     asked for a sibling's in-place write: its records did not move (decideViewAgain). */
   protected createAssignmentRemap(oldRecords: any, newRecords: any): (index: number) => number {
     const list = this._dataList;
     return getReplacedRecordsRemap(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : [],
@@ -3132,18 +3196,22 @@ export abstract class QuestionRecordsModel extends Question {
     return this.ownRecordsChangeDepth > 0 || !!this._dataList && this._dataList.isWriteOpen;
   }
   /* Owed before the value is stored: a handler that throws after storing it still leaves it owed. The
-     view and the records before the first owed assignment are what the follow-up compares with. */
-  private oweOutsideAssignment(newValue: any, oldRecords: any): void {
+     view and the records before the first owed assignment are what the follow-up compares with.
+     isUpdatedInPlace: the assignment is a sibling's in-place write (isInPlaceWriteOfSibling). The owed
+     follow-up keeps the objects only while every assignment it stands for is one: an assignment from
+     outside merged into it makes the follow-up place the records by their content. */
+  private oweOutsideAssignment(newValue: any, oldRecords: any, isUpdatedInPlace: boolean): void {
     if (Helpers.isTwoValueEquals(this.getStoredRecords(), newValue)) return;
     const isTouchedSetDropped = this.isTouchedSetDropped();
     if (!!this.owedAssignment) {
       this.owedAssignment.isTouchedSetDropped = this.owedAssignment.isTouchedSetDropped || isTouchedSetDropped;
+      this.owedAssignment.isUpdatedInPlace = this.owedAssignment.isUpdatedInPlace && isUpdatedInPlace;
       return;
     }
     const list = this._dataList;
     const canReadView = !!list && !list.isWriting;
     this.owedAssignment = { created: !canReadView ? null : list.hasView ? list.getCreatedIndexes() : undefined, oldRecords: oldRecords,
-      isTouchedSetDropped: isTouchedSetDropped };
+      isTouchedSetDropped: isTouchedSetDropped, isUpdatedInPlace: isUpdatedInPlace };
   }
   // The outermost write of the list has ended (IDynamicDataOwner.onWriteEnded).
   private onListWriteEnded(): void {
@@ -3218,7 +3286,7 @@ export abstract class QuestionRecordsModel extends Question {
     this.outsideAssignmentCountValue++;
     this.followOutsideAssignment((): void => {
       if (!!this._dataList) {
-        this.decideViewAgain(owed.created, owed.oldRecords, owed.isTouchedSetDropped);
+        this.decideViewAgain(owed.created, owed.oldRecords, owed.isTouchedSetDropped, true, owed.isUpdatedInPlace);
       }
     });
   }
@@ -4271,6 +4339,10 @@ class RecordValueItem extends QuestionRecordItem {
 // The visibility flags of an input in a record, kept by QuestionRecordsModel.clearHiddenAnswersWithoutObjects.
 const HIDDEN_ANSWER_SELF = 1;
 const HIDDEN_ANSWER_CONTAINER = 2;
+// The keys of a question's answer in a record: its value name and its comment key, the keys clearValue() removes.
+function getRecordAnswerKeys(name: string): Array<string> {
+  return [name, name + settings.commentSuffix];
+}
 function getHiddenAnswerFlags(isSelfVisible: boolean, isContainerVisible: boolean): number {
   return (isSelfVisible ? HIDDEN_ANSWER_SELF : 0) | (isContainerVisible ? HIDDEN_ANSWER_CONTAINER : 0);
 }

@@ -443,16 +443,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     // A page size that changed resets the list, and the reset has rebuilt the panels already.
     if (this.syncListPageSize()) return;
     // Every panel that is created asks for a render and a paging sync: they are collapsed into one.
-    const prevIsPagingSyncSuspended = this.isPagingSyncSuspended;
-    this.isPagingSyncSuspended = true;
-    try {
-      this.rebuildPanelsFromDataListCore(isPageMove);
-    } finally {
-      this.isPagingSyncSuspended = prevIsPagingSyncSuspended;
-    }
-    if (!this.isPagingSyncSuspended) {
-      this.runDeferredPagingSync();
-    }
+    this.runWithOneRender((): void => this.rebuildPanelsFromDataListCore(isPageMove));
   }
   private rebuildPanelsFromDataListCore(isPageMove: boolean): void {
     const prevIsRebuildingView = this.isRebuildingView;
@@ -2848,18 +2839,11 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   protected runItemsCondition(properties: HashTable<any>): void {
     // One paging sync and one render for the whole run, a page rebuild included.
-    const prevIsPagingSyncSuspended = this.isPagingSyncSuspended;
-    this.isPagingSyncSuspended = true;
-    try {
+    this.runWithOneRender((): void => {
       if (!this.rebuildStalePage(properties).isRebuilt) {
         this.runPanelsCondition(this.panelsCore, properties);
       }
-    } finally {
-      this.isPagingSyncSuspended = prevIsPagingSyncSuspended;
-    }
-    if (!this.isPagingSyncSuspended) {
-      this.runDeferredPagingSync();
-    }
+    });
   }
   protected getRecordVisibleIfPropertyName(): string {
     return "templateVisibleIf";
@@ -2876,35 +2860,26 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected runPanelsCondition(panels: PanelModel[], properties: HashTable<any>): void {
     /* Every paging sync and page render requested during the run - by the "visible" handler, which
        fires inside panel.runCondition(), by the call below, by anything a condition reaches - collapses
-       into one after the loop. A re-entrant run leaves it to the outer one. */
-    const prevIsPagingSyncSuspended = this.isPagingSyncSuspended;
-    this.isPagingSyncSuspended = true;
+       into one after the loop. */
     const isPanelsCore = panels === this.panelsCore;
     let visibleIndex = 0;
-    try {
-      this.runInternalValueChange((): void => this.runComputedWrites((): void => {
-        for (var i = 0; i < panels.length; i++) {
-          const panel = panels[i];
-          const panelName = settings.expressionVariables.panel;
-          const newProps = Helpers.createCopy(properties);
-          newProps[panelName] = panel;
-          panel.runCondition(newProps);
-          // The owner-visibility layer of the list: visiblePanels stays incrementally maintained by the
-          // "visible" property-changed handler, this only keeps the list flags in step with it - for
-          // the panels of the question at once after the loop (setItemRecordsVisible, as the matrix's rows).
-          if (!isPanelsCore)this.setPanelRecordVisible(panel);
-          if (panel.isVisible) {
-            visibleIndex++;
-          }
+    this.runWithOneRender((): void => this.runInternalValueChange((): void => this.runComputedWrites((): void => {
+      for (var i = 0; i < panels.length; i++) {
+        const panel = panels[i];
+        const panelName = settings.expressionVariables.panel;
+        const newProps = Helpers.createCopy(properties);
+        newProps[panelName] = panel;
+        panel.runCondition(newProps);
+        // The owner-visibility layer of the list: visiblePanels stays incrementally maintained by the
+        // "visible" property-changed handler, this only keeps the list flags in step with it - for
+        // the panels of the question at once after the loop (setItemRecordsVisible, as the matrix's rows).
+        if (!isPanelsCore)this.setPanelRecordVisible(panel);
+        if (panel.isVisible) {
+          visibleIndex++;
         }
-        if (isPanelsCore)this.setItemRecordsVisible(panels.length, (position: number): boolean => panels[position].visible);
-      }));
-    } finally {
-      this.isPagingSyncSuspended = prevIsPagingSyncSuspended;
-    }
-    if (!this.isPagingSyncSuspended) {
-      this.runDeferredPagingSync();
-    }
+      }
+      if (isPanelsCore)this.setItemRecordsVisible(panels.length, (position: number): boolean => panels[position].visible);
+    })));
     if (isPanelsCore) {
       this.clearHiddenAnswersWithoutObjects(properties);
     }
@@ -2922,9 +2897,26 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected getRecordInputContainer(): PanelModelBase {
     return this.template;
   }
+  /* renderedPanels is built eagerly and not on read, as the matrix's renderedTable is: it is what the
+     panels animation shows - the panels animating out included - and what decides when a left panel
+     can be disposed. So every panel that appears, disappears or is created during a run would render
+     the page again; while a run is suspended, those renders and paging syncs are only noted and
+     runDeferredPagingSync makes one of each after it. A nested run leaves it to the outer one. */
   private isPagingSyncSuspended: boolean;
   private isPagingSyncPending: boolean;
   private isRenderedPanelsUpdatePending: boolean;
+  private runWithOneRender(func: () => void): void {
+    const prevIsPagingSyncSuspended = this.isPagingSyncSuspended;
+    this.isPagingSyncSuspended = true;
+    try {
+      func();
+    } finally {
+      this.isPagingSyncSuspended = prevIsPagingSyncSuspended;
+    }
+    if (!this.isPagingSyncSuspended) {
+      this.runDeferredPagingSync();
+    }
+  }
   private runDeferredPagingSync(): void {
     const syncPaging = this.isPagingSyncPending;
     const render = this.isRenderedPanelsUpdatePending;

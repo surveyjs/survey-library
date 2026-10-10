@@ -254,17 +254,18 @@ describe("a single-field write copies the whole array only where a caller needs 
     expect((<any>survey.getQuestionByName("m")).visibleRows.length, "m is built").toBe(50);
     return survey;
   }
-  test("one field of one record, three questions bound to the value: 5 whole-array copies, not 7", () => {
+  test("one field of one record, three questions bound to the value: 4 whole-array copies, not 7", () => {
     const survey = createBoundSurvey();
     const pd1 = <QuestionPanelDynamicModel>survey.getQuestionByName("pd1");
     const copies = vi.spyOn(Helpers, "getUnbindValue");
     pd1.panels[10].getQuestionByName("b").value = "changed";
     const wholeArray = copies.mock.calls.filter(call => Array.isArray(call[0]) && call[0].length === 50);
     // Kept: the survey hash gets its own copy (survey.setValue), each sibling gets its own copy
-    // (updateValueFromSurvey of pd2 and m), and the old value is copied for the value-change
-    // notifications (Question.setNewValue and survey.setValue). The matrix hands its rows their
-    // records without copying the value it receives.
-    expect(wholeArray.length, "#1").toBe(5);
+    // (updateValueFromSurvey of pd2 and m), and survey.setValue copies the old value for the
+    // value-change notifications. Question.setNewValue copies none: no onDynamicPanelValueChanged
+    // handler reads the old records. The matrix hands its rows their records without copying the
+    // value it receives.
+    expect(wholeArray.length, "#1").toBe(4);
     expect(survey.data.rec[10].b, "#2").toBe("changed");
     expect((<QuestionPanelDynamicModel>survey.getQuestionByName("pd2")).panels[10].getQuestionByName("b").value, "#3").toBe("changed");
   });
@@ -1401,7 +1402,7 @@ describe("the cost of the off-page clean-ups", () => {
       FunctionFactory.Instance.unregister("countedEquals");
     }
   });
-  test("at complete a paged Dynamic Panel builds one temporary panel per record without a panel", () => {
+  test("at complete a paged Dynamic Panel with static choices builds no temporary panel", () => {
     const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "q", panelsPerPage: 2,
       templateElements: [{ type: "text", name: "a" }, { type: "dropdown", name: "c", choices: [1, 2] }] }] });
     survey.data = { q: records(6, (i: number): any => ({ a: i, c: 1 })) };
@@ -1410,10 +1411,176 @@ describe("the cost of the off-page clean-ups", () => {
     const created = vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "createRecordCleanupObject");
     try {
       survey.doComplete();
-      expect(created.mock.calls.length, "#1: four records without a panel").toBe(4);
+      expect(created.mock.calls.length, "#1: the four records without a panel are judged over their stored answers").toBe(0);
     } finally {
       created.mockRestore();
     }
+  });
+});
+
+describe("a record write of a paged question copies the old records only for a handler that reads them", () => {
+  const template = [{ type: "text", name: "a" },
+    { type: "expression", name: "e1", expression: "{panel.a} + 1" }, { type: "expression", name: "e2", expression: "{panel.a} * 2" }];
+  function createNested(): { survey: SurveyModel, question: QuestionPanelDynamicModel } {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "outer", panelCount: 1,
+      templateElements: [{ type: "paneldynamic", name: "pd", panelsPerPage: 10, templateElements: template }] }] });
+    survey.data = { outer: [{ pd: records(100, (i: number): any => ({ a: i })) }] };
+    const question = <QuestionPanelDynamicModel>(<QuestionPanelDynamicModel>survey.getQuestionByName("outer")).panels[0].getQuestionByName("pd");
+    question.panels;
+    return { survey: survey, question: question };
+  }
+  function countWholeArrayCopies(question: QuestionPanelDynamicModel, move: () => void): { copies: number, writes: number } {
+    const copies = vi.spyOn(Helpers, "getUnbindValue");
+    const writes = vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "setOwnRecordsValue");
+    move();
+    const res = { copies: copies.mock.calls.filter(call => Array.isArray(call[0]) && call[0].length === 100).length, writes: writes.mock.calls.length };
+    copies.mockRestore();
+    writes.mockRestore();
+    return res;
+  }
+  test("a page move copies the records in Question.setNewValue only while onDynamicPanelValueChanged has a handler", () => {
+    const withoutHandler = createNested();
+    const oldValues = vi.spyOn(<any>QuestionRecordsModel.prototype, "getOldValueOnSetNewValue");
+    const first = countWholeArrayCopies(withoutHandler.question, () => withoutHandler.question.goToPage(5));
+    expect(first.writes >= 20, "#1: the expressions of the page are written: " + first.writes).toBe(true);
+    const ownOldValues = oldValues.mock.results.filter((res, i) => oldValues.mock.contexts[i] === withoutHandler.question);
+    expect(ownOldValues.length >= 20, "#2").toBe(true);
+    expect(ownOldValues.every(res => res.value === undefined), "#3: no copy of the old records").toBe(true);
+
+    const withHandler = createNested();
+    const received: Array<any> = [];
+    withHandler.survey.onDynamicPanelValueChanged.add((_, options) => { if (options.name === "pd") received.push(options.oldValue); });
+    oldValues.mockClear();
+    const second = countWholeArrayCopies(withHandler.question, () => withHandler.question.goToPage(5));
+    const ownCopies = oldValues.mock.results.filter((res, i) => oldValues.mock.contexts[i] === withHandler.question);
+    oldValues.mockRestore();
+    expect(second.writes, "#4").toBe(first.writes);
+    expect(ownCopies.every(res => Array.isArray(res.value) && res.value.length === 100), "#5: each write copies the old records").toBe(true);
+    expect(second.copies - first.copies, "#6: and only those copies are added").toBe(ownCopies.length);
+    expect(received.length, "#7").toBe(ownCopies.length);
+    expect(received[0].length, "#8: the handler gets the old records").toBe(100);
+    expect(received[0][50].e1, "#9: before the first write").toBeUndefined();
+    expect(withHandler.question.value[50].e1, "#10").toBe(51);
+  });
+});
+
+describe("the completion clean-up of the records without a panel builds a panel only where the record decides", () => {
+  // The panel toJSON calls made while a temporary row or panel is being built (proto.createRecordCleanupObject).
+  function countRecordCleanupJson(proto: any): () => number {
+    const toJSON = PanelModel.prototype.toJSON;
+    const create = proto.createRecordCleanupObject;
+    let depth = 0;
+    let count = 0;
+    vi.spyOn(PanelModel.prototype, "toJSON").mockImplementation(function (this: PanelModel, ...args: Array<any>): any {
+      if (depth > 0) count++;
+      return toJSON.apply(this, args);
+    });
+    vi.spyOn(proto, "createRecordCleanupObject").mockImplementation(function (this: any, ...args: Array<any>): any {
+      depth++;
+      try {
+        return create.apply(this, args);
+      } finally {
+        depth--;
+      }
+    });
+    return (): number => count;
+  }
+  const baseTemplate = [{ type: "text", name: "t", visibleIf: "{panel.b} = true" }, { type: "boolean", name: "b" },
+    { type: "expression", name: "e", expression: "{panel.n} * 2" }, { type: "text", name: "n" },
+    { type: "dropdown", name: "d", choices: [1, 2, 3] }];
+  const byRecord = { type: "dropdown", name: "c", choices: [1, 2, 3], choicesVisibleIf: "{item} <> {panel.n}" };
+  function createRecords(): Array<any> {
+    // The stored records hold their computed values, as records saved from a completed survey do.
+    return records(100, (i: number): any => ({ t: "t" + i, b: i % 2 === 0, n: i % 3 + 1, e: (i % 3 + 1) * 2, d: i % 5 === 0 ? 9 : 1, c: i % 4 === 0 ? i % 3 + 1 : (i + 1) % 3 + 1 }));
+  }
+  function complete(templateElements: Array<any>, panelsPerPage: number): { survey: SurveyModel, question: QuestionPanelDynamicModel } {
+    const survey = new SurveyModel({ clearInvisibleValues: "onComplete", elements: [{ type: "paneldynamic", name: "q", panelsPerPage: panelsPerPage, templateElements: templateElements }] });
+    survey.data = { q: createRecords() };
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+    question.panels;
+    survey.doComplete();
+    return { survey: survey, question: question };
+  }
+  test("static choices: no temporary panel, and the records equal the unpaged ones", () => {
+    const unpaged = complete(baseTemplate, 0).survey.data.q;
+    const created = vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "createRecordCleanupObject");
+    const paged = complete(baseTemplate, 10).survey.data.q;
+    expect(created.mock.calls.length, "#1").toBe(0);
+    expect(paged, "#2").toEqual(unpaged);
+    expect(paged[1].t, "#3: an invisible answer is cleared").toBeUndefined();
+    expect(paged[2].t, "#4").toBe("t2");
+    expect(paged[50].d, "#5: an unknown dropdown value is cleared").toBeUndefined();
+    expect(paged[51].d, "#6").toBe(1);
+  });
+  test("choices that depend on the record: one temporary panel per record without a panel, and the records equal the unpaged ones", () => {
+    const templateElements = baseTemplate.concat([byRecord]);
+    const unpaged = complete(templateElements, 0).survey.data.q;
+    const created = vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "createRecordCleanupObject");
+    const toJSON = countRecordCleanupJson(QuestionPanelDynamicModel.prototype);
+    const paged = complete(templateElements, 10);
+    expect(created.mock.calls.length, "#1: the 90 records off the first page").toBe(90);
+    expect(toJSON(), "#2: the template JSON is made once for the walk").toBe(1);
+    expect(paged.survey.data.q, "#3").toEqual(unpaged);
+    expect(paged.survey.data.q[52].c, "#4: an answer its choices hide in the record is cleared").toBeUndefined();
+    expect(paged.survey.data.q[53].c, "#5").toBe(1);
+  });
+  test("a record without a panel keeps what a panel adds by being built: its computed values and its unknown keys", () => {
+    const survey = new SurveyModel({ clearInvisibleValues: "onComplete", elements: [{ type: "paneldynamic", name: "q", panelsPerPage: 2,
+      templateElements: [{ type: "text", name: "n" }, { type: "expression", name: "e", expression: "{panel.n} * 2" }] }] });
+    survey.data = { q: records(4, (i: number): any => ({ n: i, unknown: "u" + i })) };
+    (<QuestionPanelDynamicModel>survey.getQuestionByName("q")).panels;
+    survey.doComplete();
+    expect(survey.data.q, "#1: the panels of the first page computed theirs").toEqual([{ n: 0, e: 0, unknown: "u0" }, { n: 1, e: 2, unknown: "u1" }, { n: 2, unknown: "u2" }, { n: 3, unknown: "u3" }]);
+  });
+  test("matrix: clearIncorrectValues makes the detail panel JSON once for the walk", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 2,
+      columns: [{ name: "a", cellType: "dropdown", choices: [1, 2] }], detailPanelMode: "underRow", detailElements: [{ type: "text", name: "d" }] }] });
+    survey.data = { m: records(6, (i: number): any => ({ a: i % 2 ? 1 : 9, d: "d" + i })) };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    const created = vi.spyOn(<any>QuestionMatrixDynamicModel.prototype, "createRecordCleanupObject");
+    const toJSON = countRecordCleanupJson(QuestionMatrixDynamicModel.prototype);
+    survey.clearIncorrectValues();
+    expect(created.mock.calls.length, "#1: the four records without a row").toBe(4);
+    expect(toJSON(), "#2").toBe(1);
+    expect(survey.data.m.map((record: any) => record.a), "#3").toEqual([undefined, 1, undefined, 1, undefined, 1]);
+    expect(survey.data.m.map((record: any) => record.d), "#4: each temporary row reads its own record").toEqual(["d0", "d1", "d2", "d3", "d4", "d5"]);
+  });
+});
+
+describe("a record read as a value builds no page of a question bound to the same value", () => {
+  test("the completion pass reads a field no record holds: the other question builds no panel", () => {
+    const survey = new SurveyModel({ clearInvisibleValues: "onComplete", elements: [
+      { type: "paneldynamic", name: "pd1", valueName: "rec", panelsPerPage: 5,
+        templateElements: [{ type: "text", name: "a" }, { type: "text", name: "h", visibleIf: "{panel.missing} = 1" }] },
+      { type: "paneldynamic", name: "pd2", valueName: "rec", panelsPerPage: 5,
+        templateElements: [{ type: "text", name: "a" }, { type: "text", name: "missing" }] }] });
+    survey.data = { rec: records(20, (i: number): any => ({ a: i, h: "h" + i })) };
+    const built = vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "createNewPanel");
+    survey.doComplete();
+    expect(built.mock.calls.length, "#1").toBe(0);
+    expect(survey.data.rec.filter((record: any) => record.h !== undefined).length, "#2: every hidden answer is cleared").toBe(0);
+  });
+  test("the other question answers for a record it has a panel for", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "paneldynamic", name: "pd1", valueName: "rec", panelsPerPage: 2,
+        templateElements: [{ type: "text", name: "a" }] },
+      { type: "paneldynamic", name: "pd2", valueName: "rec", panelsPerPage: 2,
+        templateElements: [{ type: "text", name: "a" }, { type: "text", name: "x" }] }] });
+    survey.data = { rec: records(6, (i: number): any => ({ a: i })) };
+    const pd1 = <QuestionPanelDynamicModel>survey.getQuestionByName("pd1");
+    const pd2 = <QuestionPanelDynamicModel>survey.getQuestionByName("pd2");
+    pd2.panels;
+    const runner = new ConditionRunner("{panel.x} = 'set'");
+    const readRecord = (index: number): boolean => {
+      const scope = (<any>pd1).createRecordVisibilityScope({});
+      scope.item.reset(index, survey.data.rec[index]);
+      return runner.runContext(scope.item.getValueGetterContext(), scope.properties);
+    };
+    (<any>pd2.panels[1].getQuestionByName("x")).questionValue = "set";
+    expect(readRecord(1), "#1: record 1 has a panel of pd2, and it answers").toBe(true);
+    expect(readRecord(3), "#2: record 3 has none, and pd2 builds none for it").toBe(false);
+    expect(pd2.panels.length, "#3").toBe(2);
   });
 });
 

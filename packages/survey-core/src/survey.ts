@@ -7724,10 +7724,19 @@ export class SurveyModel extends SurveyElementCore
       questionName
     );
   }
+  // The dynamic panel that fires event for a value change of question: its parent, when the event has handlers.
+  private getDynamicPanelFiring(question: IQuestion, event: EventBase<SurveyModel>): Question {
+    const parentQ = (<Question>question).parentQuestion;
+    return !!parentQ && parentQ.isDescendantOf("paneldynamic") && !event.isEmpty ? parentQ : undefined;
+  }
+  // The one reader of the old value of questionValueChanged: onDynamicPanelValueChanged (options.oldValue).
+  isQuestionOldValueRead(question: IQuestion): boolean {
+    return !!this.getDynamicPanelFiring(question, this.onDynamicPanelValueChanged);
+  }
   private getDynamicPanelOptions(question: IQuestion, event: EventBase<SurveyModel>, isComment?: boolean): any {
     const q = <Question>question;
-    const parentQ = q.parentQuestion;
-    if (!parentQ || !parentQ.isDescendantOf("paneldynamic") || event.isEmpty) return undefined;
+    const parentQ = this.getDynamicPanelFiring(q, event);
+    if (!parentQ) return undefined;
     const options = parentQ.getValueChangingOptions(q);
     if (options && isComment) {
       options.name = q.name + this.commentSuffix;

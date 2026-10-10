@@ -2604,10 +2604,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      clearIncorrectValues judges the record. */
   protected createRecordCleanupObject(index: number, record: any): IRecordCleanupObject {
     const panel = this.createAndSetupNewPanelObject();
-    const json = this.template.toJSON();
-    delete json.visibleIf;
-    const skipped = this.template.questions.filter((q: Question): boolean => this.isRecordCleanupSkipped(q)).map((q: Question): string => q.name);
-    new JsonObject().toObject(removeRecordCleanupSkipped(json, skipped), panel);
+    const json = this.getRecordCleanupJson((): any => {
+      const res = this.template.toJSON();
+      delete res.visibleIf;
+      const skipped = this.template.questions.filter((q: Question): boolean => this.isRecordCleanupSkipped(q)).map((q: Question): string => q.name);
+      return removeRecordCleanupSkipped(res, skipped);
+    });
+    new JsonObject().toObject(json, panel);
     panel.questions.forEach(q => q.setParentQuestion(this));
     // Attached without running its conditions: they run once the record is loaded (runCondition).
     const item = new QuestionPanelDynamicItem(this, panel, true);
@@ -3046,11 +3049,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
   }
   /* At complete a built panel's questions run their own clean-up (a select question drops an answer
-     its choices do not have): a record without a panel gets it from a temporary panel, one per record
-     (cleanRecordWithObject), after the invisible answers are cleared. */
+     its choices do not have): a record without a panel gets it after the invisible answers are cleared,
+     over its stored answers, or from a temporary panel where a question's clean-up depends on the record
+     (cleanRecordsWithoutObjectsAtComplete). Cost: a pass over the template questions per record, and a
+     temporary panel per record only for a template with such a question, or for a record with an answer
+     only a built question can judge. */
   private clearValueInRecordsWithoutPanelAtComplete(reason: string): void {
     if (reason !== "onComplete") return;
-    this.cleanRecordsWithoutObjectsBy((cleanupObject: IRecordCleanupObject): void => cleanupObject.clearValueIfInvisible(reason));
+    this.cleanRecordsWithoutObjectsAtComplete(this.template, (cleanupObject: IRecordCleanupObject): void => cleanupObject.clearValueIfInvisible(reason));
   }
   /* The invisible answers of the records that have no object, cleared the way an object clears its
      own questions (Question.clearValueIfInvisible), over the stored records and without building an

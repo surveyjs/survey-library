@@ -118,6 +118,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   //#region Question value changes
   questionValueChanging(question: IQuestion, newValue: any, isComment?: boolean): any;
   questionValueChanged(question: IQuestion, oldValue: any, isComment?: boolean): void;
+  // questionValueChanged passes the old value on to a handler: the question needs a copy of it.
+  isQuestionOldValueRead(question: IQuestion): boolean;
   getQuestionClearIfInvisible(questionClearIf: string): string;
   keepIncorrectValues: boolean;
   questionOrder: string;

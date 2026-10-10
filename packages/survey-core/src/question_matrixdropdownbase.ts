@@ -3395,10 +3395,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     var panel = this.createNewDetailPanel();
     panel.readOnly = this.isMatrixReadOnly() || !row.isRowEnabled();
     panel.setSurveyImpl(row);
-    var json = this.detailPanel.toJSON();
-    if (this.isRecordCleanupBuilding) {
-      removeRecordCleanupSkipped(json, this.detailPanel.questions.filter((q: Question): boolean => this.isRecordCleanupSkipped(q)).map((q: Question): string => q.name));
-    }
+    const json = this.isRecordCleanupBuilding ? this.getRecordCleanupJson((): any => removeRecordCleanupSkipped(this.detailPanel.toJSON(),
+      this.detailPanel.questions.filter((q: Question): boolean => this.isRecordCleanupSkipped(q)).map((q: Question): string => q.name))) : this.detailPanel.toJSON();
     new JsonObject().toObject(json, panel);
     panel.renderWidth = "100%";
     panel.updateCustomWidgets();

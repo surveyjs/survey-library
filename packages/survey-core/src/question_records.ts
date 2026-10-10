@@ -29,8 +29,8 @@ import { LocalizableString } from "./localizablestring";
 import { ConsoleWarnings } from "./console-warnings";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { confirmActionAsync } from "./utils/confirm-dialog";
-import { Serializer } from "./jsonobject";
 import type { PanelModelBase } from "./panel";
+import type { ItemValue } from "./itemvalue";
 import type { ISurveyDynamicDataWrites } from "./interfaces/survey-callbacks";
 
 export interface IDynamicDataRecordUniqueness {
@@ -101,7 +101,7 @@ interface IRecordItemOwner {
   getItemVisibleIndex(item: ISurveyData): number;
   getItemByVisibleIndex(visibleIndex: number): QuestionRecordItem;
   getItemByRecordIndex(recordIndex: number): QuestionRecordItem;
-  getExpressionItem(index: number): QuestionRecordItem;
+  getExpressionItem(index: number, existingObjectsOnly?: boolean): QuestionRecordItem;
   syncPageSizeWithMode(): void;
   writeItemValue(item: QuestionRecordItem, name: string, val: any, isDeleting: boolean): boolean;
   getRecordAddText(): string;
@@ -210,7 +210,7 @@ export abstract class QuestionRecordsModel extends Question {
       getItemVisibleIndex: (item: ISurveyData): number => question.getItemVisibleIndex(item),
       getItemByVisibleIndex: (visibleIndex: number): QuestionRecordItem => question.getItemByVisibleIndex(visibleIndex),
       getItemByRecordIndex: (recordIndex: number): QuestionRecordItem => question.getItemByRecordIndex(recordIndex),
-      getExpressionItem: (index: number): QuestionRecordItem => question.getExpressionItem(index),
+      getExpressionItem: (index: number, existingObjectsOnly?: boolean): QuestionRecordItem => question.getExpressionItem(index, existingObjectsOnly),
       syncPageSizeWithMode: (): void => { question.syncPageSizeWithMode(); },
       writeItemValue: (item: QuestionRecordItem, name: string, val: any, isDeleting: boolean): boolean => question.writeItemValue(item, name, val, isDeleting),
       getRecordAddText: (): string => question.getRecordAddText(),
@@ -623,6 +623,11 @@ export abstract class QuestionRecordsModel extends Question {
       return;
     }
     this.runAssignmentOfKind(isOwn, (): void => { super.setNewValue(newValue); });
+  }
+  // An own record write copies the old records only for a handler that reads them.
+  protected getOldValueOnSetNewValue(): any {
+    if (this.isAssigningOwnValue && !(!!this.survey && this.survey.isQuestionOldValueRead(this))) return undefined;
+    return super.getOldValueOnSetNewValue();
   }
   protected setOwnRecordsValue(newValue: any): void {
     this.isOwnValueAssignment = true;
@@ -1757,7 +1762,8 @@ export abstract class QuestionRecordsModel extends Question {
      - A handler that changes the records during the walk wins: a cleaned copy is written only to a
        record whose stored object is still the one the walk read.
      Cost: one object per record without an object, only on an explicit clearIncorrectValues (the
-     unpaged question builds one per record too). The changed records are written in one batch. */
+     unpaged question builds one per record too). The JSON the objects are built from is made once per
+     walk (getRecordCleanupJson). The changed records are written in one batch. */
   private clearIncorrectValuesWithoutObjects(): void {
     this.cleanRecordsWithoutObjectsBy((cleanupObject: IRecordCleanupObject): void => cleanupObject.clearIncorrectValues());
   }
@@ -1766,7 +1772,48 @@ export abstract class QuestionRecordsModel extends Question {
      such records to clean, and a source-owned one is skipped, as every survey clean-up skips it. */
   protected cleanRecordsWithoutObjectsBy(clean: (cleanupObject: IRecordCleanupObject) => void): void {
     if (!this.isPagedByList || this.isRemoteData || this.isEmpty()) return;
-    this.cleanRecordsWithoutObjects((index: number, record: any): any => this.cleanRecordWithObject(index, record, clean));
+    this.runRecordCleanupWalk((): void => {
+      this.cleanRecordsWithoutObjects((index: number, record: any): any => this.cleanRecordWithObject(index, record, clean));
+    });
+  }
+  /* The completion clean-up of each record without an object, as a built object of the template
+     (container) runs it (clean): what its questions' own clearValueIfInvisibleCore adds to the invisible
+     answers the value-only pass has cleared. A question whose clean-up does not depend on the record is
+     judged over its stored answer (Question.getAnswerCleanupAtComplete). A temporary object is built
+     only for a record with a question it cannot judge that way (isRecordCleanupByObject, or an answer
+     only a built question can tell), and only the answers of those questions are taken from it
+     (getRecordCleanupKeys). The record keeps what an object adds by being built and not by its
+     clean-up - its computed values and the keys no question stores: a record without an object is
+     not built at completion, while the unpaged question has built each one on load. */
+  protected cleanRecordsWithoutObjectsAtComplete(container: PanelModelBase, clean: (cleanupObject: IRecordCleanupObject) => void): void {
+    if (!this.isPagedByList || this.isRemoteData || this.isEmpty()) return;
+    const questions = container.questions.filter((q: Question): boolean => !isRecordCleanupSkipped(q));
+    const byObject = questions.filter((q: Question): boolean => isRecordCleanupByObject(q, container));
+    this.runRecordCleanupWalk((): void => {
+      this.cleanRecordsWithoutObjects((index: number, record: any): any => {
+        let res = Object.assign({}, record);
+        const objectQuestions = [].concat(byObject);
+        questions.forEach((q: Question): void => {
+          if (byObject.indexOf(q) > -1) return;
+          const key = q.getValueName();
+          const cleanup = q.getAnswerCleanupAtComplete(record[key]);
+          if (cleanup === undefined) objectQuestions.push(q);
+          if (cleanup === "clear") delete res[key];
+        });
+        if (objectQuestions.length === 0) return res;
+        const cleaned = this.cleanRecordWithObject(index, record, clean);
+        objectQuestions.forEach((q: Question): void => {
+          getRecordCleanupKeys(q).forEach((key: string): void => {
+            if (cleaned[key] === undefined) {
+              delete res[key];
+            } else {
+              res[key] = cleaned[key];
+            }
+          });
+        });
+        return res;
+      });
+    });
   }
   /* The records without an object that the view creates, each passed to clean (which returns the
      cleaned record), and the changed ones written back - only where the stored object is still the one
@@ -1850,6 +1897,24 @@ export abstract class QuestionRecordsModel extends Question {
   /* The temporary object of clearIncorrectValuesWithoutObjects for the record at index, built and
      loaded as a page build builds one; undefined keeps the record as it is. */
   protected abstract createRecordCleanupObject(index: number, record: any): IRecordCleanupObject;
+  /* The JSON the temporary objects are built from (build), made once per walk and parsed for each
+     object: an object shares no value or error with the next one. Outside a walk it is made each time. */
+  private recordCleanupWalk: { json: string };
+  private runRecordCleanupWalk(func: () => void): void {
+    const prev = this.recordCleanupWalk;
+    this.recordCleanupWalk = { json: undefined };
+    try {
+      func();
+    } finally {
+      this.recordCleanupWalk = prev;
+    }
+  }
+  protected getRecordCleanupJson(build: () => any): any {
+    const walk = this.recordCleanupWalk;
+    if (!walk) return build();
+    if (walk.json === undefined) walk.json = JSON.stringify(build());
+    return JSON.parse(walk.json);
+  }
   /* The quiet validation of such an object (IRecordCleanupObject.validate): nothing is shown and no
      callback fires. validate runs the object's validation into the context; false when a question of
      the object has an error. */
@@ -3625,8 +3690,11 @@ export abstract class QuestionRecordsModel extends Question {
   /* The item {matrix[index].x} / {panel[index].x} reads. The objects are built first, so that a record
      that has an object is answered by it. Without a view index is a position among the objects; with
      one it is a record index, and a record without a row or a panel - filtered out, off the page or not
-     built - is read as a value (getViewExpressionItem). */
-  protected getExpressionItem(index: number): QuestionRecordItem {
+     built - is read as a value (getViewExpressionItem). A reader without an object of its own - a
+     record read as a value, asking the questions bound to the same value - builds nothing under a view
+     (existingObjectsOnly): a page is built for its rendering, not for a lookup. */
+  protected getExpressionItem(index: number, existingObjectsOnly?: boolean): QuestionRecordItem {
+    if (existingObjectsOnly && this.hasDataListView) return this.getViewExpressionItem(index);
     const item = this.getBuiltItemForExpression(index);
     return this.hasDataListView ? this.getViewExpressionItem(index) : item;
   }
@@ -3751,7 +3819,7 @@ export abstract class QuestionRecordsValueGetterContext extends QuestionValueGet
     if (index > -1) {
       // The index names a record of the value, and so does the index a bound question passes: the
       // row or panel that holds it, or - when the record has none - the record read as a value.
-      const item = getRecordItemOwner(<QuestionRecordsModel>this.question).getExpressionItem(index);
+      const item = getRecordItemOwner(<QuestionRecordsModel>this.question).getExpressionItem(index, params.existingObjectsOnly);
       if (!!item) {
         params.isRoot = false;
         return item.getValueGetterContext().getValue(params);
@@ -3769,6 +3837,10 @@ export abstract class QuestionRecordItemGetterContext extends QuestionItemValueG
   }
   protected getIndex(): number { return this.item.getIndex(); }
   protected getQuestionData(): Question { return this.item.data; }
+  // A record read as a value has no object: the bound questions are not built for it.
+  protected readsExistingObjectsOnly(): boolean {
+    return this.item instanceof RecordValueItem;
+  }
   protected get questionName(): string {
     return "";
   }
@@ -4183,6 +4255,26 @@ function isRecordCleanupSkipped(template: Question): boolean {
   if (!template.isDescendantOf("selectbase")) return false;
   const byUrl = template.getPropertyValue("choicesByUrl");
   return !!byUrl && !!byUrl.url || template.getPropertyValue("choicesLazyLoadEnabled") === true;
+}
+/* The completion clean-up of a template question that only an object of the record can run: the
+   choices of a select question differ by record - choicesVisibleIf, choicesEnableIf, a choice with its
+   own visibleIf or enableIf, a choice with elements (their answers go with it), choicesFromQuestion
+   naming a question of the record (container) or one the survey does not hold. Any other question is
+   judged over its stored answer (Question.getAnswerCleanupAtComplete). */
+// The record keys a temporary object's clean-up of a template question writes: its answer and comment, and the answers of the questions in its choices.
+function getRecordCleanupKeys(template: Question): Array<string> {
+  const res: Array<string> = [];
+  const questions = template.isDescendantOf("selectbase") ? template.getNestedQuestions(false, true, true) : [template];
+  questions.forEach((q: Question): void => { res.push(q.getValueName(), q.getValueName() + settings.commentSuffix); });
+  return res;
+}
+function isRecordCleanupByObject(template: Question, container: PanelModelBase): boolean {
+  if (!template.isDescendantOf("selectbase")) return false;
+  if (!!template.getPropertyValue("choicesVisibleIf") || !!template.getPropertyValue("choicesEnableIf")) return true;
+  const choices: Array<ItemValue> = template.getPropertyValue("choices") || [];
+  if (choices.some((item: ItemValue): boolean => !!item.visibleIf || !!item.enableIf || item.hasElements)) return true;
+  const from: string = template.getPropertyValue("choicesFromQuestion");
+  return !!from && (!!container.getQuestionByName(from) || !template.survey || !template.survey.getQuestionByName(from));
 }
 /* The JSON of a panel the records clean-up builds, without the questions it does not judge (names),
    at any depth: they are not created, so they start no request. */

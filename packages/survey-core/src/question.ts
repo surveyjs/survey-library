@@ -134,10 +134,14 @@ export abstract class QuestionItemValueGetterContext extends ValueGetterContextC
       if (!!name && q.valuePropertyName === name && !!objValue && objValue.hasOwnProperty(name)) {
         return { isFound: true, value: objValue[name], context: q.getValueGetterContext() };
       }
-      const res = q.getValueGetterContext().getValue({ path, isRoot: false, index: this.getIndex() });
+      const res = q.getValueGetterContext().getValue({ path, isRoot: false, index: this.getIndex(), existingObjectsOnly: this.readsExistingObjectsOnly() });
       if (!!res && res.isFound) return res;
     }
     return undefined;
+  }
+  // A question bound to the same value is asked only for the objects it has (IValueGetterContextGetValueParams.existingObjectsOnly).
+  protected readsExistingObjectsOnly(): boolean {
+    return false;
   }
   private getQuestionsBySameValueNames(): Array<Question> {
     const res = new Array<Question>();
@@ -2227,6 +2231,19 @@ export class Question extends SurveyElement<Question>
       this.clearValue();
     }
   }
+  /* What clearValueIfInvisible("onComplete") does to a stored answer beyond clearing an invisible one,
+     told without building the question: "keep", "clear" (the answer goes, its comment stays), or
+     undefined - only a built question can tell. A records question asks its template questions for the
+     records without an object. A type that overrides clearValueIfInvisibleCore answers undefined unless
+     it judges the answer itself (getAnswerCleanupAtCompleteCore). */
+  public getAnswerCleanupAtComplete(value: any): string {
+    if (this.getClearIfInvisible() === "none" || this.isValueEmpty(value)) return "keep";
+    if (this.clearValueIfInvisibleCore === Question.prototype.clearValueIfInvisibleCore) return "keep";
+    return this.getAnswerCleanupAtCompleteCore(value);
+  }
+  protected getAnswerCleanupAtCompleteCore(value: any): string {
+    return undefined;
+  }
   /**
    * Specifies when to clear the question value if the question becomes invisible.
    *
@@ -2867,13 +2884,17 @@ export class Question extends SurveyElement<Question>
   private isOldAnswered: boolean;
   private isSettingQuestionValue: boolean;
   protected allowNotifyValueChanged = true;
+  /* The old value goes to survey.questionValueChanged, which hands it to onDynamicPanelValueChanged
+     handlers (ISurvey.isQuestionOldValueRead). It is a copy taken before the write, because an array
+     value is updated in place. A records question skips the copy - one of every record - for its own
+     record writes when nothing reads it (getOldValueOnSetNewValue). */
   protected setNewValue(newValue: any): void {
     if (this.survey) {
       newValue = this.survey.questionValueChanging(this, newValue);
     }
     if (this.isNewValueEqualsToValue(newValue)) return;
     if (!this.checkIsValueCorrect(newValue)) return;
-    const oldValue = this.getUnbindValue(this.value);
+    const oldValue = this.getOldValueOnSetNewValue();
     this.isOldAnswered = this.isAnswered;
     this.isSettingQuestionValue = true;
     this.setNewValueInData(newValue);
@@ -2888,6 +2909,9 @@ export class Question extends SurveyElement<Question>
     }
   }
 
+  protected getOldValueOnSetNewValue(): any {
+    return this.getUnbindValue(this.value);
+  }
   public getValueChangingOptions(childQuestion: Question): any { return undefined; }
   private checkIsValueCorrect(val: any): boolean {
     const res = this.isValueEmpty(val, !this.allowSpaceAsAnswer) || this.isDataValueCorrect(val);

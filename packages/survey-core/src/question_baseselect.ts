@@ -2438,6 +2438,16 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     this.clearIncorrectValues();
     this.clearValuesInVisiblePanels(reason);
   }
+  /* The clearIncorrectValues part, over the question's own choices: a known answer stays and an unknown
+     single answer goes. Left to a built question: an answer of another shape, a list with an unknown
+     item (a checkbox drops only that item), an unknown answer next to an "Other" item (it may be the
+     other text), and choices a callback or an onShowingChoiceItem handler can change. */
+  protected getAnswerCleanupAtCompleteCore(value: any): string {
+    if (!this.isValueShapeCorrect(value) || !!this.clearIncorrectValuesCallback || this.canSurveyChangeItemVisibility()) return undefined;
+    if (!this.hasUnknownValue(value, true, true, true)) return "keep";
+    if (Array.isArray(value) || this.showOtherItem) return undefined;
+    return this.isKeepIncorrectValues || !this.canClearIncorrectValues() ? "keep" : "clear";
+  }
   private clearValuesInVisiblePanels(reason: string): void {
     this.doForPanels(false, (p) => {
       p.questions.forEach((q) => { q.clearValue(); });

@@ -8,7 +8,7 @@ import {
   ISurveyImpl,
   ITextProcessor,
   IProgressInfo,
-  IPlainDataOptions, IElementUIState,
+  IPlainDataOptions,
   ISurveyDynamicPanelCallbacks
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
@@ -39,7 +39,6 @@ import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-da
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel,
   QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
-  HIDDEN_ANSWER_SELF, HIDDEN_ANSWER_CONTAINER,
   IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties, isRecordCountSerializable
 } from "./question_records";
 
@@ -3052,7 +3051,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      - A record the visibility condition hides keeps the answers of its questions that are visible
        themselves; the others go, as in a hidden panel.
      - A question is visible in a record when its visible / visibleIf and those of the template
-       panels around it pass over the record (getRecordInputFlags); the question and the record are its
+       panels around it pass over the record (isRecordInputContainerVisible); the question and the record are its
        parents too (onHiddenContainer).
      - Clearing removes the value name and its comment key, the keys clearValue() removes.
      - A question that holds records or panels of its own is one question here: cleared whole when it
@@ -3073,10 +3072,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       const areQuestionAndRecordVisible = this.isVisible && list.isRecordVisible(index);
       let cleared: any;
       questions.forEach((q: Question): void => {
-        const flags = this.getRecordInputFlags(visibility, q);
-        const isSelfVisible = (flags & HIDDEN_ANSWER_SELF) !== 0;
+        const isSelfVisible = visibility.isVisible(q);
         if (isSelfVisible && !list.isRecordVisible(index)) return;
-        const isParentVisible = areQuestionAndRecordVisible && (flags & HIDDEN_ANSWER_CONTAINER) !== 0;
+        const isParentVisible = areQuestionAndRecordVisible && this.isRecordInputContainerVisible(visibility, q);
         const canClear = reason === "onHiddenContainer" && !isParentVisible ||
           !(isSelfVisible && isParentVisible) && !isStartPage && !survey.hasVisibleQuestionByValueName(q);
         if (!canClear) return;

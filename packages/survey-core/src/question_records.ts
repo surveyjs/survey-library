@@ -1674,10 +1674,13 @@ export abstract class QuestionRecordsModel extends Question {
     });
     return changes;
   }
-  /* The visibility flags of an input in a record without an object: its own (HIDDEN_ANSWER_SELF) and that
-     of the panels around it up to getRecordInputContainer() (HIDDEN_ANSWER_CONTAINER). */
-  protected getRecordInputFlags(visibility: IRecordElementVisibility, q: Question): number {
-    return getHiddenAnswerFlags(visibility.isVisible(q), (el: PanelModelBase): boolean => visibility.isVisible(el), q, this.getRecordInputContainer());
+  // Whether the panels around an input in a record without an object, up to getRecordInputContainer(), are visible.
+  protected isRecordInputContainerVisible(visibility: IRecordElementVisibility, q: Question): boolean {
+    return isHiddenAnswerContainerVisible((el: PanelModelBase): boolean => visibility.isVisible(el), q, this.getRecordInputContainer());
+  }
+  // The visibility flags of an input in a record without an object: its own and that of the panels around it.
+  private getRecordInputFlags(visibility: IRecordElementVisibility, q: Question): number {
+    return getHiddenAnswerFlags(visibility.isVisible(q), this.isRecordInputContainerVisible(visibility, q));
   }
   // The flags a built object's questions give the inputs (see clearHiddenAnswersWithoutObjects).
   private getItemHiddenAnswerState(item: QuestionRecordItem, inputs: Array<Question>): HashTable<number> {
@@ -1686,7 +1689,7 @@ export abstract class QuestionRecordsModel extends Question {
       const name = input.getValueName();
       const q = item.getQuestionsByValueName(name)[0];
       if (!q) return;
-      state[name] = getHiddenAnswerFlags(q.visible, (el: PanelModelBase): boolean => el.visible, q, null);
+      state[name] = getHiddenAnswerFlags(q.visible, isHiddenAnswerContainerVisible((el: PanelModelBase): boolean => el.visible, q, null));
     });
     return state;
   }
@@ -4265,15 +4268,17 @@ class RecordValueItem extends QuestionRecordItem {
     return [];
   }
 }
-// The visibility flags of an input in a record (QuestionRecordsModel.getRecordInputFlags).
-export const HIDDEN_ANSWER_SELF = 1;
-export const HIDDEN_ANSWER_CONTAINER = 2;
-function getHiddenAnswerFlags(isSelfVisible: boolean, isVisible: (el: PanelModelBase) => boolean, q: Question, container: PanelModelBase): number {
-  let isContainerVisible = true;
-  for (let el = <PanelModelBase><any>q.parent; isContainerVisible && !!el && el !== container && !el.isPage; el = <PanelModelBase><any>el.parent) {
-    isContainerVisible = isVisible(el);
-  }
+// The visibility flags of an input in a record, kept by QuestionRecordsModel.clearHiddenAnswersWithoutObjects.
+const HIDDEN_ANSWER_SELF = 1;
+const HIDDEN_ANSWER_CONTAINER = 2;
+function getHiddenAnswerFlags(isSelfVisible: boolean, isContainerVisible: boolean): number {
   return (isSelfVisible ? HIDDEN_ANSWER_SELF : 0) | (isContainerVisible ? HIDDEN_ANSWER_CONTAINER : 0);
+}
+function isHiddenAnswerContainerVisible(isVisible: (el: PanelModelBase) => boolean, q: Question, container: PanelModelBase): boolean {
+  for (let el = <PanelModelBase><any>q.parent; !!el && el !== container && !el.isPage; el = <PanelModelBase><any>el.parent) {
+    if (!isVisible(el)) return false;
+  }
+  return true;
 }
 /* The choices of such a question come from a request: they are not known here, and a temporary
    object would send it. A file question would download its files. A question that holds records of

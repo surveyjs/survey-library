@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { SurveyModel } from "survey-core";
+import { ArrayDynamicDataSource, QuestionMatrixDynamicModel, SurveyModel } from "survey-core";
 import { CollaborationPlugin } from "../../src/plugins/collaboration/index";
 import { ICollabIn, ICollabOut } from "../../src/plugins/collaboration/collab-messages";
 
@@ -200,5 +200,22 @@ describe("two models converge through a fake relay", () => {
     expect(matrix.rowCount).toBe(2);
     expect(sent[sent.length - 1].value).toEqual([{}, {}]);
     expect((b.getQuestionByName("m") as any).rowCount).toBe(2);
+  });
+});
+
+// A matrix with a data source has no shared value, and its count is the source's.
+describe("value sync: a matrix with a data source", () => {
+  test("an incoming value of another length sets no row count and reports nothing", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 2, columns: [{ name: "c1", cellType: "text" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    let records: Array<any> = [{ c1: "a" }, { c1: "b" }, { c1: "c" }];
+    matrix.dataSource = new ArrayDynamicDataSource((): Array<any> => records, (val: Array<any>): void => { records = val; });
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_sender, o) => errors.push(o.operation));
+    const plugin = new CollaborationPlugin(survey);
+    plugin.apply({ type: "value", key: "m", value: [{ c1: "x" }, { c1: "y" }, { c1: "z" }, { c1: "w" }, { c1: "v" }] });
+    expect(matrix.rowCount, "#1").toBe(3);
+    expect(records.length, "#2: the source keeps its records").toBe(3);
+    expect(errors, "#3: nothing is reported").toEqual([]);
   });
 });

@@ -114,6 +114,21 @@ export interface ISurveyDynamicPanelCallbacks {
   dynamicPanelGetTabTitle(question: IQuestion, options: any): any;
   dynamicPanelCurrentIndexChanged(question: IQuestion, options: any): void;
 }
+// A dynamic question whose records come from a caller-provided data source reports every failure of
+// that source here - a page that could not be read, an edit the server rejected. The operation names
+// are the source method names (DynamicDataOperation).
+export interface ISurveyDynamicDataCallbacks {
+  dynamicDataError(question: IQuestion, operation: string, error: any): void;
+}
+/* What a records question tells the survey about the writes its data source has not answered, so
+   that a completion waits for them. Not part of ISurvey and not exported by the entries: a survey
+   that does not implement it is never asked to wait (see getSurveyDynamicDataWrites in
+   question_records.ts). hasPendingWrites is true when the question's first unanswered write starts,
+   and false when its writes have settled, when it is disposed and when it leaves the survey. isFailed:
+   the source rejected one of the writes that settled. */
+export interface ISurveyDynamicDataWrites {
+  dynamicDataWritesChanged(question: IQuestion, hasPendingWrites: boolean, isFailed?: boolean): void;
+}
 export interface ISurveyChoiceCallbacks {
   storeOthersAsComment: boolean;
   /**

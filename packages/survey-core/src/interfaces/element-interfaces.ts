@@ -82,6 +82,7 @@ export interface IQuestion extends IElement, ISurveyErrorOwner {
   isAnswerCorrect(): boolean;
   updateValueWithDefaults(): any;
   getQuestionFromArray(name: string, index: number): IQuestion;
+  getQuestionFromRecord(name: string, recordIndex: number): IQuestion;
   value: any;
   survey: any;
 }

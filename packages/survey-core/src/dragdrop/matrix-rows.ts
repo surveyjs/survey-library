@@ -224,19 +224,40 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     super.ghostPositionChanged();
   }
 
+  /* fromIndex and toIndex are positions on the rendered page. A paged matrix takes numbers of its whole
+     view, so they are converted through the rows they name; without paging they are passed as they
+     always have been. */
   protected doDrop = (): QuestionMatrixDynamicModel => {
-    if (this.parentElement == this.toMatrix) {
+    const from = this.parentElement;
+    if (from == this.toMatrix) {
       if (this.fromIndex < this.toIndex) {
         this.toIndex--;
       }
-      this.parentElement.moveRowByIndex(this.fromIndex, this.toIndex);
+      if (this.isPaged(from)) {
+        from.moveRowByIndex(from.getRowViewIndex(this.draggedElement), this.getDropViewIndex(from, this.toIndex));
+      } else {
+        from.moveRowByIndex(this.fromIndex, this.toIndex);
+      }
     } else if (this.toMatrix) {
-      const row = { ...this.parentElement.value[this.fromIndex] };
-      this.parentElement.removeRowByIndex(this.fromIndex);
-      this.toMatrix.addRowByIndex(row, this.toIndex);
+      /* The dragged row names its record: under a sort, a filter or a page the position the row is
+         shown at is not the record's index in the value. */
+      const to = this.toMatrix;
+      const row = { ...from.getItemData(this.draggedElement) };
+      from.removeRowByIndex(this.isPaged(from) ? from.getRowViewIndex(this.draggedElement) : from.getItemIndex(this.draggedElement));
+      to.addRowByIndex(row, this.isPaged(to) ? this.getDropViewIndex(to, this.toIndex) : this.toIndex);
     }
-    return this.parentElement;
+    return from;
   };
+  // The rendered table is a page only while rowsPerPage is set: design and single-input mode, which do not page, have no row drag.
+  private isPaged(matrix: QuestionMatrixDynamicModel): boolean {
+    return matrix.rowsPerPage > 0;
+  }
+  // A drop position on the page of a paged matrix, in its whole view: the row shown there, or right after the last row of the page.
+  private getDropViewIndex(matrix: QuestionMatrixDynamicModel, position: number): number {
+    const rows = matrix.visibleRows;
+    if (position < rows.length) return matrix.getRowViewIndex(rows[position]);
+    return rows.length > 0 ? matrix.getRowViewIndex(rows[rows.length - 1]) + 1 : 0;
+  }
 
   public clear(): void {
     this.matrixRowMap = {};

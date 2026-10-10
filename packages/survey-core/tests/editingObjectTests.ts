@@ -1828,3 +1828,48 @@ describe("Survey.editingObj Tests", () => {
     ComponentCollection.Instance.clear();
   });
 });
+
+describe("Survey.editingObj: a matrix that edits an array of the edited object", () => {
+  const createChoicesMatrix = (choices: Array<any>, json?: any): { question: QuestionDropdownModel, matrix: QuestionMatrixDynamicModel } => {
+    const question = new QuestionDropdownModel("q1");
+    question.choices = choices;
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "choices", rowCount: 0,
+      columns: [{ name: "value", cellType: "text" }, { name: "text", cellType: "text" }] }, json)] });
+    survey.editingObj = question;
+    return { question: question, matrix: <QuestionMatrixDynamicModel>survey.getQuestionByName("choices") };
+  };
+  const choiceValues = (question: QuestionDropdownModel): Array<any> => question.choices.map((item: ItemValue) => item.value);
+  test("a cell write of a plain record assigns the whole value to the edited object", () => {
+    const edited = new QuestionDropdownModel("q3");
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "foo", rowCount: 1, columns: [{ name: "a", cellType: "text" }] }] });
+    survey.editingObj = edited;
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("foo");
+    matrix.visibleRows[0].getQuestionByColumnName("a").value = "z";
+    expect(matrix.value, "#1").toEqual([{ a: "z" }]);
+    expect((<any>edited).foo, "#2: the edited object's property").toEqual([{ a: "z" }]);
+  });
+  test("addRow with a default row value appends an item to the live array", () => {
+    const { question, matrix } = createChoicesMatrix([1], { defaultRowValue: { text: "new" } });
+    matrix.visibleRows;
+    matrix.addRow();
+    expect(question.choices.map((item: ItemValue) => [item.value, item.text]), "#1").toEqual([[1, "1"], [undefined, "new"]]);
+  });
+  test("addRowByIndex inserts the item into the live array", () => {
+    const { question, matrix } = createChoicesMatrix([1, 2, 3]);
+    matrix.visibleRows;
+    matrix.addRowByIndex(new ItemValue(4), 1);
+    expect(choiceValues(question), "#1").toEqual([1, 4, 2, 3]);
+  });
+  test("removeRowByIndex removes the item from the live array", () => {
+    const { question, matrix } = createChoicesMatrix([1, 2, 3]);
+    matrix.visibleRows;
+    matrix.removeRowByIndex(0);
+    expect(choiceValues(question), "#1").toEqual([2, 3]);
+  });
+  test("a lowered rowCount leaves the live array as it is, as released", () => {
+    const { question, matrix } = createChoicesMatrix([1, 2, 3]);
+    matrix.visibleRows;
+    matrix.rowCount = 1;
+    expect(choiceValues(question), "#1").toEqual([1, 2, 3]);
+  });
+});

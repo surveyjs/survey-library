@@ -1,0 +1,147 @@
+import { describe, test, expect } from "vitest";
+import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
+
+describe("ArrayDynamicDataSource", () => {
+  test("fromArray reads the array it wraps", () => {
+    const source = ArrayDynamicDataSource.fromArray([{ a: 1 }, { a: 2 }]);
+    expect(source.read().length).toBe(2);
+    expect(source.read()[1].a).toBe(2);
+    expect(source.array).toBe(source.read());
+  });
+  test("fromArray without an argument starts empty", () => {
+    const source = ArrayDynamicDataSource.fromArray();
+    expect(source.read()).toEqual([]);
+  });
+  test("a non-array value reads as empty", () => {
+    const source = new ArrayDynamicDataSource(() => <any>"not an array", (): void => { });
+    expect(source.read()).toEqual([]);
+    const undefinedSource = new ArrayDynamicDataSource(() => undefined, (): void => { });
+    expect(undefinedSource.read()).toEqual([]);
+  });
+  test("insert builds a new array", () => {
+    const source = ArrayDynamicDataSource.fromArray([{ a: 1 }]);
+    const before = source.array;
+    source.insert({ a: 2 }, 1);
+    const after = source.array;
+    expect(after).not.toBe(before);
+    expect(before.length).toBe(1);
+    expect(after.map((r: any) => r.a)).toEqual([1, 2]);
+  });
+  test("insert at the start and out of range", () => {
+    const source = ArrayDynamicDataSource.fromArray([{ a: 1 }]);
+    source.insert({ a: 0 }, 0);
+    source.insert({ a: 9 }, 100);
+    source.insert({ a: -1 }, -5);
+    expect(source.array.map((r: any) => r.a)).toEqual([-1, 0, 1, 9]);
+  });
+  test("update builds a new array and replaces the record", () => {
+    const source = ArrayDynamicDataSource.fromArray([{ a: 1 }, { a: 2 }]);
+    const before = source.array;
+    source.update(1, { a: 22 });
+    const after = source.array;
+    expect(after).not.toBe(before);
+    expect(before[1].a).toBe(2);
+    expect(after[1].a).toBe(22);
+  });
+  test("update out of range changes nothing", () => {
+    const source = ArrayDynamicDataSource.fromArray([{ a: 1 }]);
+    const before = source.array;
+    source.update(5, { a: 5 });
+    source.update(-1, { a: 5 });
+    expect(source.array).toBe(before);
+  });
+  test("remove builds a new array", () => {
+    const source = ArrayDynamicDataSource.fromArray([{ a: 1 }, { a: 2 }, { a: 3 }]);
+    const before = source.array;
+    source.remove(1);
+    const after = source.array;
+    expect(after).not.toBe(before);
+    expect(before.length).toBe(3);
+    expect(after.map((r: any) => r.a)).toEqual([1, 3]);
+  });
+  test("remove out of range changes nothing", () => {
+    const source = ArrayDynamicDataSource.fromArray([{ a: 1 }]);
+    const before = source.array;
+    source.remove(4);
+    source.remove(-1);
+    expect(source.array).toBe(before);
+  });
+  test("move builds a new array", () => {
+    const source = ArrayDynamicDataSource.fromArray([{ a: 1 }, { a: 2 }, { a: 3 }]);
+    const before = source.array;
+    source.move(0, 2);
+    const after = source.array;
+    expect(after).not.toBe(before);
+    expect(before.map((r: any) => r.a)).toEqual([1, 2, 3]);
+    expect(after.map((r: any) => r.a)).toEqual([2, 3, 1]);
+  });
+  test("move out of range or onto itself changes nothing", () => {
+    const source = ArrayDynamicDataSource.fromArray([{ a: 1 }, { a: 2 }]);
+    const before = source.array;
+    source.move(0, 0);
+    source.move(0, 5);
+    source.move(-1, 1);
+    expect(source.array).toBe(before);
+  });
+  test("the getter/setter pair is the only access to the storage", () => {
+    const holder: { items: Array<any> } = { items: [{ a: 1 }] };
+    const assigned: Array<Array<any>> = [];
+    const source = new ArrayDynamicDataSource(() => holder.items, (arr: Array<any>): void => {
+      assigned.push(arr);
+      holder.items = arr;
+    });
+    source.insert({ a: 2 }, 1);
+    source.update(0, { a: 11 });
+    source.remove(1);
+    expect(assigned.length).toBe(3);
+    expect(holder.items.map((r: any) => r.a)).toEqual([11]);
+  });
+  test("the source never keeps a captured array: a replaced storage is picked up", () => {
+    const holder: { items: Array<any> } = { items: [{ a: 1 }] };
+    const source = new ArrayDynamicDataSource(() => holder.items, (arr: Array<any>): void => { holder.items = arr; });
+    holder.items = [{ a: 5 }, { a: 6 }];
+    expect(source.read().length).toBe(2);
+    expect(source.read()[0].a).toBe(5);
+  });
+});
+
+describe("ArrayDynamicDataSource: element identity and fixed membership", () => {
+  // An owner that writes back only the elements that changed (the fixed matrix) relies on this.
+  test("update and batch keep the identity of every element they do not replace", () => {
+    const first = { a: 1 };
+    const second = { a: 2 };
+    const third = { a: 3 };
+    const source = ArrayDynamicDataSource.fromArray([first, second, third]);
+    const replaced = { a: 22 };
+    source.update(1, replaced);
+    const afterUpdate = source.array;
+    expect(afterUpdate[0] === first && afterUpdate[2] === third, "#1: update keeps the untouched elements").toBe(true);
+    expect(afterUpdate[1] === replaced, "#1: and stores the new one as it is").toBe(true);
+    const replacedAgain = { a: 33 };
+    source.batch((): void => {
+      source.update(2, replacedAgain);
+      source.update(0, first);
+    });
+    const afterBatch = source.array;
+    expect(afterBatch[0] === first && afterBatch[1] === replaced && afterBatch[2] === replacedAgain, "#2: a batch keeps them too").toBe(true);
+  });
+  test("a source whose membership is fixed writes nothing on insert, remove and move", () => {
+    let local: Array<any> = [{ a: 1 }, { a: 2 }];
+    let writes = 0;
+    const source = new ArrayDynamicDataSource((): Array<any> => local,
+      (arr: Array<any>): void => { writes++; local = arr; }, true);
+    const before = local;
+    source.insert({ a: 3 }, 0);
+    source.remove(0);
+    source.move(0, 1);
+    source.batch((): void => {
+      source.insert({ a: 3 }, 2);
+      source.remove(1);
+    });
+    expect(writes, "#1: nothing is written").toBe(0);
+    expect(local === before, "#2: the array is the same").toBe(true);
+    source.update(1, { a: 22 });
+    expect(writes, "#3: an update is written").toBe(1);
+    expect(local, "#3").toEqual([{ a: 1 }, { a: 22 }]);
+  });
+});

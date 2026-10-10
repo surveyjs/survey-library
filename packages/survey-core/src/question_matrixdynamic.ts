@@ -2,7 +2,7 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
 import { QuestionFactory } from "./questionfactory";
-import { Question, QuestionValueGetterContext, QuestionValueType } from "./question";
+import { Question, QuestionValueType } from "./question";
 import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,
@@ -13,49 +13,34 @@ import { SurveyError } from "./survey-error";
 import { MinRowCountError } from "./error";
 import { Action, IAction } from "./actions/action";
 import { settings } from "./settings";
-import { confirmActionAsync } from "./utils/confirm-dialog";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
 import { IShortcutText, ISurveyImpl, IProgressInfo } from "./base-interfaces";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
 import { LocalizableString } from "./localizablestring";
-import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
+import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
+import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem } from "./conditions/conditionProcessValue";
-import { ValidationContext } from "./question";
 import { ActionContainer } from "./actions/container";
 import { ComputedUpdater } from "./base";
 import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { DynamicItemModelBase } from "./dynamicItemModelBase";
+import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsValueGetterContext, IRecordCountNames, getRecordCountNamesOf, isRecordCountSerializable, isRecordEmpty } from "./question_records";
+import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 
-export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext {
-  constructor (protected question: Question) {
-    super(question);
-  }
-  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
-    const path = params.path;
-    const index = params.index;
-    const md = <QuestionMatrixDynamicModel>this.question;
-    if (index > -1 && md.isDesignMode) return md.getDesignRowContext().getValue(params);
-    if (index > -1) {
-      const rows = md.allRows;
-      if (index >= 0 && index < rows.length) {
-        params.isRoot = false;
-        return rows[index].getValueGetterContext().getValue(params);
-      }
-      return { isFound: false, value: undefined, context: this };
-    }
-    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
-    return super.getValue(params);
+export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
+  // The design row answers any path; isRoot is left as it is.
+  protected getDesignValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    return (<QuestionMatrixDynamicModel>this.question).getDesignRowContext().getValue(params);
   }
 }
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements IShortcutText {
   private dragOrClickHelper: DragOrClickHelper;
 
-  constructor(public index: number, data: IMatrixDropdownData, value: any) {
+  constructor(public index: number, data: QuestionMatrixDropdownModelBase, value: any) {
     super(data, value);
     this.buildCells(value);
   }
@@ -75,9 +60,9 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
   public getAccessbilityText(): string {
     return (this.visibleIndex + 1).toString();
   }
+  // The row's number is its visible index in the whole view, as text has it: under paging not the position on the page.
   public get shortcutText(): string {
-    const matrix = <QuestionMatrixDynamicModel>this.data;
-    const index = matrix.visibleRows.indexOf(this) + 1;
+    const index = this.visibleIndex + 1;
     const questionValue1 = this.cells.length > 1 ? this.cells[1]["questionValue"] : undefined;
     const questionValue0 = this.cells.length > 0 ? this.cells[0]["questionValue"] : undefined;
     return (
@@ -86,6 +71,11 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
       "" + index
     );
   }
+}
+
+// A row removal (QuestionRecordsModel.removeResolvedRecord); isSourceWriteOnly: removeRowByIndex over a data source.
+interface IRowRemoval extends IRecordRemoval {
+  isSourceWriteOnly?: boolean;
 }
 
 /**
@@ -109,7 +99,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.initialRowCount = this.getDefaultPropertyValue("rowCount");
     this.dragOrClickHelper = new DragOrClickHelper(this.startDragMatrixRow);
     this.addExpressionProperty("rowCountExpression",
-      (obj: Base, res: any) => { this.setRowCountByExpression(res); });
+      (obj: Base, res: any) => { this.setRecordCountByExpression(res); });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -117,15 +107,143 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (resetTableProps.indexOf(name) > -1) {
       this.resetRenderedTable();
     }
-    if (name === "minRowCount") {
-      this.onMinRowCountChanged();
-    }
-    if (name === "maxRowCount") {
-      this.onMaxRowCountChanged();
-    }
     if (name === "allowRemoveRows" && !this.isUpdateLocked) {
       this.resetRenderedTable();
     }
+  }
+  /* A data source that supplies the matrix records (IDynamicDataSource): the matrix reads them from it,
+     a page at a time when it pages, and pushes every cell edit, row insertion and row deletion to it.
+     Not serialized - a data source is code, not survey JSON. undefined goes back to question.value.
+     Declared here and in the Dynamic Panel, not in QuestionRecordsModel: the Multi-Select Matrix shares
+     the base and has no data source. The body is the shared one (getDataSource / setDataSource). */
+  public get dataSource(): IDynamicDataSource {
+    return this.getDataSource();
+  }
+  public set dataSource(val: IDynamicDataSource) {
+    this.setDataSource(val);
+  }
+  // The cells read isMatrixReadOnly() through their readOnlyCallback and need the reactive refresh
+  // that an ordinary read-only change would give them; the table shows the buttons again.
+  protected onSourceCapabilitiesChanged(): void {
+    (this.generatedVisibleRows || []).forEach(row => row.onQuestionReadOnlyChanged());
+    this.resetRenderedTable();
+  }
+  // Reads the data source again (see QuestionRecordsModel.refreshSource).
+  public refreshDataSource(): void | Promise<void> {
+    return this.refreshSource();
+  }
+  // The respondent adds, removes and reorders the rows: the records are the question's to change.
+  protected isRecordMembershipFixed(): boolean {
+    return false;
+  }
+  /* A move does not carry the row objects (moveRowByIndex): they stay where they are and take the
+     reordered records, so each row names the record its position holds now, not the record it held
+     before. The positions decide, so the remap of the move is not used. */
+  protected followRecordMove(remap: (index: number) => number): void {
+    const indexes = this.getRecordIndexesForRows();
+    (this.generatedVisibleRows || []).forEach((row: MatrixDropdownRowModelBase, position: number): void => {
+      if (this.getBuiltRecordIndex(row) > -1 && position < indexes.length)this.setBuiltRecordIndex(row, indexes[position]);
+    });
+  }
+  /* The records the list works with: question.value padded up to rowCount, exactly as
+     createNewValue() pads it. The padding is virtual - it reaches question.value only when a write
+     materializes it - and the array is never truncated here: the rowCount setter needs the records
+     beyond the new rowCount in order to remove them through the list. */
+  protected getListRecords(): Array<any> {
+    const val = this.value;
+    if (Array.isArray(val) && val.length >= this.rowCount) return val;
+    return this.padRecords(Array.isArray(val) ? val.slice() : []);
+  }
+  protected setListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void {
+    // A removal whose count-down waits for the store (removeStoredRecord): the padding stays virtual.
+    if ((operations || []).indexOf("remove") > -1) {
+      const length = this.takeRowCountDown();
+      if (length > -1 && Array.isArray(records) && records.length > length) {
+        records = records.slice(0, length);
+      }
+    }
+    this.setOwnRecordsValue(this.normalizeRecords(records, operations));
+  }
+  // The length getListRecords() would return: value.length padded up to rowCount, never truncated.
+  protected getListRecordCount(): number {
+    const val = this.value;
+    const len = Array.isArray(val) ? val.length : 0;
+    return Math.max(len, this.rowCount);
+  }
+  /* QuestionRecordsModel hook: one record of getListRecords() without composing the array: a padded
+     record is the default row value. For the loops over the records by index. */
+  protected getStoredRecordAt(index: number, defaultRecord?: any): any {
+    const val = this.value;
+    if (Array.isArray(val) && index < val.length) return index < 0 ? undefined : val[index];
+    if (index < 0 || index >= this.rowCount) return undefined;
+    return defaultRecord !== undefined ? defaultRecord : this.getDefaultRowValue(false) || {};
+  }
+  /* A row past the value reads the padded record, as getStoredRecordAt does: a cleared value shows
+     the default row value again. A data source's window and a live-object value are not padded. */
+  protected getAssignedRecord(value: any, recordIndex: number): any {
+    const record = super.getAssignedRecord(value, recordIndex);
+    if (record !== undefined || recordIndex < 0 || recordIndex >= this.rowCount || this.isRemoteData || this.isEditingObjectValue) return record;
+    return this.getDefaultRowValue(false) || {};
+  }
+  // Appends default row values until the array holds rowCount records; the array is modified.
+  private padRecords(records: Array<any>): Array<any> {
+    const rowValue = this.getDefaultRowValue(false) || {};
+    for (let i = records.length; i < this.rowCount; i++) {
+      records.push(this.getUnbindValue(rowValue));
+    }
+    return records;
+  }
+  /* The value shape rules of a write, as each kind of write has always had them. A cell edit - the writes are updates - drops a value whose records are all
+     empty and keeps minRowCount empty records instead; a row the matrix removes itself drops such a
+     value and keeps no empty records; an insert, a move and the records a lower rowCount cuts off are
+     stored as they are. operations: the writes the default source made, one or every write of a batch
+     (ArrayDynamicDataSource.write and batch, the only callers). */
+  private normalizeRecords(records: Array<any>, operations: Array<DynamicDataOperation>): any {
+    const res = Array.isArray(records) ? records : [];
+    const isOnly = (operation: DynamicDataOperation): boolean => operations.every((op: DynamicDataOperation): boolean => op === operation);
+    if (isOnly("update")) return this.correctValueForMinMaxRows(this.deleteRowValue(res, null));
+    if (this.isWritingRecords && isOnly("remove")) return this.deleteRowValue(res, null);
+    return res;
+  }
+  private setLastRowRecord(record: any, force: boolean = false): void {
+    if (this.isEditingObjectValue) {
+      const newValue = this.createNewValue();
+      if (newValue.length == this.rowCount) {
+        newValue[newValue.length - 1] = record;
+        this.value = newValue;
+      }
+      return;
+    }
+    const list = this.dataList;
+    if (list.count < this.rowCount) return;
+    const index = this.getLastRowRecordIndex();
+    if (index < 0) return;
+    list.setRecord(index, record, force && this.isPaddingPending);
+  }
+  // The record of the last row: the last created one under a view, the last record otherwise (the
+  // window can be longer than rowCount while a value that outgrew it has not been normalized yet).
+  private getLastRowRecordIndex(): number {
+    if (!this.hasDataListView) return this.rowCount - 1;
+    const created = this.dataList.getCreatedIndexes();
+    return created.length > 0 ? created[created.length - 1] : -1;
+  }
+  /* question.value is shorter than rowCount: the padded records the list reads have not reached the
+     storage yet. A write that used to compare whole values (it assigned the padded array and the
+     comparison saw the new records) has to reach question.value even when its own record did not
+     change; a write that compared one row (a cell edit) must not. */
+  private get isPaddingPending(): boolean {
+    const val = this.value;
+    return !Array.isArray(val) || val.length < this.rowCount;
+  }
+  /* Under paging every number of the reordering methods is a created position of the whole view. A
+     live-object value (Creator) never pages. */
+  private get isNumberedByView(): boolean {
+    return !this.isEditingObjectValue && this.isPagingActive;
+  }
+  // For the row drag: a row's created position over the whole view - without paging its position in
+  // generatedVisibleRows; -1 for a row that is not this matrix's.
+  public getRowViewIndex(row: MatrixDropdownRowModelBase): number {
+    return this.getItemIndex(row) < 0 ? -1 : this.getItemViewIndex(row);
   }
   public dragDropMatrixRows: DragDropMatrixRows;
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
@@ -220,51 +338,188 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.minRowCount < 1 || this.isEditingSurveyElement || this.isEmpty()) return super.valueFromData(val);
     return this.correctValueForMinMaxRows(val);
   }
+  /* A row built past the stored value writes it, as the released build did: the value then gets the
+     minRowCount empty records (correctValueForMinMaxRows). Not with a data source or a live object value. */
+  protected isRowWrittenOnBuild(row: MatrixDropdownRowModelBase): boolean {
+    if (this.isRemoteData || this.isEditingObjectValue) return false;
+    const val = this.value;
+    return this.getBuiltRecordIndex(row) >= (Array.isArray(val) ? val.length : 0);
+  }
+  // With a data source minRowCount only gates the removal: the value is never padded.
   protected correctValueForMinMaxRows(val: any): any {
+    if (this.isRemoteData) return val;
     if (!Array.isArray(val)) val = [];
     for (var i = val.length; i < this.minRowCount; i++) val.push({});
     return val;
   }
-  protected isDataValueCorrect(val: any): boolean {
-    // Every row is a plain object; an empty one may be null.
-    return Array.isArray(val) && val.every(row => Helpers.isValueEmpty(row) || Helpers.isValueObject(row, true));
-  }
+  /* Kept here and in the Dynamic Panel, not in QuestionRecordsModel: the dropdown matrix base between
+     them takes a keyed value (the Multi-Select Matrix). */
   protected setDefaultValue() {
-    DynamicItemModelBase.setDefaultValueCore(this, this.defaultRowValue, this.rowCount, () => super.setDefaultValue());
+    if (!this.setDefaultRecordValues(this.defaultRowValue, this.rowCount)) super.setDefaultValue();
+  }
+  /* Both numbers are created positions; under paging of the whole view, clamped to the records shown as
+     without paging, and the records move whether or not they have a row. */
+  // A row number that is not an integer names no row: the call does nothing.
+  /* removeRowByIndex and addRowByIndex: a negative number counts from the end of the whole view, as the
+     released splice did - with a data source only when its total is known; otherwise there is no end
+     and undefined makes the call do nothing. Only the number is normalized: what applies to the
+     position afterwards (a record outside the loaded window is refused and reported) stays. */
+  private normalizeRowNumber(index: number): number {
+    if (index >= 0) return index;
+    const list = this.dataList;
+    if (this.isRemoteData && !list.isCountKnown) return undefined;
+    return Math.max(0, list.globalCreatedExtent + index);
+  }
+  private static isRowIndex(index: number): boolean {
+    return typeof index === "number" && Number.isInteger(index);
   }
   public moveRowByIndex(fromIndex: number, toIndex: number):void {
-    const value = this.createNewValue();
+    if (!QuestionMatrixDynamicModel.isRowIndex(fromIndex) || !QuestionMatrixDynamicModel.isRowIndex(toIndex)) return;
+    if (this.refuseOperationOfSource("move")) return;
+    if (this.isNumberedByView) {
+      this.moveRecordByViewIndex(fromIndex, toIndex);
+      this.draggedRow = null;
+      return;
+    }
+    // A row past the last one is not moved: nothing is guessed, as for a number that is not an integer.
+    if (fromIndex >= this.rowCount) return;
     const maxIndex = Math.max(fromIndex, toIndex);
-    if (!Array.isArray(value) && maxIndex >= value.length) return;
-    const movableRow = value[fromIndex];
-    value.splice(fromIndex, 1);
-    value.splice(toIndex, 0, movableRow);
     const rows = this.generatedVisibleRows;
+    // The row objects stay where they are and get the reordered records; the detail panel state is
+    // the one thing that belongs to the row and has to be swapped with it - before the write.
     if (Array.isArray(rows) && maxIndex < rows.length) {
-      const rowTo = rows[toIndex];
-      const rowFrom = rows[fromIndex];
-      if (this.getIsDetailPanelShowing(rowFrom) !== this.getIsDetailPanelShowing(rowTo)) {
-        const isRowToShowing = this.getIsDetailPanelShowing(rowTo);
-        this.setIsDetailPanelShowing(rowTo, this.getIsDetailPanelShowing(rowFrom));
-        this.setIsDetailPanelShowing(rowFrom, isRowToShowing);
+      this.swapDetailPanelShowing(rows[fromIndex], rows[toIndex]);
+    }
+    if (this.isEditingObjectValue) {
+      /* A live-object value is reordered in place: the array is a property of the edited object and
+         it is its own splices - not a new array - that re-create the rows through
+         isEditingObjectValueChanged. */
+      const value = this.createNewValue();
+      const movableRow = value[fromIndex];
+      value.splice(fromIndex, 1);
+      value.splice(toIndex, 0, movableRow);
+      this.value = value;
+    } else {
+      // The created positions, clamped to the rows; no row shown, nothing to move.
+      const targets = this.getMoveTargetsAtCreatedIndexes(fromIndex, toIndex);
+      if (!!targets) {
+        this.dataList.move(targets.from.recordIndex, targets.to.recordIndex);
       }
     }
-    this.value = value;
     this.draggedRow = null;
   }
-  public addRowByIndex(rowData: any, toIndex: number):void {
-    const value = this.createNewValue();
-    if (!Array.isArray(value) && toIndex >= value.length) return;
-    value.splice(toIndex, 0, rowData);
-    this.rowCount++;
-    this.value = value;
+  /* The paged half of moveRowByIndex (getMoveTargetsAtCreatedIndexes names the records). The rows
+     that exist stay where they are and take the reordered records (followRecordMove); the detail panel
+     state of two rows that both exist is swapped with them. */
+  private moveRecordByViewIndex(fromIndex: number, toIndex: number): void {
+    const targets = this.getMoveTargetsAtCreatedIndexes(fromIndex, toIndex);
+    if (!targets) return;
+    const from = targets.from;
+    const to = targets.to;
+    const rowFrom = <MatrixDropdownRowModelBase>from.item;
+    const rowTo = <MatrixDropdownRowModelBase>to.item;
+    if (!!rowFrom && !!rowTo) {
+      this.swapDetailPanelShowing(rowFrom, rowTo);
+    }
+    this.dataList.move(from.recordIndex, to.recordIndex);
   }
+  // The rows stay where they are and take the moved records: the detail panel state goes with the record.
+  private swapDetailPanelShowing(rowFrom: MatrixDropdownRowModelBase, rowTo: MatrixDropdownRowModelBase): void {
+    const isRowToShowing = this.getIsDetailPanelShowing(rowTo);
+    if (this.getIsDetailPanelShowing(rowFrom) === isRowToShowing) return;
+    this.setIsDetailPanelShowing(rowTo, this.getIsDetailPanelShowing(rowFrom));
+    this.setIsDetailPanelShowing(rowFrom, isRowToShowing);
+  }
+  /* In front of the record at created position toIndex, at or past the last one an append. Under paging
+     the position is one of the whole view and the page of the new record is shown; a source that pages
+     itself refuses a position its window does not hold, and reports it. A negative number counts from
+     the end of the whole view, as the released splice did: -1 goes in front of the last record. */
+  public addRowByIndex(rowData: any, toIndex: number):void {
+    // An omitted index inserts the row first, as the released call did.
+    if (toIndex === undefined) toIndex = 0;
+    if (!QuestionMatrixDynamicModel.isRowIndex(toIndex)) return;
+    if (this.refuseOperationOfSource("insert")) return;
+    toIndex = this.normalizeRowNumber(toIndex);
+    if (toIndex === undefined) return;
+    if (this.isRemoteData) {
+      // One source.insert at the position the caller named; no count setter and no move.
+      const at = this.getInsertIndexForOperation(toIndex);
+      if (at < 0) return;
+      this.addRecordRemote(rowData, at);
+      this.onRowsChanged();
+      return;
+    }
+    if (this.isEditingObjectValue) {
+      const value = this.createNewValue();
+      value.splice(toIndex, 0, rowData);
+      this.setRecordCountCore(this.rowCount + 1);
+      this.value = value;
+      return;
+    }
+    /* The record it goes in front of is taken before the add. rowCount++ creates the row object and,
+       with it, the record at the end; the record then moves into place and takes rowData, so that the
+       value is written once. The grow is a change of the matrix's own: a value a handler assigns while
+       the row is created (onMatrixCellCreated) is followed when it ends, and stops the add. */
+    const oldCount = this.getListRecordCount();
+    const before = this.getInsertIndexForOperation(toIndex);
+    let isGrown = true;
+    const index = this.growAndMoveRecord((): void => { this.runOwnRecordsChange((): void => { this.setRecordCountCore(this.rowCount + 1); }); },
+      (): number => before < oldCount ? before : undefined, (): any => rowData, (): void => {
+        // The count did not grow - settings.matrix.maxRowCount without paging: the value takes the
+        // record and the count follows the value, as released.
+        isGrown = false;
+        const value = this.createNewValue();
+        value.splice(before, 0, rowData);
+        this.value = value;
+      });
+    if (!isGrown) return;
+    this.showPageOfInsertedRecord(index);
+  }
+  /* A created position; under paging of the whole view, and a record on another page is removed too.
+     A source that pages itself refuses a record it has not loaded, and reports it. */
   public removeRowByIndex(fromIndex: number):void {
-    const value = this.createNewValue();
-    if (!Array.isArray(value) && fromIndex >= value.length) return;
-    value.splice(fromIndex, 1);
-    this.rowCount--;
-    this.value = value;
+    if (!QuestionMatrixDynamicModel.isRowIndex(fromIndex)) return;
+    if (this.refuseOperationOfSource("remove")) return;
+    fromIndex = this.normalizeRowNumber(fromIndex);
+    if (fromIndex === undefined) return;
+    if (this.isRemoteData) {
+      const target = this.getRecordTargetForOperation(fromIndex, "remove");
+      if (!target) return;
+      // No removing event: the number names the record.
+      const removal = this.removeTarget(target, (): boolean => true,
+        (resolved: IRecordRemoval): IRowRemoval => Object.assign(resolved, { isSourceWriteOnly: true }));
+      if (!removal) return;
+      this.onRowsChanged();
+      return;
+    }
+    if (this.isEditingObjectValue) {
+      const value = this.createNewValue();
+      value.splice(fromIndex, 1);
+      this.setRecordCountCore(this.rowCount - 1);
+      this.value = value;
+      return;
+    }
+    const list = this.dataList;
+    // One rule with or without paging: a number past the rows shown names nothing.
+    const index = this.getRecordIndexForOperation(fromIndex, "remove");
+    if (index < 0) return;
+    /* The record moves to the end and rowCount-- removes it there: the row objects are spliced
+       instead of being re-created, exactly as they are when a row is removed by the UI. All steps
+       are one write of question.value - the value used to be assigned twice here, the intermediate
+       assignment carrying a row the caller never asked to remove. The window is truncated in the
+       batch: question.value can be shorter than rowCount (padded rows), so the rowCount setter,
+       which compares the stored value, would not drop the moved record. */
+    list.batch((): void => {
+      list.move(index, list.count - 1);
+      list.truncate(list.count - 1);
+      this.setRecordCountCore(this.rowCount - 1);
+    });
+  }
+  protected getRecordAddText(): string {
+    return this.canAddRow ? this.addRowText : undefined;
+  }
+  protected addRecordFromUI(): void {
+    this.addRowUI();
   }
   public clearOnDrop(): void {
     if (!this.isEditingSurveyElement) {
@@ -286,19 +541,57 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see maxRowCount
    * @see rowCountExpression
    */
+  // Read-only while a data source is assigned: the source owns the count (recordCount).
   public get rowCount(): number {
-    return this.rowCountValue;
+    return this.recordCount;
   }
   public set rowCount(val: number) {
+    this.recordCount = val;
+  }
+  // The count without a source: the rowCount property.
+  protected getRecordCountCore(): number {
+    return this.rowCountValue;
+  }
+  // The rowCount setter without a source.
+  protected setRecordCountCore(val: number): void {
     val = Helpers.getNumber(val);
-    if (val < 0 || val > settings.matrix.maxRowCount || val === this.rowCount) return;
+    if (val < 0 || val === this.rowCountValue) return;
+    if (val > settings.matrix.maxRowCount) {
+      // The page size is not known yet while loading: rowsPerPage may follow rowCount in the JSON.
+      if (this.isLoadingFromJson) {
+        this.rowCountAboveSettings = val;
+        return;
+      }
+      if (this.isRecordCountLimitedByPageMax) return;
+    }
+    this.setRowCountCore(val);
+  }
+  private rowCountAboveSettings: number;
+  endLoadingFromJson(): void {
+    const val = this.rowCountAboveSettings;
+    this.rowCountAboveSettings = undefined;
+    if (val > 0 && !this.isRecordCountLimitedByPageMax) {
+      this.setRowCountCore(val);
+    }
+    super.endLoadingFromJson();
+  }
+  private setRowCountCore(val: number): void {
     this.setRowCountValueFromData = false;
     var prevValue = this.rowCountValue;
     this.rowCountValue = val;
+    /* rowCount, not a write, decides how many records the list reads: the window is question.value
+       padded up to it. Before the truncation, not after it: the records the padding just created or
+       dropped have to reach the view first - the removals that follow are made against the record
+       count the new rowCount produced. */
+    this.followRecordCountChange();
     if (this.value && this.value.length > val) {
-      var qVal = this.value;
-      qVal.splice(val);
-      this.value = qVal;
+      if (this.isEditingObjectValue) {
+        var qVal = this.value;
+        qVal.splice(val);
+        this.value = qVal;
+      } else {
+        this.dataList.batch((): void => { this.dataList.truncate(val); });
+      }
     }
     if (this.isUpdateLocked) {
       this.initialRowCount = val;
@@ -309,20 +602,30 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.clearGeneratedRows();
         this.generatedVisibleRows = [];
       }
-      this.generatedVisibleRows.splice(val);
-      for (var i = prevValue; i < val; i++) {
-        var newRow = this.createMatrixRow(this.getValueForNewRow());
-        this.generatedVisibleRows.push(newRow);
-        this.onMatrixRowCreated(newRow);
+      if (this.hasDataListView) {
+        this.updateRowsForCreatedIndexes();
+      } else {
+        this.generatedVisibleRows.splice(val);
+        // Without a view the rows are built in record order: a row's position is its record index.
+        for (var i = prevValue; i < val; i++) {
+          this.addRowForRecord(this.createMatrixRow(this.getValueForNewRow()), this.generatedVisibleRows.length);
+        }
       }
       this.runCondition(this.getDataFilteredProperties());
     }
     this.onRowsChanged();
   }
+  /* rowCount no longer says how many rows there are while a filter is active: the created indexes
+     do (followRecordsWithObjects). A new row starts with the value Creator gives it, as without a view. */
+  private updateRowsForCreatedIndexes(): void {
+    this.followRecordsWithObjects((recordIndex: number): void => {
+      this.addRowForRecord(this.createMatrixRow(this.getValueForNewRow()), recordIndex);
+    });
+  }
   /**
    * An expression that dynamically calculates the row count. Overrides the static [`rowCount`](#rowCount) property.
    *
-   * The calculation result is clamped to the [`minRowCount`](#minRowCount) and [`maxRowCount`](#maxRowCount) limits: a value below the minimum is set to `minRowCount`, and a value above the maximum is capped at `maxRowCount`. The global [`settings.matrix.maxRowCount`](/form-library/documentation/api-reference/settings#matrix) setting also limits the maximum.
+   * The calculation result is clamped to the [`minRowCount`](#minRowCount) and [`maxRowCount`](#maxRowCount) limits: a value below the minimum is set to `minRowCount`, and a value above the maximum is capped at `maxRowCount`. If rows are not split into pages, the global [`settings.matrix.maxRowCount`](/form-library/documentation/api-reference/settings#matrix) setting also limits the maximum.
    *
    * While this property is set, users cannot add or remove rows manually. The expression is reevaluated when its referenced values or row limits change.
    *
@@ -330,29 +633,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @since 3.0.4
    */
   @property() rowCountExpression: string;
-  private get hasRowCountExpression(): boolean {
-    return !!this.rowCountExpression;
-  }
-  private setRowCountByExpression(val: any): void {
-    const maxCount = Math.min(this.maxRowCount, settings.matrix.maxRowCount);
-    this.rowCount = DynamicItemModelBase.getItemCountByExpressionValue(val, this.minRowCount, maxCount);
-  }
-  /* The result is clamped by minRowCount/maxRowCount, so changing a limit has to recalculate
-     it: the raw expression result is not stored anywhere */
-  private rerunRowCountExpression(): void {
-    if (this.isLoadingFromJson || !this.canRunConditions()) return;
-    this.runExpressionByProperty("rowCountExpression", this.getDataFilteredProperties(),
-      (val: any): void => { this.setRowCountByExpression(val); });
-  }
-  protected updateBindings(propertyName: string, value: any): void {
-    if (propertyName === "rowCount" && this.hasRowCountExpression) return;
-    super.updateBindings(propertyName, value);
-  }
+  // The count expression (QuestionRecordsModel.hasRecordCountExpression) sets rowCount.
+  private static recordCountNames = getRecordCountNamesOf("Row");
+  protected getRecordCountNames(): IRecordCountNames { return QuestionMatrixDynamicModel.recordCountNames; }
+  // A bound rowCount pads the value with the rows that hold answers (the count expression ignores the binding).
   protected updateBindingProp(propName: string, value: any): void {
-    if (propName === "rowCount" && this.hasRowCountExpression) return;
     super.updateBindingProp(propName, value);
     const rows = this.generatedVisibleRows;
-    if (propName !== "rowCount" || !Array.isArray(rows)) return;
+    if (propName !== "rowCount" || this.hasRecordCountExpression || !Array.isArray(rows)) return;
     const val = this.getUnbindValue(this.value) || [];
     if (val.length < rows.length) {
       let hasValue = false;
@@ -365,10 +653,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       }
     }
   }
+  /* Before the rows exist a padded row counts as unanswered: the stored value has no record for it, as
+     released. Once built, the row counts the default row value it shows. */
   protected updateProgressInfoByValues(res: IProgressInfo): void {
     let val = this.value;
     if (!Array.isArray(val)) val = [];
-    for (var i = 0; i < this.rowCount; i ++) {
+    // The rows of a remote page: the records the matrix has not read say nothing about how far the
+    // respondent has got with the ones in front of them.
+    const count = this.isRemoteData ? val.length : this.rowCount;
+    for (var i = 0; i < count; i ++) {
       const rowValue = i < val.length ? val[i] : {};
       this.updateProgressInfoByRow(res, rowValue);
     }
@@ -401,9 +694,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return !(this.survey as any)?.onMatrixRowDragOver?.isEmpty;
   }
   public get isRowsDragAndDrop(): boolean {
-    return this.allowRowReorder && !this.isReadOnly;
+    // Under a sort the row order is the sort's: dragging a row would say nothing about where the
+    // record goes. A matrix with a data source has no drag either: no source takes a move (canWriteRecords).
+    return this.allowRowReorder && !this.isReadOnly && !this.hasRecordSort && this.canWriteRecords("move");
   }
   @property({ defaultValue: 0 }) lockedRowCount: number;
+  /* Enables the header-click sort a renderer may offer; a column opts out with
+     column.allowSort = false. A data source that pages without declaring sorting is read whole while
+     a sort is set. The property is stored and exposed (column.isSortable reads it) - the sort itself
+     is assigned through sortOrder/sortBy/toggleSort. */
+  @property({ defaultValue: false }) allowSortRows: boolean;
 
   public get iconDragElement(): string {
     return this.cssClasses.iconDragElement;
@@ -415,8 +715,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private get rowCountValue(): number {
     return this.getPropertyValue("rowCount");
   }
+  // Leaves the authored count alone while a data source is assigned (setRecordCountProperty).
   private set rowCountValue(val: number) {
-    this.setPropertyValue("rowCount", val);
+    this.setRecordCountProperty(val);
   }
   /**
    * A minimum number of rows in the matrix. Users cannot delete rows if `rowCount` equals `minRowCount`.
@@ -430,31 +731,36 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    */
   @property({ onSetting: (val: number) => val < 0 ? 0 : val }) minRowCount: number;
 
-  private onMinRowCountChanged(): void {
-    const val = this.minRowCount;
-    if (val > this.maxRowCount)this.maxRowCount = val;
+  // A new minimum raises the row count a cleared matrix starts with as well.
+  protected onMinRecordCountApplied(val: number): void {
     if (this.initialRowCount < val)this.initialRowCount = val;
-    if (this.rowCount < val)this.rowCount = val;
-    this.rerunRowCountExpression();
   }
   /**
    * A maximum number of rows in the matrix. Users cannot add new rows if `rowCount` equals `maxRowCount`.
    *
    * Default value: 1000 (inherited from [`settings.matrix.maxRowCount`](https://surveyjs.io/form-library/documentation/settings#matrixMaximumRowCount))
    *
+   * `settings.matrix.maxRowCount` is the maximum number of rows on one page. If rows are not split into pages, it also limits `maxRowCount`. If they are, only `maxRowCount` limits the total number of rows, and only when you set it.
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
    * @see rowCount
    * @see minRowCount
    * @see allowAddRows
    */
-  @property({ onSetting: (val: number) => val <= 0 ? 1 : val > settings.matrix.maxRowCount ? settings.matrix.maxRowCount : val }) maxRowCount: number;
-
-  private onMaxRowCountChanged(): void {
-    const val = this.maxRowCount;
-    if (val < this.minRowCount)this.minRowCount = val;
-    if (this.rowCount > val)this.rowCount = val;
-    this.rerunRowCountExpression();
+  /* Without paging the setting caps it, as it always has: a value above the setting reads as the
+     setting and is therefore not serialized. With paging the setting is the page maximum and the
+     value is kept (rowCountLimit). */
+  public get maxRowCount(): number {
+    return this.getMaxRecordCount("maxRowCount");
   }
+  public set maxRowCount(val: number) {
+    this.setMaxRecordCount("maxRowCount", val);
+  }
+  // The limit rowCount is checked against (see getRecordCountLimit).
+  protected get rowCountLimit(): number {
+    return this.getRecordCountLimitOf("maxRowCount");
+  }
+
   /**
    * Specifies whether users are allowed to add new rows.
    *
@@ -486,10 +792,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see canRemoveRows
    */
   public get canAddRow(): boolean {
-    return (
-      this.allowAddRows && !this.isReadOnly && !this.hasRowCountExpression &&
-      this.rowCount < this.maxRowCount
-    );
+    return this.canAddRecordCore(this.allowAddRows, this.rowCount, this.rowCountLimit);
   }
   public canRemoveRowsCallback: (allow: boolean) => boolean;
   /**
@@ -507,21 +810,30 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see canAddRow
    */
   public get canRemoveRows(): boolean {
-    var res =
-      this.allowRemoveRows &&
-      !this.isReadOnly &&
-      !this.hasRowCountExpression &&
-      this.rowCount > this.minRowCount;
+    const res = this.canRemoveRecordCore(this.allowRemoveRows, this.rowCount, this.minRowCount);
     return !!this.canRemoveRowsCallback ? this.canRemoveRowsCallback(res) : res;
   }
   public canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
     if (!this.survey) return true;
-    const index = (<MatrixDynamicRowModel>row).rowIndex - 1;
-    if (this.lockedRowCount > 0 && index < this.lockedRowCount) return false;
-    return this.matrixCallbacks.matrixAllowRemoveRow(this, index, row);
+    /* lockedRowCount counts records: the first N records are locked wherever they are shown. The drag
+       lock counts visible rows (setDefaultRowActions), so with a hidden row the two can lock different
+       rows; both as released. The event gets the row's position in the whole view, as it always has
+       (getRecordViewIndex). */
+    const recordIndex = (<MatrixDynamicRowModel>row).rowIndex - 1;
+    if (this.lockedRowCount > 0 && recordIndex < this.lockedRowCount) return false;
+    return this.matrixCallbacks.matrixAllowRemoveRow(this, this.getItemViewIndex(row), row);
   }
+  // An add that lands on another page leaves the page shown first (isRecordAddLeavingPage).
   public addRowUI(): void {
+    if (this.isAddLeavingPage()) {
+      this.leavePage(true, (): void => { this.addRow(true); });
+      return;
+    }
     this.addRow(true);
+  }
+  // An added record is appended: it lands on the page after the last visible record.
+  private isAddLeavingPage(): boolean {
+    return this.canAddRow && this.isRecordAddLeavingPage((): number => this.dataList.visibleCount);
   }
   private getQuestionToFocusOnAddingRow(row: MatrixDropdownRowModelBase): Question {
     if (!row.isVisible) return null;
@@ -538,6 +850,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @param setFocus *(Optional)* Pass `true` to focus the cell in the first column.
    */
   public addRow(setFocus?: boolean): void {
+    // Before onMatrixRowAdding: the event cannot allow what the source refuses.
+    if (this.refuseOperationOfSource("insert")) return;
     const oldRowCount = this.rowCount;
     const allow = this.canAddRow;
     var options = { question: this, canAddRow: allow, allow: allow };
@@ -548,15 +862,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       (allow !== options.canAddRow ? options.canAddRow : allow);
     if (!newAllow) return;
     this.onStartRowAddingRemoving();
-    this.addRowCore();
+    const newRow = this.addRowCore();
     this.onEndRowAdding();
     this.singleInputOnAddItem(false);
-    // The new row is the last one in allRows; visibleRows may end with an existing row when rowsVisibleIf hides the new row
-    const rows = this.allRows;
-    const newRow = oldRowCount !== this.rowCount && rows.length > 0 ? rows[rows.length - 1] : null;
-    if (!newRow) return;
+    if (!newRow || oldRowCount === this.rowCount) return;
     if (this.detailPanelShowOnAdding) {
-      newRow.showDetailPanel();
+      /* Without a view the last row shows its detail panel, as released: a row an onMatrixRowAdded
+         handler added is the last one then. */
+      const rows = this.allRows;
+      const shownRow = !this.hasDataListView && rows.length > 0 ? rows[rows.length - 1] : newRow;
+      shownRow.showDetailPanel();
     }
     if (setFocus) {
       const q = this.getQuestionToFocusOnAddingRow(newRow);
@@ -583,72 +898,81 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected isValueSurveyElement(val: any): boolean {
     return this.isEditingSurveyElement || super.isValueSurveyElement(val);
   }
-  private addRowCore() {
+  /* The remote counterpart of addRowCore (addRecordRemote): the record is the column defaults, the
+     defaultRowValue and then the copy from the last entry (getLastEntryRecord), appended to the
+     storage as the local path appends to question.value. rowCount follows the window. */
+  private addRowCoreRemote(): MatrixDropdownRowModelBase {
+    const defaultValue = this.getDefaultRowValue(true);
+    const added = this.addRecordRemote(this.isValueEmpty(defaultValue) ? {} : defaultValue, this.loadedRecordCount);
+    const index = added.index;
+    const newRow = <MatrixDropdownRowModelBase>added.item;
+    if (this.data) {
+      this.runCellsCondition(this.getDataFilteredProperties());
+    }
+    // A record the page does not hold has no row, and no event.
+    if (this.survey && !!newRow) {
+      this.matrixCallbacks.matrixRowAdded(this, newRow);
+    }
+    this.onRowsChanged();
+    if (!!newRow) return newRow;
+    // Rows that were not built before the add are built for the window now, and hold the record too.
+    return this.allRows.length > 0 ? <MatrixDropdownRowModelBase>this.getItemByRecordIndex(index) || null : null;
+  }
+  // QuestionRecordsModel hook: one row for a record at the end of the rows; the rows before it keep their state.
+  protected appendItemForRecord(recordIndex: number): void {
+    if (!Array.isArray(this.generatedVisibleRows)) return;
+    this.addRowForRecord(this.createMatrixRow(this.getListRecordAt(recordIndex)), recordIndex);
+  }
+  /* Returns the row of the added record, null when it has none: under paging a record the page does not
+     hold - rowsVisibleIf hides it - has no row. Without paging it is the last row (allRows), a hidden
+     one included, as released. */
+  private addRowCore(): MatrixDropdownRowModelBase {
+    if (this.isRemoteData) return this.addRowCoreRemote();
     var prevRowCount = this.rowCount;
-    this.rowCount = this.rowCount + 1;
+    this.runRecordAdd((): void => { this.setRecordCountCore(this.rowCount + 1); });
     var defaultValue = this.getDefaultRowValue(true);
-    var newValue = null;
     if (!this.isValueEmpty(defaultValue)) {
-      newValue = this.createNewValue();
-      if (newValue.length == this.rowCount) {
-        newValue[newValue.length - 1] = defaultValue;
-        this.value = newValue;
-      }
+      this.setLastRowRecord(defaultValue, true);
     }
     if (this.data) {
       this.runCellsCondition(this.getDataFilteredProperties());
       const rows = this.generatedVisibleRows;
       if (this.isValueEmpty(defaultValue) && rows.length > 0) {
         const row = rows[rows.length - 1];
-        if (!this.isValueEmpty(row.value)) {
-          if (!newValue) {
-            newValue = this.createNewValue();
-          }
-          if (
-            !this.isValueSurveyElement(newValue) &&
-            !this.isTwoValueEquals(newValue[newValue.length - 1], row.value)
-          ) {
-            newValue[newValue.length - 1] = row.value;
-            this.value = newValue;
-          }
+        // A live-object value is never written back from the row here, as before. Under paging the
+        // last row of the page is the new record's only when the page has room for it.
+        const isNewRow = !this.isPagingActive || this.getBuiltRecordIndex(row) === this.getLastRowRecordIndex();
+        if (isNewRow && !this.isValueEmpty(row.value) && !this.isEditingObjectValue) {
+          this.setLastRowRecord(row.value);
         }
       }
     }
+    /* Under paging the added record's page is shown: it is where the respondent must see the row they
+       added. A move from code - the add itself was validated - and before onMatrixRowAdded, so that
+       the event gets the new row. */
+    if (prevRowCount + 1 == this.rowCount) {
+      this.showPageOfInsertedRecord(this.getLastRowRecordIndex());
+    }
+    const rows = this.allRows;
+    if (prevRowCount + 1 != this.rowCount || rows.length === 0) return null;
+    // Under paging the page may not hold the new record (rowsVisibleIf hides it): no row, no event.
+    const row = this.isPagingActive ? <MatrixDropdownRowModelBase>this.getItemByRecordIndex(this.getLastRowRecordIndex()) || null : rows[rows.length - 1];
     if (this.survey) {
-      const rows = this.allRows;
-      if (prevRowCount + 1 == this.rowCount && rows.length > 0) {
-        const row = rows[rows.length - 1];
+      if (!!row) {
         this.matrixCallbacks.matrixRowAdded(this, row);
-        this.onRowsChanged();
       }
+      this.onRowsChanged();
     }
+    return row;
   }
+  // The record a new row starts with, null when nothing applies.
   private getDefaultRowValue(isRowAdded: boolean): any {
-    var res = null;
-    for (var i = 0; i < this.columns.length; i++) {
-      var q = this.columns[i].templateQuestion;
-      if (!!q && !this.isValueEmpty(q.getDefaultValue())) {
-        res = res || {};
-        (<any>res)[this.columns[i].name] = q.getDefaultValue();
-      }
-    }
-    if (!this.isValueEmpty(this.defaultRowValue)) {
-      for (var key in this.defaultRowValue) {
-        res = res || {};
-        (<any>res)[key] = this.defaultRowValue[key];
-      }
-    }
-    if (isRowAdded && this.copyDefaultValueFromLastEntry) {
-      var val = this.value;
-      if (!!val && Array.isArray(val) && val.length >= this.rowCount - 1) {
-        var rowValue = val[this.rowCount - 2];
-        for (var key in rowValue) {
-          res = res || {};
-          (<any>res)[key] = rowValue[key];
-        }
-      }
-    }
-    return res;
+    /* The local add runs after rowCount was already grown, so the count before the add is rowCount - 1; the
+       remote add builds the record before the insert. */
+    const copyFrom = isRowAdded && this.copyDefaultValueFromLastEntry ? this.getLastEntryRecord(this.rowCount - 1) : undefined;
+    const res = this.composeNewRecord(this.columns, (column: MatrixDropdownColumn): Question => column.templateQuestion,
+      (column: MatrixDropdownColumn): string => column.name, this.defaultRowValue, copyFrom);
+    return Object.keys(res).length > 0 ? res : null;
   }
   public focusAddBUtton(): void {
     this.toolbar.getActionById("sv-md-add-btn")?.getInputElement()?.focus();
@@ -664,97 +988,165 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!!value && !!value.rowName) {
       var index = this.visibleRows.indexOf(value);
       if (index < 0) return;
-      value = index;
+      // removeRow takes a position in the whole view; the focus below stays on the page.
+      value = this.getVisibleIndexAtPosition(index);
     }
     this.removeRow(value, undefined, () => {
       const rowCount = this.visibleRows.length;
       const nextIndex = index >= rowCount ? rowCount - 1 : index;
       const nextRow = nextIndex > -1 ? this.visibleRows[nextIndex] : undefined;
       setTimeout(() => {
-        if (nextRow) {
-          this.renderedTable.focusActionCell(nextRow, this.getActionCellIndex(nextRow));
-        } else {
-          this.focusAddBUtton();
-        }
+        this.focusActionCellOrAddButton(nextRow);
       }, 10);
+      // A refill that completed inside the removal needs nothing - the rows above are already the rebuilt ones.
+      this.keepFocusForReadAfterRemoval(index);
     });
   }
+  private focusActionCellOrAddButton(row: MatrixDropdownRowModelBase): void {
+    if (row) {
+      this.renderedTable.focusActionCell(row, this.getActionCellIndex(row));
+    } else {
+      this.focusAddBUtton();
+    }
+  }
+  // After the rows were rebuilt from a committed read; through the same timeout as removeRowUI: the
+  // rows have to be rendered before they can be focused.
+  protected focusItemAfterRead(index: number): void {
+    setTimeout(() => {
+      if (this.isDisposed) return;
+      const rows = this.visibleRows;
+      const rowIndex = Math.min(index, rows.length - 1);
+      this.focusActionCellOrAddButton(rowIndex > -1 ? rows[rowIndex] : undefined);
+    }, 10);
+  }
+  // The record of the row removeRow(index) removes - its row's value, or the stored record of a record without a row.
   public isRequireConfirmOnRowDelete(index: number): boolean {
     if (!this.confirmDelete) return false;
-    if (index < 0 || index >= this.rowCount) return false;
-    var value = this.createNewValue();
-    if (this.isValueEmpty(value) || !Array.isArray(value)) return false;
-    if (index >= value.length) return false;
-    return !this.isValueEmpty(value[index]);
+    /* Rows that were never built, with nothing that hides a record: the position is the record, and
+       the stored value, padded with the default row value, answers without building the rows, as released. */
+    if (!this.generatedVisibleRows && !this.hasDataListView && !this.rowsVisibleIf) {
+      return index >= 0 && index < this.rowCount && !this.isValueEmpty(this.getStoredRecordAt(index));
+    }
+    const target = this.resolveRowTarget(index);
+    const record = !target ? undefined : (!!target.item ? (<MatrixDropdownRowModelBase>target.item).value : target.record);
+    return !this.isValueEmpty(record);
+  }
+  /* What removeRow acts on (resolveRecordTarget): index is a position among the visible rows - under
+     paging among the visible records of the whole view. The rows are built first. */
+  private resolveRowTarget(index: number): IRecordTarget {
+    const rows = this.visibleRows;
+    return this.resolveRecordTarget(index, this.rowCount, (pos: number): QuestionRecordItem => !!rows ? rows[pos] : undefined);
   }
   /**
    * Removes a matrix row with a specified index.
    * @param index A zero-based row index.
    * @param confirmDelete *(Optional)* A Boolean value that specifies whether to display a confirmation dialog. If you do not specify this parameter, the [`confirmDelete`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#confirmDelete) property value is used.
    */
+  /* Under paging index is a position among the visible records of the whole view (resolveRowTarget):
+     a record on another page is removed too, without a row - so without the row events. A source that
+     pages itself refuses one it has not loaded and reports it. */
   public removeRow(index: number, confirmDelete?: boolean, onRowRemoved?: () => void): void {
-    if (!this.canRemoveRows) return;
-    if (index < 0 || index >= this.rowCount) return;
-    var row =
-      !!this.visibleRows && index < this.visibleRows.length
-        ? this.visibleRows[index]
-        : null;
+    const target = this.getRemoveTarget((): IRecordTarget => this.canRemoveRows ? this.resolveRowTarget(index) : undefined);
+    if (!target) {
+      // A position within rowCount that names no visible row removes nothing, and the callback runs, as released.
+      if (!!onRowRemoved && !this.isRemoteData && this.canRemoveRows && index >= 0 && index < this.rowCount) onRowRemoved();
+      return;
+    }
     if (confirmDelete === undefined) {
       confirmDelete = this.isRequireConfirmOnRowDelete(index);
     }
-    if (confirmDelete) {
-      confirmActionAsync({
-        message: this.confirmDeleteText,
-        funcOnYes: () => {
-          this.removeRowAsync(index, row);
-          onRowRemoved && onRowRemoved();
-        },
-        locale: this.getLocale(),
-        rootElement: this.survey.rootElement,
-        cssClass: this.cssClasses.confirmDialog
-      });
-      return;
-    }
-    this.removeRowAsync(index, row);
-    onRowRemoved && onRowRemoved();
+    this.runRecordRemoval(target, confirmDelete, this.confirmDeleteText, (current: IRecordTarget): void => {
+      this.removeRowAsync(current);
+      onRowRemoved && onRowRemoved();
+    });
   }
-  private removeRowAsync(index: number, row: MatrixDropdownRowModelBase): void {
-    if (!!row && !!this.survey && !this.matrixCallbacks.matrixRowRemoving(this, index, row)) return;
-    this.onStartRowAddingRemoving();
-    this.removeRowCore(index);
-    this.singleInputOnRemoveItem(index);
+  private removeRowAsync(target: IRecordTarget): void {
+    const targetRow = <MatrixDropdownRowModelBase>target.item;
+    let isStarted = false;
+    const removal = this.removeTarget(target, (resolved: IRecordRemoval): boolean => {
+      const row = <MatrixDropdownRowModelBase>resolved.item;
+      return !row || !this.survey || this.matrixCallbacks.matrixRowRemoving(this, target.visibleIndex, row);
+    }, (resolved: IRecordRemoval): IRecordRemoval => {
+      isStarted = true;
+      this.onStartRowAddingRemoving();
+      return resolved;
+    });
+    if (!isStarted) return;
+    const row = !!removal ? <MatrixDropdownRowModelBase>removal.item : targetRow;
+    if (!!removal) {
+      this.onRowsChanged();
+      if (this.survey && !!row) {
+        this.matrixCallbacks.matrixRowRemoved(this, removal.viewIndex, row);
+      }
+    }
+    this.singleInputOnRemoveItem(target.visibleIndex);
     this.onEndRowRemoving(row);
     if (this.initialRowCount > this.rowCount) {
       this.initialRowCount = this.rowCount;
     }
   }
-  private removeRowCore(index: number) {
-    var row = this.visibleRows
-      ? this.visibleRows[index]
-      : null;
-    index = this.generatedVisibleRows.indexOf(row);
-    if (index < 0) return;
-    if (this.generatedVisibleRows && index < this.generatedVisibleRows.length) {
-      this.generatedVisibleRows.splice(index, 1);
+  /* QuestionRecordsModel hook: the storage write of a row removal. removeRowByIndex over a data source
+     makes one source.remove, and question.value and the count follow its notification; every other
+     removal counts the row down first and writes inside writeRecords. The refill follows the write's
+     scope. */
+  protected removeStoredRecord(removal: IRowRemoval, refill: () => void): void {
+    if (removal.isSourceWriteOnly) {
+      super.removeStoredRecord(removal, refill);
+      return;
     }
-    this.rowCountValue--;
-    if (this.value) {
-      var val = [];
-      if (Array.isArray(this.value) && index < this.value.length) {
-        val = this.createValueCopy();
-      } else {
-        val = this.createNewValue();
+    /* A record beyond question.value is padding: a row that was added and never filled, or every
+       row of a matrix with no value. The list cannot remove it - the padded window has just lost it
+       together with rowCount. A matrix with no value has nothing to write: the list learns the new
+       count instead, or a page index left past the last page would show an empty page. A matrix with
+       a value writes it again from the rows that stay, and an empty one goes, as released. */
+    const recordIndex = removal.recordIndex;
+    const val = this.value;
+    const isPaddingRecord = !Array.isArray(val) || recordIndex >= val.length;
+    /* While padding follows question.value, rowCount is the list's record count: counted down before
+       the list removes the record, the list would read a count one short of the window it splices,
+       and a sorted or filtered view would no longer fit its records and be decided again under the
+       rows. The count goes down when the list stores the removal (setListRecords). */
+    const isCountDownDeferred = !isPaddingRecord && !this.isRemoteData && !this.isEditingObjectValue && recordIndex > -1 &&
+      val.length < this.rowCount;
+    if (!isCountDownDeferred) {
+      this.rowCountValue--;
+    }
+    if (isPaddingRecord) {
+      if (Array.isArray(val) && val.length > 0 && !this.isEditingObjectValue) {
+        this.writeRecords((): void => {
+          const next = this.createNewValue();
+          next.splice(recordIndex, 1);
+          this.setOwnRecordsValue(this.deleteRowValue(next, null));
+        });
       }
-      this.isRowChanging = true;
-      val.splice(index, 1);
-      val = this.deleteRowValue(val, null);
-      this.value = val;
-      this.isRowChanging = false;
+      this.followRecordCountChange();
+    } else if (this.value) {
+      this.rowCountDownLength = isCountDownDeferred ? val.length - 1 : -1;
+      try {
+        this.writeRecords((): void => {
+          if (this.isEditingObjectValue) {
+            // The live array is spliced in place: that is what removes the row from the edited object.
+            const val = this.createValueCopy();
+            val.splice(removal.position, 1);
+            this.value = val;
+          } else if (recordIndex > -1) {
+            this.dataList.remove(recordIndex);
+          }
+        });
+      } finally {
+        this.takeRowCountDown();
+      }
     }
-    this.onRowsChanged();
-    if (this.survey) {
-      this.matrixCallbacks.matrixRowRemoved(this, index, row);
-    }
+    refill();
+  }
+  // The length question.value has after a removal whose count-down waits for the store; -1 for none.
+  private rowCountDownLength: number = -1;
+  private takeRowCountDown(): number {
+    const length = this.rowCountDownLength;
+    if (length < 0) return -1;
+    this.rowCountDownLength = -1;
+    this.rowCountValue--;
+    return length;
   }
   protected createSingleInputBehavior(): QuestionSingleInputBehavior {
     return new MatrixDynamicSingleInputBehavior(this);
@@ -853,14 +1245,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!value || !Array.isArray(value)) return value;
-    var values = this.getUnbindValue(value);
-    var rows = this.visibleRows;
-    for (var i = 0; i < rows.length && i < values.length; i++) {
-      var val = values[i];
-      if (!val) continue;
-      values[i] = this.getRowDisplayValue(keysAsText, rows[i], val);
-    }
-    return values;
+    // Reading the rows builds them, as it always has. Under a view - a filter, a sort, paging - a
+    // record without a row is formatted through the columns' template questions.
+    this.visibleRows;
+    return this.getRecordsDisplayValue(keysAsText, this.getUnbindValue(value));
   }
   protected getConditionObjectRowName(index: number): string {
     return "[" + index.toString() + "]";
@@ -885,37 +1273,80 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       errors.push(new MinRowCountError(this.minRowCount, this));
     }
   }
+  /* With a data source minRowCount only gates the add and remove, so it is not checked. Under paging
+     the rows are built for the page only: the records of every page are counted - also those
+     rowsVisibleIf hides, as the generated rows without paging are -, a record without a row by its
+     stored value, as its row would count it. */
   private validateMinRows(): boolean {
-    if (this.minRowCount <= 0 || !this.isRequired || !this.generatedVisibleRows)
-      return true;
+    if (this.minRowCount <= 0 || !this.isRequired || this.isRemoteData) return true;
     let setRowCount = 0;
-    this.generatedVisibleRows.forEach(row => {
-      if (!row.isEmpty) setRowCount++;
-    });
+    if (this.isPagedByList) {
+      this.forEachViewRecord(false, (index: number, item: QuestionRecordItem): void => {
+        const isEmpty = !!item ? (<MatrixDropdownRowModelBase>item).isEmpty : !this.hasRecordAnswer(this.getListRecordAt(index));
+        if (!isEmpty) setRowCount++;
+      });
+    } else {
+      if (!this.generatedVisibleRows) return true;
+      this.generatedVisibleRows.forEach(row => {
+        if (!row.isEmpty) setRowCount++;
+      });
+    }
     return setRowCount >= this.minRowCount;
   }
-  protected getUniqueColumnsNames(): Array<string> {
-    var res = super.getUniqueColumnsNames();
-    const name = this.keyName;
-    if (!!name && res.indexOf(name) < 0) {
-      res.push(name);
-    }
-    return res;
+  // The rule of a row's isEmpty, for a record that has no row.
+  private hasRecordAnswer(record: any): boolean {
+    return !isRecordEmpty(record);
+  }
+  // QuestionRecordsModel hook: the key column, checked after the isUnique columns (getUniqueColumnsNames).
+  protected getRecordKeyName(): string {
+    return this.keyName;
   }
   protected generateRows(): Array<MatrixDynamicRowModel> {
-    var result = new Array<MatrixDynamicRowModel>();
-    if (this.rowCount === 0) return result;
-    var val = this.createNewValue();
-    for (var i = 0; i < this.rowCount; i++) {
-      result.push(this.createMatrixRow(this.getRowValueByIndex(val, i)));
-    }
-    if (!this.isValueEmpty(this.getDefaultRowValue(false))) {
-      this.value = val;
+    if (this.rowCount === 0) return [];
+    const indexes = this.getRecordIndexesForRows();
+    /* The default write-back needs the whole padded value, and a live-object value is not copied at
+       all. Every other build copies the records that get a row and nothing else: a page visit of a
+       matrix that pages costs the page, not the record count. Without paging the indexes are
+       0 ... rowCount-1 and the copies are the ones createNewValue() makes, record for record. */
+    const isWritingDefaults = this.isDefaultWriteBackNeeded();
+    const val = isWritingDefaults || this.isEditingObjectValue ? this.createNewValue() : undefined;
+    const result = this.createRowsForRecords(indexes, (index: number): MatrixDynamicRowModel =>
+      this.createMatrixRow(!!val ? this.getRowValueByIndex(val, index) : this.getNewRowValue(index)));
+    if (isWritingDefaults) {
+      this.setOwnRecordsValue(val);
     }
     return result;
   }
+  /* The defaults reach question.value when rows are built for records it does not hold yet: the
+     value is shorter than rowCount (the padded records get the defaults) or longer (it is truncated).
+     A value that already holds rowCount records is what createNewValue() would compose, so writing
+     it back changes nothing - and a data source's window is never padded or truncated. */
+  private isDefaultWriteBackNeeded(): boolean {
+    if (this.isRemoteData || this.isValueEmpty(this.getDefaultRowValue(false))) return false;
+    const val = this.value;
+    return !Array.isArray(val) || val.length !== this.rowCount;
+  }
+  // One record of createNewValue() without copying the others: the window of a data source as it is,
+  // question.value truncated and padded to rowCount.
+  private getNewRowValue(index: number): any {
+    const isRemote = this.isRemoteData;
+    if (index < 0 || !isRemote && index >= this.rowCount) return null;
+    const val = this.value;
+    if (Array.isArray(val) && index < val.length) return this.getUnbindValue(val[index]);
+    return isRemote ? null : this.getDefaultRowValue(false) || {};
+  }
   protected createMatrixRow(value: any): MatrixDynamicRowModel {
     return new MatrixDynamicRowModel(this.rowCounter++, this, value);
+  }
+  /* An assignment from outside keeps the rows - and the visibility their questions remember - when it
+     keeps the count or adds one record; any other count rebuilds the rows (onBeforeValueChanged), as
+     released. */
+  protected keepsHiddenAnswerStates(oldCount: number, newCount: number): boolean {
+    return newCount === oldCount || newCount === oldCount + 1;
+  }
+  // The temporary row of the records clean-up takes no row number: it is never shown.
+  protected createRowForRecordCleanup(index: number, record: any): MatrixDropdownRowModelBase {
+    return new MatrixDynamicRowModel(this.rowCounter, this, record);
   }
   private lastDeletedRow: MatrixDropdownRowModelBase;
   private getInsertedDeletedIndex(rows: MatrixDropdownRowModelBase[], val: any[]): number {
@@ -964,7 +1395,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return true;
   }
+  /* The incoming direction of the canSetValueToSurvey rule: while a data source is attached,
+     survey.data = ..., survey.setValue and mergeData do not reach the question. The survey hash may
+     then hold a value the question does not show; that is the caller's doing. A setvalue or copyvalue
+     trigger aimed at the question goes through the value setter, which skips it (setNewValue). */
   updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
+    // QuestionRecordsModel guards too, but the minRowCount padding below must not run for a source.
+    if (this.isRemoteData) return;
     const isInProcess = this.setRowCountValueFromData;
     this.setRowCountValueFromData = true;
     let refreshRows = false;
@@ -994,6 +1431,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.setRowCountValueFromData = false;
   }
+  /* The data the survey and the expressions see: the rows that exist and are visible. A record the
+     list filter excluded has no row and is not part of it - the same answer a source that filters on
+     its own side gives, and what makes a total the total of the filtered rows. */
   protected getFilteredDataCore(): any {
     const res: any = [];
     this.generatedVisibleRows.forEach(row => {
@@ -1003,7 +1443,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     });
     return res;
   }
+  // Only read, never stored: every padded record can share one default record.
+  protected createDuplicationRecordReader(): (index: number) => any {
+    const defaultRecord = this.getDefaultRowValue(false) || {};
+    return (index: number): any => this.getListRecordAt(index, defaultRecord);
+  }
   protected onBeforeValueChanged(val: any): void {
+    // The record count of a remote-backed matrix comes from the read, never from the length of the
+    // window: the window is one page of a larger table.
+    if (this.isRemoteData) return;
     if (!val || !Array.isArray(val)) return;
     var newRowCount = val.length;
     if (newRowCount == this.rowCount) return;
@@ -1016,9 +1464,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (newRowCount == this.generatedVisibleRows.length + 1) {
       this.onStartRowAddingRemoving();
       const newValue = this.getRowValueByIndex(val, newRowCount - 1);
-      const newRow = this.createMatrixRow(newValue);
-      this.generatedVisibleRows.push(newRow);
-      this.onMatrixRowCreated(newRow);
+      this.addRowForRecord(this.createMatrixRow(newValue), newRowCount - 1);
       this.onEndRowAdding();
     } else {
       this.clearGeneratedRows();
@@ -1027,16 +1473,30 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.setRowCountValueFromData = false;
   }
+  /* The row count follows the assigned value as it does for any assignment from the survey
+     (updateValueFromSurvey). The rows can be re-created inside a row add or remove, which locks out
+     the reset of the rendered table (onStartRowAddingRemoving): its end resets the table instead. */
+  protected followOutsideAssignment(decideView: () => void): void {
+    const prev = this.setRowCountValueFromData;
+    this.setRowCountValueFromData = true;
+    try {
+      super.followOutsideAssignment(decideView);
+    } finally {
+      this.setRowCountValueFromData = prev;
+    }
+    if (this.isRendredTableCreated) {
+      this.renderedTable.requireReset();
+    }
+  }
+  // A deep copy of the value, truncated to rowCount and padded up to it.
   protected createNewValue(): any {
     var result = this.createValueCopy();
     if (!result || !Array.isArray(result)) result = [];
+    /* The window of a data source is neither truncated nor padded to rowCount: rowCount is the server
+       total and the records beyond the window are on the server, not missing from the value. */
+    if (this.isRemoteData) return result;
     if (result.length > this.rowCount) result.splice(this.rowCount);
-    var rowValue = this.getDefaultRowValue(false);
-    rowValue = rowValue || {};
-    for (var i = result.length; i < this.rowCount; i++) {
-      result.push(this.getUnbindValue(rowValue));
-    }
-    return result;
+    return this.padRecords(result);
   }
   protected deleteRowValue(newValue: any, row: MatrixDropdownRowModelBase): any {
     if (!Array.isArray(newValue)) return newValue;
@@ -1050,25 +1510,28 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return isEmpty ? null : newValue;
   }
 
+  // The lookup is the records' (getRecordInValue); a record the value does not hold reads as null here.
   private getRowValueByIndex(questionValue: any, index: number): any {
-    return Array.isArray(questionValue) &&
-      index >= 0 &&
-      index < questionValue.length
-      ? questionValue[index]
-      : null;
+    const res = this.getRecordInValue(questionValue, index);
+    return res !== undefined ? res : null;
   }
+  /* Still reached with an explicit value: updateValueOnRowsGeneration, onRowChanging,
+     runTriggersOnNewRows, verifyValueCore and getRowObj all compose a value of their own and ask for
+     one row of it. The record storage of the question is the list; this is a lookup in a value. */
   protected getRowValueCore(
     row: MatrixDropdownRowModelBase,
     questionValue: any,
     create: boolean = false
   ): any {
     if (!this.generatedVisibleRows) return {};
-    var res = this.getRowValueByIndex(
-      questionValue,
-      this.generatedVisibleRows.indexOf(row)
-    );
+    var res = this.getRowValueByIndex(questionValue, this.getRecordIndexOf(row));
     if (!res && create) res = {};
     return res;
+  }
+  // index is a created position; the record it addresses is what the list holds.
+  protected getRowValueByIndexCore(index: number): any {
+    const res = this.getListRecordAt(this.getRecordIndexAtRowPosition(index));
+    return res !== undefined ? res : null;
   }
   public getRootCss(): string {
     return toCssClasses(super.getRootCss(), !this.renderedTable?.showTable && this.cssClasses.empty);
@@ -1138,62 +1601,24 @@ export class MatrixDynamicSingleInputBehavior extends MatrixDropdownBaseSingleIn
     }
   }
   protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
-    const res = new Array<Question>();
-    const rows = this.matrixDynamic.visibleRows;
-    if (checkDynamic) {
-      for (let i = 0; i < rows.length; i ++) {
-        const row = rows[i];
-        // A navigation check, not a validation: it must not show errors or expand detail panels/questions.
-        if (!row.hasValueAnyQuestion(true) || !row.validate(new ValidationContext({ fireCallback: false }))) {
-          this.fillSingleInputQuestionsByRow(res, row);
-        }
-      }
-    }
-    return this.getSingleInputQuestionsForDynamic(question, res);
-  }
-  public fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {
-    const row = <MatrixDropdownRowModelBase>innerQuestion.data;
-    this.fillSingleInputQuestionsByRow(res, row);
-  }
-  private fillSingleInputQuestionsByRow(res: Array<Question>, row: MatrixDropdownRowModelBase): void {
-    if (row) {
-      row.questions.forEach(q => q.addNestedQuestion(res, true, false, false));
-    }
-  }
-  public getSingleInputAddTextCore(): string {
-    if (!this.matrixDynamic.canAddRow) return undefined;
-    return this.matrixDynamic.addRowText;
-  }
-  public singleInputAddItemCore(): void {
-    this.matrixDynamic.addRowUI();
-  }
-  protected getSingleQuestionOnChange(index: number): Question {
-    const rows = this.matrixDynamic.visibleRows;
-    if (rows.length > 0) {
-      if (index < 0 || index >= rows.length) index = rows.length - 1;
-      const row = rows[index];
-      const vQs = row.visibleQuestions;
-      if (vQs.length > 0) {
-        return vQs[0];
-      }
-    }
-    return null;
+    return this.getDynamicSingleInputQuestions(question, checkDynamic);
   }
   protected createSingleInputSummary(): QuestionSingleInputSummary {
     const md = this.matrixDynamic;
-    const res = new QuestionSingleInputSummary(md, md.locNoRowsText);
-    const items = new Array<QuestionSingleInputSummaryItem>();
+    // Read once per summary; the page-size sync that the summary starts with does not change it.
     const canRemoveRows = md.canRemoveRows;
-    md.visibleRows.forEach((row) => {
-      const locText = new LocalizableString(new MatrixSingleInputLocOwner(md, row), true, undefined, md.getSingleInputTitleTemplate());
-      locText.setJson(md.locSingleInputTitleTemplate.getJson());
-      const bntEdit = new Action({ locTitle: md.locEditRowText, action: () => { this.singleInputEditRow(row); } });
-      const btnRemove = canRemoveRows && md.canRemoveRow(row) ?
-        new Action({ locTitle: md.locRemoveRowText, action: () => { md.removeRowUI(row); } }) : undefined;
-      items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
+    return this.createRecordsSummary({
+      noEntriesText: md.locNoRowsText,
+      editText: md.locEditRowText,
+      removeText: md.locRemoveRowText,
+      getTitle: (row: MatrixDropdownRowModelBase): LocalizableString => {
+        const locText = new LocalizableString(new MatrixSingleInputLocOwner(md, row), true, undefined, md.getSingleInputTitleTemplate());
+        locText.setJson(md.locSingleInputTitleTemplate.getJson());
+        return locText;
+      },
+      canRemove: (row: MatrixDropdownRowModelBase): boolean => canRemoveRows && md.canRemoveRow(row),
+      remove: (row: MatrixDropdownRowModelBase): void => { md.removeRowUI(row); }
     });
-    res.items = items;
-    return res;
   }
 }
 
@@ -1202,7 +1627,7 @@ Serializer.addClass(
   [
     { name: "allowAddRows:boolean", default: true },
     { name: "allowRemoveRows:boolean", default: true },
-    { name: "rowCount:number", default: 2, minValue: 0, isBindable: true },
+    { name: "rowCount:number", default: 2, minValue: 0, isBindable: true, isSerializableFunc: isRecordCountSerializable },
     "rowCountExpression:expression",
     { name: "minRowCount:number", default: 0, minValue: 0 },
     {
@@ -1245,6 +1670,8 @@ Serializer.addClass(
       },
     },
     { name: "allowRowReorder:switch", alternativeName: "allowRowsDragAndDrop" },
+    // Invisible in the property grid until the UI series ships sortable headers (rowsPerPage, sortBy and filterExpression are the base's).
+    { name: "allowSortRows:boolean", default: false, visible: false },
   ],
   function() {
     return new QuestionMatrixDynamicModel("");

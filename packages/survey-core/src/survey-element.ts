@@ -1378,6 +1378,35 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (this.titleToolbarValue) {
       this.titleToolbarValue.dispose();
     }
+    this.disposeObjectsAwaitingRerender();
+  }
+  /* An object this element stopped rendering - a dynamic panel, a matrix row - can still be on screen:
+     a UI that renders asynchronously (Angular) checks its components once more before it drops them,
+     and the check throws on a disposed object (a disposed dropdown has no dropdownListModel). While a
+     UI renders this element, the object is disposed after the element's next rerender, or when the UI
+     stops rendering it (an isCancel notification); without a UI it is disposed at once. */
+  protected disposeAfterRerender(obj: { dispose(): void }, disposeFunc?: () => void): void {
+    const rerendered = this.isDisposed ? undefined : this.onElementRerendered;
+    const func = disposeFunc || ((): void => obj.dispose());
+    if (!rerendered) {
+      func();
+      return;
+    }
+    if (this.objectsAwaitingRerender.some(item => item.obj === obj)) return;
+    if (this.objectsAwaitingRerender.length === 0) {
+      rerendered.add(this.onRerenderedDisposeObjects);
+    }
+    this.objectsAwaitingRerender.push({ obj: obj, func: func });
+  }
+  private objectsAwaitingRerender: Array<{ obj: any, func: () => void }> = [];
+  private onRerenderedDisposeObjects = (): void => {
+    this.disposeObjectsAwaitingRerender();
+  };
+  private disposeObjectsAwaitingRerender(): void {
+    this._onElementRerendered.remove(this.onRerenderedDisposeObjects);
+    const items = this.objectsAwaitingRerender;
+    this.objectsAwaitingRerender = [];
+    items.forEach(item => item.func());
   }
   public get randomSeed(): number {
     let seed = this.getOwner()?.randomSeed || 0;

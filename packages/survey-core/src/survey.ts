@@ -87,7 +87,8 @@ import {
   GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, GetExpressionDisplayValueEvent, CheckSingleInputPerPageModeEvent,
   GetLoopQuestionsEvent, ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent,
   PopupVisibleChangedEvent, ChoicesSearchEvent, OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent, GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent,
-  IsAnswerCorrectEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, CreateCustomChoiceItemEvent, MatrixRowDragOverEvent, ExpressionRunningEvent, UIStateChangedEvent
+  IsAnswerCorrectEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, CreateCustomChoiceItemEvent, MatrixRowDragOverEvent, ExpressionRunningEvent, UIStateChangedEvent,
+  DynamicDataErrorEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -219,9 +220,10 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
 // "navigationHandler" - a handler of onCompleting or onCurrentPageChanging holds its callback;
 // "validators" - the asynchronous validators of the owner question have not finished;
 // "expressions" - an asynchronous expression of the owner has not finished;
-// "webChoices" - a choicesByUrl request of the owner question has not answered.
+// "webChoices" - a choicesByUrl request of the owner question has not answered;
+// "dynamicData" - the data source of the owner question is reading a page or has an unpushed edit.
 export type SurveyAsyncOperationType =
-  "serverValidation" | "navigationHandler" | "validators" | "expressions" | "webChoices";
+  "serverValidation" | "navigationHandler" | "validators" | "expressions" | "webChoices" | "dynamicData";
 export interface IRunningAsyncOperation {
   type: SurveyAsyncOperationType;
   // The object that runs the operation: the survey itself for a server validation and a held
@@ -1056,6 +1058,11 @@ export class SurveyModel extends SurveyElementCore
    * @since 2.0.0
    */
   public onDynamicPanelValueChanged: EventBase<SurveyModel, DynamicPanelItemValueChangedEvent> = this.addEvent<SurveyModel, DynamicPanelValueChangedEvent>();
+
+  /* Raised when the data source of a dynamic matrix or panel (its dataSource property) reports an error:
+     a page that could not be read, an edit the server rejected, or a number naming a record the loaded
+     page does not hold. The survey does nothing on its own: the records the question shows are kept. */
+  public onDynamicDataError: EventBase<SurveyModel, DynamicDataErrorEvent> = this.addEvent<SurveyModel, DynamicDataErrorEvent>();
   /**
    * @deprecated Use the [`onDynamicPanelValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onDynamicPanelValueChanged) event instead.
    * @hidden
@@ -1311,6 +1318,9 @@ export class SurveyModel extends SurveyElementCore
     const updateStateProps = ["isLoading", "isCompleted", "isCompletedBefore", "readOnly", "isStartedState", "currentPage", "isShowingPreview"];
     if (updateStateProps.indexOf(name) > -1) {
       this.updateState();
+    }
+    if (name === "state") {
+      this.dropHeldCompletion();
     }
     const curPageStateProps = ["state", "currentPage", "showPreviewBeforeComplete"];
     if (curPageStateProps.indexOf(name) > -1) {
@@ -2122,11 +2132,8 @@ export class SurveyModel extends SurveyElementCore
     key: string,
     postPrefix: string
   ): boolean {
-    if (key.indexOf(postPrefix) !== key.length - postPrefix.length)
-      return false;
-    return !!this.getQuestionByValueName(
-      key.substring(0, key.indexOf(postPrefix))
-    );
+    if (!key.endsWith(postPrefix)) return false;
+    return !!this.getQuestionByValueName(key.substring(0, key.length - postPrefix.length));
   }
   /**
    * Specifies whether to keep values that cannot be assigned to questions, for example, choices unlisted in the `choices` array.
@@ -3358,6 +3365,7 @@ export class SurveyModel extends SurveyElementCore
   }
   // The data setter and setData() both assign through here, so the two can never drift apart.
   private assignData(data: any): void {
+    this.dropHeldCompletion();
     this.valuesHash = createHash();
     this.setDataCore(data, !data);
     this.markAnsweredPagesAsShown();
@@ -3373,6 +3381,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public mergeData(data: any): void {
     if (!data) return;
+    this.dropHeldCompletion();
     const newData = this.data;
     this.mergeValues(data, newData);
     this.setDataCore(newData);
@@ -3728,6 +3737,13 @@ export class SurveyModel extends SurveyElementCore
       const choicesByUrl: any = (<any>question).choicesByUrl;
       if (!!choicesByUrl && choicesByUrl.isRunning === true) res.push({ type: "webChoices", owner: question });
     });
+    // A dynamic matrix or panel over a caller-provided data source: a page it is reading, or an edit
+    // the source has not acknowledged. Duck-typed like choicesByUrl above - the flag is
+    // QuestionRecordsModel.isDynamicDataRunning, and the survey does not import the question classes
+    // at runtime.
+    questions.forEach(question => {
+      if ((<any>question).isDynamicDataRunning === true) res.push({ type: "dynamicData", owner: question });
+    });
     return res;
   }
   getFilteredProperties(): any {
@@ -3998,7 +4014,7 @@ export class SurveyModel extends SurveyElementCore
     const index = this.visiblePages.indexOf(page);
     if (index < 0 || index >= this.visiblePageCount) return false;
     if (index === this.currentPageNo) return false;
-    if (index < this.currentPageNo || this.checkErrorsMode === "onComplete" || this.validationAllowSwitchPages)
+    if (index < this.currentPageNo || this.canLeavePageWithErrors)
       return true;
     if (!this.validateCurrentPage()) return false;
     for (let i = this.currentPageNo + 1; i < index; i++) {
@@ -4243,6 +4259,7 @@ export class SurveyModel extends SurveyElementCore
    * @param goToFirstPage *(Optional)* Specifies whether to switch the survey to the first page. Default value: `true`.
    */
   public clear(clearData: boolean = true, goToFirstPage: boolean = true): void {
+    this.dropHeldCompletion();
     this.isCompleted = false;
     this.isCompletedBefore = false;
     this.isLoading = false;
@@ -4314,6 +4331,7 @@ export class SurveyModel extends SurveyElementCore
     this.onCurrentPageChanging.fire(this, options, () => onComplete(), () => this.setIsNavigationBlocked(true));
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
+    this.dropHeldCompletion();
     this.notifyQuestionsOnHidingContent(oldValue);
     if (oldValue && !oldValue.isDisposed && !oldValue.passed) {
       if (oldValue.validate(false)) {
@@ -4589,8 +4607,10 @@ export class SurveyModel extends SurveyElementCore
       doFunc();
       return true;
     }
+    // A validation that waits for a records question's pending write is dropped with the held completion.
+    const epoch = this.questionsWithPendingWrites.length > 0 ? this.heldCompletionEpoch : undefined;
     const func = (hasErrors: boolean) => {
-      if (!hasErrors) {
+      if (!hasErrors && (epoch === undefined || epoch === this.heldCompletionEpoch)) {
         doFunc();
       }
     };
@@ -5049,6 +5069,7 @@ export class SurveyModel extends SurveyElementCore
     return this.validateOnNavigate(doComplete) === true;
   }
   private doCurrentPageCompleteCore(doComplete: boolean): boolean {
+    if (doComplete && this.holdCompletionForSourceWrites()) return false;
     if (this.doServerValidation(doComplete)) return false;
     if (doComplete) {
       if (this.currentPage)this.currentPage.passed = true;
@@ -5686,8 +5707,9 @@ export class SurveyModel extends SurveyElementCore
         if (page) {
           this.currentPage = page;
         } else {
-          if (self.isLastPage) self.doComplete();
-          else self.doNextPage();
+          if (self.isLastPage) {
+            if (!self.holdCompletionForSourceWrites()) self.doComplete();
+          } else self.doNextPage();
         }
       }
     }
@@ -6101,6 +6123,22 @@ export class SurveyModel extends SurveyElementCore
     }
     return null;
   }
+  /* The record index is the only index two questions over one value share: each of them may create
+     its rows/panels for another set of records (a filtered list) or in another order (a sorted
+     one). A question that does not know about records answers positionally, as before. */
+  getQuestionByValueNameFromRecord(
+    valueName: string,
+    name: string,
+    recordIndex: number
+  ): IQuestion {
+    const questions = this.getQuestionsByValueName(valueName);
+    if (!questions) return;
+    for (let i = 0; i < questions.length; i++) {
+      const res = questions[i].getQuestionFromRecord(name, recordIndex);
+      if (!!res) return res;
+    }
+    return null;
+  }
   matrixRowRemoved(question: QuestionMatrixDynamicModel, rowIndex: number, row: any) {
     this.onMatrixRowRemoved.fire(this, {
       question: question,
@@ -6162,6 +6200,13 @@ export class SurveyModel extends SurveyElementCore
   private get isValidateOnComplete(): boolean {
     return this.checkErrorsMode === "onComplete" || this.validationAllowSwitchPages && !this.validationAllowComplete;
   }
+  /* The survey moves forward to another page although the page it leaves has errors: it does not
+     validate (a read-only survey, validationEnabled false), or its settings allow the move. A question
+     that pages its own records reads it (ISurveyValidation), so that its page moves follow the same
+     rule. */
+  get canLeavePageWithErrors(): boolean {
+    return this.canGoTroughValidation() || this.checkErrorsMode === "onComplete" || this.validationAllowSwitchPages;
+  }
   matrixCellValidate(question: QuestionMatrixDropdownModelBase, options: MatrixCellValidateEvent): SurveyError {
     options.question = question;
     this.onMatrixCellValidate.fire(this, options);
@@ -6205,6 +6250,81 @@ export class SurveyModel extends SurveyElementCore
     options.question = question;
     this.onDynamicPanelCurrentIndexChanged.fire(this, options);
     this.doUIStateChanged("activePanelIndex", question);
+  }
+  // ISurveyDynamicDataCallbacks: the default does nothing - survey-core writes nothing to the
+  // console for an error an application is expected to handle, the way onServerValidateQuestions
+  // failures are the application's business too.
+  dynamicDataError(question: IQuestion, operation: string, error: any): void {
+    this.onDynamicDataError.fire(this, { question: <Question>question, operation: operation, error: error });
+  }
+  /* A completion the respondent or tryComplete started waits while a records question has a write
+     its data source has not answered: a write is part of what is submitted. A pending read does not
+     hold it. Where it was started is kept - the page, or the preview - and it completes from there when
+     the writes have settled. A page change (currentPageChanged), a state change, clear(), assigning
+     or merging data and a rejected write drop it. doComplete() completes regardless and is not held. */
+  private heldCompletion: { page: PageModel, state: string };
+  /* Bumped whenever a held completion is dropped. A validation that started while a write was pending
+     waits for the question's data and answers later: it completes only if nothing dropped it meanwhile. */
+  private heldCompletionEpoch: number = 0;
+  private dropHeldCompletion(): void {
+    this.heldCompletion = undefined;
+    this.heldCompletionEpoch++;
+  }
+  /* The records questions that have a write their source has not answered. The questions report it
+     themselves (dynamicDataWritesChanged), nested ones included, so nothing walks the survey and no
+     question is built for it. */
+  private questionsWithPendingWrites: Array<IQuestion> = [];
+  private holdCompletionForSourceWrites(): boolean {
+    if (this.questionsWithPendingWrites.length === 0) return false;
+    this.heldCompletion = { page: this.currentPage, state: this.state };
+    return true;
+  }
+  /* ISurveyDynamicDataWrites (interfaces/survey-callbacks.ts), not a member of ISurvey and private, so
+     it is not API: the records questions reach it by duck typing. A records question's writes started
+     or settled. When the last one settles, the held completion runs again, and validates again. A write the source rejected (isFailed) never reached it: the completion is
+     dropped, the survey stays where it is and the respondent can complete again. */
+  private dynamicDataWritesChanged(question: IQuestion, hasPendingWrites: boolean, isFailed?: boolean): void {
+    const questions = this.questionsWithPendingWrites;
+    const index = questions.indexOf(question);
+    if (hasPendingWrites) {
+      if (index < 0) questions.push(question);
+      return;
+    }
+    if (index < 0) return;
+    questions.splice(index, 1);
+    if (isFailed) {
+      this.dropHeldCompletion();
+      return;
+    }
+    this.continueHeldCompletion();
+  }
+  /* A records question that left the survey - removed from its page, inside a removed panel or page -
+     stops holding a completion: what it writes is no longer submitted. */
+  private dropRemovedQuestionsWithPendingWrites(): void {
+    const questions = this.questionsWithPendingWrites;
+    if (questions.length === 0) return;
+    this.questionsWithPendingWrites = questions.filter((question: IQuestion): boolean => this.isElementInPages(<any>question));
+    if (this.questionsWithPendingWrites.length !== questions.length)this.continueHeldCompletion();
+  }
+  // The element is inside one of the survey's pages: its parents, or the dynamic question it is nested in, lead to one.
+  private isElementInPages(element: { parent?: any, parentQuestion?: any, isPage?: boolean, isDisposed?: boolean }): boolean {
+    let el = element;
+    while(!!el && !el.isDisposed) {
+      if (el.isPage) return this.pages.indexOf(<any>el) > -1;
+      el = el.parent || el.parentQuestion;
+    }
+    return false;
+  }
+  private continueHeldCompletion(): void {
+    const held = this.heldCompletion;
+    if (!held) return;
+    if (held.state !== this.state || held.state === "running" && held.page !== this.currentPage) {
+      this.heldCompletion = undefined;
+      return;
+    }
+    if (this.questionsWithPendingWrites.length > 0) return;
+    this.heldCompletion = undefined;
+    this.doCurrentPageComplete(true);
   }
   dragAndDropAllow(options: DragDropAllowEvent): boolean {
     this.onDragDropAllow.fire(this, options);
@@ -7621,10 +7741,19 @@ export class SurveyModel extends SurveyElementCore
       questionName
     );
   }
+  // The dynamic panel that fires event for a value change of question: its parent, when the event has handlers.
+  private getDynamicPanelFiring(question: IQuestion, event: EventBase<SurveyModel>): Question {
+    const parentQ = (<Question>question).parentQuestion;
+    return !!parentQ && parentQ.isDescendantOf("paneldynamic") && !event.isEmpty ? parentQ : undefined;
+  }
+  // The one reader of the old value of questionValueChanged: onDynamicPanelValueChanged (options.oldValue).
+  isQuestionOldValueRead(question: IQuestion): boolean {
+    return !!this.getDynamicPanelFiring(question, this.onDynamicPanelValueChanged);
+  }
   private getDynamicPanelOptions(question: IQuestion, event: EventBase<SurveyModel>, isComment?: boolean): any {
     const q = <Question>question;
-    const parentQ = q.parentQuestion;
-    if (!parentQ || !parentQ.isDescendantOf("paneldynamic") || event.isEmpty) return undefined;
+    const parentQ = this.getDynamicPanelFiring(q, event);
+    if (!parentQ) return undefined;
     const options = parentQ.getValueChangingOptions(q);
     if (options && isComment) {
       options.name = q.name + this.commentSuffix;
@@ -7679,7 +7808,8 @@ export class SurveyModel extends SurveyElementCore
   }
   private isValueEqual(name: string, newValue: any): boolean {
     if (newValue === "" || newValue === undefined) newValue = null;
-    var oldValue = this.getValue(name);
+    // Compared only: the stored value is read without the copy getValue makes.
+    var oldValue = !name ? null : this.getDataValueCore(this.valuesHash, name);
     if (oldValue === "" || oldValue === undefined) oldValue = null;
     if (newValue === null || oldValue === null) return newValue === oldValue;
     return this.isTwoValueEquals(newValue, oldValue);
@@ -7923,6 +8053,7 @@ export class SurveyModel extends SurveyElementCore
     return !this.isMovingQuestion;
   }
   questionRemoved(question: Question): void {
+    this.dropRemovedQuestionsWithPendingWrites();
     this.questionHashesRemoved(
       <Question>question,
       question.name,
@@ -8056,6 +8187,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   panelRemoved(panel: PanelModel): void {
+    this.dropRemovedQuestionsWithPendingWrites();
     this.updateVisibleIndexes(panel.page);
     this.onPanelRemoved.fire(this, { panel: panel, name: panel.name });
     this.updateLazyRenderingRowsOnRemovingElements();

@@ -2615,6 +2615,31 @@ describe("Input Per Page Tests", () => {
     expect(radio.isCollapsed, "radio.isCollapsed is false").toBe(false);
     expect(radio.showTitleExpandableSvg, "radio.showTitleExpandableSvg").toBe(false);
   });
+  test("a row whose detail panel is being created is validated once, by the call creating it", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [{
+        type: "paneldynamic", name: "orders", panelCount: 1,
+        templateElements: [
+          { type: "text", name: "ref" },
+          { type: "matrixdynamic", name: "items", rowCount: 1, cellType: "text", isRequired: true,
+            columns: [{ name: "sku", isRequired: true }],
+            detailPanelMode: "underRow", detailElements: [{ type: "text", name: "note", isRequired: true }] }
+        ]
+      }]
+    });
+    // The panel holds a value, so the navigation validates it, the matrix in it and the matrix rows. The
+    // first row validated creates its detail panel, which re-runs the navigation while the panel is
+    // being created and validates the same row again - that nested call used to read a null panel.
+    survey.data = { orders: [{ ref: "PO-1", items: [{ sku: "A-1" }] }] };
+    const orders = <QuestionPanelDynamicModel>survey.getQuestionByName("orders");
+    const matrix = <QuestionMatrixDynamicModel>orders.panels[0].getQuestionByName("items");
+    const row = matrix.visibleRows[0];
+    expect(row.detailPanel, "the validation created the panel").toBeTruthy();
+    expect(matrix.validate(false), "the empty required note makes the matrix invalid").toBe(false);
+    matrix.addRow(false);
+    expect(matrix.visibleRows.length, "a row added while the respondent stands in the order").toBe(2);
+  });
   function getNestedChoicesJson(type: string = "radiogroup", addQ2: boolean = true): any {
     const elements: Array<any> = [
       { type: type, name: "q1", choices: ["item1", { value: "item2", elements: [{ type: "text", name: "nested1" }, { type: "text", name: "nested2" }] }] }
@@ -3110,5 +3135,28 @@ describe("Input Per Page Tests", () => {
     returnResults.forEach(res => res(false));
     expect(sku.errors.length, "sku has no error nobody asked for").toBe(0);
     unregisterFunction("asyncSkuFunc");
+  });
+  test("singleInput and single matrix: rows and columns shown by rowsVisibleIf / columnsVisibleIf, Issue#11818", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "q1", choices: ["a", "b", "c"] },
+        { type: "checkbox", name: "q2", choices: ["x", "y", "z"], defaultValue: ["x", "y"] },
+        { type: "matrix", name: "matrix1", rows: ["a", "b", "c"], columns: ["x", "y", "z"],
+          rowsVisibleIf: "{q1} contains {item}", columnsVisibleIf: "{q2} contains {item}" }
+      ],
+      questionsOnPageMode: "inputPerPage"
+    });
+    const matrix1 = survey.getQuestionByName("matrix1");
+    survey.currentSingleQuestion = matrix1;
+    expect(matrix1.singleInputQuestion, "no row is visible, #1").toBeFalsy();
+    survey.getQuestionByName("q1").value = ["a", "b"];
+    expect(matrix1.singleInputQuestion?.name, "the first revealed row, #2").toBe("a");
+    expect(matrix1.singleInputQuestion.choices.map(c => c.value), "visible columns, #2").toEqual(["x", "y"]);
+    survey.getQuestionByName("q2").value = ["y", "z"];
+    expect(matrix1.singleInputQuestion.choices.map(c => c.value), "visible columns, #3").toEqual(["y", "z"]);
+    matrix1.singleInputQuestion.value = "z";
+    survey.performNext();
+    expect(matrix1.singleInputQuestion.name, "the second revealed row, #4").toBe("b");
+    expect(matrix1.value, "matrix1.value").toEqual({ a: "z" });
   });
 });

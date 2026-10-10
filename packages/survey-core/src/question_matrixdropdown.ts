@@ -506,7 +506,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   private getPagedDisplayValue(keysAsText: boolean, value: any): any {
     const res: any = {};
     const items = this.getRecordItems();
-    this.forEachRecordRow(this.dataList.getVisibleIndexes(), (index: number, row: MatrixDropdownRowModelBase): void => {
+    this.forEachViewRecord(true, (index: number, item: QuestionRecordItem): void => {
+      const row = <MatrixDropdownRowModelBase>item;
       let rowName = items[index].value;
       const val = value[rowName];
       if (!val) return;
@@ -592,7 +593,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
     return null;
   }
-  // The results of a record walk are keyed by the row value; the first record of a key decides.
+  // The results of a record walk are keyed by the row value; the last record of a key decides.
   protected createRecordValues(): any {
     return {};
   }

@@ -691,6 +691,19 @@ export abstract class QuestionRecordsModel extends Question {
     const position = this.hasDataListView ? this.dataListValue.indexToMaterializedIndex(recordIndex) : recordIndex;
     return position < 0 ? undefined : this.getItem(position);
   }
+  /* The records the objects are built for: the ones the view materialized, without a view one per
+     record in record order (getRecordCountWithoutView). */
+  protected getObjectRecordIndexes(): Array<number> {
+    return this.hasDataListView ? this.dataList.getMaterializedIndexes() : createIndexes(this.getRecordCountWithoutView());
+  }
+  protected getObjectRecordCount(): number {
+    return this.hasDataListView ? this.dataList.getMaterializedIndexes().length : this.getRecordCountWithoutView();
+  }
+  /* The number of objects without a view: the record count of a type with a count of its own (it runs
+     only without a view, so never with a source); the stored records of the fixed matrix. */
+  protected getRecordCountWithoutView(): number {
+    return !!this.getRecordCountNames() ? this.recordCount : this.getListRecordCount();
+  }
   /* The objects hold other records than the page names: a record became hidden or visible ahead of
      them, the page moved under them, or the records were replaced. The objects are read one by one:
      nothing is allocated for the answer. isAppendAllowed: objects that hold the first records of the
@@ -732,6 +745,17 @@ export abstract class QuestionRecordsModel extends Question {
       const position = positions[index] !== undefined ? positions[index] : -1;
       func(index, position > -1 ? this.getItem(position) || undefined : undefined, position);
     }
+  }
+  /* The records of the view in view order, each with its object (undefined for a record without one)
+     and its position in the view: visibleOnly walks the visible records, otherwise every record the view
+     creates. For a visible record the position plus getRecordNumberOffset() is its visible index in the
+     whole list. */
+  protected forEachViewRecord(visibleOnly: boolean, func: (index: number, item: QuestionRecordItem, viewPosition: number) => void): void {
+    let viewPosition = 0;
+    this.forEachRecordItem(this.getViewIndexes(visibleOnly), (index: number, item: QuestionRecordItem): void => { func(index, item, viewPosition++); });
+  }
+  protected getViewIndexes(visibleOnly: boolean): Array<number> {
+    return visibleOnly ? this.dataList.getVisibleIndexes() : this.dataList.getCreatedIndexes();
   }
   /* The records 0 ... count-1, each with the object that holds it, undefined for a record without one.
      Without a view the objects are built in record order - the panel builds a panel before its record
@@ -1786,6 +1810,15 @@ export abstract class QuestionRecordsModel extends Question {
   /* The temporary object of clearIncorrectValuesWithoutObjects for the record at index, built and
      loaded as a page build builds one; undefined keeps the record as it is. */
   protected abstract createRecordCleanupObject(index: number, record: any): IRecordCleanupObject;
+  /* The quiet validation of such an object (IRecordCleanupObject.validate): nothing is shown and no
+     callback fires. validate runs the object's validation into the context; false when a question of
+     the object has an error. */
+  protected validateRecordObjectQuietly(validate: (context: ValidationContext) => boolean): boolean {
+    const context = new ValidationContext({ fireCallback: false });
+    const res = validate(context);
+    context.finish();
+    return res !== false && context.runningResult !== false;
+  }
   // A template question the clean-up does not judge (see clearIncorrectValuesWithoutObjects).
   protected isRecordCleanupSkipped(question: Question): boolean {
     return isRecordCleanupSkipped(question);
@@ -3181,6 +3214,14 @@ export abstract class QuestionRecordsModel extends Question {
     this.isValueChangedBeforeBuild = false;
     return res;
   }
+  /* The triggers a value assigned before the first build would have run in the objects, run once they
+     exist: items are the objects (the panel's visible ones, all the rows of a matrix), getItemValue the
+     record one of them shows, read from the value as it was before the triggers ran. */
+  protected runTriggersOnFirstBuild(getItems: () => Array<QuestionRecordItem>, getItemValue: (item: QuestionRecordItem, value: any) => any, variablePrefix: string): void {
+    if (!this.data || !this.takeValueChangedBeforeBuild()) return;
+    const value = this.value;
+    this.runTriggersOnItems(getItems(), (item: QuestionRecordItem): any => getItemValue(item, value), variablePrefix);
+  }
   /* A remove on a page the source reads again (the refill of a source that pages itself) is answered
      by a rebuild of every item on the page, which disposes the one the question has just focused.
      The position is kept here while that read is pending and taken back when the read commits
@@ -3449,8 +3490,19 @@ export abstract class QuestionRecordsModel extends Question {
   public abstract getItemData(item: ISurveyData): any;
   /* The index of the item record in the question storage. It is the only index two questions bound
      to one value share: they may create objects for a different set of records (a filtered list) or
-     in a different order (a sorted one). */
-  protected abstract getItemRecordIndex(item: ISurveyData): number;
+     in a different order (a sorted one). A temporary object of the records clean-up answers its own
+     index; an object at a created position the record there; an object at none
+     getRecordIndexOfUnknownItem. */
+  protected getItemRecordIndex(item: ISurveyData): number {
+    const position = this.getItemPosition(<QuestionRecordItem>item);
+    const cleanupIndex = this.getRecordCleanupIndex(item, position < 0);
+    if (cleanupIndex > -1) return cleanupIndex;
+    return position < 0 ? this.getRecordIndexOfUnknownItem() : this.getRecordIndexAtCreatedPosition(position);
+  }
+  // The record of an object that holds no created position: none by default.
+  protected getRecordIndexOfUnknownItem(): number {
+    return -1;
+  }
   // The value an item's {matrix} / {panel} variable reads.
   public abstract getFilteredData(): any;
   /* A write of an item's record: val is the field value for a panel and the whole proposed row for a
@@ -3477,9 +3529,16 @@ export abstract class QuestionRecordsModel extends Question {
      row's visibleIndex), and the item at such a position - an object when the record has one, a
      record read as a value when it has not (the question pages). */
   protected abstract getItemVisibleIndex(item: ISurveyData): number;
-  // The item {matrix[index].x} / {panel[index].x} reads. index is a record index; a record without a
-  // row or a panel - filtered out, off the page or not built - is read as a value.
-  protected abstract getExpressionItem(index: number): QuestionRecordItem;
+  /* The item {matrix[index].x} / {panel[index].x} reads. The objects are built first, so that a record
+     that has an object is answered by it. Without a view index is a position among the objects; with
+     one it is a record index, and a record without a row or a panel - filtered out, off the page or not
+     built - is read as a value (getViewExpressionItem). */
+  protected getExpressionItem(index: number): QuestionRecordItem {
+    const item = this.getBuiltItemForExpression(index);
+    return this.hasDataListView ? this.getViewExpressionItem(index) : item;
+  }
+  // The objects built (reading them builds them), and the one at a position: null past them.
+  protected abstract getBuiltItemForExpression(position: number): QuestionRecordItem;
   // A record without an object, read as a value: the variable name ({row}, {panel}) and the context
   // the record is read through are the question's.
   protected abstract getRecordItemVariableName(): string;

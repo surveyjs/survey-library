@@ -1552,3 +1552,31 @@ describe("a read that needs no list creates none", () => {
     expect(question.value, "#2: the unknown key is gone").toEqual([{ q1: "a" }, { q1: "b" }]);
   });
 });
+
+/* The plain data of a paged matrix names every visible record; a record without a row takes its visible
+   index from its position in the walk, not from a search of the visible records. */
+describe("the plain data of a paged matrix reads the view once", () => {
+  const createMatrix = (count: number): QuestionMatrixDynamicModel => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowsPerPage: 10,
+      columns: [{ name: "a", cellType: "text" }] }] });
+    survey.data = { m: records(count, (i: number): any => ({ a: "v" + i })) };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    return matrix;
+  };
+  test("the visible indexes are read as often for 500 records as for 50", () => {
+    const reads = (count: number): number => {
+      const matrix = createMatrix(count);
+      const spy = vi.spyOn(DynamicDataList.prototype, "getVisibleIndexes");
+      try {
+        const data = matrix.getPlainData();
+        expect(data.data.length, "every visible record, " + count).toBe(count);
+        expect(data.data[count - 1].title, "the last record's text, " + count).toBe("row " + count);
+        return spy.mock.calls.length;
+      } finally {
+        spy.mockRestore();
+      }
+    };
+    expect(reads(500), "#1").toBe(reads(50));
+  });
+});

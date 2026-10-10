@@ -343,10 +343,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   // The item {panel[index].x} reads. index is a record index; a record the page does not show is
   // read as a value.
-  protected getExpressionItem(index: number): QuestionRecordItem {
+  // QuestionRecordsModel hook of getExpressionItem: reading the panels builds them.
+  protected getBuiltItemForExpression(position: number): QuestionRecordItem {
     const panels = this.panels;
-    if (!this.hasDataListView) return index < panels.length ? <QuestionRecordItem>panels[index].data : null;
-    return this.getViewExpressionItem(index);
+    return position < panels.length ? <QuestionRecordItem>panels[position].data : null;
   }
   // The batched creation overrides (getValueCore/setValueCore) are honoured: the records are read
   // and written through question.value.
@@ -468,7 +468,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   // While the panels are rebuilt for the view, the ones added and removed select nothing: restoreCurrentPanel chooses.
   private isRebuildingView: boolean = false;
   private rebuildPanelsForView(isPageMove: boolean): void {
-    const list = this.dataList;
     this.decideRecordsVisibilityBeforeCut();
     if (!this.isWritingRecords) {
       this.disposeLeftPanels(this._renderedPanels);
@@ -479,7 +478,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     // Its pageChanged notification rebuilds the page that holds the record.
     if (currentRecord > -1 && !this.hasPendingVisibleIndex() && !this.isRenderModeList &&
       this.showPageOfRecord(currentRecord, (visibleIndex: number): void => { this.keepPendingVisibleIndex(visibleIndex); })) return;
-    const count = list.getMaterializedIndexes().length;
+    // The records the list materialized, also when it has just stopped paging (hasDataListView is false then).
+    const count = this.dataList.getMaterializedIndexes().length;
     const oldPanels: Array<PanelModel> = [].concat(this.panelsCore);
     this.keepNestedPageStates(oldPanels.map((panel: PanelModel): QuestionRecordItem => <QuestionRecordItem>panel.data));
     this.prepareValueForPanelCreating();
@@ -2071,6 +2071,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     });
     return res;
   }
+  /* A record is empty only without keys: an answer of "", null or [] counts as given, as released. A
+     matrix row counts such answers as empty (isRecordEmpty). */
   private isRowEmpty(val: any) {
     for (var prop in val) {
       if (val.hasOwnProperty(prop)) return false;
@@ -2171,7 +2173,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
        records the view holds - with a data source that pages, the loaded window - so the positions end
        with them and not with the record count that panelCount reports. Without a view panelCount panels
        exist, whether or not their records are stored. */
-    const maxIndex = this.hasDataListView ? this.dataList.getMaterializedIndexes().length : this.panelCount;
+    const maxIndex = this.getObjectRecordCount();
     let position = index === undefined ? (curPos < 0 ? maxIndex : curPos + 1) : index;
     if (position < 0 || position > maxIndex) {
       position = maxIndex;
@@ -2624,7 +2626,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         panel.onFirstRendering();
       },
       clearIncorrectValues: (): void => { panel.clearIncorrectValues(); },
-      validate: (): boolean => panel.validate(false) !== false,
+      validate: (): boolean => this.validateRecordObjectQuietly((context: ValidationContext): boolean => panel.validateElement(context)),
       clearValueIfInvisible: (reason: string): void => { this.clearValueInPanelIfInvisible(panel, reason); },
       dispose: (): void => { panel.dispose(); }
     };
@@ -2644,6 +2646,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected getItemQuestionByName(item: QuestionRecordItem, name: string): IQuestion {
     return (<QuestionPanelDynamicItem>item).panel.getQuestionByName(name);
   }
+  /* The unknown keys of a record go in one write. A matrix row removes them one write per key
+     (deleteUnknownValueKey). Both as released, so the number of value-change events differs. */
   private clearIncorrectValuesInPanel(position: number) {
     var panel = this.panelsCore[position];
     panel.clearIncorrectValues();
@@ -2803,9 +2807,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.setPanelsSurveyImpl(panelsBefore);
     this.setPanelsState();
     this.assignOnPropertyChangedToTemplate();
-    if (this.data && this.takeValueChangedBeforeBuild()) {
-      this.runTriggersOnBuildPanelsFirstTime();
-    }
+    this.runTriggersOnFirstBuild((): Array<QuestionRecordItem> => this.visiblePanelsCore.map(p => <QuestionRecordItem>p.data),
+      (item: QuestionRecordItem): any => this.getItemData(item), settings.expressionVariables.panel);
     // The panels that were built: under paging the page's, as a remote first build has always done.
     if (!!this.survey) {
       for (var i = 0; i < this.panelsCore.length; i++) {
@@ -2819,13 +2822,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.updateFooterActions();
     this.isBuildingPanelsFirstTime = false;
     this.releaseAnimations();
-  }
-  private runTriggersOnBuildPanelsFirstTime(): void {
-    this.runTriggersOnItems(
-      this.visiblePanelsCore.map(p => <QuestionRecordItem>p.data),
-      item => this.getItemData(item),
-      settings.expressionVariables.panel
-    );
   }
   private get showAddPanelButton(): boolean { return this.isRecordAddAllowed(this.allowAddPanel); }
   private get wasNotRenderedInSurvey(): boolean {
@@ -3094,7 +3090,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     let visibility: IRecordElementVisibility;
     const isVisibleInRecord = (el: Question | PanelModelBase): boolean => visibility.isVisible(el);
     let newValue: Array<any>;
-    this.forEachRecordItem(list.getCreatedIndexes(), (index: number, item: QuestionRecordItem): void => {
+    this.forEachViewRecord(false, (index: number, item: QuestionRecordItem): void => {
       const record = this.getListRecordAt(index);
       if (!!item || !record) return;
       if (!visibility) visibility = this.createRecordElementVisibility(properties);
@@ -3424,15 +3420,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     var res = this.items.indexOf(item);
     return res > -1 ? res : this.items.length;
   }
-  protected getItemRecordIndex(item: ISurveyData): number {
-    const items = this.items;
-    const position = items.indexOf(item);
-    const cleanupIndex = this.getRecordCleanupIndex(item, position < 0);
-    if (cleanupIndex > -1) return cleanupIndex;
-    // A panel that is being created is about to take the position at the end: the record it names is
-    // the one updateItemValue writes and getPanelItemDataByIndex reads for it, not the record count.
-    return this.getRecordIndexAtCreatedPosition(position < 0 ? items.length : position);
+  /* QuestionRecordsModel hook of getItemRecordIndex. A panel that is being created is about to take the
+     position at the end: the record it names is the one updateItemValue writes and
+     getPanelItemDataByIndex reads for it, not the record count. */
+  protected getRecordIndexOfUnknownItem(): number {
+    return this.getRecordIndexAtCreatedPosition(this.panelsCore.length);
   }
+  // A panel without a record reads {}; a matrix row reads null. Both as released.
   getItemData(item: ISurveyData): any {
     const copy = this.getRecordCleanupCopy(item, this.items.indexOf(item) < 0);
     if (copy !== undefined) return copy;

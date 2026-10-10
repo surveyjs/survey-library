@@ -12649,3 +12649,20 @@ describe("row actions the application supplies", () => {
     expect(actions.map(action => action.isDisposed), "#3: the actions the matrix built or made from plain objects").toEqual([true, true, true]);
   });
 });
+
+describe("Survey_QuestionMatrixDynamic: a row's record in a value", () => {
+  test("the record at the row's index is read as stored: a falsy one stays, a missing one is null, create gives {}", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 5, columns: [{ name: "a" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const rows = matrix.visibleRows;
+    const record = { a: 1 };
+    const value = [0, "", null, record];
+    const read = (index: number, create: boolean): any => (<any>matrix).getRowValueCore(rows[index], value, create);
+    expect([read(0, false), read(1, false), read(2, false)], "#1: without create").toEqual([0, "", null]);
+    expect(read(3, false) === record, "#2: the stored record").toBe(true);
+    expect(read(4, false), "#3: past the value").toBe(null);
+    expect([read(0, true), read(1, true), read(2, true), read(4, true)], "#4: with create").toEqual([{}, {}, {}, {}]);
+    expect(read(3, true) === record, "#5").toBe(true);
+    expect(value, "#6: create does not write the value").toEqual([0, "", null, record]);
+  });
+});

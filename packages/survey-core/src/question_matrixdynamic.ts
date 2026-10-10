@@ -653,6 +653,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       }
     }
   }
+  /* Before the rows exist a padded row counts as unanswered: the stored value has no record for it, as
+     released. Once built, the row counts the default row value it shows. */
   protected updateProgressInfoByValues(res: IProgressInfo): void {
     let val = this.value;
     if (!Array.isArray(val)) val = [];
@@ -813,8 +815,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
     if (!this.survey) return true;
-    // lockedRowCount counts records: the first N records are locked wherever they are shown. The
-    // event gets the row's position in the whole view, as it always has (getRecordViewIndex).
+    /* lockedRowCount counts records: the first N records are locked wherever they are shown. The drag
+       lock counts visible rows (setDefaultRowActions), so with a hidden row the two can lock different
+       rows; both as released. The event gets the row's position in the whole view, as it always has
+       (getRecordViewIndex). */
     const recordIndex = (<MatrixDynamicRowModel>row).rowIndex - 1;
     if (this.lockedRowCount > 0 && recordIndex < this.lockedRowCount) return false;
     return this.matrixCallbacks.matrixAllowRemoveRow(this, this.getItemViewIndex(row), row);
@@ -1277,7 +1281,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.minRowCount <= 0 || !this.isRequired || this.isRemoteData) return true;
     let setRowCount = 0;
     if (this.isPagedByList) {
-      this.forEachRecordItem(this.dataList.getCreatedIndexes(), (index: number, item: QuestionRecordItem): void => {
+      this.forEachViewRecord(false, (index: number, item: QuestionRecordItem): void => {
         const isEmpty = !!item ? (<MatrixDropdownRowModelBase>item).isEmpty : !this.hasRecordAnswer(this.getListRecordAt(index));
         if (!isEmpty) setRowCount++;
       });
@@ -1334,10 +1338,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const val = this.value;
     if (Array.isArray(val) && index < val.length) return this.getUnbindValue(val[index]);
     return isRemote ? null : this.getDefaultRowValue(false) || {};
-  }
-  // rowCount rows, whatever the value holds beyond them until it is normalized.
-  protected getRecordCountForRows(): number {
-    return this.rowCount;
   }
   protected createMatrixRow(value: any): MatrixDynamicRowModel {
     return new MatrixDynamicRowModel(this.rowCounter++, this, value);
@@ -1514,12 +1514,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return isEmpty ? null : newValue;
   }
 
+  // The lookup is the records' (getRecordInValue); a record the value does not hold reads as null here.
   private getRowValueByIndex(questionValue: any, index: number): any {
-    return Array.isArray(questionValue) &&
-      index >= 0 &&
-      index < questionValue.length
-      ? questionValue[index]
-      : null;
+    const res = this.getRecordInValue(questionValue, index);
+    return res !== undefined ? res : null;
   }
   /* Still reached with an explicit value: updateValueOnRowsGeneration, onRowChanging,
      runTriggersOnNewRows, verifyValueCore and getRowObj all compose a value of their own and ask for

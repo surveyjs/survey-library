@@ -3604,3 +3604,19 @@ describe("the shared record rules of the matrices, on the released path", () => 
     expect(matrix.getFilteredValue(), "#2").toEqual({ r1: { a: 1 } });
   });
 });
+describe("Fixed matrix: a row's record in a value", () => {
+  test("the record under the row name is read by truthiness: a falsy one is null, and create puts {} under the name", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", rows: ["r0", "r1", "r2", "r3", "r4"], columns: [{ name: "a" }] }] });
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
+    const rows = matrix.visibleRows;
+    const record = { a: 1 };
+    const value: any = { r0: 0, r1: "", r2: null, r3: record };
+    const read = (index: number, create: boolean): any => (<any>matrix).getRowValueCore(rows[index], value, create);
+    expect([read(0, false), read(1, false), read(2, false), read(4, false)], "#1: without create").toEqual([null, null, null, null]);
+    expect(read(3, false) === record, "#2: the stored record").toBe(true);
+    expect(value, "#3: nothing written").toEqual({ r0: 0, r1: "", r2: null, r3: record });
+    expect([read(0, true), read(1, true), read(2, true), read(4, true)], "#4: with create").toEqual([{}, {}, {}, {}]);
+    expect(read(3, true) === record, "#5").toBe(true);
+    expect(value, "#6: create writes {} under the name").toEqual({ r0: {}, r1: {}, r2: {}, r3: record, r4: {} });
+  });
+});

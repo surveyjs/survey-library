@@ -777,7 +777,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   ) {
     const matrix = <QuestionMatrixDynamicModel>this.matrix;
     /* The drag handle is locked by the row's position among the visible rows, as released - under
-       paging among the visible rows of the whole view, not on the page (the row's visibleIndex). */
+       paging among the visible rows of the whole view, not on the page (the row's visibleIndex). The
+       remove lock counts records instead (canRemoveRow), also as released. */
     const visibleIndex = row.visibleIndex > -1 ? row.visibleIndex : this.matrix.visibleRows.indexOf(row);
     const lockedRows = (<QuestionMatrixDynamicModel>this.matrix).lockedRowCount;
     if (this.isRowsDragAndDrop && (lockedRows < 1 || visibleIndex >= lockedRows)) {

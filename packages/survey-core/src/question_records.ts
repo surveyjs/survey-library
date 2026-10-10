@@ -1613,47 +1613,74 @@ export abstract class QuestionRecordsModel extends Question {
      The flags are kept per record (getRecordStateKey): by record index for the array types, shifted by
      the question's own insert, remove and move and kept across an assignment from outside as a built
      object keeps them (followHiddenAnswerStatesOnAssignment).
-     Cost: one condition run per conditional input and record without an object, per condition run of
-     the question, while an input clears on hiding - except a condition that reads no record variable,
-     which runs once per run (createRecordElementVisibility). */
+     Cost: the walk's (collectRecordChangesWithoutObjects), per condition run of the question, while an
+     input clears on hiding. */
   private hiddenAnswerStates: Map<any, HashTable<number>>;
   protected clearHiddenAnswersWithoutObjects(properties: HashTable<any>): void {
-    if (!this.isPagedByList || this.areInvisibleElementsShowing || this.isRemoteData || !this.survey) return;
+    if (!this.canCleanRecordsWithoutObjects()) return;
     const inputs = this.getRecordConditionalInputs().filter((q: Question): boolean => this.canRecordQuestionBeCleared(q, "onHidden"));
     if (inputs.length === 0) return;
     if (!this.hiddenAnswerStates)this.hiddenAnswerStates = new Map<any, HashTable<number>>();
     const states = this.hiddenAnswerStates;
-    const container = this.getRecordInputContainer();
-    const list = this.dataList;
-    let visibility: IRecordElementVisibility;
-    const changes: Array<{ index: number, record: any }> = [];
-    this.forEachRecordItem(list.getCreatedIndexes(), (index: number, item: QuestionRecordItem): void => {
-      const record = this.getListRecordAt(index);
+    this.writeRecordChanges(this.collectRecordChangesWithoutObjects(properties, (index: number, record: any, visibility: IRecordElementVisibility): any => {
       const key = this.getRecordStateKey(index, record);
-      if (!!item) {
-        states.set(key, this.getItemHiddenAnswerState(item, inputs, container));
-        return;
-      }
-      if (!Helpers.isValueObject(record, true)) return;
-      if (!visibility) visibility = this.createRecordElementVisibility(properties);
-      visibility.reset(index, record);
       const prevState = states.get(key);
       const state: HashTable<number> = {};
       let cleared: any = undefined;
       inputs.forEach((q: Question): void => {
         const name = q.getValueName();
-        const flags = getHiddenAnswerFlags(visibility.isVisible(q), (el: PanelModelBase): boolean => visibility.isVisible(el), q, container);
+        const flags = this.getRecordInputFlags(visibility, q);
         state[name] = flags;
         if (!prevState || !this.isHiddenAnswerCleared(q, prevState[name], flags)) return;
         cleared = this.removeRecordAnswer(record, cleared, name);
       });
       states.set(key, state);
+      return cleared;
+    }, (index: number, record: any, item: QuestionRecordItem): void => {
+      states.set(this.getRecordStateKey(index, record), this.getItemHiddenAnswerState(item, inputs));
+    }));
+  }
+  /* The records that have no object under paging in memory - the records of the pages never opened or
+     visited and left, and the records the visibility condition hides - walked by the clean-ups that work
+     over the stored records: the onHidden pass above and the Dynamic Panel's completion pass. Only a
+     question the list pages in memory has such records, a source-owned question is skipped as every
+     survey clean-up skips it, and nothing runs while the invisible elements are shown
+     (canCleanRecordsWithoutObjects). A record that is not an object (a string, an array) is left as it
+     is. clean gets each record without an object together with the visibility of the template elements
+     in it (createRecordElementVisibility, made once per walk and reset to the record), and returns the
+     record without the cleared answers (removeRecordAnswer), or undefined. onItem gets each record that
+     has an object, with the object. Returns the changed records, for writeRecordChanges.
+     Cost: one condition run per condition per record without an object, one runner per expression text
+     - except a condition that reads no record variable, which runs once per walk. */
+  protected canCleanRecordsWithoutObjects(): boolean {
+    return this.isPagedByList && !this.areInvisibleElementsShowing && !this.isRemoteData && !!this.survey;
+  }
+  protected collectRecordChangesWithoutObjects(properties: HashTable<any>, clean: (index: number, record: any, visibility: IRecordElementVisibility) => any,
+    onItem?: (index: number, record: any, item: QuestionRecordItem) => void): Array<{ index: number, record: any }> {
+    const changes: Array<{ index: number, record: any }> = [];
+    if (!this.canCleanRecordsWithoutObjects()) return changes;
+    let visibility: IRecordElementVisibility;
+    this.forEachRecordItem(this.dataList.getCreatedIndexes(), (index: number, item: QuestionRecordItem): void => {
+      const record = this.getListRecordAt(index);
+      if (!!item) {
+        if (!!onItem) onItem(index, record, item);
+        return;
+      }
+      if (!Helpers.isValueObject(record, true)) return;
+      if (!visibility) visibility = this.createRecordElementVisibility(properties);
+      visibility.reset(index, record);
+      const cleared = clean(index, record, visibility);
       if (!!cleared) changes.push({ index: index, record: cleared });
     });
-    this.writeRecordChanges(changes);
+    return changes;
+  }
+  /* The visibility flags of an input in a record without an object: its own (HIDDEN_ANSWER_SELF) and that
+     of the panels around it up to getRecordInputContainer() (HIDDEN_ANSWER_CONTAINER). */
+  protected getRecordInputFlags(visibility: IRecordElementVisibility, q: Question): number {
+    return getHiddenAnswerFlags(visibility.isVisible(q), (el: PanelModelBase): boolean => visibility.isVisible(el), q, this.getRecordInputContainer());
   }
   // The flags a built object's questions give the inputs (see clearHiddenAnswersWithoutObjects).
-  private getItemHiddenAnswerState(item: QuestionRecordItem, inputs: Array<Question>, container: PanelModelBase): HashTable<number> {
+  private getItemHiddenAnswerState(item: QuestionRecordItem, inputs: Array<Question>): HashTable<number> {
     const state: HashTable<number> = {};
     inputs.forEach((input: Question): void => {
       const name = input.getValueName();
@@ -1705,7 +1732,7 @@ export abstract class QuestionRecordsModel extends Question {
     return cleared;
   }
   // The records a clean-up pass changed, written in one batch of the list as the question's own change.
-  private writeRecordChanges(changes: Array<{ index: number, record: any }>): void {
+  protected writeRecordChanges(changes: Array<{ index: number, record: any }>): void {
     if (changes.length === 0) return;
     const list = this.dataList;
     this.writeRecords((): void => list.batch((): void => {
@@ -1729,8 +1756,10 @@ export abstract class QuestionRecordsModel extends Question {
   protected get areRecordsDecidingVisibility(): boolean {
     return this.isPagingActive;
   }
-  // The page is a slice of the visible records: their visibility is decided before it is cut.
-  protected decideRecordsVisibilityBeforeCut(): void {
+  /* The records decide their visibility over the stored values (updatePagedRecordsVisibility): before
+     the page is cut - it is a slice of the visible records - and before a clean-up over the records,
+     where a record the condition hides has no object and its flag says so. */
+  protected decideRecordsVisibility(): void {
     if (!!this.data) {
       this.updatePagedRecordsVisibility(this.getDataFilteredProperties());
     }
@@ -4236,9 +4265,9 @@ class RecordValueItem extends QuestionRecordItem {
     return [];
   }
 }
-// The visibility flags of an input in a record (clearHiddenAnswersWithoutObjects).
-const HIDDEN_ANSWER_SELF = 1;
-const HIDDEN_ANSWER_CONTAINER = 2;
+// The visibility flags of an input in a record (QuestionRecordsModel.getRecordInputFlags).
+export const HIDDEN_ANSWER_SELF = 1;
+export const HIDDEN_ANSWER_CONTAINER = 2;
 function getHiddenAnswerFlags(isSelfVisible: boolean, isVisible: (el: PanelModelBase) => boolean, q: Question, container: PanelModelBase): number {
   let isContainerVisible = true;
   for (let el = <PanelModelBase><any>q.parent; isContainerVisible && !!el && el !== container && !el.isPage; el = <PanelModelBase><any>el.parent) {

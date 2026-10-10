@@ -2747,7 +2747,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (this.isEditingObjectValue) return;
     const hasRows = !!this.generatedVisibleRows;
     if (hasRows) {
-      this.decideRecordsVisibilityBeforeCut();
+      this.decideRecordsVisibility();
     }
     if (hasRows) {
       this.clearGeneratedRows();
@@ -3478,9 +3478,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     /* Under paging the records rowsVisibleIf hides have no row, on whatever page they are: their
        visibility is decided over the stored values, for every record (one expression run each), when
        the survey clears invisible values - never on an ordinary edit. */
-    if (this.isPagedByList && !!this.data) {
-      this.updatePagedRecordsVisibility(this.getDataFilteredProperties());
-    }
+    this.decideRecordsVisibility();
     if (!this.isRowsFiltered()) return;
     const sharedQuestions = this.survey?.questionsByValueName(this.getValueName()) || [];
     if (sharedQuestions.length < 2) {

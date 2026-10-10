@@ -3574,6 +3574,34 @@ describe("Paged dynamic panel: clearing invisible values gives the unpaged answe
     expect(res.pd[4], "#1: excluded, kept").toEqual({ show: "out", secret: "s4" });
     expect(res.pd[5], "#2: shown and hidden, cleared").toEqual({ show: "no" });
   });
+  test("a dynamic panel on the start page keeps the hidden answers of its records without a panel", () => {
+    const start = (survey: SurveyModel): void => { survey.start(); };
+    const res = expectSameAsUnpaged({ templateElements: secretIfYes }, sixRecords(showOnThree), { firstPageIsStartPage: true, pages: [
+      { elements: [{ type: "paneldynamic", name: "pd", templateElements: secretIfYes }] }, { elements: [{ type: "text", name: "second" }] }] },
+    undefined, start);
+    expect(res.pd, "nothing is cleared on the start page").toEqual(sixRecords(showOnThree));
+  });
+  test("a visible question with the same value name does not keep a hidden template question's answer, paged as unpaged", () => {
+    /* A built question keeps its answer when a visible question of the same parent shares its value name
+       (survey.hasVisibleQuestionByValueName). A template question has the dynamic panel as its parent
+       question, and the survey holds no second question with it: a visible template question with the value
+       name does not count, and a question outside the dynamic panel does not either. */
+    const template = [{ type: "text", name: "show" }, { type: "text", name: "secret", valueName: "shared", visibleIf: "{panel.show} = 'yes'" },
+      { type: "text", name: "other", valueName: "shared" }];
+    const data = sixRecords((i: number): any => ({ show: i === 3 ? "yes" : "no", shared: "s" + i }));
+    const cleared = sixRecords((i: number): any => i === 3 ? { show: "yes", shared: "s3" } : { show: "no" });
+    expect(expectSameAsUnpaged({ templateElements: template }, data).pd, "#1: a template question with the value name").toEqual(cleared);
+    expect(expectSameAsUnpaged({ templateElements: template.slice(0, 2) }, data, undefined, [{ type: "text", name: "top", valueName: "shared" }]).pd,
+      "#2: a top-level question with the value name").toEqual(cleared);
+  });
+  test("a null record among the records without a panel stays null and the others are cleared", () => {
+    // Paged only: a panel built for a null record reads its values from null, so the null record stays off the page.
+    const data = sixRecords(showOnThree);
+    data[4] = null;
+    const expected = Helpers.getUnbindValue(onlyThreeKeepsSecret);
+    expected[4] = null;
+    expect(complete({ panelsPerPage: 2, templateElements: secretIfYes }, data).data.pd).toEqual(expected);
+  });
   test("known limitation: a records question nested in a record without a panel keeps the hidden values its own clean-up would clear", () => {
     const nestedPanel = { type: "paneldynamic", name: "inner", templateElements: [{ type: "text", name: "h", visibleIf: "false" }] };
     const nestedMatrix = { type: "matrixdynamic", name: "inner", rowCount: 0, rowsVisibleIf: "{row.c} != 'hide'", columns: [{ name: "c", cellType: "text" }] };

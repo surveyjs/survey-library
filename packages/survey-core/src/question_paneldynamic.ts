@@ -39,6 +39,7 @@ import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-da
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel,
   QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
+  HIDDEN_ANSWER_SELF, HIDDEN_ANSWER_CONTAINER,
   IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties, isRecordCountSerializable
 } from "./question_records";
 
@@ -456,7 +457,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   // While the panels are rebuilt for the view, the ones added and removed select nothing: restoreCurrentPanel chooses.
   private isRebuildingView: boolean = false;
   private rebuildPanelsForView(isPageMove: boolean): void {
-    this.decideRecordsVisibilityBeforeCut();
+    this.decideRecordsVisibility();
     if (!this.isWritingRecords) {
       this.disposeLeftPanels(this._renderedPanels);
     }
@@ -3039,14 +3040,51 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       q.clearValueIfInvisible(reason);
     });
   }
-  /* Under paging in memory only the page has panels: the records without one are cleared over their
-     stored values (getRecordsWithoutInvisibleAnswers), and the result is written once, as one of the
-     question's own changes. */
+  /* Under paging in memory only the page has panels: the invisible answers of the records without one
+     are cleared over the stored records, the way a panel clears its own questions
+     (Question.clearValueIfInvisible), by the walk of QuestionRecordsModel
+     (collectRecordChangesWithoutObjects), and the changes are written once, as one of the question's
+     own changes. The template holds the questions of a record and the panels around them. The matrix
+     has no such walk at clear time - its cells clear their answers only when they are hidden under
+     onHidden (clearHiddenAnswersWithoutObjects follows that for the records without a row), and it
+     drops a hidden row whole (clearInvisibleValuesInRows).
+     - A record the list filter excludes has no object without paging either and keeps its answers.
+     - A record the visibility condition hides keeps the answers of its questions that are visible
+       themselves; the others go, as in a hidden panel.
+     - A question is visible in a record when its visible / visibleIf and those of the template
+       panels around it pass over the record (getRecordInputFlags); the question and the record are its
+       parents too (onHiddenContainer).
+     - Clearing removes the value name and its comment key, the keys clearValue() removes.
+     - A question that holds records or panels of its own is one question here: cleared whole when it
+       is invisible, left as it is otherwise - its own clean-up does not run in a record without an
+       object (a paging limitation). The same holds for any other clean-up inside one question.
+     Cost: the walk's, only when the survey clears invisible values. */
   private clearValueInRecordsWithoutPanel(reason: string): void {
-    const records = this.getRecordsWithoutInvisibleAnswers(reason);
-    if (!!records) {
-      this.runInternalValueChange((): void => this.setOwnRecordsValue(records));
-    }
+    if (!this.canCleanRecordsWithoutObjects() || this.isEmpty()) return;
+    const properties = this.getDataFilteredProperties();
+    this.decideRecordsVisibility();
+    const questions = this.template.questions.filter((q: Question): boolean => this.canRecordQuestionBeCleared(q, reason));
+    if (questions.length === 0) return;
+    const survey = this.survey;
+    const list = this.dataList;
+    const isStartPage = !!this.page && this.page.isStartPage;
+    const changes = this.collectRecordChangesWithoutObjects(properties, (index: number, record: any, visibility: IRecordElementVisibility): any => {
+      // The parents every question of the record has: the question that owns the records and the record.
+      const areQuestionAndRecordVisible = this.isVisible && list.isRecordVisible(index);
+      let cleared: any;
+      questions.forEach((q: Question): void => {
+        const flags = this.getRecordInputFlags(visibility, q);
+        const isSelfVisible = (flags & HIDDEN_ANSWER_SELF) !== 0;
+        if (isSelfVisible && !list.isRecordVisible(index)) return;
+        const isParentVisible = areQuestionAndRecordVisible && (flags & HIDDEN_ANSWER_CONTAINER) !== 0;
+        const canClear = reason === "onHiddenContainer" && !isParentVisible ||
+          !(isSelfVisible && isParentVisible) && !isStartPage && !survey.hasVisibleQuestionByValueName(q);
+        if (!canClear) return;
+        cleared = this.removeRecordAnswer(record, cleared, q.getValueName());
+      });
+      return cleared;
+    });
+    this.runInternalValueChange((): void => this.writeRecordChanges(changes));
   }
   /* At complete a built panel's questions run their own clean-up (a select question drops an answer
      its choices do not have): a record without a panel gets it after the invisible answers are cleared,
@@ -3058,66 +3096,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (reason !== "onComplete") return;
     this.cleanRecordsWithoutObjectsAtComplete(this.template, (cleanupObject: IRecordCleanupObject): void => cleanupObject.clearValueIfInvisible(reason));
   }
-  /* The invisible answers of the records that have no object, cleared the way an object clears its
-     own questions (Question.clearValueIfInvisible), over the stored records and without building an
-     object: the records of the pages never opened or visited and left, and the records the
-     visibility condition hides. The template holds the questions of a record and the panels around
-     them. The matrix has no such walk at clear time - its cells clear their answers only when they are
-     hidden under onHidden (clearHiddenAnswersWithoutObjects follows that for the records without a
-     row), and it drops a hidden row whole (clearInvisibleValuesInRows).
-     - A record the list filter excludes has no object without paging either and keeps its answers.
-     - A record the visibility condition hides keeps the answers of its questions that are visible
-       themselves; the others go, as in a hidden panel.
-     - A question is visible in a record when its visible / visibleIf and those of the template
-       panels around it pass over the record; the question and the record are its parents too
-       (onHiddenContainer).
-     - Clearing removes the value name and its comment key, the keys clearValue() removes.
-     - A question that holds records or panels of its own is one question here: cleared whole when it
-       is invisible, left as it is otherwise - its own clean-up does not run in a record without an
-       object (a paging limitation). The same holds for any other clean-up inside one question.
-     Cost: one condition run per condition per record, one runner per expression text, only when the
-     survey clears invisible values. Returns the new records, undefined when nothing was cleared: the
-     owner writes them once. */
-  private getRecordsWithoutInvisibleAnswers(reason: string): Array<any> {
-    const template = this.template;
-    if (!this.isPagedByList || !this.survey || !this.data || this.areInvisibleElementsShowing || this.isEmpty()) return undefined;
-    const properties = this.getDataFilteredProperties();
-    this.updatePagedRecordsVisibility(properties);
-    const questions = template.questions.filter((q: Question): boolean => this.canRecordQuestionBeCleared(q, reason));
-    if (questions.length === 0) return undefined;
-    const survey = this.survey;
-    const list = this.dataList;
-    const isStartPage = !!this.page && this.page.isStartPage;
-    let visibility: IRecordElementVisibility;
-    const isVisibleInRecord = (el: Question | PanelModelBase): boolean => visibility.isVisible(el);
-    let newValue: Array<any>;
-    this.forEachViewRecord(false, (index: number, item: QuestionRecordItem): void => {
-      const record = this.getListRecordAt(index);
-      if (!!item || !record) return;
-      if (!visibility) visibility = this.createRecordElementVisibility(properties);
-      visibility.reset(index, record);
-      // The parents every question of the record has: the question that owns the records and the record.
-      const areQuestionAndRecordVisible = this.isVisible && list.isRecordVisible(index);
-      let cleared: any;
-      questions.forEach((q: Question): void => {
-        const isSelfVisible = isVisibleInRecord(q);
-        if (isSelfVisible && !list.isRecordVisible(index)) return;
-        let isParentVisible = areQuestionAndRecordVisible;
-        for (let el = <PanelModelBase><any>q.parent; isParentVisible && !!el && el !== template; el = <PanelModelBase><any>el.parent) {
-          isParentVisible = isVisibleInRecord(el);
-        }
-        const canClear = reason === "onHiddenContainer" && !isParentVisible ||
-          !(isSelfVisible && isParentVisible) && !isStartPage && !survey.hasVisibleQuestionByValueName(q);
-        if (!canClear) return;
-        cleared = this.removeRecordAnswer(record, cleared, q.getValueName());
-      });
-      if (!cleared) return;
-      if (!newValue) newValue = [].concat(this.value);
-      newValue[index] = cleared;
-    });
-    return newValue;
-  }
-
   // What puts a panel into visiblePanels.
   protected isItemVisible(item: QuestionRecordItem): boolean {
     return (<QuestionPanelDynamicItem>item).panel.visible;

@@ -2905,9 +2905,6 @@ export abstract class QuestionRecordsModel extends Question {
     const name = field.endsWith(suffix) ? field.substring(0, field.length - suffix.length) : field;
     return item.getQuestionsByValueName(name)[0] || undefined;
   }
-  protected markRecordTouchedByField(recordIndex: number, item: QuestionRecordItem, field: string): void {
-    this.markRecordTouchedBy(recordIndex, this.getRecordFieldQuestion(item, field));
-  }
   // The question's add: the records it inserts are touched as they enter the list. Nothing is created
   // for it: without a list there is no view to keep them in.
   protected runRecordAdd<T>(func: () => T): T {
@@ -3508,9 +3505,67 @@ export abstract class QuestionRecordsModel extends Question {
   // The value an item's {matrix} / {panel} variable reads.
   public abstract getFilteredData(): any;
   /* A write of an item's record: val is the field value for a panel and the whole proposed row for a
-     matrix row (see QuestionRecordItem.prepareRecordWrite). */
-  // A refused or ignored write never reaches it (writeItemValue).
-  public abstract updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): void;
+     matrix row (see QuestionRecordItem.prepareRecordWrite). A refused or ignored write never reaches it
+     (writeItemValue). A temporary object of the records clean-up writes its copy; every other write is
+     the type's (writeItemRecordValue). */
+  public updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): void {
+    const recordItem = <QuestionRecordItem>item;
+    const position = this.getItemPosition(recordItem);
+    if (this.writeRecordCleanupCopy(item, position < 0, name, this.getItemWriteFieldValue(name, val, isDeletingValue))) return;
+    this.writeItemRecordValue(recordItem, position, name, val, isDeletingValue);
+  }
+  // The value val stores in the field name; the matrix takes it out of the proposed row.
+  protected getItemWriteFieldValue(name: string, val: any, isDeleting: boolean): any {
+    return isDeleting ? undefined : val;
+  }
+  // The write of an item at a created position (-1: one being built) into its record: the list write.
+  protected writeItemRecordValue(item: QuestionRecordItem, position: number, name: string, val: any, isDeleting: boolean): void {
+    this.writeItemRecord(item, position, name, val, isDeleting);
+  }
+  /* The list write of an item: the record it holds - for an object being built the one
+     getRecordIndexOfUnknownItem names - takes the write as mergeItemWrite merges it, as one batch with
+     what ensureItemRecord adds before it. The question of the written field touches the record; the
+     values new objects write (isAddingNewItems) - their defaults - are not the respondent's and only
+     show a record a source holds. Returns the record written and the field value it replaced;
+     undefined when nothing changed. */
+  protected writeItemRecord(item: QuestionRecordItem, position: number, name: string, val: any, isDeleting: boolean): { record: any, oldValue: any } {
+    const recordIndex = position < 0 ? this.getRecordIndexOfUnknownItem() : this.getRecordIndexAtCreatedPosition(position);
+    if (recordIndex < 0) return undefined;
+    const question = position < 0 ? undefined : this.getRecordFieldQuestion(item, name);
+    const isDefault = this.isAddingNewItems;
+    let oldValue: any;
+    const write = (): any => this.writeRecordAt(recordIndex, (record: any): void => {
+      oldValue = record[name];
+      this.mergeItemWrite(record, item, name, val, isDeleting);
+    }, (): void => {
+      if (!isDefault) {
+        this.markRecordTouchedBy(recordIndex, question);
+      }
+    });
+    let record: any;
+    this.writeRecords((): void => {
+      this.dataList.batch((): void => {
+        this.ensureItemRecord(recordIndex);
+        record = isDefault ? this.runShowingRecords(write) : write();
+      });
+    });
+    return record !== undefined ? { record: record, oldValue: oldValue } : undefined;
+  }
+  /* The write of one field into a copy of the record. An empty value removes the key; the emptiness
+     rule (a whitespace-only string is empty) is the question rule. */
+  protected mergeItemWrite(record: any, item: QuestionRecordItem, name: string, val: any, isDeleting: boolean): void {
+    if (isDeleting || this.isValueEmpty(val)) {
+      delete record[name];
+    } else {
+      record[name] = val;
+    }
+  }
+  // The objects being added write their default values.
+  protected get isAddingNewItems(): boolean {
+    return false;
+  }
+  // The record an item write goes to may not be stored yet: the type adds it here.
+  protected ensureItemRecord(recordIndex: number): void { }
   /* The write of an item - a cell of a row, a question of a panel - into its record. A write the type
      ignores (isItemWriteIgnored) writes nothing and is not refused; a refused edit (refuseItemWrite)
      stops the item's write before its triggers and notification; every other write reaches

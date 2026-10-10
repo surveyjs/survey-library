@@ -634,7 +634,7 @@ export class DynamicDataList {
     if (!record) return false;
     if (!DynamicDataList.isValueChanged(value, record[field])) return false;
     const newRecord = this.copyRecord(record);
-    // Mirrors question_paneldynamic.updateItemValue: an empty value deletes the key.
+    // Mirrors QuestionRecordsModel.mergeItemWrite: an empty value deletes the key.
     if (Helpers.isValueEmpty(value)) {
       delete newRecord[field];
     } else {

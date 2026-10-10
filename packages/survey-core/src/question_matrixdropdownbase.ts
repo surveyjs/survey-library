@@ -3189,9 +3189,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     return options.value;
   }
-  updateItemValue(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
-    const cellValue = !!newRowValue && !isDeletingValue ? newRowValue[columnName] : undefined;
-    if (this.writeRecordCleanupCopy(row, this.getItemIndex(row) < 0, columnName, cellValue)) return;
+  // The cell value a write stores: newRowValue is the whole proposed row.
+  protected getItemWriteFieldValue(columnName: string, newRowValue: any, isDeletingValue: boolean): any {
+    return !!newRowValue && !isDeletingValue ? newRowValue[columnName] : undefined;
+  }
+  /* A cell write goes into a live row object (Creator's property grid), the whole value edited in place
+     (isEditingObjectValue), or the record the row holds - the list write. The cell-changed event and the
+     unique-column check follow a write that changed something. */
+  protected writeItemRecordValue(item: QuestionRecordItem, position: number, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
+    const row = <MatrixDropdownRowModelBase>item;
     var rowObj = !!columnName ? this.getRowObj(row) : null;
     if (!!rowObj) {
       var oldCellValue = rowObj[columnName];
@@ -3202,37 +3208,26 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       this.writeRecords((): void => Serializer.setObjPropertyValue(rowObj, columnName, columnValue));
       this.onCellValueChanged(row, columnName, rowObj, oldCellValue);
     } else {
-      const res = this.updateRowValueInData(row, columnName, newRowValue, isDeletingValue);
+      const res = this.isEditingObjectValue ? this.updateRowValueInWholeValue(row, columnName, newRowValue, isDeletingValue) :
+        this.writeItemRecord(row, position, columnName, newRowValue, isDeletingValue);
       // Nothing changed: the unique-column check is skipped as well, exactly as before.
       if (!res) return;
       if (columnName) {
-        this.onCellValueChanged(row, columnName, res.rowValue, res.oldCellValue);
+        this.onCellValueChanged(row, columnName, res.record, res.oldValue);
       }
     }
     if (this.getUniqueColumnsNames().indexOf(columnName) > -1) {
       this.isValueInColumnDuplicated(columnName, !!rowObj);
     }
   }
-  /* The seam for the record storage: a cell write is a record write of the list - the record the row
-     holds, through the question's own source (getListRecords / setListRecords). Returns null when
-     nothing changed. */
-  protected updateRowValueInData(row: MatrixDropdownRowModelBase, columnName: string,
-    newRowValue: any, isDeletingValue: boolean): { rowValue: any, oldCellValue: any } {
-    if (this.isEditingObjectValue) return this.updateRowValueInWholeValue(row, columnName, newRowValue, isDeletingValue);
-    const index = this.getRecordIndexOf(row);
-    if (index < 0) return null;
-    // The merge is the base's, over a copy of the record (writeRecordAt), taken before any change: it holds the old cell value.
-    let oldCellValue: any;
-    const rowValue = this.writeRecordAt(index, (record: any): void => {
-      oldCellValue = record[columnName];
-      this.mergeRowValue(record, row, columnName, newRowValue, isDeletingValue);
-    }, (): void => this.markRecordTouchedByField(index, row, columnName));
-    return !!rowValue ? { rowValue: rowValue, oldCellValue: oldCellValue } : null;
+  // A row write merges the whole proposed row into the record (mergeRowValue).
+  protected mergeItemWrite(record: any, item: QuestionRecordItem, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
+    this.mergeRowValue(record, <MatrixDropdownRowModelBase>item, columnName, newRowValue, isDeletingValue);
   }
   /* The cell write of a value that is edited in place (isEditingObjectValue): the whole value is
      composed and assigned, and the list is not involved. */
   protected updateRowValueInWholeValue(row: MatrixDropdownRowModelBase, columnName: string,
-    newRowValue: any, isDeletingValue: boolean): { rowValue: any, oldCellValue: any } {
+    newRowValue: any, isDeletingValue: boolean): { record: any, oldValue: any } {
     const oldValue = this.createNewValue(true);
     const oldRowValue = this.getRowValueCore(row, oldValue, true);
     const oldCellValue = oldRowValue?.[columnName];
@@ -3245,7 +3240,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     );
     if (this.isTwoValueEquals(oldValue, combine.value)) return null;
     this.writeRecords((): void => this.setOwnRecordsValue(combine.value));
-    return { rowValue: combine.rowValue, oldCellValue: oldCellValue };
+    return { record: combine.rowValue, oldValue: oldCellValue };
   }
   /* The per-row half of a cell change: which keys of a record belong to the row's questions is
      question knowledge. It mutates the record it is given - the base passes the row object inside

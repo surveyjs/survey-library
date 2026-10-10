@@ -37,7 +37,6 @@ import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, IDynamicDataRecordUniqueness, QuestionRecordsModel,
   QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
@@ -3473,54 +3472,36 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (this.items.indexOf(item) < 0 && leftPanelItems.has(item)) return true;
     return super.refuseItemWrite(item);
   }
-  updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): void {
-    if (this.writeRecordCleanupCopy(item, this.items.indexOf(item) < 0, name, isDeletingValue ? undefined : val)) return;
-    var items = this.items;
-    var index = items.indexOf(item);
-    if (index < 0) index = items.length;
-    // index is a created position; the record it writes is the one that panel holds, or the next
-    // record for a panel that does not exist yet.
-    const recordIndex = this.getRecordIndexAtCreatedPosition(index);
-    /* The questions the validation on value change checks: the one being written, and the ones of the
-       writes this one runs inside. A nested write adds its question to a copy, so the outer write
-       keeps its own list. */
-    const prevChangingValueQuestions = this.changingValueQuestions;
-    let changedQuestion: Question = undefined;
-    if (index < this.panelsCore.length) {
-      const questions = Array.isArray(prevChangingValueQuestions) ? [].concat(prevChangingValueQuestions) : [];
-      const q = this.getRecordFieldQuestion(<QuestionRecordItem>this.panelsCore[index].data, name);
-      if (!!q) {
-        questions.push(q);
-        changedQuestion = q;
-      }
-      this.changingValueQuestions = questions;
+  /* The questions the validation on value change checks: the one being written, and the ones of the
+     writes this one runs inside. A nested write adds its question to a copy, so the outer write
+     keeps its own list. A panel that is being built checks none. */
+  protected writeItemRecordValue(item: QuestionRecordItem, position: number, name: string, val: any, isDeleting: boolean): void {
+    if (position < 0) {
+      super.writeItemRecordValue(item, position, name, val, isDeleting);
+      return;
     }
-    // The list deletes the key for an empty value; the emptiness rule (a whitespace-only string is
-    // empty) is the question rule, so it is applied here.
-    const newValue = this.isValueEmpty(val) ? undefined : val;
+    const prevChangingValueQuestions = this.changingValueQuestions;
+    const questions = Array.isArray(prevChangingValueQuestions) ? [].concat(prevChangingValueQuestions) : [];
+    const q = this.getRecordFieldQuestion(item, name);
+    if (!!q) {
+      questions.push(q);
+    }
+    this.changingValueQuestions = questions;
     try {
-      this.writeRecords((): void => {
-        this.dataList.batch((): void => {
-          // The padding is a question rule as well: a write to a panel whose record does not exist yet
-          // grows the value up to the panel count. A remote window is never padded - the records it does
-          // not hold are on the server, and ensureCount would insert them there.
-          if (!this.isRemoteData) {
-            this.dataList.ensureCount(Math.max(recordIndex + 1, items.length));
-          }
-          // The values new panels write - their defaults - are not the respondent's.
-          if (!this.isAddingNewPanels && DynamicDataList.isValueChanged(newValue, this.dataList.getValue(recordIndex, name))) {
-            this.markRecordTouchedBy(recordIndex, changedQuestion);
-          }
-          // The values new panels write only show a record the source holds: they go with its next update.
-          if (this.isAddingNewPanels) {
-            this.runShowingRecords((): boolean => this.dataList.setValue(recordIndex, name, newValue));
-          } else {
-            this.dataList.setValue(recordIndex, name, newValue);
-          }
-        });
-      });
+      super.writeItemRecordValue(item, position, name, val, isDeleting);
     } finally {
       this.changingValueQuestions = prevChangingValueQuestions;
+    }
+  }
+  protected get isAddingNewItems(): boolean {
+    return this.isAddingNewPanels;
+  }
+  /* The padding is a question rule: a write to a panel whose record does not exist yet grows the value
+     up to the panel count. A remote window is never padded - the records it does not hold are on the
+     server, and ensureCount would insert them there. */
+  protected ensureItemRecord(recordIndex: number): void {
+    if (!this.isRemoteData) {
+      this.dataList.ensureCount(Math.max(recordIndex + 1, this.panelsCore.length));
     }
   }
   public getPlainData(options: IPlainDataOptions = { includeEmpty: true }): IQuestionPlainData {

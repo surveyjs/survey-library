@@ -103,20 +103,23 @@ describe("a panel that is being built runs its conditions once, over its values"
       });
     });
     test("its writes address the record it holds", () => {
-      const calls: Array<{ index: number, field: string, value: any }> = [];
-      const origin = DynamicDataList.prototype.setValue;
-      DynamicDataList.prototype.setValue = function (index: number, field: string, value: any): boolean {
-        calls.push({ index, field, value });
-        return origin.call(this, index, field, value);
+      // The writes of the field copy: a record write that changes it.
+      const copies: Array<{ index: number, value: any }> = [];
+      const origin = DynamicDataList.prototype.setRecord;
+      DynamicDataList.prototype.setRecord = function (index: number, record: any, force?: boolean): boolean {
+        const old = this.getRecord(index);
+        if (!!record && record.copy !== (!!old ? old.copy : undefined)) {
+          copies.push({ index, value: record.copy });
+        }
+        return origin.call(this, index, record, force);
       };
       try {
         const question = createLookupPanel();
         expect(question.panels.length, "#1").toBe(5);
         expect(question.nextPage(), "#2").toBe(true);
       } finally {
-        DynamicDataList.prototype.setValue = origin;
+        DynamicDataList.prototype.setRecord = origin;
       }
-      const copies = calls.filter(call => call.field === "copy");
       expect(copies.length, "#3: the defaults of both pages were written").toBe(10);
       copies.forEach(call => {
         expect(call.index, "#4: the default copied from record " + call.value + " is written to it").toBe(call.value);

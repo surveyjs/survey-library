@@ -254,6 +254,24 @@ describe("Survey_QuestionMatrixDynamic", () => {
     ];
     expect(question.validate(), "There is no errors").toBe(true);
   });
+  test("a keyName column that is also isUnique is checked once, after the isUnique columns before it", () => {
+    const question = new QuestionMatrixDynamicModel("q1");
+    question.cellType = "text";
+    question.rowCount = 2;
+    question.addColumn("c1").isUnique = true;
+    question.addColumn("c2").isUnique = true;
+    question.addColumn("c3");
+    question.keyName = "c2";
+    expect(question["getUniqueColumnsNames"](), "#1: the key is not repeated").toEqual(["c1", "c2"]);
+    question.keyName = "c3";
+    expect(question["getUniqueColumnsNames"](), "#2: a key that is not isUnique comes last").toEqual(["c1", "c2", "c3"]);
+    question.keyName = "c2";
+    question.value = [{ c1: "a", c2: "x" }, { c1: "a", c2: "x" }];
+    let firstErrorQuestion: Question = undefined;
+    expect(question.validate(true, false, false, (res: boolean, q: Question): void => { firstErrorQuestion = q; }), "#3").toBe(false);
+    expect(firstErrorQuestion === question.visibleRows[0].getQuestionByColumnName("c1"), "#4: the earlier column gets the focus").toBe(true);
+    expect(question.visibleRows.map(row => row.getQuestionByColumnName("c2").errors.length), "#5: one error per cell").toEqual([1, 1]);
+  });
   test("Matrixdynamic column.isUnique, matrixdropdown", () => {
     var question = new QuestionMatrixDropdownModel("q1");
     question.cellType = "text";

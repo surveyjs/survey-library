@@ -1297,13 +1297,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private hasRecordAnswer(record: any): boolean {
     return !isRecordEmpty(record);
   }
-  protected getUniqueColumnsNames(): Array<string> {
-    var res = super.getUniqueColumnsNames();
-    const name = this.keyName;
-    if (!!name && res.indexOf(name) < 0) {
-      res.push(name);
-    }
-    return res;
+  // QuestionRecordsModel hook: the key column, checked after the isUnique columns (getUniqueColumnsNames).
+  protected getRecordKeyName(): string {
+    return this.keyName;
   }
   protected generateRows(): Array<MatrixDynamicRowModel> {
     if (this.rowCount === 0) return [];

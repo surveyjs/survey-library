@@ -12,7 +12,6 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { FunctionFactory } from "./functionsfactory";
 import { PanelModel } from "./panel";
 import { settings } from "./settings";
-import { KeyDuplicationError } from "./error";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
 import { toCssClasses } from "./utils/cssClassBuilder";
@@ -24,7 +23,7 @@ import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValuePa
 import { ValidationContext } from "./question";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import {
-  QuestionRecordItemGetterContext, QuestionRecordItem, IDynamicDataRecordUniqueness, IRecordItemWrite, QuestionRecordsModel,
+  QuestionRecordItemGetterContext, QuestionRecordItem, IRecordItemWrite, QuestionRecordsModel,
   QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, isRecordEmpty, getRecordViewProperties
 } from "./question_records";
 import { DynamicDataOperation, IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
@@ -2722,11 +2721,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected createRecordItemContext(item: QuestionRecordItem): IValueGetterContext {
     return new MatrixRowGetterContext(<any>item);
   }
-  /* QuestionRecordsModel hook: every unique column, keyName included. A record rowsVisibleIf hides does
-     not take part, as a hidden row does not on the page; a filtered-out one does. Strings compare as
-     the on-page check compares them; the error goes on the later visible record of a pair, on its page. */
-  protected getRecordUniqueness(): IDynamicDataRecordUniqueness {
-    return { fields: this.getUniqueColumnsNames(), caseSensitive: this.useCaseSensitiveComparison, includeHidden: false, includeFilteredOut: true };
+  // Unique column values compare as useCaseSensitiveComparison says, on the page and off it.
+  protected isRecordUniquenessCaseSensitive(): boolean {
+    return this.useCaseSensitiveComparison;
   }
   protected getRecordVisibleIfPropertyName(): string {
     return "rowsVisibleIf";
@@ -2895,13 +2892,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     return res;
   }
+  // The isUnique columns in column order, then the key: the order decides which question gets the focus.
   protected getUniqueColumnsNames(): Array<string> {
-    var res = new Array<string>();
-    for (var i = 0; i < this.columns.length; i++) {
+    const res = new Array<string>();
+    for (let i = 0; i < this.columns.length; i++) {
       if (this.columns[i].isUnique) {
         res.push(this.columns[i].name);
       }
     }
+    super.getUniqueColumnsNames().forEach((name: string): void => {
+      if (res.indexOf(name) < 0) res.push(name);
+    });
     return res;
   }
   private isValueInColumnDuplicated(columnName: string, showErrors: boolean, row?: MatrixDropdownRowModelBase): boolean {
@@ -2973,7 +2974,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         if (inDetailPanel) {
           row.showDetailPanel();
         }
-        this.addDuplicationError(question);
+        this.addDuplicationError(question, this.keyDuplicationError);
       }
     });
   }
@@ -2981,28 +2982,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.generatedVisibleRows.forEach(row => {
       if (duplicatedRows.indexOf(row) < 0) {
         const question = row.getQuestionByName(columnName);
-        if (question) {
-          this.removeDuplicationError(row, question);
+        // The value a duplicate kept out of the editing object goes there once the cell has no error left.
+        if (question && this.removeDuplicationError(question) && question.errors.length === 0 && !!row.editingObj) {
+          (<any>row.editingObj)[question.getValueName()] = question.value;
         }
       }
     });
-  }
-  private getDuplicationError(question: Question): SurveyError {
-    const errors = question.errors;
-    for (let i = 0; i < errors.length; i ++) {
-      if (errors[i].getErrorType() === "keyduplicationerror") return errors[i];
-    }
-    return null;
-  }
-  private addDuplicationError(question: Question) {
-    if (!this.getDuplicationError(question)) {
-      question.addError(new KeyDuplicationError(this.keyDuplicationError, this));
-    }
-  }
-  private removeDuplicationError(row: MatrixDropdownRowModelBase, question: Question) {
-    if (question.removeError(this.getDuplicationError(question)) && question.errors.length === 0 && !!row.editingObj) {
-      (<any>row.editingObj)[question.getValueName()] = question.value;
-    }
   }
   public getFirstQuestionToFocus(withError: boolean): Question {
     return this.getFirstCellQuestion(withError);

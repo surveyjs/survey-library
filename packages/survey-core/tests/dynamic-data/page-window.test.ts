@@ -1870,6 +1870,16 @@ describe("Page window: matrix duplicates off the page", () => {
     expect(matrix.pageIndex, "#4").toBe(2);
     expect(matrix.visibleRows[1].getQuestionByName("name").errors.length, "#5: on record 11").toBe(1);
   });
+  test("without a key and without unique columns no field is unique and no page is visited for duplicates", () => {
+    const data = records(10, (i: number) => ({ id: "same", name: "same" }));
+    const matrix = createMatrix({ rowsPerPage: 5 }, data);
+    const panel = createPanel({ panelsPerPage: 5 }, data);
+    [matrix, panel].forEach((question: Question, i: number): void => {
+      expect(question["getRecordUniqueness"]().fields, "#" + i + ": no field").toEqual([]);
+      expect(question["getOffPageDuplicatePages"](), "#" + i + ": no page").toEqual([]);
+      expect((<SurveyModel>question.survey).tryComplete(), "#" + i + ": equal values are no duplicates").toBe(true);
+    });
+  });
 });
 
 /* A dynamic panel that pages keeps the page states of the paged questions nested in its panels

@@ -4069,6 +4069,19 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(survey.validate(), "There is a duplication error, #5").toBe(false);
     expect(question2.errors.length, "There is one error").toBe(1);
   });
+  test("a hidden key question validated twice with the same duplicate has one duplication error", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "panel1", keyName: "id", panelCount: 2,
+        templateElements: [{ type: "text", name: "id", visible: false }, { type: "text", name: "q2" }] }]
+    });
+    survey.data = { panel1: [{ id: "1" }, { id: "1" }] };
+    const panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const key = <Question>panelDynamic.panels[1].getQuestionByName("id");
+    expect(survey.validate(), "#1").toBe(false);
+    expect(survey.validate(), "#2").toBe(false);
+    expect(key.errors.length, "#3: the panel's validation skips the hidden key question, the error is not added again").toBe(1);
+    expect((<Question>panelDynamic.panels[0].getQuestionByName("id")).errors.length, "#4").toBe(0);
+  });
 
   test("Do not reset panelCount after deleting the last panel, Bug #1972", () => {
     var json = {

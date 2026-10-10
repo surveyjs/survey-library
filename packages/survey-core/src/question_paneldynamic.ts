@@ -19,7 +19,6 @@ import { PanelModel, PanelModelBase } from "./panel";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
-import { KeyDuplicationError } from "./error";
 import { settings } from "./settings";
 import { classesToSelector } from "./utils/dom-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/animation-dom";
@@ -38,7 +37,7 @@ import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInf
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import {
-  QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, IDynamicDataRecordUniqueness, QuestionRecordsModel,
+  QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel,
   QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
   IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties, isRecordCountSerializable
 } from "./question_records";
@@ -2979,12 +2978,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.updatePanelsContainsErrors();
     return res;
   }
-  /* QuestionRecordsModel hook: the key, with the membership the question has without paging: an
-     owner-hidden record does not take part, a filtered-out one does but never receives the error.
-     Keys compare as text, case-sensitively, as the on-page check compares them (getKeyOf). The error
-     goes on the later visible record of a pair, on its page. */
-  protected getRecordUniqueness(): IDynamicDataRecordUniqueness {
-    return { fields: !!this.keyName ? [this.keyName] : [], caseSensitive: true, includeHidden: false, includeFilteredOut: true };
+  // QuestionRecordsModel hook: the key the duplicate checks compare (getUniqueColumnsNames).
+  protected getRecordKeyName(): string {
+    return this.keyName;
   }
   private hasInputInChangedQuestions(): boolean {
     const qs = this.changingValueQuestions;
@@ -3164,11 +3160,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   // A Set and not an object: the keys are respondent input and may be named like Object.prototype members.
   private getKeysWithoutPanels(): Set<string> {
     const res = new Set<string>();
-    if (!this.keyName || !this.hasDataListView) return res;
+    const keyName = this.getRecordKeyName();
+    if (!keyName || !this.hasDataListView) return res;
     // A key constraint over a whole remote table cannot be checked here. An owner-hidden record does not
-    // take part (getRecordUniqueness), as it does not without paging, where its hidden panel is skipped.
-    // A record the page holds is compared through its panel.
-    this.forEachUniquenessValue(this.keyName, (): void => { }, (index: number, val: any): void => {
+    // take part (getRecordUniqueness), as it does not without paging, where its hidden panel is skipped;
+    // a filtered-out one does but never receives the error. A record the page holds is compared through its panel.
+    this.forEachUniquenessValue(keyName, (): void => { }, (index: number, val: any): void => {
       if (!this.isValueEmpty(val)) {
         res.add(this.getKeyOf(val));
       }
@@ -3176,8 +3173,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return res;
   }
   private isValueDuplicated(panel: PanelModel, keys: Set<string>, context: ValidationContext): boolean {
-    if (!this.keyName) return false;
-    var question = <Question>panel.getQuestionByValueName(this.keyName);
+    const keyName = this.getRecordKeyName();
+    if (!keyName) return false;
+    var question = <Question>panel.getQuestionByValueName(keyName);
     if (!question || question.isEmpty()) return false;
     var value = question.value;
     const qs = this.changingValueQuestions;
@@ -3187,9 +3185,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const key = this.getKeyOf(value);
     if (keys.has(key)) {
       if (context.fireCallback) {
-        question.addError(
-          new KeyDuplicationError(this.keyDuplicationError, this)
-        );
+        this.addDuplicationError(question, this.keyDuplicationError);
       }
       context.setErrorElement(question);
       return true;

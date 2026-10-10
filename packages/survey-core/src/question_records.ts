@@ -11,6 +11,7 @@ import { ArrayDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { TextContextProcessor } from "./textPreProcessor";
 import { SurveyError } from "./survey-error";
+import { KeyDuplicationError } from "./error";
 import {
   DynamicDataFieldType, DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort,
   IDynamicDataSource
@@ -1465,6 +1466,43 @@ export abstract class QuestionRecordsModel extends Question {
   // Reads a record without an object for the duplicate checks.
   protected createDuplicationRecordReader(): (index: number) => any {
     return (index: number): any => this.getListRecordAt(index);
+  }
+  /* What a duplicate is among the records; asked only when the records without an object are scanned.
+     A record the visibility expression hides does not take part, as a hidden object does not on the page;
+     a filtered-out one does unless the type says otherwise. Strings compare as the on-page check compares
+     them; the error goes on the later visible record of a pair, on its page. */
+  protected getRecordUniqueness(): IDynamicDataRecordUniqueness {
+    return { fields: this.getUniqueColumnsNames(), caseSensitive: this.isRecordUniquenessCaseSensitive(), includeHidden: false, includeFilteredOut: true };
+  }
+  /* The fields whose values must be unique among the records, in the order the check walks them: the key
+     of a type with keyName. The matrix puts its isUnique columns before the key. */
+  protected getUniqueColumnsNames(): Array<string> {
+    const key = this.getRecordKeyName();
+    return !!key ? [key] : [];
+  }
+  // The keyName of the types that have one.
+  protected getRecordKeyName(): string {
+    return "";
+  }
+  // The keys of a dynamic panel compare as text, case-sensitively; the matrix says useCaseSensitiveComparison.
+  protected isRecordUniquenessCaseSensitive(): boolean {
+    return true;
+  }
+  protected getDuplicationError(question: Question): SurveyError {
+    const errors = question.errors;
+    for (let i = 0; i < errors.length; i ++) {
+      if (errors[i].getErrorType() === "keyduplicationerror") return errors[i];
+    }
+    return null;
+  }
+  // A question shows one duplication error, however many times it is found duplicated.
+  protected addDuplicationError(question: Question, text: string): void {
+    if (!this.getDuplicationError(question)) {
+      question.addError(new KeyDuplicationError(text, this));
+    }
+  }
+  protected removeDuplicationError(question: Question): boolean {
+    return question.removeError(this.getDuplicationError(question));
   }
   // Layer 1 is on: design mode never validates a page leave.
   private isPageLeaveValidated(): boolean {
@@ -3468,8 +3506,6 @@ export abstract class QuestionRecordsModel extends Question {
   protected abstract detachItem(removal: IRecordRemoval): void;
   // The storage write of a removal, in the type's wrapper; refill runs exactly once, where the type decides.
   protected abstract removeStoredRecord(removal: IRecordRemoval, refill: () => void): void;
-  // What a duplicate is among the records; asked only when the records without an object are scanned.
-  protected abstract getRecordUniqueness(): IDynamicDataRecordUniqueness;
   /* What a record object is called in the type's property names ("Row", "Panel"): the page size is
      rowsPerPage / panelsPerPage, the count names follow it too (getRecordCountNamesOf). */
   protected abstract getRecordEntityName(): string;

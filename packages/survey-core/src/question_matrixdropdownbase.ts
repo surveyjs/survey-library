@@ -28,7 +28,6 @@ import {
   QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, isRecordEmpty, getRecordViewProperties
 } from "./question_records";
 import { DynamicDataOperation, IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
-import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { groupByDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
 
 export interface IMatrixDuplicationEntry {
@@ -2247,14 +2246,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (!this.isUpdateLocked && !this.generatedVisibleRows) {
       /* The values new rows write - their defaults and expression results - are computed, and they
          only show the records a data source holds: they go with a record's next update, so showing a
-         page sends nothing (DynamicDataList.runShowingRecords). */
-      const list = this.dataListValue;
+         page sends nothing (runShowingRecords). */
       this.runComputedWrites((): void => {
-        if (!!list) {
-          list.runShowingRecords((): void => this.generateVisibleRows());
-        } else {
-          this.generateVisibleRows();
-        }
+        this.runShowingRecords((): void => this.generateVisibleRows());
       });
     }
   }
@@ -2755,10 +2749,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   // No records, so nothing to write: the fixed membership keeps the count at 0.
   protected setListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void { }
-  // No records, so no record at any index.
-  protected getStoredRecordAt(index: number, defaultRecord?: any): any {
-    return undefined;
-  }
   /* A full rebuild: the rows are re-created for the records the view now holds. It costs the
      per-row state - open detail panels, row errors, cell question state, row ids - and fires the
      row-creation callbacks again. It is the same path a remote page change takes, so there is one.
@@ -3238,11 +3228,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (this.isEditingObjectValue) return this.updateRowValueInWholeValue(row, columnName, newRowValue, isDeletingValue);
     const index = this.getRecordIndexOf(row);
     if (index < 0) return null;
-    const oldRecord = this.dataList.getRecord(index);
-    const oldCellValue = oldRecord?.[columnName];
-    // The merge is the base's, over a copy of the record (writeRecordAt).
-    const rowValue = this.writeRecordAt(index, (record: any): void => this.mergeRowValue(record, row, columnName, newRowValue, isDeletingValue),
-      (): void => this.markRecordTouchedByField(index, row, columnName));
+    // The merge is the base's, over a copy of the record (writeRecordAt), taken before any change: it holds the old cell value.
+    let oldCellValue: any;
+    const rowValue = this.writeRecordAt(index, (record: any): void => {
+      oldCellValue = record[columnName];
+      this.mergeRowValue(record, row, columnName, newRowValue, isDeletingValue);
+    }, (): void => this.markRecordTouchedByField(index, row, columnName));
     return !!rowValue ? { rowValue: rowValue, oldCellValue: oldCellValue } : null;
   }
   /* The cell write of a value that is edited in place (isEditingObjectValue): the whole value is

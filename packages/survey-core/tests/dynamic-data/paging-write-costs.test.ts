@@ -1527,3 +1527,28 @@ describe("the focus kept for a re-read after a removal from the UI", () => {
     }
   });
 });
+
+/* The clean-up of incorrect answers reads the records without the list; only a record it changes is
+   written, and a write is what creates the list. */
+describe("a read that needs no list creates none", () => {
+  const createPanel = (data: any): { survey: SurveyModel, question: QuestionPanelDynamicModel } => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "panel",
+      templateElements: [{ type: "text", name: "q1" }] }] });
+    survey.data = { panel: data };
+    return { survey: survey, question: <QuestionPanelDynamicModel>survey.getQuestionByName("panel") };
+  };
+  test("clearIncorrectValues on a Dynamic Panel without paging, a sort, a filter or a source reads its records without a list", () => {
+    const { survey, question } = createPanel([{ q1: "a" }, { q1: "b" }]);
+    expect(question.panels.length, "#1").toBe(2);
+    expect(question["dataListValue"], "#2: no list before").toBe(undefined);
+    survey.clearIncorrectValues();
+    expect(question.value, "#3: nothing to clear").toEqual([{ q1: "a" }, { q1: "b" }]);
+    expect(question["dataListValue"], "#4: still no list").toBe(undefined);
+  });
+  test("an unknown key is still cleared", () => {
+    const { survey, question } = createPanel([{ q1: "a", unknown: 1 }, { q1: "b" }]);
+    expect(question.panels.length, "#1").toBe(2);
+    survey.clearIncorrectValues();
+    expect(question.value, "#2: the unknown key is gone").toEqual([{ q1: "a" }, { q1: "b" }]);
+  });
+});

@@ -335,11 +335,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const panels = this.visiblePanels;
     return position >= 0 && position < panels.length ? <QuestionRecordItem>panels[position].data : undefined;
   }
-  // QuestionRecordsModel hook: one record of question.value.
-  protected getStoredRecordAt(index: number, defaultRecord?: any): any {
-    const val = this.value;
-    return Array.isArray(val) && index >= 0 && index < val.length ? val[index] : undefined;
-  }
   protected getRecordItemVariableName(): string {
     return settings.expressionVariables.panel;
   }
@@ -389,16 +384,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected getFields(): Array<IDynamicDataField> {
     return this.getFieldsOfQuestions(this.template.questions);
   }
-  // QuestionRecordsModel hook: the panels' side of a list change, see
-  // QuestionRecordsModel.onDataListChanged.
-  protected rebuildFromDataList(isPageMove: boolean): void {
-    this.rebuildPanelsFromDataList(isPageMove);
-  }
   protected refreshRenderedPage(): void {
     this.updateRenderedPanels();
-  }
-  protected runRemoteWriteConditions(): void {
-    this.reRunCondition();
   }
   protected areObjectsBuilt(): boolean {
     return this.hasPanelBuildFirstTime && !this.useTemplatePanel;
@@ -407,7 +394,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      is a panel that is being built, and its record is the next one - what the positional code meant
      by items.length. */
   protected getRecordIndexOfMissingPosition(): number {
-    return this.dataList.count;
+    return this.storedRecordCount;
   }
   // A sync is deferred while it is suspended, and the rendered panels follow it.
   protected syncPagingState(): void {
@@ -451,8 +438,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      question created by it is announced through survey.onQuestionCreated. It is the same path a
      remote read, a sort, a filter and an in-memory page change take, so there is one.
      The panels it replaces are disposed: a page visit would otherwise leave every dropdown of the
-     page registered with its choicesFromQuestion source. */
-  private rebuildPanelsFromDataList(isPageMove: boolean = false): void {
+     page registered with its choicesFromQuestion source.
+     QuestionRecordsModel hook: the panels' side of a list change (onDataListChanged). */
+  protected rebuildFromDataList(isPageMove: boolean = false): void {
     if (this.isLoadingFromJson || this.useTemplatePanel || !this.hasPanelBuildFirstTime) return;
     // A page size that changed resets the list, and the reset has rebuilt the panels already.
     if (this.syncListPageSize()) return;
@@ -1393,7 +1381,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      yet) it is the panelCount property; after that the records of the list, or the panels. */
   protected getRecordCountCore(): number {
     if (!this.canBuildPanels || this.wasNotRenderedInSurvey) return this.getPropertyValue("panelCount");
-    return this.hasDataListView ? this.dataList.count : this.panelsCore.length;
+    return this.hasDataListView ? this.storedRecordCount : this.panelsCore.length;
   }
   // The panelCount setter without a source.
   protected setRecordCountCore(val: number): void {
@@ -1459,8 +1447,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      every write. */
   private isSettingPanelCountInView: boolean = false;
   private setPanelCountInView(val: number): void {
-    const list = this.dataList;
-    if (val === list.count || this.useTemplatePanel || this.isSettingPanelCountInView) return;
+    if (val === this.storedRecordCount || this.useTemplatePanel || this.isSettingPanelCountInView) return;
     this.updateBindings("panelCount", val);
     this.isSettingPanelCountInView = true;
     try {
@@ -1978,7 +1965,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (this.isLoadingFromJson) return;
     // Under a view - paging, a filter, a sort, a source - the panels are the view's, not one per record: they are rebuilt from it.
     if (!this.useTemplatePanel && this.hasDataListView && this.hasPanelBuildFirstTime) {
-      this.rebuildPanelsFromDataList();
+      this.rebuildFromDataList();
       return;
     }
     this.prepareValueForPanelCreating();
@@ -2258,13 +2245,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      property is off. */
   private getCopySourceRecord(): any {
     if (!this.copyDefaultValueFromLastEntry) return undefined;
-    const list = this.dataList;
     const current = this.isRenderModeList ? null : this.currentPanel;
-    let index = !!current ? this.getPanelRecordIndex(current) : -1;
-    if (index < 0 || index >= list.loadedCount) {
-      index = this.getLastEntryRecordIndex(list.count);
-    }
-    return index > -1 ? list.getRecord(index) : undefined;
+    const index = !!current ? this.getPanelRecordIndex(current) : -1;
+    if (index > -1 && index < this.loadedRecordCount) return this.getListRecordAt(index);
+    return this.getLastEntryRecord(this.storedRecordCount);
   }
   // QuestionRecordsModel hook: one panel at the end of the panels; the panels that exist keep their state.
   protected appendItemForRecord(recordIndex: number): void {
@@ -2664,7 +2648,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     var panel = this.panelsCore[position];
     panel.clearIncorrectValues();
     const index = this.getRecordIndexAtCreatedPosition(position);
-    const record = index < 0 ? undefined : this.dataList.getRecord(index);
+    const record = index < 0 ? undefined : this.getListRecordAt(index);
     if (!record) return;
     const keys = this.getRecordUnknownKeys(index, record, <QuestionPanelDynamicItem>panel.data);
     if (keys.length === 0) return;
@@ -2800,16 +2784,16 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
          stored panelCount says nothing about them - it is the authored count, and the source owns the
          record count (recordCount). Without this branch a question that gets its source before its
          first rendering would never build a panel. */
-      this.rebuildPanelsFromDataList();
+      this.rebuildFromDataList();
     } else if (this.isPagingActive) {
       /* The records first, then the panels of the page: the panelCount setter would compare the count
          with the records the value already holds and build nothing. */
       const count = this.getPropertyValue("panelCount");
-      if (count > 0 && count !== this.dataList.count) {
+      if (count > 0 && count !== this.storedRecordCount) {
         this.updateBindings("panelCount", count);
         this.syncRecordCount(count);
       }
-      this.rebuildPanelsFromDataList();
+      this.rebuildFromDataList();
     } else if (this.getPropertyValue("panelCount") > 0) {
       this.setRecordCountCore(this.getPropertyValue("panelCount"));
     }
@@ -2947,7 +2931,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       super.syncPagingState();
     }
     // One render for both requests: the paging sync renders the page only when paging is active.
-    if ((render || syncPaging && !!this.dataListValue && this.isPagingActive) && !this.isUpdatingRenderedPanels) {
+    if ((render || syncPaging && this.isPagingActive) && !this.isUpdatingRenderedPanels) {
       this.updateRenderedPanels();
     }
   }
@@ -3074,9 +3058,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      its choices do not have): a record without a panel gets it from a temporary panel, one per record
      (cleanRecordWithObject), after the invisible answers are cleared. */
   private clearValueInRecordsWithoutPanelAtComplete(reason: string): void {
-    if (reason !== "onComplete" || !this.isPagedByList || this.isRemoteData || this.isEmpty()) return;
-    this.cleanRecordsWithoutObjects((index: number, record: any): any =>
-      this.cleanRecordWithObject(index, record, (cleanupObject: IRecordCleanupObject): void => cleanupObject.clearValueIfInvisible(reason)));
+    if (reason !== "onComplete") return;
+    this.cleanRecordsWithoutObjectsBy((cleanupObject: IRecordCleanupObject): void => cleanupObject.clearValueIfInvisible(reason));
   }
   /* The invisible answers of the records that have no object, cleared the way an object clears its
      own questions (Question.clearValueIfInvisible), over the stored records and without building an
@@ -3349,7 +3332,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
        is minPanelCount. The records are written through the list, which guards itself against the
        write coming back here; under the flag below setQuestionValue would drop it. */
     if (this.hasDataListView && this.hasPanelBuildFirstTime) {
-      if (this.dataList.count < this.minPanelCount) {
+      if (this.storedRecordCount < this.minPanelCount) {
         this.setRecordCountCore(this.minPanelCount);
       } else {
         this.followRecordsWithObjects((recordIndex: number): void => { this.appendItemForRecord(recordIndex); });
@@ -3527,7 +3510,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
           }
           // The values new panels write only show a record the source holds: they go with its next update.
           if (this.isAddingNewPanels) {
-            this.dataList.runShowingRecords((): boolean => this.dataList.setValue(recordIndex, name, newValue));
+            this.runShowingRecords((): boolean => this.dataList.setValue(recordIndex, name, newValue));
           } else {
             this.dataList.setValue(recordIndex, name, newValue);
           }

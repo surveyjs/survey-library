@@ -235,14 +235,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const val = this.value;
     return !Array.isArray(val) || val.length < this.rowCount;
   }
-  /* Without paging: takes a created position - what every public index argument of the reordering
-     methods is - clamped to the rows, and returns the record it addresses. Under paging the numbers
-     name records of the whole view (getRecordTargetAtCreatedIndex). */
-  private getRecordIndex(index: number): number {
-    const last = this.dataList.globalCreatedExtent - 1;
-    const target = last < 0 ? undefined : this.getRecordTargetAtCreatedIndex(Math.max(0, Math.min(index, last)));
-    return !!target ? target.recordIndex : -1;
-  }
   /* Under paging every number of the reordering methods is a created position of the whole view. A
      live-object value (Creator) never pages. */
   private get isNumberedByView(): boolean {
@@ -408,10 +400,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       value.splice(toIndex, 0, movableRow);
       this.value = value;
     } else {
-      const list = this.dataList;
-      const from = this.getRecordIndex(fromIndex);
-      const to = this.getRecordIndex(toIndex);
-      list.move(from, to);
+      // The created positions, clamped to the rows; no row shown, nothing to move.
+      const targets = this.getMoveTargetsAtCreatedIndexes(fromIndex, toIndex);
+      if (!!targets) {
+        this.dataList.move(targets.from.recordIndex, targets.to.recordIndex);
+      }
     }
     this.draggedRow = null;
   }
@@ -452,8 +445,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       // One source.insert at the position the caller named; no count setter and no move.
       const at = this.getInsertIndexForOperation(toIndex);
       if (at < 0) return;
-      const list = this.dataList;
-      this.followInsertedRecord(this.runRecordAdd((): number => list.add(rowData, at)), false);
+      this.addRecordRemote(rowData, at);
       this.onRowsChanged();
       return;
     }
@@ -907,7 +899,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      storage as the local path appends to question.value. rowCount follows the window. */
   private addRowCoreRemote(): MatrixDropdownRowModelBase {
     const defaultValue = this.getDefaultRowValue(true);
-    const added = this.addRecordRemote(this.isValueEmpty(defaultValue) ? {} : defaultValue, this.dataList.loadedCount);
+    const added = this.addRecordRemote(this.isValueEmpty(defaultValue) ? {} : defaultValue, this.loadedRecordCount);
     const index = added.index;
     const newRow = <MatrixDropdownRowModelBase>added.item;
     if (this.data) {
@@ -925,7 +917,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   // QuestionRecordsModel hook: one row for a record at the end of the rows; the rows before it keep their state.
   protected appendItemForRecord(recordIndex: number): void {
     if (!Array.isArray(this.generatedVisibleRows)) return;
-    this.addRowForRecord(this.createMatrixRow(this.dataList.getRecord(recordIndex)), recordIndex);
+    this.addRowForRecord(this.createMatrixRow(this.getListRecordAt(recordIndex)), recordIndex);
   }
   /* Returns the row of the added record, null when it has none: under paging a record the page does not
      hold - rowsVisibleIf hides it - has no row. Without paging it is the last row (allRows), a hidden
@@ -971,19 +963,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   // The record a new row starts with, null when nothing applies.
   private getDefaultRowValue(isRowAdded: boolean): any {
-    const copyFrom = isRowAdded && this.copyDefaultValueFromLastEntry ? this.getLastEntryRecord() : undefined;
+    /* The local add runs after rowCount was already grown, so the count before the add is rowCount - 1; the
+       remote add builds the record before the insert. */
+    const copyFrom = isRowAdded && this.copyDefaultValueFromLastEntry ? this.getLastEntryRecord(this.rowCount - 1) : undefined;
     const res = this.composeNewRecord(this.columns, (column: MatrixDropdownColumn): Question => column.templateQuestion,
       (column: MatrixDropdownColumn): string => column.name, this.defaultRowValue, copyFrom);
     return Object.keys(res).length > 0 ? res : null;
-  }
-  /* The record copyDefaultValueFromLastEntry copies from (getLastEntryRecordIndex). The local path runs
-     after rowCount was already grown, so the count before the add is rowCount - 1; the remote path
-     builds the record before the insert. */
-  private getLastEntryRecord(): any {
-    const index = this.getLastEntryRecordIndex(this.rowCount - 1);
-    if (this.isRemoteData) return index > -1 ? this.dataList.getRecord(index) : undefined;
-    const val = this.value;
-    return Array.isArray(val) && index > -1 && index < val.length ? val[index] : undefined;
   }
   public focusAddBUtton(): void {
     this.toolbar.getActionById("sv-md-add-btn")?.getInputElement()?.focus();

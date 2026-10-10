@@ -1695,14 +1695,19 @@ export abstract class QuestionRecordsModel extends Question {
      Cost: one object per record without an object, only on an explicit clearIncorrectValues (the
      unpaged question builds one per record too). The changed records are written in one batch. */
   private clearIncorrectValuesWithoutObjects(): void {
+    this.cleanRecordsWithoutObjectsBy((cleanupObject: IRecordCleanupObject): void => cleanupObject.clearIncorrectValues());
+  }
+  /* Each record without an object cleaned by a temporary object of the type (cleanRecordWithObject):
+     clean runs one of the object's own released clean-ups. Only a question the list pages in memory has
+     such records to clean, and a source-owned one is skipped, as every survey clean-up skips it. */
+  protected cleanRecordsWithoutObjectsBy(clean: (cleanupObject: IRecordCleanupObject) => void): void {
     if (!this.isPagedByList || this.isRemoteData || this.isEmpty()) return;
-    this.cleanRecordsWithoutObjects((index: number, record: any): any =>
-      this.cleanRecordWithObject(index, record, (cleanupObject: IRecordCleanupObject): void => cleanupObject.clearIncorrectValues()));
+    this.cleanRecordsWithoutObjects((index: number, record: any): any => this.cleanRecordWithObject(index, record, clean));
   }
   /* The records without an object that the view creates, each passed to clean (which returns the
      cleaned record), and the changed ones written back - only where the stored object is still the one
      clean read: a handler that ran inside it may have changed the records. */
-  protected cleanRecordsWithoutObjects(clean: (index: number, record: any) => any): void {
+  private cleanRecordsWithoutObjects(clean: (index: number, record: any) => any): void {
     const list = this.dataList;
     const read: Array<{ index: number, record: any, cleared: any }> = [];
     this.forEachRecordItem(list.getCreatedIndexes(), (index: number, item: QuestionRecordItem): void => {
@@ -1948,12 +1953,18 @@ export abstract class QuestionRecordsModel extends Question {
   /* The removal, in order: the page index is read (the splice and what the type does after it do not
      move the page), the object leaves its array (detachItem), and the storage write runs
      (removeStoredRecord), which calls the refill of the page the list cuts once, where the type
-     decides. The caller announces the removal afterwards, unless the type does inside its write. */
+     decides; a second call does nothing. The caller announces the removal afterwards, unless the type
+     does inside its write. */
   protected removeResolvedRecord(removal: IRecordRemoval): void {
     const pageIndex = !!this.dataListValue ? this.dataListValue.pageIndex : 0;
     this.detachItem(removal);
+    let isRefilled = false;
     this.runObjectsFollowingWrite((): void => {
-      this.removeStoredRecord(removal, (): void => { this.refillPageAfterRemove(pageIndex); });
+      this.removeStoredRecord(removal, (): void => {
+        if (isRefilled) return;
+        isRefilled = true;
+        this.refillPageAfterRemove(pageIndex);
+      });
     });
   }
   /* The objects follow one record the list has just inserted. recordIndex is what list.add returned,
@@ -2311,6 +2322,12 @@ export abstract class QuestionRecordsModel extends Question {
     if (!this.isRemoteData) return recordCount - 1;
     const list = this.dataList;
     return list.isPagedBySource ? this.getLastMaterializedRecordIndex() : list.loadedCount - 1;
+  }
+  /* The record copyDefaultValueFromLastEntry copies (getLastEntryRecordIndex), read without creating the
+     list. A record the storage pads (the matrix's) reads as null and is not copied. undefined: none. */
+  protected getLastEntryRecord(recordCount: number): any {
+    const index = this.getLastEntryRecordIndex(recordCount);
+    return index > -1 ? this.getListRecordAt(index, null) : undefined;
   }
   // The record of the last object of the page: -1 when there is none.
   protected getLastMaterializedRecordIndex(): number {
@@ -2862,6 +2879,13 @@ export abstract class QuestionRecordsModel extends Question {
     const list = this.dataListValue;
     return !!list ? list.runAddScope(func) : func();
   }
+  /* Writes that only show the records a data source holds: the values the objects compute while they are
+     built go with a record's next update (DynamicDataList.runShowingRecords). Nothing is created for it:
+     without a list there is nothing to send. */
+  protected runShowingRecords<T>(func: () => T): T {
+    const list = this.dataListValue;
+    return !!list ? list.runShowingRecords(func) : func();
+  }
   /* The records were replaced by a change of what defines them - the rows of the fixed matrix - and
      the question knows where each one went: the remap gives the new index of an old record, -1 for
      one that is gone. The edited set, the states kept for nested paged questions and the record
@@ -3354,9 +3378,12 @@ export abstract class QuestionRecordsModel extends Question {
   // The objects exist: generated rows, panels built for the first time. Objects that do not exist
   // are never stale.
   protected abstract areObjectsBuilt(): boolean;
-  // What a write to the survey would have re-run after a write to a data source; guarded by
-  // runConditionsAfterRemoteWrite.
-  protected abstract runRemoteWriteConditions(): void;
+  /* What a write to the survey would have re-run after a write to a data source; guarded by
+     runConditionsAfterRemoteWrite, which also returns without survey data. By default the question's
+     conditions; the matrices re-run only their cells and totals. */
+  protected runRemoteWriteConditions(): void {
+    this.runCondition(this.getDataFilteredProperties());
+  }
   // The question's own objects on the page, once they are built; the rest of the page validation is shared.
   protected abstract validateBuiltPageObjects(context: ValidationContext): boolean;
   /* One record of getRecordsDisplayValue, formatted in place: item is the object that holds it, and a
@@ -3388,9 +3415,13 @@ export abstract class QuestionRecordsModel extends Question {
   protected getRecordKeyValueName(key: string): string {
     return key;
   }
-  /* One record of the question's own storage (see getListRecordAt), without composing the array. The
-     matrix pads question.value up to rowCount with defaultRecord, else the default row value. */
-  protected abstract getStoredRecordAt(index: number, defaultRecord?: any): any;
+  /* One record of the question's own storage (see getListRecordAt): by default getListRecords() by
+     index. A type whose getListRecords() composes the array reads one record without it: the matrix
+     pads question.value up to rowCount with defaultRecord, else the default row value. */
+  protected getStoredRecordAt(index: number, defaultRecord?: any): any {
+    const records = this.getListRecords();
+    return Array.isArray(records) && index >= 0 && index < records.length ? records[index] : undefined;
+  }
   // The removal hooks (removeResolvedRecord). The object's created position in its array: the rows, the panels.
   protected abstract getItemPosition(item: QuestionRecordItem): number;
   // The object leaves its array at removal.position, and the type does what it does right after its splice.

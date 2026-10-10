@@ -134,9 +134,13 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     if (name === "rows") {
       this.onRecordItemsChanged();
       if (!!this.generatedVisibleRows) {
-        // A single added or removed row is spliced into the rendered table (Bug#11212), unless the rows
-        // are built for a view: then the view decides which rows exist.
-        if (this.hasDataListView || !this.tryUpdateRowsIncrementally(arrayChanges)) {
+        /* A single added or removed row is spliced into the rendered table (Bug#11212), unless the rows
+           are built for a view: then the view decides which rows exist, and they are rebuilt as a view
+           change rebuilds them, the totals included. */
+        if (this.hasDataListView) {
+          this.rebuildFromDataList(false);
+          this.clearIncorrectValues();
+        } else if (!this.tryUpdateRowsIncrementally(arrayChanges)) {
           this.clearGeneratedRows();
           this.resetRenderedTable();
           this.getVisibleRows();
@@ -239,8 +243,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     const oldKeys = this.getRecordItemsCache().keys;
     this.rowsRevision++;
     const newKeys = this.getRecordItemsCache().keys;
-    if (!this.dataListValue) return;
-    // A touched row follows its row name; a removed row leaves the touched set.
+    // A touched row follows its row name; a removed row leaves the touched set. Without a list the states
+    // kept for nested paged questions follow as well (followRemappedRecords creates nothing).
     this.followRemappedRecords((): ((index: number) => number) => createKeyRemap(oldKeys, newKeys, String, true));
   }
   // The one method that composes the records; everything else reads the cache (getListRecords).

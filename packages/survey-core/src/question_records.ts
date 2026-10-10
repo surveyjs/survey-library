@@ -1292,10 +1292,12 @@ export abstract class QuestionRecordsModel extends Question {
      and the questions the record's next object holds take them back (restorePageStatesOfQuestions).
      getQuestions answers an object's questions: the panel's, a matrix row's detail panel's. undefined
      - a row whose detail panel was never created - hands nothing over and keeps what was kept for the
-     record; questions without a paged one hand empty states, which drop it. */
-  protected keepNestedPageStates(items: Array<QuestionRecordItem>): void {
+     record; questions without a paged one hand empty states, which drop it. getRecordIndex names the
+     record of an object, by default the one it was built for. */
+  protected keepNestedPageStates(items: Array<QuestionRecordItem>,
+    getRecordIndex: (item: QuestionRecordItem) => number = (item: QuestionRecordItem): number => this.getBuiltRecordIndex(item)): void {
     items.forEach((item: QuestionRecordItem): void => {
-      const recordIndex = !!item ? this.getBuiltRecordIndex(item) : -1;
+      const recordIndex = !!item ? getRecordIndex(item) : -1;
       if (recordIndex < 0) return;
       const questions = this.getNestedStateQuestions(item);
       if (!!questions) {

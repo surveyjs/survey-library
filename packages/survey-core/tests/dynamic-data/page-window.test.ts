@@ -4861,3 +4861,84 @@ describe("one record added under in-memory paging", () => {
     });
   });
 });
+
+/* The nested matrices hold no answer: a template change rebuilds the panels without their questions'
+   values, as released, so only an unanswered matrix keeps its row count across it. */
+describe("a rebuild of the panels keeps the page of a nested paged matrix", () => {
+  const innerJson = { type: "matrixdynamic", name: "inner", rowCount: 3, rowsPerPage: 1, columns: [{ name: "c", cellType: "text" }] };
+  const createPanel = (): { survey: SurveyModel, question: QuestionPanelDynamicModel } => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelCount: 2, templateElements: [innerJson] }] });
+    return { survey: survey, question: <QuestionPanelDynamicModel>survey.getQuestionByName("p") };
+  };
+  const inner = (question: QuestionPanelDynamicModel, index: number): QuestionMatrixDynamicModel =>
+    <QuestionMatrixDynamicModel>question.panels[index].getQuestionByName("inner");
+  test("a template change rebuilds the panels, and each nested matrix stays on its page", () => {
+    const { question } = createPanel();
+    inner(question, 0).visibleRows;
+    inner(question, 0).pageIndex = 2;
+    expect(inner(question, 0).pageIndex, "#1").toBe(2);
+    const panelBefore = question.panels[0];
+    question.template.addNewQuestion("text", "q2");
+    expect(question.panels[0] !== panelBefore, "#2: the panels were rebuilt").toBe(true);
+    expect(inner(question, 0).pageIndex, "#3: the page is kept").toBe(2);
+    expect(inner(question, 1).pageIndex, "#4").toBe(0);
+  });
+  test("a nested matrix in a matrix detail panel keeps its page when the rows are rebuilt, as the panel does", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "a" }],
+      detailPanelMode: "underRow", detailElements: [innerJson] }] });
+    survey.data = { m: [{ inner: [{ c: "1" }, { c: "2" }, { c: "3" }] }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows[0].showDetailPanel();
+    const nested = (): QuestionMatrixDynamicModel => <QuestionMatrixDynamicModel>matrix.visibleRows[0].detailPanel.getQuestionByName("inner");
+    nested().visibleRows;
+    nested().pageIndex = 2;
+    matrix.addColumn("b");
+    matrix.visibleRows[0].showDetailPanel();
+    expect(nested().pageIndex, "#1").toBe(2);
+  });
+  test("a panel whose record left before the rebuild gets nothing back", () => {
+    const { question } = createPanel();
+    inner(question, 1).visibleRows;
+    inner(question, 1).pageIndex = 2;
+    question.removePanel(1);
+    question.addPanel();
+    question.template.addNewQuestion("text", "q2");
+    expect(inner(question, 1).pageIndex, "#1: the new record's matrix starts on its first page").toBe(0);
+  });
+});
+
+describe("plain-data row names follow the record under paging", () => {
+  const names = (rowsPerPage: number): Array<string> => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 3, rowsPerPage: rowsPerPage,
+      columns: [{ name: "a", cellType: "text" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    matrix.removeRow(0);
+    matrix.addRow();
+    return matrix.getPlainData().data.map((entry: any): string => entry.name);
+  };
+  test("without paging a row is named by its creation, under paging by its record", () => {
+    expect(names(0), "#1: unpaged").toEqual(["row2", "row3", "row4"]);
+    expect(names(10), "#2: paged, the rows are rebuilt on every page move").toEqual(["row1", "row2", "row3"]);
+  });
+});
+
+describe("a paged row's shortcut text numbers the whole view, as unpaged", () => {
+  const texts = (json: any, pageIndex: number, from: number): Array<Array<string>> => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "m", rowCount: 4, columns: [{ name: "a" }] }, json)] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    if (pageIndex > 0) matrix.pageIndex = pageIndex;
+    return matrix.visibleRows.slice(from).map((row: any): Array<string> => [row.text, row.getAccessbilityText(), row.shortcutText]);
+  };
+  test("page 2 of 2 rows a page equals rows 3 and 4 without paging", () => {
+    const unpaged = texts({}, 0, 2);
+    expect(unpaged, "#1").toEqual([["row 3", "3", "3"], ["row 4", "4", "4"]]);
+    expect(texts({ rowsPerPage: 2 }, 1, 0), "#2").toEqual(unpaged);
+  });
+  test("without paging a hidden row is skipped by every number", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 3, rowsVisibleIf: "{rowIndex} > 1", columns: [{ name: "a" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    expect(matrix.visibleRows.map((row: any): Array<string> => [row.text, row.getAccessbilityText(), row.shortcutText]), "#1").toEqual([["row 1", "1", "1"], ["row 2", "2", "2"]]);
+  });
+});

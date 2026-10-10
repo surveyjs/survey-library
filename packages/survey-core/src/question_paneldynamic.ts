@@ -481,7 +481,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     // The records the list materialized, also when it has just stopped paging (hasDataListView is false then).
     const count = this.dataList.getMaterializedIndexes().length;
     const oldPanels: Array<PanelModel> = [].concat(this.panelsCore);
-    this.keepNestedPageStates(oldPanels.map((panel: PanelModel): QuestionRecordItem => <QuestionRecordItem>panel.data));
+    this.keepNestedPageStatesOfPanels(oldPanels);
     this.prepareValueForPanelCreating();
     this.isRebuildingPanels = true;
     try {
@@ -572,12 +572,19 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.setPropertyValue("currentPanel", null);
     this.currentPanel = !!panel && panel.visible ? panel : this.visiblePanelsCore[0];
   }
+  /* Every rebuild of the panels hands the pages of the paged questions nested in them to their records,
+     and the new panels take them back once built (restoreNestedPageStates), as the matrix does on every
+     rebuild of its rows. A panel's record is getPanelRecordIndex's: without a view its position - a
+     rebuild without a view creates the new panels while the old ones are still in place. */
+  private keepNestedPageStatesOfPanels(panels: Array<PanelModel>): void {
+    this.keepNestedPageStates(panels.map((panel: PanelModel): QuestionRecordItem => <QuestionRecordItem>panel.data),
+      (item: QuestionRecordItem): number => item instanceof QuestionPanelDynamicItem ? this.getPanelRecordIndex(item.panel) : -1);
+  }
   private restoreNestedPageStates(): void {
     const panels = this.panelsCore;
     for (let i = 0; i < panels.length; i++) {
-      const item = <QuestionPanelDynamicItem>panels[i].data;
-      if (!(item instanceof QuestionPanelDynamicItem)) continue;
-      this.restorePageStatesOfQuestions(this.getBuiltRecordIndex(item), panels[i].questions);
+      if (!(panels[i].data instanceof QuestionPanelDynamicItem)) continue;
+      this.restorePageStatesOfQuestions(this.getPanelRecordIndex(panels[i]), panels[i].questions);
     }
   }
   private assignOnPropertyChangedToTemplate() {
@@ -1968,6 +1975,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.rebuildFromDataList();
       return;
     }
+    const oldPanels = [].concat(this.panelsCore);
+    this.keepNestedPageStatesOfPanels(oldPanels);
     this.prepareValueForPanelCreating();
     var panels = [];
     if (this.useTemplatePanel) {
@@ -1978,7 +1987,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         panels.push(this.createNewPanel());
       }
     }
-    const oldPanels = [].concat(this.panelsCore);
     this.isRebuildingPanels = true;
     try {
       this.panelsCore.splice(0, this.panelsCore.length, ...panels);
@@ -1986,6 +1994,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.isRebuildingPanels = false;
     }
     this.setValueAfterPanelsCreating();
+    this.restoreNestedPageStates();
     this.setPanelsState();
     this.reRunCondition();
     this.updateFooterActions();

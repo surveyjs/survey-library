@@ -60,9 +60,9 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
   public getAccessbilityText(): string {
     return (this.visibleIndex + 1).toString();
   }
+  // The row's number is its visible index in the whole view, as text has it: under paging not the position on the page.
   public get shortcutText(): string {
-    const matrix = <QuestionMatrixDynamicModel>this.data;
-    const index = matrix.visibleRows.indexOf(this) + 1;
+    const index = this.visibleIndex + 1;
     const questionValue1 = this.cells.length > 1 ? this.cells[1]["questionValue"] : undefined;
     const questionValue0 = this.cells.length > 0 ? this.cells[0]["questionValue"] : undefined;
     return (

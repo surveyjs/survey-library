@@ -1445,9 +1445,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!this.setRowCountValueFromData && newRowCount < this.initialRowCount)
       return;
     if (this.isEditingObjectValueChanged()) return;
+    const isOneRecordAdded = newRowCount === this.rowCount + 1;
     this.setRowCountValueFromData = true;
     this.rowCountValue = newRowCount;
     if (!this.generatedVisibleRows) return;
+    /* Under paging the rows are a page, not the records: the rows stay, and the view places one more
+       record (decideViewAgain), as the rows stay without paging. */
+    if (this.isPagedByList && isOneRecordAdded) {
+      this.setRowCountValueFromData = false;
+      return;
+    }
     if (newRowCount == this.generatedVisibleRows.length + 1) {
       this.onStartRowAddingRemoving();
       const newValue = this.getRowValueByIndex(val, newRowCount - 1);

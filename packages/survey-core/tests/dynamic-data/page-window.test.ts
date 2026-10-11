@@ -4787,6 +4787,64 @@ describe("clearInvisibleValues and a column or template question hidden on other
     expect(res.paged, "#1").toEqual(res.unpaged);
     expect(res.paged[1][2], "#2").toEqual({ a: 2, c: 2 });
   });
+  // The three types sorted by a column or template question c; record key: an index, or a row value of the Multi-Select Matrix.
+  const sortedTypes = (): Array<[string, any, any, any]> => {
+    const sorted = (json: any): any => {
+      if (json.type === "paneldynamic") json.templateElements.push({ type: "text", name: "c" }); else json.columns.push({ name: "c", cellType: "text" });
+      json.sortBy = "c";
+      return json;
+    };
+    const records = (): Array<any> => [{ a: 1, b: "x", c: 1 }, { a: 1, b: "x", c: 2 }, { a: 1, b: "x", c: 3 }];
+    return [["dynamic matrix", sorted(matrixJson("{row.a} = 1")), records(), 0],
+      ["multi-select matrix", sorted(fixedJson("{row.a} = 1")), { r1: records()[0], r2: records()[1], r3: records()[2] }, "r1"],
+      ["dynamic panel", sorted(panelJson("{row.a} = 1")), records(), 0]];
+  };
+  const editRecord = (key: any, changes: any) => (survey: SurveyModel, question: any): void => {
+    const value = JSON.parse(JSON.stringify(question.value));
+    Object.assign(value[key], changes);
+    survey.setValue("q", value);
+  };
+  test("under onHidden, an assignment that sorts a record off the page and hides its column clears it, as one that only hides it", () => {
+    sortedTypes().forEach(([name, json, data, first]) => {
+      const res = run("onHidden", json, data, {}, [editRecord(first, { a: 2, c: 9 })]);
+      expect(res.paged, name + " #1").toEqual(res.unpaged);
+      expect(res.paged[0][first], name + " #2: cleared").toEqual({ a: 2, c: 9 });
+    });
+  });
+  test("under onHidden, a column shown on the page and then hidden by an assignment that sorts its record off the page is cleared", () => {
+    sortedTypes().forEach(([name, json, data, first]) => {
+      data[first].a = 2;
+      const res = run("onHidden", json, data, {}, [editRecord(first, { a: 1 }), editRecord(first, { a: 2, c: 9 })]);
+      expect(res.paged, name + " #1").toEqual(res.unpaged);
+      expect(res.paged[0][first], name + " #2: shown, the answer hidden since load is kept").toEqual({ a: 1, b: "x", c: 1 });
+      expect(res.paged[1][first], name + " #3: cleared").toEqual({ a: 2, c: 9 });
+    });
+  });
+  test("under onHidden, an assignment that sorts a record onto the page and hides its column clears it", () => {
+    sortedTypes().forEach(([name, json, data, first]) => {
+      const last = first === "r1" ? "r3" : 2;
+      const res = run("onHidden", json, data, {}, [editRecord(last, { a: 2, c: 0 })]);
+      expect(res.paged, name + " #1").toEqual(res.unpaged);
+      expect(res.paged[0][last], name + " #2: cleared").toEqual({ a: 2, c: 0 });
+    });
+  });
+  test("under onHidden, a paged Dynamic Matrix keeps its rows when an assignment adds one record, and clears a column the assignment hides", () => {
+    const addAndHide = (survey: SurveyModel, question: any): void => {
+      const value = JSON.parse(JSON.stringify(question.value));
+      value[0].a = 2;
+      value.push({ a: 1 });
+      survey.setValue("q", value);
+    };
+    const res = run("onHidden", matrixJson("{row.a} = 1"), records(), {}, [addAndHide]);
+    expect(res.paged, "#1").toEqual(res.unpaged);
+    expect(res.paged[0], "#2").toEqual([{ a: 2 }, { a: 2, b: "x" }, { a: 3, b: "x" }, { a: 1 }]);
+    const survey = new SurveyModel({ elements: [Object.assign(matrixJson("{row.a} = 1"), { rowsPerPage: 1 })] });
+    survey.data = { q: records() };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+    const row = matrix.visibleRows[0];
+    addAndHide(survey, matrix);
+    expect(matrix.visibleRows[0] === row, "#3: the row on the page stays").toBe(true);
+  });
   test("under onHidden, hiding a column clears it in the records of every page", () => {
     [["dynamic matrix", matrixJson("{hasB} = 'yes'"), records()], ["multi-select matrix", fixedJson("{hasB} = 'yes'"), fixedData()]]
       .forEach(([name, json, data]) => {

@@ -1832,6 +1832,58 @@ export abstract class QuestionRecordsModel extends Question {
   protected keepsHiddenAnswerStates(oldCount: number, newCount: number): boolean {
     return true;
   }
+  /* An assignment from outside that builds objects anew (decideViewAgain) - a sort that moves a
+     record, a page that turns stale, a record that joins the page - builds them before the conditions
+     of that assignment run. The question of a new object is built hidden, and a question built hidden
+     keeps its answer: the answer the old object would have cleared on hiding stayed. So the flags each
+     record had before - its object's, else the walk's (clearHiddenAnswersWithoutObjects) - are taken
+     first, and an object that is new afterwards compares them with its own questions: a transition
+     clears the answer as the question clears it on hiding. The objects that stay have not run the
+     assignment's conditions yet, so they find no transition here and clear when they run them. Not
+     taken where the type does not keep the visibility its objects remember (keepsHiddenAnswerStates):
+     the dynamic matrix rebuilds its rows, as released, for any other record count. */
+  private takeHiddenAnswerFlags(oldRecords: any): IHiddenAnswerFlags {
+    if (!this.survey || this.areInvisibleElementsShowing || this.isRemoteData) return undefined;
+    const newRecords = this.getStoredRecords();
+    if (!this.keepsHiddenAnswerStates(Array.isArray(oldRecords) ? oldRecords.length : 0, Array.isArray(newRecords) ? newRecords.length : 0)) return undefined;
+    const inputs = this.getRecordConditionalInputs().filter((q: Question): boolean => this.canRecordQuestionBeCleared(q, "onHidden"));
+    if (inputs.length === 0) return undefined;
+    const flags = new Map<any, HashTable<number>>();
+    if (!!this.hiddenAnswerStates) {
+      this.hiddenAnswerStates.forEach((state: HashTable<number>, key: any): void => { flags.set(key, state); });
+    }
+    const items = new Set<QuestionRecordItem>();
+    this.forEachBuiltRecordItem((key: any, item: QuestionRecordItem): void => {
+      items.add(item);
+      flags.set(key, this.getItemHiddenAnswerState(item, inputs));
+    });
+    return { inputs: inputs, items: items, flags: flags };
+  }
+  private clearAnswersHiddenInNewObjects(taken: IHiddenAnswerFlags): void {
+    this.forEachBuiltRecordItem((key: any, item: QuestionRecordItem): void => {
+      const prevState = taken.flags.get(key);
+      if (taken.items.has(item) || !prevState) return;
+      const state = this.getItemHiddenAnswerState(item, taken.inputs);
+      taken.inputs.forEach((input: Question): void => {
+        const name = input.getValueName();
+        if (!this.isHiddenAnswerCleared(input, prevState[name], state[name])) return;
+        const q = item.getQuestionsByValueName(name)[0];
+        const isSelfHidden = (prevState[name] & HIDDEN_ANSWER_SELF) && !(state[name] & HIDDEN_ANSWER_SELF);
+        if (!!q) q.clearValueIfInvisible(isSelfHidden ? "onHidden" : "onHiddenContainer");
+      });
+    });
+  }
+  // The built objects with the key their record's hidden-answer state is kept under.
+  private forEachBuiltRecordItem(func: (key: any, item: QuestionRecordItem) => void): void {
+    const source = this.recordsSource;
+    for (let i = 0; ; i++) {
+      const item = this.getItem(i);
+      if (!item) return;
+      if (!(item instanceof QuestionRecordItem)) continue;
+      const index = this.getBuiltRecordIndex(item);
+      if (index > -1) func(source.getStateKey(index, undefined), item);
+    }
+  }
   /* The record without the answer stored under name and its comment, the keys clearValue() removes.
      cleared: the copy made so far, undefined for none; the result is that copy, made when needed. */
   protected removeRecordAnswer(record: any, cleared: any, name: string): any {
@@ -3083,6 +3135,14 @@ export abstract class QuestionRecordsModel extends Question {
      count: an owed assignment is followed after the question's own write, which may have changed it. */
   protected decideViewAgain(created: Array<number>, oldRecords: any, isTouchedSetDropped: boolean, areRecordsReplaced: boolean = true,
     isUpdatedInPlace: boolean = false): void {
+    const hiddenAnswers = this.takeHiddenAnswerFlags(oldRecords);
+    this.decideViewAgainCore(created, oldRecords, isTouchedSetDropped, areRecordsReplaced, isUpdatedInPlace);
+    if (!!hiddenAnswers) {
+      this.clearAnswersHiddenInNewObjects(hiddenAnswers);
+    }
+  }
+  private decideViewAgainCore(created: Array<number>, oldRecords: any, isTouchedSetDropped: boolean, areRecordsReplaced: boolean,
+    isUpdatedInPlace: boolean): void {
     const isInPlace = isUpdatedInPlace && Array.isArray(oldRecords) && oldRecords.length === this.getStoredRecordCount();
     if (isInPlace) areRecordsReplaced = false;
     if (areRecordsReplaced)this.heldRemoveTargets = undefined;
@@ -4412,6 +4472,12 @@ class RecordValueItem extends QuestionRecordItem {
 // The visibility flags of an input in a record, kept by QuestionRecordsModel.clearHiddenAnswersWithoutObjects.
 const HIDDEN_ANSWER_SELF = 1;
 const HIDDEN_ANSWER_CONTAINER = 2;
+// The flags taken before an assignment builds objects anew, and the objects that existed then (takeHiddenAnswerFlags).
+interface IHiddenAnswerFlags {
+  inputs: Array<Question>;
+  items: Set<QuestionRecordItem>;
+  flags: Map<any, HashTable<number>>;
+}
 // The keys of a question's answer in a record: its value name and its comment key, the keys clearValue() removes.
 function getRecordAnswerKeys(name: string): Array<string> {
   return [name, name + settings.commentSuffix];

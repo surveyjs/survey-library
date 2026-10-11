@@ -282,6 +282,7 @@ export {
   QuestionPanelDynamicItem
 } from "../../src/question_paneldynamic";
 export { ArrayDynamicDataSource, SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
+export type { IArrayDynamicDataSourceOptions } from "../../src/dynamic-data/dynamic-data-sources";
 export { parseDynamicDataSort, dynamicDataSortToString } from "../../src/dynamic-data/dynamic-data-sort";
 export type {
   IDynamicDataSource, IDynamicDataSourceCapabilities, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataField,

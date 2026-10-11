@@ -71,7 +71,7 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
 
   // The hooks are not public on the fixed matrix, and it has no data source.
   // @ts-expect-error a hook
-  const dd1: DeclaredKeys<QuestionMatrixDropdownModel> = "getListRecords";
+  const dd1: DeclaredKeys<QuestionMatrixDropdownModel> = "setListRecords";
   // @ts-expect-error a hook
   const dd2: DeclaredKeys<QuestionMatrixDropdownModel> = "rebuildFromDataList";
   // @ts-expect-error a hook
@@ -143,7 +143,7 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
 
   // The dynamic questions do not expose the hooks or the paging owner's page moves either.
   // @ts-expect-error a hook
-  const md1: DeclaredKeys<QuestionMatrixDynamicModel> = "getListRecords";
+  const md1: DeclaredKeys<QuestionMatrixDynamicModel> = "setListRecords";
   // @ts-expect-error a hook
   const md2: DeclaredKeys<QuestionMatrixDynamicModel> = "syncPagingState";
   // @ts-expect-error a page move of the paging owner
@@ -155,7 +155,7 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error a hook
   const md6: DeclaredKeys<QuestionMatrixDynamicModel> = "getFields";
   // @ts-expect-error a hook
-  const pd1: DeclaredKeys<QuestionPanelDynamicModel> = "getListRecords";
+  const pd1: DeclaredKeys<QuestionPanelDynamicModel> = "setListRecords";
   // @ts-expect-error a hook
   const pd2: DeclaredKeys<QuestionPanelDynamicModel> = "syncPagingState";
   // @ts-expect-error a page move of the paging owner

@@ -3379,7 +3379,7 @@ describe("DynamicDataList: a list whose membership is fixed", () => {
       onDataListChanged: (change: IDynamicDataListChange): void => { changes.push(changeToString(change)); }
     };
     const list = DynamicDataList.createReadThrough(owner, () => new ArrayDynamicDataSource((): Array<any> => stored,
-      (arr: Array<any>): void => { writes++; stored = arr; }, true));
+      (arr: Array<any>): void => { writes++; stored = arr; }, { isMembershipFixed: true }));
     list.pageSize = 2;
     list.setRecordVisible(3, false);
     if (view === "sort") list.sort = [{ field: "id", direction: "desc" }];

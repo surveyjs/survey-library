@@ -129,7 +129,7 @@ describe("ArrayDynamicDataSource: element identity and fixed membership", () => 
     let local: Array<any> = [{ a: 1 }, { a: 2 }];
     let writes = 0;
     const source = new ArrayDynamicDataSource((): Array<any> => local,
-      (arr: Array<any>): void => { writes++; local = arr; }, true);
+      (arr: Array<any>): void => { writes++; local = arr; }, { isMembershipFixed: true });
     const before = local;
     source.insert({ a: 3 }, 0);
     source.remove(0);
@@ -143,5 +143,116 @@ describe("ArrayDynamicDataSource: element identity and fixed membership", () => 
     source.update(1, { a: 22 });
     expect(writes, "#3: an update is written").toBe(1);
     expect(local, "#3").toEqual([{ a: 1 }, { a: 22 }]);
+  });
+});
+describe("ArrayDynamicDataSource: count, readAt and the padding of an owner's minimum count", () => {
+  interface IPaddedStore {
+    stored: Array<any>;
+    minCount: number;
+    defaultCalls: number;
+    writes: Array<Array<any>>;
+    source: ArrayDynamicDataSource;
+  }
+  function createPadded(stored: Array<any>, minCount: number): IPaddedStore {
+    const res: IPaddedStore = <any>{ stored: stored, minCount: minCount, defaultCalls: 0, writes: [] };
+    res.source = new ArrayDynamicDataSource((): Array<any> => res.stored, (arr: Array<any>): void => { res.stored = arr; res.writes.push(arr); }, {
+      getMinCount: (): number => res.minCount,
+      getDefaultRecord: (): any => { res.defaultCalls++; return { d: 1 }; }
+    });
+    return res;
+  }
+  test("without options, read, count and readAt give the stored array, its length and its elements", () => {
+    const stored = [{ a: 1 }, { a: 2 }];
+    const source = new ArrayDynamicDataSource((): Array<any> => stored, (): void => { });
+    expect(source.read() === stored, "#1").toBe(true);
+    expect(source.count, "#2").toBe(2);
+    expect(source.readAt(1) === stored[1], "#3").toBe(true);
+    expect(source.readAt(2), "#4").toBeUndefined();
+    expect(source.readAt(-1), "#5").toBeUndefined();
+    expect(source.isMembershipFixed, "#6").toBe(false);
+    const empty = new ArrayDynamicDataSource((): Array<any> => <any>"not an array", (): void => { });
+    expect(empty.count, "#7: a non-array value counts as empty").toBe(0);
+  });
+  test("read() returns the stored array when it is long enough, else a padded copy of distinct records", () => {
+    const store = createPadded([{ a: 1 }, { a: 2 }], 2);
+    expect(store.source.read() === store.stored, "#1: long enough, the array itself").toBe(true);
+    expect(store.defaultCalls, "#2: no default record is asked for").toBe(0);
+    store.minCount = 4;
+    const records = store.source.read();
+    expect(records === store.stored, "#3: a copy").toBe(false);
+    expect(store.stored.length, "#4: the stored array is not changed").toBe(2);
+    expect(records, "#5").toEqual([{ a: 1 }, { a: 2 }, { d: 1 }, { d: 1 }]);
+    expect(records[0] === store.stored[0], "#6: the stored records themselves").toBe(true);
+    expect(records[2] === records[3], "#7: the padded records are distinct copies").toBe(false);
+    expect(store.defaultCalls, "#8: one default record per read").toBe(1);
+    store.minCount = 1;
+    expect(store.source.read() === store.stored, "#9: never truncated").toBe(true);
+  });
+  test("count is the stored length padded up to the minimum, readAt reads a padded position without composing", () => {
+    const store = createPadded([{ a: 1 }], 3);
+    expect(store.source.count, "#1").toBe(3);
+    expect(store.source.readAt(0) === store.stored[0], "#2: a stored record").toBe(true);
+    expect(store.defaultCalls, "#3: neither count nor a stored index asks for the default record").toBe(0);
+    expect(store.source.readAt(1), "#4: a padded position, the default record").toEqual({ d: 1 });
+    expect(store.defaultCalls, "#5").toBe(1);
+    const shared = { s: 1 };
+    expect(store.source.readAt(2, shared) === shared, "#6: the passed record, not a copy").toBe(true);
+    expect(store.source.readAt(2, null), "#7: a passed null is a record too").toBeNull();
+    expect(store.defaultCalls, "#8").toBe(1);
+    expect(store.source.readAt(3), "#9: beyond count").toBeUndefined();
+    expect(store.source.readAt(-1), "#10").toBeUndefined();
+    store.stored = [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }];
+    expect(store.source.count, "#11: a longer array counts itself").toBe(4);
+    expect(store.source.readAt(3), "#12").toEqual({ a: 4 });
+  });
+  test("a padding source without a default record pads with undefined", () => {
+    const source = new ArrayDynamicDataSource((): Array<any> => [], (): void => { }, { getMinCount: (): number => 2 });
+    expect(source.read(), "#1").toEqual([undefined, undefined]);
+    expect(source.count, "#2").toBe(2);
+    expect(source.readAt(1), "#3").toBeUndefined();
+  });
+  test("inside a batch, count and readAt follow the batch array without padding it again", () => {
+    const store = createPadded([{ a: 1 }, { a: 2 }, { a: 3 }], 3);
+    store.source.batch((): void => {
+      store.source.remove(0);
+      expect(store.source.count, "#1: the removal counts").toBe(2);
+      expect(store.source.readAt(1), "#2").toEqual({ a: 3 });
+      expect(store.source.readAt(2), "#3: not padded again").toBeUndefined();
+      expect(store.source.read(), "#4").toEqual([{ a: 2 }, { a: 3 }]);
+    });
+    expect(store.writes.length, "#5: one write").toBe(1);
+    expect(store.stored, "#6: the owner gets the two records").toEqual([{ a: 2 }, { a: 3 }]);
+  });
+  test("a batch starts from the padded array", () => {
+    const store = createPadded([{ a: 1 }, { a: 2 }], 3);
+    store.source.batch((): void => {
+      expect(store.source.count, "#1").toBe(3);
+      store.source.update(2, { a: 3 });
+    });
+    expect(store.stored, "#2: three records are stored").toEqual([{ a: 1 }, { a: 2 }, { a: 3 }]);
+    store.minCount = 5;
+    store.source.update(4, { a: 5 });
+    expect(store.stored, "#3: a single write materializes the padding too").toEqual([{ a: 1 }, { a: 2 }, { a: 3 }, { d: 1 }, { a: 5 }]);
+  });
+  test("padRecords pads an array in place by the same rule", () => {
+    const store = createPadded([], 3);
+    const records = [{ a: 1 }];
+    expect(store.source.padRecords(records) === records, "#1: the same array").toBe(true);
+    expect(records, "#2").toEqual([{ a: 1 }, { d: 1 }, { d: 1 }]);
+    expect(records[1] === records[2], "#3: distinct copies").toBe(false);
+    const long = [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }];
+    store.source.padRecords(long);
+    expect(long.length, "#4: never truncated").toBe(4);
+  });
+  test("a source whose membership is fixed refuses insert, remove and move, also with a minimum count", () => {
+    const writes: Array<Array<any>> = [];
+    const source = new ArrayDynamicDataSource((): Array<any> => [{ a: 1 }], (arr: Array<any>): void => { writes.push(arr); },
+      { isMembershipFixed: true, getMinCount: (): number => 2, getDefaultRecord: (): any => ({}) });
+    expect(source.isMembershipFixed, "#1").toBe(true);
+    source.insert({ a: 3 }, 0);
+    source.remove(0);
+    source.move(0, 1);
+    expect(writes.length, "#2: nothing is written").toBe(0);
+    expect(source.count, "#3").toBe(2);
   });
 });

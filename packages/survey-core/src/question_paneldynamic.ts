@@ -345,14 +345,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const panels = this.panels;
     return position < panels.length ? <QuestionRecordItem>panels[position].data : null;
   }
-  // The batched creation overrides (getValueCore/setValueCore) are honoured: the records are read
-  // and written through question.value.
-  protected getListRecords(): Array<any> {
-    return this.value;
-  }
-  protected setListRecords(records: Array<any>): void {
-    this.setOwnRecordsValue(records);
-  }
   /* A data source that supplies the panel records (IDynamicDataSource): the question reads them from
      it, a page at a time when it pages, and pushes every edit, insertion and deletion to it. Not
      serialized - a data source is code, not survey JSON. undefined goes back to question.value.

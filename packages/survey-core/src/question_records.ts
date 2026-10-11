@@ -7,7 +7,7 @@ import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { ArrayDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
+import { ArrayDynamicDataSource, IArrayDynamicDataSourceOptions } from "./dynamic-data/dynamic-data-sources";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { TextContextProcessor } from "./textPreProcessor";
 import { SurveyError } from "./survey-error";
@@ -284,7 +284,7 @@ export abstract class QuestionRecordsModel extends Question {
       // createReadThrough loads the list, which raises a reset before _dataList is assigned:
       // onDataListChanged drops it.
       this._dataList = DynamicDataList.createReadThrough(this.helperOwner,
-        (): ArrayDynamicDataSource => this.createRecordsSource(), (): number => this.getListRecordCount());
+        (): ArrayDynamicDataSource => this.recordsSourceValue = this.createRecordsSource(), (): number => this.getListRecordCount());
       this._dataList.onError = (error: any, operation: DynamicDataOperation): void => {
         this.onSourceError(error, operation);
       };
@@ -902,8 +902,8 @@ export abstract class QuestionRecordsModel extends Question {
   /* One record as the question reads it without an object: the duplicate scan, the record visibility
      and the record items read through it. A data source's window and a write in progress are the
      list's - inside list.batch() the writes sit in the source's batch array and the storage does not
-     have them yet; otherwise the storage answers (getStoredRecordAt), and the list is not created.
-     defaultRecord: what a record the storage pads reads as (the matrix). */
+     have them yet; otherwise the question's records source answers (getStoredRecordAt), and the list
+     is not created. defaultRecord: what a record the source pads reads as (the Dynamic Matrix). */
   protected getListRecordAt(index: number, defaultRecord?: any): any {
     const list = this.dataListValue;
     if (!!list && (list.isRemote || list.isWriting)) return list.getRecord(index);
@@ -3672,11 +3672,6 @@ export abstract class QuestionRecordsModel extends Question {
   }
 
   // The specialization hooks: what every records question answers.
-  /* The records the list works with: the question's own storage, read and written by the default
-     records source (createRecordsSource). */
-  protected abstract getListRecords(): Array<any>;
-  // operations: the writes the default source made (DynamicDataOperation names), in order.
-  protected abstract setListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void;
   // The conditions of the objects, and of what the type derives from them (the matrix's columns and totals).
   protected abstract runItemsCondition(properties: HashTable<any>): void;
   // The record fields the list knows (see getFieldsOfQuestions).
@@ -3725,12 +3720,10 @@ export abstract class QuestionRecordsModel extends Question {
   protected getRecordKeyValueName(key: string): string {
     return key;
   }
-  /* One record of the question's own storage (see getListRecordAt): by default getListRecords() by
-     index. A type whose getListRecords() composes the array reads one record without it: the matrix
-     pads question.value up to rowCount with defaultRecord, else the default row value. */
+  /* One record of the question's own storage (see getListRecordAt), as the records source reads it,
+     without composing the array: a padded record reads defaultRecord when it is given. */
   protected getStoredRecordAt(index: number, defaultRecord?: any): any {
-    const records = this.getListRecords();
-    return Array.isArray(records) && index >= 0 && index < records.length ? records[index] : undefined;
+    return this.recordsSource.readAt(index, defaultRecord);
   }
   // The removal hooks (removeResolvedRecord). The object's created position in its array: the rows, the panels.
   protected abstract getItemPosition(item: QuestionRecordItem): number;
@@ -3881,13 +3874,34 @@ export abstract class QuestionRecordsModel extends Question {
   protected isRecordMembershipFixed(): boolean {
     return false;
   }
-  /* The source over the question's own storage, which the list uses while no source is assigned. By
-     default a getter/setter pair over getListRecords / setListRecords; a type whose storage rules are a
-     source class of their own returns its instance. */
+  /* The source over the question's own storage, which the list uses while no source is assigned. It
+     owns how the storage reads - the padding included, see getRecordsSourceOptions -; the question owns
+     how a write is stored (setListRecords). By default an array source over question.value; a type
+     whose storage rules are a source class of their own returns its instance. */
   protected createRecordsSource(): ArrayDynamicDataSource {
-    return new ArrayDynamicDataSource((): Array<any> => this.getListRecords(),
+    return new ArrayDynamicDataSource((): Array<any> => this.value,
       (records: Array<any>, operations?: Array<DynamicDataOperation>): void => { this.storeListRecords(records, operations); },
-      this.isRecordMembershipFixed());
+      this.getRecordsSourceOptions());
+  }
+  // What the default records source adds to the array: the fixed membership, and a type's padding.
+  protected getRecordsSourceOptions(): IArrayDynamicDataSourceOptions {
+    return { isMembershipFixed: this.isRecordMembershipFixed() };
+  }
+  /* The question's own records source: the one the list uses while no source is assigned, created on
+     first use - before the list too, for a read without it. The list's factory replaces it, so after a
+     detach the question reads the instance the list reads. No initializer: the base constructors reach
+     the records code before the fields of this class are initialized. */
+  private recordsSourceValue: ArrayDynamicDataSource;
+  protected get recordsSource(): ArrayDynamicDataSource {
+    if (!this.recordsSourceValue) {
+      this.recordsSourceValue = this.createRecordsSource();
+    }
+    return this.recordsSourceValue;
+  }
+  /* The write of the default records source, as a type stores it. operations: the writes the source
+     made (DynamicDataOperation names), in order. */
+  protected setListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void {
+    this.setOwnRecordsValue(records);
   }
   /* A full validation visits every page of the view, not only the pages of the edited records: the
      records exist whether or not the respondent opened their page (the rows of the fixed matrix).
@@ -3904,10 +3918,9 @@ export abstract class QuestionRecordsModel extends Question {
   /* Runs after every assignment of the page size, whatever the value - also one that does not change
      it, which onPropertyValueChanged would skip: the question refreshes what it renders. */
   protected onPageSizeAssigned(): void { }
-  // The length getListRecords() would return.
+  // The count of the question's own records, as the records source reads it, without composing the array.
   protected getListRecordCount(): number {
-    const records = this.getListRecords();
-    return Array.isArray(records) ? records.length : 0;
+    return this.recordsSource.count;
   }
   /* The record counts a read needs, peeked: the list's when it exists, the storage's otherwise - a
      read never creates the list. loadedRecordCount: the records that can be looked at (a source that

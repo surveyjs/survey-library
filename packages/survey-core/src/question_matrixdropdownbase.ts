@@ -26,7 +26,7 @@ import {
   QuestionRecordItemGetterContext, QuestionRecordItem, IRecordItemWrite, QuestionRecordsModel,
   QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties
 } from "./question_records";
-import { DynamicDataOperation, IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
+import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { isRecordEmpty } from "./dynamic-data/dynamic-data-sources";
 import { createIndexes } from "./dynamic-data/dynamic-data-filter";
 
@@ -2728,12 +2728,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected isRecordMembershipFixed(): boolean {
     return true;
   }
-  // The matrix base generates no rows (generateRows), so it has no records: the two matrices answer these.
-  protected getListRecords(): Array<any> {
-    return [];
-  }
-  // No records, so nothing to write: the fixed membership keeps the count at 0.
-  protected setListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void { }
   /* A full rebuild: the rows are re-created for the records the view now holds. It costs the
      per-row state - open detail panels, row errors, cell question state, row ids - and fires the
      row-creation callbacks again. It is the same path a remote page change takes, so there is one.

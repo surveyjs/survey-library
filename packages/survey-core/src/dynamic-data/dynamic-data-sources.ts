@@ -3,20 +3,65 @@ import { Helpers } from "../helpers";
 import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data-interfaces";
 import { createKeyRemap } from "./dynamic-data-record-remap";
 
+/* What an owner adds to the array source.
+   isMembershipFixed: the records are the owner's to define; insert, remove and move write nothing.
+   getMinCount: the records the owner always has (the Dynamic Matrix's rowCount). A stored array that
+   is shorter reads padded up to it with copies of getDefaultRecord(); the padding is virtual and
+   reaches the storage only with a write. The stored array is never truncated to it.
+   getDefaultRecord: what a padded record reads as; undefined without it. */
+export interface IArrayDynamicDataSourceOptions {
+  isMembershipFixed?: boolean;
+  getMinCount?: () => number;
+  getDefaultRecord?: () => any;
+}
 // An in-memory source over an array the caller owns. It is constructed from a getter/setter pair,
 // not from an array reference: the questions expose their records through question.value, which must
 // be replaced - never mutated - on every write, so that Question.setNewValue sees a different array
 // and onValueChanged.oldValue stays correct. Every write therefore builds a new array.
+// The source owns how the storage reads - the padding included -; the owner owns how a write is
+// stored (setArray).
 export class ArrayDynamicDataSource implements IDynamicDataSource {
-  /* isMembershipFixed: the records are the owner's to define; insert, remove and move write nothing.
-     setArray gets the writes that made the array, in order - one, or every write of a batch - so that
+  /* setArray gets the writes that made the array, in order - one, or every write of a batch - so that
      an owner whose value has a shape rule per kind of write can apply it. */
   constructor(private getArray: () => Array<any> | undefined,
     private setArray: (arr: Array<any>, operations?: Array<DynamicDataOperation>) => void,
-    private membershipFixed: boolean = false) { }
+    private options: IArrayDynamicDataSourceOptions = {}) { }
   // A list over this source takes the flag from it (DynamicDataList.createReadThrough).
   public get isMembershipFixed(): boolean {
-    return this.membershipFixed;
+    return !!this.options.isMembershipFixed;
+  }
+  /* The length read() would return, without composing the array. Inside a batch the array being built,
+     which is not padded again: a removal may leave it below the minimum until the owner stores it. */
+  public get count(): number {
+    if (this.batchDepth > 0) return this.batchArray.length;
+    return Math.max(this.readStored().length, this.getMinCount());
+  }
+  /* One record of read(), without composing the array; undefined out of range. A padded position reads
+     defaultRecord when it is given - shared, not copied: a caller that only reads passes one for every
+     index -, else getDefaultRecord(). Inside a batch, the array being built. */
+  public readAt(index: number, defaultRecord?: any): any {
+    if (this.batchDepth > 0) return this.batchArray[index];
+    if (index < 0) return undefined;
+    const stored = this.readStored();
+    if (index < stored.length) return stored[index];
+    if (index >= this.getMinCount()) return undefined;
+    return defaultRecord !== undefined ? defaultRecord : this.getDefaultRecord();
+  }
+  // Appends copies of the default record until records holds the minimum count; records is modified and returned.
+  public padRecords(records: Array<any>): Array<any> {
+    const minCount = this.getMinCount();
+    if (records.length >= minCount) return records;
+    const defaultRecord = this.getDefaultRecord();
+    for (let i = records.length; i < minCount; i++) {
+      records.push(Helpers.getUnbindValue(defaultRecord));
+    }
+    return records;
+  }
+  private getMinCount(): number {
+    return !!this.options.getMinCount ? this.options.getMinCount() : 0;
+  }
+  private getDefaultRecord(): any {
+    return !!this.options.getDefaultRecord ? this.options.getDefaultRecord() : undefined;
   }
   private batchDepth: number = 0;
   private batchArray: Array<any>;
@@ -44,9 +89,9 @@ export class ArrayDynamicDataSource implements IDynamicDataSource {
       this.batchArray = undefined;
       this.batchOperations = [];
     }
-    // The writes are counted instead of comparing the result with a fresh read: a getter that
-    // composes the array on the fly (the matrix pads its value up to rowCount) returns a different
-    // instance every time and an empty batch would write the composed array back into the owner.
+    // The writes are counted instead of comparing the result with a fresh read: a read that pads the
+    // stored array (getMinCount) or a getter that composes it returns a different instance every time,
+    // and an empty batch would write the composed array back into the owner.
     if (operations.length > 0) {
       this.setArray(newArray, operations);
     }
@@ -65,7 +110,12 @@ export class ArrayDynamicDataSource implements IDynamicDataSource {
   public read(): Array<any> {
     return this.batchDepth > 0 ? this.batchArray : this.readCore();
   }
+  // The stored array as read() gives it outside a batch: itself when it holds the minimum count, else a padded copy.
   private readCore(): Array<any> {
+    const res = this.readStored();
+    return res.length >= this.getMinCount() ? res : this.padRecords(res.slice());
+  }
+  private readStored(): Array<any> {
     const res = this.getArray();
     return Array.isArray(res) ? res : [];
   }
@@ -161,7 +211,7 @@ export class RowsDynamicDataSource<T extends IDynamicDataRow = IDynamicDataRow> 
   public onRecordsReplaced: (createRemap: () => ((index: number) => number)) => void;
   constructor(private getRows: () => Array<T>, private getValue: () => any,
     private storeValue: (newValue: any, changedIndexes: Array<number>) => void) {
-    super(() => this.getRecords(), (records: Array<any>): void => { this.writeRecords(records); }, true);
+    super(() => this.getRecords(), (records: Array<any>): void => { this.writeRecords(records); }, { isMembershipFixed: true });
   }
   private rowsCache: { items: Array<T>, keys: Array<string>, hasDuplicates: boolean };
   private recordsCache: { value: any, records: Array<any> };
@@ -190,8 +240,8 @@ export class RowsDynamicDataSource<T extends IDynamicDataRow = IDynamicDataRow> 
   public indexOfKey(key: any): number {
     return this.getRowsCache().keys.indexOf(String(key));
   }
-  // One stored record, without composing the array.
-  public readAt(index: number): any {
+  // One stored record, without composing the array. No row pads: defaultRecord is not used.
+  public readAt(index: number, defaultRecord?: any): any {
     const item = this.itemAt(index);
     if (!item) return undefined;
     const value = this.getValue();

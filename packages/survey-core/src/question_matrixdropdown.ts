@@ -239,9 +239,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   protected getRecordStateKey(recordIndex: number, record: any): any {
     return this.rowsSource.itemAt(recordIndex) || record;
   }
-  protected getListRecordCount(): number {
-    return this.rowsSource.count;
-  }
   /* A record in a value the caller passes - the old records of an assignment, a value being verified -,
      not in the storage: under its row name. */
   protected getRecordInValue(value: any, recordIndex: number): any {
@@ -256,10 +253,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
      moves or removes one (rowsSource.rowsChanged). */
   protected createAssignmentRemap(oldRecords: any, newRecords: any): (index: number) => number {
     return (index: number): number => index;
-  }
-  // QuestionRecordsModel hook: one stored record without composing the array, by its row key.
-  protected getStoredRecordAt(index: number, defaultRecord?: any): any {
-    return this.rowsSource.readAt(index);
   }
   /* The rows source's write: newValue is the answer with the written records in place. What a row
      model does to the rows that were not written happens here (dropEmptyColumnKeys), an answer with

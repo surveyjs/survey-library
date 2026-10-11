@@ -29,7 +29,7 @@ import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdown
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsValueGetterContext, IRecordCountNames, getRecordCountNamesOf, isRecordCountSerializable } from "./question_records";
 import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { isRecordEmpty } from "./dynamic-data/dynamic-data-sources";
+import { isRecordEmpty, IArrayDynamicDataSourceOptions } from "./dynamic-data/dynamic-data-sources";
 
 export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
   // The design row answers any path; isRoot is left as it is.
@@ -146,15 +146,17 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       if (this.getBuiltRecordIndex(row) > -1 && position < indexes.length)this.setBuiltRecordIndex(row, indexes[position]);
     });
   }
-  /* The records the list works with: question.value padded up to rowCount, exactly as
-     createNewValue() pads it. The padding is virtual - it reaches question.value only when a write
-     materializes it - and the array is never truncated here: the rowCount setter needs the records
+  /* The records source reads question.value padded up to rowCount with copies of the default row
+     value, as createNewValue() pads it. The padding is virtual - it reaches question.value only when a
+     write materializes it - and the array is never truncated: the rowCount setter needs the records
      beyond the new rowCount in order to remove them through the list. */
-  protected getListRecords(): Array<any> {
-    const val = this.value;
-    if (Array.isArray(val) && val.length >= this.rowCount) return val;
-    return this.padRecords(Array.isArray(val) ? val.slice() : []);
+  protected getRecordsSourceOptions(): IArrayDynamicDataSourceOptions {
+    const res = super.getRecordsSourceOptions();
+    res.getMinCount = (): number => this.rowCount;
+    res.getDefaultRecord = (): any => this.getDefaultRowValue(false) || {};
+    return res;
   }
+  // The write rules are the matrix's: a removal's count-down, and the value shape of each kind of write.
   protected setListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void {
     // A removal whose count-down waits for the store (removeStoredRecord): the padding stays virtual.
     if ((operations || []).indexOf("remove") > -1) {
@@ -165,34 +167,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.setOwnRecordsValue(this.normalizeRecords(records, operations));
   }
-  // The length getListRecords() would return: value.length padded up to rowCount, never truncated.
-  protected getListRecordCount(): number {
-    const val = this.value;
-    const len = Array.isArray(val) ? val.length : 0;
-    return Math.max(len, this.rowCount);
-  }
-  /* QuestionRecordsModel hook: one record of getListRecords() without composing the array: a padded
-     record is the default row value. For the loops over the records by index. */
-  protected getStoredRecordAt(index: number, defaultRecord?: any): any {
-    const val = this.value;
-    if (Array.isArray(val) && index < val.length) return index < 0 ? undefined : val[index];
-    if (index < 0 || index >= this.rowCount) return undefined;
-    return defaultRecord !== undefined ? defaultRecord : this.getDefaultRowValue(false) || {};
-  }
-  /* A row past the value reads the padded record, as getStoredRecordAt does: a cleared value shows
-     the default row value again. A data source's window and a live-object value are not padded. */
+  /* A record of a value the caller passes - the records of an assignment -, not of the storage, so it
+     is padded here and not by the records source: a row past the value reads the default row value, as
+     a padded record of the storage does, and a cleared value shows it again. A data source's window and
+     a live-object value are not padded. */
   protected getAssignedRecord(value: any, recordIndex: number): any {
     const record = super.getAssignedRecord(value, recordIndex);
     if (record !== undefined || recordIndex < 0 || recordIndex >= this.rowCount || this.isRemoteData || this.isEditingObjectValue) return record;
     return this.getDefaultRowValue(false) || {};
-  }
-  // Appends default row values until the array holds rowCount records; the array is modified.
-  private padRecords(records: Array<any>): Array<any> {
-    const rowValue = this.getDefaultRowValue(false) || {};
-    for (let i = records.length; i < this.rowCount; i++) {
-      records.push(this.getUnbindValue(rowValue));
-    }
-    return records;
   }
   /* The value shape rules of a write, as each kind of write has always had them. A cell edit - the writes are updates - drops a value whose records are all
      empty and keeps minRowCount empty records instead; a row the matrix removes itself drops such a
@@ -1497,7 +1479,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
        total and the records beyond the window are on the server, not missing from the value. */
     if (this.isRemoteData) return result;
     if (result.length > this.rowCount) result.splice(this.rowCount);
-    return this.padRecords(result);
+    return this.recordsSource.padRecords(result);
   }
   protected deleteRowValue(newValue: any, row: MatrixDropdownRowModelBase): any {
     if (!Array.isArray(newValue)) return newValue;

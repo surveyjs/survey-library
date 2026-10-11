@@ -1,5 +1,6 @@
 import { ConditionRunner } from "../conditions/conditionRunner";
 import { Helpers } from "../helpers";
+import type { ISurvey } from "../interfaces/survey-interfaces";
 import { createFilterRunner } from "./dynamic-data-filter";
 import {
   DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
@@ -10,7 +11,7 @@ import {
   isRecordValueChanged, mergeInsertAnswer, toReadResult
 } from "./dynamic-data-channel";
 import { DynamicDataCount } from "./dynamic-data-count";
-import { ArrayDynamicDataSource, changeSourceWriter, hasFixedMembership, isLocalSource, isSourceWrittenByAnother, LocalDynamicDataSource } from "./dynamic-data-sources";
+import { ArrayDynamicDataSource, hasFixedMembership, IPositionWrittenSource, isLocalSource, LocalDynamicDataSource } from "./dynamic-data-sources";
 import { DynamicDataMembership } from "./dynamic-data-membership";
 import { DynamicDataReadState } from "./dynamic-data-read-state";
 import { DynamicDataRecordVisibility, IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data-record-visibility";
@@ -48,7 +49,6 @@ export class DynamicDataList {
   private _pageSize: number = 0;
   private _pageIndex: number = 0;
   private isDisposed: boolean = false;
-  private writerToken: object = {};
   private onWriterChanged = (): void => { if (!!this.owner && !!this.owner.onSourceWriterChanged)this.owner.onSourceWriterChanged(); };
   // The reads, the push chain and the pending inserts: everything that orders the requests to the
   // source (see the header of dynamic-data-channel.ts).
@@ -124,9 +124,14 @@ export class DynamicDataList {
      keeps its source on a detach - there is nothing to go back to - and only the flag changes. */
   public assignSource(source: IDynamicDataSource, onAssigning?: () => void): void {
     const newValue = source || undefined;
-    if (this.assignedSourceValue === newValue) return changeSourceWriter(this.writerToken, newValue, newValue, this.onWriterChanged);
+    // An in-memory source is written by its last assignment only, the same one again included (LocalDynamicDataSource.positionWriter).
+    if (this.assignedSourceValue === newValue) {
+      if (isLocalSource(newValue)) (<IPositionWrittenSource><any>newValue).claimPositionWriter(this, this.onWriterChanged);
+      return;
+    }
     this.checkSourceReplaceable();
-    changeSourceWriter(this.writerToken, this.assignedSourceValue, newValue, this.onWriterChanged);
+    if (isLocalSource(this.assignedSourceValue)) (<IPositionWrittenSource><any>this.assignedSourceValue).releasePositionWriter(this);
+    if (isLocalSource(newValue)) (<IPositionWrittenSource><any>newValue).claimPositionWriter(this, this.onWriterChanged);
     this.assignedSourceValue = newValue;
     if (!!onAssigning) onAssigning();
     if (!!newValue) {
@@ -1111,7 +1116,7 @@ export class DynamicDataList {
   }
   public dispose(): void {
     this.isDisposed = true;
-    changeSourceWriter(this.writerToken, this.assignedSourceValue, undefined, undefined);
+    if (isLocalSource(this.assignedSourceValue)) (<IPositionWrittenSource><any>this.assignedSourceValue).releasePositionWriter(this);
     this.channel.cancelReads();
     // No notification: a disposed list raises nothing, and a read in flight will never clear it.
     this._isLoading = false;
@@ -1167,8 +1172,8 @@ export class DynamicDataList {
     if (this.isMembershipFixed && (operation === "insert" || operation === "remove" || operation === "move")) return false;
     const source: any = this._source;
     if (!source || typeof source[operation] !== "function") return false;
-    if (operation === "move") return !this.isRemote && isLocalSource(source) && !this.keyField && !isSourceWrittenByAnother(source, this.writerToken);
-    return operation === "read" || !!this.keyField || isLocalSource(source) && !isSourceWrittenByAnother(source, this.writerToken);
+    if (operation === "move") return !this.isRemote && isLocalSource(source) && !this.keyField && !(<IPositionWrittenSource><any>source).isWrittenByAnotherWriter(this);
+    return operation === "read" || !!this.keyField || isLocalSource(source) && !(<IPositionWrittenSource><any>source).isWrittenByAnotherWriter(this);
   }
   private getFields(): Array<IDynamicDataField> {
     return !!this.owner && !!this.owner.getFields ? this.owner.getFields() : undefined;
@@ -1301,6 +1306,7 @@ export class DynamicDataList {
       syncWindowAfterSyncPush: (): void => this.syncWindowAfterSyncPush(),
       isOwnStorage: (source: IDynamicDataSource): boolean => this.isOwnStorage(source),
       onPushFailed: (operation: DynamicDataOperation): void => this.onPushFailed(operation),
+      getSurvey: (): ISurvey => !!this.owner && !!this.owner.getSurvey ? this.owner.getSurvey() : undefined,
       onSettled: (): void => { if (!!this.owner && !!this.owner.onDataSettled)this.owner.onDataSettled(); },
       onWritesStarted: (): void => { if (!!this.owner && !!this.owner.onWritesStarted)this.owner.onWritesStarted(); }
     };

@@ -1,5 +1,6 @@
 import { Helpers } from "../helpers";
 import { DynamicDataOperation, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSource } from "./dynamic-data-interfaces";
+import type { ISurvey } from "../interfaces/survey-interfaces";
 
 /* The request channel of DynamicDataList: everything that orders the requests the list sends to its
    source - the reads, the push chain of the writes, the inserts that have not answered yet, and the
@@ -57,6 +58,8 @@ export interface IDynamicDataChannelHost {
   // A push failed and was reported: the window keeps the local change, unless the list decides
   // otherwise for this operation.
   onPushFailed(operation: DynamicDataOperation): void;
+  // The survey of the list's question: it keeps the writes in flight per source object (getForeignWrites).
+  getSurvey(): ISurvey;
   // No read and no push is pending any more (see notifySettled).
   onSettled(): void;
   // The first push the source has not answered was sent: hasPendingWrites has become true.
@@ -167,10 +170,16 @@ export function getUpdatePayload(pending: IPendingInsert, record: any, ownedFiel
 /* The asynchronous writes in flight, per source object and per channel: the tail of each channel's
    push chain while it has pending pushes. It orders reads after writes: a keyed source object shared
    by two questions is written by two channels, and each one's reads wait for the other's writes (see
-   getForeignWrites). An in-memory source written by position has one writing list
-   (changeSourceWriter), so only that list's channel writes it. Two different objects over one backend
-   are not known to be one. */
-const writesBySource = new WeakMap<object, Map<DynamicDataSourceChannel, Promise<void>>>();
+   getForeignWrites). The survey of the lists keeps them (SurveyModel.getDynamicDataWriteChains), so
+   the questions of one survey are ordered; lists without a survey, lists in two surveys and a survey
+   without the member (a custom ISurvey) are not. A write is kept under the survey the list has when
+   the write is pushed. An in-memory source written by position has one writing list
+   (LocalDynamicDataSource.positionWriter), so only that list's channel writes it. Two different
+   objects over one backend are not known to be one. The member is private on SurveyModel: the
+   channel reaches it through a cast. */
+interface ISurveyDynamicDataWriteChains {
+  getDynamicDataWriteChains(): WeakMap<object, Map<object, Promise<void>>>;
+}
 
 export class DynamicDataSourceChannel {
   private readRequestId: number = 0;
@@ -292,9 +301,11 @@ export class DynamicDataSourceChannel {
     const waits: Array<Promise<void>> = [];
     if (!!this.detachedTail) waits.push(this.detachedTail);
     const source = this.host.getSource();
-    const chains = !!source ? writesBySource.get(source) : undefined;
+    const survey = <ISurveyDynamicDataWriteChains><any>this.host.getSurvey();
+    const hasChains = !!source && !!survey && typeof survey.getDynamicDataWriteChains === "function";
+    const chains = hasChains ? survey.getDynamicDataWriteChains().get(source) : undefined;
     if (!!chains) {
-      chains.forEach((tail: Promise<void>, channel: DynamicDataSourceChannel): void => {
+      chains.forEach((tail: Promise<void>, channel: object): void => {
         if (channel !== this) waits.push(tail);
       });
     }
@@ -311,10 +322,13 @@ export class DynamicDataSourceChannel {
   }
   // The tail of this channel's chain is the one other channels on the source wait for.
   private trackChain(source: IDynamicDataSource): void {
-    let chains = writesBySource.get(source);
+    const survey = <ISurveyDynamicDataWriteChains><any>this.host.getSurvey();
+    if (!survey || typeof survey.getDynamicDataWriteChains !== "function") return;
+    const surveyChains = survey.getDynamicDataWriteChains();
+    let chains = surveyChains.get(source);
     if (!chains) {
-      chains = new Map<DynamicDataSourceChannel, Promise<void>>();
-      writesBySource.set(source, chains);
+      chains = new Map<object, Promise<void>>();
+      surveyChains.set(source, chains);
     }
     const tail = this.pushChain;
     chains.set(this, tail);

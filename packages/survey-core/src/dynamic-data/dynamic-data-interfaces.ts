@@ -1,3 +1,5 @@
+import type { ISurvey } from "../interfaces/survey-interfaces";
+
 // The data-source contract for DynamicDataList. A source has one read, read(request), and declares
 // what it does with the request in two ways, on purpose:
 // - the read capabilities by flags (capabilities: { paging, filtering, sorting }): every source has
@@ -53,7 +55,7 @@
 // write ever names a record by its position. It may still page, sort and filter on its side. The
 // in-memory sources (ArrayDynamicDataSource and SurveyDataDynamicDataSource) are the exception: the
 // list writes them synchronously, so a write names a record by its storage index. Such a source has
-// one writer: assigned to a second question, it is read-only there (changeSourceWriter). sourceIndex, where it is passed on its own, is the position in the WHOLE source - the list
+// one writer: assigned to a second question, it is read-only there (DynamicDataList.assignSource). sourceIndex, where it is passed on its own, is the position in the WHOLE source - the list
 // has already added the offset of the page the edit was made on.
 //
 // Where an added record is kept is the source's to decide: insert receives the position the
@@ -200,6 +202,9 @@ export interface IDynamicDataOwner {
   onDataSettled?(): void;
   // The first write the source has not answered was sent.
   onWritesStarted?(): void;
-  // Another list took the claim on the in-memory source this list wrote (changeSourceWriter): it only reads it now.
+  // Another list took the claim on the in-memory source this list wrote (DynamicDataList.assignSource): it only reads it now.
   onSourceWriterChanged?(): void;
+  /* The survey of the question the list belongs to: the asynchronous writes of the lists in one
+     survey that share a source object are ordered (DynamicDataSourceChannel.getForeignWrites). */
+  getSurvey?(): ISurvey;
 }

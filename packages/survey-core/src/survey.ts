@@ -6292,6 +6292,15 @@ export class SurveyModel extends SurveyElementCore
     }
     this.continueHeldCompletion();
   }
+  /* The asynchronous writes the records questions send to their data sources, in flight, per source
+     object. Not a member of ISurvey and private, so it is not API: the data source channel
+     (dynamic-data-channel.ts) reaches it by duck typing, so that the questions of this survey that
+     share a source object read after each other's writes. */
+  private dynamicDataWriteChains: WeakMap<object, Map<object, Promise<void>>>;
+  private getDynamicDataWriteChains(): WeakMap<object, Map<object, Promise<void>>> {
+    if (!this.dynamicDataWriteChains)this.dynamicDataWriteChains = new WeakMap<object, Map<object, Promise<void>>>();
+    return this.dynamicDataWriteChains;
+  }
   /* A records question that left the survey - removed from its page, inside a removed panel or page -
      stops holding a completion: what it writes is no longer submitted. */
   private dropRemovedQuestionsWithPendingWrites(): void {

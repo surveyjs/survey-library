@@ -8,7 +8,7 @@ import { createKeyRemap, getReplacedRecordsRemap } from "./dynamic-data-record-r
    that list last read it -, and the push is the storage: the next read already gives what a write
    stored. The list relies on all three: it reads its owner's own local source through instead of
    keeping a window, it takes the array a write stored as its window, and it lets only one list write
-   such a source (changeSourceWriter). A subclass says how the stored records are counted and read one
+   such a source (positionWriter). A subclass says how the stored records are counted and read one
    by one (getStoredCount, readStoredAt), and it adds the membership writes it has: one without insert
    has a membership that is not the list's to change (hasFixedMembership).
    It is constructed from a getter/setter pair, not from an array reference: the questions expose their
@@ -129,6 +129,52 @@ export abstract class LocalDynamicDataSource implements IDynamicDataSource {
   public createAssignmentRemap(oldRecords: any, newRecords: any, keyField?: string): (index: number) => number {
     return getReplacedRecordsRemap(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : [], keyField);
   }
+  /* A source without keyField is written by position: the index a list sends is the position in the
+     array as that list last read it. Two lists that write one such array would each send positions
+     the other one's writes have shifted, and a write would land on another record. So such a source
+     has one writer: the list it was assigned to last (DynamicDataList.assignSource) - also when it is
+     assigned again to a list that holds it already. A list that holds it while another list writes it
+     only reads it: its write capabilities are false, and the question reports each refused write.
+     When the writer changes, the earlier writer is told (positionWriterChanged), so that its question
+     refreshes what it shows. A list that leaves the source or is disposed releases it, and a list that
+     only reads stays read-only until the source is assigned to it again (isPositionWriterReleased). A
+     keyed source is written by key and stays shared. The question's own default source is never
+     assigned, so it has no writer.
+     The source holds only the current writer and its callback, and drops both when the writer leaves
+     or another list takes its place. The members are private: the list calls them through
+     IPositionWrittenSource. */
+  private positionWriter: object;
+  private positionWriterChanged: () => void;
+  private isPositionWriterReleased: boolean;
+  private get isKeyed(): boolean {
+    return !!(<IDynamicDataSource>this).keyField;
+  }
+  private claimPositionWriter(writer: object, onChanged: () => void): void {
+    if (this.isKeyed) return;
+    const previous = this.positionWriter;
+    const notify = this.positionWriterChanged;
+    this.positionWriter = writer;
+    this.positionWriterChanged = onChanged;
+    this.isPositionWriterReleased = false;
+    if (!!previous && previous !== writer && !!notify) notify();
+  }
+  private releasePositionWriter(writer: object): void {
+    if (this.positionWriter !== writer) return;
+    this.positionWriter = undefined;
+    this.positionWriterChanged = undefined;
+    this.isPositionWriterReleased = true;
+  }
+  private isWrittenByAnotherWriter(writer: object): boolean {
+    if (this.isKeyed) return false;
+    return !!this.isPositionWriterReleased || !!this.positionWriter && this.positionWriter !== writer;
+  }
+}
+/* The writer of a local source, for DynamicDataList: the private members of LocalDynamicDataSource
+   above, called through a cast. Not exported from the entries. */
+export interface IPositionWrittenSource {
+  claimPositionWriter(writer: object, onChanged: () => void): void;
+  releasePositionWriter(writer: object): void;
+  isWrittenByAnotherWriter(writer: object): boolean;
 }
 function isInRange(index: number, length: number): boolean {
   return index >= 0 && index < length;
@@ -455,40 +501,4 @@ function getUniqueKeyIndexes(keys: Array<string>, filter: (index: number) => boo
     if (counts.get(key) === 1 && filter(index)) res.push(index);
   });
   return res;
-}
-
-/* An in-memory source without keyField is written by position: the index a list sends is the
-   position in the array as that list last read it. Two lists that write one such array would each
-   send positions the other one's writes have shifted, and a write would land on another record. So
-   such a source has one writer: the list it was assigned to last (DynamicDataList.assignSource) -
-   also when it is assigned again to a list that holds it already. A list that holds it while another
-   list writes it only reads it: its write capabilities are false, and the question reports each
-   refused write. When the writer changes, the earlier writer is told (onChanged), so that its
-   question refreshes what it shows. A list that leaves the source or is disposed releases the claim,
-   and a list that only reads stays read-only until the source is assigned to it again. A keyed source
-   is written by key and stays shared. The question's own default source is never assigned, so it is
-   not tracked.
-   The claim is a token object the list owns, not the list: the source does not keep an earlier
-   writer, or the survey around it, alive. Only the current writer's onChanged is reachable from the
-   source, until another list claims it. */
-const sourceWriters: WeakMap<IDynamicDataSource, object> = new WeakMap<IDynamicDataSource, object>();
-const writerCallbacks: WeakMap<object, () => void> = new WeakMap<object, () => void>();
-// The claim a writer that left keeps in place: the lists that only read stay read-only. A source that was never assigned (a standalone list) has no claim.
-const releasedClaim: object = {};
-function isWrittenByPosition(source: IDynamicDataSource): boolean {
-  return !!source && !source.keyField && isLocalSource(source);
-}
-// The list of token leaves oldSource and is assigned newSource (undefined for none; the same source to claim it again).
-export function changeSourceWriter(token: object, oldSource: IDynamicDataSource, newSource: IDynamicDataSource, onChanged: () => void): void {
-  if (!!oldSource && oldSource !== newSource && sourceWriters.get(oldSource) === token) sourceWriters.set(oldSource, releasedClaim);
-  if (!isWrittenByPosition(newSource)) return;
-  const previous = sourceWriters.get(newSource);
-  sourceWriters.set(newSource, token);
-  writerCallbacks.set(token, onChanged);
-  const notify = !!previous && previous !== token ? writerCallbacks.get(previous) : undefined;
-  if (!!notify) notify();
-}
-export function isSourceWrittenByAnother(source: IDynamicDataSource, token: object): boolean {
-  const writer = isWrittenByPosition(source) ? sourceWriters.get(source) : undefined;
-  return !!writer && writer !== token;
 }

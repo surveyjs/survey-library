@@ -6114,6 +6114,83 @@ describe("Remote data source: two questions share one source object", () => {
     expect(rowValues(m2), "#1").toEqual(["v101", "v102"]);
     expect(rowValues(m1), "#2").toEqual(["v101", "v102"]);
   });
+  const settleAll = async (source: FakeServerSource): Promise<void> => {
+    while(source.pending.length > 0) {
+      source.pending[0].settle();
+      await flush();
+    }
+  };
+  test("two dynamic panels: a refresh of one while the other's write is pending reads after the write", async () => {
+    const source = keyedSource(3);
+    const survey = new SurveyModel({ elements: [
+      { type: "paneldynamic", name: "p1", panelCount: 0, panelsPerPage: 5, templateElements: [{ type: "text", name: "col1" }] },
+      { type: "paneldynamic", name: "p2", panelCount: 0, panelsPerPage: 5, templateElements: [{ type: "text", name: "col1" }] }] });
+    const p1 = <QuestionPanelDynamicModel>survey.getQuestionByName("p1");
+    const p2 = <QuestionPanelDynamicModel>survey.getQuestionByName("p2");
+    p1.dataSource = source;
+    p2.dataSource = source;
+    await flush();
+    source.auto = false;
+    p1.removePanelUI(p1.panels[0]);
+    p2.refreshDataSource();
+    source.callsOf("pagedRead").filter(call => !call.isSettled).forEach(call => call.settle());
+    await flush();
+    source.callsOf("remove").forEach(call => call.settle());
+    await flush();
+    await settleAll(source);
+    expect(panelValues(p2), "#1").toEqual(["v101", "v102"]);
+    expect(panelValues(p1), "#2").toEqual(["v101", "v102"]);
+  });
+  test("a matrix and a dynamic panel: a refresh of the panel while the matrix's write is pending reads after the write", async () => {
+    const source = keyedSource(3);
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 5, columns: [{ name: "col1" }] },
+      { type: "paneldynamic", name: "p", panelCount: 0, panelsPerPage: 5, templateElements: [{ type: "text", name: "col1" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    matrix.dataSource = source;
+    panel.dataSource = source;
+    await flush();
+    source.auto = false;
+    matrix.removeRowUI(matrix.visibleRows[0]);
+    panel.refreshDataSource();
+    source.callsOf("pagedRead").filter(call => !call.isSettled).forEach(call => call.settle());
+    await flush();
+    source.callsOf("remove").forEach(call => call.settle());
+    await flush();
+    await settleAll(source);
+    expect(panelValues(panel), "#1").toEqual(["v101", "v102"]);
+    expect(rowValues(matrix), "#2").toEqual(["v101", "v102"]);
+  });
+  test("two surveys: a refresh in one does not wait for the other survey's write, and both settle", async () => {
+    const source = keyedSource(3);
+    const createMatrixOnSource = async (): Promise<QuestionMatrixDynamicModel> => {
+      const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 5, columns: [{ name: "col1" }] }] });
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+      matrix.dataSource = source;
+      await flush();
+      return matrix;
+    };
+    const m1 = await createMatrixOnSource();
+    const m2 = await createMatrixOnSource();
+    source.auto = false;
+    m1.removeRowUI(m1.visibleRows[0]);
+    m2.refreshDataSource();
+    const reads = source.callsOf("pagedRead").filter(call => !call.isSettled);
+    expect(reads.length, "#1: the read is sent while the other survey's write is pending").toBe(1);
+    reads.forEach(call => call.settle());
+    await flush();
+    expect(rowValues(m2), "#2: it reads the records before the write").toEqual(["v100", "v101", "v102"]);
+    source.callsOf("remove").forEach(call => call.settle());
+    await flush();
+    await settleAll(source);
+    expect(rowValues(m1), "#3").toEqual(["v101", "v102"]);
+    expect(m1.isDataLoading, "#4").toBe(false);
+    expect(m2.isDataLoading, "#5").toBe(false);
+    m2.refreshDataSource();
+    await settleAll(source);
+    expect(rowValues(m2), "#6: the next read shows the write").toEqual(["v101", "v102"]);
+  });
 });
 
 describe("Remote data source: a throwing error handler", () => {
@@ -6656,13 +6733,25 @@ describe("one in-memory source assigned to two questions", () => {
     await flush();
     expect(source.array, "#2").toEqual([{ qty: 1 }, { qty: 20 }]);
   });
-  test("the claim keeps no survey alive: it is a token object the list owns, not the list", async () => {
-    const { matrix } = await createTwo();
-    const list = matrix["dataList"];
-    const token = list["writerToken"];
-    expect(typeof token, "#1").toBe("object");
-    expect(token === list, "#2").toBe(false);
-    expect(Object.keys(token), "#3: the token references nothing").toEqual([]);
+  test("the source holds only its current writer: not an earlier one, not one that left or was disposed", async () => {
+    const { matrix, panel, source } = await createTwo();
+    const matrixList = matrix["dataList"];
+    const panelList = panel["dataList"];
+    expect(source["positionWriter"], "#1: the matrix writes").toBe(matrixList);
+    panel.dataSource = source;
+    await flush();
+    expect(source["positionWriter"], "#2: the panel took its place").toBe(panelList);
+    expect(source["positionWriterChanged"], "#3: the panel's callback, not the matrix's").toBe(panelList["onWriterChanged"]);
+    panel.dataSource = undefined;
+    expect(source["positionWriter"], "#4: the panel left").toBeUndefined();
+    expect(source["positionWriterChanged"], "#5").toBeUndefined();
+    expect(matrix.canAddRow, "#6: the matrix still only reads").toBe(false);
+    matrix.dataSource = source;
+    await flush();
+    expect(source["positionWriter"], "#7: assigned again, the matrix writes").toBe(matrixList);
+    matrix.dispose();
+    expect(source["positionWriter"], "#8: the disposed matrix is not referenced").toBeUndefined();
+    expect(source["positionWriterChanged"], "#9").toBeUndefined();
   });
 });
 

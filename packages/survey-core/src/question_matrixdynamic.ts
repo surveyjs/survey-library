@@ -29,7 +29,7 @@ import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdown
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsValueGetterContext, IRecordCountNames, getRecordCountNamesOf, isRecordCountSerializable } from "./question_records";
 import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { isRecordEmpty, IArrayDynamicDataSourceOptions } from "./dynamic-data/dynamic-data-sources";
+import { ArrayDynamicDataSource, isRecordEmpty, IArrayDynamicDataSourceOptions } from "./dynamic-data/dynamic-data-sources";
 
 export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
   // The design row answers any path; isRoot is left as it is.
@@ -133,9 +133,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public refreshDataSource(): void | Promise<void> {
     return this.refreshSource();
   }
-  // The respondent adds, removes and reorders the rows: the records are the question's to change.
-  protected isRecordMembershipFixed(): boolean {
-    return false;
+  // The respondent adds, removes and reorders the rows: an array source, not the matrix base's rows source.
+  protected createRecordsSource(): ArrayDynamicDataSource {
+    return this.createArrayRecordsSource();
+  }
+  // The narrowing holds: createRecordsSource above returns createArrayRecordsSource().
+  private get arrayRecordsSource(): ArrayDynamicDataSource {
+    return <ArrayDynamicDataSource>this.recordsSource;
   }
   /* A move does not carry the row objects (moveRowByIndex): they stay where they are and take the
      reordered records, so each row names the record its position holds now, not the record it held
@@ -1479,7 +1483,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
        total and the records beyond the window are on the server, not missing from the value. */
     if (this.isRemoteData) return result;
     if (result.length > this.rowCount) result.splice(this.rowCount);
-    return this.recordsSource.padRecords(result);
+    return this.arrayRecordsSource.padRecords(result);
   }
   protected deleteRowValue(newValue: any, row: MatrixDropdownRowModelBase): any {
     if (!Array.isArray(newValue)) return newValue;

@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
+import { ArrayDynamicDataSource, hasFixedMembership } from "../../src/dynamic-data/dynamic-data-sources";
 
 describe("ArrayDynamicDataSource", () => {
   test("fromArray reads the array it wraps", () => {
@@ -125,48 +125,25 @@ describe("ArrayDynamicDataSource: element identity and fixed membership", () => 
     const afterBatch = source.array;
     expect(afterBatch[0] === first && afterBatch[1] === replaced && afterBatch[2] === replacedAgain, "#2: a batch keeps them too").toBe(true);
   });
-  test("a source whose membership is fixed writes nothing on insert, remove and move", () => {
-    let local: Array<any> = [{ a: 1 }, { a: 2 }];
-    let writes = 0;
-    const source = new ArrayDynamicDataSource((): Array<any> => local,
-      (arr: Array<any>): void => { writes++; local = arr; }, { isMembershipFixed: true });
-    const before = local;
-    source.insert({ a: 3 }, 0);
-    source.remove(0);
-    source.move(0, 1);
-    source.batch((): void => {
-      source.insert({ a: 3 }, 2);
-      source.remove(1);
-    });
-    expect(writes, "#1: nothing is written").toBe(0);
-    expect(local === before, "#2: the array is the same").toBe(true);
-    source.update(1, { a: 22 });
-    expect(writes, "#3: an update is written").toBe(1);
-    expect(local, "#3").toEqual([{ a: 1 }, { a: 22 }]);
-  });
 });
 describe("ArrayDynamicDataSource: isBatching", () => {
-  class BatchingSource extends ArrayDynamicDataSource {
-    public get isBatchOpen(): boolean {
-      return this.isBatching;
-    }
-  }
   test("isBatching is true only inside a batch, a nested one included", () => {
     let local: Array<any> = [{ a: 1 }];
-    const source = new BatchingSource((): Array<any> => local, (arr: Array<any>): void => { local = arr; });
-    const states: Array<boolean> = [source.isBatchOpen];
+    const source = new ArrayDynamicDataSource((): Array<any> => local, (arr: Array<any>): void => { local = arr; });
+    const isBatchOpen = (): boolean => source["isBatching"];
+    const states: Array<boolean> = [isBatchOpen()];
     source.batch((): void => {
-      states.push(source.isBatchOpen);
-      source.batch((): void => { states.push(source.isBatchOpen); });
-      states.push(source.isBatchOpen);
+      states.push(isBatchOpen());
+      source.batch((): void => { states.push(isBatchOpen()); });
+      states.push(isBatchOpen());
     });
-    states.push(source.isBatchOpen);
+    states.push(isBatchOpen());
     expect(states, "#1").toEqual([false, true, true, true, false]);
     expect((() => {
       try {
         source.batch((): void => { throw new Error("stop"); });
       } catch(e) {
-        return source.isBatchOpen;
+        return isBatchOpen();
       }
     })(), "#2: a batch that throws closes").toBe(false);
   });
@@ -195,7 +172,7 @@ describe("ArrayDynamicDataSource: count, readAt and the padding of an owner's mi
     expect(source.readAt(1) === stored[1], "#3").toBe(true);
     expect(source.readAt(2), "#4").toBeUndefined();
     expect(source.readAt(-1), "#5").toBeUndefined();
-    expect(source.isMembershipFixed, "#6").toBe(false);
+    expect(hasFixedMembership(source), "#6: it inserts").toBe(false);
     const empty = new ArrayDynamicDataSource((): Array<any> => <any>"not an array", (): void => { });
     expect(empty.count, "#7: a non-array value counts as empty").toBe(0);
   });
@@ -269,16 +246,5 @@ describe("ArrayDynamicDataSource: count, readAt and the padding of an owner's mi
     const long = [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }];
     store.source.padRecords(long);
     expect(long.length, "#4: never truncated").toBe(4);
-  });
-  test("a source whose membership is fixed refuses insert, remove and move, also with a minimum count", () => {
-    const writes: Array<Array<any>> = [];
-    const source = new ArrayDynamicDataSource((): Array<any> => [{ a: 1 }], (arr: Array<any>): void => { writes.push(arr); },
-      { isMembershipFixed: true, getMinCount: (): number => 2, getDefaultRecord: (): any => ({}) });
-    expect(source.isMembershipFixed, "#1").toBe(true);
-    source.insert({ a: 3 }, 0);
-    source.remove(0);
-    source.move(0, 1);
-    expect(writes.length, "#2: nothing is written").toBe(0);
-    expect(source.count, "#3").toBe(2);
   });
 });

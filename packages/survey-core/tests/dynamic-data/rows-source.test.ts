@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { RowsDynamicDataSource, IDynamicDataRow } from "../../src/dynamic-data/dynamic-data-sources";
+import { RowsDynamicDataSource, IDynamicDataRow, hasFixedMembership } from "../../src/dynamic-data/dynamic-data-sources";
 import { Helpers } from "../../src/helpers";
 
 interface IStoredValue {
@@ -123,7 +123,7 @@ describe("RowsDynamicDataSource: writes", () => {
     expect(stored.value, "#1").toEqual({ a: { x: 3 } });
     expect(stored.writes[0].changed, "#2").toEqual([2]);
   });
-  test("refused, with nothing stored: another length, a moved record, insert, remove and move", () => {
+  test("refused, with nothing stored: another length or a moved record; the source has no insert, remove or move", () => {
     const answer = { a: { x: 1 }, b: { x: 2 } };
     const stored = createSource(["a", "b", "c"], answer);
     const records = stored.source.read();
@@ -133,12 +133,11 @@ describe("RowsDynamicDataSource: writes", () => {
     expect(stored.writes.length, "#2: a shorter array").toBe(0);
     stored.source.update(2, answer.a);
     expect(stored.writes.length, "#3: a record moved to another position").toBe(0);
-    stored.source.insert({ x: 5 }, 0);
-    stored.source.remove(0);
-    stored.source.move(0, 1);
-    expect(stored.writes.length, "#4: insert, remove and move").toBe(0);
+    expect("insert" in stored.source, "#4: no insert").toBe(false);
+    expect("remove" in stored.source, "#4: no remove").toBe(false);
+    expect("move" in stored.source, "#4: no move").toBe(false);
     expect(stored.value === answer, "#5").toBe(true);
-    expect(stored.source.isMembershipFixed, "#6").toBe(true);
+    expect(hasFixedMembership(stored.source), "#6").toBe(true);
   });
   test("an empty record may be written at another position: it is what every unanswered row holds", () => {
     const stored = createSource(["a", "b"], { a: {} });

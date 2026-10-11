@@ -7,7 +7,7 @@ import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { ArrayDynamicDataSource, IArrayDynamicDataSourceOptions } from "./dynamic-data/dynamic-data-sources";
+import { ArrayDynamicDataSource, hasFixedMembership, IArrayDynamicDataSourceOptions, isLocalSource, LocalDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { TextContextProcessor } from "./textPreProcessor";
 import { SurveyError } from "./survey-error";
@@ -284,7 +284,7 @@ export abstract class QuestionRecordsModel extends Question {
       // createReadThrough loads the list, which raises a reset before _dataList is assigned:
       // onDataListChanged drops it.
       this._dataList = DynamicDataList.createReadThrough(this.helperOwner,
-        (): ArrayDynamicDataSource => this.recordsSourceValue = this.createRecordsSource());
+        (): LocalDynamicDataSource => this.recordsSourceValue = this.createRecordsSource());
       this._dataList.onError = (error: any, operation: DynamicDataOperation): void => {
         this.onSourceError(error, operation);
       };
@@ -2104,9 +2104,9 @@ export abstract class QuestionRecordsModel extends Question {
       return true;
     }
     if (!list.hasCapability(operation)) {
-      // An in-memory array without keyField has every write method: it is refused only because another question writes it.
+      // A local source without keyField has its write methods: it is refused only because another question writes it.
       const source = list.assignedSource;
-      const reason = source instanceof ArrayDynamicDataSource && !list.keyField ?
+      const reason = isLocalSource(source) && !list.keyField ?
         "The data source is written by position by another question, so the records of this question are read-only" :
         !list.keyField ? "The data source has no keyField, so its records are read-only" : "The data source does not implement " + operation;
       this.reportOperationRefused(operation, reason);
@@ -2899,8 +2899,8 @@ export abstract class QuestionRecordsModel extends Question {
        already on it: isViewFrozenOnEdit (the membership of a view may not be re-decided by an edit
        made through one of the objects it materialized) is set when the list is created and holds for
        a remote source unchanged, and isReadThrough stays on but covers the question's own storage
-       only. An assigned source is read, not read through, whatever its class - an
-       ArrayDynamicDataSource and a SurveyDataDynamicDataSource included: the question is not told
+       only. An assigned source is read, not read through, whatever its class - a local source
+       included: the question is not told
        when the developer's array changes, so that change is seen after refreshDataSource() and
        not at once. The list reads through again after a detach. Because of the frozen membership,
        refreshView() on a source that pages has to be a refresh(): the server decides which records
@@ -3867,30 +3867,34 @@ export abstract class QuestionRecordsModel extends Question {
   /* The item at a position is focused once the objects of a committed read exist. Only a committed read
      of an assigned source reaches it; the default: nothing to focus (the fixed matrix has no source). */
   protected focusItemAfterRead(index: number): void { }
-  /* The question defines which records exist and in what order (the rows of the fixed matrix): the
-     list it creates refuses to insert, remove or move one, and so does its default source. */
-  protected isRecordMembershipFixed(): boolean {
-    return false;
+  /* The question defines which records exist and in what order (the rows of the fixed matrix) when its
+     own source has no insert: the list it creates refuses to insert, remove or move one. */
+  private isRecordMembershipFixed(): boolean {
+    return hasFixedMembership(this.recordsSource);
   }
-  /* The source over the question's own storage, which the list uses while no source is assigned. It
-     owns how the storage reads - the padding included, see getRecordsSourceOptions -; the question owns
-     how a write is stored (setListRecords). By default an array source over question.value; a type
+  /* The local source over the question's own storage, which the list uses while no source is assigned.
+     It owns how the storage reads - the padding included, see getRecordsSourceOptions -; the question
+     owns how a write is stored (setListRecords). By default an array source over question.value; a type
      whose storage rules are a source class of their own returns its instance. */
-  protected createRecordsSource(): ArrayDynamicDataSource {
+  protected createRecordsSource(): LocalDynamicDataSource {
+    return this.createArrayRecordsSource();
+  }
+  // An array source over question.value: every record can be inserted, removed and moved.
+  protected createArrayRecordsSource(): ArrayDynamicDataSource {
     return new ArrayDynamicDataSource((): Array<any> => this.value,
       (records: Array<any>, operations?: Array<DynamicDataOperation>): void => { this.storeListRecords(records, operations); },
       this.getRecordsSourceOptions());
   }
-  // What the default records source adds to the array: the fixed membership, and a type's padding.
+  // What the array records source adds to the array: a type's padding.
   protected getRecordsSourceOptions(): IArrayDynamicDataSourceOptions {
-    return { isMembershipFixed: this.isRecordMembershipFixed() };
+    return {};
   }
   /* The question's own records source: the one the list uses while no source is assigned, created on
      first use - before the list too, for a read without it. The list's factory replaces it, so after a
      detach the question reads the instance the list reads. No initializer: the base constructors reach
      the records code before the fields of this class are initialized. */
-  private recordsSourceValue: ArrayDynamicDataSource;
-  protected get recordsSource(): ArrayDynamicDataSource {
+  private recordsSourceValue: LocalDynamicDataSource;
+  protected get recordsSource(): LocalDynamicDataSource {
     if (!this.recordsSourceValue) {
       this.recordsSourceValue = this.createRecordsSource();
     }

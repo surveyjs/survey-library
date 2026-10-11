@@ -3186,7 +3186,7 @@ describe("Fixed matrix: the records are the rows' answers", () => {
       expect(matrix.value, "#5").toEqual({ r2: { c1: "2" } });
     });
   });
-  test("insert, remove and move are refused through the list and its source, and leave no trace", () => {
+  test("insert, remove and move are refused through the list, leave no trace, and the source has none of them", () => {
     const survey = createSurvey({ rows: ["r1", "r2", "r3"] }, { r1: { c1: "1" }, r3: { c1: "3" } });
     const matrix = getMatrix(survey);
     const events: Array<string> = [];
@@ -3202,9 +3202,7 @@ describe("Fixed matrix: the records are the rows' answers", () => {
     list.move(0, 2);
     list.ensureCount(5);
     list.truncate(1);
-    list.source.insert({ c1: "x" }, 0);
-    list.source.remove(0);
-    list.source.move(0, 2);
+    expect(["insert", "remove", "move"].filter(name => name in list.source), "#1: the source").toEqual([]);
     expect(matrix.value, "#2: the answer").toEqual({ r1: { c1: "1" }, r3: { c1: "3" } });
     expect(matrix.visibleRows === rowsBefore, "#3: the rows").toBe(true);
     expect(matrix.renderedTable.rows.length, "#4: the rendered rows").toBe(renderedBefore);
@@ -3399,7 +3397,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
     });
   });
   [{ sortBy: "rowTitle" }, { filterExpression: "{a} > 1" }].forEach(view => {
-    test("insert, remove and move are refused under a view and leave no trace, " + Object.keys(view)[0], () => {
+    test("insert, remove and move are refused under a view, leave no trace, and the source has no insert, " + Object.keys(view)[0], () => {
       const { survey, matrix } = createFixed(view);
       const rowsBefore = names(matrix);
       let changes = 0;
@@ -3409,7 +3407,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
       expect(list.add({ a: 9 }), "#1").toBe(-1);
       list.remove(0);
       list.move(0, 2);
-      list.source.insert({ a: 9 }, 0);
+      expect("insert" in list.source, "#1: the source").toBe(false);
       expect(JSON.stringify({ created: list.getCreatedIndexes(), visible: list.getVisibleIndexes(), count: list.loadedCount }), "#2").toBe(before);
       expect(names(matrix), "#3").toEqual(rowsBefore);
       expect(matrix.value, "#4").toEqual(data());

@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach } from "vitest";
 import { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
-import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
+import { ArrayDynamicDataSource, LocalDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 import { FunctionFactory } from "../../src/functionsfactory";
 import {
   IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataReadRequest,
@@ -3374,6 +3374,15 @@ describe("DynamicDataList: the page of a visible position", () => {
 });
 
 describe("DynamicDataList: a list whose membership is fixed", () => {
+  // A local source over an array whose membership is its owner's: it has no insert, remove or move.
+  class FixedArraySource extends LocalDynamicDataSource {
+    protected getStoredCount(): number {
+      return this.readStored().length;
+    }
+    protected readStoredAt(index: number): any {
+      return this.readStored()[index];
+    }
+  }
   const createFixedList = (view: "none" | "sort" | "filter"): { list: DynamicDataList, changes: Array<string>, writes: () => number } => {
     let stored: Array<any> = createRecords(7);
     let writes = 0;
@@ -3382,8 +3391,8 @@ describe("DynamicDataList: a list whose membership is fixed", () => {
       getFields: (): Array<IDynamicDataField> => [{ name: "id", dataType: "number" }],
       onDataListChanged: (change: IDynamicDataListChange): void => { changes.push(changeToString(change)); }
     };
-    const list = DynamicDataList.createReadThrough(owner, () => new ArrayDynamicDataSource((): Array<any> => stored,
-      (arr: Array<any>): void => { writes++; stored = arr; }, { isMembershipFixed: true }));
+    const list = DynamicDataList.createReadThrough(owner, () => new FixedArraySource((): Array<any> => stored,
+      (arr: Array<any>): void => { writes++; stored = arr; }));
     list.pageSize = 2;
     list.setRecordVisible(3, false);
     if (view === "sort") list.sort = [{ field: "id", direction: "desc" }];
@@ -3416,12 +3425,11 @@ describe("DynamicDataList: a list whose membership is fixed", () => {
       expect(writes(), "#4: nothing is written").toBe(0);
     });
   });
-  test("its default source is no back door, and an update still goes through", () => {
+  test("its default source has no insert, remove or move, and an update still goes through", () => {
     const { list, changes, writes } = createFixedList("none");
     const before = getState(list);
-    list.source.insert({ id: 100 }, 0);
-    list.source.remove(0);
-    list.source.move(0, 2);
+    expect(list.isMembershipFixed, "#1: it follows from the source").toBe(true);
+    expect(["insert", "remove", "move"].filter((name: string): boolean => name in list.source), "#1: no membership method").toEqual([]);
     expect(getState(list), "#1: unchanged").toBe(before);
     expect(writes(), "#1: nothing is written").toBe(0);
     expect(list.setValue(2, "name", "x"), "#2: an update is written").toBe(true);

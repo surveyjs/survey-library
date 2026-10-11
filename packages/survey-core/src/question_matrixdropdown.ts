@@ -17,7 +17,7 @@ import { ConditionRunner } from "./conditions/conditionRunner";
 import { ArrayChanges, Base } from "./base";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { QuestionRecordItem, IDynamicDataRecordUniqueness } from "./question_records";
-import { ArrayDynamicDataSource, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
+import { RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { IDynamicDataRecordCondition } from "./dynamic-data/dynamic-data-record-visibility";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { settings } from "./settings";
@@ -185,7 +185,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
     return this.rowsSourceValue;
   }
-  protected createRecordsSource(): ArrayDynamicDataSource {
+  protected createRecordsSource(): RowsDynamicDataSource<ItemValue> {
     return this.rowsSource;
   }
   public localeChanged(): void {

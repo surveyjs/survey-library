@@ -10,7 +10,7 @@ import {
   isRecordValueChanged, mergeInsertAnswer, toReadResult
 } from "./dynamic-data-channel";
 import { DynamicDataCount } from "./dynamic-data-count";
-import { ArrayDynamicDataSource, changeSourceWriter, isSourceWrittenByAnother } from "./dynamic-data-sources";
+import { ArrayDynamicDataSource, changeSourceWriter, hasFixedMembership, isLocalSource, isSourceWrittenByAnother, LocalDynamicDataSource } from "./dynamic-data-sources";
 import { DynamicDataMembership } from "./dynamic-data-membership";
 import { DynamicDataReadState } from "./dynamic-data-read-state";
 import { DynamicDataRecordVisibility, IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data-record-visibility";
@@ -81,20 +81,19 @@ export class DynamicDataList {
   public static isValueChanged(newValue: any, oldValue: any): boolean {
     return isRecordValueChanged(newValue, oldValue);
   }
-  /* The list both questions use: an ArrayDynamicDataSource over the owner's own storage - a
-     getter/setter pair, never a captured array, so that every write replaces the array instead of
-     mutating the one the owner currently holds - read through on demand, so that a value assigned
-     outside the list is seen at once. The list keeps the factory and not the instance: a detach
-     builds a fresh source, so that the batch state of the one in use cannot survive a swap.
-     isMembershipFixed comes from the source (see the flag); such a list never detaches its source.
+  /* The list both questions use: a local source over the owner's own storage - a getter/setter
+     pair, never a captured array, so that every write replaces the array instead of mutating the one
+     the owner currently holds - read through on demand, so that a value assigned outside the list is
+     seen at once. The list keeps the factory and not the instance: a detach builds a fresh source, so
+     that the batch state of the one in use cannot survive a swap. A source without insert makes the
+     list's membership fixed (isMembershipFixed); such a list never detaches its source.
      The list reads and counts the owner's records through that source (see recordCount); a source the
      owner assigns is read through the list's window instead. */
-  public static createReadThrough(owner: IDynamicDataOwner, createSource: () => ArrayDynamicDataSource): DynamicDataList {
+  public static createReadThrough(owner: IDynamicDataOwner, createSource: () => LocalDynamicDataSource): DynamicDataList {
     const source = createSource();
     const list = new DynamicDataList(source, owner);
     list.createDefaultSource = createSource;
     list.defaultSource = source;
-    list.isMembershipFixed = source.isMembershipFixed;
     list.isReadThroughValue = true;
     // The owner materializes one object per record in the view: its membership may not change under
     // an edit that is being made through one of those objects.
@@ -140,15 +139,15 @@ export class DynamicDataList {
   /* A write to the owner's own storage - its default source, never the assigned one - fails only when
      the code behind the owner's setter throws, and that exception is the caller's. Every other
      source's failure is reported (onError). A role, not a class: a standalone list has no default
-     source, so all of its sources report. The class tests elsewhere in the list (hasCapability,
+     source, so all of its sources report. The isLocalSource tests elsewhere in the list (hasCapability,
      useReadThrough, getIsAssignedArrayInSync, restoreWindowToStorage, syncWindowAfterSyncPush) ask
      another question - does the source answer synchronously and is it written by index - and stay. */
   private isOwnStorage(source: IDynamicDataSource): boolean {
     return !!source && source === this.defaultSource && source !== this.assignedSourceValue;
   }
 
-  // An owner whose source reads and writes its storage directly - the questions, whose
-  // ArrayDynamicDataSource is a getter/setter pair over question.value - sets this flag and the list
+  // An owner whose source reads and writes its storage directly - the questions, whose local
+  // source is a getter/setter pair over their value - sets this flag and the list
   // keeps no window: read() IS the storage and every write is synchronous and visible to the next
   // read. A window would be a second source of truth that goes stale on every assignment made
   // outside the list (survey.data = ..., a trigger, clearValue, a default value) and would hand out
@@ -170,17 +169,21 @@ export class DynamicDataList {
   /* The owner defines which records exist and in what order; the list only reads and updates them.
      add, remove, move, ensureCount and truncate are refused before they touch any state - the hidden
      flags, the storage count, the membership, the views - so a refused call leaves no trace and
-     raises nothing, and hasCapability answers false for the three operations. */
-  public isMembershipFixed: boolean = false;
+     raises nothing, and hasCapability answers false for the three operations. It follows from the
+     owner's own default source - one without insert (hasFixedMembership) -, never from an assigned
+     one, and a standalone list has none. */
+  public get isMembershipFixed(): boolean {
+    return !!this.defaultSource && hasFixedMembership(this.defaultSource);
+  }
   /* Two conditions that are kept apart. Ownership: only the owner's own storage is read through. A
      source the owner assigned is read, not watched, whatever its class: the owner is not told when
      the developer's array changes, so a list that followed it at once would serve records the
      owner's value and objects have never seen. It gets a window, which changes only when the list
      reads or writes. Capability: a read-through source answers read() synchronously with an array.
-     The class is checked for that and for nothing else, so a standalone list that sets isReadThrough
-     by hand reads through its array source, and never through any other. */
+     isLocalSource is checked for that and for nothing else, so a standalone list that sets
+     isReadThrough by hand reads through its local source, and never through any other. */
   private get useReadThrough(): boolean {
-    return this.isReadThrough && !this.isAssignedSourceInUse && this.isWindowWholeStorage && this._source instanceof ArrayDynamicDataSource;
+    return this.isReadThrough && !this.isAssignedSourceInUse && this.isWindowWholeStorage && isLocalSource(this._source);
   }
   // Not isRemote alone: assignSource sets the flag before it swaps, and until the swap the list
   // still holds the default source - the owner's storage - and reads through it.
@@ -189,7 +192,7 @@ export class DynamicDataList {
   }
   private get records(): Array<any> {
     if (!this.useReadThrough) return this.windowRecords;
-    const res = (<ArrayDynamicDataSource>this._source).read();
+    const res = (<LocalDynamicDataSource>this._source).read();
     return Array.isArray(res) ? res : [];
   }
   private set records(val: Array<any>) {
@@ -209,7 +212,7 @@ export class DynamicDataList {
      want only the count. Inside a batch the source counts the array the batch is building, which the
      owner's storage does not have yet. Any other source is counted by the window the list holds. */
   private get recordCount(): number {
-    if (this.useReadThrough) return (<ArrayDynamicDataSource>this._source).count;
+    if (this.useReadThrough) return (<LocalDynamicDataSource>this._source).count;
     return this.records.length;
   }
   public get source(): IDynamicDataSource {
@@ -377,7 +380,7 @@ export class DynamicDataList {
      over. A read-through list has no window to put back. before undefined: the array is read. */
   private restoreWindowToStorage(source: IDynamicDataSource, before: Array<any>): void {
     if (this._source !== source || !this.isWindowWholeStorage || this.useReadThrough) return;
-    if (!(source instanceof ArrayDynamicDataSource)) return;
+    if (!isLocalSource(source)) return;
     const stored = before !== undefined && this.isAssignedSourceInUse && !this.isAssignedArrayInSync ? before : source.read();
     this.records = Array.isArray(stored) ? stored : [];
     this.resetWindowState();
@@ -465,13 +468,13 @@ export class DynamicDataList {
   }
   // The window when the outermost write started (runWrite).
   private windowAtWriteStart: Array<any>;
-  /* True for the span of the outermost write to an assigned ArrayDynamicDataSource whose array was,
+  /* True for the span of the outermost write to an assigned local source whose array was,
      when the write started, the window record for record: nothing has replaced it outside the list
      since the list last read or wrote it. Only then does the window take the array the write stores
      (syncWindowAfterSyncPush). */
   private isAssignedArrayInSync: boolean = false;
   private getIsAssignedArrayInSync(): boolean {
-    if (!this.isAssignedSourceInUse || !this.isWindowWholeStorage || !(this._source instanceof ArrayDynamicDataSource)) return false;
+    if (!this.isAssignedSourceInUse || !this.isWindowWholeStorage || !isLocalSource(this._source)) return false;
     const stored = this._source.read();
     const records = this.windowRecords;
     // The common case: the window IS the array, taken by the last read or the last write.
@@ -620,7 +623,7 @@ export class DynamicDataList {
   private isShowingWrite(index: number): boolean {
     if (this.showingRecordsDepth === 0) return false;
     const source = this._source;
-    return !!source && !(source instanceof ArrayDynamicDataSource) && !this.findPendingInsert(index);
+    return !!source && !isLocalSource(source) && !this.findPendingInsert(index);
   }
   private setValueCore(index: number, field: string, value: any): boolean {
     const record = this.getRecord(index);
@@ -1153,19 +1156,19 @@ export class DynamicDataList {
     return this.readState.mayFilterLocally;
   }
   /* A capability is declared by the presence of the matching method: the operation names are the
-     source method names. A write names its record by key; only an in-memory array is written by
+     source method names. A write names its record by key; only a local source is written by
      position - the list is its only writer, it writes synchronously, and the remap layer renumbers
      what holds an index. Any other source without keyField is read-only, whatever methods it has: a
      position it resolves another way - it sorts or filters on its side, another writer changed it -
-     would name another record. A move is not part of the source contract: only an in-memory array
-     that is not assigned, written by storage index, takes one. An assigned source - in-memory ones
-     included - and a standalone list's keyed source never do, whatever methods they have. */
+     would name another record. A move is not part of the source contract: only a local source with
+     a move method that is not assigned, written by storage index, takes one. An assigned source -
+     local ones included - and a standalone list's keyed source never do, whatever methods they have. */
   public hasCapability(operation: DynamicDataOperation): boolean {
     if (this.isMembershipFixed && (operation === "insert" || operation === "remove" || operation === "move")) return false;
     const source: any = this._source;
-    if (operation === "move") return !this.isRemote && source instanceof ArrayDynamicDataSource && !this.keyField && !isSourceWrittenByAnother(source, this.writerToken);
     if (!source || typeof source[operation] !== "function") return false;
-    return operation === "read" || !!this.keyField || source instanceof ArrayDynamicDataSource && !isSourceWrittenByAnother(source, this.writerToken);
+    if (operation === "move") return !this.isRemote && isLocalSource(source) && !this.keyField && !isSourceWrittenByAnother(source, this.writerToken);
+    return operation === "read" || !!this.keyField || isLocalSource(source) && !isSourceWrittenByAnother(source, this.writerToken);
   }
   private getFields(): Array<IDynamicDataField> {
     return !!this.owner && !!this.owner.getFields ? this.owner.getFields() : undefined;
@@ -1418,14 +1421,14 @@ export class DynamicDataList {
        without a reset: the owner would hold it in its value and not in its objects. The window then
        keeps the list's own writes (editWindow), and the rest arrives with the next read. */
     if (this.isAssignedSourceInUse && !this.isAssignedArrayInSync) return;
-    /* For an ArrayDynamicDataSource the push IS the storage and is synchronous: the window is
+    /* For a local source the push IS the storage and is synchronous: the window is
        rebuilt from it so that the list never holds an array the owner does not. useReadThrough above
        does not already answer this - it is true only when the list reads through as well, and a
        list that does not still has to take the array the push has just written. Inside a batch that
        is the array being built; the stored one is taken when the batch ends (syncWindowAfterBatch).
        Any other source is left alone: read() may answer asynchronously, and an unwrapped promise
        here would empty the window. */
-    if (!(this._source instanceof ArrayDynamicDataSource)) return;
+    if (!isLocalSource(this._source)) return;
     const res = this._source.read();
     this.takeStoredArray(Array.isArray(res) ? res : []);
   }

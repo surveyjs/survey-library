@@ -27,7 +27,7 @@ import {
   QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties
 } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
-import { isRecordEmpty } from "./dynamic-data/dynamic-data-sources";
+import { isRecordEmpty, LocalDynamicDataSource, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { createIndexes } from "./dynamic-data/dynamic-data-filter";
 
 /* The matrix as its cells see it. The first group is what the interface has always declared for the
@@ -2723,10 +2723,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected getRecordVisibleIfPropertyName(): string {
     return "rowsVisibleIf";
   }
-  /* The rows define the records: a list operation that would insert, remove or move one is refused.
-     The dynamic matrix answers false. */
-  protected isRecordMembershipFixed(): boolean {
-    return true;
+  /* The rows define the records, and the base matrix has none: a rows source over no rows, which holds
+     no record and has no insert, remove or move. The Multi-Select Matrix returns a rows source over its
+     rows, and the Dynamic Matrix an array source. */
+  protected createRecordsSource(): LocalDynamicDataSource {
+    return new RowsDynamicDataSource((): Array<ItemValue> => [], (): any => undefined, (): void => { });
   }
   /* A full rebuild: the rows are re-created for the records the view now holds. It costs the
      per-row state - open detail panels, row errors, cell question state, row ids - and fires the

@@ -66,6 +66,10 @@ export class ArrayDynamicDataSource implements IDynamicDataSource {
   private batchDepth: number = 0;
   private batchArray: Array<any>;
   private batchOperations: Array<DynamicDataOperation> = [];
+  // True while a batch is open, a nested one included: read() answers from the array being built.
+  protected get isBatching(): boolean {
+    return this.batchDepth > 0;
+  }
   // One record operation of the list is often several source writes: pad the array, then set a
   // field; move a record, then update it. The owner's array has to be replaced once, not once per
   // step, or every intermediate state would reach the owner as a value change of its own. Reads
@@ -227,7 +231,9 @@ export class RowsDynamicDataSource<T extends IDynamicDataRow = IDynamicDataRow> 
   public get items(): Array<T> {
     return this.getRowsCache().items;
   }
+  // The rows' count; inside a batch the base's, which is the same length: a batch cannot change a fixed membership.
   public get count(): number {
+    if (this.isBatching) return super.count;
     return this.items.length;
   }
   public get hasDuplicateKeys(): boolean {
@@ -240,8 +246,10 @@ export class RowsDynamicDataSource<T extends IDynamicDataRow = IDynamicDataRow> 
   public indexOfKey(key: any): number {
     return this.getRowsCache().keys.indexOf(String(key));
   }
-  // One stored record, without composing the array. No row pads: defaultRecord is not used.
+  /* One stored record, without composing the array. No row pads: defaultRecord is not used. Inside a
+     batch the base's: the array being built holds the records written and not stored yet. */
   public readAt(index: number, defaultRecord?: any): any {
+    if (this.isBatching) return super.readAt(index);
     const item = this.itemAt(index);
     if (!item) return undefined;
     const value = this.getValue();

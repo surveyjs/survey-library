@@ -32,10 +32,8 @@ export class ArrayValueChoices {
       const obj = val[i];
       if (!Helpers.isValueObject(obj)) continue;
       const key = valueField || Object.keys(obj)[0];
-      // Base.isValueEmpty (trimmed) without the call through the question: made on the source
-      // question, it met another object shape than the dropdowns and V8 deoptimized it in a loop.
-      const keyValue = !!key ? obj[key] : undefined;
-      if (!!key && !Helpers.isValueEmpty(typeof keyValue === "string" || keyValue instanceof String ? keyValue.trim() : keyValue)) {
+      // Static, not Base.isValueEmpty through the source question: V8 deoptimized that call in a loop.
+      if (!!key && !Helpers.isValueEmpty(obj[key], true)) {
         res.push({ value: obj[key], text: !!textField ? obj[textField] : undefined });
       }
     }

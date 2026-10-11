@@ -1870,49 +1870,53 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
   });
 });
 
-describe("DynamicDataList: the read-through count comes from the read-through callback", () => {
-  // Built the way the questions build one, over a getter that counts its calls.
-  function createCountingList(recordCount: number, withCount: boolean = true): { list: DynamicDataList, source: ArrayDynamicDataSource, reads: () => number } {
+describe("DynamicDataList: a read-through count does not compose the records", () => {
+  // Built the way the questions build one, over a source that pads the stored records up to minCount and counts the padded compositions.
+  function createCountingList(storedCount: number, minCount: number = 0): { list: DynamicDataList, source: ArrayDynamicDataSource, compositions: () => number } {
     let local: Array<any> = [];
-    for (let i = 0; i < recordCount; i++) local.push({ a: i });
-    let readCount = 0;
-    const createSource = (): ArrayDynamicDataSource => new ArrayDynamicDataSource((): Array<any> => { readCount++; return local; },
-      (arr: Array<any>): void => { local = arr; });
-    const list = DynamicDataList.createReadThrough(undefined, createSource, withCount ? (): number => local.length : undefined);
-    return { list: list, source: <ArrayDynamicDataSource>list.source, reads: (): number => readCount };
+    for (let i = 0; i < storedCount; i++) local.push({ a: i });
+    let compositionCount = 0;
+    const createSource = (): ArrayDynamicDataSource => new ArrayDynamicDataSource((): Array<any> => local,
+      (arr: Array<any>): void => { local = arr; },
+      { getMinCount: (): number => minCount, getDefaultRecord: (): any => { compositionCount++; return { a: -1 }; } });
+    const list = DynamicDataList.createReadThrough(undefined, createSource);
+    return { list: list, source: <ArrayDynamicDataSource>list.source, compositions: (): number => compositionCount };
   }
-  test("count, loadedCount, the identity conversions and visibleCount do not read the records", () => {
-    const { list, reads } = createCountingList(10);
+  test("count, loadedCount, the identity conversions and visibleCount compose nothing", () => {
+    const { list, compositions } = createCountingList(3, 10);
     list.getVisibleIndexes();
-    const start = reads();
+    const start = compositions();
     expect(list.count, "#1").toBe(10);
     expect(list.loadedCount, "#2").toBe(10);
     expect(list.createdIndexToIndex(3), "#3").toBe(3);
     expect(list.indexToCreatedIndex(3), "#4").toBe(3);
     expect(list.visibleCount, "#5").toBe(10);
-    expect(reads() - start, "#6: no read").toBe(0);
+    expect(compositions() - start, "#6: no composition").toBe(0);
   });
-  test("getRecord and getValue read the records once, an out-of-range index not at all", () => {
-    const { list, reads } = createCountingList(10);
+  test("getRecord and getValue compose the records once, an out-of-range index not at all", () => {
+    const { list, compositions } = createCountingList(3, 10);
     list.getVisibleIndexes();
-    let start = reads();
-    expect(list.getRecord(5), "#1").toEqual({ a: 5 });
-    expect(reads() - start, "#2: one read").toBe(1);
-    start = reads();
+    let start = compositions();
+    expect(list.getRecord(5), "#1").toEqual({ a: -1 });
+    expect(compositions() - start, "#2: one composition").toBe(1);
+    start = compositions();
     expect(list.getRecord(10), "#3").toBeUndefined();
-    expect(reads() - start, "#4: the guard reads nothing").toBe(0);
-    start = reads();
-    expect(list.getValue(5, "a"), "#5").toBe(5);
-    expect(reads() - start, "#6: one read").toBe(1);
+    expect(compositions() - start, "#4: the guard composes nothing").toBe(0);
+    start = compositions();
+    expect(list.getValue(5, "a"), "#5").toBe(-1);
+    expect(compositions() - start, "#6: one composition").toBe(1);
   });
-  test("a read-through list without a count callback falls back to the length of the records", () => {
-    const { list, reads } = createCountingList(3, false);
-    let start = reads();
-    expect(list.count, "#1").toBe(3);
-    expect(reads() - start, "#2: one read per access").toBe(1);
-    start = reads();
-    expect(list.count, "#3").toBe(3);
-    expect(reads() - start, "#4").toBe(1);
+  test("the count is the longer of the stored records and the minimum, and inside a batch the length of the array being built", () => {
+    expect(createCountingList(12, 10).list.count, "#1: more stored records than the minimum").toBe(12);
+    const { list } = createCountingList(3, 10);
+    expect(list.count, "#2: fewer stored records than the minimum").toBe(10);
+    const counts: Array<number> = [];
+    list.batch((): void => {
+      list.remove(0);
+      counts.push(list.count);
+    });
+    expect(counts, "#3: the padded array less the removed record").toEqual([9]);
+    expect(list.count, "#4: the nine stored records read padded again").toBe(10);
   });
   test("inside a batch the count follows the array being built", () => {
     const { list } = createCountingList(2);

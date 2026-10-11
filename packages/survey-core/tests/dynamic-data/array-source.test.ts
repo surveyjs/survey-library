@@ -145,6 +145,32 @@ describe("ArrayDynamicDataSource: element identity and fixed membership", () => 
     expect(local, "#3").toEqual([{ a: 1 }, { a: 22 }]);
   });
 });
+describe("ArrayDynamicDataSource: isBatching", () => {
+  class BatchingSource extends ArrayDynamicDataSource {
+    public get isBatchOpen(): boolean {
+      return this.isBatching;
+    }
+  }
+  test("isBatching is true only inside a batch, a nested one included", () => {
+    let local: Array<any> = [{ a: 1 }];
+    const source = new BatchingSource((): Array<any> => local, (arr: Array<any>): void => { local = arr; });
+    const states: Array<boolean> = [source.isBatchOpen];
+    source.batch((): void => {
+      states.push(source.isBatchOpen);
+      source.batch((): void => { states.push(source.isBatchOpen); });
+      states.push(source.isBatchOpen);
+    });
+    states.push(source.isBatchOpen);
+    expect(states, "#1").toEqual([false, true, true, true, false]);
+    expect((() => {
+      try {
+        source.batch((): void => { throw new Error("stop"); });
+      } catch(e) {
+        return source.isBatchOpen;
+      }
+    })(), "#2: a batch that throws closes").toBe(false);
+  });
+});
 describe("ArrayDynamicDataSource: count, readAt and the padding of an owner's minimum count", () => {
   interface IPaddedStore {
     stored: Array<any>;

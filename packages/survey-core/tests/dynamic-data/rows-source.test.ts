@@ -156,6 +156,19 @@ describe("RowsDynamicDataSource: writes", () => {
     expect(stored.writes[0].changed, "#2").toEqual([1, 2]);
     expect(stored.value, "#3").toEqual({ a: { x: 1 }, b: { x: 2 }, c: { x: 3 } });
   });
+  test("inside a batch, readAt and count read the records being written; after it, the stored answer", () => {
+    const stored = createSource(["a", "", "b"], { a: { x: 1 }, b: { x: 2 } });
+    const reads: Array<any> = [];
+    stored.source.batch(() => {
+      stored.source.update(0, { x: 10 });
+      reads.push(stored.source.readAt(0), stored.source.readAt(1), stored.source.count);
+      expect(stored.value.a, "#1: the answer does not have the write yet").toEqual({ x: 1 });
+    });
+    expect(reads, "#2: the written record, the other one, and the rows' count").toEqual([{ x: 10 }, { x: 2 }, 2]);
+    stored.value = { a: { x: 5 }, b: { x: 2 } };
+    expect(stored.source.readAt(0), "#3: the stored answer again").toEqual({ x: 5 });
+    expect(stored.source.count, "#4").toBe(2);
+  });
 });
 
 describe("RowsDynamicDataSource: rowsChanged()", () => {

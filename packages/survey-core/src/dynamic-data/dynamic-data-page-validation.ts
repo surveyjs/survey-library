@@ -92,7 +92,7 @@ export function groupByDuplicateKey<T>(entries: Array<T>, getValue: (entry: T) =
   const groups = new Map<string, Array<T>>();
   entries.forEach((entry: T): void => {
     const val = getValue(entry);
-    if (!!isEmpty ? isEmpty(entry) : Helpers.isValueEmpty(typeof val === "string" ? val.trim() : val)) return;
+    if (!!isEmpty ? isEmpty(entry) : Helpers.isValueEmpty(val, true)) return;
     const key = getDuplicateKey(val, caseSensitive);
     let group = groups.get(key);
     if (!group) {

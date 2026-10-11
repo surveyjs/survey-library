@@ -284,7 +284,7 @@ export abstract class QuestionRecordsModel extends Question {
       // createReadThrough loads the list, which raises a reset before _dataList is assigned:
       // onDataListChanged drops it.
       this._dataList = DynamicDataList.createReadThrough(this.helperOwner,
-        (): ArrayDynamicDataSource => this.recordsSourceValue = this.createRecordsSource(), (): number => this.getListRecordCount());
+        (): ArrayDynamicDataSource => this.recordsSourceValue = this.createRecordsSource());
       this._dataList.onError = (error: any, operation: DynamicDataOperation): void => {
         this.onSourceError(error, operation);
       };
@@ -900,14 +900,12 @@ export abstract class QuestionRecordsModel extends Question {
     return !!this.dataListValue && this.dataListValue.sort.length > 0;
   }
   /* One record as the question reads it without an object: the duplicate scan, the record visibility
-     and the record items read through it. A data source's window and a write in progress are the
-     list's - inside list.batch() the writes sit in the source's batch array and the storage does not
-     have them yet; otherwise the question's records source answers (getStoredRecordAt), and the list
-     is not created. defaultRecord: what a record the source pads reads as (the Dynamic Matrix). */
+     and the record items read through it. A remote source is read through the list - its window;
+     the question's own source is read through recordsSource (getStoredRecordAt), which answers from
+     the array a batch is building while list.batch() runs, and the list is not created.
+     defaultRecord: what a record the source pads reads as (the Dynamic Matrix). */
   protected getListRecordAt(index: number, defaultRecord?: any): any {
-    const list = this.dataListValue;
-    if (!!list && (list.isRemote || list.isWriting)) return list.getRecord(index);
-    return this.getStoredRecordAt(index, defaultRecord);
+    return this.isRemoteData ? this.dataListValue.getRecord(index) : this.getStoredRecordAt(index, defaultRecord);
   }
   /* The index the respondent and the expressions see for an item's record ({panelIndex},
      {rowIndex}) is the record index plus this offset: the position of the loaded window in the whole
@@ -3922,16 +3920,15 @@ export abstract class QuestionRecordsModel extends Question {
   protected getListRecordCount(): number {
     return this.recordsSource.count;
   }
-  /* The record counts a read needs, peeked: the list's when it exists, the storage's otherwise - a
-     read never creates the list. loadedRecordCount: the records that can be looked at (a source that
-     pages itself holds one window); storedRecordCount: the count of the records, the total of such a source. */
+  /* The record counts a read needs, peeked - a read never creates the list. A remote source is counted
+     through the list; the question's own source through recordsSource, which has one count for both.
+     loadedRecordCount: the records that can be looked at (a source that pages itself holds one window);
+     storedRecordCount: the count of the records, the total of such a source. */
   protected get loadedRecordCount(): number {
-    const list = this.dataListValue;
-    return !!list ? list.loadedCount : this.getListRecordCount();
+    return this.isRemoteData ? this.dataListValue.loadedCount : this.getListRecordCount();
   }
   protected get storedRecordCount(): number {
-    const list = this.dataListValue;
-    return !!list ? list.count : this.getListRecordCount();
+    return this.isRemoteData ? this.dataListValue.count : this.getListRecordCount();
   }
   /* Mirrors the paging state of the list into the question (see DynamicDataPagingController.syncState).
      The list announces a page index it had to clamp, but not a page count that changed because a

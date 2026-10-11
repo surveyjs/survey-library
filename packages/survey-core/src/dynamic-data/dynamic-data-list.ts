@@ -87,16 +87,13 @@ export class DynamicDataList {
      outside the list is seen at once. The list keeps the factory and not the instance: a detach
      builds a fresh source, so that the batch state of the one in use cannot survive a swap.
      isMembershipFixed comes from the source (see the flag); such a list never detaches its source.
-     getCount: the length the source's array would have, for a getter that composes the array on the
-     fly. The list keeps it, not the source, so a default source built again after a detach has it too
-     (see recordCount). */
-  public static createReadThrough(owner: IDynamicDataOwner, createSource: () => ArrayDynamicDataSource,
-    getCount?: () => number): DynamicDataList {
+     The list reads and counts the owner's records through that source (see recordCount); a source the
+     owner assigns is read through the list's window instead. */
+  public static createReadThrough(owner: IDynamicDataOwner, createSource: () => ArrayDynamicDataSource): DynamicDataList {
     const source = createSource();
     const list = new DynamicDataList(source, owner);
     list.createDefaultSource = createSource;
     list.defaultSource = source;
-    list.getReadThroughCount = getCount;
     list.isMembershipFixed = source.isMembershipFixed;
     list.isReadThroughValue = true;
     // The owner materializes one object per record in the view: its membership may not change under
@@ -108,7 +105,6 @@ export class DynamicDataList {
   private createDefaultSource: () => IDynamicDataSource;
   // The source createDefaultSource built last: the owner's own storage.
   private defaultSource: IDynamicDataSource;
-  private getReadThroughCount: () => number;
   private assignedSourceValue: IDynamicDataSource;
   /* The owner defines its records (isMembershipFixed): any other source would replace them. Refused
      before anything changes. */
@@ -208,13 +204,12 @@ export class DynamicDataList {
     edit(newRecords);
     this.windowRecords = newRecords;
   }
-  /* The length of records without reading them: a read-through source may compose the array on every
-     read (the matrix pads its value up to rowCount), and most readers want only the count. Inside a
-     batch the owner's storage does not have the writes yet: the source answers records with the
-     array the batch is building, and its length is the count. Every batch of the source is opened by
-     batch() below, so batchDepth knows it. */
+  /* The length of records without reading them. The owner's own source is counted by the source
+     itself: its read may compose the array (the matrix pads its value up to rowCount), and most readers
+     want only the count. Inside a batch the source counts the array the batch is building, which the
+     owner's storage does not have yet. Any other source is counted by the window the list holds. */
   private get recordCount(): number {
-    if (this.useReadThrough && !!this.getReadThroughCount && this.batchDepth === 0) return this.getReadThroughCount();
+    if (this.useReadThrough) return (<ArrayDynamicDataSource>this._source).count;
     return this.records.length;
   }
   public get source(): IDynamicDataSource {
@@ -1120,9 +1115,8 @@ export class DynamicDataList {
     this.onChanged = undefined;
     this.onError = undefined;
     this.owner = undefined;
-    // The factory's closures, and the count callback's, hold the owner.
+    // The factory's closures hold the owner.
     this.createDefaultSource = undefined;
-    this.getReadThroughCount = undefined;
     this.records = [];
     this.channel.clearPendingInserts();
     this.storageCount.cancelRetry();

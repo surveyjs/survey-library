@@ -16,7 +16,7 @@ import { ConditionRunner } from "../../src/conditions/conditionRunner";
 import { createIndexes } from "../../src/dynamic-data/dynamic-data-filter";
 import { ChoicesRestful } from "../../src/choicesRestful";
 import { settings } from "../../src/settings";
-import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
+import { ArrayDynamicDataSource, RowsDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 import { IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSource } from "../../src/dynamic-data/dynamic-data-interfaces";
 
 /* The per-write costs that remain once only the page is built. These are performance items: the
@@ -526,7 +526,7 @@ describe("Fixed matrix: the records are composed once per answer", () => {
   }
   test("creating the list, a cell edit, reads and an assignment from outside", () => {
     const matrix = createFixedMatrix(200);
-    const composes = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "composeRecords");
+    const composes = vi.spyOn(<any>RowsDynamicDataSource.prototype, "composeRecords");
     const list = matrix["dataList"];
     expect(list.loadedCount, "#1").toBe(200);
     expect(composes.mock.calls.length, "#1: creating the list composes at most once").toBeLessThanOrEqual(1);
@@ -552,7 +552,7 @@ describe("Fixed matrix: the records are composed once per answer", () => {
     survey.data = { m: { r0: { a: "0" }, r150: { a: "150" } } };
     const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
     expect(matrix.visibleRows.length, "#0: the first page").toBe(10);
-    const composes = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "composeRecords");
+    const composes = vi.spyOn(<any>RowsDynamicDataSource.prototype, "composeRecords");
     const builds = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "createMatrixRow");
     matrix.nextPage();
     expect(matrix.visibleRows[0].rowName, "#1: page 1").toBe("r10");
@@ -596,8 +596,8 @@ describe("Fixed matrix: the records are composed once per answer", () => {
         const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
         matrix.visibleRows;
         matrix["dataList"];
-        const composes = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "composeRecords");
-        const getter = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "getListRecords");
+        const composes = vi.spyOn(<any>RowsDynamicDataSource.prototype, "composeRecords");
+        const getter = vi.spyOn(<any>RowsDynamicDataSource.prototype, "getRecords");
         const builds = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "createMatrixRow");
         let virtualReads = 0;
         const getFields = (<any>QuestionMatrixDropdownModel.prototype).getFields;

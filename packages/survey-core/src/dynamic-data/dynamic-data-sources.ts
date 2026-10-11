@@ -1,5 +1,7 @@
 import { ISurveyData } from "../interfaces/data-interfaces";
+import { Helpers } from "../helpers";
 import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data-interfaces";
+import { createKeyRemap } from "./dynamic-data-record-remap";
 
 // An in-memory source over an array the caller owns. It is constructed from a getter/setter pair,
 // not from an array reference: the questions expose their records through question.value, which must
@@ -11,7 +13,11 @@ export class ArrayDynamicDataSource implements IDynamicDataSource {
      an owner whose value has a shape rule per kind of write can apply it. */
   constructor(private getArray: () => Array<any> | undefined,
     private setArray: (arr: Array<any>, operations?: Array<DynamicDataOperation>) => void,
-    private isMembershipFixed: boolean = false) { }
+    private membershipFixed: boolean = false) { }
+  // A list over this source takes the flag from it (DynamicDataList.createReadThrough).
+  public get isMembershipFixed(): boolean {
+    return this.membershipFixed;
+  }
   private batchDepth: number = 0;
   private batchArray: Array<any>;
   private batchOperations: Array<DynamicDataOperation> = [];
@@ -117,6 +123,141 @@ export class SurveyDataDynamicDataSource extends ArrayDynamicDataSource {
   constructor(public data: ISurveyData, public valueName: string) {
     super(() => data.getValue(valueName), (arr: Array<any>): void => { data.setValue(valueName, arr, false); });
   }
+}
+
+/* The released rule of a row: a record is empty when it holds no value but undefined or null. One rule
+   for an object and for a stored record without one (a cleared cell removes the row's key). */
+export function isRecordEmpty(record: any): boolean {
+  if (Helpers.isValueEmpty(record)) return true;
+  for (const key in record) {
+    if (record[key] !== undefined && record[key] !== null) return false;
+  }
+  return true;
+}
+
+// A row of RowsDynamicDataSource: its value is the key of its record in the answer.
+export interface IDynamicDataRow {
+  value: any;
+}
+/* The records of an owner whose rows define them (the Multi-Select Matrix), over its keyed answer. A
+   record is one row with a non-empty value, in rows order - the record index -, and it is the answer's
+   object under the row's value itself, value[row.value], never a copy. A row the answer holds no key for
+   reads undefined: a virtual empty record that a read never writes. Two rows with one value are two
+   records that read one key. A key is compared as a string, the way an object key is.
+   The keyed answer is the only stored value. The composed array is derived from it and cached by the
+   answer instance and the rows: a list reads through it on every record access, and a write compares
+   the records it gets back with the composed ones by instance (writeRecords), so a read must give the
+   same instances again.
+   The membership is the rows': insert, remove and move write nothing, and a write of an array of
+   another length, or of one that moves a record to another position, is refused and stores nothing.
+   getRows: the rows, in their order. getValue: the keyed answer. storeValue: the new answer - a copy
+   of the stored one with the written records in place - and the indexes of the records written.
+   The owner calls rowsChanged() after every change of its rows - an assignment, an array change, a
+   reorder, a row value renamed -; the caches go, and onRecordsReplaced is told where each old record
+   went. */
+export class RowsDynamicDataSource<T extends IDynamicDataRow = IDynamicDataRow> extends ArrayDynamicDataSource {
+  // createRemap: the new index of an old record by its key - two rows of one key by occurrence -, -1 for a key that is gone.
+  public onRecordsReplaced: (createRemap: () => ((index: number) => number)) => void;
+  constructor(private getRows: () => Array<T>, private getValue: () => any,
+    private storeValue: (newValue: any, changedIndexes: Array<number>) => void) {
+    super(() => this.getRecords(), (records: Array<any>): void => { this.writeRecords(records); }, true);
+  }
+  private rowsCache: { items: Array<T>, keys: Array<string>, hasDuplicates: boolean };
+  private recordsCache: { value: any, records: Array<any> };
+  private getRowsCache(): { items: Array<T>, keys: Array<string>, hasDuplicates: boolean } {
+    if (!!this.rowsCache) return this.rowsCache;
+    const items = (this.getRows() || []).filter((item: T): boolean => !isRowValueEmpty(item.value));
+    const keys = items.map((item: T): string => String(item.value));
+    const hasDuplicates = keys.some((key: string, index: number): boolean => keys.indexOf(key) !== index);
+    this.rowsCache = { items: items, keys: keys, hasDuplicates: hasDuplicates };
+    return this.rowsCache;
+  }
+  // The rows of the records, in record order.
+  public get items(): Array<T> {
+    return this.getRowsCache().items;
+  }
+  public get count(): number {
+    return this.items.length;
+  }
+  public get hasDuplicateKeys(): boolean {
+    return this.getRowsCache().hasDuplicates;
+  }
+  public itemAt(index: number): T {
+    return this.items[index];
+  }
+  // The index of the first record of a key; -1 for none.
+  public indexOfKey(key: any): number {
+    return this.getRowsCache().keys.indexOf(String(key));
+  }
+  // One stored record, without composing the array.
+  public readAt(index: number): any {
+    const item = this.itemAt(index);
+    if (!item) return undefined;
+    const value = this.getValue();
+    return isObject(value) ? value[item.value] : undefined;
+  }
+  public rowsChanged(): void {
+    const oldKeys = this.getRowsCache().keys;
+    this.rowsCache = undefined;
+    this.recordsCache = undefined;
+    const newKeys = this.getRowsCache().keys;
+    if (!!this.onRecordsReplaced) {
+      this.onRecordsReplaced((): ((index: number) => number) => createKeyRemap(oldKeys, newKeys, String, true));
+    }
+  }
+  // Composed once per answer instance and rows change.
+  private getRecords(): Array<any> {
+    const value = this.getValue();
+    const cache = this.recordsCache;
+    if (!!cache && cache.value === value) return cache.records;
+    const records = this.composeRecords();
+    this.recordsCache = { value: value, records: records };
+    return records;
+  }
+  // The one method that composes the records; everything else reads the cache (getRecords).
+  private composeRecords(): Array<any> {
+    const value = this.getValue();
+    const isValueObject = isObject(value);
+    return this.items.map((item: T): any => isValueObject ? value[item.value] : undefined);
+  }
+  /* The list hands the whole array back, and only the positions whose record instance changed are
+     written: a write replaces one element of the array it read and keeps every other one, so the stale
+     record of another row on the same key never overwrites it. The answer is copied first, which keeps
+     the keys that are not rows - a question sharing the value name, an unknown key -, and an empty
+     record deletes its key. */
+  private writeRecords(records: Array<any>): void {
+    const composed = this.getRecords();
+    if (!Array.isArray(records) || records.length !== composed.length) return;
+    const changed: Array<number> = [];
+    for (let i = 0; i < records.length; i++) {
+      const record = records[i];
+      if (record === composed[i]) continue;
+      // Only a record with content can be moved: an empty one is what every unanswered row holds.
+      if (!isRecordEmpty(record) && composed.indexOf(record) > -1) return;
+      changed.push(i);
+    }
+    if (changed.length === 0) return;
+    const items = this.items;
+    const value = this.getValue();
+    const newValue = isObject(value) ? Object.assign({}, value) : {};
+    changed.forEach((index: number): void => {
+      const key = items[index].value;
+      if (isRecordEmpty(records[index])) {
+        delete newValue[key];
+      } else {
+        newValue[key] = records[index];
+      }
+    });
+    this.storeValue(newValue, changed);
+  }
+}
+// As Base.isValueEmpty: a string of spaces is empty.
+function isRowValueEmpty(value: any): boolean {
+  if (!!value && (typeof value === "string" || value instanceof String)) value = value.trim();
+  return Helpers.isValueEmpty(value);
+}
+function isObject(value: any): boolean {
+  return value !== null && typeof value === "object";
 }
 
 /* An in-memory source without keyField is written by position: the index a list sends is the

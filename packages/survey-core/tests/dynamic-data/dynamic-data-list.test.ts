@@ -1009,15 +1009,15 @@ describe("DynamicDataList: read-through over an array source", () => {
   const createList = (): { list: DynamicDataList, get: () => Array<any>, writes: Array<Array<any>> } => {
     let stored: Array<any> = [{ a: 1 }, { a: 2 }];
     const writes = new Array<Array<any>>();
-    const list = DynamicDataList.createReadThrough(undefined, () => stored, (arr: Array<any>): void => {
+    const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource(() => stored, (arr: Array<any>): void => {
       stored = arr;
       writes.push(arr);
-    });
+    }));
     return { list: list, get: (): Array<any> => stored, writes: writes };
   };
   test("reads the owner array on demand, without a load", () => {
     let stored: Array<any> = [];
-    const list = DynamicDataList.createReadThrough(undefined, () => stored, (arr) => { stored = arr; });
+    const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource(() => stored, (arr) => { stored = arr; }));
     stored = [{ a: 1 }];
     expect(list.count, "No read was made since").toBe(1);
     stored = [{ a: 1 }, { a: 2 }, { a: 3 }];
@@ -1076,7 +1076,7 @@ describe("DynamicDataList: read-through over an array source", () => {
   });
   test("read-through is ignored for a source that is not an array source", () => {
     const source: IDynamicDataSource = { read: (): Array<any> => [{ a: 1 }, { a: 2 }] };
-    const list = DynamicDataList.createReadThrough(undefined, () => [], () => { });
+    const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource(() => [], () => { }));
     list.source = source;
     expect(list.count, "the list that was loaded reads the new source").toBe(2);
     list.setValue(0, "a", 11);
@@ -1120,7 +1120,7 @@ class FakeSwitchableSource implements IDynamicDataSource {
 }
 function createReadThrough(records: Array<any>): { list: DynamicDataList, set: (arr: Array<any>) => void } {
   let stored: Array<any> = records;
-  const list = DynamicDataList.createReadThrough(undefined, () => stored, (arr: Array<any>): void => { stored = arr; });
+  const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource(() => stored, (arr: Array<any>): void => { stored = arr; }));
   return { list: list, set: (arr: Array<any>): void => { stored = arr; } };
 }
 
@@ -1431,14 +1431,13 @@ describe("DynamicDataList: frozen membership", () => {
   test("invalidateViews reported by the storage the write assigns is ignored", () => {
     let records: Array<any> = [{ a: 1 }, { a: 1 }];
     let writing = false;
-    const list = DynamicDataList.createReadThrough(undefined,
-      () => records,
+    const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource(() => records,
       (arr: Array<any>) => {
         records = arr;
         // The owner reports every assignment of its storage, this one included.
         writing = list.isWriting;
         list.invalidateViews();
-      });
+      }));
     list.filter = "{a} = 1";
     list.setValue(1, "a", 2);
     expect(writing, "#1: the assignment came from the list itself").toBe(true);
@@ -1877,9 +1876,9 @@ describe("DynamicDataList: the read-through count comes from the read-through ca
     let local: Array<any> = [];
     for (let i = 0; i < recordCount; i++) local.push({ a: i });
     let readCount = 0;
-    const list = DynamicDataList.createReadThrough(undefined, (): Array<any> => { readCount++; return local; },
-      (arr: Array<any>): void => { local = arr; },
-      withCount ? (): number => local.length : undefined);
+    const createSource = (): ArrayDynamicDataSource => new ArrayDynamicDataSource((): Array<any> => { readCount++; return local; },
+      (arr: Array<any>): void => { local = arr; });
+    const list = DynamicDataList.createReadThrough(undefined, createSource, withCount ? (): number => local.length : undefined);
     return { list: list, source: <ArrayDynamicDataSource>list.source, reads: (): number => readCount };
   }
   test("count, loadedCount, the identity conversions and visibleCount do not read the records", () => {
@@ -2892,7 +2891,7 @@ describe("DynamicDataList: insert positions and record lookup over a view", () =
 describe("DynamicDataList: the assigned source", () => {
   function createOwnerList(): { list: DynamicDataList, setArray: (arr: Array<any>) => void } {
     let arr: Array<any> = createRecords(3);
-    const list = DynamicDataList.createReadThrough(undefined, (): Array<any> => arr, (a: Array<any>): void => { arr = a; });
+    const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a; }));
     return { list: list, setArray: (a: Array<any>): void => { arr = a; } };
   }
   test("createReadThrough: the default source reads through the owner's storage and nothing is assigned", () => {
@@ -3035,7 +3034,7 @@ describe("DynamicDataList: the assigned source", () => {
   });
   test("a standalone list that reads through keeps doing so; one that was assigned a source does not", () => {
     const own = createAssignedArray(2);
-    const list = DynamicDataList.createReadThrough(undefined, own.get, own.set);
+    const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource(own.get, own.set));
     own.set(createRecords(4));
     expect(list.loadedCount, "#1: the source it was constructed with is its own").toBe(4);
     const assigned = createAssignedArray(3);
@@ -3379,8 +3378,8 @@ describe("DynamicDataList: a list whose membership is fixed", () => {
       getFields: (): Array<IDynamicDataField> => [{ name: "id", dataType: "number" }],
       onDataListChanged: (change: IDynamicDataListChange): void => { changes.push(changeToString(change)); }
     };
-    const list = DynamicDataList.createReadThrough(owner, (): Array<any> => stored,
-      (arr: Array<any>): void => { writes++; stored = arr; }, undefined, true);
+    const list = DynamicDataList.createReadThrough(owner, () => new ArrayDynamicDataSource((): Array<any> => stored,
+      (arr: Array<any>): void => { writes++; stored = arr; }, true));
     list.pageSize = 2;
     list.setRecordVisible(3, false);
     if (view === "sort") list.sort = [{ field: "id", direction: "desc" }];
@@ -4292,13 +4291,13 @@ describe("DynamicDataList: a failed write to an assigned source is reported", ()
   function createOwnList(): { list: DynamicDataList, failures: { count: number }, get: () => Array<any> } {
     let own: Array<any> = createRecords(2);
     const failures = { count: 0 };
-    const list = DynamicDataList.createReadThrough(undefined, (): Array<any> => own, (a: Array<any>): void => {
+    const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource((): Array<any> => own, (a: Array<any>): void => {
       if (failures.count > 0) {
         failures.count--;
         throw new Error("own setter");
       }
       own = a;
-    });
+    }));
     return { list: list, failures: failures, get: (): Array<any> => own };
   }
   function attachFailing(names: Array<string> = ["A", "B", "C"]): { list: DynamicDataList, assigned: IFailingArray, errors: Array<string>, changes: Array<string> } {
@@ -4427,13 +4426,13 @@ describe("DynamicDataList: a failed write to an assigned source is reported", ()
   test("after a detach the next write goes to a fresh own storage, and its failure throws again", () => {
     let own: Array<any> = createRecords(2);
     let ownFailures = 0;
-    const list = DynamicDataList.createReadThrough(undefined, (): Array<any> => own, (a: Array<any>): void => {
+    const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource((): Array<any> => own, (a: Array<any>): void => {
       if (ownFailures > 0) {
         ownFailures--;
         throw new Error("own setter");
       }
       own = a;
-    });
+    }));
     const assigned = createFailingArray(["A", "B"]);
     list.assignSource(assigned.source);
     const errors: Array<string> = [];
@@ -4692,7 +4691,7 @@ describe("DynamicDataList: a list moves records only in an in-memory array it wa
   }
   function createOwnerArray(): { list: DynamicDataList, get: () => Array<any> } {
     let arr: Array<any> = createRecords(3);
-    const list = DynamicDataList.createReadThrough(undefined, (): Array<any> => arr, (a: Array<any>): void => { arr = a; });
+    const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a; }));
     return { list: list, get: (): Array<any> => arr };
   }
   test("a standalone list constructed with a keyed source that has a move method", () => {

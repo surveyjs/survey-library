@@ -268,10 +268,10 @@ export abstract class QuestionRecordsModel extends Question {
   protected get dataListValue(): DynamicDataList {
     return this._dataList;
   }
-  /* Every record-level read and write of the question goes through this list. Its source is a
-     getter/setter pair over the question's storage (getListRecords / setListRecords) - never a
-     captured array - so that the storage overrides of the question are honoured and every write
-     replaces the array instead of mutating the one the question currently holds.
+  /* Every record-level read and write of the question goes through this list. Its source is the
+     question's own (createRecordsSource): it reads the question's storage on demand - never a
+     captured array - so that the storage rules of the type are honoured and every write replaces the
+     array instead of mutating the one the question currently holds.
      The invariant: the objects - rows, panels - hold the records dataList.getCreatedIndexes() names,
      in that order: the records that pass the list filter, in its sort order, owner-hidden ones
      included. With neither set the created indexes are 0 ... count-1 and the objects, the records and
@@ -284,9 +284,7 @@ export abstract class QuestionRecordsModel extends Question {
       // createReadThrough loads the list, which raises a reset before _dataList is assigned:
       // onDataListChanged drops it.
       this._dataList = DynamicDataList.createReadThrough(this.helperOwner,
-        (): Array<any> => this.getListRecords(),
-        (records: Array<any>, operations?: Array<DynamicDataOperation>): void => { this.storeListRecords(records, operations); },
-        (): number => this.getListRecordCount(), this.isRecordMembershipFixed());
+        (): ArrayDynamicDataSource => this.createRecordsSource(), (): number => this.getListRecordCount());
       this._dataList.onError = (error: any, operation: DynamicDataOperation): void => {
         this.onSourceError(error, operation);
       };
@@ -3674,8 +3672,8 @@ export abstract class QuestionRecordsModel extends Question {
   }
 
   // The specialization hooks: what every records question answers.
-  /* The records the list works with: the question's own storage, given to
-     DynamicDataList.createReadThrough once. */
+  /* The records the list works with: the question's own storage, read and written by the default
+     records source (createRecordsSource). */
   protected abstract getListRecords(): Array<any>;
   // operations: the writes the default source made (DynamicDataOperation names), in order.
   protected abstract setListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void;
@@ -3882,6 +3880,14 @@ export abstract class QuestionRecordsModel extends Question {
      list it creates refuses to insert, remove or move one, and so does its default source. */
   protected isRecordMembershipFixed(): boolean {
     return false;
+  }
+  /* The source over the question's own storage, which the list uses while no source is assigned. By
+     default a getter/setter pair over getListRecords / setListRecords; a type whose storage rules are a
+     source class of their own returns its instance. */
+  protected createRecordsSource(): ArrayDynamicDataSource {
+    return new ArrayDynamicDataSource((): Array<any> => this.getListRecords(),
+      (records: Array<any>, operations?: Array<DynamicDataOperation>): void => { this.storeListRecords(records, operations); },
+      this.isRecordMembershipFixed());
   }
   /* A full validation visits every page of the view, not only the pages of the edited records: the
      records exist whether or not the respondent opened their page (the rows of the fixed matrix).
@@ -4461,15 +4467,6 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
     json[key].forEach((el: any): void => { if (!!el && el.type === "panel") removeRecordCleanupSkipped(el, names); });
   });
   return json;
-}
-/* The released rule of a row: a record is empty when it holds no value but undefined or null. One rule
-   for an object and for a stored record without one (a cleared cell removes the row's key). */
-export function isRecordEmpty(record: any): boolean {
-  if (Helpers.isValueEmpty(record)) return true;
-  for (const key in record) {
-    if (record[key] !== undefined && record[key] !== null) return false;
-  }
-  return true;
 }
 /* The serializer entries of the paging, the sort and the filter of a records question (rowsPerPage or
    panelsPerPage, sortBy, filterExpression). Invisible in the property grid until the UI series ships a

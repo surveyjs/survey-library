@@ -86,20 +86,18 @@ export class DynamicDataList {
      mutating the one the owner currently holds - read through on demand, so that a value assigned
      outside the list is seen at once. The list keeps the factory and not the instance: a detach
      builds a fresh source, so that the batch state of the one in use cannot survive a swap.
-     isMembershipFixed: see the flag; the default source carries it too.
-     getCount: the length getArray() would return, for a getter that composes the array on the fly.
-     The list keeps it, not the source, so a default source built again after a detach has it too
+     isMembershipFixed comes from the source (see the flag); such a list never detaches its source.
+     getCount: the length the source's array would have, for a getter that composes the array on the
+     fly. The list keeps it, not the source, so a default source built again after a detach has it too
      (see recordCount). */
-  public static createReadThrough(owner: IDynamicDataOwner, getArray: () => Array<any>,
-    setArray: (arr: Array<any>, operations?: Array<DynamicDataOperation>) => void, getCount?: () => number,
-    isMembershipFixed: boolean = false): DynamicDataList {
-    const createSource = (): IDynamicDataSource => new ArrayDynamicDataSource(getArray, setArray, isMembershipFixed);
+  public static createReadThrough(owner: IDynamicDataOwner, createSource: () => ArrayDynamicDataSource,
+    getCount?: () => number): DynamicDataList {
     const source = createSource();
     const list = new DynamicDataList(source, owner);
     list.createDefaultSource = createSource;
     list.defaultSource = source;
     list.getReadThroughCount = getCount;
-    list.isMembershipFixed = isMembershipFixed;
+    list.isMembershipFixed = source.isMembershipFixed;
     list.isReadThroughValue = true;
     // The owner materializes one object per record in the view: its membership may not change under
     // an edit that is being made through one of those objects.

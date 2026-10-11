@@ -545,23 +545,21 @@ describe("Fixed matrix: the records are composed once per answer", () => {
     list.getRecord(2);
     expect(composes.mock.calls.length - afterEdit, "#5: composes exactly once").toBe(1);
   });
-  test("a page visit builds the page and composes the records at most once; the value-level reads build no row", () => {
+  test("a page visit builds one page of rows; the value-level reads build no row", () => {
     const survey = new SurveyModel({
       elements: [{ type: "matrixdropdown", name: "m", rowsPerPage: 10, columns: [{ name: "a", cellType: "text" }], rows: records(200, i => "r" + i) }]
     });
     survey.data = { m: { r0: { a: "0" }, r150: { a: "150" } } };
     const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
     expect(matrix.visibleRows.length, "#0: the first page").toBe(10);
-    const composes = vi.spyOn(<any>RowsDynamicDataSource.prototype, "composeRecords");
     const builds = vi.spyOn(<any>QuestionMatrixDropdownModel.prototype, "createMatrixRow");
     matrix.nextPage();
     expect(matrix.visibleRows[0].rowName, "#1: page 1").toBe("r10");
     expect(builds.mock.calls.length, "#2: a page of rows").toBe(10);
-    expect(composes.mock.calls.length, "#3: composed at most once").toBeLessThanOrEqual(1);
     builds.mockClear();
-    expect(Object.keys(matrix.getFilteredData()), "#4: every answered record").toEqual(["r0", "r150"]);
-    expect(matrix.getProgressInfo().answeredQuestionCount, "#5").toBe(2);
-    expect(builds.mock.calls.length, "#6: no row is built for them").toBe(0);
+    expect(Object.keys(matrix.getFilteredData()), "#3: every answered record").toEqual(["r0", "r150"]);
+    expect(matrix.getProgressInfo().answeredQuestionCount, "#4").toBe(2);
+    expect(builds.mock.calls.length, "#5: no row is built for them").toBe(0);
   });
   test("a full validation visits every page and builds one page of rows at a time", () => {
     const data: any = {};

@@ -2660,7 +2660,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected getIsRequireToGenerateRows(): boolean {
     return !!this.rowsVisibleIf;
   }
-  protected updateProgressInfoByValues(res: IProgressInfo): void { }
+  /* Before the rows exist the records count, read through the own source, which decides the answer's
+     shape. A remote source counts its window, through the list: the records the matrix has not read
+     say nothing about how far the respondent has got with the ones in front of them. A record the
+     storage does not hold (a padded row of the Dynamic Matrix) counts as unanswered: the default row
+     value counts only once a row shows it. */
+  protected updateProgressInfoByValues(res: IProgressInfo): void {
+    const count = this.loadedRecordCount;
+    for (let i = 0; i < count; i++) {
+      this.updateProgressInfoByRow(res, this.getListRecordAt(i, {}) || {});
+    }
+  }
   // A record is counted by its columns: the value is under the column name.
   protected updateProgressInfoByRow(res: IProgressInfo, rowValue: any): void {
     this.addRecordProgress(res, rowValue, this.columns, (col: MatrixDropdownColumn): Question => col.templateQuestion,
@@ -3039,7 +3049,20 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     return this.getFilteredDataCore();
   }
-  protected getFilteredDataCore(): any { return this.value; }
+  /* The data the survey and the expressions see: the rows that exist and are visible, in row order, in
+     the answer's shape, which the own source decides. A record the list filter excluded has no row and
+     is not part of it - the same answer a source that filters on its own side gives, and what makes a
+     total the total of the filtered rows. */
+  protected getFilteredDataCore(): any {
+    const source = this.recordsSource;
+    const res = source.createValue();
+    this.generatedVisibleRows.forEach((row: MatrixDropdownRowModelBase): void => {
+      if (row.isVisible && !row.isEmpty) {
+        source.addToValue(res, this.getBuiltRecordIndex(row), row.filteredValue);
+      }
+    });
+    return res;
+  }
   // forEachRecordItem with the rows typed.
   protected forEachRecordRow(indexes: Array<number>, func: (index: number, row: MatrixDropdownRowModelBase, position: number) => void): void {
     this.forEachRecordItem(indexes, (index: number, item: QuestionRecordItem, position: number): void => {

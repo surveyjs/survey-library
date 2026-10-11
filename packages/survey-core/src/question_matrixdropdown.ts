@@ -10,7 +10,6 @@ import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionValueType, IVerifyDataContext } from "./question";
 import { LocalizableString } from "./localizablestring";
-import { IProgressInfo } from "./base-interfaces";
 import { HashTable, Helpers } from "./helpers";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { ConditionRunner } from "./conditions/conditionRunner";
@@ -572,15 +571,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     const item = this.rowsSource.itemAt(index);
     return !!item ? this.createMatrixRow(item, record) : undefined;
   }
-  protected getFilteredDataCore(): any {
-    const res: any = {};
-    this.generatedVisibleRows.forEach(row => {
-      if (row.isVisible && !row.isEmpty) {
-        res[row.rowName] = row.filteredValue;
-      }
-    });
-    return res;
-  }
   protected getSearchableItemValueKeys(keys: Array<string>) {
     keys.push("rows");
   }
@@ -590,15 +580,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
       if (!!this.rows[i].visibleIf) return true;
     }
     return false;
-  }
-  protected updateProgressInfoByValues(res: IProgressInfo): void {
-    let val = this.value;
-    if (!val) val = {};
-    for (var i = 0; i < this.rows.length; i ++) {
-      const row = this.rows[i];
-      const rowName = val[row.value];
-      this.updateProgressInfoByRow(res, !!rowName ? rowName : {});
-    }
   }
 
   /**

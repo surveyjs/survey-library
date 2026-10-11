@@ -194,6 +194,71 @@ describe("progress: one count per record", () => {
     (<QuestionMatrixDropdownModel>paged.getQuestionByName("d")).visibleRows;
     expect(progress(paged.getQuestionByName("d")), "#2: paged").toEqual([7, 5, 3, 2]);
   });
+  const twoColumns = [{ name: "a", cellType: "text", isRequired: true }, { name: "b", cellType: "text" }];
+  test("matrix with fixed rows: a row without a value is no record, and it is not counted before the rows exist", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "d", columns: twoColumns,
+      rows: ["r1", { value: " ", text: "No value" }, "r2"] }] });
+    survey.data = { d: { r1: { a: 1 } } };
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("d");
+    expect(progress(matrix), "#1: rows not built, r1 and r2").toEqual([4, 1, 2, 1]);
+    expect(matrix.visibleRows.length, "#2: the row without a value is never built").toBe(2);
+    expect(progress(matrix), "#3: rows built, the same count").toEqual([4, 1, 2, 1]);
+  });
+  test("dynamic matrix: a padded row counts as unanswered until its row shows the default row value", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 3, defaultRowValue: { b: "x" }, columns: twoColumns }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.value = [{ a: 1 }];
+    expect(matrix.rowCount, "#1: rowCount stays above the value's length").toBe(3);
+    expect(progress(matrix), "#2: rows not built").toEqual([6, 1, 3, 1]);
+    matrix.visibleRows;
+    expect(progress(matrix), "#3: rows built").toEqual([6, 3, 3, 1]);
+  });
+  test("dynamic matrix with a data source: the loaded window counts", async () => {
+    let resolve: (records: Array<any>) => void = undefined;
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, columns: twoColumns }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.dataSource = { read: () => new Promise<Array<any>>(res => { resolve = res; }) };
+    expect(progress(matrix), "#1: nothing read yet").toEqual([0, 0, 0, 0]);
+    resolve([{ a: 1 }, { b: 2 }, {}]);
+    for (let i = 0; i < 30; i++) await Promise.resolve();
+    expect(matrix.value.length, "#2: the window is the value").toBe(3);
+    expect(progress(matrix), "#3: three records, rows not built").toEqual([6, 2, 3, 1]);
+  });
+});
+
+describe("getFilteredData: the visible rows that hold an answer, in the answer's shape", () => {
+  test("matrix with fixed rows: keyed by the row value, a hidden and an empty row left out", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "d", columns: [{ name: "a", cellType: "text" }],
+      rows: ["r1", { value: "r2", visibleIf: "{x} = 1" }, "r3", { value: 4, text: "Four" }] }] });
+    survey.data = { d: { r1: { a: 1 }, r2: { a: 2 }, 4: { a: 4 } } };
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("d");
+    expect(matrix.visibleRows.length, "#1: r2 is hidden").toBe(3);
+    expect(matrix.getFilteredData(), "#2: r2 hidden, r3 empty").toEqual({ r1: { a: 1 }, 4: { a: 4 } });
+  });
+  test("matrix with fixed rows: two rows on one value give its key while either of them is visible", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "d", columns: [{ name: "a", cellType: "text" }],
+      rows: [{ value: "r1", visibleIf: "{y} <> 1" }, { value: "r1", text: "Again", visibleIf: "{x} <> 1" }] }] });
+    survey.data = { d: { r1: { a: 1 } } };
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("d");
+    expect(matrix.getFilteredData(), "#1: both rows visible").toEqual({ r1: { a: 1 } });
+    survey.setValue("x", 1);
+    expect(matrix.visibleRows.length, "#2: the second row is hidden").toBe(1);
+    expect(matrix.getFilteredData(), "#3: the first row gives it").toEqual({ r1: { a: 1 } });
+    survey.setValue("x", 0);
+    survey.setValue("y", 1);
+    expect(matrix.getFilteredData(), "#4: the second row gives it").toEqual({ r1: { a: 1 } });
+    survey.setValue("x", 1);
+    expect(matrix.visibleRows.length, "#5: both rows are hidden").toBe(0);
+    expect(matrix.getFilteredData(), "#6").toEqual({});
+  });
+  test("dynamic matrix: in row order under a sort, a hidden and an empty row left out", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, sortBy: "a-", rowsVisibleIf: "{row.h} <> true",
+      columns: [{ name: "a", cellType: "text", inputType: "number" }, { name: "h", cellType: "boolean" }] }] });
+    survey.data = { m: [{ a: 1 }, { a: 3, h: true }, {}, { a: 2 }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    expect(matrix.visibleRows.map(row => row.getQuestionByName("a").value), "#1: sorted").toEqual([2, 1, undefined]);
+    expect(matrix.getFilteredData(), "#2").toEqual([{ a: 2 }, { a: 1 }]);
+  });
 });
 
 describe("page validation: objects that were never built are valid", () => {

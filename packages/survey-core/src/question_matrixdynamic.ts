@@ -14,7 +14,7 @@ import { MinRowCountError } from "./error";
 import { Action, IAction } from "./actions/action";
 import { settings } from "./settings";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
-import { IShortcutText, ISurveyImpl, IProgressInfo } from "./base-interfaces";
+import { IShortcutText, ISurveyImpl } from "./base-interfaces";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
@@ -638,19 +638,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       if (hasValue) {
         this.value = val;
       }
-    }
-  }
-  /* Before the rows exist a padded row counts as unanswered: the stored value has no record for it, as
-     released. Once built, the row counts the default row value it shows. */
-  protected updateProgressInfoByValues(res: IProgressInfo): void {
-    let val = this.value;
-    if (!Array.isArray(val)) val = [];
-    // The rows of a remote page: the records the matrix has not read say nothing about how far the
-    // respondent has got with the ones in front of them.
-    const count = this.isRemoteData ? val.length : this.rowCount;
-    for (var i = 0; i < count; i ++) {
-      const rowValue = i < val.length ? val[i] : {};
-      this.updateProgressInfoByRow(res, rowValue);
     }
   }
   private getValueForNewRow(): any {
@@ -1417,18 +1404,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.onRowsChanged();
     }
     this.setRowCountValueFromData = false;
-  }
-  /* The data the survey and the expressions see: the rows that exist and are visible. A record the
-     list filter excluded has no row and is not part of it - the same answer a source that filters on
-     its own side gives, and what makes a total the total of the filtered rows. */
-  protected getFilteredDataCore(): any {
-    const res: any = [];
-    this.generatedVisibleRows.forEach(row => {
-      if (row.isVisible && !row.isEmpty) {
-        res.push(row.filteredValue);
-      }
-    });
-    return res;
   }
   // Only read, never stored: every padded record can share one default record.
   protected createDuplicationRecordReader(): (index: number) => any {

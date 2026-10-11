@@ -2711,14 +2711,14 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const items = [];
     const prevTextBtn = new Action({
       id: "sv-pd-prev-btn",
-      title: this.prevPanelText,
+      locTitle: this.locPrevPanelText,
       action: () => {
         this.goToPrevPanel();
       }
     });
     const nextTextBtn = new Action({
       id: "sv-pd-next-btn",
-      title: this.nextPanelText,
+      locTitle: this.locNextPanelText,
       action: () => {
         this.goToNextPanel();
       }

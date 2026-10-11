@@ -2934,7 +2934,7 @@ describe("Fixed matrix: duplicate row keys share one answer", () => {
     expect([cellValue(matrix, 0, 0), cellValue(matrix, 0, 1)], "#3: the first occurrence").toEqual(["3", "2"]);
     expect(cellValue(matrix, 2, 0), "#3: the row of another key is not touched").toBeUndefined();
   });
-  test("clearIncorrectValues: the first occurrence decides whether the key is kept", () => {
+  test("clearIncorrectValues: a visible occurrence keeps the key", () => {
     const createMatrix = (rows: Array<any>): QuestionMatrixDropdownModel => {
       const survey = new SurveyModel({
         elements: [{ type: "matrixdropdown", name: "matrix", rows: rows, columns: textColumns }]
@@ -2944,10 +2944,13 @@ describe("Fixed matrix: duplicate row keys share one answer", () => {
     };
     const firstHidden = createMatrix([{ value: "a", visibleIf: "{show} = true" }, "a"]);
     firstHidden.clearIncorrectValues();
-    expect(firstHidden.value, "#1: the first occurrence is hidden").toEqual({});
+    expect(firstHidden.value, "#1: the first occurrence is hidden").toEqual({ a: { c1: 1 } });
     const secondHidden = createMatrix(["a", { value: "a", visibleIf: "{show} = true" }]);
     secondHidden.clearIncorrectValues();
     expect(secondHidden.value, "#2: the second occurrence is hidden").toEqual({ a: { c1: 1 } });
+    const bothHidden = createMatrix([{ value: "a", visibleIf: "{show} = true" }, { value: "a", visibleIf: "{show} = true" }]);
+    bothHidden.clearIncorrectValues();
+    expect(bothHidden.value, "#3: every occurrence is hidden").toEqual({});
   });
 });
 

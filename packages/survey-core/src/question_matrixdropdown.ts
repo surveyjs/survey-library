@@ -497,31 +497,32 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   public clearIncorrectValues(): void {
     if (!this.isEmpty()) {
-      const isPaged = this.isPagingActive;
-      if (!isPaged) {
+      if (!this.isPagingActive) {
         this.getVisibleRows();
       }
       const newVal: any = {};
       const val = this.value;
+      // A key that is no row stays when another question stores it (a shared value name).
       for (let key in val) {
-        const isSharedRow = !this.hasValueKey(key) && this.isValueKeyKnown(key);
-        if (isSharedRow || (this.isKeyVisible(key, isPaged) && this.isRowValueCorrect(val[key]))) {
+        if (!this.hasValueKey(key) && this.isValueKeyKnown(key)) {
           newVal[key] = val[key];
         }
       }
+      /* The records decide, as when invisible rows are cleared (getDataWithoutInvisibleRows): a record
+         with a row keeps its answer when the row is visible, one without a row - off the page or
+         filtered out - by isRecordKeptWithoutRow. Rows on one value share the answer: a visible one keeps it. */
+      const items = this.getRecordItems();
+      this.forEachStoredRecord(this.loadedRecordCount, (index: number, item: QuestionRecordItem): void => {
+        const key = items[index].value;
+        if (!val.hasOwnProperty(key) || !this.isRowValueCorrect(val[key])) return;
+        const row = <MatrixDropdownRowModelBase>item;
+        if (!!row ? row.isVisible : this.isRecordKeptWithoutRow(index)) {
+          newVal[key] = val[key];
+        }
+      });
       this.value = newVal;
     }
     super.clearIncorrectValues();
-  }
-  /* The first row of a key decides. Under paging the records decide: a record off the page keeps its
-     answer when it is visible. An answer key is a string, so a key and a row value compare as strings. */
-  private isKeyVisible(key: string, isPaged: boolean): boolean {
-    const row = isPaged ? undefined : this.getRowByKey(key);
-    if (!!row) return row.isVisible;
-    // A record without a row - off the page or filtered out - follows the rule of the base (isRecordKeptWithoutRow).
-    if (!this.dataListValue) return false;
-    const index = this.rowsSource.indexOfKey(key);
-    return index > -1 && this.isRecordKeptWithoutRow(index);
   }
   private getRowByKey(val: any): MatrixDropdownRowModelBase {
     const rows = this.generatedVisibleRows;

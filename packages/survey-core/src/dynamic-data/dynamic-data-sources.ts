@@ -272,10 +272,6 @@ export class RowsDynamicDataSource<T extends IDynamicDataRow = IDynamicDataRow> 
   public itemAt(index: number): T {
     return this.items[index];
   }
-  // The index of the first record of a key; -1 for none.
-  public indexOfKey(key: any): number {
-    return this.getRowsCache().keys.indexOf(String(key));
-  }
   // One stored record, without composing the array. No row pads, so a defaultRecord is never read.
   protected readStoredAt(index: number): any {
     const item = this.itemAt(index);

@@ -78,7 +78,7 @@ describe("RowsDynamicDataSource: the records are the rows' answers", () => {
     expect(third === second, "#5: after rowsChanged()").toBe(false);
     expect(third.length, "#6").toBe(3);
   });
-  test("count, readAt, itemAt, indexOfKey and hasDuplicateKeys", () => {
+  test("count, readAt, itemAt and hasDuplicateKeys", () => {
     const answer = { 1: { x: 1 }, b: { x: 2 } };
     const { source, rows } = createSource([1, "", "b", "c"], answer);
     expect(source.count, "#1").toBe(3);
@@ -89,11 +89,7 @@ describe("RowsDynamicDataSource: the records are the rows' answers", () => {
     expect(source.readAt(-1), "#6: out of range").toBeUndefined();
     expect(source.itemAt(1) === rows[2], "#7: the row of the record").toBe(true);
     expect(source.itemAt(3), "#8").toBeUndefined();
-    expect(source.indexOfKey("1"), "#9: a number row value is found by its string").toBe(0);
-    expect(source.indexOfKey(1), "#10").toBe(0);
-    expect(source.indexOfKey("c"), "#11").toBe(2);
-    expect(source.indexOfKey("x"), "#12").toBe(-1);
-    expect(source.hasDuplicateKeys, "#13").toBe(false);
+    expect(source.hasDuplicateKeys, "#9").toBe(false);
   });
 });
 

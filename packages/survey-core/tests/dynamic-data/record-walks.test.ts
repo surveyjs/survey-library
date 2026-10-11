@@ -261,6 +261,36 @@ describe("getFilteredData: the visible rows that hold an answer, in the answer's
   });
 });
 
+describe("the Multi-Select Matrix display value: each record is keyed by its own row", () => {
+  [{ name: "without paging", json: {} }, { name: "with paging", json: { rowsPerPage: 1 } }].forEach(mode => {
+    function create(rows: Array<any>, data: any): QuestionMatrixDropdownModel {
+      const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdropdown", name: "d",
+        columns: [{ name: "a", cellType: "dropdown", choices: choices }], rows: rows }, mode.json)] });
+      survey.data = { d: data };
+      return <QuestionMatrixDropdownModel>survey.getQuestionByName("d");
+    }
+    test(`${mode.name}: keys and their texts, a hidden row left out`, () => {
+      const matrix = create([{ value: "r1", text: "Row 1" }, { value: "r2", text: "Row 2", visibleIf: "{x} = 1" }, { value: "r3", text: "Row 3" }],
+        { r1: { a: 1 }, r2: { a: 2 }, r3: { a: 2 } });
+      expect(matrix.getDisplayValue(false), "#1").toEqual({ r1: { a: "One" }, r3: { a: "Two" } });
+      expect(matrix.getDisplayValue(true), "#2").toEqual({ "Row 1": { a: "One" }, "Row 3": { a: "Two" } });
+    });
+    test(`${mode.name}: two rows on one value each show their own text`, () => {
+      const matrix = create([{ value: "r1", text: "First" }, { value: "r1", text: "Second" }], { r1: { a: 1 } });
+      expect(matrix.getDisplayValue(false), "#1").toEqual({ r1: { a: "One" } });
+      expect(matrix.getDisplayValue(true), "#2").toEqual({ "First": { a: "One" }, "Second": { a: "One" } });
+    });
+  });
+  test("without paging no list is created", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "d", columns: [{ name: "a", cellType: "dropdown", choices: choices }],
+      rows: ["r1", { value: "r2", visibleIf: "{x} = 1" }] }] });
+    survey.data = { d: { r1: { a: 1 }, r2: { a: 2 } } };
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("d");
+    expect(matrix.getDisplayValue(true), "#1").toEqual({ r1: { a: "One" } });
+    expect(matrix["dataListValue"], "#2: no list").toBeUndefined();
+  });
+});
+
 describe("page validation: objects that were never built are valid", () => {
   test("design mode: the template's questions are not validated on a page leave", () => {
     const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelsPerPage: 1,

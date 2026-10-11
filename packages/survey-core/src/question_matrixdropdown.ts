@@ -394,47 +394,34 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   public getValueGetterContext(): IValueGetterContext {
     return new MatrixDropdownValueGetterContext(this);
   }
+  /* Without paging the visible rows; under paging every visible record, in view order: a record on the
+     page reads its display values from its row's cells, a record without a row through the columns'
+     template questions - nothing is built for it. Neither walk creates the list without paging. */
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!value) return value;
-    if (this.isPagedByList) return this.getPagedDisplayValue(keysAsText, value);
-    var rows = this.visibleRows;
-    var res = {};
-    if (!rows) return res;
-    for (var i = 0; i < rows.length; i++) {
-      var rowName = rows[i].rowName;
-      var val = value[rowName];
-      if (!val) continue;
-      if (keysAsText) {
-        var displayRowValue = ItemValue.getTextOrHtmlByValue(
-          this.rows,
-          rowName
-        );
-        if (!!displayRowValue) {
-          rowName = displayRowValue;
-        }
-      }
-      // A copy: val is the caller's, and may be survey data itself.
-      (<any>res)[rowName] = this.getRowDisplayValue(keysAsText, rows[i], this.getUnbindValue(val));
-    }
-    return res;
-  }
-  /* Under paging every visible record, in view order: a record on the page reads its display values
-     from its row's cells, a record without a row through the columns' template questions - nothing is
-     built for it. As without paging, the last row of a key decides; each record is formatted in a copy. */
-  private getPagedDisplayValue(keysAsText: boolean, value: any): any {
     const res: any = {};
-    const items = this.getRecordItems();
-    this.forEachViewRecord(true, (index: number, item: QuestionRecordItem): void => {
-      const row = <MatrixDropdownRowModelBase>item;
-      let rowName = items[index].value;
-      const val = value[rowName];
-      if (!val) return;
-      if (keysAsText) {
-        rowName = ItemValue.getTextOrHtmlByValue(this.rows, rowName) || rowName;
-      }
-      res[rowName] = this.getRecordDisplayValue(keysAsText, row, this.getUnbindValue(val), index);
+    if (this.isPagedByList) {
+      this.forEachViewRecord(true, (index: number, item: QuestionRecordItem): void => {
+        this.addRecordDisplayValue(res, keysAsText, value, index, <MatrixDropdownRowModelBase>item);
+      });
+      return res;
+    }
+    const rows = this.visibleRows;
+    if (!rows) return res;
+    rows.forEach((row: MatrixDropdownRowModelBase): void => {
+      this.addRecordDisplayValue(res, keysAsText, value, this.getBuiltRecordIndex(row), row);
     });
     return res;
+  }
+  /* The record's row item gives the key and, under keysAsText, its text: two rows on one value each
+     show their own. The last row of a key decides; the record is formatted in a copy - value is the
+     caller's, and may be survey data itself. */
+  private addRecordDisplayValue(res: any, keysAsText: boolean, value: any, index: number, row: MatrixDropdownRowModelBase): void {
+    const item = this.getRecordItems()[index];
+    const key = item.value;
+    const val = value[key];
+    if (!val) return;
+    res[keysAsText ? item.textOrHtml || key : key] = this.getRecordDisplayValue(keysAsText, row, this.getUnbindValue(val), index);
   }
   protected getConditionObjectRowName(index: number): string {
     return "." + this.rows[index].value;

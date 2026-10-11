@@ -266,8 +266,8 @@ export interface IDynamicDataRow {
    getRows: the rows, in their order. getValue: the keyed answer. storeValue: the new answer - a copy
    of the stored one with the written records in place - and the indexes of the records written.
    The owner calls rowsChanged() after every change of its rows - an assignment, an array change, a
-   reorder, a row value renamed -; the caches go, and onRecordsReplaced is told where each old record
-   went. */
+   reorder, a row value renamed -; the caches go, onRecordsReplaced is told where each old record
+   went, and the owner gets back what changed (IRowsChange). */
 export class RowsDynamicDataSource<T extends IDynamicDataRow = IDynamicDataRow> extends LocalDynamicDataSource {
   // createRemap: the new index of an old record by its key - two rows of one key by occurrence -, -1 for a key that is gone.
   public onRecordsReplaced: (createRemap: () => ((index: number) => number)) => void;
@@ -335,14 +335,32 @@ export class RowsDynamicDataSource<T extends IDynamicDataRow = IDynamicDataRow> 
   public createAssignmentRemap(oldRecords: any, newRecords: any, keyField?: string): (index: number) => number {
     return (index: number): number => index;
   }
-  public rowsChanged(): void {
+  /* The records whose rows were changed by indexes keep other rows on their keys: two rows with one
+     value are two records that read one key. The indexes of those other records, not in indexes, in
+     record order; empty without duplicate keys. */
+  public getIndexesOfSameKeys(indexes: Array<number>): Array<number> {
+    const cache = this.getRowsCache();
+    if (!cache.hasDuplicates) return [];
+    const keys = cache.keys;
+    const changedKeys = indexes.filter((index: number): boolean => index > -1 && index < keys.length)
+      .map((index: number): string => keys[index]);
+    const res: Array<number> = [];
+    keys.forEach((key: string, index: number): void => {
+      if (indexes.indexOf(index) < 0 && changedKeys.indexOf(key) > -1) res.push(index);
+    });
+    return res;
+  }
+  /* Drops the caches and returns what changed between the keys of the rows before and after
+     (IRowsChange). onRecordsReplaced gets the same remap the change gives. */
+  public rowsChanged(): IRowsChange {
     const oldKeys = this.getRowsCache().keys;
     this.rowsCache = undefined;
     this.recordsCache = undefined;
-    const newKeys = this.getRowsCache().keys;
+    const change = createRowsChange(oldKeys, this.getRowsCache().keys);
     if (!!this.onRecordsReplaced) {
-      this.onRecordsReplaced((): ((index: number) => number) => createKeyRemap(oldKeys, newKeys, String, true));
+      this.onRecordsReplaced((): ((index: number) => number) => change.getRemap());
     }
+    return change;
   }
   // Composed once per answer instance and rows change.
   private getRecords(): Array<any> {
@@ -392,6 +410,51 @@ export class RowsDynamicDataSource<T extends IDynamicDataRow = IDynamicDataRow> 
 }
 function isObject(value: any): boolean {
   return value !== null && typeof value === "object";
+}
+/* What a change of the rows did to the records (RowsDynamicDataSource.rowsChanged), each member
+   computed on its first call.
+   getRemap: the new index of an old record by its key - two rows of one key by occurrence -, -1 for a
+   key that is gone.
+   getAddedIndexes: the new records no old record went to, whose key no other new record has.
+   getRemovedIndexes: the old records that are gone, whose key no other old record had.
+   A change of a shared key is in neither list: pairing by occurrence cannot tell which of two rows on
+   one value was added or removed. The records of the other keys still map correctly. */
+export interface IRowsChange {
+  getRemap(): (index: number) => number;
+  getAddedIndexes(): Array<number>;
+  getRemovedIndexes(): Array<number>;
+}
+function createRowsChange(oldKeys: Array<string>, newKeys: Array<string>): IRowsChange {
+  let remap: (index: number) => number;
+  let added: Array<number>;
+  let removed: Array<number>;
+  const getRemap = (): ((index: number) => number) => remap || (remap = createKeyRemap(oldKeys, newKeys, String, true));
+  return {
+    getRemap: getRemap,
+    getAddedIndexes: (): Array<number> => {
+      if (!added) {
+        const reached = new Set<number>(oldKeys.map((key: string, index: number): number => getRemap()(index)));
+        added = getUniqueKeyIndexes(newKeys, (index: number): boolean => !reached.has(index));
+      }
+      return added;
+    },
+    getRemovedIndexes: (): Array<number> => {
+      if (!removed) {
+        removed = getUniqueKeyIndexes(oldKeys, (index: number): boolean => getRemap()(index) === -1);
+      }
+      return removed;
+    }
+  };
+}
+// The indexes that pass the filter and whose key no other index has, in order.
+function getUniqueKeyIndexes(keys: Array<string>, filter: (index: number) => boolean): Array<number> {
+  const counts = new Map<string, number>();
+  keys.forEach((key: string): void => { counts.set(key, (counts.get(key) || 0) + 1); });
+  const res: Array<number> = [];
+  keys.forEach((key: string, index: number): void => {
+    if (counts.get(key) === 1 && filter(index)) res.push(index);
+  });
+  return res;
 }
 
 /* An in-memory source without keyField is written by position: the index a list sends is the

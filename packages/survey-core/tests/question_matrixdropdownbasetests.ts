@@ -2768,6 +2768,60 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     matrix.visibleRows[1].cells[0].question.value = 1;
     expect(matrix.value, "#5: the new row writes its own record").toEqual({ row3: { col1: 1 } });
   });
+  test("matrixdropdown: a single added or removed row is spliced into the rendered table, the other rendered rows stay, and each row shows its own item and record", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdropdown", name: "q1", rows: ["a", "b", "c"], columns: [{ name: "col1", cellType: "text" }] }]
+    });
+    survey.data = { q1: { a: { col1: "1" }, b: { col1: "2" }, c: { col1: "3" }, d: { col1: "4" } } };
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+    const renderedRows = () => matrix.renderedTable.rows.filter(row => !!row.row && !row.isDetailRow);
+    const shown = () => renderedRows().map(row => row.cells[0].locTitle.renderedHtml + ":" + row.row.cells[0].question.value);
+    const renderedTable = matrix.renderedTable;
+    const [ra, rb, rc] = renderedRows();
+    matrix.rows.push(new ItemValue("d", "D"));
+    expect(matrix.renderedTable, "#1: added at the end").toBe(renderedTable);
+    expect(renderedRows().slice(0, 3), "#1: the other rendered rows").toEqual([ra, rb, rc]);
+    expect(shown(), "#1").toEqual(["a:1", "b:2", "c:3", "D:4"]);
+    const rd = renderedRows()[3];
+    // A key that is no row goes with the clean-up of a rows change: e's record is written just before its row comes.
+    survey.setValue("q1", Object.assign({}, matrix.value, { e: { col1: "5" } }));
+    matrix.rows.splice(1, 0, new ItemValue("e", "E"));
+    expect(matrix.renderedTable, "#2: added in the middle").toBe(renderedTable);
+    expect([0, 2, 3, 4].map(i => renderedRows()[i]), "#2: the other rendered rows").toEqual([ra, rb, rc, rd]);
+    expect(shown(), "#2").toEqual(["a:1", "E:5", "b:2", "c:3", "D:4"]);
+    const re = renderedRows()[1];
+    matrix.rows.splice(2, 1);
+    expect(matrix.renderedTable, "#3: removed from the middle").toBe(renderedTable);
+    expect(renderedRows(), "#3: the other rendered rows").toEqual([ra, re, rc, rd]);
+    expect(shown(), "#3").toEqual(["a:1", "E:5", "c:3", "D:4"]);
+  });
+  test("matrixdropdown: a row without a value added builds no row", () => {
+    const matrix = new QuestionMatrixDropdownModel("q1");
+    matrix.addColumn("col1");
+    matrix.rows = ["a", "b"];
+    expect(matrix.visibleRows.length, "#1").toBe(2);
+    matrix.rows.splice(1, 0, new ItemValue(""));
+    expect(matrix.rows.length, "#2: the item is added").toBe(3);
+    expect(matrix.visibleRows.map(row => row.rowName), "#2: no row is built for it").toEqual(["a", "b"]);
+  });
+  test("matrixdropdown: a removed row is found by its place, also when a paged question in a detail panel renumbered the rows' records first", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdropdown", name: "m", rows: ["a", "b", "c"], columns: [{ name: "x" }], detailPanelMode: "underRow",
+        detailElements: [{ type: "matrixdynamic", name: "inner", rowCount: 3, rowsPerPage: 1, columns: [{ name: "c", cellType: "text" }] }] }]
+    });
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
+    const renderedTable = matrix.renderedTable;
+    const rowC = matrix.visibleRows[2];
+    rowC.showDetailPanel();
+    const nested = <QuestionMatrixDynamicModel>rowC.detailPanel.getQuestionByName("inner");
+    nested.visibleRows;
+    nested.pageIndex = 2;
+    matrix.rows.splice(1, 1);
+    expect(matrix.renderedTable, "#1: updated in place").toBe(renderedTable);
+    expect(matrix.visibleRows.map(row => row.rowName), "#2: b is the removed row").toEqual(["a", "c"]);
+    expect(matrix.visibleRows[1], "#3: c is the same row").toBe(rowC);
+    expect((<QuestionMatrixDynamicModel>matrix.visibleRows[1].detailPanel.getQuestionByName("inner")).pageIndex, "#4: c keeps its nested page").toBe(2);
+  });
   test("Do not generate rows on running matrix visibleIf expression, bug#11567", () => {
     const survey = new SurveyModel({
       elements: [
@@ -2951,6 +3005,64 @@ describe("Fixed matrix: duplicate row keys share one answer", () => {
     const bothHidden = createMatrix([{ value: "a", visibleIf: "{show} = true" }, { value: "a", visibleIf: "{show} = true" }]);
     bothHidden.clearIncorrectValues();
     expect(bothHidden.value, "#3: every occurrence is hidden").toEqual({});
+  });
+  test("a key three rows share: an edit in one row reaches both others", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdropdown", name: "matrix", rows: ["a", "b", "a", "a"], columns: textColumns }]
+    });
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+    setCell(matrix, 2, 0, "1");
+    expect([cellValue(matrix, 0, 0), cellValue(matrix, 3, 0)], "#1: both other rows").toEqual(["1", "1"]);
+    expect(cellValue(matrix, 1, 0), "#1: the row of another key").toBeUndefined();
+    setCell(matrix, 0, 1, "2");
+    expect([2, 3].map(i => [cellValue(matrix, i, 0), cellValue(matrix, i, 1)]), "#2").toEqual([["1", "2"], ["1", "2"]]);
+    expect(matrix.value, "#3").toEqual({ a: { c1: "1", c2: "2" } });
+  });
+  // Each rendered data row: its item's text and the record it shows.
+  const createRowsMatrix = (rows: Array<any>): QuestionMatrixDropdownModel => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdropdown", name: "matrix", rows: rows, columns: textColumns }]
+    });
+    survey.data = { matrix: { a: { c1: "A" }, b: { c1: "B" }, c: { c1: "C" } } };
+    return <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  };
+  const renderedRows = (matrix: QuestionMatrixDropdownModel) => matrix.renderedTable.rows.filter(row => !!row.row && !row.isDetailRow);
+  const shown = (matrix: QuestionMatrixDropdownModel): Array<string> =>
+    renderedRows(matrix).map(row => row.cells[0].locTitle.renderedHtml + ":" + row.row.cells[0].question.value);
+  const twoRowsOfA = [{ value: "a", text: "a1" }, { value: "a", text: "a2" }];
+  test("a row on a value no other row has, added or removed beside a shared key, updates in place", () => {
+    const check = (rows: Array<any>, change: (matrix: QuestionMatrixDropdownModel) => void, kept: Array<number>, expected: Array<string>, name: string): void => {
+      const matrix = createRowsMatrix(rows);
+      const renderedTable = matrix.renderedTable;
+      const oldRows = matrix.visibleRows.slice();
+      const oldRendered = renderedRows(matrix);
+      change(matrix);
+      expect(matrix.renderedTable, name + ": the same rendered table").toBe(renderedTable);
+      const keptRows = kept.map(i => oldRows[i]);
+      const keptRendered = kept.map(i => oldRendered[i]);
+      expect(matrix.visibleRows.filter(row => keptRows.indexOf(<any>row) > -1), name + ": the remaining rows").toEqual(keptRows);
+      expect(renderedRows(matrix).filter(row => keptRendered.indexOf(row) > -1), name + ": the remaining rendered rows").toEqual(keptRendered);
+      expect(shown(matrix), name).toEqual(expected);
+    };
+    check(twoRowsOfA.concat(<any>"b"), matrix => matrix.rows.push(new ItemValue("c")), [0, 1, 2], ["a1:A", "a2:A", "b:B", "c:C"], "#1: c added at the end");
+    check(twoRowsOfA.concat(<any>"b"), matrix => matrix.rows.splice(1, 0, new ItemValue("c")), [0, 1, 2], ["a1:A", "c:C", "a2:A", "b:B"], "#2: c added between the two a rows");
+    check(twoRowsOfA.concat(<any>"b"), matrix => matrix.rows.splice(2, 1), [0, 1], ["a1:A", "a2:A"], "#3: b removed");
+    check([twoRowsOfA[0], "b", twoRowsOfA[1]], matrix => matrix.rows.splice(1, 1), [0, 2], ["a1:A", "a2:A"], "#4: b removed from between the two a rows");
+  });
+  test("a row on a value another row has, added or removed, rebuilds the matrix", () => {
+    const check = (rows: Array<any>, change: (matrix: QuestionMatrixDropdownModel) => void, expected: Array<string>, name: string): void => {
+      const matrix = createRowsMatrix(rows);
+      const renderedTable = matrix.renderedTable;
+      const oldRows = matrix.visibleRows.slice();
+      change(matrix);
+      expect(matrix.renderedTable === renderedTable, name + ": a new rendered table").toBe(false);
+      expect(matrix.visibleRows.some(row => oldRows.indexOf(<any>row) > -1), name + ": new rows").toBe(false);
+      expect(shown(matrix), name).toEqual(expected);
+    };
+    check(["a", "b"], matrix => matrix.rows.splice(0, 0, new ItemValue("a", "a0")), ["a0:A", "a:A", "b:B"], "#1: added before the other row");
+    check(["a", "b"], matrix => matrix.rows.push(new ItemValue("a", "a2")), ["a:A", "b:B", "a2:A"], "#2: added after the other row");
+    check([twoRowsOfA[0], "b", twoRowsOfA[1]], matrix => matrix.rows.splice(0, 1), ["b:B", "a2:A"], "#3: the first of two rows removed");
+    check([twoRowsOfA[0], "b", twoRowsOfA[1]], matrix => matrix.rows.splice(2, 1), ["a1:A", "b:B"], "#4: the last of two rows removed");
   });
 });
 
@@ -3633,5 +3745,41 @@ describe("Fixed matrix: a row's record in a value", () => {
     expect([read(0, true), read(1, true), read(2, true), read(4, true)], "#4: with create").toEqual([{}, {}, {}, {}]);
     expect(read(3, true) === record, "#5").toBe(true);
     expect(value, "#6: create writes {} under the name").toEqual({ r0: {}, r1: {}, r2: {}, r3: record, r4: {} });
+  });
+});
+
+describe("The bare matrix base has no rows", () => {
+  const create = (inSurvey: boolean, value?: any): QuestionMatrixDropdownModelBase => {
+    const matrix = new QuestionMatrixDropdownModelBase("q1");
+    matrix.addColumn("col1");
+    if (inSurvey) {
+      const survey = new SurveyModel();
+      survey.addNewPage("p1").addQuestion(matrix);
+    }
+    if (value !== undefined) matrix.value = value;
+    return matrix;
+  };
+  const check = (read: (matrix: QuestionMatrixDropdownModelBase) => any, expected: (value: any) => any): void => {
+    for (const inSurvey of [false, true]) {
+      for (const value of [undefined, { r1: { col1: 1 } }]) {
+        const name = (inSurvey ? "in a survey" : "standalone") + (value ? ", with a value" : ", without a value");
+        expect(read(create(inSurvey, value)), name).toEqual(expected(value));
+      }
+    }
+  };
+  test("visibleRows is empty", () => {
+    check(matrix => matrix.visibleRows, () => []);
+  });
+  test("allRows is empty", () => {
+    check(matrix => matrix.allRows, () => []);
+  });
+  test("getPlainData() has no rows' data", () => {
+    check(matrix => matrix.getPlainData().data, () => []);
+  });
+  test("renderedTable has no data rows", () => {
+    check(matrix => matrix.renderedTable.rows.filter(row => !!row.row).length, () => 0);
+  });
+  test("hasErrors() finds none", () => {
+    check(matrix => matrix.hasErrors(), () => false);
   });
 });

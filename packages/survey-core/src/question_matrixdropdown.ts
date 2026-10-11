@@ -16,7 +16,7 @@ import { ConditionRunner } from "./conditions/conditionRunner";
 import { ArrayChanges, Base } from "./base";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { QuestionRecordItem, IDynamicDataRecordUniqueness } from "./question_records";
-import { RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
+import { IRowsChange, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { IDynamicDataRecordCondition } from "./dynamic-data/dynamic-data-record-visibility";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { settings } from "./settings";
@@ -131,7 +131,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "rows") {
-      this.rowsSource.rowsChanged();
+      const change = this.rowsSource.rowsChanged();
       if (!!this.generatedVisibleRows) {
         /* A single added or removed row is spliced into the rendered table (Bug#11212), unless the rows
            are built for a view: then the view decides which rows exist, and they are rebuilt as a view
@@ -139,7 +139,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
         if (this.hasDataListView) {
           this.rebuildFromDataList(false);
           this.clearIncorrectValues();
-        } else if (!this.tryUpdateRowsIncrementally(arrayChanges)) {
+        } else if (!this.tryUpdateRowsIncrementally(arrayChanges, change)) {
           this.clearGeneratedRows();
           this.resetRenderedTable();
           this.getVisibleRows();
@@ -272,36 +272,36 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
      just written. Any other write is an assignment that refreshes the rows whose record changed
      (QuestionRecordsModel.onRecordsValueAssigned). */
   private refreshRowsOfSameKeys(changed: Array<number>): void {
+    if (!this.isWritingRecords) return;
     const source = this.rowsSource;
-    if (!source.hasDuplicateKeys || !this.isWritingRecords) return;
     const value = this.value;
-    const items = source.items;
-    const getKey = (index: number): string => String(items[index].value);
-    items.forEach((item: ItemValue, index: number): void => {
-      if (changed.indexOf(index) > -1) return;
-      const key = getKey(index);
-      if (!changed.some((changedIndex: number): boolean => getKey(changedIndex) === key)) return;
+    source.getIndexesOfSameKeys(changed).forEach((index: number): void => {
       const row = <MatrixDropdownRowModelBase>this.getItemByRecordIndex(index);
       if (!!row) {
-        row.value = this.getUnbindValue(this.isObject(value) ? value[item.value] : undefined);
+        row.value = this.getUnbindValue(source.readInValue(value, index));
       }
     });
   }
-  private tryUpdateRowsIncrementally(arrayChanges: ArrayChanges | undefined): boolean {
+  /* The rows source decides which record a single added or removed row is (change). A row on a value
+     another row has is in neither of its lists - the rows of one key are paired by occurrence, so it
+     cannot tell which of them came or went - and the matrix is rebuilt; so is it for a row without a
+     value, which is no record. */
+  private tryUpdateRowsIncrementally(arrayChanges: ArrayChanges | undefined, change: IRowsChange): boolean {
     if (!arrayChanges) return false;
     const itemsToAdd = arrayChanges.itemsToAdd || [];
     const deleteCount = arrayChanges.deleteCount || 0;
     if (itemsToAdd.length === 1 && deleteCount === 0) {
-      return this.tryAddSingleRow(<ItemValue>itemsToAdd[0]);
+      return this.tryAddSingleRow(<ItemValue>itemsToAdd[0], change.getAddedIndexes());
     }
     if (itemsToAdd.length === 0 && deleteCount === 1) {
-      return this.tryRemoveSingleRow();
+      return this.tryRemoveSingleRow(change.getRemovedIndexes());
     }
     return false;
   }
-  private tryAddSingleRow(item: ItemValue): boolean {
-    const insertIndex = this.getAddedRowIndex(item);
-    if (insertIndex < 0) return false;
+  // The source knows the new rows already (rowsChanged runs first): the record index is the item's place among them.
+  private tryAddSingleRow(item: ItemValue, addedIndexes: Array<number>): boolean {
+    const insertIndex = this.rowsSource.items.indexOf(item);
+    if (insertIndex < 0 || addedIndexes.length !== 1 || addedIndexes[0] !== insertIndex) return false;
     const val = this.value || {};
     const newRow = this.createMatrixRow(item, this.getRowValueForCreation(val, item.value));
     newRow.visibleIndex = insertIndex;
@@ -310,32 +310,20 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     this.finishIncrementalRowChange((table) => table.onAddedRow(newRow, insertIndex));
     return true;
   }
-  private tryRemoveSingleRow(): boolean {
-    const removeIndex = this.getRemovedRowIndex();
-    if (removeIndex < 0) return false;
-    const removedRow = this.generatedVisibleRows[removeIndex];
+  /* removedIndexes are old record indexes. Without a view the built rows are still the old records in
+     record order, so the row is the one at that position. Its built record index cannot say it: the
+     remap has already renumbered the built rows when a detail panel holds a paged question. */
+  private tryRemoveSingleRow(removedIndexes: Array<number>): boolean {
+    const rows = this.generatedVisibleRows;
+    if (removedIndexes.length !== 1 || rows.length !== this.rowsSource.count + 1) return false;
+    const removeIndex = removedIndexes[0];
+    const removedRow = rows[removeIndex];
     if (!this.isDisposed) {
       this.defaultValuesInRows[removedRow.rowName] = removedRow.getNamesWithDefaultValues();
     }
-    this.generatedVisibleRows.splice(removeIndex, 1);
+    rows.splice(removeIndex, 1);
     this.finishIncrementalRowChange((table) => table.onRemovedRow(removedRow));
     return true;
-  }
-  // The source knows the new rows already (rowsChanged runs first): the record index is the item's place among them.
-  private getAddedRowIndex(item: ItemValue): number {
-    if (!item || !item.hasValue) return -1;
-    if (!!this.getRowByKey(item.value)) return -1;
-    return this.rowsSource.items.indexOf(item);
-  }
-  private getRemovedRowIndex(): number {
-    const currentRowNames: { [key: string]: boolean } = {};
-    for (let i = 0; i < this.rows.length; i++) {
-      currentRowNames[this.rows[i].value] = true;
-    }
-    for (let i = 0; i < this.generatedVisibleRows.length; i++) {
-      if (!currentRowNames[this.generatedVisibleRows[i].rowName]) return i;
-    }
-    return -1;
   }
   private finishIncrementalRowChange(updateRendered: (table: QuestionMatrixDropdownRenderedTable) => void): void {
     // Without a view every row is built, in record order: a row's position is its record index.
@@ -490,14 +478,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
       this.value = newVal;
     }
     super.clearIncorrectValues();
-  }
-  private getRowByKey(val: any): MatrixDropdownRowModelBase {
-    const rows = this.generatedVisibleRows;
-    if (!rows) return null;
-    for (let i = 0; i < rows.length; i ++) {
-      if (String(rows[i].rowName) === String(val)) return rows[i];
-    }
-    return null;
   }
   // An owner-hidden record loses its answer when invisible values are cleared, as a hidden row does.
 

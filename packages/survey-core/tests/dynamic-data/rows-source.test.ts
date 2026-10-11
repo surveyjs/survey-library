@@ -215,6 +215,66 @@ describe("RowsDynamicDataSource: rowsChanged()", () => {
     stored.source.rowsChanged();
     expect(remapAll(stored.replaced[0], 2), "#1").toEqual([0, 1]);
   });
+  test("the change gives the remap onRecordsReplaced gets, built once", () => {
+    const stored = createSource(["a", "b", "c"], {});
+    stored.source.read();
+    stored.rows.splice(1, 1);
+    const change = stored.source.rowsChanged();
+    const remap = change.getRemap();
+    expect(stored.replaced[0]() === remap, "#1: the same function").toBe(true);
+    expect(change.getRemap() === remap && stored.replaced[0]() === remap, "#2: asked again").toBe(true);
+    expect(remapAll(stored.replaced[0], 3), "#3").toEqual([0, -1, 1]);
+  });
+});
+
+describe("RowsDynamicDataSource: the records a rows change added or removed", () => {
+  // The rows of rowValues, changed by change, and what rowsChanged() says about it.
+  function changeRows(rowValues: Array<any>, change: (rows: Array<IDynamicDataRow>) => void): { added: Array<number>, removed: Array<number> } {
+    const stored = createSource(rowValues, {});
+    stored.source.read();
+    change(stored.rows);
+    const res = stored.source.rowsChanged();
+    return { added: res.getAddedIndexes(), removed: res.getRemovedIndexes() };
+  }
+  test("a row on a value no other row has, added at the end and in the middle", () => {
+    expect(changeRows(["a", "b"], rows => rows.push(createRow("c"))), "#1: at the end").toEqual({ added: [2], removed: [] });
+    expect(changeRows(["a", "b"], rows => rows.splice(1, 0, createRow("c"))), "#2: in the middle").toEqual({ added: [1], removed: [] });
+    expect(changeRows(["a", "a", "b"], rows => rows.push(createRow("c"))), "#3: at the end, beside a shared key").toEqual({ added: [3], removed: [] });
+    expect(changeRows(["a", "a", "b"], rows => rows.splice(1, 0, createRow("c"))), "#4: between the rows of a shared key").toEqual({ added: [1], removed: [] });
+  });
+  test("a row on a value no other row has, removed at the end and in the middle", () => {
+    expect(changeRows(["a", "b", "c"], rows => rows.pop()), "#1: at the end").toEqual({ added: [], removed: [2] });
+    expect(changeRows(["a", "b", "c"], rows => rows.splice(1, 1)), "#2: in the middle").toEqual({ added: [], removed: [1] });
+    expect(changeRows(["a", "a", "b"], rows => rows.pop()), "#3: at the end, beside a shared key").toEqual({ added: [], removed: [2] });
+    expect(changeRows(["a", "b", "a"], rows => rows.splice(1, 1)), "#4: between the rows of a shared key").toEqual({ added: [], removed: [1] });
+  });
+  test("a row on a value another row has is in neither list, added before or after it, or removed first or last", () => {
+    const none = { added: [], removed: [] };
+    expect(changeRows(["a", "b"], rows => rows.splice(0, 0, createRow("a"))), "#1: added before").toEqual(none);
+    expect(changeRows(["a", "b"], rows => rows.push(createRow("a"))), "#2: added after").toEqual(none);
+    expect(changeRows(["a", "b", "a"], rows => rows.splice(0, 1)), "#3: the first removed").toEqual(none);
+    expect(changeRows(["a", "b", "a"], rows => rows.pop()), "#4: the last removed").toEqual(none);
+  });
+  test("a row without a value is no record: in neither list", () => {
+    const none = { added: [], removed: [] };
+    expect(changeRows(["a", "b"], rows => rows.splice(1, 0, createRow(""))), "#1: added").toEqual(none);
+    expect(changeRows(["a", "", "b"], rows => rows.splice(1, 1)), "#2: removed").toEqual(none);
+  });
+  test("no change: both lists are empty", () => {
+    expect(changeRows(["a", "a", "b"], () => { }), "#1").toEqual({ added: [], removed: [] });
+  });
+});
+
+describe("RowsDynamicDataSource: the other records of a key", () => {
+  test("getIndexesOfSameKeys: the records, not passed, whose key is the key of a passed one, in record order", () => {
+    expect(createSource(["a", "b", "c"]).source.getIndexesOfSameKeys([0, 1]), "#1: no duplicate keys").toEqual([]);
+    const two = createSource(["a", "b", "a"]).source;
+    expect([two.getIndexesOfSameKeys([0]), two.getIndexesOfSameKeys([2]), two.getIndexesOfSameKeys([1])], "#2: two rows on a key").toEqual([[2], [0], []]);
+    expect(createSource(["a", "a", "b", "a"]).source.getIndexesOfSameKeys([1]), "#3: three rows on a key").toEqual([0, 3]);
+    expect(createSource([1, "b", "1"]).source.getIndexesOfSameKeys([2]), "#4: a number row value is matched by its string key").toEqual([0]);
+    expect(createSource(["a", "b", "a", "b", "c"]).source.getIndexesOfSameKeys([3, 0, 2]), "#5: several indexes, whose keys overlap").toEqual([1]);
+    expect([two.getIndexesOfSameKeys([5]), two.getIndexesOfSameKeys([-1])], "#6: an index without an item").toEqual([[], []]);
+  });
 });
 
 describe("RowsDynamicDataSource: the answer's shape is keyed by the row value", () => {

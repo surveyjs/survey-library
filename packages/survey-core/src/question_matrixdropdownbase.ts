@@ -2427,8 +2427,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     row.value = rowValue;
     this.writeItemValue(row, "", rowValue, false);
   }
+  // The base has no rows of its own: its records source is empty.
   protected generateRows(): Array<MatrixDropdownRowModelBase> {
-    return null;
+    return [];
   }
   // The rows of the records indexes names, in that order: createRow makes one, and it is told its record.
   protected createRowsForRecords<T extends MatrixDropdownRowModelBase>(indexes: Array<number>, createRow: (index: number) => T): Array<T> {

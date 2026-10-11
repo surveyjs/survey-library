@@ -2941,17 +2941,19 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     this.updateRenderedPanels();
   }
-  // The on-value-change check: a key typed on this page that repeats the key of a record without a
-  // panel - off the page, or filtered out - is a duplicate too.
+  /* The on-value-change check. A key question the value change did not write is validated first: its
+     validation resets its errors, and the duplicate check adds them. */
   private hasKeysDuplicated(context: ValidationContext): boolean {
-    const keys = this.getKeysWithoutPanels();
-    var res;
-    for (var i = 0; i < this.panelsCore.length; i++) {
-      res =
-        this.isValueDuplicated(this.panelsCore[i], keys, context) ||
-        res;
-    }
-    return res;
+    const keyName = this.getRecordKeyName();
+    if (!keyName) return false;
+    const qs = this.changingValueQuestions;
+    this.visiblePanelsCore.forEach((panel: PanelModel): void => {
+      const question = <Question>panel.getQuestionByValueName(keyName);
+      if (!!question && !question.isEmpty() && qs.indexOf(question) < 0) {
+        question.validateElement(context);
+      }
+    });
+    return this.checkRecordsUniqueness(context.fireCallback, undefined, (question: Question): void => context.setErrorElement(question)).length > 0;
   }
   private updatePanelsContainsErrors() {
     const qs = this.changingValueQuestions;
@@ -2985,6 +2987,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   // QuestionRecordsModel hook: the key the duplicate checks compare (getUniqueColumnsNames).
   protected getRecordKeyName(): string {
     return this.keyName;
+  }
+  protected getDuplicationErrorText(): string {
+    return this.keyDuplicationError;
   }
   private hasInputInChangedQuestions(): boolean {
     const qs = this.changingValueQuestions;
@@ -3121,61 +3126,18 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return this.formatRecordDisplayValue(keysAsText, record,
       (key: string): Question => <Question>panel.getQuestionByValueName(key) || this.getSharedQuestionFromArray(key, recordIndex));
   }
+  /* The panels are validated before the duplicate check: a panel's validation resets the errors of its
+     key question, and the check adds them. The focus goes where the first error is: the first panel
+     with an error of its own, otherwise the first duplicate. */
   private validateInPanels(context: ValidationContext): boolean {
-    let res = true;
     const panels = this.visiblePanels;
-    // The keyName duplicates are looked for among the RECORDS: a panel that repeats the key of a
-    // record with no panel is still a duplicate. A pair that is entirely outside the view reports
-    // nothing - it cannot be shown.
-    const keys = this.getKeysWithoutPanels();
-    for (let i = 0; i < panels.length; i++) {
-      let isPnlValid = this.validateRecordObjects(context, (): boolean => panels[i].validateElement(context));
-      isPnlValid = !this.isValueDuplicated(panels[i], keys, context) && isPnlValid;
-      if (!this.isRenderModeList && !isPnlValid && res && context.focusOnFirstError) {
-        this.moveToVisibleIndex(this.getPanelVisibleIndex(panels[i]));
-      }
-      res = isPnlValid && res;
+    const invalid = panels.filter((panel: PanelModel): boolean => !this.validateRecordObjects(context, (): boolean => panel.validateElement(context)));
+    const duplicates = this.checkRecordsUniqueness(context.fireCallback, undefined, (question: Question): void => context.setErrorElement(question));
+    const target = invalid[0] || panels.filter((panel: PanelModel): boolean => duplicates.indexOf(<QuestionRecordItem>panel.data) > -1)[0];
+    if (!target) return true;
+    if (!this.isRenderModeList && context.focusOnFirstError) {
+      this.moveToVisibleIndex(this.getPanelVisibleIndex(target));
     }
-    return res;
-  }
-  // A key value compared as text, as the off-page check compares it: 1 and "1.0" differ, true and "true" do not.
-  private getKeyOf(value: any): string {
-    return this.getRecordKey(value);
-  }
-  // A Set and not an object: the keys are respondent input and may be named like Object.prototype members.
-  private getKeysWithoutPanels(): Set<string> {
-    const res = new Set<string>();
-    const keyName = this.getRecordKeyName();
-    if (!keyName || !this.hasDataListView) return res;
-    // A key constraint over a whole remote table cannot be checked here. An owner-hidden record does not
-    // take part (getRecordUniqueness), as it does not without paging, where its hidden panel is skipped;
-    // a filtered-out one does but never receives the error. A record the page holds is compared through its panel.
-    this.forEachUniquenessValue(keyName, (): void => { }, (index: number, val: any): void => {
-      if (!this.isValueEmpty(val)) {
-        res.add(this.getKeyOf(val));
-      }
-    });
-    return res;
-  }
-  private isValueDuplicated(panel: PanelModel, keys: Set<string>, context: ValidationContext): boolean {
-    const keyName = this.getRecordKeyName();
-    if (!keyName) return false;
-    var question = <Question>panel.getQuestionByValueName(keyName);
-    if (!question || question.isEmpty()) return false;
-    var value = question.value;
-    const qs = this.changingValueQuestions;
-    if (Array.isArray(qs) && qs.indexOf(question) < 0) {
-      question.validateElement(context);
-    }
-    const key = this.getKeyOf(value);
-    if (keys.has(key)) {
-      if (context.fireCallback) {
-        this.addDuplicationError(question, this.keyDuplicationError);
-      }
-      context.setErrorElement(question);
-      return true;
-    }
-    keys.add(key);
     return false;
   }
   private removePanelActions: {[index: number]: Action} = { };

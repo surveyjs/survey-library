@@ -16,7 +16,7 @@ import {
   DynamicDataFieldType, DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort,
   IDynamicDataSource
 } from "./dynamic-data/dynamic-data-interfaces";
-import { IDynamicDataPageState, findDuplicatePages, getDuplicateKey, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-page-validation";
+import { IDynamicDataPageState, findDuplicatePages, getDuplicateKey, getReplacedRecordsRemap, groupByDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
 import { DynamicDataPageValidation, IDynamicDataPageValidationOwner } from "./question_records_page_validation";
 import { createIndexes } from "./dynamic-data/dynamic-data-filter";
 import { DynamicDataPagingController, IDynamicDataPagingOwner } from "./dynamic-data/dynamic-data-paging";
@@ -42,6 +42,12 @@ export interface IDynamicDataRecordUniqueness {
   includeHidden: boolean;
   // Records outside the view - the filter excludes them - take part too.
   includeFilteredOut: boolean;
+}
+// A value the duplicate check compares; item is undefined for a record without an object.
+interface IUniquenessEntry {
+  item: QuestionRecordItem;
+  value: any;
+  isEmpty: boolean;
 }
 /* What a value assignment from outside takes before the value is stored and hands back after it (see
    QuestionRecordsModel.beginValueAssignment). created: the created indexes, undefined without a
@@ -1487,7 +1493,7 @@ export abstract class QuestionRecordsModel extends Question {
      the check on the page and the scan off it agree: the loaded records - a duplicate on a page the
      question has not read is the server's business - or only the visible ones, and of the records
      with no object the owner-hidden ones only when they take part. A record with an object takes
-     part as its object does: the question decides that, and reads and compares the keys itself. */
+     part when its object is visible (isItemVisible). */
   protected forEachUniquenessRecord(func: (index: number, item: QuestionRecordItem, position: number) => void): void {
     const list = this.dataList;
     const uniqueness = this.getRecordUniqueness();
@@ -1497,22 +1503,81 @@ export abstract class QuestionRecordsModel extends Question {
       func(index, item, position);
     });
   }
-  /* The duplicate checks of both types walk the records here (forEachUniquenessRecord): a record with an
-     object is the type's to compare (onObject: the object and its position), a record without one
-     gives the value of field, read by one reader (createDuplicationRecordReader). How a group of
-     duplicates is marked stays the type's. */
-  protected forEachUniquenessValue(field: string, onObject: (item: QuestionRecordItem, position: number) => void,
-    onRecord: (index: number, value: any) => void): void {
+  /* The duplicate check of both types, field by field - the unique fields by default. Every visible
+     object of a group of two or more is a duplicate: showErrors adds the error to its question, and
+     every other object loses it. A record without an object takes part in the grouping and has
+     nothing to mark. onDuplicate gets the question of each duplicate in object order, whether or not
+     the error is shown - undefined for an object without the field's question, which is a duplicate
+     all the same. Returns the objects that are duplicates in any of the fields. */
+  protected checkRecordsUniqueness(showErrors: boolean, fields?: Array<string>, onDuplicate?: (question: Question) => void): Array<QuestionRecordItem> {
+    const res: Array<QuestionRecordItem> = [];
+    (fields || this.getUniqueColumnsNames()).forEach((field: string): void => {
+      const duplicates: Array<QuestionRecordItem> = [];
+      groupByDuplicateKey(this.getUniquenessEntries(field), (entry: IUniquenessEntry): any => entry.value,
+        this.isRecordUniquenessCaseSensitive(), (entry: IUniquenessEntry): boolean => entry.isEmpty)
+        .forEach((group: Array<IUniquenessEntry>): void => {
+          if (group.length > 1) group.forEach((entry: IUniquenessEntry): void => { if (!!entry.item) duplicates.push(entry.item); });
+        });
+      for (let i = 0; ; i++) {
+        const item = this.getItem(i);
+        if (!item) break;
+        const isDuplicate = duplicates.indexOf(item) > -1;
+        const question = this.getUniquenessQuestion(item, field, isDuplicate && showErrors);
+        if (!isDuplicate) {
+          if (!!question && this.removeDuplicationError(question)) {
+            this.onDuplicationErrorRemoved(item, question);
+          }
+          continue;
+        }
+        if (res.indexOf(item) < 0) res.push(item);
+        if (showErrors && !!question) {
+          this.addDuplicationError(question);
+        }
+        if (!!onDuplicate) onDuplicate(question);
+      }
+    });
+    return res;
+  }
+  /* The values of field that are compared: under a view the records forEachUniquenessRecord names,
+     without one the objects. A visible object gives its question's value when it has the field's
+     question, otherwise its stored record value; a hidden object takes no part. A question decides
+     itself whether its value is empty (allowSpaceAsAnswer keeps "   "); any other value is empty when
+     it is empty once trimmed. */
+  private getUniquenessEntries(field: string): Array<IUniquenessEntry> {
+    const res: Array<IUniquenessEntry> = [];
+    const addValue = (item: QuestionRecordItem, value: any): void => { res.push({ item: item, value: value, isEmpty: this.isValueEmpty(value) }); };
+    const addItem = (item: QuestionRecordItem, position: number): void => {
+      if (!this.isItemVisible(item)) return;
+      const question = this.getUniquenessQuestion(item, field, false);
+      if (!!question) {
+        res.push({ item: item, value: question.value, isEmpty: question.isEmpty() });
+        return;
+      }
+      const record = this.getListRecordAt(this.getRecordIndexAtCreatedPosition(position));
+      addValue(item, !!record ? record[field] : undefined);
+    };
+    if (!this.hasDataListView) {
+      for (let i = 0; !!this.getItem(i); i++) addItem(this.getItem(i), i);
+      return res;
+    }
     const read = this.createDuplicationRecordReader();
     this.forEachUniquenessRecord((index: number, item: QuestionRecordItem, position: number): void => {
       if (!!item) {
-        onObject(item, position);
+        addItem(item, position);
         return;
       }
       const record = read(index);
-      onRecord(index, !!record ? record[field] : undefined);
+      addValue(undefined, !!record ? record[field] : undefined);
     });
+    return res;
   }
+  /* The question of an object that holds field and shows its duplication error: the one that writes
+     the field. isShowingError: the error is about to be added, so a type may create the question. */
+  protected getUniquenessQuestion(item: QuestionRecordItem, field: string, isShowingError: boolean): Question {
+    return this.getRecordFieldQuestion(item, field);
+  }
+  // The duplication error has just left the question of an object that is no longer a duplicate.
+  protected onDuplicationErrorRemoved(item: QuestionRecordItem, question: Question): void { }
   // Reads a record without an object for the duplicate checks.
   protected createDuplicationRecordReader(): (index: number) => any {
     return (index: number): any => this.getListRecordAt(index);
@@ -1520,7 +1585,7 @@ export abstract class QuestionRecordsModel extends Question {
   /* What a duplicate is among the records; asked only when the records without an object are scanned.
      A record the visibility expression hides does not take part, as a hidden object does not on the page;
      a filtered-out one does unless the type says otherwise. Strings compare as the on-page check compares
-     them; the error goes on the later visible record of a pair, on its page. */
+     them; every object of a group gets the error on its page (checkRecordsUniqueness). */
   protected getRecordUniqueness(): IDynamicDataRecordUniqueness {
     return { fields: this.getUniqueColumnsNames(), caseSensitive: this.isRecordUniquenessCaseSensitive(), includeHidden: false, includeFilteredOut: true };
   }
@@ -1546,10 +1611,14 @@ export abstract class QuestionRecordsModel extends Question {
     return null;
   }
   // A question shows one duplication error, however many times it is found duplicated.
-  protected addDuplicationError(question: Question, text: string): void {
+  protected addDuplicationError(question: Question): void {
     if (!this.getDuplicationError(question)) {
-      question.addError(new KeyDuplicationError(text, this));
+      question.addError(new KeyDuplicationError(this.getDuplicationErrorText(), this));
     }
+  }
+  // The keyDuplicationError of the types that declare it; empty gives the default text.
+  protected getDuplicationErrorText(): string {
+    return "";
   }
   protected removeDuplicationError(question: Question): boolean {
     return question.removeError(this.getDuplicationError(question));

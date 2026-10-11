@@ -46,8 +46,8 @@ describe("keyName duplicates: the panel compares keys as text", () => {
   test("true and \"true\" are duplicates", () => {
     const panel = createKeyPanel([true, "true"]);
     expect(panel.validate(), "#1").toBe(false);
-    expect((<Question>panel.panels[1].getQuestionByName("k")).errors.length, "#2: the later panel gets the error").toBe(1);
-    expect((<Question>panel.panels[0].getQuestionByName("k")).errors.length, "#3").toBe(0);
+    expect((<Question>panel.panels[1].getQuestionByName("k")).errors.length, "#2: both panels get the error").toBe(1);
+    expect((<Question>panel.panels[0].getQuestionByName("k")).errors.length, "#3").toBe(1);
   });
   test("the panel compares case-sensitively, the matrix does not", () => {
     expect(createKeyPanel(["A", "a"]).validate(), "#1: unpaged panel").toBe(true);
@@ -118,6 +118,48 @@ describe("keyName and isUnique compare object and array values by content", () =
   test("matrix column: the strings of two objects compare as the column compares text, case-insensitively", () => {
     expect(matrixHasDuplicate({ cellType: "checkbox", choices: ["a", "A"] }, [["a"], ["A"]]), "#1").toBe(true);
     expect(panelHasDuplicate(checkbox, [["a"], ["A"]]), "#2: the panel compares case-sensitively").toBe(false);
+  });
+});
+
+describe("unique keys in both records questions: empty keys, and when the errors are shown", () => {
+  const createKeyMatrix = (keys: Array<any>, json?: any): QuestionMatrixDynamicModel => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "m", rowCount: 0,
+      columns: [{ name: "k", cellType: "text", isUnique: true }] }, json || {})] });
+    survey.data = { m: keys.map((k: any): any => ({ k: k })) };
+    return <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+  };
+  const types = [
+    { name: "panel", create: createKeyPanel, paging: { panelsPerPage: 2 },
+      keys: (question: any): Array<Question> => question.visiblePanels.map((p: any): Question => p.getQuestionByName("k")) },
+    { name: "matrix", create: createKeyMatrix, paging: { rowsPerPage: 2 },
+      keys: (question: any): Array<Question> => question.visibleRows.map((r: any): Question => r.getQuestionByColumnName("k")) }
+  ];
+  types.forEach(type => {
+    test(type.name + ": an empty or a whitespace-only key takes no part", () => {
+      expect(type.create(["", undefined, "a"]).validate(), "#1: empty").toBe(true);
+      expect(type.create(["   ", "   "]).validate(), "#2: whitespace-only").toBe(true);
+    });
+    test(type.name + ": two whitespace-only keys are duplicates when the key question allows a space as an answer", () => {
+      const question = type.create(["   ", "   "]);
+      type.keys(question).forEach((q: Question): void => { q.allowSpaceAsAnswer = true; });
+      expect(question.validate(), "#1").toBe(false);
+      expect(type.keys(question).map((q: Question): number => q.errors.length), "#2").toEqual([1, 1]);
+    });
+    test(type.name + ": under paging a whitespace-only key on the page and a whitespace-only record off it are no duplicates", () => {
+      const question = type.create(["   ", "a", "   "], type.paging);
+      expect(type.keys(question).length, "#1: the page").toBe(2);
+      type.keys(question).forEach((q: Question): void => { q.allowSpaceAsAnswer = true; });
+      expect(question.validate(), "#2").toBe(true);
+    });
+    test(type.name + ": a quiet validation fails on a duplicate without showing it, a full one marks both", () => {
+      const question = type.create(["a", "a"]);
+      const errors = (): Array<number> => type.keys(question).map((q: Question): number => q.errors.length);
+      expect(question.validate(false), "#1").toBe(false);
+      expect((<SurveyModel>question.survey).validate(false), "#2").toBe(false);
+      expect(errors(), "#3: no error is shown").toEqual([0, 0]);
+      expect(question.validate(true), "#4").toBe(false);
+      expect(errors(), "#5").toEqual([1, 1]);
+    });
   });
 });
 

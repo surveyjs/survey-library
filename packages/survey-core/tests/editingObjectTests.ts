@@ -532,6 +532,25 @@ describe("Survey.editingObj Tests", () => {
     expect(nameQuestion.errors.length, "no errors").toBe(0);
     expect(question.columns[0].name, "set name property into column").toBe("col3");
   });
+  test("Edit columns in matrix: a duplicate name that another row gives up loses the error and reaches the column", () => {
+    const question = new QuestionMatrixDynamicModel("q1");
+    question.addColumn("col1");
+    question.addColumn("col2");
+    const survey = new SurveyModel({
+      checkErrorsMode: "onValueChanging",
+      elements: [{ type: "matrixdynamic", name: "columns",
+        columns: [{ cellType: "text", name: "name", isUnique: true }, { cellType: "text", name: "title" }] }]
+    });
+    survey.editingObj = question;
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("columns");
+    const names = matrix.visibleRows.map(row => row.cells[0].question);
+    names[0].value = "col2";
+    expect(names.map(q => q.errors.length), "#1: both rows of the pair").toEqual([1, 1]);
+    expect(question.columns[0].name, "#2: the duplicate stays out of the column").toBe("col1");
+    names[1].value = "col3";
+    expect(names.map(q => q.errors.length), "#3: no row repeats a name").toEqual([0, 0]);
+    expect(question.columns.map(col => col.name), "#4: the kept name reaches the column").toEqual(["col2", "col3"]);
+  });
   test("Edit choices in matrix", () => {
     var question = new QuestionDropdownModel("q1");
     question.choices = [{ value: "item1" }, { value: "item2", text: "Item 2" }];

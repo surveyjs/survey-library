@@ -27,13 +27,7 @@ import {
   QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, isRecordEmpty, getRecordViewProperties
 } from "./question_records";
 import { DynamicDataOperation, IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
-import { groupByDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
 import { createIndexes } from "./dynamic-data/dynamic-data-filter";
-
-export interface IMatrixDuplicationEntry {
-  row: MatrixDropdownRowModelBase;
-  value: any;
-}
 
 /* The matrix as its cells see it. The first group is what the interface has always declared for the
    rows; the rows themselves type their matrix as QuestionMatrixDropdownModelBase. */
@@ -2403,7 +2397,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     cellQuestion: Question
   ): boolean {
     if (!this.generatedVisibleRows) return false;
-    return this.isValueInColumnDuplicated(cellQuestion.name, true, checkedRow);
+    return this.checkRecordsUniqueness(true, [cellQuestion.name]).indexOf(checkedRow) > -1;
   }
   /**
    * Assigns values to a row.
@@ -2879,18 +2873,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     });
     return res;
   }
+  // The duplicates are marked once the rows exist; every duplicate cell is an error of the validation.
   private isValueDuplicated(context: ValidationContext): boolean {
     if (!this.generatedVisibleRows) return false;
-    var names = this.getUniqueColumnsNames();
-    var res = false;
-    for (var i = 0; i < names.length; i++) {
-      const rows = this.getDuplicatedRowAndShowErrors(names[i], true);
-      if (!!rows && rows.length > 0) {
-        context.setErrorElement(rows[0].getQuestionByColumnName(names[i]));
-        res = true;
-      }
-    }
-    return res;
+    return this.checkRecordsUniqueness(context.fireCallback, undefined, (question: Question): void => context.setErrorElement(question)).length > 0;
   }
   // The isUnique columns in column order, then the key: the order decides which question gets the focus.
   protected getUniqueColumnsNames(): Array<string> {
@@ -2905,89 +2891,24 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     });
     return res;
   }
-  private isValueInColumnDuplicated(columnName: string, showErrors: boolean, row?: MatrixDropdownRowModelBase): boolean {
-    const rows = this.getDuplicatedRowAndShowErrors(columnName, showErrors, row);
-    return !!row ? rows.indexOf(row) > -1 : rows.length > 0;
+  protected getDuplicationErrorText(): string {
+    return this.keyDuplicationError;
   }
-  private getDuplicatedRowAndShowErrors(columnName: string, showErrors: boolean, row?: MatrixDropdownRowModelBase): Array<MatrixDropdownRowModelBase> {
-    const rows = this.getDuplicatedRows(columnName);
-    if (showErrors) {
-      this.showDuplicatedErrorsInRows(rows, columnName);
+  /* A unique field is a column name: the cell, or the detail panel question of that name. A unique
+     column in the detail panel opens the panel to show the error. */
+  protected getUniquenessQuestion(item: QuestionRecordItem, field: string, isShowingError: boolean): Question {
+    const row = <MatrixDropdownRowModelBase>item;
+    if (isShowingError && !!this.detailPanelValue?.getQuestionByName(field)) {
+      row.showDetailPanel();
     }
-    this.removeDuplicatedErrorsInRows(rows, columnName);
-    return rows;
+    return row.getQuestionByName(field);
   }
-  /* One entry per RECORD, with the row that holds it when the record has one: a duplicate of a
-     record that has no row still makes the row that repeats it a duplicate, and the error is shown
-     on the row that exists. A pair that is entirely outside the view reports nothing - it cannot
-     be shown. */
-  protected getDuplicationEntries(columnName: string): Array<IMatrixDuplicationEntry> {
-    if (this.hasDataListView) return this.getRecordDuplicationEntries(columnName);
-    const res = new Array<IMatrixDuplicationEntry>();
-    const rows = this.generatedVisibleRows;
-    for (let i = 0; i < rows.length; i++) {
-      if (!rows[i].isVisible) continue;
-      res.push({ row: rows[i], value: this.getDuplicationValue(rows[i], i, columnName) });
+  // The value a duplicate kept out of the editing object goes there once the cell has no error left.
+  protected onDuplicationErrorRemoved(item: QuestionRecordItem, question: Question): void {
+    const row = <MatrixDropdownRowModelBase>item;
+    if (question.errors.length === 0 && !!row.editingObj) {
+      (<any>row.editingObj)[question.getValueName()] = question.value;
     }
-    return res;
-  }
-  // Under a view the records forEachUniquenessRecord names take part; a row that exists takes part when it is visible.
-  private getRecordDuplicationEntries(columnName: string): Array<IMatrixDuplicationEntry> {
-    const res = new Array<IMatrixDuplicationEntry>();
-    this.forEachUniquenessValue(columnName, (item: QuestionRecordItem, position: number): void => {
-      const row = <MatrixDropdownRowModelBase>item;
-      if (row.isVisible) res.push({ row: row, value: this.getDuplicationValue(row, position, columnName) });
-    }, (index: number, value: any): void => { res.push({ row: undefined, value: value }); });
-    return res;
-  }
-  /* position: the row's position in generatedVisibleRows, which both callers have. The row's own record
-     is read by it: looking the row up would scan the rows for every row. */
-  protected getDuplicationValue(row: MatrixDropdownRowModelBase, position: number, columnName: string): any {
-    const question = !!row ? row.getQuestionByName(columnName) : undefined;
-    if (!!question) return question.value;
-    const rowVal = this.getRowRecordValue(position);
-    return !!rowVal ? rowVal[columnName] : undefined;
-  }
-  // Every row of a group of two or more is marked, as released (the panel marks the later panel).
-  private getDuplicatedRows(columnName: string): Array<MatrixDropdownRowModelBase> {
-    const res: Array<MatrixDropdownRowModelBase> = [];
-    const groups = groupByDuplicateKey(this.getDuplicationEntries(columnName),
-      (entry: IMatrixDuplicationEntry): any => entry.value, this.useCaseSensitiveComparison);
-    groups.forEach((group: Array<IMatrixDuplicationEntry>): void => {
-      if (group.length > 1) {
-        group.forEach(entry => { if (!!entry.row) res.push(entry.row); });
-      }
-    });
-    return res;
-  }
-  private showDuplicatedErrorsInRows(duplicatedRows: Array<MatrixDropdownRowModelBase>, columnName: string): void {
-    duplicatedRows.forEach(row => {
-      let question = row.getQuestionByName(columnName);
-      const inDetailPanel = this.detailPanelValue?.getQuestionByName(columnName);
-      if (!question && inDetailPanel) {
-        row.showDetailPanel();
-        if (row.detailPanel) {
-          question = row.detailPanel.getQuestionByName(columnName);
-        }
-      }
-      if (question) {
-        if (inDetailPanel) {
-          row.showDetailPanel();
-        }
-        this.addDuplicationError(question, this.keyDuplicationError);
-      }
-    });
-  }
-  private removeDuplicatedErrorsInRows(duplicatedRows: Array<MatrixDropdownRowModelBase>, columnName: string): void {
-    this.generatedVisibleRows.forEach(row => {
-      if (duplicatedRows.indexOf(row) < 0) {
-        const question = row.getQuestionByName(columnName);
-        // The value a duplicate kept out of the editing object goes there once the cell has no error left.
-        if (question && this.removeDuplicationError(question) && question.errors.length === 0 && !!row.editingObj) {
-          (<any>row.editingObj)[question.getValueName()] = question.value;
-        }
-      }
-    });
   }
   public getFirstQuestionToFocus(withError: boolean): Question {
     return this.getFirstCellQuestion(withError);
@@ -3202,7 +3123,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       }
     }
     if (this.getUniqueColumnsNames().indexOf(columnName) > -1) {
-      this.isValueInColumnDuplicated(columnName, !!rowObj);
+      this.checkRecordsUniqueness(!!rowObj, [columnName]);
     }
   }
   // A row write merges the whole proposed row into the record (mergeRowValue).

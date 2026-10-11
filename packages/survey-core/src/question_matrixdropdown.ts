@@ -348,16 +348,11 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     this.finishIncrementalRowChange((table) => table.onRemovedRow(removedRow));
     return true;
   }
+  // The source knows the new rows already (rowsChanged runs first): the record index is the item's place among them.
   private getAddedRowIndex(item: ItemValue): number {
-    if (!item || this.isValueEmpty(item.value)) return -1;
+    if (!item || !item.hasValue) return -1;
     if (!!this.getRowByKey(item.value)) return -1;
-    const indexInRows = this.rows.indexOf(item);
-    if (indexInRows < 0) return -1;
-    let insertIndex = 0;
-    for (let i = 0; i < indexInRows; i++) {
-      if (!this.isValueEmpty(this.rows[i].value)) insertIndex++;
-    }
-    return insertIndex;
+    return this.rowsSource.items.indexOf(item);
   }
   private getRemovedRowIndex(): number {
     const currentRowNames: { [key: string]: boolean } = {};

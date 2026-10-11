@@ -1,5 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { RowsDynamicDataSource, IDynamicDataRow } from "../../src/dynamic-data/dynamic-data-sources";
+import { Helpers } from "../../src/helpers";
 
 interface IStoredValue {
   rows: Array<IDynamicDataRow>;
@@ -8,9 +9,13 @@ interface IStoredValue {
   replaced: Array<() => ((index: number) => number)>;
   source: RowsDynamicDataSource;
 }
+// A plain row: a value of spaces is no value, as for ItemValue.hasValue.
+function createRow(value: any): IDynamicDataRow {
+  return { value: value, hasValue: !Helpers.isValueEmpty(value, true) };
+}
 // A source over plain rows and a local keyed answer; the store is what an owner would do with the new answer.
 function createSource(rowValues: Array<any>, value?: any): IStoredValue {
-  const res: IStoredValue = <any>{ rows: rowValues.map((val: any): IDynamicDataRow => ({ value: val })), value: value, writes: [], replaced: [] };
+  const res: IStoredValue = <any>{ rows: rowValues.map(createRow), value: value, writes: [], replaced: [] };
   res.source = new RowsDynamicDataSource((): Array<IDynamicDataRow> => res.rows, (): any => res.value,
     (newValue: any, changed: Array<number>): void => {
       res.value = newValue;
@@ -37,6 +42,13 @@ describe("RowsDynamicDataSource: the records are the rows' answers", () => {
     expect(records[2], "#4: a row without an answer reads undefined").toBeUndefined();
     expect(source.items.map((item: IDynamicDataRow): any => item.value), "#5").toEqual(["b", "a", "c"]);
   });
+  test("the row says whether it is a record: a row without hasValue is none, whatever its value", () => {
+    const stored = createSource(["a", "b"], { a: { x: 1 }, b: { x: 2 } });
+    stored.rows[0] = { value: "a", hasValue: false };
+    stored.source.rowsChanged();
+    expect(stored.source.items.map((item: IDynamicDataRow): any => item.value), "#1").toEqual(["b"]);
+    expect(stored.source.read(), "#2").toEqual([{ x: 2 }]);
+  });
   test("two rows with one value are two records that read one key", () => {
     const answer = { a: { x: 1 } };
     const { source } = createSource(["a", "b", "a"], answer);
@@ -59,7 +71,7 @@ describe("RowsDynamicDataSource: the records are the rows' answers", () => {
     const second = stored.source.read();
     expect(second === first, "#2: another answer instance").toBe(false);
     expect(stored.source.read() === second, "#3").toBe(true);
-    stored.rows.push({ value: "c" });
+    stored.rows.push(createRow("c"));
     expect(stored.source.read() === second, "#4: the rows are not watched").toBe(true);
     stored.source.rowsChanged();
     const third = stored.source.read();
@@ -150,7 +162,7 @@ describe("RowsDynamicDataSource: rowsChanged()", () => {
   test("a row added: onRecordsReplaced fires once, and each old record keeps its key", () => {
     const stored = createSource(["a", "b"], {});
     stored.source.read();
-    stored.rows.splice(1, 0, { value: "x" });
+    stored.rows.splice(1, 0, createRow("x"));
     stored.source.rowsChanged();
     expect(stored.replaced.length, "#1").toBe(1);
     expect(remapAll(stored.replaced[0], 2), "#2").toEqual([0, 2]);
@@ -182,7 +194,7 @@ describe("RowsDynamicDataSource: rowsChanged()", () => {
   test("two rows of one key follow by occurrence", () => {
     const stored = createSource(["a", "b", "a"], {});
     stored.source.read();
-    stored.rows.splice(0, 0, { value: "c" });
+    stored.rows.splice(0, 0, createRow("c"));
     stored.rows.splice(2, 1);
     stored.source.rowsChanged();
     expect(stored.source.items.map((item: IDynamicDataRow): any => item.value), "#1").toEqual(["c", "a", "a"]);

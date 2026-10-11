@@ -2754,6 +2754,20 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     expect(getRenderedRowName(2), "after insert: data row 2 maps to row3").toBe("row3");
     expect(getRenderedRowName(3), "after insert: data row 3 maps to row4").toBe("row4");
   });
+  test("matrixdropdown: a row valued with spaces is no row, and a row added after it takes its record index", () => {
+    const matrix = new QuestionMatrixDropdownModel("q1");
+    matrix.addColumn("col1");
+    matrix.rows = ["row1", "   ", "row2"];
+    expect(matrix.rows.length, "#1: the item stays").toBe(3);
+    expect(matrix.visibleRows.map(row => row.rowName), "#2: no row for the spaces").toEqual(["row1", "row2"]);
+
+    const renderedTable = matrix.renderedTable;
+    matrix.rows.splice(2, 0, new ItemValue("row3"));
+    expect(matrix.renderedTable, "#3: the row is added incrementally").toBe(renderedTable);
+    expect(matrix.visibleRows.map(row => row.rowName), "#4: second record, after the item of spaces").toEqual(["row1", "row3", "row2"]);
+    matrix.visibleRows[1].cells[0].question.value = 1;
+    expect(matrix.value, "#5: the new row writes its own record").toEqual({ row3: { col1: 1 } });
+  });
   test("Do not generate rows on running matrix visibleIf expression, bug#11567", () => {
     const survey = new SurveyModel({
       elements: [

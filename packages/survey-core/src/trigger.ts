@@ -24,9 +24,7 @@ export function buildTriggerExpression(name: string, operator: string, value: an
   const op = normalizeTriggerOperator(operator);
   // "empty"/"notempty" are the only operators that run without a value
   const requireValue = op !== "empty" && op !== "notempty";
-  // Base.isValueEmpty trims strings before the check, hence trimValue here
-  const trimmed = typeof value === "string" ? value.trim() : value;
-  if (requireValue && Helpers.isValueEmpty(trimmed)) return "";
+  if (requireValue && Helpers.isValueEmpty(value, true)) return "";
   return "{" + name + "} " + op + " " + OperandMaker.toOperandString(value);
 }
 

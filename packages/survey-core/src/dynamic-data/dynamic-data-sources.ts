@@ -135,9 +135,10 @@ export function isRecordEmpty(record: any): boolean {
   return true;
 }
 
-// A row of RowsDynamicDataSource: its value is the key of its record in the answer.
+// A row of RowsDynamicDataSource: its value is the key of its record in the answer; a row without a value (hasValue) is no record.
 export interface IDynamicDataRow {
   value: any;
+  hasValue: boolean;
 }
 /* The records of an owner whose rows define them (the Multi-Select Matrix), over its keyed answer. A
    record is one row with a non-empty value, in rows order - the record index -, and it is the answer's
@@ -166,7 +167,7 @@ export class RowsDynamicDataSource<T extends IDynamicDataRow = IDynamicDataRow> 
   private recordsCache: { value: any, records: Array<any> };
   private getRowsCache(): { items: Array<T>, keys: Array<string>, hasDuplicates: boolean } {
     if (!!this.rowsCache) return this.rowsCache;
-    const items = (this.getRows() || []).filter((item: T): boolean => !isRowValueEmpty(item.value));
+    const items = (this.getRows() || []).filter((item: T): boolean => item.hasValue);
     const keys = items.map((item: T): string => String(item.value));
     const hasDuplicates = keys.some((key: string, index: number): boolean => keys.indexOf(key) !== index);
     this.rowsCache = { items: items, keys: keys, hasDuplicates: hasDuplicates };
@@ -250,11 +251,6 @@ export class RowsDynamicDataSource<T extends IDynamicDataRow = IDynamicDataRow> 
     });
     this.storeValue(newValue, changed);
   }
-}
-// As Base.isValueEmpty: a string of spaces is empty.
-function isRowValueEmpty(value: any): boolean {
-  if (!!value && (typeof value === "string" || value instanceof String)) value = value.trim();
-  return Helpers.isValueEmpty(value);
 }
 function isObject(value: any): boolean {
   return value !== null && typeof value === "object";

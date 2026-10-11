@@ -235,25 +235,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
       return !item ? undefined : { visible: item.isVisible, expression: item.visibleIf };
     };
   }
-  // A write of one row copies every row object of the answer: the row item is what stays.
-  protected getRecordStateKey(recordIndex: number, record: any): any {
-    return this.rowsSource.itemAt(recordIndex) || record;
-  }
-  /* A record in a value the caller passes - the old records of an assignment, a value being verified -,
-     not in the storage: under its row name. */
-  protected getRecordInValue(value: any, recordIndex: number): any {
-    const item = recordIndex > -1 ? this.rowsSource.itemAt(recordIndex) : undefined;
-    return !!item && this.isObject(value) ? value[item.value] : undefined;
-  }
-  protected isItemWithoutRecordRefreshed(): boolean {
-    return true;
-  }
-  /* An answer assignment never adds, removes or moves a record: the rows define them. A row whose
-     answer changed or went is the same record, so every record keeps its index. Only a rows change
-     moves or removes one (rowsSource.rowsChanged). */
-  protected createAssignmentRemap(oldRecords: any, newRecords: any): (index: number) => number {
-    return (index: number): number => index;
-  }
   /* The rows source's write: newValue is the answer with the written records in place. What a row
      model does to the rows that were not written happens here (dropEmptyColumnKeys), an answer with
      no key left is null, and the other rows of a written key show what was written. */
@@ -532,15 +513,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
     return null;
   }
-  // The results of a record walk are keyed by the row value; the last record of a key decides.
-  protected createRecordValues(): any {
-    return {};
-  }
-  // As without paging (getFilteredDataCore), the last row of a key decides.
-  protected addRecordValue(values: any, index: number, value: any): void {
-    if (value === undefined || value === null) return;
-    values[this.getRecordItems()[index].value] = value;
-  }
   // An owner-hidden record loses its answer when invisible values are cleared, as a hidden row does.
 
   // The rows are schema-defined: a row the respondent never opened can violate a required column, a
@@ -562,9 +534,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   protected getRecordAccessibilityTitle(index: number, visibleIndex: number): string {
     return this.getRecordItems()[index].locText.renderedHtml;
-  }
-  protected getRecordDataSegment(index: number): string | number {
-    return this.getRecordItems()[index].value + "";
   }
   private defaultValuesInRows: any = {};
   protected clearGeneratedRows(): void {

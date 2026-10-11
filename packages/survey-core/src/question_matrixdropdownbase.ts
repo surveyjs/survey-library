@@ -1834,7 +1834,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   // The segment of the row at a position in a location: the segment of the record it holds.
   private getRowDataSegment(position: number): string | number {
     const index = this.getRecordIndexAtRowPosition(position);
-    return this.getRecordDataSegment(index > -1 ? index : position);
+    return this.recordsSource.getSegment(index > -1 ? index : position);
   }
   public initializeForVerification(): void {
     const rows = this.allRows;
@@ -3046,20 +3046,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       func(index, <MatrixDropdownRowModelBase>item, position);
     });
   }
-  // One walk, the result in the answer's shape: func adds what a record contributes.
+  /* One walk, the result in the answer's shape, which the own source decides: an array in walk order,
+     or keyed by the row value. func adds what a record contributes. */
   protected collectRecordValues(indexes: Array<number>, func: (index: number, row: MatrixDropdownRowModelBase, add: (value: any) => void) => void): any {
-    const res = this.createRecordValues();
+    const source = this.recordsSource;
+    const res = source.createValue();
     this.forEachRecordRow(indexes, (index: number, row: MatrixDropdownRowModelBase): void => {
-      func(index, row, (value: any): void => { this.addRecordValue(res, index, value); });
+      func(index, row, (value: any): void => { source.addToValue(res, index, value); });
     });
     return res;
-  }
-  // The dynamic matrix collects an array, in walk order.
-  protected createRecordValues(): any {
-    return [];
-  }
-  protected addRecordValue(values: any, index: number, value: any): void {
-    values.push(value);
   }
   /* Under paging - and before the rows of a view exist - the survey data and the totals are the view's
      records, not the page's rows: a record with a row gives its filteredValue (the values of invisible

@@ -216,3 +216,47 @@ describe("RowsDynamicDataSource: rowsChanged()", () => {
     expect(remapAll(stored.replaced[0], 2), "#1").toEqual([0, 1]);
   });
 });
+
+describe("RowsDynamicDataSource: the answer's shape is keyed by the row value", () => {
+  test("readInValue reads a value the caller passes under the row value, never the stored answer", () => {
+    const { source } = createSource(["a", "", 1, "b"], { a: { x: "stored" }, b: { x: "stored" } });
+    const value = { a: { x: 1 }, 1: { x: 2 } };
+    expect(source.readInValue(value, 0) === value.a, "#1: the passed record itself").toBe(true);
+    expect(source.readInValue(value, 1), "#2: a record index - a row without a value is no record -, a number row value read by its string key").toEqual({ x: 2 });
+    expect(source.readInValue(value, 2), "#3: a row the value holds no key for").toBeUndefined();
+    expect([source.readInValue(null, 0), source.readInValue("a", 0), source.readInValue(5, 0)], "#4: a value that is not an object").toEqual([undefined, undefined, undefined]);
+    expect([source.readInValue(value, 3), source.readInValue(value, -1)], "#5: an index without a row").toEqual([undefined, undefined]);
+  });
+  test("createValue and addToValue key the result by the row value: empty records add no key, the last record of a key wins", () => {
+    const { source } = createSource(["a", "b", "a", 1]);
+    const res = source.createValue();
+    expect(res, "#1").toEqual({});
+    source.addToValue(res, 0, { x: 1 });
+    source.addToValue(res, 1, undefined);
+    source.addToValue(res, 1, null);
+    source.addToValue(res, 2, { x: 3 });
+    source.addToValue(res, 3, { x: 4 });
+    expect("b" in res, "#2: undefined and null are skipped").toBe(false);
+    expect(res, "#3: the second row of a wins, 1 is keyed as '1'").toEqual({ a: { x: 3 }, "1": { x: 4 } });
+  });
+  test("getSegment gives the row value as a string, and the index without a row", () => {
+    const { source } = createSource(["a", 1]);
+    expect([source.getSegment(0), source.getSegment(1)], "#1").toEqual(["a", "1"]);
+    expect([source.getSegment(2), source.getSegment(-1)], "#2: no row").toEqual([2, -1]);
+  });
+  test("getStateKey gives the row, so two rows on one value keep two states; the record without a row", () => {
+    const { source } = createSource(["a", "b", "a"]);
+    const record = { x: 1 };
+    expect(source.getStateKey(0, record) === source.items[0], "#1: the row").toBe(true);
+    expect(source.getStateKey(2, record) === source.items[2], "#2: the second row of a").toBe(true);
+    expect(source.getStateKey(0, record) === source.getStateKey(2, record), "#3: two keys").toBe(false);
+    expect(source.getStateKey(3, record) === record, "#4: no row").toBe(true);
+  });
+  test("createAssignmentRemap maps every index to itself: the rows define the records", () => {
+    const { source } = createSource(["a", "b", "c"]);
+    const remap = source.createAssignmentRemap([{ id: 1 }, { id: 2 }], [{ id: 2 }, { id: 3 }, { id: 1 }], "id");
+    expect([remap(0), remap(1), remap(2)], "#1: with keyField").toEqual([0, 1, 2]);
+    const byContent = source.createAssignmentRemap({ a: { x: 1 } }, { b: { x: 1 } });
+    expect([byContent(0), byContent(1), byContent(2)], "#2: keyed answers").toEqual([0, 1, 2]);
+  });
+});

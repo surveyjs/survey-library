@@ -16,11 +16,11 @@ import {
   DynamicDataFieldType, DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort,
   IDynamicDataSource
 } from "./dynamic-data/dynamic-data-interfaces";
-import { IDynamicDataPageState, findDuplicatePages, getDuplicateKey, getReplacedRecordsRemap, groupByDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
+import { IDynamicDataPageState, findDuplicatePages, getDuplicateKey, groupByDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
 import { DynamicDataPageValidation, IDynamicDataPageValidationOwner } from "./question_records_page_validation";
 import { createIndexes } from "./dynamic-data/dynamic-data-filter";
 import { DynamicDataPagingController, IDynamicDataPagingOwner } from "./dynamic-data/dynamic-data-paging";
-import { applyRecordChange } from "./dynamic-data/dynamic-data-record-remap";
+import { applyRecordChange, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-record-remap";
 import { IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
@@ -840,18 +840,15 @@ export abstract class QuestionRecordsModel extends Question {
      it - the page, the filter, the owner's visibility: an unknown key is a property of the value, not
      of the view. A source that pages itself checks its window. */
   protected verifyRecordsUnknownKeys(val: any, context: IVerifyDataContext): void {
+    const source = this.recordsSource;
     this.forEachStoredRecord(this.loadedRecordCount, (index: number, item: QuestionRecordItem): void => {
-      const record = this.getRecordInValue(val, index);
+      const record = source.readInValue(val, index);
       const keys = this.getRecordUnknownKeys(index, record, item);
       if (keys.length === 0) return;
-      context.pushSegment(this.getRecordDataSegment(index));
+      context.pushSegment(source.getSegment(index));
       keys.forEach(key => context.addIssue("unknownProperty", key, record[key], this));
       context.popSegment();
     });
-  }
-  // The segment of a record in a location: its index, for a value that is an array.
-  protected getRecordDataSegment(index: number): string | number {
-    return index;
   }
   /* Adds one record's inputs to a progress count. inputs are what a record has questions for (the
      columns, the template questions); a question that is empty in the record and has a visibleIf is
@@ -1720,7 +1717,7 @@ export abstract class QuestionRecordsModel extends Question {
      object takes its flags from the object's questions, so the history goes on when it loses the
      object; a record seen for the first time is only noted. On a transition the input's key and its
      comment go, as clearValue() removes them; the writes of one run go in one batch of the list.
-     The flags are kept per record (getRecordStateKey): by record index for the array types, shifted by
+     The flags are kept per record (the source's getStateKey): by record index for the array types, shifted by
      the question's own insert, remove and move and kept across an assignment from outside as a built
      object keeps them (followHiddenAnswerStatesOnAssignment).
      Cost: the walk's (collectRecordChangesWithoutObjects), per condition run of the question, while an
@@ -1732,8 +1729,9 @@ export abstract class QuestionRecordsModel extends Question {
     if (inputs.length === 0) return;
     if (!this.hiddenAnswerStates)this.hiddenAnswerStates = new Map<any, HashTable<number>>();
     const states = this.hiddenAnswerStates;
+    const source = this.recordsSource;
     this.writeRecordChanges(this.collectRecordChangesWithoutObjects(properties, (index: number, record: any, visibility: IRecordElementVisibility): any => {
-      const key = this.getRecordStateKey(index, record);
+      const key = source.getStateKey(index, record);
       const prevState = states.get(key);
       const state: HashTable<number> = {};
       let cleared: any = undefined;
@@ -1747,7 +1745,7 @@ export abstract class QuestionRecordsModel extends Question {
       states.set(key, state);
       return cleared;
     }, (index: number, record: any, item: QuestionRecordItem): void => {
-      states.set(this.getRecordStateKey(index, record), this.getItemHiddenAnswerState(item, inputs));
+      states.set(source.getStateKey(index, record), this.getItemHiddenAnswerState(item, inputs));
     }));
   }
   /* The records that have no object under paging in memory - the records of the pages never opened or
@@ -1855,10 +1853,6 @@ export abstract class QuestionRecordsModel extends Question {
     this.writeRecords((): void => list.batch((): void => {
       changes.forEach((change: { index: number, record: any }): void => { list.setRecord(change.index, change.record); });
     }));
-  }
-  // What the visibility kept for a record is stored under: the record index (see clearHiddenAnswersWithoutObjects).
-  protected getRecordStateKey(recordIndex: number, record: any): any {
-    return recordIndex;
   }
   /* The template questions whose visibility can differ by record or change while the survey runs: a
      visibleIf of their own or of a panel around them (up to getRecordInputContainer). */
@@ -3139,13 +3133,11 @@ export abstract class QuestionRecordsModel extends Question {
     return this.isClearingValue || !!this.survey && this.survey.isSettingData();
   }
   /* Where each record of an assignment from outside went: the new index of an old record, -1 for a
-     removed one, undefined for one it cannot place. The records of an array answer are compared by
-     key, or by content (getReplacedRecordsRemap); the fixed matrix answers for its keyed answer. Not
-     asked for a sibling's in-place write: its records did not move (decideViewAgain). */
-  protected createAssignmentRemap(oldRecords: any, newRecords: any): (index: number) => number {
-    const list = this._dataList;
-    return getReplacedRecordsRemap(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : [],
-      !!list ? list.keyField : undefined);
+     removed one, undefined for one it cannot place. The own source answers for the answer's shape; the
+     list adds its keyField. Not asked for a sibling's in-place write: its records did not move
+     (decideViewAgain). */
+  private createAssignmentRemap(oldRecords: any, newRecords: any): (index: number) => number {
+    return this.recordsSource.createAssignmentRemap(oldRecords, newRecords, this._dataList?.keyField);
   }
   /* A write of a record by one of its questions. A question the respondent answers (hasInput) touches
      the record - and so does code that assigns it, setValueExpression and a trigger included: the
@@ -3380,13 +3372,18 @@ export abstract class QuestionRecordsModel extends Question {
     const newRecords = this.getStoredRecords();
     const isEveryChanged = !Helpers.isValueObject(oldRecords) || !Helpers.isValueObject(newRecords) || this.isRemoteData;
     const list = this.hasDataListView ? this.dataListValue : undefined;
+    const source = this.recordsSource;
+    /* When the rows decide which records exist, an object exists whether or not the answer holds its
+       record, and an assignment refreshes it: a row added at runtime runs its expressions only when it
+       is refreshed. Otherwise an object without a record is padding. */
+    const isRefreshedWithoutRecord = this.isRecordMembershipFixed();
     for (let i = 0; ; i++) {
       const item = this.getItem(i);
       if (!item) return;
       const recordIndex = !!list ? list.materializedIndexToIndex(i) : i;
       const newRecord = this.getAssignedRecord(newRecords, recordIndex);
-      if (isEveryChanged || newRecord === undefined && this.isItemWithoutRecordRefreshed() ||
-        QuestionRecordsModel.isRecordChanged(this.getRecordInValue(oldRecords, recordIndex), newRecord)) {
+      if (isEveryChanged || newRecord === undefined && isRefreshedWithoutRecord ||
+        QuestionRecordsModel.isRecordChanged(source.readInValue(oldRecords, recordIndex), newRecord)) {
         item.updateFromRecord(newRecord);
       }
     }
@@ -3395,24 +3392,11 @@ export abstract class QuestionRecordsModel extends Question {
     if (oldRecord === newRecord && oldRecord !== undefined) return true;
     return DynamicDataList.isValueChanged(newRecord, oldRecord);
   }
-  /* The record at a record index in a value of the question: by index in an array answer. The fixed
-     matrix keys its answer by row name. */
-  protected getRecordInValue(value: any, recordIndex: number): any {
-    return Array.isArray(value) && recordIndex > -1 ? value[recordIndex] : undefined;
-  }
-  /* The record an object shows after an assignment: the record the value holds there. The dynamic
-     matrix pads a row past the value with its default record; the record the object showed before
-     is compared as the value held it. */
+  /* The record an object shows after an assignment: the record the value holds there, read in the
+     answer's shape by the own source. The dynamic matrix pads a row past the value with its default
+     record; the record the object showed before is compared as the value held it. */
   protected getAssignedRecord(value: any, recordIndex: number): any {
-    return this.getRecordInValue(value, recordIndex);
-  }
-  /* An object whose record the assigned value does not hold is refreshed by every assignment from
-     outside, although it had no record before either: one updateFromRecord(undefined) per such object.
-     The fixed matrix answers true - a row exists whether or not the answer holds its record, and a row
-     added at runtime runs its expressions only when it is refreshed. The dynamic questions answer
-     false: their objects without a record are padding. */
-  protected isItemWithoutRecordRefreshed(): boolean {
-    return false;
+    return this.recordsSource.readInValue(value, recordIndex);
   }
   // The stored value, not the default: the records an assignment or a read replaces.
   protected getStoredRecords(): any {

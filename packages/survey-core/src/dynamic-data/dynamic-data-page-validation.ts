@@ -1,64 +1,7 @@
-// The data half of the page validation: record remaps, duplicate keys and the page state. The class
+// The data half of the page validation: duplicate keys and the page state. The class
 // that validates the objects (DynamicDataPageValidation) is question-side: question_records_page_validation.ts.
 import { Helpers } from "../helpers";
 import { DynamicDataList } from "./dynamic-data-list";
-import { createKeyRemap } from "./dynamic-data-record-remap";
-
-/* How the records of an array assigned from outside map onto the records it replaced: a sibling on
-   the same valueName inserted, removed or moved one, or changed one in place. The common prefix and
-   suffix stay where they are (the suffix shifted by the count difference); inside the part that
-   changed a single record changed in place keeps its index, removed records map to -1, and a record
-   moved from one end of that part to the other follows it. Anything else maps to undefined: the
-   caller treats every record of the changed part as its own (a superset is safe - it only costs a
-   validation more).
-   keyField: the records name themselves (a keyed data source). A record then maps to wherever its
-   key is now, whatever else moved, and to -1 when its key is gone; a record without a key maps to
-   undefined. When the new records cannot be looked up by key - one has none, or two share one - the
-   content comparison above decides instead. */
-export function getReplacedRecordsRemap(oldRecords: Array<any>, newRecords: Array<any>, keyField?: string): (index: number) => number {
-  const byKey = !!keyField ? getRecordsRemapByKey(oldRecords, newRecords, keyField) : undefined;
-  return byKey || getRecordsRemapByContent(oldRecords, newRecords);
-}
-// Typed keys: 1 and "1" are two records.
-function getRecordsRemapByKey(oldRecords: Array<any>, newRecords: Array<any>, keyField: string): (index: number) => number {
-  return createKeyRemap(oldRecords, newRecords, (record: any): any => !!record && typeof record === "object" ? record[keyField] : undefined, false);
-}
-function getRecordsRemapByContent(oldRecords: Array<any>, newRecords: Array<any>): (index: number) => number {
-  const oldLen = oldRecords.length;
-  const newLen = newRecords.length;
-  const isSame = (a: any, b: any): boolean => !DynamicDataList.isValueChanged(a, b);
-  let prefix = 0;
-  while(prefix < oldLen && prefix < newLen && isSame(oldRecords[prefix], newRecords[prefix])) prefix++;
-  let suffix = 0;
-  while(suffix < oldLen - prefix && suffix < newLen - prefix &&
-    isSame(oldRecords[oldLen - 1 - suffix], newRecords[newLen - 1 - suffix])) suffix++;
-  const oldMid = oldLen - prefix - suffix;
-  const newMid = newLen - prefix - suffix;
-  const delta = newLen - oldLen;
-  const isRangeSame = (oldFrom: number, newFrom: number, length: number): boolean => {
-    for (let i = 0; i < length; i++) {
-      if (!isSame(oldRecords[oldFrom + i], newRecords[newFrom + i])) return false;
-    }
-    return true;
-  };
-  let movedToEnd = false;
-  let movedToStart = false;
-  if (oldMid === newMid && oldMid > 1) {
-    const last = prefix + oldMid - 1;
-    movedToEnd = isSame(oldRecords[prefix], newRecords[last]) && isRangeSame(prefix + 1, prefix, oldMid - 1);
-    movedToStart = !movedToEnd && isSame(oldRecords[last], newRecords[prefix]) && isRangeSame(prefix, prefix + 1, oldMid - 1);
-  }
-  return (index: number): number => {
-    if (index < prefix) return index;
-    if (index >= oldLen - suffix) return index + delta;
-    if (newMid === 0) return -1;
-    if (oldMid === 1 && newMid === 1) return prefix;
-    const last = prefix + oldMid - 1;
-    if (movedToEnd) return index === prefix ? last : index - 1;
-    if (movedToStart) return index === last ? prefix : index + 1;
-    return undefined;
-  };
-}
 
 /* The group key of a value the duplicate checks compare by, in two namespaces that never meet. A
    scalar is one String() key, so that 1 and "1" are one key; an object or an array is keyed by its

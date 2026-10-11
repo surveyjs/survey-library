@@ -248,3 +248,40 @@ describe("ArrayDynamicDataSource: count, readAt and the padding of an owner's mi
     expect(long.length, "#4: never truncated").toBe(4);
   });
 });
+
+describe("ArrayDynamicDataSource: the answer's shape is an array", () => {
+  test("readInValue reads a value the caller passes by index, never the stored one", () => {
+    const source = ArrayDynamicDataSource.fromArray([{ a: "stored" }, { a: "stored" }]);
+    const value = [{ a: 1 }, { a: 2 }];
+    expect(source.readInValue(value, 1) === value[1], "#1: the passed record itself").toBe(true);
+    expect(source.readInValue({ 0: { a: 1 } }, 0), "#2: a value that is not an array").toBeUndefined();
+    expect(source.readInValue(undefined, 0), "#3: no value").toBeUndefined();
+    expect(source.readInValue(value, 2), "#4: out of range").toBeUndefined();
+    expect(source.readInValue(value, -1), "#5: -1").toBeUndefined();
+  });
+  test("createValue and addToValue build an array in the order the records come, undefined included", () => {
+    const source = ArrayDynamicDataSource.fromArray();
+    const res = source.createValue();
+    expect(res, "#1").toEqual([]);
+    source.addToValue(res, 5, { a: 1 });
+    source.addToValue(res, 0, undefined);
+    source.addToValue(res, 2, null);
+    expect(res.length, "#2: every record is added").toBe(3);
+    expect(res, "#3: in the order they came, whatever their index").toEqual([{ a: 1 }, undefined, null]);
+  });
+  test("getSegment and getStateKey give the record index", () => {
+    const source = ArrayDynamicDataSource.fromArray([{ a: 1 }]);
+    expect([source.getSegment(0), source.getSegment(3), source.getSegment(-1)], "#1: getSegment").toEqual([0, 3, -1]);
+    const record = { a: 1 };
+    expect([source.getStateKey(0, record), source.getStateKey(3, record), source.getStateKey(-1, undefined)], "#2: getStateKey").toEqual([0, 3, -1]);
+  });
+  test("createAssignmentRemap places a record by keyField, and by content without one", () => {
+    const source = ArrayDynamicDataSource.fromArray();
+    const byKey = source.createAssignmentRemap([{ id: 1, a: 1 }, { id: 2, a: 2 }], [{ id: 2, a: 5 }, { id: 3 }, { id: 1, a: 1 }], "id");
+    expect([byKey(0), byKey(1)], "#1: by key, a changed record included").toEqual([2, 0]);
+    const byContent = source.createAssignmentRemap([{ a: 1 }, { a: 2 }], [{ a: 0 }, { a: 1 }, { a: 2 }]);
+    expect([byContent(0), byContent(1)], "#2: by content, a record inserted in front").toEqual([1, 2]);
+    const notArray = source.createAssignmentRemap([{ a: 1 }], { a: 1 });
+    expect(notArray(0), "#3: a value that is not an array holds no record").toBe(-1);
+  });
+});

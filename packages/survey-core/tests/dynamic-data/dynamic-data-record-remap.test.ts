@@ -1,7 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { IDynamicDataListChange } from "../../src/dynamic-data/dynamic-data-interfaces";
-import { createKeyRemap, getRecordRemap, insertRemap, moveRemap, removeRemap } from "../../src/dynamic-data/dynamic-data-record-remap";
-import { getReplacedRecordsRemap } from "../../src/dynamic-data/dynamic-data-page-validation";
+import { createKeyRemap, getRecordRemap, getReplacedRecordsRemap, insertRemap, moveRemap, removeRemap } from "../../src/dynamic-data/dynamic-data-record-remap";
 
 describe("the record remap rules", () => {
   // Each case maps the record indexes 0 ... 4.

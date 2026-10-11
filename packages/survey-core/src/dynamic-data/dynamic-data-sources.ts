@@ -1,7 +1,7 @@
 import { ISurveyData } from "../interfaces/data-interfaces";
 import { Helpers } from "../helpers";
 import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data-interfaces";
-import { createKeyRemap } from "./dynamic-data-record-remap";
+import { createKeyRemap, getReplacedRecordsRemap } from "./dynamic-data-record-remap";
 
 /* A local source: the owner's records in memory, behind a getter/setter pair. It is read whole and
    synchronously, it is written by position - the index a list sends is the position in the array as
@@ -101,6 +101,33 @@ export abstract class LocalDynamicDataSource implements IDynamicDataSource {
     const newArray = arr.slice();
     newArray[sourceIndex] = record;
     this.write(newArray, "update");
+  }
+  /* The answer's shape, for a value the caller passes and for a result built from records - never the
+     stored value. The base answers for an array, record i at value[i]; a source over another shape
+     overrides all five members (RowsDynamicDataSource). */
+  // The record at index in a value the caller passes, not in the storage; undefined when the value does not hold it.
+  public readInValue(value: any, index: number): any {
+    return Array.isArray(value) && index > -1 ? value[index] : undefined;
+  }
+  // An empty result in the answer's shape, filled by addToValue.
+  public createValue(): any {
+    return [];
+  }
+  // Adds the record at index to a result of createValue: an array takes every record in the order it gets them, undefined included.
+  public addToValue(values: any, index: number, record: any): void {
+    values.push(record);
+  }
+  // The segment of the record at index in a data location.
+  public getSegment(index: number): string | number {
+    return index;
+  }
+  // What per-record state is kept under.
+  public getStateKey(index: number, record: any): any {
+    return index;
+  }
+  // Where each record of an assignment from outside went: by keyField when the records name themselves, else by content (getReplacedRecordsRemap).
+  public createAssignmentRemap(oldRecords: any, newRecords: any, keyField?: string): (index: number) => number {
+    return getReplacedRecordsRemap(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : [], keyField);
   }
 }
 function isInRange(index: number, length: number): boolean {
@@ -278,6 +305,35 @@ export class RowsDynamicDataSource<T extends IDynamicDataRow = IDynamicDataRow> 
     if (!item) return undefined;
     const value = this.getValue();
     return isObject(value) ? value[item.value] : undefined;
+  }
+  // The keyed answer: a record in a value the caller passes is under its row's value.
+  public readInValue(value: any, index: number): any {
+    const item = index > -1 ? this.itemAt(index) : undefined;
+    return !!item && isObject(value) ? value[item.value] : undefined;
+  }
+  // A result keyed by the row value, as the answer is.
+  public createValue(): any {
+    return {};
+  }
+  // An empty record adds no key, and the last record of a key wins.
+  public addToValue(values: any, index: number, record: any): void {
+    if (record === undefined || record === null) return;
+    values[this.itemAt(index).value] = record;
+  }
+  // The row value, as a string; the index for a record without a row.
+  public getSegment(index: number): string | number {
+    const item = this.itemAt(index);
+    return !!item ? String(item.value) : index;
+  }
+  // A write of one row copies every row object of the answer: the row is what stays.
+  public getStateKey(index: number, record: any): any {
+    return this.itemAt(index) || record;
+  }
+  /* An answer assignment never adds, removes or moves a record: the rows define them. A row whose
+     answer changed or went is the same record, so every record keeps its index. Only a rows change
+     moves or removes one (rowsChanged). */
+  public createAssignmentRemap(oldRecords: any, newRecords: any, keyField?: string): (index: number) => number {
+    return (index: number): number => index;
   }
   public rowsChanged(): void {
     const oldKeys = this.getRowsCache().keys;

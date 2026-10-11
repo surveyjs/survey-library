@@ -1497,9 +1497,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return isEmpty ? null : newValue;
   }
 
-  // The lookup is the records' (getRecordInValue); a record the value does not hold reads as null here.
+  // The lookup is the own source's (readInValue); a record the value does not hold reads as null here.
   private getRowValueByIndex(questionValue: any, index: number): any {
-    const res = this.getRecordInValue(questionValue, index);
+    const res = this.recordsSource.readInValue(questionValue, index);
     return res !== undefined ? res : null;
   }
   /* Still reached with an explicit value: updateValueOnRowsGeneration, onRowChanging,

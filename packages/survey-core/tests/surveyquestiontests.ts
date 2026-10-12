@@ -6441,6 +6441,32 @@ describe("Survey_Questions", () => {
     q1.value = 5;
     expect(q3.value, "Value is changed based on expression").toBe(7);
   });
+  test("defaultValueExpression doesn't overwrite a value from survey.data that equals the initial default, Bug#11985", () => {
+    const json = {
+      elements: [
+        { type: "dropdown", name: "servicePerformed", choices: ["281", "282", "1"] },
+        { type: "expression", name: "isReinspection", visible: false,
+          expression: "iif({servicePerformed} anyof ['281','282'], true, false)" },
+        { type: "radiogroup", name: "packingCheckMandatory", choices: ["YES", "NO"],
+          enableIf: "{isReinspection} = true",
+          defaultValueExpression: "iif({isReinspection} = true, 'NO', 'YES')" }
+      ]
+    };
+    const savedData = { servicePerformed: "281", isReinspection: true, packingCheckMandatory: "YES" };
+
+    let survey = new SurveyModel(json);
+    let q = survey.getQuestionByName("packingCheckMandatory");
+    expect(q.value, "initial default value").toBe("YES");
+    survey.data = savedData;
+    expect(q.value, "survey.data: the loaded value is kept").toBe("YES");
+    survey.setValue("servicePerformed", "282");
+    expect(q.value, "survey.data: the loaded value is kept after a dependency changes").toBe("YES");
+
+    survey = new SurveyModel(json);
+    q = survey.getQuestionByName("packingCheckMandatory");
+    survey.mergeData(savedData);
+    expect(q.value, "mergeData: the loaded value is kept").toBe("YES");
+  });
   test("question.resetValueIf, basic functionality", () => {
     const survey = new SurveyModel({
       elements: [{

@@ -23,8 +23,10 @@ interface IDynamicDataPagerQuestion extends Question {
 const barStyle: React.CSSProperties = {
   display: "flex", alignItems: "center", gap: "8px", padding: "8px 0", fontSize: "14px"
 };
+// The border is spelled out because the variants below override borderColor: React warns when a
+// re-render switches between a shorthand and one of its longhands.
 const buttonStyle: React.CSSProperties = {
-  minWidth: "28px", padding: "2px 8px", border: "1px solid #ccc", borderRadius: "3px",
+  minWidth: "28px", padding: "2px 8px", borderWidth: "1px", borderStyle: "solid", borderColor: "#ccc", borderRadius: "3px",
   background: "#fff", cursor: "pointer", lineHeight: "20px"
 };
 const disabledStyle: React.CSSProperties = { ...buttonStyle, color: "#aaa", borderColor: "#e4e4e4", cursor: "default" };
@@ -50,7 +52,8 @@ export class SurveyQuestionDynamicDataPager extends SurveyElementBase<{ question
     return !!this.question && this.question.pageCount > 1;
   }
   private renderButton(key: string, text: string, enabled: boolean, title: string, action: () => void, isCurrent?: boolean): React.JSX.Element {
-    const style = !enabled ? disabledStyle : (isCurrent ? currentStyle : buttonStyle);
+    // The current page button is always disabled, so it is checked first to keep its own style.
+    const style = isCurrent ? currentStyle : (!enabled ? disabledStyle : buttonStyle);
     return <button
       type="button"
       key={key}

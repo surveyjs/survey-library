@@ -13,7 +13,7 @@ import { TextContextProcessor } from "./textPreProcessor";
 import { SurveyError } from "./survey-error";
 import { KeyDuplicationError } from "./error";
 import {
-  DynamicDataFieldType, DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort,
+  DynamicDataFieldType, DynamicDataOperation, DynamicDataSortDirection, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort,
   IDynamicDataSource
 } from "./dynamic-data/dynamic-data-interfaces";
 import { IDynamicDataPageState, findDuplicatePages, getDuplicateKey, groupByDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
@@ -24,7 +24,9 @@ import { applyRecordChange, getReplacedRecordsRemap } from "./dynamic-data/dynam
 import { IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
-import { Action } from "./actions/action";
+import { Action, IAction } from "./actions/action";
+import { createDropdownActionModel } from "./actions/dropdown-action";
+import { ListModel } from "./list";
 import { LocalizableString } from "./localizablestring";
 import { ConsoleWarnings } from "./console-warnings";
 import { ConditionRunner } from "./conditions/conditionRunner";
@@ -1051,6 +1053,9 @@ export abstract class QuestionRecordsModel extends Question {
      onMinRecordCountApplied before the count follows a new minimum, onMaxRecordCountApplied last. */
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
+    if (sortMenuInputs.indexOf(name) > -1) {
+      this.updateSortAction();
+    }
     const names = this.getRecordCountNames();
     if (!names) return;
     if (name === names.min) {
@@ -2578,6 +2583,145 @@ export abstract class QuestionRecordsModel extends Question {
   }
   // True while a page move waits for the asynchronous validators of the page it leaves.
   public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }
+  /* The respondent's sort pick: one field in one direction, or no sort for an undefined direction. It
+     replaces the whole sort and validates the page it leaves, as toggleSort does; picking the sort in
+     force re-applies it. false = an error was found at once. */
+  public setSortByUser(field: string, direction?: DynamicDataSortDirection): boolean {
+    return this.paging.setSortByUser(field, direction);
+  }
+  /* The fields a respondent can sort the records by, in the order the question shows them: the
+     sortable questions of the panel template, the sortable columns of the matrix. Computed on every
+     read from the template or the columns, which notify nothing: the sort menu is refreshed through
+     invalidateSortFields(). */
+  public get sortFields(): Array<{ field: string, title: string }> {
+    const res: Array<{ field: string, title: string }> = [];
+    this.getSortFieldCandidates().forEach((item: { field: string, title: string }): void => {
+      if (!!item.field && !res.some(f => f.field === item.field)) {
+        res.push(item);
+      }
+    });
+    return res;
+  }
+  protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
+    return [];
+  }
+  // The type's opt-in for the sort menu: allowSortPanels, allowSortRows on a phone.
+  protected get isSortMenuAllowed(): boolean {
+    return false;
+  }
+  // The sort candidates may have changed (a template question or a column changed).
+  protected invalidateSortFields(): void {
+    this.updateSortAction();
+  }
+  // A locale change changes no sort and no property; the menu texts and the field titles follow it.
+  public locStrsChanged(): void {
+    super.locStrsChanged();
+    this.updateSortAction();
+  }
+  public onSurveyLoad(): void {
+    super.onSurveyLoad();
+    this.updateSortAction();
+  }
+  /* The toolbar above the records. It holds the "Sort by" menu; the page size selector and a filter
+     are meant to join it. */
+  private viewActionsValue: ActionContainer;
+  private sortActionValue: Action;
+  public get viewActions(): ActionContainer {
+    if (!this.viewActionsValue) {
+      this.viewActionsValue = this.createActionContainer();
+      this.sortActionValue = this.createSortAction();
+      this.viewActionsValue.setItems([this.sortActionValue]);
+      this.updateSortAction();
+    }
+    return this.viewActionsValue;
+  }
+  /* The renderers mount the toolbar while it has something to show. A question property, so that a
+     menu that appears or goes re-renders the question; it is set by updateSortAction(). */
+  public get showViewActions(): boolean {
+    this.viewActions;
+    return this.getPropertyValue("showViewActions", false);
+  }
+  private createSortAction(): Action {
+    return createDropdownActionModel({
+      id: "sv-sort-by",
+      title: this.getLocalizationString("sortByText"),
+      showTitle: true,
+      visible: false
+    }, {
+      items: [],
+      allowSelection: true,
+      onSelectionChanged: (item: IAction): void => { this.onSortItemPicked(item); }
+    }, this);
+  }
+  private get sortListModel(): ListModel {
+    return !!this.sortActionValue ? <ListModel>this.sortActionValue.data : undefined;
+  }
+  /* A pick from the list. ListModel has already selected the item and the dropdown has already copied
+     its title onto the button; both are put back from sortOrder right after the pick, so the menu shows
+     the committed sort: a pick rejected at once or waiting for asynchronous validators leaves the old
+     one. An accepted asynchronous pick arrives through the sortOrder change. */
+  private onSortItemPicked(item: IAction): void {
+    const field: string = !!item ? item.data : undefined;
+    let direction: DynamicDataSortDirection = undefined;
+    if (!!field) {
+      const current = this.sortOrder[0];
+      direction = !!current && current.field === field && current.direction === "asc" ? "desc" : "asc";
+    }
+    this.setSortByUser(field, direction);
+    this.updateSortAction();
+  }
+  private getSortFieldTitle(field: string, fields: Array<{ field: string, title: string }>): string {
+    const item = fields.filter(f => f.field === field)[0];
+    return !!item ? item.title : field;
+  }
+  /* Sets everything the sort menu shows from the current state: whether it is there and usable, its
+     title, icon and accessible name, the list and its selected item. Nothing to do before the toolbar
+     is created. */
+  private updateSortAction(): void {
+    const action = this.sortActionValue;
+    if (!action || this.isDisposed) return;
+    const fields = this.sortFields;
+    const isVisible = this.isSortMenuAllowed && !this.isDesignMode && fields.length > 0;
+    action.visible = isVisible;
+    action.enabled = !this.isDataLoading && !this.isPageMovePending;
+    const current = this.sortOrder[0];
+    const sortByText = this.getLocalizationString("sortByText");
+    if (!current) {
+      action.title = sortByText;
+      action.iconName = undefined;
+      action.ariaLabel = sortByText;
+    } else {
+      const title = this.getSortFieldTitle(current.field, fields);
+      const isDesc = current.direction === "desc";
+      action.title = this.getLocalizationFormatString("sortByFieldText", title);
+      action.iconName = isDesc ? "icon-chevrondown-16x16" : "icon-chevronup-16x16";
+      action.ariaLabel = sortByText + " " + title + ", " + this.getLocalizationString(isDesc ? "sortDescendingText" : "sortAscendingText");
+    }
+    action.tooltip = action.ariaLabel;
+    this.updateSortList(fields, !!current ? current.field : undefined);
+    this.setPropertyValue("showViewActions", isVisible);
+  }
+  private sortListKey: string;
+  private updateSortList(fields: Array<{ field: string, title: string }>, activeField: string): void {
+    const list = this.sortListModel;
+    if (!list) return;
+    const defaultTitle = this.getLocalizationString("sortDefaultOrderText");
+    // The items are recreated only when what they show changed: an open list keeps its items.
+    const key = JSON.stringify([defaultTitle, fields]);
+    if (this.sortListKey !== key) {
+      this.sortListKey = key;
+      this.setSortListItems(list, defaultTitle, fields);
+    }
+    const selected = list.actions.filter(item => !activeField ? !item.data : item.data === activeField)[0];
+    list.selectedItem = selected;
+  }
+  private setSortListItems(list: ListModel, defaultTitle: string, fields: Array<{ field: string, title: string }>): void {
+    const items: Array<IAction> = [{ id: "sv-sort-default", title: defaultTitle }];
+    fields.forEach((f: { field: string, title: string }): void => {
+      items.push({ id: "sv-sort-by-" + f.field, title: f.title, data: f.field });
+    });
+    list.setItems(items);
+  }
   // What the question reports. A zero-based page index; always 0 while paging is off.
   protected get reportedPageIndex(): number {
     return this.isPagingActive ? this.paging.pageIndex : 0;
@@ -3628,6 +3772,11 @@ export abstract class QuestionRecordsModel extends Question {
       this.pagerActionsValue.dispose();
       this.pagerActionsValue = undefined;
     }
+    if (!!this.viewActionsValue) {
+      this.viewActionsValue.dispose();
+      this.viewActionsValue = undefined;
+      this.sortActionValue = undefined;
+    }
     if (!!this._dataList) {
       this._dataList.dispose();
     }
@@ -4592,6 +4741,10 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
 }
 // The page number slots of the pager: the first and the last page, the current one and one on each side.
 const pagerSlotCount = 7;
+/* The question properties the sort menu shows (updateSortAction): the sort, the opt-ins, the mobile
+   mode (the matrix sorts by its header on a desktop; displayMode forces one of them) and the states
+   that disable it. */
+const sortMenuInputs = ["sortOrder", "allowSortPanels", "allowSortRows", "_isMobile", "displayMode", "isDataLoading", "isPageMovePending"];
 /* The pages the slots show, zero-based, -1 for a gap. The count stays pagerSlotCount once there are
    more pages than slots, so the buttons around the current page do not move while it changes:
    0 1 2 3 4 ... N-1 near the start, 0 ... N-5 .. N-1 near the end, 0 ... c-1 c c+1 ... N-1 between. */

@@ -62,6 +62,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     return (
       <div className={cssClasses.root}>
         {this.question.hasTabbedMenu ? <div className={this.question.getTabsContainerCss()}><SurveyActionBar model={this.question.tabbedMenu}></SurveyActionBar></div> : null }
+        {this.renderViewActions()}
         {noEntriesPlaceholder}
         {rangeTop}
         <div className={this.question.cssClasses.panelsContainer}>
@@ -73,6 +74,13 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
 
+  // The view toolbar (the "Sort by" menu) sits above the panels.
+  protected renderViewActions(): React.JSX.Element | null {
+    if (!this.question.showViewActions) return null;
+    return <div className={this.question.cssClasses.viewActions}>
+      <SurveyActionBar model={this.question.viewActions}></SurveyActionBar>
+    </div>;
+  }
   protected renderPager(): React.JSX.Element | null {
     if (!this.question.showPager) return null;
     return <div className={this.question.cssClasses.pager}>

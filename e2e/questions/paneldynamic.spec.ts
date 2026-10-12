@@ -461,6 +461,39 @@ frameworks.forEach((framework) => {
       await expect(nameInput).toHaveValue("panel1");
     });
 
+    test("the Sort by menu orders the panels", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel",
+            allowSortPanels: true,
+            defaultValue: [{ name: "b" }, { name: "c" }, { name: "a" }],
+            templateElements: [{ type: "text", name: "name" }],
+          },
+        ],
+      });
+      const viewActions = page.locator(".sd-paneldynamic__view-actions");
+      const nameInput = page.locator(".sd-paneldynamic__panel-wrapper input").first();
+      const pickItem = async (title: string) => {
+        await viewActions.getByRole("button", { name: /^Sort by/ }).click();
+        await page.getByRole("menuitemradio", { name: title, exact: true }).click();
+      };
+
+      await expect(nameInput).toHaveValue("b");
+      await expect(viewActions.getByRole("button", { name: "Sort by", exact: true })).toBeVisible();
+      await pickItem("name");
+      await expect(nameInput).toHaveValue("a");
+      // The visible text; the icon carries the accessible name as its SVG title too.
+      await expect(viewActions.getByRole("button", { name: /ascending/ })).toContainText("Sort by: name");
+      await pickItem("name");
+      await expect(nameInput).toHaveValue("c");
+      await expect(viewActions.getByRole("button", { name: /descending/ })).toBeVisible();
+      await pickItem("Default order");
+      await expect(nameInput).toHaveValue("b");
+      await expect(viewActions.getByRole("button", { name: "Sort by", exact: true })).toBeVisible();
+    });
+
     test("Check valueName for two paneldynamics - #6584", async ({ page }) => {
       await initSurvey(page, framework, {
         logoPosition: "right",

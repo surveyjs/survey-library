@@ -829,6 +829,11 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   public get hasPlainInput(): boolean {
     return !!this.contentQuestion ? this.contentQuestion.hasPlainInput : super.hasPlainInput;
   }
+  /* The wrapped question decides: a wrapped signaturepad, html or image reports a string value type
+     while it excludes itself. */
+  public get isValueSortable(): boolean {
+    return !!this.contentQuestion ? this.contentQuestion.isValueSortable : super.isValueSortable;
+  }
   public isSelectQuestion(): boolean {
     return !!this.contentQuestion && this.contentQuestion.isSelectQuestion();
   }

@@ -3,6 +3,9 @@
     <div *ngIf="model.hasTabbedMenu" [class]="model.getTabsContainerCss()">
       <sv-action-bar [model]="model.tabbedMenu"></sv-action-bar>
     </div>
+    <div *ngIf="model.showViewActions" [class]="model.cssClasses.viewActions">
+      <sv-ng-action-bar [model]="model.viewActions"></sv-ng-action-bar>
+    </div>
     <sv-ng-placeholder-paneldynamic [question]="model"></sv-ng-placeholder-paneldynamic>
     <div [class]="model.cssClasses.progress" *ngIf="model.isProgressTopShowing && model.isRangeShowing">
       <div [class]="model.cssClasses.progressBar" [style]="{ width: model.progress }"

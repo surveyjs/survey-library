@@ -339,6 +339,24 @@ export class DynamicDataPagingController {
   public clearSort(): void {
     this.sortOrder = [];
   }
+  /* A sort the respondent picks from a menu: one field in one direction, or no sort for an undefined
+     direction. It replaces the whole sort, tie-breakers included, and validates the page it leaves as
+     toggleSort does. Picking the sort that is in force re-applies it: the view freezes on an edit,
+     and a re-pick is how the respondent reorders a page edited out of order. */
+  public setSortByUser(field: string, direction?: DynamicDataSortDirection): boolean {
+    const newSort: Array<IDynamicDataSort> = !!field && !!direction ? [{ field: field, direction: direction }] : [];
+    if (!this.canPushToList) {
+      this.setSortOrderCore(newSort, true);
+      return true;
+    }
+    return this.leavePage(true, (): void => {
+      if (Helpers.isTwoValueEquals(this.list.sort, newSort)) {
+        this.refreshView();
+      } else {
+        this.setSortOrderCore(newSort, false);
+      }
+    });
+  }
   public get filterExpression(): string {
     return this.owner.getPropertyValue("filterExpression") || "";
   }

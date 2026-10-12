@@ -3,6 +3,9 @@
     <div *ngIf="model.getShowToolbar('top')" [class]="model.getToolbarCssClass('top')">
       <sv-ng-action-bar [model]="model.toolbar"></sv-ng-action-bar>
     </div>
+    <div *ngIf="model.showViewActions" [class]="model.cssClasses.viewActions">
+      <sv-ng-action-bar [model]="model.viewActions"></sv-ng-action-bar>
+    </div>
     <sv-ng-matrix-table *ngIf="model.renderedTable?.showTable" [question]="model" [table]="model.renderedTable"></sv-ng-matrix-table>
     <sv-ng-placeholder-matrixdynamic *ngIf="!model.renderedTable.showTable" [question]="model"></sv-ng-placeholder-matrixdynamic>
     <div *ngIf="model.showPager" [class]="model.cssClasses.pager">

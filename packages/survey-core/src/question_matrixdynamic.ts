@@ -678,6 +678,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      a sort is set. The property is stored and exposed (column.isSortable reads it) - the sort itself
      is assigned through sortOrder/sortBy/toggleSort. */
   @property({ defaultValue: false }) allowSortRows: boolean;
+  // The "Sort by" menu is for a phone, where the table hides its header; on a desktop the header sorts.
+  protected get isSortMenuAllowed(): boolean {
+    return this.allowSortRows && this.isMobile;
+  }
 
   public get iconDragElement(): string {
     return this.cssClasses.iconDragElement;

@@ -11605,7 +11605,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.columns[0].isSortable, "#2").toBe(true);
     expect(matrix.columns[1].isSortable, "#3: the column opted out").toBe(false);
     matrix.columns[1].allowSort = true;
-    expect(matrix.columns[1].isSortable, "#4: no cell type is unsortable").toBe(true);
+    expect(matrix.columns[1].isSortable, "#4: a dropdown cell has a value to sort by").toBe(true);
   });
   test("a column sorts by its record key and not by its name", () => {
     const matrix = createMatrix({ rowCount: 2, columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text", valueName: "shared" }] });

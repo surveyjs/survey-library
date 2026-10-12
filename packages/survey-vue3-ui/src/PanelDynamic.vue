@@ -6,6 +6,9 @@
         :model="question.tabbedMenu"
       ></SvComponent>
     </div>
+    <div v-if="question.showViewActions" :class="question.cssClasses.viewActions">
+      <SvComponent :is="'sv-action-bar'" :model="question.viewActions"></SvComponent>
+    </div>
     <SvComponent
       v-if="question.getShowNoEntriesPlaceholder()"
       

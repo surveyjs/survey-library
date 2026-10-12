@@ -578,6 +578,31 @@ frameworks.forEach((framework) => {
       await expect(firstId).toHaveValue("row0");
     });
 
+    test("the Sort by menu sorts the matrix on a phone, where the header is hidden", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            allowSortRows: true,
+            defaultValue: [{ name: "b" }, { name: "c" }, { name: "a" }],
+            columns: [{ name: "name", cellType: "text" }],
+          },
+        ],
+      });
+      const viewActions = page.locator(".sd-matrixdynamic__view-actions");
+      const firstName = page.locator("input[type='text']").filter({ visible: true }).first();
+      await expect(firstName).toHaveValue("b");
+      await expect(viewActions, "the header sorts on a desktop").toHaveCount(0);
+
+      await page.setViewportSize({ width: 600, height: 1080 });
+      await page.evaluate(() => (window as any).survey.setIsMobile(true));
+      await viewActions.getByRole("button", { name: "Sort by", exact: true }).click();
+      await page.getByRole("menuitemradio", { name: "name", exact: true }).click();
+      await expect(firstName).toHaveValue("a");
+      await expect(viewActions.getByRole("button", { name: "Sort by name, ascending" })).toBeVisible();
+    });
+
     test("remove row with transposeData", async ({ page }) => {
       const json3 = {
         "elements": [

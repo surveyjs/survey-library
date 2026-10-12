@@ -1099,6 +1099,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     if (name === "columns" || name === "cellType") {
       this.updateColumnsAndRows();
+      this.invalidateSortFields();
     }
     const clearRowsProps = ["placeholder", "columnColCount", "rowTitleWidth", "choices"];
     const resetRenderTableProps = [
@@ -1182,6 +1183,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    */
   @property() columnsVisibleIf: string;
   protected onColumnsChanged(): void { }
+  /* The columns a header click sorts by (column.isSortable), in column order. A column hidden by its
+     visible property is left out; one whose cells are hidden on the current page is not: the sort
+     covers every record. */
+  protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
+    const res: Array<{ field: string, title: string }> = [];
+    this.columns.forEach((column: MatrixDropdownColumn): void => {
+      if (!column.visible || !column.isSortable) return;
+      res.push({ field: column.sortField, title: column.locTitle.calculatedText || column.name });
+    });
+    return res;
+  }
   // The points where the visible rows may have changed; the fixed matrix hides itself without rows
   // (hideIfRowsEmpty).
   protected updateVisibilityBasedOnRows(): void { }
@@ -1670,6 +1682,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   onColumnPropertyChanged(column: MatrixDropdownColumn, name: string, newValue: any): void {
     this.updateHasFooter();
+    // Before the return below: the sort candidates change without any row too.
+    this.invalidateSortFields();
     if (!this.generatedVisibleRows) return;
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       this.generatedVisibleRows[i].updateCellQuestionOnColumnChanged(
@@ -1720,6 +1734,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   onColumnVisibilityChanged(column: MatrixDropdownColumn): void {
     this.resetTableAndRows();
+    this.invalidateSortFields();
   }
   onColumnCellVisibilityChanged(column: MatrixDropdownColumn): void {
     if (this.isDesignMode || this.isRunningCellsCondition) return;
@@ -1730,6 +1745,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void {
     this.updateDefaultRowValue(column);
     this.resetTableAndRows();
+    this.invalidateSortFields();
   }
   getDesignRowContext(): IValueGetterContext {
     const row = this.visibleRows && this.visibleRows.length > 0 ? this.visibleRows[0] : this.createMatrixRow(new ItemValue(1));

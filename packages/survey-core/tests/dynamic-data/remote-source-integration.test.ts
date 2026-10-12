@@ -336,6 +336,19 @@ describe("Remote data source: first load", () => {
     expect(loading.visible, "#8").toBe(false);
     expect(enabledOf(), "#9").toEqual([true, true, true, true, true, true]);
   });
+  test("panel: the sort menu is disabled while a page is read", async () => {
+    const source = new FakeServerSource(serverRecords(20));
+    const { question } = await createPanel(source, { allowSortPanels: true });
+    const sortItem = question.viewActions.getActionById("sv-sort-by");
+    expect([sortItem.visible, sortItem.enabled], "#1").toEqual([true, true]);
+    source.auto = false;
+    question.nextPage();
+    expect(question.isDataLoading, "#2: the page is read").toBe(true);
+    expect([sortItem.visible, sortItem.enabled], "#3: shown, not usable").toEqual([true, false]);
+    source.settleAll();
+    await flush();
+    expect(sortItem.enabled, "#4").toBe(true);
+  });
   test("panel: isDataLoading and isReady follow the read", async () => {
     const source = new FakeServerSource(serverRecords(10));
     source.auto = false;

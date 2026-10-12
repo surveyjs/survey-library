@@ -341,6 +341,7 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "panelsPerPage", default: 0, visible: false },
     { name: "sortBy", default: "", visible: false },
     { name: "filterExpression", default: "", visible: false },
+    { name: "allowSortPanels", default: false, visible: false },
     { name: "displayMode", default: "list", visible: true },
     { name: "showProgressBar", default: true, visible: true },
     { name: "progressBarLocation", default: "top", visible: true },
@@ -379,7 +380,7 @@ const expectedOwnRegistrations: { [type: string]: { parentName: string, properti
       "copyDefaultValueFromLastEntry", "panelsState", "keyName", "keyDuplicationError", "confirmDelete",
       "confirmDeleteText", "addPanelText", "removePanelText", "prevPanelText", "nextPanelText",
       "showQuestionNumbers", "questionStartIndex", "renderMode",
-      "panelsPerPage", "sortBy", "filterExpression",
+      "panelsPerPage", "sortBy", "filterExpression", "allowSortPanels",
       "displayMode", "showProgressBar", "progressBarLocation", "tabAlign", "templateQuestionTitleLocation",
       "templateQuestionTitleWidth", "templateErrorLocation", "templateVisibleIf", "removePanelButtonLocation"
     ]

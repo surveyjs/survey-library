@@ -44,6 +44,13 @@
   padding-block-start: var(--sd-matrixdynamic-toolbar-padding-block-start);
   --sd-action-bar-gap: var(--sd-matrixdynamic-toolbar-gap);
 }
+// Not sticky like the pager: a sticky box is a stacking context, and the table would cover the open menu.
+.sd-matrixdynamic__view-actions {
+  box-sizing: border-box;
+  padding-inline: var(--sd-matrixdynamic-toolbar-padding-inline);
+  padding-block-end: var(--sd-matrixdynamic-toolbar-padding-block-start);
+  --sd-action-bar-gap: var(--sd-matrixdynamic-toolbar-gap);
+}
 .sd-matrixdynamic__content > div {
   display: contents;
 }

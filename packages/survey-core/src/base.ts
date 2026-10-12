@@ -759,7 +759,12 @@ export class Base implements IObjectValueContext {
   }
   public getIsSerializablePropertyEmpty(prop: JsonObjectProperty): boolean {
     const orgObj = this.getOriginalByProperty(prop.name);
-    if (prop.isLocalizable && !prop.isMultipleText) return !orgObj.getLocalizableString(prop.name);
+    if (prop.isLocalizable && !prop.isMultipleText) {
+      // getOriginalByProperty can return a wrapper. The value for a question-level
+      // loc string (description, requiredErrorText) stays on this object.
+      const locStr = this.getLocalizableString(prop.name) || orgObj !== this && orgObj.getLocalizableString(prop.name);
+      return !locStr;
+    }
     if (orgObj === this && this.doNotSerializeEmptyProperty(prop)) return this.getPropertyValueWithoutDefault(prop.name) == undefined;
     return false;
   }

@@ -42,10 +42,36 @@ export function scrollIntoView(el: Element, scrollIntoViewOptions?: ScrollIntoVi
   }
 }
 
+function isNeedScrollIntoScroller(el: Element, scroller: HTMLElement, scrollIfVisible?: boolean): boolean {
+  if (scrollIfVisible) return true;
+  const elTop = el.getBoundingClientRect().top;
+  const { top, height } = getScrollerViewport(scroller);
+  return elTop < top || elTop > top + height;
+}
+
 export function scrollElementToViewCore(el: Element, checkLeft: boolean, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
   if (!el || !el.scrollIntoView) {
     doneCallback && doneCallback();
     return false;
+  }
+  // A survey that scrolls inside its own container (fitToContainer) is measured against and scrolled within
+  // that container: the window says nothing about what is visible there, and native scrollIntoView
+  // would also scroll the host page.
+  const surveyScroller = getClosestSurveyScroller(el as HTMLElement);
+  if (!!surveyScroller) {
+    if (checkLeft) {
+      revealElementHorizontally(el as HTMLElement);
+    }
+    if (!isNeedScrollIntoScroller(el, surveyScroller, scrollIfVisible)) {
+      doneCallback && doneCallback();
+      return false;
+    }
+    scrollElementIntoScroller(el as HTMLElement, surveyScroller, {
+      block: scrollIntoViewOptions?.block || "start",
+      behavior: scrollIntoViewOptions?.behavior,
+      onDone: doneCallback
+    });
+    return true;
   }
   const needScroll = isNeedScrollIntoView(el, checkLeft, scrollIfVisible);
   if (needScroll) {
@@ -188,6 +214,7 @@ export function revealElementHorizontally(el: HTMLElement): void {
 interface IScrollAnimation {
   owner: any;
   frameId: number | null;
+  onDone?: () => void;
 }
 const scrollerAnimations = new WeakMap<HTMLElement, IScrollAnimation>();
 const smoothScrollDuration = 500;
@@ -197,6 +224,15 @@ export interface IScrollElementIntoScrollerOptions {
   behavior?: ScrollBehavior;
   // Identifies who started a smooth scroll so that only that owner's teardown cancels it.
   owner?: any;
+  // Runs once the scroll is over: at once for an immediate scroll or no movement, at the end of a smooth
+  // scroll, or when a smooth scroll is cancelled or replaced (callers may hold a state until it runs).
+  onDone?: () => void;
+}
+
+function completeScrollAnimation(animation: IScrollAnimation): void {
+  const onDone = animation.onDone;
+  animation.onDone = undefined;
+  onDone && onDone();
 }
 
 // Stops the running smooth scroll of the scroller. With an owner, only an animation started by that owner
@@ -209,24 +245,27 @@ export function cancelScrollAnimation(scroller: HTMLElement, owner?: any): void 
     DomWindowHelper.cancelAnimationFrame(animation.frameId);
     animation.frameId = null;
   }
+  completeScrollAnimation(animation);
 }
 
 function easeInOutCubic(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-function animateScrollTo(scroller: HTMLElement, top: number, duration: number, owner: any): void {
+function animateScrollTo(scroller: HTMLElement, top: number, duration: number, owner: any, onDone?: () => void): void {
   const start = scroller.scrollTop;
   const change = top - start;
   if (Math.abs(change) < 1 || duration <= 0) {
     scroller.scrollTop = top;
+    onDone && onDone();
     return;
   }
-  const animation: IScrollAnimation = { owner: owner, frameId: null };
+  const animation: IScrollAnimation = { owner: owner, frameId: null, onDone: onDone };
   const requestFrame = () => {
     animation.frameId = DomWindowHelper.requestAnimationFrame(step);
     if (animation.frameId === null) {
       scrollerAnimations.delete(scroller);
+      completeScrollAnimation(animation);
     }
   };
   let startedAt: number | null = null;
@@ -241,6 +280,7 @@ function animateScrollTo(scroller: HTMLElement, top: number, duration: number, o
       requestFrame();
     } else {
       scrollerAnimations.delete(scroller);
+      completeScrollAnimation(animation);
     }
   };
   scrollerAnimations.set(scroller, animation);
@@ -253,21 +293,27 @@ export function scrollElementIntoScroller(el: HTMLElement, scroller: HTMLElement
   cancelScrollAnimation(scroller);
   const elRect = el.getBoundingClientRect();
   const { top: visibleTop, height: visibleHeight } = getScrollerViewport(scroller);
+  const onDone = options?.onDone;
   let delta = 0;
   const block = options?.block || "nearest";
-  if (block === "center" && elRect.height < visibleHeight) {
+  if (block === "start") {
+    delta = elRect.top - visibleTop;
+  } else if (block === "center" && elRect.height < visibleHeight) {
     delta = (elRect.top + elRect.height / 2) - (visibleTop + visibleHeight / 2);
   } else if (elRect.top < visibleTop) {
     delta = elRect.top - visibleTop;
   } else if (elRect.bottom > visibleTop + visibleHeight) {
     delta = elRect.bottom - (visibleTop + visibleHeight);
   }
-  if (Math.abs(delta) < 1) return;
+  if (Math.abs(delta) < 1) {
+    onDone && onDone();
+    return;
+  }
   const top = scroller.scrollTop + delta;
-  const behavior = options?.behavior || "auto";
-  if (behavior !== "auto") {
-    animateScrollTo(scroller, top, smoothScrollDuration, options?.owner);
+  if (options?.behavior === "smooth") {
+    animateScrollTo(scroller, top, smoothScrollDuration, options?.owner, onDone);
   } else {
     scroller.scrollTop = top;
+    onDone && onDone();
   }
 }

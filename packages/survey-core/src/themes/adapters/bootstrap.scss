@@ -312,6 +312,7 @@
   --sjs-bs-card-action-gap: 0.5rem;
 
   --sjs2-layout-component-question-box-gap-vertical: 0.5rem;
+  --sjs2-layout-component-question-header-gap-vertical: 0;
 
   --sjs2-radius-component-panel: var(--bs-border-radius-lg, var(--bs-border-radius));
   --sjs2-color-component-panel-default-bg: var(--bs-card-bg, var(--bs-body-bg));
@@ -542,6 +543,11 @@
 }
 
 .sd-question__erbox--below-question {
+  margin-top: 0.25rem;
+}
+
+.sd-question__erbox {
+  order: 1;
   margin-top: 0.25rem;
 }
 

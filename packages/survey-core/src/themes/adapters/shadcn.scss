@@ -576,6 +576,11 @@
   color: var(--destructive);
 }
 
+.sd-question__erbox {
+  order: 1;
+  margin-top: calc(var(--spacing) * 2);
+}
+
 .sd-question__erbox--below-question {
   margin-top: calc(var(--spacing) * 2);
 }

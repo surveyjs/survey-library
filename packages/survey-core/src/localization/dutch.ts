@@ -55,6 +55,10 @@ export var dutchSurveyStrings = {
   value: "waarde",
   // "Response required."
   requiredError: "Dit is een vereiste vraag",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "De waarde is onjuist.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "De waarde bevat onbekende sleutels: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Gelieve ten minste een vraag te beantwoorden.",
   // "Response required: answer questions in all rows."

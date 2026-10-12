@@ -55,6 +55,10 @@ export var slovenianStrings = {
   value: "vrednost",
   // "Response required."
   requiredError: "Odgovor je obvezen.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Vrednost je napačna.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Vrednost vsebuje neznane ključe: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Obvezen odgovor: odgovorite na vsaj eno vprašanje.",
   // "Response required: answer questions in all rows."

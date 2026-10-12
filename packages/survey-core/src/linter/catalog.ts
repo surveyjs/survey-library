@@ -71,3 +71,12 @@ export const TRIGGER_TARGET_KINDS = new Map<string, { kind: TriggerTargetRef["ki
   ["questions", { kind: "question", isArray: true }],
   ["pages", { kind: "page", isArray: true }],
 ]);
+
+// The names a plain data object cannot be keyed by. A literal list rather than
+// Object.getOwnPropertyNames(Object.prototype) read at lint time: a finding must not depend on
+// what a host page added to the prototype. linter-catalog-drift.tests.ts pins it to the engine's.
+export const OBJECT_PROTOTYPE_MEMBERS = new Set<string>([
+  "constructor", "__proto__", "toString", "valueOf", "hasOwnProperty", "isPrototypeOf",
+  "propertyIsEnumerable", "toLocaleString", "__defineGetter__", "__defineSetter__",
+  "__lookupGetter__", "__lookupSetter__",
+]);

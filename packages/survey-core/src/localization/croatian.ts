@@ -55,6 +55,10 @@ export var croatianStrings = {
   value: "vrijednost",
   // "Response required."
   requiredError: "Molim vas odgovorite na pitanje.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Vrijednost nije točna.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Vrijednost sadrži nepoznate ključeve: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Molim vas odgovorite na barem jedno pitanje.",
   // "Response required: answer questions in all rows."

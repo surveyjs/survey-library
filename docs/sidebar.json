@@ -332,6 +332,10 @@
               "Title": "ISaveToJSONOptions"
             },
             {
+              "Name": "IDataIssue",
+              "Title": "IDataIssue"
+            },
+            {
               "Name": "IExpressionValidationResult",
               "Title": "IExpressionValidationResult"
             },

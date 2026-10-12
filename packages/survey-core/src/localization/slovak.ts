@@ -55,6 +55,10 @@ export var slovakSurveyStrings = {
   value: "hodnota",
   // "Response required."
   requiredError: "Požaduje sa odozva.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Hodnota je nesprávna.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Hodnota obsahuje neznáme kľúče: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Požaduje sa odozva: zodpovedajte aspoň jednu otázku.",
   // "Response required: answer questions in all rows."

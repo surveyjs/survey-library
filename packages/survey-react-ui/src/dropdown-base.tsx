@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Helpers, Question, DropdownListModel, settings, ItemValue } from "survey-core";
+import { Base, Helpers, Question, DropdownListModel, DropdownRenderState, settings, ItemValue } from "survey-core";
 import { Popup } from "./components/popup/popup";
 import { ReactElementFactory } from "./element-factory";
 import { SurveyQuestionCommentValueItem } from "./reactquestion_comment";
@@ -31,8 +31,17 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   protected get dropdownListModel(): DropdownListModel {
     return this.question["dropdownListModel"];
   }
-  protected getStateElement() {
-    return this.question["dropdownListModel"];
+  // Everything the closed control renders. It does not create DropdownListModel; a question without it (a custom type)
+  // falls back to the model.
+  protected get renderState(): DropdownRenderState {
+    return this.question["dropdownRenderState"] || this.question["dropdownListModel"];
+  }
+  // The model is created on the first interaction or when the popup is rendered; componentDidUpdate subscribes to it then.
+  protected getStateElements(): Array<Base> {
+    const res: Array<Base> = [this.question];
+    const model = this.question["dropdownListModelValue"];
+    if (!!model) res.push(model);
+    return res;
   }
   protected setValueCore(newValue: any) {
     this.questionBase.renderedValue = newValue;
@@ -55,15 +64,15 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   }
   protected renderSelect(cssClasses: any): React.JSX.Element {
     let selectElement: React.JSX.Element | null = null;
-    const dropdownListModel = this.dropdownListModel;
+    const renderState = this.renderState;
     if (this.question.isReadOnly) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       selectElement = <div id={this.question.inputId}
-        role={dropdownListModel?.ariaQuestionRole}
-        aria-label={dropdownListModel?.ariaQuestionLabel}
-        aria-labelledby={dropdownListModel?.ariaQuestionLabelledby}
-        aria-describedby={dropdownListModel?.ariaQuestionDescribedby}
+        role={renderState?.ariaQuestionRole}
+        aria-label={renderState?.ariaQuestionLabel}
+        aria-labelledby={renderState?.ariaQuestionLabelledby}
+        aria-describedby={renderState?.ariaQuestionDescribedby}
         aria-expanded="false"
         aria-readonly="true"
         aria-disabled="true"
@@ -76,7 +85,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     } else {
       selectElement = <>
         {this.renderInput()}
-        {this.question.isInputReadOnly ? null : <Popup model={dropdownListModel.popupModel}></Popup>}
+        {this.question.isInputReadOnly ? null : <Popup model={this.dropdownListModel.popupModel}></Popup>}
       </>;
     }
 
@@ -89,8 +98,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
 
   renderValueElement(): React.JSX.Element | null {
     if (this.question.showInputFieldComponent) {
-      const listModel = this.dropdownListModel;
-      const actionItem = !!listModel ? listModel.getSelectedAction() : this.question.selectedItem;
+      const actionItem = this.renderState.getSelectedAction();
       return ReactElementFactory.Instance.createElement(this.question.inputFieldComponentName, { item: actionItem, question: this.question });
     } else if (this.question.showSelectedItemLocText) {
       return this.renderLocString(this.question.selectedItemLocText);
@@ -99,13 +107,13 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   }
 
   protected renderInput(): React.JSX.Element {
-    const dropdownListModel = this.dropdownListModel;
+    const renderState = this.renderState;
     let valueElement: React.JSX.Element | null = this.renderValueElement();
 
     return (<div
       id={this.question.inputId}
       className={this.question.getControlClass()}
-      tabIndex={dropdownListModel.noTabIndex ? undefined : 0}
+      tabIndex={renderState.noTabIndex ? undefined : 0}
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       disabled={this.question.isDisabledAttr}
@@ -113,31 +121,31 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       onKeyDown={this.keyhandler}
       onBlur={this.blur}
       onFocus={this.focus}
-      role={dropdownListModel.ariaQuestionRole}
-      aria-required={dropdownListModel.ariaQuestionRequired}
-      aria-invalid={dropdownListModel.ariaQuestionInvalid}
-      aria-errormessage={dropdownListModel.ariaQuestionErrorMessage}
-      aria-expanded={dropdownListModel.ariaQuestionExpanded}
-      aria-label={dropdownListModel.ariaQuestionLabel}
-      aria-labelledby={dropdownListModel.ariaQuestionLabelledby}
-      aria-describedby={dropdownListModel.ariaQuestionDescribedby}
-      aria-controls={dropdownListModel.ariaQuestionControls}
-      aria-activedescendant={dropdownListModel.ariaQuestionActivedescendant}
+      role={renderState.ariaQuestionRole}
+      aria-required={renderState.ariaQuestionRequired}
+      aria-invalid={renderState.ariaQuestionInvalid}
+      aria-errormessage={renderState.ariaQuestionErrorMessage}
+      aria-expanded={renderState.ariaQuestionExpanded}
+      aria-label={renderState.ariaQuestionLabel}
+      aria-labelledby={renderState.ariaQuestionLabelledby}
+      aria-describedby={renderState.ariaQuestionDescribedby}
+      aria-controls={renderState.ariaQuestionControls}
+      aria-activedescendant={renderState.ariaQuestionActivedescendant}
       ref={(div) => (this.setControl(div))}
     >
       <div className={this.question.cssClasses.controlValue}>
-        {dropdownListModel.showHintPrefix ?
+        {renderState.showHintPrefix ?
           (<div className={this.question.cssClasses.hintPrefix}>
-            <span>{dropdownListModel.hintStringPrefix}</span>
+            <span>{renderState.hintStringPrefix}</span>
           </div>) : null}
         <div className={this.question.cssClasses.inputPrefixWrapper}>
-          {dropdownListModel.showHintString ?
+          {renderState.showHintString ?
             (<div className={this.question.cssClasses.hintSuffix}>
-              <span style={{ visibility: "hidden" }} data-bind="text: model.filterString">{dropdownListModel.inputStringRendered}</span>
-              <span>{dropdownListModel.hintStringSuffix}</span>
+              <span style={{ visibility: "hidden" }} data-bind="text: model.filterString">{renderState.inputStringRendered}</span>
+              <span>{renderState.hintStringSuffix}</span>
             </div>) : null}
           {valueElement}
-          {dropdownListModel.needRenderInput ? this.renderFilterInput() : null}
+          {renderState.needRenderInput ? this.renderFilterInput() : null}
         </div>
       </div>
       {this.renderEditorButtons()}
@@ -146,11 +154,11 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
 
   protected renderFilterInput(): React.JSX.Element {
     const { root } = settings.environment;
-    const dropdownListModel = this.dropdownListModel;
+    const renderState = this.renderState;
     const onInputChange = (e: any) => {
       const activeElement = e.target.getRootNode()?.activeElement;
       if (e.target === activeElement) {
-        dropdownListModel.inputStringRendered = e.target.value;
+        this.dropdownListModel.inputStringRendered = e.target.value;
       }
     };
 
@@ -158,21 +166,21 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       id={this.question.getInputId()}
       ref={(element) => (this.inputElement = element)}
       className={this.question.cssClasses.filterStringInput}
-      role={dropdownListModel.ariaInputRole}
-      aria-required={dropdownListModel.ariaInputRequired}
-      aria-invalid={dropdownListModel.ariaInputInvalid}
-      aria-errormessage={dropdownListModel.ariaInputErrorMessage}
-      aria-expanded={dropdownListModel.ariaInputExpanded}
-      aria-label={dropdownListModel.ariaInputLabel}
-      aria-labelledby={dropdownListModel.ariaInputLabelledby}
-      aria-describedby={dropdownListModel.ariaInputDescribedby}
-      aria-controls={dropdownListModel.ariaInputControls}
-      aria-activedescendant={dropdownListModel.ariaInputActivedescendant}
-      placeholder={dropdownListModel.placeholderRendered}
-      readOnly={dropdownListModel.filterReadOnly ? true : undefined}
-      tabIndex={dropdownListModel.noTabIndex ? undefined : -1}
+      role={renderState.ariaInputRole}
+      aria-required={renderState.ariaInputRequired}
+      aria-invalid={renderState.ariaInputInvalid}
+      aria-errormessage={renderState.ariaInputErrorMessage}
+      aria-expanded={renderState.ariaInputExpanded}
+      aria-label={renderState.ariaInputLabel}
+      aria-labelledby={renderState.ariaInputLabelledby}
+      aria-describedby={renderState.ariaInputDescribedby}
+      aria-controls={renderState.ariaInputControls}
+      aria-activedescendant={renderState.ariaInputActivedescendant}
+      placeholder={renderState.placeholderRendered}
+      readOnly={renderState.filterReadOnly ? true : undefined}
+      tabIndex={renderState.noTabIndex ? undefined : -1}
       disabled={this.question.isDisabledAttr}
-      inputMode={dropdownListModel.inputMode}
+      inputMode={renderState.inputMode}
       onChange={(e) => { onInputChange(e); }}
       onBlur={this.blur}
       onFocus={this.focus}
@@ -193,7 +201,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   }
 
   protected renderEditorButtons(): React.JSX.Element | null {
-    return <SurveyActionBar model={this.dropdownListModel.editorButtons}></SurveyActionBar>;
+    return <SurveyActionBar model={this.renderState.editorButtons}></SurveyActionBar>;
   }
 
   componentDidUpdate(prevProps: any, prevState: any) {
@@ -206,14 +214,15 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   }
   componentWillUnmount(): void {
     super.componentWillUnmount();
-    if (this.question.dropdownListModel)this.question.dropdownListModel.focused = false;
+    const model = this.question["dropdownListModelValue"];
+    if (model) model.focused = false;
   }
   updateInputDomElement() {
     if (!!this.inputElement) {
       const control: any = this.inputElement;
-      const newValue = this.question.dropdownListModel.inputStringRendered;
+      const newValue = this.renderState.inputStringRendered;
       if (!Helpers.isTwoValueEquals(newValue, control.value, false, true, false)) {
-        control.value = this.question.dropdownListModel.inputStringRendered;
+        control.value = this.renderState.inputStringRendered;
       }
     }
   }

@@ -6,7 +6,7 @@ import { propertyArray } from "./decorators";
 import { PageModel } from "./page";
 import { SurveyModel } from "./survey";
 import { getLocaleString } from "./surveyStrings";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 
 export class ProgressButtons extends Base {
   constructor(public survey: SurveyModel) {
@@ -56,11 +56,11 @@ export class ProgressButtons extends Base {
   }
   public getListElementCss(index: number | any): string {
     if (index >= this.survey.visiblePages.length) return;
-    return new CssClassBuilder()
-      .append(this.survey.css.progressButtonsListElementPassed, this.isListElementPassed(index))
-      .append(this.survey.css.progressButtonsListElementCurrent, this.survey.currentPageNo === index)
-      .append(this.survey.css.progressButtonsListElementNonClickable, !this.isListElementClickable(index))
-      .toString();
+    return toCssClasses(
+      this.isListElementPassed(index) && this.survey.css.progressButtonsListElementPassed,
+      this.survey.currentPageNo === index && this.survey.css.progressButtonsListElementCurrent,
+      !this.isListElementClickable(index) && this.survey.css.progressButtonsListElementNonClickable
+    );
   }
   public clickListElement(element: number | PageModel): void {
     if (!(element instanceof PageModel)) {

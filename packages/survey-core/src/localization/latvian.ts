@@ -55,6 +55,10 @@ export var latvianSurveyStrings = {
   value: "Vērtība",
   // "Response required."
   requiredError: "Lūdzu, atbildiet uz jautājumu!",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Vērtība ir nepareiza.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Vērtība satur nezināmas atslēgas: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Lūdzu, atbildiet uz vismaz vienu jautājumu.",
   // "Response required: answer questions in all rows."

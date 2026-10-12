@@ -55,6 +55,10 @@ export var kazakhStrings = {
   value: "мәні",
   // "Response required."
   requiredError: "Өтінеміз, сұраққа жауап беріңіз.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Мәні дұрыс емес.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Мәнде белгісіз кілттер бар: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Өтінеміз, кем дегенде бір сұраққа жауап беріңіз.",
   // "Response required: answer questions in all rows."

@@ -55,6 +55,10 @@ export var danishSurveyStrings = {
   value: "værdi",
   // "Response required."
   requiredError: "Besvar venligst spørgsmålet.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Værdien er forkert.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Værdien indeholder ukendte nøgler: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Besvar venligst mindst ét spørgsmål.",
   // "Response required: answer questions in all rows."

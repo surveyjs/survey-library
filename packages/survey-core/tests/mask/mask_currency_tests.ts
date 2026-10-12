@@ -564,6 +564,29 @@ describe("Currency mask", () => {
     expect(result.caretPosition, "try insert 999").toBe(9);
   });
 
+  test("currency isValueOutOfRange strips the affixes", () => {
+    const maskInstance = new InputMaskCurrency();
+    maskInstance.prefix = "$ ";
+    maskInstance.suffix = " USD";
+    maskInstance.min = 0.1;
+    maskInstance.max = 99;
+
+    expect(maskInstance.isValueOutOfRange("$  USD"), "empty").toBe(false);
+    expect(maskInstance.isValueOutOfRange("$ 0 USD"), "below min").toBe(true);
+    expect(maskInstance.isValueOutOfRange("$ 5 USD"), "in range").toBe(false);
+    expect(maskInstance.isValueOutOfRange("$ 100 USD"), "above max").toBe(true);
+
+    const survey = new SurveyModel({ elements: [{
+      type: "text", name: "q1", maskType: "currency", maskSettings: { prefix: "$ ", suffix: " USD", min: 0.1, max: 99 }
+    }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    q.inputValue = "$ 0 USD";
+    expect(q.value, "below min is not stored").toBeUndefined();
+    expect(q.inputValue, "the entry is dropped").toBe(maskInstance.getMaskedValue(""));
+    q.inputValue = "$ 5 USD";
+    expect(q.value, "in range").toBe(5);
+  });
+
   test("currency processInput: min & max", () => {
     const maskInstance = new InputMaskCurrency();
     maskInstance.prefix = "$ ";
@@ -591,6 +614,38 @@ describe("Currency mask", () => {
     expect(result.value, "remove 1").toBe("$ -");
     expect(result.caretPosition, "remove 1").toBe(3);
   });
+
+  test("currency showTrailingZeros: the padding goes inside the affixes", () => {
+    const maskInstance = new InputMaskCurrency();
+    maskInstance.prefix = "$ ";
+    maskInstance.suffix = " USD";
+    maskInstance.showTrailingZeros = true;
+
+    expect(maskInstance.getMaskedValue(123), "an integer").toBe("$ 123.00 USD");
+    expect(maskInstance.getMaskedValue(123.4), "one fractional digit").toBe("$ 123.40 USD");
+    expect(maskInstance.getMaskedValue(1234.56), "a grouped value").toBe("$ 1,234.56 USD");
+    expect(maskInstance.getMaskedValue("123."), "a dangling separator").toBe("$ 123.00 USD");
+    expect(maskInstance.getMaskedValue(""), "an empty value has no affixes either").toBe("");
+    expect(maskInstance.getUnmaskedValue("$ 123.00 USD"), "the stored value").toBe(123);
+  });
+
+  test("currency showTrailingZeros: the zeros appear while typing", () => {
+    const maskInstance = new InputMaskCurrency();
+    maskInstance.prefix = "$ ";
+    maskInstance.showTrailingZeros = true;
+
+    let result = maskInstance.processInput({ insertedChars: "1", selectionStart: 2, selectionEnd: 2, prevValue: "$ ", inputDirection: "forward" });
+    expect(result.value, "the first digit").toBe("$ 1.00");
+    expect(result.caretPosition, "the caret is after the typed digit").toBe(3);
+
+    result = maskInstance.processInput({ insertedChars: "5", selectionStart: 4, selectionEnd: 4, prevValue: "$ 1.00", inputDirection: "forward" });
+    expect(result.value, "a fractional digit replaces the first zero").toBe("$ 1.50");
+    expect(result.caretPosition, "a fractional digit replaces the first zero").toBe(5);
+
+    result = maskInstance.processInput({ insertedChars: null, selectionStart: 5, selectionEnd: 6, prevValue: "$ 1.50", inputDirection: "backward" });
+    expect(result.value, "the generated zero is kept").toBe("$ 1.50");
+    expect(result.caretPosition, "the caret steps over the generated zero").toBe(5);
+  });
 });
 
 // written as escapes so that this file stays ascii: the euro sign, the CLDR currency sign (an
@@ -608,6 +663,44 @@ const createCurrencySurvey = (maskSettings?: any, locale?: string): SurveyModel 
 const getCurrencyMask = (survey: SurveyModel): InputMaskCurrency => {
   return <InputMaskCurrency>(<QuestionTextModel>survey.getQuestionByName("q1")).maskSettings;
 };
+
+describe("Currency mask: displayValue with saveMaskedValue", () => {
+  test.each([
+    { prefix: "", suffix: "" },
+    { prefix: "$ ", suffix: "" },
+    { prefix: "", suffix: " EUR" }
+  ])("A comma decimal separator keeps the stored text, Bug#11910: %j", ({ prefix, suffix }) => {
+    const survey = createCurrencySurvey({
+      decimalSeparator: ",", thousandsSeparator: ".", precision: 2, saveMaskedValue: true, prefix, suffix
+    });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+
+    q.inputValue = prefix + "1.234,56" + suffix;
+    expect(q.value, "value #1").toBe(prefix + "1.234,56" + suffix);
+    expect(q.displayValue, "displayValue #1").toBe(prefix + "1.234,56" + suffix);
+    expect(survey.getPlainData()[0].displayValue, "plain data displayValue #1").toBe(prefix + "1.234,56" + suffix);
+
+    q.inputValue = prefix + "234,56" + suffix;
+    expect(q.value, "value #2").toBe(prefix + "234,56" + suffix);
+    expect(q.displayValue, "displayValue #2").toBe(prefix + "234,56" + suffix);
+
+    survey.data = { q1: prefix + "9.876.543,21" + suffix };
+    expect(q.displayValue, "displayValue from data").toBe(prefix + "9.876.543,21" + suffix);
+    expect(q.inputValue, "inputValue from data").toBe(prefix + "9.876.543,21" + suffix);
+  });
+
+  test("The german locale with saveMaskedValue: displayValue, Bug#11910", () => {
+    const survey = createCurrencySurvey({ currencySymbol: euro, saveMaskedValue: true }, "de");
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+
+    q.inputValue = "1234,56";
+    const stored = q.value;
+    expect(typeof stored, "a masked string is stored").toBe("string");
+    expect(stored.indexOf("1.234,56") > -1, "the stored text keeps the german separators: " + stored).toBe(true);
+    expect(q.displayValue, "displayValue equals the stored text").toBe(stored);
+    expect(survey.getPlainData()[0].displayValue, "plain data displayValue").toBe(stored);
+  });
+});
 
 describe("Currency mask: inherited localization", () => {
   afterEach(() => {

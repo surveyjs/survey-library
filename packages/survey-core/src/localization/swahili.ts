@@ -55,6 +55,10 @@ export var swahiliStrings = {
   value: "thamani",
   // "Response required."
   requiredError: "Tafadhali jibu hili swali.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Thamani sio sahihi.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Thamani ina funguo zisizojulikana: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Tafadhali jibu swali angalau moja.",
   // "Response required: answer questions in all rows."

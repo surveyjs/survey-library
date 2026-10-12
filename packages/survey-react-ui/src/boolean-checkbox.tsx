@@ -40,7 +40,7 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
               aria-invalid={this.question.a11y_input_ariaInvalid}
               aria-errormessage={this.question.a11y_input_ariaErrormessage}
             />
-            <span className={cssClasses.checkboxMaterialDecorator}>
+            <span className={cssClasses.checkboxMaterialDecorator} aria-hidden="true">
               {this.question.svgIcon ?
                 <svg
                   className={cssClasses.checkboxItemDecorator}

@@ -1,9 +1,11 @@
 import { ILintRule, LintContext } from "../rule";
 import { closestMatch } from "../levenshtein";
 import { didYouMean } from "../message-utils";
-import { SurveyLintReasons } from "../reasons";
+import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { setFix } from "../fix-utils";
 
 const reasons = SurveyLintReasons["trigger/unknown-type"];
+const fixReasons = SurveyLintFixReasons["trigger/unknown-type"];
 
 export const triggerUnknownTypeRule: ILintRule = {
   id: "trigger/unknown-type",
@@ -25,6 +27,9 @@ export const triggerUnknownTypeRule: ILintRule = {
         messageData: { type: trigger.type, known: knownTypes },
         elementType: "trigger",
         suggestion: suggestion,
+        // the key is written, whatever the author spelled in it: messageData.type is already
+        // normalized and is not what stands in the document
+        fix: setFix(fixReasons.setType, trigger.path + ".type", suggestion),
       });
     });
   },

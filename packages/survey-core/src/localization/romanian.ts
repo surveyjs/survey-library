@@ -55,6 +55,10 @@ export var romanianSurveyStrings = {
   value: "valoare",
   // "Response required."
   requiredError: "Răspunsul la această întrebare este obligatoriu.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Valoarea este incorectă.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Valoarea conține chei necunoscute: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Vă rugăm să răspundeți la cel puțin o întrebare.",
   // "Response required: answer questions in all rows."

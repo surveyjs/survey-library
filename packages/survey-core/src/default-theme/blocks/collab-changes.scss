@@ -1,0 +1,218 @@
+@use "../variables.scss" as *;
+@use "../mixins.scss" as *;
+@use "../typography-mixins.scss" as *;
+
+// The changes panel: a column beside the form, opened by the Changes button in the
+// strip.
+//
+// While it is open the survey container becomes a two-column grid: the strip spans
+// both columns on the first row, everything the container already held keeps the
+// left column, and the panel runs down the right side from under the strip to the
+// bottom. Docking it inside .sv-components-row instead - where the library keeps
+// its own side columns - is what left a gap under the strip, because that row
+// starts below the form title.
+//
+// The class is doubled so this outranks the flex rule collab-bar.scss puts on the
+// same element, whichever order the two stylesheets end up in.
+.sd-container-modern.sd-container-modern:has(> .sv-collab-changes) {
+  display: grid;
+  // The width lives on the TRACK, not on the panel. A max-width on the panel itself
+  // resolves its percentage against the grid area the panel just sized, which is
+  // circular: it collapsed the panel to its min-width and left a gap at the edge.
+  grid-template-columns: minmax(0, 1fr) clamp(
+    calc(var(--sjs2-base-unit-size) * 34),
+    30%,
+    calc(var(--sjs2-base-unit-size) * 44)
+  );
+  align-content: start;
+
+  > * {
+    grid-column: 1;
+  }
+
+  > .sv-collab-bar {
+    grid-column: 1 / -1;
+  }
+
+  // A span rather than an end line of -1: that -1 names the last line of the
+  // EXPLICIT grid, and every row here is implicit, so it would resolve back to the
+  // row the panel starts on. Surplus implicit rows hold nothing and so have no
+  // height.
+  // Pinned, so the form scrolls past it and only its list moves.
+  //
+  // align-self is the load-bearing part: a grid item stretches to its area by
+  // default, and an item as tall as its area has nowhere to stick. The height has
+  // to come from outside CSS too - a percentage here resolves against that same
+  // full-height area, so it would mean "as tall as the whole form". The panel
+  // measures the strip and the form viewport and writes both in (history-panel.ts);
+  // min() with 100dvh is the guard for a host that scrolls the page instead of the
+  // form, where the measured root is the whole document.
+  > .sv-collab-changes {
+    grid-column: 2;
+    grid-row: 2 / span 99;
+    align-self: start;
+    position: sticky;
+    top: var(--sv-collab-changes-top, 0px);
+    height: calc(
+      min(var(--sv-collab-changes-max, 100dvh), 100dvh) - var(--sv-collab-changes-top, 0px)
+    );
+  }
+}
+
+// Proportions follow survey-creator's collaboration panel: a 28px avatar on the
+// theme's user-colour slots, a title over a muted subtitle, a 1px separating border
+// and no shadow, because the panel is part of the page rather than floating over it.
+.sv-collab-changes {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  // No width of its own: it fills the grid track, which is where the width is set.
+  background: var(--sjs2-color-bg-basic-primary);
+  border-inline-start: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-basic-secondary);
+
+  @include scrollRules;
+}
+
+.sv-collab-changes__header {
+  flex: none;
+  padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x200);
+  border-bottom: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-basic-secondary);
+  color: var(--sjs2-color-fg-basic-primary);
+
+  @include sjs2--typography--default-strong;
+}
+
+// The only thing in the panel that scrolls. min-height: 0 is what lets it shrink
+// below its content inside the flex column - without it the list keeps its full
+// height, pushes the panel open and nothing scrolls at all.
+.sv-collab-changes__list {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  flex-direction: column;
+  gap: var(--sjs2-spacing-x025);
+  margin: 0;
+  padding: var(--sjs2-spacing-x100);
+  list-style: none;
+  overflow-y: auto;
+}
+
+.sv-collab-changes__empty {
+  padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
+  color: var(--sjs2-color-fg-basic-tertiary);
+
+  @include sjs2--typography--small;
+}
+
+.sv-collab-changes__row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sjs2-spacing-x100);
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x100) var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
+  border-radius: var(--sjs2-radius-x200);
+  text-align: start;
+  cursor: pointer;
+  font-family: inherit;
+
+  @include hideButtonStyles;
+
+  &:hover {
+    background: var(--sjs2-color-bg-basic-secondary);
+  }
+
+  &:focus-visible {
+    box-shadow: var(--sjs2-border-effect-a11y);
+  }
+}
+
+// The same circle the strip uses, minus the overlap ring: nothing overlaps here.
+.sv-collab-changes__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex: none;
+  width: var(--sjs2-size-x350);
+  height: var(--sjs2-size-x350);
+  border-radius: var(--sjs2-radius-x800);
+
+  @include sjs2--typography--small-strong;
+}
+
+// One theme slot per author, the same palette the strip avatars and the focus rings
+// resolve, so one person is one colour everywhere. Slot 0 is the reserved grey and
+// is what our own edits get.
+@for $slot from 0 through 9 {
+  .sv-collab-changes__avatar--color-#{$slot} {
+    background: var(--sjs2-color-utility-user-bg-color-#{$slot});
+    color: var(--sjs2-color-utility-user-fg-on-color-#{$slot});
+  }
+}
+
+// Three lines rather than one glued string: who, what they touched, and what it
+// says now. min-width lets the ellipsis below actually engage inside the flex row.
+.sv-collab-changes__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sjs2-spacing-x025);
+  min-width: 0;
+}
+
+.sv-collab-changes__who {
+  color: var(--sjs2-color-fg-basic-secondary);
+
+  @include sjs2--typography--small-strong;
+}
+
+.sv-collab-changes__what {
+  color: var(--sjs2-color-fg-basic-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @include sjs2--typography--default;
+}
+
+.sv-collab-changes__value {
+  color: var(--sjs2-color-fg-basic-tertiary);
+  overflow-wrap: anywhere;
+
+  @include sjs2--typography--small;
+}
+
+// Below this the form has no width to spare, so the panel stops being a column and
+// drops under the form. Scoped with :has() so a form without the plugin is untouched
+// by merely loading this stylesheet - the same guard the strip uses.
+@media (max-width: 900px) {
+  .sd-container-modern.sd-container-modern:has(> .sv-collab-changes) {
+    grid-template-columns: minmax(0, 1fr);
+
+    // Straight under the strip rather than at the end: a panel that opens off the
+    // bottom of a phone screen looks like a button that did nothing. Everything
+    // else auto-places into the rows below it.
+    // position and height belong in HERE, not on the bare class below: the wide
+    // rule sets them through this same four-class selector, and a media query adds
+    // no specificity of its own, so a looser selector would simply lose and the
+    // panel would stay viewport-tall with the form pushed off the screen.
+    > .sv-collab-changes {
+      grid-column: 1;
+      grid-row: 2;
+      position: static;
+      height: auto;
+    }
+  }
+
+  // One column, so the panel fills it; only the separating border changes sides.
+  // Above the form it is a block, not a pinned column: hovering over the form as
+  // you scroll a phone screen would cost more room than it is worth.
+  .sv-collab-changes {
+    border-inline-start: none;
+    border-bottom: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-basic-secondary);
+  }
+
+  // Bounded so a long history does not push the form off the screen.
+  .sv-collab-changes__list {
+    max-height: 40dvh;
+  }
+}

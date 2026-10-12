@@ -125,8 +125,6 @@
   --sjs2-color-component-formbox-hovered-border: var(--mui-palette-text-primary);
   --sjs2-color-component-formbox-focused-border: var(--mui-palette-primary-main);
 
-  --sjs2-color-component-input-default-placeholder: var(--mui-palette-text-primary);
-
   --sjs2-radius-component-formbox: var(--mui-shape-borderRadius);
   --sjs2-layout-component-formbox-medium-padding-vertical: 8px;
   --sjs2-layout-component-formbox-medium-padding-horizontal: 8px;
@@ -390,24 +388,28 @@
   --sjs2-layout-component-matrix-box-padding-top: 0;
   --sjs2-layout-component-matrix-box-padding-bottom: var(--sjs-mui-card-edge-content-padding-bottom);
 
-  /* a framed question is a card with a <CardContent> only */
-  --sjs2-color-component-panel-simple-default-bg: var(--sjs2-color-component-panel-default-bg);
-  --sjs2-color-component-panel-simple-default-border: var(--sjs2-color-component-panel-default-border);
-  --sjs2-color-component-panel-simple-default-separator: var(--sjs2-color-component-panel-default-separator);
-  --sjs2-border-effect-component-panel-simple-default:
-    inset 0 0 0 var(--sjs-mui-card-border-width) var(--sjs2-color-component-panel-simple-default-border),
-    var(--sjs-mui-card-shadow);
+  /* panelless: a page-level question is not a card. Same recipe as the built-in *-panelless
+     themes: the simple panel keeps no background, ring or padding, so the fields sit directly on
+     the page the way a native form does. Real panels (nested / dynamic) stay cards. */
+  --sjs2-is-panelless: true;
+  --sjs2-color-component-panel-simple-default-bg: transparent;
+  --sjs2-color-component-panel-simple-default-border: transparent;
+  --sjs2-color-component-panel-simple-default-separator: transparent;
+  --sjs2-border-effect-component-panel-simple-default: none;
+  --sjs2-radius-component-panel-simple: var(--sjs2-radius-x000);
 
   --sjs2-layout-component-panel-simple-box-padding-horizontal: 0;
   --sjs2-layout-component-panel-simple-box-padding-top: 0;
   --sjs2-layout-component-panel-simple-box-padding-bottom: 0;
+  /* the error box is offset by its own margin-top (FormHelperText), not by the container gap */
   --sjs2-layout-component-panel-simple-box-gap-vertical: 0;
+  --sjs2-layout-component-panel-simple-nested-box-gap-vertical: 0;
 
-  --sjs2-layout-component-panel-simple-content-area-padding-top: var(--sjs-mui-card-edge-padding);
-  --sjs2-layout-component-panel-simple-content-area-padding-bottom: var(--sjs-mui-card-edge-content-padding-bottom);
-  --sjs2-layout-component-panel-simple-content-area-padding-horizontal: var(--sjs-mui-card-edge-padding);
-  --sjs2-layout-component-panel-simple-content-area-gap-vertical: var(--sjs-mui-field-gap);
-  --sjs2-layout-component-panel-simple-content-area-gap-horizontal: var(--sjs-mui-field-gap);
+  --sjs2-layout-component-panel-simple-content-area-padding-top: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-simple-content-area-padding-bottom: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-simple-content-area-padding-horizontal: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-simple-content-area-gap-horizontal: var(--sjs2-spacing-x500);
+  --sjs2-layout-component-panel-simple-nested-content-area-gap-horizontal: var(--sjs2-spacing-x500);
 
   /* a nested panel is an outlined card whose <CardHeader> keeps a divider above the content */
   --sjs2-radius-component-panel-nested: var(--sjs2-radius-component-panel);
@@ -492,6 +494,8 @@
 
   --sjs2-color-utility-body: transparent;
   --sjs2-color-utility-surface-survey: transparent;
+  --sjs2-layout-component-page-content-area-gap-horizontal: var(--sjs2-spacing-large-horizontal);
+  --sjs2-layout-component-page-content-area-gap-vertical: var(--sjs2-spacing-large-vertical);
 }
 
 /* input */
@@ -500,18 +504,33 @@
   transition: none;
 }
 
-.sd-question:not(.sd-element--with-frame):not(.sd-question--complex):has(
+.sd-question:not(.sd-question--complex):has(
     .sd-question__content--text,
     .sd-question__content--comment,
     .sd-question__content--dropdown
   ) {
+  /* The title is the floating label, so survey/question titleLocation must not move it. */
+  > .sd-question__container > .sd-question__header-and-content-container {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    column-gap: var(--sd-question-header-content-container-column-gap);
+    row-gap: var(--sd-question-header-content-container-row-gap);
+  }
+
+  .sd-question__content--left {
+    flex: initial;
+    max-width: none;
+  }
+
   .sd-question__header {
     position: absolute;
     top: 0;
     left: 0;
+    margin: 0;
     transition: all 0.2s ease-in-out;
     padding-bottom: 0px;
-    width: fit-content;
+    /* titleLocation "left" writes titleWidth as an inline width */
+    width: fit-content !important;
     padding-top: 0px;
     padding-left: 6px;
     padding-right: 10px;
@@ -746,7 +765,10 @@
 }
 
 /* checkbox / radio hover highlight (MUI-style circular overlay) */
-:root {
+/* :host covers a stylesheet loaded inside a shadow root (the marketing preview).
+   :root does not match there, and a missing duration makes the ripple animation invalid. */
+:root,
+:host {
   --mui-to-sjs-animation-speed-slow: 0.4s;
   --mui-to-sjs-animation-speed-fast: 0.15s;
 }
@@ -1027,9 +1049,9 @@
     color: var(--mui-palette-primary-contrastText);
   }
 
-  &.sd-progress-buttons--titles-bottom .sd-progress-buttons__list li:after {
-    top: 12px;
-    bottom: unset;
+  .sd-progress-buttons__list {
+    --sd-progress-buttons-marker-size: 24px;
+    --sd-progress-buttons-gap: 4px;
   }
 
   .sd-progress-buttons__page-title {
@@ -1044,16 +1066,26 @@
   }
 
   .sd-progress-buttons__list li {
+    // <Stepper alternativeLabel> gives every step an equal column with the icon in its
+    // middle, so the edge steps keep a full column instead of the shrunken one that pins
+    // the first and last markers to the container edges.
     &:first-child,
     &:last-child {
+      flex: 1 1 0;
+      width: auto;
+      min-width: var(--sjs2-size-x1200);
       align-items: center;
+
+      .sd-progress-buttons__page-title,
+      .sd-progress-buttons__page-description {
+        max-width: calc(100% - var(--sjs2-size-x400));
+        text-align: center;
+      }
     }
-    &::after,
-    &:nth-child(2):not(:last-child)::after,
-    &:nth-child(n + 3):last-child::after {
+
+    &::before,
+    &::after {
       background-color: var(--mui-palette-text-disabled);
-      width: calc(100% - var(--sjs2-size-x400));
-      right: calc(50% + var(--sjs2-size-x200));
     }
   }
 }

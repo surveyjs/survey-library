@@ -1,5 +1,6 @@
 import { ConditionRunner } from "../conditions/conditionRunner";
-import { Helpers } from "../helpers";
+import { Helpers, createDate } from "../helpers";
+import { settings } from "../settings";
 import { IDynamicDataField, IDynamicDataSort, DynamicDataSortDirection } from "./dynamic-data-interfaces";
 
 // Local filtering/sorting for DynamicDataList: pure functions over an array of records, so they can
@@ -15,8 +16,11 @@ import { IDynamicDataField, IDynamicDataSort, DynamicDataSortDirection } from ".
 // with ConditionsParser into an Operand tree and re-render that tree through
 // Operand.toString(callback), where the callback emits the target dialect for the nodes it knows
 // (BinaryOperand.operator/leftOperand/rightOperand, Variable.variable, Const.correctValue).
+//
+// dataType "string" is text order (localeCompare after settings.comparator.normalizeTextCallback), so
+// "item10" sorts before "item2". A field that needs natural order supplies IDynamicDataField.compare.
 
-export function getFieldValue(record: any, field: string): any {
+function getFieldValue(record: any, field: string): any {
   return !!record ? record[field] : undefined;
 }
 function findField(fields: Array<IDynamicDataField>, name: string): IDynamicDataField {
@@ -34,7 +38,14 @@ export function createIndexes(count: number): Array<number> {
   return res;
 }
 function compareStrings(a: any, b: any): number {
-  return String(a).localeCompare(String(b));
+  const normalize = settings.comparator.normalizeTextCallback;
+  const sA = normalize(String(a), "compare");
+  const sB = normalize(String(b), "compare");
+  return sA.localeCompare(sB);
+}
+// createDate returns "now" for a falsy value, so 0, -0 and false (not empty for the sort) stay at the epoch.
+function toDate(value: any): Date {
+  return value instanceof Date ? value : (!value ? new Date(value) : createDate("sort", value));
 }
 function compareNumbers(a: any, b: any): number {
   const nA = Helpers.getNumber(a);
@@ -43,8 +54,8 @@ function compareNumbers(a: any, b: any): number {
   return nA === nB ? 0 : (nA > nB ? 1 : -1);
 }
 function compareDates(a: any, b: any): number {
-  const dA = a instanceof Date ? a : new Date(a);
-  const dB = b instanceof Date ? b : new Date(b);
+  const dA = toDate(a);
+  const dB = toDate(b);
   if (isNaN(dA.getTime()) || isNaN(dB.getTime())) return compareStrings(a, b);
   const tA = dA.getTime();
   const tB = dB.getTime();
@@ -70,11 +81,7 @@ function compareByType(a: any, b: any, dataType: string): number {
   if (Helpers.isNumber(a) && Helpers.isNumber(b)) return compareNumbers(a, b);
   return compareStrings(a, b);
 }
-// Ascending comparison of two field values; empty values sort last.
-export function compareValues(a: any, b: any, field?: IDynamicDataField): number {
-  return compareFieldValues(a, b, field, "asc");
-}
-export function compareFieldValues(a: any, b: any, field: IDynamicDataField, direction: DynamicDataSortDirection): number {
+function compareFieldValues(a: any, b: any, field: IDynamicDataField, direction: DynamicDataSortDirection): number {
   // A custom comparer owns the whole comparison, the empty rule included.
   if (!!field && !!field.compare) {
     const custom = field.compare(a, b);
@@ -89,7 +96,7 @@ export function compareFieldValues(a: any, b: any, field: IDynamicDataField, dir
 }
 // Builds the runner for a filter expression once, so that it is parsed once and run per record.
 // Returns undefined for an empty expression (= no filter) and throws for one that cannot be run
-// locally; DynamicDataList reports that through onError(error, "filter").
+// locally; DynamicDataList reports that through onError(error, "read") and drops the filter.
 export function createFilterRunner(expression: string): ConditionRunner {
   if (!expression) return undefined;
   const runner = new ConditionRunner(expression);
@@ -106,18 +113,28 @@ export function createFilterRunner(expression: string): ConditionRunner {
 function toRunner(filter: string | ConditionRunner): ConditionRunner {
   return typeof filter === "string" ? createFilterRunner(filter) : filter;
 }
-export function passesFilter(record: any, filter: string | ConditionRunner): boolean {
-  const runner = toRunner(filter);
-  if (!runner) return true;
-  return runner.runValues(record || {});
+// The fields that are read and never stored (IDynamicDataField.getValue).
+function getVirtualFields(fields: Array<IDynamicDataField>): Array<IDynamicDataField> {
+  return Array.isArray(fields) ? fields.filter((field: IDynamicDataField): boolean => typeof field.getValue === "function") : [];
 }
-// Returns the indexes of the records the filter expression accepts, in record order.
-export function applyFilter(records: Array<any>, filter: string | ConditionRunner): Array<number> {
+/* Returns the indexes of the records the filter expression accepts, in record order. A field that is
+   read and never stored is a variable too: each record is then run as a copy with the fields the
+   expression names put over its own keys, and the record itself is not modified. */
+export function applyFilter(records: Array<any>, filter: string | ConditionRunner, fields?: Array<IDynamicDataField>): Array<number> {
   const runner = toRunner(filter);
   if (!runner) return createIndexes(records.length);
+  const used = runner.getVariables().map((name: string): string => name.split(/[.[]/)[0].toLowerCase());
+  const virtualFields = getVirtualFields(fields).filter((field: IDynamicDataField): boolean => used.indexOf(field.name.toLowerCase()) > -1);
   const res: Array<number> = [];
   for (let i = 0; i < records.length; i++) {
-    if (runner.runValues(records[i] || {})) res.push(i);
+    let values = records[i] || {};
+    if (virtualFields.length > 0) {
+      values = Object.assign({}, values);
+      for (let j = 0; j < virtualFields.length; j++) {
+        values[virtualFields[j].name] = virtualFields[j].getValue(records[i], i);
+      }
+    }
+    if (runner.runValues(values)) res.push(i);
   }
   return res;
 }
@@ -127,13 +144,19 @@ export function applySort(records: Array<any>, sort: Array<IDynamicDataSort>,
   fields?: Array<IDynamicDataField>, indexes?: Array<number>): Array<number> {
   const source = !!indexes ? indexes : createIndexes(records.length);
   if (!Array.isArray(sort) || sort.length === 0) return source;
-  const order = source.map((recordIndex: number, position: number) => ({ recordIndex: recordIndex, position: position }));
+  const sortFields = sort.map((item: IDynamicDataSort): IDynamicDataField => findField(fields, item.field));
+  // Every sort key of a record is read once, before the comparisons: a field that is read and never
+  // stored may cost more than a key lookup.
+  const order = source.map((recordIndex: number, position: number) => ({
+    recordIndex: recordIndex, position: position,
+    values: sort.map((item: IDynamicDataSort, i: number): any => {
+      const field = sortFields[i];
+      return !!field && !!field.getValue ? field.getValue(records[recordIndex], recordIndex) : getFieldValue(records[recordIndex], item.field);
+    })
+  }));
   order.sort((a, b) => {
     for (let i = 0; i < sort.length; i++) {
-      const item = sort[i];
-      const field = findField(fields, item.field);
-      const res = compareFieldValues(getFieldValue(records[a.recordIndex], item.field),
-        getFieldValue(records[b.recordIndex], item.field), field, item.direction);
+      const res = compareFieldValues(a.values[i], b.values[i], sortFields[i], sort[i].direction);
       if (res !== 0) return res;
     }
     // Explicit stability: the original position breaks every tie, so the result does not depend on

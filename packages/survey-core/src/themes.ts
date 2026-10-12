@@ -1,5 +1,6 @@
 import { HorizontalAlignment, VerticalAlignment } from "./base-interfaces";
 import { legacyCssVariables } from "./legacy-vars";
+import DefaultLightPanelless from "./themes/default-light-panelless";
 
 export type ImageFit = "auto" | "contain" | "cover";
 export type ImageAttachment = "fixed" | "scroll";
@@ -314,12 +315,19 @@ function patchComponentRadiusCssVariables(legacyCssVariable: { [index: string]: 
 
 function initDefaultCssVariables(convertedCssVariable: { [index: string]: string }, isPanelless?: boolean): void {
   if (isPanelless) {
+    const panellessCssVariables = DefaultLightPanelless.cssVariables;
+    Object.keys(panellessCssVariables).forEach((key) => {
+      if (convertedCssVariable[key] === undefined) {
+        convertedCssVariable[key] = panellessCssVariables[key];
+      }
+    });
     convertedCssVariable["--sjs2-color-component-panel-default-bg"] = "transparent";
   }
 }
 
 export function patchLegacyCSSVariables(newCssVariable: any, isPanelless?: boolean) {
   if (!newCssVariable) return;
+  const inputKeys = new Set(Object.keys(newCssVariable));
   const convertedCssVariable: { [index: string]: string } = {};
   patchActionButtonCssVariables(newCssVariable, convertedCssVariable, isPanelless);
   initDefaultCssVariables(convertedCssVariable, isPanelless);
@@ -364,7 +372,7 @@ export function patchLegacyCSSVariables(newCssVariable: any, isPanelless?: boole
   patchComponentRadiusCssVariables(newCssVariable, convertedCssVariable);
 
   Object.keys(convertedCssVariable).forEach((key) => {
-    if (newCssVariable[key] === undefined) {
+    if (!inputKeys.has(key)) {
       newCssVariable[key] = convertedCssVariable[key];
     }
   });

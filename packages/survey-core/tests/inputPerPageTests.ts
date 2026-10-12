@@ -1137,6 +1137,65 @@ describe("Input Per Page Tests", () => {
     expect(panel.singleInputSummary.items.length, "singleInputSummary.items.length, #2").toBe(1);
     expect(panel.singleInputSummary.items[0].showRemove, "singleInputSummary.items[0].showRemove, #1").toBe(false);
   });
+  test("matrixdynamic singleInputSummary: a locked row has no Remove button", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q0" },
+        {
+          type: "matrixdynamic", name: "matrix",
+          defaultValue: [{ q1: "a" }, { q1: "b" }, { q1: "c" }],
+          columns: [{ name: "q1", cellType: "text" }]
+        }
+      ],
+      questionsOnPageMode: "inputPerPage"
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    matrix.lockedRowCount = 2;
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name, "the matrix is current").toBe("matrix");
+    const summary = matrix.singleInputSummary;
+    expect(summary.items.length, "items.length").toBe(3);
+    expect(summary.items.map(item => item.showRemove), "showRemove of each row").toEqual([false, false, true]);
+    summary.items[2].btnRemove.action();
+    expect(matrix.value, "the unlocked row is removed").toEqual([{ q1: "a" }, { q1: "b" }]);
+  });
+  test("paneldynamic breadcrumb: a question inside a nested panel moves to the first question of its dynamic panel", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic", name: "order", panelCount: 1,
+          templateElements: [
+            { type: "text", name: "buyerName" },
+            {
+              type: "panel", name: "details",
+              elements: [
+                {
+                  type: "paneldynamic", name: "stores", panelCount: 1,
+                  templateElements: [
+                    { type: "text", name: "storeName" },
+                    { type: "text", name: "address" }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      questionsOnPageMode: "inputPerPage"
+    });
+    const order = <QuestionPanelDynamicModel>survey.getQuestionByName("order");
+    expect(order.singleInputQuestion.name, "#1").toBe("buyerName");
+    survey.performNext();
+    expect(order.singleInputQuestion.name, "#2").toBe("stores");
+    const stores = <QuestionPanelDynamicModel>order.singleInputQuestion;
+    expect(stores.singleInputQuestion.name, "#2, stores").toBe("storeName");
+    survey.performNext();
+    expect(stores.singleInputQuestion.name, "#3, stores").toBe("address");
+    const actions = order.singleInputActions.actions;
+    expect(actions.length, "the order breadcrumb").toBe(1);
+    actions[0].action();
+    expect(order.singleInputQuestion.name, "#4").toBe("buyerName");
+  });
   test("singleInput & singleInputSummary, showAdd && carousel display mode, Bug##9900", () => {
     const survey = new SurveyModel({
       elements: [

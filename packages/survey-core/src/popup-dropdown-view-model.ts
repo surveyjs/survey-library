@@ -350,7 +350,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
     if (!this.recalculatePositionHandler) {
       this.recalculatePositionHandler = (_: any, options: { isResetHeight: boolean }) => {
-        if (!this.isOverlay) {
+        if (!this.isOverlay && this.model.isVisible) {
           this.updatePosition(options.isResetHeight);
         }
       };

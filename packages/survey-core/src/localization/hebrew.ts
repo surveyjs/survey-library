@@ -55,6 +55,10 @@ export var hebrewSurveyStrings = {
   value: "ערך",
   // "Response required."
   requiredError: "אנא השב על השאלה",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "הערך שגוי.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "הערך מכיל מפתחות לא ידועים: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "אנא ענה לפחות על שאלה אחת.",
   // "Response required: answer questions in all rows."

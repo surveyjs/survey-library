@@ -3553,6 +3553,132 @@ describe("baseselect", () => {
     expect(q1.value, "q1.value #2").toEqual({ value: 3, comment: "test comment1" });
     expect([...(q2.value)], "q2.value #2").toEqual([{ value: 2 }, { value: 3, comment: "test comment2" }]);
   });
+  test("Empty required choice comment highlights the comment, not the choices, Bug#11902", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox", name: "q1",
+          choices: ["item1", { value: "item2", showCommentArea: true, isCommentRequired: true }, "item3"]
+        },
+        { type: "radiogroup", name: "q2", showOtherItem: true, choices: ["item1", "item2"] }
+      ]
+    });
+    survey.css = defaultCss;
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
+    const item2 = q1.choices[1];
+    const itemError = defaultCss.checkbox.itemOnError;
+    const commentError = defaultCss.question.commentOnError;
+    q1.renderedValue = ["item2"];
+    q2.renderedValue = "other";
+    expect(survey.validate(true, false), "survey is invalid").toBe(false);
+    expect(q1.errors.length, "q1 has one error").toBe(1);
+    expect(q1.errors[0].getErrorType(), "q1 error type").toBe("otherempty");
+    expect(q2.errors.length, "q2 has one error").toBe(1);
+    expect(q2.errors[0].getErrorType(), "q2 error type").toBe("otherempty");
+
+    q1.visibleChoices.forEach((item, index) => {
+      expect(q1.getItemClass(item).indexOf(itemError), "q1 choice #" + index + " is not on error").toBe(-1);
+    });
+    q2.visibleChoices.forEach((item, index) => {
+      expect(q2.getItemClass(item).indexOf(itemError), "q2 choice #" + index + " is not on error").toBe(-1);
+    });
+    expect(q1.getCommentTextAreaModel(item2).getCssClasses().root.indexOf(commentError) > -1, "q1 item2 comment is on error").toBe(true);
+    expect(q1.getCommentTextAreaModel(item2).ariaInvalid, "q1 item2 comment aria-invalid").toBe("true");
+    expect(q1.getCommentTextAreaModel(item2).ariaDescribedBy, "q1 item2 comment aria-describedby").toBe(q1.renderedId + "_errors");
+    expect(q2.getCommentTextAreaModel(q2.otherItem).getCssClasses().root.indexOf(commentError) > -1, "q2 other comment is on error").toBe(true);
+
+    q1.setCommentValue(item2, "text");
+    q2.otherValue = "text";
+    expect(q1.errors.length, "q1 error is gone").toBe(0);
+    expect(q2.errors.length, "q2 error is gone").toBe(0);
+    expect(q1.getCommentTextAreaModel(item2).getCssClasses().root.indexOf(commentError), "q1 item2 comment is not on error").toBe(-1);
+    expect(q1.getCommentTextAreaModel(item2).ariaInvalid, "q1 item2 comment aria-invalid, #2").toBeNull();
+    expect(q1.getCommentTextAreaModel(item2).ariaDescribedBy, "q1 item2 comment aria-describedby, #2").toBeNull();
+    expect(q2.getCommentTextAreaModel(q2.otherItem).getCssClasses().root.indexOf(commentError), "q2 other comment is not on error").toBe(-1);
+  });
+  test("Only the empty required comment is on error, other comments are not, Bug#11902", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox", name: "q1",
+          choices: [
+            { value: "item1", showCommentArea: true, isCommentRequired: true },
+            { value: "item2", showCommentArea: true, isCommentRequired: true },
+            { value: "item3", showCommentArea: true }
+          ]
+        }
+      ]
+    });
+    survey.css = defaultCss;
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const commentError = defaultCss.question.commentOnError;
+    const isCommentOnError = (index: number): boolean => q1.getCommentTextAreaModel(q1.choices[index]).getCssClasses().root.indexOf(commentError) > -1;
+    q1.renderedValue = ["item1", "item2", "item3"];
+    q1.setCommentValue(q1.choices[0], "text");
+    expect(q1.validate(true), "q1 is invalid").toBe(false);
+    expect(isCommentOnError(0), "item1 comment has a value").toBe(false);
+    expect(isCommentOnError(1), "item2 comment is required and empty").toBe(true);
+    expect(isCommentOnError(2), "item3 comment is not required").toBe(false);
+  });
+  test("Other errors keep highlighting the choices, Bug#11902", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox", name: "q1", isRequired: true, minSelectedChoices: 2,
+          choices: ["item1", { value: "item2", showCommentArea: true, isCommentRequired: true }, "item3"]
+        }
+      ]
+    });
+    survey.css = defaultCss;
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const itemError = defaultCss.checkbox.itemOnError;
+    const commentError = defaultCss.question.commentOnError;
+    expect(q1.validate(true), "empty required question is invalid").toBe(false);
+    expect(q1.getItemClass(q1.choices[0]).indexOf(itemError) > -1, "required error: choices are on error").toBe(true);
+
+    q1.renderedValue = ["item2"];
+    expect(q1.validate(true), "one choice with an empty comment is invalid").toBe(false);
+    expect(q1.errors.map(er => er.getErrorType()).sort(), "two errors").toEqual(["custom", "otherempty"]);
+    expect(q1.getItemClass(q1.choices[0]).indexOf(itemError) > -1, "minSelectedChoices error: choices are on error").toBe(true);
+    expect(q1.getCommentTextAreaModel(q1.choices[1]).getCssClasses().root.indexOf(commentError) > -1, "the comment is on error as well").toBe(true);
+  });
+  test("Focus on error goes to the empty required comment, Bug#11902", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox", name: "q1",
+          choices: ["item1", { value: "item2", showCommentArea: true, isCommentRequired: true }, { value: "item3", showCommentArea: true, isCommentRequired: true }]
+        },
+        { type: "radiogroup", name: "q2", showOtherItem: true, choices: ["item1", "item2"] },
+        { type: "checkbox", name: "q3", isRequired: true, choices: ["item1", "item2"] }
+      ]
+    });
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
+    const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+    q1.renderedValue = ["item3", "item2"];
+    q2.renderedValue = "other";
+    expect(survey.validate(true, false), "survey is invalid").toBe(false);
+
+    const oldFunc = SurveyElement.FocusElement;
+    const els = new Array<string>();
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      els.push(elId);
+      return true;
+    };
+    q1.focusInputElement(true);
+    q2.focusInputElement(true);
+    q3.focusInputElement(true);
+    q1.focusInputElement(false);
+    SurveyElement.FocusElement = oldFunc;
+    expect(els, "focused elements").toEqual([
+      q1.getItemCommentId(q1.choices[1]),
+      q2.getItemCommentId(q2.otherItem),
+      q3.inputId + "_0",
+      q1.inputId + "_0"
+    ]);
+  });
   test("radiogroup showCommentArea & renderedValue/value", () => {
     const survey = new SurveyModel({
       elements: [

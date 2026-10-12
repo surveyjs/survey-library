@@ -46,7 +46,7 @@ export class PageHeightLock {
   }
 
   private get isFullPage(): boolean {
-    const rows = this.question.rowsOnPage;
+    const rows = this.question.visibleRows;
     return Array.isArray(rows) && rows.length >= this.question.pageSize;
   }
   private onResize(entries: Array<ResizeObserverEntry>): void {

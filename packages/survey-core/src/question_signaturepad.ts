@@ -2,7 +2,7 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import SignaturePad from "signature_pad";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { ConsoleWarnings } from "./console-warnings";
 import { ITheme } from "./themes";
@@ -13,6 +13,7 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { ActionContainer } from "./actions/container";
+import { IVerifyDataContext } from "./question";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -50,10 +51,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   }
 
   protected getCssRoot(cssClasses: any): string {
-    return new CssClassBuilder()
-      .append(super.getCssRoot(cssClasses))
-      .append(cssClasses.small, this.signatureWidth.toString() === "300")
-      .toString();
+    return toCssClasses(super.getCssRoot(cssClasses), this.signatureWidth.toString() === "300" && cssClasses.small);
   }
 
   protected getFormat() {
@@ -75,6 +73,14 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   }
   public getType(): string {
     return "signaturepad";
+  }
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    if (!context.checks.reportInvalidValueTypes) return true;
+    // A signature is a string: the data url or, with storeDataAsText off, the uploaded file url.
+    if (typeof val === "string") return true;
+    context.addIssue("invalidValueType", undefined, val, this);
+    return false;
   }
   public afterRenderQuestionElement(el: HTMLElement) {
     if (DomWindowHelper.isAvailable()) {

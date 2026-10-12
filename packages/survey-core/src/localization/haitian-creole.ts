@@ -57,6 +57,10 @@ export var haitianCreoleStrings = {
   value: "valè",
   // "Response required."
   requiredError: "Repons obligatwa.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Valè a pa kòrèk",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Valè a gen kle enkoni: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Repons obligatwa: reponn omwen yon kesyon.",
   // "Response required: answer questions in all rows."

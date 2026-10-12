@@ -39,8 +39,8 @@ afterEach(() => {
   });
 });
 
-// Stand-ins for the built-ins that prompts 03 and 04 add. They exist so this step can pin the runner
-// behaviour they depend on (applicability, custom registrations); they are not the real ones.
+// Stand-ins for built-in checks. They pin the runner behaviour the built-ins depend on
+// (applicability, custom registrations) without the real ones.
 function registerVisibleCheck(): void {
   registerCheck({
     name: "visible",

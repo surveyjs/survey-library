@@ -19,9 +19,12 @@ describe("inArray conditions match runtime item lookup", () => {
       const survey = new Model(json);
       survey.data = { items: [{ amount: 3 }, { amount: -1 }], amount: -10, threshold: 0 };
       expect(survey.getValue("total")).toBe(3);
-      expect(lintSurvey(json).findings).toHaveLength(0);
+      // the clash of the template question with the survey question is the point of this
+      // fixture, and name/duplicate rightly reports it; the filter resolution is what is tested
+      const others = () => lintSurvey(json).findings.filter(f => f.ruleId !== "name/duplicate");
+      expect(others()).toHaveLength(0);
       json.elements[3].expression = "sumInArray({items}, 'amount', '{amount} > 0')";
-      expect(lintSurvey(json).findings).toHaveLength(0);
+      expect(others()).toHaveLength(0);
       json.elements[1].name = "surveyAmount";
       expect(lintSurvey(json).findings).toHaveLength(0);
       json.elements[3].expression = "sumInArray({items}, 'amount', '{missing} > 0')";

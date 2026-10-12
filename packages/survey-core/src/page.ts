@@ -8,7 +8,7 @@ import {
   IElementUIState,
 } from "./base-interfaces";
 import { PanelModelBase, PanelModel } from "./panel";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
 
 /**
@@ -181,7 +181,7 @@ export class PageModel extends PanelModel implements IPage {
   public get isStarted(): boolean { return this.isStartPage; }
   protected calcCssClasses(css: any): any {
     if (this.isPanel) return super.calcCssClasses(css);
-    const classes = { page: {}, error: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "", pageRow: "", rowCompact: "", rowEnter: "", rowLeave: "", rowDelayedEnter: "", rowReplace: "" };
+    const classes = { page: {}, error: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "", pageRow: "", rowEnter: "", rowLeave: "", rowDelayedEnter: "", rowReplace: "" };
     this.copyCssClasses(classes.page, css.page);
     this.copyCssClasses(classes.error, css.error);
     if (!!css.pageTitle) {
@@ -198,9 +198,6 @@ export class PageModel extends PanelModel implements IPage {
     }
     if (!!css.rowMultiple) {
       classes.rowMultiple = css.rowMultiple;
-    }
-    if (!!css.rowCompact) {
-      classes.rowCompact = css.rowCompact;
     }
     if (!!css.rowEnter) {
       classes.rowEnter = css.rowEnter;
@@ -222,17 +219,16 @@ export class PageModel extends PanelModel implements IPage {
   protected getCssPanelTitle(): string {
     if (this.isPanel) return super.getCssPanelTitle();
     if (!this.cssClasses.page) return "";
-    return new CssClassBuilder()
-      .append(this.cssClasses.page.title)
-      .toString();
+    return toCssClasses(this.cssClasses.page.title);
   }
   public get cssRoot(): string {
     if (this.isPanel || !this.cssClasses.page || !this.survey) return "";
-    return new CssClassBuilder()
-      .append(this.cssClasses.page.root)
-      .append(this.cssClasses.page.emptyHeaderRoot, !(<any>this.survey).renderedHasHeader &&
-        !((<any>this.survey).isShowProgressBarOnTop && !(<any>this.survey).isStaring))
-      .toString();
+    return toCssClasses(
+      this.cssClasses.page.root,
+      !(<any>this.survey).renderedHasHeader &&
+        !((<any>this.survey).isShowProgressBarOnTop && !(<any>this.survey).isStaring) &&
+        this.cssClasses.page.emptyHeaderRoot
+    );
   }
   public get cssHeader(): string {
     return this.cssClasses.page?.header || this.cssClasses.panel?.header;
@@ -242,9 +238,7 @@ export class PageModel extends PanelModel implements IPage {
   }
   protected getCssError(cssClasses: any): string {
     if (this.isPanel) return super.getCssError(cssClasses);
-    return new CssClassBuilder()
-      .append(super.getCssError(cssClasses))
-      .append(cssClasses.page.errorsContainer).toString();
+    return toCssClasses(super.getCssError(cssClasses), cssClasses.page.errorsContainer);
   }
   @property({ defaultValue: -1, onSet: (val: number, target: PageModel) => target.onNumChanged(val) }) num: number;
   /**

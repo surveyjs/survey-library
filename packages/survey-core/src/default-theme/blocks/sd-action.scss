@@ -58,7 +58,7 @@
 }
 
 .sd-action__title {
-  font-family: var(--sd-action-title-font-family);
+  font-family: var(--sd-action-title-font-family), $font-family-fallbacks;
   font-weight: var(--sd-action-title-font-weight);
   font-size: var(--sd-action-title-font-size);
   line-height: var(--sd-action-title-line-height);

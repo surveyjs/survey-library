@@ -390,6 +390,71 @@ frameworks.forEach((framework) => {
       expect(await input.inputValue()).toBe("123");
     });
 
+    test("numeric input validation - allow exponential notation with settings.allowExponentialNotation", async ({ page }) => {
+      await initSurvey(page, framework, {
+        autoFocusFirstQuestion: true,
+        elements: [
+          {
+            name: "numericQ",
+            type: "text",
+            inputType: "number",
+          }]
+      });
+      await page.evaluate(() => {
+        window["Survey"].settings.allowExponentialNotation = true;
+      });
+
+      const input = await page.locator('input[type="number"]');
+      await expect(input).toBeFocused();
+
+      await page.keyboard.type("1e5");
+      expect(await input.inputValue()).toBe("1e5");
+      await page.keyboard.press("Tab");
+      expect(await page.evaluate(() => window["survey"].getQuestionByName("numericQ").value)).toBe(100000);
+
+      await input.focus();
+      await page.keyboard.press("Control+A");
+      await page.keyboard.press("Delete");
+      await page.keyboard.type("2.5E+2");
+      expect(await input.inputValue()).toBe("2.5E+2");
+      await page.keyboard.press("Tab");
+      expect(await page.evaluate(() => window["survey"].getQuestionByName("numericQ").value)).toBe(250);
+
+      await input.focus();
+      await page.keyboard.press("Control+A");
+      await page.keyboard.press("Delete");
+      await page.keyboard.type("2.5E-3");
+      expect(await input.inputValue()).toBe("2.5E-3");
+      await page.keyboard.press("Tab");
+      expect(await page.evaluate(() => window["survey"].getQuestionByName("numericQ").value)).toBe(0.0025);
+    });
+
+    test("numeric input validation - incomplete exponential notation shows an error with settings.allowExponentialNotation", async ({ page }) => {
+      await initSurvey(page, framework, {
+        autoFocusFirstQuestion: true,
+        elements: [
+          {
+            name: "numericQ",
+            type: "text",
+            inputType: "number",
+          }]
+      });
+      await page.evaluate(() => {
+        window["Survey"].settings.allowExponentialNotation = true;
+      });
+
+      const input = await page.locator('input[type="number"]');
+      await expect(input).toBeFocused();
+
+      await page.keyboard.type("1e");
+      let result = await page.evaluate(() => window["survey"].getQuestionByName("numericQ").validate());
+      expect(result).toBe(false);
+
+      await page.keyboard.type("3");
+      result = await page.evaluate(() => window["survey"].getQuestionByName("numericQ").validate());
+      expect(result).toBe(true);
+    });
+
     test("numeric input validation after paste", async ({ page }) => {
       await initSurvey(page, framework, {
         autoFocusFirstQuestion: true,

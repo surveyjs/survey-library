@@ -232,5 +232,23 @@ registerMarkupTests(
         return <HTMLElement>el?.querySelector(".sv-header--mobile");
       },
       snapshot: "survey-header-advanced-mobile"
+    },
+    {
+      name: "Test Survey questionPerPage body single question class",
+      json: {
+        questionsOnPageMode: "questionPerPage",
+        elements: [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ]
+      },
+      event: "onAfterRenderSurvey",
+      getSnapshot: (el) => {
+        const body = el.querySelector(".sd-body");
+        return body ? `<div class="${body.className}"></div>` : "";
+      },
+      snapshot: "survey-question-per-page"
     }
   ]);

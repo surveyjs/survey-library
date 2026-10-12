@@ -55,6 +55,10 @@ export var philippinesStrings = {
   value: "halaga",
   // "Response required."
   requiredError: "Kinakailangan ang tugon.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Mali ang halaga.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Ang halaga ay naglalaman ng mga hindi kilalang susi: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Kinakailangan ang tugon: sagutin ang kahit isang tanong.",
   // "Response required: answer questions in all rows."

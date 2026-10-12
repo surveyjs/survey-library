@@ -55,6 +55,10 @@ export var icelandicSurveyStrings = {
   value: "gildi",
   // "Response required."
   requiredError: "Vinsamlegast svarið spurningunni.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Gildið er rangt.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Gildið inniheldur óþekkta lykla: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Vinsamlegast svaraðu að minnsta kosti einni spurningu.",
   // "Response required: answer questions in all rows."

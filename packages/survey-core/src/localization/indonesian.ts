@@ -55,6 +55,10 @@ export var indonesianStrings = {
   value: "nilai",
   // "Response required."
   requiredError: "Silahkan jawab pertanyaan berikut.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Nilainya salah.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Nilai berisi kunci yang tidak diketahui: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Silahkan jawab setidaknya satu petanyaan.",
   // "Response required: answer questions in all rows."

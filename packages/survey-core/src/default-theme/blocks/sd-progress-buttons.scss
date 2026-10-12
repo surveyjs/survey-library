@@ -53,11 +53,13 @@
 }
 
 .sd-progress-buttons__list {
-  display: grid;
-  // wider minimum per step so the row starts scrolling before the labels of adjacent
-  // steps run into each other (keeps a gap between the texts on a narrow screen)
-  grid-auto-columns: minmax(var(--sjs2-size-x1200), 1fr);
-  grid-auto-flow: column;
+  --sd-progress-buttons-marker-size: var(--sjs2-size-x300);
+  --sd-progress-buttons-gap: var(--sjs2-size-x100);
+  --sd-progress-buttons-edge-title-max-width: 100%;
+
+  position: relative;
+  display: flex;
+  justify-content: space-between;
   width: 100%;
   padding: 0;
   margin: 0;
@@ -66,38 +68,51 @@
 .sd-progress-buttons__list li {
   position: relative;
   display: flex;
+  flex: 1 1 0;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
   text-align: center;
-  min-width: var(--sjs2-size-x800);
+  // wider minimum per step so the row starts scrolling before the labels of adjacent
+  // steps run into each other (keeps a gap between the texts on a narrow screen)
+  min-width: var(--sjs2-size-x1200);
 
+  &::before,
   &::after {
     content: "";
+    display: none;
     position: absolute;
-    /* 
-      50% = center of the button
-      var(--sjs2-size-x300) / 2 = left half (radius) of the button
-      var(--sjs2-size-x100) = gap
+    /*
+      var(--sd-progress-buttons-marker-size) / 2 = top half (radius) of the button
     */
-    right: calc(50% + var(--sjs2-size-x300) / 2 + var(--sjs2-size-x100));
-    /* 
-      100% = distance from the center of the current button to the center of the previous button
-      var(--sjs2-size-x300) = half (radius) of the current button + half (radius) of the previous button
-      var(--sjs2-size-x100) * 2 = two gaps (left and right)
-    */
-    width: calc(100% - var(--sjs2-size-x300) - var(--sjs2-size-x100) * 2);
-    /* 
-      var(--sjs2-size-x300) / 2 = top half (radius) of the button
-    */
-    bottom: calc(var(--sjs2-size-x300) / 2);
+    bottom: calc(var(--sd-progress-buttons-marker-size) / 2);
     height: var(--sjs2-border-width-x100);
     background-color: var(--sjs2-color-border-basic-secondary);
     transition: background-color var(--sjs-transition-duration, 100ms);
   }
 
-  &:first-child::after {
-    display: none;
+  // Only intermediate steps carry connectors: every one of them draws the segment to its
+  // left, and the last of them also draws the segment that reaches the trailing edge step.
+  &:not(:first-child):not(:last-child)::after {
+    display: block;
+    /*
+      50% = center of the button
+      marker / 2 = left half (radius) of the button
+      gap = gap
+    */
+    right: calc(50% + var(--sd-progress-buttons-marker-size) / 2 + var(--sd-progress-buttons-gap));
+    /*
+      100% = distance from the center of the current button to the center of the previous button
+      marker = half (radius) of the current button + half (radius) of the previous button
+      gap * 2 = two gaps (left and right)
+    */
+    width: calc(100% - var(--sd-progress-buttons-marker-size) - var(--sd-progress-buttons-gap) * 2);
+  }
+
+  &:nth-last-child(2):not(:first-child)::before {
+    display: block;
+    left: calc(50% + var(--sd-progress-buttons-marker-size) / 2 + var(--sd-progress-buttons-gap));
+    width: calc(100% - var(--sd-progress-buttons-marker-size) - var(--sd-progress-buttons-gap) * 2);
   }
 }
 
@@ -114,33 +129,73 @@
       background-color: var(--sjs2-color-border-basic-secondary);
     }
   }
+
+  // the trailing segment belongs to the step it leads to, so it follows the last step's state
+  &:nth-last-child(2):has(+ .sd-progress-buttons__list-element--passed)::before,
+  &:nth-last-child(2):has(+ .sd-progress-buttons__list-element--current)::before {
+    background-color: var(--sjs2-color-border-brand-primary);
+  }
+
+  &:nth-last-child(2):not(.sd-progress-buttons__list-element--passed)::before {
+    background-color: var(--sjs2-color-border-basic-secondary);
+  }
 }
 
-// Pin the first step to the left edge and the last step to the right edge
-// (space-between-like distribution) instead of centering every step in its column.
+// An edge step holds its marker against the edge instead of centering it, so it needs half
+// a column plus half a marker for the distance between every pair of markers — and therefore
+// every connector between them — to come out the same.
 .sd-progress-buttons__list li {
+  &:first-child,
+  &:last-child {
+    flex: 0.5 0.5 calc(var(--sd-progress-buttons-marker-size) / 2);
+    width: auto;
+    min-width: calc(var(--sjs2-size-x1200) / 2 + var(--sd-progress-buttons-marker-size) / 2);
+
+    .sd-progress-buttons__page-title,
+    .sd-progress-buttons__page-description {
+      max-width: var(--sd-progress-buttons-edge-title-max-width);
+    }
+  }
+
   &:first-child {
     align-items: flex-start;
+
+    .sd-progress-buttons__page-title,
+    .sd-progress-buttons__page-description {
+      text-align: start;
+    }
   }
 
   &:last-child {
     align-items: flex-end;
 
-    // the last button is now flush right, so its connector starts at the button's left edge
-    &::after {
-      right: calc(var(--sjs2-size-x300) + var(--sjs2-size-x100));
+    .sd-progress-buttons__page-title,
+    .sd-progress-buttons__page-description {
+      text-align: end;
     }
   }
 
-  // a connector segment that touches an edge-pinned button spans further than a centered one
-  &:nth-child(2):not(:last-child)::after,
-  &:nth-child(n + 3):last-child::after {
-    width: calc(150% - var(--sjs2-size-x300) * 1.5 - var(--sjs2-size-x100) * 2);
+}
+
+// A two-step survey has no intermediate step to carry a connector, and neither edge step can
+// reach across the other one, so the list itself draws the single segment between the markers.
+.sd-progress-buttons__list:has(li:nth-child(2):last-child) {
+  &::after {
+    content: "";
+    position: absolute;
+    left: calc(var(--sd-progress-buttons-marker-size) + var(--sd-progress-buttons-gap));
+    right: calc(var(--sd-progress-buttons-marker-size) + var(--sd-progress-buttons-gap));
+    bottom: calc(var(--sd-progress-buttons-marker-size) / 2);
+    height: var(--sjs2-border-width-x100);
+    background-color: var(--sjs2-color-border-basic-secondary);
+    transition: background-color var(--sjs-transition-duration, 100ms);
   }
 
-  // the single segment between the two edge-pinned buttons (a two-step survey)
-  &:nth-child(2):last-child::after {
-    width: calc(200% - var(--sjs2-size-x300) * 2 - var(--sjs2-size-x100) * 2);
+  &:has(li:first-child.sd-progress-buttons__list-element--passed) {
+    &:has(li:last-child.sd-progress-buttons__list-element--passed)::after,
+    &:has(li:last-child.sd-progress-buttons__list-element--current)::after {
+      background-color: var(--sjs2-color-border-brand-primary);
+    }
   }
 }
 
@@ -297,46 +352,15 @@
 }
 
 .sd-progress-buttons--numbered {
+  .sd-progress-buttons__list {
+    --sd-progress-buttons-marker-size: var(--sjs2-size-x400);
+  }
+
   .sd-progress-buttons__button {
     width: var(--sjs2-size-x400);
     height: var(--sjs2-size-x400);
     padding: 0 3px 1px 2px;
     border: 1px solid var(--sjs2-color-border-basic-secondary);
-  }
-
-  .sd-progress-buttons__list li {
-    &::after {
-      /*
-        50% = center of the button
-        var(--sjs2-size-x400) / 2 = left half (radius) of the button
-        var(--sjs2-size-x100) = gap
-      */
-      right: calc(50% + var(--sjs2-size-x400) / 2 + var(--sjs2-size-x100));
-      /*
-        100% = distance from the center of the current button to the center of the previous button
-        var(--sjs2-size-x400) = half (radius) of the current button + half (radius) of the previous button
-        var(--sjs2-size-x100) * 2 = two gaps (left and right)
-      */
-      width: calc(100% - var(--sjs2-size-x400) - var(--sjs2-size-x100) * 2);
-      /*
-        var(--sjs2-size-x400) / 2 = top half (radius) of the button
-      */
-      bottom: calc(var(--sjs2-size-x400) / 2);
-    }
-
-    // edge-pinned connectors for the numbered variant (larger button: x400)
-    &:last-child::after {
-      right: calc(var(--sjs2-size-x400) + var(--sjs2-size-x100));
-    }
-
-    &:nth-child(2):not(:last-child)::after,
-    &:nth-child(n + 3):last-child::after {
-      width: calc(150% - var(--sjs2-size-x400) * 1.5 - var(--sjs2-size-x100) * 2);
-    }
-
-    &:nth-child(2):last-child::after {
-      width: calc(200% - var(--sjs2-size-x400) * 2 - var(--sjs2-size-x100) * 2);
-    }
   }
 
   .sd-progress-buttons__list-element--current {
@@ -379,18 +403,16 @@
   .sd-progress-buttons__list li {
     flex-direction: column-reverse;
 
+    &::before,
     &::after {
-      top: calc(var(--sjs2-size-x300) / 2);
+      top: calc(var(--sd-progress-buttons-marker-size) / 2);
       bottom: auto;
     }
   }
 
-  &.sd-progress-buttons--numbered {
-    .sd-progress-buttons__list li {
-      &::after {
-        top: calc(var(--sjs2-size-x400) / 2);
-      }
-    }
+  .sd-progress-buttons__list:has(li:nth-child(2):last-child)::after {
+    top: calc(var(--sd-progress-buttons-marker-size) / 2);
+    bottom: auto;
   }
 
   .sd-progress-buttons__button {
@@ -434,17 +456,39 @@
     flex: 1 1 0;
     min-width: var(--sjs2-size-x1500);
 
+    // the inline layout keeps full-width steps, so the edge sizing of the stacked layout is undone
+    &:first-child,
+    &:last-child {
+      width: auto;
+      min-width: var(--sjs2-size-x1500);
+      align-items: center;
+
+      .sd-progress-buttons__page-title,
+      .sd-progress-buttons__page-description {
+        max-width: 100%;
+        text-align: start;
+      }
+    }
+
+    &:first-child {
+      flex: 1 1 0;
+    }
+
     &:last-child {
       flex: 0 0 auto;
       // the last step has no connector column
       grid-template-columns: auto auto;
     }
 
+    &::before,
+    &:nth-last-child(2)::before {
+      display: none;
+    }
+
     // the connector: a horizontal line in the third column, vertically centered against the label stack
     &::after,
-    &:last-child::after,
+    &:not(:first-child):not(:last-child)::after,
     &:nth-child(2):not(:last-child)::after,
-    &:nth-child(n + 3):last-child::after,
     &:nth-child(2):last-child::after {
       position: static;
       grid-column: 3;

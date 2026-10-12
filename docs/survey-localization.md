@@ -150,6 +150,16 @@ const surveyJson = {
 };
 ```
 
+To use a different field name for the default translation, set [`settings.localization.defaultLocaleName`](/form-library/documentation/api-reference/settings#localization). Its default value is `"default"`. For example, the following code configures surveys to use the `en` field for default translations:
+
+```js
+import { settings } from "survey-core";
+
+settings.localization.defaultLocaleName = "en";
+```
+
+This setting applies to all surveys in your application. Set it before creating a survey model and use `en` instead of `default` in your localized text objects. If a translation is missing for the current locale, the survey will use the translation from the `en` field.
+
 To apply your translations, set the current locale:
 
 ```js

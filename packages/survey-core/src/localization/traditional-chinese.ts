@@ -55,6 +55,10 @@ export var traditionalChineseSurveyStrings = {
   value: "價值",
   // "Response required."
   requiredError: "請填寫此問題",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "數值是錯誤的。",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "該值包含未知的鍵：{0}。",
   // [Auto-translated] "Response required: answer at least one question."
   requiredErrorInPanel: "需要回答：至少回答一個問題。",
   // "Response required: answer questions in all rows."

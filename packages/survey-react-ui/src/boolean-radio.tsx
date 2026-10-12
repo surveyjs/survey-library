@@ -29,7 +29,7 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
             onChange={handleOnChange}
           />
           {this.question.cssClasses.materialRadioDecorator ?
-            (<span className={cssClasses.materialRadioDecorator}>
+            (<span className={cssClasses.materialRadioDecorator} aria-hidden="true">
               {this.question.itemSvgIcon ?
                 (<svg className={cssClasses.itemRadioDecorator}>
                   <use xlinkHref={this.question.itemSvgIcon}></use>

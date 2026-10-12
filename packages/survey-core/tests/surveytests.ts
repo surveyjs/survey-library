@@ -5441,6 +5441,23 @@ describe("Survey", () => {
     expect(survey.data, "Remove q3 and val3 keys").toEqual({ q1: "v1", q2: "v2" });
   });
 
+  test("survey.clearIncorrectValues(true), keep suffixed values of questions whose names contain the suffix", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a-Comment" },
+        { type: "text", name: "b-total" },
+      ],
+    });
+    survey.data = {
+      "a-Comment": "v1", "a-Comment-Comment": "c1", "b-total": "v2", "b-total-total": "t1",
+      "a-Comment-x": "c2", "abcdefg": "short"
+    };
+    survey.clearIncorrectValues(true);
+    expect(survey.data, "Keep the suffixed values, remove the keys without a question").toEqual({
+      "a-Comment": "v1", "a-Comment-Comment": "c1", "b-total": "v2", "b-total-total": "t1"
+    });
+  });
+
   test("Create questions from elements array - issue #395", () => {
     var survey = new SurveyModel({
       elements: [
@@ -12903,6 +12920,38 @@ describe("Survey", () => {
     expect(focusedQuestionId, "do not focus any question").toBeFalsy();
     SurveyElement.FocusElement = oldFunc;
   });
+  test("Do not focus the first invalid question on next page when autoFocusFirstError is false", () => {
+    const focusedQuestionIds: Array<string> = [];
+    const oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedQuestionIds.push(elId);
+      return true;
+    };
+    const json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [{ type: "text", name: "question1", isRequired: true }],
+        },
+        {
+          name: "page2",
+          elements: [{ type: "text", name: "question2", isRequired: true }],
+        },
+      ],
+    };
+    const survey = new SurveyModel(json);
+    survey.nextPage();
+    expect(survey.currentPageNo, "stay on the invalid page").toBe(0);
+    expect(focusedQuestionIds, "focus the required question by default").toEqual([survey.getQuestionByName("question1").inputId]);
+
+    const surveyNoFocus = new SurveyModel({ autoFocusFirstError: false, ...json });
+    focusedQuestionIds.length = 0;
+    surveyNoFocus.nextPage();
+    expect(surveyNoFocus.currentPageNo, "stay on the invalid page").toBe(0);
+    expect(surveyNoFocus.getQuestionByName("question1").errors.length, "the error is still shown").toBeGreaterThan(0);
+    expect(focusedQuestionIds, "do not focus when autoFocusFirstError is false").toEqual([]);
+    SurveyElement.FocusElement = oldFunc;
+  });
   test("onServerValidateQuestions doesn't get called for the last page when showPreviewBeforeComplete is set, Bug#2546", () => {
     var survey = new SurveyModel({
       pages: [
@@ -15285,11 +15334,6 @@ describe("Survey", () => {
 
     survey.readOnly = false;
     survey.setIsMobile(false);
-    survey["isCompact"] = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root--compact");
-
-    survey.fitToContainer = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root--compact sd-root-modern--full-container");
     settings.animationEnabled = false;
   });
 
@@ -15749,6 +15793,72 @@ describe("Survey", () => {
 
     model.pages[0].addNewQuestion("matrix", "qm");
     expect(model.calculatedWidthMode).toBe("responsive");
+  });
+
+  describe("single question layout classes", () => {
+    const pages = [
+      { elements: [{ type: "text", name: "q1" }] },
+      { elements: [{ type: "text", name: "q2" }] }
+    ];
+    const bodyClass = "sd-body--single-question";
+    const rootClass = "sd-root-modern--single-question";
+    const createSurvey = (json: any = {}) => new SurveyModel({ pages: pages, ...json });
+    const hasModifier = (survey: SurveyModel): boolean => {
+      const onBody = survey.bodyCss.indexOf(bodyClass) > -1;
+      const onRoot = survey.getRootCss().indexOf(rootClass) > -1;
+      expect(onRoot, "root and body classes stay together").toBe(onBody);
+      return onBody;
+    };
+    const expectModifierLast = (survey: SurveyModel, message: string) => {
+      expect(survey.bodyCss.endsWith(bodyClass), message + ", body").toBe(true);
+      expect(survey.getRootCss().endsWith(rootClass), message + ", root").toBe(true);
+    };
+
+    test("is added last for questionPerPage and inputPerPage", () => {
+      expectModifierLast(createSurvey({ questionsOnPageMode: "questionPerPage" }), "questionPerPage");
+      expectModifierLast(createSurvey({ questionsOnPageMode: "inputPerPage" }), "inputPerPage");
+    });
+
+    test("is not added for standard and singlePage", () => {
+      expect(hasModifier(createSurvey({ questionsOnPageMode: "standard" })), "standard").toBe(false);
+      expect(hasModifier(createSurvey({ questionsOnPageMode: "singlePage" })), "singlePage").toBe(false);
+    });
+
+    test("is not added outside the running state", () => {
+      const startPage = createSurvey({ questionsOnPageMode: "questionPerPage", firstPageIsStartPage: true });
+      expect(startPage.state, "start page state").toBe("starting");
+      expect(hasModifier(startPage), "start page").toBe(false);
+
+      const completed = createSurvey({ questionsOnPageMode: "inputPerPage" });
+      completed.doComplete();
+      expect(completed.state, "completed state").toBe("completed");
+      expect(hasModifier(completed), "completed").toBe(false);
+
+      const designMode = createSurvey({ questionsOnPageMode: "questionPerPage" });
+      designMode.setDesignMode(true);
+      expect(hasModifier(designMode), "design mode").toBe(false);
+    });
+
+    test("is removed in preview and restored after cancelPreview", () => {
+      const survey = createSurvey({ questionsOnPageMode: "questionPerPage" });
+      expect(survey.showPreview(), "showPreview").toBe(true);
+      expect(hasModifier(survey), "preview").toBe(false);
+      survey.cancelPreview();
+      expectModifierLast(survey, "after cancelPreview");
+    });
+
+    test("follows questionsOnPageMode changes at runtime", () => {
+      const survey = createSurvey();
+      expect(hasModifier(survey), "standard").toBe(false);
+      survey.questionsOnPageMode = "questionPerPage";
+      expectModifierLast(survey, "questionPerPage");
+      survey.questionsOnPageMode = "standard";
+      expect(hasModifier(survey), "back to standard").toBe(false);
+      survey.questionsOnPageMode = "inputPerPage";
+      expectModifierLast(survey, "inputPerPage");
+      survey.questionsOnPageMode = "singlePage";
+      expect(hasModifier(survey), "singlePage").toBe(false);
+    });
   });
 
   test("Check survey calculated width mode observability with survey changing", () => {
@@ -18203,7 +18313,6 @@ describe("Survey", () => {
     expect(survey.backgroundImageFit, "before applyTheme").toBe("cover");
     expect(survey.backgroundImageAttachment, "before applyTheme").toBe("scroll");
     expect(survey.backgroundOpacity, "before applyTheme").toBe(1);
-    expect(survey["isCompact"], "before applyTheme").toBe(false);
     expect(survey.headerView, "before applyTheme").toBe("advanced");
 
     survey.applyTheme({
@@ -18226,7 +18335,6 @@ describe("Survey", () => {
     expect(survey.backgroundImageFit).toBe("cover");
     expect(survey.backgroundImageAttachment).toBe("fixed");
     expect(survey.backgroundOpacity).toBe(0.6);
-    expect(survey["isCompact"]).toBe(true);
     expect(survey.headerView, "after applyTheme").toBe("advanced");
   });
   test("survey.applyTheme with baseTheme", () => {
@@ -18249,9 +18357,24 @@ describe("Survey", () => {
 
     expect(survey.backgroundImageFit).toBe("contain");
     expect(survey.backgroundOpacity).toBe(0.8);
-    expect(survey["isCompact"]).toBe(true);
     expect(survey.themeVariables["--sjs2-color-bg-basic-primary"]).toBe("rgba(255, 255, 255, 1)");
     expect(survey.themeVariables["--sjs2-color-bg-basic-secondary"]).toBe("rgba(248, 248, 248, 1)");
+  });
+  test("survey.applyTheme recalculates question widths", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" }
+      ]
+    });
+    let log = "";
+    survey.getAllQuestions().forEach(q => {
+      q["triggerResponsivenessCallback"] = (hard: boolean) => {
+        log += `->${q.name}:${hard}`;
+      };
+    });
+    survey.applyTheme({ isPanelless: true });
+    expect(log).toBe("->q1:true->q2:true");
   });
   test("survey.applyTheme does not mutate the original theme", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
@@ -19448,42 +19571,6 @@ describe("Survey", () => {
     expect(getContainerContent("right"), "default right").toEqual([]);
   });
 
-  test("Check triggerReponsiveness is called when isCompact changed", () => {
-    const json = {
-      title: "My Survey",
-      showNavigationButtons: false,
-      pages: [
-        {
-          "elements": [
-            {
-              type: "text",
-              name: "q1"
-            }
-          ]
-        },
-        {
-          "elements": [
-            {
-              type: "text",
-              name: "q2"
-            }
-          ]
-        },
-      ]
-    };
-    const survey = new SurveyModel(json);
-    let log = "";
-    survey.getAllQuestions().forEach(q => {
-      q["triggerResponsivenessCallback"] = (hard: boolean) => {
-        log += `->${q.name}:${hard}`;
-      };
-    });
-    survey["isCompact"] = true;
-    expect(log).toBe("->q1:true->q2:true");
-    log = "";
-    survey["isCompact"] = false;
-    expect(log).toBe("->q1:true->q2:true");
-  });
   test("element.wasREndered", () => {
     const json = {
       pages: [
@@ -21901,6 +21988,41 @@ describe("Survey", () => {
     expect(options.rootElement).toBeUndefined();
     settings.confirmActionAsync = oldSettingsFunc;
   });
+  test("belowheader is hidden for question progress in an advanced header", () => {
+    const prop = Serializer.findProperty("survey", "progressBarLocation");
+    const all = ["auto", "aboveheader", "belowheader", "bottom", "topbottom"];
+    const withoutBelowHeader = ["auto", "aboveheader", "bottom", "topbottom"];
+    expect(prop.getChoices(null)).toEqual(all);
+
+    const survey = new SurveyModel({ showProgressBar: true });
+    expect(survey.headerView).toBe("advanced");
+    expect(survey.progressBarType).toBe("pages");
+    expect(prop.getChoices(survey)).toEqual(all);
+
+    survey.progressBarType = "questions";
+    expect(prop.getChoices(survey)).toEqual(withoutBelowHeader);
+    survey.progressBarType = "requiredQuestions";
+    expect(prop.getChoices(survey)).toEqual(withoutBelowHeader);
+    survey.progressBarType = "correctQuestions";
+    expect(prop.getChoices(survey)).toEqual(withoutBelowHeader);
+
+    survey.headerView = "basic";
+    survey.progressBarType = "questions";
+    expect(prop.getChoices(survey)).toEqual(all);
+
+    survey.headerView = "advanced";
+    survey.progressBarType = "pages";
+    expect(prop.getChoices(survey)).toEqual(all);
+
+    const stored = new SurveyModel({
+      headerView: "advanced",
+      showProgressBar: true,
+      progressBarType: "questions",
+      progressBarLocation: "belowheader",
+    });
+    expect(stored.progressBarLocation).toBe("belowheader");
+    expect(prop.getChoices(stored)).toEqual(withoutBelowHeader);
+  });
 });
 
 describe("Survey: Object.prototype member names and the __proto__ key", () => {
@@ -22069,5 +22191,44 @@ describe("Survey: Object.prototype member names and the __proto__ key", () => {
     survey.setVariables({ v2: 2 }, true);
     expect(survey.getVariableNames(), "clearPrevious").toEqual(["v2"]);
     survey.dispose();
+  });
+});
+
+describe("completing a survey builds nothing the respondent did not see", () => {
+  function completeWithHiddenPage(clearInvisibleValues: string): { data: any, events: Array<string> } {
+    const survey = new SurveyModel({
+      clearInvisibleValues: clearInvisibleValues,
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        { visibleIf: "{q1} = 'show'", elements: [
+          { type: "matrixdynamic", name: "m", rowCount: 2, columns: [{ name: "c1", cellType: "text", defaultValue: "d" }] },
+          { type: "paneldynamic", name: "p", panelCount: 1, templateElements: [{ type: "text", name: "t", defaultValue: "pd" }] }] }]
+    });
+    const events: Array<string> = [];
+    survey.onDynamicPanelAdded.add(() => events.push("panelAdded"));
+    survey.onMatrixCellCreated.add(() => events.push("cell"));
+    survey.onValueChanged.add((_, options) => events.push("valueChanged:" + options.name));
+    survey.tryComplete();
+    return { data: survey.data, events: events };
+  }
+  test("completing does not build the questions of a hidden page", () => {
+    const res = completeWithHiddenPage("none");
+    expect(res.data, "#1").toEqual({});
+    expect(res.events, "#2").toEqual([]);
+  });
+  test("completing with the default clean-up fires no build event for a hidden page", () => {
+    expect(completeWithHiddenPage("onComplete").events).toEqual([]);
+  });
+  test("completing a survey with 30 hidden matrices builds no row", () => {
+    const elements = new Array<any>();
+    for (let i = 0; i < 30; i++) {
+      elements.push({ type: "matrixdynamic", name: "m" + i, rowCount: 3, columns: [{ name: "a", cellType: "text" }] });
+    }
+    const survey = new SurveyModel({ pages: [{ elements: [{ type: "text", name: "q1" }] }, { visibleIf: "{q1} = 1", elements: elements }] });
+    let cells = 0;
+    survey.onMatrixCellCreated.add(() => { cells++; });
+    expect(survey.tryComplete(), "#1").toBe(true);
+    expect(survey.state, "#2").toBe("completed");
+    expect(cells, "#3").toBe(0);
   });
 });

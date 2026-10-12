@@ -55,6 +55,10 @@ export var ukrainianSurveyStrings = {
   value: "значення",
   // "Response required."
   requiredError: "Будь ласка, дайте відповідь.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Значення неправильне.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Значення містить невідомі ключі: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Будь ласка, дайте відповідь хоча б на одне питання.",
   // "Response required: answer questions in all rows."

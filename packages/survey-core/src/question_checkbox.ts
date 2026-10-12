@@ -8,7 +8,7 @@ import {
 import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { LocalizableString } from "./localizablestring";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { IQuestion } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
@@ -418,10 +418,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected getItemClassCore(item: any, options: any) {
     const __dummy_value = this.value; //trigger dependencies from koValue for knockout
     options.isSelectAllItem = item === this.selectAllItem;
-    return new CssClassBuilder()
-      .append(super.getItemClassCore(item, options))
-      .append(this.cssClasses.itemSelectAll, options.isSelectAllItem)
-      .toString();
+    return toCssClasses(super.getItemClassCore(item, options), options.isSelectAllItem && this.cssClasses.itemSelectAll);
   }
   updateValueFromSurvey(newValue: any, clearData: boolean): void {
     super.updateValueFromSurvey(newValue, clearData);

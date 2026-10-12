@@ -37,6 +37,16 @@ export const SurveyLintReasons = Object.freeze({
     totalKeyCollision: "totalKeyCollision",
     variableShadowsQuestion: "variableShadowsQuestion",
   }),
+  // a member of Object.prototype used as a name: the value objects it keys are plain, so the
+  // name reads the prototype member back instead of the value
+  "name/reserved": Object.freeze({
+    questionName: "questionName",
+    valueName: "valueName",
+    columnName: "columnName",
+    itemName: "itemName",
+    rowValue: "rowValue",
+    calculatedValueName: "calculatedValueName",
+  }),
   // a key that matches no property of the class the JSON says it belongs to
   "property/unknown": Object.freeze({
     unknownProperty: "unknownProperty",
@@ -48,6 +58,16 @@ export const SurveyLintReasons = Object.freeze({
     // a valueName with a "." in it, which references read as a path
     valueNameDotted: "valueNameDotted",
   }),
+  // a property the class requires and the JSON leaves out or empty - or, for a name, writes as
+  // a number or a boolean, which the runtime cannot load
+  "property/required": Object.freeze({
+    missing: "missing",
+    notAString: "notAString",
+  }),
+  // a single value written where the property holds an array; the deserializer wraps it
+  "property/not-an-array": Object.freeze({
+    notAnArray: "notAnArray",
+  }),
   // a property the JSON states and the runtime does not keep
   "property/dead": Object.freeze({
     notSerializable: "notSerializable",
@@ -58,6 +78,8 @@ export const SurveyLintReasons = Object.freeze({
   }),
   "element/unknown-type": Object.freeze({
     unknownType: "unknownType",
+    // no type at all: the deserializer cannot pick a class and drops the element
+    missingType: "missingType",
   }),
   "expression/unknown-function": Object.freeze({
     notRegistered: "notRegistered",
@@ -242,4 +264,61 @@ export const SurveyLintReproductionReasons = Object.freeze({
 export const SurveyLintSuggestionReasons = Object.freeze({
   setNumberInputType: "setNumberInputType",
   useContainsOrAnyof: "useContainsOrAnyof",
+});
+
+// ILintFix.reason - what a fix does, per rule. Public API like the tables above: a host labels
+// the repair it offers by the (ruleId, fix.reason) pair.
+export const SurveyLintFixReasons = Object.freeze({
+  "property/dead": Object.freeze({
+    removeKey: "removeKey",
+  }),
+  "choices/duplicate": Object.freeze({
+    removeItem: "removeItem",
+  }),
+  "expression/unknown-function": Object.freeze({
+    renameFunction: "renameFunction",
+  }),
+  "reference/unknown": Object.freeze({
+    renameReference: "renameReference",
+    setKeyName: "setKeyName",
+  }),
+  "choices/dead-source": Object.freeze({
+    setName: "setName",
+  }),
+  "trigger/unknown-target": Object.freeze({
+    setName: "setName",
+  }),
+  "property/unknown": Object.freeze({
+    renameKey: "renameKey",
+    removeKey: "removeKey",
+  }),
+  "mask/mismatch": Object.freeze({
+    setMaskType: "setMaskType",
+  }),
+  "validator/unknown-type": Object.freeze({
+    setType: "setType",
+  }),
+  "trigger/unknown-type": Object.freeze({
+    setType: "setType",
+  }),
+  "element/unknown-type": Object.freeze({
+    setType: "setType",
+  }),
+  "name/duplicate": Object.freeze({
+    renameElement: "renameElement",
+  }),
+  "name/reserved": Object.freeze({
+    renameElement: "renameElement",
+  }),
+  "property/invalid-value": Object.freeze({
+    clampToRange: "clampToRange",
+    removeKey: "removeKey",
+    useAllowedValue: "useAllowedValue",
+  }),
+  "property/not-an-array": Object.freeze({
+    wrapInArray: "wrapInArray",
+  }),
+  "property/required": Object.freeze({
+    setName: "setName",
+  }),
 });

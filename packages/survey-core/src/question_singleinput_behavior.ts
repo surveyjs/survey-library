@@ -371,19 +371,9 @@ export class QuestionSingleInputBehavior {
 
   protected onSingleInputQuestionAdded(question: Question): void {}
 
-  public fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {}
-
-  public getSingleInputQuestionsForDynamic(question: Question, arr: Array<Question>): Array<Question> {
-    const res = new Array<Question>();
-    if (!!question && question !== this.question && arr.indexOf(question) < 0) {
-      this.fillSingleInputQuestionsInContainer(res, question);
-    }
-    arr.forEach(q => res.push(q));
-    if (this.isSingleInputSummaryShown && res.length > 0) {
-      res.unshift(this.question);
-    }
-    res.push(this.question);
-    return res;
+  // true once the question itself (its summary) was the single input since it became the current one.
+  protected get singleInputSummaryShown(): boolean {
+    return this.isSingleInputSummaryShown;
   }
 
   public getSingleInputAddTextCore(): string { return undefined; }

@@ -55,6 +55,10 @@ export var hungarianSurveyStrings = {
   value: "érték",
   // "Response required."
   requiredError: "Kérjük, válaszolja meg ezt a kérdést!",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Az érték helytelen.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Az érték ismeretlen kulcsokat tartalmaz: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Kérjük, válaszoljon legalább egy kérdésre.",
   // "Response required: answer questions in all rows."

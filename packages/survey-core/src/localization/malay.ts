@@ -55,6 +55,10 @@ export var malaySurveyStrings = {
   value: "nilai",
   // "Response required."
   requiredError: "Respons diperlukan.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Nilainya salah.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Nilai mengandungi kunci tidak diketahui: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Respons diperlukan: jawab sekurang-kurangnya satu soalan.",
   // "Response required: answer questions in all rows."

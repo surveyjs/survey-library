@@ -108,7 +108,7 @@ export class SurveyPanel extends SurveyPanelBase {
     return <SurveyActionBar model={footerToolbar}></SurveyActionBar>;
   }
   protected getIsVisible(): boolean {
-    return this.panelBase.getIsContentVisible();
+    return this.panelBase.renderedIsContentVisible;
   }
 
 }

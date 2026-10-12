@@ -1,18 +1,22 @@
 import * as React from "react";
-import { DropdownMultiSelectListModel, QuestionTagboxModel, Helpers, settings } from "survey-core";
+import { Base, DropdownMultiSelectListModel, DropdownMultiSelectRenderState, QuestionTagboxModel, Helpers, settings } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyElementBase } from "./reactquestion_element";
 
 interface ITagboxFilterProps {
-  model: DropdownMultiSelectListModel;
+  model?: DropdownMultiSelectListModel;
   question: QuestionTagboxModel;
 }
 
 export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, any> {
   inputElement: HTMLInputElement | null;
 
+  // Creates the model: used by the event handlers only.
   get model(): DropdownMultiSelectListModel {
-    return this.props.model;
+    return this.props.model || this.question.dropdownListModel;
+  }
+  protected get renderState(): DropdownMultiSelectRenderState {
+    return (this.props.model as any) || this.question.dropdownRenderState;
   }
   get question(): QuestionTagboxModel {
     return this.props.question;
@@ -28,9 +32,9 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
   updateDomElement() {
     if (!!this.inputElement) {
       const control: any = this.inputElement;
-      const newValue = this.model.inputStringRendered;
+      const newValue = this.renderState.inputStringRendered;
       if (!Helpers.isTwoValueEquals(newValue, control.value, false, true, false)) {
-        control.value = this.model.inputStringRendered;
+        control.value = this.renderState.inputStringRendered;
       }
     }
   }
@@ -52,42 +56,42 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
   constructor(props: any) {
     super(props);
   }
-  getStateElement() {
-    return this.model;
+  getStateElement(): Base {
+    return this.props.model || this.question.dropdownListModelValue;
   }
   render(): React.JSX.Element {
     return (
       <div className={this.question.cssClasses.hint}>
-        {this.model.showHintPrefix ?
+        {this.renderState.showHintPrefix ?
           (<div className={this.question.cssClasses.hintPrefix}>
-            <span>{this.model.hintStringPrefix}</span>
+            <span>{this.renderState.hintStringPrefix}</span>
           </div>) : null}
         <div className={this.question.cssClasses.hintSuffixWrapper}>
-          {this.model.showHintString ?
+          {this.renderState.showHintString ?
             (<div className={this.question.cssClasses.hintSuffix}>
-              <span style={{ visibility: "hidden" }} data-bind="text: model.filterString">{this.model.inputStringRendered}</span>
-              <span>{this.model.hintStringSuffix}</span>
+              <span style={{ visibility: "hidden" }} data-bind="text: model.filterString">{this.renderState.inputStringRendered}</span>
+              <span>{this.renderState.hintStringSuffix}</span>
             </div>) : null}
 
           <input type="text" autoComplete="off"
             id={this.question.getInputId()}
-            inputMode={this.model.inputMode}
+            inputMode={this.renderState.inputMode}
             ref={(element) => (this.inputElement = element)}
             className={this.question.cssClasses.filterStringInput}
             disabled={this.question.isInputReadOnly}
-            readOnly={this.model.filterReadOnly ? true : undefined}
-            size={!this.model.inputStringRendered ? 1 : undefined}
-            role={this.model.ariaInputRole}
-            aria-required={this.model.ariaInputRequired}
-            aria-invalid={this.model.ariaInputInvalid}
-            aria-errormessage={this.model.ariaInputErrorMessage}
-            aria-expanded={this.model.ariaInputExpanded}
-            aria-label={this.model.ariaInputLabel}
-            aria-labelledby={this.model.ariaInputLabelledby}
-            aria-describedby={this.model.ariaInputDescribedby}
-            aria-controls={this.model.ariaInputControls}
-            aria-activedescendant={this.model.ariaInputActivedescendant}
-            placeholder={this.model.filterStringPlaceholder}
+            readOnly={this.renderState.filterReadOnly ? true : undefined}
+            size={!this.renderState.inputStringRendered ? 1 : undefined}
+            role={this.renderState.ariaInputRole}
+            aria-required={this.renderState.ariaInputRequired}
+            aria-invalid={this.renderState.ariaInputInvalid}
+            aria-errormessage={this.renderState.ariaInputErrorMessage}
+            aria-expanded={this.renderState.ariaInputExpanded}
+            aria-label={this.renderState.ariaInputLabel}
+            aria-labelledby={this.renderState.ariaInputLabelledby}
+            aria-describedby={this.renderState.ariaInputDescribedby}
+            aria-controls={this.renderState.ariaInputControls}
+            aria-activedescendant={this.renderState.ariaInputActivedescendant}
+            placeholder={this.renderState.filterStringPlaceholder}
             onKeyDown={(e) => { this.keyhandler(e); }}
             onChange={(e) => { this.onChange(e); }}
             onBlur={(e) => { this.onBlur(e); }}

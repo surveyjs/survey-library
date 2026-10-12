@@ -112,6 +112,33 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
     },
   },
   {
+    ruleId: "name/reserved", reason: "questionName",
+    json: { elements: [{ type: "text", name: "toString" }] },
+  },
+  {
+    ruleId: "name/reserved", reason: "valueName",
+    json: { elements: [{ type: "text", name: "q1", valueName: "toString" }] },
+  },
+  {
+    ruleId: "name/reserved", reason: "columnName",
+    json: { elements: [{ type: "matrixdynamic", name: "m1", columns: [{ name: "toString" }] }] },
+  },
+  {
+    ruleId: "name/reserved", reason: "itemName",
+    json: { elements: [{ type: "multipletext", name: "mt", items: [{ name: "toString" }] }] },
+  },
+  {
+    ruleId: "name/reserved", reason: "rowValue",
+    json: { elements: [{ type: "matrix", name: "m1", rows: ["toString"], columns: ["c1"] }] },
+  },
+  {
+    ruleId: "name/reserved", reason: "calculatedValueName",
+    json: {
+      elements: [{ type: "text", name: "q1" }],
+      calculatedValues: [{ name: "toString", expression: "1" }],
+    },
+  },
+  {
     ruleId: "property/unknown", reason: "unknownProperty",
     json: { elements: [{ type: "text", name: "q1", visibileIf: "1 = 1" }] },
   },
@@ -126,6 +153,18 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
   {
     ruleId: "property/invalid-value", reason: "valueNameDotted",
     json: { elements: [{ type: "text", name: "q1", valueName: "user.email" }] },
+  },
+  {
+    ruleId: "property/required", reason: "missing",
+    json: { elements: [{ type: "text" }] },
+  },
+  {
+    ruleId: "property/required", reason: "notAString",
+    json: { elements: [{ type: "text", name: 5 }] },
+  },
+  {
+    ruleId: "property/not-an-array", reason: "notAnArray",
+    json: { pages: [{ name: "p1", elements: { type: "text", name: "q1" } }] },
   },
   {
     ruleId: "property/dead", reason: "notSerializable",
@@ -144,6 +183,10 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
   {
     ruleId: "element/unknown-type", reason: "unknownType",
     json: { elements: [{ type: "nosuchtype", name: "q1" }] },
+  },
+  {
+    ruleId: "element/unknown-type", reason: "missingType",
+    json: { elements: [{ name: "q1" }] },
   },
   {
     ruleId: "expression/unknown-function", reason: "notRegistered",

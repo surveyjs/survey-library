@@ -8,10 +8,12 @@ export default defineConfig({
     include: ["tests/**/*.ts"],
     exclude: [
       "tests/vitest.setup.ts",
+      "tests/typings/**",
       "tests/test-helpers.ts",
       "tests/oldTheme.ts",
       "tests/legacy-theme-vars.ts",
       "tests/linter/lint-test-helpers.ts",
+      "tests/linter/lint-fixtures.ts",
       "node_modules/**",
       "build/**",
     ],
@@ -20,6 +22,7 @@ export default defineConfig({
   resolve: {
     alias: {
       // The longer path first: the aliases are prefix matches applied in order.
+      "survey-core/collaboration": path.resolve(__dirname, "./entries/collaboration.ts"),
       "survey-core/tester": path.resolve(__dirname, "./entries/tester.ts"),
       "survey-core": path.resolve(__dirname, "./entries/index.ts"),
     },

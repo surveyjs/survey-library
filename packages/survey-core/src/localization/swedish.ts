@@ -55,6 +55,10 @@ export var swedishSurveyStrings = {
   value: "värde",
   // "Response required."
   requiredError: "Frågan är obligatorisk.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "Värdet är felaktigt.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "Värdet innehåller okända nycklar: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "Vänligen svara på minst en fråga.",
   // "Response required: answer questions in all rows."

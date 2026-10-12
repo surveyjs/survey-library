@@ -3,7 +3,7 @@ import { SurveyModel } from "../../src/survey";
 import { SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 import { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
 
-// The check Andrew asked for: can a DynamicDataList get and post its records through ISurveyData?
+// Can a DynamicDataList get and post its records through ISurveyData?
 // getValue/setValue are all it needs - comments are ordinary keys inside a record, so getComment and
 // setComment never come into play.
 describe("SurveyDataDynamicDataSource over a real SurveyModel", () => {
@@ -27,8 +27,8 @@ describe("SurveyDataDynamicDataSource over a real SurveyModel", () => {
   test("writes land in survey.data", () => {
     const survey = createSurvey();
     const source = new SurveyDataDynamicDataSource(survey, "items");
-    source.insert(0, { a: 1 });
-    source.insert(1, { a: 2 });
+    source.insert({ a: 1 }, 0);
+    source.insert({ a: 2 }, 1);
     expect(survey.data["items"]).toEqual([{ a: 1 }, { a: 2 }]);
     source.update(0, { a: 11 });
     expect(survey.data["items"]).toEqual([{ a: 11 }, { a: 2 }]);
@@ -44,7 +44,7 @@ describe("SurveyDataDynamicDataSource over a real SurveyModel", () => {
     survey.onValueChanged.add((sender, options) => {
       changes.push({ name: options.name, value: options.value });
     });
-    source.insert(0, { a: 1 });
+    source.insert({ a: 1 }, 0);
     expect(changes.length).toBe(1);
     expect(changes[0].name).toBe("items");
     expect(changes[0].value).toEqual([{ a: 1 }]);

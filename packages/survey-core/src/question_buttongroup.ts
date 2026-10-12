@@ -3,8 +3,9 @@ import { property } from "./decorators";
 import { ItemValue } from "./itemvalue";
 import { ChoiceItem, QuestionCheckboxBase } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { DropdownListModel } from "./dropdownListModel";
+import { dropdownQuestionMixin } from "./dropdownRenderState";
 import { updateListCssValues } from "./utils/dom-utils";
 
 export class ButtonGroupItemValue extends ChoiceItem {
@@ -27,7 +28,7 @@ export class ButtonGroupItemValue extends ChoiceItem {
   @property() showCaption: boolean;
 }
 
-export class QuestionButtonGroupModel extends QuestionCheckboxBase {
+export class QuestionButtonGroupModel extends dropdownQuestionMixin(QuestionCheckboxBase) {
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     const resetReadOnlyTextProps = ["value", "renderAs", "placeholder", "choices", "visibleChoices"];
@@ -51,15 +52,15 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   }
 
   public getControlClass(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.root, !this.isDropdown)
-      .append(this.cssClasses.control, this.isDropdown)
-      .append(this.cssClasses.controlEmpty, this.isDropdown && this.isEmpty())
-      .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.controlDisabled, this.isDisabledStyle)
-      .append(this.cssClasses.controlReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.controlPreview, this.isPreviewStyle)
-      .toString();
+    return toCssClasses(
+      !this.isDropdown && this.cssClasses.root,
+      this.isDropdown && this.cssClasses.control,
+      this.isDropdown && this.isEmpty() && this.cssClasses.controlEmpty,
+      this.hasCssError() && this.cssClasses.onError,
+      this.isDisabledStyle && this.cssClasses.controlDisabled,
+      this.isReadOnlyStyle && this.cssClasses.controlReadOnly,
+      this.isPreviewStyle && this.cssClasses.controlPreview
+    );
   }
   public getInputId(index: number): string {
     return this.inputId + "_" + index;
@@ -103,33 +104,20 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
     return this.selectedItem?.locText;
   }
 
-  private dropdownListModelValue: DropdownListModel;
-  public set dropdownListModel(val: DropdownListModel) {
-    this.dropdownListModelValue = val;
-    this.updateElementCss();
+  protected canCreateDropdownListModel(): boolean {
+    return this.isDropdown;
   }
-  public get dropdownListModel(): DropdownListModel {
-    if (this.isDropdown) {
-      this.onBeforeSetCompactRenderer();
-    }
-    return this.dropdownListModelValue;
+  protected createDropdownListModel(): DropdownListModel {
+    return new DropdownListModel(this);
+  }
+  protected onDropdownListModelAssigned(): void {
+    this.updateElementCss();
   }
   public get selectedItem(): ItemValue { return this.getSingleSelectedItem(); }
 
-  protected onBlurCore(event: any): void {
-    this.dropdownListModel?.onBlur(event);
-    super.onBlurCore(event);
-  }
   protected updateCssClasses(res: any, css: any) {
     super.updateCssClasses(res, css);
     updateListCssValues(res, css);
-  }
-  protected calcCssClasses(css: any): any {
-    const classes = super.calcCssClasses(css);
-    if (this.dropdownListModelValue) {
-      this.dropdownListModelValue.updateCssClasses(classes.popup, classes.list);
-    }
-    return classes;
   }
 
   // responsiveness
@@ -144,18 +132,6 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   }
   protected getObservedElementSelector(): string {
     return ".sd-button-group-scrollable-container";
-  }
-  protected onBeforeSetCompactRenderer(): void {
-    if (!this.isDisposed && !this.dropdownListModelValue) {
-      this.dropdownListModelValue = new DropdownListModel(this);
-    }
-  }
-  public dispose(): void {
-    super.dispose();
-    if (!!this.dropdownListModelValue) {
-      this.dropdownListModelValue.dispose();
-      this.dropdownListModelValue = undefined;
-    }
   }
 }
 
@@ -237,13 +213,13 @@ export class ButtonGroupItemModel {
     return this.selected ? -1 : 0;
   }
   private get labelClass() {
-    return new CssClassBuilder()
-      .append(this.question.cssClasses.item)
-      .append(this.question.cssClasses.itemSelected, this.selected)
-      .append(this.question.cssClasses.itemHover, !this.readOnly && !this.selected)
-      .append(this.question.cssClasses.itemDisabled, !this.item.isEnabled)
-      .append(this.question.cssClasses.itemReadOnly, this.question.isReadOnly)
-      .toString();
+    return toCssClasses(
+      this.question.cssClasses.item,
+      this.selected && this.question.cssClasses.itemSelected,
+      !this.readOnly && !this.selected && this.question.cssClasses.itemHover,
+      !this.item.isEnabled && this.question.cssClasses.itemDisabled,
+      this.question.isReadOnly && this.question.cssClasses.itemReadOnly
+    );
   }
   public get css() {
     return {

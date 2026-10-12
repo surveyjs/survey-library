@@ -13,6 +13,7 @@ import "../src/localization/ukrainian";
 import "../src/localization/portuguese";
 import "../src/localization/portuguese-br";
 import "../src/localization/greek";
+import "../src/localization/arabic";
 import { QuestionCheckboxBase } from "../src/question_baseselect";
 import { englishStrings } from "../src/localization/english";
 
@@ -312,5 +313,40 @@ describe("LocalizationsTests", () => {
     delete surveyLocalization.locales["cd"];
     delete surveyLocalization.locales["ef-EF"];
     delete surveyLocalization.locales["ef"];
+  });
+  test("Bug#11912: rootLang returns the locale in use when the survey uses the default locale", () => {
+    const survey = new SurveyModel({ elements: [{ type: "boolean", name: "q1" }] });
+    expect(survey.locale, "English by default, locale is empty").toBe("");
+    expect(survey.rootLang, "English by default").toBe("en");
+    surveyLocalization.defaultLocale = "nl";
+    try {
+      expect(survey.locale, "default locale is nl, locale is empty").toBe("");
+      expect(survey.rootLang, "default locale is nl").toBe("nl");
+      survey.locale = "nl";
+      expect(survey.locale, "assigning the default locale keeps locale empty").toBe("");
+      expect(survey.rootLang, "assigning the default locale").toBe("nl");
+      survey.locale = "de";
+      expect(survey.rootLang, "explicit locale").toBe("de");
+      survey.locale = "";
+      surveyLocalization.currentLocale = "fr";
+      expect(survey.rootLang, "current locale").toBe("fr");
+    } finally {
+      surveyLocalization.currentLocale = "";
+      surveyLocalization.defaultLocale = "en";
+    }
+  });
+  test("Bug#11912: localeDir uses the default locale when the survey locale is empty", () => {
+    const survey = new SurveyModel({ elements: [{ type: "boolean", name: "q1" }] });
+    expect(survey.localeDir, "English has no direction registered").toBeUndefined();
+    survey.locale = "ar";
+    expect(survey.localeDir, "explicit rtl locale").toBe("rtl");
+    survey.locale = "";
+    surveyLocalization.defaultLocale = "ar";
+    try {
+      expect(survey.locale, "default locale is ar, locale is empty").toBe("");
+      expect(survey.localeDir, "default rtl locale").toBe("rtl");
+    } finally {
+      surveyLocalization.defaultLocale = "en";
+    }
   });
 });

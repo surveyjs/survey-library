@@ -2,8 +2,8 @@
 // import "../../src/main.scss";
 //import "../../src/modern.scss";
 
-import { DomWindowHelper } from "../../src/global_variables_utils";
 import { settings } from "../../src/settings";
+import { _slk } from "./license";
 
 export var Version: string;
 export var ReleaseDate: string;
@@ -23,63 +23,15 @@ export function checkLibraryVersion(ver: string, libraryName: string): void {
     console.error(str);
   }
 }
+// SurveyJS license keys are issued only by Devsoft Baltic OU via surveyjs.io.
+// Generating, modifying or forging keys is prohibited; see the notice in ./license.ts.
 export function setLicenseKey(key: string): void {
   slk(key);
 }
 export function slk(key: string): void {
-  _slk(key, lic, ReleaseDate);
+  _slk(key, ReleaseDate);
 }
-export function hasLicense(index: number): boolean {
-  return glc(index) === true;
-}
-export function glc(index: number): any {
-  const res = lic[index.toString()];
-  return !res ? false : res;
-}
-const lic: any = {};
-function _slk(k: any, lh: any, rd: any) {
-  if (!k) return;
-  const en = (s: string) => {
-    var e: any = {}, i, b = 0, c, x, l = 0, a, r = "", w = String.fromCharCode, L = s.length;
-    var A = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    for (i = 0; i < 64; i++) { e[A.charAt(i)] = i; }
-    for (x = 0; x < L; x++) {
-      let c = e[s.charAt(x)]; b = (b << 6) + c; l += 6;
-      while(l >= 8) { ((a = (b >>> (l -= 8)) & 0xff) || (x < (L - 2))) && (r += w(a)); }
-    }
-    return r;
-  };
-  let v = en(k);
-  if (!v) return;
-  let index = v.indexOf(";");
-  if (index < 0) return;
-  if (!checkPrefix(v.substring(0, index))) return;
-  v = v.substring(index + 1);
-  v.split(",").forEach(s => {
-    let i = s.indexOf("=");
-    if (i > 0) {
-      const sd = new Date(s.substring(i + 1));
-      lh[s.substring(0, i)] = new Date(rd) <= sd ? true : sd;
-    }
-  });
-}
-function checkPrefix(prefix: string): boolean {
-  if (!prefix) return true;
-  const s = "domains:";
-  const index = prefix.indexOf(s);
-  if (index < 0) return true;
-  const ds = prefix.substring(index + s.length).toLowerCase().split(",");
-  if (!Array.isArray(ds) || ds.length === 0) return true;
-  const location = DomWindowHelper.getLocation();
-  if (!!location && !!location.hostname) {
-    const hn = location.hostname.toLowerCase();
-    for (let i = 0; i < ds.length; i++) {
-      if (hn.indexOf(ds[i]) > -1) return true;
-    }
-    return false;
-  }
-  return true;
-}
+export { hasLicense, glc } from "./license";
 
 export { settings, ISurveyEnvironment } from "../../src/settings";
 export { Helpers, HashTable, ISurveyDateProvider } from "../../src/helpers";
@@ -141,7 +93,10 @@ export {
   ILoadFromJSONOptions,
   ISaveToJSONOptions,
   HorizontalAlignment,
-  VerticalAlignment
+  VerticalAlignment,
+  DataIssueType,
+  IDataVerificationOptions,
+  IDataIssue
 } from "../../src/base-interfaces";
 export { SurveyError } from "../../src/survey-error";
 export { SurveyElementCore, SurveyElement } from "../../src/survey-element";
@@ -152,7 +107,8 @@ export {
   OneAnswerRequiredError,
   RequreNumericError,
   ExceedSizeError,
-  ExceedFilesCountError
+  ExceedFilesCountError,
+  IncorrectValueError
 } from "../../src/error";
 export {
   ILocalizableOwner,
@@ -179,7 +135,15 @@ export {
   runBinaryOperator
 } from "../../src/expressions/expressions";
 export { ConditionsParser } from "../../src/conditions/conditionsParser";
-export { ProcessValue, ValueGetter, VariableGetterContext } from "../../src/conditions/conditionProcessValue";
+export { ConditionEditorItem, SurveyConditionEditorItem, ConditionEditorItemsBuilder } from "../../src/conditions/conditionEditorItems";
+export {
+  isConditionOperatorEnabled,
+  isQuestionTypeInList,
+  isQuestionClassContains,
+  getConditionOperatorNames,
+  getConditionDefaultOperator
+} from "../../src/conditions/conditionOperators";
+export { ProcessValue, ValueGetter, VariableGetterContext, findNameByPath, parseValuePath } from "../../src/conditions/conditionProcessValue";
 export {
   JsonError,
   JsonIncorrectTypeError,
@@ -195,6 +159,7 @@ export {
   Serializer,
 } from "../../src/jsonobject";
 export { property, propertyArray } from "../../src/decorators";
+export { QuestionRecordsModel } from "../../src/question_records";
 export {
   IMatrixDropdownData,
   MatrixDropdownCell,
@@ -218,7 +183,6 @@ export {
   MatrixColumn,
   IMatrixData
 } from "../../src/question_matrix";
-export { QuestionMatrixBaseModel } from "../../src/martixBase";
 export {
   MultipleTextItemModel,
   MultipleTextCell,
@@ -269,12 +233,12 @@ export {
   QuestionPanelDynamicModel,
   QuestionPanelDynamicItem
 } from "../../src/question_paneldynamic";
-export { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
-export { ArrayDynamicDataSource, SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
+export { LocalDynamicDataSource, ArrayDynamicDataSource, SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
+export type { IArrayDynamicDataSourceOptions } from "../../src/dynamic-data/dynamic-data-sources";
 export { parseDynamicDataSort, dynamicDataSortToString } from "../../src/dynamic-data/dynamic-data-sort";
 export type {
-  IDynamicDataSource, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataField,
-  IDynamicDataOwner, IDynamicDataListChange, DynamicDataSortDirection,
+  IDynamicDataSource, IDynamicDataSourceCapabilities, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataField,
+  DynamicDataSortDirection,
   DynamicDataFieldType, DynamicDataOperation
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 export { SurveyTimer } from "../../src/surveytimer";
@@ -330,6 +294,7 @@ export { createPopupViewModel, createPopupModalViewModel } from "../../src/popup
 export { PopupModalManager } from "../../src/popup-modal-manager";
 export { DropdownListModel } from "../../src/dropdownListModel";
 export { DropdownMultiSelectListModel } from "../../src/dropdownMultiSelectListModel";
+export { DropdownRenderState, DropdownMultiSelectRenderState } from "../../src/dropdownRenderState";
 export {
   QuestionButtonGroupModel,
   ButtonGroupItemModel,

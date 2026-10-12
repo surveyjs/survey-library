@@ -120,6 +120,22 @@ export interface ISurveyDynamicPanelCallbacks {
 export interface ISurveyDynamicDataCallbacks {
   dynamicDataError(question: IQuestion, operation: string, error: any): void;
 }
+/* What a records question tells the survey about the writes its data source has not answered, so
+   that a completion waits for them. Not part of ISurvey and not exported by the entries: a survey
+   that does not implement it is never asked to wait (see getSurveyDynamicDataWrites in
+   question_records.ts). hasPendingWrites is true when the question's first unanswered write starts,
+   and false when its writes have settled, when it is disposed and when it leaves the survey. isFailed:
+   the source rejected one of the writes that settled. */
+export interface ISurveyDynamicDataWrites {
+  dynamicDataWritesChanged(question: IQuestion, hasPendingWrites: boolean, isFailed?: boolean): void;
+}
+/* Whether questionValueChanged passes the old value of a question on to a handler, so that the question
+   needs a copy of it. Not part of ISurvey and not exported by the entries: SurveyModel keeps it private,
+   and a records question asks a survey for it by its member (getOldValueOnSetNewValue) - a custom ISurvey
+   without it gets the copy, as released. */
+export interface ISurveyOldValueReads {
+  isQuestionOldValueRead(question: IQuestion): boolean;
+}
 export interface ISurveyChoiceCallbacks {
   storeOthersAsComment: boolean;
   /**

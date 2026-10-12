@@ -6,6 +6,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
 import { IAction } from "./actions/action";
 import { settings } from "./settings";
+import { isAnimationEnabled } from "./utils/reduced-motion";
 import { getActiveElement, getElement } from "./utils/dom-utils";
 
 import { AnimationBoolean, AnimationOptions, IAnimationConsumer } from "./utils/animation";
@@ -74,7 +75,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     return this.getAnimationContainer();
   }
   isAnimationEnabled(): boolean {
-    return this.model.displayMode !== "overlay" && settings.animationEnabled;
+    return this.model.displayMode !== "overlay" && isAnimationEnabled();
   }
   getRerenderEvent (): EventBase<Base> { return this.onElementRerendered; }
 

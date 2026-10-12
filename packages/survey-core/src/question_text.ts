@@ -8,8 +8,8 @@ import { SurveyError } from "./survey-error";
 import { CustomError, PatternIncompleteError } from "./error";
 import { settings } from "./settings";
 import { QuestionTextBase } from "./question_textbase";
-import { QuestionValueType } from "./question";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { QuestionValueType, IVerifyDataContext } from "./question";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { InputElementAdapter } from "./mask/input_element_adapter";
 import { InputMaskBase } from "./mask/mask_base";
 import { getAvailableMaskTypeChoices, IInputMask, IMaskLocaleChange } from "./mask/mask_utils";
@@ -210,13 +210,42 @@ export class QuestionTextModel extends QuestionTextBase {
   public set inputType(val: string) {
     val = val.toLowerCase();
     if (val === "datetime_local" || val === "datetime") val = "datetime-local";
+    const prevType = this.inputType;
     this.setPropertyValue("inputType", val.toLowerCase());
-    if (!this.isLoadingFromJson) {
-      this.min = undefined;
-      this.max = undefined;
-      this.step = undefined;
+    if (!this.isLoadingFromJson && !isMinMaxCompatible(prevType, this.inputType)) {
+      this.resetMinMaxValues();
+      // min/maxValueExpression are supported for the "text" inputType as well, clear them only if they came from a min/max inputType
+      if (minMaxTypes.indexOf(prevType) > -1) {
+        this.minValueExpression = undefined;
+        this.maxValueExpression = undefined;
+      }
     }
     this.updateMaskAdapter();
+  }
+  endLoadingFromJson(): void {
+    super.endLoadingFromJson();
+    this.clearIrrelevantMinMaxOnLoading();
+  }
+  // min/max can come from a JSON copied/converted from another inputType (for example, number -> tel or date -> number)
+  private clearIrrelevantMinMaxOnLoading(): void {
+    // do not touch unknown/custom inputTypes
+    if (settings.questions.inputTypes.indexOf(this.inputType) < 0) return;
+    if (!this.isMinMaxType) {
+      this.resetMinMaxValues();
+      return;
+    }
+    const isNumeric = numberTypes.indexOf(this.inputType) > -1;
+    ["min", "max"].forEach(name => {
+      const val = this.getPropertyValue(name);
+      if (!this.isValueEmpty(val) && Helpers.isNumber(val) !== isNumeric) {
+        this.setPropertyValue(name, undefined);
+      }
+    });
+  }
+  private resetMinMaxValues(): void {
+    this.min = undefined;
+    this.max = undefined;
+    this.step = undefined;
   }
   public getMaxLength(): any {
     if (!this.isTextInput) return null;
@@ -226,6 +255,13 @@ export class QuestionTextModel extends QuestionTextBase {
     if (numberTypes.indexOf(this.inputType) > -1) return "number";
     // What is left of the inputTypes that carry min/max are the date and time ones.
     return isMinMaxType(this) ? "date" : "string";
+  }
+  protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
+    if (!super.verifyValueCore(val, context)) return false;
+    if (!context.checks.reportInvalidValueTypes || !!this.customWidget || ["date", "datetime-local", "month"].indexOf(this.inputType) < 0) return true;
+    if (!isNaN(this.createDate(val).getTime())) return true;
+    context.addIssue("invalidValueType", undefined, val, this);
+    return false;
   }
   public getSupportedValidators(): Array<string> {
     const supportedHash: HashTable<Array<string>> = {};
@@ -250,7 +286,12 @@ export class QuestionTextModel extends QuestionTextBase {
     }
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
-    if (!this.maskTypeIsEmpty && !Helpers.isValueEmpty(value)) return this.maskInstance.getMaskedValue(value);
+    if (!this.maskTypeIsEmpty && !Helpers.isValueEmpty(value)) {
+      // With saveMaskedValue a string value is already masked: masking it again misreads its separators
+      // ("1.234,56" becomes "1,23" for a comma decimal separator). A raw value still has to be masked.
+      if (this.maskSettings.saveMaskedValue && typeof value === "string") return value;
+      return this.maskInstance.getMaskedValue(value);
+    }
     return super.getDisplayValueCore(keysAsText, value);
   }
   isLayoutTypeSupported(layoutType: string): boolean {
@@ -394,14 +435,23 @@ export class QuestionTextModel extends QuestionTextBase {
     let _inputValue = val;
     let keepEnteredText = false;
     if (!this.maskTypeIsEmpty) {
-      value = this.maskInstance.getUnmaskedValue(val);
-      if (value === undefined || value === null || value === "") {
-        keepEnteredText = true;
+      // A finished number outside min/max is not an entry in progress: drop it so completion
+      // does not keep the out-of-range answer or treat the field as an incomplete mask.
+      if (this.maskSettings.isValueOutOfRange(val)) {
         value = undefined;
+        _inputValue = this.maskInstance.getMaskedValue("");
+        // the question value may already be empty, so no value change reaches the element
+        this.maskInputAdapter?.updateInputElementText(_inputValue);
       } else {
-        _inputValue = this.maskInstance.getMaskedValue(value);
-        if (!!value && this.maskSettings.saveMaskedValue) {
-          value = _inputValue;
+        value = this.maskInstance.getUnmaskedValue(val);
+        if (value === undefined || value === null || value === "") {
+          keepEnteredText = true;
+          value = undefined;
+        } else {
+          _inputValue = this.maskInstance.getMaskedValue(value);
+          if (!!value && this.maskSettings.saveMaskedValue) {
+            value = _inputValue;
+          }
         }
       }
     }
@@ -743,11 +793,11 @@ export class QuestionTextModel extends QuestionTextBase {
     return !this.isReadOnly && this.inputType !== "range";
   }
   public getControlClass(): string {
-    return new CssClassBuilder()
-      .append(super.getControlClass())
-      .append(this.cssClasses.isValueChanged, this._isValueChanged)
-      .append(this.cssClasses.hasMask, !this.maskTypeIsEmpty)
-      .toString();
+    return toCssClasses(
+      super.getControlClass(),
+      this._isValueChanged && this.cssClasses.isValueChanged,
+      !this.maskTypeIsEmpty && this.cssClasses.hasMask
+    );
   }
   public isReadOnlyRenderDiv(): boolean {
     return this.isReadOnly && settings.readOnly.textRenderMode === "div";
@@ -798,7 +848,8 @@ export class QuestionTextModel extends QuestionTextBase {
     // For input type="number", clean up "-" symbols that are not at the first position
     // This handles the case when renderedMin is undefined (selectionStart is null for type="number")
     if (typeof value === "string" && value.length > 0) {
-      event.target.value = value[0] + value.substring(1).replace(/-/g, "");
+      // Keep "-" that follows "e"/"E" (a negative exponent, e.g., 1e-5)
+      event.target.value = value[0] + value.substring(1).replace(/([eE]?)-/g, (match: string, exp: string) => exp ? match : "");
     }
     this.prevNumberValue = undefined;
   }
@@ -858,8 +909,9 @@ export class QuestionTextModel extends QuestionTextBase {
     // Allow keyboard shortcuts (Ctrl+C, Ctrl+V, etc.)
     if (event.ctrlKey || event.metaKey || event.altKey) return false;
 
-    // Do not allow "e", "E", or "+" symbols
-    if (["e", "E", "+"].indexOf(key) > -1) return true;
+    // "e", "E", and "+" are used only in exponential notation (e.g., 1e5, 1e+5).
+    // Incomplete values such as "1e" are reported via input.validity.badInput in onCheckForErrors.
+    if (!settings.allowExponentialNotation && ["e", "E", "+"].indexOf(key) > -1) return true;
 
     // Handle "-" symbol
     // For input type="number", selectionStart is null, so we can only prevent "-" when renderedMin >= 0
@@ -925,6 +977,11 @@ const minMaxTypes = [
   "week",
 ];
 
+// min/max/step can be kept on changing inputType only if both types use the same value format (number <-> range).
+function isMinMaxCompatible(prevType: string, newType: string): boolean {
+  if (prevType === newType) return true;
+  return numberTypes.indexOf(prevType) > -1 && numberTypes.indexOf(newType) > -1;
+}
 export function isMinMaxType(obj: any): boolean {
   const t = !!obj ? obj.inputType : "";
   if (!t) return false;
@@ -1127,7 +1184,7 @@ Serializer.addClass(
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
         if (!obj) return false;
-        return obj.isTextInput;
+        return obj.isTextInput || obj.inputType === "number";
       },
     },
     {

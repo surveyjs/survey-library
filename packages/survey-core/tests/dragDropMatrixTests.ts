@@ -169,3 +169,29 @@ describe("Drag and Drop Matrix Row Tests", () => {
     }
   });
 });
+
+describe("the row drag from a matrix whose value is shorter than rowCount", () => {
+  test("the row moves to the other matrix and is not duplicated", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdynamic", name: "m1", rowCount: 3, allowRowReorder: true, columns: [{ name: "a", cellType: "text" }] },
+        { type: "matrixdynamic", name: "m2", rowCount: 1, allowRowReorder: true, columns: [{ name: "a", cellType: "text" }] }
+      ]
+    });
+    const from = <QuestionMatrixDynamicModel>survey.getQuestionByName("m1");
+    const to = <QuestionMatrixDynamicModel>survey.getQuestionByName("m2");
+    from.value = [{ a: 1 }];
+    to.value = [{ a: 9 }];
+    const row = from.visibleRows[0];
+    const dd: any = new DragDropMatrixRows(survey, null, true);
+    dd.parentElement = from;
+    dd.draggedElement = row;
+    dd.fromIndex = 0;
+    dd.toIndex = 1;
+    dd.toMatrix = to;
+    dd.doDrop();
+    expect(from.value, "#1: the source keeps its padded rows").toEqual([{}, {}]);
+    expect(from.rowCount, "#2").toBe(2);
+    expect(to.value, "#3").toEqual([{ a: 9 }, { a: 1 }]);
+  });
+});

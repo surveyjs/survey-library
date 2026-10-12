@@ -55,6 +55,10 @@ export var hindiStrings = {
   value: "मूल्य",
   // "Response required."
   requiredError: "कृपया प्रश्न का उत्तर दें",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "मान गलत है।",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "मान में अज्ञात कुंजियाँ हैं: {0}।",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "कृपया कम से कम एक प्रश्न का उत्तर दें",
   // "Response required: answer questions in all rows."

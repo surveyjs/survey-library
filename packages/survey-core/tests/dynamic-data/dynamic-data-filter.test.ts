@@ -1,11 +1,10 @@
-import { describe, test, expect } from "vitest";
-import {
-  applyFilter, applySort, compareValues, createFilterRunner, getFieldValue, passesFilter
-} from "../../src/dynamic-data/dynamic-data-filter";
+import { describe, test, expect, afterEach } from "vitest";
+import { applyFilter, applySort, createFilterRunner } from "../../src/dynamic-data/dynamic-data-filter";
 import { DynamicDataSortDirection, IDynamicDataField } from "../../src/dynamic-data/dynamic-data-interfaces";
 import { ConditionsParser } from "../../src/conditions/conditionsParser";
 import { BinaryOperand, Const, Operand, Variable } from "../../src/expressions/expressions";
 import { FunctionFactory } from "../../src/functionsfactory";
+import { settings } from "../../src/settings";
 
 function sortBy(records: Array<any>, field: string, direction: DynamicDataSortDirection,
   fields?: Array<IDynamicDataField>): Array<number> {
@@ -74,12 +73,6 @@ describe("dynamic-data-filter: the filter expression", () => {
     expect(applyFilter(records, "")).toEqual([0, 1, 2, 3]);
     expect(applyFilter(records, undefined)).toEqual([0, 1, 2, 3]);
   });
-  test("passesFilter on a single record", () => {
-    expect(passesFilter(records[0], "{age} = 10")).toBe(true);
-    expect(passesFilter(records[0], "{age} = 11")).toBe(false);
-    expect(passesFilter(undefined, "{age} empty")).toBe(true);
-    expect(passesFilter(records[0], "")).toBe(true);
-  });
   test("a date field compares against a date literal", () => {
     const dates = [{ d: "2020-01-01" }, { d: "2020-06-01" }, { d: "2021-01-01" }];
     expect(applyFilter(dates, "{d} > '2020-03-01'")).toEqual([1, 2]);
@@ -107,10 +100,6 @@ describe("dynamic-data-filter: the filter expression", () => {
   test("a comment key is an ordinary field: the braces take the name as it is", () => {
     const withComments = [{ q1: 1, "q1-Comment": "hello" }, { q1: 2, "q1-Comment": "bye" }];
     expect(applyFilter(withComments, "{q1-Comment} = 'hello'")).toEqual([0]);
-  });
-  test("getFieldValue tolerates a missing record", () => {
-    expect(getFieldValue(undefined, "a")).toBe(undefined);
-    expect(getFieldValue({ a: 1 }, "a")).toBe(1);
   });
 });
 
@@ -206,21 +195,46 @@ describe("dynamic-data-filter: comparison", () => {
     expect(sortBy(records, "v", "asc", fields)).toEqual([1, 2, 0]);
     expect(sortBy(records, "v", "desc", fields)).toEqual([0, 2, 1]);
   });
-  test("compareValues is the ascending comparison", () => {
-    expect(compareValues(1, 2)).toBe(-1);
-    expect(compareValues(2, 1)).toBe(1);
-    expect(compareValues(2, 2)).toBe(0);
-    expect(compareValues("a", "b")).toBeLessThan(0);
+});
+
+describe("dynamic-data-filter: comparison follows the library settings", () => {
+  const defaultNormalizeText = settings.comparator.normalizeTextCallback;
+  const defaultStoreUtcDates = settings.storeUtcDates;
+  const defaultOnDateCreated = settings.onDateCreated;
+  afterEach(() => {
+    settings.comparator.normalizeTextCallback = defaultNormalizeText;
+    settings.storeUtcDates = defaultStoreUtcDates;
+    settings.onDateCreated = defaultOnDateCreated;
   });
-  test("compareValues puts empty values last", () => {
-    expect(compareValues(undefined, 1)).toBe(1);
-    expect(compareValues(1, undefined)).toBe(-1);
-    expect(compareValues(undefined, null)).toBe(0);
-    expect(compareValues("", 1)).toBe(1);
+  test("dataType string honours settings.comparator.normalizeTextCallback", () => {
+    settings.comparator.normalizeTextCallback = (str: string): string => str.indexOf("z-") === 0 ? str.substring(2) : str;
+    const records = [{ v: "z-a" }, { v: "b" }, { v: "z-c" }];
+    expect(sortBy(records, "v", "asc", [{ name: "v", dataType: "string" }])).toEqual([0, 1, 2]);
   });
-  test("compareValues does not treat 0 or false as empty", () => {
-    expect(compareValues(0, 1)).toBe(-1);
-    expect(compareValues(0, undefined)).toBe(-1);
+  test("dataType date creates its dates through createDate", () => {
+    settings.storeUtcDates = false;
+    const reasons: Array<string> = [];
+    const values: Array<any> = [];
+    settings.onDateCreated = (newDate: Date, reason: string, val?: number | string | Date): Date => {
+      reasons.push(reason);
+      values.push(val);
+      return newDate;
+    };
+    const fields: Array<IDynamicDataField> = [{ name: "v", dataType: "date" }];
+    const records = [{ v: "2024-01-07" }, { v: "2024-01-05" }, { v: "2024-01-06" }];
+    expect(sortBy(records, "v", "asc", fields), "#1").toEqual([1, 2, 0]);
+    expect(reasons.length > 0, "#2: the hook is called").toBe(true);
+    expect(reasons.every(reason => reason === "sort"), "#3: every reason is sort").toBe(true);
+    const distinct = values.filter((val, index) => values.indexOf(val) === index).sort();
+    expect(distinct, "#4: the normalized strings").toEqual(["2024-01-05T00:00:00", "2024-01-06T00:00:00", "2024-01-07T00:00:00"]);
+    // A date-only string is local midnight, as a datetime string without a zone is: equal in every zone.
+    const sameDay = [{ v: "2024-01-05T00:00:00" }, { v: "2024-01-05" }];
+    expect(sortBy(sameDay, "v", "asc", fields), "#5: asc").toEqual([0, 1]);
+    expect(sortBy(sameDay, "v", "desc", fields), "#6: desc").toEqual([0, 1]);
+  });
+  test("dataType date keeps false at the epoch", () => {
+    const records = [{ v: "2024-01-05" }, { v: false }];
+    expect(sortBy(records, "v", "asc", [{ name: "v", dataType: "date" }])).toEqual([1, 0]);
   });
 });
 
@@ -260,5 +274,30 @@ describe("dynamic-data-filter: applySort", () => {
     const indexes = [3, 2, 1];
     expect(applySort(records, [{ field: "order", direction: "asc" }], undefined, indexes)).toEqual([1, 2, 3]);
     expect(indexes).toEqual([3, 2, 1]);
+  });
+});
+
+describe("fields that are read and never stored", () => {
+  const records = [{ title: "stored c", n: 3 }, { title: "stored a", n: 1 }, { title: "stored b", n: 2 }];
+  const titles = ["Cherry", "Apple", "Banana"];
+  const fields: Array<IDynamicDataField> = [{ name: "title", dataType: "string", getValue: (record: any, index: number): any => titles[index] }];
+  test("a virtual field sorts and ignores the stored key of the same name", () => {
+    const before = JSON.stringify(records);
+    expect(applySort(records, [{ field: "title", direction: "asc" }], fields), "#1: by the virtual titles").toEqual([1, 2, 0]);
+    expect(applySort(records, [{ field: "title", direction: "desc" }], fields), "#2").toEqual([0, 2, 1]);
+    expect(JSON.stringify(records), "#3: the records are not modified").toBe(before);
+  });
+  test("a virtual field is a filter variable and wins over the stored key of the same name", () => {
+    const before = JSON.stringify(records);
+    expect(applyFilter(records, "{title} contains 'an'", fields), "#1: Banana").toEqual([2]);
+    expect(applyFilter(records, "{title} = 'Apple' or {n} = 3", fields), "#2: with a stored key").toEqual([0, 1]);
+    expect(applyFilter(records, "{title} contains 'stored'", fields), "#3: the stored key is not seen").toEqual([]);
+    expect(JSON.stringify(records), "#4: the records are not modified").toBe(before);
+  });
+  test("each sort key of a record is read once", () => {
+    let reads = 0;
+    const counted: Array<IDynamicDataField> = [{ name: "title", getValue: (record: any, index: number): any => { reads++; return titles[index]; } }];
+    applySort(records, [{ field: "title", direction: "asc" }], counted);
+    expect(reads, "#1: one read per record").toBe(3);
   });
 });

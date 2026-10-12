@@ -5,7 +5,7 @@
       [attr.name]="question.questionName" [attr.aria-errormessage]="question.ariaErrormessage" [value]="value" [checked]="question.value == value" (input)="change()"
       [disabled]="question.isDisabledAttr" [readonly]="question.isReadOnlyAttr" [class]="question.cssClasses.itemRadioControl || ''"
     />
-    <span *ngIf="question.cssClasses.materialRadioDecorator" [class]="question.cssClasses.materialRadioDecorator">
+    <span *ngIf="question.cssClasses.materialRadioDecorator" [class]="question.cssClasses.materialRadioDecorator" aria-hidden="true">
       <svg
         *ngIf="question.itemSvgIcon"
         [class]="question.cssClasses.itemRadioDecorator"

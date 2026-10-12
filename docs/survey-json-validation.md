@@ -1,19 +1,23 @@
 ---
 title: Survey JSON Validation | SurveyJS Form Libraries
-description: Learn how to validate Survey JSON schemas with the SurveyJS model, the SurveyJS Linter, and a server-side JSON Schema Validator.
+description: Learn how to validate Survey JSON schemas and response data with the SurveyJS model, the SurveyJS Linter, and a server-side JSON Schema Validator.
 ---
 
 # Survey JSON Validation
 
 Survey JSON validation checks whether a form definition is structurally valid and whether its logic can be resolved before you render the form or store it. Early validation helps prevent silently hidden questions, broken navigation, empty choice lists, and conditions that never fire.
 
-SurveyJS provides several complementary ways to validate a survey JSON schema:
+SurveyJS provides several complementary ways to validate a survey JSON schema and response data:
 
-- [Use the SurveyJS model](#validate-survey-json-with-a-survey-model) to detect unknown properties and element types while loading a schema.
+- [Use the SurveyJS model](#validate-survey-json-with-a-survey-model) to detect unknown properties and element types when loading a schema and validate response data against that schema.
 - [Use the SurveyJS Linter](#use-the-surveyjs-linter) to find static logic defects such as broken references, dead conditions, and cycles.
 - [Deploy the SurveyJS JSON Schema Validator on your server](#validate-survey-json-on-your-server) to validate schemas and user responses through an HTTP API.
 
 ## Validate Survey JSON with a Survey Model
+
+The survey model can be used to check both the survey JSON schema and user responses. The `Model` constructor checks the schema when creating the model, while the model's `setData()` method checks response data against that schema.
+
+### Validate the Survey JSON Schema
 
 Pass a survey JSON schema to the [`Model`](/form-library/documentation/api-reference/survey-data-model) constructor to create a model. The Form Library checks the schema for unknown properties and element types while loading it. Inspect the [`jsonErrors`](/form-library/documentation/api-reference/survey-data-model#jsonErrors) array to access these errors:
 
@@ -35,7 +39,58 @@ if (Array.isArray(survey.jsonErrors) && survey.jsonErrors.length > 0) {
 }
 ```
 
-Model validation does not detect logic defects. In particular, a `visibleIf` expression that references a missing question can load without a model error. To check the JSON schema for logic errors, use the linter or server validator after model validation.
+Schema validation with the model does not detect logic defects. In particular, a `visibleIf` expression that references a missing question can load without a model error. To check the JSON schema for logic errors, use the [linter](#use-the-surveyjs-linter) or [server validator](#validate-survey-json-on-your-server) after model validation.
+
+### Validate Response Data
+
+To check response data against a survey JSON schema, pass the data object to the survey model's [`setData()`](/form-library/documentation/api-reference/survey-data-model#setData) method. It applies the same survey logic as assigning an object to the [`data`](/form-library/documentation/api-reference/survey-data-model#data) property, then checks the resulting values and returns an array of issues. Direct assignment to `data` does not perform these checks.
+
+#### Check a User Response
+
+The following example checks a response for a survey with an `email` question. The extra `legacyId` property produces an `unknownProperty` issue:
+
+```js
+import { Model } from "survey-core";
+
+const survey = new Model(surveyJson);
+const response = {
+  email: "user@example.com",
+  legacyId: 42
+};
+
+const issues = survey.setData(response);
+
+issues.forEach(({ type, path, value }) => {
+  console.log(type, path, value);
+});
+// unknownProperty legacyId 42
+```
+
+Each [issue](/form-library/documentation/api-reference/idataissue) includes its `type`, the `path` to the affected value, and the `value` itself. The `question` property identifies the associated question when available. An empty array means that the enabled checks found no issues.
+
+#### Configure Data Checks
+
+Pass an options object as the second argument to `setData()` to configure which issues it reports:
+
+| Option | Default | Reports |
+| --- | --- | --- |
+| `reportUnknownProperties` | `true` | Data properties that do not correspond to a question or another recognized survey result field. |
+| `reportInvalidValueTypes` | `true` | Values whose type or structure does not match the question configuration. |
+| `reportInvalidChoiceValues` | `true` | Values that do not match an available choice, matrix column or row, or rating value. |
+| `reportExpressionResultMismatches` | `false` | Values added, changed, or removed by expressions, defaults, triggers, or other logic applied during loading. |
+
+For example, disable unknown-property reporting and enable reporting of changes made during loading:
+
+```js
+const issues = survey.setData(response, {
+  reportUnknownProperties: false,
+  reportExpressionResultMismatches: true
+});
+```
+
+For an `expressionResultMismatch` issue, `value` contains the original value and `expressionResult` contains the value stored in the survey after loading. These differences can occur even when the supplied data is valid.
+
+The `setData()` method does not check required answers or run the validation rules defined in the survey JSON schema. To run those checks, call [`validate()`](/form-library/documentation/api-reference/survey-data-model#validate) separately. For details, refer to [Data Validation](/form-library/documentation/data-validation).
 
 ## Use the SurveyJS Linter
 
@@ -51,7 +106,7 @@ The linter can find:
 - Invalid choice comparisons
 - Other issues that are not reported by [model validation](#validate-survey-json-with-a-survey-model)
 
-The linter uses pure functions: they analyze the survey JSON without building a survey model, return findings, and do not modify the input.
+The linter uses pure functions: they analyze the survey JSON without building a survey model, return findings, and do not modify the input. A finding can include a [fix that you apply to a copy of the JSON](#apply-a-fix).
 
 ### Import the Linter
 
@@ -122,10 +177,11 @@ Each finding is an object with the following properties:
 | `ruleId` | ID of the rule that reported the finding. |
 | `severity` | Finding severity: `error`, `warning`, or `info`. |
 | `message` | Human-readable description of the issue. |
-| `path` | Path to the affected value in the survey JSON (for example `pages[0].elements[1].visibleIf` or `triggers[0].setToName`). |
+| `path` | Path to the affected value in the survey JSON (for example, `pages[0].elements[1].visibleIf` or `triggers[0].setToName`). |
 | `elementName` | Name of the affected survey element, if available. |
 | `elementType` | Type of the affected survey element, if available. |
-| `suggestion` | Suggested fix, if available. |
+| `suggestion` | Closest known name, when the defect looks like a typo. |
+| `fix` | A [machine-applicable repair](#apply-a-fix), when the defect has exactly one. |
 | `related` | Related elements or paths, if available. |
 | `reproduction` | Reproduction steps or details that demonstrate the finding, if available. |
 
@@ -133,6 +189,33 @@ Use `renderFindings` to produce a human-readable report:
 
 ```js
 console.log(renderFindings(result));
+```
+
+### Apply a Fix
+
+When an issue has a single unambiguous repair, the finding includes a `fix` property. Pass this fix and the survey JSON to `applyFix`, which returns a repaired copy without modifying the original:
+
+```js
+import { lintSurvey, applyFix } from "survey-core/linter";
+
+const result = lintSurvey(surveyJson);
+const finding = result.findings.find(f => f.fix);
+if (finding) {
+  const fixedJson = applyFix(surveyJson, finding.fix);
+}
+```
+
+Apply one fix at a time and lint the repaired JSON before applying another because a fix can change array indexes, making paths in earlier findings outdated.
+
+The following loop applies fixes until no fixable findings remain, linting the updated JSON after each fix:
+
+```js
+let current = surveyJson;
+while (true) {
+  const finding = lintSurvey(current).findings.find(f => f.fix);
+  if (!finding) break;
+  current = applyFix(current, finding.fix);
+}
 ```
 
 ### Linter Rules
@@ -384,7 +467,8 @@ All the checks described above serve different purposes:
 
 | Check | Use it to find |
 | --- | --- |
-| [Model validation](#validate-survey-json-with-a-survey-model) (`jsonErrors`) | Unknown properties and unknown element types encountered while loading the schema. |
+| [Model schema checks](#validate-the-survey-json-schema) (`jsonErrors`) | Unknown properties and unknown element types encountered while loading the schema. |
+| [Response data checks](#validate-response-data) (`setData`) | Unknown data properties, invalid value types, invalid choice values, and optional reports of changes made during loading. |
 | [Linter](#use-the-surveyjs-linter) (`lintSurvey`) | Broken references, dead conditions, cycles, invalid choice comparisons, and other static logic defects. |
 | [SurveyJS JSON Schema Validator](#validate-survey-json-on-your-server) | Structural, syntactic, and logical schema errors, plus user-response errors when called through its `/response` endpoint. |
 

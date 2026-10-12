@@ -3,7 +3,8 @@ import { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
 import { DynamicDataPagingController, IDynamicDataPagingOwner } from "../../src/dynamic-data/dynamic-data-paging";
 import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 import {
-  IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort, IDynamicDataSource
+  IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataReadRequest,
+  IDynamicDataReadResult, IDynamicDataSort, IDynamicDataSource
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 
 /* The controller against a fake owner: a property hash, the two mode flags a question would answer
@@ -21,7 +22,7 @@ class FakePagingOwner implements IDynamicDataPagingOwner, IDynamicDataOwner {
   private source: IDynamicDataSource;
   constructor(records: Array<any>) {
     this.source = ArrayDynamicDataSource.fromArray(records);
-    this.paging = new DynamicDataPagingController(this);
+    this.paging = new DynamicDataPagingController(this, (): DynamicDataList => this.getDataList());
   }
   public get hasList(): boolean { return !!this.listValue; }
   public getDataList(): DynamicDataList {
@@ -52,6 +53,10 @@ class FakePagingOwner implements IDynamicDataPagingOwner, IDynamicDataOwner {
   public raiseSortByChanged(oldValue: string, newValue: string): void {
     this.sortByChanges.push(oldValue + " -> " + newValue);
   }
+  // No survey behind the fake: the string name and the arguments are enough to tell texts apart.
+  public getLocalizationFormatString(strName: string, ...args: any[]): string {
+    return strName + ": " + args.join(", ");
+  }
   public getFields(): Array<IDynamicDataField> { return []; }
   public onDataListChanged(change: IDynamicDataListChange): void {
     if (change.type === "reset") {
@@ -71,7 +76,7 @@ const abc = (): Array<any> => [{ c1: "c" }, { c1: "a" }, { c1: "b" }];
 const asc: Array<IDynamicDataSort> = [{ field: "c1", direction: "asc" }];
 const desc: Array<IDynamicDataSort> = [{ field: "c1", direction: "desc" }];
 
-describe("DynamicDataPagingController: runtime (invariant 2)", () => {
+describe("DynamicDataPagingController: at runtime the list holds the view and the hash mirrors it", () => {
   test("the list holds the sort and the filter, the hash mirrors it, the accessors read the hash", () => {
     const owner = new FakePagingOwner(abc());
     owner.paging.sortOrder = asc;
@@ -104,7 +109,7 @@ describe("DynamicDataPagingController: runtime (invariant 2)", () => {
   });
 });
 
-describe("DynamicDataPagingController: design mode (invariants 1 and 4)", () => {
+describe("DynamicDataPagingController: design mode stores the authored view and applies nothing", () => {
   test("the authored sort and filter are stored, read back and not applied", () => {
     const owner = new FakePagingOwner(abc());
     owner.isDesignMode = true;
@@ -162,7 +167,7 @@ describe("DynamicDataPagingController: design mode (invariants 1 and 4)", () => 
   });
 });
 
-describe("DynamicDataPagingController: loading (invariant 3)", () => {
+describe("DynamicDataPagingController: while loading the view is stored and reaches the list once", () => {
   test("a setter stores into the hash only and creates no list", () => {
     const owner = new FakePagingOwner(abc());
     owner.isLoadingFromJson = true;
@@ -199,9 +204,10 @@ describe("DynamicDataPagingController: loading (invariant 3)", () => {
     owner.paging.flushAuthoredView();
     expect(owner.getDataList().sort, "#1").toEqual(desc);
     expect(owner.getDataList().filter, "#2").toBe("{c1} != 'z'");
-    expect(owner.resetCount, "#3: one reset for the filter and one for the sort, no third").toBe(2);
+    // One setView for both: with a source that pages, two assignments would be two requests.
+    expect(owner.resetCount, "#3: one reset for the whole authored view").toBe(1);
     owner.paging.flushAuthoredView();
-    expect(owner.resetCount, "#4: nothing is pending any more").toBe(2);
+    expect(owner.resetCount, "#4: nothing is pending any more").toBe(1);
   });
   test("a flush while the owner is still loading does nothing", () => {
     const owner = new FakePagingOwner(abc());
@@ -239,7 +245,7 @@ describe("DynamicDataPagingController: loading (invariant 3)", () => {
   });
 });
 
-describe("DynamicDataPagingController: the rejected filter (invariant 5)", () => {
+describe("DynamicDataPagingController: a filter the list cannot run is not handed back", () => {
   test("a filter the list cannot run is not handed back on the next sync", () => {
     const owner = new FakePagingOwner(abc());
     owner.isLoadingFromJson = true;
@@ -254,14 +260,16 @@ describe("DynamicDataPagingController: the rejected filter (invariant 5)", () =>
   });
 });
 
-describe("DynamicDataPagingController: a source swap (invariant 6)", () => {
+describe("DynamicDataPagingController: a source swap keeps the view", () => {
+  // A source that pages, and so owns the view: it comes inside every request it is asked.
   class SortingSource implements IDynamicDataSource {
-    public sorts: Array<Array<IDynamicDataSort>> = [];
-    public filters: Array<string> = [];
+    public requests: Array<IDynamicDataReadRequest> = [];
+    public capabilities = { paging: true, filtering: true, sorting: true };
     constructor(private records: Array<any>) { }
-    public read(): Array<any> { return this.records; }
-    public sort(sort: Array<IDynamicDataSort>): void { this.sorts.push(sort); }
-    public filter(expression: string): void { this.filters.push(expression); }
+    public read(request: IDynamicDataReadRequest): IDynamicDataReadResult {
+      this.requests.push(request);
+      return { records: this.records.slice(), total: this.records.length };
+    }
   }
   test("a source attached after the load receives the parsed descriptors", () => {
     const owner = new FakePagingOwner(abc());
@@ -272,14 +280,15 @@ describe("DynamicDataPagingController: a source swap (invariant 6)", () => {
     owner.paging.flushAuthoredView();
     const source = new SortingSource(abc());
     owner.setSource(source);
-    expect(source.sorts[0], "#1: the descriptors, not the text").toEqual(desc);
-    expect(source.filters[0], "#2: and the expression, untouched").toBe("{c1} != 'z'");
+    expect(source.requests.length, "#0: one request").toBe(1);
+    expect(source.requests[0].sort, "#1: the descriptors, not the text").toEqual(desc);
+    expect(source.requests[0].filter, "#2: and the expression, untouched").toBe("{c1} != 'z'");
     expect(owner.paging.sortBy, "#3: the question still reports them").toBe("c1-");
     expect(owner.paging.filterExpression, "#4").toBe("{c1} != 'z'");
   });
 });
 
-describe("DynamicDataPagingController: the sortBy notification (section 4)", () => {
+describe("DynamicDataPagingController: the sortBy notification", () => {
   test("it fires once per real change when sortOrder is assigned", () => {
     const owner = new FakePagingOwner(abc());
     owner.getDataList();
@@ -395,5 +404,51 @@ describe("DynamicDataPagingController: toggleSort(field, addToSort)", () => {
     owner.paging.toggleSort("", true);
     expect(owner.paging.sortBy, "#1: the sort is untouched").toBe("c1");
     expect(owner.sortByChanges, "#2").toEqual([]);
+  });
+});
+
+describe("a throwing callback does not leave a guard behind", () => {
+  test("an exception out of the authored-view push does not stop the next one", () => {
+    const owner = new FakePagingOwner(abc());
+    const list = owner.getDataList();
+    let isThrown = false;
+    // The filter cannot be parsed: the list reports it through onError, and this onError throws.
+    list.onError = (): void => {
+      if (isThrown) return;
+      isThrown = true;
+      throw new Error("user code");
+    };
+    owner.isLoadingFromJson = true;
+    owner.paging.filterExpression = "{c1} = ";
+    owner.isLoadingFromJson = false;
+    expect(() => owner.paging.flushAuthoredView(), "#1").toThrow();
+    expect(list.filter, "#2: the list refused the filter").toBe("");
+    owner.isLoadingFromJson = true;
+    owner.paging.filterExpression = "{c1} != 'a'";
+    owner.isLoadingFromJson = false;
+    owner.paging.flushAuthoredView();
+    expect(list.filter, "#3: the second authored flush reached the list").toBe("{c1} != 'a'");
+    expect(owner.view, "#4").toEqual(["c", "b"]);
+    expect(owner.paging.filterExpression, "#5: the hash mirrors the list").toBe("{c1} != 'a'");
+  });
+  test("an exception out of the design-mode clear does not stop the next push", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.paging.sortOrder = asc;
+    const list = owner.getDataList();
+    let isThrown = false;
+    list.onChanged = (change: IDynamicDataListChange): void => {
+      if (change.type !== "reset" || isThrown) return;
+      isThrown = true;
+      throw new Error("user code");
+    };
+    owner.isDesignMode = true;
+    expect(() => owner.paging.syncState(), "#1: the clear raised reset").toThrow();
+    expect(list.sort, "#2: the list was cleared").toEqual([]);
+    // The design-mode sync the throw cut short, then the switch back.
+    owner.paging.syncState();
+    owner.isDesignMode = false;
+    owner.paging.syncState();
+    expect(list.sort, "#3: the authored sort reached the list").toEqual(asc);
+    expect(owner.view, "#4").toEqual(["a", "b", "c"]);
   });
 });

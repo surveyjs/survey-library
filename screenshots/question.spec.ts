@@ -554,6 +554,48 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, qRoot, "question-composite-with-title.png");
     });
 
+    test("Composite in a panelless theme, Bug#11895", async ({ page }) => {
+      await page.evaluate(() => {
+        window["Survey"]
+          .ComponentCollection
+          .Instance
+          .add({
+            name: "fullname",
+            title: "Full name",
+            elementsJSON: [
+              { type: "text", name: "first", title: "First name" },
+              { type: "text", name: "last", title: "Last name" }
+            ]
+          });
+      });
+
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: false,
+        width: "900px",
+        pages: [{
+          elements: [
+            { type: "text", name: "email", title: "SingleInput - Email" },
+            { type: "fullname", name: "name", title: "Complex question - Full name" },
+            {
+              type: "panel",
+              name: "namePanel",
+              title: "Panel - Full name",
+              elements: [
+                { type: "text", name: "panelFirst", title: "First name" },
+                { type: "text", name: "panelLast", title: "Last name" }
+              ]
+            }
+          ]
+        }]
+      });
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless);
+      });
+      await resetFocusToBody(page);
+      await compareScreenshot(page, page.locator(".sd-page"), "question-composite-panelless.png");
+    });
+
     test("Question with title action + long title", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const json = {

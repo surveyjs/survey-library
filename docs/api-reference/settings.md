@@ -38,6 +38,22 @@ This property is an object whose keys are category names and whose values are ar
 
 Available since: v2.3.16
 
+### `allowExponentialNotation`
+
+**Type**: `boolean`
+
+Specifies whether numeric text inputs accept exponential notation (for example, `1e5` or `2.5E-3`).
+
+Applies to the following elements when their [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) is set to `"number"`:
+
+- [Single-Line Input](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) questions
+- Items in [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model)
+- `text` cell editors in [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) and [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) questions
+
+Default value: `false` (the `e`, `E`, and `+` keys are blocked during keyboard input)
+
+This setting controls keyboard input only and does not change number parsing or numeric input mask behavior.
+
 ### `animationEnabled`
 
 **Type**: `boolean`
@@ -281,6 +297,14 @@ Default value: `"|"`
 
 **Related APIs:** [`settings.choicesSeparator`](https://surveyjs.io/form-library/documentation/api-reference/settings#choicesSeparator)
 
+### `keyboardInputTimeout`
+
+**Type**: `number`
+
+Specifies the maximum interval, in milliseconds, between consecutive key presses that SurveyJS treats as a single keyboard input sequence.
+
+Default value: 400
+
 ### `lazyRender`
 
 **Type**: `{ enabled: boolean; firstBatchSize: number; }`
@@ -489,6 +513,9 @@ Specifies how to render the input field of [Comment](https://surveyjs.io/form-li
 - `textRenderMode`: `"input"` (default) | `"div"`\
 Specifies how to render the input field of [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) questions in [read-only](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#readOnly) mode: as a disabled `<input>` element or as a `<div>` element with a non-editable question value within it.
 
+- `enableValidation`: `boolean`\
+Specifies whether to validate questions in read-only mode. Default value: `false`.
+
 ### `refuseItemValue`
 
 **Type**: `string`
@@ -636,11 +663,11 @@ An object that contains properties related to [triggers](https://surveyjs.io/for
 Nested properties:
 
 - `changeNavigationButtonsOnComplete`: `boolean`\
-Specifies whether to re-evaluate an expression associated with the [Complete trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete) immediately when a question value changes. If the expression evaluates to `true`, the trigger is executed. Default value: `false`.\
-Keep this property set to `false` if you want to re-evaluate the Complete trigger's expression only when the respondents navigate to another page.
+Specifies whether to replace the Next button with the Complete button when the [Complete trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete) is going to be executed. Default value: `true`.
 
 - `executeCompleteOnValueChanged`: `boolean`\
-Specifies whether to replace the Next button with the Complete button when the [Complete trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete) is going to be executed. Default value: `true`.
+Specifies whether to re-evaluate an expression associated with the [Complete trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete) immediately when a question value changes. If the expression evaluates to `true`, the trigger is executed. Default value: `false`.\
+Keep this property set to `false` if you want to re-evaluate the Complete trigger's expression only when the respondents navigate to another page.
 
 - `executeSkipOnValueChanged`: `boolean`\
 Specifies whether to re-evaluate an expression associated with the [Skip trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#skip) immediately when a question value changes. If the expression evaluates to `true`, the trigger is executed. Default value: `true`.\

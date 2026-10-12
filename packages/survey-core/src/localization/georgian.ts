@@ -55,6 +55,10 @@ export var georgianSurveyStrings = {
   value: "ღირებულება",
   // "Response required."
   requiredError: "გთხოვთ უპასუხეთ კითხვას.",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "მნიშვნელობა არასწორია.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "მნიშვნელობა შეიცავს უცნობ კლავიშებს: {0}.",
   // [Auto-translated] "Response required: answer at least one question."
   requiredErrorInPanel: "საჭიროა პასუხი: უპასუხეთ მინიმუმ ერთ კითხვას.",
   // [Auto-translated] "Response required: answer questions in all rows."

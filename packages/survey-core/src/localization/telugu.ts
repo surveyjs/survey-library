@@ -55,6 +55,10 @@ export var teluguStrings = {
   value: "విలువ",
   // "Response required."
   requiredError: "దయచేసి ప్రశ్నకు జవాబు ఇవ్వండి",
+  // [Auto-translated] "The value is incorrect."
+  incorrectValueError: "విలువ సరైనది కాదు.",
+  // [Auto-translated] "The value contains unknown keys: {0}."
+  incorrectValueUnknownKeysError: "విలువ తెలియని కీలను కలిగి ఉంది: {0}.",
   // "Response required: answer at least one question."
   requiredErrorInPanel: "దయచేసి కనీసం ఒక్క ప్రశ్నకైనా జవాబు ఇవ్వండి",
   // "Response required: answer questions in all rows."

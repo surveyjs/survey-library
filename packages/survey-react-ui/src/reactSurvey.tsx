@@ -107,7 +107,7 @@ export class Survey extends SurveyElementBase<any, any>
     const cssClasses = this.rootNodeClassName ? this.rootNodeClassName + " " + rootCss : rootCss;
 
     return (
-      <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables} lang={this.survey.locale || "en"} dir={this.survey.localeDir}>
+      <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables} lang={this.survey.rootLang} dir={this.survey.localeDir}>
         <Scroll disabled={this.survey.rootScrollDisabled}>
           {this.survey.needRenderIcons ? <SvgBundleComponent></SvgBundleComponent> : null}
           {<PopupModal></PopupModal>}

@@ -20,3 +20,10 @@ export function quoteValue(value: any): string {
 export function quoteValues(values: Array<any>): string {
   return values.map(quoteValue).join(", ");
 }
+
+// The owner a message names: an element goes by its name, and an object that has none - the
+// survey itself, an unnamed trigger - by the class the JSON says it is.
+export function ownerText(name?: string, className?: string): string {
+  if (!!name) return "\"" + name + "\"";
+  return className === "survey" ? "the survey" : "the " + className;
+}

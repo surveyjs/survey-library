@@ -1,32 +1,34 @@
-import { Action } from "../actions/action";
-import { ActionContainer } from "../actions/container";
-import { ComputedUpdater } from "../base";
 import { Helpers } from "../helpers";
 import { DynamicDataSortDirection, IDynamicDataSort } from "./dynamic-data-interfaces";
 import { DynamicDataList } from "./dynamic-data-list";
 import { dynamicDataSortToString, parseDynamicDataSort } from "./dynamic-data-sort";
 
-/* The question side of the list's paging, sorting and filtering. Both dynamic questions expose the
-   same members and neither of them descends from the other, so the behaviour lives here and the
-   questions keep the thin public accessors.
+/* The question side of the list's paging, sorting and filtering. The behaviour lives here and the
+   questions keep the thin public accessors. Its owner is a private object of the question
+   (QuestionRecordsModel), which answers from the question's property hash and hooks, so the paging
+   owner members are not part of any question's public type.
 
    The division of labour is the one every helper of this library follows: the list computes, the
    question stores. pageIndex, pageCount, sortOrder and filterExpression are mirrored into the
    owner's property hash by syncState(), so that React/Vue/Angular re-render through the ordinary
    onPropertyChanged bridge; the accessors read the mirror and never the list. Every change the list
    makes on its own - a clamped page index, a filter it refused to run - reaches the mirror through
-   the owner's onDataListChanged, which calls syncState() for a "reset" and a "pageChanged".
+   QuestionRecordsModel.onDataListChanged, which calls syncState() for a
+   "reset" and a "pageChanged".
 
    The sort and the filter are serialized (sortBy / filterExpression), so their hash entries are not
    a pure mirror: while an authored value has not been handed to the list yet - during a load, and
    for as long as the question is in design mode - the hash is the truth and the list is the one
    that lags behind. isViewPending says which direction the next sync runs in. */
 export interface IDynamicDataPagingOwner {
-  getDataList(): DynamicDataList;
   getPropertyValue(name: string): any;
   setPropertyValue(name: string, val: any): void;
+  getLocalizationFormatString(strName: string, ...args: any[]): string;
   // The authored page size: rowsPerPage / panelsPerPage.
   pageSize: number;
+  /* The page size the list gets at runtime: the authored one, except in single-input mode, which is
+     its own paging and builds every object. Absent -> pageSize. */
+  listPageSize?: number;
   // What the question reports: 1 page and page 0 while it does not page.
   pageIndex: number;
   pageCount: number;
@@ -35,70 +37,125 @@ export interface IDynamicDataPagingOwner {
   // sortBy is computed from sortOrder and nothing raises its change on its own (see
   // setSortOrderValue). Base.propertyValueChanged is protected, so the owner raises it.
   raiseSortByChanged(oldValue: string, newValue: string): void;
+  /* A move the respondent makes: the owner validates the page it leaves when the move goes forward
+     (see DynamicDataPageValidation.leave, question-side) and runs move now, later, or never. Returns
+     false only when an error was found synchronously. Absent -> the move just happens. */
+  leavePage?(isForward: boolean, move: () => void): boolean;
+  // Drops a move that waits for its validators: every change that replaces the page from code.
+  cancelPendingPageMove?(): void;
 }
 
 export class DynamicDataPagingController {
-  constructor(private owner: IDynamicDataPagingOwner) { }
+  // getList: whoever holds the list hands it over; it may create the list when it is asked.
+  constructor(private owner: IDynamicDataPagingOwner, private getList: () => DynamicDataList) { }
   private get list(): DynamicDataList {
-    return this.owner.getDataList();
+    return this.getList();
   }
   /* In design mode nothing is paged: the authored rowsPerPage/panelsPerPage keeps its value for
      serialization, but the Creator shows every row. The page size is re-pushed on every sync and
      not only from the property setter, because both the survey and the design mode reach a question
      that has already created its list. */
+  private get runtimePageSize(): number {
+    const size = this.owner.isDesignMode ? 0 : this.listPageSize;
+    return size > 0 ? size : 0;
+  }
   private updateListPageSize(): void {
-    const size = this.owner.isDesignMode ? 0 : this.owner.pageSize;
-    this.list.pageSize = size > 0 ? size : 0;
+    this.list.pageSize = this.runtimePageSize;
   }
   public updatePageSize(): void {
     this.updateListPageSize();
     this.syncState();
   }
+  /* The setter of the authored page size (propertyName: rowsPerPage / panelsPerPage). The clamp is
+     here and not in an onSettingValue hook: the hook is skipped while the question is loading from
+     JSON. */
+  public setPageSize(propertyName: string, val: any): void {
+    const num = Helpers.getNumber(val);
+    this.owner.setPropertyValue(propertyName, num > 0 ? num : 0);
+    this.updatePageSize();
+  }
+  // Returns true when the list pages by another size now: that resets the list.
+  public updatePageSizeIfChanged(): boolean {
+    if (this.list.pageSize === this.runtimePageSize) return false;
+    this.updatePageSize();
+    return true;
+  }
   public get pageIndex(): number {
     return this.owner.getPropertyValue("pageIndex") || 0;
   }
+  // A page set from code: no validation, and a move that waits for its validators is dropped.
   public set pageIndex(val: number) {
+    this.cancelPendingPageMove();
+    this.setPageIndexCore(val);
+  }
+  private setPageIndexCore(val: number): void {
     this.list.pageIndex = val;
     this.syncState();
+  }
+  // The move itself, once the page it leaves has passed: the pending move it may have been is over.
+  private movePage(val: number): void {
+    this.setPageIndexCore(val);
   }
   public get pageCount(): number {
     const res = this.owner.getPropertyValue("pageCount");
     return res > 0 ? res : 1;
   }
+  /* False while the source answers a read without a total: pageCount is then the number of pages
+     known to exist and the record count is a lower bound. The default is true - every source that
+     is not a paging one hands over the whole storage. */
+  public get isCountKnown(): boolean {
+    return this.owner.getPropertyValue("isCountKnown") !== false;
+  }
   /* Through the owner and not through the mirror: the question answers 1 page and page 0 whenever
      it does not page at all, and that is what "can go" has to agree with. */
+  // Not while a move waits for its validators: the pager is not usable until they settle.
   public get canGoNextPage(): boolean {
-    return this.owner.pageIndex < this.owner.pageCount - 1;
+    return !this.isPageMovePending && this.owner.pageIndex < this.owner.pageCount - 1;
   }
   public get canGoPrevPage(): boolean {
-    return this.owner.pageIndex > 0;
+    return !this.isPageMovePending && this.owner.pageIndex > 0;
   }
-  public goToPage(index: number): void {
-    this.pageIndex = index;
+  /* The respondent's page moves. A move forward validates the page it leaves first and does not
+     happen on an error; a move back does not validate, as the survey's own previous page does not.
+     The return value is the survey's contract: false only for an error found synchronously, true
+     for a move that happened or waits for asynchronous validators - the move itself is observed
+     through pageIndex. */
+  public goToPage(index: number): boolean {
+    // Clamped against the pages known to exist, as the list clamps it: whether the move goes forward
+    // is decided on the page it will reach.
+    const target = this.getClampedPage(index);
+    if (target === this.owner.pageIndex) return true;
+    return this.leavePage(target > this.owner.pageIndex, (): void => { this.movePage(target); });
   }
-  public nextPage(): void {
-    if (this.canGoNextPage) {
-      this.pageIndex = this.owner.pageIndex + 1;
-    }
+  public nextPage(): boolean {
+    if (!this.canGoNextPage) return false;
+    const target = this.owner.pageIndex + 1;
+    return this.leavePage(true, (): void => { this.movePage(target); });
   }
-  public prevPage(): void {
-    if (this.canGoPrevPage) {
-      this.pageIndex = this.owner.pageIndex - 1;
-    }
+  public prevPage(): boolean {
+    if (!this.canGoPrevPage) return false;
+    const target = this.owner.pageIndex - 1;
+    return this.leavePage(false, (): void => { this.movePage(target); });
   }
-  public goToLastPage(): void {
-    this.pageIndex = this.owner.pageCount - 1;
+  private get listPageSize(): number {
+    const size = this.owner.listPageSize;
+    return size !== undefined ? size : this.owner.pageSize;
   }
-  /* Brings the object at a position in visibleRows / visiblePanels onto the current page - the same
-     arithmetic the page slice itself uses. An object that is owner-hidden has no visible index and
-     therefore no page, and -1 does nothing.
-     With a source that pages itself the objects exist for the loaded page only, so a visible index
-     is page-local: every object there is already on the page, and the arithmetic would read it as a
-     position in the whole table and navigate away from the object it was asked to reveal. */
-  public goToPageOfVisibleIndex(visibleIndex: number): void {
-    const pageSize = this.list.pageSize;
-    if (pageSize <= 0 || visibleIndex < 0 || this.list.isPagedBySource) return;
-    this.pageIndex = Math.floor(visibleIndex / pageSize);
+  // True while a move waits for the asynchronous validators of the page: the pager is not usable.
+  // The page validation keeps it in the owner's property hash.
+  private get isPageMovePending(): boolean {
+    return this.owner.getPropertyValue("isPageMovePending") === true;
+  }
+  private cancelPendingPageMove(): void {
+    if (typeof this.owner.cancelPendingPageMove === "function")this.owner.cancelPendingPageMove();
+  }
+  private leavePage(isForward: boolean, move: () => void): boolean {
+    if (typeof this.owner.leavePage === "function") return this.owner.leavePage(isForward, move);
+    move();
+    return true;
+  }
+  private getClampedPage(index: number): number {
+    return Math.max(0, Math.min(index, this.owner.pageCount - 1));
   }
   /* The list does not announce every change of the visible count: setRecordVisible and
      invalidateViews raise nothing unless the page index had to be clamped, yet both change
@@ -108,6 +165,7 @@ export class DynamicDataPagingController {
     const list = this.list;
     this.owner.setPropertyValue("pageIndex", list.pageIndex);
     this.owner.setPropertyValue("pageCount", list.pageCount);
+    this.owner.setPropertyValue("isCountKnown", list.isCountKnown);
     // A sync raised by the push itself: the page state is up to date, the view is being handed over
     // right now and mirroring it half way through would wipe the half that is still pending.
     if (this.isPushingView) return;
@@ -161,27 +219,32 @@ export class DynamicDataPagingController {
        takes what the list ended up with. In design mode the text is never parsed at all, so the
        Creator keeps a filter that does not run. */
     this.isViewPending = false;
-    this.isPushingView = true;
     const list = this.list;
     const filter = this.filterExpression;
     const sort = this.sortOrder;
-    if (list.filter !== filter) {
-      list.filter = filter;
+    // One setView and not the two setters: with a paging source each of them is a read of its own,
+    // and the authored view has to cost one request.
+    if (list.filter !== filter || !Helpers.isTwoValueEquals(list.sort, sort)) {
+      this.runViewPush((): void => { list.setView(filter, sort); });
     }
-    if (!Helpers.isTwoValueEquals(list.sort, sort)) {
-      list.sort = sort;
-    }
-    this.isPushingView = false;
     this.mirrorListView();
   }
   // In design mode the list holds no sort and no filter: what is authored stays in the hash.
   private clearListView(): void {
     const list = this.list;
     if (!list.filter && list.sort.length === 0) return;
+    this.runViewPush((): void => { list.setView("", []); });
+  }
+  /* setView runs user code - onError for a filter it cannot run, the owner's rebuild on the reset -
+     and a flag that a throw left set would make every later syncState skip the view: the hash would
+     stop mirroring the list for good. */
+  private runViewPush(func: () => void): void {
     this.isPushingView = true;
-    list.filter = "";
-    list.sort = [];
-    this.isPushingView = false;
+    try {
+      func();
+    } finally {
+      this.isPushingView = false;
+    }
   }
   /* The one writer of the sortOrder hash entry. sortBy renders it and stores nothing of its own, so
      nothing would raise its change: dependsOn cannot help either, because addDependsOnProperty
@@ -198,7 +261,15 @@ export class DynamicDataPagingController {
     return this.owner.getPropertyValue("sortOrder") || [];
   }
   public set sortOrder(val: Array<IDynamicDataSort>) {
+    this.setSortOrderCore(val, true);
+  }
+  // A sort from code drops a move that waits for its validators; the one toggleSort validated is
+  // that move, and it has already been dropped by leavePage.
+  private setSortOrderCore(val: Array<IDynamicDataSort>, isFromCode: boolean): void {
     const newValue = Array.isArray(val) ? val.slice() : [];
+    if (isFromCode && this.canPushToList) {
+      this.cancelPendingPageMove();
+    }
     if (!this.canPushToList) {
       // The hash only: the setter neither pushes nor creates the list while the question is loading
       // or in design mode.
@@ -228,8 +299,19 @@ export class DynamicDataPagingController {
      third spelling; what is unique here is the cycle, which every renderer needs in one place.
      addToSort runs the same cycle over one entry of the sort instead of over the whole of it - what
      a modified header click does in a grid - and leaves the other fields where they are. */
-  public toggleSort(field: string, addToSort?: boolean): void {
-    if (!field) return;
+  /* A header click is a move the respondent makes: it replaces the page, so the page it replaces is
+     validated first (layer 1). Returns false only for an error found synchronously. Every list can
+     sort: a paging source that cannot sort is read whole while a sort is set (DynamicDataList). */
+  public toggleSort(field: string, addToSort?: boolean): boolean {
+    if (!field) return false;
+    const newSort = this.getToggledSort(field, addToSort);
+    if (!this.canPushToList) {
+      this.setSortOrderCore(newSort, true);
+      return true;
+    }
+    return this.leavePage(true, (): void => { this.setSortOrderCore(newSort, false); });
+  }
+  private getToggledSort(field: string, addToSort: boolean): Array<IDynamicDataSort> {
     const sort = this.sortOrder;
     const current = sort.filter((s: IDynamicDataSort): boolean => s.field === field)[0];
     let dir: DynamicDataSortDirection = undefined;
@@ -239,21 +321,20 @@ export class DynamicDataPagingController {
       dir = "desc";
     }
     if (!addToSort) {
-      this.sortOrder = !dir ? [] : [{ field: field, direction: dir }];
-      return;
+      return !dir ? [] : [{ field: field, direction: dir }];
     }
-    // Every branch below assigns a NEW array: the setter compares the incoming value with the sort
+    // Every branch below builds a NEW array: the setter compares the incoming value with the sort
     // the list already has, so an array changed in place would be a silent no-op.
     if (!dir) {
       // Cycled off: it leaves the sort and the fields around it keep their order.
-      this.sortOrder = sort.filter((s: IDynamicDataSort): boolean => s.field !== field);
-    } else if (!current) {
-      // A field joins at the end: the last one clicked is the last tie-breaker.
-      this.sortOrder = sort.concat([{ field: field, direction: dir }]);
-    } else {
-      this.sortOrder = sort.map((s: IDynamicDataSort): IDynamicDataSort =>
-        s.field === field ? { field: field, direction: dir } : s);
+      return sort.filter((s: IDynamicDataSort): boolean => s.field !== field);
     }
+    if (!current) {
+      // A field joins at the end: the last one clicked is the last tie-breaker.
+      return sort.concat([{ field: field, direction: dir }]);
+    }
+    return sort.map((s: IDynamicDataSort): IDynamicDataSort =>
+      s.field === field ? { field: field, direction: dir } : s);
   }
   public clearSort(): void {
     this.sortOrder = [];
@@ -271,41 +352,26 @@ export class DynamicDataPagingController {
     }
     const list = this.list;
     if (list.filter === newValue) return;
+    this.cancelPendingPageMove();
     list.filter = newValue;
     // A filter the list cannot run locally is reported through its onError and reset to "": the
     // mirror takes what the list ended up with, not what was assigned.
     this.syncState();
   }
-  /* Re-decides which records are shown. A source that filters or sorts on its own side has decided
-     that already - the window IS the answer - so re-running a local filter the list never ran would
-     say nothing; the window is read again instead. Every in-memory source takes the local path. */
+  /* Re-decides which records are shown. The view of a source that pages travels in the read request
+     and the source decides the membership of the window itself - the window IS the answer - so
+     re-running a local filter the list never ran would say nothing; the window is read again
+     instead. So is the whole storage that a paging source owes while the list has a filter or a sort
+     it cannot run and its window is still a page. Everything else - a source without paging, and that whole
+     storage once it is in force - takes the local path. */
   public refreshView(): void {
     const list = this.list;
-    const source: any = list.source;
-    if (!!source && (typeof source.filter === "function" || typeof source.sort === "function")) {
+    this.cancelPendingPageMove();
+    if (list.readsSourceOnViewChange) {
       list.refresh();
     } else {
       list.refreshView();
     }
     this.syncState();
-  }
-  // The pager the UI series renders: it computes nothing of its own.
-  public createPagerActions(container: ActionContainer): ActionContainer {
-    const prevAction = new Action({
-      id: "sv-pager-prev",
-      enabled: <any>new ComputedUpdater(() => this.canGoPrevPage),
-      action: () => { this.prevPage(); }
-    });
-    const pageInfoAction = new Action({
-      id: "sv-pager-info",
-      title: <any>new ComputedUpdater(() => this.owner.pageIndex + 1 + " / " + this.owner.pageCount)
-    });
-    const nextAction = new Action({
-      id: "sv-pager-next",
-      enabled: <any>new ComputedUpdater(() => this.canGoNextPage),
-      action: () => { this.nextPage(); }
-    });
-    container.setItems([prevAction, pageInfoAction, nextAction]);
-    return container;
   }
 }

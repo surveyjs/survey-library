@@ -10,8 +10,8 @@ import { SurveyModel } from "../../src/survey";
 import { settings } from "../../src/settings";
 import { describe, test, expect } from "vitest";
 import {
-  ITEMVALUE_SCOPED_PROPS, PROP_KIND_OVERRIDES, TEMPLATE_SCOPED_PROPS, TEXT_SCOPED_PROPS,
-  TEXT_TEMPLATE_PROPS, TRIGGER_TARGET_KINDS,
+  ITEMVALUE_SCOPED_PROPS, OBJECT_PROTOTYPE_MEMBERS, PROP_KIND_OVERRIDES, TEMPLATE_SCOPED_PROPS,
+  TEXT_SCOPED_PROPS, TEXT_TEMPLATE_PROPS, TRIGGER_TARGET_KINDS,
 } from "../../src/linter/catalog";
 import { getPropertyKeys, LintMetadata } from "../../src/linter/metadata";
 import { getSpecialItemText, getSpecialItemToggleProp } from "../../src/linter/value-types";
@@ -218,5 +218,12 @@ describe("linter catalog drift guard", () => {
       "title pattern - drop it from TEXT_TEMPLATE_PROPS in src/linter/catalog.ts")
       .toBe("numTitleRequire");
     expect(survey.getQuestionByName("q1").locTitle.renderedHtml).toBe("My title");
+  });
+
+  // The list is literal so that a finding never depends on what a host page added to
+  // Object.prototype; this pins it to the members the engine itself has.
+  test("the reserved names are exactly the members of Object.prototype", () => {
+    expect(Array.from(OBJECT_PROTOTYPE_MEMBERS).sort())
+      .toEqual(Object.getOwnPropertyNames(Object.prototype).sort());
   });
 });

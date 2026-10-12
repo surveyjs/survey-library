@@ -1,15 +1,13 @@
 import { ILintRule, LintContext } from "../rule";
+import { ILintFix } from "../types";
 import { PropertySite } from "../property-walk";
 import { closestMatch } from "../levenshtein";
-import { didYouMean, quoteValues } from "../message-utils";
-import { SurveyLintReasons } from "../reasons";
+import { didYouMean, ownerText, quoteValues } from "../message-utils";
+import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
+import { removeFix, setFix } from "../fix-utils";
 
 const reasons = SurveyLintReasons["property/invalid-value"];
-
-function ownerText(name?: string, className?: string): string {
-  if (!!name) return "\"" + name + "\"";
-  return className === "survey" ? "the survey" : "the " + className;
-}
+const fixReasons = SurveyLintFixReasons["property/invalid-value"];
 
 function isScalar(value: any): boolean {
   const type = typeof value;
@@ -46,6 +44,15 @@ function matches(allowed: Array<any>, value: any): boolean {
   return allowed.some(item => item == value);
 }
 
+// The suggestion is a spelling - String(item) - while the property holds the value itself, and
+// "5" is not 5 to a setter that compares what it was given. So the fix carries the allowed entry
+// the spelling came from, with its own type.
+function allowedValue(allowed: Array<any>, suggestion: string): any {
+  if (suggestion === undefined) return undefined;
+  const found = allowed.filter(item => String(item) === suggestion);
+  return found.length > 0 ? found[0] : undefined;
+}
+
 function caseInsensitiveMatch(allowed: Array<any>, value: any): string | undefined {
   if (typeof value !== "string") return undefined;
   const lower = value.toLowerCase();
@@ -74,7 +81,17 @@ function checkChoices(ctx: LintContext, site: PropertySite): void {
     elementName: site.owner.name,
     elementType: site.owner.type,
     suggestion: suggestion,
+    fix: buildFix(allowed, suggestion, site),
   });
+}
+
+function buildFix(allowed: Array<any>, suggestion: string, site: PropertySite): ILintFix {
+  const value = allowedValue(allowed, suggestion);
+  if (value !== undefined) return setFix(fixReasons.useAllowedValue, site.path, value);
+  // nothing says which of the allowed values was meant, and picking one would be a guess dressed
+  // up as a repair. Dropping the key is what the value already amounts to: the runtime cannot
+  // hold it, so the property falls back to its default either way.
+  return removeFix(fixReasons.removeKey, site.path);
 }
 
 function toNumber(site: PropertySite): number | undefined {
@@ -98,6 +115,9 @@ function checkRange(ctx: LintContext, site: PropertySite): void {
   const aboveMax = typeof max === "number" && value > max;
   if (!belowMin && !aboveMax) return;
   const range = (typeof min === "number" ? min : "") + ".." + (typeof max === "number" ? max : "");
+  // the nearest value the property can hold: the bound the value falls off is the only one of the
+  // two the author is known to have meant to respect
+  const bound = belowMin ? min : max;
   ctx.report({
     message: "The " + site.key + " of " + ownerText(site.owner.name, site.className) + " is " +
       value + ", outside its allowed range " + range + ".",
@@ -109,6 +129,7 @@ function checkRange(ctx: LintContext, site: PropertySite): void {
     },
     elementName: site.owner.name,
     elementType: site.owner.type,
+    fix: setFix(fixReasons.clampToRange, site.path, bound),
   });
 }
 

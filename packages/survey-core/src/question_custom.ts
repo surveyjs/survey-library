@@ -1,4 +1,4 @@
-import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext, QuestionValueType } from "./question";
+import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext, QuestionValueType, IVerifyDataContext } from "./question";
 import { Serializer, CustomPropertiesCollection, JsonObjectProperty } from "./jsonobject";
 import { Base, ArrayChanges } from "./base";
 import {
@@ -18,7 +18,7 @@ import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import type { ISelectQuestion } from "./question_baseselect";
 import { TextContextProcessor } from "./textPreProcessor";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { LocalizableString } from "./localizablestring";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
@@ -890,6 +890,14 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   protected getQuestionByName(name: string): IQuestion {
     return this.contentQuestion;
   }
+  // The content question stores the value of the custom question, so it reports at the same
+  // location: its getDataSegment() is undefined and verifyDataCore() adds no key for it.
+  public initializeForVerification(): void {
+    this.contentQuestion?.initializeForVerification();
+  }
+  public verifyNestedValues(context: IVerifyDataContext): void {
+    this.contentQuestion?.verifyDataCore(context);
+  }
   protected getDefaultTitle(): string {
     if (this.hasJSONTitle && this.contentQuestion) {
       return this.getProcessedText(this.contentQuestion.title);
@@ -1200,10 +1208,13 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     return this.contentPanel;
   }
   protected getCssRoot(cssClasses: any): string {
-    return new CssClassBuilder().append(super.getCssRoot(cssClasses)).append(cssClasses.composite).toString();
+    return toCssClasses(
+      super.getCssRoot(cssClasses),
+      cssClasses.composite
+    );
   }
   protected getCssHeader(cssClasses: any): string {
-    return new CssClassBuilder().append(super.getCssHeader(cssClasses)).append(cssClasses.compositeHeader).toString();
+    return toCssClasses(super.getCssHeader(cssClasses), cssClasses.compositeHeader);
   }
 
   public get contentPanel(): PanelModel {
@@ -1216,6 +1227,15 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     const res = super.validateElementCore(context);
     const pnl = this.contentPanel;
     return !!pnl ? pnl.validateElement(context) && res : res;
+  }
+  // The questions of the content panel keep their values one segment deeper, under the key of the
+  // composite question. A key of the composite value that none of them owns is not reported: the
+  // composite question does not check its keys today and clearing one would drop the whole value.
+  public initializeForVerification(): void {
+    this.contentPanel?.initializeForVerification();
+  }
+  public verifyNestedValues(context: IVerifyDataContext): void {
+    this.contentPanel?.verifyDataCore(context);
   }
   public updateElementCss(reNew?: boolean) {
     super.updateElementCss(reNew);

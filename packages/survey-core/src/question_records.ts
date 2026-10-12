@@ -565,16 +565,19 @@ export abstract class QuestionRecordsModel extends Question {
       this.warnOutsideAssignment();
       return;
     }
-    // The records the respondent touched go with the value (see isTouchedSetDropped).
+    this.runClearingValue((): void => super.clearValue(keepComment, fromUI));
+  }
+  // The records the respondent touched go with the value (see isTouchedSetDropped).
+  private isClearingValue: boolean = false;
+  private runClearingValue(func: () => void): void {
     const prev = this.isClearingValue;
     this.isClearingValue = true;
     try {
-      super.clearValue(keepComment, fromUI);
+      func();
     } finally {
       this.isClearingValue = prev;
     }
   }
-  private isClearingValue: boolean = false;
   /* An assignment of the value of a source-backed question is made only by the question itself,
      through setOwnRecordsValue. Any other - value =, a default, setValueExpression, a setvalue or
      copyvalue trigger, user code that runs inside one of the question's own writes - returns here,
@@ -2680,12 +2683,13 @@ export abstract class QuestionRecordsModel extends Question {
   /* One record written by the question: a copy of the stored record, changed by merge - the stored
      one is never mutated - and written as the question's own change when it differs. A change is
      marked for the page validation: by default the record (markRecordEdited), or as markEdited says
-     (the matrix marks the field a row touched). Returns the record written, undefined when nothing
-     changed. */
+     (the matrix marks the field a row touched). A stored record that is not an object - a string, a
+     number, an array - is replaced: the write starts from an empty record. Returns the record written,
+     undefined when nothing changed. */
   protected writeRecordAt(index: number, merge: (record: any) => void, markEdited?: () => void): any {
     const list = this.dataList;
     const oldRecord = list.getRecord(index);
-    const record = Object.assign({}, oldRecord);
+    const record = Helpers.isValueObject(oldRecord, true) ? Object.assign({}, oldRecord) : {};
     merge(record);
     if (!DynamicDataList.isValueChanged(record, oldRecord)) return undefined;
     if (!!markEdited) {
@@ -3033,7 +3037,13 @@ export abstract class QuestionRecordsModel extends Question {
   public updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     if (this.isRemoteData) return;
     // Always an assignment from outside, also when it runs inside one of the question's own.
-    this.runAssignmentOfKind(false, (): void => { super.updateValueFromSurvey(newValue, clearData); });
+    const update = (): void => this.runAssignmentOfKind(false, (): void => { super.updateValueFromSurvey(newValue, clearData); });
+    // survey.clear() and survey.data = null clear the value, as clearValue() does.
+    if (clearData && Helpers.isValueEmpty(newValue)) {
+      this.runClearingValue(update);
+    } else {
+      update();
+    }
   }
   /* The list side of an assignment is the begin/end pair below: every assignment of the value passes
      through here. The subclasses do their own work in two hooks - inside the list-side pair
@@ -3052,7 +3062,7 @@ export abstract class QuestionRecordsModel extends Question {
       const newRecords = this.getStoredRecords();
       this.followHiddenAnswerStatesOnAssignment(Array.isArray(oldRecords) ? oldRecords.length : 0, Array.isArray(newRecords) ? newRecords.length : 0);
     }
-    this.onRecordsValueAssigned(oldRecords);
+    this.onRecordsValueAssigned(oldRecords, this.isClearingValue);
   }
   /* The list side of a value assignment. Every assignment of the question's value - by the survey,
      a trigger, a default value or one of its own objects - passes through its setQuestionValue, which
@@ -3239,8 +3249,9 @@ export abstract class QuestionRecordsModel extends Question {
   }
   // The value is stored and the list-side pair is still open.
   protected onRecordsValueStored(): void { }
-  // The list-side pair is closed. oldRecords: a copy of the value the assignment replaced.
-  protected onRecordsValueAssigned(oldRecords: any): void {
+  /* The list-side pair is closed. oldRecords: a copy of the value the assignment replaced. isCleared: the
+     value was cleared - clearValue(), resetValueIf, survey.clear() -, not assigned. */
+  protected onRecordsValueAssigned(oldRecords: any, isCleared: boolean = false): void {
     this.updateItemsFromRecords(oldRecords);
   }
   /* The question is writing its records itself - a record on behalf of one of its objects, or what

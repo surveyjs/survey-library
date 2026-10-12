@@ -11364,6 +11364,73 @@ describe("Dynamic panel without paging keeps its released behaviour", () => {
     expect(question.panels[0].getQuestionByName("q1").isEmpty(), "#2: the panel no longer shows the old answer").toBe(true);
     expect(survey.data, "#3: and nothing is written back").toEqual({});
   });
+  /* A cleared Dynamic Panel is the question built from its JSON: the panelCount panels of new records,
+     with the template defaults - no old answer comes back. An emptying assignment gives what a survey
+     that loads the same empty value gives. In both cases the panels show what the value stores. */
+  describe("a cleared or emptied dynamic panel with a panel count and template defaults", () => {
+    const json = { elements: [{ type: "text", name: "reset" },
+      { type: "paneldynamic", name: "p", panelCount: 3, resetValueIf: "{reset} = 1", templateElements: [{ type: "text", name: "a" },
+        { type: "text", name: "d", defaultValue: "dd" }, { type: "expression", name: "pi", expression: "{panelIndex}" }] },
+      { type: "expression", name: "s", expression: "sumInArray({p}, 'pi')" }] };
+    const state = (survey: SurveyModel): any => {
+      const question = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+      return {
+        value: survey.getValue("p"), s: survey.getValue("s"), panelCount: question.panelCount,
+        shown: question.panels.map(panel => ["a", "d", "pi"].map(name => panel.getQuestionByName(name).value))
+      };
+    };
+    const fresh = (data?: any): any => {
+      const survey = new SurveyModel(json);
+      if (!!data) survey.data = data;
+      (<QuestionPanelDynamicModel>survey.getQuestionByName("p")).panels;
+      return state(survey);
+    };
+    const answered = (): SurveyModel => {
+      const survey = new SurveyModel(json);
+      survey.data = { p: [{ a: "x" }, { a: "y" }] };
+      (<QuestionPanelDynamicModel>survey.getQuestionByName("p")).panels;
+      return survey;
+    };
+    test("the question built from its JSON shows its panels with the defaults", () => {
+      expect(fresh()).toEqual({ value: [{ d: "dd", pi: 0 }, { d: "dd", pi: 1 }, { d: "dd", pi: 2 }], s: 3, panelCount: 3,
+        shown: [[undefined, "dd", 0], [undefined, "dd", 1], [undefined, "dd", 2]] });
+    });
+    test("a survey that loads an empty array shows its panels without the static default, as released", () => {
+      expect(fresh({ p: [] })).toEqual({ value: [{ pi: 0 }, { pi: 1 }, { pi: 2 }], s: 3, panelCount: 3,
+        shown: [[undefined, undefined, 0], [undefined, undefined, 1], [undefined, undefined, 2]] });
+    });
+    test("clearValue gives the question built from its JSON", () => {
+      const survey = answered();
+      survey.getQuestionByName("p").clearValue();
+      expect(state(survey)).toEqual(fresh());
+    });
+    test("survey.clear gives the question built from its JSON", () => {
+      const survey = answered();
+      survey.clear();
+      expect(state(survey)).toEqual(fresh());
+    });
+    test("resetValueIf gives the question built from its JSON", () => {
+      const survey = answered();
+      survey.setValue("reset", 1);
+      expect(state(survey)).toEqual(fresh());
+    });
+    test("setValue with an empty array gives a survey that loads it", () => {
+      const survey = answered();
+      survey.setValue("p", []);
+      expect(state(survey)).toEqual(fresh({ p: [] }));
+    });
+    test("survey.data with an empty array gives a survey that loads it", () => {
+      const survey = answered();
+      survey.data = { p: [] };
+      expect(state(survey)).toEqual(fresh({ p: [] }));
+    });
+    test("after a clear, an edit keeps the defaults of the other panels", () => {
+      const survey = answered();
+      survey.getQuestionByName("p").clearValue();
+      (<QuestionPanelDynamicModel>survey.getQuestionByName("p")).panels[0].getQuestionByName("a").value = "z";
+      expect(survey.getValue("p")).toEqual([{ a: "z", d: "dd", pi: 0 }, { d: "dd", pi: 1 }, { d: "dd", pi: 2 }]);
+    });
+  });
   test("maxPanelCount above settings.panel.maxPanelCount reads as the setting and is not serialized", () => {
     const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "pd", maxPanelCount: 500, templateElements: [{ type: "text", name: "q1" }] }] });
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");

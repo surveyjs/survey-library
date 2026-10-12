@@ -3270,7 +3270,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return Serializer.createClass("panel");
   }
   private settingPanelCountBasedOnValue: boolean;
-  private setPanelCountBasedOnValue() {
+  private setPanelCountBasedOnValue(isCleared: boolean = false) {
     if (this.isValidatingExpressions || this.isValueChangingInternally || this.useTemplatePanel) return;
     // The count of a remote-backed question comes from the read, never from the length of the window.
     if (this.isRemoteData) return;
@@ -3292,9 +3292,38 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       }
       return;
     }
+    /* An emptied value builds its panels anew: the panels it had go, old answers and all (no old answer
+       comes back), and the panels show what the value stores. A cleared value - clearValue(), resetValueIf,
+       survey.clear() - gives the question built from its JSON, with its template defaults; an empty array
+       assigned gives a survey that loads it, which writes no static default. */
+    if (this.storedRecordCount === 0 && this.panelsCore.length > 0) {
+      this.buildPanelsAgain(isCleared);
+      return;
+    }
     this.settingPanelCountBasedOnValue = true;
     this.setRecordCountCore(newPanelCount);
     this.settingPanelCountBasedOnValue = false;
+  }
+  /* The panels are built as the first time: for an assigned value as for stored records, without static
+     defaults (see isBuildingChildrenForStoredRecords), for a cleared value with them. What the build
+     writes is dropped, and what the new panels hold is stored once afterwards - nothing when they hold
+     nothing: the empty records the first build pads the value with are no answer. */
+  private buildPanelsAgain(isCleared: boolean): void {
+    this.markPanelsLeft(this.panelsCore.splice(0, this.panelsCore.length));
+    this.hasPanelBuildFirstTime = false;
+    const prevIsForStoredRecords = this.isBuildingPanelsForStoredRecords;
+    const prevIsSettingByValue = this.settingPanelCountBasedOnValue;
+    this.isBuildingPanelsForStoredRecords = !isCleared;
+    this.settingPanelCountBasedOnValue = true;
+    try {
+      this.buildPanelsFirstTime(true);
+    } finally {
+      this.isBuildingPanelsForStoredRecords = prevIsForStoredRecords;
+      this.settingPanelCountBasedOnValue = prevIsSettingByValue;
+    }
+    const values = this.panelsCore.map((panel: PanelModel): any => panel.getValue());
+    if (values.every((value: any): boolean => Helpers.isValueEmpty(value))) return;
+    this.runInternalValueChange((): void => this.setOwnRecordsValue(values));
   }
   // The list side of an assignment is QuestionRecordsModel's; the panels follow in onRecordsValueAssigned.
   public setQuestionValue(newValue: any): void {
@@ -3305,9 +3334,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      question does not push them back (isWritingRecords): that would re-create a nested dynamic
      question from the stored value and drop its state that is not in the answer, such as an added
      trailing empty row. */
-  protected onRecordsValueAssigned(oldRecords: any): void {
-    this.setPanelCountBasedOnValue();
-    super.onRecordsValueAssigned(oldRecords);
+  protected onRecordsValueAssigned(oldRecords: any, isCleared: boolean = false): void {
+    this.setPanelCountBasedOnValue(isCleared);
+    super.onRecordsValueAssigned(oldRecords, isCleared);
     this.updateIsAnswered();
   }
   public onSurveyValueChanged(newValue: any): void {

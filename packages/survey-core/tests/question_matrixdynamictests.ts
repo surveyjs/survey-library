@@ -12684,3 +12684,28 @@ describe("Survey_QuestionMatrixDynamic: a row's record in a value", () => {
     expect(value, "#6: create does not write the value").toEqual([0, "", null, record]);
   });
 });
+
+/* The plain data and the display value of a checkbox cell answered with a value its choices do not have
+   are the stored answer, also when an expression built the rows before the data was assigned: the cell
+   shows the other item, and the answer stays what was assigned. The expected values are the released ones. */
+describe("Dynamic Matrix: the plain data of an other answer is the stored answer", () => {
+  const create = (withExpression: boolean): { survey: SurveyModel, matrix: any } => {
+    const elements: Array<any> = [{ type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "c", cellType: "checkbox", choices: ["x", "y"], showOtherItem: true }] }];
+    if (withExpression) elements.push({ type: "expression", name: "e", expression: "{m[0].c}" });
+    const survey = new SurveyModel({ elements: elements });
+    survey.data = { m: [{ c: ["x", "zz"] }] };
+    return { survey: survey, matrix: survey.getQuestionByName("m") };
+  };
+  test("an expression built the rows before the data", () => {
+    const { survey, matrix } = create(true);
+    const plainData = matrix.getPlainData();
+    expect(plainData.value, "#1: the stored answer").toEqual([{ c: ["x", "zz"] }]);
+    expect(plainData.displayValue, "#2").toEqual([{ c: "x, zz" }]);
+    expect(matrix.getDisplayValue(false), "#3").toEqual([{ c: "x, zz" }]);
+    expect(matrix.getDisplayValue(true), "#4").toEqual([{ c: "x, zz" }]);
+    expect(matrix.value, "#5: the question keeps the stored answer").toEqual(survey.data.m);
+  });
+  test("without the expression the plain value is the same", () => {
+    expect(create(false).matrix.getPlainData().value).toEqual(create(true).matrix.getPlainData().value);
+  });
+});

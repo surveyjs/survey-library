@@ -234,39 +234,47 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
       return !item ? undefined : { visible: item.isVisible, expression: item.visibleIf };
     };
   }
-  /* The rows source's write: newValue is the answer with the written records in place. What a row
-     model does to the rows that were not written happens here (dropEmptyColumnKeys), an answer with
-     no key left is null, and the other rows of a written key show what was written. */
+  /* The rows source's write: newValue is the answer with the written records in place. The records of
+     the other rows stay as they are stored, an answer with no key left is null, and the other rows of a
+     written key show what was written. */
   private storeRowsValue(newValue: any, changedIndexes: Array<number>): void {
-    const items = this.rowsSource.items;
-    const writtenKeys = changedIndexes.map((index: number): any => items[index].value);
-    items.forEach((item: ItemValue): void => {
-      if (writtenKeys.indexOf(item.value) < 0)this.dropEmptyColumnKeys(newValue, item.value);
-    });
     this.setOwnRecordsValue(Object.keys(newValue).length > 0 ? newValue : null);
     this.refreshRowsOfSameKeys(changedIndexes);
   }
-  /* The record of a row that was not written changes only as a built row changes it, as without
-     paging: a falsy value (null, 0, false, "") is no record and its key goes, a column key holding an
-     empty value goes, and so does the row's key when that leaves the record with no key. An empty
-     record, a value that is not an object and a key that is not a column stay. */
-  private dropEmptyColumnKeys(value: any, key: any): void {
-    const record = value[key];
-    if (!record && value.hasOwnProperty(key)) {
-      delete value[key];
-      return;
-    }
-    if (!this.isObject(record)) return;
+  /* Generating the rows cleans the record of every row, built or not - a matrix that pages builds only
+     the rows of its page -, as released, in the one write the generation makes (getRecordCleanedByRow).
+     A later write keeps the records of the other rows as they are stored. */
+  protected getValueCleanedOnRowsGeneration(): any {
+    const value = this.value;
+    if (!this.isObject(value)) return undefined;
+    let res: any;
+    this.rowsSource.items.forEach((item: ItemValue): void => {
+      const key = item.value;
+      if (!value.hasOwnProperty(key)) return;
+      const record = this.getRecordCleanedByRow(value[key]);
+      if (record === value[key]) return;
+      if (!res) res = Object.assign({}, value);
+      if (record === undefined) {
+        delete res[key];
+      } else {
+        res[key] = record;
+      }
+    });
+    return res;
+  }
+  /* A record as a built row cleans it: a falsy value (null, 0, false, "") is no record (undefined), a
+     column key holding an empty value goes, and so does the record when that leaves it with no key. An
+     empty record, a value that is not an object and a key that is not a column stay. Returns the record
+     itself when nothing is cleaned. */
+  private getRecordCleanedByRow(record: any): any {
+    if (!record) return undefined;
+    if (!this.isObject(record)) return record;
     const emptyKeys = this.columns.map(column => column.name)
       .filter((name: string): boolean => record.hasOwnProperty(name) && this.isValueEmpty(record[name]));
-    if (emptyKeys.length === 0) return;
+    if (emptyKeys.length === 0) return record;
     const rest = Object.assign({}, record);
     emptyKeys.forEach((name: string): void => { delete rest[name]; });
-    if (Object.keys(rest).length > 0) {
-      value[key] = rest;
-    } else {
-      delete value[key];
-    }
+    return Object.keys(rest).length > 0 ? rest : undefined;
   }
   /* A cell write of one row reaches the other rows on the same key here: they show the record that was
      just written. Any other write is an assignment that refreshes the rows whose record changed

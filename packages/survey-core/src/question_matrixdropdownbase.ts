@@ -364,9 +364,13 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     });
   }
   /* The row notifies each question right after updating it, and it keeps a comment the question
-     typed while the record has none, unless the question's comment was the record's. */
+     typed while the record has none, unless the question's comment was the record's. A cell gets a copy
+     of its value: a question may adjust the value it is given in place (a checkbox puts its other item
+     in), and the record keeps the stored answer, as released. A survey element the row edits in place is
+     not copied. */
   protected updateQuestionFromRecord(question: Question, record: any): void {
-    const val = this.getCellValue(record, question.getValueName());
+    const cellValue = this.getCellValue(record, question.getValueName());
+    const val = !this.editingObj ? Helpers.getUnbindValue(cellValue) : cellValue;
     const oldComment = question.comment;
     let comment = !!record ? record[question.getValueName() + Base.commentSuffix] : "";
     if (comment == undefined) comment = "";
@@ -2283,9 +2287,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         changedRows.push(row);
       }
     }
-    if (changedRows.length === 0) return;
+    const cleanedValue = this.getValueCleanedOnRowsGeneration();
+    if (changedRows.length === 0 && cleanedValue === undefined) return;
     var oldValue = this.createNewValue(true);
-    var newValue = this.createNewValue();
+    var newValue = cleanedValue !== undefined ? cleanedValue : this.createNewValue();
     for (var i = 0; i < changedRows.length; i++) {
       newValue = this.getNewValueOnRowChanged(changedRows[i], "", changedRows[i].value, false, newValue)
         .value;
@@ -2296,6 +2301,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   // A row whose build writes the value even when it holds nothing new (see the Dynamic Matrix).
   protected isRowWrittenOnBuild(row: MatrixDropdownRowModelBase): boolean {
     return false;
+  }
+  /* A copy of the value with the records the generated rows clean up cleaned, written together with
+     the rows' own values; undefined when nothing is to clean (the default). */
+  protected getValueCleanedOnRowsGeneration(): any {
+    return undefined;
   }
   /* Would the row's value, merged into its record as a write merges it, change the record? A record
      may hold fields no column shows - the key of a data source - which the row neither holds nor

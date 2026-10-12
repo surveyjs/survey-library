@@ -3703,6 +3703,117 @@ describe("the Multi-Select Matrix rows and their answers", () => {
     (<QuestionMatrixDropdownModel>survey.getQuestionByName("m")).visibleRows[1].cells[0].question.value = "b";
     expect(survey.getValue("m"), "the edited row is the second one").toEqual({ r1: {}, r2: { c1: "b" } });
   });
+  /* Generating the rows cleans the record of every row, in one value change: a falsy record goes, and so
+     does a column key with an empty value. A write after that keeps the records of the other rows as they
+     are stored. The expected values are the released ones. */
+  const createTwoColumns = (json?: any): { survey: SurveyModel, matrix: QuestionMatrixDropdownModel, events: () => number } => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdropdown", name: "m", rows: ["r1", "r2"],
+      columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }] }, json)] });
+    let events = 0;
+    survey.onValueChanged.add((): void => { events++; });
+    return { survey: survey, matrix: <QuestionMatrixDropdownModel>survey.getQuestionByName("m"), events: (): number => events };
+  };
+  const falsyRecords = [null, 0, false, ""];
+  test("building the rows drops a falsy row record with one value change, also at completion", () => {
+    falsyRecords.forEach(falsy => {
+      const build = (how: (survey: SurveyModel, matrix: QuestionMatrixDropdownModel) => void): { data: any, events: number } => {
+        const { survey, matrix, events } = createTwoColumns();
+        survey.data = { m: { r1: falsy, r2: { c1: "b" } } };
+        how(survey, matrix);
+        return { data: survey.data, events: events() };
+      };
+      const name = JSON.stringify(falsy) + ": ";
+      const expected = { data: { m: { r2: { c1: "b" } } }, events: 1 };
+      expect(build((survey, matrix): void => { matrix.visibleRows; }), name + "visibleRows").toEqual(expected);
+      expect(build((survey, matrix): void => { matrix.renderedTable; }), name + "renderedTable").toEqual(expected);
+      let completed: any;
+      expect(build((survey): void => {
+        survey.onComplete.add((sender: SurveyModel): void => { completed = sender.data; });
+        survey.doComplete();
+      }), name + "doComplete").toEqual(expected);
+      expect(completed, name + "the completion data").toEqual(expected.data);
+    });
+  });
+  test("a value holding only a falsy row record is cleared when the rows are built, and kept by a completion that builds none", () => {
+    const built = createTwoColumns();
+    built.survey.data = { m: { r1: null } };
+    built.matrix.visibleRows;
+    expect(built.survey.data, "#1").toEqual({});
+    expect(built.events(), "#2").toBe(1);
+    const completed = createTwoColumns();
+    completed.survey.data = { m: { r1: null } };
+    completed.survey.doComplete();
+    expect(completed.survey.data, "#3").toEqual({ m: { r1: null } });
+  });
+  test("rows built before the data: an edit of one row keeps the record of the other row as it is stored", () => {
+    [null, { c1: "" }, { c1: null, c2: "z" }, { c1: [] }, 0, false, ""].forEach(r1 => {
+      const { survey, matrix, events } = createTwoColumns();
+      matrix.visibleRows;
+      survey.data = { m: { r1: r1, r2: { c1: "b" } } };
+      const before = events();
+      matrix.visibleRows[1].cells[0].question.value = "x";
+      expect(survey.data, JSON.stringify(r1)).toEqual({ m: { r1: r1, r2: { c1: "x" } } });
+      expect(events() - before, JSON.stringify(r1) + ": one change").toBe(1);
+    });
+  });
+  test("addColumn generates the rows again and drops a falsy row record without a value change event", () => {
+    [null, ""].forEach(r1 => {
+      const { survey, matrix, events } = createTwoColumns();
+      survey.data = { m: { r1: r1, r2: { c1: "b" } } };
+      matrix.visibleRows;
+      const before = events();
+      matrix.addColumn("c3");
+      expect(survey.data, JSON.stringify(r1)).toEqual({ m: { r2: { c1: "b" } } });
+      expect(events() - before, JSON.stringify(r1) + ": no event").toBe(0);
+    });
+    const { survey, matrix } = createTwoColumns();
+    survey.data = { m: { r1: null, r2: { c1: "b" } } };
+    matrix.addColumn("c3");
+    expect(survey.data, "rows not built: nothing is generated").toEqual({ m: { r1: null, r2: { c1: "b" } } });
+  });
+  test("a rows change: the records are cleaned when the rows are generated", () => {
+    const notBuilt = createTwoColumns();
+    notBuilt.survey.data = { m: { r1: null, r2: { c1: "b" } } };
+    notBuilt.matrix.rows = <any>["r1"];
+    expect(notBuilt.survey.data, "#1").toEqual({ m: { r1: null, r2: { c1: "b" } } });
+    expect(notBuilt.events(), "#2: nothing is generated yet").toBe(0);
+    notBuilt.matrix.visibleRows;
+    expect(notBuilt.survey.data, "#3").toEqual({ m: { r2: { c1: "b" } } });
+    expect(notBuilt.events(), "#4").toBe(1);
+    const built = createTwoColumns();
+    built.survey.data = { m: { r1: null, r2: 0 } };
+    built.matrix.visibleRows;
+    const before = built.events();
+    built.matrix.rows = <any>["r2"];
+    expect(built.survey.data, "#5").toEqual({});
+    expect(built.events() - before, "#6: the build cleaned the value already").toBe(0);
+  });
+  test("a cell write into a row whose record is not an object stores the cell alone", () => {
+    ["x", 5, [1]].forEach(r1 => {
+      [true, false].forEach(isBuiltFirst => {
+        const { survey, matrix } = createTwoColumns();
+        if (isBuiltFirst) matrix.visibleRows;
+        survey.data = { m: { r1: r1, r2: { c1: "b" } } };
+        matrix.visibleRows[0].cells[1].question.value = "w";
+        expect(survey.data, JSON.stringify(r1) + (isBuiltFirst ? ", rows built first" : "")).toEqual({ m: { r1: { c2: "w" }, r2: { c1: "b" } } });
+      });
+    });
+  });
+  test("paging: building the page cleans the records of the other pages, as without paging", () => {
+    [null, { c1: "" }].forEach(r3 => {
+      const run = (rowsPerPage: number): { built: any, completed: any } => {
+        const { survey, matrix } = createTwoColumns({ rows: ["r1", "r2", "r3"], rowsPerPage: rowsPerPage });
+        survey.data = { m: { r1: { c1: "a" }, r2: { c1: "b" }, r3: r3 } };
+        matrix.visibleRows;
+        const built = survey.data;
+        survey.doComplete();
+        return { built: built, completed: survey.data };
+      };
+      const unpaged = run(0);
+      expect(unpaged.built, JSON.stringify(r3) + ": #1").toEqual({ m: { r1: { c1: "a" }, r2: { c1: "b" } } });
+      expect(run(1), JSON.stringify(r3) + ": #2").toEqual(unpaged);
+    });
+  });
 });
 
 describe("the shared record rules of the matrices, on the released path", () => {
@@ -3781,5 +3892,30 @@ describe("The bare matrix base has no rows", () => {
   });
   test("hasErrors() finds none", () => {
     check(matrix => matrix.hasErrors(), () => false);
+  });
+});
+
+/* The plain data and the display value of a checkbox cell answered with a value its choices do not have
+   are the stored answer, also when an expression built the rows before the data was assigned: the cell
+   shows the other item, and the answer stays what was assigned. The expected values are the released ones. */
+describe("Multi-Select Matrix: the plain data of an other answer is the stored answer", () => {
+  const create = (withExpression: boolean): { survey: SurveyModel, matrix: any } => {
+    const elements: Array<any> = [{ type: "matrixdropdown", name: "m", rows: ["r1"], columns: [{ name: "c", cellType: "checkbox", choices: ["x", "y"], showOtherItem: true }] }];
+    if (withExpression) elements.push({ type: "expression", name: "e", expression: "{m.r1.c}" });
+    const survey = new SurveyModel({ elements: elements });
+    survey.data = { m: { r1: { c: ["x", "zz"] } } };
+    return { survey: survey, matrix: survey.getQuestionByName("m") };
+  };
+  test("an expression built the rows before the data", () => {
+    const { survey, matrix } = create(true);
+    const plainData = matrix.getPlainData();
+    expect(plainData.value, "#1: the stored answer").toEqual({ r1: { c: ["x", "zz"] } });
+    expect(plainData.displayValue, "#2").toEqual({ r1: { c: "x, zz" } });
+    expect(matrix.getDisplayValue(false), "#3").toEqual({ r1: { c: "x, zz" } });
+    expect(matrix.getDisplayValue(true), "#4").toEqual({ r1: { c: "x, zz" } });
+    expect(matrix.value, "#5: the question keeps the stored answer").toEqual(survey.data.m);
+  });
+  test("without the expression the plain value is the same", () => {
+    expect(create(false).matrix.getPlainData().value).toEqual(create(true).matrix.getPlainData().value);
   });
 });

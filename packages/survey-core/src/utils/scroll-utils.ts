@@ -58,13 +58,9 @@ export function scrollElementToViewCore(el: Element, checkLeft: boolean, scrollI
   // that container: the window says nothing about what is visible there, and native scrollIntoView
   // would also scroll the host page.
   const surveyScroller = getClosestSurveyScroller(el as HTMLElement);
-  if (!!surveyScroller) {
+  if (!!surveyScroller && isNeedScrollIntoScroller(el, surveyScroller, scrollIfVisible)) {
     if (checkLeft) {
       revealElementHorizontally(el as HTMLElement);
-    }
-    if (!isNeedScrollIntoScroller(el, surveyScroller, scrollIfVisible)) {
-      doneCallback && doneCallback();
-      return false;
     }
     scrollElementIntoScroller(el as HTMLElement, surveyScroller, {
       block: scrollIntoViewOptions?.block || "start",
@@ -73,6 +69,7 @@ export function scrollElementToViewCore(el: Element, checkLeft: boolean, scrollI
     });
     return true;
   }
+  // The scroller does not hide the element: a survey that does not clip its pages scrolls with the document.
   const needScroll = isNeedScrollIntoView(el, checkLeft, scrollIfVisible);
   if (needScroll) {
     scrollIntoView(el, scrollIntoViewOptions, doneCallback);

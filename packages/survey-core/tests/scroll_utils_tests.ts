@@ -357,6 +357,15 @@ describe("scroll-utils: elements inside the survey's own scroller (fitToContaine
     expect(nativeScrolls, "native scrollIntoView would scroll the host page").toBe(0);
   });
 
+  test("an element inside a scroller that does not clip is scrolled with the window", () => {
+    // The scroller is as tall as the page and has moved up with the document.
+    mockRect(scroller, -1280, 2048);
+    mockRect(el, -1240, 40);
+    expect(SurveyElement.ScrollElementToTop(el, false, { block: "start" })).toBe(true);
+    expect(scroller.scrollTop).toBe(0);
+    expect(nativeScrolls).toBe(1);
+  });
+
   test("an element visible in the scroller stays put unless scrollIfVisible is set", () => {
     mockScrolledRect(el, scroller, 300, 40);
     let done = 0;

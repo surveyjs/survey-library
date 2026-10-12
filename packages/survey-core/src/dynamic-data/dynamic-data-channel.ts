@@ -71,11 +71,15 @@ type PushResult = Promise<void> | "done" | "failed";
 
 /* The one place an answer is read: a bare array is { records: array }, and an answer that is neither
    an array nor an object with records holds no records. total and hasMore are passed on as they
-   are - whether they mean anything is the reader's to decide. */
-export function toReadResult(data: any): IDynamicDataReadResult {
-  if (Array.isArray(data)) return { records: data };
-  const res = !!data && typeof data === "object" ? data : {};
-  return { records: Array.isArray(res.records) ? res.records : [], total: res.total, hasMore: res.hasMore };
+   are - whether they mean anything is the reader's to decide.
+   isCopied: a source may answer with the array it stores and change it later - a remove that splices
+   it -, or the application may: the window takes a copy, so it never shifts under objects already
+   built. The records are not copied: every write of the list copies the record it changes. A local
+   source's array is not copied: it is the storage itself (DynamicDataList.takeStoredArray). */
+export function toReadResult(data: any, isCopied: boolean = false): IDynamicDataReadResult {
+  const records = Array.isArray(data) ? data : !!data && typeof data === "object" && Array.isArray(data.records) ? data.records : [];
+  const res = !Array.isArray(data) && !!data && typeof data === "object" ? data : {};
+  return { records: isCopied ? records.slice() : records, total: res.total, hasMore: res.hasMore };
 }
 function isPromiseLike(value: any): boolean {
   // Never instanceof Promise: a source may return any thenable.

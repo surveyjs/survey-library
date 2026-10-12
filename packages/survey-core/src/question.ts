@@ -1270,12 +1270,16 @@ export class Question extends SurveyElement<Question>
   public getTitleOwner(): ITitleOwner { return this; }
   protected getIsTitleRenderedAsString(): boolean { return this.titleLocation === "hidden"; }
   protected notifySurveyOnChildrenVisibilityChanged(): boolean { return false; }
+  /* A records question builds objects for records its value already holds - a page move, a view
+     rebuild: their questions write no static default into a record, and a question their first
+     conditions hide keeps its answer, as for the objects built while the survey loads its data. */
+  protected isBuildingChildrenForStoredRecords(): boolean { return false; }
   private notifySurveyVisibilityChanged(): void {
     if (!this.canUpdateValueOnVisibleChanged()) return;
     this.lifecycleCallbacks.questionVisibilityChanged(this, this.isVisible,
       !this.parentQuestion || this.parentQuestion.notifySurveyOnChildrenVisibilityChanged());
     const isClearOnHidden = this.isClearValueOnHidden;
-    if (!this.visible) {
+    if (!this.visible && !this.parentQuestion?.isBuildingChildrenForStoredRecords()) {
       this.clearValueOnHidding(isClearOnHidden);
     }
     if (isClearOnHidden && this.isVisibleInSurvey) {
@@ -2500,6 +2504,7 @@ export class Question extends SurveyElement<Question>
     if (isEmpty && this.isDefaultValueEmpty()) return;
     if (this.isClearValueOnHidden && !this.isVisible) return;
     if (this.isDesignMode && this.isContentElement && this.isDefaultValueEmpty()) return;
+    if (!this.defaultValueExpression && this.parentQuestion?.isBuildingChildrenForStoredRecords()) return;
     this.setDefaultValue();
   }
   public get isValueDefault(): boolean {

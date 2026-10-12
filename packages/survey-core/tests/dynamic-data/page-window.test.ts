@@ -3653,6 +3653,72 @@ describe("Paged dynamic panel: clearing invisible values gives the unpaged answe
   test("page size 0: the unpaged answer is the released one", () => {
     expect(complete({ templateElements: secretIfYes }, sixRecords(showOnThree)).data.pd).toEqual(onlyThreeKeepsSecret);
   });
+  /* onHidden: an object built for a record that already exists - a page move, a view rebuild, the refill
+     after a removal - clears no answer because its question becomes hidden in its first condition run.
+     Each scenario runs with the view and without it. */
+  describe("onHidden: an object built for an existing record keeps its hidden answer", () => {
+    const hiddenUnlessOne = [{ type: "text", name: "k" }, { type: "text", name: "t", visibleIf: "{panel.k} = 1" }];
+    const runPanel = (view: any, data: Array<any>, change: (survey: SurveyModel, question: QuestionPanelDynamicModel) => void): any => {
+      const survey = new SurveyModel({ clearInvisibleValues: "onHidden",
+        elements: [Object.assign({ type: "paneldynamic", name: "p", templateElements: hiddenUnlessOne }, view)] });
+      survey.data = { p: data };
+      const question = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+      question.panels;
+      change(survey, question);
+      return survey.data.p;
+    };
+    const expectPanelSameAsPlain = (view: any, data: Array<any>, change: (survey: SurveyModel, question: QuestionPanelDynamicModel) => void): any => {
+      const plain = runPanel({}, Helpers.getUnbindValue(data), change);
+      expect(runPanel(view, Helpers.getUnbindValue(data), change), "with the view equals without it").toEqual(plain);
+      return plain;
+    };
+    const removeFirst = (survey: SurveyModel, question: QuestionPanelDynamicModel): void => { question.removePanelUI(question.panels[0]); };
+    test("paged: a removal brings a record with a hidden answer onto the page", () => {
+      const data = [{ k: 1, t: "a" }, { k: 1, t: "b" }, { k: 3, t: "c" }, { k: 3, t: "d" }];
+      expect(expectPanelSameAsPlain({ panelsPerPage: 2 }, data, removeFirst)).toEqual([{ k: 1, t: "b" }, { k: 3, t: "c" }, { k: 3, t: "d" }]);
+    });
+    test("paged: a move to the next page keeps the hidden answers of its records", () => {
+      const data = [{ k: 1, t: "a" }, { k: 1, t: "b" }, { k: 3, t: "c" }, { k: 3, t: "d" }];
+      expect(expectPanelSameAsPlain({ panelsPerPage: 2 }, data, (survey: SurveyModel, question: QuestionPanelDynamicModel): void => {
+        question.pageIndex = 1;
+        question.pageIndex = 0;
+      })).toEqual(data);
+    });
+    test("a filter: an outside assignment keeps the hidden answers of the records it shows", () => {
+      const data = [{ k: 1, t: "a" }, { k: 0, t: "b" }, { k: 3, t: "c" }];
+      const newValue = [{ k: 1, t: "a" }, { k: 3, t: "b" }, { k: 3, t: "c" }];
+      expect(expectPanelSameAsPlain({ filterExpression: "{k} != 0" }, data, (survey: SurveyModel): void => {
+        survey.setValue("p", Helpers.getUnbindValue(newValue));
+      })).toEqual(newValue);
+    });
+    test("a sort: an outside assignment that moves a record keeps its hidden answer", () => {
+      const data = [{ k: 3, t: "c" }, { k: 1, t: "a" }];
+      const newValue = [{ k: 3, t: "c" }, { k: 1, t: "a" }, { k: 0, t: "z" }];
+      expect(expectPanelSameAsPlain({ sortBy: "k" }, data, (survey: SurveyModel): void => {
+        survey.setValue("p", Helpers.getUnbindValue(newValue));
+      })).toEqual(newValue);
+    });
+    test("an answer is still cleared when its question becomes hidden while its panel exists", () => {
+      const data = [{ k: 1, t: "a" }, { k: 1, t: "b" }, { k: 3, t: "c" }];
+      expect(expectPanelSameAsPlain({ panelsPerPage: 2 }, data, (survey: SurveyModel, question: QuestionPanelDynamicModel): void => {
+        question.panels[0].getQuestionByName("k").value = 2;
+      })).toEqual([{ k: 2 }, { k: 1, t: "b" }, { k: 3, t: "c" }]);
+    });
+    test("a paged Dynamic Matrix: a removal brings a row with a hidden cell answer onto the page", () => {
+      const run = (view: any): any => {
+        const survey = new SurveyModel({ clearInvisibleValues: "onHidden", elements: [Object.assign({ type: "matrixdynamic", name: "m",
+          columns: [{ name: "k", cellType: "text" }, { name: "t", cellType: "text", visibleIf: "{row.k} = 1" }] }, view)] });
+        survey.data = { m: [{ k: 1, t: "a" }, { k: 1, t: "b" }, { k: 3, t: "c" }, { k: 3, t: "d" }] };
+        const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+        matrix.visibleRows;
+        matrix.removeRow(0);
+        return survey.data.m;
+      };
+      const plain = run({});
+      expect(plain, "#1").toEqual([{ k: 1, t: "b" }, { k: 3, t: "c" }, { k: 3, t: "d" }]);
+      expect(run({ rowsPerPage: 2 }), "#2: paged equals unpaged").toEqual(plain);
+    });
+  });
 });
 // A confirmation asked about a record on another page names it by its record object.
 describe("Page window: a confirmed removal of a record on another page", () => {
@@ -4667,6 +4733,69 @@ describe("Page window: an object whose question is writing is not disposed by th
   });
 });
 
+/* A panel built for a record the value already holds writes no static defaultValue into it, with a view
+   as without one; defaultValueExpression is computed for a record when its panel is built. A record on
+   a page never opened gets neither. A new record gets both. */
+describe("Dynamic panel with a view: template default values of loaded and new records", () => {
+  const template = [{ type: "text", name: "k" }, { type: "text", name: "t", defaultValue: "dt" },
+    { type: "text", name: "x", defaultValueExpression: "'e' + {panelIndex}" }];
+  const loaded = (): Array<any> => [{ k: 2 }, { k: 1 }, { k: 3 }];
+  const run = (view: any, change?: (question: QuestionPanelDynamicModel) => void): Array<any> => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "paneldynamic", name: "p", templateElements: template }, view)] });
+    survey.data = { p: loaded() };
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    question.panels;
+    if (!!change) change(question);
+    return survey.data.p;
+  };
+  const withoutX = (record: any): any => {
+    const res = Object.assign({}, record);
+    delete res.x;
+    return res;
+  };
+  test("without a view: the expression is computed for every record, the static default is not written", () => {
+    expect(run({})).toEqual([{ k: 2, x: "e0" }, { k: 1, x: "e1" }, { k: 3, x: "e2" }]);
+  });
+  test("paged: the records of the first page get the expression, a page never opened gets neither", () => {
+    const plain = run({});
+    expect(run({ panelsPerPage: 2 })).toEqual([plain[0], plain[1], withoutX(plain[2])]);
+  });
+  test("paged: page 2 opened gives the records without a view", () => {
+    expect(run({ panelsPerPage: 2 }, (question: QuestionPanelDynamicModel): void => { question.pageIndex = 1; })).toEqual(run({}));
+  });
+  test("sorted: no record gets the static default, every record gets the expression", () => {
+    const res = run({ sortBy: "k" });
+    expect(res.map((record: any): any => record.t), "#1").toEqual([undefined, undefined, undefined]);
+    expect(res.map((record: any): boolean => !!record.x), "#2").toEqual([true, true, true]);
+  });
+  test("filtered: no record gets the static default, the shown records get the expression", () => {
+    const res = run({ filterExpression: "{k} != 3" });
+    expect(res.map((record: any): any => record.t), "#1").toEqual([undefined, undefined, undefined]);
+    expect(res.map((record: any): boolean => !!record.x), "#2").toEqual([true, true, false]);
+  });
+  test("paged and sorted: no record gets the static default", () => {
+    const res = run({ panelsPerPage: 2, sortBy: "k" }, (question: QuestionPanelDynamicModel): void => { question.pageIndex = 1; });
+    expect(res.map((record: any): any => record.t)).toEqual([undefined, undefined, undefined]);
+  });
+  test("a new record gets both kinds of default, paged as without paging", () => {
+    const addPanel = (question: QuestionPanelDynamicModel): void => { question.addPanel(); };
+    const plain = run({}, addPanel);
+    expect(plain[3], "#1").toEqual({ t: "dt", x: "e3" });
+    expect(run({ panelsPerPage: 2 }, addPanel)[3], "#2: paged").toEqual(plain[3]);
+    expect(run({ sortBy: "k" }, addPanel)[3].t, "#3: sorted").toBe("dt");
+  });
+  test("a new record from a raised panelCount gets both kinds of default, paged as without paging", () => {
+    const raise = (question: QuestionPanelDynamicModel): void => { question.panelCount = 4; };
+    const plain = run({}, raise);
+    expect(plain[3], "#1").toEqual({ t: "dt", x: "e3" });
+    const paged = run({ panelsPerPage: 2 }, (question: QuestionPanelDynamicModel): void => {
+      raise(question);
+      question.pageIndex = 1;
+    });
+    expect(paged[3], "#2: paged").toEqual(plain[3]);
+  });
+});
+
 describe("clearInvisibleValues and a column or template question hidden on other pages", () => {
   const records = (): Array<any> => [{ a: 1, b: "x" }, { a: 2, b: "x" }, { a: 3, b: "x" }];
   const matrixJson = (visibleIf: string): any => ({ type: "matrixdynamic", name: "q", rowCount: 0,
@@ -4892,6 +5021,25 @@ describe("clearInvisibleValues and a column or template question hidden on other
     expect(survey.getValue("count"), "#1").toBe(3);
     survey.setValue("hasB", "no");
     expect(survey.getValue("count"), "#2").toBe(0);
+  });
+  // At completion each template question decides with its own clearIfInvisible, whatever the survey's setting.
+  const choiceTemplate = (clearIfInvisible?: string): any => ({ type: "paneldynamic", name: "q", templateElements: [{ type: "text", name: "a" },
+    Object.assign({ type: "dropdown", name: "c", choices: [1, 2] }, !!clearIfInvisible ? { clearIfInvisible: clearIfInvisible } : {})] });
+  const choiceRecords = (): Array<any> => [{ a: 1, c: 7 }, { a: 2, c: 9 }, { a: 3, c: 1 }];
+  test("survey none: a template question with clearIfInvisible onComplete clears an invalid choice of another page's record at complete", () => {
+    const res = run("none", choiceTemplate("onComplete"), choiceRecords(), {}, ["complete"]);
+    expect(res.paged, "#1").toEqual(res.unpaged);
+    expect(res.paged[0], "#2").toEqual([{ a: 1 }, { a: 2 }, { a: 3, c: 1 }]);
+  });
+  test("survey none: a template question with the default clearIfInvisible keeps every answer at complete", () => {
+    const res = run("none", choiceTemplate(), choiceRecords(), {}, ["complete"]);
+    expect(res.paged, "#1").toEqual(res.unpaged);
+    expect(res.paged[0], "#2").toEqual(choiceRecords());
+  });
+  test("survey onHidden: a template question with clearIfInvisible onComplete clears an invalid choice of another page's record at complete", () => {
+    const res = run("onHidden", choiceTemplate("onComplete"), choiceRecords(), {}, ["complete"]);
+    expect(res.paged, "#1").toEqual(res.unpaged);
+    expect(res.paged[0], "#2").toEqual([{ a: 1 }, { a: 2 }, { a: 3, c: 1 }]);
   });
 });
 

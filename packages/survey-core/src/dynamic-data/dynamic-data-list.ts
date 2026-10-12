@@ -1365,7 +1365,7 @@ export class DynamicDataList {
      read is pending or after it was rejected, the previous window and its own offset stay in force.
      Returns whether the window was committed - an empty page past the end is not. */
   private commitRead(data: any, skip: number, take: number, isPagedRead: boolean): boolean {
-    const result = toReadResult(data);
+    const result = toReadResult(data, !isLocalSource(this._source));
     let records = result.records;
     const isRefill = this.readState.takeRefill(isPagedRead, skip);
     if (isPagedRead) {

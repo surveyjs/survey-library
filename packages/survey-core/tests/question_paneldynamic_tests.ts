@@ -6517,6 +6517,27 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel.panels[2].isVisible, "panel2 invisible #2").toBe(false);
     expect(panel.visiblePanels.length, "There is 1 visible panels").toBe(1);
   });
+  test("templateVisibleIf: an edit through a bound dynamic panel runs the setValueIf of the panel of the same record", () => {
+    /* getItem and getItemIndex both count every panel, hidden ones included: a bound question's panel
+       is the one of the same record. Counted over the visible panels, an edit of the record after a
+       hidden one reached the wrong panel or none, and its setValueIf did not run. */
+    const survey = new SurveyModel({ elements: [
+      { type: "paneldynamic", name: "p1", valueName: "shared", templateElements: [{ type: "text", name: "q1" }, { type: "text", name: "a" }] },
+      { type: "paneldynamic", name: "p2", valueName: "shared", templateVisibleIf: "{panel.q1} != 'hide'",
+        templateElements: [{ type: "text", name: "q1" }, { type: "text", name: "a" },
+          { type: "text", name: "b", setValueIf: "{panel.a} = 'go'", setValueExpression: "'set by ' + {panel.q1}" }] }] });
+    survey.data = { shared: [{ q1: "x" }, { q1: "hide" }, { q1: "y" }] };
+    const p1 = <QuestionPanelDynamicModel>survey.getQuestionByName("p1");
+    const p2 = <QuestionPanelDynamicModel>survey.getQuestionByName("p2");
+    p1.panels;
+    p2.panels;
+    p1.panels[2].getQuestionByName("a").value = "go";
+    expect(survey.data.shared, "#1").toEqual([{ q1: "x" }, { q1: "hide" }, { q1: "y", a: "go", b: "set by y" }]);
+    expect(p2.panels[2].getQuestionByName("b").value, "#2: the panel shows it").toBe("set by y");
+    const hidden = p2.panels[1];
+    expect(hidden.isVisible, "#3").toBe(false);
+    expect(p2.getItem(p2.getItemIndex(hidden.data)) === <any>hidden.data, "#4: getItem and getItemIndex name the same panel").toBe(true);
+  });
   test("templateVisibleIf && currentPanelIndex", () => {
     const survey = new SurveyModel({
       elements: [

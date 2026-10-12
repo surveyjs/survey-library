@@ -6191,6 +6191,64 @@ describe("Remote data source: two questions share one source object", () => {
     await settleAll(source);
     expect(rowValues(m2), "#6: the next read shows the write").toEqual(["v101", "v102"]);
   });
+  // The source answers its read with the array it stores and splices that array on a remove.
+  const createSplicingSource = (isAsync: boolean): { items: Array<any>, calls: Array<any>, source: any } => {
+    const items: Array<any> = [{ id: 1, a: "one" }, { id: 2, a: "two" }, { id: 3, a: "three" }];
+    const calls: Array<any> = [];
+    const indexOfKey = (key: any): number => items.findIndex(item => item.id === key);
+    const source: any = {
+      keyField: "id",
+      read: () => isAsync ? Promise.resolve(items) : items,
+      update: (key: any, record: any, fields: Array<string>) => {
+        calls.push(["update", key]);
+        const index = indexOfKey(key);
+        if (index > -1) fields.forEach(field => { items[index][field] = record[field]; });
+      },
+      remove: (key: any) => {
+        calls.push(["remove", key]);
+        const index = indexOfKey(key);
+        if (index > -1) items.splice(index, 1);
+      }
+    };
+    return { items: items, calls: calls, source: source };
+  };
+  const checkSplicedSourceKeepsRowsOnTheirRecords = async (isAsync: boolean): Promise<void> => {
+    const { items, calls, source } = createSplicingSource(isAsync);
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "A", columns: [{ name: "a", cellType: "text" }] },
+      { type: "matrixdynamic", name: "B", columns: [{ name: "a", cellType: "text" }] }] });
+    const matrixA = <QuestionMatrixDynamicModel>survey.getQuestionByName("A");
+    const matrixB = <QuestionMatrixDynamicModel>survey.getQuestionByName("B");
+    matrixA.dataSource = source;
+    matrixB.dataSource = source;
+    await flush();
+    expect(rowValues(matrixB, "a"), "#1").toEqual(["one", "two", "three"]);
+    matrixA.removeRow(0);
+    await flush();
+    expect(rowValues(matrixB, "a"), "#2: the other question keeps the records it read").toEqual(["one", "two", "three"]);
+    matrixB.visibleRows[1].getQuestionByName("a").value = "edited";
+    await flush();
+    expect(calls.filter(call => call[0] === "update"), "#3: the edit goes to the record the row shows").toEqual([["update", 2]]);
+    expect(items.map(item => item.a), "#4: record 3 is not overwritten").toEqual(["edited", "three"]);
+  };
+  test("a source that splices the array it answered with: the other question's rows stay on their records", async () => {
+    await checkSplicedSourceKeepsRowsOnTheirRecords(false);
+  });
+  test("an asynchronous source that splices the array it answered with: the other question's rows stay on their records", async () => {
+    await checkSplicedSourceKeepsRowsOnTheirRecords(true);
+  });
+  test("an application that changes the array a source answered with does not move the rows", () => {
+    const { items, calls, source } = createSplicingSource(false);
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "A", columns: [{ name: "a", cellType: "text" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("A");
+    matrix.dataSource = source;
+    expect(rowValues(matrix, "a"), "#1").toEqual(["one", "two", "three"]);
+    items.splice(0, 1);
+    expect(rowValues(matrix, "a"), "#2: the rows show the records of the read").toEqual(["one", "two", "three"]);
+    matrix.visibleRows[1].getQuestionByName("a").value = "edited";
+    expect(calls, "#3: the edit goes to the record the row shows").toEqual([["update", 2]]);
+    expect(items.map(item => item.a), "#4").toEqual(["edited", "three"]);
+  });
 });
 
 describe("Remote data source: a throwing error handler", () => {

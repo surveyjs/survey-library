@@ -381,10 +381,12 @@ export class DynamicDataMembership {
       return undefined;
     }
     const res: Array<{ index: number, position: number }> = [];
+    const recordCount = this.host.getRecordCount();
     this.touchedIndexes.forEach((index: number): void => {
       const to = remap(index);
       const position = !!oldCreated ? oldCreated.indexOf(index) : -1;
-      if (to === undefined || to < 0 || position < 0) return;
+      // A record the new records do not hold is not kept, whatever the remap answers.
+      if (to === undefined || to < 0 || to >= recordCount || position < 0) return;
       res.push({ index: to, position: position });
     });
     this.touchedIndexes = [];

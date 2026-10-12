@@ -118,6 +118,8 @@ function getRecordsRemapByContent(oldRecords: Array<any>, newRecords: Array<any>
     movedToStart = !movedToEnd && isSame(oldRecords[last], newRecords[prefix]) && isRangeSame(prefix, prefix + 1, oldMid - 1);
   }
   return (index: number): number => {
+    // Not a record of the old array - a row the matrix padded it with: there is nothing to place.
+    if (index < 0 || index >= oldLen) return undefined;
     if (index < prefix) return index;
     if (index >= oldLen - suffix) return index + delta;
     if (newMid === 0) return -1;

@@ -1410,7 +1410,9 @@ export abstract class QuestionRecordsModel extends Question {
      visit. */
   /* The records of other pages: a full validation visits their pages and shows the errors there; a
      quiet one (no callback) judges the same records without showing anything or moving the page, so
-     both give the same answer. */
+     both give the same answer.
+     A record on a page the respondent never opened, and never edited, is not validated, and its
+     computed values are not computed: that is how paging works (Andrew's decision 2026-10-12). */
   protected validateOffPage(context: ValidationContext): boolean {
     if (!this.isPagedByList || context.isOnValueChanged) return true;
     const pages = this.getOffPageDuplicatePages();
@@ -1953,7 +1955,9 @@ export abstract class QuestionRecordsModel extends Question {
      only a built question can tell), and only the answers of those questions are taken from it
      (getRecordCleanupKeys). The record keeps what an object adds by being built and not by its
      clean-up - its computed values and the keys no question stores: a record without an object is
-     not built at completion, while the unpaged question has built each one on load. */
+     not built at completion, while the unpaged question has built each one on load. Paging leaves
+     the validation and the computed values of a page never opened undone; this clean-up is not
+     part of that and covers every record (Andrew's decision 2026-10-12). */
   protected cleanRecordsWithoutObjectsAtComplete(container: PanelModelBase, clean: (cleanupObject: IRecordCleanupObject) => void): void {
     if (!this.isPagedByList || this.isRemoteData || this.isEmpty()) return;
     const questions = container.questions.filter((q: Question): boolean => !isRecordCleanupSkipped(q));
@@ -3138,7 +3142,7 @@ export abstract class QuestionRecordsModel extends Question {
       ? list.hasView && this.isPageStale()
       : !!created && !Helpers.isTwoValueEquals(created, list.getCreatedIndexes());
     if (isMembershipChanged) {
-      this.followRecordsWithObjects((recordIndex: number): void => { this.appendItemForRecord(recordIndex); });
+      this.followRecordsWithObjects((recordIndex: number): void => { this.appendItemForRecord(recordIndex, true); });
     }
     if (!this.isPagedByList) return;
     // The page is rebuilt when it names other records than its objects hold now.
@@ -4003,8 +4007,8 @@ export abstract class QuestionRecordsModel extends Question {
   }
   /* One object for the record at the end of the objects (followInsertedRecord): the objects before
      it keep their state. The default rebuilds them, which is correct for a question without an
-     incremental path. */
-  protected appendItemForRecord(recordIndex: number): void {
+     incremental path. isStoredRecord: the record came with the value (an assignment), not with an add. */
+  protected appendItemForRecord(recordIndex: number, isStoredRecord: boolean = false): void {
     this.rebuildFromDataList(false);
   }
   /* sortBy is computed from sortOrder and nothing raises its change on its own (see

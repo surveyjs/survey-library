@@ -299,3 +299,83 @@ describe("a nested paged matrix follows its row when the rows of a fixed matrix 
     expect(matrix["dataListValue"], "#4: still no list").toBe(undefined);
   });
 });
+
+/* An outside assignment replaces the records of a Dynamic Matrix with a view: a row the matrix added
+   before it is a record of the old value only. Each scenario runs with the view and without it; the
+   view shows the rows of the plain matrix, in its own order, and stores what is typed into any of them. */
+describe("an outside assignment to a matrix with a view shows the records of the new value", () => {
+  interface IViewCase { name: string, view: any, select: (keys: Array<any>) => Array<any> }
+  const byKey = (keys: Array<any>): Array<any> => keys.slice().sort((a: any, b: any): number => a - b);
+  const cases: Array<IViewCase> = [
+    { name: "a sort", view: { sortBy: "k" }, select: byKey },
+    { name: "a filter", view: { filterExpression: "{k} != 9" }, select: (keys: Array<any>): Array<any> => keys.filter((k: any): boolean => k !== 9) }
+  ];
+  const columns = [{ name: "k", cellType: "text", inputType: "number" }, { name: "t", cellType: "text" }];
+  const keysOf = (matrix: QuestionMatrixDynamicModel): Array<any> => matrix.visibleRows.map(row => row.getQuestionByName("k").value);
+  interface IRunResult { keys: Array<any>, value: any, rowsAfterClear: number, rowCountAfterClear: number }
+  // Shows the rows, runs the change, types into every row it shows and then clears the value.
+  const run = (view: any, change: (survey: SurveyModel, matrix: QuestionMatrixDynamicModel) => void, withSibling: boolean = false): IRunResult => {
+    const elements: Array<any> = [Object.assign({ type: "matrixdynamic", name: "q1", columns: columns }, view)];
+    if (withSibling) elements.push({ type: "matrixdynamic", name: "q2", valueName: "q1", columns: columns });
+    const survey = new SurveyModel({ elements: elements });
+    survey.data = { q1: [{ k: 1 }, { k: 2 }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+    matrix.visibleRows;
+    change(survey, matrix);
+    const keys = keysOf(matrix);
+    matrix.visibleRows.forEach((row, index) => { row.getQuestionByName("t").value = "typed" + index; });
+    const value = survey.getValue("q1");
+    matrix.clearValue();
+    return { keys: keys, value: value, rowsAfterClear: matrix.visibleRows.length, rowCountAfterClear: matrix.rowCount };
+  };
+  const typedValues = (value: Array<any>): Array<any> => (value || []).map((record: any): any => !!record ? record.t : undefined).filter((t: any): boolean => !!t);
+  const checkCase = (viewCase: IViewCase, change: (survey: SurveyModel, matrix: QuestionMatrixDynamicModel) => void, withSibling: boolean = false): void => {
+    const plain = run({}, change, withSibling);
+    const viewed = run(viewCase.view, change, withSibling);
+    expect(viewed.keys, "#1: the rows of the plain matrix, in the view's order").toEqual(viewCase.select(plain.keys));
+    expect(typedValues(viewed.value).length, "#2: every value typed into a shown row is stored").toBe(viewed.keys.length);
+    expect(viewed.rowsAfterClear, "#3: clearValue leaves the rows of the plain matrix").toBe(plain.rowsAfterClear);
+    expect(viewed.rowCountAfterClear, "#4").toBe(plain.rowCountAfterClear);
+  };
+  const addThenAssign = (assign: (survey: SurveyModel) => void) => (survey: SurveyModel, matrix: QuestionMatrixDynamicModel): void => {
+    matrix.addRow();
+    assign(survey);
+  };
+  const newValue = (): Array<any> => [{ k: 5 }, { k: 9 }, { k: 0 }];
+  cases.forEach(viewCase => {
+    test(viewCase.name + ": an added row does not stay after survey.setValue", () => {
+      checkCase(viewCase, addThenAssign((survey: SurveyModel): void => { survey.setValue("q1", newValue()); }));
+    });
+    test(viewCase.name + ": an added row does not stay after survey.data", () => {
+      checkCase(viewCase, addThenAssign((survey: SurveyModel): void => { survey.data = { q1: newValue() }; }));
+    });
+    test(viewCase.name + ": an added row does not stay after mergeData", () => {
+      checkCase(viewCase, addThenAssign((survey: SurveyModel): void => { survey.mergeData({ q1: newValue() }); }));
+    });
+    test(viewCase.name + ": an added and edited row does not stay after survey.setValue", () => {
+      checkCase(viewCase, (survey: SurveyModel, matrix: QuestionMatrixDynamicModel): void => {
+        matrix.addRow();
+        matrix.visibleRows.filter(row => row.getQuestionByName("k").isEmpty())[0].getQuestionByName("t").value = "added";
+        survey.setValue("q1", newValue());
+      });
+    });
+    test(viewCase.name + ": an added row does not stay after clearValue", () => {
+      checkCase(viewCase, (survey: SurveyModel, matrix: QuestionMatrixDynamicModel): void => {
+        matrix.addRow();
+        matrix.clearValue();
+      });
+    });
+    test(viewCase.name + ": an added row does not stay after a sibling on the same value name removes records", () => {
+      checkCase(viewCase, (survey: SurveyModel, matrix: QuestionMatrixDynamicModel): void => {
+        matrix.addRow();
+        const sibling = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+        sibling.removeRow(0);
+        sibling.removeRow(0);
+      }, true);
+    });
+  });
+  test("a sort: the new value is shown in key order", () => {
+    const result = run({ sortBy: "k" }, addThenAssign((survey: SurveyModel): void => { survey.setValue("q1", newValue()); }));
+    expect(result.keys).toEqual([0, 5, 9]);
+  });
+});

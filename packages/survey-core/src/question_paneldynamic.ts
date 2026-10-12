@@ -462,17 +462,17 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const count = this.dataList.getMaterializedIndexes().length;
     const oldPanels: Array<PanelModel> = [].concat(this.panelsCore);
     this.keepNestedPageStatesOfPanels(oldPanels);
-    this.prepareValueForPanelCreating();
-    this.isRebuildingPanels = true;
-    try {
-      this.panelsCore.splice(0, this.panelsCore.length);
-      for (let i = 0; i < count; i++) {
-        this.panelsCore.push(this.createNewPanel());
+    this.buildPanels((): void => {
+      this.isRebuildingPanels = true;
+      try {
+        this.panelsCore.splice(0, this.panelsCore.length);
+        for (let i = 0; i < count; i++) {
+          this.panelsCore.push(this.createNewPanel());
+        }
+      } finally {
+        this.isRebuildingPanels = false;
       }
-    } finally {
-      this.isRebuildingPanels = false;
-    }
-    this.setValueAfterPanelsCreating();
+    }, true);
     this.restoreNestedPageStates();
     this.setPanelsState();
     this.reRunCondition();
@@ -484,6 +484,27 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.disposePanels(oldPanels);
   }
   private isRebuildingPanels: boolean;
+  /* The panels of the view are built for records the value holds: without a view the same records got
+     their panels while the survey loaded its data, which writes no static default into them and
+     clears no answer a first condition run hides. Their questions ask it (Question). */
+  private isBuildingPanelsForStoredRecords: boolean = false;
+  protected isBuildingChildrenForStoredRecords(): boolean {
+    return this.isBuildingPanelsForStoredRecords;
+  }
+  /* The panels func creates are stored with the values they wrote and their first conditions run. The
+     records of a data source are shown with what the panels compute, defaults included, and it goes
+     with their next update (runShowingRecords). */
+  private buildPanels(func: () => void, areRecordsStored: boolean): void {
+    const prev = this.isBuildingPanelsForStoredRecords;
+    this.isBuildingPanelsForStoredRecords = areRecordsStored && !this.isRemoteData;
+    try {
+      this.prepareValueForPanelCreating();
+      func();
+      this.setValueAfterPanelsCreating();
+    } finally {
+      this.isBuildingPanelsForStoredRecords = prev;
+    }
+  }
   /* A panel that is still on screen - the one a carousel animates out, a removed one leaving the
      list - is disposed when its animation ends, not under it. */
   private panelsToDispose: Array<PanelModel> = [];
@@ -2243,11 +2264,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return this.getLastEntryRecord(this.storedRecordCount);
   }
   // QuestionRecordsModel hook: one panel at the end of the panels; the panels that exist keep their state.
-  protected appendItemForRecord(recordIndex: number): void {
-    this.prepareValueForPanelCreating();
-    const panel = this.createNewPanel();
-    this.panelsCore.push(panel);
-    this.setValueAfterPanelsCreating();
+  protected appendItemForRecord(recordIndex: number, isStoredRecord: boolean = false): void {
+    let panel: PanelModel;
+    this.buildPanels((): void => {
+      panel = this.createNewPanel();
+      this.panelsCore.push(panel);
+    }, isStoredRecord);
     // The new panel only: a panel the respondent collapsed or expanded keeps its state.
     this.setPanelState(panel, this.panelsCore.length - 1);
     this.reRunCondition();
@@ -3090,8 +3112,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      (cleanRecordsWithoutObjectsAtComplete). Cost: a pass over the template questions per record, and a
      temporary panel per record only for a template with such a question, or for a record with an answer
      only a built question can judge. */
+  // The survey passes "none" at completion when its own setting is "none": a question's clearIfInvisible still decides.
   private clearValueInRecordsWithoutPanelAtComplete(reason: string): void {
-    if (reason !== "onComplete") return;
+    if (reason !== "onComplete" && reason !== "none") return;
     this.cleanRecordsWithoutObjectsAtComplete(this.template, (cleanupObject: IRecordCleanupObject): void => cleanupObject.clearValueIfInvisible(reason));
   }
   // What puts a panel into visiblePanels.
@@ -3265,7 +3288,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       if (this.storedRecordCount < this.minPanelCount) {
         this.setRecordCountCore(this.minPanelCount);
       } else {
-        this.followRecordsWithObjects((recordIndex: number): void => { this.appendItemForRecord(recordIndex); });
+        this.followRecordsWithObjects((recordIndex: number): void => { this.appendItemForRecord(recordIndex, true); });
       }
       return;
     }

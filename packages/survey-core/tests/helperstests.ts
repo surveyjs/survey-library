@@ -31,6 +31,34 @@ describe("Helpers", () => {
     expect(Helpers.isValueEmpty({ val: false }), "the object is not empty, false").toBe(false);
     expect(Helpers.isValueEmpty({ val: "" }), "the object is empty, empty string").toBe(true);
   });
+  test("Helpers.isValueEmpty trims a string only when asked to", () => {
+    expect(Helpers.isValueEmpty("   "), "#1: spaces are a value by default").toBe(false);
+    expect(Helpers.isValueEmpty("   ", true), "#2: spaces are empty with trimString").toBe(true);
+    expect(Helpers.isValueEmpty(new String("  "), true), "#3: a String object is trimmed too").toBe(true);
+    expect(Helpers.isValueEmpty(" a ", true), "#4").toBe(false);
+    [false, true].forEach((trimString: boolean): void => {
+      ["", null, undefined, [], {}].forEach((value: any): void => {
+        expect(Helpers.isValueEmpty(value, trimString), "empty, trimString " + trimString + ": " + JSON.stringify(value)).toBe(true);
+      });
+      [0, false].forEach((value: any): void => {
+        expect(Helpers.isValueEmpty(value, trimString), "not empty, trimString " + trimString + ": " + value).toBe(false);
+      });
+    });
+    expect(Helpers.trimValue(" a "), "#5").toBe("a");
+    const obj = { a: " " };
+    expect(Helpers.trimValue(obj) === obj, "#6: any other value is returned as it is").toBe(true);
+  });
+  test("Base.isValueEmpty trims through the trimValue of the instance", () => {
+    class TrimXBase extends Base {
+      protected trimValue(value: any): any {
+        return value === "x" ? "" : super.trimValue(value);
+      }
+    }
+    const obj = new TrimXBase();
+    expect(obj.isValueEmpty("x"), "#1: the override decides").toBe(true);
+    expect(obj.isValueEmpty("x", false), "#2: no trim, no override").toBe(false);
+    expect(obj.isValueEmpty("  "), "#3: the default trim").toBe(true);
+  });
   test("isTwoValueEquals with validators", () => {
     const survey = new SurveyModel();
     const page = survey.addNewPage("p1");

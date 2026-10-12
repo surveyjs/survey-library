@@ -28,6 +28,8 @@ export interface IValueGetterContextGetValueParams {
   createObjects?: boolean;
   isProperty?: boolean;
   isOriginalValue?: boolean;
+  // The reader holds no object of its own: a records question answers with a row or a panel it already has, and builds none for the read.
+  existingObjectsOnly?: boolean;
 }
 export interface IValueGetterContext {
   getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo;

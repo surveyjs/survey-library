@@ -139,6 +139,17 @@ describe("Base", () => {
     expect(value.value, "do not use the text separator").toBe("Item|Text Item");
     settings.itemValueSeparator = "|";
   });
+  test("ItemValue.hasValue: a value of spaces is no value", () => {
+    ["   ", "", null, undefined].forEach((val: any): void => {
+      expect(new ItemValue(val).hasValue, "no value: " + JSON.stringify(val)).toBe(false);
+    });
+    ["a", 0, false].forEach((val: any): void => {
+      expect(new ItemValue(val).hasValue, "a value: " + val).toBe(true);
+    });
+    const item = new ItemValue("   ");
+    item.value = "b";
+    expect(item.hasValue, "follows the value").toBe(true);
+  });
   test("ItemValue.setData()", () => {
     var items = new Array<ItemValue>();
     ItemValue.setData(items, [

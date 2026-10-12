@@ -341,12 +341,14 @@ export class SurveyTestTargetResolver {
         "\", but it has " + children.length + " item(s).",
         { target: path, data: { segment: segment.name, index: segment.index, count: children.length } });
     }
-    if (!!next && next.index === undefined && !!obj && typeof obj.getQuestionFromArray === "function") {
-      const question = obj.getQuestionFromArray(next.name, segment.index);
+    // The index addresses the page collection (getIndexedChildren): the question is the child's own.
+    const child = children[segment.index];
+    if (!!next && next.index === undefined && !!child && typeof child.getQuestionByName === "function") {
+      const question = child.getQuestionByName(next.name);
       if (!!question) return { target: { name: path, kind: "question", obj: question }, consumedNext: true };
     }
     return {
-      target: { name: path, kind: getContainerTargetKind(), obj: children[segment.index] },
+      target: { name: path, kind: getContainerTargetKind(), obj: child },
       consumedNext: false,
     };
   }

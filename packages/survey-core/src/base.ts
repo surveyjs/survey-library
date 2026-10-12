@@ -302,9 +302,7 @@ export class Base implements IObjectValueContext {
     return Helpers.isTwoValueEquals(this.toJSON(), obj.toJSON(), false, true, false);
   }
   protected trimValue(value: any): any {
-    if (!!value && (typeof value === "string" || value instanceof String))
-      return value.trim();
-    return value;
+    return Helpers.trimValue(value);
   }
   public static createPropertiesHash() {
     return {};

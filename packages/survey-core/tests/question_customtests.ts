@@ -4072,4 +4072,61 @@ describe("custom questions", () => {
 
     ComponentCollection.Instance.clear();
   });
+  test("inheritBaseProps: true keeps description and requiredErrorText in toJSON, Bug#11973", () => {
+    ComponentCollection.Instance.add({
+      name: "x-file",
+      inheritBaseProps: true,
+      questionJSON: { type: "file", title: "Document" }
+    });
+    const survey = new SurveyModel({ elements: [{ type: "x-file", name: "q" }] });
+    const q = survey.getQuestionByName("q");
+    q.title = "Beep";
+    q.description = "Desc";
+    q.requiredErrorText = "Err";
+    expect(q.toJSON()).toEqual({ name: "q", title: "Beep", description: "Desc", requiredErrorText: "Err" });
+
+    ComponentCollection.Instance.add({
+      name: "x-file-notitle",
+      inheritBaseProps: true,
+      questionJSON: { type: "file" }
+    });
+    const surveyNoTitle = new SurveyModel({ elements: [{ type: "x-file-notitle", name: "q" }] });
+    const qNoTitle = surveyNoTitle.getQuestionByName("q");
+    expect(qNoTitle.toJSON(), "unset localizable props stay omitted").toEqual({ name: "q" });
+    qNoTitle.title = "Beep";
+    qNoTitle.description = "Desc";
+    expect(qNoTitle.toJSON(), "title serializes without questionJSON.title").toEqual({ name: "q", title: "Beep", description: "Desc" });
+
+    ComponentCollection.Instance.add({
+      name: "x-text",
+      inheritBaseProps: true,
+      questionJSON: { type: "text" }
+    });
+    const surveyText = new SurveyModel({ elements: [{ type: "x-text", name: "q" }] });
+    const qText = surveyText.getQuestionByName("q");
+    qText.placeholder = "Type here";
+    expect(qText.toJSON(), "inner-only placeholder stays serialized").toEqual({ name: "q", placeholder: "Type here" });
+
+    ComponentCollection.Instance.add({
+      name: "x-radio",
+      inheritBaseProps: ["commentText"],
+      questionJSON: { type: "radiogroup", choices: [1, 2] }
+    });
+    const surveyRadio = new SurveyModel({ elements: [{ type: "x-radio", name: "q" }] });
+    const qRadio = surveyRadio.getQuestionByName("q");
+    qRadio.commentText = "Leave a comment";
+    expect(qRadio.toJSON().commentText, "array inherit writes commentText on the inner question").toBe("Leave a comment");
+
+    ComponentCollection.Instance.add({
+      name: "x-file-plain",
+      questionJSON: { type: "file", description: "From component" }
+    });
+    const surveyPlain = new SurveyModel({ elements: [{ type: "x-file-plain", name: "q" }] });
+    const qPlain = surveyPlain.getQuestionByName("q");
+    expect(qPlain.toJSON(), "questionJSON description is not copied into the instance").toEqual({ name: "q" });
+    qPlain.description = "Desc";
+    expect(qPlain.toJSON().description, "description without inheritBaseProps").toBe("Desc");
+
+    ComponentCollection.Instance.clear();
+  });
 });

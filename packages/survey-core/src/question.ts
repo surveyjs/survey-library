@@ -1128,8 +1128,13 @@ export class Question extends SurveyElement<Question>
       this.locStrsChanged();
     }
   }
+  private isReattachingToSurvey: boolean;
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
+    // Re-attaching to the same survey (e.g. building the preview or single-page container) must not
+    // re-apply default values to a question whose value was cleared directly (by an end user or in code).
+    this.isReattachingToSurvey = this.isValueChangedDirectly && !!value && !!this.survey && value.getSurvey() === this.survey;
     super.setSurveyImpl(value);
+    this.isReattachingToSurvey = false;
     if (!this.survey) return;
     this.lifecycleCallbacks.questionCreated(this);
     if (isLight !== true) {
@@ -2066,7 +2071,9 @@ export class Question extends SurveyElement<Question>
     if (!this.isDesignMode && !!this.survey && !this.isLoadingFromJson) {
       this.initDataFromSurvey();
       this.onSurveyValueChanged(this.value);
-      this.updateValueWithDefaults();
+      if (!this.isReattachingToSurvey) {
+        this.updateValueWithDefaults();
+      }
       this.updateIsAnswered();
     }
   }

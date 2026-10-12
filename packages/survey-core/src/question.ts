@@ -1128,13 +1128,8 @@ export class Question extends SurveyElement<Question>
       this.locStrsChanged();
     }
   }
-  private isReattachingToSurvey: boolean;
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
-    // Re-attaching to the same survey (e.g. building the preview or single-page container) must not
-    // re-apply default values to a question whose value was cleared directly (by an end user or in code).
-    this.isReattachingToSurvey = this.isValueChangedDirectly && !!value && !!this.survey && value.getSurvey() === this.survey;
     super.setSurveyImpl(value);
-    this.isReattachingToSurvey = false;
     if (!this.survey) return;
     this.lifecycleCallbacks.questionCreated(this);
     if (isLight !== true) {
@@ -2017,7 +2012,7 @@ export class Question extends SurveyElement<Question>
     if (!properties) properties = {};
     properties["question"] = this;
     this.runConditionCore(properties);
-    if (!this.isValueChangedDirectly && (!this.isClearValueOnHidden || this.isVisibleInSurvey)) {
+    if (this.canApplyDefaultValue() && (!this.isClearValueOnHidden || this.isVisibleInSurvey)) {
       this.runDefaultValueExpression(properties);
     }
   }
@@ -2069,9 +2064,13 @@ export class Question extends SurveyElement<Question>
   protected onSetData(): void {
     super.onSetData();
     if (!this.isDesignMode && !!this.survey && !this.isLoadingFromJson) {
+      // Check before reading the survey value: replacing the question value with the survey one is not a direct change.
+      // Re-attaching to a survey (e.g. building the preview or single-page container) must not
+      // re-apply default values to a question whose value was set or cleared directly.
+      const canApplyDefaultValue = this.canApplyDefaultValue();
       this.initDataFromSurvey();
       this.onSurveyValueChanged(this.value);
-      if (!this.isReattachingToSurvey) {
+      if (canApplyDefaultValue) {
         this.updateValueWithDefaults();
       }
       this.updateIsAnswered();
@@ -2519,7 +2518,10 @@ export class Question extends SurveyElement<Question>
     if (this.isClearValueOnHidden && !this.isVisible) return;
     if (this.isDesignMode && this.isContentElement && this.isDefaultValueEmpty()) return;
     if (!this.defaultValueExpression && this.parentQuestion?.isBuildingChildrenForStoredRecords()) return;
+    // Applying a default value is not a direct value change
+    this.isChangingViaDefaultValue = true;
     this.setDefaultValue();
+    this.isChangingViaDefaultValue = false;
   }
   public get isValueDefault(): boolean {
     return !this.isEmpty() && (this.isTwoValueEquals(this.defaultValue, this.value) || !this.isValueChangedDirectly && !!this.defaultValueExpression);
@@ -3166,7 +3168,13 @@ export class Question extends SurveyElement<Question>
     this.isUpdatingValueFromSurvey = true;
     if (!isEmpty && this.defaultValueExpression) {
       this.setDefaultValueCore((val: any): void => {
-        this.updateValueFromSurveyCore(newValue, this.isTwoValueEquals(newValue, val));
+        const isDefault = this.isTwoValueEquals(newValue, val);
+        this.updateValueFromSurveyCore(newValue, isDefault);
+        // A value assigned via survey.data/mergeData that differs from the default one is set directly,
+        // even if the question already holds it (e.g. the initial default equals the loaded value).
+        if (!isDefault && this.survey?.isSettingData()) {
+          this.setValueChangedDirectly(true);
+        }
       });
     } else {
       this.updateValueFromSurveyCore(newValue, <any>this.data !== <any>this.getSurvey());
@@ -3215,6 +3223,11 @@ export class Question extends SurveyElement<Question>
     this.questionComment = newValue;
   }
   protected onChangeQuestionValue(newValue: any): void { }
+  // Default values (defaultValue and defaultValueExpression) apply until the value is set or cleared directly
+  // by an end user, in code, or by loading data that differs from the default.
+  private canApplyDefaultValue(): boolean {
+    return !this.isValueChangedDirectly;
+  }
   protected setValueChangedDirectly(val: boolean): void {
     this.isValueChangedDirectly = val;
     if (!!this.setValueChangedDirectlyCallback) {

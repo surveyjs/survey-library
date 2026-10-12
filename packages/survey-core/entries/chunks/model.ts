@@ -324,3 +324,4 @@ export { DragDropCore } from "../../src/dragdrop/core";
 export { DragDropChoices } from "../../src/dragdrop/choices";
 export { DragDropRankingSelectToRank } from "../../src/dragdrop/ranking-select-to-rank";
 export { default as BaseTheme } from "../../src/default-theme/base-theme";
+export { setupThemeAdapter } from "../../src/themes/setupThemeAdapter";

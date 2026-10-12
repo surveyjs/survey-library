@@ -554,8 +554,8 @@ describe("SurveyTestValidator: the start of a test", () => {
     expect(codes(issues), "a page index inline").toEqual([SurveyTestIssueCodes.invalidStartPage]);
   });
   test("A name inside an inline start is ignored, it looks nothing up", () => {
-    // The start stays the inline object: prompt 02 asserts the resolved state, here the observable
-    // part is that the name is never resolved against "starts".
+    // The start stays the inline object: the observable part is that the name is never resolved
+    // against "starts".
     const suite: any = {
       starts: [{ name: "other", data: { q1: 2 } }],
       tests: [{ name: "t1", start: { name: "midFlow", data: { q1: 1 } }, steps: [{ set: { q1: 1 } }] }],

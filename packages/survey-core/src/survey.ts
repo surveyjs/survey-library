@@ -7738,8 +7738,9 @@ export class SurveyModel extends SurveyElementCore
     const parentQ = (<Question>question).parentQuestion;
     return !!parentQ && parentQ.isDescendantOf("paneldynamic") && !event.isEmpty ? parentQ : undefined;
   }
-  // The one reader of the old value of questionValueChanged: onDynamicPanelValueChanged (options.oldValue).
-  isQuestionOldValueRead(question: IQuestion): boolean {
+  /* The one reader of the old value of questionValueChanged: onDynamicPanelValueChanged (options.oldValue).
+     Private: a records question reaches it through ISurveyOldValueReads. */
+  private isQuestionOldValueRead(question: IQuestion): boolean {
     return !!this.getDynamicPanelFiring(question, this.onDynamicPanelValueChanged);
   }
   private getDynamicPanelOptions(question: IQuestion, event: EventBase<SurveyModel>, isComment?: boolean): any {

@@ -2,12 +2,12 @@ import { Base, ComputedUpdater } from "./base";
 import { IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
-import { IVerifyDataContext, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext } from "./question";
+import { IAnswerCleanupAtComplete, IVerifyDataContext, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext } from "./question";
 import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { ArrayDynamicDataSource, hasFixedMembership, IArrayDynamicDataSourceOptions, isLocalSource, LocalDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
+import { ArrayDynamicDataSource, hasFixedMembership, IArrayDynamicDataSourceOptions, IRecordsAnswerShape, isLocalSource, LocalDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { TextContextProcessor } from "./textPreProcessor";
 import { SurveyError } from "./survey-error";
@@ -31,7 +31,7 @@ import { ConditionRunner } from "./conditions/conditionRunner";
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import type { PanelModelBase } from "./panel";
 import type { ItemValue } from "./itemvalue";
-import type { ISurveyDynamicDataWrites } from "./interfaces/survey-callbacks";
+import type { ISurveyDynamicDataWrites, ISurveyOldValueReads } from "./interfaces/survey-callbacks";
 
 export interface IDynamicDataRecordUniqueness {
   // The record keys whose values have to be unique; empty when none has to be.
@@ -612,9 +612,13 @@ export abstract class QuestionRecordsModel extends Question {
     }
     this.runAssignmentOfKind(isOwn, (): void => { super.setNewValue(newValue); });
   }
-  // An own record write copies the old records only for a handler that reads them.
+  /* An own record write copies the old records only for a handler that reads them. The survey is asked by
+     its member (ISurveyOldValueReads): a survey without it gets the copy. */
   protected getOldValueOnSetNewValue(): any {
-    if (this.isAssigningOwnValue && !(!!this.survey && this.survey.isQuestionOldValueRead(this))) return undefined;
+    if (this.isAssigningOwnValue) {
+      const reads = <ISurveyOldValueReads><any>this.survey;
+      if (!!reads && typeof reads.isQuestionOldValueRead === "function" && !reads.isQuestionOldValueRead(this)) return undefined;
+    }
     return super.getOldValueOnSetNewValue();
   }
   protected setOwnRecordsValue(newValue: any): void {
@@ -820,12 +824,12 @@ export abstract class QuestionRecordsModel extends Question {
      it - the page, the filter, the owner's visibility: an unknown key is a property of the value, not
      of the view. A source that pages itself checks its window. */
   protected verifyRecordsUnknownKeys(val: any, context: IVerifyDataContext): void {
-    const source = this.recordsSource;
+    const source = <IRecordsAnswerShape><any>this.recordsSource;
     this.forEachStoredRecord(this.loadedRecordCount, (index: number, item: QuestionRecordItem): void => {
-      const record = source.readInValue(val, index);
+      const record = source.readRecordInAnswer(val, index);
       const keys = this.getRecordUnknownKeys(index, record, item);
       if (keys.length === 0) return;
-      context.pushSegment(source.getSegment(index));
+      context.pushSegment(source.getRecordSegment(index));
       keys.forEach(key => context.addIssue("unknownProperty", key, record[key], this));
       context.popSegment();
     });
@@ -1699,7 +1703,7 @@ export abstract class QuestionRecordsModel extends Question {
      object takes its flags from the object's questions, so the history goes on when it loses the
      object; a record seen for the first time is only noted. On a transition the input's key and its
      comment go, as clearValue() removes them; the writes of one run go in one batch of the list.
-     The flags are kept per record (the source's getStateKey): by record index for the array types, shifted by
+     The flags are kept per record (the source's getRecordStateKey): by record index for the array types, shifted by
      the question's own insert, remove and move and kept across an assignment from outside as a built
      object keeps them (followHiddenAnswerStatesOnAssignment).
      Cost: the walk's (collectRecordChangesWithoutObjects), per condition run of the question, while an
@@ -1711,9 +1715,9 @@ export abstract class QuestionRecordsModel extends Question {
     if (inputs.length === 0) return;
     if (!this.hiddenAnswerStates)this.hiddenAnswerStates = new Map<any, HashTable<number>>();
     const states = this.hiddenAnswerStates;
-    const source = this.recordsSource;
+    const source = <IRecordsAnswerShape><any>this.recordsSource;
     this.writeRecordChanges(this.collectRecordChangesWithoutObjects(properties, (index: number, record: any, visibility: IRecordElementVisibility): any => {
-      const key = source.getStateKey(index, record);
+      const key = source.getRecordStateKey(index, record);
       const prevState = states.get(key);
       const state: HashTable<number> = {};
       let cleared: any = undefined;
@@ -1727,7 +1731,7 @@ export abstract class QuestionRecordsModel extends Question {
       states.set(key, state);
       return cleared;
     }, (index: number, record: any, item: QuestionRecordItem): void => {
-      states.set(source.getStateKey(index, record), this.getItemHiddenAnswerState(item, inputs));
+      states.set(source.getRecordStateKey(index, record), this.getItemHiddenAnswerState(item, inputs));
     }));
   }
   /* The records that have no object under paging in memory - the records of the pages never opened or
@@ -1857,13 +1861,13 @@ export abstract class QuestionRecordsModel extends Question {
   }
   // The built objects with the key their record's hidden-answer state is kept under.
   private forEachBuiltRecordItem(func: (key: any, item: QuestionRecordItem) => void): void {
-    const source = this.recordsSource;
+    const source = <IRecordsAnswerShape><any>this.recordsSource;
     for (let i = 0; ; i++) {
       const item = this.getItem(i);
       if (!item) return;
       if (!(item instanceof QuestionRecordItem)) continue;
       const index = this.getBuiltRecordIndex(item);
-      if (index > -1) func(source.getStateKey(index, undefined), item);
+      if (index > -1) func(source.getRecordStateKey(index, undefined), item);
     }
   }
   /* The record without the answer stored under name and its comment, the keys clearValue() removes.
@@ -1972,7 +1976,7 @@ export abstract class QuestionRecordsModel extends Question {
         questions.forEach((q: Question): void => {
           if (byObject.indexOf(q) > -1) return;
           const key = q.getValueName();
-          const cleanup = q.getAnswerCleanupAtComplete(record[key]);
+          const cleanup = (<IAnswerCleanupAtComplete><any>q).getAnswerCleanupAtComplete(record[key]);
           if (cleanup === undefined) objectQuestions.push(q);
           if (cleanup === "clear") delete res[key];
         });
@@ -3188,7 +3192,7 @@ export abstract class QuestionRecordsModel extends Question {
      list adds its keyField. Not asked for a sibling's in-place write: its records did not move
      (decideViewAgain). */
   private createAssignmentRemap(oldRecords: any, newRecords: any): (index: number) => number {
-    return this.recordsSource.createAssignmentRemap(oldRecords, newRecords, this._dataList?.keyField);
+    return (<IRecordsAnswerShape><any>this.recordsSource).createAnswerAssignmentRemap(oldRecords, newRecords, this._dataList?.keyField);
   }
   /* A write of a record by one of its questions. A question the respondent answers (hasInput) touches
      the record - and so does code that assigns it, setValueExpression and a trigger included: the
@@ -3424,7 +3428,7 @@ export abstract class QuestionRecordsModel extends Question {
     const newRecords = this.getStoredRecords();
     const isEveryChanged = !Helpers.isValueObject(oldRecords) || !Helpers.isValueObject(newRecords) || this.isRemoteData;
     const list = this.hasDataListView ? this.dataListValue : undefined;
-    const source = this.recordsSource;
+    const source = <IRecordsAnswerShape><any>this.recordsSource;
     /* When the rows decide which records exist, an object exists whether or not the answer holds its
        record, and an assignment refreshes it: a row added at runtime runs its expressions only when it
        is refreshed. Otherwise an object without a record is padding. */
@@ -3435,7 +3439,7 @@ export abstract class QuestionRecordsModel extends Question {
       const recordIndex = !!list ? list.materializedIndexToIndex(i) : i;
       const newRecord = this.getAssignedRecord(newRecords, recordIndex);
       if (isEveryChanged || newRecord === undefined && isRefreshedWithoutRecord ||
-        QuestionRecordsModel.isRecordChanged(source.readInValue(oldRecords, recordIndex), newRecord)) {
+        QuestionRecordsModel.isRecordChanged(source.readRecordInAnswer(oldRecords, recordIndex), newRecord)) {
         item.updateFromRecord(newRecord);
       }
     }
@@ -3448,7 +3452,7 @@ export abstract class QuestionRecordsModel extends Question {
      answer's shape by the own source. The dynamic matrix pads a row past the value with its default
      record; the record the object showed before is compared as the value held it. */
   protected getAssignedRecord(value: any, recordIndex: number): any {
-    return this.recordsSource.readInValue(value, recordIndex);
+    return (<IRecordsAnswerShape><any>this.recordsSource).readRecordInAnswer(value, recordIndex);
   }
   // The stored value, not the default: the records an assignment or a read replaces.
   protected getStoredRecords(): any {

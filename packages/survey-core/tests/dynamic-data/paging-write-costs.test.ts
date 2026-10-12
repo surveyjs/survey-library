@@ -349,6 +349,26 @@ describe("a single-field write copies the whole array only where a caller needs 
     expect(oldValues, "#1").toEqual([[], ["x"]]);
     expect(oldValues[1] === question.value, "#2: a copy").toBe(false);
   });
+  test("a survey that cannot tell whether the old value is read gets a copy of it for a dynamic panel write", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [{ type: "text", name: "a" }] }] });
+    survey.data = { p: [{ a: 1 }] };
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    panel.panels;
+    // A custom survey without the member: the instance hides SurveyModel's own.
+    (<any>survey).isQuestionOldValueRead = undefined;
+    const oldValues: Array<any> = [];
+    const original = survey.questionValueChanged.bind(survey);
+    survey.questionValueChanged = (q: any, oldValue: any, isComment?: boolean): void => {
+      if (q === panel) oldValues.push(oldValue);
+      original(q, oldValue, isComment);
+    };
+    const panelOldValues: Array<any> = [];
+    survey.onDynamicPanelValueChanged.add((_, options) => { panelOldValues.push(options.oldValue); });
+    panel.panels[0].getQuestionByName("a").value = 2;
+    expect(oldValues, "#1: the old records, copied").toEqual([[{ a: 1 }]]);
+    expect(panelOldValues, "#2: the handler gets the old value").toEqual([1]);
+    expect(survey.data, "#3").toEqual({ p: [{ a: 2 }] });
+  });
   test("survey.setValue hands the triggers and the conditions a copy of the old value", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "t" }] });
     survey.setValue("rec", [{ a: 1 }]);

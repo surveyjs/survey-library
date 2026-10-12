@@ -29,7 +29,7 @@ import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdown
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsValueGetterContext, IRecordCountNames, getRecordCountNamesOf, isRecordCountSerializable } from "./question_records";
 import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { ArrayDynamicDataSource, isRecordEmpty, IArrayDynamicDataSourceOptions } from "./dynamic-data/dynamic-data-sources";
+import { ArrayDynamicDataSource, IMinCountPaddedSource, isRecordEmpty, IArrayDynamicDataSourceOptions, IRecordsAnswerShape } from "./dynamic-data/dynamic-data-sources";
 
 export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
   // The design row answers any path; isRoot is left as it is.
@@ -1465,7 +1465,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
        total and the records beyond the window are on the server, not missing from the value. */
     if (this.isRemoteData) return result;
     if (result.length > this.rowCount) result.splice(this.rowCount);
-    return this.arrayRecordsSource.padRecords(result);
+    return (<IMinCountPaddedSource><any>this.arrayRecordsSource).padRecordsToMinCount(result);
   }
   protected deleteRowValue(newValue: any, row: MatrixDropdownRowModelBase): any {
     if (!Array.isArray(newValue)) return newValue;
@@ -1479,9 +1479,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return isEmpty ? null : newValue;
   }
 
-  // The lookup is the own source's (readInValue); a record the value does not hold reads as null here.
+  // The lookup is the own source's (readRecordInAnswer); a record the value does not hold reads as null here.
   private getRowValueByIndex(questionValue: any, index: number): any {
-    const res = this.recordsSource.readInValue(questionValue, index);
+    const res = (<IRecordsAnswerShape><any>this.recordsSource).readRecordInAnswer(questionValue, index);
     return res !== undefined ? res : null;
   }
   /* Still reached with an explicit value: updateValueOnRowsGeneration, onRowChanging,

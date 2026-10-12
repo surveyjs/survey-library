@@ -27,7 +27,7 @@ import {
   QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties
 } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
-import { isRecordEmpty, LocalDynamicDataSource, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
+import { IRecordsAnswerShape, isRecordEmpty, LocalDynamicDataSource, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { createIndexes } from "./dynamic-data/dynamic-data-filter";
 
 /* The matrix as its cells see it. The first group is what the interface has always declared for the
@@ -1838,7 +1838,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   // The segment of the row at a position in a location: the segment of the record it holds.
   private getRowDataSegment(position: number): string | number {
     const index = this.getRecordIndexAtRowPosition(position);
-    return this.recordsSource.getSegment(index > -1 ? index : position);
+    return (<IRecordsAnswerShape><any>this.recordsSource).getRecordSegment(index > -1 ? index : position);
   }
   public initializeForVerification(): void {
     const rows = this.allRows;
@@ -3065,11 +3065,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
      is not part of it - the same answer a source that filters on its own side gives, and what makes a
      total the total of the filtered rows. */
   protected getFilteredDataCore(): any {
-    const source = this.recordsSource;
-    const res = source.createValue();
+    const source = <IRecordsAnswerShape><any>this.recordsSource;
+    const res = source.createEmptyAnswer();
     this.generatedVisibleRows.forEach((row: MatrixDropdownRowModelBase): void => {
       if (row.isVisible && !row.isEmpty) {
-        source.addToValue(res, this.getBuiltRecordIndex(row), row.filteredValue);
+        source.addRecordToAnswer(res, this.getBuiltRecordIndex(row), row.filteredValue);
       }
     });
     return res;
@@ -3083,10 +3083,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   /* One walk, the result in the answer's shape, which the own source decides: an array in walk order,
      or keyed by the row value. func adds what a record contributes. */
   protected collectRecordValues(indexes: Array<number>, func: (index: number, row: MatrixDropdownRowModelBase, add: (value: any) => void) => void): any {
-    const source = this.recordsSource;
-    const res = source.createValue();
+    const source = <IRecordsAnswerShape><any>this.recordsSource;
+    const res = source.createEmptyAnswer();
     this.forEachRecordRow(indexes, (index: number, row: MatrixDropdownRowModelBase): void => {
-      func(index, row, (value: any): void => { source.addToValue(res, index, value); });
+      func(index, row, (value: any): void => { source.addRecordToAnswer(res, index, value); });
     });
     return res;
   }

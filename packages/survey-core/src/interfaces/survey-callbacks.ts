@@ -129,6 +129,13 @@ export interface ISurveyDynamicDataCallbacks {
 export interface ISurveyDynamicDataWrites {
   dynamicDataWritesChanged(question: IQuestion, hasPendingWrites: boolean, isFailed?: boolean): void;
 }
+/* Whether questionValueChanged passes the old value of a question on to a handler, so that the question
+   needs a copy of it. Not part of ISurvey and not exported by the entries: SurveyModel keeps it private,
+   and a records question asks a survey for it by its member (getOldValueOnSetNewValue) - a custom ISurvey
+   without it gets the copy, as released. */
+export interface ISurveyOldValueReads {
+  isQuestionOldValueRead(question: IQuestion): boolean;
+}
 export interface ISurveyChoiceCallbacks {
   storeOthersAsComment: boolean;
   /**

@@ -1,5 +1,7 @@
 import { describe, test, expect } from "vitest";
-import { ArrayDynamicDataSource, hasFixedMembership } from "../../src/dynamic-data/dynamic-data-sources";
+import { ArrayDynamicDataSource, hasFixedMembership, IMinCountPaddedSource, IRecordsAnswerShape } from "../../src/dynamic-data/dynamic-data-sources";
+// The answer-shape members are the owner question's plumbing, reached through a cast as the question does.
+const answerShape = (source: any): IRecordsAnswerShape => <IRecordsAnswerShape><any>source;
 
 describe("ArrayDynamicDataSource", () => {
   test("fromArray reads the array it wraps", () => {
@@ -237,51 +239,51 @@ describe("ArrayDynamicDataSource: count, readAt and the padding of an owner's mi
     store.source.update(4, { a: 5 });
     expect(store.stored, "#3: a single write materializes the padding too").toEqual([{ a: 1 }, { a: 2 }, { a: 3 }, { d: 1 }, { a: 5 }]);
   });
-  test("padRecords pads an array in place by the same rule", () => {
+  test("padRecordsToMinCount pads an array in place by the same rule", () => {
     const store = createPadded([], 3);
     const records = [{ a: 1 }];
-    expect(store.source.padRecords(records) === records, "#1: the same array").toBe(true);
+    expect((<IMinCountPaddedSource><any>store.source).padRecordsToMinCount(records) === records, "#1: the same array").toBe(true);
     expect(records, "#2").toEqual([{ a: 1 }, { d: 1 }, { d: 1 }]);
     expect(records[1] === records[2], "#3: distinct copies").toBe(false);
     const long = [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }];
-    store.source.padRecords(long);
+    (<IMinCountPaddedSource><any>store.source).padRecordsToMinCount(long);
     expect(long.length, "#4: never truncated").toBe(4);
   });
 });
 
 describe("ArrayDynamicDataSource: the answer's shape is an array", () => {
-  test("readInValue reads a value the caller passes by index, never the stored one", () => {
+  test("readRecordInAnswer reads a value the caller passes by index, never the stored one", () => {
     const source = ArrayDynamicDataSource.fromArray([{ a: "stored" }, { a: "stored" }]);
     const value = [{ a: 1 }, { a: 2 }];
-    expect(source.readInValue(value, 1) === value[1], "#1: the passed record itself").toBe(true);
-    expect(source.readInValue({ 0: { a: 1 } }, 0), "#2: a value that is not an array").toBeUndefined();
-    expect(source.readInValue(undefined, 0), "#3: no value").toBeUndefined();
-    expect(source.readInValue(value, 2), "#4: out of range").toBeUndefined();
-    expect(source.readInValue(value, -1), "#5: -1").toBeUndefined();
+    expect(answerShape(source).readRecordInAnswer(value, 1) === value[1], "#1: the passed record itself").toBe(true);
+    expect(answerShape(source).readRecordInAnswer({ 0: { a: 1 } }, 0), "#2: a value that is not an array").toBeUndefined();
+    expect(answerShape(source).readRecordInAnswer(undefined, 0), "#3: no value").toBeUndefined();
+    expect(answerShape(source).readRecordInAnswer(value, 2), "#4: out of range").toBeUndefined();
+    expect(answerShape(source).readRecordInAnswer(value, -1), "#5: -1").toBeUndefined();
   });
-  test("createValue and addToValue build an array in the order the records come, undefined included", () => {
+  test("createEmptyAnswer and addRecordToAnswer build an array in the order the records come, undefined included", () => {
     const source = ArrayDynamicDataSource.fromArray();
-    const res = source.createValue();
+    const res = answerShape(source).createEmptyAnswer();
     expect(res, "#1").toEqual([]);
-    source.addToValue(res, 5, { a: 1 });
-    source.addToValue(res, 0, undefined);
-    source.addToValue(res, 2, null);
+    answerShape(source).addRecordToAnswer(res, 5, { a: 1 });
+    answerShape(source).addRecordToAnswer(res, 0, undefined);
+    answerShape(source).addRecordToAnswer(res, 2, null);
     expect(res.length, "#2: every record is added").toBe(3);
     expect(res, "#3: in the order they came, whatever their index").toEqual([{ a: 1 }, undefined, null]);
   });
-  test("getSegment and getStateKey give the record index", () => {
+  test("getRecordSegment and getRecordStateKey give the record index", () => {
     const source = ArrayDynamicDataSource.fromArray([{ a: 1 }]);
-    expect([source.getSegment(0), source.getSegment(3), source.getSegment(-1)], "#1: getSegment").toEqual([0, 3, -1]);
+    expect([answerShape(source).getRecordSegment(0), answerShape(source).getRecordSegment(3), answerShape(source).getRecordSegment(-1)], "#1: getRecordSegment").toEqual([0, 3, -1]);
     const record = { a: 1 };
-    expect([source.getStateKey(0, record), source.getStateKey(3, record), source.getStateKey(-1, undefined)], "#2: getStateKey").toEqual([0, 3, -1]);
+    expect([answerShape(source).getRecordStateKey(0, record), answerShape(source).getRecordStateKey(3, record), answerShape(source).getRecordStateKey(-1, undefined)], "#2: getRecordStateKey").toEqual([0, 3, -1]);
   });
-  test("createAssignmentRemap places a record by keyField, and by content without one", () => {
+  test("createAnswerAssignmentRemap places a record by keyField, and by content without one", () => {
     const source = ArrayDynamicDataSource.fromArray();
-    const byKey = source.createAssignmentRemap([{ id: 1, a: 1 }, { id: 2, a: 2 }], [{ id: 2, a: 5 }, { id: 3 }, { id: 1, a: 1 }], "id");
+    const byKey = answerShape(source).createAnswerAssignmentRemap([{ id: 1, a: 1 }, { id: 2, a: 2 }], [{ id: 2, a: 5 }, { id: 3 }, { id: 1, a: 1 }], "id");
     expect([byKey(0), byKey(1)], "#1: by key, a changed record included").toEqual([2, 0]);
-    const byContent = source.createAssignmentRemap([{ a: 1 }, { a: 2 }], [{ a: 0 }, { a: 1 }, { a: 2 }]);
+    const byContent = answerShape(source).createAnswerAssignmentRemap([{ a: 1 }, { a: 2 }], [{ a: 0 }, { a: 1 }, { a: 2 }]);
     expect([byContent(0), byContent(1)], "#2: by content, a record inserted in front").toEqual([1, 2]);
-    const notArray = source.createAssignmentRemap([{ a: 1 }], { a: 1 });
+    const notArray = answerShape(source).createAnswerAssignmentRemap([{ a: 1 }], { a: 1 });
     expect(notArray(0), "#3: a value that is not an array holds no record").toBe(-1);
   });
 });

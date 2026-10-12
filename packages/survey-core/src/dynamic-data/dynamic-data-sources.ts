@@ -104,29 +104,30 @@ export abstract class LocalDynamicDataSource implements IDynamicDataSource {
   }
   /* The answer's shape, for a value the caller passes and for a result built from records - never the
      stored value. The base answers for an array, record i at value[i]; a source over another shape
-     overrides all five members (RowsDynamicDataSource). */
+     overrides all six members (RowsDynamicDataSource). The owner question calls them through
+     IRecordsAnswerShape. */
   // The record at index in a value the caller passes, not in the storage; undefined when the value does not hold it.
-  public readInValue(value: any, index: number): any {
+  protected readRecordInAnswer(value: any, index: number): any {
     return Array.isArray(value) && index > -1 ? value[index] : undefined;
   }
-  // An empty result in the answer's shape, filled by addToValue.
-  public createValue(): any {
+  // An empty result in the answer's shape, filled by addRecordToAnswer.
+  protected createEmptyAnswer(): any {
     return [];
   }
-  // Adds the record at index to a result of createValue: an array takes every record in the order it gets them, undefined included.
-  public addToValue(values: any, index: number, record: any): void {
+  // Adds the record at index to a result of createEmptyAnswer: an array takes every record in the order it gets them, undefined included.
+  protected addRecordToAnswer(values: any, index: number, record: any): void {
     values.push(record);
   }
   // The segment of the record at index in a data location.
-  public getSegment(index: number): string | number {
+  protected getRecordSegment(index: number): string | number {
     return index;
   }
   // What per-record state is kept under.
-  public getStateKey(index: number, record: any): any {
+  protected getRecordStateKey(index: number, record: any): any {
     return index;
   }
   // Where each record of an assignment from outside went: by keyField when the records name themselves, else by content (getReplacedRecordsRemap).
-  public createAssignmentRemap(oldRecords: any, newRecords: any, keyField?: string): (index: number) => number {
+  protected createAnswerAssignmentRemap(oldRecords: any, newRecords: any, keyField?: string): (index: number) => number {
     return getReplacedRecordsRemap(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : [], keyField);
   }
   /* A source without keyField is written by position: the index a list sends is the position in the
@@ -176,6 +177,23 @@ export interface IPositionWrittenSource {
   releasePositionWriter(writer: object): void;
   isWrittenByAnotherWriter(writer: object): boolean;
 }
+/* The answer's shape of a local source, for the question that owns it: the protected members of
+   LocalDynamicDataSource above, overridden by RowsDynamicDataSource, called through a cast - the
+   compiler does not check it. Not exported from the entries: the class is public, and these are its
+   owner's plumbing. */
+export interface IRecordsAnswerShape {
+  readRecordInAnswer(value: any, index: number): any;
+  createEmptyAnswer(): any;
+  addRecordToAnswer(values: any, index: number, record: any): void;
+  getRecordSegment(index: number): string | number;
+  getRecordStateKey(index: number, record: any): any;
+  createAnswerAssignmentRemap(oldRecords: any, newRecords: any, keyField?: string): (index: number) => number;
+}
+/* The padding of ArrayDynamicDataSource, for the Dynamic Matrix: its protected member, called through a
+   cast the compiler does not check. Not exported from the entries. */
+export interface IMinCountPaddedSource {
+  padRecordsToMinCount(records: Array<any>): Array<any>;
+}
 function isInRange(index: number, length: number): boolean {
   return index >= 0 && index < length;
 }
@@ -221,7 +239,7 @@ export class ArrayDynamicDataSource extends LocalDynamicDataSource {
     return defaultRecord !== undefined ? defaultRecord : this.getDefaultRecord();
   }
   // Appends copies of the default record until records holds the minimum count; records is modified and returned.
-  public padRecords(records: Array<any>): Array<any> {
+  protected padRecordsToMinCount(records: Array<any>): Array<any> {
     const minCount = this.getMinCount();
     if (records.length >= minCount) return records;
     const defaultRecord = this.getDefaultRecord();
@@ -247,7 +265,7 @@ export class ArrayDynamicDataSource extends LocalDynamicDataSource {
   // The stored array as read() gives it outside a batch: itself when it holds the minimum count, else a padded copy.
   protected readCore(): Array<any> {
     const res = this.readStored();
-    return res.length >= this.getMinCount() ? res : this.padRecords(res.slice());
+    return res.length >= this.getMinCount() ? res : this.padRecordsToMinCount(res.slice());
   }
   public insert(record: any, sourceIndex: number): void {
     const arr = this.read().slice();
@@ -339,9 +357,6 @@ export class RowsDynamicDataSource<T extends IDynamicDataRow = IDynamicDataRow> 
   protected getStoredCount(): number {
     return this.items.length;
   }
-  public get hasDuplicateKeys(): boolean {
-    return this.getRowsCache().hasDuplicates;
-  }
   public itemAt(index: number): T {
     return this.items[index];
   }
@@ -353,32 +368,32 @@ export class RowsDynamicDataSource<T extends IDynamicDataRow = IDynamicDataRow> 
     return isObject(value) ? value[item.value] : undefined;
   }
   // The keyed answer: a record in a value the caller passes is under its row's value.
-  public readInValue(value: any, index: number): any {
+  protected readRecordInAnswer(value: any, index: number): any {
     const item = index > -1 ? this.itemAt(index) : undefined;
     return !!item && isObject(value) ? value[item.value] : undefined;
   }
   // A result keyed by the row value, as the answer is.
-  public createValue(): any {
+  protected createEmptyAnswer(): any {
     return {};
   }
   // An empty record adds no key, and the last record of a key wins.
-  public addToValue(values: any, index: number, record: any): void {
+  protected addRecordToAnswer(values: any, index: number, record: any): void {
     if (record === undefined || record === null) return;
     values[this.itemAt(index).value] = record;
   }
   // The row value, as a string; the index for a record without a row.
-  public getSegment(index: number): string | number {
+  protected getRecordSegment(index: number): string | number {
     const item = this.itemAt(index);
     return !!item ? String(item.value) : index;
   }
   // A write of one row copies every row object of the answer: the row is what stays.
-  public getStateKey(index: number, record: any): any {
+  protected getRecordStateKey(index: number, record: any): any {
     return this.itemAt(index) || record;
   }
   /* An answer assignment never adds, removes or moves a record: the rows define them. A row whose
      answer changed or went is the same record, so every record keeps its index. Only a rows change
      moves or removes one (rowsChanged). */
-  public createAssignmentRemap(oldRecords: any, newRecords: any, keyField?: string): (index: number) => number {
+  protected createAnswerAssignmentRemap(oldRecords: any, newRecords: any, keyField?: string): (index: number) => number {
     return (index: number): number => index;
   }
   /* The records whose rows were changed by indexes keep other rows on their keys: two rows with one

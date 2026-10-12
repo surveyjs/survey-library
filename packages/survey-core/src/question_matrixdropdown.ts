@@ -16,7 +16,7 @@ import { ConditionRunner } from "./conditions/conditionRunner";
 import { ArrayChanges, Base } from "./base";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { QuestionRecordItem, IDynamicDataRecordUniqueness } from "./question_records";
-import { IRowsChange, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
+import { IRecordsAnswerShape, IRowsChange, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { IDynamicDataRecordCondition } from "./dynamic-data/dynamic-data-record-visibility";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { settings } from "./settings";
@@ -286,7 +286,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     source.getIndexesOfSameKeys(changed).forEach((index: number): void => {
       const row = <MatrixDropdownRowModelBase>this.getItemByRecordIndex(index);
       if (!!row) {
-        row.value = this.getUnbindValue(source.readInValue(value, index));
+        row.value = this.getUnbindValue((<IRecordsAnswerShape><any>source).readRecordInAnswer(value, index));
       }
     });
   }

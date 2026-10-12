@@ -116,11 +116,6 @@ class PanelDynamicTabbedMenuItem extends Action {
 
 export class QuestionPanelDynamicItem extends QuestionRecordItem {
   private panelValue: PanelModel;
-  /* The panel left panelsCore: removed, cut off by a lower panelCount, rebuilt or off the page. A
-     question of such a panel can still be written - a kept reference, a deferred dispose - and writes
-     nothing, as a cell question of a removed matrix row. A panel that is being created is not in
-     panelsCore yet either, and writes. */
-  public isLeft: boolean = false;
   // isLight: the questions are attached without running their conditions; the owner runs them later.
   constructor(public data: QuestionPanelDynamicModel, panel: PanelModel, isLight?: boolean) {
     super(data);
@@ -521,8 +516,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       }
     });
   }
+  /* The items of panels that left panelsCore: removed, cut off by a lower panelCount, rebuilt or off the
+     page. A question of such a panel can still be written - a kept reference, a deferred dispose - and
+     writes nothing, as a cell question of a removed matrix row. A panel that is being created is not in
+     panelsCore yet either, and writes. Held by the question: an item that is gone is dropped with it. */
+  private leftItems: WeakSet<QuestionPanelDynamicItem> = new WeakSet<QuestionPanelDynamicItem>();
   private markPanelsLeft(panels: Array<PanelModel>): void {
-    panels.forEach((panel: PanelModel): void => { if (!!panel.data)(<QuestionPanelDynamicItem>panel.data).isLeft = true; });
+    panels.forEach((panel: PanelModel): void => { if (!!panel.data)this.leftItems.add(<QuestionPanelDynamicItem>panel.data); });
   }
   private disposeLeftPanels(rendered: Array<PanelModel>): void {
     if (this.panelsToDispose.length === 0) return;
@@ -3383,7 +3383,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const position = this.panels.indexOf(<PanelModel>panel);
     // A question of a removed panel writes nothing: there is no change to announce.
     const item = <QuestionPanelDynamicItem>(<PanelModel>panel).data;
-    if (position < 0 && !!item && item.isLeft) return undefined;
+    if (position < 0 && !!item && this.leftItems.has(item)) return undefined;
     return {
       question: this,
       panel: panel,
@@ -3448,7 +3448,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   // A question of a panel that left the panels writes nothing, so nothing is notified: a stop, as a refusal.
   protected refuseItemWrite(item: QuestionRecordItem): boolean {
-    if (this.items.indexOf(item) < 0 && (<QuestionPanelDynamicItem>item).isLeft) return true;
+    if (this.items.indexOf(item) < 0 && this.leftItems.has(<QuestionPanelDynamicItem>item)) return true;
     return super.refuseItemWrite(item);
   }
   /* The questions the validation on value change checks: the one being written, and the ones of the

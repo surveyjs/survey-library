@@ -21,7 +21,7 @@ export class PanelComponent extends BaseAngular<PanelModel> implements AfterView
     return row.id;
   };
   public get canRender() {
-    return this.model && this.model.survey && this.model.getIsContentVisible();
+    return this.model && this.model.survey && this.model.renderedIsContentVisible;
   }
 }
 AngularComponentFactory.Instance.registerComponent("panel", PanelComponent);

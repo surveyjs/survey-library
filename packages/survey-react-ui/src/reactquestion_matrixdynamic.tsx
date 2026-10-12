@@ -60,7 +60,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
   }
   // Prototype (#11873): the pager sits under the table and above the "Add row" toolbar.
   protected renderPager(): React.JSX.Element | null {
-    if (this.matrix.pageSize <= 0) return null;
+    if (!this.matrix.showPager) return null;
     return ReactElementFactory.Instance.createElement("sv-dynamic-data-pager", { question: this.matrix });
   }
   protected renderToolbar(location: "top" | "bottom"): React.JSX.Element | null {

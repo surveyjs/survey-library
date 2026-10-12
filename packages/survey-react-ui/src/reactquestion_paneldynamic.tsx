@@ -73,10 +73,11 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
 
-  /* Prototype (#11873). Paging applies to displayMode: "list" only - in carousel and tab mode
-     renderedPanels holds the one current panel and the question has a navigator of its own. */
+  /* Prototype (#11873). The pager is for displayMode: "list" only - carousel and tab mode page too,
+     but their own Previous and Next buttons cross pages. One page is no paging (design and
+     single-input mode report one as well). */
   protected renderPager(): React.JSX.Element | null {
-    if (!(this.question.pageSize > 0) || !this.question.isRenderModeList) return null;
+    if (this.question.pageCount <= 1 || !this.question.isRenderModeList) return null;
     return ReactElementFactory.Instance.createElement("sv-dynamic-data-pager", { question: this.question });
   }
 

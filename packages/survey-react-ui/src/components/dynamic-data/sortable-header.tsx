@@ -9,7 +9,7 @@ import { SurveyElementBase } from "../../reactquestion_element";
 // The matrix side of the sort: the question owns the cycle, the header only passes the modifier on.
 interface IDynamicDataSortQuestion extends Base {
   sortOrder: Array<IDynamicDataSort>;
-  toggleSort(field: string, addToSort?: boolean): void;
+  toggleSort(field: string, addToSort?: boolean): boolean;
 }
 interface IDynamicDataSortHeaderProps {
   cell: QuestionMatrixDropdownRenderedCell;
@@ -34,13 +34,19 @@ const getSort = (question: IDynamicDataSortQuestion, field: string): IDynamicDat
   return sortOrder.filter((s: IDynamicDataSort): boolean => s.field === field)[0];
 };
 
+/* column.isSortable does not look at the design mode: in Survey Creator a header click selects the
+   column, and a sort there would rewrite the matrix's sortBy. */
+export function isDynamicDataSortHeader(cell: QuestionMatrixDropdownRenderedCell, question: any): boolean {
+  const column: any = cell.column;
+  return !!column && column.isSortable === true && !!question && !question.isDesignMode;
+}
+
 /* aria-sort belongs to the <th>, which the table renderer owns, so the lookup lives here next to
    the indicator that uses the same answer. It is undefined for a column that does not sort, which
    is what keeps the header markup of an ordinary matrix unchanged. */
 export function getDynamicDataAriaSort(cell: QuestionMatrixDropdownRenderedCell, question: any): "ascending" | "descending" | "none" | undefined {
-  const column: any = cell.column;
-  if (!column || column.isSortable !== true) return undefined;
-  const sort = getSort(question, column.sortField);
+  if (!isDynamicDataSortHeader(cell, question)) return undefined;
+  const sort = getSort(question, (cell.column as any).sortField);
   if (!sort) return "none";
   return sort.direction === "desc" ? "descending" : "ascending";
 }

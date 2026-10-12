@@ -1,10 +1,11 @@
-// Prototype for the #11873 showcase: the shipping sort UI will replace this file. The glyphs, the
-// inline styles and the English title/aria text are hard-coded on purpose - there is no design and
-// no localized string for a sortable header yet.
+// Prototype for the #11873 showcase: the shipping sort UI will replace this file. The inline styles
+// and the English title/aria text are hard-coded on purpose - there is no design and no localized
+// string for a sortable header yet.
 import * as React from "react";
 import { Base, IDynamicDataSort, QuestionMatrixDropdownRenderedCell } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
+import { SvgIcon } from "../svg-icon/svg-icon";
 
 // The matrix side of the sort: the question owns the cycle, the header only passes the modifier on.
 interface IDynamicDataSortQuestion extends Base {
@@ -21,12 +22,11 @@ const buttonStyle: React.CSSProperties = {
   display: "inline-flex", alignItems: "center", gap: "4px", padding: 0, border: "none",
   background: "none", font: "inherit", color: "inherit", cursor: "pointer", textAlign: "left"
 };
-// The eslint i18n rule rejects non-ASCII source characters, so the glyphs are escaped.
-const unsortedGlyph = "\u2195";
-const ascGlyph = "\u25B2";
-const descGlyph = "\u25BC";
-const sortedGlyphStyle: React.CSSProperties = { fontSize: "11px" };
-const unsortedGlyphStyle: React.CSSProperties = { fontSize: "11px", opacity: 0.35 };
+// Feather chevrons (images-v1/v2): up = ascending, down = descending, a faded down = not sorted.
+const ascIconName = "icon-chevronup-16x16";
+const descIconName = "icon-chevrondown-16x16";
+const indicatorStyle: React.CSSProperties = { display: "inline-flex", alignItems: "center", fontSize: "11px" };
+const unsortedIconStyle: React.CSSProperties = { opacity: 0.35 };
 
 const getSort = (question: IDynamicDataSortQuestion, field: string): IDynamicDataSort => {
   const sortOrder = !!question ? question.sortOrder : null;
@@ -77,10 +77,16 @@ export class SurveyQuestionDynamicDataSortHeader extends SurveyElementBase<IDyna
   }
   private renderIndicator(): React.JSX.Element {
     const sort = getSort(this.question, this.field);
-    if (!sort) return <span style={unsortedGlyphStyle} aria-hidden="true">{unsortedGlyph}</span>;
+    if (!sort) {
+      return <span style={indicatorStyle} aria-hidden="true">
+        <SvgIcon iconName={descIconName} size={16} style={unsortedIconStyle}></SvgIcon>
+      </span>;
+    }
     // The rank makes a multi-field sort legible: it is the 1-based place of the field in sortOrder.
     const rank = this.question.sortOrder.length > 1 ? "" + (this.question.sortOrder.indexOf(sort) + 1) : "";
-    return <span style={sortedGlyphStyle} aria-hidden="true">{(sort.direction === "desc" ? descGlyph : ascGlyph) + rank}</span>;
+    return <span style={indicatorStyle} aria-hidden="true">
+      <SvgIcon iconName={sort.direction === "desc" ? descIconName : ascIconName} size={16}></SvgIcon>{rank}
+    </span>;
   }
   protected renderElement(): React.JSX.Element {
     const title = this.props.cell.getTitle();

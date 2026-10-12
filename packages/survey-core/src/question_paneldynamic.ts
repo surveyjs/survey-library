@@ -3578,6 +3578,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     return false;
   }
+  /* The renderers show a pager under the panels while the list has more than one page. Carousel and
+     tab mode page too, but their own navigation crosses pages. One page is no paging: design and
+     single-input mode report one as well. */
+  public get showPager(): boolean {
+    return this.pageCount > 1 && this.isRenderModeList;
+  }
   private tabbedMenuValue: AdaptiveActionContainer<PanelDynamicTabbedMenuItem>;
   public get hasTabbedMenu(): boolean {
     return this.isRenderModeTab && this.visiblePanels.length > 0;

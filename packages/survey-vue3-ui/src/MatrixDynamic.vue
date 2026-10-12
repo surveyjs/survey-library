@@ -13,6 +13,9 @@
       v-else
       :question="question"
     />
+    <div v-if="question.showPager" :class="question.cssClasses.pager">
+      <SvComponent :is="'sv-action-bar'" :model="question.pagerActions"></SvComponent>
+    </div>
     <div v-if="question.getShowToolbar('bottom')" :class="question.getToolbarCssClass('bottom')">
       <SvComponent :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
     </div>

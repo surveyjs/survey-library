@@ -36,6 +36,14 @@
   padding-block-end: var(--sd-matrixdynamic-toolbar-padding-block-start);
   padding-block-start: var(--sd-matrixdynamic-toolbar-padding-block-end);
 }
+.sd-matrixdynamic__pager {
+  position: sticky;
+  left: 0;
+  box-sizing: border-box;
+  padding-inline: var(--sd-matrixdynamic-toolbar-padding-inline);
+  padding-block-start: var(--sd-matrixdynamic-toolbar-padding-block-start);
+  --sd-action-bar-gap: var(--sd-matrixdynamic-toolbar-gap);
+}
 .sd-matrixdynamic__content > div {
   display: contents;
 }

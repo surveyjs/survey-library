@@ -48,6 +48,9 @@
         />
       </template>
     </div>
+    <div v-if="question.showPager" :class="question.cssClasses.pager">
+      <SvComponent :is="'sv-action-bar'" :model="question.pagerActions"></SvComponent>
+    </div>
     <SvComponent
       :is="'survey-paneldynamicprogress'"
       v-if="question.showNavigation"

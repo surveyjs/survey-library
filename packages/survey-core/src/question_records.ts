@@ -2476,42 +2476,104 @@ export abstract class QuestionRecordsModel extends Question {
     return this.pagerActionsValue;
   }
   /* The pager the renderers show through their action bar: it computes nothing of its own, it shows
-     what the paging helper answers. The page buttons are icons whose localized titles are their
-     accessible names; the page info is a disabled item without a tab stop, text the keyboard passes
-     over. */
+     what the paging helper answers. The move buttons are icons whose localized titles are their
+     accessible names; the page info and the loading text are disabled items without a tab stop,
+     text the keyboard passes over. Every updater reads its inputs through getPagerState(): a
+     ComputedUpdater collects its dependencies once, on the first run, so an input read only in a
+     branch not taken then would never be observed afterwards. */
+  private getPagerState(): { pageIndex: number, pageCount: number, isCountKnown: boolean, canMove: boolean, slots: Array<number> } {
+    const pageIndex = this.paging.pageIndex;
+    const pageCount = this.paging.pageCount;
+    const isCountKnown = this.paging.isCountKnown;
+    const canMove = !this.isPageMovePending && !this.isDataLoading;
+    return { pageIndex: pageIndex, pageCount: pageCount, isCountKnown: isCountKnown, canMove: canMove,
+      slots: isCountKnown ? getPagerSlots(pageIndex, pageCount) : [] };
+  }
   // A page-move action of the pager: an icon button with a localized title.
-  private createPageMoveAction(id: string, iconName: string, titleName: string, canMove: () => boolean, move: () => void): Action {
+  private createPageMoveAction(id: string, iconName: string, titleName: string, canMove: () => boolean, move: () => void, isVisible?: () => boolean): Action {
     return new Action({
       id: id,
       iconName: iconName,
       showTitle: false,
       title: <any>new ComputedUpdater(() => this.getLocalizationFormatString(titleName)),
-      enabled: <any>new ComputedUpdater(canMove),
+      enabled: <any>new ComputedUpdater(() => {
+        const state = this.getPagerState();
+        const res = canMove();
+        return state.canMove && res;
+      }),
+      visible: !!isVisible ? <any>new ComputedUpdater(isVisible) : true,
       action: move
     });
   }
+  // A page number slot: the page it shows (or the gap it marks) follows the current page.
+  private createPageSlotAction(slot: number): Action {
+    const getPage = (): number => {
+      const slots = this.getPagerState().slots;
+      return slot < slots.length ? slots[slot] : -1;
+    };
+    return new Action({
+      id: "sv-pager-page-" + slot,
+      title: <any>new ComputedUpdater(() => {
+        const page = getPage();
+        return page < 0 ? "\u2026" : String(page + 1);
+      }),
+      visible: <any>new ComputedUpdater(() => slot < this.getPagerState().slots.length),
+      // The current page stays enabled: a disabled item's style would hide the active one.
+      enabled: <any>new ComputedUpdater(() => {
+        const state = this.getPagerState();
+        return state.canMove && getPage() > -1;
+      }),
+      active: <any>new ComputedUpdater(() => {
+        const state = this.getPagerState();
+        const page = getPage();
+        return page > -1 && page === state.pageIndex;
+      }),
+      disableTabStop: <any>new ComputedUpdater(() => getPage() < 0),
+      action: (): void => {
+        const page = getPage();
+        if (page > -1)this.paging.goToPage(page);
+      }
+    });
+  }
   private createPagerActions(container: ActionContainer): ActionContainer {
-    const prevAction = this.createPageMoveAction("sv-pager-prev", "icon-arrowleft", "pagePrevText",
-      (): boolean => this.paging.canGoPrevPage, (): void => { this.paging.prevPage(); });
-    const pageInfoAction = new Action({
+    const items: Array<Action> = [];
+    items.push(this.createPageMoveAction("sv-pager-first", "icon-arrowfirst-16x16", "pageFirstText",
+      (): boolean => this.paging.canGoPrevPage, (): void => { this.paging.goToPage(0); }));
+    items.push(this.createPageMoveAction("sv-pager-prev", "icon-arrowleft", "pagePrevText",
+      (): boolean => this.paging.canGoPrevPage, (): void => { this.paging.prevPage(); }));
+    for (let i = 0; i < pagerSlotCount; i++) {
+      items.push(this.createPageSlotAction(i));
+    }
+    items.push(new Action({
       id: "sv-pager-info",
       /* A count nobody knows has no total to show: the page number alone. A known count goes through
          indexText like every other pager (some locales reverse the order). survey.locale is a property
          read, so the updater follows it; the global surveyLocalization.currentLocale is not observed.
-         Both texts are computed on every run: a ComputedUpdater collects its dependencies once, on the
-         first run, so a branch not taken then (the total, while the count is unknown) is never
-         observed afterwards. */
+         Both texts are computed on every run (see getPagerState). The info shows only while the count
+         is unknown: with a known count the page number slots show the total. */
       title: <any>new ComputedUpdater(() => {
         const page = this.reportedPageIndex + 1;
         const text = this.getLocalizationFormatString("indexText", page, this.reportedPageCount);
         return this.paging.isCountKnown ? text : String(page);
       }),
+      visible: <any>new ComputedUpdater(() => !this.getPagerState().isCountKnown),
       enabled: false,
       disableTabStop: true
-    });
-    const nextAction = this.createPageMoveAction("sv-pager-next", "icon-arrowright", "pageNextText",
-      (): boolean => this.paging.canGoNextPage, (): void => { this.paging.nextPage(); });
-    container.setItems([prevAction, pageInfoAction, nextAction]);
+    }));
+    items.push(this.createPageMoveAction("sv-pager-next", "icon-arrowright", "pageNextText",
+      (): boolean => this.paging.canGoNextPage, (): void => { this.paging.nextPage(); }));
+    // There is no last page to go to while the count is unknown.
+    items.push(this.createPageMoveAction("sv-pager-last", "icon-arrowlast-16x16", "pageLastText",
+      (): boolean => this.paging.canGoNextPage, (): void => { this.paging.goToPage(this.paging.pageCount - 1); },
+      (): boolean => this.getPagerState().isCountKnown));
+    items.push(new Action({
+      id: "sv-pager-loading",
+      title: <any>new ComputedUpdater(() => this.getLocalizationString("loadingData")),
+      visible: <any>new ComputedUpdater(() => this.isDataLoading),
+      enabled: false,
+      disableTabStop: true
+    }));
+    container.setItems(items);
     return container;
   }
   // True while a page move waits for the asynchronous validators of the page it leaves.
@@ -4527,6 +4589,22 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
     json[key].forEach((el: any): void => { if (!!el && el.type === "panel") removeRecordCleanupSkipped(el, names); });
   });
   return json;
+}
+// The page number slots of the pager: the first and the last page, the current one and one on each side.
+const pagerSlotCount = 7;
+/* The pages the slots show, zero-based, -1 for a gap. The count stays pagerSlotCount once there are
+   more pages than slots, so the buttons around the current page do not move while it changes:
+   0 1 2 3 4 ... N-1 near the start, 0 ... N-5 .. N-1 near the end, 0 ... c-1 c c+1 ... N-1 between. */
+function getPagerSlots(pageIndex: number, pageCount: number): Array<number> {
+  const res: Array<number> = [];
+  if (pageCount <= pagerSlotCount) {
+    for (let i = 0; i < pageCount; i++) res.push(i);
+    return res;
+  }
+  const last = pageCount - 1;
+  if (pageIndex <= 3) return [0, 1, 2, 3, 4, -1, last];
+  if (pageIndex >= pageCount - 4) return [0, -1, last - 4, last - 3, last - 2, last - 1, last];
+  return [0, -1, pageIndex - 1, pageIndex, pageIndex + 1, -1, last];
 }
 /* The serializer entries of the paging, the sort and the filter of a records question (rowsPerPage or
    panelsPerPage, sortBy, filterExpression). Invisible in the property grid until the UI series ships a

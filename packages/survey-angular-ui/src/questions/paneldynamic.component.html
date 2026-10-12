@@ -22,6 +22,9 @@
         <hr [class]="model.cssClasses.separator" *ngIf="model.showSeparator(index)" />
       </ng-container>
     </div>
+    <div *ngIf="model.showPager" [class]="model.cssClasses.pager">
+      <sv-ng-action-bar [model]="model.pagerActions"></sv-ng-action-bar>
+    </div>
     <ng-container [ngTemplateOutlet]="progress" *ngIf="model.showNavigation"></ng-container>
   </div>
 </ng-template>

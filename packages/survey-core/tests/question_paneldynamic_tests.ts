@@ -10881,7 +10881,9 @@ describe("Question Panel Dynamic: paging and sorting", () => {
   });
   test("the pager actions run the navigation and follow it", () => {
     const question = createQuestion({ panelCount: 5, panelsPerPage: 2 }, abcde);
-    expect(question.pagerActions.actions.length, "#1: prev, the page info and next").toBe(3);
+    expect(question.pagerActions.actions.map(action => action.id), "#1: first, prev, the page slots, the page info, next, last and the loading text").toEqual([
+      "sv-pager-first", "sv-pager-prev", "sv-pager-page-0", "sv-pager-page-1", "sv-pager-page-2", "sv-pager-page-3", "sv-pager-page-4",
+      "sv-pager-page-5", "sv-pager-page-6", "sv-pager-info", "sv-pager-next", "sv-pager-last", "sv-pager-loading"]);
     const prev = question.pagerActions.getActionById("sv-pager-prev");
     const next = question.pagerActions.getActionById("sv-pager-next");
     const info = question.pagerActions.getActionById("sv-pager-info");

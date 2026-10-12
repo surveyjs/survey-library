@@ -438,6 +438,29 @@ frameworks.forEach((framework) => {
       await expect(page.locator("textarea").first()).toHaveValue("newCountry");
     });
 
+    test("the pager moves the panel pages through its buttons", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel",
+            panelsPerPage: 1,
+            defaultValue: [{ name: "panel0" }, { name: "panel1" }, { name: "panel2" }],
+            templateElements: [{ type: "text", name: "name" }],
+          },
+        ],
+      });
+      const pager = page.locator(".sd-paneldynamic__pager");
+      const nameInput = page.locator(".sd-paneldynamic__panel-wrapper input").first();
+
+      await expect(nameInput).toHaveValue("panel0");
+      await pager.getByRole("button", { name: "3", exact: true }).click();
+      await expect(nameInput).toHaveValue("panel2");
+      await expect(pager.locator("button[title='Next']")).toBeDisabled();
+      await pager.locator("button[title='Previous']").click();
+      await expect(nameInput).toHaveValue("panel1");
+    });
+
     test("Check valueName for two paneldynamics - #6584", async ({ page }) => {
       await initSurvey(page, framework, {
         logoPosition: "right",

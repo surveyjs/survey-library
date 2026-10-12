@@ -1112,6 +1112,17 @@ input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   height: 4px;
 }
 
-.svc-question__content--title-bottom .sd-question__content {
-  margin-top: 12px;
+.svc-question__content--title-bottom {
+  &>.sd-question:not(.sd-question--complex):has(
+    .sd-question__content--text,
+    .sd-question__content--comment,
+    .sd-question__content--dropdown
+  ) .sd-question__container > .sd-question__header-and-content-container {
+    &>.sd-question__content {
+      margin-top: 12px;
+    }
+    &>.sd-question__header {
+      top: 12px;
+    }
+  }
 }

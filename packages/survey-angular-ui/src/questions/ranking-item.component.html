@@ -18,7 +18,7 @@
       <div *ngIf="!unrankedItem && question.getNumberByIndex(index); else elseBlock" [class]="question.getItemIndexClasses(model)">{{ question.getNumberByIndex(index) }}</div>
       <ng-template #elseBlock><div [class]="question.getItemIndexClasses(model)">
         <svg>
-          <use [attr.xlink:href]="question.dashSvgIcon"></use>
+          <use [attr.xlink:href]="question.emptyIndexSvgIcon"></use>
         </svg> 
       </div></ng-template>
 

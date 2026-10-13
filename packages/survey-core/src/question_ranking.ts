@@ -671,6 +671,15 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public get dashSvgIcon(): string {
     return this.cssClasses.dashSvgIconId || "#icon-rankingundefined-16x16";
   }
+  public get dotSvgIcon(): string {
+    return this.cssClasses.dotSvgIconId || "#icon-rankingdot-16x16";
+  }
+  public get plusSvgIcon(): string {
+    return this.cssClasses.plusSvgIconId || "#icon-rankingplus-16x16";
+  }
+  public get emptyIndexSvgIcon(): string {
+    return this.selectToRankEnabled ? this.plusSvgIcon : this.dotSvgIcon;
+  }
 
   //a11y
   public get isNewA11yStructure(): boolean {

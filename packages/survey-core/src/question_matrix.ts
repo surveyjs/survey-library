@@ -466,7 +466,9 @@ export class QuestionMatrixModel
    * @see rowsVisibleIf
    */
   @property() columnsVisibleIf: string;
-  protected onColumnsChanged(): void { }
+  protected onColumnsChanged(): void {
+    this.resetSingleInputQuestions();
+  }
   protected updateVisibilityBasedOnRows(): void {
     if (this.hideIfRowsEmpty) {
       this.onVisibleChanged();
@@ -780,8 +782,17 @@ export class QuestionMatrixModel
   }
   protected onRowsChanged(): void {
     this.clearGeneratedRows();
+    this.resetSingleInputQuestions();
     this.updateVisibilityBasedOnRows();
     this.fireCallback(this.visibleRowsChangedCallback);
+  }
+  // The row questions of the single-input mode are built from visibleRows and visibleColumns, so a
+  // rowsVisibleIf / columnsVisibleIf that changes either makes them stale. resetSingleInput() drops
+  // them together with the single input that may point to one of them.
+  private resetSingleInputQuestions(): void {
+    if (!!this.nestedQuestionsValue) {
+      this.resetSingleInput();
+    }
   }
   public getMatrixRows(): Array<MatrixRowModel> {
     if (!!this.generatedVisibleRows) return this.generatedVisibleRows;

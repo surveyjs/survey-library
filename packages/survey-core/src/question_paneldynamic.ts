@@ -196,13 +196,6 @@ interface IPanelRemoval extends IRecordRemoval {
   *
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
   */
-/* The title the sort menu shows for a template question. The template belongs to no panel, so panel
-   piping ({panel.x}, {panelIndex}) has nothing to resolve: the unprocessed title is taken with every
-   placeholder stripped, and the name when nothing is left. */
-function getTemplateQuestionSortTitle(q: Question): string {
-  const res = (q.locTitle.pureText || "").replace(/\{[^}]*\}/g, "").replace(/\s+/g, " ").trim();
-  return res || q.name;
-}
 export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private templateValue: PanelModel;
   private isValueChangingInternally: boolean;
@@ -3599,30 +3592,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public get showPager(): boolean {
     return this.pageCount > 1 && this.isRenderModeList;
   }
-  /* Enables the "Sort by" menu above the panels. It gates the menu only: sortBy from JSON and sortOrder
+  /* Enables the sort menu under the panels. It gates the menu only: sortBy from JSON and sortOrder
      from code sort a question that does not opt in. */
   @property({ defaultValue: false }) allowSortPanels: boolean;
   protected get isSortMenuAllowed(): boolean {
     return this.allowSortPanels;
   }
-  /* Every sortable question of the template, nested panels included (their values live in the same
-     record), under the value name the list knows it by (getFieldsOfQuestions). A question hidden in the
-     template is left out; one a visibleIf hides in some panels is not: the sort covers those records too. */
   protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
-    const res: Array<{ field: string, title: string }> = [];
-    this.template.questions.forEach((q: Question): void => {
-      if (!q.isValueSortable || !this.isVisibleInTemplate(q)) return;
-      res.push({ field: q.getValueName(), title: getTemplateQuestionSortTitle(q) });
-    });
-    return res;
-  }
-  private isVisibleInTemplate(q: Question): boolean {
-    let el: any = q;
-    while(!!el && el !== this.template) {
-      if (!el.visible) return false;
-      el = el.parent;
-    }
-    return true;
+    return this.getTemplateSortFieldCandidates(this.template);
   }
   private tabbedMenuValue: AdaptiveActionContainer<PanelDynamicTabbedMenuItem>;
   public get hasTabbedMenu(): boolean {
@@ -3984,6 +3961,7 @@ Serializer.addClass(
     ...getRecordViewProperties("panelsPerPage"),
     // Invisible in the property grid until the sort UI ships, like panelsPerPage and sortBy.
     { name: "allowSortPanels:boolean", default: false, visible: false },
+    { name: "maxSortLevels:number", default: 2, minValue: 1, maxValue: 5, visible: false },
     { name: "displayMode", default: "list", choices: ["list", "carousel", "tab"] },
     {
       name: "showProgressBar:boolean", alternativeName: "showRangeInProgress",

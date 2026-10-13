@@ -3,9 +3,6 @@
     <div v-if="question.getShowToolbar('top')" :class="question.getToolbarCssClass('top')">
       <SvComponent :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
     </div>
-    <div v-if="question.showViewActions" :class="question.cssClasses.viewActions">
-      <SvComponent :is="'sv-action-bar'" :model="question.viewActions"></SvComponent>
-    </div>
     <SvComponent
       :is="'survey-matrixtable'"
       v-if="question.renderedTable.showTable"
@@ -16,8 +13,13 @@
       v-else
       :question="question"
     />
-    <div v-if="question.showPager" :class="question.cssClasses.pager">
-      <SvComponent :is="'sv-action-bar'" :model="question.pagerActions"></SvComponent>
+    <div v-if="question.showViewActions || question.showPager" :class="question.cssClasses.recordsBar">
+      <div v-if="question.showViewActions" :class="question.cssClasses.viewActions">
+        <SvComponent :is="'sv-action-bar'" :model="question.viewActions"></SvComponent>
+      </div>
+      <div v-if="question.showPager" :class="question.cssClasses.pager">
+        <SvComponent :is="'sv-action-bar'" :model="question.pagerActions"></SvComponent>
+      </div>
     </div>
     <div v-if="question.getShowToolbar('bottom')" :class="question.getToolbarCssClass('bottom')">
       <SvComponent :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>

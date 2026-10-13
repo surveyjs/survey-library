@@ -590,17 +590,64 @@ frameworks.forEach((framework) => {
           },
         ],
       });
-      const viewActions = page.locator(".sd-matrixdynamic__view-actions");
+      const viewActions = page.locator(".sd-matrixdynamic__records-bar .sd-matrixdynamic__view-actions");
       const firstName = page.locator("input[type='text']").filter({ visible: true }).first();
       await expect(firstName).toHaveValue("b");
       await expect(viewActions, "the header sorts on a desktop").toHaveCount(0);
 
       await page.setViewportSize({ width: 600, height: 1080 });
       await page.evaluate(() => (window as any).survey.setIsMobile(true));
+      const lastName = page.locator("input[type='text']").filter({ visible: true }).last();
+      await expect(viewActions).toBeVisible();
+      expect((await viewActions.boundingBox())!.y, "the menu is under the rows").toBeGreaterThan((await lastName.boundingBox())!.y);
       await viewActions.getByRole("button", { name: "Sort by", exact: true }).click();
       await page.getByRole("menuitemradio", { name: "name", exact: true }).click();
       await expect(firstName).toHaveValue("a");
       await expect(viewActions.getByRole("button", { name: "Sort by name, ascending" })).toBeVisible();
+    });
+
+    test("the Sort by menu sorts a desktop matrix by a detail panel question", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            allowSortRows: true,
+            detailPanelMode: "underRow",
+            defaultValue: [{ name: "b", score: 10 }, { name: "c", score: 2 }, { name: "a", score: 9 }],
+            columns: [{ name: "name", cellType: "text" }],
+            detailElements: [{ type: "text", name: "score", inputType: "number" }],
+          },
+        ],
+      });
+      const viewActions = page.locator(".sd-matrixdynamic__records-bar .sd-matrixdynamic__view-actions");
+      const names = page.locator("input[type='text']").filter({ visible: true });
+      await expect(names.first()).toHaveValue("b");
+      await viewActions.getByRole("button", { name: "Sort by", exact: true }).click();
+      await page.getByRole("menuitemradio", { name: "score", exact: true }).click();
+      await expect(names.nth(0)).toHaveValue("c");
+      await expect(names.nth(1)).toHaveValue("a");
+      await expect(names.nth(2)).toHaveValue("b");
+      await expect(viewActions.getByRole("button", { name: "Sort by score, ascending" })).toBeVisible();
+    });
+
+    test("sortMenuVisibility always shows the Sort by menu on a desktop matrix", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            allowSortRows: true,
+            sortMenuVisibility: "always",
+            defaultValue: [{ name: "b" }, { name: "a" }],
+            columns: [{ name: "name", cellType: "text" }],
+          },
+        ],
+      });
+      const viewActions = page.locator(".sd-matrixdynamic__records-bar .sd-matrixdynamic__view-actions");
+      await expect(viewActions.getByRole("button", { name: "Sort by", exact: true })).toBeVisible();
+      await page.evaluate(() => { (window as any).survey.getQuestionByName("matrix").sortMenuVisibility = "auto"; });
+      await expect(viewActions).toHaveCount(0);
     });
 
     test("remove row with transposeData", async ({ page }) => {

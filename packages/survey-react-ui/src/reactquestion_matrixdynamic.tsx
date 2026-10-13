@@ -52,21 +52,26 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
     return (
       <div>
         {this.renderTopToolbar()}
-        {this.renderViewActions()}
         {mainDiv}
-        {this.renderPager()}
+        {this.renderRecordsBar()}
         {this.renderBottomToolbar()}
       </div>
     );
   }
-  // The view toolbar (the "Sort by" menu, shown on a phone) sits above the table.
+  // The records bar under the table and above the "Add row" toolbar: the sort toolbar at the start, the pager at the end.
+  protected renderRecordsBar(): React.JSX.Element | null {
+    if (!this.matrix.showViewActions && !this.matrix.showPager) return null;
+    return <div className={this.matrix.cssClasses.recordsBar}>
+      {this.renderViewActions()}
+      {this.renderPager()}
+    </div>;
+  }
   protected renderViewActions(): React.JSX.Element | null {
     if (!this.matrix.showViewActions) return null;
     return <div className={this.matrix.cssClasses.viewActions}>
       {ReactElementFactory.Instance.createElement("sv-action-bar", { model: this.matrix.viewActions })}
     </div>;
   }
-  // The pager sits under the table and above the "Add row" toolbar.
   protected renderPager(): React.JSX.Element | null {
     if (!this.matrix.showPager) return null;
     return <div className={this.matrix.cssClasses.pager}>

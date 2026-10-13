@@ -36,20 +36,31 @@
   padding-block-end: var(--sd-matrixdynamic-toolbar-padding-block-start);
   padding-block-start: var(--sd-matrixdynamic-toolbar-padding-block-end);
 }
-.sd-matrixdynamic__pager {
+/* The sort toolbar at the start, the pager at the end; sticky, so it stays in view while the table scrolls
+   sideways. A sticky box is a stacking context: without a z-index the bottom toolbar and the elements
+   under the matrix would cover the open sort menu. */
+.sd-matrixdynamic__records-bar {
   position: sticky;
   left: 0;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sd-matrixdynamic-toolbar-gap);
   box-sizing: border-box;
   padding-inline: var(--sd-matrixdynamic-toolbar-padding-inline);
   padding-block-start: var(--sd-matrixdynamic-toolbar-padding-block-start);
+}
+.sd-matrixdynamic__pager {
+  margin-inline-start: auto;
   --sd-action-bar-gap: var(--sd-matrixdynamic-toolbar-gap);
 }
-// Not sticky like the pager: a sticky box is a stacking context, and the table would cover the open menu.
 .sd-matrixdynamic__view-actions {
-  box-sizing: border-box;
-  padding-inline: var(--sd-matrixdynamic-toolbar-padding-inline);
-  padding-block-end: var(--sd-matrixdynamic-toolbar-padding-block-start);
   --sd-action-bar-gap: var(--sd-matrixdynamic-toolbar-gap);
+
+  .sd-action-bar {
+    flex-wrap: wrap;
+  }
 }
 .sd-matrixdynamic__content > div {
   display: contents;

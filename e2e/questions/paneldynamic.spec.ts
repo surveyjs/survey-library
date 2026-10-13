@@ -1,3 +1,4 @@
+import type { Locator } from "@playwright/test";
 import { frameworks, url, initSurvey, getSurveyResult, getQuestionJson, getVisibleListItemByText, test, expect, getButtonByText } from "../helper";
 
 const title = "paneldynamic";
@@ -461,37 +462,56 @@ frameworks.forEach((framework) => {
       await expect(nameInput).toHaveValue("panel1");
     });
 
-    test("the Sort by menu orders the panels", async ({ page }) => {
+    test("the Sort by and Then by menus next to the pager order the panels", async ({ page }) => {
       await initSurvey(page, framework, {
         elements: [
           {
             type: "paneldynamic",
             name: "panel",
             allowSortPanels: true,
-            defaultValue: [{ name: "b" }, { name: "c" }, { name: "a" }],
-            templateElements: [{ type: "text", name: "name" }],
+            panelsPerPage: 2,
+            defaultValue: [{ name: "b", age: 30 }, { name: "a", age: 20 }, { name: "b", age: 10 }],
+            templateElements: [{ type: "text", name: "name" }, { type: "text", name: "age", inputType: "number" }],
           },
         ],
       });
-      const viewActions = page.locator(".sd-paneldynamic__view-actions");
-      const nameInput = page.locator(".sd-paneldynamic__panel-wrapper input").first();
-      const pickItem = async (title: string) => {
-        await viewActions.getByRole("button", { name: /^Sort by/ }).click();
+      const recordsBar = page.locator(".sd-paneldynamic__records-bar");
+      const viewActions = recordsBar.locator(".sd-paneldynamic__view-actions");
+      const inputs = page.locator(".sd-paneldynamic__panel-wrapper input");
+      const sortBy = viewActions.getByRole("button", { name: /^Sort by/ });
+      const thenBy = viewActions.getByRole("button", { name: /^Then by/ });
+      const pickItem = async (button: Locator, title: string) => {
+        await button.click();
         await page.getByRole("menuitemradio", { name: title, exact: true }).click();
       };
 
-      await expect(nameInput).toHaveValue("b");
+      await expect(recordsBar, "one records bar").toHaveCount(1);
+      await expect(recordsBar.locator(".sd-paneldynamic__pager"), "the pager is in the same bar").toHaveCount(1);
       await expect(viewActions.getByRole("button", { name: "Sort by", exact: true })).toBeVisible();
-      await pickItem("name");
-      await expect(nameInput).toHaveValue("a");
+      await expect(thenBy).toHaveCount(0);
+      await expect(inputs.nth(0)).toHaveValue("b");
+
+      await pickItem(sortBy, "name");
+      await expect(inputs.nth(0)).toHaveValue("a");
       // The visible text; the icon carries the accessible name as its SVG title too.
       await expect(viewActions.getByRole("button", { name: /ascending/ })).toContainText("Sort by: name");
-      await pickItem("name");
-      await expect(nameInput).toHaveValue("c");
-      await expect(viewActions.getByRole("button", { name: /descending/ })).toBeVisible();
-      await pickItem("Default order");
-      await expect(nameInput).toHaveValue("b");
-      await expect(viewActions.getByRole("button", { name: "Sort by", exact: true })).toBeVisible();
+      await expect(thenBy).toBeVisible();
+      await thenBy.click();
+      await expect(page.getByRole("menuitemradio", { name: "name", exact: true }), "Then by does not offer name").toHaveCount(0);
+      await page.getByRole("menuitemradio", { name: "age", exact: true }).click();
+      await expect(inputs.nth(2), "the panels with the same name are ordered by age").toHaveValue("b");
+      await expect(inputs.nth(3)).toHaveValue("10");
+      await expect(viewActions.getByRole("button", { name: "Then by age, ascending" })).toBeVisible();
+
+      await pickItem(sortBy, "age");
+      await expect(inputs.nth(1)).toHaveValue("10");
+      await expect(viewActions.getByRole("button", { name: "Then by", exact: true }), "Then by has no sort").toBeVisible();
+
+      await pickItem(sortBy, "Default order");
+      await expect(thenBy).toHaveCount(0);
+      await expect(inputs.nth(0)).toHaveValue("b");
+      await expect(inputs.nth(1)).toHaveValue("30");
+      await expect(inputs.nth(2)).toHaveValue("a");
     });
 
     test("Check valueName for two paneldynamics - #6584", async ({ page }) => {

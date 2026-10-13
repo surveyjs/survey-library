@@ -1054,7 +1054,7 @@ export abstract class QuestionRecordsModel extends Question {
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (sortMenuInputs.indexOf(name) > -1) {
-      this.updateSortAction();
+      this.updateSortActions();
     }
     const names = this.getRecordCountNames();
     if (!names) return;
@@ -2583,11 +2583,19 @@ export abstract class QuestionRecordsModel extends Question {
   }
   // True while a page move waits for the asynchronous validators of the page it leaves.
   public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }
-  /* The respondent's sort pick: one field in one direction, or no sort for an undefined direction. It
-     replaces the whole sort and validates the page it leaves, as toggleSort does; picking the sort in
-     force re-applies it. false = an error was found at once. */
-  public setSortByUser(field: string, direction?: DynamicDataSortDirection): boolean {
-    return this.paging.setSortByUser(field, direction);
+  /* The respondent's sort pick: the whole new sort, an empty array for none. It replaces the sort and
+     validates the page it leaves, as toggleSort does; picking the sort in force re-applies it.
+     false = an error was found at once. */
+  public setSortOrderByUser(sort: Array<IDynamicDataSort>): boolean {
+    return this.paging.setSortOrderByUser(sort);
+  }
+  // How many "Sort by" / "Then by" dropdowns the sort menu may show, 1..5.
+  public get maxSortLevels(): number {
+    return this.getPropertyValue("maxSortLevels", 2);
+  }
+  public set maxSortLevels(val: number) {
+    const count = Math.floor(Number(val));
+    this.setPropertyValue("maxSortLevels", isNaN(count) ? 2 : Math.min(maxSortLevelCount, Math.max(1, count)));
   }
   /* The fields a respondent can sort the records by, in the order the question shows them: the
      sortable questions of the panel template, the sortable columns of the matrix. Computed on every
@@ -2605,122 +2613,166 @@ export abstract class QuestionRecordsModel extends Question {
   protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
     return [];
   }
+  /* Every sortable question of a record template - the panel template, the matrix's detail panel -
+     nested panels included (their values live in the same record), under the value name the list
+     knows it by (getFieldsOfQuestions). A question hidden in the template is left out; one a visibleIf
+     hides in some records is not: the sort covers those records too. */
+  protected getTemplateSortFieldCandidates(template: PanelModelBase): Array<{ field: string, title: string }> {
+    const res: Array<{ field: string, title: string }> = [];
+    template.questions.forEach((q: Question): void => {
+      if (!q.isValueSortable || !isVisibleInTemplate(q, template)) return;
+      res.push({ field: q.getValueName(), title: getTemplateQuestionSortTitle(q) });
+    });
+    return res;
+  }
   // The type's opt-in for the sort menu: allowSortPanels, allowSortRows on a phone.
   protected get isSortMenuAllowed(): boolean {
     return false;
   }
   // The sort candidates may have changed (a template question or a column changed).
   protected invalidateSortFields(): void {
-    this.updateSortAction();
+    this.updateSortActions();
   }
   // A locale change changes no sort and no property; the menu texts and the field titles follow it.
   public locStrsChanged(): void {
     super.locStrsChanged();
-    this.updateSortAction();
+    this.updateSortActions();
   }
   public onSurveyLoad(): void {
     super.onSurveyLoad();
-    this.updateSortAction();
+    this.updateSortActions();
   }
-  /* The toolbar above the records. It holds the "Sort by" menu; the page size selector and a filter
-     are meant to join it. */
+  /* The sort toolbar of the records bar, next to the pager. It holds the sort menu: one dropdown per
+     sort level, "Sort by" and then "Then by"; the page size selector and a filter are meant to join it. */
   private viewActionsValue: ActionContainer;
-  private sortActionValue: Action;
+  private sortActionsValue: Array<Action>;
   public get viewActions(): ActionContainer {
     if (!this.viewActionsValue) {
       this.viewActionsValue = this.createActionContainer();
-      this.sortActionValue = this.createSortAction();
-      this.viewActionsValue.setItems([this.sortActionValue]);
-      this.updateSortAction();
+      // Every level the menu may show, created once and hidden while not needed, as the pager's slots.
+      this.sortActionsValue = [];
+      for (let level = 0; level < maxSortLevelCount; level++) {
+        this.sortActionsValue.push(this.createSortAction(level));
+      }
+      this.sortListKeys = [];
+      this.viewActionsValue.setItems(this.sortActionsValue);
+      this.updateSortActions();
     }
     return this.viewActionsValue;
   }
   /* The renderers mount the toolbar while it has something to show. A question property, so that a
-     menu that appears or goes re-renders the question; it is set by updateSortAction(). */
+     menu that appears or goes re-renders the question; it is set by updateSortActions(). */
   public get showViewActions(): boolean {
     this.viewActions;
     return this.getPropertyValue("showViewActions", false);
   }
-  private createSortAction(): Action {
+  private createSortAction(level: number): Action {
     return createDropdownActionModel({
-      id: "sv-sort-by",
-      title: this.getLocalizationString("sortByText"),
+      id: level === 0 ? "sv-sort-by" : "sv-sort-then-by-" + level,
+      title: this.getLocalizationString(level === 0 ? "sortByText" : "sortThenByText"),
       showTitle: true,
       visible: false
     }, {
       items: [],
       allowSelection: true,
-      onSelectionChanged: (item: IAction): void => { this.onSortItemPicked(item); }
+      onSelectionChanged: (item: IAction): void => { this.onSortItemPicked(level, item); }
     }, this);
   }
-  private get sortListModel(): ListModel {
-    return !!this.sortActionValue ? <ListModel>this.sortActionValue.data : undefined;
-  }
-  /* A pick from the list. ListModel has already selected the item and the dropdown has already copied
-     its title onto the button; both are put back from sortOrder right after the pick, so the menu shows
-     the committed sort: a pick rejected at once or waiting for asynchronous validators leaves the old
-     one. An accepted asynchronous pick arrives through the sortOrder change. */
-  private onSortItemPicked(item: IAction): void {
+  /* A pick from the list of a level. ListModel has already selected the item and the dropdown has
+     already copied its title onto the button; every level is put back from sortOrder right after the
+     pick, so the menu shows the committed sort: a pick rejected at once or waiting for asynchronous
+     validators leaves the old one. An accepted asynchronous pick arrives through the sortOrder change.
+     The clear item ends the sort at this level; the field already at this level flips its direction
+     and keeps the later levels; another field resets them. */
+  private onSortItemPicked(level: number, item: IAction): void {
     const field: string = !!item ? item.data : undefined;
-    let direction: DynamicDataSortDirection = undefined;
-    if (!!field) {
-      const current = this.sortOrder[0];
-      direction = !!current && current.field === field && current.direction === "asc" ? "desc" : "asc";
+    const sort = this.sortOrder;
+    const current = sort[level];
+    let newSort: Array<IDynamicDataSort>;
+    if (!field) {
+      newSort = sort.slice(0, level);
+    } else if (!!current && current.field === field) {
+      const direction: DynamicDataSortDirection = current.direction === "asc" ? "desc" : "asc";
+      newSort = sort.map((s: IDynamicDataSort, index: number): IDynamicDataSort => index === level ? { field: field, direction: direction } : s);
+    } else {
+      newSort = sort.slice(0, level).concat([{ field: field, direction: "asc" }]);
     }
-    this.setSortByUser(field, direction);
-    this.updateSortAction();
+    this.setSortOrderByUser(newSort);
+    this.updateSortActions();
   }
   private getSortFieldTitle(field: string, fields: Array<{ field: string, title: string }>): string {
     const item = fields.filter(f => f.field === field)[0];
     return !!item ? item.title : field;
   }
-  /* Sets everything the sort menu shows from the current state: whether it is there and usable, its
-     title, icon and accessible name, the list and its selected item. Nothing to do before the toolbar
-     is created. */
-  private updateSortAction(): void {
-    const action = this.sortActionValue;
-    if (!action || this.isDisposed) return;
+  /* Sets everything the sort menu shows from the current state, level by level: whether a level is
+     there and usable, its title, icon and accessible name, its list and its selected item. Level 0
+     shows under the opt-in; a later level while the level before it shows and has a sort, within
+     maxSortLevels, and when it has something to show: a sort of its own (whatever the field, so a sort
+     in force is never hidden) or a field the earlier levels left. Nothing to do before the toolbar is
+     created. */
+  private updateSortActions(): void {
+    const actions = this.sortActionsValue;
+    if (!actions || this.isDisposed) return;
     const fields = this.sortFields;
-    const isVisible = this.isSortMenuAllowed && !this.isDesignMode && fields.length > 0;
-    action.visible = isVisible;
-    action.enabled = !this.isDataLoading && !this.isPageMovePending;
-    const current = this.sortOrder[0];
-    const sortByText = this.getLocalizationString("sortByText");
+    const sort = this.sortOrder;
+    const isEnabled = !this.isDataLoading && !this.isPageMovePending;
+    let isPrevVisible = this.isSortMenuAllowed && !this.isDesignMode && fields.length > 0;
+    const isMenuVisible = isPrevVisible;
+    for (let level = 0; level < actions.length; level++) {
+      const action = actions[level];
+      const current = sort[level];
+      const usedFields = sort.slice(0, level).map((s: IDynamicDataSort): string => s.field);
+      const levelFields = fields.filter(f => usedFields.indexOf(f.field) < 0);
+      const isVisible = level === 0 ? isPrevVisible :
+        isPrevVisible && !!sort[level - 1] && level < this.maxSortLevels && (!!current || levelFields.length > 0);
+      action.visible = isVisible;
+      action.enabled = isEnabled;
+      // A hidden level is kept current too: it shows what it has once it appears.
+      this.updateSortActionTexts(action, level, current, fields);
+      this.updateSortList(level, levelFields, current, fields);
+      isPrevVisible = isVisible;
+    }
+    this.setPropertyValue("showViewActions", isMenuVisible);
+  }
+  private updateSortActionTexts(action: Action, level: number, current: IDynamicDataSort, fields: Array<{ field: string, title: string }>): void {
+    const levelText = this.getLocalizationString(level === 0 ? "sortByText" : "sortThenByText");
     if (!current) {
-      action.title = sortByText;
+      action.title = levelText;
       action.iconName = undefined;
-      action.ariaLabel = sortByText;
+      action.ariaLabel = levelText;
     } else {
       const title = this.getSortFieldTitle(current.field, fields);
       const isDesc = current.direction === "desc";
-      action.title = this.getLocalizationFormatString("sortByFieldText", title);
+      action.title = this.getLocalizationFormatString(level === 0 ? "sortByFieldText" : "sortThenByFieldText", title);
       action.iconName = isDesc ? "icon-chevrondown-16x16" : "icon-chevronup-16x16";
-      action.ariaLabel = sortByText + " " + title + ", " + this.getLocalizationString(isDesc ? "sortDescendingText" : "sortAscendingText");
+      action.ariaLabel = levelText + " " + title + ", " + this.getLocalizationString(isDesc ? "sortDescendingText" : "sortAscendingText");
     }
     action.tooltip = action.ariaLabel;
-    this.updateSortList(fields, !!current ? current.field : undefined);
-    this.setPropertyValue("showViewActions", isVisible);
   }
-  private sortListKey: string;
-  private updateSortList(fields: Array<{ field: string, title: string }>, activeField: string): void {
-    const list = this.sortListModel;
-    if (!list) return;
-    const defaultTitle = this.getLocalizationString("sortDefaultOrderText");
+  private sortListKeys: Array<string>;
+  /* The list of a level: the clear item, the fallback item of a field the menu does not offer while it
+     occupies this level (so the list shows the committed sort and it can be flipped), then the fields
+     the earlier levels left. */
+  private updateSortList(level: number, levelFields: Array<{ field: string, title: string }>, current: IDynamicDataSort,
+    fields: Array<{ field: string, title: string }>): void {
+    const list = <ListModel>this.sortActionsValue[level].data;
+    const clearTitle = this.getLocalizationString(level === 0 ? "sortDefaultOrderText" : "sortNoneText");
+    const fallbackField = !!current && !fields.some(f => f.field === current.field) ? current.field : undefined;
     // The items are recreated only when what they show changed: an open list keeps its items.
-    const key = JSON.stringify([defaultTitle, fields]);
-    if (this.sortListKey !== key) {
-      this.sortListKey = key;
-      this.setSortListItems(list, defaultTitle, fields);
+    const key = JSON.stringify([clearTitle, fallbackField, levelFields]);
+    if (this.sortListKeys[level] !== key) {
+      this.sortListKeys[level] = key;
+      const items: Array<IAction> = [{ id: level === 0 ? "sv-sort-default" : "sv-sort-none", title: clearTitle }];
+      if (!!fallbackField) {
+        items.push({ id: "sv-sort-by-" + fallbackField, title: fallbackField, data: fallbackField });
+      }
+      levelFields.forEach((f: { field: string, title: string }): void => {
+        items.push({ id: "sv-sort-by-" + f.field, title: f.title, data: f.field });
+      });
+      list.setItems(items);
     }
-    const selected = list.actions.filter(item => !activeField ? !item.data : item.data === activeField)[0];
-    list.selectedItem = selected;
-  }
-  private setSortListItems(list: ListModel, defaultTitle: string, fields: Array<{ field: string, title: string }>): void {
-    const items: Array<IAction> = [{ id: "sv-sort-default", title: defaultTitle }];
-    fields.forEach((f: { field: string, title: string }): void => {
-      items.push({ id: "sv-sort-by-" + f.field, title: f.title, data: f.field });
-    });
-    list.setItems(items);
+    const activeField = !!current ? current.field : undefined;
+    list.selectedItem = list.actions.filter(item => !activeField ? !item.data : item.data === activeField)[0];
   }
   // What the question reports. A zero-based page index; always 0 while paging is off.
   protected get reportedPageIndex(): number {
@@ -3775,7 +3827,7 @@ export abstract class QuestionRecordsModel extends Question {
     if (!!this.viewActionsValue) {
       this.viewActionsValue.dispose();
       this.viewActionsValue = undefined;
-      this.sortActionValue = undefined;
+      this.sortActionsValue = undefined;
     }
     if (!!this._dataList) {
       this._dataList.dispose();
@@ -4739,12 +4791,30 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
   });
   return json;
 }
+function isVisibleInTemplate(q: Question, template: PanelModelBase): boolean {
+  let el: any = q;
+  while(!!el && el !== template) {
+    if (!el.visible) return false;
+    el = el.parent;
+  }
+  return true;
+}
+/* The title the sort menu shows for a template question. The template belongs to no record, so the
+   record piping ({panel.x}, {panelIndex}, {row.x}, {rowIndex}) has nothing to resolve: the unprocessed
+   title is taken with every placeholder stripped, and the name when nothing is left. */
+function getTemplateQuestionSortTitle(q: Question): string {
+  const res = (q.locTitle.pureText || "").replace(/\{[^}]*\}/g, "").replace(/\s+/g, " ").trim();
+  return res || q.name;
+}
 // The page number slots of the pager: the first and the last page, the current one and one on each side.
 const pagerSlotCount = 7;
-/* The question properties the sort menu shows (updateSortAction): the sort, the opt-ins, the mobile
-   mode (the matrix sorts by its header on a desktop; displayMode forces one of them) and the states
-   that disable it. */
-const sortMenuInputs = ["sortOrder", "allowSortPanels", "allowSortRows", "_isMobile", "displayMode", "isDataLoading", "isPageMovePending"];
+/* The question properties the sort menu shows (updateSortActions): the sort, the number of levels, the
+   opt-ins, the mobile mode (the matrix sorts by its header on a desktop; displayMode forces one of them),
+   the matrix's detail panel and menu visibility, and the states that disable it. */
+const sortMenuInputs = ["sortOrder", "maxSortLevels", "allowSortPanels", "allowSortRows", "sortMenuVisibility", "detailPanelMode",
+  "_isMobile", "displayMode", "isDataLoading", "isPageMovePending"];
+// The most sort levels the sort menu can show (maxSortLevels).
+const maxSortLevelCount = 5;
 /* The pages the slots show, zero-based, -1 for a gap. The count stays pagerSlotCount once there are
    more pages than slots, so the buttons around the current page do not move while it changes:
    0 1 2 3 4 ... N-1 near the start, 0 ... N-5 .. N-1 near the end, 0 ... c-1 c c+1 ... N-1 between. */

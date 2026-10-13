@@ -121,18 +121,28 @@
     }
 }
 
-.sd-paneldynamic__pager {
+// The sort toolbar at the start, the pager at the end; on a narrow width the pager drops under the sort.
+.sd-paneldynamic__records-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sjs2-layout-component-panel-dynamic-footer-action-group-gap);
     padding-top: var(--sjs2-layout-component-panel-dynamic-footer-padding-top);
     padding-inline-start: var(--sjs2-layout-component-panel-dynamic-footer-padding-left);
     padding-inline-end: var(--sjs2-layout-component-panel-dynamic-footer-padding-right);
+}
+
+.sd-paneldynamic__pager {
+    margin-inline-start: auto;
     --sd-action-bar-gap: var(--sjs2-layout-component-panel-dynamic-footer-action-group-gap);
 }
 
 .sd-paneldynamic__view-actions {
-    padding-bottom: var(--sjs2-layout-component-panel-dynamic-footer-padding-top);
-    padding-inline-start: var(--sjs2-layout-component-panel-dynamic-footer-padding-left);
-    padding-inline-end: var(--sjs2-layout-component-panel-dynamic-footer-padding-right);
     --sd-action-bar-gap: var(--sjs2-layout-component-panel-dynamic-footer-action-group-gap);
+
+    .sd-action-bar {
+        flex-wrap: wrap;
+    }
 }
 
 // .sd-root-modern--mobile {

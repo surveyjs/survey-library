@@ -62,19 +62,25 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     return (
       <div className={cssClasses.root}>
         {this.question.hasTabbedMenu ? <div className={this.question.getTabsContainerCss()}><SurveyActionBar model={this.question.tabbedMenu}></SurveyActionBar></div> : null }
-        {this.renderViewActions()}
         {noEntriesPlaceholder}
         {rangeTop}
         <div className={this.question.cssClasses.panelsContainer}>
           {panels}
         </div>
-        {this.renderPager()}
+        {this.renderRecordsBar()}
         {navigation}
       </div>
     );
   }
 
-  // The view toolbar (the "Sort by" menu) sits above the panels.
+  // The records bar under the panels: the sort toolbar at the start, the pager at the end.
+  protected renderRecordsBar(): React.JSX.Element | null {
+    if (!this.question.showViewActions && !this.question.showPager) return null;
+    return <div className={this.question.cssClasses.recordsBar}>
+      {this.renderViewActions()}
+      {this.renderPager()}
+    </div>;
+  }
   protected renderViewActions(): React.JSX.Element | null {
     if (!this.question.showViewActions) return null;
     return <div className={this.question.cssClasses.viewActions}>

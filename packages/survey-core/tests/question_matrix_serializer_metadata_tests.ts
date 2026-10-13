@@ -266,6 +266,8 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "detailPanelShowOnAdding", visible: true },
     { name: "allowRowReorder", visible: true },
     { name: "allowSortRows", default: false, visible: false },
+    { name: "maxSortLevels", default: 2, visible: false },
+    { name: "sortMenuVisibility", default: "auto", visible: false },
   ],
   paneldynamic: [
     { name: "name", visible: true },
@@ -342,6 +344,7 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "sortBy", default: "", visible: false },
     { name: "filterExpression", default: "", visible: false },
     { name: "allowSortPanels", default: false, visible: false },
+    { name: "maxSortLevels", default: 2, visible: false },
     { name: "displayMode", default: "list", visible: true },
     { name: "showProgressBar", default: true, visible: true },
     { name: "progressBarLocation", default: "top", visible: true },
@@ -368,7 +371,7 @@ const expectedOwnRegistrations: { [type: string]: { parentName: string, properti
       "keyName", "defaultRowValue", "copyDefaultValueFromLastEntry", "confirmDelete", "confirmDeleteText",
       "addRowButtonLocation", "addRowText", "removeRowText", "hideColumnsIfEmpty", "noRowsText",
       "detailPanelShowOnAdding", "allowRowReorder",
-      "allowSortRows"
+      "allowSortRows", "maxSortLevels", "sortMenuVisibility"
     ]
   },
   paneldynamic: {
@@ -380,7 +383,7 @@ const expectedOwnRegistrations: { [type: string]: { parentName: string, properti
       "copyDefaultValueFromLastEntry", "panelsState", "keyName", "keyDuplicationError", "confirmDelete",
       "confirmDeleteText", "addPanelText", "removePanelText", "prevPanelText", "nextPanelText",
       "showQuestionNumbers", "questionStartIndex", "renderMode",
-      "panelsPerPage", "sortBy", "filterExpression", "allowSortPanels",
+      "panelsPerPage", "sortBy", "filterExpression", "allowSortPanels", "maxSortLevels",
       "displayMode", "showProgressBar", "progressBarLocation", "tabAlign", "templateQuestionTitleLocation",
       "templateQuestionTitleWidth", "templateErrorLocation", "templateVisibleIf", "removePanelButtonLocation"
     ]

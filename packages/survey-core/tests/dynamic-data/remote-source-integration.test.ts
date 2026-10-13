@@ -318,7 +318,7 @@ describe("Remote data source: first load", () => {
   test("matrix: the pager cannot move and shows the loading text while a page is read", async () => {
     const source = new FakeServerSource(serverRecords(20));
     const { question } = await createMatrix(source, { rowsPerPage: 5 });
-    const actions = question.pagerActions;
+    const actions = question.recordsBar.pagerActions;
     const moveIds = ["sv-pager-first", "sv-pager-prev", "sv-pager-page-0", "sv-pager-page-2", "sv-pager-next", "sv-pager-last"];
     const enabledOf = (): Array<boolean> => moveIds.map(id => actions.getActionById(id).enabled);
     const loading = actions.getActionById("sv-pager-loading");
@@ -339,7 +339,7 @@ describe("Remote data source: first load", () => {
   test("panel: the sort menu is disabled while a page is read", async () => {
     const source = new FakeServerSource(serverRecords(20));
     const { question } = await createPanel(source, { allowSortPanels: true });
-    const sortItem = question.viewActions.getActionById("sv-sort-by");
+    const sortItem = question.recordsBar.viewActions.getActionById("sv-sort-by");
     expect([sortItem.visible, sortItem.enabled], "#1").toEqual([true, true]);
     source.auto = false;
     question.nextPage();
@@ -2451,7 +2451,7 @@ describe("Remote data source: a total the source does not know", () => {
   test("matrix: the pager shows the page number alone while the count is unknown", async () => {
     const source = createNoTotalSource(25);
     const { question } = await createMatrix(source, { rowsPerPage: 10 });
-    const info = question.pagerActions.getActionById("sv-pager-info");
+    const info = question.recordsBar.pagerActions.getActionById("sv-pager-info");
     expect(info.title, "#1: no total to show").toBe("1");
     question.nextPage();
     await flush();
@@ -2467,7 +2467,7 @@ describe("Remote data source: a total the source does not know", () => {
   test("matrix: the pager follows the locale once an unknown count becomes known", async () => {
     const source = createNoTotalSource(25);
     const { question } = await createMatrix(source, { rowsPerPage: 10 });
-    const info = question.pagerActions.getActionById("sv-pager-info");
+    const info = question.recordsBar.pagerActions.getActionById("sv-pager-info");
     expect(info.title, "#1: no total to show").toBe("1");
     question.nextPage();
     await flush();
@@ -2480,7 +2480,7 @@ describe("Remote data source: a total the source does not know", () => {
   test("matrix: the pager has no page slots and no last button until the count is known", async () => {
     const source = createNoTotalSource(25);
     const { question } = await createMatrix(source, { rowsPerPage: 10 });
-    const actions = question.pagerActions;
+    const actions = question.recordsBar.pagerActions;
     const visibleSlots = (): Array<string> => actions.actions
       .filter(action => action.id.indexOf("sv-pager-page-") === 0 && action.visible).map(action => action.title);
     const visibleOf = (id: string): boolean => actions.getActionById(id).visible;

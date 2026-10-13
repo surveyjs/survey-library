@@ -1,4 +1,4 @@
-import { Base, ComputedUpdater } from "./base";
+import { Base } from "./base";
 import { IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
@@ -13,7 +13,7 @@ import { TextContextProcessor } from "./textPreProcessor";
 import { SurveyError } from "./survey-error";
 import { KeyDuplicationError } from "./error";
 import {
-  DynamicDataFieldType, DynamicDataOperation, DynamicDataSortDirection, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort,
+  DynamicDataFieldType, DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort,
   IDynamicDataSource
 } from "./dynamic-data/dynamic-data-interfaces";
 import { IDynamicDataPageState, findDuplicatePages, getDuplicateKey, groupByDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
@@ -24,13 +24,13 @@ import { applyRecordChange, getReplacedRecordsRemap } from "./dynamic-data/dynam
 import { IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
-import { Action, IAction } from "./actions/action";
-import { createDropdownActionModel } from "./actions/dropdown-action";
-import { ListModel } from "./list";
+import { Action } from "./actions/action";
 import { LocalizableString } from "./localizablestring";
 import { ConsoleWarnings } from "./console-warnings";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { confirmActionAsync } from "./utils/confirm-dialog";
+import { IQuestionRecordsBarOwner, IRecordsBarCssClasses, IRecordsBarSortField, QuestionRecordsBar, maxSortLevelCount } from "./question_records_bar";
+import type { ILocalizableOwner } from "./localizablestring";
 import type { PanelModelBase } from "./panel";
 import type { ItemValue } from "./itemvalue";
 import type { ISurveyDynamicDataWrites, ISurveyOldValueReads } from "./interfaces/survey-callbacks";
@@ -1053,8 +1053,8 @@ export abstract class QuestionRecordsModel extends Question {
      onMinRecordCountApplied before the count follows a new minimum, onMaxRecordCountApplied last. */
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
-    if (sortMenuInputs.indexOf(name) > -1) {
-      this.updateSortActions();
+    if (recordsBarInputs.indexOf(name) > -1) {
+      this.updateRecordsBar();
     }
     const names = this.getRecordCountNames();
     if (!names) return;
@@ -2473,113 +2473,60 @@ export abstract class QuestionRecordsModel extends Question {
   public get filterExpression(): string { return this.paging.filterExpression; }
   public set filterExpression(val: string) { this.paging.filterExpression = val; }
   public refreshView(): void { this.paging.refreshView(); }
-  private pagerActionsValue: ActionContainer;
-  public get pagerActions(): ActionContainer {
-    if (!this.pagerActionsValue) {
-      this.pagerActionsValue = this.createPagerActions(this.createActionContainer());
+  /* The bar under the records: the sort menu and, under it, the pager. Created on its first read; the
+     question keeps it current through updateRecordsBar(). */
+  private recordsBarValue: QuestionRecordsBar;
+  public get recordsBar(): QuestionRecordsBar {
+    if (!this.recordsBarValue) {
+      this.recordsBarValue = new QuestionRecordsBar(this.createRecordsBarOwner());
     }
-    return this.pagerActionsValue;
+    return this.recordsBarValue;
   }
-  /* The pager the renderers show through their action bar: it computes nothing of its own, it shows
-     what the paging helper answers. The move buttons are icons whose localized titles are their
-     accessible names; the page info and the loading text are disabled items without a tab stop,
-     text the keyboard passes over. Every updater reads its inputs through getPagerState(): a
-     ComputedUpdater collects its dependencies once, on the first run, so an input read only in a
-     branch not taken then would never be observed afterwards. */
-  private getPagerState(): { pageIndex: number, pageCount: number, isCountKnown: boolean, canMove: boolean, slots: Array<number> } {
-    const pageIndex = this.paging.pageIndex;
-    const pageCount = this.paging.pageCount;
-    const isCountKnown = this.paging.isCountKnown;
-    const canMove = !this.isPageMovePending && !this.isDataLoading;
-    return { pageIndex: pageIndex, pageCount: pageCount, isCountKnown: isCountKnown, canMove: canMove,
-      slots: isCountKnown ? getPagerSlots(pageIndex, pageCount) : [] };
+  // Nothing to do before the bar is created: it reads the current state when it is.
+  protected updateRecordsBar(): void {
+    if (!!this.recordsBarValue) {
+      this.recordsBarValue.update();
+    }
   }
-  // A page-move action of the pager: an icon button with a localized title.
-  private createPageMoveAction(id: string, iconName: string, titleName: string, canMove: () => boolean, move: () => void, isVisible?: () => boolean): Action {
-    return new Action({
-      id: id,
-      iconName: iconName,
-      showTitle: false,
-      title: <any>new ComputedUpdater(() => this.getLocalizationFormatString(titleName)),
-      enabled: <any>new ComputedUpdater(() => {
-        const state = this.getPagerState();
-        const res = canMove();
-        return state.canMove && res;
-      }),
-      visible: !!isVisible ? <any>new ComputedUpdater(isVisible) : true,
-      action: move
-    });
-  }
-  // A page number slot: the page it shows (or the gap it marks) follows the current page.
-  private createPageSlotAction(slot: number): Action {
-    const getPage = (): number => {
-      const slots = this.getPagerState().slots;
-      return slot < slots.length ? slots[slot] : -1;
+  /* The functions call the question's members when they are called, so an override or a spy on the
+     question is honoured (see helperOwner). */
+  private createRecordsBarOwner(): IQuestionRecordsBarOwner {
+    const question = this;
+    return {
+      get pageIndex(): number { return question.paging.pageIndex; },
+      get pageCount(): number { return question.paging.pageCount; },
+      get isCountKnown(): boolean { return question.paging.isCountKnown; },
+      get canGoPrevPage(): boolean { return question.paging.canGoPrevPage; },
+      get canGoNextPage(): boolean { return question.paging.canGoNextPage; },
+      get reportedPageIndex(): number { return question.reportedPageIndex; },
+      get reportedPageCount(): number { return question.reportedPageCount; },
+      goToPage: (pageIndex: number): void => { question.paging.goToPage(pageIndex); },
+      prevPage: (): void => { question.paging.prevPage(); },
+      nextPage: (): void => { question.paging.nextPage(); },
+      get isPageMovePending(): boolean { return question.isPageMovePending; },
+      get isDataLoading(): boolean { return question.isDataLoading; },
+      get isDesignMode(): boolean { return question.isDesignMode; },
+      get isDisposed(): boolean { return question.isDisposed; },
+      get sortOrder(): Array<IDynamicDataSort> { return question.sortOrder; },
+      get sortFields(): Array<IRecordsBarSortField> { return question.sortFields; },
+      get maxSortLevels(): number { return question.maxSortLevels; },
+      get isSortMenuAllowed(): boolean { return question.isSortMenuAllowed; },
+      get showPager(): boolean { return question.showPager; },
+      setSortOrderByUser: (sort: Array<IDynamicDataSort>): boolean => question.setSortOrderByUser(sort),
+      getLocalizationString: (strName: string): string => question.getLocalizationString(strName),
+      getLocalizationFormatString: (strName: string, ...args: any[]): string => question.getLocalizationFormatString(strName, ...args),
+      getLocOwner: (): ILocalizableOwner => question,
+      getCssClasses: (): IRecordsBarCssClasses => {
+        const css = question.cssClasses;
+        return { root: css.recordsBar, viewActions: css.viewActions, pager: css.pager };
+      },
+      createActionContainer: (): ActionContainer => question.createActionContainer()
     };
-    return new Action({
-      id: "sv-pager-page-" + slot,
-      title: <any>new ComputedUpdater(() => {
-        const page = getPage();
-        return page < 0 ? "\u2026" : String(page + 1);
-      }),
-      visible: <any>new ComputedUpdater(() => slot < this.getPagerState().slots.length),
-      // The current page stays enabled: a disabled item's style would hide the active one.
-      enabled: <any>new ComputedUpdater(() => {
-        const state = this.getPagerState();
-        return state.canMove && getPage() > -1;
-      }),
-      active: <any>new ComputedUpdater(() => {
-        const state = this.getPagerState();
-        const page = getPage();
-        return page > -1 && page === state.pageIndex;
-      }),
-      disableTabStop: <any>new ComputedUpdater(() => getPage() < 0),
-      action: (): void => {
-        const page = getPage();
-        if (page > -1)this.paging.goToPage(page);
-      }
-    });
   }
-  private createPagerActions(container: ActionContainer): ActionContainer {
-    const items: Array<Action> = [];
-    items.push(this.createPageMoveAction("sv-pager-first", "icon-arrowfirst-16x16", "pageFirstText",
-      (): boolean => this.paging.canGoPrevPage, (): void => { this.paging.goToPage(0); }));
-    items.push(this.createPageMoveAction("sv-pager-prev", "icon-arrowleft", "pagePrevText",
-      (): boolean => this.paging.canGoPrevPage, (): void => { this.paging.prevPage(); }));
-    for (let i = 0; i < pagerSlotCount; i++) {
-      items.push(this.createPageSlotAction(i));
-    }
-    items.push(new Action({
-      id: "sv-pager-info",
-      /* A count nobody knows has no total to show: the page number alone. A known count goes through
-         indexText like every other pager (some locales reverse the order). survey.locale is a property
-         read, so the updater follows it; the global surveyLocalization.currentLocale is not observed.
-         Both texts are computed on every run (see getPagerState). The info shows only while the count
-         is unknown: with a known count the page number slots show the total. */
-      title: <any>new ComputedUpdater(() => {
-        const page = this.reportedPageIndex + 1;
-        const text = this.getLocalizationFormatString("indexText", page, this.reportedPageCount);
-        return this.paging.isCountKnown ? text : String(page);
-      }),
-      visible: <any>new ComputedUpdater(() => !this.getPagerState().isCountKnown),
-      enabled: false,
-      disableTabStop: true
-    }));
-    items.push(this.createPageMoveAction("sv-pager-next", "icon-arrowright", "pageNextText",
-      (): boolean => this.paging.canGoNextPage, (): void => { this.paging.nextPage(); }));
-    // There is no last page to go to while the count is unknown.
-    items.push(this.createPageMoveAction("sv-pager-last", "icon-arrowlast-16x16", "pageLastText",
-      (): boolean => this.paging.canGoNextPage, (): void => { this.paging.goToPage(this.paging.pageCount - 1); },
-      (): boolean => this.getPagerState().isCountKnown));
-    items.push(new Action({
-      id: "sv-pager-loading",
-      title: <any>new ComputedUpdater(() => this.getLocalizationString("loadingData")),
-      visible: <any>new ComputedUpdater(() => this.isDataLoading),
-      enabled: false,
-      disableTabStop: true
-    }));
-    container.setItems(items);
-    return container;
+  /* The type's pager rule: the renderers draw the pager under the records while it is true. The bar
+     mirrors it (QuestionRecordsBar.showPager). */
+  public get showPager(): boolean {
+    return false;
   }
   // True while a page move waits for the asynchronous validators of the page it leaves.
   public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }
@@ -2631,148 +2578,16 @@ export abstract class QuestionRecordsModel extends Question {
   }
   // The sort candidates may have changed (a template question or a column changed).
   protected invalidateSortFields(): void {
-    this.updateSortActions();
+    this.updateRecordsBar();
   }
   // A locale change changes no sort and no property; the menu texts and the field titles follow it.
   public locStrsChanged(): void {
     super.locStrsChanged();
-    this.updateSortActions();
+    this.updateRecordsBar();
   }
   public onSurveyLoad(): void {
     super.onSurveyLoad();
-    this.updateSortActions();
-  }
-  /* The sort toolbar of the records bar, above the pager. It holds the sort menu: one dropdown per
-     sort level, "Sort by" and then "Then by"; the page size selector and a filter are meant to join it. */
-  private viewActionsValue: ActionContainer;
-  private sortActionsValue: Array<Action>;
-  public get viewActions(): ActionContainer {
-    if (!this.viewActionsValue) {
-      this.viewActionsValue = this.createActionContainer();
-      // Every level the menu may show, created once and hidden while not needed, as the pager's slots.
-      this.sortActionsValue = [];
-      for (let level = 0; level < maxSortLevelCount; level++) {
-        this.sortActionsValue.push(this.createSortAction(level));
-      }
-      this.sortListKeys = [];
-      this.viewActionsValue.setItems(this.sortActionsValue);
-      this.updateSortActions();
-    }
-    return this.viewActionsValue;
-  }
-  /* The renderers mount the toolbar while it has something to show. A question property, so that a
-     menu that appears or goes re-renders the question; it is set by updateSortActions(). */
-  public get showViewActions(): boolean {
-    this.viewActions;
-    return this.getPropertyValue("showViewActions", false);
-  }
-  private createSortAction(level: number): Action {
-    return createDropdownActionModel({
-      id: level === 0 ? "sv-sort-by" : "sv-sort-then-by-" + level,
-      title: this.getLocalizationString(level === 0 ? "sortByText" : "sortThenByText"),
-      showTitle: true,
-      visible: false
-    }, {
-      items: [],
-      allowSelection: true,
-      onSelectionChanged: (item: IAction): void => { this.onSortItemPicked(level, item); }
-    }, this);
-  }
-  /* A pick from the list of a level. ListModel has already selected the item and the dropdown has
-     already copied its title onto the button; every level is put back from sortOrder right after the
-     pick, so the menu shows the committed sort: a pick rejected at once or waiting for asynchronous
-     validators leaves the old one. An accepted asynchronous pick arrives through the sortOrder change.
-     The clear item ends the sort at this level; the field already at this level flips its direction
-     and keeps the later levels; another field resets them. */
-  private onSortItemPicked(level: number, item: IAction): void {
-    const field: string = !!item ? item.data : undefined;
-    const sort = this.sortOrder;
-    const current = sort[level];
-    let newSort: Array<IDynamicDataSort>;
-    if (!field) {
-      newSort = sort.slice(0, level);
-    } else if (!!current && current.field === field) {
-      const direction: DynamicDataSortDirection = current.direction === "asc" ? "desc" : "asc";
-      newSort = sort.map((s: IDynamicDataSort, index: number): IDynamicDataSort => index === level ? { field: field, direction: direction } : s);
-    } else {
-      newSort = sort.slice(0, level).concat([{ field: field, direction: "asc" }]);
-    }
-    this.setSortOrderByUser(newSort);
-    this.updateSortActions();
-  }
-  private getSortFieldTitle(field: string, fields: Array<{ field: string, title: string }>): string {
-    const item = fields.filter(f => f.field === field)[0];
-    return !!item ? item.title : field;
-  }
-  /* Sets everything the sort menu shows from the current state, level by level: whether a level is
-     there and usable, its title, icon and accessible name, its list and its selected item. Level 0
-     shows under the opt-in; a later level while the level before it shows and has a sort, within
-     maxSortLevels, and when it has something to show: a sort of its own (whatever the field, so a sort
-     in force is never hidden) or a field the earlier levels left. Nothing to do before the toolbar is
-     created. */
-  private updateSortActions(): void {
-    const actions = this.sortActionsValue;
-    if (!actions || this.isDisposed) return;
-    const fields = this.sortFields;
-    const sort = this.sortOrder;
-    const isEnabled = !this.isDataLoading && !this.isPageMovePending;
-    let isPrevVisible = this.isSortMenuAllowed && !this.isDesignMode && fields.length > 0;
-    const isMenuVisible = isPrevVisible;
-    for (let level = 0; level < actions.length; level++) {
-      const action = actions[level];
-      const current = sort[level];
-      const usedFields = sort.slice(0, level).map((s: IDynamicDataSort): string => s.field);
-      const levelFields = fields.filter(f => usedFields.indexOf(f.field) < 0);
-      const isVisible = level === 0 ? isPrevVisible :
-        isPrevVisible && !!sort[level - 1] && level < this.maxSortLevels && (!!current || levelFields.length > 0);
-      action.visible = isVisible;
-      action.enabled = isEnabled;
-      // A hidden level is kept current too: it shows what it has once it appears.
-      this.updateSortActionTexts(action, level, current, fields);
-      this.updateSortList(level, levelFields, current, fields);
-      isPrevVisible = isVisible;
-    }
-    this.setPropertyValue("showViewActions", isMenuVisible);
-  }
-  private updateSortActionTexts(action: Action, level: number, current: IDynamicDataSort, fields: Array<{ field: string, title: string }>): void {
-    const levelText = this.getLocalizationString(level === 0 ? "sortByText" : "sortThenByText");
-    if (!current) {
-      action.title = levelText;
-      action.iconName = undefined;
-      action.ariaLabel = levelText;
-    } else {
-      const title = this.getSortFieldTitle(current.field, fields);
-      const isDesc = current.direction === "desc";
-      action.title = this.getLocalizationFormatString(level === 0 ? "sortByFieldText" : "sortThenByFieldText", title);
-      action.iconName = isDesc ? "icon-chevrondown-16x16" : "icon-chevronup-16x16";
-      action.ariaLabel = levelText + " " + title + ", " + this.getLocalizationString(isDesc ? "sortDescendingText" : "sortAscendingText");
-    }
-    action.tooltip = action.ariaLabel;
-  }
-  private sortListKeys: Array<string>;
-  /* The list of a level: the clear item, the fallback item of a field the menu does not offer while it
-     occupies this level (so the list shows the committed sort and it can be flipped), then the fields
-     the earlier levels left. */
-  private updateSortList(level: number, levelFields: Array<{ field: string, title: string }>, current: IDynamicDataSort,
-    fields: Array<{ field: string, title: string }>): void {
-    const list = <ListModel>this.sortActionsValue[level].data;
-    const clearTitle = this.getLocalizationString(level === 0 ? "sortDefaultOrderText" : "sortNoneText");
-    const fallbackField = !!current && !fields.some(f => f.field === current.field) ? current.field : undefined;
-    // The items are recreated only when what they show changed: an open list keeps its items.
-    const key = JSON.stringify([clearTitle, fallbackField, levelFields]);
-    if (this.sortListKeys[level] !== key) {
-      this.sortListKeys[level] = key;
-      const items: Array<IAction> = [{ id: level === 0 ? "sv-sort-default" : "sv-sort-none", title: clearTitle }];
-      if (!!fallbackField) {
-        items.push({ id: "sv-sort-by-" + fallbackField, title: fallbackField, data: fallbackField });
-      }
-      levelFields.forEach((f: { field: string, title: string }): void => {
-        items.push({ id: "sv-sort-by-" + f.field, title: f.title, data: f.field });
-      });
-      list.setItems(items);
-    }
-    const activeField = !!current ? current.field : undefined;
-    list.selectedItem = list.actions.filter(item => !activeField ? !item.data : item.data === activeField)[0];
+    this.updateRecordsBar();
   }
   // What the question reports. A zero-based page index; always 0 while paging is off.
   protected get reportedPageIndex(): number {
@@ -3820,14 +3635,9 @@ export abstract class QuestionRecordsModel extends Question {
     super.dispose();
     this.disposeItemsLeftByWrites();
     this.disposeRecordObjects();
-    if (!!this.pagerActionsValue) {
-      this.pagerActionsValue.dispose();
-      this.pagerActionsValue = undefined;
-    }
-    if (!!this.viewActionsValue) {
-      this.viewActionsValue.dispose();
-      this.viewActionsValue = undefined;
-      this.sortActionsValue = undefined;
+    if (!!this.recordsBarValue) {
+      this.recordsBarValue.dispose();
+      this.recordsBarValue = undefined;
     }
     if (!!this._dataList) {
       this._dataList.dispose();
@@ -4806,29 +4616,12 @@ function getTemplateQuestionSortTitle(q: Question): string {
   const res = (q.locTitle.pureText || "").replace(/\{[^}]*\}/g, "").replace(/\s+/g, " ").trim();
   return res || q.name;
 }
-// The page number slots of the pager: the first and the last page, the current one and one on each side.
-const pagerSlotCount = 7;
-/* The question properties the sort menu shows (updateSortActions): the sort, the number of levels, the
+/* The question properties the records bar shows (updateRecordsBar): the sort, the number of levels, the
    opt-ins, the mobile mode (the matrix sorts by its header on a desktop; displayMode forces one of them),
-   the matrix's detail panel and menu visibility, and the states that disable it. */
-const sortMenuInputs = ["sortOrder", "maxSortLevels", "allowSortPanels", "allowSortRows", "sortMenuVisibility", "detailPanelMode",
-  "_isMobile", "displayMode", "isDataLoading", "isPageMovePending"];
-// The most sort levels the sort menu can show (maxSortLevels).
-const maxSortLevelCount = 5;
-/* The pages the slots show, zero-based, -1 for a gap. The count stays pagerSlotCount once there are
-   more pages than slots, so the buttons around the current page do not move while it changes:
-   0 1 2 3 4 ... N-1 near the start, 0 ... N-5 .. N-1 near the end, 0 ... c-1 c c+1 ... N-1 between. */
-function getPagerSlots(pageIndex: number, pageCount: number): Array<number> {
-  const res: Array<number> = [];
-  if (pageCount <= pagerSlotCount) {
-    for (let i = 0; i < pageCount; i++) res.push(i);
-    return res;
-  }
-  const last = pageCount - 1;
-  if (pageIndex <= 3) return [0, 1, 2, 3, 4, -1, last];
-  if (pageIndex >= pageCount - 4) return [0, -1, last - 4, last - 3, last - 2, last - 1, last];
-  return [0, -1, pageIndex - 1, pageIndex, pageIndex + 1, -1, last];
-}
+   the matrix's detail panel and menu visibility, the states that disable the menu, and the page count and
+   the display mode the pager follows. */
+const recordsBarInputs = ["sortOrder", "maxSortLevels", "allowSortPanels", "allowSortRows", "sortMenuVisibility", "detailPanelMode",
+  "_isMobile", "displayMode", "isDataLoading", "isPageMovePending", "pageCount"];
 /* The serializer entries of the paging, the sort and the filter of a records question (rowsPerPage or
    panelsPerPage, sortBy, filterExpression). Invisible in the property grid until the UI series ships a
    pager and sortable headers: they load from and save to JSON. sortBy and filterExpression are plain

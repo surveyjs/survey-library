@@ -44,7 +44,7 @@ const moveIds = ["sv-pager-first", "sv-pager-prev", "sv-pager-next", "sv-pager-l
 describe("Pager actions: page number slots", () => {
   test("a few pages: one slot per page, the current one active, no info or loading text", () => {
     const matrix = createMatrix(3);
-    const actions = matrix.pagerActions;
+    const actions = matrix.recordsBar.pagerActions;
     expect(slotTitles(actions), "#1").toEqual(["1", "2", "3"]);
     expect(activeTitles(actions), "#2").toEqual(["1"]);
     expect(getAction(actions, "sv-pager-info").visible, "#3: the slots show the total").toBe(false);
@@ -57,7 +57,7 @@ describe("Pager actions: page number slots", () => {
   });
   test("many pages: seven slots with gaps around the current page", () => {
     const matrix = createMatrix(20);
-    const actions = matrix.pagerActions;
+    const actions = matrix.recordsBar.pagerActions;
     const layoutAt = (pageIndex: number): Array<string> => {
       matrix.pageIndex = pageIndex;
       return slotTitles(actions);
@@ -73,7 +73,7 @@ describe("Pager actions: page number slots", () => {
   });
   test("a slot click moves to its page and the slots follow; a gap is not a button", () => {
     const matrix = createMatrix(20);
-    const actions = matrix.pagerActions;
+    const actions = matrix.recordsBar.pagerActions;
     getAction(actions, "sv-pager-page-4").action();
     expect(matrix.pageIndex, "#1: the slot that showed 5").toBe(4);
     expect(slotTitles(actions), "#2").toEqual(["1", "\u2026", "4", "5", "6", "\u2026", "20"]);
@@ -89,7 +89,7 @@ describe("Pager actions: page number slots", () => {
   });
   test("a page count that drops hides the slots it no longer needs", () => {
     const matrix = createMatrix(9);
-    const actions = matrix.pagerActions;
+    const actions = matrix.recordsBar.pagerActions;
     expect(slotTitles(actions).length, "#1").toBe(7);
     matrix.rowsPerPage = 3;
     expect(slotTitles(actions), "#2").toEqual(["1", "2", "3"]);
@@ -99,7 +99,7 @@ describe("Pager actions: page number slots", () => {
 describe("Pager actions: first and last", () => {
   test("first and last move to the edges and are disabled there", () => {
     const matrix = createMatrix(10);
-    const actions = matrix.pagerActions;
+    const actions = matrix.recordsBar.pagerActions;
     const first = getAction(actions, "sv-pager-first");
     const last = getAction(actions, "sv-pager-last");
     expect([first.title, last.title], "#1: localized titles").toEqual(["First", "Last"]);
@@ -119,7 +119,7 @@ describe("Pager actions: a move forward validates the page it leaves", () => {
     const matrix = createMatrix(5, { columns: [{ name: "id", cellType: "text" }, { name: "a", cellType: "text", isRequired: true }] });
     // The page validates the rows a renderer has built.
     expect(matrix.visibleRows.length, "#0: the page is shown").toBe(1);
-    const actions = matrix.pagerActions;
+    const actions = matrix.recordsBar.pagerActions;
     getAction(actions, "sv-pager-page-2").action();
     expect(matrix.pageIndex, "#1: the required cell is empty").toBe(0);
     getAction(actions, "sv-pager-last").action();
@@ -133,7 +133,7 @@ describe("Pager actions: a move forward validates the page it leaves", () => {
         columns: [{ name: "id", cellType: "text", validators: [{ type: "expression", expression: "pagerSlotAsyncFunc({row.id}) = 1" }] }]
       });
       expect(matrix.visibleRows.length, "#0: the page is shown").toBe(1);
-      const actions = matrix.pagerActions;
+      const actions = matrix.recordsBar.pagerActions;
       getAction(actions, "sv-pager-page-2").action();
       expect(matrix.isPageMovePending, "#1: the move waits").toBe(true);
       expect(enabledOf(actions, moveIds), "#2").toEqual([false, false, false, false]);
@@ -158,7 +158,7 @@ describe("Pager actions: the panel dynamic", () => {
   });
   test("the slots move the panel pages", () => {
     const panel = createPanel(4);
-    const actions = panel.pagerActions;
+    const actions = panel.recordsBar.pagerActions;
     expect(slotTitles(actions), "#1").toEqual(["1", "2", "3", "4"]);
     getAction(actions, "sv-pager-page-2").action();
     expect(panel.pageIndex, "#2").toBe(2);

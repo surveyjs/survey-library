@@ -42,11 +42,11 @@ function createMatrix(json?: any, isMobile: boolean = true): QuestionMatrixDynam
 type RecordsQuestion = QuestionPanelDynamicModel | QuestionMatrixDynamicModel;
 // The dropdown of a sort level: "Sort by" at level 0, "Then by" after it.
 const getSortItem = (q: RecordsQuestion, level: number = 0): Action =>
-  <Action>q.viewActions.getActionById(level === 0 ? "sv-sort-by" : "sv-sort-then-by-" + level);
+  <Action>q.recordsBar.viewActions.getActionById(level === 0 ? "sv-sort-by" : "sv-sort-then-by-" + level);
 const getList = (q: RecordsQuestion, level: number = 0): ListModel => <ListModel>getSortItem(q, level).data;
 const listTitles = (q: RecordsQuestion, level: number = 0): Array<string> => getList(q, level).actions.map(item => item.title);
 const selectedTitle = (q: RecordsQuestion, level: number = 0): string => getList(q, level).selectedItem?.title;
-const visibleLevels = (q: RecordsQuestion): Array<string> => q.viewActions.actions.filter(item => item.visible).map(item => item.id);
+const visibleLevels = (q: RecordsQuestion): Array<string> => q.recordsBar.viewActions.actions.filter(item => item.visible).map(item => item.id);
 // A pick the way a click makes it: the list selects the item and calls the selection callback.
 function pick(q: RecordsQuestion, title: string, level: number = 0): void {
   const list = getList(q, level);
@@ -165,11 +165,11 @@ describe("Sort menu: setSortOrderByUser", () => {
 describe("Sort menu: when the item shows", () => {
   test("a panel: the opt-in, design mode, sortable fields; read-only shows it", () => {
     expect(getSortItem(createPanel()).visible, "#1").toBe(true);
-    expect(createPanel().showViewActions, "#2").toBe(true);
+    expect(createPanel().recordsBar.showViewActions, "#2").toBe(true);
     const off = createPanel({ allowSortPanels: false });
-    expect([getSortItem(off).visible, off.showViewActions], "#3: the opt-in is off").toEqual([false, false]);
+    expect([getSortItem(off).visible, off.recordsBar.showViewActions], "#3: the opt-in is off").toEqual([false, false]);
     off.allowSortPanels = true;
-    expect([getSortItem(off).visible, off.showViewActions], "#4: switched on").toEqual([true, true]);
+    expect([getSortItem(off).visible, off.recordsBar.showViewActions], "#4: switched on").toEqual([true, true]);
     expect(getSortItem(createPanel(undefined, undefined, true)).visible, "#5: design mode").toBe(false);
     const noFields = createPanel({ templateElements: [{ type: "html", name: "h" }, { type: "checkbox", name: "c", choices: [1] }] });
     expect(getSortItem(noFields).visible, "#6: nothing to sort by").toBe(false);
@@ -177,9 +177,9 @@ describe("Sort menu: when the item shows", () => {
   });
   test("a matrix without a detail panel: only on a phone, where the header is hidden", () => {
     const matrix = createMatrix(undefined, false);
-    expect([getSortItem(matrix).visible, matrix.showViewActions], "#1: the header sorts on a desktop").toEqual([false, false]);
+    expect([getSortItem(matrix).visible, matrix.recordsBar.showViewActions], "#1: the header sorts on a desktop").toEqual([false, false]);
     matrix.isMobile = true;
-    expect([getSortItem(matrix).visible, matrix.showViewActions], "#2").toEqual([true, true]);
+    expect([getSortItem(matrix).visible, matrix.recordsBar.showViewActions], "#2").toEqual([true, true]);
     matrix.isMobile = false;
     expect(getSortItem(matrix).visible, "#3").toBe(false);
     matrix.displayMode = "list";
@@ -302,15 +302,15 @@ describe("Sort menu: the candidates change", () => {
   test("a panel: a question added, removed, retyped and retitled", () => {
     const panel = createPanel({ templateElements: [{ type: "html", name: "h" }, { type: "imagepicker", name: "pic", multiSelect: true, choices: [{ value: "a", imageLink: "a.png" }] }] });
     const item = getSortItem(panel);
-    expect([item.visible, panel.showViewActions], "#1: nothing to sort by").toEqual([false, false]);
+    expect([item.visible, panel.recordsBar.showViewActions], "#1: nothing to sort by").toEqual([false, false]);
     const text = new QuestionTextModel("added");
     panel.template.addElement(text);
-    expect([item.visible, panel.showViewActions], "#2: no popup was opened").toEqual([true, true]);
+    expect([item.visible, panel.recordsBar.showViewActions], "#2: no popup was opened").toEqual([true, true]);
     expect(listTitles(panel), "#3").toEqual(["Default order", "added"]);
     text.title = "Added";
     expect(listTitles(panel), "#4: a title change").toEqual(["Default order", "Added"]);
     panel.template.removeElement(text);
-    expect([item.visible, panel.showViewActions], "#5").toEqual([false, false]);
+    expect([item.visible, panel.recordsBar.showViewActions], "#5").toEqual([false, false]);
     (<any>panel.template.getQuestionByName("pic")).multiSelect = false;
     expect([item.visible, listTitles(panel)], "#6: one image is a value").toEqual([true, ["Default order", "pic"]]);
   });
@@ -341,7 +341,7 @@ describe("Sort menu: the candidates change", () => {
   test("a matrix: a column added, hidden and made a checkbox", () => {
     const matrix = createMatrix({ columns: [{ name: "f", cellType: "file" }] });
     const item = getSortItem(matrix);
-    expect([item.visible, matrix.showViewActions], "#1").toEqual([false, false]);
+    expect([item.visible, matrix.recordsBar.showViewActions], "#1").toEqual([false, false]);
     const column = matrix.addColumn("name", "Name");
     column.cellType = "text";
     expect([item.visible, listTitles(matrix)], "#2").toEqual([true, ["Default order", "Name"]]);
@@ -352,7 +352,7 @@ describe("Sort menu: the candidates change", () => {
     column.visible = true;
     expect(item.visible, "#5").toBe(true);
     column.cellType = "checkbox";
-    expect([item.visible, matrix.showViewActions], "#6: a checkbox column").toEqual([false, false]);
+    expect([item.visible, matrix.recordsBar.showViewActions], "#6: a checkbox column").toEqual([false, false]);
   });
 });
 
@@ -435,8 +435,8 @@ describe("Sort menu: which levels show", () => {
   });
   test("five level actions, created once and hidden as needed; disposed with the question", () => {
     const panel = createPanel();
-    const actions = panel.viewActions;
-    expect(panel.viewActions, "#1").toBe(actions);
+    const actions = panel.recordsBar.viewActions;
+    expect(panel.recordsBar.viewActions, "#1").toBe(actions);
     expect(actions.actions.map(a => a.id), "#2").toEqual(["sv-sort-by", "sv-sort-then-by-1", "sv-sort-then-by-2", "sv-sort-then-by-3", "sv-sort-then-by-4"]);
     const items = actions.actions.slice();
     pick(panel, "Name");
@@ -450,7 +450,7 @@ describe("Sort menu: which levels show", () => {
     panel.sortBy = "name;age";
     expect(visibleLevels(panel), "#1").toEqual(["sv-sort-by", "sv-sort-then-by-1"]);
     panel.allowSortPanels = false;
-    expect([visibleLevels(panel), panel.showViewActions], "#2").toEqual([[], false]);
+    expect([visibleLevels(panel), panel.recordsBar.showViewActions], "#2").toEqual([[], false]);
   });
 });
 
@@ -619,11 +619,11 @@ describe("Sort menu: the matrix", () => {
   });
   test("sortMenuVisibility switched on a built desktop matrix", () => {
     const matrix = createMatrix(undefined, false);
-    expect([getSortItem(matrix).visible, matrix.showViewActions], "#1").toEqual([false, false]);
+    expect([getSortItem(matrix).visible, matrix.recordsBar.showViewActions], "#1").toEqual([false, false]);
     matrix.sortMenuVisibility = "always";
-    expect([getSortItem(matrix).visible, matrix.showViewActions], "#2").toEqual([true, true]);
+    expect([getSortItem(matrix).visible, matrix.recordsBar.showViewActions], "#2").toEqual([true, true]);
     matrix.sortMenuVisibility = "auto";
-    expect([getSortItem(matrix).visible, matrix.showViewActions], "#3").toEqual([false, false]);
+    expect([getSortItem(matrix).visible, matrix.recordsBar.showViewActions], "#3").toEqual([false, false]);
     expect(matrix.toJSON().sortMenuVisibility, "#4: the default is not serialized").toBeUndefined();
   });
   test("the fields: columns first, then the detail questions", () => {
@@ -662,10 +662,10 @@ describe("Sort menu: the matrix", () => {
   test("the candidates change: a detail element added, removed, made html, and detailPanelMode switched", () => {
     const matrix = createMatrix({ detailPanelMode: "underRow", detailElements: [{ type: "html", name: "h" }, { type: "panel", name: "inner" }] }, false);
     const item = getSortItem(matrix);
-    expect([item.visible, matrix.showViewActions], "#1").toEqual([false, false]);
+    expect([item.visible, matrix.recordsBar.showViewActions], "#1").toEqual([false, false]);
     const q = new QuestionTextModel("score");
     matrix.detailPanel.addElement(q);
-    expect([item.visible, matrix.showViewActions, listTitles(matrix)], "#2: no popup was opened").toEqual([true, true, ["Default order", "Name", "age", "score"]]);
+    expect([item.visible, matrix.recordsBar.showViewActions, listTitles(matrix)], "#2: no popup was opened").toEqual([true, true, ["Default order", "Name", "age", "score"]]);
     q.title = "Score";
     expect(listTitles(matrix), "#3: a title change").toEqual(["Default order", "Name", "age", "Score"]);
     matrix.detailPanel.removeElement(q);
@@ -697,7 +697,7 @@ describe("Sort menu: the matrix", () => {
     const index = matrix.detailPanel.elements.indexOf(old);
     matrix.detailPanel.removeElement(old);
     matrix.detailPanel.addElement(html, index);
-    expect([item.visible, matrix.showViewActions], "#2").toEqual([false, false]);
+    expect([item.visible, matrix.recordsBar.showViewActions], "#2").toEqual([false, false]);
   });
   test("a header click replaces the whole sort and the menu follows", () => {
     const matrix = createMatrix(detail, false);

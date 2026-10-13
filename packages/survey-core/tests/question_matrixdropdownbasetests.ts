@@ -3122,9 +3122,9 @@ describe("The pager of a matrix that pages its rows", () => {
   });
   test("the page buttons are icons with localized titles, the page info is text without a tab stop", () => {
     const matrix = createMatrix("matrixdropdown", { rowsPerPage: 2 });
-    const prev = matrix.pagerActions.getActionById("sv-pager-prev");
-    const next = matrix.pagerActions.getActionById("sv-pager-next");
-    const info = matrix.pagerActions.getActionById("sv-pager-info");
+    const prev = matrix.recordsBar.pagerActions.getActionById("sv-pager-prev");
+    const next = matrix.recordsBar.pagerActions.getActionById("sv-pager-next");
+    const info = matrix.recordsBar.pagerActions.getActionById("sv-pager-info");
     expect([prev.title, next.title, info.title], "#1").toEqual(["Previous", "Next", "1 of 3"]);
     expect([prev.iconName, next.iconName], "#2").toEqual(["icon-arrowleft", "icon-arrowright"]);
     expect([prev.hasTitle, next.hasTitle], "#3: the title is the tooltip and the accessible name").toEqual([false, false]);
@@ -3145,8 +3145,8 @@ describe("The pager of a matrix that pages its rows", () => {
       });
       matrix.value = { r1: { a: "x" }, r2: { a: "y" } };
       expect(matrix.visibleRows.length, "#0: the page is shown").toBe(2);
-      const prev = matrix.pagerActions.getActionById("sv-pager-prev");
-      const next = matrix.pagerActions.getActionById("sv-pager-next");
+      const prev = matrix.recordsBar.pagerActions.getActionById("sv-pager-prev");
+      const next = matrix.recordsBar.pagerActions.getActionById("sv-pager-next");
       expect([prev.enabled, next.enabled], "#1: page 0").toEqual([false, true]);
       next.action();
       expect(matrix.isPageMovePending, "#2: the move waits").toBe(true);

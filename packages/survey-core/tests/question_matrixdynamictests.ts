@@ -11503,21 +11503,21 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
   });
   test("the pager actions are created once", () => {
     const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2 }, abcde);
-    const actions = matrix.pagerActions;
+    const actions = matrix.recordsBar.pagerActions;
     matrix.nextPage();
-    expect(matrix.pagerActions === actions, "#1: the same container after a page move").toBe(true);
+    expect(matrix.recordsBar.pagerActions === actions, "#1: the same container after a page move").toBe(true);
     matrix.rowsPerPage = 3;
-    expect(matrix.pagerActions === actions, "#2: and after a page size change").toBe(true);
+    expect(matrix.recordsBar.pagerActions === actions, "#2: and after a page size change").toBe(true);
   });
   test("the pager actions run the navigation and follow it", () => {
     const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2 }, abcde);
-    const actions = matrix.pagerActions.actions;
+    const actions = matrix.recordsBar.pagerActions.actions;
     expect(actions.map(action => action.id), "#1: first, prev, the page slots, the page info, next, last and the loading text").toEqual([
       "sv-pager-first", "sv-pager-prev", "sv-pager-page-0", "sv-pager-page-1", "sv-pager-page-2", "sv-pager-page-3", "sv-pager-page-4",
       "sv-pager-page-5", "sv-pager-page-6", "sv-pager-info", "sv-pager-next", "sv-pager-last", "sv-pager-loading"]);
-    const prev = matrix.pagerActions.getActionById("sv-pager-prev");
-    const next = matrix.pagerActions.getActionById("sv-pager-next");
-    const info = matrix.pagerActions.getActionById("sv-pager-info");
+    const prev = matrix.recordsBar.pagerActions.getActionById("sv-pager-prev");
+    const next = matrix.recordsBar.pagerActions.getActionById("sv-pager-next");
+    const info = matrix.recordsBar.pagerActions.getActionById("sv-pager-info");
     expect(prev.enabled, "#2").toBe(false);
     expect(next.enabled, "#3").toBe(true);
     expect(info.title, "#4").toBe("1 of 3");
@@ -11532,7 +11532,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
   });
   test("the pager info follows the survey locale", () => {
     const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2 }, abcde);
-    const info = matrix.pagerActions.getActionById("sv-pager-info");
+    const info = matrix.recordsBar.pagerActions.getActionById("sv-pager-info");
     expect(info.title, "#1").toBe("1 of 3");
     (<SurveyModel>matrix.survey).locale = "de";
     expect(info.title, "#2").toBe("1 von 3");

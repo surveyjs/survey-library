@@ -283,8 +283,8 @@ describe("Records question: dispose of the pager", () => {
       { type: "paneldynamic", name: "p", panelCount: 3, panelsPerPage: 2, templateElements: [{ type: "text", name: "a" }] }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
-    const matrixPager = matrix.pagerActions;
-    const panelPager = panel.pagerActions;
+    const matrixPager = matrix.recordsBar.pagerActions;
+    const panelPager = panel.recordsBar.pagerActions;
     matrix.dispose();
     panel.dispose();
     expect(matrixPager.isDisposed, "#1: matrix").toBe(true);
@@ -356,7 +356,7 @@ describe("Records questions: one API across the three types", () => {
     const survey = new SurveyModel({ elements: [json] });
     survey.data = { m: { r1: "c2" } };
     const m: any = survey.getQuestionByName("m");
-    ["pageSize", "rowsPerPage", "sortBy", "filterExpression", "getDataList", "pagerActions", "pageIndex"].forEach(name => {
+    ["pageSize", "rowsPerPage", "sortBy", "filterExpression", "getDataList", "recordsBar", "pageIndex"].forEach(name => {
       expect(name in m, "#1: " + name).toBe(false);
     });
     expect(m.value, "#2: the answer").toEqual({ r1: "c2" });

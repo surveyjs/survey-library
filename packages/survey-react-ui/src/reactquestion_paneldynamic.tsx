@@ -75,23 +75,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
 
   // The records bar under the panels: the sort toolbar, and the pager under it.
   protected renderRecordsBar(): React.JSX.Element | null {
-    if (!this.question.showViewActions && !this.question.showPager) return null;
-    return <div className={this.question.cssClasses.recordsBar}>
-      {this.renderViewActions()}
-      {this.renderPager()}
-    </div>;
-  }
-  protected renderViewActions(): React.JSX.Element | null {
-    if (!this.question.showViewActions) return null;
-    return <div className={this.question.cssClasses.viewActions}>
-      <SurveyActionBar model={this.question.viewActions}></SurveyActionBar>
-    </div>;
-  }
-  protected renderPager(): React.JSX.Element | null {
-    if (!this.question.showPager) return null;
-    return <div className={this.question.cssClasses.pager}>
-      <SurveyActionBar model={this.question.pagerActions}></SurveyActionBar>
-    </div>;
+    return ReactElementFactory.Instance.createElement("sv-records-bar", { model: this.question.recordsBar });
   }
 
   protected renderRange(): React.JSX.Element {

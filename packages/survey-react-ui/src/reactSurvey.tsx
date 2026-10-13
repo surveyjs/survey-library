@@ -74,7 +74,7 @@ export class Survey extends SurveyElementBase<any, any>
       this.survey.renderCallback = undefined as any;
       this.survey.onPartialSend.clear();
       this.survey.stopTimer();
-      this.survey.destroyResizeObserver();
+      this.survey.beforeDestroySurveyElement();
     }
   }
   componentWillUnmount() {

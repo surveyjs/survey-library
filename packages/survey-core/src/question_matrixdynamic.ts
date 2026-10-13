@@ -1524,6 +1524,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return false;
   }
+  public getShowPlaceholderToolbar(): boolean {
+    // The single input summary adds rows from the survey navigation bar.
+    return this.getShowToolbar() && !this.singleInputSummary;
+  }
   private initFooterToolbar() {
     this.toolbarValue = this.createActionContainer();
     this.toolbarValue.setActionsAppearance({ style: "brand", mode: "secondary", size: "small", });

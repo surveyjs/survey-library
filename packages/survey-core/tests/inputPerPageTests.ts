@@ -3170,4 +3170,77 @@ describe("Input Per Page Tests", () => {
     expect(sku.errors.length, "sku has no error nobody asked for").toBe(0);
     unregisterFunction("asyncSkuFunc");
   });
+  test("Dynamic matrix: the empty summary placeholder doesn't show the matrix toolbar", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "matrixdynamic", name: "matrix", rowCount: 0, columns: [{ name: "col1", cellType: "text" }] }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const addAction = survey.navigationBar.getActionById("sv-singleinput-add");
+    expect(matrix.singleInputSummary.isEmpty(), "the summary is empty, #1").toBe(true);
+    expect(matrix.getShowPlaceholderToolbar(), "the placeholder has no toolbar, #1").toBe(false);
+    expect(addAction.visible, "the navigation bar shows the Add button, #1").toBe(true);
+
+    addAction.action();
+    expect(matrix.singleInputQuestion.name, "a row is added, #2").toBe("col1");
+    matrix.removeRow(0);
+    expect(matrix.singleInputSummary.isEmpty(), "the summary is empty, #3").toBe(true);
+    expect(matrix.getShowPlaceholderToolbar(), "the placeholder has no toolbar, #3").toBe(false);
+
+    survey.questionsOnPageMode = "standard";
+    expect(matrix.singleInputSummary, "no summary, #4").toBeFalsy();
+    expect(matrix.getShowPlaceholderToolbar(), "the placeholder has the toolbar, #4").toBe(true);
+    matrix.allowAddRows = false;
+    expect(matrix.getShowPlaceholderToolbar(), "the placeholder has no toolbar if rows can't be added, #5").toBe(false);
+  });
+  test("Dynamic panel: the empty summary placeholder doesn't show the panel footer toolbar", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "paneldynamic", name: "panel", panelCount: 0, templateElements: [{ type: "text", name: "q1" }] }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const addAction = survey.navigationBar.getActionById("sv-singleinput-add");
+    expect(panel.singleInputSummary.isEmpty(), "the summary is empty, #1").toBe(true);
+    expect(panel.getShowPlaceholderToolbar(), "the placeholder has no toolbar, #1").toBe(false);
+    expect(addAction.visible, "the navigation bar shows the Add button, #1").toBe(true);
+
+    addAction.action();
+    expect(panel.singleInputQuestion.name, "a panel is added, #2").toBe("q1");
+    panel.removePanel(0);
+    expect(panel.singleInputSummary.isEmpty(), "the summary is empty, #3").toBe(true);
+    expect(panel.getShowPlaceholderToolbar(), "the placeholder has no toolbar, #3").toBe(false);
+
+    survey.questionsOnPageMode = "standard";
+    expect(panel.singleInputSummary, "no summary, #4").toBeFalsy();
+    expect(panel.getShowPlaceholderToolbar(), "the placeholder has the toolbar, #4").toBe(true);
+  });
+  test("Nested dynamic matrix and panel: the empty summary placeholder doesn't show the toolbar", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "paneldynamic", name: "outer", panelCount: 1, templateElements: [
+          { type: "text", name: "q1" },
+          { type: "matrixdynamic", name: "matrix", rowCount: 0, columns: [{ name: "col1", cellType: "text" }] },
+          { type: "paneldynamic", name: "panel", panelCount: 0, templateElements: [{ type: "text", name: "q2" }] }
+        ] }
+      ]
+    });
+    const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const matrix = <QuestionMatrixDynamicModel>outer.panels[0].getQuestionByName("matrix");
+    const panel = <QuestionPanelDynamicModel>outer.panels[0].getQuestionByName("panel");
+    // css classes are calculated on rendering, before moving to the nested questions
+    outer.cssClasses;
+    survey.performNext();
+    expect(outer.singleInputQuestion.name, "the nested matrix is the single input, #1").toBe("matrix");
+    expect(matrix.singleInputSummary.isEmpty(), "the matrix summary is empty, #1").toBe(true);
+    expect(matrix.getShowPlaceholderToolbar(), "the matrix placeholder has no toolbar, #1").toBe(false);
+    survey.performNext();
+    expect(outer.singleInputQuestion.name, "the nested panel is the single input, #2").toBe("panel");
+    expect(panel.singleInputSummary.isEmpty(), "the panel summary is empty, #2").toBe(true);
+    expect(panel.getShowPlaceholderToolbar(), "the panel placeholder has no toolbar, #2").toBe(false);
+  });
 });

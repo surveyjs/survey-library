@@ -40,9 +40,15 @@ export class DomWindowHelper {
       return window.getSelection();
     }
   }
-  public static requestAnimationFrame(callback: FrameRequestCallback): number {
+  public static requestAnimationFrame(callback: FrameRequestCallback): number | null {
     if (DomWindowHelper.isAvailable()) {
       return window.requestAnimationFrame(callback);
+    }
+    return null;
+  }
+  public static cancelAnimationFrame(id: number): void {
+    if (DomWindowHelper.isAvailable()) {
+      window.cancelAnimationFrame(id);
     }
   }
   public static isEventListenerAvailable(): boolean {

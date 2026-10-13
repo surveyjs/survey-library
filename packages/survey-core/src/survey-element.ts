@@ -29,6 +29,7 @@ import { toCssClasses } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { IAnimationConsumer, AnimationBoolean } from "./utils/animation";
 import { classesToSelector } from "./utils/dom-utils";
+import { scrollElementToViewCore, scrollIntoView } from "./utils/scroll-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelModel } from "./panel";
@@ -194,60 +195,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   public readOnlyChangedCallback: () => void;
 
-  private static IsNeedScrollIntoView(el: Element, checkLeft: boolean, scrollIfVisible?: boolean) {
-    const elTop: number = scrollIfVisible ? -1 : el.getBoundingClientRect().top;
-    let needScroll = elTop < 0;
-    let elLeft: number = -1;
-    if (!needScroll && checkLeft) {
-      elLeft = el.getBoundingClientRect().left;
-      needScroll = elLeft < 0;
-    }
-    if (!needScroll && DomWindowHelper.isAvailable()) {
-      const height = DomWindowHelper.getInnerHeight();
-      needScroll = height > 0 && height < elTop;
-      if (!needScroll && checkLeft) {
-        const width = DomWindowHelper.getInnerWidth();
-        needScroll = width > 0 && width < elLeft;
-      }
-    }
-    return needScroll;
-  }
   public static ScrollIntoView(el: Element, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): void {
-    el.scrollIntoView(scrollIntoViewOptions);
-    if (typeof doneCallback === "function") {
-      let lastPos: number = null;
-      let same: number = 0;
-      const checkPos = () => {
-        const newPos = el.getBoundingClientRect().top;
-        if (newPos === lastPos) {
-          if (same++ > 2) {
-            doneCallback();
-            return;
-          }
-        } else {
-          lastPos = newPos;
-          same = 0;
-        }
-        requestAnimationFrame(checkPos);
-      };
-      DomWindowHelper.requestAnimationFrame(checkPos);
-    }
+    scrollIntoView(el, scrollIntoViewOptions, doneCallback);
   }
   public static ScrollElementToTop(element: Element, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
     return SurveyElement.ScrollElementToViewCore(element, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
   }
   public static ScrollElementToViewCore(el: Element, checkLeft: boolean, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
-    if (!el || !el.scrollIntoView) {
-      doneCallback && doneCallback();
-      return false;
-    }
-    const needScroll = SurveyElement.IsNeedScrollIntoView(el, checkLeft, scrollIfVisible);
-    if (needScroll) {
-      SurveyElement.ScrollIntoView(el, scrollIntoViewOptions, doneCallback);
-    } else {
-      doneCallback && doneCallback();
-    }
-    return needScroll;
+    return scrollElementToViewCore(el, checkLeft, scrollIfVisible, scrollIntoViewOptions, doneCallback);
   }
   public static GetFirstNonTextElement(elements: any, removeSpaces: boolean = false): any {
     if (!elements || !elements.length || elements.length == 0) return null;

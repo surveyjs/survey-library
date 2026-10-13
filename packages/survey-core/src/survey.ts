@@ -5933,6 +5933,7 @@ export class SurveyModel extends SurveyElementCore
       survey: this,
       htmlElement: htmlElement,
     });
+    this.removeScrollEventListener();
     this.rootElement = htmlElement;
     this.scrollerElement = htmlElement.getElementsByClassName("sv-scroll__scroller")[0];
     this.addScrollEventListener();
@@ -5949,6 +5950,7 @@ export class SurveyModel extends SurveyElementCore
     this.destroyResizeObserver();
     this.focusedQuestionScrollValue?.dispose();
     this.removeScrollEventListener();
+    this.tocModelValue?.removeStickyTOCSubscriptions();
     this.rootElement = undefined;
     this.scrollerElement = undefined;
   }
@@ -9118,6 +9120,7 @@ export class SurveyModel extends SurveyElementCore
       }
       this.layoutElements.splice(0, this.layoutElements.length);
     }
+    this.tocModelValue?.dispose();
     this.resetRegionalFormat();
     super.dispose();
     this.editingObj = null;

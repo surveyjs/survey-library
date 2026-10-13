@@ -2642,7 +2642,7 @@ export abstract class QuestionRecordsModel extends Question {
     super.onSurveyLoad();
     this.updateSortActions();
   }
-  /* The sort toolbar of the records bar, next to the pager. It holds the sort menu: one dropdown per
+  /* The sort toolbar of the records bar, above the pager. It holds the sort menu: one dropdown per
      sort level, "Sort by" and then "Then by"; the page size selector and a filter are meant to join it. */
   private viewActionsValue: ActionContainer;
   private sortActionsValue: Array<Action>;

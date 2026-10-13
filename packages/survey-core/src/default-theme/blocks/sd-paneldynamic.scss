@@ -121,11 +121,11 @@
     }
 }
 
-// The sort toolbar at the start, the pager at the end; on a narrow width the pager drops under the sort.
+// The sort toolbar, and the pager on its own row under it.
 .sd-paneldynamic__records-bar {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
     gap: var(--sjs2-layout-component-panel-dynamic-footer-action-group-gap);
     padding-top: var(--sjs2-layout-component-panel-dynamic-footer-padding-top);
     padding-inline-start: var(--sjs2-layout-component-panel-dynamic-footer-padding-left);
@@ -133,7 +133,6 @@
 }
 
 .sd-paneldynamic__pager {
-    margin-inline-start: auto;
     --sd-action-bar-gap: var(--sjs2-layout-component-panel-dynamic-footer-action-group-gap);
 }
 

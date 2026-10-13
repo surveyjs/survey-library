@@ -58,7 +58,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
       </div>
     );
   }
-  // The records bar under the table and above the "Add row" toolbar: the sort toolbar, and the pager under it.
+  // The records bar under the table and above the "Add row" toolbar: the pager, and the sort toolbar under it.
   protected renderRecordsBar(): React.JSX.Element | null {
     return ReactElementFactory.Instance.createElement("sv-records-bar", { model: this.matrix.recordsBar });
   }

@@ -606,7 +606,7 @@ frameworks.forEach((framework) => {
       await expect(viewActions.getByRole("button", { name: "Sort by name, ascending" })).toBeVisible();
     });
 
-    test("the Sort by menu sorts a desktop matrix by a detail panel question; the pager is under it", async ({ page }) => {
+    test("the Sort by menu sorts a desktop matrix by a detail panel question; it is under the pager", async ({ page }) => {
       await initSurvey(page, framework, {
         elements: [
           {
@@ -627,8 +627,8 @@ frameworks.forEach((framework) => {
       await expect(names.first()).toHaveValue("b");
       const pager = recordsBar.locator(".sd-matrixdynamic__pager");
       await expect(pager, "the pager is in the same bar").toHaveCount(1);
-      const sortBox = (await viewActions.boundingBox())!;
-      expect((await pager.boundingBox())!.y, "the pager is under the sort").toBeGreaterThanOrEqual(sortBox.y + sortBox.height);
+      const pagerBox = (await pager.boundingBox())!;
+      expect((await viewActions.boundingBox())!.y, "the sort is under the pager").toBeGreaterThanOrEqual(pagerBox.y + pagerBox.height);
       await viewActions.getByRole("button", { name: "Sort by", exact: true }).click();
       await page.getByRole("menuitemradio", { name: "score", exact: true }).click();
       await expect(names.nth(0)).toHaveValue("c");

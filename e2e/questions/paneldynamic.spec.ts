@@ -487,8 +487,8 @@ frameworks.forEach((framework) => {
 
       await expect(recordsBar, "one records bar").toHaveCount(1);
       await expect(recordsBar.locator(".sd-paneldynamic__pager"), "the pager is in the same bar").toHaveCount(1);
-      const sortBox = (await viewActions.boundingBox())!;
-      expect((await recordsBar.locator(".sd-paneldynamic__pager").boundingBox())!.y, "the pager is under the sort").toBeGreaterThanOrEqual(sortBox.y + sortBox.height);
+      const pagerBox = (await recordsBar.locator(".sd-paneldynamic__pager").boundingBox())!;
+      expect((await viewActions.boundingBox())!.y, "the sort is under the pager").toBeGreaterThanOrEqual(pagerBox.y + pagerBox.height);
       await expect(viewActions.getByRole("button", { name: "Sort by", exact: true })).toBeVisible();
       await expect(thenBy).toHaveCount(0);
       await expect(inputs.nth(0)).toHaveValue("b");

@@ -7,7 +7,7 @@ interface IRecordsBarProps {
   model: QuestionRecordsBar;
 }
 
-// The bar under the records of a dynamic panel and a dynamic matrix: the sort menu, and the pager under it.
+// The bar under the records of a dynamic panel and a dynamic matrix: the pager, and the sort menu under it.
 export class SurveyRecordsBar extends SurveyElementBase<IRecordsBarProps, any> {
   get model(): QuestionRecordsBar {
     return this.props.model;
@@ -19,11 +19,11 @@ export class SurveyRecordsBar extends SurveyElementBase<IRecordsBarProps, any> {
     if (!this.model.isVisible) return null;
     const css = this.model.cssClasses;
     return <div className={css.root}>
-      {this.model.showViewActions ? <div className={css.viewActions}>
-        {ReactElementFactory.Instance.createElement("sv-action-bar", { model: this.model.viewActions })}
-      </div> : null}
       {this.model.showPager ? <div className={css.pager}>
         {ReactElementFactory.Instance.createElement("sv-action-bar", { model: this.model.pagerActions })}
+      </div> : null}
+      {this.model.showViewActions ? <div className={css.viewActions}>
+        {ReactElementFactory.Instance.createElement("sv-action-bar", { model: this.model.viewActions })}
       </div> : null}
     </div>;
   }

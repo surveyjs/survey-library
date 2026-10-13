@@ -2473,7 +2473,7 @@ export abstract class QuestionRecordsModel extends Question {
   public get filterExpression(): string { return this.paging.filterExpression; }
   public set filterExpression(val: string) { this.paging.filterExpression = val; }
   public refreshView(): void { this.paging.refreshView(); }
-  /* The bar under the records: the sort menu and, under it, the pager. Created on its first read; the
+  /* The bar under the records: the pager and, under it, the sort menu. Created on its first read; the
      question keeps it current through updateRecordsBar(). */
   private recordsBarValue: QuestionRecordsBar;
   public get recordsBar(): QuestionRecordsBar {

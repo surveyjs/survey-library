@@ -46,8 +46,8 @@ export interface IQuestionRecordsBarOwner {
   createActionContainer(): ActionContainer;
 }
 
-/* The bar under the records of a dynamic panel and a dynamic matrix: the sort menu (viewActions) and,
-   under it, the pager (pagerActions). It computes nothing about paging or sorting of its own: it shows
+/* The bar under the records of a dynamic panel and a dynamic matrix: the pager (pagerActions) and,
+   under it, the sort menu (viewActions). It computes nothing about paging or sorting of its own: it shows
    what its question answers and passes the respondent's picks back. Both containers are built on their
    first read; whether each part shows is known without them (update()). */
 export class QuestionRecordsBar extends Base {
@@ -209,7 +209,7 @@ export class QuestionRecordsBar extends Base {
 
   // The sort menu
 
-  /* The sort toolbar above the pager. It holds the sort menu: one dropdown per sort level, "Sort by" and
+  /* The sort toolbar under the pager. It holds the sort menu: one dropdown per sort level, "Sort by" and
      then "Then by"; the page size selector and a filter are meant to join it. */
   private viewActionsValue: ActionContainer;
   private sortActionsValue: Array<Action>;

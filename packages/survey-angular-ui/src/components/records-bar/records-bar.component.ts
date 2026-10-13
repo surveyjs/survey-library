@@ -3,7 +3,7 @@ import { AngularComponentFactory } from "../../component-factory";
 import { BaseAngular } from "../../base-angular";
 import { QuestionRecordsBar } from "survey-core";
 
-// The bar under the records of a dynamic panel and a dynamic matrix: the sort menu, and the pager under it.
+// The bar under the records of a dynamic panel and a dynamic matrix: the pager, and the sort menu under it.
 @Component({
   selector: "sv-ng-records-bar",
   templateUrl: "./records-bar.component.html",

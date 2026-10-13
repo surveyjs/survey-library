@@ -1246,6 +1246,95 @@ describe("TOC", () => {
     expect(() => survey.findLayoutElement("toc-navigation")).not.toThrow();
     expect(!!survey.findLayoutElement("toc-navigation")).toBe(true);
   });
+
+  describe("sticky TOC scroll listener, Bug#12003", () => {
+    // The root gets two scroll listeners: the survey's own one and the sticky TOC one
+    const rootListenerCount = 2;
+    function createSurvey(): SurveyModel {
+      TOCModel.StickyPosition = true;
+      const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+      // The UI creates the TOC model through the survey layout elements
+      expect(survey.findLayoutElement("toc-navigation")).toBeTruthy();
+      return survey;
+    }
+    function createTrackedRoot(): { root: HTMLDivElement, scrollListeners: Set<any> } {
+      const root = document.createElement("div");
+      const scrollListeners = new Set<any>();
+      const add = root.addEventListener.bind(root);
+      const remove = root.removeEventListener.bind(root);
+      root.addEventListener = (type: string, listener: any, options?: any) => {
+        if (type === "scroll") scrollListeners.add(listener);
+        add(type, listener, options);
+      };
+      root.removeEventListener = (type: string, listener: any, options?: any) => {
+        if (type === "scroll") scrollListeners.delete(listener);
+        remove(type, listener, options);
+      };
+      return { root, scrollListeners };
+    }
+
+    test("rendering the survey several times does not add scroll listeners to the root", () => {
+      const survey = createSurvey();
+      const { root, scrollListeners } = createTrackedRoot();
+      survey.afterRenderSurvey(root);
+      expect(scrollListeners.size, "after the first render").toBe(rootListenerCount);
+      survey.afterRenderSurvey(root);
+      survey.afterRenderSurvey(root);
+      expect(scrollListeners.size, "after re-rendering").toBe(rootListenerCount);
+      survey.dispose();
+      expect(scrollListeners.size, "released on dispose").toBe(0);
+    });
+
+    test("rendering into another root releases the old root", () => {
+      const survey = createSurvey();
+      const first = createTrackedRoot();
+      const second = createTrackedRoot();
+      survey.afterRenderSurvey(first.root);
+      survey.afterRenderSurvey(second.root);
+      expect(first.scrollListeners.size, "the old root is released").toBe(0);
+      expect(second.scrollListeners.size, "the new root is listened").toBe(rootListenerCount);
+      survey.dispose();
+      expect(second.scrollListeners.size, "released on dispose").toBe(0);
+    });
+
+    test("destroying the survey element removes the scroll listeners", () => {
+      const survey = createSurvey();
+      const { root, scrollListeners } = createTrackedRoot();
+      survey.afterRenderSurvey(root);
+      expect(scrollListeners.size).toBe(rootListenerCount);
+      survey.beforeDestroySurveyElement();
+      expect(scrollListeners.size, "released on destroy").toBe(0);
+      survey.afterRenderSurvey(root);
+      expect(scrollListeners.size, "added back on render").toBe(rootListenerCount);
+      survey.dispose();
+      expect(scrollListeners.size, "released on dispose").toBe(0);
+    });
+
+    test("disposing the survey disposes the TOC model", () => {
+      const survey = createSurvey();
+      const tocModel = survey.tocModel;
+      const { root, scrollListeners } = createTrackedRoot();
+      survey.afterRenderSurvey(root);
+      expect(tocModel.isDisposed).toBe(false);
+      survey.dispose();
+      expect(scrollListeners.size, "released on dispose").toBe(0);
+      expect(tocModel.isDisposed, "TOC model is disposed with the survey").toBe(true);
+      expect(survey.isDisposed).toBe(true);
+    });
+
+    test("a disposed TOC model does not listen to the survey root", () => {
+      const survey = createSurvey();
+      const tocModel = new TOCModel(survey);
+      const { root, scrollListeners } = createTrackedRoot();
+      tocModel.dispose();
+      expect(tocModel.isDisposed).toBe(true);
+      expect(() => tocModel.dispose(), "dispose twice").not.toThrow();
+      survey.afterRenderSurvey(root);
+      expect(scrollListeners.size, "only the survey and its own TOC model listen").toBe(rootListenerCount);
+      survey.dispose();
+      expect(scrollListeners.size, "released on dispose").toBe(0);
+    });
+  });
 });
 
 describe("TOC custom item component", () => {

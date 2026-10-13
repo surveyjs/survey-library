@@ -314,6 +314,7 @@ export * from "../../src/utils/text-area";
 export * from "../../src/utils/shadow-effects";
 export * from "../../src/utils/resize-manager";
 export * from "../../src/utils/base-theme-init";
+export { setupThemeAdapter } from "../../src/utils/setupThemeAdapter";
 
 export { surveyCss, defaultCss, defaultThemeName } from "../../src/defaultCss/defaultCss";
 
@@ -324,4 +325,3 @@ export { DragDropCore } from "../../src/dragdrop/core";
 export { DragDropChoices } from "../../src/dragdrop/choices";
 export { DragDropRankingSelectToRank } from "../../src/dragdrop/ranking-select-to-rank";
 export { default as BaseTheme } from "../../src/default-theme/base-theme";
-export { setupThemeAdapter } from "../../src/themes/setupThemeAdapter";

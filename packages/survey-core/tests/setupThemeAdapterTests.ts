@@ -10,6 +10,7 @@ interface IPropertySnapshot {
   visible: boolean;
   isSerializable: boolean;
   defaultValue: any;
+  choices: Array<any>;
 }
 
 function snapshot(className: string, propertyName: string): IPropertySnapshot {
@@ -19,25 +20,42 @@ function snapshot(className: string, propertyName: string): IPropertySnapshot {
     visible: prop.visible,
     isSerializable: prop.isSerializable,
     defaultValue: prop.defaultValue,
+    choices: prop.getChoices(null),
   };
 }
 
 const snapshots = [
   snapshot("survey", "questionDescriptionLocation"),
   snapshot("survey", "questionErrorLocation"),
+  snapshot("survey", "questionTitleLocation"),
   snapshot("question", "descriptionLocation"),
   snapshot("question", "errorLocation"),
+  snapshot("question", "titleLocation"),
   snapshot("panel", "questionErrorLocation"),
 ];
 
-afterEach(() => {
-  for (let i = 0; i < snapshots.length; i++) {
-    const item = snapshots[i];
+function restoreSnapshots(): void {
+  snapshots.forEach((item) => {
     item.prop.visible = item.visible;
     item.prop.isSerializable = item.isSerializable;
     item.prop.defaultValue = item.defaultValue;
-  }
-});
+    item.prop.setChoices(item.choices);
+  });
+}
+
+afterEach(restoreSnapshots);
+
+function expectHidden(className: string, propertyName: string): void {
+  const prop = Serializer.findProperty(className, propertyName);
+  expect(prop.visible, className + "." + propertyName + " visible").toBe(false);
+  expect(prop.isSerializable, className + "." + propertyName + " isSerializable").toBe(false);
+}
+
+function expectVisible(className: string, propertyName: string): void {
+  const prop = Serializer.findProperty(className, propertyName);
+  expect(prop.visible, className + "." + propertyName + " visible").toBe(true);
+  expect(prop.isSerializable, className + "." + propertyName + " isSerializable").toBe(true);
+}
 
 describe("setupThemeAdapter", () => {
   test("bootstrap and shadcn set survey defaults and hide error location", () => {
@@ -47,25 +65,18 @@ describe("setupThemeAdapter", () => {
       expect(Serializer.findProperty("survey", "questionDescriptionLocation").defaultValue).toBe("underInput");
       expect(Serializer.findProperty("survey", "questionErrorLocation").defaultValue).toBe("bottom");
 
-      const surveyError = Serializer.findProperty("survey", "questionErrorLocation");
-      expect(surveyError.visible).toBe(false);
-      expect(surveyError.isSerializable).toBe(false);
+      expectHidden("survey", "questionErrorLocation");
+      expectHidden("question", "errorLocation");
+      expect(Serializer.findProperty("text", "errorLocation")).toBe(Serializer.findProperty("question", "errorLocation"));
 
-      const questionError = Serializer.findProperty("question", "errorLocation");
-      expect(questionError.visible).toBe(false);
-      expect(questionError.isSerializable).toBe(false);
-      expect(Serializer.findProperty("text", "errorLocation")).toBe(questionError);
+      expectVisible("survey", "questionDescriptionLocation");
+      expectVisible("question", "descriptionLocation");
+      expectVisible("survey", "questionTitleLocation");
+      expectVisible("question", "titleLocation");
+      expectVisible("panel", "questionErrorLocation");
 
-      const surveyDescription = Serializer.findProperty("survey", "questionDescriptionLocation");
-      expect(surveyDescription.visible).toBe(true);
-      expect(surveyDescription.isSerializable).toBe(true);
-      const questionDescription = Serializer.findProperty("question", "descriptionLocation");
-      expect(questionDescription.visible).toBe(true);
-      expect(questionDescription.isSerializable).toBe(true);
-
-      const panelError = Serializer.findProperty("panel", "questionErrorLocation");
-      expect(panelError.visible).toBe(true);
-      expect(panelError.isSerializable).toBe(true);
+      expect(Serializer.findProperty("survey", "questionDescriptionLocation").getChoices(null)).toEqual(["underInput", "underTitle", "hidden"]);
+      expect(Serializer.findProperty("question", "descriptionLocation").getChoices(null)).toEqual(["default", "underInput", "underTitle", "hidden"]);
 
       const survey = new SurveyModel({
         elements: [{ type: "text", name: "q1", description: "Help" }],
@@ -78,45 +89,41 @@ describe("setupThemeAdapter", () => {
 
       survey.questionErrorLocation = "top";
       survey.questionDescriptionLocation = "hidden";
+      survey.questionTitleLocation = "bottom";
       question.errorLocation = "top";
       question.descriptionLocation = "underTitle";
+      question.titleLocation = "left";
       const json = survey.toJSON();
       expect(json.questionErrorLocation).toBeUndefined();
       expect(json.questionDescriptionLocation).toBe("hidden");
+      expect(json.questionTitleLocation).toBe("bottom");
       expect(json.pages[0].elements[0].errorLocation).toBeUndefined();
       expect(json.pages[0].elements[0].descriptionLocation).toBe("underTitle");
+      expect(json.pages[0].elements[0].titleLocation).toBe("left");
 
       const panel = new PanelModel("p1");
       panel.questionErrorLocation = "bottom";
       expect(panel.toJSON().questionErrorLocation).toBe("bottom");
 
-      snapshots.forEach((item) => {
-        item.prop.visible = item.visible;
-        item.prop.isSerializable = item.isSerializable;
-        item.prop.defaultValue = item.defaultValue;
-      });
+      restoreSnapshots();
     }
   });
 
-  test("mui also hides question description location", () => {
+  test("mui hides title location and removes the underTitle description choice", () => {
     setupThemeAdapter("mui");
 
     expect(Serializer.findProperty("survey", "questionDescriptionLocation").defaultValue).toBe("underInput");
     expect(Serializer.findProperty("survey", "questionErrorLocation").defaultValue).toBe("bottom");
 
-    const surveyDescription = Serializer.findProperty("survey", "questionDescriptionLocation");
-    expect(surveyDescription.visible).toBe(false);
-    expect(surveyDescription.isSerializable).toBe(false);
-    const questionDescription = Serializer.findProperty("question", "descriptionLocation");
-    expect(questionDescription.visible).toBe(false);
-    expect(questionDescription.isSerializable).toBe(false);
+    expectHidden("survey", "questionErrorLocation");
+    expectHidden("question", "errorLocation");
+    expectHidden("survey", "questionTitleLocation");
+    expectHidden("question", "titleLocation");
 
-    const surveyError = Serializer.findProperty("survey", "questionErrorLocation");
-    expect(surveyError.visible).toBe(false);
-    expect(surveyError.isSerializable).toBe(false);
-    const questionError = Serializer.findProperty("question", "errorLocation");
-    expect(questionError.visible).toBe(false);
-    expect(questionError.isSerializable).toBe(false);
+    expectVisible("survey", "questionDescriptionLocation");
+    expectVisible("question", "descriptionLocation");
+    expect(Serializer.findProperty("survey", "questionDescriptionLocation").getChoices(null)).toEqual(["underInput", "hidden"]);
+    expect(Serializer.findProperty("question", "descriptionLocation").getChoices(null)).toEqual(["default", "underInput", "hidden"]);
 
     const survey = new SurveyModel({
       elements: [{ type: "text", name: "q1", description: "Help" }],
@@ -125,16 +132,20 @@ describe("setupThemeAdapter", () => {
     expect(survey.questionErrorLocation).toBe("bottom");
     expect(survey.getQuestionByName("q1").hasDescriptionUnderInput).toBe(true);
 
-    survey.questionDescriptionLocation = "underTitle";
+    survey.questionDescriptionLocation = "hidden";
     survey.questionErrorLocation = "top";
+    survey.questionTitleLocation = "bottom";
     const question = <QuestionTextModel>survey.getQuestionByName("q1");
-    question.descriptionLocation = "underTitle";
+    question.descriptionLocation = "hidden";
     question.errorLocation = "top";
+    question.titleLocation = "left";
     const json = survey.toJSON();
-    expect(json.questionDescriptionLocation).toBeUndefined();
+    expect(json.questionDescriptionLocation).toBe("hidden");
     expect(json.questionErrorLocation).toBeUndefined();
-    expect(json.pages[0].elements[0].descriptionLocation).toBeUndefined();
+    expect(json.questionTitleLocation).toBeUndefined();
+    expect(json.pages[0].elements[0].descriptionLocation).toBe("hidden");
     expect(json.pages[0].elements[0].errorLocation).toBeUndefined();
+    expect(json.pages[0].elements[0].titleLocation).toBeUndefined();
   });
 
   test("an unknown adapter does not change serializer metadata", () => {
@@ -142,9 +153,11 @@ describe("setupThemeAdapter", () => {
 
     expect(Serializer.findProperty("survey", "questionDescriptionLocation").defaultValue).toBe("underTitle");
     expect(Serializer.findProperty("survey", "questionErrorLocation").defaultValue).toBe("top");
-    expect(Serializer.findProperty("survey", "questionErrorLocation").visible).toBe(true);
-    expect(Serializer.findProperty("survey", "questionErrorLocation").isSerializable).toBe(true);
-    expect(Serializer.findProperty("question", "errorLocation").visible).toBe(true);
-    expect(Serializer.findProperty("question", "descriptionLocation").visible).toBe(true);
+    expectVisible("survey", "questionErrorLocation");
+    expectVisible("survey", "questionTitleLocation");
+    expectVisible("question", "errorLocation");
+    expectVisible("question", "descriptionLocation");
+    expectVisible("question", "titleLocation");
+    expect(Serializer.findProperty("question", "descriptionLocation").getChoices(null)).toEqual(["default", "underInput", "underTitle", "hidden"]);
   });
 });

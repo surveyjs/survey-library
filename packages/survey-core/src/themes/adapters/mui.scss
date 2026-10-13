@@ -1126,3 +1126,17 @@ input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
     }
   }
 }
+
+.svc-question__content--title-hidden {
+  padding-top: 32px;
+
+  .sd-question__header {
+    display: none;
+  }
+}
+
+// The designer keeps a hidden-title placeholder (question name) above the input.
+// MUI uses the question title as the floating label, so that placeholder must not stay on screen.
+.svc-question__adorner:not(.svc-question__adorner--collapsed) > .svc-element__header--hidden {
+  display: none;
+}

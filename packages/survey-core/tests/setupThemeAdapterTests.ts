@@ -8,7 +8,6 @@ import { afterEach, describe, expect, test } from "vitest";
 interface IPropertySnapshot {
   prop: JsonObjectProperty;
   visible: boolean;
-  isSerializable: boolean;
   defaultValue: any;
   choices: Array<any>;
 }
@@ -18,7 +17,6 @@ function snapshot(className: string, propertyName: string): IPropertySnapshot {
   return {
     prop: prop,
     visible: prop.visible,
-    isSerializable: prop.isSerializable,
     defaultValue: prop.defaultValue,
     choices: prop.getChoices(null),
   };
@@ -37,7 +35,6 @@ const snapshots = [
 function restoreSnapshots(): void {
   snapshots.forEach((item) => {
     item.prop.visible = item.visible;
-    item.prop.isSerializable = item.isSerializable;
     item.prop.defaultValue = item.defaultValue;
     item.prop.setChoices(item.choices);
   });
@@ -48,13 +45,12 @@ afterEach(restoreSnapshots);
 function expectHidden(className: string, propertyName: string): void {
   const prop = Serializer.findProperty(className, propertyName);
   expect(prop.visible, className + "." + propertyName + " visible").toBe(false);
-  expect(prop.isSerializable, className + "." + propertyName + " isSerializable").toBe(false);
+  expect(prop.isSerializable, className + "." + propertyName + " isSerializable").toBe(true);
 }
 
 function expectVisible(className: string, propertyName: string): void {
   const prop = Serializer.findProperty(className, propertyName);
   expect(prop.visible, className + "." + propertyName + " visible").toBe(true);
-  expect(prop.isSerializable, className + "." + propertyName + " isSerializable").toBe(true);
 }
 
 describe("setupThemeAdapter", () => {
@@ -94,10 +90,10 @@ describe("setupThemeAdapter", () => {
       question.descriptionLocation = "underTitle";
       question.titleLocation = "left";
       const json = survey.toJSON();
-      expect(json.questionErrorLocation).toBeUndefined();
+      expect(json.questionErrorLocation).toBe("top");
       expect(json.questionDescriptionLocation).toBe("hidden");
       expect(json.questionTitleLocation).toBe("bottom");
-      expect(json.pages[0].elements[0].errorLocation).toBeUndefined();
+      expect(json.pages[0].elements[0].errorLocation).toBe("top");
       expect(json.pages[0].elements[0].descriptionLocation).toBe("underTitle");
       expect(json.pages[0].elements[0].titleLocation).toBe("left");
 
@@ -138,14 +134,17 @@ describe("setupThemeAdapter", () => {
     const question = <QuestionTextModel>survey.getQuestionByName("q1");
     question.descriptionLocation = "hidden";
     question.errorLocation = "top";
-    question.titleLocation = "left";
+    question.showTitle = false;
+    expect(question.titleLocation).toBe("hidden");
+    expect(question.hasTitle).toBe(false);
+    expect(question.showTitle).toBe(false);
     const json = survey.toJSON();
     expect(json.questionDescriptionLocation).toBe("hidden");
-    expect(json.questionErrorLocation).toBeUndefined();
-    expect(json.questionTitleLocation).toBeUndefined();
+    expect(json.questionErrorLocation).toBe("top");
+    expect(json.questionTitleLocation).toBe("bottom");
     expect(json.pages[0].elements[0].descriptionLocation).toBe("hidden");
-    expect(json.pages[0].elements[0].errorLocation).toBeUndefined();
-    expect(json.pages[0].elements[0].titleLocation).toBeUndefined();
+    expect(json.pages[0].elements[0].errorLocation).toBe("top");
+    expect(json.pages[0].elements[0].titleLocation).toBe("hidden");
   });
 
   test("an unknown adapter does not change serializer metadata", () => {

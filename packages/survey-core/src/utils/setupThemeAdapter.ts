@@ -4,7 +4,6 @@ function hideProperty(className: string, propertyName: string): void {
   const prop = Serializer.findProperty(className, propertyName);
   if (!prop) return;
   prop.visible = false;
-  prop.isSerializable = false;
 }
 
 function removeChoice(className: string, propertyName: string, choice: string): void {

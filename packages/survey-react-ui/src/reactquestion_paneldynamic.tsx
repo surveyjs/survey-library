@@ -152,7 +152,7 @@ export class SurveyQuestionPanelDynamicPlaceholder extends ReactSurveyElement {
     return (
       <div className={cssClasses.noEntriesPlaceholder}>
         <span>{this.renderLocString(question.locNoEntriesText)}</span>
-        {<SurveyActionBar model={this.props.question.footerToolbar}></SurveyActionBar>}
+        {question.getShowPlaceholderToolbar() ? <SurveyActionBar model={question.footerToolbar}></SurveyActionBar> : null}
       </div>
     );
   }

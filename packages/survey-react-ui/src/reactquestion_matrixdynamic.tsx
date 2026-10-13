@@ -60,7 +60,7 @@ export class SurveyQuestionMatrixDynamicPlaceholder extends ReactSurveyElement {
     const matrix = this.props.question as QuestionMatrixDynamicModel;
     const text: React.JSX.Element = this.renderLocString(matrix.locNoRowsText);
     const textDiv: React.JSX.Element = <div className={cssClasses.noRowsText}>{text}</div>;
-    const toolbar: React.JSX.Element | undefined = matrix.getShowToolbar() ? ReactElementFactory.Instance.createElement("sv-action-bar", { model: matrix.toolbar }) : null;
+    const toolbar: React.JSX.Element | undefined = matrix.getShowPlaceholderToolbar() ? ReactElementFactory.Instance.createElement("sv-action-bar", { model: matrix.toolbar }) : null;
     return (
       <div className={cssClasses.noRowsSection}>
         {textDiv}

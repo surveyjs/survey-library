@@ -2,5 +2,5 @@
   <span>
     <sv-ng-string [model]="question.locNoEntriesText"></sv-ng-string>
   </span>
-  <ng-template [component]="{ name: 'sv-action-bar', data: { model: question.footerToolbar } }"></ng-template>
+  <ng-template [component]="{ name: 'sv-action-bar', data: { model: question.footerToolbar } }" *ngIf="question.getShowPlaceholderToolbar()"></ng-template>
 </div> 

@@ -138,7 +138,7 @@ frameworks.forEach((framework) => {
         ],
         "questionsOnPageMode": "inputPerPage"
       });
-      await compareScreenshot(page, ".sd-row", "inf-loop-panel-dyn-empty.png");
+      await compareScreenshot(page, ".sd-row .sd-element", "inf-loop-panel-dyn-empty.png");
     });
 
     test("Check infinite loop - empty dynamic matrix", async ({ page }) => {
@@ -166,7 +166,7 @@ frameworks.forEach((framework) => {
         ],
         "questionsOnPageMode": "inputPerPage"
       });
-      await compareScreenshot(page, ".sd-row", "inf-loop-matrix-dyn-empty.png");
+      await compareScreenshot(page, ".sd-row .sd-element", "inf-loop-matrix-dyn-empty.png");
     });
   });
 });

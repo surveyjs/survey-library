@@ -18,7 +18,7 @@ const json = {
       panelCount: 5,
       minWidth: "800px",
       maxWidth: "800px",
-      width: "800px",
+      width: "824px",
       templateElements: [
         {
           type: "text",

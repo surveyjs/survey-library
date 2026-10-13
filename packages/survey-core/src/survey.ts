@@ -59,6 +59,7 @@ import { settings } from "./settings";
 import { RegionalFormat } from "./regional-format";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
+import { getClosestSurveyScroller } from "./utils/scroll-utils";
 import { FocusedQuestionScrollController } from "./focused-question-scroll-controller";
 import { isReducedMotionPreferred, subscribeReducedMotionChange } from "./utils/reduced-motion";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
@@ -6439,6 +6440,14 @@ export class SurveyModel extends SurveyElementCore
 
   public skeletonHeight: number = undefined;
 
+  private getPageScrollTarget(surveyRootElement: HTMLElement): HTMLElement {
+    const wrapper = surveyRootElement?.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
+    if (!wrapper || !!getClosestSurveyScroller(wrapper)) return wrapper;
+    // With a fixed background image the wrapper stays still and the form scrolls inside it.
+    const scroller = wrapper.querySelector(".sv-scroll__scroller");
+    return (scroller?.firstElementChild as HTMLElement) || wrapper;
+  }
+
   scrollElementToTop(scrollOptions: IScrollElementToTopOptions): any;
   scrollElementToTop(element: ISurveyElement, question?: IQuestion, page?: IPage, id?: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, passedRootElement?: HTMLElement, onScolledCallback?: () => void): any;
   scrollElementToTop(elementOrOptions: ISurveyElement | IScrollElementToTopOptions, question?: IQuestion, page?: IPage, id?: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, passedRootElement?: HTMLElement, onScolledCallback?: () => void): any {
@@ -6494,7 +6503,7 @@ export class SurveyModel extends SurveyElementCore
         }, elementsToRenderBefore);
       } else {
         if (element.isPage && !this.isSinglePage && !this.isDesignMode && this.rootElement) {
-          const elementToScroll = surveyRootElement.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
+          const elementToScroll = this.getPageScrollTarget(surveyRootElement);
           SurveyElement.ScrollElementToViewCore(elementToScroll, false, optScrollIfVisible, optScrollIntoViewOptions, optOnScolledCallback);
         } else {
           const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`) as HTMLElement;

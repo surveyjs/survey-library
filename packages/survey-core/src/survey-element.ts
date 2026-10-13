@@ -29,6 +29,7 @@ import { toCssClasses } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { IAnimationConsumer, AnimationBoolean } from "./utils/animation";
 import { classesToSelector } from "./utils/dom-utils";
+import { getClosestSurveyScroller, isNeedScrollIntoScroller, scrollElementIntoScroller } from "./utils/scroll-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelModel } from "./panel";
@@ -241,6 +242,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       doneCallback && doneCallback();
       return false;
     }
+    // A survey that scrolls inside its own container (fitToContainer) is measured against and scrolled within
+    // that container: the window says nothing about what is visible there.
+    const surveyScroller = getClosestSurveyScroller(el);
+    if (!!surveyScroller && isNeedScrollIntoScroller(el, surveyScroller, scrollIfVisible)) {
+      scrollElementIntoScroller(el, surveyScroller, scrollIntoViewOptions, doneCallback);
+      return true;
+    }
+    // The scroller does not hide the element: a survey that does not clip its pages scrolls with the document.
     const needScroll = SurveyElement.IsNeedScrollIntoView(el, checkLeft, scrollIfVisible);
     if (needScroll) {
       SurveyElement.ScrollIntoView(el, scrollIntoViewOptions, doneCallback);

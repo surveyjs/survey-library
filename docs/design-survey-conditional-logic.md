@@ -160,7 +160,7 @@ You can also use prefixes, such as `row`, `panel`, `parentPanel`, and `composite
         <td>Accesses a cell in the total row.</td>
       </tr>
       <tr>
-        <td rowspan="4" style="vertical-align:middle"><a href="/form-library/documentation/api-reference/dynamic-panel-model">Dynamic Panel</a></td>
+        <td rowspan="6" style="vertical-align:middle"><a href="/form-library/documentation/api-reference/dynamic-panel-model">Dynamic Panel</a></td>
         <td><code>{panel.qid}</code></td>
         <td>Accesses a question in the same panel.</td>
       </tr>
@@ -175,6 +175,14 @@ You can also use prefixes, such as `row`, `panel`, `parentPanel`, and `composite
       <tr>
         <td style="vertical-align:middle"><code>{parentPanel.qid}</code></td>
         <td>Accesses a question in a parent Dynamic Panel.<br>Applies when one Dynamic Panel question is nested in another.</td>
+      </tr>
+      <tr>
+        <td style="vertical-align:middle"><code>{panelIndex}</code></td>
+        <td>Accesses the current panel's index within the collection of <a href="/form-library/documentation/api-reference/dynamic-panel-model#panels">all panels</a>. The index starts at 1 in <a href="/form-library/documentation/api-reference/dynamic-panel-model#templateTitle"><code>templateTitle</code></a> and <a href="/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle"><code>templateTabTitle</code></a> and at 0 in expressions.</td>
+      </tr>
+      <tr>
+        <td style="vertical-align:middle"><code>{visiblePanelIndex}</code></td>
+        <td>Accesses the current panel's index within the collection of <a href="/form-library/documentation/api-reference/dynamic-panel-model#visiblePanels">visible panels</a>. The index starts at 1 in <code>templateTitle</code> and <code>templateTabTitle</code> and at 0 in expressions.</td>
       </tr>
       <tr>
         <td><a href="/form-library/documentation/customize-question-types/create-composite-question-types">Composite questions</a></td>

@@ -94,13 +94,30 @@
   display: flex;
   cursor: pointer;
   outline: none;
-  transition: box-shadow $transition-duration;
+  border-radius: var(--sjs2-radius-component-tagbox-item-action);
+  background: var(--sjs2-color-component-tagbox-item-action-default-bg);
+  transition:
+    background $transition-duration,
+    box-shadow $transition-duration;
 
-  &:focus,
-  &:focus-within {
-    border-radius: var(--sjs2-radius-component-tagbox-item-action);
+  &:hover {
+    background: var(--sjs2-color-component-tagbox-item-action-hovered-bg);
+
+    use {
+      fill: var(--sjs2-color-component-tagbox-item-action-hovered-icon);
+    }
+  }
+
+  &:active {
+    background: var(--sjs2-color-component-tagbox-item-action-pressed-bg);
+
+    use {
+      fill: var(--sjs2-color-component-tagbox-item-action-pressed-icon);
+    }
+  }
+
+  &:focus-visible {
     box-shadow: var(--sjs2-border-effect-component-tagbox-item-a11y);
-    background: var(--sjs2-color-component-tagbox-item-action-default-bg);
   }
 }
 
@@ -113,16 +130,8 @@
   box-sizing: content-box;
 
   use {
-    fill: var(--sjs2-color-component-tagbox-item-action-default-icon)
-  }
-}
-
-.sd-tagbox-item__clean-button-svg:hover {
-  border-radius: var(--sjs2-radius-component-tagbox-item-action);
-  background: var(--sjs2-color-component-tagbox-item-action-hovered-bg);
-
-  use {
-    fill: var(--sjs2-color-component-tagbox-item-action-hovered-icon);
+    fill: var(--sjs2-color-component-tagbox-item-action-default-icon);
+    transition: fill $transition-duration;
   }
 }
 

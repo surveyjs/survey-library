@@ -2883,40 +2883,40 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
   }
-  // undefined inherits survey.showChoiceShortcutKeys. An explicit true or false overrides it and is kept in JSON.
-  public get showShortcutKeys(): boolean | undefined {
-    const own = this.getPropertyValueWithoutDefault("showShortcutKeys");
+  // undefined inherits survey.choiceShortcutsEnabled. An explicit true or false overrides it and is kept in JSON.
+  public get choiceShortcutsEnabled(): boolean | undefined {
+    const own = this.getPropertyValueWithoutDefault("choiceShortcutsEnabled");
     if (own === true || own === false) return own;
     return undefined;
   }
-  public set showShortcutKeys(val: boolean | undefined) {
-    const prev = this.getPropertyValueWithoutDefault("showShortcutKeys");
+  public set choiceShortcutsEnabled(val: boolean | undefined) {
+    const prev = this.getPropertyValueWithoutDefault("choiceShortcutsEnabled");
     const next = val === true ? true : val === false ? false : undefined;
     if (prev === next) return;
     if (next === undefined) {
-      this.clearPropertyValue("showShortcutKeys");
+      this.clearPropertyValue("choiceShortcutsEnabled");
     } else {
-      this.setPropertyValueDirectly("showShortcutKeys", next);
+      this.setPropertyValueDirectly("choiceShortcutsEnabled", next);
     }
-    this.propertyValueChanged("showShortcutKeys", prev, next);
+    this.propertyValueChanged("choiceShortcutsEnabled", prev, next);
   }
   public supportsChoiceKeyboardSelection(): boolean {
     return false;
   }
   public get isChoiceKeyboardSelectionEnabled(): boolean {
     if (!this.supportsChoiceKeyboardSelection()) return false;
-    const own = this.getPropertyValueWithoutDefault("showShortcutKeys");
+    const own = this.getPropertyValueWithoutDefault("choiceShortcutsEnabled");
     if (own === true || own === false) return own;
-    return this.survey?.showChoiceShortcutKeys === true;
+    return this.survey?.choiceShortcutsEnabled === true;
   }
   // Badges and the key handler share this gate. Design mode is the one exception:
   // badges stay visible there, but canUseChoiceKeys keeps the keys inert.
   // isReadOnly covers readonly and preview. isInputReadOnly also includes design mode,
   // which would hide the badges in Creator.
   public get canShowChoiceKeys(): boolean {
-    const surveyShortcut = !!this.survey && this.survey.showChoiceShortcutKeys === true;
+    const surveyShortcut = !!this.survey && this.survey.choiceShortcutsEnabled === true;
     if (!this.supportsChoiceKeyboardSelection() || this.isMobile || this.isReadOnly) return false;
-    const own = this.getPropertyValueWithoutDefault("showShortcutKeys");
+    const own = this.getPropertyValueWithoutDefault("choiceShortcutsEnabled");
     if (own === true || own === false) return own;
     return surveyShortcut;
   }
@@ -3233,10 +3233,10 @@ Serializer.addClass(
       layout: "row",
     },
     {
-      name: "showShortcutKeys:boolean",
+      name: "choiceShortcutsEnabled:boolean",
       defaultFunc: () => undefined,
       visibleIf: (obj: any): boolean => !!obj.supportsChoiceKeyboardSelection && obj.supportsChoiceKeyboardSelection(),
-      onSerializeValue: (obj: any) => obj.getPropertyValueWithoutDefault("showShortcutKeys")
+      onSerializeValue: (obj: any) => obj.getPropertyValueWithoutDefault("choiceShortcutsEnabled")
     }
   ],
   null,

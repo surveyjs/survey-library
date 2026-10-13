@@ -5,7 +5,7 @@ const pixel = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAA
 
 const checkboxJson = {
   showQuestionNumbers: false,
-  showChoiceShortcutKeys: true,
+  choiceShortcutsEnabled: true,
   elements: [{
     type: "checkbox",
     name: "q",
@@ -17,7 +17,7 @@ const checkboxJson = {
 
 const disabledJson = {
   showQuestionNumbers: false,
-  showChoiceShortcutKeys: true,
+  choiceShortcutsEnabled: true,
   elements: [{
     type: "checkbox",
     name: "q",
@@ -49,7 +49,7 @@ frameworks.forEach((framework) => {
     test("radiogroup badges", async ({ page }) => {
       await initSurvey(page, framework, {
         showQuestionNumbers: false,
-        showChoiceShortcutKeys: true,
+        choiceShortcutsEnabled: true,
         elements: [{
           type: "radiogroup",
           name: "q",
@@ -67,7 +67,7 @@ frameworks.forEach((framework) => {
     test("imagepicker badges", async ({ page }) => {
       await initSurvey(page, framework, {
         showQuestionNumbers: false,
-        showChoiceShortcutKeys: true,
+        choiceShortcutsEnabled: true,
         elements: [{
           type: "imagepicker",
           name: "q",
@@ -92,7 +92,7 @@ frameworks.forEach((framework) => {
     test("columns and inline layout", async ({ page }) => {
       await initSurvey(page, framework, {
         showQuestionNumbers: false,
-        showChoiceShortcutKeys: true,
+        choiceShortcutsEnabled: true,
         elements: [{
           type: "radiogroup",
           name: "q",
@@ -128,7 +128,7 @@ frameworks.forEach((framework) => {
       for (let i = 1; i <= 27; i++) choices.push("Item " + i);
       await initSurvey(page, framework, {
         showQuestionNumbers: false,
-        showChoiceShortcutKeys: true,
+        choiceShortcutsEnabled: true,
         elements: [{ type: "checkbox", name: "q", title: "Many choices", colCount: 3, choices: choices }]
       });
       const question = page.locator(".sd-question");

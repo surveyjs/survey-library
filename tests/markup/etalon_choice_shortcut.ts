@@ -4,7 +4,7 @@ registerMarkupTests([
   {
     name: "Test checkbox shortcut key badges",
     json: {
-      showChoiceShortcutKeys: true,
+      choiceShortcutsEnabled: true,
       elements: [
         {
           type: "checkbox",
@@ -25,7 +25,7 @@ registerMarkupTests([
   {
     name: "Test radiogroup shortcut key badges",
     json: {
-      showChoiceShortcutKeys: true,
+      choiceShortcutsEnabled: true,
       elements: [
         {
           type: "radiogroup",
@@ -42,7 +42,7 @@ registerMarkupTests([
   {
     name: "Test imagepicker shortcut key badges",
     json: {
-      showChoiceShortcutKeys: true,
+      choiceShortcutsEnabled: true,
       elements: [
         {
           type: "imagepicker",

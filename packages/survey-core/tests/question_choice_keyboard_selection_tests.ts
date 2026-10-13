@@ -27,7 +27,7 @@ function numberedChoices(count: number): Array<string> {
 
 function createSurvey(type: string, choiceCount: number, questionExtra: any = {}, surveyExtra: any = {}): SurveyModel {
   return new SurveyModel(Object.assign({
-    showChoiceShortcutKeys: true,
+    choiceShortcutsEnabled: true,
     elements: [
       Object.assign({
         type: type,
@@ -114,48 +114,48 @@ test("bijective base-26 choice codes", () => {
   expect(choiceKeyCodeToIndex("A1")).toBe(0);
 });
 
-test("showChoiceShortcutKeys serialization and inheritance", () => {
-  expect(Serializer.findProperty("survey", "showChoiceShortcutKeys").getDefaultValue(undefined)).toBe(false);
-  expect(Serializer.findProperty("checkbox", "showShortcutKeys").defaultValueFunc(undefined)).toBeUndefined();
+test("choiceShortcutsEnabled serialization and inheritance", () => {
+  expect(Serializer.findProperty("survey", "choiceShortcutsEnabled").getDefaultValue(undefined)).toBe(false);
+  expect(Serializer.findProperty("checkbox", "choiceShortcutsEnabled").defaultValueFunc(undefined)).toBeUndefined();
 
   const plain = new SurveyModel({ elements: [{ type: "radiogroup", name: "q", choices: ["a", "b"] }] });
-  expect(plain.showChoiceShortcutKeys).toBe(false);
-  expect(plain.toJSON().showChoiceShortcutKeys).toBeUndefined();
+  expect(plain.choiceShortcutsEnabled).toBe(false);
+  expect(plain.toJSON().choiceShortcutsEnabled).toBeUndefined();
   const plainQuestion = questionOf<QuestionRadiogroupModel>(plain);
-  expect(plainQuestion.showShortcutKeys).toBeUndefined();
-  expect(plainQuestion.toJSON().showShortcutKeys).toBeUndefined();
+  expect(plainQuestion.choiceShortcutsEnabled).toBeUndefined();
+  expect(plainQuestion.toJSON().choiceShortcutsEnabled).toBeUndefined();
   expect(plainQuestion.isChoiceKeyboardSelectionEnabled).toBe(false);
 
   const survey = new SurveyModel({
-    showChoiceShortcutKeys: true,
+    choiceShortcutsEnabled: true,
     elements: [
       { type: "radiogroup", name: "q1", choices: ["a", "b"] },
-      { type: "checkbox", name: "q2", choices: ["a", "b"], showShortcutKeys: false },
-      { type: "radiogroup", name: "q3", choices: ["a"], showShortcutKeys: true }
+      { type: "checkbox", name: "q2", choices: ["a", "b"], choiceShortcutsEnabled: false },
+      { type: "radiogroup", name: "q3", choices: ["a"], choiceShortcutsEnabled: true }
     ]
   });
   const json = survey.toJSON();
-  expect(json.showChoiceShortcutKeys).toBe(true);
+  expect(json.choiceShortcutsEnabled).toBe(true);
   const elements = json.pages[0].elements;
-  expect(elements[0].showShortcutKeys).toBeUndefined();
-  expect(elements[1].showShortcutKeys).toBe(false);
-  expect(elements[2].showShortcutKeys).toBe(true);
+  expect(elements[0].choiceShortcutsEnabled).toBeUndefined();
+  expect(elements[1].choiceShortcutsEnabled).toBe(false);
+  expect(elements[2].choiceShortcutsEnabled).toBe(true);
 
   const inherited = survey.getQuestionByName("q1") as QuestionRadiogroupModel;
   const turnedOff = survey.getQuestionByName("q2") as QuestionCheckboxModel;
   const turnedOn = survey.getQuestionByName("q3") as QuestionRadiogroupModel;
-  expect(inherited.showShortcutKeys).toBeUndefined();
-  expect(turnedOff.showShortcutKeys).toBe(false);
-  expect(turnedOn.showShortcutKeys).toBe(true);
+  expect(inherited.choiceShortcutsEnabled).toBeUndefined();
+  expect(turnedOff.choiceShortcutsEnabled).toBe(false);
+  expect(turnedOn.choiceShortcutsEnabled).toBe(true);
   expect(inherited.isChoiceKeyboardSelectionEnabled).toBe(true);
   expect(turnedOff.isChoiceKeyboardSelectionEnabled).toBe(false);
   expect(turnedOn.isChoiceKeyboardSelectionEnabled).toBe(true);
 
-  survey.showChoiceShortcutKeys = false;
-  turnedOn.showShortcutKeys = undefined;
-  expect(turnedOn.showShortcutKeys).toBeUndefined();
+  survey.choiceShortcutsEnabled = false;
+  turnedOn.choiceShortcutsEnabled = undefined;
+  expect(turnedOn.choiceShortcutsEnabled).toBeUndefined();
   expect(turnedOn.isChoiceKeyboardSelectionEnabled).toBe(false);
-  turnedOn.showShortcutKeys = true;
+  turnedOn.choiceShortcutsEnabled = true;
   expect(turnedOn.isChoiceKeyboardSelectionEnabled).toBe(true);
 
   const reloaded = new SurveyModel(json);
@@ -172,7 +172,7 @@ test("showChoiceShortcutKeys serialization and inheritance", () => {
     ]
   });
   const expectVisible = (question: QuestionCheckboxBase, visible: boolean): void => {
-    const prop = Serializer.findProperty(question.getType(), "showShortcutKeys");
+    const prop = Serializer.findProperty(question.getType(), "choiceShortcutsEnabled");
     expect(prop.isVisible("", question)).toBe(visible);
   };
   expectVisible(host.getQuestionByName("ip") as QuestionImagePickerModel, true);
@@ -184,7 +184,7 @@ test("showChoiceShortcutKeys serialization and inheritance", () => {
 });
 
 test("letter keys do nothing when the flag is off", () => {
-  const survey = createSurvey("radiogroup", 4, {}, { showChoiceShortcutKeys: false });
+  const survey = createSurvey("radiogroup", 4, {}, { choiceShortcutsEnabled: false });
   const q = questionOf<QuestionRadiogroupModel>(survey);
   const prevented = press(q, "b");
   expect(q.value).toBeUndefined();
@@ -380,7 +380,7 @@ test("Enter does not confirm a pending code and still auto-advances; letters do 
   vi.useFakeTimers();
   const survey = new SurveyModel({
     autoAdvanceEnabled: true,
-    showChoiceShortcutKeys: true,
+    choiceShortcutsEnabled: true,
     pages: [
       { elements: [{ type: "radiogroup", name: "q", choices: numberedChoices(30) }] },
       { elements: [{ type: "text", name: "q2" }] }
@@ -470,7 +470,7 @@ test("imagepicker letters select, toggle, keep disabled letters and honor the qu
   expect(skipped.value).toBe("c4");
 
   const off = questionOf<QuestionImagePickerModel>(createSurvey("imagepicker", 4, {
-    showShortcutKeys: false,
+    choiceShortcutsEnabled: false,
     choices: imageChoices(4)
   }));
   press(off, "b");
@@ -500,7 +500,7 @@ test("badges track the visible position for every supported type", () => {
 
 test("badges follow visibleIf, choicesVisibleIf and choicesEnableIf", () => {
   const survey = new SurveyModel({
-    showChoiceShortcutKeys: true,
+    choiceShortcutsEnabled: true,
     elements: [
       { type: "text", name: "gate" },
       {
@@ -562,7 +562,7 @@ test("special choices keep visual order with and without separateSpecialChoices"
 
 test("dropdown choices rendered as radio items have no shortcut badge", () => {
   const survey = new SurveyModel({
-    showChoiceShortcutKeys: true,
+    choiceShortcutsEnabled: true,
     elements: [{ type: "dropdown", name: "q", choices: ["a", "b"] }]
   });
   const q = survey.getQuestionByName("q");
@@ -575,13 +575,13 @@ test("dropdown choices rendered as radio items have no shortcut badge", () => {
 });
 
 test("a question flag false hides badges even when the survey flag is on", () => {
-  const q = questionOf<QuestionRadiogroupModel>(createSurvey("radiogroup", 2, { showShortcutKeys: false }));
+  const q = questionOf<QuestionRadiogroupModel>(createSurvey("radiogroup", 2, { choiceShortcutsEnabled: false }));
   expect(q.canShowChoiceKeys).toBe(false);
   expect(q.getChoiceKeyBadge(q.visibleChoices[0])).toBe("");
   expect(q.getItemAriaKeyShortcuts(q.visibleChoices[0])).toBeUndefined();
-  q.showShortcutKeys = undefined;
+  q.choiceShortcutsEnabled = undefined;
   expect(q.getChoiceKeyBadge(q.visibleChoices[0])).toBe("A");
-  q.showShortcutKeys = false;
+  q.choiceShortcutsEnabled = false;
   expect(q.getChoiceKeyBadge(q.visibleChoices[0])).toBe("");
 });
 
@@ -616,7 +616,7 @@ test("design mode shows badges without keyboard selection and skips creator serv
   const survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON({
-    showChoiceShortcutKeys: true,
+    choiceShortcutsEnabled: true,
     elements: [{
       type: "checkbox",
       name: "q",

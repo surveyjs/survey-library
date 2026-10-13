@@ -48,7 +48,7 @@ frameworks.forEach((framework) => {
 
     test("radiogroup letters select and keep one tab stop", async ({ page }) => {
       await initSurvey(page, framework, {
-        showChoiceShortcutKeys: true,
+        choiceShortcutsEnabled: true,
         elements: [{ type: "radiogroup", name: "q", choices: numberedChoices(4) }]
       });
       const radios = page.locator("input[type=radio]");
@@ -67,7 +67,7 @@ frameworks.forEach((framework) => {
 
     test("radiogroup multi-letter codes", async ({ page }) => {
       await initSurvey(page, framework, {
-        showChoiceShortcutKeys: true,
+        choiceShortcutsEnabled: true,
         elements: [{ type: "radiogroup", name: "q", choices: numberedChoices(30) }]
       });
       await setKeyTimeout(page, 600);
@@ -90,7 +90,7 @@ frameworks.forEach((framework) => {
 
     test("checkbox letters toggle and keep native keys", async ({ page }) => {
       await initSurvey(page, framework, {
-        showChoiceShortcutKeys: true,
+        choiceShortcutsEnabled: true,
         elements: [{ type: "checkbox", name: "q", choices: numberedChoices(3) }]
       });
       const checks = page.locator("input[type=checkbox]");
@@ -111,11 +111,11 @@ frameworks.forEach((framework) => {
 
     test("question flag overrides survey flag", async ({ page }) => {
       await initSurvey(page, framework, {
-        showChoiceShortcutKeys: true,
+        choiceShortcutsEnabled: true,
         elements: [{
           type: "radiogroup",
           name: "q",
-          showShortcutKeys: false,
+          choiceShortcutsEnabled: false,
           choices: numberedChoices(4)
         }]
       });
@@ -129,7 +129,7 @@ frameworks.forEach((framework) => {
 
     test("other comment ignores letters", async ({ page }) => {
       await initSurvey(page, framework, {
-        showChoiceShortcutKeys: true,
+        choiceShortcutsEnabled: true,
         elements: [{
           type: "radiogroup",
           name: "q",
@@ -150,7 +150,7 @@ frameworks.forEach((framework) => {
     test("display mode ignores letters", async ({ page }) => {
       await initSurvey(page, framework, {
         mode: "display",
-        showChoiceShortcutKeys: true,
+        choiceShortcutsEnabled: true,
         elements: [{ type: "radiogroup", name: "q", choices: numberedChoices(4) }]
       });
       const radios = page.locator("input[type=radio]");
@@ -163,7 +163,7 @@ frameworks.forEach((framework) => {
     test("imagepicker letters select", async ({ page }) => {
       const pixel = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
       await initSurvey(page, framework, {
-        showChoiceShortcutKeys: true,
+        choiceShortcutsEnabled: true,
         elements: [{
           type: "imagepicker",
           name: "q",
@@ -182,7 +182,7 @@ frameworks.forEach((framework) => {
     test("imagepicker multiSelect letters toggle", async ({ page }) => {
       const pixel = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
       await initSurvey(page, framework, {
-        showChoiceShortcutKeys: true,
+        choiceShortcutsEnabled: true,
         elements: [{
           type: "imagepicker",
           name: "q",
@@ -205,7 +205,7 @@ frameworks.forEach((framework) => {
 
     test("badges show the letter that selects the choice", async ({ page }) => {
       await initSurvey(page, framework, {
-        showChoiceShortcutKeys: true,
+        choiceShortcutsEnabled: true,
         elements: [{ type: "radiogroup", name: "q", choices: numberedChoices(4) }]
       });
       const badges = page.locator(".sd-item__shortcut-key");
@@ -220,7 +220,7 @@ frameworks.forEach((framework) => {
 
     test("badges are hidden on mobile and in readonly", async ({ page }) => {
       await initSurvey(page, framework, {
-        showChoiceShortcutKeys: true,
+        choiceShortcutsEnabled: true,
         elements: [{ type: "checkbox", name: "q", choices: numberedChoices(3) }]
       });
       await expect(page.locator(".sd-item__shortcut-key")).toHaveCount(3);
@@ -247,7 +247,7 @@ frameworks.forEach((framework) => {
 
     test("letter does not auto-advance and Enter does", async ({ page }) => {
       await initSurvey(page, framework, {
-        showChoiceShortcutKeys: true,
+        choiceShortcutsEnabled: true,
         autoAdvanceEnabled: true,
         pages: [
           { elements: [{ type: "radiogroup", name: "q", choices: numberedChoices(4) }] },

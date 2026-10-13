@@ -656,6 +656,53 @@ frameworks.forEach((framework) => {
       await expect(viewActions).toHaveCount(0);
     });
 
+    test("a Then by menu that opens upwards lies over the table's sticky action cells", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            allowSortRows: true,
+            sortMenuVisibility: "always",
+            rowsPerPage: 6,
+            detailPanelMode: "underRow",
+            defaultValue: [1, 2, 3, 4, 5, 6, 7].map(i => ({ name: "n" + i, city: "c" + i, score: i })),
+            columns: [{ name: "name", cellType: "text" }, { name: "city", cellType: "text" }],
+            detailElements: [{ type: "text", name: "score", inputType: "number" }, { type: "text", name: "notes" }],
+          },
+        ],
+      });
+      const viewActions = page.locator(".sd-matrixdynamic__records-bar .sd-matrixdynamic__view-actions");
+      await viewActions.getByRole("button", { name: "Sort by", exact: true }).click();
+      await page.getByRole("menuitemradio", { name: "name", exact: true }).click();
+      const thenBy = viewActions.getByRole("button", { name: "Then by", exact: true });
+      await expect(thenBy).toBeVisible();
+      // The button at the bottom edge of the window: its menu has no room below and opens upwards, over the rows.
+      const box = (await thenBy.boundingBox())!;
+      await page.setViewportSize({ width: 1280, height: Math.round(box.y + box.height + 8) });
+      await thenBy.click();
+      const item = page.getByRole("menuitemradio", { name: "score", exact: true });
+      await expect(item).toBeVisible();
+      expect((await item.boundingBox())!.y, "the menu opened upwards").toBeLessThan((await thenBy.boundingBox())!.y);
+      // Nothing lies over the open menu: across the whole width of every item, the item is the topmost element.
+      const covered = await page.getByRole("menuitemradio").evaluateAll((items: Array<Element>) => {
+        const res: Array<string> = [];
+        items.forEach((el: Element) => {
+          const r = el.getBoundingClientRect();
+          if (r.height === 0) return;
+          const root = <Document>el.getRootNode();
+          for (let x = r.left + 2; x < r.right - 2; x += 8) {
+            const top = root.elementFromPoint(x, r.top + r.height / 2);
+            if (!top || !el.contains(top)) res.push(el.textContent + " at " + Math.round(x) + ": " + (top ? top.className : "none"));
+          }
+        });
+        return res;
+      });
+      expect(covered).toEqual([]);
+      await item.click();
+      await expect(viewActions.getByRole("button", { name: "Then by score, ascending" })).toBeVisible();
+    });
+
     test("remove row with transposeData", async ({ page }) => {
       const json3 = {
         "elements": [

@@ -37,12 +37,13 @@
   padding-block-start: var(--sd-matrixdynamic-toolbar-padding-block-end);
 }
 /* The pager, and the sort toolbar on its own row under it; sticky, so it stays in view while the table scrolls
-   sideways. A sticky box is a stacking context: without a z-index the bottom toolbar and the elements
-   under the matrix would cover the open sort menu. */
+   sideways. A sticky box is a stacking context, and a sort menu that opens upwards lies over the table:
+   the bar has to be above the table's sticky action cells (12), or they cover the menu, and below the
+   survey's sticky header (15), which it scrolls under. */
 .sd-matrixdynamic__records-bar {
   position: sticky;
   left: 0;
-  z-index: 1;
+  z-index: 13;
   display: flex;
   flex-direction: column;
   align-items: flex-start;

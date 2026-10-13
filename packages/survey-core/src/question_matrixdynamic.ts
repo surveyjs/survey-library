@@ -1048,6 +1048,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public getRemoveRowButtonCss(): string {
     return toCssClasses(this.cssClasses.button, this.cssClasses.buttonRemove);
   }
+  public getShowPlaceholderToolbar(): boolean {
+    // The single input summary adds rows from the survey navigation bar.
+    return !this.isDesignMode && this.canAddRow && !this.singleInputSummary;
+  }
   public getRootCss(): string {
     return toCssClasses(super.getRootCss(), !this.renderedTable?.showTable && this.cssClasses.empty);
   }

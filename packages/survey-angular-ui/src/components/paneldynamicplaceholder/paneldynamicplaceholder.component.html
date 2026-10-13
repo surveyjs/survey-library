@@ -2,5 +2,5 @@
   <span>
     <sv-ng-string [model]="question.locNoEntriesText"></sv-ng-string>
   </span>
-  <sv-ng-paneldynamic-add-btn *ngIf="question.canAddPanel" [data]="{ question }"></sv-ng-paneldynamic-add-btn>
+  <sv-ng-paneldynamic-add-btn *ngIf="question.canAddPanel && question.getShowPlaceholderToolbar()" [data]="{ question }"></sv-ng-paneldynamic-add-btn>
 </div> 

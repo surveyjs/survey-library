@@ -9,7 +9,7 @@
       />
     </div>
     <button
-      v-if="question.renderedTable.showAddRow"
+      v-if="question.renderedTable.showAddRow && question.getShowPlaceholderToolbar()"
       type="button"
       :class="question.getAddRowButtonCss(true)"
       @click="addRowClick"

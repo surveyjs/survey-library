@@ -3,7 +3,7 @@
     <sv-ng-string [model]="question.locNoRowsText"></sv-ng-string>
   </div>
   <button
-    *ngIf="question.renderedTable.showAddRow"
+    *ngIf="question.renderedTable.showAddRow && question.getShowPlaceholderToolbar()"
     type="button"
     [class]="question.getAddRowButtonCss(true)"
     (click)="addRowClick()"

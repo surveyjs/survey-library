@@ -10,6 +10,12 @@
   overflow: hidden;
 }
 
+// The placeholder of an empty summary has no toolbar, so it drops the in-question min height and paddings.
+.sd-summary-placeholder .sd-question__placeholder {
+  min-height: auto;
+  padding: 0;
+}
+
 .sd-summary-row {
   display: flex;
   padding: var(--lbr-data-table-row-padding-top, calcSize(1)) var(--lbr-data-table-row-padding-right, calcSize(2))

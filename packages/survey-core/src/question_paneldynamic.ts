@@ -2573,6 +2573,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   public getShowNoEntriesPlaceholder(): boolean {
     return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.visiblePanelCount === 0;
   }
+  public getShowPlaceholderToolbar(): boolean {
+    // The single input summary adds panels from the survey navigation bar.
+    return !this.singleInputSummary;
+  }
   public needResponsiveWidth(): boolean {
     const panels = this.getPanels();
     for (let i = 0; i < panels.length; i++) {

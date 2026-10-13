@@ -37,22 +37,25 @@ describe("ProgressButtons", () => {
     };
     const survey: SurveyModel = new SurveyModel(json);
     const progress: ProgressButtons = new ProgressButtons(survey);
-    expect(progress.getListElementCss(0), "1) Page 1 style is passed and current").toBe(survey.css.progressButtonsListElementPassed + " " + survey.css.progressButtonsListElementCurrent);
+    expect(progress.getListElementCss(0), "1) Page 1 style is current (no answers yet)").toBe(survey.css.progressButtonsListElementCurrent);
     expect(progress.getListElementCss(1), "1) Page 2 style is empty").toBe("");
     expect(progress.getListElementCss(2), "1) Page 3 style is empty").toBe("");
 
+    survey.setValue("question1", "answer");
+    expect(progress.getListElementCss(0), "2) Page 1 style is passed and current").toBe(survey.css.progressButtonsListElementPassed + " " + survey.css.progressButtonsListElementCurrent);
+
     progress.clickListElement(2);
     expect(survey.currentPageNo, "currentPageNo #1").toBe(2);
-    expect(progress.getListElementCss(0), "2) Page 1 style is passed").toBe(survey.css.progressButtonsListElementPassed);
-    expect(progress.getListElementCss(1), "2) Page 2 style is empty (skipped)").toBe("");
-    expect(progress.getListElementCss(2), "2) Page 3 style is passed and current").toBe(survey.css.progressButtonsListElementPassed + " " + survey.css.progressButtonsListElementCurrent);
+    expect(progress.getListElementCss(0), "3) Page 1 style is passed").toBe(survey.css.progressButtonsListElementPassed);
+    expect(progress.getListElementCss(1), "3) Page 2 style is empty (skipped)").toBe("");
+    expect(progress.getListElementCss(2), "3) Page 3 style is current (no answers)").toBe(survey.css.progressButtonsListElementCurrent);
 
     progress.clickListElement(0);
     expect(survey.currentPageNo, "currentPageNo #2").toBe(0);
-    expect(progress.getListElementCss(0), "3) Page 1 style is passed and current").toBe(survey.css.progressButtonsListElementPassed + " " +
+    expect(progress.getListElementCss(0), "4) Page 1 style is passed and current").toBe(survey.css.progressButtonsListElementPassed + " " +
     survey.css.progressButtonsListElementCurrent);
-    expect(progress.getListElementCss(1), "3) Page 2 style is empty (never rendered)").toBe("");
-    expect(progress.getListElementCss(2), "3) Page 3 style is passed").toBe(survey.css.progressButtonsListElementPassed);
+    expect(progress.getListElementCss(1), "4) Page 2 style is empty (never rendered)").toBe("");
+    expect(progress.getListElementCss(2), "4) Page 3 style is empty (visited without answers)").toBe("");
   });
   test("ProgressButtons list elements non clickable", () => {
     let json: any = {
@@ -89,7 +92,7 @@ describe("ProgressButtons", () => {
     let survey: SurveyModel = new SurveyModel(json);
     survey.onServerValidateQuestions.add((_: any, options: any) => options.complete());
     let progress: ProgressButtons = new ProgressButtons(survey);
-    expect(progress.getListElementCss(0), "1) Page 1 style is passed and current").toBe(survey.css.progressButtonsListElementPassed + " " + survey.css.progressButtonsListElementCurrent);
+    expect(progress.getListElementCss(0), "1) Page 1 style is current").toBe(survey.css.progressButtonsListElementCurrent);
     expect(progress.getListElementCss(1), "1) Page 2 style is empty").toBe("");
     expect(progress.getListElementCss(2), "1) Page 3 style is non clickable").toBe(survey.css.progressButtonsListElementNonClickable);
   });
@@ -281,11 +284,14 @@ describe("ProgressButtons", () => {
     expect(progress2.isListElementPassed(2), "page3 is not passed before restore").toBe(false);
 
     survey2.uiState = uiState;
-    // The visited (but empty) non-first page is passed again purely from the restored state.
-    expect(progress2.isListElementPassed(2), "page3 is passed after restore").toBe(true);
+    // The visited page is restored as shown, but it is passed only once it has an answer.
+    expect(survey2.pages[2].wasShown, "page3 is restored as shown").toBe(true);
+    expect(progress2.isListElementPassed(2), "page3 is not passed after restore - it has no answers").toBe(false);
     expect(progress2.isListElementPassed(1), "page2 stays not passed after restore").toBe(false);
     // The survey is restored on the last passed page.
     expect(survey2.currentPageNo, "currentPageNo is restored to the last passed page").toBe(2);
+    survey2.setValue("question3", "answer");
+    expect(progress2.isListElementPassed(2), "page3 is passed once it has an answer").toBe(true);
   });
   test("Progress bar 'passed' style is not applied to a not-yet-visited page when its value is set via code, Issue#11740", () => {
     const json: any = {
@@ -299,8 +305,8 @@ describe("ProgressButtons", () => {
     const survey: SurveyModel = new SurveyModel(json);
     const progress: ProgressButtons = new ProgressButtons(survey);
 
-    // After init the current (first) page is passed, the not-yet-visited pages are not.
-    expect(progress.isListElementPassed(0), "first page is passed after init").toBe(true);
+    // After init no page is passed: the current (first) page has no answers, the others are not visited yet.
+    expect(progress.isListElementPassed(0), "first page without answers is not passed after init").toBe(false);
     expect(progress.isListElementPassed(1), "history page is not passed after init").toBe(false);
     expect(progress.isListElementPassed(2), "consent page is not passed after init").toBe(false);
 
@@ -317,7 +323,7 @@ describe("ProgressButtons", () => {
       ],
     });
     const progress: ProgressButtons = new ProgressButtons(survey);
-    expect(progress.isListElementPassed(0), "the current page is passed").toBe(true);
+    expect(progress.isListElementPassed(0), "the current page without answers is not passed").toBe(false);
     expect(progress.isListElementPassed(1), "the unvisited page with a default value is not passed").toBe(false);
   });
   test("Progress bar does not mark an unvisited page as passed because of a calculated expression value", () => {
@@ -328,7 +334,7 @@ describe("ProgressButtons", () => {
       ],
     });
     const progress: ProgressButtons = new ProgressButtons(survey);
-    expect(progress.isListElementPassed(0), "the current page is passed").toBe(true);
+    expect(progress.isListElementPassed(0), "the current page without answers is not passed").toBe(false);
     expect(progress.isListElementPassed(1), "the unvisited page with an expression question is not passed").toBe(false);
   });
   test("Progress bar does not mark unvisited pages as passed when their values are set via API, Issue#11740", () => {
@@ -345,7 +351,7 @@ describe("ProgressButtons", () => {
     // that live on pages the respondent has not visited yet.
     survey.setValue("q2", "value from API");
     survey.setValue("q3", "value from API");
-    expect(progress.isListElementPassed(0), "the current page is passed").toBe(true);
+    expect(progress.isListElementPassed(0), "the current page without answers is not passed").toBe(false);
     expect(progress.isListElementPassed(1), "page2 got its value via API and is not passed").toBe(false);
     expect(progress.isListElementPassed(2), "page3 got its value via API and is not passed").toBe(false);
     survey.nextPage();
@@ -364,7 +370,7 @@ describe("ProgressButtons", () => {
     const progress: ProgressButtons = new ProgressButtons(survey);
     // Assigning survey.data restores a previously saved state: answered pages are passed.
     survey.data = { q2: "stored answer" };
-    expect(progress.isListElementPassed(0), "the current page is passed").toBe(true);
+    expect(progress.isListElementPassed(0), "the current page without answers is not passed").toBe(false);
     expect(progress.isListElementPassed(1), "page2 answer is restored from data - the page is passed").toBe(true);
     expect(progress.isListElementPassed(2), "page3 has no answer - it is not passed").toBe(false);
     survey.mergeData({ q3: "merged answer" });
@@ -382,6 +388,46 @@ describe("ProgressButtons", () => {
     survey.setValue("q1", "a");
     expect(survey.getValue("q2"), "the trigger has set the value").toBe("value from trigger");
     expect(progress.isListElementPassed(1), "page2 got its value from a trigger and is not passed").toBe(false);
+  });
+  test("Progress bar does not mark a visited page without answers as passed", () => {
+    const survey: SurveyModel = new SurveyModel({
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "q1" }] },
+        { name: "page2", elements: [{ type: "text", name: "q2", defaultValue: "x" }] },
+        { name: "page3", elements: [{ type: "text", name: "q3" }] },
+      ],
+    });
+    const progress: ProgressButtons = new ProgressButtons(survey);
+    expect(progress.isListElementPassed(0), "page1 without answers is not passed").toBe(false);
+    survey.setValue("q1", "answer");
+    expect(progress.isListElementPassed(0), "page1 is passed once it has an answer").toBe(true);
+    survey.nextPage();
+    expect(progress.isListElementPassed(1), "page2 with a default value only is not passed").toBe(false);
+    survey.nextPage();
+    survey.prevPage();
+    expect(progress.isListElementPassed(2), "visited page3 without answers is not passed").toBe(false);
+    expect(progress.isListElementPassed(1), "page2 with a default value only is still not passed").toBe(false);
+    survey.setValue("q2", "y");
+    expect(progress.isListElementPassed(1), "page2 is passed once its value is changed").toBe(true);
+    survey.clearValue("q1");
+    expect(progress.isListElementPassed(0), "page1 is not passed once its answer is cleared").toBe(false);
+  });
+  test("ProgressButtons changes a property on survey value change to update the list elements", () => {
+    const survey: SurveyModel = new SurveyModel({
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "q1" }] },
+        { name: "page2", elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const handlersCount = survey.onValueChanged.length;
+    const progress: ProgressButtons = new ProgressButtons(survey);
+    let counter = 0;
+    progress.onPropertyChanged.add(() => counter++);
+    survey.setValue("q1", "answer");
+    expect(counter, "a property is changed on value change").toBe(1);
+    expect(survey.onValueChanged.length, "subscribed to survey.onValueChanged").toBe(handlersCount + 1);
+    progress.dispose();
+    expect(survey.onValueChanged.length, "unsubscribed from survey.onValueChanged on dispose").toBe(handlersCount);
   });
   test("ProgressButtons restores the actually active page, not the furthest visited", () => {
     const json: any = {

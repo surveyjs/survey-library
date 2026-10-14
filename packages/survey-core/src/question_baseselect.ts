@@ -2883,7 +2883,16 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
   }
-  // undefined inherits survey.choiceShortcutsEnabled. An explicit true or false overrides it and is kept in JSON.
+  /**
+   * Specifies whether to enable letter shortcuts for selecting choices.
+   *
+   * Default value: `undefined` (inherits the survey's [`choiceShortcutsEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#choiceShortcutsEnabled) setting)
+   *
+   * When enabled, choices display letter codes (`A`, `B`, ..., `Z`, `AA`, ...) that respondents can type while the question has focus. In questions that allow multiple selection, shortcuts toggle choice selection.
+   *
+   * Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
+   * @hidefor QuestionRankingModel
+   */
   public get choiceShortcutsEnabled(): boolean | undefined {
     const own = this.getPropertyValueWithoutDefault("choiceShortcutsEnabled");
     if (own === true || own === false) return own;

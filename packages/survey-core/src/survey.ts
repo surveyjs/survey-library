@@ -1995,7 +1995,17 @@ export class SurveyModel extends SurveyElementCore
   public set allowCompleteSurveyAutomatic(val: boolean) {
     this.autoAdvanceAllowComplete = val;
   }
-  // Opt-in letter codes (A, B, ... AA) for Radiogroup and Checkbox. Off unless a survey turns it on.
+  /**
+   * Specifies whether to enable letter shortcuts for selecting choices in [Radio Button Group](https://surveyjs.io/form-library/examples/single-select-radio-button-group/), [Checkboxes](https://surveyjs.io/form-library/examples/create-checkboxes-question-in-javascript/), and [Image Picker](https://surveyjs.io/form-library/examples/image-picker-question/) questions.
+   *
+   * Default value: `false`
+   *
+   * When enabled, choices display letter codes (`A`, `B`, ..., `Z`, `AA`, ...) that respondents can type while the question has focus. In questions that allow multiple selection, shortcuts toggle choice selection.
+   *
+   * You can override this setting for individual questions using their `choiceShortcutsEnabled` property.
+   *
+   * Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
+   */
   @property({ defaultValue: false }) choiceShortcutsEnabled: boolean;
   /**
    * Specifies when the survey validates answers.

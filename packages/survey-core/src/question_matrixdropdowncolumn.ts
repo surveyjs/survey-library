@@ -145,6 +145,16 @@ export class MatrixDropdownColumn extends Base
     super();
     this.colOwnerValue = colOwner;
     this.updateTemplateQuestion(undefined, name, title);
+    this.applyIsRequiredDefault();
+  }
+  /* The template question holds isRequired. matrixdropdowncolumn.isRequired can have a Serializer
+     default that differs from the question's: the first template takes it, and a template created for
+     another cell type copies it from the previous one (setQuestionProperties). */
+  private applyIsRequiredDefault(): void {
+    const val = this.getDefaultPropertyValue("isRequired");
+    if (val !== undefined && val !== this.templateQuestion.isRequired) {
+      this.templateQuestion.isRequired = val;
+    }
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -384,7 +394,13 @@ export class MatrixDropdownColumn extends Base
    * @see visible
    * @see readOnly
    */
-  @property({ onSet: (val: boolean, obj: MatrixDropdownColumn) => obj.templateQuestion.isRequired = val }) isRequired: boolean;
+  // Base reads the property before the template exists when a custom property is registered.
+  public get isRequired(): boolean {
+    return this.templateQuestion?.isRequired;
+  }
+  public set isRequired(val: boolean) {
+    this.templateQuestion.isRequired = val;
+  }
   @property({ getDefaultValue: (obj: MatrixDropdownColumn) => obj.isRequired }) isRenderedRequired: boolean;
   public updateIsRenderedRequired(val: boolean): void {
     this.isRenderedRequired = val || this.isRequired;
@@ -600,7 +616,12 @@ export class MatrixDropdownColumn extends Base
 
   @property ({ localizable: true }) cellHint: string;
 
-  @property({ onSet: (val: string, obj: MatrixDropdownColumn) => obj.templateQuestion.renderAs = val }) renderAs: string;
+  public get renderAs(): string {
+    return this.templateQuestion?.renderAs;
+  }
+  public set renderAs(val: string) {
+    this.templateQuestion.renderAs = val;
+  }
 
   @property({ onSetting: (val: number) => val < -1 ? -1 : val > 20 ? 20 : val }) totalMaximumFractionDigits: number;
   @property({ onSetting: (val: number) => val < -1 ? -1 : val > 20 ? 20 : val }) totalMinimumFractionDigits: number;
@@ -689,8 +710,10 @@ export class MatrixDropdownColumn extends Base
   }
   startLoadingFromJson(json?: any): void {
     super.startLoadingFromJson(json);
-    if (!!json && !json.cellType && !!json.choices) {
-      json.cellType = this.colOwner.getCellType();
+    // A column with choices and no cellType takes the matrix cell type explicitly. It is set on the
+    // column, not written into the caller's JSON.
+    if (!!json && !json.cellType && !!json.choices && !!this.colOwner) {
+      this.cellType = this.colOwner.getCellType();
     }
   }
   public updateCellQuestion(
@@ -738,6 +761,8 @@ export class MatrixDropdownColumn extends Base
       this.removeProperties(prevCellType);
     }
     this.templateQuestionJsonValue = undefined;
+    // The first cell that loads choices from the server gives them to the column: a new template starts over.
+    this.previousChoicesId = undefined;
     this.templateQuestionValue = this.createNewQuestion(curCellType);
     this.templateQuestion.locOwner = this;
     this.addProperties(curCellType);
@@ -836,7 +861,6 @@ export class MatrixDropdownColumn extends Base
       }
       new JsonObject().toObject(json, question);
       question.isContentElement = this.templateQuestion.isContentElement;
-      this.previousChoicesId = undefined;
       question.loadedChoicesFromServerCallback = () => {
         if (!this.isShowInMultipleColumns) return;
         if (!!this.previousChoicesId && this.previousChoicesId !== question.id) return;

@@ -476,20 +476,23 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     if (this.isCreatingDetailPanel) return;
     if (!!this.detailPanelValue || !this.hasPanel || !this.data) return;
     this.isCreatingDetailPanel = true;
-    this.detailPanelValue = this.data.createRowDetailPanel(this);
-    var questions = this.detailPanelValue.questions;
-    var value = this.getDataRowValue();
-    if (!Helpers.isValueEmpty(value)) {
-      for (var i = 0; i < questions.length; i++) {
-        const key = questions[i].getValueName();
-        const val = !!this.editingObj ? Serializer.getObjPropertyValue(this.editingObj, key) : value[key];
-        if (!Helpers.isValueEmpty(val)) {
-          questions[i].value = val;
+    try {
+      this.detailPanelValue = this.data.createRowDetailPanel(this);
+      var questions = this.detailPanelValue.questions;
+      var value = this.getDataRowValue();
+      if (!Helpers.isValueEmpty(value)) {
+        for (var i = 0; i < questions.length; i++) {
+          const key = questions[i].getValueName();
+          const val = !!this.editingObj ? Serializer.getObjPropertyValue(this.editingObj, key) : value[key];
+          if (!Helpers.isValueEmpty(val)) {
+            questions[i].value = val;
+          }
         }
       }
+      this.detailPanelValue.setSurveyImpl(this);
+    } finally {
+      this.isCreatingDetailPanel = false;
     }
-    this.detailPanelValue.setSurveyImpl(this);
-    this.isCreatingDetailPanel = false;
   }
   getAllValues(): any {
     const res = this.value;
@@ -1284,15 +1287,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     super.endLoadingFromJson();
     this.updateVisibilityBasedOnRows();
   }
-  private isUpdating: boolean;
+  // beginUpdate calls nest: the endUpdate of the outermost one unlocks the matrix.
+  private updateCount: number = 0;
   protected get isUpdateLocked(): boolean {
-    return this.isLoadingFromJson || this.isUpdating;
+    return this.isLoadingFromJson || this.updateCount > 0;
   }
   public beginUpdate(): void {
-    this.isUpdating = true;
+    this.updateCount++;
   }
   public endUpdate(): void {
-    this.isUpdating = false;
+    if (this.updateCount > 0)this.updateCount--;
+    if (this.updateCount > 0) return;
     this.updateColumnsAndRows();
   }
   protected updateColumnsAndRows(): void {
@@ -1505,13 +1510,18 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
   }
   private lockResetRenderedTable: boolean = false;
+  // The callers end an add or a remove with this in a finally: a handler that throws between
+  // onStartRowAddingRemoving and its end does not leave the rendered table locked.
+  protected unlockResetRenderedTable(): void {
+    this.lockResetRenderedTable = false;
+  }
   protected onStartRowAddingRemoving() {
     this.lockResetRenderedTable = true;
     this.setValueChangedDirectly(true);
   }
   protected onEndRowAdding() {
     this.lockResetRenderedTable = false;
-    if (!this.renderedTable) return;
+    if (!this.isRendredTableCreated) return;
     /* The incremental add appends the new row to the rendered table, which is right for a table
        that shows every visible row and wrong for a page that may not hold the new one at all. With
        paging on the table is reset instead - the question moves pageIndex to the page the new row
@@ -1525,6 +1535,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   protected onEndRowRemoving(row: MatrixDropdownRowModelBase) {
     this.lockResetRenderedTable = false;
+    if (!this.isRendredTableCreated) return;
     /* Removing one row from the rendered table is right for a table that shows every visible row.
        A page is a window: the row that took the vacated slot comes from the next page, and a
        removal that emptied the last page moved pageIndex back while the reset it raised was locked
@@ -1565,6 +1576,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   protected clearGeneratedRows(): void {
     this.clearVisibleRows();
+    this.clearDesignRow();
     if (!this.generatedVisibleRows) return;
     this.keepDetailPanelPageStates(this.generatedVisibleRows);
     // A row that is replaced - a page move, a new value - can still be on screen until the UI rerenders
@@ -1732,8 +1744,22 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.resetTableAndRows();
   }
   getDesignRowContext(): IValueGetterContext {
-    const row = this.visibleRows && this.visibleRows.length > 0 ? this.visibleRows[0] : this.createMatrixRow(new ItemValue(1));
-    return row.getValueGetterContext();
+    if (this.visibleRows && this.visibleRows.length > 0) return this.visibleRows[0].getValueGetterContext();
+    if (!this.designRow) {
+      this.designRow = this.createDesignRow();
+    }
+    return this.designRow?.getValueGetterContext();
+  }
+  // The row the column expressions are resolved against in design mode when the matrix has no rows.
+  // It goes with the rows (clearGeneratedRows): a column change and dispose clear them.
+  private designRow: MatrixDropdownRowModelBase;
+  protected createDesignRow(): MatrixDropdownRowModelBase {
+    return null;
+  }
+  private clearDesignRow(): void {
+    if (!this.designRow) return;
+    this.designRow.dispose();
+    this.designRow = undefined;
   }
   private updateDefaultRowValue(column: MatrixDropdownColumn): void {
     let val = this.defaultRowValue;
@@ -1764,7 +1790,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return false;
   }
   protected updateShowTable() {
-    if (!!this.renderedTable) {
+    if (this.isRendredTableCreated) {
       this.renderedTable.updateShowTable();
     }
   }
@@ -1965,22 +1991,25 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (stalePage.isRebuilt) return true;
     let isRowVisiblilityChanged = stalePage.isChanged;
     this.isRunningCellsCondition = true;
-    // The records decide their visibility under paging (areRecordsDecidingVisibility).
-    const isAlwaysVisible = this.areInvisibleElementsShowing || this.areRecordsDecidingVisibility;
-    const rowsVisibleIf = this.getRowsVisibleIfForRows();
-    const rows = this.generatedVisibleRows;
-    if (!!rows) {
-      for (var i = 0; i < rows.length; i++) {
-        const prevVis = rows[i].isVisible;
-        rows[i].runCondition(properties, rowsVisibleIf, isAlwaysVisible);
-        if (prevVis !== rows[i].isVisible) {
-          isRowVisiblilityChanged = true;
+    try {
+      // The records decide their visibility under paging (areRecordsDecidingVisibility).
+      const isAlwaysVisible = this.areInvisibleElementsShowing || this.areRecordsDecidingVisibility;
+      const rowsVisibleIf = this.getRowsVisibleIfForRows();
+      const rows = this.generatedVisibleRows;
+      if (!!rows) {
+        for (var i = 0; i < rows.length; i++) {
+          const prevVis = rows[i].isVisible;
+          rows[i].runCondition(properties, rowsVisibleIf, isAlwaysVisible);
+          if (prevVis !== rows[i].isVisible) {
+            isRowVisiblilityChanged = true;
+          }
         }
       }
+      this.checkColumnsVisibility();
+      this.checkColumnsRenderedRequired();
+    } finally {
+      this.isRunningCellsCondition = false;
     }
-    this.checkColumnsVisibility();
-    this.checkColumnsRenderedRequired();
-    this.isRunningCellsCondition = false;
     this.updateRecordsVisibility();
     return isRowVisiblilityChanged;
   }
@@ -2253,8 +2282,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   private generateVisibleRows(): void {
     this.isGenereatingRows = true;
-    this.generatedVisibleRows = this.generateRows();
-    this.isGenereatingRows = false;
+    try {
+      this.generatedVisibleRows = this.generateRows();
+    } finally {
+      this.isGenereatingRows = false;
+    }
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       const row = this.generatedVisibleRows[i];
       this.setRowVisibleIndex(row, i);
@@ -2804,13 +2836,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (!rows) rows = this.visibleRows;
     if (!rows) return true;
     for (var i = 0; i < rows.length; i++) {
-      var cells = this.generatedVisibleRows[i].cells;
+      if (!rows[i].isVisible) continue;
+      var cells = rows[i].cells;
       if (!cells) continue;
       for (var colIndex = 0; colIndex < cells.length; colIndex++) {
         var question = cells[colIndex].question;
         if (
           question &&
-          (!question.supportAutoAdvance() || !question.value)
+          (!question.supportAutoAdvance() || question.isEmpty())
         )
           return false;
       }
@@ -2842,6 +2875,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     var rows = this.generatedVisibleRows;
     if (!rows) return false;
     for (var i = 0; i < rows.length; i++) {
+      if (!rows[i].isVisible) continue;
       var cells = rows[i].cells;
       if (!cells) continue;
       for (var colIndex = 0; colIndex < cells.length; colIndex++) {
@@ -2951,9 +2985,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   protected onReadOnlyChanged() {
     super.onReadOnlyChanged();
-    if (!this.generateRows) return;
-    for (var i = 0; i < this.visibleRows.length; i++) {
-      this.visibleRows[i].onQuestionReadOnlyChanged();
+    // Only the rows that exist: rows built later read the matrix state (isMatrixReadOnly).
+    const rows = this.generatedVisibleRows;
+    if (!rows) return;
+    for (let i = 0; i < rows.length; i++) {
+      rows[i].onQuestionReadOnlyChanged();
     }
   }
 
@@ -3317,7 +3353,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       }
     }
     this.setPropertyValue("isRowShowing" + row.id, val);
-    if (!!this.renderedTable) {
+    if (this.isRendredTableCreated) {
       this.renderedTable.onDetailPanelChangeVisibility(row, val);
     }
     if (this.survey) {
@@ -3371,8 +3407,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (
       !!this.data &&
       !!this.visibleTotalRow &&
-      !this.isUpdateLocked &&
-      !this.isSett
+      !this.isUpdateLocked
     ) {
       this.data.setValue(
         this.getValueName() + settings.matrix.totalsSuffix,

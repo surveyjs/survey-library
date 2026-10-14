@@ -1,7 +1,7 @@
-# survey-library CI on GitHub Actions. The jobs live in surveyjs/azure-pipelines; this file holds
-# their graph - a port of azure-pipelines' library.yml (keep in sync while it lives). GitHub groups
-# the run's sidebar by the top-level jobs of the workflow that started the run, so every top-level
-# job here that calls a workflow is a group: SCR Update, Library, Creator, ..., Afterparty.
+# survey-library CI on GitHub Actions. Everything lives in surveyjs/azure-pipelines
+# (.github/workflows/library.yml), as the Azure pipeline extended library.yml@azurepipelines: this
+# file holds only what GitHub reads from the repository itself - triggers, token permissions and
+# concurrency. The single required status check is "CI / result".
 name: Library
 
 on:
@@ -20,112 +20,8 @@ concurrency:
   group: ${{ github.event_name == 'pull_request' && format('library-pr-{0}', github.event.pull_request.number) || format('library-run-{0}', github.run_id) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
-defaults:
-  run:
-    shell: bash --noprofile --norc {0}
-
 jobs:
-  lint:
-    name: Lint
-    # The marker the l10n, docs and release commits carry - the one the Azure pipeline honours.
-    # Not [skip ci]: that would also skip tagged-release.yml on the release tag.
-    if: ${{ !contains(github.event.head_commit.message, '[azurepipelines skip]') }}
-    runs-on: ubuntu-24.04
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-          fetch-depth: 1
-      - name: Install
-        uses: surveyjs/azure-pipelines/.github/actions/npm-install@gha-migration
-        with:
-          directories: .
-          cache: survey-library
-          # eslint-plugin-surveyjs comes from a git URL (surveyjs/eslint-surveyjs): take its tip
-          update: . eslint-plugin-surveyjs
-          token: ${{ secrets.SURVEYJS_BOT_TOKEN }}
-      - name: Lint
-        run: npm run lint
-
-  # The gate of the graph. It runs on every event - outside a PR its outputs are {} and "" - so the
-  # groups after it are skipped only when it failed (a bad tag) or the run carries the marker. A job
-  # skipped on a push would skip everything after it, Afterparty with Staging and Backport included.
-  options:
-    name: Options
-    if: ${{ !contains(github.event.head_commit.message, '[azurepipelines skip]') }}
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    outputs:
-      scr_update: ${{ steps.options.outputs.scr_update }}
-      pr_tags: ${{ steps.options.outputs.pr_tags }}
-    steps:
-      - id: options
-        uses: surveyjs/azure-pipelines/.github/actions/options@gha-migration
-
-  scr-update:
-    name: SCR Update
-    needs: options
-    if: (needs.options.outputs.scr_update || '') != ''
-    uses: surveyjs/azure-pipelines/.github/workflows/library-scr-update.yml@gha-migration
-    secrets: inherit
-
-  library:
-    name: Library
-    needs: options
-    if: (needs.options.outputs.scr_update || '') == ''
-    uses: surveyjs/azure-pipelines/.github/workflows/library-test.yml@gha-migration
-    secrets: inherit
-
-  creator:
-    name: Creator
-    needs: options
-    if: (needs.options.outputs.scr_update || '') == ''
-    uses: surveyjs/azure-pipelines/.github/workflows/creator-test.yml@gha-migration
-    with:
-      creator-ref: ${{ github.base_ref || github.ref_name }}
-      creator-pr: ${{ fromJSON(needs.options.outputs.pr_tags || '{}').CREATOR || '' }}
-    secrets: inherit
-
-  analytics:
-    name: Analytics
-    needs: options
-    if: (needs.options.outputs.scr_update || '') == ''
-    uses: surveyjs/azure-pipelines/.github/workflows/analytics-test.yml@gha-migration
-    with:
-      analytics-ref: ${{ github.base_ref || github.ref_name }}
-      analytics-pr: ${{ fromJSON(needs.options.outputs.pr_tags || '{}').ANALYTICS || '' }}
-    secrets: inherit
-
-  pdf:
-    name: PDF
-    needs: options
-    if: (needs.options.outputs.scr_update || '') == ''
-    uses: surveyjs/azure-pipelines/.github/workflows/pdf-test.yml@gha-migration
-    with:
-      pdf-ref: ${{ github.base_ref || github.ref_name }}
-      pdf-pr: ${{ fromJSON(needs.options.outputs.pr_tags || '{}').PDF || '' }}
-    secrets: inherit
-
-  theme-adapter-demos:
-    name: Theme Adapter Demos
-    needs: options
-    if: (needs.options.outputs.scr_update || '') == '' && github.event_name == 'pull_request' && github.base_ref == 'master'
-    uses: surveyjs/azure-pipelines/.github/workflows/theme-adapter-demos-test.yml@gha-migration
-    with:
-      demos-pr: ${{ fromJSON(needs.options.outputs.pr_tags || '{}').ADAPTERS || '' }}
-      creator-ref: ${{ github.base_ref || github.ref_name }}
-      creator-pr: ${{ fromJSON(needs.options.outputs.pr_tags || '{}').CREATOR || '' }}
-    secrets: inherit
-
-  # Everything after the tests: result - the single required status check, "Afterparty / result" -
-  # then Staging and Backport on pushes. always(): result reports on every run, a failed or
-  # cancelled one included.
-  afterparty:
-    name: Afterparty
-    needs: [lint, options, scr-update, library, creator, analytics, pdf, theme-adapter-demos]
-    if: ${{ always() && !contains(github.event.head_commit.message, '[azurepipelines skip]') }}
-    uses: surveyjs/azure-pipelines/.github/workflows/afterparty.yml@gha-migration
-    with:
-      needs: ${{ toJSON(needs) }}
+  ci:
+    name: CI
+    uses: surveyjs/azure-pipelines/.github/workflows/library.yml@gha-migration
     secrets: inherit

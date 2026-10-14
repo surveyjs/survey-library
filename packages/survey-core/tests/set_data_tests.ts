@@ -828,10 +828,12 @@ describe("setData: choice panels", () => {
     expect(issues[0].question, "the panel's text question").toBe(panel.getQuestionByName("n"));
     expect(issues[1].question, "the panel's dropdown").toBe(panel.getQuestionByName("inner"));
   });
-  test("The questions of a panel that is not showing hold no value and report nothing", () => {
-    // A select question loads the values of the questions of showing panels only (updateValueForPanels).
+  test("The questions of a panel that is not showing are verified too", () => {
     const survey = createSurvey(checkboxJson);
-    expect(survey.setData({ q: ["b"], inner: "z", n: "bad" })).toEqual([]);
+    expect(shortIssues(survey.setData({ q: ["b"], inner: "z", n: "bad" }))).toEqual([
+      { type: "invalidValueType", path: "n", value: "bad" },
+      { type: "invalidChoiceValue", path: "inner", value: "z" }
+    ]);
   });
   test("A choice panel inside a dynamic panel item reports at a root path", () => {
     const survey = createSurvey({

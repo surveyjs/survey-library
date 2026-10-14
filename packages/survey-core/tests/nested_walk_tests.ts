@@ -494,10 +494,9 @@ const expectedReach: { [walk: string]: { reached: Array<string>, builds?: Array<
   "onSurveyValueChanged": {
     reached: ["md.cell", "md.hiddenRowCell", "md.detail", "md.detail.pd.item", "mx.cell", "mx.hiddenRowCell", "pd.item", "pd.hiddenItem", "pd.static", "mt.editor", "cu.content", "cp.content", "cp.nested"]
   },
-  // custom and composite content: set through the wrapper's value, not through updateValueFromSurvey(). unselected choice:
-  // a select question updates the questions of showing panels only.
+  // custom and composite content: set through the wrapper's value, not through updateValueFromSurvey().
   "updateValueFromSurvey": {
-    reached: ["md.cell", "md.hiddenRowCell", "md.detail", "md.detail.pd.item", "md.total", "mx.cell", "mx.hiddenRowCell", "pd.item", "pd.hiddenItem", "pd.static", "pd.choicePanel", "mt.editor", "cb.shownPanel", "rg.panel"]
+    reached: ["md.cell", "md.hiddenRowCell", "md.detail", "md.detail.pd.item", "md.total", "mx.cell", "mx.hiddenRowCell", "pd.item", "pd.hiddenItem", "pd.static", "pd.choicePanel", "mt.editor", "cb.shownPanel", "cb.hiddenPanel", "rg.panel"]
   },
   // matrices: the records model judges cell values by record. hidden item: cleared as a whole. multiple text, custom: the
   // container clears its own value. showing choice panels: their questions are visible survey questions, cleared by the survey.

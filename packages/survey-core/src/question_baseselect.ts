@@ -2132,9 +2132,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     super.updateCommentFromSurvey(newValue);
     this.updateValueForPanels(false, true);
   }
+  // Every created panel, showing or not: the questions of a hidden panel hold their values too.
   private updateValueForPanels(clearData: boolean, isComment: boolean): void {
     if (this.data) {
-      this.doForPanels(true, (p) => {
+      this.doForPanels(undefined, (p) => {
         p.questions.forEach(q => {
           const valName = q.getValueName();
           if (isComment) {

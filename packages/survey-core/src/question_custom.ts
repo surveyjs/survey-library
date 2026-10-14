@@ -545,7 +545,7 @@ export abstract class QuestionCustomModelBase extends Question
     }
   }
   public localeChanged(): void {
-    super.locStrsChanged();
+    super.localeChanged();
     if (!!this.getElement()) {
       this.getElement().localeChanged();
     }
@@ -567,6 +567,11 @@ export abstract class QuestionCustomModelBase extends Question
     return !!el ? el.needResponsiveWidth() : false;
   }
   protected createWrapper(): void { }
+  // The content question or the content panel goes with the question.
+  public dispose(): void {
+    super.dispose();
+    this.getElement()?.dispose();
+  }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (!!this.customQuestion && !this.isLoadingFromJson) {

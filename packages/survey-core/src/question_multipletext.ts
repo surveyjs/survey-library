@@ -629,6 +629,11 @@ export class QuestionMultipleTextModel extends Question
     });
     return true;
   }
+  // The editors go with the question; the items are its definition.
+  public dispose(): void {
+    super.dispose();
+    this.items.forEach(item => item.editor.dispose());
+  }
   protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
     this.items.forEach(item => visit({ element: item.editor, role: "editor", segment: undefined, location: "nested", visible: true }));
   }

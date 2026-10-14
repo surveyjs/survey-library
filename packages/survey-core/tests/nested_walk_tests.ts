@@ -568,15 +568,14 @@ const expectedReach: { [walk: string]: { reached: Array<string>, builds?: Array<
   "getPanels": {
     reached: ["cb.shownPanel", "cb.hiddenPanel", "rg.panel"]
   },
-  // hidden rows: the matrix reaches the rows of visibleRows. total row: never editable. custom content: reads the wrapper's
-  // state. choice panels, multiple text: they do not forward onReadOnlyChanged().
+  // total row: never editable. custom content: reads the wrapper's state. choice panels, multiple text: they do not
+  // forward onReadOnlyChanged().
   "onReadOnlyChanged": {
-    reached: ["md.detail", "md.detail.pd.item", "pd.item", "pd.hiddenItem", "pd.static", "cp.content", "cp.nested"],
-    builds: ["md.cell", "mx.cell"]
+    reached: ["md.cell", "md.hiddenRowCell", "md.detail", "md.detail.pd.item", "mx.cell", "mx.hiddenRowCell", "pd.item", "pd.hiddenItem", "pd.static", "cp.content", "cp.nested"]
   },
-  // detail panel, total row, dynamic panel items, multiple text editors, custom and composite content: nothing disposes them.
+  // dynamic panel items, the one in a detail panel included: nothing disposes them.
   "dispose": {
-    reached: ["md.cell", "md.hiddenRowCell", "mx.cell", "mx.hiddenRowCell", "cb.shownPanel", "cb.hiddenPanel", "rg.panel"]
+    reached: ["md.cell", "md.hiddenRowCell", "md.detail", "md.total", "mx.cell", "mx.hiddenRowCell", "mt.editor", "cu.content", "cp.content", "cp.nested", "cb.shownPanel", "cb.hiddenPanel", "rg.panel"]
   }
 };
 
@@ -719,5 +718,81 @@ describe("forEachNestedElement(): the instances every container yields", () => {
     pd.pageIndex = 1;
     expect(yielded(md, "rows")).toEqual(["cell mdCell 2 nested visible", "total mdCell undefined nested visible"]);
     expect(yielded(pd, "all")).toEqual(["item panel(pdItem,pdStaticQ,pdChoice) 1 nested visible"]);
+  });
+});
+
+describe("Disposal and a locale change reach the instances a container owns", () => {
+  test("disposing a matrix row disposes its detail panel, and disposing the matrix disposes its total row", () => {
+    const survey = createSurvey();
+    const md: any = survey.getQuestionByName("md");
+    const row = md.visibleRows[0];
+    row.ensureDetailPanel();
+    const panel: PanelModel = row.detailPanel;
+    const totalRow = md.generatedTotalRow;
+    expect(!!totalRow, "the total row exists").toBe(true);
+    row.dispose();
+    expect(panel.isDisposed, "the detail panel").toBe(true);
+    survey.dispose();
+    expect(totalRow.cells[0].question.isDisposed, "the total row's cell").toBe(true);
+  });
+  test("in design mode a row shows the matrix's detail panel and does not dispose it", () => {
+    const survey = new SurveyModel(createJson());
+    survey.setDesignMode(true);
+    const md: any = survey.getQuestionByName("md");
+    const row = md.visibleRows[0];
+    row.ensureDetailPanel();
+    expect(row.detailPanel, "the matrix's detail panel").toBe(md.detailPanel);
+    row.dispose();
+    expect(md.detailPanel.isDisposed, "still alive").toBe(false);
+  });
+  test("custom and composite questions dispose their content, multiple text its editors", () => {
+    const survey = createSurvey();
+    const content: Question = (<any>survey.getQuestionByName("cu")).contentQuestion;
+    const contentPanel: PanelModel = (<any>survey.getQuestionByName("cp")).contentPanel;
+    const editor: Question = (<any>survey.getQuestionByName("mt")).items[0].editor;
+    survey.dispose();
+    expect(content.isDisposed, "custom content").toBe(true);
+    expect(contentPanel.isDisposed, "composite content panel").toBe(true);
+    expect(contentPanel.questions[0].isDisposed, "composite content panel's question").toBe(true);
+    expect(editor.isDisposed, "multiple text editor").toBe(true);
+  });
+  test("a custom question runs its own locale change, then its content's", () => {
+    const survey = createSurvey();
+    const cu: any = survey.getQuestionByName("cu");
+    const calls: Array<string> = [];
+    cu.localeChangedCallback = () => calls.push("wrapper");
+    cu.contentQuestion.localeChangedCallback = () => calls.push("content");
+    survey.locale = "de";
+    expect(calls).toEqual(["wrapper", "content"]);
+  });
+});
+
+describe("A matrix takes a read-only change into the rows that exist", () => {
+  test("nothing is built for it, and rows and detail panels built later are read-only", () => {
+    const survey = createSurvey();
+    const md: any = survey.getQuestionByName("md");
+    survey.readOnly = true;
+    expect(md.generatedVisibleRows === null, "no rows built").toBe(true);
+    const row = md.visibleRows[0];
+    row.ensureDetailPanel();
+    expect(row.cells[0].question.isReadOnly, "a cell of a row built later").toBe(true);
+    expect(row.detailPanel.isReadOnly, "a detail panel created later").toBe(true);
+  });
+  test("every row that exists gets the change, a hidden one included", () => {
+    const survey = createSurvey();
+    buildAll(survey);
+    const md: any = survey.getQuestionByName("md");
+    const rows = md.generatedVisibleRows;
+    expect(rows[1].isVisible, "the second row is hidden").toBe(false);
+    survey.readOnly = true;
+    rows.forEach((row: any, index: number) => {
+      expect(row.cells[0].question.getPropertyValue("isReadOnly"), "row " + index + ": its cell").toBe(true);
+      expect(row.detailPanel.readOnly, "row " + index + ": its detail panel").toBe(true);
+    });
+    survey.readOnly = false;
+    rows.forEach((row: any, index: number) => {
+      expect(row.cells[0].question.getPropertyValue("isReadOnly"), "row " + index + ": its cell, editable again").toBe(false);
+      expect(row.detailPanel.readOnly, "row " + index + ": its detail panel, editable again").toBe(false);
+    });
   });
 });

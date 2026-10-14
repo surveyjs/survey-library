@@ -940,6 +940,12 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     for (let i = 0; i < this.cells.length; i++) {
       this.cells[i].dispose();
     }
+    // The row's own detail panel. In design mode a row shows the matrix's detail panel
+    // (createRowDetailPanel), which stays.
+    const panel = this.detailPanelValue;
+    if (!!panel && !panel.isDesignMode) {
+      panel.dispose();
+    }
     if (!!this.editingObj) {
       this.editingObj.onPropertyChanged.remove(
         this.onEditingObjPropertyChanged
@@ -1262,6 +1268,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   // The rows go before the record list (see QuestionRecordsModel.dispose).
   protected disposeRecordObjects(): void {
     this.clearGeneratedRows();
+    if (!!this.generatedTotalRow) {
+      this.disposeAfterRerender(this.generatedTotalRow);
+      this.generatedTotalRow = null;
+    }
   }
   public get isRowsDynamic(): boolean {
     return false;
@@ -2949,12 +2959,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     return null;
   }
+  // The rows that exist, hidden ones included; nothing is built. A row built later reads the state then.
   protected onReadOnlyChanged() {
     super.onReadOnlyChanged();
-    if (!this.generateRows) return;
-    for (var i = 0; i < this.visibleRows.length; i++) {
-      this.visibleRows[i].onQuestionReadOnlyChanged();
-    }
+    const rows = this.generatedVisibleRows;
+    if (!rows) return;
+    rows.forEach(row => row.onQuestionReadOnlyChanged());
   }
 
   //IMatrixDropdownData

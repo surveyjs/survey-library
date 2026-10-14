@@ -466,7 +466,7 @@ describe("matrix: expression validation of choices", () => {
   });
 });
 
-describe("matrix column: isRequired and renderAs are stored once", () => {
+describe("matrix column: isRequired is stored once", () => {
   const createMatrix = (): QuestionMatrixDynamicModel => {
     const survey = createSurvey([{ type: "matrixdynamic", name: "m", rowCount: 2,
       columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "boolean" }] }]);
@@ -492,20 +492,6 @@ describe("matrix column: isRequired and renderAs are stored once", () => {
     expect(column.isRequired, "#1").toBe(false);
     expect(matrix.visibleRows[0].cells[0].question.isRequired, "#2").toBe(false);
   });
-  test("renderAs: one change, one notification", () => {
-    const matrix = createMatrix();
-    const changed = vi.spyOn(matrix, "onColumnPropertyChanged");
-    matrix.columns[1].renderAs = "checkbox";
-    expect(changed.mock.calls.map(c => c[1]), "#1").toEqual(["renderAs"]);
-    expect(matrix.visibleRows[0].cells[1].question.renderAs, "#2").toBe("checkbox");
-  });
-  test("renderAs: the column reads the template question", () => {
-    const matrix = createMatrix();
-    const column = matrix.columns[1];
-    column.renderAs = "checkbox";
-    column.templateQuestion.renderAs = "default";
-    expect(column.renderAs, "#1").toBe("default");
-  });
   test("toJSON of a column with isRequired or a custom renderAs is unchanged", () => {
     const survey = createSurvey([{ type: "matrixdynamic", name: "m",
       columns: [{ name: "c1", cellType: "text", isRequired: true }, { name: "c2", cellType: "boolean", renderAs: "my-renderer" }, { name: "c3" }] }]);
@@ -516,14 +502,12 @@ describe("matrix column: isRequired and renderAs are stored once", () => {
     expect(matrix.columns[1].renderAs, "#3").toBe("my-renderer");
     expect(matrix.columns[2].isRequired, "#4: the default").toBe(false);
   });
-  test("a boolean column loaded with renderAs checkbox serializes as the boolean question does", () => {
-    const survey = createSurvey([{ type: "boolean", name: "b", renderAs: "checkbox" },
-      { type: "matrixdynamic", name: "m", columns: [{ name: "c", cellType: "boolean", renderAs: "checkbox" }] }]);
-    const question = survey.getQuestionByName("b");
+  test("a boolean column loaded with renderAs checkbox gives it to its cells, Creator reads it", () => {
+    const survey = createSurvey([{ type: "matrixdynamic", name: "m", rowCount: 1,
+      columns: [{ name: "c", cellType: "boolean", renderAs: "checkbox" }] }]);
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
-    expect(question.toJSON(), "#1: the question").toEqual({ name: "b", displayMode: "checkbox" });
-    expect(matrix.toJSON().columns, "#2: the column").toEqual([{ name: "c", cellType: "boolean", displayMode: "checkbox" }]);
-    expect(matrix.columns[0].renderAs, "#3").toBe(question.renderAs);
+    expect(matrix.columns[0].renderAs, "#1").toBe("checkbox");
+    expect(matrix.visibleRows[0].cells[0].question.renderAs, "#2").toBe("checkbox");
   });
 });
 

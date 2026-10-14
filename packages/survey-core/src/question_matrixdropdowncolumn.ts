@@ -616,12 +616,7 @@ export class MatrixDropdownColumn extends Base
 
   @property ({ localizable: true }) cellHint: string;
 
-  public get renderAs(): string {
-    return this.templateQuestion?.renderAs;
-  }
-  public set renderAs(val: string) {
-    this.templateQuestion.renderAs = val;
-  }
+  @property({ onSet: (val: string, obj: MatrixDropdownColumn) => obj.templateQuestion.renderAs = val }) renderAs: string;
 
   @property({ onSetting: (val: number) => val < -1 ? -1 : val > 20 ? 20 : val }) totalMaximumFractionDigits: number;
   @property({ onSetting: (val: number) => val < -1 ? -1 : val > 20 ? 20 : val }) totalMinimumFractionDigits: number;

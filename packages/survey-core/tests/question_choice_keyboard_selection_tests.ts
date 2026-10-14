@@ -6,7 +6,7 @@ import { indexToChoiceKeyCode, choiceKeyCodeToIndex } from "../src/utils/choice-
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { QuestionButtonGroupModel } from "../src/question_buttongroup";
 import { QuestionRankingModel } from "../src/question_ranking";
-import { Serializer } from "../src/jsonobject";
+import { JsonObject, Serializer } from "../src/jsonobject";
 import { settings } from "../src/settings";
 import { SurveyElement } from "../src/survey-element";
 import { ItemValue } from "../src/itemvalue";
@@ -644,6 +644,37 @@ test("aria-keyshortcuts is set only for a single letter", () => {
   q.visibleChoices[0].setIsEnabled(false);
   expect(q.getChoiceKeyBadge(q.visibleChoices[0])).toBe("A");
   expect(q.getItemAriaKeyShortcuts(q.visibleChoices[0])).toBeUndefined();
+});
+
+test("survey choiceShortcutsEnabled toggles badges after load", () => {
+  const survey = new SurveyModel({
+    elements: [{ type: "checkbox", name: "q", choices: ["a", "b"] }]
+  });
+  survey.setDesignMode(true);
+  const q = questionOf<QuestionCheckboxModel>(survey);
+  expect(q.getChoiceKeyBadge(q.choices[0])).toBe("");
+  survey.choiceShortcutsEnabled = true;
+  expect(q.canShowChoiceKeys).toBe(true);
+  expect(q.getChoiceKeyBadge(q.choices[0])).toBe("A");
+  expect(q.getChoiceKeyBadge(q.choices[1])).toBe("B");
+  survey.choiceShortcutsEnabled = false;
+  expect(q.getChoiceKeyBadge(q.choices[0])).toBe("");
+});
+
+test("survey choiceShortcutsEnabled toggles badges for a question added after the survey exists", () => {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  const page = survey.addNewPage("page1");
+  const q = new QuestionCheckboxModel("q");
+  new JsonObject().toObject({ name: "q", choices: ["a", "b"] }, q);
+  page.addElement(q);
+  expect(q.getChoiceKeyBadge(q.choices[0])).toBe("");
+  survey.choiceShortcutsEnabled = true;
+  expect(q.canShowChoiceKeys).toBe(true);
+  expect(q.getChoiceKeyBadge(q.choices[0])).toBe("A");
+  expect(q.getChoiceKeyBadge(q.choices[1])).toBe("B");
+  survey.choiceShortcutsEnabled = false;
+  expect(q.getChoiceKeyBadge(q.choices[0])).toBe("");
 });
 
 test("dispose drops a pending choice code", () => {

@@ -2938,6 +2938,14 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     super.onSurveyLoad();
     this.bindChoiceKeyBadges();
   }
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
+    super.setSurveyImpl(value, isLight);
+    // A question built on its own (toolbox drop) runs onSurveyLoad before it joins a survey,
+    // so the badge updater never subscribed to the survey flag. Rebind once the survey is set.
+    if (!this.isLoadingFromJson) {
+      this.bindChoiceKeyBadges();
+    }
+  }
   public dispose(): void {
     this.choiceKeys.reset();
     super.dispose();

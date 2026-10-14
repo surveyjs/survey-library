@@ -37,7 +37,7 @@ import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInf
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import {
-  QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel,
+  QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel, NestedWalkItem,
   QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
   IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties, isRecordCountSerializable
 } from "./question_records";
@@ -2595,17 +2595,17 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.iscorrectValueWithPostPrefix(panel, key, settings.matrix.totalsSuffix);
   }
   // "none" and "rows": the panels that exist; "all": panels, which builds them.
-  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: QuestionRecordItem, position: number, visible: boolean) => void): void {
+  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: NestedWalkItem, position: number, visible: boolean) => void): void {
     const panels = build === "all" ? this.panels : this.panelsCore;
     const visiblePanels = new Set<PanelModel>(this.visiblePanelsCore);
     panels.forEach((panel, position) => {
-      func(<QuestionPanelDynamicItem>panel.data, position, visiblePanels.has(panel));
+      func(panel, position, visiblePanels.has(panel));
     });
   }
-  protected forEachNestedElementOfItem(item: QuestionRecordItem, position: number, visible: boolean,
+  protected forEachNestedElementOfItem(item: NestedWalkItem, position: number, visible: boolean,
     build: NestedWalkBuild, visit: (info: INestedElementInfo) => void): void {
     const segment = this.getRecordIndexAtCreatedPosition(position);
-    visit({ element: (<QuestionPanelDynamicItem>item).panel, role: "item", segment: segment, location: "nested", visible: visible });
+    visit({ element: <PanelModel>item, role: "item", segment: segment, location: "nested", visible: visible });
   }
   protected clearIncorrectValuesInObjects(): void {
     for (var i = 0; i < this.panelsCore.length; i++) {

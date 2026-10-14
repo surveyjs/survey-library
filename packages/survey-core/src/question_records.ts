@@ -30,6 +30,10 @@ import { ConsoleWarnings } from "./console-warnings";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import type { PanelModelBase } from "./panel";
+
+/* An item of the nested walk of a records question: a matrix row, or a dynamic panel's panel - not its
+   QuestionPanelDynamicItem: in design mode the panel shown is the template, which has none. */
+export type NestedWalkItem = QuestionRecordItem | PanelModelBase;
 import type { ItemValue } from "./itemvalue";
 import type { ISurveyDynamicDataWrites, ISurveyOldValueReads } from "./interfaces/survey-callbacks";
 
@@ -1124,16 +1128,16 @@ export abstract class QuestionRecordsModel extends Question {
   }
   // The nested elements of the rows or panels a build mode reads, item by item.
   protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
-    this.forEachNestedWalkItem(build, (item: QuestionRecordItem, position: number, visible: boolean): void => {
+    this.forEachNestedWalkItem(build, (item: NestedWalkItem, position: number, visible: boolean): void => {
       this.forEachNestedElementOfItem(item, position, visible, build, visit);
     });
   }
   /* The items a build mode reads, each with its position in the list of created items - never an index
      in a visible-only list, so that the segment of the record it holds can be computed - and whether the
      question shows it. */
-  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: QuestionRecordItem, position: number, visible: boolean) => void): void { }
+  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: NestedWalkItem, position: number, visible: boolean) => void): void { }
   // The nested elements of one item at a position in the list of created items.
-  protected forEachNestedElementOfItem(item: QuestionRecordItem, position: number, visible: boolean,
+  protected forEachNestedElementOfItem(item: NestedWalkItem, position: number, visible: boolean,
     build: NestedWalkBuild, visit: (info: INestedElementInfo) => void): void { }
   protected isListedAsNestedQuestion(includeItSelf: boolean): boolean {
     return includeItSelf;

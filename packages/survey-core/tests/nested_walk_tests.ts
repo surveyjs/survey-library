@@ -595,6 +595,24 @@ describe("Conformance: which walk reaches which nested slot", () => {
   });
 });
 
+describe("Design mode", () => {
+  test("a dynamic panel shows its template, which is not an item's panel: it lists the template's questions", () => {
+    // Survey Creator adds a survey this way: built at runtime, its page moved into the designer's survey.
+    const source = new SurveyModel({
+      elements: [{
+        type: "paneldynamic", name: "outer",
+        templateElements: [{ type: "paneldynamic", name: "inner", templateElements: [{ type: "text", name: "q" }] }]
+      }]
+    });
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.addPage(source.pages[0]);
+    const outer: any = survey.getQuestionByName("outer");
+    expect(outer.panels.length === 1 && outer.panels[0] === outer.template, "the template is the panel shown").toBe(true);
+    expect(survey.getAllQuestions(false, false, true).map((q: Question) => q.name)).toEqual(["outer", "inner", "q"]);
+  });
+});
+
 describe("Choice panels that are created and empty", () => {
   test("getPanels(), conditions, locales, loading and disposal reach a panel that was read and one whose last element was removed", () => {
     const survey = createSurvey();

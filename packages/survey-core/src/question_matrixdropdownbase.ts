@@ -23,7 +23,7 @@ import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValuePa
 import { ValidationContext } from "./question";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import {
-  QuestionRecordItemGetterContext, QuestionRecordItem, IRecordItemWrite, QuestionRecordsModel,
+  QuestionRecordItemGetterContext, QuestionRecordItem, IRecordItemWrite, QuestionRecordsModel, NestedWalkItem,
   QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties
 } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
@@ -1860,7 +1860,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     });
   }
   // "none": the generated rows; "rows": visibleRows; "all": allRows. visibleRows drops the rows rowsVisibleIf hides.
-  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: QuestionRecordItem, position: number, visible: boolean) => void): void {
+  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: NestedWalkItem, position: number, visible: boolean) => void): void {
     const rows = build === "rows" ? this.visibleRows : (build === "all" ? this.allRows : this.generatedVisibleRows);
     if (!Array.isArray(rows)) return;
     const created = this.generatedVisibleRows;
@@ -1869,7 +1869,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     });
   }
   // The cells, then the detail panel; "all" creates the detail panel after the cells, as the verification always did.
-  protected forEachNestedElementOfItem(item: QuestionRecordItem, position: number, visible: boolean,
+  protected forEachNestedElementOfItem(item: NestedWalkItem, position: number, visible: boolean,
     build: NestedWalkBuild, visit: (info: INestedElementInfo) => void): void {
     const row = <MatrixDropdownRowModelBase>item;
     const segment = this.getRowDataSegment(position);

@@ -810,6 +810,44 @@ describe("setData: boundaries", () => {
   });
 });
 
+describe("setData: choice panels", () => {
+  const choicePanel = {
+    value: "a",
+    elements: [{ type: "text", name: "n", inputType: "number" }, { type: "dropdown", name: "inner", choices: ["x"] }]
+  };
+  const checkboxJson = { elements: [{ type: "checkbox", name: "q", choices: [choicePanel, "b"] }] };
+  test("Verification reaches the questions of choice panels, at their root keys", () => {
+    const survey = createSurvey(checkboxJson);
+    const issues = survey.setData({ q: ["a"], inner: "z", n: "bad" });
+    // inner and n are known root keys, not unknownProperty issues.
+    expect(shortIssues(issues)).toEqual([
+      { type: "invalidValueType", path: "n", value: "bad" },
+      { type: "invalidChoiceValue", path: "inner", value: "z" }
+    ]);
+    const panel = (<any>survey.getQuestionByName("q")).choices[0].panel;
+    expect(issues[0].question, "the panel's text question").toBe(panel.getQuestionByName("n"));
+    expect(issues[1].question, "the panel's dropdown").toBe(panel.getQuestionByName("inner"));
+  });
+  test("The questions of a panel that is not showing hold no value and report nothing", () => {
+    // A select question loads the values of the questions of showing panels only (updateValueForPanels).
+    const survey = createSurvey(checkboxJson);
+    expect(survey.setData({ q: ["b"], inner: "z", n: "bad" })).toEqual([]);
+  });
+  test("A choice panel inside a dynamic panel item reports at a root path", () => {
+    const survey = createSurvey({
+      elements: [{ type: "paneldynamic", name: "pd", templateElements: [{ type: "checkbox", name: "c", choices: [choicePanel] }] }]
+    });
+    /* The panel writes to the root keys, and the select question loads its questions from the item's
+       record: the item reports the keys it does not know, and the questions report at the root. */
+    expect(shortIssues(survey.setData({ pd: [{ c: ["a"], inner: "z", n: "bad" }] }))).toEqual([
+      { type: "unknownProperty", path: "pd[0].inner", value: "z" },
+      { type: "unknownProperty", path: "pd[0].n", value: "bad" },
+      { type: "invalidValueType", path: "n", value: "bad" },
+      { type: "invalidChoiceValue", path: "inner", value: "z" }
+    ]);
+  });
+});
+
 describe("setData: custom and composite questions", () => {
   afterEach(() => {
     ComponentCollection.Instance.clear();

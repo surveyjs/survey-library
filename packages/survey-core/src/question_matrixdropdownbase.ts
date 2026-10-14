@@ -1,6 +1,6 @@
 import { JsonObject, CustomPropertiesCollection, Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { Question, IConditionObject, IQuestionPlainData, IVerifyDataContext, INestedElementInfo, NestedWalkBuild } from "./question";
+import { Question, IConditionObject, IQuestionPlainData, IVerifyDataContext, INestedElementInfo, NestedWalkBuild, getNestedElementQuestions } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import { IElement, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks } from "./base-interfaces";
@@ -1869,26 +1869,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (build === "all") row.ensureDetailPanel();
     if (!!row.detailPanel) visit({ element: row.detailPanel, role: "detail", segment: segment, location: "nested", visible: visible });
   }
-  public initializeForVerification(): void {
-    const rows = this.allRows;
-    if (!Array.isArray(rows)) return;
-    rows.forEach(row => {
-      row.cells.forEach(cell => cell?.question?.initializeForVerification());
-      row.ensureDetailPanel();
-      row.detailPanel?.initializeForVerification();
-    });
-  }
-  public verifyNestedValues(context: IVerifyDataContext): void {
-    const rows = this.allRows;
-    if (!Array.isArray(rows)) return;
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      context.pushSegment(this.getRowDataSegment(i));
-      row.cells.forEach(cell => cell?.question?.verifyDataCore(context));
-      row.detailPanel?.verifyDataCore(context);
-      context.popSegment();
-    }
-  }
   protected clearIncorrectValuesInObjects(): void {
     if (!Array.isArray(this.visibleRows)) return;
     const rows = this.generatedVisibleRows;
@@ -2651,23 +2631,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.collectNestedQuestions(questions, true);
     questions.forEach(q => q.onHidingContent());
   }
+  // The questions of the generated rows, the total row included; nothing is built.
   protected getIsReadyNestedQuestions(): Array<Question> {
     if (!this.generatedVisibleRows) return [];
     const res = new Array<Question>();
-    this.collectNestedQuestonsInRows(this.generatedVisibleRows, res, false, true, false);
-    if (!!this.generatedTotalRow) {
-      this.collectNestedQuestonsInRows([this.generatedTotalRow], res, false, true, false);
-    }
+    this.forEachNestedElement(info => {
+      getNestedElementQuestions(info).forEach(q => q.addNestedQuestion(res, false, true, false));
+    }, { build: "none", visibleOnly: false });
     return res;
-  }
-  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    if (includeItSelf) {
-      questions.push(this);
-    }
-    this.collectNestedQuestonsInRows(this.visibleRows, questions, visibleOnly, includeNested, includeItSelf);
-  }
-  protected collectNestedQuestonsInRows(rows: Array<MatrixDropdownRowModelBase>, questions: Question[], visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    this.collectNestedQuestionsOfItems(rows, questions, visibleOnly, includeNested, includeItSelf);
   }
   protected getConditionObjectRowName(index: number): string {
     return "";

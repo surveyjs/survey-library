@@ -571,11 +571,8 @@ export class QuestionMultipleTextModel extends Question
       });
     }
   }
-  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    if (includeItSelf) {
-      questions.push(this);
-    }
-    this.items.forEach(item => item.editor.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
+  protected isListedAsNestedQuestion(includeItSelf: boolean): boolean {
+    return includeItSelf;
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     if (!path) return super.getConditionJson(operator);
@@ -634,12 +631,6 @@ export class QuestionMultipleTextModel extends Question
   }
   protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
     this.items.forEach(item => visit({ element: item.editor, role: "editor", segment: undefined, location: "nested", visible: true }));
-  }
-  public initializeForVerification(): void {
-    this.items.forEach(item => item.editor.initializeForVerification());
-  }
-  public verifyNestedValues(context: IVerifyDataContext): void {
-    this.items.forEach(item => item.editor.verifyDataCore(context));
   }
   protected hasValueKey(key: string): boolean {
     return !!this.getItemByName(key);

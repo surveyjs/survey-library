@@ -2607,17 +2607,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const segment = this.getRecordIndexAtCreatedPosition(position);
     visit({ element: (<QuestionPanelDynamicItem>item).panel, role: "item", segment: segment, location: "nested", visible: visible });
   }
-  public initializeForVerification(): void {
-    this.panels.forEach(panel => panel.initializeForVerification());
-  }
-  public verifyNestedValues(context: IVerifyDataContext): void {
-    const panels = this.panels;
-    for (let i = 0; i < panels.length; i++) {
-      context.pushSegment(this.getRecordIndexAtCreatedPosition(i));
-      panels[i].verifyDataCore(context);
-      context.popSegment();
-    }
-  }
   protected clearIncorrectValuesInObjects(): void {
     for (var i = 0; i < this.panelsCore.length; i++) {
       this.clearIncorrectValuesInPanel(i);
@@ -2733,15 +2722,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         objects.push(obj);
       }
     }
-  }
-  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    if (includeItSelf) {
-      questions.push(this);
-    }
-    this.collectNestedQuestionsOfItems(
-      visibleOnly ? this.visiblePanelsCore : this.panelsCore,
-      questions, visibleOnly, includeNested, includeItSelf
-    );
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     if (!path) return super.getConditionJson(operator);

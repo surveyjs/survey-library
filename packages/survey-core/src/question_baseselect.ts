@@ -411,15 +411,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       pnls.forEach(func);
     }
   }
-  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    questions.push(this);
-    if (includeNested && this.supportElementsInChoice()) {
-      this.choices.forEach((item) => {
-        if (item.hasElements && (!visibleOnly || item.isPanelShowing)) {
-          item.panel.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
-        }
-      });
-    }
+  // A select question always lists itself, and the questions of its choice panels only with includeNested.
+  protected canListNestedElements(includeNested: boolean): boolean {
+    return includeNested;
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
     if (!this.supportElementsInChoice()) return [];

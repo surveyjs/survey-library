@@ -1129,17 +1129,8 @@ export abstract class QuestionRecordsModel extends Question {
   // The nested elements of one item at a position in the list of created items.
   protected forEachNestedElementOfItem(item: QuestionRecordItem, position: number, visible: boolean,
     build: NestedWalkBuild, visit: (info: INestedElementInfo) => void): void { }
-  protected collectNestedQuestionsOfItems(
-    items: Array<{ questions: Array<Question> }>,
-    questions: Array<Question>,
-    visibleOnly: boolean,
-    includeNested: boolean,
-    includeItSelf: boolean
-  ): void {
-    if (!Array.isArray(items)) return;
-    items.forEach(item => {
-      item.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
-    });
+  protected isListedAsNestedQuestion(includeItSelf: boolean): boolean {
+    return includeItSelf;
   }
   protected runTriggersOnItems(
     items: Array<QuestionRecordItem>,

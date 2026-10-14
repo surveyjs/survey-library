@@ -244,6 +244,11 @@ export interface IVerifyDataContext {
   runAtRoot(fn: () => void): void;
 }
 
+// The questions of a nested element: a question, or the questions of a panel at any depth.
+export function getNestedElementQuestions(info: INestedElementInfo): Array<Question> {
+  return info.element.isPanel ? (<PanelModel>info.element).questions : [<Question>info.element];
+}
+
 // The nested element instances a container question owns, see Question.forEachNestedElement().
 // Internal: not re-exported from entries/.
 // cell, detail, total: a matrix row's cell questions, its detail panel, the total row's cell questions.
@@ -2764,7 +2769,24 @@ export class Question extends SurveyElement<Question>
     this.collectNestedQuestionsCore(questions, visibleOnly, includeNested, includeItSelf);
   }
   protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    questions.push(this);
+    if (this.isListedAsNestedQuestion(includeItSelf)) questions.push(this);
+    if (!this.canListNestedElements(includeNested)) return;
+    // "rows": the rows of visibleRows, as the matrices have always listed them.
+    this.forEachNestedElement(info => {
+      // The content question of a custom question holds the wrapper's value; getNestedQuestions() has
+      // never listed it. The total row is not listed either.
+      if (info.location === "same" || info.role === "total") return;
+      // addNestedQuestion() decides between the child itself (no includeNested) and its descendants.
+      getNestedElementQuestions(info).forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
+    }, { build: "rows", visibleOnly: visibleOnly });
+  }
+  // A question without nested instances and a custom question list themselves; a container lists itself only when asked.
+  protected isListedAsNestedQuestion(includeItSelf: boolean): boolean {
+    return true;
+  }
+  // Without includeNested a container lists its immediate children; a select question lists none.
+  protected canListNestedElements(includeNested: boolean): boolean {
+    return true;
   }
   /* The structure of a container: every nested element instance it owns, once, with its role, its
      record segment, where its value lives and whether the container shows it. Instances only: the
@@ -3007,7 +3029,12 @@ export class Question extends SurveyElement<Question>
   // Pass 1: a container builds its dynamic rows and panel items and recurses into them, so that a
   // creation handler or a trigger in a later container cannot change the answer of an earlier
   // question after it has been checked. Nothing else happens here.
-  public initializeForVerification(): void { }
+  // The total row is no value holder: neither pass visits it.
+  public initializeForVerification(): void {
+    this.forEachNestedElement(info => {
+      if (info.role !== "total") info.element.initializeForVerification();
+    }, { build: "all", visibleOnly: false });
+  }
   // Pass 2: the question adds its own segment, reports its own value and walks into the instances
   // that hold its nested values.
   public verifyDataCore(context: IVerifyDataContext): void {
@@ -3046,9 +3073,22 @@ export class Question extends SurveyElement<Question>
     if (this.isEmpty() || this.isNonDataValue(val)) return;
     this.verifyValueCore(val, context);
   }
-  // A container overrides this and calls verifyDataCore() on every nested instance, so that the
-  // question of a finding is the instance that actually holds the value.
-  public verifyNestedValues(context: IVerifyDataContext): void { }
+  // verifyDataCore() on every nested instance, so that the question of a finding is the instance that
+  // actually holds the value. "none": pass 1 built the rows and panels, and collecting builds nothing.
+  public verifyNestedValues(context: IVerifyDataContext): void {
+    this.forEachNestedElement(info => {
+      if (info.role === "total") return;
+      const element = info.element;
+      if (info.location === "root") {
+        context.runAtRoot(() => element.verifyDataCore(context));
+        return;
+      }
+      // "same" needs no branch: its segment is undefined and so is its getDataSegment().
+      if (info.segment !== undefined) context.pushSegment(info.segment);
+      element.verifyDataCore(context);
+      if (info.segment !== undefined) context.popSegment();
+    }, { build: "none", visibleOnly: false });
+  }
   // Tells whether the question can hold the value it has: the value has the JSON shape the question
   // stores, refers to existing choices, rows or items only and has no key that nobody owns. It runs
   // the value checks of SurveyModel.setData() on the question's own value, nested values excluded,

@@ -1,4 +1,4 @@
-import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext, QuestionValueType, IVerifyDataContext, INestedElementInfo, NestedWalkBuild } from "./question";
+import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext, QuestionValueType, INestedElementInfo, NestedWalkBuild } from "./question";
 import { Serializer, CustomPropertiesCollection, JsonObjectProperty } from "./jsonobject";
 import { Base, ArrayChanges } from "./base";
 import {
@@ -897,12 +897,6 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     const question = this.contentQuestion;
     if (!!question) visit({ element: question, role: "content", segment: undefined, location: "same", visible: true });
   }
-  public initializeForVerification(): void {
-    this.contentQuestion?.initializeForVerification();
-  }
-  public verifyNestedValues(context: IVerifyDataContext): void {
-    this.contentQuestion?.verifyDataCore(context);
-  }
   protected getDefaultTitle(): string {
     if (this.hasJSONTitle && this.contentQuestion) {
       return this.getProcessedText(this.contentQuestion.title);
@@ -1240,12 +1234,6 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     const panel = this.contentPanel;
     if (!!panel) visit({ element: panel, role: "content", segment: undefined, location: "nested", visible: true });
   }
-  public initializeForVerification(): void {
-    this.contentPanel?.initializeForVerification();
-  }
-  public verifyNestedValues(context: IVerifyDataContext): void {
-    this.contentPanel?.verifyDataCore(context);
-  }
   public updateElementCss(reNew?: boolean) {
     super.updateElementCss(reNew);
     if (this.contentPanel) {
@@ -1498,12 +1486,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       });
     }
   }
-  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    if (!this.contentPanel) return;
-    if (includeItSelf) {
-      questions.push(this);
-    }
-    this.contentPanel.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
+  // Without a content panel a composite question lists nothing, itself included.
+  protected isListedAsNestedQuestion(includeItSelf: boolean): boolean {
+    return includeItSelf && !!this.contentPanel;
   }
   protected convertDataValue(name: string, newValue: any): any {
     var val = !!this.contentPanel && !this.isEditingSurveyElement ?

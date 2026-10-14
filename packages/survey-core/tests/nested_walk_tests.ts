@@ -440,14 +440,14 @@ const expectedReach: { [walk: string]: { reached: Array<string>, builds?: Array<
     reached: ["md.detail", "md.detail.pd.item", "pd.item", "pd.hiddenItem", "pd.static", "pd.choicePanel", "mt.editor", "cp.content", "cp.nested", "cb.shownPanel", "cb.hiddenPanel", "rg.panel"],
     builds: ["md.cell", "mx.cell"]
   },
-  // total row: not a value holder for verification. choice panels: a select question does not walk into them.
+  // total row: not a value holder for verification.
   "initializeForVerification": {
-    reached: ["pd.item", "pd.hiddenItem", "pd.static", "mt.editor", "cu.content", "cp.content", "cp.nested"],
+    reached: ["pd.item", "pd.hiddenItem", "pd.static", "pd.choicePanel", "mt.editor", "cu.content", "cp.content", "cp.nested", "cb.shownPanel", "cb.hiddenPanel", "rg.panel"],
     builds: ["md.cell", "md.hiddenRowCell", "md.detail", "md.detail.pd.item", "mx.cell", "mx.hiddenRowCell"]
   },
-  // total row: not a value holder for verification. choice panels: a select question does not walk into them.
+  // total row: not a value holder for verification.
   "verifyData": {
-    reached: ["pd.item", "pd.hiddenItem", "pd.static", "mt.editor", "cu.content", "cp.content", "cp.nested"],
+    reached: ["pd.item", "pd.hiddenItem", "pd.static", "pd.choicePanel", "mt.editor", "cu.content", "cp.content", "cp.nested", "cb.shownPanel", "cb.hiddenPanel", "rg.panel"],
     builds: ["md.cell", "md.hiddenRowCell", "md.detail", "md.detail.pd.item", "mx.cell", "mx.hiddenRowCell"]
   },
   // total row: not cleaned. dropdown matrix hidden row: the matrix drops the answer of a hidden row, so no cell of it is judged.

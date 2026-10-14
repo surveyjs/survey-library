@@ -12,6 +12,9 @@ export class SurveyQuestionCheckbox extends SurveyQuestionSelectbase {
   protected get question(): QuestionCheckboxModel {
     return this.questionBase as QuestionCheckboxModel;
   }
+  protected handleRootKeyDown(event: any): void {
+    this.question.onKeyDown?.(event);
+  }
   protected renderHeader(): React.JSX.Element | null {
     return <>
       <legend className={"sv-hidden"}>{this.question.locTitle.renderedHtml}</legend>

@@ -11,6 +11,9 @@ export class ImagePickerQuestionComponent extends QuestionAngular<QuestionImageP
   public getItemValueComponentName(item: ItemValue): string {
     return this.model.getItemValueWrapperComponentName(item) || "sv-ng-imagepicker-item";
   }
+  public onKeyDown(event: any): void {
+    this.model.onKeyDown?.(event);
+  }
   public getItemValueComponentData(item: ItemValue): any {
     return {
       componentName: "sv-ng-imagepicker-item",

@@ -87,7 +87,14 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return "imagepicker";
   }
   supportAutoAdvance(): boolean {
-    return !this.multiSelect;
+    if (this.multiSelect) return this.isAutoAdvanceRequested === true;
+    return this.isMouseDown === true || this.isAutoAdvanceRequested === true;
+  }
+  // Single-select follows radiogroup: a click advances, a keyboard selection waits for Enter.
+  public onKeyDown(event: any): void {
+    if (this.canCommitAutoAdvanceOnEnter(event)) {
+      this.commitAutoAdvance(event);
+    }
   }
   public get hasSingleInput(): boolean {
     return false;

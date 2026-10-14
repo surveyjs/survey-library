@@ -5,6 +5,7 @@ import { ChoiceItem, QuestionCheckboxBase } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { DropdownListModel } from "./dropdownListModel";
+import { dropdownQuestionMixin } from "./dropdownRenderState";
 import { updateListCssValues } from "./utils/dom-utils";
 
 export class ButtonGroupItemValue extends ChoiceItem {
@@ -27,7 +28,7 @@ export class ButtonGroupItemValue extends ChoiceItem {
   @property() showCaption: boolean;
 }
 
-export class QuestionButtonGroupModel extends QuestionCheckboxBase {
+export class QuestionButtonGroupModel extends dropdownQuestionMixin(QuestionCheckboxBase) {
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     const resetReadOnlyTextProps = ["value", "renderAs", "placeholder", "choices", "visibleChoices"];
@@ -103,33 +104,20 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
     return this.selectedItem?.locText;
   }
 
-  private dropdownListModelValue: DropdownListModel;
-  public set dropdownListModel(val: DropdownListModel) {
-    this.dropdownListModelValue = val;
-    this.updateElementCss();
+  protected canCreateDropdownListModel(): boolean {
+    return this.isDropdown;
   }
-  public get dropdownListModel(): DropdownListModel {
-    if (this.isDropdown) {
-      this.onBeforeSetCompactRenderer();
-    }
-    return this.dropdownListModelValue;
+  protected createDropdownListModel(): DropdownListModel {
+    return new DropdownListModel(this);
+  }
+  protected onDropdownListModelAssigned(): void {
+    this.updateElementCss();
   }
   public get selectedItem(): ItemValue { return this.getSingleSelectedItem(); }
 
-  protected onBlurCore(event: any): void {
-    this.dropdownListModel?.onBlur(event);
-    super.onBlurCore(event);
-  }
   protected updateCssClasses(res: any, css: any) {
     super.updateCssClasses(res, css);
     updateListCssValues(res, css);
-  }
-  protected calcCssClasses(css: any): any {
-    const classes = super.calcCssClasses(css);
-    if (this.dropdownListModelValue) {
-      this.dropdownListModelValue.updateCssClasses(classes.popup, classes.list);
-    }
-    return classes;
   }
 
   // responsiveness
@@ -144,18 +132,6 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   }
   protected getObservedElementSelector(): string {
     return ".sd-button-group-scrollable-container";
-  }
-  protected onBeforeSetCompactRenderer(): void {
-    if (!this.isDisposed && !this.dropdownListModelValue) {
-      this.dropdownListModelValue = new DropdownListModel(this);
-    }
-  }
-  public dispose(): void {
-    super.dispose();
-    if (!!this.dropdownListModelValue) {
-      this.dropdownListModelValue.dispose();
-      this.dropdownListModelValue = undefined;
-    }
   }
 }
 

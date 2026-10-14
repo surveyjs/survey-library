@@ -23,7 +23,7 @@ export class PanelComponent extends BaseAngular<PanelModel> implements AfterView
     return row.id;
   };
   public get canRender() {
-    return this.model && this.model.survey && this.model.getIsContentVisible();
+    return this.model && this.model.survey && this.model.renderedIsContentVisible;
   }
   public get panelContentStyle(): Record<string, string> {
     const hasInnerPadding = !!this.model?.innerPaddingLeft;

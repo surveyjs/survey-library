@@ -118,7 +118,7 @@ export {
 } from "../../src/localizablestring";
 export { HtmlConditionItem, UrlConditionItem } from "../../src/expressionItems";
 export { ChoicesRestful, ChoicesRestfull } from "../../src/choicesRestful";
-export { FunctionFactory, registerFunction, IFunctionRegistration, isReturnColumnParam } from "../../src/functionsfactory";
+export { FunctionFactory, registerFunction, IFunctionRegistration, IFunctionParameter, isReturnColumnParam } from "../../src/functionsfactory";
 export { IExpressionError, ExpressionErrorType } from "../../src/expressions/expressionError";
 export { ExpressionRunner } from "../../src/expressions/expressionRunner";
 export { ExpressionExecutorRunner } from "../../src/expressions/expressionExecutor";
@@ -143,7 +143,7 @@ export {
   getConditionOperatorNames,
   getConditionDefaultOperator
 } from "../../src/conditions/conditionOperators";
-export { ProcessValue, ValueGetter, VariableGetterContext } from "../../src/conditions/conditionProcessValue";
+export { ProcessValue, ValueGetter, VariableGetterContext, findNameByPath, parseValuePath } from "../../src/conditions/conditionProcessValue";
 export {
   JsonError,
   JsonIncorrectTypeError,
@@ -159,6 +159,7 @@ export {
   Serializer,
 } from "../../src/jsonobject";
 export { property, propertyArray } from "../../src/decorators";
+export { QuestionRecordsModel } from "../../src/question_records";
 export {
   IMatrixDropdownData,
   MatrixDropdownCell,
@@ -232,6 +233,14 @@ export {
   QuestionPanelDynamicModel,
   QuestionPanelDynamicItem
 } from "../../src/question_paneldynamic";
+export { LocalDynamicDataSource, ArrayDynamicDataSource, SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
+export type { IArrayDynamicDataSourceOptions } from "../../src/dynamic-data/dynamic-data-sources";
+export { parseDynamicDataSort, dynamicDataSortToString } from "../../src/dynamic-data/dynamic-data-sort";
+export type {
+  IDynamicDataSource, IDynamicDataSourceCapabilities, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataField,
+  DynamicDataSortDirection,
+  DynamicDataFieldType, DynamicDataOperation
+} from "../../src/dynamic-data/dynamic-data-interfaces";
 export { SurveyTimer } from "../../src/surveytimer";
 export { SurveyTimerModel } from "../../src/surveyTimerModel";
 export { SurveyProgressTextModel } from "../../src/surveyProgressTextModel";
@@ -285,6 +294,7 @@ export { createPopupViewModel, createPopupModalViewModel } from "../../src/popup
 export { PopupModalManager } from "../../src/popup-modal-manager";
 export { DropdownListModel } from "../../src/dropdownListModel";
 export { DropdownMultiSelectListModel } from "../../src/dropdownMultiSelectListModel";
+export { DropdownRenderState, DropdownMultiSelectRenderState } from "../../src/dropdownRenderState";
 export {
   QuestionButtonGroupModel,
   ButtonGroupItemModel,
@@ -314,6 +324,7 @@ export * from "../../src/utils/text-area";
 export * from "../../src/utils/shadow-effects";
 export * from "../../src/utils/resize-manager";
 export * from "../../src/utils/base-theme-init";
+export { setupThemeAdapter } from "../../src/utils/setupThemeAdapter";
 
 export { surveyCss, defaultCss, defaultThemeName } from "../../src/defaultCss/defaultCss";
 

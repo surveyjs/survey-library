@@ -16,7 +16,7 @@ Dynamic Matrix allows respondents to add and delete matrix rows. You can use the
 
 ## Inheritance
 
-[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionMatrixDropdownModelBase`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixdropdownmodelbase.md) &rarr; `QuestionMatrixDynamicModel`
+[`QuestionMatrixDropdownModelBase`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixdropdownmodelbase.md) &rarr; `QuestionMatrixDynamicModel`
 
 ## Properties
 
@@ -184,6 +184,8 @@ A maximum number of rows in the matrix. Users cannot add new rows if `rowCount` 
 
 Default value: 1000 (inherited from [`settings.matrix.maxRowCount`](https://surveyjs.io/form-library/documentation/settings#matrixMaximumRowCount))
 
+`settings.matrix.maxRowCount` is the maximum number of rows on one page. If rows are not split into pages, it also limits `maxRowCount`. If they are, only `maxRowCount` limits the total number of rows, and only when you set it.
+
 [View Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
 
 **Related APIs:** [`rowCount`](#rowCount), [`minRowCount`](#minRowCount), [`allowAddRows`](#allowAddRows)
@@ -236,7 +238,7 @@ Default value: 2
 
 An expression that dynamically calculates the row count. Overrides the static [`rowCount`](#rowCount) property.
 
-The calculation result is clamped to the [`minRowCount`](#minRowCount) and [`maxRowCount`](#maxRowCount) limits: a value below the minimum is set to `minRowCount`, and a value above the maximum is capped at `maxRowCount`. The global [`settings.matrix.maxRowCount`](/form-library/documentation/api-reference/settings#matrix) setting also limits the maximum.
+The calculation result is clamped to the [`minRowCount`](#minRowCount) and [`maxRowCount`](#maxRowCount) limits: a value below the minimum is set to `minRowCount`, and a value above the maximum is capped at `maxRowCount`. If rows are not split into pages, the global [`settings.matrix.maxRowCount`](/form-library/documentation/api-reference/settings#matrix) setting also limits the maximum.
 
 While this property is set, users cannot add or remove rows manually. The expression is reevaluated when its referenced values or row limits change.
 

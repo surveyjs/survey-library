@@ -3715,6 +3715,40 @@ describe("Survey", () => {
 
     expect(question.renderWidth, "the render width is 100%").toBe("100%");
   });
+  test("tryGoNextPageAutomaticCore reports whether navigation was scheduled", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const blocked = new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
+          { elements: [{ type: "text", name: "q3" }] },
+        ],
+      });
+      blocked.autoAdvanceEnabled = false;
+      blocked.setValue("q1", "a");
+      blocked.autoAdvanceEnabled = true;
+      expect(blocked.tryGoNextPageAutomaticCore("q1"), "Another empty question blocks navigation").toBe(false);
+      expect(blocked.currentPageNo, "Stay on the first page").toBe(0);
+
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
+          { elements: [{ type: "text", name: "q3" }] },
+        ],
+      });
+      survey.autoAdvanceEnabled = false;
+      survey.setValue("q1", "a");
+      survey.setValue("q2", "b");
+      survey.autoAdvanceEnabled = true;
+      expect(survey.tryGoNextPageAutomaticCore("q1"), "Navigation is scheduled").toBe(true);
+      expect(survey.currentPageNo, "The second page is opened").toBe(1);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
   test("test autoAdvanceEnabled property", () => {
     var survey = twoPageSimplestSurvey();
 
@@ -5439,6 +5473,23 @@ describe("Survey", () => {
     expect(survey.data, "values set correctly").toEqual({ q1: "v1", q2: "v2", q3: "v3" });
     survey.clearIncorrectValues(true);
     expect(survey.data, "Remove q3 and val3 keys").toEqual({ q1: "v1", q2: "v2" });
+  });
+
+  test("survey.clearIncorrectValues(true), keep suffixed values of questions whose names contain the suffix", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a-Comment" },
+        { type: "text", name: "b-total" },
+      ],
+    });
+    survey.data = {
+      "a-Comment": "v1", "a-Comment-Comment": "c1", "b-total": "v2", "b-total-total": "t1",
+      "a-Comment-x": "c2", "abcdefg": "short"
+    };
+    survey.clearIncorrectValues(true);
+    expect(survey.data, "Keep the suffixed values, remove the keys without a question").toEqual({
+      "a-Comment": "v1", "a-Comment-Comment": "c1", "b-total": "v2", "b-total-total": "t1"
+    });
   });
 
   test("Create questions from elements array - issue #395", () => {
@@ -22174,5 +22225,44 @@ describe("Survey: Object.prototype member names and the __proto__ key", () => {
     survey.setVariables({ v2: 2 }, true);
     expect(survey.getVariableNames(), "clearPrevious").toEqual(["v2"]);
     survey.dispose();
+  });
+});
+
+describe("completing a survey builds nothing the respondent did not see", () => {
+  function completeWithHiddenPage(clearInvisibleValues: string): { data: any, events: Array<string> } {
+    const survey = new SurveyModel({
+      clearInvisibleValues: clearInvisibleValues,
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        { visibleIf: "{q1} = 'show'", elements: [
+          { type: "matrixdynamic", name: "m", rowCount: 2, columns: [{ name: "c1", cellType: "text", defaultValue: "d" }] },
+          { type: "paneldynamic", name: "p", panelCount: 1, templateElements: [{ type: "text", name: "t", defaultValue: "pd" }] }] }]
+    });
+    const events: Array<string> = [];
+    survey.onDynamicPanelAdded.add(() => events.push("panelAdded"));
+    survey.onMatrixCellCreated.add(() => events.push("cell"));
+    survey.onValueChanged.add((_, options) => events.push("valueChanged:" + options.name));
+    survey.tryComplete();
+    return { data: survey.data, events: events };
+  }
+  test("completing does not build the questions of a hidden page", () => {
+    const res = completeWithHiddenPage("none");
+    expect(res.data, "#1").toEqual({});
+    expect(res.events, "#2").toEqual([]);
+  });
+  test("completing with the default clean-up fires no build event for a hidden page", () => {
+    expect(completeWithHiddenPage("onComplete").events).toEqual([]);
+  });
+  test("completing a survey with 30 hidden matrices builds no row", () => {
+    const elements = new Array<any>();
+    for (let i = 0; i < 30; i++) {
+      elements.push({ type: "matrixdynamic", name: "m" + i, rowCount: 3, columns: [{ name: "a", cellType: "text" }] });
+    }
+    const survey = new SurveyModel({ pages: [{ elements: [{ type: "text", name: "q1" }] }, { visibleIf: "{q1} = 1", elements: elements }] });
+    let cells = 0;
+    survey.onMatrixCellCreated.add(() => { cells++; });
+    expect(survey.tryComplete(), "#1").toBe(true);
+    expect(survey.state, "#2").toBe("completed");
+    expect(cells, "#3").toBe(0);
   });
 });

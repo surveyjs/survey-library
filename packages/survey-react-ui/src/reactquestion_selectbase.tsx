@@ -22,6 +22,7 @@ export class SurveyQuestionSelectbase extends SurveyQuestionElementBase {
       <fieldset
         className={this.question.getSelectBaseRootCss()}
         ref={(fieldset) => (this.setControl(fieldset))}
+        onKeyDown={(event) => this.handleRootKeyDown(event)}
         role={this.question.a11y_input_ariaRole}
         aria-required={this.question.a11y_input_ariaRequired}
         aria-label={this.question.a11y_input_ariaLabel}
@@ -38,6 +39,7 @@ export class SurveyQuestionSelectbase extends SurveyQuestionElementBase {
       </fieldset>
     );
   }
+  protected handleRootKeyDown(_event: any): void {}
   protected renderHeader(): React.JSX.Element | null { return null; }
   protected getFooter(): React.JSX.Element | null {
     if (this.question.hasFootItems) {

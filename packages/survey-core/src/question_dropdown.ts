@@ -282,7 +282,7 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
     return this.inputFieldComponent || this.itemComponent;
   }
   public get showSelectedItemLocText(): boolean {
-    return !this.inputHasValue && !this.inputFieldComponentName && !!this.selectedItemLocText && this.dropdownListModel.canShowSelectedItem;
+    return !this.inputHasValue && !this.inputFieldComponentName && !!this.selectedItemLocText && this.dropdownRenderState.canShowSelectedItem;
   }
   public get showInputFieldComponent(): boolean {
     return !this.inputHasValue && !!this.inputFieldComponentName && !this.isEmpty();
@@ -296,14 +296,11 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
     return !!item ? item.text : "";
   }
   private get useDropdownList(): boolean { return this.renderAs !== "select"; }
-  public get dropdownListModel(): DropdownListModel {
-    if (!this.isDisposed && this.useDropdownList && !this.dropdownListModelValue) {
-      this.dropdownListModelValue = new DropdownListModel(this);
-    }
-    return this.dropdownListModelValue;
+  protected canCreateDropdownListModel(): boolean {
+    return this.useDropdownList;
   }
-  public set dropdownListModel(val: DropdownListModel) {
-    this.dropdownListModelValue = val;
+  protected createDropdownListModel(): DropdownListModel {
+    return new DropdownListModel(this);
   }
   public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
 

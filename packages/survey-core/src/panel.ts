@@ -1417,6 +1417,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return res;
   }
   protected childVisibilityChanged() {
+    this.resetRenderedIsContentVisible();
     if (this.isRunningConditions) return;
     var newIsVisibleValue = this.getIsPageVisible(null);
     var oldIsVisibleValue = this.getPropertyValue("isVisible", true);
@@ -1833,6 +1834,12 @@ export class PanelModelBase extends SurveyElement<Question>
     // Track cached isVisible for ComputedUpdater consumers (e.g. TOC)
     this.getPropertyValueWithoutDefault("isVisible");
     return this.areInvisibleElementsShowing || this.getIsPageVisible(null);
+  }
+  private resetRenderedIsContentVisible(): void {
+    this.resetPropertyValue("renderedIsContentVisible");
+  }
+  public get renderedIsContentVisible(): boolean {
+    return this.getPropertyValue("renderedIsContentVisible", undefined, () => !!this.getIsContentVisible());
   }
   getIsContentVisible(exceptionQuestion?: IQuestion) {
     if (this.areInvisibleElementsShowing) return true;

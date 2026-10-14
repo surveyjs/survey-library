@@ -28,6 +28,7 @@ import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 import { ActionContainer } from "./actions/container";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { isAnimationEnabled } from "./utils/reduced-motion";
+import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choices";
 
 export interface IConditionObject {
   name: string;
@@ -133,10 +134,14 @@ export abstract class QuestionItemValueGetterContext extends ValueGetterContextC
       if (!!name && q.valuePropertyName === name && !!objValue && objValue.hasOwnProperty(name)) {
         return { isFound: true, value: objValue[name], context: q.getValueGetterContext() };
       }
-      const res = q.getValueGetterContext().getValue({ path, isRoot: false, index: this.getIndex() });
+      const res = q.getValueGetterContext().getValue({ path, isRoot: false, index: this.getIndex(), existingObjectsOnly: this.readsExistingObjectsOnly() });
       if (!!res && res.isFound) return res;
     }
     return undefined;
+  }
+  // A question bound to the same value is asked only for the objects it has (IValueGetterContextGetValueParams.existingObjectsOnly).
+  protected readsExistingObjectsOnly(): boolean {
+    return false;
   }
   private getQuestionsBySameValueNames(): Array<Question> {
     const res = new Array<Question>();
@@ -189,6 +194,11 @@ export interface IValidationContextParams {
   firstErrorQuestion?: IQuestion;
   changeCurrentPage?: boolean;
   callbackResult?: (res: boolean, element: IElement) => void;
+  /* false: the validation shows errors and changes no value. A question that pages its records
+     validates a page before the respondent leaves it; a select question would otherwise clear the
+     values that are not among its choices, and every page move would rewrite records - over a data
+     source, push them. The survey's own page and complete validation keep clearing them. */
+  clearIncorrectValues?: boolean;
 }
 
 // Everything on: the value checks run all three unless the caller turns one off.
@@ -301,10 +311,27 @@ export class ValidationContext extends AsyncElementsRunner {
     this.focusOnFirstErrorValue = context.focusOnFirstError || false;
     this.callbackResult = context.callbackResult || null;
     this.changeCurrentPage = context.changeCurrentPage || false;
+    this.clearIncorrectValuesValue = context.clearIncorrectValues !== false;
   }
+  private clearIncorrectValuesValue: boolean;
   public get fireCallback(): boolean { return this.fireCallbackValue; }
+  public get clearIncorrectValues(): boolean { return this.clearIncorrectValuesValue; }
+  /* Validates a part of the elements without clearing their incorrect values, and in this context:
+     its async results, focus and callback stay the caller's. A question reads the flag when its
+     validation starts, so an async validator that settles later never clears either. */
+  public runWithoutClearingIncorrectValues<T>(func: () => T): T {
+    const prev = this.clearIncorrectValuesValue;
+    this.clearIncorrectValuesValue = false;
+    try {
+      return func();
+    } finally {
+      this.clearIncorrectValuesValue = prev;
+    }
+  }
   public get isOnValueChanged(): boolean { return this.isOnValueChangedValue; }
   public get isOnValueChanging(): boolean { return this.isOnValueChangingValue; }
+  // The result goes to a callback: the validation can wait for elements that answer later (addElement).
+  public get hasCallback(): boolean { return !!this.callbackResult; }
   public get focusOnFirstError(): boolean { return this.focusOnFirstErrorValue; }
   public get result(): boolean { return this.res; }
   public get runningResult(): boolean {
@@ -368,6 +395,13 @@ export type QuestionValueType = "string" | "number" | "boolean" | "date" | "arra
 export function getScalarValueType(val: any): QuestionValueType {
   if (typeof val === "number") return "number";
   return typeof val === "boolean" ? "boolean" : "string";
+}
+/* The completion clean-up of a stored answer, for a records question that asks its template questions:
+   the protected member of Question below, called through a cast - through any, because a protected
+   member of Question cannot be called on another Question from a subclass. The compiler does not check
+   the cast. Not exported from the entries. */
+export interface IAnswerCleanupAtComplete {
+  getAnswerCleanupAtComplete(value: any): string;
 }
 
 /**
@@ -806,6 +840,16 @@ export class Question extends SurveyElement<Question>
   }
   protected updateDependedQuestion(): void { }
   protected resetDependedQuestion(): void { }
+  private valueRevision: number = 0;
+  // Created on the first read: only a question that a choicesFromQuestion points at needs it.
+  private arrayValueChoices: ArrayValueChoices;
+  // internal: called by the questions whose choicesFromQuestion is this question (see ArrayValueChoices).
+  public getArrayValueChoices(valueField: string, textField: string): Array<IArrayValueChoice> {
+    if (!this.arrayValueChoices) {
+      this.arrayValueChoices = new ArrayValueChoices();
+    }
+    return this.arrayValueChoices.getChoices(this.value, this.valueRevision, valueField, textField);
+  }
   public get isFlowLayout(): boolean {
     return this.getLayoutType() === "flow";
   }
@@ -1233,12 +1277,16 @@ export class Question extends SurveyElement<Question>
   public getTitleOwner(): ITitleOwner { return this; }
   protected getIsTitleRenderedAsString(): boolean { return this.titleLocation === "hidden"; }
   protected notifySurveyOnChildrenVisibilityChanged(): boolean { return false; }
+  /* A records question builds objects for records its value already holds - a page move, a view
+     rebuild: their questions write no static default into a record, and a question their first
+     conditions hide keeps its answer, as for the objects built while the survey loads its data. */
+  protected isBuildingChildrenForStoredRecords(): boolean { return false; }
   private notifySurveyVisibilityChanged(): void {
     if (!this.canUpdateValueOnVisibleChanged()) return;
     this.lifecycleCallbacks.questionVisibilityChanged(this, this.isVisible,
       !this.parentQuestion || this.parentQuestion.notifySurveyOnChildrenVisibilityChanged());
     const isClearOnHidden = this.isClearValueOnHidden;
-    if (!this.visible) {
+    if (!this.visible && !this.parentQuestion?.isBuildingChildrenForStoredRecords()) {
       this.clearValueOnHidding(isClearOnHidden);
     }
     if (isClearOnHidden && this.isVisibleInSurvey) {
@@ -1964,7 +2012,7 @@ export class Question extends SurveyElement<Question>
     if (!properties) properties = {};
     properties["question"] = this;
     this.runConditionCore(properties);
-    if (!this.isValueChangedDirectly && (!this.isClearValueOnHidden || this.isVisibleInSurvey)) {
+    if (this.canApplyDefaultValue() && (!this.isClearValueOnHidden || this.isVisibleInSurvey)) {
       this.runDefaultValueExpression(properties);
     }
   }
@@ -2016,9 +2064,15 @@ export class Question extends SurveyElement<Question>
   protected onSetData(): void {
     super.onSetData();
     if (!this.isDesignMode && !!this.survey && !this.isLoadingFromJson) {
+      // Check before reading the survey value: replacing the question value with the survey one is not a direct change.
+      // Re-attaching to a survey (e.g. building the preview or single-page container) must not
+      // re-apply default values to a question whose value was set or cleared directly.
+      const canApplyDefaultValue = this.canApplyDefaultValue();
       this.initDataFromSurvey();
       this.onSurveyValueChanged(this.value);
-      this.updateValueWithDefaults();
+      if (canApplyDefaultValue) {
+        this.updateValueWithDefaults();
+      }
       this.updateIsAnswered();
     }
   }
@@ -2055,6 +2109,9 @@ export class Question extends SurveyElement<Question>
     return this.getPropertyValueWithoutDefault("value");
   }
   private set questionValue(val: any) {
+    // An array value is updated in place (Base.setArrayPropertyDirectly): its instance does not say
+    // that it changed, the revision does.
+    this.valueRevision++;
     this.setPropertyValue("value", val);
   }
   private get questionComment(): string {
@@ -2190,6 +2247,19 @@ export class Question extends SurveyElement<Question>
     if (this.canClearValueAsInvisible(reason)) {
       this.clearValue();
     }
+  }
+  /* What clearValueIfInvisible("onComplete") does to a stored answer beyond clearing an invisible one,
+     told without building the question: "keep", "clear" (the answer goes, its comment stays), or
+     undefined - only a built question can tell. A records question asks its template questions for the
+     records without an object. A type that overrides clearValueIfInvisibleCore answers undefined unless
+     it judges the answer itself (getAnswerCleanupAtCompleteCore). */
+  protected getAnswerCleanupAtComplete(value: any): string {
+    if (this.getClearIfInvisible() === "none" || this.isValueEmpty(value)) return "keep";
+    if (this.clearValueIfInvisibleCore === Question.prototype.clearValueIfInvisibleCore) return "keep";
+    return this.getAnswerCleanupAtCompleteCore(value);
+  }
+  protected getAnswerCleanupAtCompleteCore(value: any): string {
+    return undefined;
   }
   /**
    * Specifies when to clear the question value if the question becomes invisible.
@@ -2447,7 +2517,11 @@ export class Question extends SurveyElement<Question>
     if (isEmpty && this.isDefaultValueEmpty()) return;
     if (this.isClearValueOnHidden && !this.isVisible) return;
     if (this.isDesignMode && this.isContentElement && this.isDefaultValueEmpty()) return;
+    if (!this.defaultValueExpression && this.parentQuestion?.isBuildingChildrenForStoredRecords()) return;
+    // Applying a default value is not a direct value change
+    this.isChangingViaDefaultValue = true;
     this.setDefaultValue();
+    this.isChangingViaDefaultValue = false;
   }
   public get isValueDefault(): boolean {
     return !this.isEmpty() && (this.isTwoValueEquals(this.defaultValue, this.value) || !this.isValueChangedDirectly && !!this.defaultValueExpression);
@@ -2459,6 +2533,10 @@ export class Question extends SurveyElement<Question>
   }
   getQuestionFromArray(name: string, index: number): IQuestion {
     return null;
+  }
+  // A question that does not own records answers positionally: the two indexes are the same number.
+  getQuestionFromRecord(name: string, recordIndex: number): IQuestion {
+    return this.getQuestionFromArray(name, recordIndex);
   }
   public getDefaultValue(): any {
     return this.defaultValue;
@@ -2827,13 +2905,17 @@ export class Question extends SurveyElement<Question>
   private isOldAnswered: boolean;
   private isSettingQuestionValue: boolean;
   protected allowNotifyValueChanged = true;
+  /* The old value goes to survey.questionValueChanged, which hands it to onDynamicPanelValueChanged
+     handlers (ISurveyOldValueReads). It is a copy taken before the write, because an array
+     value is updated in place. A records question skips the copy - one of every record - for its own
+     record writes when nothing reads it (getOldValueOnSetNewValue). */
   protected setNewValue(newValue: any): void {
     if (this.survey) {
       newValue = this.survey.questionValueChanging(this, newValue);
     }
     if (this.isNewValueEqualsToValue(newValue)) return;
     if (!this.checkIsValueCorrect(newValue)) return;
-    const oldValue = this.getUnbindValue(this.value);
+    const oldValue = this.getOldValueOnSetNewValue();
     this.isOldAnswered = this.isAnswered;
     this.isSettingQuestionValue = true;
     this.setNewValueInData(newValue);
@@ -2846,6 +2928,10 @@ export class Question extends SurveyElement<Question>
     if (this.survey) {
       this.survey.questionValueChanged(this, oldValue);
     }
+  }
+
+  protected getOldValueOnSetNewValue(): any {
+    return this.getUnbindValue(this.value);
   }
   public getValueChangingOptions(childQuestion: Question): any { return undefined; }
   private checkIsValueCorrect(val: any): boolean {
@@ -3030,6 +3116,15 @@ export class Question extends SurveyElement<Question>
   protected canSetValueToSurvey(): boolean {
     return true;
   }
+  /* The storage half of a value assignment and nothing else: the question holds the new value and
+     the reactivity bridge sees it, but the survey hash is not written, the nested objects are not
+     refreshed and no value-changed notification is raised. A question whose records are owned by a
+     data source follows that source through this method - the row or panel the respondent is typing
+     in already holds the new value, and a fan-out would dispose it under the edit. */
+  protected storeQuestionValue(newValue: any): void {
+    this.questionValue = newValue;
+    this.updateIsAnswered();
+  }
   protected valueFromData(val: any): any { return val; }
   protected valueToData(val: any): any { return val; }
   protected convertToCorrectValue(val: any): any { return val; }
@@ -3073,7 +3168,13 @@ export class Question extends SurveyElement<Question>
     this.isUpdatingValueFromSurvey = true;
     if (!isEmpty && this.defaultValueExpression) {
       this.setDefaultValueCore((val: any): void => {
-        this.updateValueFromSurveyCore(newValue, this.isTwoValueEquals(newValue, val));
+        const isDefault = this.isTwoValueEquals(newValue, val);
+        this.updateValueFromSurveyCore(newValue, isDefault);
+        // A value assigned via survey.data/mergeData that differs from the default one is set directly,
+        // even if the question already holds it (e.g. the initial default equals the loaded value).
+        if (!isDefault && this.survey?.isSettingData()) {
+          this.setValueChangedDirectly(true);
+        }
       });
     } else {
       this.updateValueFromSurveyCore(newValue, <any>this.data !== <any>this.getSurvey());
@@ -3122,6 +3223,11 @@ export class Question extends SurveyElement<Question>
     this.questionComment = newValue;
   }
   protected onChangeQuestionValue(newValue: any): void { }
+  // Default values (defaultValue and defaultValueExpression) apply until the value is set or cleared directly
+  // by an end user, in code, or by loading data that differs from the default.
+  private canApplyDefaultValue(): boolean {
+    return !this.isValueChangedDirectly;
+  }
   protected setValueChangedDirectly(val: boolean): void {
     this.isValueChangedDirectly = val;
     if (!!this.setValueChangedDirectlyCallback) {
@@ -3166,6 +3272,36 @@ export class Question extends SurveyElement<Question>
   supportGoNextPageAutomatic(): boolean { return this.supportAutoAdvance(); }
   public supportAutoAdvance(): boolean {
     return false;
+  }
+  // Set only while Enter commits the current value. tryGoNextPageAutomatic runs on every
+  // value change, so multi-value questions stay opted out until this flag is raised.
+  protected isAutoAdvanceRequested: boolean;
+  // Emptiness is checked separately: comment writes the textarea text before deciding to advance.
+  protected isAutoAdvanceEnter(event: any): boolean {
+    if (!event || (event.key !== "Enter" && event.keyCode !== 13)) return false;
+    if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey || event.isComposing || event.keyCode === 229 || event.defaultPrevented) return false;
+    if (this.isDesignMode || this.isInputReadOnly) return false;
+    const survey = this.survey as SurveyModel;
+    return !!survey && survey.autoAdvanceEnabled === true;
+  }
+  protected canCommitAutoAdvanceOnEnter(event: any): boolean {
+    return this.isAutoAdvanceEnter(event) && !this.isEmpty();
+  }
+  protected requestAutoAdvance(): boolean {
+    const survey = this.survey as SurveyModel;
+    // getQuestionByValueName only sees top-level questions. A nested question with the same
+    // name must not advance on behalf of that other question.
+    if (!survey || survey.getQuestionByValueName(this.getValueName()) !== this) return false;
+    this.isAutoAdvanceRequested = true;
+    try {
+      return survey.tryGoNextPageAutomaticCore(this.getValueName());
+    } finally {
+      this.isAutoAdvanceRequested = false;
+    }
+  }
+  protected commitAutoAdvance(event?: any): void {
+    if (event?.preventDefault) event.preventDefault();
+    this.requestAutoAdvance();
   }
   public supportGoNextPageError(): boolean {
     return true;

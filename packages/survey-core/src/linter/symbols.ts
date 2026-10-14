@@ -160,7 +160,15 @@ export const SCOPE_ROW_VALUE_TYPE = "scoperowvaluevariable";
 export interface ParsedRefSegment {
   name: string;
   index?: number;
+  // where the name sits in ParsedRef.raw - an index, a postfix and the delimiters left out -
+  // so a fix can respell the name and keep all around it as written
+  from?: number;
+  to?: number;
 }
+
+// What an unknown segment inside a container was meant to name: the noun a message uses for it,
+// stated where the segment is checked rather than guessed back from its position.
+export type SegmentLevel = "row" | "column" | "item" | "templateQuestion" | "field";
 
 export type RefStatus = "resolved" | "unknown" | "skipped" | "scoped-resolved" | "scoped-unknown";
 
@@ -174,12 +182,16 @@ export interface ParsedRef {
   resolvedTo?: ElementRecord;
   resolvedKind?: ResolvedRefKind;
   unknownSegmentIndex?: number;
+  unknownSegmentLevel?: SegmentLevel;
   scopePrefix?: string;
   scopeHint?: string;
   // the localizable form of scopeHint: one of SurveyLintHintReasons, plus the variable it is about
   hintReason?: string;
   hintName?: string;
   suggestion?: string;
+  // the last segment the suggestion replaces, from unknownSegmentIndex on: a dotted suggestion
+  // may spell several segments of the reference at once. Unset means that one segment alone.
+  suggestionEnd?: number;
 }
 
 export type ExpressionSiteKind = "condition" | "expression";

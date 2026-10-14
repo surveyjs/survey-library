@@ -791,7 +791,7 @@ export class QuestionMatrixModel
     const rows = this.rows;
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
-      if (this.isValueEmpty(row.value)) continue;
+      if (!row.hasValue) continue;
       const rowId = this.renderedId + "_" + row.value.toString().replace(/\s/g, "_");
       result.push(this.createMatrixRow(row, rowId, val[row.value]));
     }

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { QuestionTagboxModel, DropdownMultiSelectListModel } from "survey-core";
+import { QuestionTagboxModel, DropdownMultiSelectRenderState } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionDropdownBase } from "./dropdown-base";
 import { SurveyQuestionTagboxItem } from "./tagbox-item";
@@ -22,35 +22,35 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
   }
 
   protected renderInput(): React.JSX.Element {
-    const dropdownListModel = this.dropdownListModel as DropdownMultiSelectListModel;
+    const renderState = this.renderState as DropdownMultiSelectRenderState;
     const items = this.question.selectedChoices.map((choice, index) => { return this.renderItem("item" + index, choice); });
 
     return (
       <div
         id={this.question.inputId}
         className={this.question.getControlClass()}
-        tabIndex={dropdownListModel.noTabIndex ? undefined : 0}
+        tabIndex={renderState.noTabIndex ? undefined : 0}
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         disabled={this.question.isInputReadOnly}
         required={this.question.isRequired}
         onKeyDown={this.keyhandler}
         onBlur={this.blur}
-        role={dropdownListModel.ariaQuestionRole}
-        aria-required={dropdownListModel.ariaQuestionRequired}
-        aria-invalid={dropdownListModel.ariaQuestionInvalid}
-        aria-errormessage={dropdownListModel.ariaQuestionErrorMessage}
-        aria-label={dropdownListModel.ariaQuestionLabel}
-        aria-labelledby={dropdownListModel.ariaQuestionLabelledby}
-        aria-describedby={dropdownListModel.ariaQuestionDescribedby}
-        aria-expanded={dropdownListModel.ariaQuestionExpanded}
-        aria-controls={dropdownListModel.ariaQuestionControls}
-        aria-activedescendant={dropdownListModel.ariaQuestionActivedescendant}
+        role={renderState.ariaQuestionRole}
+        aria-required={renderState.ariaQuestionRequired}
+        aria-invalid={renderState.ariaQuestionInvalid}
+        aria-errormessage={renderState.ariaQuestionErrorMessage}
+        aria-label={renderState.ariaQuestionLabel}
+        aria-labelledby={renderState.ariaQuestionLabelledby}
+        aria-describedby={renderState.ariaQuestionDescribedby}
+        aria-expanded={renderState.ariaQuestionExpanded}
+        aria-controls={renderState.ariaQuestionControls}
+        aria-activedescendant={renderState.ariaQuestionActivedescendant}
         ref={(div) => (this.setControl(div))}
       >
         <div className={this.question.cssClasses.controlValue}>
           {items}
-          {dropdownListModel.needRenderInput ? <TagboxFilterString model={dropdownListModel} question={this.question}></TagboxFilterString> : null}
+          {renderState.needRenderInput ? <TagboxFilterString question={this.question}></TagboxFilterString> : null}
         </div>
         {this.renderEditorButtons()}
       </div>);

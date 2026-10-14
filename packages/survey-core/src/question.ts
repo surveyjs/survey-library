@@ -1521,7 +1521,10 @@ export class Question extends SurveyElement<Question>
       event.target.value = this.comment;
     }
   }
+
+  protected contentElement: HTMLElement;
   public afterRenderQuestionElement(el: HTMLElement): void {
+    this.contentElement = this.el;
     if (!this.survey || !this.hasSingleInput) return;
     this.afterRenderCallbacks.afterRenderQuestionInput(this, el);
   }
@@ -1549,6 +1552,7 @@ export class Question extends SurveyElement<Question>
     return [this.commentId];
   }
   public beforeDestroyQuestionElement(el: HTMLElement): void {
+    this.contentElement = undefined;
     this.commentElements = undefined;
   }
   public get processedTitle(): string {

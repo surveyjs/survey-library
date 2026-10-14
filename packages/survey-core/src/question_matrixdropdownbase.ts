@@ -3546,22 +3546,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   public getRootCss(): string {
     return toCssClasses(super.getRootCss(), this.horizontalScroll && this.cssClasses.rootScroll);
   }
-  public afterRenderQuestionElement(el: HTMLElement): void {
-    super.afterRenderQuestionElement(el);
-    this.setRootElement(el?.parentElement);
-  }
-  public beforeDestroyQuestionElement(el: HTMLElement): void {
-    super.beforeDestroyQuestionElement(el);
-    this.setRootElement(undefined);
-  }
-
-  private rootElement: HTMLElement;
-  public setRootElement(val: HTMLElement): void {
-    this.rootElement = val;
-  }
-  public getRootElement(): HTMLElement {
-    return this.rootElement;
-  }
   public get dragDropMatrixAttribute(): string {
     return this.renderedTable.wrapperDropTargetId;
   }

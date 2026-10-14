@@ -53,8 +53,11 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 //
 // A source WITHOUT keyField is read-only: the list sends it no insert, update or remove, so no
 // write ever names a record by its position. It may still page, sort and filter on its side. The
-// in-memory sources (ArrayDynamicDataSource and SurveyDataDynamicDataSource) are the exception: the
-// list writes them synchronously, so a write names a record by its storage index. Such a source has
+// in-memory sources (ArrayDynamicDataSource, SurveyDataDynamicDataSource and any other subclass of
+// LocalDynamicDataSource) are the exception: their writes are synchronous, so a write names a record
+// by its storage index. A write of such a source that returns a promise is reported as an error
+// (onDynamicDataError), and the list reads the window again from the storage; a source with
+// asynchronous writes needs keyField. Such a source has
 // one writer: assigned to a second question, it is read-only there (DynamicDataList.assignSource). sourceIndex, where it is passed on its own, is the position in the WHOLE source - the list
 // has already added the offset of the page the edit was made on.
 //

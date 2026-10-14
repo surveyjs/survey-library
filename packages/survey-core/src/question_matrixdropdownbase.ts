@@ -372,7 +372,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     const cellValue = this.getCellValue(record, question.getValueName());
     const val = !this.editingObj ? Helpers.getUnbindValue(cellValue) : cellValue;
     const oldComment = question.comment;
-    let comment = !!record ? record[question.getValueName() + Base.commentSuffix] : "";
+    let comment = !!record ? record[Helpers.getCommentKey(question.getValueName())] : "";
     if (comment == undefined) comment = "";
     question.updateValueFromSurvey(val);
     if (!!comment || this.isTwoValueEquals(oldComment, question.comment)) {
@@ -399,7 +399,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
         !!this.getSurvey() &&
         this.getSurvey().storeOthersAsComment
       ) {
-        result[valueName + Base.commentSuffix] = question.comment;
+        result[Helpers.getCommentKey(valueName)] = question.comment;
       }
     }
     var detailQuestions = !!this.detailPanel ? this.detailPanel.questions : [];
@@ -415,7 +415,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
         !!this.getSurvey() &&
         this.getSurvey().storeOthersAsComment
       ) {
-        result[valueName + Base.commentSuffix] = question.comment;
+        result[Helpers.getCommentKey(valueName)] = question.comment;
       }
     }
     return result;
@@ -581,7 +581,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     const changedQuestion = this.getQuestionByName(name);
     const rowValue = this.onCellValueChanging(changedQuestion, this.value, isComment);
     if (this.data.isValidateOnValueChanging && !this.validateCellQuestion(changedQuestion)) return undefined;
-    const fieldName = isComment ? name + Base.commentSuffix : name;
+    const fieldName = isComment ? Helpers.getCommentKey(name) : name;
     return {
       fieldValue: rowValue[fieldName],
       ownerValue: rowValue,
@@ -603,7 +603,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   private onCellValueChanging(question: Question, newValue: any, isComment: boolean): any {
     if (!question) return newValue;
     const name = question.getValueName();
-    const changedName = isComment ? name + Base.commentSuffix : name;
+    const changedName = isComment ? Helpers.getCommentKey(name) : name;
     const changingValue = this.data.onRowChanging(this, changedName, newValue);
     /* The row value leaves an empty question out, so an empty changing value is what the question
        holds already: written back, it would replace the question's own empty value - a dynamic
@@ -898,7 +898,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
         var cellValue = this.getCellValue(value, column.name);
         if (!Helpers.isValueEmpty(cellValue)) {
           cell.question.value = cellValue;
-          var commentKey = column.name + Base.commentSuffix;
+          var commentKey = Helpers.getCommentKey(column.name);
           if (!!value && !Helpers.isValueEmpty(value[commentKey])) {
             cell.question.comment = value[commentKey];
           }
@@ -1831,9 +1831,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return !!this.getRecordTemplateQuestion(this.getRecordKeyValueName(key)) || key.indexOf(settings.matrix.totalsSuffix) > -1;
   }
   protected getRecordKeyValueName(key: string): string {
-    const suffix = settings.commentSuffix;
-    const at = key.lastIndexOf(suffix);
-    return at > 0 && at === key.length - suffix.length ? key.substring(0, at) : key;
+    return Helpers.getNameOfCommentKey(key) ?? key;
   }
   // The segment of the row at a position in a location: the segment of the record it holds.
   private getRowDataSegment(position: number): string | number {
@@ -2557,7 +2555,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
           const q = cell.question;
           q.locTitle.onGetTextCallback = (): string => this.getCellAriaLabel({}, cell.column, rowTitle);
           q.value = value[q.getValueName()];
-          q.comment = value[q.getValueName() + Base.commentSuffix];
+          q.comment = value[Helpers.getCommentKey(q.getValueName())];
           return q.getPlainData(options);
         }), undefined, options));
     });

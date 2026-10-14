@@ -1422,7 +1422,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   setComment(name: string, newValue: string): any {
     let val = this.getUnbindValue(this.value);
-    const commentName = this.getCommentName(name);
+    const commentName = Helpers.getCommentKey(name);
     if (!val && !newValue || !!newValue && !!val && val[commentName] === newValue) return;
     if (!!newValue) {
       if (!val) { val = {}; }
@@ -1442,10 +1442,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     const q = <Question>this.getQuestionByName(name);
     if (!!q) return q.comment;
     const val = this.value;
-    return !!val && val[this.getCommentName(name)] || "";
-  }
-  private getCommentName(name: string): string {
-    return name + settings.commentSuffix;
+    return !!val && val[Helpers.getCommentKey(name)] || "";
   }
   private runPanelTriggers(name: string, value: any): void {
     if (!!this.contentPanel) {
@@ -1526,7 +1523,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     for (var i = 0; i < questions.length; i++) {
       const q = questions[i];
       const key = q.getValueName();
-      const commentKey = this.getCommentName(key);
+      const commentKey = Helpers.getCommentKey(key);
       const val = !!newValue ? newValue[key] : undefined;
       const commentVal = !!newValue && newValue[commentKey] || "";
       if (!this.isTwoValueEquals(q.value, val) && (val !== undefined || !q.isEmpty())) {

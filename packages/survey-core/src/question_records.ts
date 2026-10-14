@@ -339,12 +339,12 @@ export abstract class QuestionRecordsModel extends Question {
     (questions || []).forEach((question: Question): void => {
       res.push({ name: question.getValueName(), dataType: getFieldType(question) });
       if (question.hasComment) {
-        res.push({ name: question.getValueName() + settings.commentSuffix, dataType: "string" });
+        res.push({ name: Helpers.getCommentKey(question.getValueName()), dataType: "string" });
       }
     });
     (questions || []).forEach((question: Question): void => {
       if (question.hasComment || (<any>question).hasOther !== true) return;
-      const name = question.getValueName() + settings.commentSuffix;
+      const name = Helpers.getCommentKey(question.getValueName());
       if (!res.some(f => f.name === name)) {
         res.push({ name: name, dataType: "string" });
       }
@@ -3212,8 +3212,7 @@ export abstract class QuestionRecordsModel extends Question {
   // field is a value name, or its comment key.
   protected getRecordFieldQuestion(item: QuestionRecordItem, field: string): Question {
     if (!item || !field) return undefined;
-    const suffix = settings.commentSuffix;
-    const name = field.endsWith(suffix) ? field.substring(0, field.length - suffix.length) : field;
+    const name = Helpers.getNameOfCommentKey(field) ?? field;
     return item.getQuestionsByValueName(name)[0] || undefined;
   }
   // The question's add: the records it inserts are touched as they enter the list. Nothing is created
@@ -4259,7 +4258,7 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     }
     const write = this.prepareRecordWrite(name, newValue, isComment);
     if (!write) return;
-    const fieldName = isComment ? name + settings.commentSuffix : name;
+    const fieldName = isComment ? Helpers.getCommentKey(name) : name;
     if (!this.isValueChanged(fieldName, write.fieldValue)) return;
     if (!(<IRecordItemOwner><any>this.data).writeItemValue(this, fieldName, write.ownerValue, write.isDeleting)) return;
     this.runTriggersOnSetValue(fieldName, newValue);
@@ -4284,7 +4283,7 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   protected updateQuestionFromRecord(question: Question, record: any): void {
     const name = question.getValueName();
     question.updateValueFromSurvey(!!record ? record[name] : undefined);
-    question.updateCommentFromSurvey(!!record ? record[name + settings.commentSuffix] : undefined);
+    question.updateCommentFromSurvey(!!record ? record[Helpers.getCommentKey(name)] : undefined);
   }
   // The questions receive values the item does not write back; the flag nests.
   protected runSettingValue(func: () => void): void {
@@ -4357,9 +4356,9 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
 
   protected runTriggersOnSetValue(name: string, newValue: any): void {
     const questions = this.questions;
-    const suffix = settings.commentSuffix;
-    if (name.endsWith(suffix)) {
-      name = name.substring(0, name.length - suffix.length);
+    const commentOf = Helpers.getNameOfCommentKey(name);
+    if (commentOf !== undefined) {
+      name = commentOf;
       const cQ = this.getQuestionByName(name);
       if (!!cQ) {
         newValue = cQ.value;
@@ -4457,7 +4456,7 @@ class RecordValueItem extends QuestionRecordItem {
   }
   public setValue(name: string, newValue: any): void { }
   public getComment(name: string): string {
-    const res = this.getAllValues()[name + settings.commentSuffix];
+    const res = this.getAllValues()[Helpers.getCommentKey(name)];
     return !!res ? res : "";
   }
   public setComment(name: string, newValue: string, locNotification: boolean): void { }
@@ -4476,7 +4475,7 @@ interface IHiddenAnswerFlags {
 }
 // The keys of a question's answer in a record: its value name and its comment key, the keys clearValue() removes.
 function getRecordAnswerKeys(name: string): Array<string> {
-  return [name, name + settings.commentSuffix];
+  return [name, Helpers.getCommentKey(name)];
 }
 function getHiddenAnswerFlags(isSelfVisible: boolean, isContainerVisible: boolean): number {
   return (isSelfVisible ? HIDDEN_ANSWER_SELF : 0) | (isContainerVisible ? HIDDEN_ANSWER_CONTAINER : 0);
@@ -4506,7 +4505,7 @@ function isRecordCleanupSkipped(template: Question): boolean {
 function getRecordCleanupKeys(template: Question): Array<string> {
   const res: Array<string> = [];
   const questions = template.isDescendantOf("selectbase") ? template.getNestedQuestions(false, true, true) : [template];
-  questions.forEach((q: Question): void => { res.push(q.getValueName(), q.getValueName() + settings.commentSuffix); });
+  questions.forEach((q: Question): void => { res.push(q.getValueName(), Helpers.getCommentKey(q.getValueName())); });
   return res;
 }
 function isRecordCleanupByObject(template: Question, container: PanelModelBase): boolean {

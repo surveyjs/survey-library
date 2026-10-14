@@ -7777,7 +7777,7 @@ export class SurveyModel extends SurveyElementCore
     if (!parentQ) return undefined;
     const options = parentQ.getValueChangingOptions(q);
     if (options && isComment) {
-      options.name = q.name + this.commentSuffix;
+      options.name = Helpers.getCommentKey(q.name);
     }
     return options;
   }
@@ -7922,7 +7922,7 @@ export class SurveyModel extends SurveyElementCore
    * @see setComment
    */
   public getComment(name: string): string {
-    const res = this.getValue(name + this.commentSuffix);
+    const res = this.getValue(Helpers.getCommentKey(name));
     return res || "";
   }
   /**
@@ -7935,7 +7935,7 @@ export class SurveyModel extends SurveyElementCore
   public setComment(name: string, newValue: string, locNotification: boolean | "text" = false): void {
     if (!newValue) newValue = "";
     if (this.isTwoValueEquals(newValue, this.getComment(name))) return;
-    const commentName = name + this.commentSuffix;
+    const commentName = Helpers.getCommentKey(name);
     newValue = this.questionOnValueChanging(commentName, newValue, name);
     const oldValue = this.getComment(name);
     locNotification = this.getLocNotification(locNotification, newValue, oldValue);

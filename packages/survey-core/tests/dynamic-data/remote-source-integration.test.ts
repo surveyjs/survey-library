@@ -5880,6 +5880,45 @@ describe("Remote data source: a validated navigation waits for the question's pe
     expect(completed, "#6").toEqual([true]);
     expect(survey.state, "#7").toBe("completed");
   });
+  test("a read started by the validation that a settled read runs again keeps the validation waiting until it settles", async () => {
+    const { survey, question, source } = await createSurvey([{ id: 1, col1: "a", col2: 1 }]);
+    let validateCount = 0;
+    survey.onValidateQuestion.add((_, options) => {
+      // The first call is the validation itself, the second one runs again once the first read settled.
+      if (options.name === "matrix" && ++validateCount === 2) question.refreshDataSource();
+    });
+    const answers: Array<boolean> = [];
+    survey.validate(false, false, (hasErrors: boolean) => { answers.push(hasErrors); });
+    expect(answers, "#1: waits for the first read").toEqual([]);
+    source.settleAll();
+    await flush();
+    expect(validateCount, "#2: validated again").toBe(2);
+    expect(source.pending.length, "#3: the second read is pending").toBe(1);
+    expect(answers, "#4: waits for the second read").toEqual([]);
+    source.settleAll();
+    await flush();
+    expect(answers, "#5: answered once").toEqual([false]);
+  });
+  test("a source assigned by the error handler of a source being assigned answers a waiting validation once the outer assignment ends", async () => {
+    const { survey, question } = await createSurvey([{ id: 1, col1: "a", col2: 1 }]);
+    const answers: Array<boolean> = [];
+    survey.validate(false, false, (hasErrors: boolean) => { answers.push(hasErrors); });
+    expect(answers, "#1: waits for the first read").toEqual([]);
+    const failing = ArrayDynamicDataSource.fromArray([{ id: 2, col1: "b" }]);
+    vi.spyOn(failing, "read").mockImplementation((): Array<any> => { throw new Error("read"); });
+    const second = ArrayDynamicDataSource.fromArray([{ id: 3, col1: "c" }, { id: 4, col1: "d" }]);
+    const answersInHandler: Array<Array<boolean>> = [];
+    survey.onDynamicDataError.add(() => {
+      if (question.dataSource === second) return;
+      question.dataSource = second;
+      answersInHandler.push(answers.slice());
+    });
+    question.dataSource = failing;
+    expect(answersInHandler, "#2: the outer assignment was still running").toEqual([[]]);
+    expect(question.dataSource, "#3").toBe(second);
+    expect(question.visibleRows.map(row => row.getValue("col1")), "#4").toEqual(["c", "d"]);
+    expect(answers, "#5: answered once").toEqual([false]);
+  });
 });
 
 describe("Remote data source: the survey learns of pending writes from the records questions", () => {

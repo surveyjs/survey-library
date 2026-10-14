@@ -66,7 +66,7 @@ export class SurveyQuestionRadioItem extends SurveyQuestionSelectBaseItem {
     var itemClass = this.question.getItemClass(this.item);
     var labelClass = this.question.getLabelClass(this.item);
     var controlLabelClass = this.question.getControlLabelClass(this.item);
-    const itemLabel = !this.hideCaption ? <span className={controlLabelClass} id={this.question.getItemLabelId(this.item)} aria-hidden={this.question.isItemLabelAriaHidden ? "true" : undefined}>{this.renderLocString(this.item.locText, this.textStyle)}</span> : null;
+    const itemLabel = !this.hideCaption ? <span className={controlLabelClass}>{this.renderLocString(this.item.locText, this.textStyle)}</span> : null;
     return (
       <div
         className={itemClass}
@@ -86,9 +86,7 @@ export class SurveyQuestionRadioItem extends SurveyQuestionSelectBaseItem {
             readOnly={this.question.isReadOnlyAttr}
             onChange={this.handleOnChange}
             onKeyDown={this.handleOnKeyDown}
-            aria-label={this.ariaLabel}
-            aria-labelledby={!this.ariaLabel && !this.hideCaption ? this.question.getItemLabelId(this.item) : undefined}
-          />
+            aria-label={this.ariaLabel}          />
           {
             this.cssClasses.materialDecorator ?
               <span className={this.cssClasses.materialDecorator} aria-hidden="true">

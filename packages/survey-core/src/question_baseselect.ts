@@ -508,7 +508,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   protected validateElementCore(context: ValidationContext): boolean {
     // Read when the validation starts: an async validator that settles later never clears.
     if (context.isOnValueChanged !== true && context.clearIncorrectValues && this.getClearIfInvisible() !== "none") {
-      this.clearIncorrectValues();
+      this.clearIncorrectOwnValue();
     }
     let res = true;
     if (!this.isChoicePanelsValidationSuppressed) {
@@ -939,7 +939,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
     if (hasChanges) {
       this.onVisibleChoicesChanged();
-      this.clearIncorrectValues();
+      this.clearIncorrectOwnValue();
     }
     return hasChanges;
   }
@@ -2101,7 +2101,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     // The same write reached updateDependedQuestion already, which recorded the projection it used.
     if (!!name && chQuestion && (name === chQuestion || questionName === chQuestion) && !this.isArrayChoicesSourceUnchanged()) {
       this.onVisibleChoicesChanged();
-      this.clearIncorrectValues();
+      this.clearIncorrectOwnValue();
     }
   }
   public updateValueFromSurvey(newValue: any, clearData: boolean): void {
@@ -2329,7 +2329,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   protected updateDependedQuestion(): void {
     if (this.isArrayChoicesSourceUnchanged()) return;
     this.onVisibleChoicesChanged();
-    this.clearIncorrectValues();
+    this.clearIncorrectOwnValue();
   }
   onSurveyValueChanged(newValue: any): void {
     super.onSurveyValueChanged(newValue);
@@ -2405,7 +2405,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   private isValueShapeCorrect(val: any): boolean {
     return Array.isArray(val) === (this.getValueType() === "array");
   }
-  public clearIncorrectValues(): void {
+  /* The answer only. The questions of the choice panels are cleaned by clearIncorrectValues() after it,
+     even when the answer had a wrong shape: they store at the root. The question's own clean-ups below call
+     this one and keep their scope. */
+  protected clearIncorrectOwnValue(): void {
     if (!this.isEmpty() && !this.isValueShapeCorrect(this.value)) {
       this.clearValue(true);
       return;
@@ -2441,7 +2444,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   }
   protected clearValueIfInvisibleCore(reason: string): void {
     super.clearValueIfInvisibleCore(reason);
-    this.clearIncorrectValues();
+    this.clearIncorrectOwnValue();
     this.clearValuesInVisiblePanels(reason);
   }
   /* The clearIncorrectValues part, over the question's own choices: a known answer stays and an unknown

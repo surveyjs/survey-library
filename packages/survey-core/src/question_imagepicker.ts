@@ -150,7 +150,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     if (!imageItemValue.imageLink || imageItemValue.contentNotLoaded) return false;
     return super.getItemEnabled(item);
   }
-  public clearIncorrectValues() {
+  protected clearIncorrectOwnValue(): void {
     if (this.multiSelect) {
       var val = this.value;
       if (!val) return;
@@ -171,7 +171,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
         this.value = newValue;
       }
     } else {
-      super.clearIncorrectValues();
+      super.clearIncorrectOwnValue();
     }
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {

@@ -720,6 +720,26 @@ describe("setData: validate() is unchanged, clearIncorrectValues() removes what 
       expect(survey.setData(survey.data), label + ": nothing left after clearing").toEqual([]);
     });
   });
+  test("What setData() reports in choice panels and in custom and composite content, clearIncorrectValues(true) removes", () => {
+    ComponentCollection.Instance.add({ name: "cleancustom", questionJSON: { type: "dropdown", choices: ["a"] } });
+    ComponentCollection.Instance.add({ name: "cleancomposite", elementsJSON: [{ type: "dropdown", name: "inner", choices: ["a"] }] });
+    const choicePanel = { value: "a", elements: [{ type: "text", name: "n", inputType: "number" }, { type: "dropdown", name: "inner", choices: ["x"] }] };
+    const cases: Array<[string, any, any, any]> = [
+      ["choice panel, the choice selected", { type: "checkbox", choices: [choicePanel, "b"] }, { q: ["a"], inner: "z", n: "bad" }, { q: ["a"] }],
+      ["choice panel, another choice selected", { type: "checkbox", choices: [choicePanel, "b"] }, { q: ["b"], inner: "z", n: "bad" }, { q: ["b"] }],
+      ["choice panel of a radiogroup", { type: "radiogroup", choices: [choicePanel, "b"] }, { q: "a", inner: "z", n: "bad" }, { q: "a" }],
+      ["custom question content", { type: "cleancustom" }, { q: "z" }, {}],
+      ["composite question content panel", { type: "cleancomposite" }, { q: { inner: "z" } }, {}]
+    ];
+    cases.forEach(([label, question, data, cleaned]) => {
+      const survey = createQuestionSurvey(question);
+      expect(survey.setData(data).length > 0, label + ": reported by setData()").toBe(true);
+      survey.clearIncorrectValues(true);
+      expect(survey.data, label + ": cleared").toEqual(cleaned);
+      expect(survey.setData(survey.data), label + ": nothing left after clearing").toEqual([]);
+    });
+    ComponentCollection.Instance.clear();
+  });
   test("validate() on a select question still clears an unknown choice, as it always did", () => {
     const survey = createSurvey({ elements: [{ type: "dropdown", name: "q", choices: ["a"] }] });
     survey.setData({ q: "z" });

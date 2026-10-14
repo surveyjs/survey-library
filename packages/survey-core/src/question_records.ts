@@ -555,7 +555,13 @@ export abstract class QuestionRecordsModel extends Question {
      (clearIncorrectValuesWithoutObjects). */
   public clearIncorrectValues(): void {
     if (this.isRemoteData) return;
+    super.clearIncorrectValues();
+  }
+  protected clearIncorrectOwnValue(): void {
     this.clearIncorrectValueInData();
+  }
+  // Record-aware: an object judges the record it holds, and a record without one is judged by a temporary object.
+  protected clearIncorrectNestedValues(): void {
     this.clearIncorrectValuesInObjects();
     this.clearIncorrectValuesWithoutObjects();
   }

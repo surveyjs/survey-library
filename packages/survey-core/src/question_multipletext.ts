@@ -650,10 +650,6 @@ export class QuestionMultipleTextModel extends Question
     });
     this.value = newValue;
   }
-  public clearIncorrectValues(): void {
-    super.clearIncorrectValues();
-    this.items.forEach(item => item.editor.clearIncorrectValues());
-  }
   supportAutoAdvance(): boolean {
     for (var i = 0; i < this.items.length; i++) {
       if (this.items[i].isEmpty()) return false;

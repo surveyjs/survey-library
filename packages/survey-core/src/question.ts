@@ -3414,6 +3414,11 @@ export class Question extends SurveyElement<Question>
    * @see validate
    */
   public clearIncorrectValues(): void {
+    this.clearIncorrectOwnValue();
+    this.clearIncorrectNestedValues();
+  }
+  // The question's own value, nested values excluded.
+  protected clearIncorrectOwnValue(): void {
     // Clearing is not affected by the checks of validate(): an unknown key is removed even when
     // nobody asks validate() to report it. keepIncorrectValues is still honored by the question types.
     if (this.isValueCorrectToClear()) return;
@@ -3421,6 +3426,13 @@ export class Question extends SurveyElement<Question>
     if (!this.isEmpty()) {
       this.clearIncorrectValuesCore();
     }
+  }
+  // The values of the nested instances, wherever they live: what setData() reports there, this removes.
+  // The total row is computed and is not cleaned.
+  protected clearIncorrectNestedValues(): void {
+    this.forEachNestedElement(info => {
+      if (info.role !== "total") info.element.clearIncorrectValues();
+    }, { build: "none", visibleOnly: false });
   }
   protected isValueCorrectToClear(): boolean {
     return !this.hasIncorrectValue(this.getClearIncorrectValuesChecks());

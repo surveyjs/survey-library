@@ -451,9 +451,8 @@ const expectedReach: { [walk: string]: { reached: Array<string>, builds?: Array<
     builds: ["md.cell", "md.hiddenRowCell", "md.detail", "md.detail.pd.item", "mx.cell", "mx.hiddenRowCell"]
   },
   // total row: not cleaned. dropdown matrix hidden row: the matrix drops the answer of a hidden row, so no cell of it is judged.
-  // custom content, composite content, choice panels: the container cleans its own value only.
   "clearIncorrectValues": {
-    reached: ["md.detail.pd.item", "pd.item", "pd.hiddenItem", "pd.static", "mt.editor"],
+    reached: ["md.detail.pd.item", "pd.item", "pd.hiddenItem", "pd.static", "pd.choicePanel", "mt.editor", "cu.content", "cp.content", "cp.nested", "cb.shownPanel", "cb.hiddenPanel", "rg.panel"],
     builds: ["md.cell", "md.hiddenRowCell", "md.detail", "mx.cell"]
   },
   "runCondition": {

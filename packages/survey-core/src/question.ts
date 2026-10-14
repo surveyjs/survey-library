@@ -239,6 +239,45 @@ export interface IVerifyDataContext {
   // The issue is dropped when one with the same type and segments is already in the list: two
   // questions that share a valueName walk the same value and can find the same thing.
   addIssue(type: DataIssueType, lastSegment: string | number | undefined, value: any, question: Question, expressionResult?: any): void;
+  // Runs fn with an empty segment stack and restores the stack after it: the walk into an element
+  // whose values are root keys of the survey data (NestedElementLocation "root").
+  runAtRoot(fn: () => void): void;
+}
+
+// The nested element instances a container question owns, see Question.forEachNestedElement().
+// Internal: not re-exported from entries/.
+// cell, detail, total: a matrix row's cell questions, its detail panel, the total row's cell questions.
+// item: the panel of a dynamic panel item. editor: a multiple text item's editor. content: the content
+// question of a custom question or the content panel of a composite. choicePanel: the panel of a choice.
+export type NestedElementRole = "cell" | "detail" | "total" | "item" | "editor" | "content" | "choicePanel";
+export type NestedElementLocation =
+  // The value is inside the container's value: container segments, then `segment` when defined,
+  // then the element's own value name. Cells, detail panels, panel items, editors, composite content.
+  | "nested"
+  // The element holds the container's own value and adds no key: the content question of a custom
+  // question (its getDataSegment() is undefined).
+  | "same"
+  // The value is a root key of the survey data: the questions of a choice panel, whose panel is bound
+  // to the survey (ChoiceItem.setPanelSurvey). Addressed from an empty segment stack.
+  | "root";
+export interface INestedElementInfo {
+  element: Question | PanelModel;
+  role: NestedElementRole;
+  // The record segment of a matrix row, the record index of a dynamic panel item; undefined otherwise.
+  segment: string | number | undefined;
+  location: NestedElementLocation;
+  // The container's own sense of visible: row.isVisible, membership in visiblePanelsCore,
+  // item.isPanelShowing. Always true for editors, content and the total row.
+  visible: boolean;
+}
+// "none": the items that exist; nothing is built. "rows": what the visibleRows getter gives (it
+// generates rows, drops rows hidden by rowsVisibleIf and gives nothing under isUpdateLocked); kept for
+// the callers that read visibleRows. "all": allRows with every detail panel ensured, panels.
+export type NestedWalkBuild = "none" | "rows" | "all";
+export interface INestedWalkOptions {
+  build: NestedWalkBuild;
+  // Skip children whose `visible` is false.
+  visibleOnly: boolean;
 }
 
 // Strict, never Helpers.isTwoValueEquals(): the number 0 and the string "0" are different segments.
@@ -262,6 +301,15 @@ class VerifyDataContext implements IVerifyDataContext {
   }
   public popSegment(): void {
     this.segments.pop();
+  }
+  public runAtRoot(fn: () => void): void {
+    const segments = this.segments;
+    this.segments = [];
+    try {
+      fn();
+    } finally {
+      this.segments = segments;
+    }
   }
   public addIssue(type: DataIssueType, lastSegment: string | number | undefined, value: any, question: Question, expressionResult?: any): void {
     if (this.stopOnFirst && this.hasIssues) return;
@@ -2718,6 +2766,16 @@ export class Question extends SurveyElement<Question>
   protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
     questions.push(this);
   }
+  /* The structure of a container: every nested element instance it owns, once, with its role, its
+     record segment, where its value lives and whether the container shows it. Instances only: the
+     definitions (a dynamic panel's template, matrix columns, choice items) stay with the walks that
+     need them. Each walk decides what to do at the boundary. */
+  protected forEachNestedElement(visit: (info: INestedElementInfo) => void, options: INestedWalkOptions): void {
+    const func = options.visibleOnly ? (info: INestedElementInfo): void => { if (info.visible) visit(info); } : visit;
+    this.forEachNestedElementCore(func, options.build);
+  }
+  // A container type overrides this; a question without nested instances yields nothing.
+  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void { }
   addNestedQuestion(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf?: boolean): void {
     if (includeNested) {
       this.collectNestedQuestions(questions, visibleOnly, includeNested, includeItSelf);

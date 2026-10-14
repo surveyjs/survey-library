@@ -11,7 +11,7 @@ import {
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
-import { Question, IConditionObject, ValidationContext, QuestionValueType, IVerifyDataContext } from "./question";
+import { Question, IConditionObject, ValidationContext, QuestionValueType, IVerifyDataContext, INestedElementInfo, NestedWalkBuild } from "./question";
 import { QuestionTextModel, isMinMaxType } from "./question_text";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -631,6 +631,9 @@ export class QuestionMultipleTextModel extends Question
       context.addIssue("unknownProperty", key, val[key], this);
     });
     return true;
+  }
+  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
+    this.items.forEach(item => visit({ element: item.editor, role: "editor", segment: undefined, location: "nested", visible: true }));
   }
   public initializeForVerification(): void {
     this.items.forEach(item => item.editor.initializeForVerification());

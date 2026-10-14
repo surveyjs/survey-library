@@ -1,6 +1,6 @@
 import { JsonObject, CustomPropertiesCollection, Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { Question, IConditionObject, IQuestionPlainData, IVerifyDataContext } from "./question";
+import { Question, IConditionObject, IQuestionPlainData, IVerifyDataContext, INestedElementInfo, NestedWalkBuild } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import { IElement, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks } from "./base-interfaces";
@@ -1839,6 +1839,35 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   private getRowDataSegment(position: number): string | number {
     const index = this.getRecordIndexAtRowPosition(position);
     return (<IRecordsAnswerShape><any>this.recordsSource).getRecordSegment(index > -1 ? index : position);
+  }
+  // The rows, then the cells of the total row when it is generated, in every build mode.
+  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
+    super.forEachNestedElementCore(visit, build);
+    const totalRow = this.generatedTotalRow;
+    if (!totalRow) return;
+    totalRow.cells.forEach(cell => {
+      if (!!cell?.question) visit({ element: cell.question, role: "total", segment: undefined, location: "nested", visible: true });
+    });
+  }
+  // "none": the generated rows; "rows": visibleRows; "all": allRows. visibleRows drops the rows rowsVisibleIf hides.
+  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: QuestionRecordItem, position: number, visible: boolean) => void): void {
+    const rows = build === "rows" ? this.visibleRows : (build === "all" ? this.allRows : this.generatedVisibleRows);
+    if (!Array.isArray(rows)) return;
+    const created = this.generatedVisibleRows;
+    rows.forEach((row, index) => {
+      func(row, rows === created ? index : created.indexOf(row), row.isVisible);
+    });
+  }
+  // The cells, then the detail panel; "all" creates the detail panel after the cells, as the verification always did.
+  protected forEachNestedElementOfItem(item: QuestionRecordItem, position: number, visible: boolean,
+    build: NestedWalkBuild, visit: (info: INestedElementInfo) => void): void {
+    const row = <MatrixDropdownRowModelBase>item;
+    const segment = this.getRowDataSegment(position);
+    row.cells.forEach(cell => {
+      if (!!cell?.question) visit({ element: cell.question, role: "cell", segment: segment, location: "nested", visible: visible });
+    });
+    if (build === "all") row.ensureDetailPanel();
+    if (!!row.detailPanel) visit({ element: row.detailPanel, role: "detail", segment: segment, location: "nested", visible: visible });
   }
   public initializeForVerification(): void {
     const rows = this.allRows;

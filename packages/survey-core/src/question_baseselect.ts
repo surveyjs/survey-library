@@ -3,7 +3,7 @@ import { property, propertyArray } from "./decorators";
 import { SurveyError } from "./survey-error";
 import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement, IPanel, ISurveyChoiceCallbacks } from "./base-interfaces";
 import { SurveyModel } from "./survey";
-import { IQuestionPlainData, Question, QuestionValueType, getScalarValueType, IVerifyDataContext } from "./question";
+import { IQuestionPlainData, Question, QuestionValueType, getScalarValueType, IVerifyDataContext, INestedElementInfo, NestedWalkBuild } from "./question";
 import { ItemValue } from "./itemvalue";
 import { getLocaleString } from "./surveyStrings";
 import { OtherEmptyError } from "./error";
@@ -383,6 +383,17 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       }
     });
     return res;
+  }
+  /* Every choice panel that is created, empty ones included, as getPanels() and disposal see them. A
+     panel is created by JSON elements or by reading item.panel, and it stays created after its last
+     element is removed; item.panel is never read on an item without one, because reading creates it. */
+  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
+    if (!this.supportElementsInChoice()) return;
+    this.choices.forEach((item) => {
+      if (item.isPanelCreated) {
+        visit({ element: item.panel, role: "choicePanel", segment: undefined, location: "root", visible: item.isPanelShowing });
+      }
+    });
   }
   private getVisiblePanels(isVisible: boolean): Array<PanelModel> {
     if (!this.supportElementsInChoice()) return null;

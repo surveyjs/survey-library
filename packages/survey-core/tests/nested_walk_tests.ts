@@ -82,6 +82,8 @@ function prepareEmptyChoicePanels(survey: SurveyModel): { read: PanelModel, empt
 function createSurvey(paged: boolean = false): SurveyModel {
   const survey = new SurveyModel(createJson(paged));
   survey.data = createData();
+  // Three visible panels, so that the dynamic panel has a page 2.
+  if (paged) survey.setValue("pd", [{ pdItem: "p1" }, { pdItem: "p2" }, { pdItem: "p3" }]);
   prepareEmptyChoicePanels(survey);
   return survey;
 }
@@ -235,14 +237,14 @@ const parityExpected: { [state: string]: any } = {
   "paged": {
     md: { "all": "mdCell,mdDetail,mdDetailPd", "all+self": "md,mdCell,mdDetail,mdDetailPd", "all+nested": "mdCell,mdDetail", "all+nested+self": "md,mdCell,mdDetail,mdDetailPd", "visible": "mdCell,mdDetail,mdDetailPd", "visible+self": "md,mdCell,mdDetail,mdDetailPd", "visible+nested": "mdCell,mdDetail", "visible+nested+self": "md,mdCell,mdDetail,mdDetailPd" },
     mx: { "all": "mxCell", "all+self": "mx,mxCell", "all+nested": "mxCell", "all+nested+self": "mx,mxCell", "visible": "mxCell", "visible+self": "mx,mxCell", "visible+nested": "mxCell", "visible+nested+self": "mx,mxCell" },
-    pd: { "all": "pdItem,pdStaticQ,pdChoice", "all+self": "pd,pdItem,pdStaticQ,pdChoice", "all+nested": "pdItem,pdStaticQ,pdChoice,pdChoiceInner", "all+nested+self": "pd,pdItem,pdStaticQ,pdChoice,pdChoiceInner", "visible": "pdItem,pdStaticQ,pdChoice", "visible+self": "pd,pdItem,pdStaticQ,pdChoice", "visible+nested": "pdItem,pdStaticQ,pdChoice,pdChoiceInner", "visible+nested+self": "pd,pdItem,pdStaticQ,pdChoice,pdChoiceInner" },
+    pd: { "all": "pdItem,pdStaticQ,pdChoice", "all+self": "pd,pdItem,pdStaticQ,pdChoice", "all+nested": "pdItem,pdStaticQ,pdChoice,pdChoiceInner", "all+nested+self": "pd,pdItem,pdStaticQ,pdChoice,pdChoiceInner", "visible": "pdItem,pdStaticQ,pdChoice", "visible+self": "pd,pdItem,pdStaticQ,pdChoice", "visible+nested": "pdItem,pdStaticQ,pdChoice", "visible+nested+self": "pd,pdItem,pdStaticQ,pdChoice" },
     mt: { "all": "mtEditor", "all+self": "mt,mtEditor", "all+nested": "mtEditor", "all+nested+self": "mt,mtEditor", "visible": "mtEditor", "visible+self": "mt,mtEditor", "visible+nested": "mtEditor", "visible+nested+self": "mt,mtEditor" },
     cu: { "all": "", "all+self": "cu", "all+nested": "", "all+nested+self": "cu", "visible": "", "visible+self": "cu", "visible+nested": "", "visible+nested+self": "cu" },
     cp: { "all": "cpInner,cpNested", "all+self": "cp,cpInner,cpNested", "all+nested": "cpInner,cpNested", "all+nested+self": "cp,cpInner,cpNested", "visible": "cpInner,cpNested", "visible+self": "cp,cpInner,cpNested", "visible+nested": "cpInner,cpNested", "visible+nested+self": "cp,cpInner,cpNested" },
     cb: { "all": "", "all+self": "cb", "all+nested": "cb,cbShown,cbHidden", "all+nested+self": "cb,cbShown,cbHidden", "visible": "", "visible+self": "cb", "visible+nested": "cb,cbShown", "visible+nested+self": "cb,cbShown" },
     rg: { "all": "", "all+self": "rg", "all+nested": "rg,rgInner", "all+nested+self": "rg,rgInner", "visible": "", "visible+self": "rg", "visible+nested": "rg,rgInner", "visible+nested+self": "rg,rgInner" },
     "survey: all": "root,md,mdCell,mdDetail,mdDetailPd,mx,mxCell,pd,pdItem,pdStaticQ,pdChoice,pdChoiceInner,mt,mtEditor,cu,cp,cpInner,cpNested,cb,cbShown,cbHidden,rg,rgInner",
-    "survey: visible": "root,md,mdCell,mdDetail,mdDetailPd,mx,mxCell,pd,pdItem,pdStaticQ,pdChoice,pdChoiceInner,mt,mtEditor,cu,cp,cpInner,cpNested,cb,cbShown,rg,rgInner"
+    "survey: visible": "root,md,mdCell,mdDetail,mdDetailPd,mx,mxCell,pd,pdItem,pdStaticQ,pdChoice,mt,mtEditor,cu,cp,cpInner,cpNested,cb,cbShown,rg,rgInner"
   }
 };
 
@@ -645,5 +647,79 @@ describe("A select question in a dynamic panel item updates its choice panel fro
     expect(inner().value, "the item's key is read").toBe("fromItem");
     survey.setValue("inner", "w");
     expect(inner().value, "a root change is not seen").toBe("fromItem");
+  });
+});
+
+describe("forEachNestedElement(): the instances every container yields", () => {
+  function yielded(q: any, build: string, visibleOnly: boolean = false): Array<string> {
+    const res: Array<string> = [];
+    q.forEachNestedElement((info: any) => {
+      const el = info.element;
+      const name = el.isPanel ? "panel(" + el.questions.map((pq: Question) => pq.name).join(",") + ")" : el.name;
+      res.push([info.role, name, String(info.segment), info.location, info.visible ? "visible" : "hidden"].join(" "));
+    }, { build: build, visibleOnly: visibleOnly });
+    return res;
+  }
+  test("a role, a record segment, where the value lives and whether the container shows it", () => {
+    const survey = createSurvey();
+    buildAll(survey);
+    const get = (name: string): any => survey.getQuestionByName(name);
+    expect(yielded(get("md"), "none")).toEqual([
+      "cell mdCell 0 nested visible", "detail panel(mdDetail,mdDetailPd) 0 nested visible",
+      "cell mdCell 1 nested hidden", "detail panel(mdDetail,mdDetailPd) 1 nested hidden",
+      "cell mdCell 2 nested visible", "detail panel(mdDetail,mdDetailPd) 2 nested visible",
+      "total mdCell undefined nested visible"
+    ]);
+    expect(yielded(get("md"), "rows"), "visibleRows drops the hidden row whatever visibleOnly says").toEqual([
+      "cell mdCell 0 nested visible", "detail panel(mdDetail,mdDetailPd) 0 nested visible",
+      "cell mdCell 2 nested visible", "detail panel(mdDetail,mdDetailPd) 2 nested visible",
+      "total mdCell undefined nested visible"
+    ]);
+    expect(yielded(get("mx"), "none"), "a dropdown matrix row's segment is its row value").toEqual([
+      "cell mxCell r1 nested visible", "cell mxCell r2 nested hidden"
+    ]);
+    expect(yielded(get("pd"), "none")).toEqual([
+      "item panel(pdItem,pdStaticQ,pdChoice) 0 nested visible", "item panel(pdItem,pdStaticQ,pdChoice) 1 nested hidden"
+    ]);
+    expect(yielded(get("pd"), "none", true), "visibleOnly").toEqual(["item panel(pdItem,pdStaticQ,pdChoice) 0 nested visible"]);
+    expect(yielded(get("mt"), "none")).toEqual(["editor mtEditor undefined nested visible"]);
+    expect(yielded(get("cu"), "none")).toEqual(["content " + get("cu").contentQuestion.name + " undefined same visible"]);
+    expect(yielded(get("cp"), "none")).toEqual(["content panel(cpInner,cpNested) undefined nested visible"]);
+    expect(yielded(get("cb"), "none"), "every created choice panel, empty ones included").toEqual([
+      "choicePanel panel(cbShown) undefined root visible", "choicePanel panel(cbHidden) undefined root hidden",
+      "choicePanel panel() undefined root hidden", "choicePanel panel() undefined root hidden"
+    ]);
+    expect(yielded(get("rg"), "none"), "showing a choice reads its panel, which creates it").toEqual([
+      "choicePanel panel(rgInner) undefined root visible", "choicePanel panel() undefined root hidden"
+    ]);
+    expect(yielded(get("root"), "all"), "a question without nested instances yields nothing").toEqual([]);
+  });
+  test("build modes: \"none\" builds nothing, \"rows\" generates the rows, \"all\" creates the detail panels and the panels", () => {
+    const survey = createSurvey();
+    const md: any = survey.getQuestionByName("md");
+    expect(yielded(md, "none"), "no rows yet; the total row exists").toEqual(["total mdCell undefined nested visible"]);
+    expect(yielded(md, "rows"), "rows, no detail panels").toEqual([
+      "cell mdCell 0 nested visible", "cell mdCell 2 nested visible", "total mdCell undefined nested visible"
+    ]);
+    expect(yielded(md, "all")).toEqual([
+      "cell mdCell 0 nested visible", "detail panel(mdDetail,mdDetailPd) 0 nested visible",
+      "cell mdCell 1 nested hidden", "detail panel(mdDetail,mdDetailPd) 1 nested hidden",
+      "cell mdCell 2 nested visible", "detail panel(mdDetail,mdDetailPd) 2 nested visible",
+      "total mdCell undefined nested visible"
+    ]);
+    md.beginUpdate();
+    expect(yielded(md, "rows"), "visibleRows gives nothing under beginUpdate()").toEqual(["total mdCell undefined nested visible"]);
+    md.endUpdate();
+  });
+  test("under paging a segment is the record a row or a panel holds, not its position on the page", () => {
+    const survey = createSurvey(true);
+    const md: any = survey.getQuestionByName("md");
+    const pd: any = survey.getQuestionByName("pd");
+    md.visibleRows;
+    pd.panels;
+    md.pageIndex = 1;
+    pd.pageIndex = 1;
+    expect(yielded(md, "rows")).toEqual(["cell mdCell 2 nested visible", "total mdCell undefined nested visible"]);
+    expect(yielded(pd, "all")).toEqual(["item panel(pdItem,pdStaticQ,pdChoice) 1 nested visible"]);
   });
 });

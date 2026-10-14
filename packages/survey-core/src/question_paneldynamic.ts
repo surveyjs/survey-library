@@ -14,7 +14,7 @@ import {
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
 import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
-import { Question, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType, IVerifyDataContext } from "./question";
+import { Question, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType, IVerifyDataContext, INestedElementInfo, NestedWalkBuild } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -2593,6 +2593,19 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const panel = !!item ? (<QuestionPanelDynamicItem>item).panel : this.template;
     return !!panel.getQuestionByValueName(key) || this.iscorrectValueWithPostPrefix(panel, key, settings.commentSuffix) ||
       this.iscorrectValueWithPostPrefix(panel, key, settings.matrix.totalsSuffix);
+  }
+  // "none" and "rows": the panels that exist; "all": panels, which builds them.
+  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: QuestionRecordItem, position: number, visible: boolean) => void): void {
+    const panels = build === "all" ? this.panels : this.panelsCore;
+    const visiblePanels = new Set<PanelModel>(this.visiblePanelsCore);
+    panels.forEach((panel, position) => {
+      func(<QuestionPanelDynamicItem>panel.data, position, visiblePanels.has(panel));
+    });
+  }
+  protected forEachNestedElementOfItem(item: QuestionRecordItem, position: number, visible: boolean,
+    build: NestedWalkBuild, visit: (info: INestedElementInfo) => void): void {
+    const segment = this.getRecordIndexAtCreatedPosition(position);
+    visit({ element: (<QuestionPanelDynamicItem>item).panel, role: "item", segment: segment, location: "nested", visible: visible });
   }
   public initializeForVerification(): void {
     this.panels.forEach(panel => panel.initializeForVerification());

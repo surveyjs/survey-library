@@ -985,43 +985,103 @@ describe("Survey", () => {
     expect(survey.progressText).toBe("Question 1 of 2");
     expect(survey.getProgress()).toBe(50);
   });
-  test("inputPerPage mode keeps the page progress type, the bar itself is hidden, Bug#11773", () => {
-    // The bar is not displayed in this mode at all (see the layout element tests), so there is
-    // nothing to remap: inputPerPage behaves exactly like the singlePage mode.
+  test("inputPerPage progress follows each input, including answered ones and the summary", () => {
     const survey = new SurveyModel({
       showProgressBar: true,
       questionsOnPageMode: "inputPerPage",
-      pages: [
-        { elements: [{ type: "text", name: "q1" }] },
-        { elements: [{ type: "text", name: "q2" }] }
+      elements: [
+        {
+          type: "paneldynamic", name: "panel1", panelCount: 1,
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" }
+          ]
+        },
+        { type: "text", name: "q3" }
       ]
     });
-    expect(survey.getEffectiveProgressBarType(), "effective type").toBe("pages");
-    expect(survey.progressText, "text").toBe("Page 1 of 2");
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    expect(survey.getProgressPosition(), "q1, q2, summary, q3").toEqual({ current: 1, total: 4 });
+    expect(survey.progressText).toBe("Question 1 of 4");
+    expect(survey.getProgress()).toBe(25);
+    panel.singleInputQuestion.value = "a";
+    expect(survey.getProgressPosition(), "an answered input stays in the total").toEqual({ current: 1, total: 4 });
+    survey.performNext();
+    expect(panel.singleInputQuestion.name, "second input").toBe("q2");
+    expect(survey.progressText).toBe("Question 2 of 4");
+    expect(survey.getProgress()).toBe(50);
+    survey.performNext();
+    expect(panel.singleInputQuestion.name, "summary").toBe("panel1");
+    expect(survey.progressText).toBe("Question 3 of 4");
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name, "question after the panel").toBe("q3");
+    expect(survey.progressText).toBe("Question 4 of 4");
+    expect(survey.getProgress()).toBe(100);
   });
-  test("An explicit questions progress type still works in inputPerPage mode, Bug#11773", () => {
+  test("inputPerPage adds a screen when a matrix row is added", () => {
     const survey = new SurveyModel({
       showProgressBar: true,
-      progressBarType: "questions",
       questionsOnPageMode: "inputPerPage",
       elements: [
         { type: "text", name: "q1" },
         {
           type: "matrixdynamic", name: "matrix", rowCount: 1,
-          columns: [{ cellType: "text", name: "col1" }, { cellType: "text", name: "col2" }]
+          columns: [{ cellType: "text", name: "col1" }]
         }
       ]
     });
-    expect(survey.progressText, "#1").toBe("Answered 0/3 questions");
-    survey.setValue("q1", "a");
-    expect(survey.progressText, "#2").toBe("Answered 1/3 questions");
-    expect(survey.getProgressInfo().questionCount, "#3").toBe(3);
+    expect(survey.getProgressPosition(), "q1, one cell, summary").toEqual({ current: 1, total: 3 });
     (<QuestionMatrixDynamicModel>survey.getQuestionByName("matrix")).addRow();
-    expect(survey.getProgressInfo().questionCount, "the new row cells are counted").toBe(5);
-    // the same as the "questions" type in the standard mode: the rendered text picks the new total
-    // up on the next update, adding a row alone does not reset it
     survey.updateProgressText();
-    expect(survey.progressText, "#4").toBe("Answered 1/5 questions");
+    expect(survey.getProgressPosition(), "the new cell is a screen").toEqual({ current: 1, total: 4 });
+  });
+  test("a static matrix row is one inputPerPage screen and a plain question is one screen", () => {
+    const survey = new SurveyModel({
+      showProgressBar: true,
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "matrix", name: "m1", columns: ["a", "b"], rows: ["r1", "r2"] }
+      ]
+    });
+    expect(survey.getProgressPosition(), "text plus two rows").toEqual({ current: 1, total: 3 });
+    survey.performNext();
+    expect(survey.progressText).toBe("Question 2 of 3");
+  });
+  test("inputPerPage counts questions inside a static panel separately", () => {
+    const survey = new SurveyModel({
+      showProgressBar: true,
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "panel", name: "p1", elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
+        { type: "text", name: "q3" }
+      ]
+    });
+    expect(survey.currentSingleQuestion.name).toBe("q1");
+    expect(survey.getProgressPosition()).toEqual({ current: 1, total: 3 });
+  });
+  test("inputPerPage counts each Multiple Text item and a nested choice question", () => {
+    const multipleText = new SurveyModel({
+      showProgressBar: true,
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "multipletext", name: "mt", items: [{ name: "a" }, { name: "b" }] },
+        { type: "text", name: "q1" }
+      ]
+    });
+    expect(multipleText.getProgressPosition(), "two items plus q1").toEqual({ current: 1, total: 3 });
+    const choice = new SurveyModel({
+      showProgressBar: true,
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "radiogroup", name: "q1", choices: ["item1", { value: "item2", elements: [{ type: "text", name: "nested1" }] }] },
+        { type: "text", name: "q2" }
+      ]
+    });
+    expect(choice.getProgressPosition(), "nested question is hidden until selected").toEqual({ current: 1, total: 2 });
+    choice.setValue("q1", "item2");
+    choice.updateProgressText();
+    expect(choice.getProgressPosition(), "q1, nested1, q2").toEqual({ current: 1, total: 3 });
   });
   test("explicit progressBarType is ignored in questionPerPage and kept in the JSON", () => {
     const json = {
@@ -1042,8 +1102,12 @@ describe("Survey", () => {
     expect(survey.toJSON().progressBarType, "JSON keeps the stored type").toBe("requiredQuestions");
 
     const survey2 = new SurveyModel({ ...json, questionsOnPageMode: "inputPerPage" });
-    expect(survey2.getEffectiveProgressBarType(), "inputPerPage, effective type").toBe("requiredQuestions");
-    expect(survey2.progressText, "inputPerPage, text").toBe("Answered 0/2 questions");
+    expect(survey2.progressBarType, "inputPerPage stored value").toBe("requiredQuestions");
+    expect(survey2.getEffectiveProgressBarType(), "inputPerPage, effective type").toBe("questions");
+    expect(survey2.progressText, "inputPerPage, text").toBe("Question 1 of 3");
+    expect(survey2.getProgress(), "inputPerPage, progress").toBe(33);
+    survey2.questionsOnPageMode = "standard";
+    expect(survey2.progressText, "standard uses the stored required type").toBe("Answered 0/2 questions");
 
     const survey3 = new SurveyModel({ ...json, progressBarType: "questions", questionsOnPageMode: "questionPerPage" });
     expect(survey3.progressText, "questions type is ignored").toBe("Question 1 of 3");

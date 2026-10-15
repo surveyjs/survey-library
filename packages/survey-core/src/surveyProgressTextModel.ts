@@ -171,7 +171,9 @@ export class SurveyProgressTextModel extends Base implements ILayoutElementModel
     // Progress makes no sense when the whole survey is shown as a single page and when a respondent
     // fills one input at a time, so the bar is hidden in these modes unless the author has asked for
     // the answered questions count explicitly.
-    const isProgressMeaningless = this.survey.questionsOnPageMode == "singlePage" || this.survey.isSingleVisibleInput;
+    // singlePage has no screen sequence. questionPerPage and inputPerPage share the
+    // screen-position bar, so inputPerPage is not hidden here.
+    const isProgressMeaningless = this.survey.questionsOnPageMode == "singlePage";
     if (isProgressMeaningless && this.survey.progressBarType != "questions") return false;
 
     const headerLayoutElement = this.survey.findLayoutElement("advanced-header");

@@ -426,9 +426,8 @@ describe("ProgressButtons", () => {
     survey.questionsOnPageMode = "questionPerPage";
     expect(survey.getProgressTypeComponent(), "questionPerPage").toBe("sv-progress-questions");
 
-    // inputPerPage does not remap the type - the bar is hidden there instead
     survey.questionsOnPageMode = "inputPerPage";
-    expect(survey.getProgressTypeComponent(), "inputPerPage").toBe("sv-progress-pages");
+    expect(survey.getProgressTypeComponent(), "inputPerPage").toBe("sv-progress-questions");
 
     survey.questionsOnPageMode = "standard";
     expect(survey.getProgressTypeComponent(), "back to standard").toBe("sv-progress-pages");

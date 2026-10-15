@@ -138,6 +138,9 @@ export class QuestionSingleInputBehavior {
     this.resetPropertyValue("singleInputLocTitle");
     this.calcSingleInputActions();
     this.survey?.updateNavigationElements();
+    if (this.survey?.isSingleVisibleInput() && this.survey.isSingleVisibleInput) {
+      this.survey.updateProgressText();
+    }
   }
 
   public resetSingleInputSummary(): void {
@@ -161,6 +164,22 @@ export class QuestionSingleInputBehavior {
   // false: a stored "self" is an ordinary first step that renders the question's own content.
   protected isSelfSummaryStep(): boolean {
     return true;
+  }
+
+  public getProgressScreenCount(): number {
+    return Math.max(1, this.getProgressScreens().length);
+  }
+  public getProgressScreenIndex(): number {
+    const screens = this.getProgressScreens();
+    if (screens.length < 2) return 0;
+    const current = this.singleInputQuestion;
+    if (!current) return 0;
+    const index = screens.indexOf(current);
+    return index < 0 ? 0 : index;
+  }
+  protected getProgressScreens(): Array<Question> {
+    if (!this.supportNestedSingleInput()) return [];
+    return this.getSingleInputQuestions();
   }
 
   public getSingleInputElementPos(): number {

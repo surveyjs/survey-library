@@ -3165,18 +3165,35 @@ export class SurveyModel extends SurveyElementCore
     if (val === "requiredquestion") return "requiredQuestion";
     return val;
   } }) progressBarType: string;
-  // questionPerPage walks one element per screen, so the linear bar shows that position.
-  // inputPerPage is still excluded here; Task 2 of the screen-position plan widens this.
+  // questionPerPage and inputPerPage walk one screen at a time, so the linear bar shows that position.
   // The returned "questions" value selects sv-progress-questions. It does not select
   // the answered-question formula. The stored progressBarType is left unchanged.
   public isSingleElementProgress(): boolean {
-    return !this.isDesignMode && this.isSingleVisibleQuestionVal(this.questionsOnPageMode);
+    return this.isSingleVisibleQuestion;
   }
   public getProgressPosition(): { current: number, total: number } {
     const elements = this.getSingleElements();
-    const index = elements.indexOf(this.currentSingleElement);
-    if (index < 0) return { current: 0, total: elements.length };
-    return { current: index + 1, total: elements.length };
+    if (!this.isSingleVisibleInput) {
+      const index = elements.indexOf(this.currentSingleElement);
+      if (index < 0) return { current: 0, total: elements.length };
+      return { current: index + 1, total: elements.length };
+    }
+    let total = 0;
+    let current = 0;
+    let found = false;
+    for (let i = 0; i < elements.length; i++) {
+      const el = elements[i];
+      const question = el.isQuestion ? <Question>el : undefined;
+      const count = question ? question.getProgressScreenCount() : 1;
+      if (!found && el === this.currentSingleElement) {
+        const inner = question ? question.getProgressScreenIndex() : 0;
+        current = total + inner + 1;
+        found = true;
+      }
+      total += count;
+    }
+    if (!found) return { current: 0, total: total };
+    return { current: current, total: total };
   }
   public getEffectiveProgressBarType(): string {
     if (this.isSingleElementProgress()) return "questions";

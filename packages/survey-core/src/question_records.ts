@@ -4671,6 +4671,14 @@ export abstract class QuestionRecordsSingleInputBehavior<TRecord extends ISingle
     (<IRecordItemOwner><any>this.recordsQuestion).addRecordFromUI();
   }
   protected abstract getRecords(): Array<TRecord>;
+  protected getProgressScreens(): Array<Question> {
+    const res = new Array<Question>();
+    this.getRecords().forEach(record => {
+      record.visibleQuestions.forEach(q => res.push(q));
+    });
+    res.push(this.question);
+    return res;
+  }
   // Not always a record: the lookup is also asked for the question itself and for its parents.
   protected abstract getRecordOfQuestion(question: Question): TRecord;
   protected abstract isRecordValid(record: TRecord): boolean;

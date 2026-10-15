@@ -1545,6 +1545,10 @@ export class Question extends SurveyElement<Question>
     }
     this.checkForResponsiveness(el);
   }
+  public beforeDestroy(): void {
+    super.beforeDestroy();
+    this.destroyResizeObserver();
+  }
   public afterRenderCore(element: HTMLElement): void {
     super.afterRenderCore(element);
   }

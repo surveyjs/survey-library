@@ -1903,6 +1903,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (build === "all") row.ensureDetailPanel();
     if (!!row.detailPanel) visit({ element: row.detailPanel, role: "detail", segment: segment, location: "nested", visible: visible });
   }
+  // A row has its detail panel after the panel was shown once; it renders it only while it shows it.
+  protected isNestedElementShown(item: NestedWalkItem, info: INestedElementInfo): boolean {
+    return super.isNestedElementShown(item, info) && (info.role !== "detail" || (<MatrixDropdownRowModelBase>item).isDetailPanelShowing);
+  }
   protected clearIncorrectValuesInObjects(): void {
     if (!Array.isArray(this.visibleRows)) return;
     const rows = this.generatedVisibleRows;

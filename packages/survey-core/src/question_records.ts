@@ -2,7 +2,7 @@ import { Base, ComputedUpdater } from "./base";
 import { IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
-import { IAnswerCleanupAtComplete, INestedElementInfo, IVerifyDataContext, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext } from "./question";
+import { IAnswerCleanupAtComplete, INestedElementInfo, IVerifyDataContext, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext, getNestedElementQuestions } from "./question";
 import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
@@ -3933,6 +3933,24 @@ export abstract class QuestionRecordsModel extends Question {
   /* The item at a position is focused once the objects of a committed read exist. Only a committed read
      of an assigned source reaches it; the default: nothing to focus (the fixed matrix has no source). */
   protected focusItemAfterRead(index: number): void { }
+  /* "Add" moves the focus into the new record: to the first question of its nested elements, in walk
+     order, a respondent can answer - shown, visible, in a visible container, with an input and not
+     read-only (Question.focus refuses a read-only one). position: as forEachNestedWalkItem gives it. */
+  protected focusNewRecord(item: NestedWalkItem, position: number, visible: boolean): void {
+    if (!item) return;
+    let res: Question = null;
+    this.forEachNestedElementOfItem(item, position, visible, "none", (info: INestedElementInfo): void => {
+      if (!!res || !this.isNestedElementShown(item, info)) return;
+      res = getNestedElementQuestions(info).filter(q => q.isVisible && q.isParentVisible && q.hasInput && !q.isReadOnly)[0] || null;
+    });
+    if (!!res) {
+      res.focus();
+    }
+  }
+  // Does the question render a nested element of an item? The default: whenever it shows the item.
+  protected isNestedElementShown(item: NestedWalkItem, info: INestedElementInfo): boolean {
+    return info.visible;
+  }
   /* The question defines which records exist and in what order (the rows of the fixed matrix) when its
      own source has no insert: the list it creates refuses to insert, remove or move one. */
   private isRecordMembershipFixed(): boolean {

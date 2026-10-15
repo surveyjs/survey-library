@@ -9,6 +9,7 @@ import { settings } from "../src/settings";
 import { CustomError } from "../src/error";
 import { ArrayDynamicDataSource } from "../src/dynamic-data/dynamic-data-sources";
 import { ItemValue } from "../src/itemvalue";
+import { SurveyElement } from "../src/survey-element";
 
 /* The record list and its helpers are created on demand. A matrix whose rows are fixed creates its
    list on the first cell edit, when the list is asked for and when it pages, sorts or filters - and on no other
@@ -1158,5 +1159,165 @@ describe("Records questions: public surface", () => {
     expect(matrix.toJSON().sortBy, "#2: the sort made at runtime is saved").toBe("b");
     const loaded = new SurveyModel(survey.toJSON());
     expect((<QuestionMatrixDynamicModel>loaded.getQuestionByName("md")).sortOrder, "#3: and loads back").toEqual([{ field: "b", direction: "asc" }]);
+  });
+});
+
+/* "Add" moves the focus into the new record: to its first question a respondent can answer - visible,
+   with an input and not read-only. The panel and the matrix pick it by the same rule, and a paged add
+   focuses the new record on the page it lands on. */
+describe("Records questions: the focus after an add", () => {
+  function trackFocus(func: (focused: Array<string>) => void): void {
+    const focused: Array<string> = [];
+    const oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: any): boolean {
+      focused.push(typeof elId === "string" ? elId : "<function>");
+      return true;
+    };
+    try {
+      func(focused);
+    } finally {
+      SurveyElement.FocusElement = oldFunc;
+    }
+  }
+  const panelJSON = (props: any): any => ({ elements: [Object.assign({
+    type: "paneldynamic", name: "q", panelCount: 1,
+    templateElements: [
+      { type: "html", name: "info" },
+      { type: "text", name: "id", readOnly: true },
+      { type: "text", name: "hidden", visible: false },
+      { type: "text", name: "name" }, { type: "text", name: "city" }]
+  }, props)] });
+  const matrixJSON = (props: any): any => ({ elements: [Object.assign({
+    type: "matrixdynamic", name: "q", rowCount: 1,
+    columns: [
+      { name: "id", cellType: "text", readOnly: true },
+      { name: "hidden", cellType: "text", visible: false },
+      { name: "name", cellType: "text" }, { name: "city", cellType: "text" }]
+  }, props)] });
+
+  test("panel: a read-only first question is skipped, the first answerable question is focused", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel(panelJSON({}));
+      const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+      const panel = q.addPanelUI();
+      expect(focused, "#1").toEqual([panel.getQuestionByName("name").inputId]);
+    });
+  });
+  test("panel: a question inside a nested panel is found, a question of a hidden nested panel is not", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel({ elements: [{
+        type: "paneldynamic", name: "q", panelCount: 1,
+        templateElements: [
+          { type: "text", name: "id", readOnly: true },
+          { type: "panel", name: "hiddenPanel", visible: false, elements: [{ type: "text", name: "skipped" }] },
+          { type: "panel", name: "inner", elements: [{ type: "text", name: "ro", readOnly: true }, { type: "text", name: "name" }] }]
+      }] });
+      const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+      const panel = q.addPanelUI();
+      expect(focused, "#1").toEqual([panel.getQuestionByName("name").inputId]);
+    });
+  });
+  test("panel: nothing is focused when every question is read-only", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel({ elements: [{
+        type: "paneldynamic", name: "q", panelCount: 1,
+        templateElements: [{ type: "text", name: "id", readOnly: true }, { type: "text", name: "name", enableIf: "{panel.id} = 'x'" }]
+      }] });
+      const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+      q.addPanelUI();
+      expect(q.panelCount, "#1: the panel is added").toBe(2);
+      expect(focused, "#2").toEqual([]);
+    });
+  });
+  test("panel in carousel mode: a read-only first question is skipped", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel(panelJSON({ displayMode: "carousel" }));
+      const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+      const panel = q.addPanelUI();
+      expect(q.currentPanel === panel, "#1: the new panel is shown").toBe(true);
+      expect(focused, "#2").toEqual([panel.getQuestionByName("name").inputId]);
+    });
+  });
+  test("matrix: a read-only first cell is skipped, the first answerable cell is focused", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel(matrixJSON({}));
+      const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+      q.addRowUI();
+      const row = q.visibleRows[1];
+      expect(focused, "#1").toEqual([row.getQuestionByName("name").inputId]);
+    });
+  });
+  test("matrix: nothing is focused when every cell is read-only", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel({ elements: [{
+        type: "matrixdynamic", name: "q", rowCount: 1,
+        columns: [{ name: "id", cellType: "text", readOnly: true }, { name: "total", cellType: "expression", expression: "1" }]
+      }] });
+      const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+      q.addRowUI();
+      expect(q.visibleRows.length, "#1: the row is added").toBe(2);
+      expect(focused, "#2").toEqual([]);
+    });
+  });
+  test("matrix: the detail panel of a row shown on adding is searched after the cells", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel({ elements: [{
+        type: "matrixdynamic", name: "q", rowCount: 1, detailPanelMode: "underRow", detailPanelShowOnAdding: true,
+        columns: [{ name: "id", cellType: "text", readOnly: true }],
+        detailElements: [{ type: "text", name: "ro", readOnly: true }, { type: "text", name: "name" }]
+      }] });
+      const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+      q.addRowUI();
+      const row = q.visibleRows[1];
+      expect(row.isDetailPanelShowing, "#1").toBe(true);
+      expect(focused, "#2").toEqual([row.detailPanel.getQuestionByName("name").inputId]);
+    });
+  });
+  test("matrix: the detail panel of a row that does not show it is not searched", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel({ elements: [{
+        type: "matrixdynamic", name: "q", rowCount: 1, detailPanelMode: "underRow",
+        columns: [{ name: "id", cellType: "text", readOnly: true }],
+        detailElements: [{ type: "text", name: "name" }]
+      }] });
+      const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+      q.addRowUI();
+      expect(q.visibleRows[1].isDetailPanelShowing, "#1").toBe(false);
+      expect(focused, "#2").toEqual([]);
+    });
+  });
+  test("paged panel: the new record lands on the next page and its first answerable question is focused", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel(panelJSON({ panelsPerPage: 1 }));
+      const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+      expect(q.pageIndex, "#1").toBe(0);
+      const panel = q.addPanelUI();
+      expect(q.pageIndex, "#2: the page of the new record").toBe(1);
+      expect(q.renderedPanels.length, "#3").toBe(1);
+      expect(q.renderedPanels[0] === panel, "#4: the new panel is rendered").toBe(true);
+      expect(focused, "#5").toEqual([panel.getQuestionByName("name").inputId]);
+    });
+  });
+  test("paged panel in carousel mode: the new record is shown and focused", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel(panelJSON({ displayMode: "carousel", panelsPerPage: 1 }));
+      const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+      const panel = q.addPanelUI();
+      expect(q.pageIndex, "#1").toBe(1);
+      expect(q.currentPanel === panel, "#2").toBe(true);
+      expect(focused, "#3").toEqual([panel.getQuestionByName("name").inputId]);
+    });
+  });
+  test("paged matrix: the new row lands on the next page and its first answerable cell is focused", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel(matrixJSON({ rowsPerPage: 1 }));
+      const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+      expect(q.pageIndex, "#1").toBe(0);
+      q.addRowUI();
+      expect(q.pageIndex, "#2: the page of the new row").toBe(1);
+      const rows = q.visibleRows;
+      expect(rows.length, "#3: the page shows the new row only").toBe(1);
+      expect(focused, "#4").toEqual([rows[0].getQuestionByName("name").inputId]);
+    });
   });
 });

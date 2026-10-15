@@ -2155,7 +2155,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         newPanel.expand();
       }
       this.focusNewPanelCallback = () => {
-        newPanel?.focusFirstQuestion();
+        this.focusNewRecord(newPanel, this.panelsCore.indexOf(newPanel), true);
       };
       if (!this.isPanelsAnimationRunning) {
         this.focusNewPanel();

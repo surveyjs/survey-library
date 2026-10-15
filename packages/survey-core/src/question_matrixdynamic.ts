@@ -809,16 +809,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private isAddLeavingPage(): boolean {
     return this.canAddRow && this.isRecordAddLeavingPage((): number => this.dataList.visibleCount);
   }
-  private getQuestionToFocusOnAddingRow(row: MatrixDropdownRowModelBase): Question {
-    if (!row.isVisible) return null;
-    for (var i = 0; i < row.cells.length; i++) {
-      var q = row.cells[i].question;
-      if (!!q && q.isVisible && !q.isReadOnly) {
-        return q;
-      }
-    }
-    return null;
-  }
   /**
    * Creates and adds a new row to the matrix.
    * @param setFocus *(Optional)* Pass `true` to focus the cell in the first column.
@@ -853,10 +843,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       shownRow.showDetailPanel();
     }
     if (setFocus) {
-      const q = this.getQuestionToFocusOnAddingRow(newRow);
-      if (!!q) {
-        q.focus();
-      }
+      this.focusNewRecord(newRow, this.getItemIndex(newRow), newRow.isVisible);
     }
   }
   /**

@@ -15,6 +15,7 @@ import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
 import { toCssClasses } from "./utils/cssClassBuilder";
+import { Scope } from "./utils/scope";
 import { getMatrixCellAriaLabel, getMatrixTableBodyCss, getMatrixTableCss, getMatrixTableWrapperCss, isMatrixColumnsAutoWidth } from "./utils/matrix-table";
 import { IMatrixColumnOwner, MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
@@ -460,7 +461,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
       this.showDetailPanel();
     }
   }
-  private isCreatingDetailPanel = false;
+  private creatingDetailPanelScope: Scope = new Scope();
   public showDetailPanel() {
     this.ensureDetailPanel();
     if (!this.detailPanelValue) return;
@@ -477,10 +478,9 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     }
   }
   public ensureDetailPanel() {
-    if (this.isCreatingDetailPanel) return;
+    if (this.creatingDetailPanelScope.isActive) return;
     if (!!this.detailPanelValue || !this.hasPanel || !this.data) return;
-    this.isCreatingDetailPanel = true;
-    try {
+    this.creatingDetailPanelScope.run((): void => {
       this.detailPanelValue = this.data.createRowDetailPanel(this);
       var questions = this.detailPanelValue.questions;
       var value = this.getDataRowValue();
@@ -494,9 +494,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
         }
       }
       this.detailPanelValue.setSurveyImpl(this);
-    } finally {
-      this.isCreatingDetailPanel = false;
-    }
+    });
   }
   getAllValues(): any {
     const res = this.value;
@@ -584,7 +582,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   /* The owner receives the whole proposed row, after the cell-changing callback had its say and,
      when the matrix validates on value changing, after the cell passed. */
   protected prepareRecordWrite(name: string, newValue: any, isComment: boolean): IRecordItemWrite {
-    if (this.isCreatingDetailPanel) return undefined;
+    if (this.creatingDetailPanelScope.isActive) return undefined;
     const changedQuestion = this.getQuestionByName(name);
     const rowValue = this.onCellValueChanging(changedQuestion, this.value, isComment);
     if (this.data.isValidateOnValueChanging && !this.validateCellQuestion(changedQuestion)) return undefined;
@@ -3036,13 +3034,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       ? null
       : newValue;
   }
-  private isDoingonAnyValueChanged: boolean;
+  private anyValueChangedScope: Scope = new Scope();
   /* The rows and the totals follow the change. A matrix does not re-validate its own validators when
      another value changes (Question.onAnyValueChanged): it never has. */
   onAnyValueChanged(name: string, questionName: string): void {
-    if (this.isUpdateLocked || this.isDoingonAnyValueChanged) return;
-    this.isDoingonAnyValueChanged = true;
-    try {
+    if (this.isUpdateLocked || this.anyValueChangedScope.isActive) return;
+    this.anyValueChangedScope.run((): void => {
       this.onAnyValueChangedInItems(name, questionName);
       // The total row is outside the record walk. It is created with the rows: before them there is
       // nothing for it to total.
@@ -3050,9 +3047,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       if (!!totalRow) {
         totalRow.onAnyValueChanged(name, questionName);
       }
-    } finally {
-      this.isDoingonAnyValueChanged = false;
-    }
+    });
   }
   protected isObject(value: any) {
     return value !== null && typeof value === "object";

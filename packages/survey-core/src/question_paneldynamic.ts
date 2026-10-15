@@ -23,6 +23,7 @@ import { settings } from "./settings";
 import { classesToSelector } from "./utils/dom-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/animation-dom";
 import { toCssClasses } from "./utils/cssClassBuilder";
+import { Scope, ValueScope } from "./utils/scope";
 import { ActionContainer } from "./actions/container";
 import { defaultActionBarCss } from "./actions/actionBarCss";
 import { Action, IAction } from "./actions/action";
@@ -197,8 +198,8 @@ interface IPanelRemoval extends IRecordRemoval {
   */
 export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private templateValue: PanelModel;
-  private isValueChangingInternally: boolean;
-  private changingValueQuestions: Array<Question>;
+  private internalValueChangeScope: Scope = new Scope();
+  private changingValueQuestionsScope: ValueScope<Array<Question>> = new ValueScope<Array<Question>>();
   public get dynamicPanelCallbacks(): ISurveyDynamicPanelCallbacks {
     return this.survey as ISurveyDynamicPanelCallbacks;
   }
@@ -398,7 +399,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   // A sync is deferred while it is suspended, and the rendered panels follow it.
   protected syncPagingState(): void {
     if (!this.dataListValue) return;
-    if (this.isPagingSyncSuspended) {
+    if (this.pagingSyncSuspendScope.isActive) {
       this.isPagingSyncPending = true;
       return;
     }
@@ -436,16 +437,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.runWithOneRender((): void => this.rebuildPanelsFromDataListCore(isPageMove));
   }
   private rebuildPanelsFromDataListCore(isPageMove: boolean): void {
-    const prevIsRebuildingView = this.isRebuildingView;
-    this.isRebuildingView = true;
-    try {
+    this.rebuildingViewScope.run((): void => {
       this.runCurrentPanelChange((): void => { this.rebuildPanelsForView(isPageMove); });
-    } finally {
-      this.isRebuildingView = prevIsRebuildingView;
-    }
+    });
   }
   // While the panels are rebuilt for the view, the ones added and removed select nothing: restoreCurrentPanel chooses.
-  private isRebuildingView: boolean = false;
+  private rebuildingViewScope: Scope = new Scope();
   private rebuildPanelsForView(isPageMove: boolean): void {
     this.decideRecordsVisibility();
     if (!this.isWritingRecords) {
@@ -486,22 +483,21 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   /* The panels of the view are built for records the value holds: without a view the same records got
      their panels while the survey loaded its data, which writes no static default into them and
      clears no answer a first condition run hides. Their questions ask it (Question). */
-  private isBuildingPanelsForStoredRecords: boolean = false;
+  private storedRecordsBuildScope: ValueScope<boolean> = new ValueScope<boolean>(false);
   protected isBuildingChildrenForStoredRecords(): boolean {
-    return this.isBuildingPanelsForStoredRecords;
+    return this.storedRecordsBuildScope.value;
   }
   /* The panels func creates are stored with the values they wrote and their first conditions run. The
      records of a data source are shown with what the panels compute, defaults included, and it goes
      with their next update (runShowingRecords). */
   private buildPanels(func: () => void, areRecordsStored: boolean): void {
-    const prev = this.isBuildingPanelsForStoredRecords;
-    this.isBuildingPanelsForStoredRecords = areRecordsStored && !this.isRemoteData;
     try {
-      this.prepareValueForPanelCreating();
-      func();
-      this.setValueAfterPanelsCreating();
+      this.storedRecordsBuildScope.run(areRecordsStored && !this.isRemoteData, (): void => {
+        this.prepareValueForPanelCreating();
+        func();
+        this.setValueAfterPanelsCreating();
+      });
     } finally {
-      this.isBuildingPanelsForStoredRecords = prev;
       this.clearPanelsCreating();
     }
   }
@@ -855,7 +851,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     this.visiblePanelsCore.splice(index, 0, panel);
     this.updateTabbedMenuItems();
-    if (!this.isRebuildingView && !this.currentPanel) {
+    if (!this.rebuildingViewScope.isActive && !this.currentPanel) {
       this.currentPanel = panel;
     }
     this.requestRenderedPanelsUpdate();
@@ -865,7 +861,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      successor itself (removePanelCore), and a rebuild leaves the choice to restoreCurrentPanel. */
   private onPanelRemoved(panel: PanelModel): void {
     let index = this.onPanelRemovedCore(panel);
-    if (!this.isRebuildingView && !this.isDetachingPanel && !this.isPagingActive && this.getPropertyValue("currentPanel", null) === panel) {
+    if (!this.rebuildingViewScope.isActive && !this.isDetachingPanel && !this.isPagingActive && this.getPropertyValue("currentPanel", null) === panel) {
       const visPanels = this.visiblePanelsCore;
       if (index >= visPanels.length) index = visPanels.length - 1;
       this.currentPanel = index >= 0 ? visPanels[index] : null;
@@ -960,7 +956,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.setPropertyValue("currentPanelId", !!val ? val.id : "");
     this.setCurrentRecordIndex(!val ? -1 : this.getPanelRecordIndex(val));
     // Inside an operation the change is announced when the operation ends (announceCurrentPanel).
-    const isAnnounced = !!val && this.currentPanelChangeDepth === 0;
+    const isAnnounced = !!val && !this.currentPanelChangeScope.isActive;
     if (isAnnounced) {
       this.leftVisibleIndex = this.currentVisibleIndexValue;
       this.currentVisibleIndexValue = visibleIndex;
@@ -984,19 +980,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      visible index differs from the ones announced last. A new panel object for the same record at the
      same index announces nothing, and neither does a current panel that is not on the page yet - a read
      of its page is pending, and the rebuild of its commit announces it. */
-  private currentPanelChangeDepth: number = 0;
+  private currentPanelChangeScope: Scope = new Scope();
   private runCurrentPanelChange(func: () => void): void {
     if (!this.hasDataListView) {
       func();
       return;
     }
-    this.currentPanelChangeDepth++;
-    try {
-      func();
-    } finally {
-      this.currentPanelChangeDepth--;
-    }
-    if (this.currentPanelChangeDepth === 0) {
+    this.currentPanelChangeScope.run(func);
+    if (!this.currentPanelChangeScope.isActive) {
       this.announceCurrentPanel();
     }
   }
@@ -1365,15 +1356,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      own changes: an assignment from outside made meanwhile is followed after it, with the state
      already restored (runOwnRecordsChange). */
   private runInternalValueChange<T>(func: () => T): T {
-    return this.runOwnRecordsChange((): T => {
-      const prev = this.isValueChangingInternally;
-      this.isValueChangingInternally = true;
-      try {
-        return func();
-      } finally {
-        this.isValueChangingInternally = prev;
-      }
-    });
+    return this.runOwnRecordsChange((): T => this.internalValueChangeScope.run(func));
   }
   protected getValueCore() {
     return this.isAddingNewPanels
@@ -1486,19 +1469,16 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      the running change decides the count, as without a view. Applied inside it, it would truncate the
      records the change is still adding, and the panels left past them would pad the records again on
      every write. */
-  private isSettingPanelCountInView: boolean = false;
+  private panelCountInViewScope: Scope = new Scope();
   private setPanelCountInView(val: number): void {
-    if (val === this.storedRecordCount || this.useTemplatePanel || this.isSettingPanelCountInView) return;
+    if (val === this.storedRecordCount || this.useTemplatePanel || this.panelCountInViewScope.isActive) return;
     this.updateBindings("panelCount", val);
-    this.isSettingPanelCountInView = true;
-    try {
+    this.panelCountInViewScope.run((): void => {
       this.runObjectsFollowingWrite((): void => {
         this.syncRecordCount(val);
         this.followRecordsWithObjects((recordIndex: number): void => { this.appendItemForRecord(recordIndex); });
       });
-    } finally {
-      this.isSettingPanelCountInView = false;
-    }
+    });
   }
   /* Grows or truncates the records to a count. createRecord makes a new record; by default, under
      paging most of the new records never get a panel, so they are created with the defaults their
@@ -2953,18 +2933,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      can be disposed. So every panel that appears, disappears or is created during a run would render
      the page again; while a run is suspended, those renders and paging syncs are only noted and
      runDeferredPagingSync makes one of each after it. A nested run leaves it to the outer one. */
-  private isPagingSyncSuspended: boolean;
+  private pagingSyncSuspendScope: Scope = new Scope();
   private isPagingSyncPending: boolean;
   private isRenderedPanelsUpdatePending: boolean;
   private runWithOneRender(func: () => void): void {
-    const prevIsPagingSyncSuspended = this.isPagingSyncSuspended;
-    this.isPagingSyncSuspended = true;
-    try {
-      func();
-    } finally {
-      this.isPagingSyncSuspended = prevIsPagingSyncSuspended;
-    }
-    if (!this.isPagingSyncSuspended) {
+    this.pagingSyncSuspendScope.run(func);
+    if (!this.pagingSyncSuspendScope.isActive) {
       this.runDeferredPagingSync();
     }
   }
@@ -2983,7 +2957,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   // The render a panel that appeared or disappeared asks for; deferred while conditions run.
   private requestRenderedPanelsUpdate(): void {
-    if (this.isPagingSyncSuspended) {
+    if (this.pagingSyncSuspendScope.isActive) {
       this.isRenderedPanelsUpdatePending = true;
       return;
     }
@@ -2994,7 +2968,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private hasKeysDuplicated(context: ValidationContext): boolean {
     const keyName = this.getRecordKeyName();
     if (!keyName) return false;
-    const qs = this.changingValueQuestions;
+    const qs = this.changingValueQuestionsScope.value;
     this.visiblePanelsCore.forEach((panel: PanelModel): void => {
       const question = <Question>panel.getQuestionByValueName(keyName);
       if (!!question && !question.isEmpty() && qs.indexOf(question) < 0) {
@@ -3004,7 +2978,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return this.checkRecordsUniqueness(context.fireCallback, undefined, (question: Question): void => context.setErrorElement(question)).length > 0;
   }
   private updatePanelsContainsErrors() {
-    const qs = this.changingValueQuestions;
+    const qs = this.changingValueQuestionsScope.value;
     if (!Array.isArray(qs) || qs.length === 0) return;
     var question = qs[0];
     var parent = <PanelModel>question.parent;
@@ -3015,12 +2989,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.updateContainsErrors();
   }
   protected validateElementCore(context: ValidationContext): boolean {
-    if (this.isValueChangingInternally && !this.hasInputInChangedQuestions() || this.isBuildingPanelsFirstTime) return true;
+    if (this.internalValueChangeScope.isActive && !this.hasInputInChangedQuestions() || this.isBuildingPanelsFirstTime) return true;
     return super.validateElementCore(context);
   }
   // QuestionRecordsModel hook of validateElementCore: the questions a value change wrote, otherwise the panels.
   protected validateRecordObjectsOfPage(context: ValidationContext): boolean {
-    const qs = this.changingValueQuestions;
+    const qs = this.changingValueQuestionsScope.value;
     if (!Array.isArray(qs)) return this.validateInPanels(context);
     let qRes = true;
     this.validateRecordObjects(context, (): void => {
@@ -3040,7 +3014,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return this.keyDuplicationError;
   }
   private hasInputInChangedQuestions(): boolean {
-    const qs = this.changingValueQuestions;
+    const qs = this.changingValueQuestionsScope.value;
     if (!Array.isArray(qs) || qs.length === 0) return false;
     for (let i = 0; i < qs.length; i++) {
       if (qs[i].hasInput) return true;
@@ -3319,7 +3293,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   private settingPanelCountBasedOnValue: boolean;
   private setPanelCountBasedOnValue(isCleared: boolean = false) {
-    if (this.isValidatingExpressions || this.isValueChangingInternally || this.useTemplatePanel) return;
+    if (this.isValidatingExpressions || this.internalValueChangeScope.isActive || this.useTemplatePanel) return;
     // The count of a remote-backed question comes from the read, never from the length of the window.
     if (this.isRemoteData) return;
     var newPanelCount = this.storedRecordCount;
@@ -3360,14 +3334,11 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const oldPanels = this.panelsCore.splice(0, this.panelsCore.length);
     this.markPanelsLeft(oldPanels);
     this.hasPanelBuildFirstTime = false;
-    const prevIsForStoredRecords = this.isBuildingPanelsForStoredRecords;
     const prevIsSettingByValue = this.settingPanelCountBasedOnValue;
-    this.isBuildingPanelsForStoredRecords = !isCleared;
     this.settingPanelCountBasedOnValue = true;
     try {
-      this.buildPanelsFirstTime(true);
+      this.storedRecordsBuildScope.run(!isCleared, (): void => this.buildPanelsFirstTime(true));
     } finally {
-      this.isBuildingPanelsForStoredRecords = prevIsForStoredRecords;
       this.settingPanelCountBasedOnValue = prevIsSettingByValue;
     }
     this.disposePanels(oldPanels);
@@ -3510,18 +3481,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       super.writeItemRecordValue(item, position, name, val, isDeleting);
       return;
     }
-    const prevChangingValueQuestions = this.changingValueQuestions;
+    const prevChangingValueQuestions = this.changingValueQuestionsScope.value;
     const questions = Array.isArray(prevChangingValueQuestions) ? [].concat(prevChangingValueQuestions) : [];
     const q = this.getRecordFieldQuestion(item, name);
     if (!!q) {
       questions.push(q);
     }
-    this.changingValueQuestions = questions;
-    try {
-      super.writeItemRecordValue(item, position, name, val, isDeleting);
-    } finally {
-      this.changingValueQuestions = prevChangingValueQuestions;
-    }
+    this.changingValueQuestionsScope.run(questions, (): void => super.writeItemRecordValue(item, position, name, val, isDeleting));
   }
   protected get isAddingNewItems(): boolean {
     return this.isAddingNewPanels;

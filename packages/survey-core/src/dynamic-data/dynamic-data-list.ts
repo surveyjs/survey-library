@@ -1,6 +1,7 @@
 import { ConditionRunner } from "../conditions/conditionRunner";
 import { Helpers } from "../helpers";
 import type { ISurvey } from "../interfaces/survey-interfaces";
+import { Scope } from "../utils/scope";
 import { createFilterRunner } from "./dynamic-data-filter";
 import {
   DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
@@ -64,10 +65,10 @@ export class DynamicDataList {
   });
   // What the window in force is and how it was read (dynamic-data-read-state.ts).
   private readState: DynamicDataReadState = new DynamicDataReadState();
-  /* > 0 while the list applies a write of its own. A write-through source assigns the owner's
+  /* Active while the list applies a write of its own. A write-through source assigns the owner's
      storage, and an owner that reports an assignment made meanwhile through invalidateViews() is
      ignored: the membership must not be re-evaluated by the very write that maintains it. */
-  private writeDepth: number = 0;
+  private writeScope: Scope = new Scope();
 
   public onChanged: (change: IDynamicDataListChange) => void;
   public onError: (error: any, operation: DynamicDataOperation) => void;
@@ -284,33 +285,37 @@ export class DynamicDataList {
           return;
         }
         const before = this.windowRecords;
-        const isOutermost = this.batchDepth === 0;
+        const isOutermost = !this.batchScope.isActive;
         if (isOutermost) {
           this.batchPushes = { operation: undefined, isStructural: false };
         }
-        this.batchDepth++;
         // A throw from func is the caller's own exception; any other is the commit's.
         let isFuncError = false;
+        let isFailureReported = false;
         try {
-          // With asynchronous writes only the writes the chain sends at once run inside it (IDynamicDataSource.batch).
-          source.batch((): void => {
+          this.batchScope.run((): void => {
             try {
-              func();
+              // With asynchronous writes only the writes the chain sends at once run inside it (IDynamicDataSource.batch).
+              source.batch((): void => {
+                try {
+                  func();
+                } catch(e) {
+                  isFuncError = true;
+                  throw e;
+                }
+              });
             } catch(e) {
-              isFuncError = true;
-              throw e;
+              // The outermost one: a batch of the source nested in another neither stores nor drops.
+              if (!isOutermost || !this.onBatchFailed(source, before, e, isFuncError)) throw e;
+              isFailureReported = true;
             }
           });
-        } catch(e) {
-          // The outermost one: a batch of the source nested in another neither stores nor drops.
-          if (!isOutermost || !this.onBatchFailed(source, before, e, isFuncError)) throw e;
-          return;
         } finally {
-          this.batchDepth--;
           if (isOutermost) {
             this.batchPushes = undefined;
           }
         }
+        if (isFailureReported) return;
         changes = this.syncWindowAfterBatch(source);
       });
     } finally {
@@ -318,7 +323,7 @@ export class DynamicDataList {
       this.raisePendingReset();
     }
   }
-  private batchDepth: number = 0;
+  private batchScope: Scope = new Scope();
   // What the outermost batch pushed: the operation of its first write, and whether it inserted,
   // removed or moved a record. Recorded by pushToSource.
   private batchPushes: { operation: DynamicDataOperation, isStructural: boolean };
@@ -361,7 +366,7 @@ export class DynamicDataList {
      broke its contract: what it stored is unknown, so the window goes back for any operation. */
   private onPushFailed(operation: DynamicDataOperation, isAsyncLocalWrite: boolean): void {
     if (!isAsyncLocalWrite && (operation === "update" || !!this.keyField)) return;
-    this.restoreWindowToStorage(this._source, this.batchDepth > 0 ? undefined : this.windowAtWriteStart || this.windowRecords);
+    this.restoreWindowToStorage(this._source, this.batchScope.isActive ? undefined : this.windowAtWriteStart || this.windowRecords);
   }
   /* An array source assigns its array once, when its batch ends, and the setter may store something
      else than it was handed: trimmed strings, a normalized shape. The writes inside the batch synced
@@ -410,7 +415,7 @@ export class DynamicDataList {
      the objects it has just rebuilt. */
   private isResetPending: boolean = false;
   private raisePendingReset(): void {
-    if (!this.isResetPending || this.writeDepth > 0) return;
+    if (!this.isResetPending || this.writeScope.isActive) return;
     this.isResetPending = false;
     this.raiseChanged({ type: "reset" });
   }
@@ -422,7 +427,7 @@ export class DynamicDataList {
   // True while the list applies a write of its own: the views it caches are its own to maintain then,
   // and an owner that is assigned inside the write may not read them (invalidateViews is ignored).
   public get isWriting(): boolean {
-    return this.writeDepth > 0;
+    return this.writeScope.isActive;
   }
   /* True from the start of an outermost write - batch, ensureCount, truncate, setValue, setRecord,
      add, remove, move, an insert answer - until its notifications have been raised, and until it
@@ -430,19 +435,17 @@ export class DynamicDataList {
      whose push throws never notifies. The owner is told when it ends (onWriteEnded): a change it owes
      a write - an assignment made from outside while the write was open - is followed then. */
   public get isWriteOpen(): boolean {
-    return this.openWriteDepth > 0;
+    return this.openWriteScope.isActive;
   }
-  private openWriteDepth: number = 0;
+  private openWriteScope: Scope = new Scope();
   // An error listener's exception the channel kept for a push of this write is rethrown at its end.
   private runOpenWrite<T>(func: () => T): T {
-    this.openWriteDepth++;
     let listenerError: { error: any } = undefined;
     let res: T;
     try {
-      res = func();
+      res = this.openWriteScope.run(func);
     } finally {
-      this.openWriteDepth--;
-      if (this.openWriteDepth === 0) {
+      if (!this.openWriteScope.isActive) {
         listenerError = this.channel.takeListenerError();
         if (!this.isDisposed && !!this.owner && !!this.owner.onWriteEnded)this.owner.onWriteEnded();
       }
@@ -460,22 +463,17 @@ export class DynamicDataList {
   private runWrite<T>(func: () => T): T {
     // Before the write edits the window: see isAssignedArrayInSync. editWindow copies before it
     // edits, so the window captured here is never mutated.
-    if (this.writeDepth === 0) {
+    if (!this.writeScope.isActive) {
       this.isAssignedArrayInSync = this.getIsAssignedArrayInSync();
       this.windowAtWriteStart = this.windowRecords;
     }
-    this.writeDepth++;
     try {
-      return func();
+      return this.writeScope.run(func);
     } finally {
-      this.endWrite();
-    }
-  }
-  private endWrite(): void {
-    if (this.writeDepth > 0)this.writeDepth--;
-    if (this.writeDepth === 0) {
-      this.isAssignedArrayInSync = false;
-      this.windowAtWriteStart = undefined;
+      if (!this.writeScope.isActive) {
+        this.isAssignedArrayInSync = false;
+        this.windowAtWriteStart = undefined;
+      }
     }
   }
   // The window when the outermost write started (runWrite).
@@ -624,16 +622,11 @@ export class DynamicDataList {
      expression) only shows the record: a write reaches the window, not the source, and its fields wait
      (unsentFields) for the record's next update. A pending insert and an in-memory array take it all. */
   public runShowingRecords<T>(func: () => T): T {
-    this.showingRecordsDepth++;
-    try {
-      return func();
-    } finally {
-      this.showingRecordsDepth--;
-    }
+    return this.showingRecordsScope.run(func);
   }
-  private showingRecordsDepth: number = 0;
+  private showingRecordsScope: Scope = new Scope();
   private isShowingWrite(index: number): boolean {
-    if (this.showingRecordsDepth === 0) return false;
+    if (!this.showingRecordsScope.isActive) return false;
     const source = this._source;
     return !!source && !isLocalSource(source) && !this.findPendingInsert(index);
   }
@@ -812,7 +805,7 @@ export class DynamicDataList {
     // A write of the list's own maintains the membership record by record; re-evaluating it here
     // would undo that from inside the very assignment that made it. refreshView() is the owner's
     // explicit request and runs during a write too, so the guard stays here and not in the helper.
-    if (this.writeDepth > 0) return;
+    if (this.writeScope.isActive) return;
     this.membership.rebuild(remap, previousCreated);
     this.clampPageIndexAfterChange();
   }

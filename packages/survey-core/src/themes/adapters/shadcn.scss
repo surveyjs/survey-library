@@ -281,8 +281,10 @@
   --sjs2-color-component-tagbox-item-hovered-label: var(--secondary-foreground);
   --sjs2-color-component-tagbox-item-action-default-bg: transparent;
   --sjs2-color-component-tagbox-item-action-hovered-bg: transparent;
+  --sjs2-color-component-tagbox-item-action-pressed-bg: transparent;
   --sjs2-color-component-tagbox-item-action-default-icon: color-mix(in oklab, var(--muted-foreground) 80%, transparent);
   --sjs2-color-component-tagbox-item-action-hovered-icon: var(--foreground);
+  --sjs2-color-component-tagbox-item-action-pressed-icon: color-mix(in oklab, var(--muted-foreground) 80%, transparent);
 
   /* common and other */
   --sjs2-color-bg-basic-primary: var(--background);
@@ -576,6 +578,11 @@
   color: var(--destructive);
 }
 
+.sd-question__erbox {
+  order: 1;
+  margin-top: calc(var(--spacing) * 2);
+}
+
 .sd-question__erbox--below-question {
   margin-top: calc(var(--spacing) * 2);
 }
@@ -693,6 +700,10 @@
 
   &:hover {
     background-color: var(--muted);
+  }
+
+  &:active {
+    background-color: var(--sjs2-color-component-tagbox-item-action-pressed-bg);
   }
 }
 

@@ -183,6 +183,7 @@ export abstract class QuestionRecordsModel extends Question {
       onDataSettled: (): void => { question.onDataSettled(); },
       onWritesStarted: (): void => { question.onWritesStarted(); },
       onSourceWriterChanged: (): void => { question.onSourceCapabilitiesChanged(); },
+      onDataError: (error: any, operation: DynamicDataOperation): void => { question.onSourceError(error, operation); },
       getSurvey: (): ISurvey => question.survey,
       // IDynamicDataPageValidationOwner: the rules every records question shares; the rest is the question's.
       getDataList: (): DynamicDataList => question.dataList,
@@ -264,9 +265,6 @@ export abstract class QuestionRecordsModel extends Question {
       // onDataListChanged drops it.
       this._dataList = DynamicDataList.createReadThrough(this.helperOwner,
         (): LocalDynamicDataSource => this.recordsSourceValue = this.createRecordsSource());
-      this._dataList.onError = (error: any, operation: DynamicDataOperation): void => {
-        this.onSourceError(error, operation);
-      };
       // The list is created on demand, so a page size that came from JSON has to be pushed here and
       // not only from its setter.
       this.paging.updatePageSize();
@@ -319,12 +317,16 @@ export abstract class QuestionRecordsModel extends Question {
      (getRecordTemplateQuestion), so nothing is built for the check. */
   protected isRecordKeyStoredByAnotherQuestion(key: string): boolean {
     if (!this.survey || !this.valueName) return false;
-    return this.survey.getQuestionsByValueName(this.valueName).some((question: IQuestion): boolean =>
+    return this.getQuestionsSharingValue(this.valueName).some((question: IQuestion): boolean =>
       question !== this && question instanceof QuestionRecordsModel && !!question.getRecordTemplateQuestion(key));
   }
   public getBindedQuestions(): Array<IQuestion> {
     if (!this.survey || !this.valueName) return [];
-    return this.survey.getQuestionsByValueName(this.valueName);
+    return this.getQuestionsSharingValue(this.valueName);
+  }
+  // The survey hashes no question inside a dynamic panel or a matrix detail panel and answers null for it.
+  private getQuestionsSharingValue(name: string): Array<IQuestion> {
+    return this.survey.getQuestionsByValueName(name) || [];
   }
   protected isPropertyStoredInHash(name: string): boolean {
     // sortBy renders sortOrder and stores nothing of its own, so the serializer has to read the
@@ -341,12 +343,12 @@ export abstract class QuestionRecordsModel extends Question {
     (questions || []).forEach((question: Question): void => {
       res.push({ name: question.getValueName(), dataType: getFieldType(question) });
       if (question.hasComment) {
-        res.push({ name: question.getValueName() + settings.commentSuffix, dataType: "string" });
+        res.push({ name: Helpers.getCommentKey(question.getValueName()), dataType: "string" });
       }
     });
     (questions || []).forEach((question: Question): void => {
       if (question.hasComment || (<any>question).hasOther !== true) return;
-      const name = question.getValueName() + settings.commentSuffix;
+      const name = Helpers.getCommentKey(question.getValueName());
       if (!res.some(f => f.name === name)) {
         res.push({ name: name, dataType: "string" });
       }
@@ -663,9 +665,7 @@ export abstract class QuestionRecordsModel extends Question {
      in-place write. */
   private isInPlaceWriteOfSibling(newValue: any, oldRecords: any): boolean {
     if (!Array.isArray(newValue) || !Array.isArray(oldRecords) || newValue.length !== oldRecords.length || !this.survey) return false;
-    // Null for a question inside a panel or a matrix: the survey does not hash it.
-    const questions = this.survey.getQuestionsByValueName(this.getValueName());
-    return !!questions && questions.some((question: IQuestion): boolean => {
+    return this.getQuestionsSharingValue(this.getValueName()).some((question: IQuestion): boolean => {
       if (question === this || !(question instanceof QuestionRecordsModel)) return false;
       const write = question.inPlaceWrite;
       return !!write && write.after.length === newValue.length &&
@@ -1647,8 +1647,15 @@ export abstract class QuestionRecordsModel extends Question {
     const survey = this.survey;
     const scope = this.createRecordVisibilityScope(properties);
     const runners = new Map<string, ConditionRunner>();
-    // The result of a condition that reads no record variable, computed once for the run.
+    // The result of a condition that reads no record variable, computed once for the run. One that calls
+    // a function is kept per element: the function may read this.question.
     const recordIndependent = new Map<string, boolean>();
+    const recordIndependentOfElement = new Map<Question | PanelModelBase, Map<string, boolean>>();
+    const getRecordIndependent = (el: Question | PanelModelBase, runner: ConditionRunner): Map<string, boolean> => {
+      if (!runner.hasFunction()) return recordIndependent;
+      if (!recordIndependentOfElement.has(el)) recordIndependentOfElement.set(el, new Map<string, boolean>());
+      return recordIndependentOfElement.get(el);
+    };
     let visibility = new Map<Question | PanelModelBase, boolean>();
     return {
       reset: (index: number, record: any): void => {
@@ -1662,16 +1669,17 @@ export abstract class QuestionRecordsModel extends Question {
         if (!expression) {
           res = el.visible;
         } else {
-          res = recordIndependent.get(expression);
+          let runner = runners.get(expression);
+          if (!runner) {
+            runner = new ConditionRunner(expression);
+            runners.set(expression, runner);
+          }
+          const independent = getRecordIndependent(el, runner);
+          res = independent.get(expression);
           if (res === undefined) {
-            let runner = runners.get(expression);
-            if (!runner) {
-              runner = new ConditionRunner(expression);
-              runners.set(expression, runner);
-            }
             scope.properties["question"] = el;
             res = runner.runContext(scope.item.getValueGetterContext(), scope.properties) === true;
-            if (!this.readsRecordVariable(runner))recordIndependent.set(expression, res);
+            if (!this.readsRecordVariable(runner))independent.set(expression, res);
           }
         }
         visibility.set(el, res);
@@ -2850,7 +2858,7 @@ export abstract class QuestionRecordsModel extends Question {
         if (!!current) remove(current);
       },
       locale: this.getLocale(),
-      rootElement: this.survey.rootElement,
+      rootElement: this.survey?.rootElement,
       cssClass: this.cssClasses.confirmDialog
     });
   }
@@ -2971,11 +2979,14 @@ export abstract class QuestionRecordsModel extends Question {
      applied. */
   private isAssigningDataSource: boolean;
   protected setDataSource(val: IDynamicDataSource): void {
+    // A source assigned while another one is being assigned (an error handler of its first read) ends
+    // inside the outer assignment: the outer one settles the data.
+    const prev = this.isAssigningDataSource;
     this.isAssigningDataSource = true;
     try {
       this.setDataSourceCore(val);
     } finally {
-      this.isAssigningDataSource = false;
+      this.isAssigningDataSource = prev;
     }
     this.onDataSettled();
   }
@@ -3048,7 +3059,7 @@ export abstract class QuestionRecordsModel extends Question {
   }
   private isValueStoredByAnotherQuestion(): boolean {
     if (!this.survey) return false;
-    return this.survey.getQuestionsByValueName(this.getValueName()).some((question: IQuestion): boolean =>
+    return this.getQuestionsSharingValue(this.getValueName()).some((question: IQuestion): boolean =>
       question !== this && !(question instanceof QuestionRecordsModel && question.isRemoteData));
   }
   /* Detaching: the window is dropped and the question reads the survey hash again. With an answer
@@ -3285,8 +3296,7 @@ export abstract class QuestionRecordsModel extends Question {
   // field is a value name, or its comment key.
   protected getRecordFieldQuestion(item: QuestionRecordItem, field: string): Question {
     if (!item || !field) return undefined;
-    const suffix = settings.commentSuffix;
-    const name = field.endsWith(suffix) ? field.substring(0, field.length - suffix.length) : field;
+    const name = Helpers.getNameOfCommentKey(field) ?? field;
     return item.getQuestionsByValueName(name)[0] || undefined;
   }
   // The question's add: the records it inserts are touched as they enter the list. Nothing is created
@@ -3690,7 +3700,10 @@ export abstract class QuestionRecordsModel extends Question {
      source that never settles (the new source is read after it); a disposed question releases it. A
      synchronous validation (isCurrentPageValid, validate() without a callback) answers at once, as
      before. */
-  private dataWaits: Array<ValidationContext>;
+  private dataWaits: Array<{ context: ValidationContext, id: string }>;
+  /* Each registration has an id of its own: the validation a release runs again can register the same
+     context while the release still has to remove the registration it ends. */
+  private dataWaitCount: number;
   /* The question's own objects (validateRecordObjectsOfPage, the type's), then the question, then -
      when both passed - the records off the page (validateOffPage). */
   protected validateElementCore(context: ValidationContext): boolean {
@@ -3702,15 +3715,14 @@ export abstract class QuestionRecordsModel extends Question {
   protected validateRecordObjectsOfPage(context: ValidationContext): boolean {
     return true;
   }
-  private get dataWaitId(): string {
-    return this.id + "_data";
-  }
   private waitForDataOperations(context: ValidationContext): void {
     if (!context.hasCallback || context.isOnValueChanged || context.isOnValueChanging || !this.isDynamicDataRunning) return;
     if (!this.dataWaits)this.dataWaits = [];
-    if (this.dataWaits.indexOf(context) > -1) return;
-    this.dataWaits.push(context);
-    context.addElement(this.dataWaitId);
+    if (this.dataWaits.some(wait => wait.context === context)) return;
+    this.dataWaitCount = (this.dataWaitCount || 0) + 1;
+    const id = this.id + "_data_" + this.dataWaitCount;
+    this.dataWaits.push({ context: context, id: id });
+    context.addElement(id);
   }
   /* IDynamicDataOwner.onDataSettled, and the end of setDataSource. The survey is told too: a
      completion it holds for this question's writes goes on. */
@@ -3763,15 +3775,15 @@ export abstract class QuestionRecordsModel extends Question {
     this.dataWaits = undefined;
     if (!waits) return;
     let error: { error: any } = undefined;
-    waits.forEach((context: ValidationContext): void => {
+    waits.forEach((wait: { context: ValidationContext, id: string }): void => {
       try {
         if (isValidated) {
-          this.validateElement(context);
+          this.validateElement(wait.context);
         }
       } catch(e) {
         if (!error) error = { error: e };
       } finally {
-        context.removeElement(this.dataWaitId);
+        wait.context.removeElement(wait.id);
       }
     });
     if (!!error) throw error.error;
@@ -4073,7 +4085,19 @@ export abstract class QuestionRecordsModel extends Question {
     this.storeQuestionValue(this.dataList.getLoadedRecords());
     this.storedSourceRecordCount = this.dataList.count;
   }
-  protected storedSourceRecordCount: number = 0;
+  /* In the property hash, so that a renderer showing the count follows a read that changes only the
+     total. Only onPropertyChanged hears of the count property: a binding or a rendered table reset
+     would treat it as an authored rowCount / panelCount change, and the source owns the count. */
+  protected get storedSourceRecordCount(): number {
+    return this.getPropertyValue("storedSourceRecordCount", 0);
+  }
+  protected set storedSourceRecordCount(val: number) {
+    const oldValue = this.storedSourceRecordCount;
+    this.setPropertyValue("storedSourceRecordCount", val);
+    const names = this.getRecordCountNames();
+    if (oldValue === val || !names || !this.isRemoteData) return;
+    this.onPropertyChanged.fire(this, { name: names.count, oldValue: oldValue, newValue: val });
+  }
   /* Record indexes the question keeps besides the edited set and the current record: the records its
      objects were built for, while a question nested in one of them pages - its state is kept under that
      record (keepNestedPageStates). A read that commits again renumbers them with its remap, so that the
@@ -4332,7 +4356,7 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     }
     const write = this.prepareRecordWrite(name, newValue, isComment);
     if (!write) return;
-    const fieldName = isComment ? name + settings.commentSuffix : name;
+    const fieldName = isComment ? Helpers.getCommentKey(name) : name;
     if (!this.isValueChanged(fieldName, write.fieldValue)) return;
     if (!(<IRecordItemOwner><any>this.data).writeItemValue(this, fieldName, write.ownerValue, write.isDeleting)) return;
     this.runTriggersOnSetValue(fieldName, newValue);
@@ -4357,7 +4381,7 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   protected updateQuestionFromRecord(question: Question, record: any): void {
     const name = question.getValueName();
     question.updateValueFromSurvey(!!record ? record[name] : undefined);
-    question.updateCommentFromSurvey(!!record ? record[name + settings.commentSuffix] : undefined);
+    question.updateCommentFromSurvey(!!record ? record[Helpers.getCommentKey(name)] : undefined);
   }
   // The questions receive values the item does not write back; the flag nests.
   protected runSettingValue(func: () => void): void {
@@ -4430,9 +4454,9 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
 
   protected runTriggersOnSetValue(name: string, newValue: any): void {
     const questions = this.questions;
-    const suffix = settings.commentSuffix;
-    if (name.endsWith(suffix)) {
-      name = name.substring(0, name.length - suffix.length);
+    const commentOf = Helpers.getNameOfCommentKey(name);
+    if (commentOf !== undefined) {
+      name = commentOf;
       const cQ = this.getQuestionByName(name);
       if (!!cQ) {
         newValue = cQ.value;
@@ -4530,7 +4554,7 @@ class RecordValueItem extends QuestionRecordItem {
   }
   public setValue(name: string, newValue: any): void { }
   public getComment(name: string): string {
-    const res = this.getAllValues()[name + settings.commentSuffix];
+    const res = this.getAllValues()[Helpers.getCommentKey(name)];
     return !!res ? res : "";
   }
   public setComment(name: string, newValue: string, locNotification: boolean): void { }
@@ -4549,7 +4573,7 @@ interface IHiddenAnswerFlags {
 }
 // The keys of a question's answer in a record: its value name and its comment key, the keys clearValue() removes.
 function getRecordAnswerKeys(name: string): Array<string> {
-  return [name, name + settings.commentSuffix];
+  return [name, Helpers.getCommentKey(name)];
 }
 function getHiddenAnswerFlags(isSelfVisible: boolean, isContainerVisible: boolean): number {
   return (isSelfVisible ? HIDDEN_ANSWER_SELF : 0) | (isContainerVisible ? HIDDEN_ANSWER_CONTAINER : 0);
@@ -4579,7 +4603,7 @@ function isRecordCleanupSkipped(template: Question): boolean {
 function getRecordCleanupKeys(template: Question): Array<string> {
   const res: Array<string> = [];
   const questions = template.isDescendantOf("selectbase") ? template.getNestedQuestions(false, true, true) : [template];
-  questions.forEach((q: Question): void => { res.push(q.getValueName(), q.getValueName() + settings.commentSuffix); });
+  questions.forEach((q: Question): void => { res.push(q.getValueName(), Helpers.getCommentKey(q.getValueName())); });
   return res;
 }
 function isRecordCleanupByObject(template: Question, container: PanelModelBase): boolean {

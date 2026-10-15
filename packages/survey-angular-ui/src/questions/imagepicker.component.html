@@ -1,4 +1,4 @@
-<fieldset [class]="model.getSelectBaseRootCss()" [style]="model.getContainerStyle()" #contentElement>
+<fieldset [class]="model.getSelectBaseRootCss()" [style]="model.getContainerStyle()" #contentElement (keydown)="onKeyDown($event)">
   <legend class="sv-hidden">{{model.locTitle.renderedHtml}}</legend>
   <ng-container *ngIf="!model.hasColumns">
     <ng-container *ngFor="let item of model.visibleChoices">

@@ -2,6 +2,7 @@
   <fieldset
     :class="question.getSelectBaseRootCss()"
     ref="root"
+    @keydown="onKeyDown?.($event)"
     :role="question.a11y_input_ariaRole"
     :aria-required="question.a11y_input_ariaRequired"
     :aria-label="question.a11y_input_ariaLabel"
@@ -97,6 +98,7 @@ defineOptions({
 const props = defineProps<{
   question: QuestionRadiogroupModel | QuestionCheckboxModel;
   showLegend?: boolean;
+  onKeyDown?: (event: any) => void;
 }>();
 const root = ref(null);
 useQuestion(props, root);

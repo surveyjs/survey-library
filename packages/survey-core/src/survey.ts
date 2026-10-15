@@ -59,6 +59,7 @@ import { settings } from "./settings";
 import { RegionalFormat } from "./regional-format";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
+import { getClosestSurveyScroller } from "./utils/scroll-utils";
 import { FocusedQuestionScrollController } from "./focused-question-scroll-controller";
 import { isReducedMotionPreferred, subscribeReducedMotionChange } from "./utils/reduced-motion";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
@@ -1964,15 +1965,20 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * Specifies whether the survey switches to the next page automatically after a user answers all questions on the current page.
+   * Specifies whether the survey advances to the next page automatically after a respondent answers all questions on the current page and the answers pass validation.
    *
    * Default value: `false`
    *
-   * If you enable this property, the survey is also completed automatically. Set the [`autoAdvanceAllowComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceAllowComplete) property to `false` if you want to disable this behavior.
+   * Auto-advance behavior depends on the question type:
    *
-   * > If any of the following questions is answered last, the survey does not switch to the next page: Checkboxes, Yes/No (Boolean) (rendered as Checkbox), Long Text, Signature, Image Picker (with Multi Select), File Upload, Single-Select Matrix (not all rows are answered), Dynamic Matrix, Dynamic Panel.
+   * - The survey does not auto-advance if the last answered question is a Signature, File Upload, Dynamic Matrix, or Dynamic Panel.
+   * - A Single-Select Matrix can trigger auto-advance only when all its rows are answered.
+   * - For Checkboxes, Multi-Select Dropdown (Tag Box), Image Picker with `multiSelect: true`, Ranking, Yes/No (Boolean) rendered as a checkbox, and Long Text, respondents must press Enter after answering to trigger auto-advance.
+   * - For Radio Button Group and single-select Image Picker, a mouse or touch selection triggers auto-advance. After a keyboard selection, respondents must press Enter to trigger auto-advance.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
+   * If you set `autoAdvanceEnabled` to `true`, the survey also completes automatically after the last page. To require respondents to complete it manually, set the [`autoAdvanceAllowComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceAllowComplete) property to `false`.
+   *
+   * [Demo: Move to the Next Page Automatically](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
    * @since 2.0.0
    */
@@ -5933,6 +5939,7 @@ export class SurveyModel extends SurveyElementCore
       survey: this,
       htmlElement: htmlElement,
     });
+    this.removeScrollEventListener();
     this.rootElement = htmlElement;
     this.scrollerElement = htmlElement.getElementsByClassName("sv-scroll__scroller")[0];
     this.addScrollEventListener();
@@ -5949,6 +5956,7 @@ export class SurveyModel extends SurveyElementCore
     this.destroyResizeObserver();
     this.focusedQuestionScrollValue?.dispose();
     this.removeScrollEventListener();
+    this.tocModelValue?.removeStickyTOCSubscriptions();
     this.rootElement = undefined;
     this.scrollerElement = undefined;
   }
@@ -6437,6 +6445,14 @@ export class SurveyModel extends SurveyElementCore
 
   public skeletonHeight: number = undefined;
 
+  private getPageScrollTarget(surveyRootElement: HTMLElement): HTMLElement {
+    const wrapper = surveyRootElement?.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
+    if (!wrapper || !!getClosestSurveyScroller(wrapper)) return wrapper;
+    // With a fixed background image the wrapper stays still and the form scrolls inside it.
+    const scroller = wrapper.querySelector(".sv-scroll__scroller");
+    return (scroller?.firstElementChild as HTMLElement) || wrapper;
+  }
+
   scrollElementToTop(scrollOptions: IScrollElementToTopOptions): any;
   scrollElementToTop(element: ISurveyElement, question?: IQuestion, page?: IPage, id?: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, passedRootElement?: HTMLElement, onScolledCallback?: () => void): any;
   scrollElementToTop(elementOrOptions: ISurveyElement | IScrollElementToTopOptions, question?: IQuestion, page?: IPage, id?: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, passedRootElement?: HTMLElement, onScolledCallback?: () => void): any {
@@ -6492,7 +6508,7 @@ export class SurveyModel extends SurveyElementCore
         }, elementsToRenderBefore);
       } else {
         if (element.isPage && !this.isSinglePage && !this.isDesignMode && this.rootElement) {
-          const elementToScroll = surveyRootElement.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
+          const elementToScroll = this.getPageScrollTarget(surveyRootElement);
           SurveyElement.ScrollElementToViewCore(elementToScroll, false, optScrollIfVisible, optScrollIntoViewOptions, optOnScolledCallback);
         } else {
           const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`) as HTMLElement;
@@ -7766,7 +7782,7 @@ export class SurveyModel extends SurveyElementCore
     if (!parentQ) return undefined;
     const options = parentQ.getValueChangingOptions(q);
     if (options && isComment) {
-      options.name = q.name + this.commentSuffix;
+      options.name = Helpers.getCommentKey(q.name);
     }
     return options;
   }
@@ -7861,10 +7877,14 @@ export class SurveyModel extends SurveyElementCore
     return this.generateNewName(elements, baseName);
   }
   public tryGoNextPageAutomatic(name: string): void {
-    if (!!this.isEndLoadingFromJson || !this.autoAdvanceEnabled || !this.currentPage) return;
+    this.tryGoNextPageAutomaticCore(name);
+  }
+  public tryGoNextPageAutomaticCore(name: string): boolean {
+    if (!!this.isEndLoadingFromJson || !this.autoAdvanceEnabled || !this.currentPage) return false;
     const question = <Question>this.getQuestionByValueName(name);
-    if (!question || (!!question && (!question.visible || !question.supportAutoAdvance()))) return;
-    if (!question.validate(false) && !question.supportGoNextPageError()) return;
+    if (!question || (!!question && (!question.visible || !question.supportAutoAdvance()))) return false;
+    if (!question.validate(false) && !question.supportGoNextPageError()) return false;
+    let scheduled = false;
     if (!!this.currentSingleElement) {
       const curQuestion = this.currentSingleElement;
       const goNextQuestion = () => {
@@ -7878,14 +7898,15 @@ export class SurveyModel extends SurveyElementCore
         }
       };
       surveyTimerFunctions.safeTimeOut(goNextQuestion, settings.autoAdvanceDelay);
+      scheduled = true;
     }
     var questions = this.getCurrentPageQuestions();
-    if (questions.indexOf(question) < 0) return;
+    if (questions.indexOf(question) < 0) return scheduled;
     for (var i = 0; i < questions.length; i++) {
-      if (questions[i].hasInput && questions[i].isEmpty()) return;
+      if (questions[i].hasInput && questions[i].isEmpty()) return scheduled;
     }
-    if (this.isLastPage && (this.autoAdvanceEnabled !== true || !this.autoAdvanceAllowComplete)) return;
-    if (!this.validateActivePage(false)) return;
+    if (this.isLastPage && (this.autoAdvanceEnabled !== true || !this.autoAdvanceAllowComplete)) return scheduled;
+    if (!this.validateActivePage(false)) return scheduled;
     const curPage = this.currentPage;
     const goNextPage = () => {
       if (curPage !== this.currentPage) return;
@@ -7896,6 +7917,7 @@ export class SurveyModel extends SurveyElementCore
       }
     };
     surveyTimerFunctions.safeTimeOut(goNextPage, settings.autoAdvanceDelay);
+    return true;
   }
   private tryCompleteOrShowPreview(): void {
     if (this.showPreviewBeforeComplete) {
@@ -7911,7 +7933,7 @@ export class SurveyModel extends SurveyElementCore
    * @see setComment
    */
   public getComment(name: string): string {
-    const res = this.getValue(name + this.commentSuffix);
+    const res = this.getValue(Helpers.getCommentKey(name));
     return res || "";
   }
   /**
@@ -7924,7 +7946,7 @@ export class SurveyModel extends SurveyElementCore
   public setComment(name: string, newValue: string, locNotification: boolean | "text" = false): void {
     if (!newValue) newValue = "";
     if (this.isTwoValueEquals(newValue, this.getComment(name))) return;
-    const commentName = name + this.commentSuffix;
+    const commentName = Helpers.getCommentKey(name);
     newValue = this.questionOnValueChanging(commentName, newValue, name);
     const oldValue = this.getComment(name);
     locNotification = this.getLocNotification(locNotification, newValue, oldValue);
@@ -9118,6 +9140,7 @@ export class SurveyModel extends SurveyElementCore
       }
       this.layoutElements.splice(0, this.layoutElements.length);
     }
+    this.tocModelValue?.dispose();
     this.resetRegionalFormat();
     super.dispose();
     this.editingObj = null;

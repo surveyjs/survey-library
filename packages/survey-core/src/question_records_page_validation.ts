@@ -308,12 +308,13 @@ export class DynamicDataPageValidation {
   }
 
   public getState(pageIndex: number): IDynamicDataPageState {
-    return { pageIndex: pageIndex, edited: this.edited.slice(), nested: this.nested };
+    return { pageIndex: pageIndex, edited: this.edited.slice(), nested: Object.assign({}, this.nested) };
   }
+  // Copies, as getState makes: a restored question that keeps its nested states never changes the state an ancestor keeps.
   public setState(state: IDynamicDataPageState): void {
     if (!state) return;
     this.edited = Array.isArray(state.edited) ? state.edited.slice() : [];
-    this.nested = state.nested || {};
+    this.nested = Object.assign({}, state.nested);
   }
   // The ancestor side: the states of the paged questions nested in one of its records.
   public keepNestedStates(recordIndex: number | string, states: { [valueName: string]: IDynamicDataPageState }): void {

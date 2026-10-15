@@ -266,6 +266,7 @@ export var defaultCss = {
     breadcrumbsItemButton: "sd-breadcrumbs-item__button",
     breadcrumbsSeparator: "sd-breadcrumbs-separator",
     summary: "sd-summary",
+    summaryPlaceholder: "sd-summary-placeholder",
     summaryRow: "sd-summary-row",
     summaryRowContent: "sd-summary-row__content",
     summaryRowActions: "sd-summary-row__actions",

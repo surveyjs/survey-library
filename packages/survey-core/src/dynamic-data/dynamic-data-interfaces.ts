@@ -53,8 +53,11 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 //
 // A source WITHOUT keyField is read-only: the list sends it no insert, update or remove, so no
 // write ever names a record by its position. It may still page, sort and filter on its side. The
-// in-memory sources (ArrayDynamicDataSource and SurveyDataDynamicDataSource) are the exception: the
-// list writes them synchronously, so a write names a record by its storage index. Such a source has
+// in-memory sources (ArrayDynamicDataSource, SurveyDataDynamicDataSource and any other subclass of
+// LocalDynamicDataSource) are the exception: their writes are synchronous, so a write names a record
+// by its storage index. A write of such a source that returns a promise is reported as an error
+// (onDynamicDataError), and the list reads the window again from the storage; a source with
+// asynchronous writes needs keyField. Such a source has
 // one writer: assigned to a second question, it is read-only there (DynamicDataList.assignSource). sourceIndex, where it is passed on its own, is the position in the WHOLE source - the list
 // has already added the offset of the page the edit was made on.
 //
@@ -204,6 +207,9 @@ export interface IDynamicDataOwner {
   onWritesStarted?(): void;
   // Another list took the claim on the in-memory source this list wrote (DynamicDataList.assignSource): it only reads it now.
   onSourceWriterChanged?(): void;
+  /* A read or a write of the source failed. The owner hears it from the list's construction on: the
+     first load of a read-through list runs before anyone could assign the list's onError. */
+  onDataError?(error: any, operation: DynamicDataOperation): void;
   /* The survey of the question the list belongs to: the asynchronous writes of the lists in one
      survey that share a source object are ordered (DynamicDataSourceChannel.getForeignWrites). */
   getSurvey?(): ISurvey;

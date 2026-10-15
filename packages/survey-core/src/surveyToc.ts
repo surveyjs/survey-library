@@ -131,10 +131,22 @@ export class TOCModel implements ILayoutElementModel {
     this.popupModel.displayMode = <any>new ComputedUpdater(() => this.isMobile ? "overlay" : "popup");
     if (TOCModel.StickyPosition) {
       survey.registerFunctionOnPropertyValueChanged("_isMobile", () => this.updateStickyTOCSize(survey.rootElement), "toc");
-      survey.onAfterRenderSurvey.add((s, o) => this.initStickyTOCSubscriptions(o.htmlElement));
+      survey.onAfterRenderSurvey.add(this.onAfterRenderSurvey);
       this.initStickyTOCSubscriptions(survey.rootElement);
     }
   }
+  private isDisposedValue: boolean = false;
+  public get isDisposed(): boolean {
+    return this.isDisposedValue;
+  }
+  // The listener keeps the model alive through its closure, so it is removed on re-render, destroy and dispose (Bug#12003)
+  private stickyRootElement: HTMLElement;
+  private onAfterRenderSurvey = (sender: SurveyModel, options: { htmlElement: HTMLElement }): void => {
+    this.initStickyTOCSubscriptions(options.htmlElement);
+  };
+  private onRootElementScroll = (): void => {
+    this.updateStickyTOCSize(this.stickyRootElement);
+  };
 
   public createLayoutElements(): Array<ISurveyLayoutElement> {
     const layoutElement: ISurveyLayoutElement = {
@@ -155,11 +167,17 @@ export class TOCModel implements ILayoutElementModel {
   }
 
   private initStickyTOCSubscriptions(rootElement: HTMLElement) {
-    if (TOCModel.StickyPosition && !!rootElement) {
-      rootElement.addEventListener("scroll", (event) => {
-        this.updateStickyTOCSize(rootElement);
-      });
+    if (TOCModel.StickyPosition && !!rootElement && !this.isDisposed) {
+      this.removeStickyTOCSubscriptions();
+      this.stickyRootElement = rootElement;
+      rootElement.addEventListener("scroll", this.onRootElementScroll);
       this.updateStickyTOCSize(rootElement);
+    }
+  }
+  public removeStickyTOCSubscriptions(): void {
+    if (!!this.stickyRootElement) {
+      this.stickyRootElement.removeEventListener("scroll", this.onRootElementScroll);
+      this.stickyRootElement = undefined;
     }
   }
 
@@ -198,9 +216,14 @@ export class TOCModel implements ILayoutElementModel {
     this.popupModel.toggleVisibility();
   };
   public dispose(): void {
+    if (this.isDisposed) return;
+    this.isDisposedValue = true;
+    this.removeStickyTOCSubscriptions();
+    this.survey.onAfterRenderSurvey.remove(this.onAfterRenderSurvey);
     this.survey.unRegisterFunctionOnPropertyValueChanged("_isMobile", "toc");
     this.survey.unRegisterFunctionOnPropertyValueChanged("tocItemComponent", "toc");
-    const [handler] = this.survey.unRegisterFunctionOnPropertyValueChanged("pages", "toc");
+    // Another TOC model of the same survey may have already unregistered the shared "toc" key
+    const [handler] = this.survey.unRegisterFunctionOnPropertyValueChanged("pages", "toc") || [];
     this.survey.onEndLoadingFromJson.remove(handler);
     this.survey.onPageAdded.remove(handler);
     this.popupModel.dispose();

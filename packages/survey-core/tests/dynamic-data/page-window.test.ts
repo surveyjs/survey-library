@@ -1756,6 +1756,34 @@ describe("Page window: the page state of a nested paged matrix", () => {
     expect(matrixOf(0).pageIndex, "#8: page 0 stays page 0").toBe(0);
     expect(getPageState(matrixOf(0)), "#9").toEqual({ pageIndex: 0, edited: [], nested: {} });
   });
+  test("a page state restored into a rebuilt panel and changed there leaves the state its ancestor keeps alone", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "paneldynamic", name: "outer", panelsPerPage: 1,
+        templateElements: [{
+          type: "paneldynamic", name: "middle", panelsPerPage: 1,
+          templateElements: [{ type: "matrixdynamic", name: "inner", rowCount: 0, rowsPerPage: 1, columns: [{ name: "a", cellType: "text" }] }]
+        }]
+      }]
+    });
+    const middleRecords = (): Array<any> => records(2, (j: number) => ({ inner: records(3, (k: number) => ({ a: j + "-" + k })) }));
+    survey.data = { outer: [{ middle: middleRecords() }, { middle: middleRecords() }] };
+    const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const middleOf = (): QuestionPanelDynamicModel => <QuestionPanelDynamicModel>outer.panels[0].getQuestionByName("middle");
+    const middle = middleOf();
+    middle.pageIndex = 1;
+    outer.pageIndex = 1;
+    const kept = (<any>outer)._pageValidation.getNestedStates(0)["middle"];
+    const keptCopy = JSON.parse(JSON.stringify(kept));
+    outer.pageIndex = 0;
+    const rebuilt = middleOf();
+    expect(rebuilt === middle, "#1: the middle panel was rebuilt").toBe(false);
+    expect(rebuilt.pageIndex, "#2: on its page again").toBe(1);
+    (<QuestionMatrixDynamicModel>rebuilt.panels[0].getQuestionByName("inner")).pageIndex = 2;
+    rebuilt.pageIndex = 0;
+    expect(getPageState(rebuilt).nested[1].inner.pageIndex, "#3: the rebuilt panel keeps the inner page").toBe(2);
+    expect(kept, "#4: the state the outer panel keeps did not change").toEqual(keptCopy);
+  });
   test("an outside assignment that inserts a record in front of the page keeps the matrix of each record on its page", () => {
     const survey = new SurveyModel({
       elements: [{
@@ -3505,6 +3533,16 @@ describe("Paged dynamic panel: clearing invisible values gives the unpaged answe
   };
   test("a template question hidden by its visibleIf loses its answer in every record", () => {
     expect(expectSameAsUnpaged({ templateElements: secretIfYes }, sixRecords(showOnThree)).pd).toEqual(onlyThreeKeepsSecret);
+  });
+  test("a visibleIf shared by two template questions calls its function with each question as this.question", () => {
+    FunctionFactory.Instance.register("isTemplateQuestionB", function (this: any): boolean { return this.question.name === "b"; });
+    try {
+      const template = [{ type: "text", name: "a", visibleIf: "isTemplateQuestionB()" }, { type: "text", name: "b", visibleIf: "isTemplateQuestionB()" }];
+      expect(expectSameAsUnpaged({ templateElements: template }, sixRecords((i: number): any => ({ a: "a" + i, b: "b" + i }))).pd)
+        .toEqual(sixRecords((i: number): any => ({ b: "b" + i })));
+    } finally {
+      FunctionFactory.Instance.unregister("isTemplateQuestionB");
+    }
   });
   test("a question in a template panel hidden by the panel's visibleIf loses its answer in every record", () => {
     const template = [{ type: "text", name: "show" },

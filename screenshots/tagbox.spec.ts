@@ -40,6 +40,28 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-tagbox-item", "tagbox-question-item-icon-hover.png");
     });
 
+    test("Check tagbox item remove button pressed", async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 1100 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: false,
+        elements: [
+          {
+            type: "tagbox",
+            name: "question1",
+            defaultValue: ["item1"],
+            choices: ["item1", "item2", "item3"]
+          }
+        ]
+      });
+
+      const removeButton = page.locator(".sd-tagbox-item__clean-button").first();
+      await page.locator(".sd-tagbox-item").first().hover();
+      await removeButton.hover();
+      await page.mouse.down();
+      await compareScreenshot(page, ".sd-tagbox-item", "tagbox-question-item-icon-pressed.png");
+      await page.mouse.up();
+    });
+
     test("Check tagbox select question without clear button", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {

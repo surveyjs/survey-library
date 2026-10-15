@@ -2222,43 +2222,37 @@ describe("DynamicDataList: the operation of a failed read", () => {
     list.filter = "{id} > 1";
     expect(operations, "#1").toEqual(["read"]);
   });
-  /* The request is built inside the read's error handling: a sort array whose copy throws (a proxy,
-     an accessor) is a failed read, and the read it superseded leaves no loading state behind. A
-     source without paging is sent an empty view, so the sort is never copied for it at all. */
-  function createThrowingSort(): { sort: Array<any>, arm: () => void } {
-    let isArmed = false;
-    const sort = new Proxy([{ field: "id", direction: "asc" }], {
-      get: (target: any, prop: any): any => {
-        if (isArmed && prop === "slice") throw new Error("the sort cannot be copied");
-        return target[prop];
-      }
-    });
-    return { sort: sort, arm: (): void => { isArmed = true; } };
-  }
+  /* The request is built inside the read's error handling: a request that cannot be built is a failed
+     read, and the read it superseded leaves no loading state behind. A source that pages and filters
+     but cannot sort is read whole for a sort, and the list cannot run an unparsable filter over it. A
+     source without paging is sent an empty view. */
   test("a request that cannot be built is a failed read", () => {
     const source = new FakeAsyncRangeSource(createRecords(4));
+    source.capabilities = { paging: true, filtering: true };
     const list = new DynamicDataList(source);
     const operations: Array<string> = [];
     list.onError = (error: any, operation: string): void => { operations.push(operation); };
-    const { sort, arm } = createThrowingSort();
-    list.sort = sort;
+    list.filter = "{id} >";
     expect(list.isLoading, "#1: the read of the view is in flight").toBe(true);
-    arm();
-    expect(() => list.refresh(), "#2").not.toThrow();
+    expect(() => { list.sort = [{ field: "id", direction: "asc" }]; }, "#2").not.toThrow();
     expect(operations, "#3").toEqual(["read"]);
     expect(list.isLoading, "#4: the superseded read left no loading state").toBe(false);
     expect(list.hasPendingRead, "#5").toBe(false);
   });
   test("a source without paging is not sent the sort", () => {
-    const list = createList(createRecords(4));
+    const source = ArrayDynamicDataSource.fromArray(createRecords(4));
+    const requests: Array<any> = [];
+    const read = source.read.bind(source);
+    source.read = (request?: any): Array<any> => { requests.push(request); return read(); };
+    const list = new DynamicDataList(source);
     const operations: Array<string> = [];
     list.onError = (error: any, operation: string): void => { operations.push(operation); };
-    const { sort, arm } = createThrowingSort();
-    list.sort = sort;
-    arm();
+    list.sort = [{ field: "id", direction: "desc" }];
     expect(() => list.load(), "#1").not.toThrow();
     expect(operations, "#2").toEqual([]);
     expect(list.loadedCount, "#3").toBe(4);
+    expect(requests.length > 0, "#4: the source was read").toBe(true);
+    expect(requests.filter(request => !!request && request.sort.length > 0), "#5: never with the sort").toEqual([]);
   });
   test("a filter the list cannot run locally is a failed read too", () => {
     const list = createList(createRecords(4));
@@ -4358,54 +4352,74 @@ describe("DynamicDataList: a failed write to an assigned source is reported", ()
       }
     });
   });
-  /* A source without keyField that answers asynchronously: a remove that fails in the queue behind a
-     pending update is reported, and the window is read again from the array - the local removal would
-     have every later write address the record after the one it was made in. The writes queued before
-     the failure carry those positions too: they are dropped and reported. */
-  function attachAsyncArray(): { list: DynamicDataList, settle: () => void, stored: () => Array<any>, errors: Array<string>, changes: Array<string> } {
-    let settleUpdate: () => void;
-    class AsyncArraySource extends ArrayDynamicDataSource {
-      public update(sourceIndex: number, record: any): Promise<void> {
-        return new Promise<void>((resolve: () => void): void => {
-          settleUpdate = (): void => { super.update(sourceIndex, record); resolve(); };
-        });
-      }
-      public remove(): void { throw new Error("remove"); }
-    }
+  /* An array source whose remove throws, and an array source whose first update answers with a
+     promise and stores nothing: a local source is written synchronously, so that promise is
+     reported and the window goes back to what the array stores. */
+  function attachArray(source: typeof ArrayDynamicDataSource): { list: DynamicDataList, stored: () => Array<any>, errors: Array<string>, changes: Array<string> } {
     let stored: Array<any> = [{ name: "A" }, { name: "B" }, { name: "C" }];
     const { list } = createOwnList();
-    list.assignSource(new AsyncArraySource((): Array<any> => stored, (arr: Array<any>): void => { stored = arr; }));
+    list.assignSource(new source((): Array<any> => stored, (arr: Array<any>): void => { stored = arr; }));
     const errors: Array<string> = [];
     list.onError = (error: any, operation: string): void => { errors.push(operation + ":" + error.message); };
-    return { list: list, settle: (): void => settleUpdate(), stored: (): Array<any> => stored, errors: errors, changes: recordChanges(list) };
+    return { list: list, stored: (): Array<any> => stored, errors: errors, changes: recordChanges(list) };
   }
-  test("a failed remove queued behind an asynchronous update is reported, and the window is read again from the array", async () => {
-    const { list, settle, stored, errors, changes } = attachAsyncArray();
-    list.setValue(1, "name", "b");
-    list.remove(0);
-    changes.length = 0;
-    settle();
-    for (let i = 0; i < 10; i++) await Promise.resolve();
-    expect(errors, "#1: reported once").toEqual(["remove:remove"]);
-    expect([names(list.getLoadedRecords()), names(stored())], "#2: the window and the array").toEqual([["A", "b", "C"], ["A", "b", "C"]]);
-    expect(changes, "#3: the owner starts over").toEqual(["reset"]);
-    list.setValue(0, "name", "A-edited");
-    settle();
-    for (let i = 0; i < 10; i++) await Promise.resolve();
-    expect(names(stored()), "#4: the next edit lands on its record").toEqual(["A-edited", "b", "C"]);
-  });
-  test("an update queued after a failing remove is dropped and reported, and the array keeps every record", async () => {
-    const { list, settle, stored, errors } = attachAsyncArray();
-    list.setValue(1, "name", "b");
-    list.remove(0);
-    list.setValue(0, "name", "b-edited");
-    settle();
-    for (let i = 0; i < 10; i++) await Promise.resolve();
-    expect(errors.length, "#1: the remove and the dropped update").toBe(2);
-    expect(errors[0], "#2").toBe("remove:remove");
-    expect(errors[1].indexOf("update:"), "#3").toBe(0);
-    expect(names(stored()), "#4: no record is overwritten").toEqual(["A", "b", "C"]);
-    expect(names(list.getLoadedRecords()), "#5").toEqual(["A", "b", "C"]);
+  class ThrowingRemoveSource extends ArrayDynamicDataSource {
+    public remove(): void { throw new Error("remove"); }
+  }
+  function createPromiseUpdateSource(isRejected: boolean): typeof ArrayDynamicDataSource {
+    return class extends ArrayDynamicDataSource {
+      private promises: number = 1;
+      public update(sourceIndex: number, record: any): any {
+        if (this.promises === 0) return super.update(sourceIndex, record);
+        this.promises--;
+        return isRejected ? Promise.reject(new Error("rejected")) : new Promise<void>((): void => undefined);
+      }
+    };
+  }
+  const asyncLocalWriteMessage = "DynamicDataList: a local data source is written synchronously; asynchronous writes need a data source with keyField";
+  [false, true].forEach((isInBatch: boolean): void => {
+    const where = isInBatch ? " inside a batch" : "";
+    test("a remove that throws" + where + " is reported, the window goes back to the array, and an edit after it lands on its record", () => {
+      const { list, stored, errors, changes } = attachArray(ThrowingRemoveSource);
+      let windowAfterRemove: Array<string>;
+      const write = (): void => {
+        list.remove(0);
+        windowAfterRemove = names(list.getLoadedRecords());
+        list.setValue(windowAfterRemove.indexOf("B"), "name", "B-edited");
+      };
+      if (isInBatch) list.batch(write); else write();
+      expect(names(stored()), "#1: no record is overwritten").toEqual(["A", "B-edited", "C"]);
+      expect(windowAfterRemove, "#2: the window after the failed remove").toEqual(["A", "B", "C"]);
+      expect(names(list.getLoadedRecords()), "#3").toEqual(["A", "B-edited", "C"]);
+      expect(errors, "#4: reported once").toEqual(["remove:remove"]);
+      expect(changes, "#5").toEqual(isInBatch ? ["recordRemoved:0", "recordChanged:1:name", "reset"] : ["recordRemoved:0", "reset", "recordChanged:1:name"]);
+    });
+    [false, true].forEach((isRejected: boolean): void => {
+      test("an update of a local source answered with a " + (isRejected ? "rejected" : "pending") + " promise" + where +
+        " is reported, and the window goes back to the array", async () => {
+        const unhandled: Array<any> = [];
+        const onUnhandled = (reason: any): void => { unhandled.push(reason); };
+        process.on("unhandledRejection", onUnhandled);
+        try {
+          const { list, stored, errors, changes } = attachArray(createPromiseUpdateSource(isRejected));
+          const write = (): void => { list.setValue(1, "name", "edited"); };
+          if (isInBatch) list.batch(write); else write();
+          expect(errors, "#1: reported once, for the update").toEqual(["update:" + asyncLocalWriteMessage]);
+          expect(names(list.getLoadedRecords()), "#2: the window is the array").toEqual(["A", "B", "C"]);
+          expect(names(stored()), "#3").toEqual(["A", "B", "C"]);
+          expect(changes, "#4: the owner starts over").toEqual(["recordChanged:1:name", "reset"]);
+          expect(list.hasPendingWrites, "#5: nothing is chained").toBe(false);
+          list.setValue(names(list.getLoadedRecords()).indexOf("C"), "name", "C-edited");
+          expect(names(stored()), "#6: a later edit lands on its record").toEqual(["A", "B", "C-edited"]);
+          await flush();
+          await new Promise<void>((resolve: () => void): void => { setTimeout(resolve, 0); });
+          expect(errors.length, "#7: the promise is ignored").toBe(1);
+          expect(unhandled, "#8: no unhandled rejection").toEqual([]);
+        } finally {
+          process.off("unhandledRejection", onUnhandled);
+        }
+      });
+    });
   });
   test("a batch with a remove and an update that fails at commit: reported once, the window goes back, the next edit lands right", () => {
     const { list, assigned, errors, changes } = attachFailing();

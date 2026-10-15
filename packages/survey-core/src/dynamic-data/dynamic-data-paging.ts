@@ -229,6 +229,13 @@ export class DynamicDataPagingController {
     }
     this.mirrorListView();
   }
+  /* A view authored in design mode is still pending when the owner comes back to runtime with no sync
+     in between: setDesignMode() notifies nobody. A runtime assignment hands it over first, or the
+     sync after the assignment would push the old authored value over the new one. The caller reads
+     the list first: a list created by that read has received the view already. */
+  private flushPendingView(): void {
+    if (this.isViewPending)this.pushAuthoredView();
+  }
   // In design mode the list holds no sort and no filter: what is authored stays in the hash.
   private clearListView(): void {
     const list = this.list;
@@ -279,6 +286,7 @@ export class DynamicDataPagingController {
       return;
     }
     const list = this.list;
+    this.flushPendingView();
     // The sort setter raises a reset even when the value did not change, and every reset costs a
     // full rebuild of the rows/panels.
     if (Helpers.isTwoValueEquals(list.sort, newValue)) return;
@@ -369,6 +377,7 @@ export class DynamicDataPagingController {
       return;
     }
     const list = this.list;
+    this.flushPendingView();
     if (list.filter === newValue) return;
     this.cancelPendingPageMove();
     list.filter = newValue;

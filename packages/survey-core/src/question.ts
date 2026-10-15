@@ -2019,7 +2019,7 @@ export class Question extends SurveyElement<Question>
     if (!properties) properties = {};
     properties["question"] = this;
     this.runConditionCore(properties);
-    if (!this.isValueChangedDirectly && (!this.isClearValueOnHidden || this.isVisibleInSurvey)) {
+    if (this.canApplyDefaultValue() && (!this.isClearValueOnHidden || this.isVisibleInSurvey)) {
       this.runDefaultValueExpression(properties);
     }
   }
@@ -2071,9 +2071,15 @@ export class Question extends SurveyElement<Question>
   protected onSetData(): void {
     super.onSetData();
     if (!this.isDesignMode && !!this.survey && !this.isLoadingFromJson) {
+      // Check before reading the survey value: replacing the question value with the survey one is not a direct change.
+      // Re-attaching to a survey (e.g. building the preview or single-page container) must not
+      // re-apply default values to a question whose value was set or cleared directly.
+      const canApplyDefaultValue = this.canApplyDefaultValue();
       this.initDataFromSurvey();
       this.onSurveyValueChanged(this.value);
-      this.updateValueWithDefaults();
+      if (canApplyDefaultValue) {
+        this.updateValueWithDefaults();
+      }
       this.updateIsAnswered();
     }
   }
@@ -2519,7 +2525,10 @@ export class Question extends SurveyElement<Question>
     if (this.isClearValueOnHidden && !this.isVisible) return;
     if (this.isDesignMode && this.isContentElement && this.isDefaultValueEmpty()) return;
     if (!this.defaultValueExpression && this.parentQuestion?.isBuildingChildrenForStoredRecords()) return;
+    // Applying a default value is not a direct value change
+    this.isChangingViaDefaultValue = true;
     this.setDefaultValue();
+    this.isChangingViaDefaultValue = false;
   }
   public get isValueDefault(): boolean {
     return !this.isEmpty() && (this.isTwoValueEquals(this.defaultValue, this.value) || !this.isValueChangedDirectly && !!this.defaultValueExpression);
@@ -3166,7 +3175,13 @@ export class Question extends SurveyElement<Question>
     this.isUpdatingValueFromSurvey = true;
     if (!isEmpty && this.defaultValueExpression) {
       this.setDefaultValueCore((val: any): void => {
-        this.updateValueFromSurveyCore(newValue, this.isTwoValueEquals(newValue, val));
+        const isDefault = this.isTwoValueEquals(newValue, val);
+        this.updateValueFromSurveyCore(newValue, isDefault);
+        // A value assigned via survey.data/mergeData that differs from the default one is set directly,
+        // even if the question already holds it (e.g. the initial default equals the loaded value).
+        if (!isDefault && this.survey?.isSettingData()) {
+          this.setValueChangedDirectly(true);
+        }
       });
     } else {
       this.updateValueFromSurveyCore(newValue, <any>this.data !== <any>this.getSurvey());
@@ -3215,6 +3230,11 @@ export class Question extends SurveyElement<Question>
     this.questionComment = newValue;
   }
   protected onChangeQuestionValue(newValue: any): void { }
+  // Default values (defaultValue and defaultValueExpression) apply until the value is set or cleared directly
+  // by an end user, in code, or by loading data that differs from the default.
+  private canApplyDefaultValue(): boolean {
+    return !this.isValueChangedDirectly;
+  }
   protected setValueChangedDirectly(val: boolean): void {
     this.isValueChangedDirectly = val;
     if (!!this.setValueChangedDirectlyCallback) {
@@ -3259,6 +3279,36 @@ export class Question extends SurveyElement<Question>
   supportGoNextPageAutomatic(): boolean { return this.supportAutoAdvance(); }
   public supportAutoAdvance(): boolean {
     return false;
+  }
+  // Set only while Enter commits the current value. tryGoNextPageAutomatic runs on every
+  // value change, so multi-value questions stay opted out until this flag is raised.
+  protected isAutoAdvanceRequested: boolean;
+  // Emptiness is checked separately: comment writes the textarea text before deciding to advance.
+  protected isAutoAdvanceEnter(event: any): boolean {
+    if (!event || (event.key !== "Enter" && event.keyCode !== 13)) return false;
+    if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey || event.isComposing || event.keyCode === 229 || event.defaultPrevented) return false;
+    if (this.isDesignMode || this.isInputReadOnly) return false;
+    const survey = this.survey as SurveyModel;
+    return !!survey && survey.autoAdvanceEnabled === true;
+  }
+  protected canCommitAutoAdvanceOnEnter(event: any): boolean {
+    return this.isAutoAdvanceEnter(event) && !this.isEmpty();
+  }
+  protected requestAutoAdvance(): boolean {
+    const survey = this.survey as SurveyModel;
+    // getQuestionByValueName only sees top-level questions. A nested question with the same
+    // name must not advance on behalf of that other question.
+    if (!survey || survey.getQuestionByValueName(this.getValueName()) !== this) return false;
+    this.isAutoAdvanceRequested = true;
+    try {
+      return survey.tryGoNextPageAutomaticCore(this.getValueName());
+    } finally {
+      this.isAutoAdvanceRequested = false;
+    }
+  }
+  protected commitAutoAdvance(event?: any): void {
+    if (event?.preventDefault) event.preventDefault();
+    this.requestAutoAdvance();
   }
   public supportGoNextPageError(): boolean {
     return true;

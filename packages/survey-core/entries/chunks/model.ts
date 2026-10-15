@@ -118,7 +118,7 @@ export {
 } from "../../src/localizablestring";
 export { HtmlConditionItem, UrlConditionItem } from "../../src/expressionItems";
 export { ChoicesRestful, ChoicesRestfull } from "../../src/choicesRestful";
-export { FunctionFactory, registerFunction, IFunctionRegistration, isReturnColumnParam } from "../../src/functionsfactory";
+export { FunctionFactory, registerFunction, IFunctionRegistration, IFunctionParameter, isReturnColumnParam } from "../../src/functionsfactory";
 export { IExpressionError, ExpressionErrorType } from "../../src/expressions/expressionError";
 export { ExpressionRunner } from "../../src/expressions/expressionRunner";
 export { ExpressionExecutorRunner } from "../../src/expressions/expressionExecutor";
@@ -324,6 +324,7 @@ export * from "../../src/utils/text-area";
 export * from "../../src/utils/shadow-effects";
 export * from "../../src/utils/resize-manager";
 export * from "../../src/utils/base-theme-init";
+export { setupThemeAdapter } from "../../src/utils/setupThemeAdapter";
 
 export { surveyCss, defaultCss, defaultThemeName } from "../../src/defaultCss/defaultCss";
 

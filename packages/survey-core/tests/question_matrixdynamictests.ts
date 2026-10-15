@@ -8092,6 +8092,26 @@ describe("Survey_QuestionMatrixDynamic", () => {
 
     settings.confirmActionAsync = prevAsync;
   });
+  test("matrixdynamic without a survey: removeRowUI with confirmDelete asks and removes the row", () => {
+    const prevAsync = settings.confirmActionAsync;
+    try {
+      const q = new QuestionMatrixDynamicModel("q");
+      q.addColumn("col1");
+      q.confirmDelete = true;
+      q.value = [{ col1: 1 }, { col1: 2 }, { col1: 3 }];
+      const asked: Array<any> = [];
+      settings.confirmActionAsync = (message: string, resFunc: (res: boolean) => void, options: any): boolean => {
+        asked.push(options.rootElement);
+        resFunc(true);
+        return true;
+      };
+      q.removeRowUI(q.visibleRows[1]);
+      expect(asked, "#1: asked once, with no root element").toEqual([undefined]);
+      expect(q.value, "#2").toEqual([{ col1: 1 }, { col1: 3 }]);
+    } finally {
+      settings.confirmActionAsync = prevAsync;
+    }
+  });
   test("matrixdynamic.removeRow & settings.confirmActionFunc, #10145", () => {
     let funcRes = false;
     settings.confirmActionFunc = (message: string): boolean => {

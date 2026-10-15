@@ -16,6 +16,8 @@ function foldKeyText(value: any, caseSensitive: boolean): any {
   return !caseSensitive && typeof value === "string" ? value.toLocaleLowerCase() : value;
 }
 function getContentKey(value: any, caseSensitive: boolean): string {
+  // A Date has no own keys: by content it would be "{}" whatever its time.
+  if (value instanceof Date) return "d" + value.getTime();
   if (Array.isArray(value)) return "[" + value.map((item: any): string => getContentKey(item, caseSensitive)).join(",") + "]";
   if (!!value && typeof value === "object") {
     const keys = Object.keys(value).filter((key: string): boolean => value[key] !== undefined).sort();

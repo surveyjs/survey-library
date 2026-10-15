@@ -8,7 +8,7 @@ import { getInArrayConditions, parseExpressionText, splitRefSegments } from "./e
 import { resolveLintSettings } from "./lint-settings";
 import {
   CalculatedValueRecord, NameRefKind, CIMap, CIMultiMap, ContainerRecord, ElementRecord, ExpressionSite,
-  ExpressionSiteKind, joinPath, ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue,
+  ExpressionSiteKind, getCapturingFrame, joinPath, ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue,
   ScopeFrameMatrixRow, ScopeFramePanelDynamic, SurveyIndex, TriggerRecord, TriggerTargetRef,
 } from "./symbols";
 import { getChoicesInfo, getStaticChoiceValues, getValueTypeInfo } from "./value-types";
@@ -107,15 +107,6 @@ function addItemValueSites(state: WalkState, json: any, propName: string, ownerT
     addSitesFromProps(state, item, itemPath, props, owner, itemScope);
     addTextRefsFromProps(state, item, itemPath, locProps, owner, itemScope);
   });
-}
-
-// The innermost scope frame that owns element names (dynamic-panel template or matrix row).
-function getCapturingFrame(scope: Array<ScopeFrame>): ScopeFramePanelDynamic | ScopeFrameMatrixRow | undefined {
-  for (let i = scope.length - 1; i >= 0; i--) {
-    const frame = scope[i];
-    if (frame.kind === "panelDynamic" || frame.kind === "matrixRow") return frame;
-  }
-  return undefined;
 }
 
 function registerRecord(state: WalkState, record: ElementRecord, ancestorPanels: Array<ElementRecord>): void {

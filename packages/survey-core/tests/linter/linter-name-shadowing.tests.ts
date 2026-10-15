@@ -143,6 +143,108 @@ describe("name/shadowing - derived data keys", () => {
   });
 });
 
+describe("name/shadowing - data scopes", () => {
+  test("a template valueName is no collision with a top-level question (#12014)", () => {
+    expect(byRule({
+      elements: [
+        { type: "text", name: "phone_number" },
+        {
+          type: "paneldynamic", name: "emergency_contacts",
+          templateElements: [{ type: "text", name: "contact_phone_number", valueName: "phone_number" }],
+        },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a template question spelling a top-level comment key is no collision", () => {
+    expect(byRule({
+      elements: [
+        { type: "text", name: "q1", showCommentArea: true },
+        { type: "paneldynamic", name: "p1", templateElements: [{ type: "text", name: "q1-Comment" }] },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a template question spelling a top-level totals key is no collision", () => {
+    expect(byRule({
+      elements: [
+        {
+          type: "matrixdynamic", name: "m1",
+          columns: [{ name: "c1", cellType: "text", inputType: "number", totalType: "sum" }],
+        },
+        { type: "paneldynamic", name: "p1", templateElements: [{ type: "text", name: "m1-total" }] },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a valueName landing on another question of the same template is a share, not reported", () => {
+    expect(byRule({
+      elements: [{
+        type: "paneldynamic", name: "p1", templateElements: [
+          { type: "text", name: "x" },
+          { type: "text", name: "y", valueName: "x" },
+        ],
+      }],
+    })).toHaveLength(0);
+  });
+  test("questions of two different templates do not meet", () => {
+    expect(byRule({
+      elements: [
+        { type: "paneldynamic", name: "p1", templateElements: [{ type: "text", name: "x" }] },
+        { type: "paneldynamic", name: "p2", templateElements: [{ type: "text", name: "y", valueName: "x" }] },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a top-level valueName does not meet a template question", () => {
+    expect(byRule({
+      elements: [
+        { type: "text", name: "q1", valueName: "x" },
+        { type: "paneldynamic", name: "p1", templateElements: [{ type: "text", name: "x" }] },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a detail-panel valueName landing on a column is a share, not reported", () => {
+    expect(byRule({
+      elements: [{
+        type: "matrixdynamic", name: "m1", detailPanelMode: "underRow",
+        columns: [{ name: "c1", cellType: "text" }],
+        detailElements: [{ type: "text", name: "d1", valueName: "c1" }],
+      }],
+    })).toHaveLength(0);
+  });
+  test("a comment key inside one template is flagged", () => {
+    const findings = byRule({
+      elements: [{
+        type: "paneldynamic", name: "p1", templateElements: [
+          { type: "text", name: "q1", showCommentArea: true },
+          { type: "text", name: "q1-Comment" },
+        ],
+      }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("commentKeyCollision");
+    expect(findings[0].messageData.base).toBe("q1");
+  });
+  test("a comment key inside one template is found through a valueName too", () => {
+    expect(byRule({
+      elements: [{
+        type: "paneldynamic", name: "p1", templateElements: [
+          { type: "text", name: "q1", valueName: "shared", showCommentArea: true },
+          { type: "text", name: "q2", valueName: "shared-Comment" },
+        ],
+      }],
+    })).toHaveLength(1);
+  });
+  test("a detail-panel question spelling a column comment key is flagged", () => {
+    const findings = byRule({
+      elements: [{
+        type: "matrixdynamic", name: "m1", detailPanelMode: "underRow",
+        columns: [{ name: "c1", cellType: "text", showCommentArea: true }],
+        detailElements: [{ type: "text", name: "c1-Comment" }],
+      }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("commentKeyCollision");
+  });
+});
+
 describe("name/shadowing - a variable over a question", () => {
   test("a setvalue trigger writing a variable named after a question is flagged", () => {
     const findings = byRule({

@@ -61,7 +61,6 @@ import { CalculatedValue } from "../src/calculatedValue";
 import { LocalizableString } from "../src/localizablestring";
 import { getRenderedSize, getRenderedStyleSize } from "../src/utils/utils";
 import { wrapUrlForBackgroundImage } from "../src/utils/dom-utils";
-import { increaseHeightByContent } from "../src/utils/text-area";
 import { Helpers } from "../src/helpers";
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { Cover } from "../src/header";
@@ -14343,57 +14342,17 @@ describe("Survey", () => {
     expect(comment.getDefaultPropertyValue("allowResize"), "allowResize").toBe(undefined);
   });
 
-  test("utils.increaseHeightByContent", () => {
-    let element = {
-      getBoundingClientRect: () => { return { height: 50, width: 100, x: 10, y: 10 }; },
-      scrollHeight: 103,
-      get offsetHeight() {
-        return this.style.height ? parseFloat(this.style.height) : 79;
-      },
-      style: { height: null as any },
-      getAttribute: (attr: string) => "2"
-    };
-    let getComputedStyle = () => {
-      return {
-        "lineHeight": "24px",
-        "borderTopWidth": "2px",
-        "paddingTop": "12px",
-        "paddingBottom": "14px",
-        "borderBottomWidth": "3px",
-      };
-    };
-    increaseHeightByContent(<HTMLElement>element, getComputedStyle);
-    expect(element.style.height).toBe("103px");
+  test("comment autoGrow uses content field sizing", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "comment", name: "q1", autoGrow: true, rows: 3 }]
+    });
+    const question = survey.getQuestionByName("q1") as QuestionCommentModel;
+    expect(question.textAreaModel.getCssClasses().control.indexOf("sd-comment__input--auto-grow") > -1).toBe(true);
+    expect(question.textAreaModel.getStyle()).toEqual({ resize: "none", "--sd-comment-rows": 3 });
 
-    element = {
-      getBoundingClientRect: () => { return { height: 50, width: 100, x: 10, y: 10 }; },
-      get scrollHeight() {
-        return this.style.height ? parseFloat(this.style.height) : 103;
-      },
-      get offsetHeight() {
-        return this.style.height ? parseFloat(this.style.height) : 103;
-      },
-      style: { height: null as any },
-      getAttribute: (attr: string) => "2"
-    };
-    increaseHeightByContent(<HTMLElement>element, getComputedStyle);
-    expect(element.style.height).toBe("79px");
-
-    element = {
-      getBoundingClientRect: () => { return { height: 50, width: 100, x: 10, y: 10 }; },
-      get scrollHeight() {
-        const height = this.style.height ? parseFloat(this.style.height) : 127;
-        return Math.max(height, 103);
-      },
-      get offsetHeight() {
-        return this.style.height ? parseFloat(this.style.height) : 127;
-      },
-      style: { height: null as any },
-      getAttribute: (attr: string) => "2"
-    };
-    increaseHeightByContent(<HTMLElement>element, getComputedStyle);
-    expect(element.style.height).toBe("103px");
-
+    question.autoGrow = false;
+    expect(question.textAreaModel.getCssClasses().control.indexOf("sd-comment__input--auto-grow")).toBe(-1);
+    expect(question.textAreaModel.getStyle()).toEqual({ resize: "none" });
   });
   test("test titleTagName, survey.cssTitle properties and getTitleOwner", () => {
     const survey = new SurveyModel({

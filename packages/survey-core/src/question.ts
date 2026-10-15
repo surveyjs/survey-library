@@ -795,6 +795,13 @@ export class Question extends SurveyElement<Question>
   public get hasPlainInput(): boolean {
     return this.hasInput;
   }
+  /* Whether records can be ordered by this question's value: a scalar value only. It reads
+     getValueType() on every call, so it follows a type switch (multiSelect) as it happens. Not
+     hasInput: an expression has a value to sort by although nobody types it. */
+  public get isValueSortable(): boolean {
+    const type = this.getValueType();
+    return type !== "array" && type !== "object";
+  }
   /**
    * Returns a page to which the question belongs and allows you to move this question to a different page.
    */

@@ -12,6 +12,7 @@ import { ISurveyData } from "../../src/base-interfaces";
 import { QuestionMatrixDropdownModel } from "../../src/question_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { QuestionRecordsBar } from "../../src/question_records_bar";
 
 // The released override surface of the matrix base.
 export class MatrixWithOverrides extends QuestionMatrixDropdownModelBase {
@@ -95,7 +96,7 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // Every records question shares the paging, sorting and filtering API, the fixed matrix included.
   const ddApi: Array<DeclaredKeys<QuestionMatrixDropdownModel>> = ["pageIndex", "pageCount", "isCountKnown", "sortBy",
     "filterExpression", "sortOrder", "toggleSort", "clearSort", "refreshView", "canGoNextPage", "canGoPrevPage", "goToPage",
-    "nextPage", "prevPage", "isPageMovePending", "pagerActions", "pageSize"];
+    "nextPage", "prevPage", "isPageMovePending", "recordsBar", "pageSize"];
   res.push(ddApi);
   // @ts-expect-error the single-input behavior reaches it through the question's owner object
   const ddSync: DeclaredKeys<QuestionMatrixDropdownModel> = "syncPageSizeWithMode";
@@ -316,5 +317,23 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error protected
   const ddItemLookup3: DeclaredKeys<QuestionMatrixDropdownModel> = "getExpressionItem";
   res.push(ddItemLookup1, ddItemLookup2, ddItemLookup3);
+  // The pager and the sort menu belong to the records bar, not to the question.
+  // @ts-expect-error on the records bar
+  const mdBar1: DeclaredKeys<QuestionMatrixDynamicModel> = "pagerActions";
+  // @ts-expect-error on the records bar
+  const mdBar2: DeclaredKeys<QuestionMatrixDynamicModel> = "viewActions";
+  // @ts-expect-error on the records bar
+  const mdBar3: DeclaredKeys<QuestionMatrixDynamicModel> = "showViewActions";
+  // @ts-expect-error on the records bar
+  const pdBar1: DeclaredKeys<QuestionPanelDynamicModel> = "pagerActions";
+  // @ts-expect-error on the records bar
+  const pdBar2: DeclaredKeys<QuestionPanelDynamicModel> = "viewActions";
+  // @ts-expect-error on the records bar
+  const pdBar3: DeclaredKeys<QuestionPanelDynamicModel> = "showViewActions";
+  res.push(mdBar1, mdBar2, mdBar3, pdBar1, pdBar2, pdBar3);
+  // What the renderers read from the records bar.
+  const barKeys: Array<DeclaredKeys<QuestionRecordsBar>> = ["pagerActions", "viewActions", "showViewActions", "showPager", "isVisible", "cssClasses"];
+  const bars: Array<QuestionRecordsBar> = [md.recordsBar, pd.recordsBar, dd.recordsBar];
+  res.push(barKeys, bars);
   return res;
 }

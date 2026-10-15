@@ -315,6 +315,40 @@ describe("Remote data source: first load", () => {
     expect(question.isDataLoading, "#4").toBe(false);
     expect(question.isReady, "#5").toBe(true);
   });
+  test("matrix: the pager cannot move and shows the loading text while a page is read", async () => {
+    const source = new FakeServerSource(serverRecords(20));
+    const { question } = await createMatrix(source, { rowsPerPage: 5 });
+    const actions = question.recordsBar.pagerActions;
+    const moveIds = ["sv-pager-first", "sv-pager-prev", "sv-pager-page-0", "sv-pager-page-2", "sv-pager-next", "sv-pager-last"];
+    const enabledOf = (): Array<boolean> => moveIds.map(id => actions.getActionById(id).enabled);
+    const loading = actions.getActionById("sv-pager-loading");
+    expect(question.pageCount, "#1").toBe(4);
+    expect(loading.visible, "#2: nothing is loading").toBe(false);
+    expect(loading.title, "#3").toBe("Loading...");
+    source.auto = false;
+    question.nextPage();
+    expect(question.isDataLoading, "#4: the page is read").toBe(true);
+    expect(loading.visible, "#5").toBe(true);
+    expect(enabledOf(), "#6: no move while the read is in flight").toEqual([false, false, false, false, false, false]);
+    source.settleAll();
+    await flush();
+    expect(question.pageIndex, "#7").toBe(1);
+    expect(loading.visible, "#8").toBe(false);
+    expect(enabledOf(), "#9").toEqual([true, true, true, true, true, true]);
+  });
+  test("panel: the sort menu is disabled while a page is read", async () => {
+    const source = new FakeServerSource(serverRecords(20));
+    const { question } = await createPanel(source, { allowSortPanels: true });
+    const sortItem = question.recordsBar.viewActions.getActionById("sv-sort-by");
+    expect([sortItem.visible, sortItem.enabled], "#1").toEqual([true, true]);
+    source.auto = false;
+    question.nextPage();
+    expect(question.isDataLoading, "#2: the page is read").toBe(true);
+    expect([sortItem.visible, sortItem.enabled], "#3: shown, not usable").toEqual([true, false]);
+    source.settleAll();
+    await flush();
+    expect(sortItem.enabled, "#4").toBe(true);
+  });
   test("panel: isDataLoading and isReady follow the read", async () => {
     const source = new FakeServerSource(serverRecords(10));
     source.auto = false;
@@ -2417,7 +2451,7 @@ describe("Remote data source: a total the source does not know", () => {
   test("matrix: the pager shows the page number alone while the count is unknown", async () => {
     const source = createNoTotalSource(25);
     const { question } = await createMatrix(source, { rowsPerPage: 10 });
-    const info = question.pagerActions.getActionById("sv-pager-info");
+    const info = question.recordsBar.pagerActions.getActionById("sv-pager-info");
     expect(info.title, "#1: no total to show").toBe("1");
     question.nextPage();
     await flush();
@@ -2433,7 +2467,7 @@ describe("Remote data source: a total the source does not know", () => {
   test("matrix: the pager follows the locale once an unknown count becomes known", async () => {
     const source = createNoTotalSource(25);
     const { question } = await createMatrix(source, { rowsPerPage: 10 });
-    const info = question.pagerActions.getActionById("sv-pager-info");
+    const info = question.recordsBar.pagerActions.getActionById("sv-pager-info");
     expect(info.title, "#1: no total to show").toBe("1");
     question.nextPage();
     await flush();
@@ -2442,6 +2476,23 @@ describe("Remote data source: a total the source does not know", () => {
     expect(info.title, "#2: the end was reached").toBe("3 of 3");
     (<SurveyModel>question.survey).locale = "de";
     expect(info.title, "#3: the locale is observed").toBe("3 von 3");
+  });
+  test("matrix: the pager has no page slots and no last button until the count is known", async () => {
+    const source = createNoTotalSource(25);
+    const { question } = await createMatrix(source, { rowsPerPage: 10 });
+    const actions = question.recordsBar.pagerActions;
+    const visibleSlots = (): Array<string> => actions.actions
+      .filter(action => action.id.indexOf("sv-pager-page-") === 0 && action.visible).map(action => action.title);
+    const visibleOf = (id: string): boolean => actions.getActionById(id).visible;
+    expect(visibleSlots(), "#1: no total to number the pages by").toEqual([]);
+    expect([visibleOf("sv-pager-info"), visibleOf("sv-pager-first"), visibleOf("sv-pager-last")], "#2").toEqual([true, true, false]);
+    question.nextPage();
+    await flush();
+    question.nextPage();
+    await flush();
+    expect(question.isCountKnown, "#3: the end was reached").toBe(true);
+    expect(visibleSlots(), "#4").toEqual(["1", "2", "3"]);
+    expect([visibleOf("sv-pager-info"), visibleOf("sv-pager-last")], "#5: the slots show the total now").toEqual([false, true]);
   });
   test("panel: the panel count is a lower bound and isCountKnown says so", async () => {
     const source = createNoTotalSource(25);

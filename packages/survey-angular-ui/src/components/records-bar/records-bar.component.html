@@ -1,0 +1,10 @@
+<ng-template #template>
+  <div *ngIf="model.isVisible" [class]="model.cssClasses.root">
+    <div *ngIf="model.showPager" [class]="model.cssClasses.pager">
+      <sv-ng-action-bar [model]="model.pagerActions"></sv-ng-action-bar>
+    </div>
+    <div *ngIf="model.showViewActions" [class]="model.cssClasses.viewActions">
+      <sv-ng-action-bar [model]="model.viewActions"></sv-ng-action-bar>
+    </div>
+  </div>
+</ng-template>

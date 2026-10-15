@@ -346,3 +346,81 @@ describe("A custom component answers through its content question", () => {
     }
   });
 });
+
+describe("Question.isValueSortable", () => {
+  function sortable(survey: SurveyModel, names: Array<string>): Array<boolean> {
+    return names.map(name => survey.getQuestionByName(name).isValueSortable);
+  }
+  test("A question with a scalar value is sortable, an expression too", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "text", name: "t1" },
+      { type: "text", name: "t2", inputType: "number" },
+      { type: "comment", name: "c1" },
+      { type: "dropdown", name: "d1", choices: [1, 2] },
+      { type: "radiogroup", name: "r1", choices: ["a"] },
+      { type: "boolean", name: "b1" },
+      { type: "rating", name: "rt1" },
+      { type: "slider", name: "sl1" },
+      { type: "expression", name: "e1", expression: "1 + 1" },
+    ] });
+    expect(sortable(survey, ["t1", "t2", "c1", "d1", "r1", "b1", "rt1", "sl1", "e1"]),
+      "an expression has a value though nobody types it").toEqual(
+      [true, true, true, true, true, true, true, true, true]);
+  });
+  test("A non-value question, a file and a signature are not sortable", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "html", name: "h1" },
+      { type: "image", name: "i1" },
+      { type: "file", name: "f1" },
+      { type: "signaturepad", name: "s1" },
+    ] });
+    expect(sortable(survey, ["h1", "i1", "f1", "s1"]), "a signature is a string no order means anything for").toEqual(
+      [false, false, false, false]);
+  });
+  test("A question with an array or an object value is not sortable", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "checkbox", name: "ch1", choices: [1, 2] },
+      { type: "tagbox", name: "tg1", choices: [1, 2] },
+      { type: "ranking", name: "rk1", choices: [1, 2] },
+      { type: "slider", name: "sl2", sliderType: "range" },
+      { type: "matrix", name: "m1", rows: ["r"], columns: ["c"] },
+      { type: "matrixdropdown", name: "m2", rows: ["r"], columns: [{ name: "c" }] },
+      { type: "matrixdynamic", name: "m3", columns: [{ name: "c" }] },
+      { type: "multipletext", name: "mt1", items: [{ name: "i1" }] },
+      { type: "paneldynamic", name: "p1", templateElements: [{ type: "text", name: "q" }] },
+    ] });
+    expect(sortable(survey, ["ch1", "tg1", "rk1", "sl2", "m1", "m2", "m3", "mt1", "p1"])).toEqual(
+      [false, false, false, false, false, false, false, false, false]);
+  });
+  test("An image picker and an image map follow multiSelect as it changes", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "imagepicker", name: "ip1", choices: [{ value: "a", imageLink: "a.png" }] },
+      { type: "imagemap", name: "im1" },
+    ] });
+    const picker = <any>survey.getQuestionByName("ip1");
+    const map = <any>survey.getQuestionByName("im1");
+    expect([picker.isValueSortable, map.isValueSortable], "#1: one image, many regions").toEqual([true, false]);
+    picker.multiSelect = true;
+    map.multiSelect = false;
+    expect([picker.isValueSortable, map.isValueSortable], "#2: switched").toEqual([false, true]);
+  });
+  test("A single component is sortable when the question it wraps is", () => {
+    ComponentCollection.Instance.add({ name: "sortabletext", questionJSON: { type: "text" } });
+    ComponentCollection.Instance.add({ name: "sortablesign", questionJSON: { type: "signaturepad" } });
+    ComponentCollection.Instance.add({ name: "sortablehtml", questionJSON: { type: "html", html: "<b>x</b>" } });
+    ComponentCollection.Instance.add({ name: "sortableimage", questionJSON: { type: "image" } });
+    try {
+      const survey = new SurveyModel({ elements: [
+        { type: "sortabletext", name: "q1" },
+        { type: "sortablesign", name: "q2" },
+        { type: "sortablehtml", name: "q3" },
+        { type: "sortableimage", name: "q4" },
+      ] });
+      expect(sortable(survey, ["q1", "q2", "q3", "q4"]), "a wrapped signature, html or image reports a string type").toEqual(
+        [true, false, false, false]);
+      expect(survey.getQuestionByName("q2").getValueType(), "#2: the type alone would not exclude it").toBe("string");
+    } finally {
+      ComponentCollection.Instance.clear();
+    }
+  });
+});

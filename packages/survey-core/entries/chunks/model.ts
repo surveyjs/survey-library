@@ -160,6 +160,7 @@ export {
 } from "../../src/jsonobject";
 export { property, propertyArray } from "../../src/decorators";
 export { QuestionRecordsModel } from "../../src/question_records";
+export { QuestionRecordsBar } from "../../src/question_records_bar";
 export {
   IMatrixDropdownData,
   MatrixDropdownCell,

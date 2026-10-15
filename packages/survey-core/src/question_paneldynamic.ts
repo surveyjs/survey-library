@@ -221,9 +221,11 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.template.addElementCallback = (element) => {
       this.addOnPropertyChangedCallback(<SurveyElement><any>element);
       this.rebuildPanels();
+      this.invalidateSortFields();
     };
     this.template.removeElementCallback = () => {
       this.rebuildPanels();
+      this.invalidateSortFields();
     };
     this.template.onPropertyChanged.add((sender: Base, options: any) => {
       if (options.name === "title") {
@@ -605,10 +607,16 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (element.isPanel) {
       (<PanelModel>element).addElementCallback = (element) => {
         this.addOnPropertyChangedCallback(<SurveyElement><any>element);
+        this.invalidateSortFields();
+      };
+      (<PanelModel>element).removeElementCallback = () => {
+        this.invalidateSortFields();
       };
     }
   }
   private onTemplateElementPropertyChanged(element: any, options: any) {
+    // Before the early return below: the sort candidates change without any panel too.
+    this.invalidateSortFields();
     if (this.isLoadingFromJson || this.useTemplatePanel || this.panelsCore.length == 0)
       return;
     var property = Serializer.findProperty(element.getType(), options.name);
@@ -3605,6 +3613,21 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     return false;
   }
+  /* The renderers show a pager under the panels while the list has more than one page. Carousel and
+     tab mode page too, but their own navigation crosses pages. One page is no paging: design and
+     single-input mode report one as well. */
+  public get showPager(): boolean {
+    return this.pageCount > 1 && this.isRenderModeList;
+  }
+  /* Enables the sort menu under the panels. It gates the menu only: sortBy from JSON and sortOrder
+     from code sort a question that does not opt in. */
+  @property({ defaultValue: false }) allowSortPanels: boolean;
+  protected get isSortMenuAllowed(): boolean {
+    return this.allowSortPanels;
+  }
+  protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
+    return this.getTemplateSortFieldCandidates(this.template);
+  }
   private tabbedMenuValue: AdaptiveActionContainer<PanelDynamicTabbedMenuItem>;
   public get hasTabbedMenu(): boolean {
     return this.isRenderModeTab && this.visiblePanels.length > 0;
@@ -3963,6 +3986,9 @@ Serializer.addClass(
     } },
     { name: "renderMode", visible: false, isSerializable: false },
     ...getRecordViewProperties("panelsPerPage"),
+    // Invisible in the property grid until the sort UI ships, like panelsPerPage and sortBy.
+    { name: "allowSortPanels:boolean", default: false, visible: false },
+    { name: "maxSortLevels:number", default: 2, minValue: 1, maxValue: 5, visible: false },
     { name: "displayMode", default: "list", choices: ["list", "carousel", "tab"] },
     {
       name: "showProgressBar:boolean", alternativeName: "showRangeInProgress",

@@ -10,7 +10,7 @@ import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { FunctionFactory } from "./functionsfactory";
-import { PanelModel } from "./panel";
+import { PanelModel, PanelModelBase } from "./panel";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
@@ -1102,6 +1102,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     if (name === "columns" || name === "cellType") {
       this.updateColumnsAndRows();
+      this.invalidateSortFields();
     }
     const clearRowsProps = ["placeholder", "columnColCount", "rowTitleWidth", "choices"];
     const resetRenderTableProps = [
@@ -1185,6 +1186,23 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    */
   @property() columnsVisibleIf: string;
   protected onColumnsChanged(): void { }
+  /* The columns a header click sorts by (column.isSortable), in column order, then the sortable
+     questions of the detail panel while it is shown. A column hidden by its visible property is left
+     out; one whose cells are hidden on the current page is not: the sort covers every record. */
+  protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
+    return this.getColumnSortFieldCandidates().concat(this.getDetailSortFieldCandidates());
+  }
+  protected getColumnSortFieldCandidates(): Array<{ field: string, title: string }> {
+    const res: Array<{ field: string, title: string }> = [];
+    this.columns.forEach((column: MatrixDropdownColumn): void => {
+      if (!column.visible || !column.isSortable) return;
+      res.push({ field: column.sortField, title: column.locTitle.calculatedText || column.name });
+    });
+    return res;
+  }
+  protected getDetailSortFieldCandidates(): Array<{ field: string, title: string }> {
+    return this.detailPanelMode !== "none" ? this.getTemplateSortFieldCandidates(this.detailPanel) : [];
+  }
   // The points where the visible rows may have changed; the fixed matrix hides itself without rows
   // (hideIfRowsEmpty).
   protected updateVisibilityBasedOnRows(): void { }
@@ -1438,8 +1456,42 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         pnl.allowAdaptiveActions = adActions;
       }
       this.detailPanelValue = pnl;
+      this.addDetailPanelSortCallbacks(pnl);
     }
     return this.detailPanelValue;
+  }
+  /* The detail panel template notifies nothing of its own: an element added or removed at any depth and
+     a property change of an element (a title, a type, visible) may change the sort candidates. */
+  private addDetailPanelSortCallbacks(panel: PanelModelBase): void {
+    const prevAdd = panel.addElementCallback;
+    const prevRemove = panel.removeElementCallback;
+    panel.addElementCallback = (element: IElement): void => {
+      if (!!prevAdd) prevAdd(element);
+      this.addDetailElementSortCallbacks(element);
+      this.invalidateSortFields();
+    };
+    panel.removeElementCallback = (element: IElement): void => {
+      if (!!prevRemove) prevRemove(element);
+      (<SurveyElement><any>element).onPropertyChanged.remove(this.detailElementChangedHandler);
+      this.invalidateSortFields();
+    };
+    panel.elements.forEach((element: IElement): void => this.addDetailElementSortCallbacks(element));
+  }
+  private detailElementChangedHandlerValue: () => void;
+  private get detailElementChangedHandler(): () => void {
+    if (!this.detailElementChangedHandlerValue) {
+      this.detailElementChangedHandlerValue = (): void => { this.invalidateSortFields(); };
+    }
+    return this.detailElementChangedHandlerValue;
+  }
+  private addDetailElementSortCallbacks(element: IElement): void {
+    const el = <SurveyElement><any>element;
+    // An element removed and added again keeps one handler.
+    el.onPropertyChanged.remove(this.detailElementChangedHandler);
+    el.onPropertyChanged.add(this.detailElementChangedHandler);
+    if (el.isPanel) {
+      this.addDetailPanelSortCallbacks(<PanelModelBase><any>el);
+    }
   }
   public getPanels(): Array<IPanel> {
     const pnl = this.getPanelInDesignMode();
@@ -1682,6 +1734,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   onColumnPropertyChanged(column: MatrixDropdownColumn, name: string, newValue: any): void {
     this.updateHasFooter();
+    // Before the return below: the sort candidates change without any row too.
+    this.invalidateSortFields();
     if (!this.generatedVisibleRows) return;
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       this.generatedVisibleRows[i].updateCellQuestionOnColumnChanged(
@@ -1732,6 +1786,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   onColumnVisibilityChanged(column: MatrixDropdownColumn): void {
     this.resetTableAndRows();
+    this.invalidateSortFields();
   }
   onColumnCellVisibilityChanged(column: MatrixDropdownColumn): void {
     if (this.isDesignMode || this.isRunningCellsCondition) return;
@@ -1742,6 +1797,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void {
     this.updateDefaultRowValue(column);
     this.resetTableAndRows();
+    this.invalidateSortFields();
   }
   getDesignRowContext(): IValueGetterContext {
     if (this.visibleRows && this.visibleRows.length > 0) return this.visibleRows[0].getValueGetterContext();
@@ -2734,6 +2790,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.updateIsAnswered();
   }
   // The QuestionRecordsModel hooks in matrix terms.
+  /* The column questions, then the detail panel questions while the panel is shown, so that a sort or a
+     filter by a detail field compares by its type. A value name shared with a column is the column's. */
   protected getFields(): Array<IDynamicDataField> {
     const questions = new Array<Question>();
     this.columns.forEach(column => {
@@ -2741,6 +2799,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         questions.push(column.templateQuestion);
       }
     });
+    if (this.detailPanelMode !== "none") {
+      const names = questions.map((q: Question): string => q.getValueName());
+      this.detailPanel.questions.forEach((q: Question): void => {
+        if (names.indexOf(q.getValueName()) < 0) {
+          questions.push(q);
+        }
+      });
+    }
     return this.getFieldsOfQuestions(questions);
   }
   protected refreshRenderedPage(): void {

@@ -590,7 +590,7 @@ describe("Page window: asynchronous validators and the survey's settings", () =>
     expect(question.pageIndex, "#2: not moved yet").toBe(0);
     expect(question.isPageMovePending, "#3").toBe(true);
     expect(question.canGoNextPage, "#4: the pager is not usable").toBe(false);
-    expect(question.pagerActions.getActionById("sv-pager-next").enabled, "#5: nor are its actions").toBe(false);
+    expect(question.recordsBar.pagerActions.getActionById("sv-pager-next").enabled, "#5: nor are its actions").toBe(false);
     expect(results.length, "#6: one validator per panel of the page").toBe(5);
     results.forEach(setResult => setResult(1));
     expect(question.pageIndex, "#7: moved once every validator settled clean").toBe(1);

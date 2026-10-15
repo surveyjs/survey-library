@@ -48,6 +48,7 @@
         />
       </template>
     </div>
+    <SvComponent :is="'sv-records-bar'" :model="question.recordsBar"></SvComponent>
     <SvComponent
       :is="'survey-paneldynamicprogress'"
       v-if="question.showNavigation"

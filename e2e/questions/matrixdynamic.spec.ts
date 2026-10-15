@@ -549,6 +549,160 @@ frameworks.forEach((framework) => {
       expect(data.matrix.map((row: any) => row.kind)).toEqual(["b", "a", "c", "a", "a"]);
     });
 
+    test("the pager moves the pages through its buttons", async ({ page }) => {
+      const defaultValue: Array<any> = [];
+      for (let i = 0; i < 5; i++) defaultValue.push({ id: "row" + i });
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            rowsPerPage: 2,
+            defaultValue: defaultValue,
+            columns: [{ name: "id", cellType: "text" }],
+          },
+        ],
+      });
+      const pager = page.locator(".sd-matrixdynamic__pager");
+      const firstId = page.locator("td[title='id'] input").first();
+
+      await expect(firstId).toHaveValue("row0");
+      await expect(pager.locator("button[title='First']")).toBeDisabled();
+      await expect(pager.locator("button[title='Previous']")).toBeDisabled();
+      await pager.locator("button[title='Next']").click();
+      await expect(firstId).toHaveValue("row2");
+      await pager.getByRole("button", { name: "3", exact: true }).click();
+      await expect(firstId).toHaveValue("row4");
+      await expect(pager.locator("button[title='Last']")).toBeDisabled();
+      await pager.locator("button[title='First']").click();
+      await expect(firstId).toHaveValue("row0");
+    });
+
+    test("the Sort by menu sorts the matrix on a phone, where the header is hidden", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            allowSortRows: true,
+            defaultValue: [{ name: "b" }, { name: "c" }, { name: "a" }],
+            columns: [{ name: "name", cellType: "text" }],
+          },
+        ],
+      });
+      const viewActions = page.locator(".sd-matrixdynamic__records-bar .sd-matrixdynamic__view-actions");
+      const firstName = page.locator("input[type='text']").filter({ visible: true }).first();
+      await expect(firstName).toHaveValue("b");
+      await expect(viewActions, "the header sorts on a desktop").toHaveCount(0);
+
+      await page.setViewportSize({ width: 600, height: 1080 });
+      await page.evaluate(() => (window as any).survey.setIsMobile(true));
+      const lastName = page.locator("input[type='text']").filter({ visible: true }).last();
+      await expect(viewActions).toBeVisible();
+      expect((await viewActions.boundingBox())!.y, "the menu is under the rows").toBeGreaterThan((await lastName.boundingBox())!.y);
+      await viewActions.getByRole("button", { name: "Sort by", exact: true }).click();
+      await page.getByRole("menuitemradio", { name: "name", exact: true }).click();
+      await expect(firstName).toHaveValue("a");
+      await expect(viewActions.getByRole("button", { name: "Sort by name, ascending" })).toBeVisible();
+    });
+
+    test("the Sort by menu sorts a desktop matrix by a detail panel question; it is under the pager", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            allowSortRows: true,
+            rowsPerPage: 3,
+            detailPanelMode: "underRow",
+            defaultValue: [{ name: "b", score: 10 }, { name: "c", score: 2 }, { name: "a", score: 9 }, { name: "d", score: 20 }],
+            columns: [{ name: "name", cellType: "text" }],
+            detailElements: [{ type: "text", name: "score", inputType: "number" }],
+          },
+        ],
+      });
+      const recordsBar = page.locator(".sd-matrixdynamic__records-bar");
+      const viewActions = recordsBar.locator(".sd-matrixdynamic__view-actions");
+      const names = page.locator("input[type='text']").filter({ visible: true });
+      await expect(names.first()).toHaveValue("b");
+      const pager = recordsBar.locator(".sd-matrixdynamic__pager");
+      await expect(pager, "the pager is in the same bar").toHaveCount(1);
+      const pagerBox = (await pager.boundingBox())!;
+      expect((await viewActions.boundingBox())!.y, "the sort is under the pager").toBeGreaterThanOrEqual(pagerBox.y + pagerBox.height);
+      await viewActions.getByRole("button", { name: "Sort by", exact: true }).click();
+      await page.getByRole("menuitemradio", { name: "score", exact: true }).click();
+      await expect(names.nth(0)).toHaveValue("c");
+      await expect(names.nth(1)).toHaveValue("a");
+      await expect(names.nth(2)).toHaveValue("b");
+      await expect(viewActions.getByRole("button", { name: "Sort by score, ascending" })).toBeVisible();
+    });
+
+    test("sortMenuVisibility always shows the Sort by menu on a desktop matrix", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            allowSortRows: true,
+            sortMenuVisibility: "always",
+            defaultValue: [{ name: "b" }, { name: "a" }],
+            columns: [{ name: "name", cellType: "text" }],
+          },
+        ],
+      });
+      const viewActions = page.locator(".sd-matrixdynamic__records-bar .sd-matrixdynamic__view-actions");
+      await expect(viewActions.getByRole("button", { name: "Sort by", exact: true })).toBeVisible();
+      await page.evaluate(() => { (window as any).survey.getQuestionByName("matrix").sortMenuVisibility = "auto"; });
+      await expect(viewActions).toHaveCount(0);
+    });
+
+    test("a Then by menu that opens upwards lies over the table's sticky action cells", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            allowSortRows: true,
+            sortMenuVisibility: "always",
+            rowsPerPage: 6,
+            detailPanelMode: "underRow",
+            defaultValue: [1, 2, 3, 4, 5, 6, 7].map(i => ({ name: "n" + i, city: "c" + i, score: i })),
+            columns: [{ name: "name", cellType: "text" }, { name: "city", cellType: "text" }],
+            detailElements: [{ type: "text", name: "score", inputType: "number" }, { type: "text", name: "notes" }],
+          },
+        ],
+      });
+      const viewActions = page.locator(".sd-matrixdynamic__records-bar .sd-matrixdynamic__view-actions");
+      await viewActions.getByRole("button", { name: "Sort by", exact: true }).click();
+      await page.getByRole("menuitemradio", { name: "name", exact: true }).click();
+      const thenBy = viewActions.getByRole("button", { name: "Then by", exact: true });
+      await expect(thenBy).toBeVisible();
+      // The button at the bottom edge of the window: its menu has no room below and opens upwards, over the rows.
+      const box = (await thenBy.boundingBox())!;
+      await page.setViewportSize({ width: 1280, height: Math.round(box.y + box.height + 8) });
+      await thenBy.click();
+      const item = page.getByRole("menuitemradio", { name: "score", exact: true });
+      await expect(item).toBeVisible();
+      expect((await item.boundingBox())!.y, "the menu opened upwards").toBeLessThan((await thenBy.boundingBox())!.y);
+      // Nothing lies over the open menu: across the whole width of every item, the item is the topmost element.
+      const covered = await page.getByRole("menuitemradio").evaluateAll((items: Array<Element>) => {
+        const res: Array<string> = [];
+        items.forEach((el: Element) => {
+          const r = el.getBoundingClientRect();
+          if (r.height === 0) return;
+          const root = <Document>el.getRootNode();
+          for (let x = r.left + 2; x < r.right - 2; x += 8) {
+            const top = root.elementFromPoint(x, r.top + r.height / 2);
+            if (!top || !el.contains(top)) res.push(el.textContent + " at " + Math.round(x) + ": " + (top ? top.className : "none"));
+          }
+        });
+        return res;
+      });
+      expect(covered).toEqual([]);
+      await item.click();
+      await expect(viewActions.getByRole("button", { name: "Then by score, ascending" })).toBeVisible();
+    });
+
     test("remove row with transposeData", async ({ page }) => {
       const json3 = {
         "elements": [

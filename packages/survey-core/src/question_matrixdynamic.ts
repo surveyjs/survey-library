@@ -678,6 +678,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      a sort is set. The property is stored and exposed (column.isSortable reads it) - the sort itself
      is assigned through sortOrder/sortBy/toggleSort. */
   @property({ defaultValue: false }) allowSortRows: boolean;
+  /* Where the sort menu shows besides the header: "auto" - on a phone, where the table hides its header,
+     and when the detail panel has a field to sort by, which the header cannot sort by; "always" - on every
+     device, so the matrix looks like a dynamic panel. */
+  @property({ defaultValue: "auto" }) sortMenuVisibility: string;
+  protected get isSortMenuAllowed(): boolean {
+    return this.allowSortRows && (this.sortMenuVisibility === "always" || this.isMobile || this.hasDetailSortField());
+  }
+  // A detail panel field that is not a column's: only the menu sorts by it.
+  private hasDetailSortField(): boolean {
+    const columnFields = this.getColumnSortFieldCandidates().map(item => item.field);
+    return this.getDetailSortFieldCandidates().some(item => columnFields.indexOf(item.field) < 0);
+  }
 
   public get iconDragElement(): string {
     return this.cssClasses.iconDragElement;
@@ -1671,6 +1683,8 @@ Serializer.addClass(
     { name: "allowRowReorder:switch", alternativeName: "allowRowsDragAndDrop" },
     // Invisible in the property grid until the UI series ships sortable headers (rowsPerPage, sortBy and filterExpression are the base's).
     { name: "allowSortRows:boolean", default: false, visible: false },
+    { name: "maxSortLevels:number", default: 2, minValue: 1, maxValue: 5, visible: false },
+    { name: "sortMenuVisibility", default: "auto", choices: ["auto", "always"], visible: false },
   ],
   function() {
     return new QuestionMatrixDynamicModel("");

@@ -1,4 +1,4 @@
-import { Base, ComputedUpdater } from "./base";
+import { Base } from "./base";
 import { IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
@@ -29,6 +29,8 @@ import { LocalizableString } from "./localizablestring";
 import { ConsoleWarnings } from "./console-warnings";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { confirmActionAsync } from "./utils/confirm-dialog";
+import { IQuestionRecordsBarOwner, IRecordsBarCssClasses, IRecordsBarSortField, QuestionRecordsBar, maxSortLevelCount } from "./question_records_bar";
+import type { ILocalizableOwner } from "./localizablestring";
 import type { PanelModelBase } from "./panel";
 import type { ItemValue } from "./itemvalue";
 import type { ISurveyDynamicDataWrites, ISurveyOldValueReads } from "./interfaces/survey-callbacks";
@@ -1051,6 +1053,9 @@ export abstract class QuestionRecordsModel extends Question {
      onMinRecordCountApplied before the count follows a new minimum, onMaxRecordCountApplied last. */
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
+    if (recordsBarInputs.indexOf(name) > -1) {
+      this.updateRecordsBar();
+    }
     const names = this.getRecordCountNames();
     if (!names) return;
     if (name === names.min) {
@@ -2476,54 +2481,122 @@ export abstract class QuestionRecordsModel extends Question {
   public get filterExpression(): string { return this.paging.filterExpression; }
   public set filterExpression(val: string) { this.paging.filterExpression = val; }
   public refreshView(): void { this.paging.refreshView(); }
-  private pagerActionsValue: ActionContainer;
-  public get pagerActions(): ActionContainer {
-    if (!this.pagerActionsValue) {
-      this.pagerActionsValue = this.createPagerActions(this.createActionContainer());
+  /* The bar under the records: the pager and, under it, the sort menu. Created on its first read; the
+     question keeps it current through updateRecordsBar(). */
+  private recordsBarValue: QuestionRecordsBar;
+  public get recordsBar(): QuestionRecordsBar {
+    if (!this.recordsBarValue) {
+      this.recordsBarValue = new QuestionRecordsBar(this.createRecordsBarOwner());
     }
-    return this.pagerActionsValue;
+    return this.recordsBarValue;
   }
-  /* The pager the renderers show through their action bar: it computes nothing of its own, it shows
-     what the paging helper answers. The page buttons are icons whose localized titles are their
-     accessible names; the page info is a disabled item without a tab stop, text the keyboard passes
-     over. */
-  // A page-move action of the pager: an icon button with a localized title.
-  private createPageMoveAction(id: string, iconName: string, titleName: string, canMove: () => boolean, move: () => void): Action {
-    return new Action({
-      id: id,
-      iconName: iconName,
-      showTitle: false,
-      title: <any>new ComputedUpdater(() => this.getLocalizationFormatString(titleName)),
-      enabled: <any>new ComputedUpdater(canMove),
-      action: move
-    });
+  // Nothing to do before the bar is created: it reads the current state when it is.
+  protected updateRecordsBar(): void {
+    if (!!this.recordsBarValue) {
+      this.recordsBarValue.update();
+    }
   }
-  private createPagerActions(container: ActionContainer): ActionContainer {
-    const prevAction = this.createPageMoveAction("sv-pager-prev", "icon-arrowleft", "pagePrevText",
-      (): boolean => this.paging.canGoPrevPage, (): void => { this.paging.prevPage(); });
-    const pageInfoAction = new Action({
-      id: "sv-pager-info",
-      /* A count nobody knows has no total to show: the page number alone. A known count goes through
-         indexText like every other pager (some locales reverse the order). survey.locale is a property
-         read, so the updater follows it; the global surveyLocalization.currentLocale is not observed.
-         Both texts are computed on every run: a ComputedUpdater collects its dependencies once, on the
-         first run, so a branch not taken then (the total, while the count is unknown) is never
-         observed afterwards. */
-      title: <any>new ComputedUpdater(() => {
-        const page = this.reportedPageIndex + 1;
-        const text = this.getLocalizationFormatString("indexText", page, this.reportedPageCount);
-        return this.paging.isCountKnown ? text : String(page);
-      }),
-      enabled: false,
-      disableTabStop: true
-    });
-    const nextAction = this.createPageMoveAction("sv-pager-next", "icon-arrowright", "pageNextText",
-      (): boolean => this.paging.canGoNextPage, (): void => { this.paging.nextPage(); });
-    container.setItems([prevAction, pageInfoAction, nextAction]);
-    return container;
+  /* The functions call the question's members when they are called, so an override or a spy on the
+     question is honoured (see helperOwner). */
+  private createRecordsBarOwner(): IQuestionRecordsBarOwner {
+    const question = this;
+    return {
+      get pageIndex(): number { return question.paging.pageIndex; },
+      get pageCount(): number { return question.paging.pageCount; },
+      get isCountKnown(): boolean { return question.paging.isCountKnown; },
+      get canGoPrevPage(): boolean { return question.paging.canGoPrevPage; },
+      get canGoNextPage(): boolean { return question.paging.canGoNextPage; },
+      get reportedPageIndex(): number { return question.reportedPageIndex; },
+      get reportedPageCount(): number { return question.reportedPageCount; },
+      goToPage: (pageIndex: number): void => { question.paging.goToPage(pageIndex); },
+      prevPage: (): void => { question.paging.prevPage(); },
+      nextPage: (): void => { question.paging.nextPage(); },
+      get isPageMovePending(): boolean { return question.isPageMovePending; },
+      get isDataLoading(): boolean { return question.isDataLoading; },
+      get isDesignMode(): boolean { return question.isDesignMode; },
+      get isDisposed(): boolean { return question.isDisposed; },
+      get sortOrder(): Array<IDynamicDataSort> { return question.sortOrder; },
+      get sortFields(): Array<IRecordsBarSortField> { return question.sortFields; },
+      get maxSortLevels(): number { return question.maxSortLevels; },
+      get isSortMenuAllowed(): boolean { return question.isSortMenuAllowed; },
+      get showPager(): boolean { return question.showPager; },
+      setSortOrderByUser: (sort: Array<IDynamicDataSort>): boolean => question.setSortOrderByUser(sort),
+      getLocalizationString: (strName: string): string => question.getLocalizationString(strName),
+      getLocalizationFormatString: (strName: string, ...args: any[]): string => question.getLocalizationFormatString(strName, ...args),
+      getLocOwner: (): ILocalizableOwner => question,
+      getCssClasses: (): IRecordsBarCssClasses => {
+        const css = question.cssClasses;
+        return { root: css.recordsBar, viewActions: css.viewActions, pager: css.pager };
+      },
+      createActionContainer: (): ActionContainer => question.createActionContainer()
+    };
+  }
+  /* The type's pager rule: the renderers draw the pager under the records while it is true. The bar
+     mirrors it (QuestionRecordsBar.showPager). */
+  public get showPager(): boolean {
+    return false;
   }
   // True while a page move waits for the asynchronous validators of the page it leaves.
   public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }
+  /* The respondent's sort pick: the whole new sort, an empty array for none. It replaces the sort and
+     validates the page it leaves, as toggleSort does; picking the sort in force re-applies it.
+     false = an error was found at once. */
+  public setSortOrderByUser(sort: Array<IDynamicDataSort>): boolean {
+    return this.paging.setSortOrderByUser(sort);
+  }
+  // How many "Sort by" / "Then by" dropdowns the sort menu may show, 1..5.
+  public get maxSortLevels(): number {
+    return this.getPropertyValue("maxSortLevels", 2);
+  }
+  public set maxSortLevels(val: number) {
+    const count = Math.floor(Number(val));
+    this.setPropertyValue("maxSortLevels", isNaN(count) ? 2 : Math.min(maxSortLevelCount, Math.max(1, count)));
+  }
+  /* The fields a respondent can sort the records by, in the order the question shows them: the
+     sortable questions of the panel template, the sortable columns of the matrix. Computed on every
+     read from the template or the columns, which notify nothing: the sort menu is refreshed through
+     invalidateSortFields(). */
+  public get sortFields(): Array<{ field: string, title: string }> {
+    const res: Array<{ field: string, title: string }> = [];
+    this.getSortFieldCandidates().forEach((item: { field: string, title: string }): void => {
+      if (!!item.field && !res.some(f => f.field === item.field)) {
+        res.push(item);
+      }
+    });
+    return res;
+  }
+  protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
+    return [];
+  }
+  /* Every sortable question of a record template - the panel template, the matrix's detail panel -
+     nested panels included (their values live in the same record), under the value name the list
+     knows it by (getFieldsOfQuestions). A question hidden in the template is left out; one a visibleIf
+     hides in some records is not: the sort covers those records too. */
+  protected getTemplateSortFieldCandidates(template: PanelModelBase): Array<{ field: string, title: string }> {
+    const res: Array<{ field: string, title: string }> = [];
+    template.questions.forEach((q: Question): void => {
+      if (!q.isValueSortable || !isVisibleInTemplate(q, template)) return;
+      res.push({ field: q.getValueName(), title: getTemplateQuestionSortTitle(q) });
+    });
+    return res;
+  }
+  // The type's opt-in for the sort menu: allowSortPanels, allowSortRows on a phone.
+  protected get isSortMenuAllowed(): boolean {
+    return false;
+  }
+  // The sort candidates may have changed (a template question or a column changed).
+  protected invalidateSortFields(): void {
+    this.updateRecordsBar();
+  }
+  // A locale change changes no sort and no property; the menu texts and the field titles follow it.
+  public locStrsChanged(): void {
+    super.locStrsChanged();
+    this.updateRecordsBar();
+  }
+  public onSurveyLoad(): void {
+    super.onSurveyLoad();
+    this.updateRecordsBar();
+  }
   // What the question reports. A zero-based page index; always 0 while paging is off.
   protected get reportedPageIndex(): number {
     return this.isPagingActive ? this.paging.pageIndex : 0;
@@ -3572,9 +3645,9 @@ export abstract class QuestionRecordsModel extends Question {
     super.dispose();
     this.disposeItemsLeftByWrites();
     this.disposeRecordObjects();
-    if (!!this.pagerActionsValue) {
-      this.pagerActionsValue.dispose();
-      this.pagerActionsValue = undefined;
+    if (!!this.recordsBarValue) {
+      this.recordsBarValue.dispose();
+      this.recordsBarValue = undefined;
     }
     if (!!this._dataList) {
       this._dataList.dispose();
@@ -4552,6 +4625,27 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
   });
   return json;
 }
+function isVisibleInTemplate(q: Question, template: PanelModelBase): boolean {
+  let el: any = q;
+  while(!!el && el !== template) {
+    if (!el.visible) return false;
+    el = el.parent;
+  }
+  return true;
+}
+/* The title the sort menu shows for a template question. The template belongs to no record, so the
+   record piping ({panel.x}, {panelIndex}, {row.x}, {rowIndex}) has nothing to resolve: the unprocessed
+   title is taken with every placeholder stripped, and the name when nothing is left. */
+function getTemplateQuestionSortTitle(q: Question): string {
+  const res = (q.locTitle.pureText || "").replace(/\{[^}]*\}/g, "").replace(/\s+/g, " ").trim();
+  return res || q.name;
+}
+/* The question properties the records bar shows (updateRecordsBar): the sort, the number of levels, the
+   opt-ins, the mobile mode (the matrix sorts by its header on a desktop; displayMode forces one of them),
+   the matrix's detail panel and menu visibility, the states that disable the menu, and the page count and
+   the display mode the pager follows. */
+const recordsBarInputs = ["sortOrder", "maxSortLevels", "allowSortPanels", "allowSortRows", "sortMenuVisibility", "detailPanelMode",
+  "_isMobile", "displayMode", "isDataLoading", "isPageMovePending", "pageCount"];
 /* The serializer entries of the paging, the sort and the filter of a records question (rowsPerPage or
    panelsPerPage, sortBy, filterExpression). Invisible in the property grid until the UI series ships a
    pager and sortable headers: they load from and save to JSON. sortBy and filterExpression are plain

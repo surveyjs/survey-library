@@ -1,0 +1,105 @@
+// Prototype for the #11873 showcase: the shipping sort UI will replace this file. The inline styles
+// and the English title/aria text are hard-coded on purpose - there is no design and no localized
+// string for a sortable header yet.
+import * as React from "react";
+import { Base, IDynamicDataSort, QuestionMatrixDropdownRenderedCell } from "survey-core";
+import { ReactElementFactory } from "../../element-factory";
+import { SurveyElementBase } from "../../reactquestion_element";
+import { SvgIcon } from "../svg-icon/svg-icon";
+
+// The matrix side of the sort: the question owns the cycle, the header only passes the modifier on.
+interface IDynamicDataSortQuestion extends Base {
+  sortOrder: Array<IDynamicDataSort>;
+  toggleSort(field: string, addToSort?: boolean): boolean;
+}
+interface IDynamicDataSortHeaderProps {
+  cell: QuestionMatrixDropdownRenderedCell;
+  question: IDynamicDataSortQuestion;
+  content: React.JSX.Element | null;
+}
+
+const buttonStyle: React.CSSProperties = {
+  display: "inline-flex", alignItems: "center", gap: "4px", padding: 0, border: "none",
+  background: "none", font: "inherit", color: "inherit", cursor: "pointer", textAlign: "left"
+};
+// Feather chevrons (images-v1/v2): up = ascending, down = descending, a faded down = not sorted.
+const ascIconName = "icon-chevronup-16x16";
+const descIconName = "icon-chevrondown-16x16";
+const indicatorStyle: React.CSSProperties = { display: "inline-flex", alignItems: "center", fontSize: "11px" };
+const unsortedIconStyle: React.CSSProperties = { opacity: 0.35 };
+
+const getSort = (question: IDynamicDataSortQuestion, field: string): IDynamicDataSort => {
+  const sortOrder = !!question ? question.sortOrder : null;
+  if (!Array.isArray(sortOrder) || !field) return null;
+  return sortOrder.filter((s: IDynamicDataSort): boolean => s.field === field)[0];
+};
+
+/* column.isSortable does not look at the design mode: in Survey Creator a header click selects the
+   column, and a sort there would rewrite the matrix's sortBy. */
+export function isDynamicDataSortHeader(cell: QuestionMatrixDropdownRenderedCell, question: any): boolean {
+  const column: any = cell.column;
+  return !!column && column.isSortable === true && !!question && !question.isDesignMode;
+}
+
+/* aria-sort belongs to the <th>, which the table renderer owns, so the lookup lives here next to
+   the indicator that uses the same answer. It is undefined for a column that does not sort, which
+   is what keeps the header markup of an ordinary matrix unchanged. */
+export function getDynamicDataAriaSort(cell: QuestionMatrixDropdownRenderedCell, question: any): "ascending" | "descending" | "none" | undefined {
+  if (!isDynamicDataSortHeader(cell, question)) return undefined;
+  const sort = getSort(question, (cell.column as any).sortField);
+  if (!sort) return "none";
+  return sort.direction === "desc" ? "descending" : "ascending";
+}
+
+export class SurveyQuestionDynamicDataSortHeader extends SurveyElementBase<IDynamicDataSortHeaderProps, any> {
+  private get question(): IDynamicDataSortQuestion {
+    return this.props.question;
+  }
+  private get field(): string {
+    const column: any = this.props.cell.column;
+    return !!column ? column.sortField : "";
+  }
+  /* The question, not the rendered cell: a sort rebuilds the table, but a rank badge also changes
+     when another column is added to the sort and this cell's own instance survives. */
+  protected getStateElement(): Base | null {
+    return this.question;
+  }
+  private toggleSort(e: React.MouseEvent | React.KeyboardEvent): void {
+    // Shift is what most data grids use for an additive sort and Ctrl/Cmd is what MUI uses; a
+    // prototype takes both so a showcase can be driven either way.
+    const addToSort = e.shiftKey || e.ctrlKey || e.metaKey;
+    this.question.toggleSort(this.field, addToSort);
+  }
+  private handleKeyDown(e: React.KeyboardEvent): void {
+    if (e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
+    e.preventDefault();
+    this.toggleSort(e);
+  }
+  private renderIndicator(): React.JSX.Element {
+    const sort = getSort(this.question, this.field);
+    if (!sort) {
+      return <span style={indicatorStyle} aria-hidden="true">
+        <SvgIcon iconName={descIconName} size={16} style={unsortedIconStyle}></SvgIcon>
+      </span>;
+    }
+    // The rank makes a multi-field sort legible: it is the 1-based place of the field in sortOrder.
+    const rank = this.question.sortOrder.length > 1 ? "" + (this.question.sortOrder.indexOf(sort) + 1) : "";
+    return <span style={indicatorStyle} aria-hidden="true">
+      <SvgIcon iconName={sort.direction === "desc" ? descIconName : ascIconName} size={16}></SvgIcon>{rank}
+    </span>;
+  }
+  protected renderElement(): React.JSX.Element {
+    const title = this.props.cell.getTitle();
+    return <button
+      type="button"
+      style={buttonStyle}
+      title={"Sort by " + title + " (Shift or Ctrl/Cmd to add to the sort)"}
+      aria-label={"Sort by " + title}
+      onClick={(e: React.MouseEvent) => this.toggleSort(e)}
+      onKeyDown={(e: React.KeyboardEvent) => this.handleKeyDown(e)}
+    >{this.props.content}{this.renderIndicator()}</button>;
+  }
+}
+
+ReactElementFactory.Instance.registerElement("sv-dynamic-data-sort-header",
+  (props) => { return React.createElement(SurveyQuestionDynamicDataSortHeader, props); });

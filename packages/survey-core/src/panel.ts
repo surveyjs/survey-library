@@ -846,7 +846,7 @@ export class PanelModelBase extends SurveyElement<Question>
           if (!!this.data) {
             var comment = this.data.getComment(valueName);
             if (!!comment) {
-              data[valueName + Base.commentSuffix] = comment;
+              data[Helpers.getCommentKey(valueName)] = comment;
             }
           }
         }

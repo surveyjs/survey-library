@@ -155,7 +155,7 @@ export class QuestionPanelDynamicItem extends QuestionRecordItem {
     return this.panel.questions;
   }
   public getComment(name: string): string {
-    var result = this.getValue(name + settings.commentSuffix);
+    var result = this.getValue(Helpers.getCommentKey(name));
     return result ? result : "";
   }
   protected updateQuestionFromRecord(question: Question, record: any): void {

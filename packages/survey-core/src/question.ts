@@ -239,9 +239,9 @@ export interface IVerifyDataContext {
   // The issue is dropped when one with the same type and segments is already in the list: two
   // questions that share a valueName walk the same value and can find the same thing.
   addIssue(type: DataIssueType, lastSegment: string | number | undefined, value: any, question: Question, expressionResult?: any): void;
-  // Runs fn with an empty segment stack and restores the stack after it: the walk into an element
+  // Runs func with an empty segment stack and restores the stack after it: the walk into an element
   // whose values are root keys of the survey data (NestedElementLocation "root").
-  runAtRoot(fn: () => void): void;
+  runWithEmptySegments(func: () => void): void;
 }
 
 // The questions of a nested element: a question, or the questions of a panel at any depth.
@@ -307,11 +307,11 @@ class VerifyDataContext implements IVerifyDataContext {
   public popSegment(): void {
     this.segments.pop();
   }
-  public runAtRoot(fn: () => void): void {
+  public runWithEmptySegments(func: () => void): void {
     const segments = this.segments;
     this.segments = [];
     try {
-      fn();
+      func();
     } finally {
       this.segments = segments;
     }
@@ -3080,7 +3080,7 @@ export class Question extends SurveyElement<Question>
       if (info.role === "total") return;
       const element = info.element;
       if (info.location === "root") {
-        context.runAtRoot(() => element.verifyDataCore(context));
+        context.runWithEmptySegments(() => element.verifyDataCore(context));
         return;
       }
       // "same" needs no branch: its segment is undefined and so is its getDataSegment().

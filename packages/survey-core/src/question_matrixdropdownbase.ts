@@ -2601,7 +2601,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   private getRecordsPlainData(options: IPlainDataOptions): Array<any> {
     const res: Array<any> = [];
     let cellQuestions: Array<{ column: MatrixDropdownColumn, question: Question }> = undefined;
-    this.forEachViewRecord(true, (index: number, item: QuestionRecordItem, viewPosition: number): void => {
+    this.forEachViewRecord(true, (index: number, item: QuestionRecordItem): void => {
       const row = <MatrixDropdownRowModelBase>item;
       if (!!row) {
         /* Named by its record, as the records without a row are: a row's own name counts its creation, and
@@ -2615,8 +2615,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         cellQuestions = this.columns.map((column: MatrixDropdownColumn) => ({ column: column, question: column.createCellQuestion(null) }));
       }
       const value = this.getUnbindValue(this.getListRecordAt(index)) || {};
-      // The record's visible index in the whole list: its view position plus the offset (getGlobalVisibleIndex, without its indexOf).
-      const visibleIndex = viewPosition + this.getRecordNumberOffset();
+      const visibleIndex = this.dataList.getGlobalVisibleIndex(index);
       const rowTitle = this.getRecordAccessibilityTitle(index, visibleIndex);
       res.push(this.createRecordPlainData(this.getRecordDataName(index), this.getRecordText(index, visibleIndex), value,
         this.getRecordDisplayValue(false, undefined, this.getUnbindValue(value), index),

@@ -469,7 +469,11 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   public hideDetailPanel(destroyPanel: boolean = false) {
     this.setIsDetailPanelShowing(false);
     if (destroyPanel) {
+      const panel = this.detailPanelValue;
       this.detailPanelValue = null;
+      if (!!panel && !!this.data) {
+        this.data.disposeDroppedDetailPanel(panel);
+      }
     }
   }
   public ensureDetailPanel() {
@@ -937,33 +941,35 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   public get editingObj(): Base {
     return this.editingObjValue;
   }
-  private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
+  // One handler for every object the row edits: it is added and removed by identity.
+  private onEditingObjPropertyChanged = (sender: Base, options: any): void => {
+    this.updateOnSetValue(options.name, options.newValue);
+  };
   private editingObjValue: Base;
   public dispose(): void {
     for (let i = 0; i < this.cells.length; i++) {
       this.cells[i].dispose();
     }
-    // The row's own detail panel. In design mode a row shows the matrix's detail panel
-    // (createRowDetailPanel), which stays.
+    this.unsubscribeFromEditingObj();
     const panel = this.detailPanelValue;
-    if (!!panel && !panel.isDesignMode) {
+    this.detailPanelValue = null;
+    // In design mode a row shows the matrix's template as its detail panel (createRowDetailPanel): it stays.
+    if (!!panel && !panel.isDisposed && !(!!this.data && this.data.isDetailPanelTemplate(panel))) {
       panel.dispose();
     }
-    if (!!this.editingObj) {
-      this.editingObj.onPropertyChanged.remove(
-        this.onEditingObjPropertyChanged
-      );
-      this.editingObjValue = null;
-    }
   }
+  // The row follows the object it edits. A value that is not an object to edit ends the editing.
   private subscribeToChanges(value: any) {
-    if (!value || !value.getType || !value.onPropertyChanged) return;
     if (value === this.editingObj) return;
+    this.unsubscribeFromEditingObj();
+    if (!value || !value.getType || !value.onPropertyChanged) return;
     this.editingObjValue = <Base>value;
-    this.onEditingObjPropertyChanged = (sender: Base, options: any) => {
-      this.updateOnSetValue(options.name, options.newValue);
-    };
     this.editingObj.onPropertyChanged.add(this.onEditingObjPropertyChanged);
+  }
+  private unsubscribeFromEditingObj(): void {
+    if (!this.editingObj) return;
+    this.editingObj.onPropertyChanged.remove(this.onEditingObjPropertyChanged);
+    this.editingObjValue = null;
   }
   private updateOnSetValue(name: string, newValue: any) {
     this.runSettingValue((): void => {
@@ -1268,12 +1274,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       ...(<any>this.detailElements)
     ];
   }
-  // The rows go before the record list (see QuestionRecordsModel.dispose).
+  // The rows go before the record list (see QuestionRecordsModel.dispose), and with them what the matrix renders.
   protected disposeRecordObjects(): void {
     this.clearGeneratedRows();
-    if (!!this.generatedTotalRow) {
-      this.disposeAfterRerender(this.generatedTotalRow);
-      this.generatedTotalRow = null;
+    this.disposeTotalRow();
+    this.disposeRenderedTable(<QuestionMatrixDropdownRenderedTable>this.getPropertyValueWithoutDefault("renderedTable"));
+    if (!!this.detailPanelValue) {
+      this.detailPanelValue.dispose();
     }
   }
   public get isRowsDynamic(): boolean {
@@ -1313,7 +1320,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected updateColumnsAndRows(): void {
     this.updateColumnsIndexes(this.columns);
     this.updateColumnsCellType();
-    this.generatedTotalRow = null;
+    this.disposeTotalRow();
     this.clearRowsAndResetRenderedTable();
   }
   public itemValuePropertyChanged(
@@ -1579,22 +1586,38 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   /* A table that is replaced - a page move, a column change - holds the actions of its rows: each keeps
      listeners on the matrix's strings and on the survey's locale. They go with the table, once the UI
-     no longer shows it (disposeAfterRerender). The table disposes its rows and their actions. */
+     no longer shows it (disposeLeftObject). The table disposes its rows and their actions. */
   private disposeRenderedTable(table: QuestionMatrixDropdownRenderedTable): void {
     if (!table || table.isDisposed) return;
-    this.disposeAfterRerender(table);
+    this.disposeLeftObject(table);
   }
   protected clearGeneratedRows(): void {
     this.clearVisibleRows();
     this.clearDesignRow();
     if (!this.generatedVisibleRows) return;
     this.keepDetailPanelPageStates(this.generatedVisibleRows);
-    // A row that is replaced - a page move, a new value - can still be on screen until the UI rerenders
-    // the matrix, or still be writing its cell (disposeReplacedItem).
-    this.generatedVisibleRows.forEach((row: MatrixDropdownRowModelBase): void => {
-      this.disposeReplacedItem((): void => this.disposeAfterRerender(row));
-    });
+    this.generatedVisibleRows.forEach((row: MatrixDropdownRowModelBase): void => { this.disposeRow(row); });
     this.generatedVisibleRows = null;
+  }
+  // A row that leaves - replaced by a page move or a new value, removed, cut off - can still be on screen
+  // or still be writing its cell (disposeLeftObject).
+  protected disposeRow(row: MatrixDropdownRowModelBase): void {
+    if (!row) return;
+    this.disposeLeftObject(row);
+  }
+  private disposeTotalRow(): void {
+    const row = this.generatedTotalRow;
+    this.generatedTotalRow = null;
+    this.disposeRow(row);
+  }
+  // The template a row shows as its detail panel in design mode (createRowDetailPanel) belongs to the matrix.
+  isDetailPanelTemplate(panel: PanelModel): boolean {
+    return !!panel && panel === this.detailPanelValue;
+  }
+  // A detail panel a row drops (hideDetailPanel(true)) is disposed as a row that leaves is (disposeLeftObject).
+  disposeDroppedDetailPanel(panel: PanelModel): void {
+    if (!panel || panel.isDisposed || this.isDetailPanelTemplate(panel)) return;
+    this.disposeLeftObject(panel);
   }
   protected get isRendredTableCreated(): boolean {
     return !!this.getPropertyValueWithoutDefault("renderedTable");
@@ -2382,7 +2405,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         }
       }
     } else {
-      this.generatedTotalRow = null;
+      this.disposeTotalRow();
     }
     return this.generatedTotalRow;
   }
@@ -2393,7 +2416,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     super.onSurveyLoad();
     this.updateColumnsIndexes(this.columns);
     this.clearGeneratedRows();
-    this.generatedTotalRow = null;
+    this.disposeTotalRow();
     this.updateHasFooter();
     this.genetateColumnsName();
     // The one hook every load ends with: the sort and the filter the JSON authored reach the list

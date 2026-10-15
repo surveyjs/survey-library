@@ -573,9 +573,9 @@ const expectedReach: { [walk: string]: { reached: Array<string>, builds?: Array<
   "onReadOnlyChanged": {
     reached: ["md.cell", "md.hiddenRowCell", "md.detail", "md.detail.pd.item", "mx.cell", "mx.hiddenRowCell", "pd.item", "pd.hiddenItem", "pd.static", "cp.content", "cp.nested"]
   },
-  // dynamic panel items, the one in a detail panel included: nothing disposes them.
+  // every slot: the dynamic panel disposes its items, the one in a detail panel included.
   "dispose": {
-    reached: ["md.cell", "md.hiddenRowCell", "md.detail", "md.total", "mx.cell", "mx.hiddenRowCell", "mt.editor", "cu.content", "cp.content", "cp.nested", "cb.shownPanel", "cb.hiddenPanel", "rg.panel"]
+    reached: ["md.cell", "md.hiddenRowCell", "md.detail", "md.detail.pd.item", "md.total", "mx.cell", "mx.hiddenRowCell", "pd.item", "pd.hiddenItem", "pd.static", "pd.choicePanel", "mt.editor", "cu.content", "cp.content", "cp.nested", "cb.shownPanel", "cb.hiddenPanel", "rg.panel"]
   }
 };
 

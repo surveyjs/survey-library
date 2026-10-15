@@ -743,7 +743,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   /* The table disposes what it built: its rows and the containers of their actions, with the actions
      the table created and the ones a container made from plain objects. An Action instance the
      application supplied stays usable: a handler may cache it and push it into the next table. Under a
-     UI the next table is built before this one is disposed (disposeAfterRerender), so such an action
+     UI the next table is built before this one is disposed (disposeLeftObject), so such an action
      can already belong to the next table's container: taking it out of this container must not take
      it from its owner. */
   public dispose(): void {

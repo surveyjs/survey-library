@@ -758,7 +758,10 @@ export class MatrixDropdownColumn extends Base
     this.templateQuestionJsonValue = undefined;
     // The first cell that loads choices from the server gives them to the column: a new template starts over.
     this.previousChoicesId = undefined;
+    // The new template copies the old one's properties (setQuestionProperties): the old one goes after that.
+    const oldTemplate = this.templateQuestionValue;
     this.templateQuestionValue = this.createNewQuestion(curCellType);
+    this.disposeTemplateQuestion(oldTemplate);
     this.templateQuestion.locOwner = this;
     this.addProperties(curCellType);
     if (!!name) {
@@ -772,32 +775,9 @@ export class MatrixDropdownColumn extends Base
     if (settings.serialization.matrixDropdownColumnSerializeTitle) {
       this.templateQuestion.locTitle.serializeCallBackText = true;
     }
-    this.templateQuestion.onPropertyChanged.add((sender, options) => {
-      this.templateQuestionJsonValue = undefined;
-      this.propertyValueChanged(
-        options.name,
-        options.oldValue,
-        options.newValue,
-        options.arrayChanges,
-        options.target
-      );
-    });
-    this.templateQuestion.onNestedPropertyChanged.add((sender, options) => {
-      this.templateQuestionJsonValue = undefined;
-      if (this.colOwner && !this.isLoadingFromJson) {
-        this.colOwner.onColumnNestedPropertyChanged(this, options.name, options.nestedName, options.newValue);
-      }
-    });
-    this.templateQuestion.onItemValuePropertyChanged.add((sender, options) => {
-      this.templateQuestionJsonValue = undefined;
-      this.doItemValuePropertyChanged(
-        options.propertyName,
-        options.obj,
-        options.name,
-        options.newValue,
-        options.oldValue
-      );
-    });
+    this.templateQuestion.onPropertyChanged.add(this.onTemplatePropertyChanged);
+    this.templateQuestion.onNestedPropertyChanged.add(this.onTemplateNestedPropertyChanged);
+    this.templateQuestion.onItemValuePropertyChanged.add(this.onTemplateItemValuePropertyChanged);
     this.templateQuestion.isContentElement = true;
     if (!this.isLoadingFromJson) {
       this.templateQuestion.onGetSurvey = () => {
@@ -805,6 +785,40 @@ export class MatrixDropdownColumn extends Base
       };
     }
     this.templateQuestion.locTitle.strChanged();
+  }
+  // The column's handlers on its template question: added to each new template, removed from the one it replaces.
+  private onTemplatePropertyChanged = (sender: Base, options: any): void => {
+    this.templateQuestionJsonValue = undefined;
+    this.propertyValueChanged(
+      options.name,
+      options.oldValue,
+      options.newValue,
+      options.arrayChanges,
+      options.target
+    );
+  };
+  private onTemplateNestedPropertyChanged = (sender: Base, options: any): void => {
+    this.templateQuestionJsonValue = undefined;
+    if (this.colOwner && !this.isLoadingFromJson) {
+      this.colOwner.onColumnNestedPropertyChanged(this, options.name, options.nestedName, options.newValue);
+    }
+  };
+  private onTemplateItemValuePropertyChanged = (sender: Base, options: any): void => {
+    this.templateQuestionJsonValue = undefined;
+    this.doItemValuePropertyChanged(
+      options.propertyName,
+      options.obj,
+      options.name,
+      options.newValue,
+      options.oldValue
+    );
+  };
+  private disposeTemplateQuestion(question: Question): void {
+    if (!question) return;
+    question.onPropertyChanged.remove(this.onTemplatePropertyChanged);
+    question.onNestedPropertyChanged.remove(this.onTemplateNestedPropertyChanged);
+    question.onItemValuePropertyChanged.remove(this.onTemplateItemValuePropertyChanged);
+    question.dispose();
   }
   protected createNewQuestion(cellType: string): Question {
     var question = <Question>Serializer.createClass(cellType);

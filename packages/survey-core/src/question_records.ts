@@ -16,7 +16,7 @@ import {
   DynamicDataFieldType, DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort,
   IDynamicDataSource
 } from "./dynamic-data/dynamic-data-interfaces";
-import { IDynamicDataPageState, findDuplicatePages, getDuplicateKey, groupByDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
+import { IDynamicDataPageState, findDuplicatePages, groupByDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
 import { DynamicDataPageValidation, IDynamicDataPageValidationOwner } from "./question_records_page_validation";
 import { createIndexes } from "./dynamic-data/dynamic-data-filter";
 import { DynamicDataPagingController, IDynamicDataPagingOwner } from "./dynamic-data/dynamic-data-paging";
@@ -455,9 +455,10 @@ export abstract class QuestionRecordsModel extends Question {
      into the new window, by key when the source names its records and by content otherwise
      (getReplacedRecordsRemap), so that an edited record is still validated wherever it is now. The
      objects are renumbered only by a question that keeps state under their records (the panel's
-     remapKeptRecordIndexes) while one of them holds a paged question. Replacing the source starts over (see setDataSource). The current record
-     follows every committed read (followReloadedCurrentRecord). The remap is built once per commit,
-     and only when something asks for it. */
+     remapKeptRecordIndexes) while one of them holds a paged question. Replacing the source starts
+     over (see setDataSource). The current record follows every committed read
+     (followReloadedCurrentRecord). The remap is built once per commit, and only when something asks
+     for it. */
   private followReloadedRecords(oldRecords: any): void {
     this.heldRemoveTargets = undefined;
     const list = this._dataList;
@@ -1267,14 +1268,12 @@ export abstract class QuestionRecordsModel extends Question {
     const list = this.dataListValue;
     return !!list && list.hasRecordBeyondKnown;
   }
-  /* When the list pages the progress is counted from the records - every visible record - as it is
-     before the objects exist: the objects are one page. A source that pages itself counts its
-     window: the other pages are on the server. updateByRecord adds one record's inputs. */
   /* The progress of a records question. When the list pages it is counted from the records - every
-     input of every visible record (updateProgressInfoByRecord). Otherwise the built objects count, each
-     question's own visibility is known there (getProgressInfoOfObjects); before they exist a view
-     counts the records it shows, what the objects would be built for, and a question without a view
-     answers getProgressInfoWithoutObjects. */
+     input of every visible record (updateProgressInfoByRecord): the objects are one page. A source that
+     pages itself counts its window: the other pages are on the server. Otherwise the built objects
+     count, each question's own visibility is known there (getProgressInfoOfObjects); before they exist
+     a view counts the records it shows, what the objects would be built for, and a question without a
+     view answers getProgressInfoWithoutObjects. */
   public getProgressInfo(): IProgressInfo {
     const byRecords = (res: IProgressInfo, record: any): void => this.updateProgressInfoByRecord(res, record);
     if (this.isPagedByList) return this.getProgressInfoByRecords(byRecords);
@@ -1402,7 +1401,7 @@ export abstract class QuestionRecordsModel extends Question {
      and tab mode keep showing - as a move from code: the add was validated already. prepare runs
      only when the page changes, before the move: the page change rebuilds the objects at once, and
      the rebuild has to find what the question set aside for it. Returns whether the page changed. */
-  protected showPageOfVisibleIndex(visibleIndex: number, prepare?: () => void): boolean {
+  private showPageOfVisibleIndex(visibleIndex: number, prepare?: () => void): boolean {
     if (this.isVisibleIndexOnPage(visibleIndex)) return false;
     if (!!prepare) prepare();
     this.paging.pageIndex = this.dataList.getPageOfVisibleIndex(visibleIndex);
@@ -1425,13 +1424,11 @@ export abstract class QuestionRecordsModel extends Question {
   }
   /* A question that pages validates the page that exists - Complete included - and then what the
      page cannot show: the edited records on other pages (layer 2) and a duplicate pair both of whose
-     records are off the page. Only a full validation that fires its callbacks visits them; a
-     validation on a value change and a quiet one stay on the page, and so does a source that pages
-     itself. The question calls it once its page has passed. Returns true when there is nothing to
-     visit. */
-  /* The records of other pages: a full validation visits their pages and shows the errors there; a
-     quiet one (no callback) judges the same records without showing anything or moving the page, so
-     both give the same answer.
+     records are off the page. The question calls it once its page has passed. Returns true when there
+     is nothing to visit. A validation on a value change stays on the page, and so does a source that
+     pages itself. A full validation visits the other pages and shows the errors there; a quiet one (no
+     callback) judges the same records without showing anything or moving the page, so both give the
+     same answer.
      A record on a page the respondent never opened, and never edited, is not validated, and its
      computed values are not computed: that is how paging works (Andrew's decision 2026-10-12). */
   protected validateOffPage(context: ValidationContext): boolean {
@@ -1487,7 +1484,7 @@ export abstract class QuestionRecordsModel extends Question {
      question has not read is the server's business - or only the visible ones, and of the records
      with no object the owner-hidden ones only when they take part. A record with an object takes
      part when its object is visible (isItemVisible). */
-  protected forEachUniquenessRecord(func: (index: number, item: QuestionRecordItem, position: number) => void): void {
+  private forEachUniquenessRecord(func: (index: number, item: QuestionRecordItem, position: number) => void): void {
     const list = this.dataList;
     const uniqueness = this.getRecordUniqueness();
     const indexes = uniqueness.includeFilteredOut ? this.getLoadedRecordIndexes() : list.getVisibleIndexes();
@@ -1970,7 +1967,7 @@ export abstract class QuestionRecordsModel extends Question {
   /* Each record without an object cleaned by a temporary object of the type (cleanRecordWithObject):
      clean runs one of the object's own released clean-ups. Only a question the list pages in memory has
      such records to clean, and a source-owned one is skipped, as every survey clean-up skips it. */
-  protected cleanRecordsWithoutObjectsBy(clean: (cleanupObject: IRecordCleanupObject) => void): void {
+  private cleanRecordsWithoutObjectsBy(clean: (cleanupObject: IRecordCleanupObject) => void): void {
     if (!this.isPagedByList || this.isRemoteData || this.isEmpty()) return;
     this.runRecordCleanupWalk((): void => {
       this.cleanRecordsWithoutObjects((index: number, record: any): any => this.cleanRecordWithObject(index, record, clean));
@@ -2065,7 +2062,7 @@ export abstract class QuestionRecordsModel extends Question {
     return !!this.recordCleanup && this.recordCleanup.isBuilding;
   }
   // The record index of a temporary object, -1 for any other object.
-  protected getRecordCleanupIndex(item: ISurveyData, isUnknownItem: boolean): number {
+  private getRecordCleanupIndex(item: ISurveyData, isUnknownItem: boolean): number {
     return this.getRecordCleanupCopy(item, isUnknownItem) !== undefined ? this.recordCleanup.index : -1;
   }
   /* A copy of the record, cleaned by a temporary object of the type (clearIncorrectValuesWithoutObjects):
@@ -2210,7 +2207,7 @@ export abstract class QuestionRecordsModel extends Question {
      panels is taken for one being appended. undefined: the target's object is no longer among them.
      The caller's own steps that may cancel (a removing event) run between this and
      removeResolvedRecord. */
-  protected resolveRecordRemoval(target: IRecordTarget): IRecordRemoval {
+  private resolveRecordRemoval(target: IRecordTarget): IRecordRemoval {
     const item = target.item;
     const position = !!item ? this.getItemPosition(item) : -1;
     if (!!item && position < 0) return undefined;
@@ -2272,11 +2269,6 @@ export abstract class QuestionRecordsModel extends Question {
   protected keepFocusForReadAfterRemoval(index: number): void {
     if (this.isLastTargetRemoved)this.keepFocusIndexForRead(index);
   }
-  /* The key the duplicate checks group a value by (getDuplicateKey); caseSensitive defaults to the
-     question's uniqueness rule. */
-  protected getRecordKey(value: any, caseSensitive?: boolean): string {
-    return getDuplicateKey(value, caseSensitive !== undefined ? caseSensitive : this.getRecordUniqueness().caseSensitive);
-  }
   // The indexes of every loaded record, in record order.
   protected getLoadedRecordIndexes(): Array<number> {
     return createIndexes(this.dataList.loadedCount);
@@ -2307,19 +2299,6 @@ export abstract class QuestionRecordsModel extends Question {
       });
     });
   }
-  /* The objects follow one record the list has just inserted. recordIndex is what list.add returned,
-     a record index of the loaded window. In order:
-     1. Under in-memory paging the record is marked edited and the page that holds it is shown; a
-        page change rebuilds the objects. With select, the position of the record is kept for that
-        rebuild, which selects it. A record the view does not show (rowsVisibleIf / templateVisibleIf
-        hides it) has no page: the page stays.
-     2. When the page did not change, the objects follow by the record's object position: an object
-        already at that position - the objects are rebuilt (the record went in front of them); none
-        there and the one before exists, or position 0 - one object is appended
-        (appendItemForRecord); no position - nothing.
-     Objects that were never built (areObjectsBuilt() is false) are not created or rebuilt for the
-     record: only step 1 runs. Returns the record's item once that is done, undefined when it has
-     none; with select the question selects it, the position kept for a rebuild is gone by then. */
   /* "Add" is a move the respondent makes when the new record lands on another page than the one shown
      (getVisibleIndex: the place it takes in the view): that page is validated first, and the add
      happens once it has passed (leavePage) - later, when its validators are asynchronous. */
@@ -2339,6 +2318,19 @@ export abstract class QuestionRecordsModel extends Question {
     const index = this.runRecordAdd((): number => list.add(record, recordIndex));
     return { index: index, item: this.followInsertedRecord(index, false) };
   }
+  /* The objects follow one record the list has just inserted. recordIndex is what list.add returned,
+     a record index of the loaded window. In order:
+     1. Under in-memory paging the record is marked edited and the page that holds it is shown; a
+        page change rebuilds the objects. With select, the position of the record is kept for that
+        rebuild, which selects it. A record the view does not show (rowsVisibleIf / templateVisibleIf
+        hides it) has no page: the page stays.
+     2. When the page did not change, the objects follow by the record's object position: an object
+        already at that position - the objects are rebuilt (the record went in front of them); none
+        there and the one before exists, or position 0 - one object is appended
+        (appendItemForRecord); no position - nothing.
+     Objects that were never built (areObjectsBuilt() is false) are not created or rebuilt for the
+     record: only step 1 runs. Returns the record's item once that is done, undefined when it has
+     none; with select the question selects it, the position kept for a rebuild is gone by then. */
   protected followInsertedRecord(recordIndex: number, select: boolean): QuestionRecordItem {
     const list = this.dataList;
     if (this.showPageOfInsertedRecord(recordIndex, select)) return this.getItemByRecordIndex(recordIndex);
@@ -2602,7 +2594,7 @@ export abstract class QuestionRecordsModel extends Question {
      another window. A record without an object is captured as the question reads it
      (getListRecordAt), to be found again later. Range checks against the question's count stay with
      the caller. */
-  protected getRecordTargetAtVisibleIndex(visibleIndex: number): IRecordTarget {
+  private getRecordTargetAtVisibleIndex(visibleIndex: number): IRecordTarget {
     return this.createRecordTarget(this.getRecordIndexAtVisibleIndex(visibleIndex), visibleIndex);
   }
   /* The created-position counterpart, for the numbers that count the owner-hidden records too
@@ -2670,7 +2662,7 @@ export abstract class QuestionRecordsModel extends Question {
     return index > -1 ? this.getListRecordAt(index, null) : undefined;
   }
   // The record of the last object of the page: -1 when there is none.
-  protected getLastMaterializedRecordIndex(): number {
+  private getLastMaterializedRecordIndex(): number {
     const created = this.dataList.getMaterializedIndexes();
     return created.length > 0 ? created[created.length - 1] : -1;
   }
@@ -2776,9 +2768,6 @@ export abstract class QuestionRecordsModel extends Question {
      question's own inserts, removes and moves; an assignment from outside, a read and a new source drop
      the held targets, and their answers fall back to the record object. */
   private heldRemoveTargets: Array<IRecordTarget>;
-  /* A removal the respondent confirms first (confirmDeleteText): the target is held while the dialog
-     is open, found again when they confirm (findRemoveTargetAgain), and handed to remove; nothing is
-     removed when it is gone. */
   /* The removal flow of both types: with a confirmation the target is found again when the respondent
      answers (confirmRecordRemoval), without one at once - the object or record the caller named, where
      it is now. */
@@ -2790,6 +2779,9 @@ export abstract class QuestionRecordsModel extends Question {
     const current = this.findRemoveTargetAgain(target);
     if (!!current) remove(current);
   }
+  /* A removal the respondent confirms first (confirmDeleteText): the target is held while the dialog
+     is open, found again when they confirm (findRemoveTargetAgain), and handed to remove; nothing is
+     removed when it is gone. */
   protected confirmRecordRemoval(target: IRecordTarget, message: string, remove: (current: IRecordTarget) => void): void {
     this.holdRemoveTarget(target);
     confirmActionAsync({
@@ -2913,12 +2905,12 @@ export abstract class QuestionRecordsModel extends Question {
   protected getDataSource(): IDynamicDataSource {
     return !!this.dataListValue ? this.dataListValue.assignedSource : undefined;
   }
-  // The survey-data side of the swap. The question follows the call with its own refresh, also for
-  // the same source.
   /* While a source is assigned the list may read it synchronously and settle inside the swap: what
      waits for the settle (onDataSettled) runs once at the end, after the source's capabilities are
      applied. */
   private isAssigningDataSource: boolean;
+  // The survey-data side of the swap. The question follows the call with its own refresh, also for
+  // the same source.
   protected setDataSource(val: IDynamicDataSource): void {
     // A source assigned while another one is being assigned (an error handler of its first read) ends
     // inside the outer assignment: the outer one settles the data.
@@ -2990,9 +2982,8 @@ export abstract class QuestionRecordsModel extends Question {
   /* Attaching a source: the answer the question already holds leaves the survey hash before the
      first read. It is one ordinary value change - attaching is a developer action, not a page load -
      and it is the only way to keep a stale local answer, which nobody can see any more, out of the
-     submitted data. */
-  /* The answer stays when another question that has no data source stores the same value name: it
-     is that question's answer, and a detach shows it here again. */
+     submitted data. The answer stays when another question that has no data source stores the same
+     value name: it is that question's answer, and a detach shows it here again. */
   private clearValueInSurveyData(): void {
     if (!this.data || this.isValueEmpty(this.data.getValue(this.getValueName()))) return;
     if (this.isValueStoredByAnotherQuestion()) return;
@@ -3219,16 +3210,16 @@ export abstract class QuestionRecordsModel extends Question {
   private createAssignmentRemap(oldRecords: any, newRecords: any): (index: number) => number {
     return (<IRecordsAnswerShape><any>this.recordsSource).createAnswerAssignmentRemap(oldRecords, newRecords, this._dataList?.keyField);
   }
-  /* A write of a record by one of its questions. A question the respondent answers (hasInput) touches
-     the record - and so does code that assigns it, setValueExpression and a trigger included: the
-     write does not say where it came from. A value an expression computes does not, or every record
-     with an expression would be touched by its first recalculation. */
   // The values the objects' setValueExpression and resetValueIf compute are not edits (runComputedWrites).
   public runTriggers(name: string, value: any, keys?: any): void {
     super.runTriggers(name, value, keys);
     this.runComputedWrites((): void => { this.runTriggersInObjects(name, value, keys); });
   }
   protected abstract runTriggersInObjects(name: string, value: any, keys: any): void;
+  /* A write of a record by one of its questions. A question the respondent answers (hasInput) touches
+     the record - and so does code that assigns it, setValueExpression and a trigger included: the
+     write does not say where it came from. A value an expression computes does not, or every record
+     with an expression would be touched by its first recalculation. */
   protected markRecordTouchedBy(recordIndex: number, question: Question): void {
     if (!question || !question.hasInput) return;
     this.dataList.markRecordTouched(recordIndex);
@@ -4061,16 +4052,16 @@ export abstract class QuestionRecordsModel extends Question {
   protected followRecordMove(remap: (index: number) => number): void {
     this.remapBuiltItems(remap);
   }
-  /* The storage half alone: used after every write the list pushed to the source. The object the
-     respondent is typing in already holds the new value, and a rebuild would dispose it under the
-     edit (the frozen-membership rule). */
   /* The window of a source becomes the stored value, and the source's count the record count
      (recordCount): it is stored on every transition that stores the window (a committed read, the
      unread window of an attach, each write pushed to the source before it answers) and read from there
      (storedSourceRecordCount) - a live read of the list while a source is being attached counts the
      question's own value, which reads the count back. It can be above settings.matrix.maxRowCount: that
      clamp limits what a caller may ask for. With a source that answers without a total it is the count
-     of the records known to exist, a lower bound (isCountKnown says which of the two it is). */
+     of the records known to exist, a lower bound (isCountKnown says which of the two it is).
+     After a write pushed to the source it runs without a rebuild: the object the respondent is typing
+     in already holds the new value, and a rebuild would dispose it under the edit (the
+     frozen-membership rule). */
   protected storeLoadedRecords(): void {
     this.storeQuestionValue(this.dataList.getLoadedRecords());
     this.storedSourceRecordCount = this.dataList.count;
@@ -4584,11 +4575,6 @@ function isRecordCleanupSkipped(template: Question): boolean {
   const byUrl = template.getPropertyValue("choicesByUrl");
   return !!byUrl && !!byUrl.url || template.getPropertyValue("choicesLazyLoadEnabled") === true;
 }
-/* The completion clean-up of a template question that only an object of the record can run: the
-   choices of a select question differ by record - choicesVisibleIf, choicesEnableIf, a choice with its
-   own visibleIf or enableIf, a choice with elements (their answers go with it), choicesFromQuestion
-   naming a question of the record (container) or one the survey does not hold. Any other question is
-   judged over its stored answer (Question.getAnswerCleanupAtComplete). */
 // The record keys a temporary object's clean-up of a template question writes: its answer and comment, and the answers of the questions in its choices.
 function getRecordCleanupKeys(template: Question): Array<string> {
   const res: Array<string> = [];
@@ -4596,6 +4582,11 @@ function getRecordCleanupKeys(template: Question): Array<string> {
   questions.forEach((q: Question): void => { res.push(q.getValueName(), Helpers.getCommentKey(q.getValueName())); });
   return res;
 }
+/* The completion clean-up of a template question that only an object of the record can run: the
+   choices of a select question differ by record - choicesVisibleIf, choicesEnableIf, a choice with its
+   own visibleIf or enableIf, a choice with elements (their answers go with it), choicesFromQuestion
+   naming a question of the record (container) or one the survey does not hold. Any other question is
+   judged over its stored answer (Question.getAnswerCleanupAtComplete). */
 function isRecordCleanupByObject(template: Question, container: PanelModelBase): boolean {
   if (!template.isDescendantOf("selectbase")) return false;
   if (!!template.getPropertyValue("choicesVisibleIf") || !!template.getPropertyValue("choicesEnableIf")) return true;

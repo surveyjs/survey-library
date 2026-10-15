@@ -103,7 +103,6 @@ export class PanelDynamicValueGetterContext extends QuestionRecordsValueGetterCo
   }
 }
 
-// What a removal acts on (QuestionPanelDynamicModel.resolvePanelTarget): a panel, or a record without one.
 interface IPanelDynamicTabbedMenuItem extends IAction {
   panelId: string;
 }
@@ -1297,7 +1296,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * @see prevPanelText
    */
   public get isPrevButtonVisible(): boolean { return this.currentIndex > 0; }
-  public get isPrevButtonShowing(): boolean { return this.isPrevButtonVisible; }
   /**
    * Indicates whether the Next button is visible.
    * @see currentIndex
@@ -1307,7 +1305,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public get isNextButtonVisible(): boolean {
     return this.canGoToNextRecord;
   }
-  public get isNextButtonShowing(): boolean { return this.isNextButtonVisible; }
   public get isRangeShowing(): boolean {
     return (
       this.showProgressBar && this.currentIndex >= 0 && this.visiblePanelCount > 1
@@ -1882,7 +1879,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     } else {
       this.displayMode = val as any;
     }
-    // this.updatePanelView();
   }
   private updatePanelView() {
     this.blockAnimations();
@@ -1928,11 +1924,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * - `"bottom"` - Displays the progress bar at the bottom of the current panel.
    * - `"topBottom"` - Displays the progress bar at the top and bottom of the current panel.
    */
-  @property({
-    onSet: (val, target: QuestionPanelDynamicModel) => {
-      // target.updatePanelView();
-    }
-  }) progressBarLocation: "top" | "bottom" | "topBottom";
+  @property() progressBarLocation: "top" | "bottom" | "topBottom";
   @property() tabAlign: "center" | "left" | "right";
 
   public get isRenderModeList(): boolean {
@@ -2372,9 +2364,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       return Object.assign({}, list.getRecord(recordIndex), this.composeNewRecord([], undefined, undefined, this.defaultPanelValue, copyFrom));
     });
   }
-  public getPanelRemoveButtonId(panel: PanelModel): string {
-    return panel.id + "_remove_button";
-  }
   public isRequireConfirmOnDelete(val: any): boolean {
     if (!this.confirmDelete) return false;
     const target = this.resolvePanelTarget(val);
@@ -2633,7 +2622,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (!super.verifyValueCore(val, context)) return false;
     if (!context.checks.reportUnknownProperties || !Array.isArray(val)) return true;
     // Verification builds the panels, as it always has.
-    this.panels;
+    this.buildPanelsFirstTime(this.canBuildPanels);
     this.verifyRecordsUnknownKeys(val, context);
     return true;
   }

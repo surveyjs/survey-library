@@ -17,7 +17,7 @@ import { SurveyError } from "./survey-error";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { getMatrixCellAriaLabel, getMatrixTableBodyCss, getMatrixTableCss, getMatrixTableWrapperCss, isMatrixColumnsAutoWidth } from "./utils/matrix-table";
 import { IMatrixColumnOwner, MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
-import { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
+import { QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { ValidationContext } from "./question";
@@ -156,11 +156,7 @@ export class MatrixDropdownCell {
 }
 
 export class MatrixDropdownTotalCell extends MatrixDropdownCell {
-  constructor(
-    public column: MatrixDropdownColumn,
-    public row: MatrixDropdownRowModelBase,
-    public data: IMatrixDropdownData
-  ) {
+  constructor(column: MatrixDropdownColumn, row: MatrixDropdownRowModelBase, data: IMatrixDropdownData) {
     super(column, row, data);
     this.updateCellQuestion();
   }
@@ -179,7 +175,7 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
   }
   public updateCellQuestion() {
     this.question.locCalculation();
-    this.column.updateCellQuestion(this.question, null, function (json) {
+    this.column.updateCellQuestion(this.question, function (json) {
       delete json["defaultValue"];
     });
     this.question.expression = this.getTotalExpression();
@@ -1059,10 +1055,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected set isRowChanging(val: boolean) {
     this.isRowChangingValue = val;
   }
-  columnsChangedCallback: () => void;
   onRenderedTableResetCallback: () => void;
   onCellCreatedCallback: (options: any) => void;
-  onCellValueChangedCallback: (options: any) => void;
   onHasDetailPanelCallback: (row: MatrixDropdownRowModelBase) => boolean;
   onCreateDetailPanelCallback: (
     row: MatrixDropdownRowModelBase,
@@ -1071,8 +1065,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   onCreateDetailPanelRenderedRowCallback: (
     renderedRow: QuestionMatrixDropdownRenderedRow
   ) => void;
-  onAddColumn: (column: MatrixDropdownColumn) => void;
-  onRemoveColumn: (column: MatrixDropdownColumn) => void;
   cellValueChangingCallback: (row: any, columnName: string, value: any, oldValue: any) => any;
 
   protected createColumnValues() {
@@ -1080,14 +1072,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       "columns",
       (item: any) => {
         item.colOwner = this;
-        if (this.onAddColumn)this.onAddColumn(item);
         if (this.survey) {
           this.matrixCallbacks.matrixColumnAdded(this, item);
         }
       },
       (item: any) => {
         item.colOwner = null;
-        if (this.onRemoveColumn)this.onRemoveColumn(item);
       }
     );
   }
@@ -1568,7 +1558,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected clearRowsAndResetRenderedTable() {
     this.clearGeneratedRows();
     this.resetRenderedTable();
-    this.fireCallback(this.columnsChangedCallback);
   }
   //For internal use
   public resetRenderedTable(columnVisibilityChanged?: boolean): void {
@@ -1873,6 +1862,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (!super.verifyValueCore(val, context)) return false;
     if (!context.checks.reportUnknownProperties) return true;
     // Verification builds the rows without paging, as it always has; the page's rows are built already.
+    // The allRows read is kept for its side effect: it builds the rows unless they are being generated.
     if (!this.isPagedByList)this.allRows;
     this.verifyRecordsUnknownKeys(val, context);
     // An unknown key inside a row is not a shape problem: a matrixdropdown still checks its rows.
@@ -2261,9 +2251,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return this.getOrCreateLocStr("singleInputTitleTemplate", true, this.getSingleInputTitleTemplate(), (locStr: LocalizableString) => {
       locStr.owner = new MatrixSingleInputLocOwner(this);
     });
-  }
-  public getMatrixDropdownBaseSingleQuestionLocTitleCore(): LocalizableString {
-    return this.locSingleInputTitleTemplate;
   }
   public getSingleInputTitleTemplate(): string { return ""; }
   public processSingleInputTitle(text: string, row: MatrixDropdownRowModelBase): string {
@@ -3098,9 +3085,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (!this.survey) return;
     var options = this.getOnCellValueChangedOptions(row, columnName, rowValue);
     options.oldValue = oldCellValue;
-    if (!!this.onCellValueChangedCallback) {
-      this.onCellValueChangedCallback(options);
-    }
     this.matrixCallbacks.matrixCellValueChanged(this, options);
   }
   validateCell(row: MatrixDropdownRowModelBase, columnName: string, rowValue: any): SurveyError {
@@ -3559,7 +3543,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
      the released lookup built them: another question on the same value name asks for a column of a row
      it reads. A view builds nothing here (the page stays). */
   protected prepareQuestionFromRecord(): void {
-    if (!this.generatedVisibleRows && !this.hasDataListView)this.visibleRows;
+    if (!this.generatedVisibleRows && !this.hasDataListView)this.getVisibleRows();
   }
   protected getItemQuestionByName(row: QuestionRecordItem, name: string): IQuestion {
     return (<MatrixDropdownRowModelBase>row).getQuestionByName(name);
@@ -3578,10 +3562,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
 
   private get SurveyModel() {
     return this.survey as SurveyModel;
-  }
-  public getCellTemplateData(cell: QuestionMatrixDropdownRenderedCell) {
-    // return cell.cell.column.templateQuestion;
-    return this.SurveyModel.getMatrixCellTemplateData(cell);
   }
   public getCellWrapperComponentName(cell: MatrixDropdownCell) {
     return this.SurveyModel.getElementWrapperComponentName(cell, cell.row instanceof MatrixDropdownTotalRowModel ? "row-footer" : "cell");

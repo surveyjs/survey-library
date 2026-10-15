@@ -39,8 +39,6 @@ export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterC
 }
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements IShortcutText {
-  private dragOrClickHelper: DragOrClickHelper;
-
   constructor(public index: number, data: QuestionMatrixDropdownModelBase, value: any) {
     super(data, value);
     this.buildCells(value);
@@ -64,8 +62,8 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
   // The row's number is its visible index in the whole view, as text has it: under paging not the position on the page.
   public get shortcutText(): string {
     const index = this.visibleIndex + 1;
-    const questionValue1 = this.cells.length > 1 ? this.cells[1]["questionValue"] : undefined;
-    const questionValue0 = this.cells.length > 0 ? this.cells[0]["questionValue"] : undefined;
+    const questionValue1 = this.cells.length > 1 ? this.cells[1].question : undefined;
+    const questionValue0 = this.cells.length > 0 ? this.cells[0].question : undefined;
     return (
       questionValue1 && questionValue1.value ||
       questionValue0 && questionValue0.value ||
@@ -94,6 +92,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private rowCounter = 0;
   private initialRowCount: number;
   private setRowCountValueFromData: boolean = false;
+  private dragOrClickHelper: DragOrClickHelper;
 
   constructor(name: string) {
     super(name);
@@ -1233,7 +1232,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!value || !Array.isArray(value)) return value;
     // Reading the rows builds them, as it always has. Under a view - a filter, a sort, paging - a
     // record without a row is formatted through the columns' template questions.
-    this.visibleRows;
+    this.getVisibleRows();
     return this.getRecordsDisplayValue(keysAsText, this.getUnbindValue(value));
   }
   protected getConditionObjectRowName(index: number): string {

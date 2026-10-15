@@ -1,5 +1,7 @@
-// The data half of the page validation: duplicate keys and the page state. The class
-// that validates the objects (DynamicDataPageValidation) is question-side: question_records_page_validation.ts.
+// No validation runs here: this file holds the duplicate grouping the records' uniqueness checks share
+// (getDuplicateKey, groupByDuplicateKey, findDuplicatePages) and the page state a paged question hands
+// to the ancestor that rebuilds it (IDynamicDataPageState). The page validation itself is question-side:
+// DynamicDataPageValidation in question_records_page_validation.ts.
 import { Helpers } from "../helpers";
 import { DynamicDataList } from "./dynamic-data-list";
 

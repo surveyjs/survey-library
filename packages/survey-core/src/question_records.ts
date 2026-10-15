@@ -3570,6 +3570,7 @@ export abstract class QuestionRecordsModel extends Question {
     this.pendingVisibleIndex = undefined;
     this.owedAssignment = undefined;
     super.dispose();
+    this.disposeObjectsAwaitingRerender();
     this.disposeItemsLeftByWrites();
     this.disposeRecordObjects();
     if (!!this.pagerActionsValue) {
@@ -3583,23 +3584,53 @@ export abstract class QuestionRecordsModel extends Question {
   }
   // The objects that have to go before the list does.
   protected disposeRecordObjects(): void { }
-  /* A rebuild can run inside a write one of the old objects' questions is making - the record it edits
-     leaves the page - and that question still finishes its own setter after the rebuild returns. Such an
-     object is disposed when the question's write ends, or with the question: a question disposed
-     inside its own write disposes its objects at once. */
-  private itemsToDisposeAfterWrite: Array<() => void> = [];
-  protected disposeReplacedItem(dispose: () => void): void {
+  /* An object that leaves the question - a row or a panel replaced, removed or cut off, a dropped detail
+     panel, a replaced rendered table or tab - can still be in use, and is disposed once it is not:
+     - A question of it can still be writing. A rebuild can run inside a write one of the old objects'
+       questions is making - the record it edits leaves the page - and that question still finishes its
+       own setter after the rebuild returns. The object waits for the question's write to end.
+     - It can still be on screen. A UI that renders asynchronously (Angular) checks its components once
+       more before it drops them, and the check throws on a disposed object (a disposed dropdown has no
+       dropdownListModel). While a UI renders the question, the object waits for the question's next
+       rerender, or for the UI to stop rendering it (an isCancel notification).
+     Without a UI and outside a write it is disposed at once. A disposed question disposes what waits:
+     one disposed inside its own write disposes its objects at once. */
+  protected disposeLeftObject(obj: { dispose(): void }, disposeFunc?: () => void): void {
+    const func = disposeFunc || ((): void => obj.dispose());
     if (this.isWritingRecords && !this.isDisposed) {
-      this.itemsToDisposeAfterWrite.push(dispose);
+      this.itemsToDisposeAfterWrite.push((): void => this.disposeAfterRerender(obj, func));
       return;
     }
     this.disposeItemsLeftByWrites();
-    dispose();
+    this.disposeAfterRerender(obj, func);
   }
+  private itemsToDisposeAfterWrite: Array<() => void> = [];
   private disposeItemsLeftByWrites(): void {
     const left = this.itemsToDisposeAfterWrite;
     this.itemsToDisposeAfterWrite = [];
     left.forEach((dispose: () => void): void => dispose());
+  }
+  private disposeAfterRerender(obj: { dispose(): void }, func: () => void): void {
+    const rerendered = this.isDisposed ? undefined : this.onElementRerendered;
+    if (!rerendered) {
+      func();
+      return;
+    }
+    if (this.objectsAwaitingRerender.some(item => item.obj === obj)) return;
+    if (this.objectsAwaitingRerender.length === 0) {
+      rerendered.add(this.onRerenderedDisposeObjects);
+    }
+    this.objectsAwaitingRerender.push({ obj: obj, func: func });
+  }
+  private objectsAwaitingRerender: Array<{ obj: any, func: () => void }> = [];
+  private onRerenderedDisposeObjects = (): void => {
+    this.disposeObjectsAwaitingRerender();
+  };
+  private disposeObjectsAwaitingRerender(): void {
+    this._onElementRerendered.remove(this.onRerenderedDisposeObjects);
+    const items = this.objectsAwaitingRerender;
+    this.objectsAwaitingRerender = [];
+    items.forEach(item => item.func());
   }
   /* The sort and the filter the JSON authored reach the list once the load is over. An authored one
      created the paging helper when it was set, so a question without one has nothing pending and

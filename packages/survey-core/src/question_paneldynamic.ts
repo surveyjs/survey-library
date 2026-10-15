@@ -222,7 +222,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.addOnPropertyChangedCallback(<SurveyElement><any>element);
       this.rebuildPanels();
     };
-    this.template.removeElementCallback = () => {
+    this.template.removeElementCallback = (element) => {
+      this.removeOnPropertyChangedCallback(<SurveyElement><any>element);
       this.rebuildPanels();
     };
     this.template.onPropertyChanged.add((sender: Base, options: any) => {
@@ -263,13 +264,28 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   public dispose(): void {
     super.dispose();
+    this.template.elements.forEach((element: IElement): void => { this.removeOnPropertyChangedCallback(<SurveyElement><any>element); });
     this.templateValue.dispose();
   }
-  // The panels kept for a later dispose (still animated out) go with the question, before the list.
+  /* The panels go with the question, before the list: the ones kept for a later dispose (still animated
+     out) and the live ones, with their actions; then the toolbars. In design mode a panel can be the
+     template, which goes in dispose. */
   protected disposeRecordObjects(): void {
     const left = this.panelsToDispose;
     this.panelsToDispose = [];
     left.forEach((panel: PanelModel): void => { this.disposePanelObject(panel); });
+    this.panelsCore.filter((panel: PanelModel): boolean => panel !== this.template)
+      .forEach((panel: PanelModel): void => { this.disposePanelObject(panel); });
+    this.disposeActions(this.removePanelActions);
+    this.removePanelActions = {};
+    this.disposeActions(this.tabActions);
+    this.tabActions = {};
+    if (!!this.tabbedMenuValue) {
+      this.tabbedMenuValue.dispose();
+    }
+    if (!!this.footerToolbarValue) {
+      this.footerToolbarValue.dispose();
+    }
   }
   public validateExpressions(options: IExpressionValidationOptions = { functions: true, variables: true, semantics: true }): IExpressionValidationResult[] {
     if (!this.useTemplatePanel) {
@@ -504,7 +520,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   /* A panel that is still on screen - the one a carousel animates out, a removed one leaving the
      list - is disposed when its animation ends, not under it. */
   private panelsToDispose: Array<PanelModel> = [];
-  // A panel still rendered waits for its animation; one whose question is still writing waits for the write (disposeReplacedItem).
+  // A panel still rendered waits for its animation; then it is disposed as any object that leaves (disposeLeftObject).
   private disposePanels(panels: Array<PanelModel>): void {
     panels.forEach((panel: PanelModel): void => {
       if (this.panelsCore.indexOf(panel) > -1) return;
@@ -513,7 +529,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       if (this._renderedPanels.indexOf(panel) > -1) {
         if (this.panelsToDispose.indexOf(panel) < 0)this.panelsToDispose.push(panel);
       } else {
-        this.disposeReplacedItem((): void => this.disposePanelObject(panel));
+        this.disposePanelObject(panel);
       }
     });
   }
@@ -529,12 +545,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (this.panelsToDispose.length === 0) return;
     const left = this.panelsToDispose.filter((panel: PanelModel): boolean => rendered.indexOf(panel) < 0);
     this.panelsToDispose = this.panelsToDispose.filter((panel: PanelModel): boolean => rendered.indexOf(panel) > -1);
-    left.forEach((panel: PanelModel): void => { this.disposeReplacedItem((): void => this.disposePanelObject(panel)); });
+    left.forEach((panel: PanelModel): void => { this.disposePanelObject(panel); });
   }
   private disposePanelObject(panel: PanelModel): void {
     if (panel.isDisposed) return;
-    // A panel that left renderedPanels can still be on screen until the UI rerenders the question.
-    this.disposeAfterRerender(panel, (): void => this.disposePanelObjectCore(panel));
+    // A panel that left renderedPanels can still be on screen until the UI rerenders the question,
+    // or one of its questions can still be writing.
+    this.disposeLeftObject(panel, (): void => this.disposePanelObjectCore(panel));
   }
   /* The panel was never announced to the survey as added - it is built before it has one - so its
      questions are not announced as removed either: the guard an element moved between pages uses.
@@ -550,7 +567,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       });
     };
     markElements(panel);
-    delete this.removePanelActions[panel.uniqueId];
+    this.disposeRemovePanelAction(panel);
     panel.dispose();
   }
   /* The current panel follows its record (QuestionRecordsModel keeps it renumbered); when that
@@ -595,17 +612,35 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.addOnPropertyChangedCallback(<SurveyElement><any>elements[i]);
     }
   }
+  /* One handler for every template element, so that the element is subscribed once however often the
+     panels are built (assignOnPropertyChangedToTemplate): onPropertyChanged.add skips a callback it
+     holds. It is removed when the element leaves the template, and with the question. */
+  private onTemplateElementPropertyChangedHandler = (element: any, options: any): void => {
+    this.onTemplateElementPropertyChanged(element, options);
+  };
+  private onNestedTemplateElementAdded = (element: IElement): void => {
+    this.addOnPropertyChangedCallback(<SurveyElement><any>element);
+  };
+  private onNestedTemplateElementRemoved = (element: IElement): void => {
+    this.removeOnPropertyChangedCallback(<SurveyElement><any>element);
+  };
   private addOnPropertyChangedCallback(element: SurveyElement) {
     if (element.isQuestion) {
       (<Question>element).setParentQuestion(this);
     }
-    element.onPropertyChanged.add((element, options) => {
-      this.onTemplateElementPropertyChanged(element, options);
-    });
+    element.onPropertyChanged.add(this.onTemplateElementPropertyChangedHandler);
     if (element.isPanel) {
-      (<PanelModel>element).addElementCallback = (element) => {
-        this.addOnPropertyChangedCallback(<SurveyElement><any>element);
-      };
+      (<PanelModel>element).addElementCallback = this.onNestedTemplateElementAdded;
+      (<PanelModel>element).removeElementCallback = this.onNestedTemplateElementRemoved;
+    }
+  }
+  private removeOnPropertyChangedCallback(element: SurveyElement): void {
+    element.onPropertyChanged.remove(this.onTemplateElementPropertyChangedHandler);
+    if (element.isPanel) {
+      const panel = <PanelModel>element;
+      if (panel.addElementCallback === this.onNestedTemplateElementAdded) panel.addElementCallback = undefined;
+      if (panel.removeElementCallback === this.onNestedTemplateElementRemoved) panel.removeElementCallback = undefined;
+      panel.elements.forEach((el: IElement): void => { this.removeOnPropertyChangedCallback(<SurveyElement><any>el); });
     }
   }
   private onTemplateElementPropertyChanged(element: any, options: any) {
@@ -1438,7 +1473,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         this.singleInputOnAddItem(this.settingPanelCountBasedOnValue);
       }
       if (val < this.panelCount) {
-        this.markPanelsLeft(this.panelsCore.splice(val, this.panelCount - val));
+        this.disposePanels(this.panelsCore.splice(val, this.panelCount - val));
       }
       this.disablePanelsAnimations();
       this.setValueAfterPanelsCreating();
@@ -3177,7 +3212,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     return false;
   }
-  private removePanelActions: {[index: number]: Action} = { };
+  // Keyed by panel.uniqueId. An action goes with its panel (disposePanelObjectCore): its computed
+  // properties keep handlers on the question.
+  private removePanelActions: { [uniqueId: string]: Action } = { };
   public getRemovePanelAction(panel: PanelModel) {
     if (!panel) return undefined;
     if (!this.removePanelActions[panel.uniqueId]) {
@@ -3190,11 +3227,11 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
           if (!this.isInputReadOnly) {
             this.removePanelUI(panel);
             if (panel.isDisposed) {
-              delete this.removePanelActions[panel.uniqueId];
+              this.disposeRemovePanelAction(panel);
             }
           }
         },
-        visible: <any>new ComputedUpdater(() => [this.canRenderRemovePanel(panel)].every((val: boolean) => val === true)),
+        visible: <any>new ComputedUpdater(() => this.canRenderRemovePanel(panel) === true),
         enabled: <any>new ComputedUpdater(() => this.enableRemovePanel !== false),
         data: { question: this, panel: panel }
       });
@@ -3202,6 +3239,18 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.removePanelActions[panel.uniqueId] = action;
     }
     return this.removePanelActions[panel.uniqueId];
+  }
+  private disposeRemovePanelAction(panel: PanelModel): void {
+    const action = this.removePanelActions[panel.uniqueId];
+    delete this.removePanelActions[panel.uniqueId];
+    if (!!action && !action.isDisposed) {
+      action.dispose();
+    }
+  }
+  private disposeActions(actions: { [key: string]: Action }): void {
+    Object.keys(actions).forEach((key: string): void => {
+      if (!actions[key].isDisposed) actions[key].dispose();
+    });
   }
   public getPanelActions(panel: PanelModel): Array<IAction> {
     let actions = panel.footerActions;
@@ -3331,7 +3380,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      writes is dropped, and what the new panels hold is stored once afterwards - nothing when they hold
      nothing: the empty records the first build pads the value with are no answer. */
   private buildPanelsAgain(isCleared: boolean): void {
-    this.markPanelsLeft(this.panelsCore.splice(0, this.panelsCore.length));
+    const oldPanels = this.panelsCore.splice(0, this.panelsCore.length);
+    this.markPanelsLeft(oldPanels);
     this.hasPanelBuildFirstTime = false;
     const prevIsForStoredRecords = this.isBuildingPanelsForStoredRecords;
     const prevIsSettingByValue = this.settingPanelCountBasedOnValue;
@@ -3343,6 +3393,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.isBuildingPanelsForStoredRecords = prevIsForStoredRecords;
       this.settingPanelCountBasedOnValue = prevIsSettingByValue;
     }
+    this.disposePanels(oldPanels);
     const values = this.panelsCore.map((panel: PanelModel): any => panel.getValue());
     if (values.every((value: any): boolean => Helpers.isValueEmpty(value))) return;
     this.runInternalValueChange((): void => this.setOwnRecordsValue(values));
@@ -3766,7 +3817,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private updateTabbedMenuItems(): void {
     if (!this.tabbedMenuValue || this.isRebuildingPanels) return;
     if (!this.isRenderModeTab) {
-      this.tabActions = {};
+      this.disposeReplacedTabActions({});
       if (this.tabbedMenuValue.actions.length > 0)this.tabbedMenuValue.setItems([]);
       return;
     }
@@ -3776,10 +3827,23 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       actions[panel.id] = action;
       return action;
     });
-    this.tabActions = actions;
+    this.disposeReplacedTabActions(actions);
     const current = this.tabbedMenuValue.actions;
     if (current.length === items.length && current.every((a: Action, i: number): boolean => a === items[i])) return;
     this.tabbedMenuValue.setItems(items);
+  }
+  /* A tab whose panel left the page is never reused: a panel that comes back gets a new one. The old one
+     keeps handlers on the question (its computed properties), and the menu can still show it until the
+     UI rerenders the question. */
+  private disposeReplacedTabActions(actions: { [panelId: string]: PanelDynamicTabbedMenuItem }): void {
+    const old = this.tabActions;
+    this.tabActions = actions;
+    Object.keys(old).forEach((panelId: string): void => {
+      const action = old[panelId];
+      if (actions[panelId] !== action && !action.isDisposed) {
+        this.disposeLeftObject(action);
+      }
+    });
   }
 
   get showNavigation(): boolean {

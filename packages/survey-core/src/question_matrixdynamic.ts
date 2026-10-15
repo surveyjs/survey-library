@@ -477,6 +477,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         (resolved: IRecordRemoval): IRowRemoval => Object.assign(resolved, { isSourceWriteOnly: true }));
       if (!removal) return;
       this.onRowsChanged();
+      this.disposeRow(<MatrixDropdownRowModelBase>removal.item);
       return;
     }
     if (this.isEditingObjectValue) {
@@ -592,7 +593,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       if (this.hasDataListView) {
         this.updateRowsForCreatedIndexes();
       } else {
-        this.generatedVisibleRows.splice(val);
+        this.generatedVisibleRows.splice(val).forEach((row: MatrixDropdownRowModelBase): void => { this.disposeRow(row); });
         // Without a view the rows are built in record order: a row's position is its record index.
         for (var i = prevValue; i < val; i++) {
           this.addRowForRecord(this.createMatrixRow(this.getValueForNewRow()), this.generatedVisibleRows.length);
@@ -1052,8 +1053,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const targetRow = <MatrixDropdownRowModelBase>target.item;
     let isStarted = false;
     let row: MatrixDropdownRowModelBase;
+    let removal: IRecordRemoval;
     try {
-      const removal = this.removeTarget(target, (resolved: IRecordRemoval): boolean => {
+      removal = this.removeTarget(target, (resolved: IRecordRemoval): boolean => {
         const row = <MatrixDropdownRowModelBase>resolved.item;
         return !row || !this.survey || this.matrixCallbacks.matrixRowRemoving(this, target.visibleIndex, row);
       }, (resolved: IRecordRemoval): IRecordRemoval => {
@@ -1076,6 +1078,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.onEndRowRemoving(row);
     if (this.initialRowCount > this.rowCount) {
       this.initialRowCount = this.rowCount;
+    }
+    // The removed row goes once the removal is announced: onMatrixRowRemoved and the rendered table get it alive.
+    if (!!removal) {
+      this.disposeRow(<MatrixDropdownRowModelBase>removal.item);
     }
   }
   /* QuestionRecordsModel hook: the storage write of a row removal. removeRowByIndex over a data source
@@ -1344,6 +1350,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected createRowForRecordCleanup(index: number, record: any): MatrixDropdownRowModelBase {
     return new MatrixDynamicRowModel(this.rowCounter, this, record);
   }
+  // A row removed from the edited array is kept for a move (a remove and an insert of the same object);
+  // the next change that does not put it back disposes it.
   private lastDeletedRow: MatrixDropdownRowModelBase;
   private getInsertedDeletedIndex(rows: MatrixDropdownRowModelBase[], val: any[]): number {
     const len = Math.min(rows.length, val.length);
@@ -1358,9 +1366,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     let lastDelRow = this.lastDeletedRow;
     this.lastDeletedRow = undefined;
     const rows = this.generatedVisibleRows;
-    if (!Array.isArray(val) || Math.abs(rows.length - val.length) > 1 || rows.length === val.length) return false;
+    if (!Array.isArray(val) || Math.abs(rows.length - val.length) > 1 || rows.length === val.length) {
+      this.disposeRow(lastDelRow);
+      return false;
+    }
     const index = this.getInsertedDeletedIndex(rows, val);
     if (rows.length > val.length) {
+      this.disposeRow(lastDelRow);
       this.lastDeletedRow = rows[index];
       const row = rows[index];
       rows.splice(index, 1);
@@ -1373,6 +1385,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       if (!!lastDelRow && lastDelRow.editingObj === val[index]) {
         newRow = lastDelRow;
       } else {
+        this.disposeRow(lastDelRow);
         lastDelRow = undefined;
         newRow = this.createMatrixRow(val[index]);
       }
@@ -1575,6 +1588,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.initFooterToolbar();
     }
     return this.toolbarValue;
+  }
+  protected disposeRecordObjects(): void {
+    super.disposeRecordObjects();
+    const row = this.lastDeletedRow;
+    this.lastDeletedRow = undefined;
+    this.disposeRow(row);
+    if (!!this.toolbarValue) {
+      this.toolbarValue.dispose();
+    }
   }
   public getTableCss(): string {
     return toCssClasses(super.getTableCss(), !!this.getShowToolbar("bottom") && this.cssClasses.hasFooter);

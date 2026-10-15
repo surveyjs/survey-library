@@ -6,6 +6,10 @@ import {
   IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataReadRequest,
   IDynamicDataReadResult, IDynamicDataSort, IDynamicDataSource
 } from "../../src/dynamic-data/dynamic-data-interfaces";
+import { SurveyModel } from "../../src/survey";
+import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
+
+export * from "../../src/question_text";
 
 /* The controller against a fake owner: a property hash, the two mode flags a question would answer
    from the survey, and a recorder for the sortBy notification. The list under it is a real one over
@@ -164,6 +168,62 @@ describe("DynamicDataPagingController: design mode stores the authored view and 
     owner.paging.syncState();
     expect(owner.paging.filterExpression, "#1: the Creator keeps what was typed").toBe("{c1} = ");
     expect(owner.getDataList().filter, "#2: and the list never saw it").toBe("");
+  });
+});
+
+describe("DynamicDataPagingController: a view authored in design mode is kept by the next runtime assignment", () => {
+  test("a filter assigned at runtime keeps the sort authored in design mode", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.getDataList();
+    owner.isDesignMode = true;
+    owner.paging.sortOrder = asc;
+    owner.isDesignMode = false;
+    owner.paging.filterExpression = "{c1} != 'a'";
+    expect(owner.getDataList().filter, "#1").toBe("{c1} != 'a'");
+    expect(owner.getDataList().sort, "#2").toEqual(asc);
+    expect(owner.paging.filterExpression, "#3").toBe("{c1} != 'a'");
+    expect(owner.paging.sortOrder, "#4").toEqual(asc);
+    expect(owner.view, "#5").toEqual(["b", "c"]);
+  });
+  test("a sort assigned at runtime keeps the filter authored in design mode", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.getDataList();
+    owner.isDesignMode = true;
+    owner.paging.filterExpression = "{c1} != 'a'";
+    owner.isDesignMode = false;
+    owner.paging.sortOrder = desc;
+    expect(owner.getDataList().sort, "#1").toEqual(desc);
+    expect(owner.getDataList().filter, "#2").toBe("{c1} != 'a'");
+    expect(owner.paging.sortOrder, "#3").toEqual(desc);
+    expect(owner.paging.filterExpression, "#4").toBe("{c1} != 'a'");
+    expect(owner.view, "#5").toEqual(["c", "b"]);
+  });
+  test("a list created after the switch back receives the authored view and the runtime assignment", () => {
+    const owner = new FakePagingOwner(abc());
+    owner.isDesignMode = true;
+    owner.paging.sortOrder = asc;
+    owner.isDesignMode = false;
+    owner.paging.filterExpression = "{c1} != 'a'";
+    expect(owner.getDataList().filter, "#1").toBe("{c1} != 'a'");
+    expect(owner.getDataList().sort, "#2").toEqual(asc);
+    expect(owner.view, "#3").toEqual(["b", "c"]);
+  });
+  test("a dynamic matrix keeps the sortBy authored in design mode when a filter is assigned at runtime", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m",
+      columns: [{ name: "c1", cellType: "text" }] }] });
+    survey.data = { m: abc() };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const cells = (): Array<any> => matrix.visibleRows.map(row => row.getValue("c1"));
+    // A runtime filter creates the list before the switch into design mode.
+    matrix.filterExpression = "{c1} != 'z'";
+    expect(cells(), "#1").toEqual(["c", "a", "b"]);
+    survey.setDesignMode(true);
+    matrix.sortBy = "c1";
+    survey.setDesignMode(false);
+    matrix.filterExpression = "{c1} != 'a'";
+    expect(matrix.sortBy, "#2").toBe("c1");
+    expect(matrix.filterExpression, "#3").toBe("{c1} != 'a'");
+    expect(cells(), "#4").toEqual(["b", "c"]);
   });
 });
 

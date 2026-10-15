@@ -4,9 +4,10 @@ import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data-interfa
 import { createKeyRemap, getReplacedRecordsRemap } from "./dynamic-data-record-remap";
 
 /* A local source: the owner's records in memory, behind a getter/setter pair. It is read whole and
-   synchronously, it is written by position - the index a list sends is the position in the array as
-   that list last read it -, and the push is the storage: the next read already gives what a write
-   stored. The list relies on all three: it reads its owner's own local source through instead of
+   synchronously, it is written synchronously and by position - the index a list sends is the position
+   in the array as that list last read it -, and the push is the storage: the next read already gives
+   what a write stored. A write that returns a promise is reported as an error and not waited for. The
+   list relies on all of it: it reads its owner's own local source through instead of
    keeping a window, it takes the array a write stored as its window, and it lets only one list write
    such a source (positionWriter). A subclass says how the stored records are counted and read one
    by one (getStoredCount, readStoredAt), and it adds the membership writes it has: one without insert

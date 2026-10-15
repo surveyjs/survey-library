@@ -353,6 +353,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
       ...super.getAllChildren(),
       ...this.columns,
       ...this.rows,
+      ...this.choices
     ];
   }
   /**
@@ -540,6 +541,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   protected createMatrixRow(item: ItemValue, value: any): MatrixDropdownRowModel {
     return new MatrixDropdownRowModel(item.value, item, this, value);
+  }
+  protected createDesignRow(): MatrixDropdownRowModel {
+    return this.createMatrixRow(new ItemValue(1), {});
   }
   // The temporary row of the records clean-up: the record is the rows item at index.
   protected createRowForRecordCleanup(index: number, record: any): MatrixDropdownRowModelBase {

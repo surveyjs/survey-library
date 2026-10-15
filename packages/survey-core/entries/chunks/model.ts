@@ -323,6 +323,7 @@ export * from "../../src/utils/text-area";
 export * from "../../src/utils/shadow-effects";
 export * from "../../src/utils/resize-manager";
 export * from "../../src/utils/base-theme-init";
+export { setupThemeAdapter } from "../../src/utils/setupThemeAdapter";
 
 export { surveyCss, defaultCss, defaultThemeName } from "../../src/defaultCss/defaultCss";
 

@@ -155,7 +155,7 @@ export class QuestionPanelDynamicItem extends QuestionRecordItem {
     return this.panel.questions;
   }
   public getComment(name: string): string {
-    var result = this.getValue(name + settings.commentSuffix);
+    var result = this.getValue(Helpers.getCommentKey(name));
     return result ? result : "";
   }
   protected updateQuestionFromRecord(question: Question, record: any): void {
@@ -498,6 +498,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.setValueAfterPanelsCreating();
     } finally {
       this.isBuildingPanelsForStoredRecords = prev;
+      this.clearPanelsCreating();
     }
   }
   /* A panel that is still on screen - the one a carousel animates out, a removed one leaving the
@@ -1307,6 +1308,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      the panels were built (a handler that set question.value) went into the same buffer, and then the
      store is one from outside. */
   private isNewPanelsValueAssignedFromOutside: boolean;
+  /* The end of every scope that runs from prepareValueForPanelCreating to the end of
+     setValueAfterPanelsCreating, in a finally: after a throw the value is not left buffered
+     (getValueCore / setValueCore), and no panel waits for its conditions. After the normal end both
+     are clear already. */
+  private clearPanelsCreating(): void {
+    this.isAddingNewPanels = false;
+    this.lightBuiltPanels = [];
+  }
   private setValueAfterPanelsCreating() {
     this.runLightBuiltPanelsConditions();
     this.isAddingNewPanels = false;
@@ -1419,27 +1428,23 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.prepareValueForPanelCreating();
     const isAddingOnePanel = val - this.panelCount === 1;
     const firstAddedIndex = this.panelCount;
-    for (let i = this.panelCount; i < val; i++) {
-      const panel = this.createNewPanel();
-      this.panelsCore.push(panel);
-      if (this.displayMode == "list" && this.panelsState != "default") {
-        if (this.panelsState === "expanded") {
-          panel.expand();
-        } else {
-          if (!!panel.title) {
-            panel.collapse();
-          }
-        }
+    try {
+      for (let i = this.panelCount; i < val; i++) {
+        const panel = this.createNewPanel();
+        this.panelsCore.push(panel);
+        this.setPanelState(panel, this.panelsCore.length - 1);
       }
+      if (isAddingOnePanel) {
+        this.singleInputOnAddItem(this.settingPanelCountBasedOnValue);
+      }
+      if (val < this.panelCount) {
+        this.markPanelsLeft(this.panelsCore.splice(val, this.panelCount - val));
+      }
+      this.disablePanelsAnimations();
+      this.setValueAfterPanelsCreating();
+    } finally {
+      this.clearPanelsCreating();
     }
-    if (isAddingOnePanel) {
-      this.singleInputOnAddItem(this.settingPanelCountBasedOnValue);
-    }
-    if (val < this.panelCount) {
-      this.markPanelsLeft(this.panelsCore.splice(val, this.panelCount - val));
-    }
-    this.disablePanelsAnimations();
-    this.setValueAfterPanelsCreating();
     this.setValueBasedOnPanelCount();
     this.reRunCondition();
     this.updateFooterActions();
@@ -1558,9 +1563,16 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.setPanelState(this.panelsCore[i], i);
     }
   }
-  // index: the panel's position in panelsCore.
+  /* index: the panel's position in panelsCore. A panel without a title has no header to expand it
+     from: it is not collapsed, but "expanded" still expands it. */
   private setPanelState(panel: PanelModel, index: number): void {
-    if (this.useTemplatePanel || this.displayMode != "list" || !this.templateTitle) return;
+    if (this.useTemplatePanel || this.displayMode != "list") return;
+    if (!this.templateTitle) {
+      if (this.panelsState === "expanded") {
+        panel.expand(false);
+      }
+      return;
+    }
     let state = this.panelsState;
     if (state === "firstExpanded") {
       state = index === 0 ? "expanded" : "collapsed";
@@ -1980,22 +1992,26 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const oldPanels = [].concat(this.panelsCore);
     this.keepNestedPageStatesOfPanels(oldPanels);
     this.prepareValueForPanelCreating();
-    var panels = [];
-    if (this.useTemplatePanel) {
-      new QuestionPanelDynamicItem(this, this.template);
-      panels.push(this.template);
-    } else {
-      for (var i = 0; i < this.panelCount; i++) {
-        panels.push(this.createNewPanel());
-      }
-    }
-    this.isRebuildingPanels = true;
     try {
-      this.panelsCore.splice(0, this.panelsCore.length, ...panels);
+      var panels = [];
+      if (this.useTemplatePanel) {
+        new QuestionPanelDynamicItem(this, this.template);
+        panels.push(this.template);
+      } else {
+        for (var i = 0; i < this.panelCount; i++) {
+          panels.push(this.createNewPanel());
+        }
+      }
+      this.isRebuildingPanels = true;
+      try {
+        this.panelsCore.splice(0, this.panelsCore.length, ...panels);
+      } finally {
+        this.isRebuildingPanels = false;
+      }
+      this.setValueAfterPanelsCreating();
     } finally {
-      this.isRebuildingPanels = false;
+      this.clearPanelsCreating();
     }
-    this.setValueAfterPanelsCreating();
     this.restoreNestedPageStates();
     this.setPanelsState();
     this.reRunCondition();
@@ -2784,6 +2800,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (this.hasPanelBuildFirstTime) return;
     if (!force && this.wasNotRenderedInSurvey) return;
     this.blockAnimations();
+    try {
+      this.buildPanelsFirstTimeCore();
+    } finally {
+      this.isBuildingPanelsFirstTime = false;
+      this.releaseAnimations();
+    }
+  }
+  private buildPanelsFirstTimeCore(): void {
     // Before the flag: a page size that changes here resets the list, and that reset must not build.
     this.syncListPageSize();
     this.hasPanelBuildFirstTime = true;
@@ -2828,8 +2852,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.updateNoEntriesTextDefaultLoc();
     }
     this.updateFooterActions();
-    this.isBuildingPanelsFirstTime = false;
-    this.releaseAnimations();
   }
   private get showAddPanelButton(): boolean { return this.isRecordAddAllowed(this.allowAddPanel); }
   private get wasNotRenderedInSurvey(): boolean {
@@ -3169,7 +3191,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         enabled: <any>new ComputedUpdater(() => this.enableRemovePanel !== false),
         data: { question: this, panel: panel }
       });
-      action.cssClasses = this.survey.getCss().actionBar || defaultActionBarCss;
+      action.cssClasses = this.survey?.getCss().actionBar || defaultActionBarCss;
       this.removePanelActions[panel.uniqueId] = action;
     }
     return this.removePanelActions[panel.uniqueId];
@@ -3369,9 +3391,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   public getValueChangingOptions(childQuestion: Question): any {
     let pnl = childQuestion.parent;
-    while(pnl.parent) {
+    while(!!pnl && !!pnl.parent) {
       pnl = pnl.parent;
     }
+    if (!pnl) return undefined;
     const panel = pnl;
     const position = this.panels.indexOf(<PanelModel>panel);
     // A question of a removed panel writes nothing: there is no change to announce.

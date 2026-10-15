@@ -32,7 +32,8 @@ export interface IMatrixColumnOwner extends ILocalizableOwner {
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void;
   getCellAriaLabel(row: any, column: any, directRowTitle?: string): string;
   getDesignRowContext(): IValueGetterContext;
-  readonly survey: ISurvey;
+  // Not the survey property: Survey Creator reads colOwner["survey"] as SurveyModel.
+  getSurvey(): ISurvey;
   readonly isQuestion: boolean;
   // The dynamic matrix only: its rows sort by a header click.
   readonly allowSortRows?: boolean;
@@ -188,7 +189,7 @@ export class MatrixDropdownColumn extends Base
     return "cellType";
   }
   public getSurvey(): ISurvey {
-    return !!this.colOwner ? this.colOwner.survey : null;
+    return !!this.colOwner ? this.colOwner.getSurvey() : null;
   }
   public getOwner() {
     return this.colOwner;

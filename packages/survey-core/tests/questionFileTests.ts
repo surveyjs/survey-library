@@ -7,6 +7,7 @@ import { Serializer } from "../src/jsonobject";
 import { Camera } from "../src/utils/camera";
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionSignaturePadModel } from "../src/question_signaturepad";
 import { describe, test, expect, vi } from "vitest";
 export * from "../src/localization/german";
@@ -2793,5 +2794,42 @@ describe("Survey_QuestionFile", () => {
     expect([...(q2.acceptedCategories)], "q2 acceptedCategories, #2").toEqual([]);
     expect(q1.renderedAcceptedTypes, "q1 renderedAcceptedTypes").toBe(documentTypes);
     expect(q2.renderedAcceptedTypes, "q2 renderedAcceptedTypes").toBeUndefined();
+  });
+  test("onDownloadFile fires for a file question in a matrix detail panel, Bug#12024", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "file", name: "q1", storeDataAsText: false },
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          rows: ["row1"],
+          columns: [{ name: "col1", cellType: "text" }],
+          detailPanelMode: "underRow",
+          detailElements: [{ type: "file", name: "q2", storeDataAsText: false }]
+        }
+      ]
+    });
+    const downloaded = new Array<string>();
+    survey.onDownloadFile.add((_, options) => {
+      downloaded.push(options.question.name + ":" + options.fileValue.name);
+      options.callback("success", "data:" + options.content);
+    });
+    survey.data = {
+      q1: [{ name: "image1.png", type: "image/png", content: "image1.png" }],
+      matrix: { row1: { q2: [{ name: "image2.png", type: "image/png", content: "image2.png" }] } }
+    };
+    const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+    expect(downloaded, "the standalone question downloads its file").toEqual(["q1:image1.png"]);
+    expect(q1.previewValue.length, "the standalone question shows a preview").toBe(1);
+
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+    const row = matrix.visibleRows[0];
+    row.showDetailPanel();
+    const q2 = <QuestionFileModel>row.detailPanel.getQuestionByName("q2");
+    expect(q2.value, "the detail question has the row value").toEqual([{ name: "image2.png", type: "image/png", content: "image2.png" }]);
+    expect(downloaded, "the detail question downloads its file").toEqual(["q1:image1.png", "q2:image2.png"]);
+    expect(q2.previewValue.length, "the detail question shows a preview").toBe(1);
+    expect(q2.previewValue[0].content, "the detail preview has the downloaded content").toBe("data:image2.png");
+    expect(q2.isReady, "the detail question is ready").toBe(true);
   });
 });

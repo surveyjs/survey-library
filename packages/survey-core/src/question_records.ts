@@ -1121,7 +1121,7 @@ export abstract class QuestionRecordsModel extends Question {
   /* The page size the list gets: the authored one, capped by the number of objects one page may hold
      (maxRecordsPerPage). Single-input mode walks every object and lists them in its own summary - it
      is its own paging - so it builds every object and the list does not page. A carousel without
-     panelsPerPage builds every panel, as it always has; with it, it pages like list and tab mode and
+     pageSize builds every panel, as it always has; with it, it pages like list and tab mode and
      shows one panel of the page. */
   protected get listPageSize(): number {
     if (this.isSingleInputActive) return 0;
@@ -2420,14 +2420,14 @@ export abstract class QuestionRecordsModel extends Question {
       dest[key] = Helpers.getUnbindValue(src[key]);
     }
   }
-  /* The authored page size, 0 = no paging, stored under the property getPageSizePropertyName() names
-     - the one the JSON and the property grid know (rowsPerPage, panelsPerPage). The question reads
-     pageSize; the named property is its public face. */
+  /* The authored page size: the number of rows or panels on one page, 0 = no paging. In the panel's
+     list mode the page is what is shown; in tab and carousel mode it is the panels of one page, of
+     which one is shown. */
   public get pageSize(): number {
-    return this.getPropertyValue(this.getPageSizePropertyName());
+    return this.getPropertyValue("pageSize");
   }
   public set pageSize(val: number) {
-    this.paging.setPageSize(this.getPageSizePropertyName(), val);
+    this.paging.setPageSize(val);
     this.onPageSizeAssigned();
   }
   /* The data source is read again with the request in force - the page, the filter and the sort. A
@@ -3817,13 +3817,6 @@ export abstract class QuestionRecordsModel extends Question {
   protected abstract detachItem(removal: IRecordRemoval): void;
   // The storage write of a removal, in the type's wrapper; refill runs exactly once, where the type decides.
   protected abstract removeStoredRecord(removal: IRecordRemoval, refill: () => void): void;
-  /* What a record object is called in the type's property names ("Row", "Panel"): the page size is
-     rowsPerPage / panelsPerPage, the count names follow it too (getRecordCountNamesOf). */
-  protected abstract getRecordEntityName(): string;
-  protected getPageSizePropertyName(): string {
-    const name = this.getRecordEntityName();
-    return name.charAt(0).toLowerCase() + name.substring(1) + "sPerPage";
-  }
   // The property the record visibility expression is stored under (rowsVisibleIf, templateVisibleIf).
   protected abstract getRecordVisibleIfPropertyName(): string;
   // The number of objects one page may hold (settings.matrix.maxRowCount, settings.panel.maxPanelCount).
@@ -4606,14 +4599,14 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
   });
   return json;
 }
-/* The serializer entries of the paging, the sort and the filter of a records question (rowsPerPage or
-   panelsPerPage, sortBy, filterExpression). Invisible in the property grid until the UI series ships a
+/* The serializer entries of the paging, the sort and the filter of a records question (pageSize,
+   sortBy, filterExpression). Invisible in the property grid until the UI series ships a
    pager and sortable headers: they load from and save to JSON. sortBy and filterExpression are plain
    strings and not ":condition"/":expression": both of those make JsonObjectProperty.isExpression true,
    and everything that discovers expressions by type - Base.validateExpressions(), the linter - would
    then read them with the survey as the variable context, while their variables are record fields. */
-export function getRecordViewProperties(pageSizeName: string): Array<any> {
-  return [{ name: pageSizeName + ":number", default: 0, minValue: 0, visible: false },
+export function getRecordViewProperties(): Array<any> {
+  return [{ name: "pageSize:number", default: 0, minValue: 0, visible: false },
     { name: "sortBy", default: "", visible: false }, { name: "filterExpression", default: "", visible: false }];
 }
 /* The count properties of a type with a record count (getRecordCountNames): rowCount, rowCountExpression,

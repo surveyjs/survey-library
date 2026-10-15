@@ -2807,7 +2807,7 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
   test("matrixdropdown: a removed row is found by its place, also when a paged question in a detail panel renumbered the rows' records first", () => {
     const survey = new SurveyModel({
       elements: [{ type: "matrixdropdown", name: "m", rows: ["a", "b", "c"], columns: [{ name: "x" }], detailPanelMode: "underRow",
-        detailElements: [{ type: "matrixdynamic", name: "inner", rowCount: 3, rowsPerPage: 1, columns: [{ name: "c", cellType: "text" }] }] }]
+        detailElements: [{ type: "matrixdynamic", name: "inner", rowCount: 3, pageSize: 1, columns: [{ name: "c", cellType: "text" }] }] }]
     });
     const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
     const renderedTable = matrix.renderedTable;
@@ -3109,19 +3109,19 @@ describe("The pager of a matrix that pages its rows", () => {
   ["matrixdropdown", "matrixdynamic"].forEach(type => {
     test("showPager: only while the matrix has more than one page, " + type, () => {
       expect(createMatrix(type, {}).showPager, "#1: no paging").toBe(false);
-      expect(createMatrix(type, { rowsPerPage: 5 }).showPager, "#2: one page").toBe(false);
-      const paged = createMatrix(type, { rowsPerPage: 2 });
+      expect(createMatrix(type, { pageSize: 5 }).showPager, "#2: one page").toBe(false);
+      const paged = createMatrix(type, { pageSize: 2 });
       expect(paged.showPager, "#3: three pages").toBe(true);
       expect(paged.pageCount, "#3").toBe(3);
-      expect(createMatrix(type, { rowsPerPage: 2 }, { questionsOnPageMode: "inputPerPage" }).showPager, "#4: single-input mode").toBe(false);
+      expect(createMatrix(type, { pageSize: 2 }, { questionsOnPageMode: "inputPerPage" }).showPager, "#4: single-input mode").toBe(false);
       const survey = new SurveyModel();
       survey.setDesignMode(true);
-      survey.fromJSON({ elements: [Object.assign(type === "matrixdropdown" ? { rows: fiveRows } : { rowCount: 5 }, { type: type, name: "matrix", rowsPerPage: 2, columns: [{ name: "a" }] })] });
+      survey.fromJSON({ elements: [Object.assign(type === "matrixdropdown" ? { rows: fiveRows } : { rowCount: 5 }, { type: type, name: "matrix", pageSize: 2, columns: [{ name: "a" }] })] });
       expect((<QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix")).showPager, "#5: design mode").toBe(false);
     });
   });
   test("the page buttons are icons with localized titles, the page info is text without a tab stop", () => {
-    const matrix = createMatrix("matrixdropdown", { rowsPerPage: 2 });
+    const matrix = createMatrix("matrixdropdown", { pageSize: 2 });
     const prev = matrix.pagerActions.getActionById("sv-pager-prev");
     const next = matrix.pagerActions.getActionById("sv-pager-next");
     const info = matrix.pagerActions.getActionById("sv-pager-info");
@@ -3140,7 +3140,7 @@ describe("The pager of a matrix that pages its rows", () => {
     FunctionFactory.Instance.register("pagerAsyncFunc", function (this: any) { results.push(this.returnResult); return false; }, true);
     try {
       const matrix = createMatrix("matrixdropdown", {
-        rowsPerPage: 2,
+        pageSize: 2,
         columns: [{ name: "a", cellType: "text", validators: [{ type: "expression", expression: "pagerAsyncFunc({row.a}) = 1" }] }]
       });
       matrix.value = { r1: { a: "x" }, r2: { a: "y" } };
@@ -3488,7 +3488,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
     });
     test("a paged row that repeats an owner-hidden row's unique value is no duplicate, a visible one off the page is", () => {
       const columns = [{ name: "a", cellType: "text", isUnique: true }, { name: "b", cellType: "text" }];
-      const { survey, matrix } = createFixed({ columns: columns, rowsPerPage: 2, rowsVisibleIf: "{row.b} != 'hide'" },
+      const { survey, matrix } = createFixed({ columns: columns, pageSize: 2, rowsVisibleIf: "{row.b} != 'hide'" },
         { r1: { a: "x", b: "hide" }, r2: { a: "y" }, r3: { a: "z" }, r4: { a: "w" } });
       expect(names(matrix), "#1").toEqual(["r2", "r3"]);
       matrix.visibleRows[0].cells[0].question.value = "x";
@@ -3592,7 +3592,7 @@ describe("Fixed matrix: display values leave the value they format unchanged", (
     const name = isPaged ? "paged" : "not paged";
     test(name + ": getDisplayValue with a value formats a copy of it", () => {
       const survey = new SurveyModel({
-        elements: [Object.assign({ type: "matrixdropdown", name: "m", rows: ["r1", "r2"], columns: columns }, isPaged ? { rowsPerPage: 1 } : {})]
+        elements: [Object.assign({ type: "matrixdropdown", name: "m", rows: ["r1", "r2"], columns: columns }, isPaged ? { pageSize: 1 } : {})]
       });
       const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
       expect(matrix.visibleRows.length, "#1: rows").toBe(isPaged ? 1 : 2);
@@ -3604,7 +3604,7 @@ describe("Fixed matrix: display values leave the value they format unchanged", (
     test(name + ": displayValue() over the matrix's own value leaves the survey data unchanged", () => {
       const survey = new SurveyModel({
         elements: [
-          Object.assign({ type: "matrixdropdown", name: "m", rows: ["r1", "r2"], columns: columns }, isPaged ? { rowsPerPage: 1 } : {}),
+          Object.assign({ type: "matrixdropdown", name: "m", rows: ["r1", "r2"], columns: columns }, isPaged ? { pageSize: 1 } : {}),
           { type: "expression", name: "e", expression: "displayValue('m', {m})" }
         ]
       });
@@ -3682,20 +3682,20 @@ describe("the Multi-Select Matrix rows and their answers", () => {
     expect(matrix.visibleRows[1].isDetailPanelShowing, "#2").toBe(false);
   });
   test("editing one row keeps the empty record of another row", () => {
-    const edit = (rowsPerPage: number, r3: any): any => {
-      const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", rowsPerPage: rowsPerPage, rows: ["r1", "r2", "r3"], columns: [{ name: "a", cellType: "text" }] }] });
+    const edit = (pageSize: number, r3: any): any => {
+      const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", pageSize: pageSize, rows: ["r1", "r2", "r3"], columns: [{ name: "a", cellType: "text" }] }] });
       survey.data = { m: { r1: { a: 1 }, r2: { a: 2 }, r3: r3 } };
       (<QuestionMatrixDropdownModel>survey.getQuestionByName("m")).visibleRows[0].cells[0].question.value = 5;
       return survey.data.m;
     };
-    [0, 1].forEach(rowsPerPage => {
-      const name = "rowsPerPage " + rowsPerPage + ": ";
-      expect(edit(rowsPerPage, {}), name + "an empty record").toEqual({ r1: { a: 5 }, r2: { a: 2 }, r3: {} });
-      expect(edit(rowsPerPage, 7), name + "a record that is not an object").toEqual({ r1: { a: 5 }, r2: { a: 2 }, r3: 7 });
-      expect(edit(rowsPerPage, { b: null }), name + "an empty key that is not a column").toEqual({ r1: { a: 5 }, r2: { a: 2 }, r3: { b: null } });
-      expect(edit(rowsPerPage, { a: null, b: null }), name + "an empty column key goes").toEqual({ r1: { a: 5 }, r2: { a: 2 }, r3: { b: null } });
+    [0, 1].forEach(pageSize => {
+      const name = "pageSize " + pageSize + ": ";
+      expect(edit(pageSize, {}), name + "an empty record").toEqual({ r1: { a: 5 }, r2: { a: 2 }, r3: {} });
+      expect(edit(pageSize, 7), name + "a record that is not an object").toEqual({ r1: { a: 5 }, r2: { a: 2 }, r3: 7 });
+      expect(edit(pageSize, { b: null }), name + "an empty key that is not a column").toEqual({ r1: { a: 5 }, r2: { a: 2 }, r3: { b: null } });
+      expect(edit(pageSize, { a: null, b: null }), name + "an empty column key goes").toEqual({ r1: { a: 5 }, r2: { a: 2 }, r3: { b: null } });
       [null, 0, false, ""].forEach(falsy => {
-        expect(edit(rowsPerPage, falsy), name + "a falsy record goes, as a built row drops it: " + JSON.stringify(falsy)).toEqual({ r1: { a: 5 }, r2: { a: 2 } });
+        expect(edit(pageSize, falsy), name + "a falsy record goes, as a built row drops it: " + JSON.stringify(falsy)).toEqual({ r1: { a: 5 }, r2: { a: 2 } });
       });
     });
     const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", rows: ["r1", "r2"], columns: [{ name: "c1", cellType: "text" }] }] });
@@ -3801,8 +3801,8 @@ describe("the Multi-Select Matrix rows and their answers", () => {
   });
   test("paging: building the page cleans the records of the other pages, as without paging", () => {
     [null, { c1: "" }].forEach(r3 => {
-      const run = (rowsPerPage: number): { built: any, completed: any } => {
-        const { survey, matrix } = createTwoColumns({ rows: ["r1", "r2", "r3"], rowsPerPage: rowsPerPage });
+      const run = (pageSize: number): { built: any, completed: any } => {
+        const { survey, matrix } = createTwoColumns({ rows: ["r1", "r2", "r3"], pageSize: pageSize });
         survey.data = { m: { r1: { c1: "a" }, r2: { c1: "b" }, r3: r3 } };
         matrix.visibleRows;
         const built = survey.data;
@@ -3825,12 +3825,12 @@ describe("the shared record rules of the matrices, on the released path", () => 
     expect(survey.data).toEqual({ m: [{ "a-Comment": "c", "x-total-y": 2, a: 1 }] });
   });
   test("a cleared cell removes the row's key, and a write drops a record holding only null, on and off the page", () => {
-    [0, 1].forEach(rowsPerPage => {
-      const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", rowsPerPage: rowsPerPage, rows: ["r1", "r2", "r3"], columns: [{ name: "a", cellType: "text" }] }] });
+    [0, 1].forEach(pageSize => {
+      const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", pageSize: pageSize, rows: ["r1", "r2", "r3"], columns: [{ name: "a", cellType: "text" }] }] });
       survey.data = { m: { r1: { a: 1 }, r2: { a: 2 }, r3: { a: null } } };
       const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
       matrix.visibleRows[0].cells[0].question.value = null;
-      expect(survey.data, "rowsPerPage " + rowsPerPage).toEqual({ m: { r2: { a: 2 } } });
+      expect(survey.data, "pageSize " + pageSize).toEqual({ m: { r2: { a: 2 } } });
     });
   });
   test("the display value and the filtered data of two rows with one key, as released", () => {

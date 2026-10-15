@@ -27,7 +27,7 @@ describe("keyName duplicates: the panel compares keys as text", () => {
     expect(hasKeyError(panel), "#2: no error").toBe(false);
   });
   test("a paged panel gives the same answer on every page, and completes", () => {
-    const panel = createKeyPanel(keys, { panelsPerPage: 2 });
+    const panel = createKeyPanel(keys, { pageSize: 2 });
     expect(panel.validate(), "#1: page 0").toBe(true);
     panel.pageIndex = 1;
     expect(panel.pageIndex, "#2").toBe(1);
@@ -38,7 +38,7 @@ describe("keyName duplicates: the panel compares keys as text", () => {
     expect(survey.tryComplete(), "#5: completes").toBe(true);
   });
   test("a paged panel finds a duplicate on another page", () => {
-    const panel = createKeyPanel(["a", 1, "b", "1"], { panelsPerPage: 2 });
+    const panel = createKeyPanel(["a", 1, "b", "1"], { pageSize: 2 });
     expect(panel.validate(), "#1: page 0").toBe(false);
     const panel2 = createKeyPanel(["a", 1, "b", "1"]);
     expect(panel2.validate(), "#2: unpaged").toBe(false);
@@ -51,7 +51,7 @@ describe("keyName duplicates: the panel compares keys as text", () => {
   });
   test("the panel compares case-sensitively, the matrix does not", () => {
     expect(createKeyPanel(["A", "a"]).validate(), "#1: unpaged panel").toBe(true);
-    expect(createKeyPanel(["A", "a", "b"], { panelsPerPage: 1 }).validate(), "#2: paged panel").toBe(true);
+    expect(createKeyPanel(["A", "a", "b"], { pageSize: 1 }).validate(), "#2: paged panel").toBe(true);
     const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, keyName: "k",
       columns: [{ name: "k", cellType: "text" }] }] });
     survey.data = { m: [{ k: "A" }, { k: "a" }] };
@@ -66,13 +66,13 @@ describe("keyName duplicates: the panel compares keys as text", () => {
     expect((<Question>panel.panels[1].getQuestionByName("k")).errors.length, "#2: the later panel gets the error").toBe(1);
   });
   test("a key typed on the page that repeats the key of a record off the page", () => {
-    const panel = createKeyPanel(["a", "b", "c", "1"], { panelsPerPage: 2 });
+    const panel = createKeyPanel(["a", "b", "c", "1"], { pageSize: 2 });
     panel.panels[0].getQuestionByName("k").value = 1;
     expect(panel.validate(), "#1: 1 and \"1\"").toBe(false);
-    const panel2 = createKeyPanel(["a", "b", "c", "1"], { panelsPerPage: 2 });
+    const panel2 = createKeyPanel(["a", "b", "c", "1"], { pageSize: 2 });
     panel2.panels[0].getQuestionByName("k").value = "1.0";
     expect(panel2.validate(), "#2: \"1.0\" and \"1\"").toBe(true);
-    const panel3 = createKeyPanel(["a", "b", "c", "1.0"], { panelsPerPage: 2 });
+    const panel3 = createKeyPanel(["a", "b", "c", "1.0"], { pageSize: 2 });
     panel3.panels[0].getQuestionByName("k").value = 1;
     expect(panel3.validate(), "#3: 1 and \"1.0\"").toBe(true);
   });
@@ -136,9 +136,9 @@ describe("unique keys in both records questions: empty keys, and when the errors
     return <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
   };
   const types = [
-    { name: "panel", create: createKeyPanel, paging: { panelsPerPage: 2 },
+    { name: "panel", create: createKeyPanel, paging: { pageSize: 2 },
       keys: (question: any): Array<Question> => question.visiblePanels.map((p: any): Question => p.getQuestionByName("k")) },
-    { name: "matrix", create: createKeyMatrix, paging: { rowsPerPage: 2 },
+    { name: "matrix", create: createKeyMatrix, paging: { pageSize: 2 },
       keys: (question: any): Array<Question> => question.visibleRows.map((r: any): Question => r.getQuestionByColumnName("k")) }
   ];
   types.forEach(type => {

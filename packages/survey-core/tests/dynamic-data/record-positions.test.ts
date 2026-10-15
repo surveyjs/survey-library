@@ -94,7 +94,7 @@ describe("the drag answer under a sort, a data source and design mode", () => {
   });
   test("a data source: the drag is off and moveRowByIndex is refused with its reason", () => {
     const source = new SyncSource(keyedRecords(6), { paging: true, filtering: true, sorting: false });
-    const matrix = createMatrix({ allowRowReorder: true, rowsPerPage: 2 });
+    const matrix = createMatrix({ allowRowReorder: true, pageSize: 2 });
     expect(matrix.isRowsDragAndDrop, "#1: no data source").toBe(true);
     matrix.dataSource = source;
     expect(matrix.isRowsDragAndDrop, "#2: a data source").toBe(false);
@@ -142,7 +142,7 @@ describe("a panel names its record after a removal, an assignment and a count ch
     expect(panel["getCurrentRecordIndex"](), "#3").toBe(1);
   });
   test("a rebuild for the view gives every panel the record of its position", () => {
-    const panel = createPanel({ panelCount: 0, panelsPerPage: 2 }, records(5));
+    const panel = createPanel({ panelCount: 0, pageSize: 2 }, records(5));
     panel.pageIndex = 1;
     expect(panel.panels.map(p => (<QuestionPanelDynamicItem>p.data).getIndex()), "#1: the record each panel names").toEqual([2, 3]);
     expect(panelValues(panel), "#2").toEqual([2, 3]);
@@ -151,7 +151,7 @@ describe("a panel names its record after a removal, an assignment and a count ch
 
 describe("the page check for an add and for Next", () => {
   test("matrix: an add on the last page stays, an add on a full page moves to the next one", () => {
-    const matrix = createMatrix({ rowsPerPage: 2 }, records(3));
+    const matrix = createMatrix({ pageSize: 2 }, records(3));
     matrix.pageIndex = 1;
     expect(matrix["isAddLeavingPage"](), "#1: page 1 has room").toBe(false);
     matrix.pageIndex = 0;
@@ -161,7 +161,7 @@ describe("the page check for an add and for Next", () => {
     expect(rowValues(matrix), "#4").toEqual([2, undefined]);
   });
   test("panel: an add in front of a record on another page, and Next at the end of a page", () => {
-    const panel = createPanel({ panelCount: 0, panelsPerPage: 2, displayMode: "carousel" }, records(5));
+    const panel = createPanel({ panelCount: 0, pageSize: 2, displayMode: "carousel" }, records(5));
     expect(panel["isAddLeavingPage"](3), "#1: in front of record 3, page 1").toBe(true);
     expect(panel["isAddLeavingPage"](1), "#2: in front of record 1, page 0").toBe(false);
     panel.currentIndex = 1;
@@ -170,7 +170,7 @@ describe("the page check for an add and for Next", () => {
     expect(panel.currentIndex, "#4").toBe(2);
   });
   test("panel: Next with a hidden record skips it", () => {
-    const panel = createPanel({ panelCount: 0, panelsPerPage: 2, displayMode: "carousel", templateVisibleIf: "{panel.a} != 2" }, records(5));
+    const panel = createPanel({ panelCount: 0, pageSize: 2, displayMode: "carousel", templateVisibleIf: "{panel.a} != 2" }, records(5));
     panel.currentIndex = 1;
     panel.goToNextPanel();
     expect(panel.pageIndex, "#1").toBe(1);
@@ -180,7 +180,7 @@ describe("the page check for an add and for Next", () => {
 
 describe("Next on a source page that holds a record added past the page size", () => {
   test("Next stays on the page: the page holds the next record", () => {
-    const panel = createPanel({ panelsPerPage: 2, displayMode: "carousel" });
+    const panel = createPanel({ pageSize: 2, displayMode: "carousel" });
     panel.dataSource = new SyncSource(keyedRecords(4), { paging: true, filtering: false, sorting: false });
     panel.panels;
     panel.currentIndex = 0;
@@ -195,7 +195,7 @@ describe("Next on a source page that holds a record added past the page size", (
 
 describe("the copy source of an add on a source page", () => {
   test("the last record the page shows, not a hidden one behind it", () => {
-    const matrix = createMatrix({ rowsPerPage: 2, copyDefaultValueFromLastEntry: true, rowsVisibleIf: "{row.a} != 1" });
+    const matrix = createMatrix({ pageSize: 2, copyDefaultValueFromLastEntry: true, rowsVisibleIf: "{row.a} != 1" });
     const source = new SyncSource(keyedRecords(4), { paging: true, filtering: false, sorting: false });
     matrix.dataSource = source;
     expect(rowValues(matrix), "#1: record 1 is hidden").toEqual([0]);
@@ -214,7 +214,7 @@ describe("numbers name the same record with and without paging", () => {
   ops.forEach(op => {
     test(op.name, () => {
       const unpaged = createMatrix({}, records(4));
-      const paged = createMatrix({ rowsPerPage: 2 }, records(4));
+      const paged = createMatrix({ pageSize: 2 }, records(4));
       unpaged.visibleRows;
       paged.visibleRows;
       op.run(unpaged);
@@ -224,7 +224,7 @@ describe("numbers name the same record with and without paging", () => {
   });
   test("getRowValue and setRowValue name the record a removal names", () => {
     const unpaged = createMatrix({}, records(4));
-    const paged = createMatrix({ rowsPerPage: 2 }, records(4));
+    const paged = createMatrix({ pageSize: 2 }, records(4));
     expect(paged.getRowValue(3), "#1").toEqual(unpaged.getRowValue(3));
     unpaged.setRowValue(3, { a: 7 });
     paged.setRowValue(3, { a: 7 });
@@ -232,13 +232,13 @@ describe("numbers name the same record with and without paging", () => {
     expect(values(paged.value), "#3").toEqual([0, 1, 2, 7]);
   });
   test("the removal of a row by the UI names the record of its row", () => {
-    const matrix = createMatrix({ rowsPerPage: 2 }, records(4));
+    const matrix = createMatrix({ pageSize: 2 }, records(4));
     matrix.pageIndex = 1;
     matrix.removeRowUI(matrix.visibleRows[1]);
     expect(values(matrix.value), "#1").toEqual([0, 1, 2]);
   });
   test("a row's visible index on the second page", () => {
-    const matrix = createMatrix({ rowsPerPage: 2 }, records(4));
+    const matrix = createMatrix({ pageSize: 2 }, records(4));
     matrix.pageIndex = 1;
     expect(matrix.visibleRows.map(row => row.visibleIndex), "#1").toEqual([2, 3]);
   });
@@ -308,7 +308,7 @@ describe("removeRowByIndex with a source and no paging refuses an out-of-range n
 
 describe("addRow under paging writes the new record and shows its page", () => {
   test("the default row value goes to the appended record", () => {
-    const matrix = createMatrix({ rowsPerPage: 2, defaultRowValue: { a: 9 } }, [{ a: 1 }, { a: 2 }, { a: 3 }]);
+    const matrix = createMatrix({ pageSize: 2, defaultRowValue: { a: 9 } }, [{ a: 1 }, { a: 2 }, { a: 3 }]);
     matrix.addRow();
     expect(values(matrix.value), "#1").toEqual([1, 2, 3, 9]);
     expect(matrix.pageIndex, "#2").toBe(1);
@@ -329,13 +329,13 @@ describe("the fixed matrix keeps the answers of the rows it shows when it clears
   test("a row hidden by visibleIf, with and without a record list", () => {
     const rows = ["r1", { value: "r2", visibleIf: "false" }, "r3"];
     expect(run({ rows: rows }), "#1").toEqual(kept);
-    expect(run({ rows: rows }, m => { m.rowsPerPage = 0; m.visibleRows; }), "#2: a list, no view").toEqual(kept);
-    expect(run({ rows: rows, rowsPerPage: 2 }), "#3: paged").toEqual(kept);
+    expect(run({ rows: rows }, m => { m.pageSize = 0; m.visibleRows; }), "#2: a list, no view").toEqual(kept);
+    expect(run({ rows: rows, pageSize: 2 }), "#3: paged").toEqual(kept);
     expect(run({ rows: rows, filterExpression: "{c1} > 0" }, m => { m.visibleRows; }), "#4: a view").toEqual(kept);
     expect(run({ rows: rows, filterExpression: "{c1} > 0" }, m => { m.visibleRows; m.filterExpression = ""; m.visibleRows; }), "#5: a view cleared").toEqual(kept);
   });
   test("rowsVisibleIf, and a filter that keeps the answers it excludes", () => {
-    expect(run({ rows: ["r1", "r2", "r3"], rowsVisibleIf: "{item} != 'r2'" }, m => { m.rowsPerPage = 0; m.visibleRows; }), "#1").toEqual(kept);
+    expect(run({ rows: ["r1", "r2", "r3"], rowsVisibleIf: "{item} != 'r2'" }, m => { m.pageSize = 0; m.visibleRows; }), "#1").toEqual(kept);
     expect(run({ rows: ["r1", "r2", "r3"], filterExpression: "{c1} > 1" }, m => { m.visibleRows; }), "#2")
       .toEqual({ r1: { c1: 1 }, r2: { c1: 2 }, r3: { c1: 3 } });
   });

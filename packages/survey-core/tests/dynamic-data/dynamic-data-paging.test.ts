@@ -241,7 +241,7 @@ describe("DynamicDataPagingController: while loading the view is stored and reac
     const owner = new FakePagingOwner(abc());
     owner.isLoadingFromJson = true;
     owner.paging.sortBy = "c1-";
-    // What the rowsPerPage/panelsPerPage setter does: it creates the list and syncs, in the middle
+    // What the pageSize setter does: it creates the list and syncs, in the middle
     // of the load and with the authored sort not pushed yet.
     owner.pageSize = 2;
     expect(owner.paging.sortBy, "#1: the authored sort survived it").toBe("c1-");

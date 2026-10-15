@@ -122,7 +122,7 @@ describe("dynamic panel: the state of a new panel", () => {
     expanded.panelCount = 2;
     expect(states(expanded), "#2: expanded, runtime add").toEqual(["expanded", "expanded"]);
     expect(states(createPanel({ panelCount: 2, panelsState: "expanded" })), "#3: expanded, JSON load").toEqual(["expanded", "expanded"]);
-    const paged = createPanel({ panelCount: 0, panelsState: "expanded", panelsPerPage: 5 });
+    const paged = createPanel({ panelCount: 0, panelsState: "expanded", pageSize: 5 });
     paged.panels;
     paged.addPanel();
     expect(states(paged), "#4: expanded, paged add").toEqual(["expanded"]);
@@ -384,7 +384,7 @@ describe("a throw while panels are created does not leave the dynamic panel's va
     checkValue(survey, panel);
   });
   test("an add on a paged question", () => {
-    const { survey, panel } = createPanel({ panelCount: 1, panelsPerPage: 5 });
+    const { survey, panel } = createPanel({ panelCount: 1, pageSize: 5 });
     panel.panels;
     throwInPanelOf(panel);
     try {

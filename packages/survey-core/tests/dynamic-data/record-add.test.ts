@@ -82,7 +82,7 @@ describe("addRowByIndex with a negative number counts from the end", () => {
     expect(matrix.value, "#1").toEqual([{ a: 1 }, { a: 9 }, { a: 2 }]);
   });
   test("-1 inserts in front of the last record under paging", () => {
-    const matrix = createMatrix({ rowsPerPage: 1 }, [{ a: 1 }, { a: 2 }]);
+    const matrix = createMatrix({ pageSize: 1 }, [{ a: 1 }, { a: 2 }]);
     matrix.visibleRows;
     matrix.addRowByIndex({ a: 9 }, -1);
     expect(matrix.value, "#1").toEqual([{ a: 1 }, { a: 9 }, { a: 2 }]);
@@ -103,7 +103,7 @@ describe("addRowByIndex with a negative number counts from the end", () => {
 describe("addPanel(n) takes a created position in every mode", () => {
   const hidden = { templateVisibleIf: "{panel.a} <> 1" };
   test("paged panel: a record templateVisibleIf hides is counted", () => {
-    const panel = createPanel(Object.assign({ panelsPerPage: 2 }, hidden), [{ a: 1 }, { a: 2 }, { a: 3 }]);
+    const panel = createPanel(Object.assign({ pageSize: 2 }, hidden), [{ a: 1 }, { a: 2 }, { a: 3 }]);
     panel.panels;
     panel.addPanel(1);
     expect(panel.value, "#1").toEqual([{ a: 1 }, {}, { a: 2 }, { a: 3 }]);
@@ -115,7 +115,7 @@ describe("addPanel(n) takes a created position in every mode", () => {
     expect(panel.value, "#1").toEqual([{ a: 1 }, {}, { a: 2 }, { a: 3 }]);
   });
   test("paged panel: a number past the last record and a negative one append", () => {
-    const panel = createPanel({ panelsPerPage: 2 }, [{ a: 1 }, { a: 2 }, { a: 3 }]);
+    const panel = createPanel({ pageSize: 2 }, [{ a: 1 }, { a: 2 }, { a: 3 }]);
     panel.panels;
     panel.addPanel(10);
     panel.addPanel(-1);
@@ -147,27 +147,27 @@ describe("copyDefaultValueFromLastEntry: the record a panel copies", () => {
     expect(panel.value[3], "#1").toEqual({ a: 2 });
   });
   test("paged list mode with records on later pages copies the last record, not the page's last panel", () => {
-    const panel = createPanel(Object.assign({ panelsPerPage: 2 }, copy), [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }]);
+    const panel = createPanel(Object.assign({ pageSize: 2 }, copy), [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }]);
     panel.panels;
     expect(panel.panels.length, "#1: the first page").toBe(2);
     panel.addPanel();
     expect(panel.value[4], "#2").toEqual({ a: 4 });
   });
   test("paged carousel mode keeps copying the current panel", () => {
-    const panel = createPanel(Object.assign({ panelsPerPage: 2, displayMode: "carousel" }, copy), [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }]);
+    const panel = createPanel(Object.assign({ pageSize: 2, displayMode: "carousel" }, copy), [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }]);
     panel.panels;
     panel.currentIndex = 1;
     panel.addPanel();
     expect(panel.value, "#1: inserted after the current panel, with its record").toEqual([{ a: 1 }, { a: 2 }, { a: 2 }, { a: 3 }, { a: 4 }]);
   });
   test("paged list mode: addPanel(0) copies the last record", () => {
-    const panel = createPanel(Object.assign({ panelsPerPage: 10 }, copy), data());
+    const panel = createPanel(Object.assign({ pageSize: 10 }, copy), data());
     panel.panels;
     panel.addPanel(0);
     expect(panel.value, "#1").toEqual([{ a: 3 }, { a: 1 }, { a: 2 }, { a: 3 }]);
   });
   test("paged tab mode: addPanel(0) copies the current panel", () => {
-    const panel = createPanel(Object.assign({ panelsPerPage: 10, displayMode: "tab" }, copy), data());
+    const panel = createPanel(Object.assign({ pageSize: 10, displayMode: "tab" }, copy), data());
     panel.panels;
     panel.currentIndex = 1;
     panel.addPanel(0);
@@ -198,7 +198,7 @@ describe("copyDefaultValueFromLastEntry: the record a panel copies", () => {
     list.panels;
     list.addPanel();
     expect(list.value, "#1: unpaged list").toEqual([{ a: 1 }, { a: 2 }, { a: 3 }, { a: 3 }]);
-    const pagedList = createPanel(Object.assign({ panelsPerPage: 10 }, copy), data());
+    const pagedList = createPanel(Object.assign({ pageSize: 10 }, copy), data());
     pagedList.panels;
     pagedList.addPanel();
     expect(pagedList.value, "#2: paged list").toEqual([{ a: 1 }, { a: 2 }, { a: 3 }, { a: 3 }]);
@@ -207,7 +207,7 @@ describe("copyDefaultValueFromLastEntry: the record a panel copies", () => {
     tab.currentIndex = 1;
     tab.addPanel();
     expect(tab.value, "#3: unpaged tab").toEqual([{ a: 1 }, { a: 2 }, { a: 2 }, { a: 3 }]);
-    const pagedTab = createPanel(Object.assign({ panelsPerPage: 10, displayMode: "tab" }, copy), data());
+    const pagedTab = createPanel(Object.assign({ pageSize: 10, displayMode: "tab" }, copy), data());
     pagedTab.panels;
     pagedTab.currentIndex = 1;
     pagedTab.addPanel();
@@ -218,7 +218,7 @@ describe("copyDefaultValueFromLastEntry: the record a panel copies", () => {
 describe("a row added without a view knows its record", () => {
   const json = { type: "matrixdynamic", name: "m", rowCount: 0, detailPanelMode: "underRow",
     columns: [{ name: "a", cellType: "text" }],
-    detailElements: [{ type: "paneldynamic", name: "inner", panelsPerPage: 1, templateElements: [{ type: "text", name: "x" }] }] };
+    detailElements: [{ type: "paneldynamic", name: "inner", pageSize: 1, templateElements: [{ type: "text", name: "x" }] }] };
   const innerOf = (matrix: QuestionMatrixDynamicModel, index: number): QuestionPanelDynamicModel =>
     <QuestionPanelDynamicModel>matrix.visibleRows[index].detailPanel.getQuestionByName("inner");
   const checkPageKept = (matrix: QuestionMatrixDynamicModel, index: number): void => {

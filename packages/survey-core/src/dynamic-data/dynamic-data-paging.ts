@@ -24,7 +24,7 @@ export interface IDynamicDataPagingOwner {
   getPropertyValue(name: string): any;
   setPropertyValue(name: string, val: any): void;
   getLocalizationFormatString(strName: string, ...args: any[]): string;
-  // The authored page size: rowsPerPage / panelsPerPage.
+  // The authored page size: pageSize.
   pageSize: number;
   /* The page size the list gets at runtime: the authored one, except in single-input mode, which is
      its own paging and builds every object. Absent -> pageSize. */
@@ -51,7 +51,7 @@ export class DynamicDataPagingController {
   private get list(): DynamicDataList {
     return this.getList();
   }
-  /* In design mode nothing is paged: the authored rowsPerPage/panelsPerPage keeps its value for
+  /* In design mode nothing is paged: the authored pageSize keeps its value for
      serialization, but the Creator shows every row. The page size is re-pushed on every sync and
      not only from the property setter, because both the survey and the design mode reach a question
      that has already created its list. */
@@ -66,12 +66,12 @@ export class DynamicDataPagingController {
     this.updateListPageSize();
     this.syncState();
   }
-  /* The setter of the authored page size (propertyName: rowsPerPage / panelsPerPage). The clamp is
+  /* The setter of the authored page size (pageSize). The clamp is
      here and not in an onSettingValue hook: the hook is skipped while the question is loading from
      JSON. */
-  public setPageSize(propertyName: string, val: any): void {
+  public setPageSize(val: any): void {
     const num = Helpers.getNumber(val);
-    this.owner.setPropertyValue(propertyName, num > 0 ? num : 0);
+    this.owner.setPropertyValue("pageSize", num > 0 ? num : 0);
     this.updatePageSize();
   }
   // Returns true when the list pages by another size now: that resets the list.

@@ -17,7 +17,6 @@ export * from "../../src/question_matrixdropdown";
 interface IDynamicKind {
   name: string;
   // The authored names of the same thing on the two questions.
-  pageSize: string;
   itemCount: string;
   visibleIf: string;
   variable: string;
@@ -28,7 +27,6 @@ interface IDynamicKind {
 }
 const matrixKind: IDynamicKind = {
   name: "matrixdynamic",
-  pageSize: "rowsPerPage",
   itemCount: "rowCount",
   visibleIf: "rowsVisibleIf",
   variable: "row",
@@ -41,7 +39,6 @@ const matrixKind: IDynamicKind = {
 };
 const panelKind: IDynamicKind = {
   name: "paneldynamic",
-  pageSize: "panelsPerPage",
   itemCount: "panelCount",
   visibleIf: "templateVisibleIf",
   variable: "panel",
@@ -129,7 +126,7 @@ describe("Dynamic questions: {q[i]} names a record for both questions", () => {
       });
       test("paging: a record off the page is read as a value", () => {
         const extra: any = {};
-        extra[kind.pageSize] = 2;
+        extra.pageSize = 2;
         const survey = createSurvey(kind, records("a", "b", "c", "d"), extra);
         const question = getQuestion(survey);
         const res3 = readItem(question, 3, "x");
@@ -145,7 +142,7 @@ describe("Dynamic questions: {q[i]} names a record for both questions", () => {
         const survey = createSurvey(kind, records("a", "b", "c"));
         expect(readItem(getQuestion(survey), 3, "x").isFound, "#1: no view").toBe(false);
         const extra: any = { filterExpression: "{x} != 'a'" };
-        extra[kind.pageSize] = 2;
+        extra.pageSize = 2;
         const paged = createSurvey(kind, records("a", "b", "c"), extra);
         expect(readItem(getQuestion(paged), 3, "x").isFound, "#2: filter and paging").toBe(false);
         expect(readItem(getQuestion(paged), 2, "x").isFound, "#3: the last record").toBe(true);
@@ -168,7 +165,7 @@ describe("Dynamic questions: {q[i]} names a record for both questions", () => {
   test("matrix: a padded record off the page is the default row value", () => {
     const survey = new SurveyModel({
       elements: [{
-        type: "matrixdynamic", name: "q", rowCount: 3, rowsPerPage: 2, defaultRowValue: { x: "d" },
+        type: "matrixdynamic", name: "q", rowCount: 3, pageSize: 2, defaultRowValue: { x: "d" },
         columns: [{ name: "x", cellType: "text" }]
       }]
     });
@@ -211,7 +208,7 @@ describe("Dynamic questions: the record visibility under paging goes through onE
     describe(kind.name, () => {
       function createPaged(expression: string, onRunning?: (options: any) => void, showInvisible?: boolean): SurveyModel {
         const extra: any = {};
-        extra[kind.pageSize] = 2;
+        extra.pageSize = 2;
         extra[kind.visibleIf] = expression;
         const props = Object.assign({}, extra);
         props[kind.itemCount] = 4;
@@ -360,9 +357,9 @@ describe("Dynamic questions: the question-level value getter context", () => {
 describe("Dynamic questions: the item getter contexts", () => {
   test("paneldynamic and matrixdynamic, page 2: {prev*} and {next*} at both page edges read the records off the page", () => {
     const survey = new SurveyModel({ elements: [
-      { type: "paneldynamic", name: "p", panelsPerPage: 2, templateElements: [{ type: "text", name: "id" },
+      { type: "paneldynamic", name: "p", pageSize: 2, templateElements: [{ type: "text", name: "id" },
         { type: "expression", name: "prev", expression: "{prevPanel.id}" }, { type: "expression", name: "next", expression: "{nextPanel.id}" }] },
-      { type: "matrixdynamic", name: "m", rowsPerPage: 2, columns: [{ name: "id", cellType: "text" },
+      { type: "matrixdynamic", name: "m", pageSize: 2, columns: [{ name: "id", cellType: "text" },
         { name: "prev", cellType: "expression", expression: "{prevRow.id}" }, { name: "next", cellType: "expression", expression: "{nextRow.id}" }] }
     ] });
     survey.data = { p: ids(6), m: ids(6) };
@@ -395,11 +392,11 @@ describe("Dynamic questions: the item getter contexts", () => {
     expect(values, "#2: row b is not a neighbour").toEqual([[undefined, 1, 3], [1, 2, undefined]]);
   });
   test("matrixdynamic: a record item's {rowIndex} is 1-based plus the remote window offset", async () => {
-    const survey = createSurvey(matrixKind, records("a", "b", "c", "d"), { rowsPerPage: 2 });
+    const survey = createSurvey(matrixKind, records("a", "b", "c", "d"), { pageSize: 2 });
     const matrix = getQuestion(survey);
     expect(isAnsweredByQuestion(readPath(matrix, 3, ["x"])), "#1: record 3 is off the page").toBe(false);
     expect(readPath(matrix, 3, ["rowIndex"]).value, "#2: 1-based").toBe(4);
-    const remote = <QuestionMatrixDynamicModel>new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 5,
+    const remote = <QuestionMatrixDynamicModel>new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, pageSize: 5,
       rowsVisibleIf: "{rowIndex} != 12", columns: [{ name: "id", cellType: "text" }] }] }).getQuestionByName("m");
     remote.dataSource = new PagedSource(ids(20));
     await flush();
@@ -411,14 +408,14 @@ describe("Dynamic questions: the item getter contexts", () => {
     expect(remote.visibleRows.map(row => row.getQuestionByName("id").value), "#4: record 11 is row 12 of the whole list").toEqual([10, 12, 13, 14]);
   });
   test("paneldynamic: {panelIndex} is 0-based plus the window offset in the value, +1 in text", async () => {
-    const survey = createSurvey(panelKind, records("a", "b", "c", "d"), { panelsPerPage: 2, templateTitle: "N {panelIndex}",
+    const survey = createSurvey(panelKind, records("a", "b", "c", "d"), { pageSize: 2, templateTitle: "N {panelIndex}",
       templateElements: [{ type: "text", name: "x" }, { type: "expression", name: "no", expression: "{panelIndex}" }] });
     const panel = <QuestionPanelDynamicModel>getQuestion(survey);
     panel.pageIndex = 1;
     expect(panel.panels.map(p => p.getQuestionByName("no").value), "#1: the value").toEqual([2, 3]);
     expect(panel.panels.map(p => p.locTitle.renderedHtml), "#2: the text").toEqual(["N 3", "N 4"]);
     expect(readPath(panel, 0, ["panelIndex"]).value, "#3: a record item").toBe(0);
-    const remote = <QuestionPanelDynamicModel>new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelCount: 0, panelsPerPage: 5,
+    const remote = <QuestionPanelDynamicModel>new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelCount: 0, pageSize: 5,
       templateVisibleIf: "{panelIndex} != 11", templateElements: [{ type: "text", name: "id" }] }] }).getQuestionByName("p");
     remote.panels;
     remote.dataSource = new PagedSource(ids(20));
@@ -431,8 +428,8 @@ describe("Dynamic questions: the item getter contexts", () => {
   });
   test("an expression reads the visible index of a record off the page: {m[3].visibleRowIndex} and {p[3].visiblePanelIndex}", () => {
     const survey = new SurveyModel({ elements: [
-      { type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 2, columns: [{ name: "a", cellType: "text" }] },
-      { type: "paneldynamic", name: "p", panelsPerPage: 2, templateElements: [{ type: "text", name: "a" }] },
+      { type: "matrixdynamic", name: "m", rowCount: 0, pageSize: 2, columns: [{ name: "a", cellType: "text" }] },
+      { type: "paneldynamic", name: "p", pageSize: 2, templateElements: [{ type: "text", name: "a" }] },
       { type: "expression", name: "mv", expression: "{m[3].visibleRowIndex}" },
       { type: "expression", name: "pv", expression: "{p[3].visiblePanelIndex}" }
     ] });
@@ -446,7 +443,7 @@ describe("Dynamic questions: the item getter contexts", () => {
 
 describe("Dynamic questions: the record-visibility pass under paging", () => {
   test("matrixdynamic: the padded records are evaluated as the default row value", () => {
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 4, rowsPerPage: 2,
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 4, pageSize: 2,
       defaultRowValue: { x: "d" }, rowsVisibleIf: "{row.x} != 'd'", columns: [{ name: "x", cellType: "text" }] }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     matrix.value = [{ x: "a" }, { x: "b" }];
@@ -459,7 +456,7 @@ describe("Dynamic questions: the record-visibility pass under paging", () => {
       return !!this.panel ? this.panel.getValue("x") : undefined;
     });
     try {
-      const survey = createSurvey(panelKind, records("a", "b", "c", "d"), { panelsPerPage: 2, templateVisibleIf: "recordPanelX() != 'a'" });
+      const survey = createSurvey(panelKind, records("a", "b", "c", "d"), { pageSize: 2, templateVisibleIf: "recordPanelX() != 'a'" });
       const question = getQuestion(survey);
       expect(question["dataList"].visibleCount, "#1: record 0 is hidden").toBe(3);
       expect(readItem(question, 1, "x").value, "#2").toBe("b");
@@ -472,7 +469,7 @@ describe("Dynamic questions: the record-visibility pass under paging", () => {
       return !!this.row ? this.row.getValue("x") : undefined;
     });
     try {
-      const survey = createSurvey(matrixKind, records("a", "b", "c", "d"), { rowsPerPage: 2, rowsVisibleIf: "recordRowX() != 'a'" });
+      const survey = createSurvey(matrixKind, records("a", "b", "c", "d"), { pageSize: 2, rowsVisibleIf: "recordRowX() != 'a'" });
       const question = getQuestion(survey);
       expect(question["dataList"].visibleCount, "#1: record 0 is hidden").toBe(3);
       expect((<QuestionMatrixDynamicModel>question).visibleRows.map(r => r.getValue("x")), "#2: the page starts at record 1").toEqual(["b", "c"]);
@@ -483,7 +480,7 @@ describe("Dynamic questions: the record-visibility pass under paging", () => {
   kinds.forEach((kind: IDynamicKind) => {
     test(kind.name + ": showInvisibleElements clears the flags and restores them when it is turned off", () => {
       const extra: any = {};
-      extra[kind.pageSize] = 2;
+      extra.pageSize = 2;
       extra[kind.visibleIf] = "{" + kind.variable + ".x} != 'a'";
       const survey = createSurvey(kind, records("a", "b", "c", "d"), extra);
       const question = getQuestion(survey);
@@ -503,7 +500,7 @@ describe("Fixed matrix pages its rows: the row context of a record without a row
     { value: "r4", text: "Date" }, { value: "r5", text: "Elder" }, { value: "r6", text: "Fig" }, { value: "r7", text: "Grape" }];
   const createFixed = (json: any): { survey: SurveyModel, matrix: any } => {
     const survey = new SurveyModel({
-      elements: [Object.assign({ type: "matrixdropdown", name: "matrix", rowsPerPage: 3, rows: rows, columns: [{ name: "a", cellType: "text" }] }, json),
+      elements: [Object.assign({ type: "matrixdropdown", name: "matrix", pageSize: 3, rows: rows, columns: [{ name: "a", cellType: "text" }] }, json),
         { type: "expression", name: "readsR6", expression: "{matrix.r6.a}" }]
     });
     survey.data = { matrix: { r2: { a: "2" }, r6: { a: "six" } } };

@@ -343,18 +343,13 @@ export class DynamicDataList {
      keyField - an in-memory one, written by storage index - would leave the window misaddressing every
      later write: removing A from [A, B, C] fails, the window is [B, C], and the next edit of B
      overwrites A. That window goes back to what the source stores, and the owner is told to start over
-     once the write has notified. Any other failure keeps the local change. Inside a batch the commit
-     decides (onBatchFailed). A push queued behind an asynchronous one fails when no write is open: the
-     writes made since have changed the window, and the array the source holds is what is stored. The
-     writes queued behind it are dropped by the channel. */
-  private onPushFailed(operation: DynamicDataOperation): void {
-    if (operation === "update" || !!this.keyField || this.batchDepth > 0) return;
-    if (this.writeDepth > 0) {
-      this.restoreWindowToStorage(this._source, this.windowAtWriteStart || this.windowRecords);
-      return;
-    }
-    this.restoreWindowToStorage(this._source, undefined);
-    this.raisePendingReset();
+     once the write has notified. Any other failure keeps the local change. Inside a batch the source
+     method threw and the batch goes on: the window takes the array the batch builds, which the next
+     write of the batch addresses. A local source that answered with a promise (isAsyncLocalWrite)
+     broke its contract: what it stored is unknown, so the window goes back for any operation. */
+  private onPushFailed(operation: DynamicDataOperation, isAsyncLocalWrite: boolean): void {
+    if (!isAsyncLocalWrite && (operation === "update" || !!this.keyField)) return;
+    this.restoreWindowToStorage(this._source, this.batchDepth > 0 ? undefined : this.windowAtWriteStart || this.windowRecords);
   }
   /* An array source assigns its array once, when its batch ends, and the setter may store something
      else than it was handed: trimmed strings, a normalized shape. The writes inside the batch synced
@@ -1305,7 +1300,8 @@ export class DynamicDataList {
       applyInsertAnswer: (entry: IPendingInsert): void => this.applyInsertAnswer(entry),
       syncWindowAfterSyncPush: (): void => this.syncWindowAfterSyncPush(),
       isOwnStorage: (source: IDynamicDataSource): boolean => this.isOwnStorage(source),
-      onPushFailed: (operation: DynamicDataOperation): void => this.onPushFailed(operation),
+      isLocalSource: (source: IDynamicDataSource): boolean => isLocalSource(source),
+      onPushFailed: (operation: DynamicDataOperation, isAsyncLocalWrite: boolean): void => this.onPushFailed(operation, isAsyncLocalWrite),
       getSurvey: (): ISurvey => !!this.owner && !!this.owner.getSurvey ? this.owner.getSurvey() : undefined,
       onSettled: (): void => { if (!!this.owner && !!this.owner.onDataSettled)this.owner.onDataSettled(); },
       onWritesStarted: (): void => { if (!!this.owner && !!this.owner.onWritesStarted)this.owner.onWritesStarted(); }

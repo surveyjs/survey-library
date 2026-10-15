@@ -845,6 +845,31 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, questionRoot, "question-matrix-description-under-input.png");
     });
 
+    test("Matrix with comment area", async ({ page }) => {
+      await page.setViewportSize({ width: 1200, height: 800 });
+      await initSurvey(page, framework, {
+        "showQuestionNumbers": "off",
+        "autoFocusFirstQuestion": false,
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "matrix",
+                "name": "question1",
+                "showCommentArea": true,
+                "columns": ["Column 1", "Column 2", "Column 3"],
+                "rows": ["Row 1", "Row 2"]
+              }
+            ]
+          }
+        ]
+      });
+
+      const questionRoot = page.locator(".sd-question--table");
+      await compareScreenshot(page, questionRoot, "question-matrix-comment-area.png");
+    });
+
     test("Matrix with boolean column", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {

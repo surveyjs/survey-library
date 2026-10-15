@@ -2146,7 +2146,7 @@ export class SurveyModel extends SurveyElementCore
       this.setDataCore(data);
     }
   }
-  private iscorrectValueWithPostPrefix(
+  private isCorrectValueWithPostPrefix(
     key: string,
     postPrefix: string
   ): boolean {
@@ -4772,8 +4772,8 @@ export class SurveyModel extends SurveyElementCore
   // totals key of such a question, a calculated value that is a part of the result.
   private isKnownRootKey(key: string): boolean {
     if (!!this.getQuestionByValueName(key)) return true;
-    if (this.iscorrectValueWithPostPrefix(key, settings.commentSuffix) ||
-      this.iscorrectValueWithPostPrefix(key, settings.matrix.totalsSuffix)) return true;
+    if (this.isCorrectValueWithPostPrefix(key, settings.commentSuffix) ||
+      this.isCorrectValueWithPostPrefix(key, settings.matrix.totalsSuffix)) return true;
     const calcValue = this.getCalculatedValueByName(key);
     return !!calcValue && calcValue.includeIntoResult;
   }

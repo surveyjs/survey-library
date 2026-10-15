@@ -16,7 +16,7 @@ import { ConditionRunner } from "./conditions/conditionRunner";
 import { ArrayChanges, Base } from "./base";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { QuestionRecordItem, IDynamicDataRecordUniqueness } from "./question_records";
-import { IRecordsAnswerShape, IRowsChange, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
+import { IRowsChange, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { IDynamicDataRecordCondition } from "./dynamic-data/dynamic-data-record-visibility";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { settings } from "./settings";
@@ -286,7 +286,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     source.getIndexesOfSameKeys(changed).forEach((index: number): void => {
       const row = <MatrixDropdownRowModelBase>this.getItemByRecordIndex(index);
       if (!!row) {
-        row.value = this.getUnbindValue((<IRecordsAnswerShape><any>source).readRecordInAnswer(value, index));
+        row.value = this.getUnbindValue(source["readRecordInAnswer"](value, index));
       }
     });
   }
@@ -338,7 +338,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     // Without a view every row is built, in record order: a row's position is its record index.
     this.generatedVisibleRows.forEach((row: MatrixDropdownRowModelBase, index: number): void => { this.setBuiltRecordIndex(row, index); });
     this.clearVisibleRows();
-    if (this.isRendredTableCreated) {
+    if (this.isRenderedTableCreated) {
       updateRendered(this.renderedTable);
     }
     this.clearIncorrectValues();
@@ -363,6 +363,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
    * @see columns
    */
   @property ({ localizable: { markdown: true } }) totalText: string;
+  declare readonly locTotalText: LocalizableString;
   public getFooterText(): LocalizableString {
     return this.locTotalText;
   }

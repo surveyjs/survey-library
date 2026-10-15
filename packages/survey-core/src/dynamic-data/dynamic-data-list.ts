@@ -11,7 +11,7 @@ import {
   isRecordValueChanged, mergeInsertAnswer, toReadResult
 } from "./dynamic-data-channel";
 import { DynamicDataCount } from "./dynamic-data-count";
-import { ArrayDynamicDataSource, hasFixedMembership, IPositionWrittenSource, isLocalSource, LocalDynamicDataSource } from "./dynamic-data-sources";
+import { ArrayDynamicDataSource, hasFixedMembership, isLocalSource, LocalDynamicDataSource } from "./dynamic-data-sources";
 import { DynamicDataMembership } from "./dynamic-data-membership";
 import { DynamicDataReadState } from "./dynamic-data-read-state";
 import { DynamicDataRecordVisibility, IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data-record-visibility";
@@ -128,7 +128,7 @@ export class DynamicDataList {
     const newValue = source || undefined;
     // An in-memory source is written by its last assignment only, the same one again included (LocalDynamicDataSource.positionWriter).
     if (this.assignedSourceValue === newValue) {
-      if (isLocalSource(newValue)) (<IPositionWrittenSource><any>newValue).claimPositionWriter(this, this.onWriterChanged);
+      if (isLocalSource(newValue)) newValue["claimPositionWriter"](this, this.onWriterChanged);
       return;
     }
     this.checkSourceReplaceable();
@@ -150,8 +150,8 @@ export class DynamicDataList {
     }
   }
   private movePositionWriter(from: IDynamicDataSource, to: IDynamicDataSource): void {
-    if (isLocalSource(from)) (<IPositionWrittenSource><any>from).releasePositionWriter(this);
-    if (isLocalSource(to)) (<IPositionWrittenSource><any>to).claimPositionWriter(this, this.onWriterChanged);
+    if (isLocalSource(from)) from["releasePositionWriter"](this);
+    if (isLocalSource(to)) to["claimPositionWriter"](this, this.onWriterChanged);
   }
   /* A write to the owner's own storage - its default source, never the assigned one - fails only when
      the code behind the owner's setter throws, and that exception is the caller's. Every other
@@ -1124,7 +1124,7 @@ export class DynamicDataList {
   }
   public dispose(): void {
     this.isDisposed = true;
-    if (isLocalSource(this.assignedSourceValue)) (<IPositionWrittenSource><any>this.assignedSourceValue).releasePositionWriter(this);
+    this.movePositionWriter(this.assignedSourceValue, undefined);
     this.channel.cancelReads();
     // No notification: a disposed list raises nothing, and a read in flight will never clear it.
     this._isLoading = false;
@@ -1180,8 +1180,8 @@ export class DynamicDataList {
     if (this.isMembershipFixed && (operation === "insert" || operation === "remove" || operation === "move")) return false;
     const source: any = this._source;
     if (!source || typeof source[operation] !== "function") return false;
-    if (operation === "move") return !this.isRemote && isLocalSource(source) && !this.keyField && !(<IPositionWrittenSource><any>source).isWrittenByAnotherWriter(this);
-    return operation === "read" || !!this.keyField || isLocalSource(source) && !(<IPositionWrittenSource><any>source).isWrittenByAnotherWriter(this);
+    if (operation === "move") return !this.isRemote && isLocalSource(source) && !this.keyField && !source["isWrittenByAnotherWriter"](this);
+    return operation === "read" || !!this.keyField || isLocalSource(source) && !source["isWrittenByAnotherWriter"](this);
   }
   private getFields(): Array<IDynamicDataField> {
     return !!this.owner && !!this.owner.getFields ? this.owner.getFields() : undefined;

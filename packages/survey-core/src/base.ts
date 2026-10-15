@@ -563,6 +563,8 @@ export class Base implements IObjectValueContext {
   endLoadingFromJson() {
     this.isLoadingFromJsonValue = false;
   }
+  // The matrix and the dynamic panel call it on their inner panels by element access: the compiler
+  // checks the signature; tests/dynamic-data/internal-access.test.ts checks that the member exists.
   protected mergeLocalizationObj(obj: Base, locales?: Array<string>): void {
     this.mergeLocalizationInObjectCore(obj, locales);
     this.mergeLocalizationInArrays(obj, locales);

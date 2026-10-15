@@ -29,7 +29,7 @@ import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdown
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsValueGetterContext, IRecordCountNames, getRecordCountNamesOf, isRecordCountSerializable } from "./question_records";
 import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { ArrayDynamicDataSource, IMinCountPaddedSource, isRecordEmpty, IArrayDynamicDataSourceOptions, IRecordsAnswerShape } from "./dynamic-data/dynamic-data-sources";
+import { ArrayDynamicDataSource, isRecordEmpty, IArrayDynamicDataSourceOptions } from "./dynamic-data/dynamic-data-sources";
 
 export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
   // The design row answers any path; isRoot is left as it is.
@@ -1153,6 +1153,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     onCreate: (obj: QuestionMatrixDynamicModel, locStr: LocalizableString) =>
       locStr.onGetTextCallback = (text: string): string => text || obj.defaultAddRowText
   } }) addRowText: string;
+  declare readonly locAddRowText: LocalizableString;
   private get defaultAddRowText(): string {
     return this.getLocalizationString(
       this.isColumnLayoutHorizontal ? "addRow" : "addColumn"
@@ -1203,12 +1204,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
    */
   @property({ localizable: { defaultStr: "removeRow" } }) removeRowText: string;
+  declare readonly locRemoveRowText: LocalizableString;
   /**
    * A message displayed when the matrix does not contain any rows. Applies only if `hideColumnsIfEmpty` is enabled.
    * @see hideColumnsIfEmpty
    * @since 2.0.0
    */
   @property({ localizable: { defaultStr: true } }) noRowsText: string;
+  declare readonly locNoRowsText: LocalizableString;
   public get locEditRowText(): LocalizableString {
     return this.getOrCreateLocStr("editRowText", false, "editText");
   }
@@ -1363,7 +1366,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       const row = rows[index];
       rows.splice(index, 1);
       this.setPropertyValueDirectly("rowCount", val.length);
-      if (this.isRendredTableCreated) {
+      if (this.isRenderedTableCreated) {
         this.renderedTable.onRemovedRow(row);
       }
     } else {
@@ -1380,7 +1383,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.onMatrixRowCreated(newRow);
       }
       this.setPropertyValueDirectly("rowCount", val.length);
-      if (this.isRendredTableCreated) {
+      if (this.isRenderedTableCreated) {
         if (this.renderedTable.isRequireReset()) {
           this.resetRenderedTable();
         } else {
@@ -1478,7 +1481,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     } finally {
       this.setRowCountValueFromData = prev;
     }
-    if (this.isRendredTableCreated) {
+    if (this.isRenderedTableCreated) {
       this.renderedTable.requireReset();
     }
   }
@@ -1490,7 +1493,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
        total and the records beyond the window are on the server, not missing from the value. */
     if (this.isRemoteData) return result;
     if (result.length > this.rowCount) result.splice(this.rowCount);
-    return (<IMinCountPaddedSource><any>this.arrayRecordsSource).padRecordsToMinCount(result);
+    return this.arrayRecordsSource["padRecordsToMinCount"](result);
   }
   protected deleteRowValue(newValue: any, row: MatrixDropdownRowModelBase): any {
     if (!Array.isArray(newValue)) return newValue;
@@ -1506,7 +1509,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
 
   // The lookup is the own source's (readRecordInAnswer); a record the value does not hold reads as null here.
   private getRowValueByIndex(questionValue: any, index: number): any {
-    const res = (<IRecordsAnswerShape><any>this.recordsSource).readRecordInAnswer(questionValue, index);
+    const res = this.recordsSource["readRecordInAnswer"](questionValue, index);
     return res !== undefined ? res : null;
   }
   /* Still reached with an explicit value: updateValueOnRowsGeneration, onRowChanging,

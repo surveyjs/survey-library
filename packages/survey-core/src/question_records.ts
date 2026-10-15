@@ -2,12 +2,12 @@ import { Base, ComputedUpdater } from "./base";
 import { IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
-import { IAnswerCleanupAtComplete, INestedElementInfo, IVerifyDataContext, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext, getNestedElementQuestions } from "./question";
+import { INestedElementInfo, IVerifyDataContext, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext, getNestedElementQuestions } from "./question";
 import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { ArrayDynamicDataSource, hasFixedMembership, IArrayDynamicDataSourceOptions, IRecordsAnswerShape, isLocalSource, LocalDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
+import { ArrayDynamicDataSource, hasFixedMembership, IArrayDynamicDataSourceOptions, isLocalSource, LocalDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { TextContextProcessor } from "./textPreProcessor";
 import { SurveyError } from "./survey-error";
@@ -105,24 +105,6 @@ function getFieldType(question: Question): DynamicDataFieldType {
 }
 // What the list, the page validation and the paging helper call: one object, see helperOwner.
 type RecordsHelperOwner = IDynamicDataOwner & IDynamicDataPageValidationOwner & IDynamicDataPagingOwner;
-/* What the objects of a records question - its rows or panels -, their contexts and the single-input
-   behavior ask the question for. The members are protected methods of the question, and the code of
-   this module calls them through a cast of the question to this interface. The compiler does not
-   check the cast: a member renamed on the question fails at run time only. The rows and the panel
-   items of the other modules ask the protected helpers of QuestionRecordItem. Not exported. */
-interface IRecordItemOwner {
-  getItemRecordIndex(item: ISurveyData): number;
-  getItemVisibleIndex(item: ISurveyData): number;
-  getItemByVisibleIndex(visibleIndex: number): QuestionRecordItem;
-  getItemByRecordIndex(recordIndex: number): QuestionRecordItem;
-  getExpressionItem(index: number, existingObjectsOnly?: boolean): QuestionRecordItem;
-  syncPageSizeWithMode(): void;
-  writeItemValue(item: QuestionRecordItem, name: string, val: any, isDeleting: boolean): boolean;
-  getRecordAddText(): string;
-  addRecordFromUI(): void;
-  isRecordKeyUnknown(key: string, recordIndex: number, item: QuestionRecordItem): boolean;
-  getItemPageVisibleIndex(item: QuestionRecordItem): number;
-}
 /* The 0-based number the respondent sees for the record of an object or a record item: its index in
    the whole list - the window offset of a source that pages itself added to the window-local
    getIndex(), which the storage is addressed by. */
@@ -158,7 +140,12 @@ function getSurveyDynamicDataWrites(survey: ISurvey): ISurveyDynamicDataWrites {
    What a source does NOT change is where the records are kept while they are being edited:
    question.value is the loaded window, so the nested questions, the {row.x} / {panel.x} contexts,
    validation and getFilteredData keep working on exactly the records the respondent can see. What
-   it does change is who owns them - see canSetValueToSurvey. */
+   it does change is who owns them - see canSetValueToSurvey.
+   Its objects - rows or panels -, their contexts and the single-input behavior call its protected
+   members by element access (question["getItemRecordIndex"](item)). The compiler checks the
+   signature; tests/dynamic-data/internal-access.test.ts checks that the member exists. A member
+   reached this way is added to, or renamed in, that test's list. The rows and the panel items of the
+   other modules ask the protected helpers of QuestionRecordItem. */
 export abstract class QuestionRecordsModel extends Question {
   private _dataList: DynamicDataList;
   private _paging: DynamicDataPagingController;
@@ -835,12 +822,12 @@ export abstract class QuestionRecordsModel extends Question {
      it - the page, the filter, the owner's visibility: an unknown key is a property of the value, not
      of the view. A source that pages itself checks its window. */
   protected verifyRecordsUnknownKeys(val: any, context: IVerifyDataContext): void {
-    const source = <IRecordsAnswerShape><any>this.recordsSource;
+    const source = this.recordsSource;
     this.forEachStoredRecord(this.loadedRecordCount, (index: number, item: QuestionRecordItem): void => {
-      const record = source.readRecordInAnswer(val, index);
+      const record = source["readRecordInAnswer"](val, index);
       const keys = this.getRecordUnknownKeys(index, record, item);
       if (keys.length === 0) return;
-      context.pushSegment(source.getRecordSegment(index));
+      context.pushSegment(source["getRecordSegment"](index));
       keys.forEach(key => context.addIssue("unknownProperty", key, record[key], this));
       context.popSegment();
     });
@@ -1734,9 +1721,9 @@ export abstract class QuestionRecordsModel extends Question {
     if (inputs.length === 0) return;
     if (!this.hiddenAnswerStates)this.hiddenAnswerStates = new Map<any, HashTable<number>>();
     const states = this.hiddenAnswerStates;
-    const source = <IRecordsAnswerShape><any>this.recordsSource;
+    const source = this.recordsSource;
     this.writeRecordChanges(this.collectRecordChangesWithoutObjects(properties, (index: number, record: any, visibility: IRecordElementVisibility): any => {
-      const key = source.getRecordStateKey(index, record);
+      const key = source["getRecordStateKey"](index, record);
       const prevState = states.get(key);
       const state: HashTable<number> = {};
       let cleared: any = undefined;
@@ -1750,7 +1737,7 @@ export abstract class QuestionRecordsModel extends Question {
       states.set(key, state);
       return cleared;
     }, (index: number, record: any, item: QuestionRecordItem): void => {
-      states.set(source.getRecordStateKey(index, record), this.getItemHiddenAnswerState(item, inputs));
+      states.set(source["getRecordStateKey"](index, record), this.getItemHiddenAnswerState(item, inputs));
     }));
   }
   /* The records that have no object under paging in memory - the records of the pages never opened or
@@ -1880,13 +1867,13 @@ export abstract class QuestionRecordsModel extends Question {
   }
   // The built objects with the key their record's hidden-answer state is kept under.
   private forEachBuiltRecordItem(func: (key: any, item: QuestionRecordItem) => void): void {
-    const source = <IRecordsAnswerShape><any>this.recordsSource;
+    const source = this.recordsSource;
     for (let i = 0; ; i++) {
       const item = this.getItem(i);
       if (!item) return;
       if (!(item instanceof QuestionRecordItem)) continue;
       const index = this.getBuiltRecordIndex(item);
-      if (index > -1) func(source.getRecordStateKey(index, undefined), item);
+      if (index > -1) func(source["getRecordStateKey"](index, undefined), item);
     }
   }
   /* The record without the answer stored under name and its comment, the keys clearValue() removes.
@@ -1995,7 +1982,7 @@ export abstract class QuestionRecordsModel extends Question {
         questions.forEach((q: Question): void => {
           if (byObject.indexOf(q) > -1) return;
           const key = q.getValueName();
-          const cleanup = (<IAnswerCleanupAtComplete><any>q).getAnswerCleanupAtComplete(record[key]);
+          const cleanup = q["getAnswerCleanupAtComplete"](record[key]);
           if (cleanup === undefined) objectQuestions.push(q);
           if (cleanup === "clear") delete res[key];
         });
@@ -3208,7 +3195,7 @@ export abstract class QuestionRecordsModel extends Question {
      list adds its keyField. Not asked for a sibling's in-place write: its records did not move
      (decideViewAgain). */
   private createAssignmentRemap(oldRecords: any, newRecords: any): (index: number) => number {
-    return (<IRecordsAnswerShape><any>this.recordsSource).createAnswerAssignmentRemap(oldRecords, newRecords, this._dataList?.keyField);
+    return this.recordsSource["createAnswerAssignmentRemap"](oldRecords, newRecords, this._dataList?.keyField);
   }
   // The values the objects' setValueExpression and resetValueIf compute are not edits (runComputedWrites).
   public runTriggers(name: string, value: any, keys?: any): void {
@@ -3443,7 +3430,7 @@ export abstract class QuestionRecordsModel extends Question {
     const newRecords = this.getStoredRecords();
     const isEveryChanged = !Helpers.isValueObject(oldRecords) || !Helpers.isValueObject(newRecords) || this.isRemoteData;
     const list = this.hasDataListView ? this.dataListValue : undefined;
-    const source = <IRecordsAnswerShape><any>this.recordsSource;
+    const source = this.recordsSource;
     /* When the rows decide which records exist, an object exists whether or not the answer holds its
        record, and an assignment refreshes it: a row added at runtime runs its expressions only when it
        is refreshed. Otherwise an object without a record is padding. */
@@ -3454,7 +3441,7 @@ export abstract class QuestionRecordsModel extends Question {
       const recordIndex = !!list ? list.materializedIndexToIndex(i) : i;
       const newRecord = this.getAssignedRecord(newRecords, recordIndex);
       if (isEveryChanged || newRecord === undefined && isRefreshedWithoutRecord ||
-        QuestionRecordsModel.isRecordChanged(source.readRecordInAnswer(oldRecords, recordIndex), newRecord)) {
+        QuestionRecordsModel.isRecordChanged(source["readRecordInAnswer"](oldRecords, recordIndex), newRecord)) {
         item.updateFromRecord(newRecord);
       }
     }
@@ -3467,7 +3454,7 @@ export abstract class QuestionRecordsModel extends Question {
      answer's shape by the own source. The dynamic matrix pads a row past the value with its default
      record; the record the object showed before is compared as the value held it. */
   protected getAssignedRecord(value: any, recordIndex: number): any {
-    return (<IRecordsAnswerShape><any>this.recordsSource).readRecordInAnswer(value, recordIndex);
+    return this.recordsSource["readRecordInAnswer"](value, recordIndex);
   }
   // The stored value, not the default: the records an assignment or a read replaces.
   protected getStoredRecords(): any {
@@ -4126,7 +4113,7 @@ export abstract class QuestionRecordsValueGetterContext extends QuestionValueGet
     if (index > -1) {
       // The index names a record of the value, and so does the index a bound question passes: the
       // row or panel that holds it, or - when the record has none - the record read as a value.
-      const item = (<IRecordItemOwner><any>this.question).getExpressionItem(index, params.existingObjectsOnly);
+      const item = (<QuestionRecordsModel>this.question)["getExpressionItem"](index, params.existingObjectsOnly);
       if (!!item) {
         params.isRoot = false;
         return item.getValueGetterContext().getValue(params);
@@ -4219,12 +4206,12 @@ export abstract class QuestionRecordItemGetterContext extends QuestionItemValueG
      with the record read as a value. */
   protected getVisibleItem(index: number): QuestionRecordItem {
     const data = this.item.data;
-    return !!data ? (<IRecordItemOwner><any>data).getItemByVisibleIndex(index) : null;
+    return !!data ? data["getItemByVisibleIndex"](index) : null;
   }
   // The position among the visible records of the whole list, not among the objects of the page.
   protected get visibleIndex(): number {
     const data = this.item.data;
-    return !!data ? (<IRecordItemOwner><any>data).getItemVisibleIndex(this.item) : -1;
+    return !!data ? data["getItemVisibleIndex"](this.item) : -1;
   }
   /* The RECORD index, so that a stored {panelIndex} / {rowIndex} expression keeps meaning the same
      record when a filter or a sort changes which objects exist - and in the whole list, so that
@@ -4286,12 +4273,12 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     this.textPreProcessor = new TextContextProcessor(this);
   }
   // The record this object holds, and its position among the visible records of the whole view: the
-  // question's lookups are protected (IRecordItemOwner).
+  // question's lookups are protected (see QuestionRecordsModel).
   protected getOwnRecordIndex(): number {
-    return (<IRecordItemOwner><any>this.data).getItemRecordIndex(this);
+    return this.data["getItemRecordIndex"](this);
   }
   protected getOwnVisibleIndex(): number {
-    return (<IRecordItemOwner><any>this.data).getItemVisibleIndex(this);
+    return this.data["getItemVisibleIndex"](this);
   }
   abstract getValueGetterContext(): IValueGetterContext;
   getSurveyData(): ISurveyData {
@@ -4339,7 +4326,7 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     if (!write) return;
     const fieldName = isComment ? Helpers.getCommentKey(name) : name;
     if (!this.isValueChanged(fieldName, write.fieldValue)) return;
-    if (!(<IRecordItemOwner><any>this.data).writeItemValue(this, fieldName, write.ownerValue, write.isDeleting)) return;
+    if (!this.data["writeItemValue"](this, fieldName, write.ownerValue, write.isDeleting)) return;
     this.runTriggersOnSetValue(fieldName, newValue);
     this.notifyRecordWritten();
     this.onRecordWritten(name, isComment);
@@ -4458,7 +4445,7 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
     const bindedQuestions = this.data.getBindedQuestions();
     bindedQuestions.forEach((q: IQuestion) => {
       if (q === this.data || !(q instanceof QuestionRecordsModel)) return;
-      const item = (<IRecordItemOwner><any>q).getItemByRecordIndex(index);
+      const item = q["getItemByRecordIndex"](index);
       if (!!item) {
         const triggerName = item.getVariableName() + "." + name;
         item.runTriggers(triggerName, newValue);
@@ -4488,7 +4475,7 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   }
   // The object's position among the visible objects: the page it is on, when the question pages; -1: not shown.
   public get pageVisibleIndex(): number {
-    return !!this.data ? (<IRecordItemOwner><any>this.data).getItemPageVisibleIndex(this) : -1;
+    return !!this.data ? this.data["getItemPageVisibleIndex"](this) : -1;
   }
   // The 0-based number the respondent sees for this object's record (getRecordNumberOf).
   protected getOwnRecordNumber(): number {
@@ -4496,7 +4483,7 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   }
   // The rule of the owner for a key of this object's record (getRecordUnknownKeys).
   protected isOwnRecordKeyUnknown(key: string): boolean {
-    return (<IRecordItemOwner><any>this.data).isRecordKeyUnknown(key, this.getOwnRecordIndex(), this);
+    return this.data["isRecordKeyUnknown"](key, this.getOwnRecordIndex(), this);
   }
 }
 
@@ -4560,7 +4547,7 @@ function getHiddenAnswerFlags(isSelfVisible: boolean, isContainerVisible: boolea
   return (isSelfVisible ? HIDDEN_ANSWER_SELF : 0) | (isContainerVisible ? HIDDEN_ANSWER_CONTAINER : 0);
 }
 function isHiddenAnswerContainerVisible(isVisible: (el: PanelModelBase) => boolean, q: Question, container: PanelModelBase): boolean {
-  for (let el = <PanelModelBase><any>q.parent; !!el && el !== container && !el.isPage; el = <PanelModelBase><any>el.parent) {
+  for (let el = <PanelModelBase>q.parent; !!el && el !== container && !el.isPage; el = <PanelModelBase>el.parent) {
     if (!isVisible(el)) return false;
   }
   return true;
@@ -4665,10 +4652,10 @@ export abstract class QuestionRecordsSingleInputBehavior<TRecord extends ISingle
     return this.question as QuestionRecordsModel;
   }
   public getSingleInputAddTextCore(): string {
-    return (<IRecordItemOwner><any>this.recordsQuestion).getRecordAddText();
+    return this.recordsQuestion["getRecordAddText"]();
   }
   public singleInputAddItemCore(): void {
-    (<IRecordItemOwner><any>this.recordsQuestion).addRecordFromUI();
+    this.recordsQuestion["addRecordFromUI"]();
   }
   protected abstract getRecords(): Array<TRecord>;
   // Not always a record: the lookup is also asked for the question itself and for its parents.
@@ -4677,13 +4664,13 @@ export abstract class QuestionRecordsSingleInputBehavior<TRecord extends ISingle
 
   // Single-input mode is its own paging and walks every record: the list is told before they are read.
   protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
-    (<IRecordItemOwner><any>this.recordsQuestion).syncPageSizeWithMode();
+    this.recordsQuestion["syncPageSizeWithMode"]();
     return super.getSingleInputQuestionsCore(question, checkDynamic);
   }
   // The steps of a question that adds and removes records: the questions of every record that is
   // empty or invalid, the questions of the current record when it is complete, and the summary.
   protected getDynamicSingleInputQuestions(question: Question, checkDynamic: boolean): Array<Question> {
-    (<IRecordItemOwner><any>this.recordsQuestion).syncPageSizeWithMode();
+    this.recordsQuestion["syncPageSizeWithMode"]();
     const unfinished = new Array<Question>();
     if (checkDynamic) {
       const records = this.getRecords();
@@ -4736,7 +4723,7 @@ export abstract class QuestionRecordsSingleInputBehavior<TRecord extends ISingle
     }
   }
   protected createRecordsSummary(options: IRecordsSingleInputSummaryOptions<TRecord>): QuestionSingleInputSummary {
-    (<IRecordItemOwner><any>this.recordsQuestion).syncPageSizeWithMode();
+    this.recordsQuestion["syncPageSizeWithMode"]();
     const res = new QuestionSingleInputSummary(this.question, options.noEntriesText);
     const items = new Array<QuestionSingleInputSummaryItem>();
     this.getRecords().forEach(record => {

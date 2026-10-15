@@ -3,7 +3,7 @@ import { SurveyModel } from "../../src/survey";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { Question } from "../../src/question";
-import { getDuplicateKey } from "../../src/dynamic-data/dynamic-data-page-validation";
+import { getDuplicateKey, groupByDuplicateKey } from "../../src/dynamic-data/dynamic-data-page-validation";
 
 /* The record keys a records question compares for keyName duplicates, and the record fields it gives
    its sort and filter. Both questions compare keys as text, and both declare the field the other text
@@ -118,6 +118,13 @@ describe("keyName and isUnique compare object and array values by content", () =
   test("matrix column: the strings of two objects compare as the column compares text, case-insensitively", () => {
     expect(matrixHasDuplicate({ cellType: "checkbox", choices: ["a", "A"] }, [["a"], ["A"]]), "#1").toBe(true);
     expect(panelHasDuplicate(checkbox, [["a"], ["A"]]), "#2: the panel compares case-sensitively").toBe(false);
+  });
+  test("two records whose key holds different dates are not duplicates, two equal dates are", () => {
+    const groupSizes = (records: Array<any>): Array<number> =>
+      groupByDuplicateKey(records, (record: any): any => record.k, true).map(group => group.length);
+    expect(groupSizes([{ k: new Date(2020, 0, 1) }, { k: new Date(2021, 5, 2) }]), "#1").toEqual([1, 1]);
+    expect(groupSizes([{ k: new Date(2020, 0, 1) }, { k: new Date(2020, 0, 1) }]), "#2").toEqual([2]);
+    expect(groupSizes([{ k: { d: new Date(2020, 0, 1) } }, { k: { d: new Date(2021, 5, 2) } }]), "#3: a date inside an object").toEqual([1, 1]);
   });
 });
 

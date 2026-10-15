@@ -121,7 +121,9 @@ export class DynamicDataList {
   /* The owner's swap: undefined goes back to the default source. The flag is stored first, then
      onAssigning runs, then the source is swapped: the owner reads isRemote inside onAssigning and
      inside the notifications the swap raises. A list without a default source (a standalone one)
-     keeps its source on a detach - there is nothing to go back to - and only the flag changes. */
+     keeps its source on a detach - there is nothing to go back to - and only the flag changes.
+     An onAssigning that throws rolls the flag and the writer claims back. A list that wrote the new
+     source before was told it lost it (claimPositionWriter), and the rollback cannot undo that. */
   public assignSource(source: IDynamicDataSource, onAssigning?: () => void): void {
     const newValue = source || undefined;
     // An in-memory source is written by its last assignment only, the same one again included (LocalDynamicDataSource.positionWriter).
@@ -130,16 +132,26 @@ export class DynamicDataList {
       return;
     }
     this.checkSourceReplaceable();
-    if (isLocalSource(this.assignedSourceValue)) (<IPositionWrittenSource><any>this.assignedSourceValue).releasePositionWriter(this);
-    if (isLocalSource(newValue)) (<IPositionWrittenSource><any>newValue).claimPositionWriter(this, this.onWriterChanged);
+    const oldValue = this.assignedSourceValue;
+    this.movePositionWriter(oldValue, newValue);
     this.assignedSourceValue = newValue;
-    if (!!onAssigning) onAssigning();
+    try {
+      if (!!onAssigning) onAssigning();
+    } catch(e) {
+      this.movePositionWriter(newValue, oldValue);
+      this.assignedSourceValue = oldValue;
+      throw e;
+    }
     if (!!newValue) {
       this.source = newValue;
     } else if (!!this.createDefaultSource) {
       this.defaultSource = this.createDefaultSource();
       this.source = this.defaultSource;
     }
+  }
+  private movePositionWriter(from: IDynamicDataSource, to: IDynamicDataSource): void {
+    if (isLocalSource(from)) (<IPositionWrittenSource><any>from).releasePositionWriter(this);
+    if (isLocalSource(to)) (<IPositionWrittenSource><any>to).claimPositionWriter(this, this.onWriterChanged);
   }
   /* A write to the owner's own storage - its default source, never the assigned one - fails only when
      the code behind the owner's setter throws, and that exception is the caller's. Every other
@@ -986,7 +998,8 @@ export class DynamicDataList {
     const newValue = v > 0 ? v : 0;
     if (this._pageSize === newValue) return;
     this._pageSize = newValue;
-    this.clampPageIndex();
+    // Not before the first load, as in the pageIndex setter: there is no count to clamp against.
+    if (this.isWindowCommitted)this.clampPageIndex();
     this.membership.resetViews();
     if (this.readsSourceOnViewChange && this.isWindowCommitted) {
       this.load();
@@ -1049,7 +1062,7 @@ export class DynamicDataList {
        the filter it already has changes neither. */
     const isFilterChanged = this._filter !== newFilter;
     this._filter = newFilter;
-    this._sort = Array.isArray(sort) ? sort : [];
+    this._sort = Array.isArray(sort) ? sort.slice() : [];
     if (isFilterChanged) {
       this._pageIndex = 0;
       // Another filter is another set of records: what the old one reached says nothing about it.
@@ -1104,7 +1117,7 @@ export class DynamicDataList {
     }
   }
   public get sort(): Array<IDynamicDataSort> {
-    return this._sort;
+    return this._sort.slice();
   }
   public set sort(v: Array<IDynamicDataSort>) {
     this.setView(this._filter, v);
@@ -1273,6 +1286,7 @@ export class DynamicDataList {
     if (!!this.onChanged)this.onChanged(change);
   }
   private raiseError(error: any, operation: DynamicDataOperation): void {
+    this.owner?.onDataError?.(error, operation);
     if (!!this.onError)this.onError(error, operation);
   }
   private setIsLoading(val: boolean): void {

@@ -5,6 +5,7 @@ import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { IValueGetterInfo } from "../../src/conditions/conditionProcessValue";
 import { FunctionFactory } from "../../src/functionsfactory";
+import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 import { IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSource } from "../../src/dynamic-data/dynamic-data-interfaces";
 
 export * from "../../src/question_text";
@@ -544,5 +545,45 @@ describe("Fixed matrix pages its rows: the row context of a record without a row
     matrix.visibleRows[2].cells[0].question.value = "6!";
     matrix.prevPage();
     expect(survey.getValue("readsR6"), "#3: an edit made on r6's page").toBe("6!");
+  });
+});
+
+/* The survey hashes no question of a dynamic panel's panels: the lookup by value name finds nothing
+   for them. A template loaded from JSON is hashed under its value name; one built in code with its
+   value name set before it joins the survey is not, so its panels' copies find nothing either. */
+describe("Dynamic questions: a records question nested in a dynamic panel looks up its siblings by value name", () => {
+  function createNested(): QuestionMatrixDynamicModel {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "pd", templateElements: [
+      { type: "matrixdynamic", name: "m", columns: [{ name: "id", cellType: "text" }] }] }] });
+    survey.data = { pd: [{ m: [{ id: 1 }, { id: 2 }] }] };
+    return <QuestionMatrixDynamicModel>(<QuestionPanelDynamicModel>survey.getQuestionByName("pd")).panels[0].getQuestionByName("m");
+  }
+  function createNestedWithValueName(records: Array<any>): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel } {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "pd" }] });
+    const panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+    const template = new QuestionMatrixDynamicModel("m");
+    template.valueName = "mv";
+    template.addColumn("id");
+    panelDynamic.template.addElement(template);
+    survey.data = { pd: [{ mv: records }] };
+    expect(survey.getQuestionsByValueName("mv"), "the value name is not hashed").toBeNull();
+    return { survey, matrix: <QuestionMatrixDynamicModel>panelDynamic.panels[0].getQuestionByName("m") };
+  }
+  test("assigning a data source to the nested matrix does not throw and shows the source's records", () => {
+    const matrix = createNested();
+    matrix.dataSource = ArrayDynamicDataSource.fromArray([{ id: 5 }]);
+    expect(matrix.visibleRows.map(row => row.getValue("id"))).toEqual([5]);
+  });
+  test("a nested matrix with a valueName reports an unknown key of its record", () => {
+    const { matrix } = createNestedWithValueName([{ id: 1, unknownKey: 2 }, { id: 2 }]);
+    expect(matrix.isValueCorrect({ reportUnknownProperties: true }), "#1").toBe(false);
+    matrix.value = [{ id: 1 }];
+    expect(matrix.isValueCorrect({ reportUnknownProperties: true }), "#2").toBe(true);
+  });
+  test("editing a cell of a nested matrix with a valueName runs the row's triggers and stores the value", () => {
+    const { survey, matrix } = createNestedWithValueName([{ id: 1 }, { id: 2 }]);
+    matrix.visibleRows[0].cells[0].question.value = "edited";
+    expect(matrix.value, "#1").toEqual([{ id: "edited" }, { id: 2 }]);
+    expect(survey.data, "#2").toEqual({ pd: [{ mv: [{ id: "edited" }, { id: 2 }] }] });
   });
 });

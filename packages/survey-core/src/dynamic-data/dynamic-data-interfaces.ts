@@ -207,6 +207,9 @@ export interface IDynamicDataOwner {
   onWritesStarted?(): void;
   // Another list took the claim on the in-memory source this list wrote (DynamicDataList.assignSource): it only reads it now.
   onSourceWriterChanged?(): void;
+  /* A read or a write of the source failed. The owner hears it from the list's construction on: the
+     first load of a read-through list runs before anyone could assign the list's onError. */
+  onDataError?(error: any, operation: DynamicDataOperation): void;
   /* The survey of the question the list belongs to: the asynchronous writes of the lists in one
      survey that share a source object are ordered (DynamicDataSourceChannel.getForeignWrites). */
   getSurvey?(): ISurvey;

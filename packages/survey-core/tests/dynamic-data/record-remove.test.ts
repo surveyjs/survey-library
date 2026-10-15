@@ -56,7 +56,7 @@ describe("the removal confirmation asks about the record it removes", () => {
     const panel = createPanel(json, [{ a: "d" }, { a: 1 }]);
     expect(panel.isRequireConfirmOnDelete(0), "#1: the default").toBe(false);
     expect(panel.isRequireConfirmOnDelete(1), "#2").toBe(true);
-    const paged = createPanel(Object.assign({ panelsPerPage: 1 }, json), [{ a: 1 }, { a: "d" }]);
+    const paged = createPanel(Object.assign({ pageSize: 1 }, json), [{ a: 1 }, { a: "d" }]);
     paged.panels;
     expect(paged.isRequireConfirmOnDelete(1), "#3: the default on another page").toBe(false);
     expect(paged.isRequireConfirmOnDelete(0), "#4").toBe(true);
@@ -69,7 +69,7 @@ describe("the removal confirmation asks about the record it removes", () => {
     matrix.visibleRows;
     expect(matrix.isRequireConfirmOnRowDelete(0), "#3: the default").toBe(false);
     expect(matrix.isRequireConfirmOnRowDelete(1), "#4").toBe(true);
-    const paged = createMatrix(Object.assign({ rowsPerPage: 1 }, json), [{ a: 1 }, { a: "d" }]);
+    const paged = createMatrix(Object.assign({ pageSize: 1 }, json), [{ a: 1 }, { a: "d" }]);
     paged.visibleRows;
     expect(paged.isRequireConfirmOnRowDelete(1), "#5: the default on another page").toBe(false);
     expect(paged.isRequireConfirmOnRowDelete(0), "#6").toBe(true);
@@ -89,7 +89,7 @@ describe("a confirmation whose object is gone removes nothing", () => {
     expect(matrix.value, "#2: nothing more is removed").toEqual([undefined, { a: 3 }]);
   });
   test("paged matrix", () => {
-    const matrix = createMatrix({ confirmDelete: true, rowsPerPage: 2 }, data());
+    const matrix = createMatrix({ confirmDelete: true, pageSize: 2 }, data());
     matrix.visibleRows;
     matrix.removeRow(0, true);
     matrix.removeRow(0, false);
@@ -107,7 +107,7 @@ describe("a confirmation whose object is gone removes nothing", () => {
     expect(panel.value, "#2: nothing more is removed").toEqual([undefined, { a: 3 }]);
   });
   test("paged panel", () => {
-    const panel = createPanel({ confirmDelete: true, panelsPerPage: 2 }, data());
+    const panel = createPanel({ confirmDelete: true, pageSize: 2 }, data());
     const first = panel.panels[0];
     panel.removePanel(first, true);
     panel.removePanel(0);
@@ -116,7 +116,7 @@ describe("a confirmation whose object is gone removes nothing", () => {
     expect(panel.value, "#2: nothing more is removed").toEqual([undefined, { a: 3 }]);
   });
   test("paged panel: a record on another page is found again by its record", () => {
-    const panel = createPanel({ confirmDelete: true, panelsPerPage: 1 }, [{ a: 1 }, { a: 2 }, { a: 3 }]);
+    const panel = createPanel({ confirmDelete: true, pageSize: 1 }, [{ a: 1 }, { a: 2 }, { a: 3 }]);
     panel.panels;
     panel.removePanel(2, true);
     panel.removePanel(0);
@@ -134,19 +134,19 @@ describe("the page size the list gets", () => {
   });
   test("single-input mode does not page", () => {
     const survey = new SurveyModel({ questionsOnPageMode: "inputPerPage", elements: [
-      { type: "matrixdynamic", name: "m", rowCount: 3, rowsPerPage: 2, columns: [{ name: "a", cellType: "text" }] }] });
+      { type: "matrixdynamic", name: "m", rowCount: 3, pageSize: 2, columns: [{ name: "a", cellType: "text" }] }] });
     expect((<any>survey.getQuestionByName("m")).listPageSize, "#1: matrix").toBe(0);
     const survey2 = new SurveyModel({ questionsOnPageMode: "inputPerPage", elements: [
-      { type: "paneldynamic", name: "p", panelCount: 3, panelsPerPage: 2, templateElements: [{ type: "text", name: "a" }] }] });
+      { type: "paneldynamic", name: "p", panelCount: 3, pageSize: 2, templateElements: [{ type: "text", name: "a" }] }] });
     expect((<any>survey2.getQuestionByName("p")).listPageSize, "#2: panel").toBe(0);
   });
   test("a page size above the setting pages by the setting", () => {
     settings.matrix.maxRowCount = 3;
     settings.panel.maxPanelCount = 2;
-    const matrix = createMatrix({ rowsPerPage: 5 }, [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }]);
+    const matrix = createMatrix({ pageSize: 5 }, [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }]);
     expect((<any>matrix).listPageSize, "#1: matrix").toBe(3);
     expect(matrix.visibleRows.length, "#2").toBe(3);
-    const panel = createPanel({ panelsPerPage: 5 }, [{ a: 1 }, { a: 2 }, { a: 3 }]);
+    const panel = createPanel({ pageSize: 5 }, [{ a: 1 }, { a: 2 }, { a: 3 }]);
     expect((<any>panel).listPageSize, "#3: panel").toBe(2);
     expect(panel.panels.length, "#4").toBe(2);
   });

@@ -17,7 +17,7 @@ function createJson(paged: boolean = false): any {
           { type: "text", name: "mdDetail" },
           { type: "paneldynamic", name: "mdDetailPd", templateElements: [{ type: "text", name: "mdDetailPdItem" }] }
         ],
-        ...(paged ? { rowsPerPage: 1 } : {})
+        ...(paged ? { pageSize: 1 } : {})
       },
       {
         type: "matrixdropdown", name: "mx", rows: ["r1", "r2"], rowsVisibleIf: "{item} != 'r2'",
@@ -30,7 +30,7 @@ function createJson(paged: boolean = false): any {
           { type: "panel", name: "pdStatic", elements: [{ type: "text", name: "pdStaticQ" }] },
           { type: "checkbox", name: "pdChoice", choices: [{ value: "a", elements: [{ type: "text", name: "pdChoiceInner" }] }] }
         ],
-        ...(paged ? { panelsPerPage: 1 } : {})
+        ...(paged ? { pageSize: 1 } : {})
       },
       { type: "multipletext", name: "mt", items: [{ name: "mtEditor" }] },
       { type: "nwcustom", name: "cu" },

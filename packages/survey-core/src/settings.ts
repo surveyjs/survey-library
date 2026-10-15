@@ -262,7 +262,7 @@ export var settings = {
    *
    * - `maxRowCount`: `number`\
    * A maximum number of rows on one page of a Dynamic Matrix. Default value: 1000.\
-   * A [`rowsPerPage`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#rowsPerPage) value above this limit is capped. If a Dynamic Matrix does not split rows into pages, all rows are on one page, and this setting limits their total number. You can limit the total number of rows for an individual Dynamic Matrix: [`maxRowCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#maxRowCount).
+   * A [`pageSize`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#pageSize) value above this limit is capped. If a Dynamic Matrix does not split rows into pages, all rows are on one page, and this setting limits their total number. You can limit the total number of rows for an individual Dynamic Matrix: [`maxRowCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#maxRowCount).
    *
    * - `maxRowCountInCondition`: `number`\
    * A maximum number of matrix rows included in the Condition drop-down menu in Survey Creator. This menu is used to configure conditional survey logic. Default value: 1.\
@@ -311,7 +311,7 @@ export var settings = {
    *
    * - `maxPanelCount`: `number`\
    * A maximum number of panels on one page of Dynamic Panel. Default value: 100.\
-   * A [`panelsPerPage`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#panelsPerPage) value above this limit is capped. If Dynamic Panel does not split panels into pages, all panels are on one page, and this setting limits their total number. You can limit the total number of panels for an individual Dynamic Panel: [`maxPanelCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#maxPanelCount).
+   * A [`pageSize`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#pageSize) value above this limit is capped. If Dynamic Panel does not split panels into pages, all panels are on one page, and this setting limits their total number. You can limit the total number of panels for an individual Dynamic Panel: [`maxPanelCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#maxPanelCount).
    *
    * - `maxPanelCountInCondition`: `number`\
    * A maximum number of Dynamic Panel panels included in the Condition drop-down menu in Survey Creator. This menu is used to configure conditional survey logic. Default value: 1.\

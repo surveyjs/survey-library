@@ -414,17 +414,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected get maxRecordsPerPage(): number {
     return settings.panel.maxPanelCount;
   }
-  /* The number of panels on one page, 0 = no paging. In list mode the page is what is shown; in tab
-     and carousel mode it is the panels of one page, of which one is shown. */
-  public get panelsPerPage(): number {
-    return this.pageSize;
-  }
-  public set panelsPerPage(val: number) {
-    this.pageSize = val;
-  }
-  protected getRecordEntityName(): string {
-    return "Panel";
-  }
   protected onPageSizeAssigned(): void {
     this.updateRenderedPanels();
   }
@@ -4008,7 +3997,7 @@ Serializer.addClass(
       return sQN === "onpanel" || sQN === "recursive";
     } },
     { name: "renderMode", visible: false, isSerializable: false },
-    ...getRecordViewProperties("panelsPerPage"),
+    ...getRecordViewProperties(),
     { name: "displayMode", default: "list", choices: ["list", "carousel", "tab"] },
     {
       name: "showProgressBar:boolean", alternativeName: "showRangeInProgress",

@@ -544,7 +544,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     val = Helpers.getNumber(val);
     if (val < 0 || val === this.rowCountValue) return;
     if (val > settings.matrix.maxRowCount) {
-      // The page size is not known yet while loading: rowsPerPage may follow rowCount in the JSON.
+      // The page size is not known yet while loading: pageSize may follow rowCount in the JSON.
       if (this.isLoadingFromJson) {
         this.rowCountAboveSettings = val;
         return;
@@ -1677,7 +1677,7 @@ Serializer.addClass(
       },
     },
     { name: "allowRowReorder:switch", alternativeName: "allowRowsDragAndDrop" },
-    // Invisible in the property grid until the UI series ships sortable headers (rowsPerPage, sortBy and filterExpression are the base's).
+    // Invisible in the property grid until the UI series ships sortable headers (pageSize, sortBy and filterExpression are the base's).
     { name: "allowSortRows:boolean", default: false, visible: false },
   ],
   function() {

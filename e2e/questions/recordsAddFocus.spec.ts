@@ -69,7 +69,7 @@ frameworks.forEach((framework) => {
       });
 
       test("panel with paging: the new panel is shown on its page, focused and visible", async ({ page }) => {
-        await init(page, panelJSON({ panelsPerPage: 2 }));
+        await init(page, panelJSON({ pageSize: 2 }));
         await getButtonByText(page, "Add new").click();
         const nameInputs = page.getByRole("textbox", { name: "Name" });
         await expect(nameInputs, "the page shows the new panel only").toHaveCount(1);
@@ -82,7 +82,7 @@ frameworks.forEach((framework) => {
       });
 
       test("panel in carousel mode with paging: the new panel is shown, focused and visible", async ({ page }) => {
-        await init(page, panelJSON({ displayMode: "carousel", panelsPerPage: 2 }));
+        await init(page, panelJSON({ displayMode: "carousel", pageSize: 2 }));
         // The carousel shows "Add new" on its last panel.
         for (let i = 0; i < 3; i++) {
           await getButtonByText(page, "Next").click();
@@ -115,7 +115,7 @@ frameworks.forEach((framework) => {
       });
 
       test("matrix with paging: the new row is shown on its page, focused and visible", async ({ page }) => {
-        await init(page, matrixJSON({ rowCount: 10, rowsPerPage: 5 }));
+        await init(page, matrixJSON({ rowCount: 10, pageSize: 5 }));
         await getButtonByText(page, "Add Row").click();
         const nameCells = page.getByRole("textbox", { name: /column Name$/ });
         await expect(nameCells, "the page shows the new row only").toHaveCount(1);

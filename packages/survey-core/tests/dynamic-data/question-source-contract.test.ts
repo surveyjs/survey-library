@@ -151,7 +151,7 @@ const matrixAdapter: IQuestionAdapter = {
   name: "matrix",
   create: (source: ContractSource, pageSize: number, json?: any) => {
     const survey = new SurveyModel({ elements: [Object.assign({
-      type: "matrixdynamic", name: "q", rowCount: 0, rowsPerPage: pageSize,
+      type: "matrixdynamic", name: "q", rowCount: 0, pageSize: pageSize,
       columns: [{ name: "id", cellType: "text" }, { name: "name", cellType: "text", isRequired: true }]
     }, json)] });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
@@ -177,7 +177,7 @@ const panelAdapter: IQuestionAdapter = {
   name: "panel",
   create: (source: ContractSource, pageSize: number, json?: any) => {
     const survey = new SurveyModel({ elements: [Object.assign({
-      type: "paneldynamic", name: "q", panelCount: 0, panelsPerPage: pageSize,
+      type: "paneldynamic", name: "q", panelCount: 0, pageSize: pageSize,
       templateElements: [{ type: "text", name: "id" }, { type: "text", name: "name", isRequired: true }]
     }, json)] });
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("q");

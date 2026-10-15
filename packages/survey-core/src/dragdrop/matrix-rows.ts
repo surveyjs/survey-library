@@ -248,9 +248,9 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     }
     return from;
   };
-  // The rendered table is a page only while rowsPerPage is set: design and single-input mode, which do not page, have no row drag.
+  // The rendered table is a page only while pageSize is set: design and single-input mode, which do not page, have no row drag.
   private isPaged(matrix: QuestionMatrixDynamicModel): boolean {
-    return matrix.rowsPerPage > 0;
+    return matrix.pageSize > 0;
   }
   // A drop position on the page of a paged matrix, in its whole view: the row shown there, or right after the last row of the page.
   private getDropViewIndex(matrix: QuestionMatrixDynamicModel, position: number): number {

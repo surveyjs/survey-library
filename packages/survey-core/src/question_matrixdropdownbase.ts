@@ -2839,16 +2839,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   public get showPager(): boolean {
     return this.pageCount > 1;
   }
-  // The number of rows on one page, 0 = no paging.
-  public get rowsPerPage(): number {
-    return this.pageSize;
-  }
-  public set rowsPerPage(val: number) {
-    this.pageSize = val;
-  }
-  protected getRecordEntityName(): string {
-    return "Row";
-  }
   protected onPageSizeAssigned(): void {
     this.resetRenderedTable();
     this.updateVisibilityBasedOnRows();
@@ -3707,7 +3697,7 @@ Serializer.addClass(
     { name: "columnColCount", default: 0, choices: [0, 1, 2, 3, 4] },
     { name: "allowAdaptiveActions:boolean", default: false, visible: false },
     // The paging, the sort and the filter of every matrix with rows (the Dynamic Matrix and the Multi-Select Matrix inherit them).
-    ...getRecordViewProperties("rowsPerPage"),
+    ...getRecordViewProperties(),
   ],
   function () {
     return new QuestionMatrixDropdownModelBase("");

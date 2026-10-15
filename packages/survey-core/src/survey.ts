@@ -3165,18 +3165,22 @@ export class SurveyModel extends SurveyElementCore
     if (val === "requiredquestion") return "requiredQuestion";
     return val;
   } }) progressBarType: string;
-  // In the "questionPerPage" mode a respondent moves from question to question rather than from
-  // page to page, so page-based progress ("Page 2 of 3") does not match what they see. The default
-  // "pages" type falls back to answered-question progress there. The "inputPerPage" mode is
-  // excluded on purpose: progress is meaningless when inputs are filled one by one, so the bar is
-  // hidden instead, the same way as in the "singlePage" mode - see
-  // SurveyProgressTextModel.isProgressBarInContainer.
-  // Every progress consumer (text, value, component name, css) must use this method, not the raw
-  // progressBarType property.
+  // questionPerPage walks one element per screen, so the linear bar shows that position.
+  // inputPerPage is still excluded here; Task 2 of the screen-position plan widens this.
+  // The returned "questions" value selects sv-progress-questions. It does not select
+  // the answered-question formula. The stored progressBarType is left unchanged.
+  public isSingleElementProgress(): boolean {
+    return !this.isDesignMode && this.isSingleVisibleQuestionVal(this.questionsOnPageMode);
+  }
+  public getProgressPosition(): { current: number, total: number } {
+    const elements = this.getSingleElements();
+    const index = elements.indexOf(this.currentSingleElement);
+    if (index < 0) return { current: 0, total: elements.length };
+    return { current: index + 1, total: elements.length };
+  }
   public getEffectiveProgressBarType(): string {
-    const res = this.progressBarType;
-    const isQuestionPerPage = this.isSingleVisibleQuestion && !this.isSingleVisibleInput;
-    return isQuestionPerPage && isStrCiEqual(res, "pages") ? "questions" : res;
+    if (this.isSingleElementProgress()) return "questions";
+    return this.progressBarType;
   }
   /**
    * Specifies whether the progress bar displays [navigation titles](https://surveyjs.io/form-library/documentation/api-reference/page-model#navigationTitle) and [descriptions](https://surveyjs.io/form-library/documentation/api-reference/page-model#navigationDescription). Applies only when [`showProgressBar`](#showProgressBar) is `true` and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
@@ -4389,6 +4393,11 @@ export class SurveyModel extends SurveyElementCore
   }
   public getProgress(): number {
     if (this.currentPage == null) return 0;
+    if (this.isSingleElementProgress()) {
+      const position = this.getProgressPosition();
+      if (position.current < 1 || position.total < 1) return 0;
+      return Math.floor((position.current * 100) / position.total);
+    }
     const progressBarType = this.getEffectiveProgressBarType();
     if (progressBarType !== "pages") {
       var info = this.getProgressInfo();

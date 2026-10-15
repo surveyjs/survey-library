@@ -124,6 +124,11 @@ export class SurveyProgressTextModel extends Base implements ILayoutElementModel
   }
 
   private getProgressTextCore(info: IProgressInfo): string {
+    if (this.survey.isSingleElementProgress()) {
+      const position = this.survey.getProgressPosition();
+      if (position.current < 1 || position.total < 1) return "";
+      return (this.survey as any).getLocalizationFormatString("questionPositionProgressText", position.current, position.total);
+    }
     const type = this.survey.getEffectiveProgressBarType().toLowerCase();
     if (type === "questions") {
       return (this.survey as any).getLocalizationFormatString("questionsProgressText", info.answeredQuestionCount, info.questionCount);

@@ -2,7 +2,7 @@ import { Base, ComputedUpdater } from "./base";
 import { IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
-import { IAnswerCleanupAtComplete, IVerifyDataContext, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext } from "./question";
+import { IAnswerCleanupAtComplete, INestedElementInfo, IVerifyDataContext, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext } from "./question";
 import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
@@ -30,6 +30,10 @@ import { ConsoleWarnings } from "./console-warnings";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import type { PanelModelBase } from "./panel";
+
+/* An item of the nested walk of a records question: a matrix row, or a dynamic panel's panel - not its
+   QuestionPanelDynamicItem: in design mode the panel shown is the template, which has none. */
+export type NestedWalkItem = QuestionRecordItem | PanelModelBase;
 import type { ItemValue } from "./itemvalue";
 import type { ISurveyDynamicDataWrites, ISurveyOldValueReads } from "./interfaces/survey-callbacks";
 
@@ -557,7 +561,13 @@ export abstract class QuestionRecordsModel extends Question {
      (clearIncorrectValuesWithoutObjects). */
   public clearIncorrectValues(): void {
     if (this.isRemoteData) return;
+    super.clearIncorrectValues();
+  }
+  protected clearIncorrectOwnValue(): void {
     this.clearIncorrectValueInData();
+  }
+  // Record-aware: an object judges the record it holds, and a record without one is judged by a temporary object.
+  protected clearIncorrectNestedValues(): void {
     this.clearIncorrectValuesInObjects();
     this.clearIncorrectValuesWithoutObjects();
   }
@@ -1116,17 +1126,21 @@ export abstract class QuestionRecordsModel extends Question {
     if (this.isSingleInputActive) return 0;
     return Math.min(this.pageSize, this.maxRecordsPerPage);
   }
-  protected collectNestedQuestionsOfItems(
-    items: Array<{ questions: Array<Question> }>,
-    questions: Array<Question>,
-    visibleOnly: boolean,
-    includeNested: boolean,
-    includeItSelf: boolean
-  ): void {
-    if (!Array.isArray(items)) return;
-    items.forEach(item => {
-      item.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
+  // The nested elements of the rows or panels a build mode reads, item by item.
+  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
+    this.forEachNestedWalkItem(build, (item: NestedWalkItem, position: number, visible: boolean): void => {
+      this.forEachNestedElementOfItem(item, position, visible, build, visit);
     });
+  }
+  /* The items a build mode reads, each with its position in the list of created items - never an index
+     in a visible-only list, so that the segment of the record it holds can be computed - and whether the
+     question shows it. */
+  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: NestedWalkItem, position: number, visible: boolean) => void): void { }
+  // The nested elements of one item at a position in the list of created items.
+  protected forEachNestedElementOfItem(item: NestedWalkItem, position: number, visible: boolean,
+    build: NestedWalkBuild, visit: (info: INestedElementInfo) => void): void { }
+  protected isListedAsNestedQuestion(includeItSelf: boolean): boolean {
+    return includeItSelf;
   }
   protected runTriggersOnItems(
     items: Array<QuestionRecordItem>,

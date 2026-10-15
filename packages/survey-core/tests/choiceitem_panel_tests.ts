@@ -22,3 +22,26 @@ test("ChoiceItem panel re-links to the survey when the owner is attached after t
   expect(item.panel.elements).toHaveLength(1);
   expect(item.panel.elements[0].name).toEqual("nested1");
 });
+
+test("The questions of a choice panel that is not showing hold their values, and lose them on complete as typed ones do", () => {
+  const json = { elements: [{ type: "checkbox", name: "q", choices: [{ value: "a", elements: [{ type: "text", name: "inner" }] }, "b"] }] };
+  const loaded = new SurveyModel(json);
+  loaded.data = { q: ["b"], inner: "z" };
+  const inner = (<any>loaded.getQuestionByName("q")).choices[0].panel.getQuestionByName("inner");
+  expect(inner.value, "loaded from the data").toBe("z");
+  loaded.doComplete();
+  expect(loaded.data, "cleared on complete").toEqual({ q: ["b"] });
+
+  const typed = new SurveyModel(json);
+  typed.setValue("q", ["a"]);
+  (<any>typed.getQuestionByName("q")).choices[0].panel.getQuestionByName("inner").value = "z";
+  typed.setValue("q", ["b"]);
+  typed.doComplete();
+  expect(typed.data, "a typed value is cleared on complete").toEqual({ q: ["b"] });
+
+  const kept = new SurveyModel(json);
+  kept.clearInvisibleValues = "none";
+  kept.data = { q: ["b"], inner: "z" };
+  kept.doComplete();
+  expect(kept.data, "clearInvisibleValues: none keeps it").toEqual({ q: ["b"], inner: "z" });
+});

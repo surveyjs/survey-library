@@ -14,7 +14,7 @@ import {
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
 import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
-import { Question, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType, IVerifyDataContext } from "./question";
+import { Question, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType, IVerifyDataContext, INestedElementInfo, NestedWalkBuild } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -37,7 +37,7 @@ import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInf
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import {
-  QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel,
+  QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel, NestedWalkItem,
   QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
   IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties, isRecordCountSerializable
 } from "./question_records";
@@ -2610,16 +2610,18 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return !!panel.getQuestionByValueName(key) || this.iscorrectValueWithPostPrefix(panel, key, settings.commentSuffix) ||
       this.iscorrectValueWithPostPrefix(panel, key, settings.matrix.totalsSuffix);
   }
-  public initializeForVerification(): void {
-    this.panels.forEach(panel => panel.initializeForVerification());
+  // "none" and "rows": the panels that exist; "all": panels, which builds them.
+  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: NestedWalkItem, position: number, visible: boolean) => void): void {
+    const panels = build === "all" ? this.panels : this.panelsCore;
+    const visiblePanels = new Set<PanelModel>(this.visiblePanelsCore);
+    panels.forEach((panel, position) => {
+      func(panel, position, visiblePanels.has(panel));
+    });
   }
-  public verifyNestedValues(context: IVerifyDataContext): void {
-    const panels = this.panels;
-    for (let i = 0; i < panels.length; i++) {
-      context.pushSegment(this.getRecordIndexAtCreatedPosition(i));
-      panels[i].verifyDataCore(context);
-      context.popSegment();
-    }
+  protected forEachNestedElementOfItem(item: NestedWalkItem, position: number, visible: boolean,
+    build: NestedWalkBuild, visit: (info: INestedElementInfo) => void): void {
+    const segment = this.getRecordIndexAtCreatedPosition(position);
+    visit({ element: <PanelModel>item, role: "item", segment: segment, location: "nested", visible: visible });
   }
   protected clearIncorrectValuesInObjects(): void {
     for (var i = 0; i < this.panelsCore.length; i++) {
@@ -2736,15 +2738,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         objects.push(obj);
       }
     }
-  }
-  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    if (includeItSelf) {
-      questions.push(this);
-    }
-    this.collectNestedQuestionsOfItems(
-      visibleOnly ? this.visiblePanelsCore : this.panelsCore,
-      questions, visibleOnly, includeNested, includeItSelf
-    );
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     if (!path) return super.getConditionJson(operator);

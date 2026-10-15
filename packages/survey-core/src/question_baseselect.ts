@@ -3,7 +3,7 @@ import { property, propertyArray } from "./decorators";
 import { SurveyError } from "./survey-error";
 import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement, IPanel, ISurveyChoiceCallbacks } from "./base-interfaces";
 import { SurveyModel } from "./survey";
-import { IQuestionPlainData, Question, QuestionValueType, getScalarValueType, IVerifyDataContext } from "./question";
+import { IQuestionPlainData, Question, QuestionValueType, getScalarValueType, IVerifyDataContext, INestedElementInfo, INestedWalkOptions, NestedWalkBuild } from "./question";
 import { ItemValue } from "./itemvalue";
 import { getLocaleString } from "./surveyStrings";
 import { OtherEmptyError } from "./error";
@@ -273,6 +273,10 @@ export class ChoiceItem extends ItemValue {
   }
 }
 
+// The choice panels of a select question: every created one, or the showing ones.
+const allChoicePanels: INestedWalkOptions = { build: "none", visibleOnly: false };
+const showingChoicePanels: INestedWalkOptions = { build: "none", visibleOnly: true };
+
 /**
  * A base class for multiple-choice question types ([Checkboxes](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radio Button Group](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
  */
@@ -359,7 +363,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     if (!!dist) {
       Object.keys(dist).forEach((key) => { dist[key].dispose(); });
     }
-    this.doForPanels(undefined, (p) => p.dispose());
+    this.forEachNestedElement(info => (<PanelModel>info.element).dispose(), allChoicePanels);
   }
   public supportElementsInChoice(): boolean {
     return false;
@@ -377,38 +381,23 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   public getPanels(): Array<IPanel> {
     if (!this.supportElementsInChoice()) return super.getPanels();
     const res = new Array<IPanel>();
+    this.forEachNestedElement(info => res.push(<PanelModel>info.element), allChoicePanels);
+    return res;
+  }
+  /* Every choice panel that is created, empty ones included, as getPanels() and disposal see them. A
+     panel is created by JSON elements or by reading item.panel, and it stays created after its last
+     element is removed; item.panel is never read on an item without one, because reading creates it. */
+  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
+    if (!this.supportElementsInChoice()) return;
     this.choices.forEach((item) => {
       if (item.isPanelCreated) {
-        res.push(item.panel);
+        visit({ element: item.panel, role: "choicePanel", segment: undefined, location: "root", visible: item.isPanelShowing });
       }
     });
-    return res;
   }
-  private getVisiblePanels(isVisible: boolean): Array<PanelModel> {
-    if (!this.supportElementsInChoice()) return null;
-    const res = new Array<PanelModel>();
-    this.choices.forEach((item) => {
-      if (item.isPanelCreated && item.isPanelShowing === isVisible) {
-        res.push(item.panel);
-      }
-    });
-    return res;
-  }
-  private doForPanels(isVisible: boolean | undefined, func: (pnl: PanelModel) => void): void {
-    const pnls = isVisible !== undefined ? this.getVisiblePanels(isVisible) : this.getPanels();
-    if (Array.isArray(pnls)) {
-      pnls.forEach(func);
-    }
-  }
-  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    questions.push(this);
-    if (includeNested && this.supportElementsInChoice()) {
-      this.choices.forEach((item) => {
-        if (item.hasElements && (!visibleOnly || item.isPanelShowing)) {
-          item.panel.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
-        }
-      });
-    }
+  // A select question always lists itself, and the questions of its choice panels only with includeNested.
+  protected canListNestedElements(includeNested: boolean): boolean {
+    return includeNested;
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
     if (!this.supportElementsInChoice()) return [];
@@ -503,13 +492,13 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   protected validateElementCore(context: ValidationContext): boolean {
     // Read when the validation starts: an async validator that settles later never clears.
     if (context.isOnValueChanged !== true && context.clearIncorrectValues && this.getClearIfInvisible() !== "none") {
-      this.clearIncorrectValues();
+      this.clearIncorrectOwnValue();
     }
     let res = true;
     if (!this.isChoicePanelsValidationSuppressed) {
-      this.doForPanels(true, (p) => {
-        res &&= p.validateElement(context);
-      });
+      this.forEachNestedElement(info => {
+        res &&= (<PanelModel>info.element).validateElement(context);
+      }, showingChoicePanels);
     }
     return super.validateElementCore(context) && res;
   }
@@ -829,9 +818,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   }
   public addUsedLocales(locales: Array<string>) {
     super.addUsedLocales(locales);
-    this.doForPanels(undefined, (p) => {
-      p.addUsedLocales(locales);
-    });
+    this.forEachNestedElement(info => {
+      (<PanelModel>info.element).addUsedLocales(locales);
+    }, allChoicePanels);
   }
   protected runConditionCore(properties: HashTable<any>): void {
     super.runConditionCore(properties);
@@ -840,9 +829,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     this.choices.forEach(item => {
       item.runConditionCore(properties);
     });
-    this.doForPanels(undefined, (p) => {
-      p.runCondition(properties);
-    });
+    this.forEachNestedElement(info => {
+      (<PanelModel>info.element).runCondition(properties);
+    }, allChoicePanels);
   }
   protected isTextValue(): boolean {
     return true; //for comments and others
@@ -934,7 +923,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
     if (hasChanges) {
       this.onVisibleChoicesChanged();
-      this.clearIncorrectValues();
+      this.clearIncorrectOwnValue();
     }
     return hasChanges;
   }
@@ -2080,12 +2069,12 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   onSurveyLoad(): void {
     this.runChoicesByUrl();
     this.onVisibleChoicesChanged();
-    this.doForPanels(undefined, (p) => { p.onSurveyLoad(); });
+    this.forEachNestedElement(info => { (<PanelModel>info.element).onSurveyLoad(); }, allChoicePanels);
     super.onSurveyLoad();
   }
   protected onFirstRenderingCore(): void {
     super.onFirstRenderingCore();
-    this.doForPanels(true, (p) => { p.onFirstRendering(); });
+    this.forEachNestedElement(info => { (<PanelModel>info.element).onFirstRendering(); }, showingChoicePanels);
   }
   onAnyValueChanged(name: string, questionName: string): void {
     super.onAnyValueChanged(name, questionName);
@@ -2096,7 +2085,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     // The same write reached updateDependedQuestion already, which recorded the projection it used.
     if (!!name && chQuestion && (name === chQuestion || questionName === chQuestion) && !this.isArrayChoicesSourceUnchanged()) {
       this.onVisibleChoicesChanged();
-      this.clearIncorrectValues();
+      this.clearIncorrectOwnValue();
     }
   }
   public updateValueFromSurvey(newValue: any, clearData: boolean): void {
@@ -2127,10 +2116,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     super.updateCommentFromSurvey(newValue);
     this.updateValueForPanels(false, true);
   }
+  // Every created panel, showing or not: the questions of a hidden panel hold their values too.
   private updateValueForPanels(clearData: boolean, isComment: boolean): void {
     if (this.data) {
-      this.doForPanels(true, (p) => {
-        p.questions.forEach(q => {
+      this.forEachNestedElement(info => {
+        (<PanelModel>info.element).questions.forEach(q => {
           const valName = q.getValueName();
           if (isComment) {
             q.updateCommentFromSurvey(this.data.getComment(valName));
@@ -2138,7 +2128,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
             q.updateValueFromSurvey(this.data.getValue(valName), clearData);
           }
         });
-      });
+      }, allChoicePanels);
     }
   }
   protected getCommentFromValue(newValue: any): string {
@@ -2323,7 +2313,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   protected updateDependedQuestion(): void {
     if (this.isArrayChoicesSourceUnchanged()) return;
     this.onVisibleChoicesChanged();
-    this.clearIncorrectValues();
+    this.clearIncorrectOwnValue();
   }
   onSurveyValueChanged(newValue: any): void {
     super.onSurveyValueChanged(newValue);
@@ -2399,7 +2389,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   private isValueShapeCorrect(val: any): boolean {
     return Array.isArray(val) === (this.getValueType() === "array");
   }
-  public clearIncorrectValues(): void {
+  /* The answer only. The questions of the choice panels are cleaned by clearIncorrectValues() after it,
+     even when the answer had a wrong shape: they store at the root. The question's own clean-ups below call
+     this one and keep their scope. */
+  protected clearIncorrectOwnValue(): void {
     if (!this.isEmpty() && !this.isValueShapeCorrect(this.value)) {
       this.clearValue(true);
       return;
@@ -2435,7 +2428,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   }
   protected clearValueIfInvisibleCore(reason: string): void {
     super.clearValueIfInvisibleCore(reason);
-    this.clearIncorrectValues();
+    this.clearIncorrectOwnValue();
     this.clearValuesInVisiblePanels(reason);
   }
   /* The clearIncorrectValues part, over the question's own choices: a known answer stays and an unknown
@@ -2449,10 +2442,13 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return this.isKeepIncorrectValues || !this.canClearIncorrectValues() ? "keep" : "clear";
   }
   private clearValuesInVisiblePanels(reason: string): void {
-    this.doForPanels(false, (p) => {
-      p.questions.forEach((q) => { q.clearValue(); });
-      p.questions.forEach((q) => { q.clearValueIfInvisible(reason); });
-    });
+    // The panels that are not showing.
+    this.forEachNestedElement(info => {
+      if (info.visible) return;
+      const questions = (<PanelModel>info.element).questions;
+      questions.forEach((q) => { q.clearValue(); });
+      questions.forEach((q) => { q.clearValueIfInvisible(reason); });
+    }, allChoicePanels);
   }
   /**
    * Returns `true` if a passed choice item is selected.

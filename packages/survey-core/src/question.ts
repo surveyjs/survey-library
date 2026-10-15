@@ -367,6 +367,10 @@ export class ValidationContext extends AsyncElementsRunner {
     this.clearIncorrectValuesValue = context.clearIncorrectValues !== false;
   }
   private clearIncorrectValuesValue: boolean;
+  // A matrix with detailPanelMode "underRowSingle" sets isSingleDetailPanel for its rows; the first row
+  // whose detail panel has errors sets hideErroredPanel, so that only that panel is shown.
+  public isSingleDetailPanel?: boolean;
+  public hideErroredPanel?: boolean;
   public get fireCallback(): boolean { return this.fireCallbackValue; }
   public get clearIncorrectValues(): boolean { return this.clearIncorrectValuesValue; }
   /* Validates a part of the elements without clearing their incorrect values, and in this context:
@@ -448,13 +452,6 @@ export type QuestionValueType = "string" | "number" | "boolean" | "date" | "arra
 export function getScalarValueType(val: any): QuestionValueType {
   if (typeof val === "number") return "number";
   return typeof val === "boolean" ? "boolean" : "string";
-}
-/* The completion clean-up of a stored answer, for a records question that asks its template questions:
-   the protected member of Question below, called through a cast - through any, because a protected
-   member of Question cannot be called on another Question from a subclass. The compiler does not check
-   the cast. Not exported from the entries. */
-export interface IAnswerCleanupAtComplete {
-  getAnswerCleanupAtComplete(value: any): string;
 }
 
 /**
@@ -1496,6 +1493,7 @@ export class Question extends SurveyElement<Question>
    * @see isRequired
    */
   @property({ localizable: true }) requiredErrorText: string;
+  declare readonly locRequiredErrorText: LocalizableString;
   /**
    * Specifies a caption displayed above the comment area. Applies when the `showCommentArea` property is `true`.
    * @see showCommentArea
@@ -1530,6 +1528,7 @@ export class Question extends SurveyElement<Question>
    * @since 2.0.0
    */
   @property({ localizable: true }) defaultDisplayValue: string;
+  declare readonly locDefaultDisplayValue: LocalizableString;
 
   public getAllErrors(): Array<SurveyError> {
     return this.errors.slice();
@@ -2305,7 +2304,10 @@ export class Question extends SurveyElement<Question>
      told without building the question: "keep", "clear" (the answer goes, its comment stays), or
      undefined - only a built question can tell. A records question asks its template questions for the
      records without an object. A type that overrides clearValueIfInvisibleCore answers undefined unless
-     it judges the answer itself (getAnswerCleanupAtCompleteCore). */
+     it judges the answer itself (getAnswerCleanupAtCompleteCore).
+     The records question calls it by element access: a protected member of Question cannot be called
+     on another Question from a subclass. The compiler checks the signature;
+     tests/dynamic-data/internal-access.test.ts checks that the member exists. */
   protected getAnswerCleanupAtComplete(value: any): string {
     if (this.getClearIfInvisible() === "none" || this.isValueEmpty(value)) return "keep";
     if (this.clearValueIfInvisibleCore === Question.prototype.clearValueIfInvisibleCore) return "keep";

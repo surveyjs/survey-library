@@ -32,6 +32,11 @@ export interface IMatrixColumnOwner extends ILocalizableOwner {
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void;
   getCellAriaLabel(row: any, column: any, directRowTitle?: string): string;
   getDesignRowContext(): IValueGetterContext;
+  // Not the survey property: Survey Creator reads colOwner["survey"] as SurveyModel.
+  getSurvey(): ISurvey;
+  readonly isQuestion: boolean;
+  // The dynamic matrix only: its rows sort by a header click.
+  readonly allowSortRows?: boolean;
 }
 export class MatrixColumnGetterContext implements IValueGetterContext {
   constructor(private column: MatrixDropdownColumn) {
@@ -184,7 +189,7 @@ export class MatrixDropdownColumn extends Base
     return "cellType";
   }
   public getSurvey(): ISurvey {
-    return !!this.colOwner ? (<any>this.colOwner).survey : null;
+    return !!this.colOwner ? this.colOwner.getSurvey() : null;
   }
   public getOwner() {
     return this.colOwner;
@@ -545,7 +550,7 @@ export class MatrixDropdownColumn extends Base
      unsortable by construction: the opt-out is the author's. */
   @property({ defaultValue: true }) allowSort: boolean;
   public get isSortable(): boolean {
-    const matrix: any = this.colOwner;
+    const matrix = this.colOwner;
     return !!matrix && matrix.allowSortRows === true && this.allowSort;
   }
   /* The record key this column sorts by, which is the key the cell writes and not the column name:
@@ -829,7 +834,7 @@ export class MatrixDropdownColumn extends Base
     return question;
   }
   private setParentQuestionToTemplate(question: Question): void {
-    if (!!this.colOwner && (<any>this.colOwner).isQuestion) {
+    if (!!this.colOwner && this.colOwner.isQuestion) {
       question.setParentQuestion(<any>this.colOwner);
     }
   }

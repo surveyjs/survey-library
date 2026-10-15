@@ -53,10 +53,10 @@ export class PanelDynamicItemGetterContext extends QuestionRecordItemGetterConte
     const path = params.path;
     if (path.length > 1 && path[0].name.toLocaleLowerCase() === settings.expressionVariables.parentPanel.toLocaleLowerCase()) {
       const q = this.item.data;
-      if (!!q && !!q.parentQuestion && !!q.parent && !!(<any>q.parent).data) {
+      if (!!q && !!q.parentQuestion && !!q.parent && !!(<PanelModel>q.parent).data) {
         path[0].name = this.variableName;
         params.isRoot = true;
-        return (<QuestionPanelDynamicItem>(<any>q.parent).data).getValueGetterContext().getValue(params);
+        return (<QuestionPanelDynamicItem>(<PanelModel>q.parent).data).getValueGetterContext().getValue(params);
       }
     }
     return null;
@@ -701,7 +701,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected mergeLocalizationWithInnerObjects(src: Base, locales?: Array<string>): void {
     const srcTemplate = (<QuestionPanelDynamicModel><unknown>src).template;
     if (srcTemplate) {
-      (<any>this.template).mergeLocalizationObj(srcTemplate, locales);
+      this.template["mergeLocalizationObj"](srcTemplate, locales);
     }
   }
   /**
@@ -749,12 +749,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * @see displayMode
    */
   @property({ localizable: { defaultStr: "panelDynamicTabTextFormat", markdown: true } }) templateTabTitle: string;
+  declare readonly locTemplateTabTitle: LocalizableString;
   /**
    * A placeholder for tab titles that applies when the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) expression doesn't produce a meaningful value.
    *
    * Default value: `"New Panel"` (taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization))
    */
   @property({ localizable: { defaultStr: true, markdown: true } }) tabTitlePlaceholder: string;
+  declare readonly locTabTitlePlaceholder: LocalizableString;
   /**
    * A template for panel descriptions.
    * @see template
@@ -1232,6 +1234,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * @since 2.0.0
    */
   @property({ localizable: { defaultStr: "pagePrevText" } }) prevPanelText: string;
+  declare readonly locPrevPanelText: LocalizableString;
   /**
    * @deprecated Use the [`prevPanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#prevPanelText) property instead.
    * @hidden
@@ -1245,6 +1248,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * @since 2.0.0
    */
   @property({ localizable: { defaultStr: "pageNextText" } }) nextPanelText: string;
+  declare readonly locNextPanelText: LocalizableString;
   /**
    * @deprecated Use the [`nextPanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#nextPanelText) property instead.
    * @hidden
@@ -1255,6 +1259,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * A caption for the Add Panel button.
    */
   @property({ localizable: { defaultStr: "addPanel" } }) addPanelText: string;
+  declare readonly locAddPanelText: LocalizableString;
   /**
    * @deprecated Use the [`addPanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#addPanelText) property instead.
    * @hidden
@@ -1266,6 +1271,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * @see removePanelButtonLocation
    */
   @property({ localizable: { defaultStr: "removePanel" } }) removePanelText: string;
+  declare readonly locRemovePanelText: LocalizableString;
   /**
    * @deprecated Use the [`removePanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanelText) property instead.
    * @hidden
@@ -2620,8 +2626,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      totals key of such a question by its name, the suffix at the end. */
   protected isRecordKeyOfType(key: string, item: QuestionRecordItem): boolean {
     const panel = !!item ? (<QuestionPanelDynamicItem>item).panel : this.template;
-    return !!panel.getQuestionByValueName(key) || this.iscorrectValueWithPostPrefix(panel, key, settings.commentSuffix) ||
-      this.iscorrectValueWithPostPrefix(panel, key, settings.matrix.totalsSuffix);
+    return !!panel.getQuestionByValueName(key) || this.isCorrectValueWithPostPrefix(panel, key, settings.commentSuffix) ||
+      this.isCorrectValueWithPostPrefix(panel, key, settings.matrix.totalsSuffix);
   }
   // "none" and "rows": the panels that exist; "all": panels, which builds them.
   protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: NestedWalkItem, position: number, visible: boolean) => void): void {
@@ -2704,7 +2710,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (keys.length === 0) return;
     this.writeRecordAt(index, (values: any): void => { keys.forEach((key: string): void => { delete values[key]; }); });
   }
-  private iscorrectValueWithPostPrefix(
+  private isCorrectValueWithPostPrefix(
     panel: PanelModel,
     key: string,
     postPrefix: string

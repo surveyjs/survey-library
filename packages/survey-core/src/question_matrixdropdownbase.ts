@@ -27,8 +27,9 @@ import {
   QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties
 } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
-import { IRecordsAnswerShape, isRecordEmpty, LocalDynamicDataSource, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
+import { isRecordEmpty, LocalDynamicDataSource, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { createIndexes } from "./dynamic-data/dynamic-data-filter";
+import type { QuestionExpressionModel } from "./question_expression";
 
 /* The matrix as its cells see it. The first group is what the interface has always declared for the
    rows; the rows themselves type their matrix as QuestionMatrixDropdownModelBase. */
@@ -173,26 +174,29 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
     this.updateCellQuestion();
     super.locStrsChanged();
   }
+  // The total question is an expression question (createQuestion).
   public updateCellQuestion() {
-    this.question.locCalculation();
-    this.column.updateCellQuestion(this.question, function (json) {
+    const question = <QuestionExpressionModel>this.question;
+    question.locCalculation();
+    this.column.updateCellQuestion(question, function (json) {
       delete json["defaultValue"];
     });
-    this.question.expression = this.getTotalExpression();
-    this.question.format = this.column.totalFormat;
-    this.question.currency = this.column.totalCurrency;
-    this.question.displayStyle = this.column.totalDisplayStyle;
-    this.question.maximumFractionDigits = this.column.totalMaximumFractionDigits;
-    this.question.minimumFractionDigits = this.column.totalMinimumFractionDigits;
-    this.question.unlocCalculation();
-    this.question.runIfReadOnly = true;
+    question.expression = this.getTotalExpression();
+    question.format = this.column.totalFormat;
+    question.currency = this.column.totalCurrency;
+    question.displayStyle = this.column.totalDisplayStyle;
+    question.maximumFractionDigits = this.column.totalMaximumFractionDigits;
+    question.minimumFractionDigits = this.column.totalMinimumFractionDigits;
+    question.unlocCalculation();
+    question.runIfReadOnly = true;
   }
   public getQuestionWrapperClassName(className: string): string {
     let result = super.getQuestionWrapperClassName(className);
     if (!result) {
       return result;
     }
-    if (this.question.expression && this.question.expression != "''") {
+    const expression = (<QuestionExpressionModel>this.question).expression;
+    if (expression && expression != "''") {
       result += " " + className + "--expression";
     }
     let alignment = this.column.totalAlignment;
@@ -594,7 +598,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   protected onRecordWritten(name: string, isComment: boolean): void {
     if (isComment) return;
     const changedQuestion = this.getQuestionByName(name);
-    const survey = <any>this.getSurvey();
+    const survey = this.getSurvey();
     if (changedQuestion && survey && survey.isValidateOnValueChanged) {
       const col = this.data.columns.filter(c => c.name === name)[0];
       if (col && col.isUnique) {
@@ -859,10 +863,9 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
       // created. That nested call finds no panel yet; the call that is creating it validates it.
       if (!this.detailPanel) return res;
       const isValid = this.detailPanel.validateElement(context);
-      const rec = <any>context;
-      if (!rec.hideErroredPanel && !isValid && context.fireCallback) {
-        if (rec.isSingleDetailPanel) {
-          rec.hideErroredPanel = true;
+      if (!context.hideErroredPanel && !isValid && context.fireCallback) {
+        if (context.isSingleDetailPanel) {
+          context.hideErroredPanel = true;
         }
         this.showDetailPanel();
       }
@@ -1473,7 +1476,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected mergeLocalizationWithInnerObjects(src: Base, locales?: Array<string>): void {
     const srcPanel = (<QuestionMatrixDropdownModelBase><unknown>src).detailPanelValue;
     if (srcPanel) {
-      (<any>this.detailPanel).mergeLocalizationObj(srcPanel, locales);
+      this.detailPanel["mergeLocalizationObj"](srcPanel, locales);
     }
   }
   protected createNewDetailPanel(): PanelModel {
@@ -1528,7 +1531,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   protected onEndRowAdding() {
     this.lockResetRenderedTable = false;
-    if (!this.isRendredTableCreated) return;
+    if (!this.isRenderedTableCreated) return;
     /* The incremental add appends the new row to the rendered table, which is right for a table
        that shows every visible row and wrong for a page that may not hold the new one at all. With
        paging on the table is reset instead - the question moves pageIndex to the page the new row
@@ -1542,7 +1545,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   protected onEndRowRemoving(row: MatrixDropdownRowModelBase) {
     this.lockResetRenderedTable = false;
-    if (!this.isRendredTableCreated) return;
+    if (!this.isRenderedTableCreated) return;
     /* Removing one row from the rendered table is right for a table that shows every visible row.
        A page is a window: the row that took the vacated slot comes from the next page, and a
        removal that emptied the last page moved pageIndex back while the reset it raised was locked
@@ -1561,7 +1564,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   //For internal use
   public resetRenderedTable(columnVisibilityChanged?: boolean): void {
-    if (!this.isRendredTableCreated) return;
+    if (!this.isRenderedTableCreated) return;
     if (this.lockResetRenderedTable || this.isUpdateLocked) {
       if (columnVisibilityChanged) {
         this.renderedTable.requireReset();
@@ -1608,7 +1611,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (!panel || panel.isDisposed || this.isDetailPanelTemplate(panel)) return;
     this.disposeLeftObject(panel);
   }
-  protected get isRendredTableCreated(): boolean {
+  protected get isRenderedTableCreated(): boolean {
     return !!this.getPropertyValueWithoutDefault("renderedTable");
   }
   public get renderedTable(): QuestionMatrixDropdownRenderedTable {
@@ -1812,7 +1815,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return false;
   }
   protected updateShowTable() {
-    if (this.isRendredTableCreated) {
+    if (this.isRenderedTableCreated) {
       this.renderedTable.updateShowTable();
     }
   }
@@ -1885,7 +1888,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   // The segment of the row at a position in a location: the segment of the record it holds.
   private getRowDataSegment(position: number): string | number {
     const index = this.getRecordIndexAtRowPosition(position);
-    return (<IRecordsAnswerShape><any>this.recordsSource).getRecordSegment(index > -1 ? index : position);
+    return this.recordsSource["getRecordSegment"](index > -1 ? index : position);
   }
   // The rows, then the cells of the total row when it is generated, in every build mode.
   protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
@@ -2216,6 +2219,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    * @see cellType
    */
   @property ({ localizable: { defaultStr: true } }) placeholder: string;
+  declare readonly locPlaceholder: LocalizableString;
   public get optionsCaption() { return this.placeholder; }
   public set optionsCaption(val: string) { this.placeholder = val; }
   /**
@@ -2281,10 +2285,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected isColumnVisible(column: any): boolean {
     return column.isColumnVisible;
   }
-  private isGenereatingRows: boolean;
+  private isGeneratingRows: boolean;
   protected getVisibleRows(): Array<MatrixDropdownRowModelBase> {
     if (this.isUpdateLocked) return null;
-    if (this.isGenereatingRows) return [];
+    if (this.isGeneratingRows) return [];
     if (!!this.visibleRowsArray) return this.visibleRowsArray;
     this.generateVisibleRowsIfNeeded();
     this.visibleRowsArray = this.getVisibleFromGenerated(this.generatedVisibleRows);
@@ -2292,7 +2296,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return this.visibleRowsArray;
   }
   public get allRows(): Array<MatrixDropdownRowModelBase> {
-    if (this.isGenereatingRows) return [];
+    if (this.isGeneratingRows) return [];
     this.generateVisibleRowsIfNeeded();
     return this.generatedVisibleRows;
   }
@@ -2312,11 +2316,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return row.visibleIndex;
   }
   private generateVisibleRows(): void {
-    this.isGenereatingRows = true;
+    this.isGeneratingRows = true;
     try {
       this.generatedVisibleRows = this.generateRows();
     } finally {
-      this.isGenereatingRows = false;
+      this.isGeneratingRows = false;
     }
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       const row = this.generatedVisibleRows[i];
@@ -2405,12 +2409,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.clearGeneratedRows();
     this.disposeTotalRow();
     this.updateHasFooter();
-    this.genetateColumnsName();
+    this.generateColumnsName();
     // The one hook every load ends with: the sort and the filter the JSON authored reach the list
     // here, once, whatever order their keys came in.
     this.flushAuthoredView();
   }
-  private genetateColumnsName(): void {
+  private generateColumnsName(): void {
     this.columns.forEach(column => {
       if (!column.name || column.name === "") {
         column.name = this.generateNewName(this.columns, "question");
@@ -2926,7 +2930,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       rows = this.visibleRows;
     }
     var res = true;
-    (<any>context).isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
+    context.isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
     this.validateRecordObjects(context, (): void => {
       for (var i = 0; i < rows.length; i++) {
         if (rows[i].isVisible) {
@@ -3108,11 +3112,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
      is not part of it - the same answer a source that filters on its own side gives, and what makes a
      total the total of the filtered rows. */
   protected getFilteredDataCore(): any {
-    const source = <IRecordsAnswerShape><any>this.recordsSource;
-    const res = source.createEmptyAnswer();
+    const source = this.recordsSource;
+    const res = source["createEmptyAnswer"]();
     this.generatedVisibleRows.forEach((row: MatrixDropdownRowModelBase): void => {
       if (row.isVisible && !row.isEmpty) {
-        source.addRecordToAnswer(res, this.getBuiltRecordIndex(row), row.filteredValue);
+        source["addRecordToAnswer"](res, this.getBuiltRecordIndex(row), row.filteredValue);
       }
     });
     return res;
@@ -3126,10 +3130,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   /* One walk, the result in the answer's shape, which the own source decides: an array in walk order,
      or keyed by the row value. func adds what a record contributes. */
   protected collectRecordValues(indexes: Array<number>, func: (index: number, row: MatrixDropdownRowModelBase, add: (value: any) => void) => void): any {
-    const source = <IRecordsAnswerShape><any>this.recordsSource;
-    const res = source.createEmptyAnswer();
+    const source = this.recordsSource;
+    const res = source["createEmptyAnswer"]();
     this.forEachRecordRow(indexes, (index: number, row: MatrixDropdownRowModelBase): void => {
-      func(index, row, (value: any): void => { source.addRecordToAnswer(res, index, value); });
+      func(index, row, (value: any): void => { source["addRecordToAnswer"](res, index, value); });
     });
     return res;
   }
@@ -3360,7 +3364,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       }
     }
     this.setPropertyValue("isRowShowing" + row.id, val);
-    if (this.isRendredTableCreated) {
+    if (this.isRenderedTableCreated) {
       this.renderedTable.onDetailPanelChangeVisibility(row, val);
     }
     if (this.survey) {

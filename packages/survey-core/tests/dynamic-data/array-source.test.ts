@@ -1,7 +1,7 @@
 import { describe, test, expect } from "vitest";
-import { ArrayDynamicDataSource, hasFixedMembership, IMinCountPaddedSource, IRecordsAnswerShape } from "../../src/dynamic-data/dynamic-data-sources";
+import { ArrayDynamicDataSource, hasFixedMembership } from "../../src/dynamic-data/dynamic-data-sources";
 // The answer-shape members are the owner question's plumbing, reached through a cast as the question does.
-const answerShape = (source: any): IRecordsAnswerShape => <IRecordsAnswerShape><any>source;
+const answerShape = (source: any): any => source;
 
 describe("ArrayDynamicDataSource", () => {
   test("fromArray reads the array it wraps", () => {
@@ -242,11 +242,11 @@ describe("ArrayDynamicDataSource: count, readAt and the padding of an owner's mi
   test("padRecordsToMinCount pads an array in place by the same rule", () => {
     const store = createPadded([], 3);
     const records = [{ a: 1 }];
-    expect((<IMinCountPaddedSource><any>store.source).padRecordsToMinCount(records) === records, "#1: the same array").toBe(true);
+    expect(store.source["padRecordsToMinCount"](records) === records, "#1: the same array").toBe(true);
     expect(records, "#2").toEqual([{ a: 1 }, { d: 1 }, { d: 1 }]);
     expect(records[1] === records[2], "#3: distinct copies").toBe(false);
     const long = [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }];
-    (<IMinCountPaddedSource><any>store.source).padRecordsToMinCount(long);
+    store.source["padRecordsToMinCount"](long);
     expect(long.length, "#4: never truncated").toBe(4);
   });
 });

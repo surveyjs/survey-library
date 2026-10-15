@@ -145,6 +145,15 @@ export function joinPath(base: string, key: string): string {
   return base ? base + "." + key : key;
 }
 
+// The innermost scope frame that owns element names (dynamic-panel template or matrix row).
+export function getCapturingFrame(scope: Array<ScopeFrame>): ScopeFramePanelDynamic | ScopeFrameMatrixRow | undefined {
+  for (let i = scope.length - 1; i >= 0; i--) {
+    const frame = scope[i];
+    if (frame.kind === "panelDynamic" || frame.kind === "matrixRow") return frame;
+  }
+  return undefined;
+}
+
 // The type to dispatch question-kind logic on: a matrix column answers as its cell type,
 // every other record as its own type.
 export function getEffectiveType(record: { type: string, effectiveType?: string }): string {

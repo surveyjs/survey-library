@@ -1,4 +1,5 @@
 import { SurveyModel } from "../src/survey";
+import { QuestionTagboxModel } from "../src/question_tagbox";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionCheckboxBase } from "../src/question_baseselect";
@@ -675,6 +676,30 @@ test("survey choiceShortcutsEnabled toggles badges for a question added after th
   expect(q.getChoiceKeyBadge(q.choices[1])).toBe("B");
   survey.choiceShortcutsEnabled = false;
   expect(q.getChoiceKeyBadge(q.choices[0])).toBe("");
+});
+
+test("badges stay when choices are rebuilt with the same values", () => {
+  const q = questionOf<QuestionRadiogroupModel>(createSurvey("radiogroup", 3));
+  expect(q.visibleChoices.map((item) => q.getChoiceKeyBadge(item))).toEqual(["A", "B", "C"]);
+  const rebuilt = q.choices.map((item) => new ItemValue(item.value));
+  q.choices.splice(0, q.choices.length, ...rebuilt);
+  expect(q.choices.map((item) => item.value)).toEqual(["c1", "c2", "c3"]);
+  expect(q.visibleChoices.map((item) => item.value)).toEqual(["c1", "c2", "c3"]);
+  expect(q.visibleChoices.map((item) => q.getChoiceKeyBadge(item))).toEqual(["A", "B", "C"]);
+});
+
+test("tagbox does not take choice shortcuts from checkbox", () => {
+  const survey = new SurveyModel({
+    choiceShortcutsEnabled: true,
+    elements: [{ type: "tagbox", name: "q", choices: ["a", "b"] }]
+  });
+  const q = survey.getQuestionByName("q") as QuestionTagboxModel;
+  expect(q.supportsChoiceKeyboardSelection()).toBe(false);
+  expect(q.canShowChoiceKeys).toBe(false);
+  expect(q.getChoiceKeyBadge(q.visibleChoices[0])).toBe("");
+  expect(Serializer.findProperty("tagbox", "choiceShortcutsEnabled").isVisible("", q)).toBe(false);
+  q.onChoiceKeyDown({ key: "a", preventDefault: () => {}, target: { tagName: "input", type: "checkbox", id: q.getItemId(q.visibleChoices[0]) } });
+  expect(q.isEmpty()).toBe(true);
 });
 
 test("dispose drops a pending choice code", () => {

@@ -61,9 +61,18 @@ describe("the removal confirmation asks about the record it removes", () => {
     expect(paged.isRequireConfirmOnDelete(1), "#3: the default on another page").toBe(false);
     expect(paged.isRequireConfirmOnDelete(0), "#4").toBe(true);
   });
-  test("matrix: a record equal to defaultRowValue asks", () => {
-    const matrix = createMatrix({ confirmDelete: true, defaultRowValue: { a: "d" } }, [{ a: "d" }]);
-    expect(matrix.isRequireConfirmOnRowDelete(0), "#1").toBe(true);
+  test("matrix: a record equal to defaultRowValue is removed without asking, paged and unpaged", () => {
+    const json = { confirmDelete: true, defaultRowValue: { a: "d" } };
+    const matrix = createMatrix(json, [{ a: "d" }, { a: 1 }]);
+    expect(matrix.isRequireConfirmOnRowDelete(0), "#1: the default, rows never built").toBe(false);
+    expect(matrix.isRequireConfirmOnRowDelete(1), "#2: rows never built").toBe(true);
+    matrix.visibleRows;
+    expect(matrix.isRequireConfirmOnRowDelete(0), "#3: the default").toBe(false);
+    expect(matrix.isRequireConfirmOnRowDelete(1), "#4").toBe(true);
+    const paged = createMatrix(Object.assign({ rowsPerPage: 1 }, json), [{ a: 1 }, { a: "d" }]);
+    paged.visibleRows;
+    expect(paged.isRequireConfirmOnRowDelete(1), "#5: the default on another page").toBe(false);
+    expect(paged.isRequireConfirmOnRowDelete(0), "#6").toBe(true);
   });
 });
 

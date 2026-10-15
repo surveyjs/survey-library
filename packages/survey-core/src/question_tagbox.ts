@@ -40,6 +40,9 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
     return super.getOtherItemDisplayValue(val);
   }
   supportElementsInChoice(): boolean { return false; }
+  public supportsChoiceKeyboardSelection(): boolean {
+    return false;
+  }
   public locStrsChanged(): void {
     super.locStrsChanged();
     this.resetReadOnlyText();

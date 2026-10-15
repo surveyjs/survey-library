@@ -63,6 +63,14 @@
   position: relative;
 }
 
+.sd-imagepicker__shortcut-key {
+  position: absolute;
+  inset-block-start: var(--sjs2-spacing-x100);
+  inset-inline-start: var(--sjs2-spacing-x100);
+  margin-inline-end: 0;
+  z-index: 2;
+}
+
 .sd-imagepicker__check-decorator {
   display: block;
   opacity: 0;

@@ -21,10 +21,11 @@ import { AnimationGroup, IAnimationGroupConsumer, AnimationBoolean } from "./uti
 import { TextContextProcessor } from "./textPreProcessor";
 import { ValidationContext } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
-import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
+import { Base, ComputedUpdater, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
 import { ExpressionErrorType } from "./expressions/expressionError";
 import { EventBase } from "./event";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
+import { ChoiceShortcuts, IChoiceShortcutsOwner } from "./utils/choice-shortcuts";
 
 const OTHER_ITEM_VALUE = "other";
 // The contract of a question whose value is picked from a list of items it offers: every Select
@@ -2870,10 +2871,11 @@ export class SelectBaseSingleInputBehavior extends QuestionSingleInputBehavior {
     return !!item && item.locOwner === this.question ? item : undefined;
   }
 }
+
 /**
  * A base class for multiple-selection question types that can display choice items in multiple columns ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Image Picker](https://surveyjs.io/form-library/documentation/questionimagepickermodel)).
  */
-export class QuestionCheckboxBase extends QuestionSelectBase {
+export class QuestionCheckboxBase extends QuestionSelectBase implements IChoiceShortcutsOwner {
   colCountChangedCallback: () => void;
   /**
    * Gets or sets the number of columns used to arrange choice items.
@@ -2903,6 +2905,116 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
   }
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
+  }
+  /**
+   * Specifies whether to enable letter shortcuts for selecting choices.
+   *
+   * Default value: `undefined` (inherits the survey's [`choiceShortcutsEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#choiceShortcutsEnabled) setting)
+   *
+   * When enabled, choices display letter codes (`A`, `B`, ..., `Z`, `AA`, ...) that respondents can type while the question has focus. In questions that allow multiple selection, shortcuts toggle choice selection.
+   *
+   * Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
+   * @hidefor QuestionRankingModel
+   */
+  public get choiceShortcutsEnabled(): boolean | undefined {
+    const own = this.getPropertyValueWithoutDefault("choiceShortcutsEnabled");
+    if (own === true || own === false) return own;
+    return undefined;
+  }
+  public set choiceShortcutsEnabled(val: boolean | undefined) {
+    const prev = this.getPropertyValueWithoutDefault("choiceShortcutsEnabled");
+    const next = val === true ? true : val === false ? false : undefined;
+    if (prev === next) return;
+    if (next === undefined) {
+      this.clearPropertyValue("choiceShortcutsEnabled");
+    } else {
+      this.setPropertyValueDirectly("choiceShortcutsEnabled", next);
+    }
+    this.propertyValueChanged("choiceShortcutsEnabled", prev, next);
+  }
+  public supportsChoiceKeyboardSelection(): boolean {
+    return false;
+  }
+  public get isChoiceKeyboardSelectionEnabled(): boolean {
+    if (!this.supportsChoiceKeyboardSelection()) return false;
+    const own = this.getPropertyValueWithoutDefault("choiceShortcutsEnabled");
+    if (own === true || own === false) return own;
+    return this.survey?.choiceShortcutsEnabled === true;
+  }
+  // Badges and the key handler share this gate. Design mode is the one exception:
+  // badges stay visible there, but canUseChoiceKeys keeps the keys inert.
+  // isReadOnly covers readonly and preview. isInputReadOnly also includes design mode,
+  // which would hide the badges in Creator.
+  public get canShowChoiceKeys(): boolean {
+    const surveyShortcut = !!this.survey && this.survey.choiceShortcutsEnabled === true;
+    if (!this.supportsChoiceKeyboardSelection() || this.isMobile || this.isReadOnly) return false;
+    const own = this.getPropertyValueWithoutDefault("choiceShortcutsEnabled");
+    if (own === true || own === false) return own;
+    return surveyShortcut;
+  }
+  private choiceShortcuts = new ChoiceShortcuts(this);
+  private get canUseChoiceKeys(): boolean {
+    return this.choiceShortcuts.canUse;
+  }
+  public onSurveyLoad(): void {
+    super.onSurveyLoad();
+    this.bindChoiceKeyBadges();
+  }
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
+    super.setSurveyImpl(value, isLight);
+    // A question built on its own (toolbox drop) runs onSurveyLoad before it joins a survey,
+    // so the badge updater never subscribed to the survey flag. Rebind once the survey is set.
+    if (!this.isLoadingFromJson) {
+      this.bindChoiceKeyBadges();
+    }
+  }
+  public dispose(): void {
+    this.choiceShortcuts.dispose();
+    super.dispose();
+  }
+  @property({
+    onSet: (_val: string, obj: QuestionCheckboxBase) => obj.choiceShortcuts.applyBadges()
+  })
+  private choiceKeyState: string;
+  private bindChoiceKeyBadges(): void {
+    this.choiceKeyState = new ComputedUpdater(() => this.choiceShortcuts.buildState()) as any;
+  }
+  public getChoiceKeyItems(): Array<ItemValue> {
+    const items = this.visibleChoices;
+    const res = new Array<ItemValue>();
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (!this.isItemInList(item) || res.indexOf(item) > -1) continue;
+      res.push(item);
+    }
+    return res;
+  }
+  public selectByChoiceKey(item: ItemValue): void {
+    this.applyChoiceKeyboardSelection(item);
+    SurveyElement.FocusElement(this.getItemId(item), false, this.survey?.rootElement, this.shouldHandleFocusScroll);
+  }
+  public getChoiceKeyBadge(item: ItemValue): string {
+    return this.choiceShortcuts.badge(item);
+  }
+  public getItemShortcutKeyClass(item: ItemValue): string {
+    return toCssClasses(
+      this.cssClasses.itemShortcutKey,
+      !this.getItemEnabled(item) && this.cssClasses.itemShortcutKeyDisabled
+    );
+  }
+  public getItemAriaKeyShortcuts(item: ItemValue): string | undefined {
+    if (!this.canUseChoiceKeys || !this.getItemEnabled(item)) return undefined;
+    const code = this.getChoiceKeyBadge(item);
+    return code && code.length === 1 ? code : undefined;
+  }
+  public onChoiceKeyDown(event: any): void {
+    this.choiceShortcuts.onKeyDown(event);
+  }
+  public onChoiceFocusOut(event: any): void {
+    this.choiceShortcuts.onFocusOut(event);
+  }
+  protected applyChoiceKeyboardSelection(item: ItemValue): void {
+    this.selectItem(item);
   }
 }
 
@@ -3069,6 +3181,12 @@ Serializer.addClass(
       default: 1,
       choices: [0, 1, 2, 3, 4, 5],
       layout: "row",
+    },
+    {
+      name: "choiceShortcutsEnabled:boolean",
+      defaultFunc: () => undefined,
+      visibleIf: (obj: any): boolean => !!obj.supportsChoiceKeyboardSelection && obj.supportsChoiceKeyboardSelection(),
+      onSerializeValue: (obj: any) => obj.getPropertyValueWithoutDefault("choiceShortcutsEnabled")
     }
   ],
   null,

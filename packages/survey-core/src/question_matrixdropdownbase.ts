@@ -3393,10 +3393,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (this.isDesignMode) return this.detailPanel;
     var panel = this.createNewDetailPanel();
     panel.readOnly = this.isMatrixReadOnly() || !row.isRowEnabled();
-    panel.setSurveyImpl(row);
     const json = this.isRecordCleanupBuilding ? this.getRecordCleanupJson((): any => removeRecordCleanupSkipped(this.detailPanel.toJSON(),
       this.detailPanel.questions.filter((q: Question): boolean => this.isRecordCleanupSkipped(q)).map((q: Question): string => q.name))) : this.detailPanel.toJSON();
     new JsonObject().toObject(json, panel);
+    // Attached to the row only after the json is loaded: a question attached earlier takes the row value
+    // while its properties still have default values (a file question loads its preview as text, #12024).
+    panel.setSurveyImpl(row);
     panel.renderWidth = "100%";
     panel.updateCustomWidgets();
     if (!!this.onCreateDetailPanelCallback) {

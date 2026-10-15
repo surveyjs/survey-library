@@ -720,6 +720,26 @@ describe("setData: validate() is unchanged, clearIncorrectValues() removes what 
       expect(survey.setData(survey.data), label + ": nothing left after clearing").toEqual([]);
     });
   });
+  test("What setData() reports in choice panels and in custom and composite content, clearIncorrectValues(true) removes", () => {
+    ComponentCollection.Instance.add({ name: "cleancustom", questionJSON: { type: "dropdown", choices: ["a"] } });
+    ComponentCollection.Instance.add({ name: "cleancomposite", elementsJSON: [{ type: "dropdown", name: "inner", choices: ["a"] }] });
+    const choicePanel = { value: "a", elements: [{ type: "text", name: "n", inputType: "number" }, { type: "dropdown", name: "inner", choices: ["x"] }] };
+    const cases: Array<[string, any, any, any]> = [
+      ["choice panel, the choice selected", { type: "checkbox", choices: [choicePanel, "b"] }, { q: ["a"], inner: "z", n: "bad" }, { q: ["a"] }],
+      ["choice panel, another choice selected", { type: "checkbox", choices: [choicePanel, "b"] }, { q: ["b"], inner: "z", n: "bad" }, { q: ["b"] }],
+      ["choice panel of a radiogroup", { type: "radiogroup", choices: [choicePanel, "b"] }, { q: "a", inner: "z", n: "bad" }, { q: "a" }],
+      ["custom question content", { type: "cleancustom" }, { q: "z" }, {}],
+      ["composite question content panel", { type: "cleancomposite" }, { q: { inner: "z" } }, {}]
+    ];
+    cases.forEach(([label, question, data, cleaned]) => {
+      const survey = createQuestionSurvey(question);
+      expect(survey.setData(data).length > 0, label + ": reported by setData()").toBe(true);
+      survey.clearIncorrectValues(true);
+      expect(survey.data, label + ": cleared").toEqual(cleaned);
+      expect(survey.setData(survey.data), label + ": nothing left after clearing").toEqual([]);
+    });
+    ComponentCollection.Instance.clear();
+  });
   test("validate() on a select question still clears an unknown choice, as it always did", () => {
     const survey = createSurvey({ elements: [{ type: "dropdown", name: "q", choices: ["a"] }] });
     survey.setData({ q: "z" });
@@ -807,6 +827,46 @@ describe("setData: boundaries", () => {
       elements: [{ type: "dropdown", name: "q", choices: ["a"], allowCustomChoices: true }]
     });
     expect(survey.setData({ q: "z" })).toEqual([]);
+  });
+});
+
+describe("setData: choice panels", () => {
+  const choicePanel = {
+    value: "a",
+    elements: [{ type: "text", name: "n", inputType: "number" }, { type: "dropdown", name: "inner", choices: ["x"] }]
+  };
+  const checkboxJson = { elements: [{ type: "checkbox", name: "q", choices: [choicePanel, "b"] }] };
+  test("Verification reaches the questions of choice panels, at their root keys", () => {
+    const survey = createSurvey(checkboxJson);
+    const issues = survey.setData({ q: ["a"], inner: "z", n: "bad" });
+    // inner and n are known root keys, not unknownProperty issues.
+    expect(shortIssues(issues)).toEqual([
+      { type: "invalidValueType", path: "n", value: "bad" },
+      { type: "invalidChoiceValue", path: "inner", value: "z" }
+    ]);
+    const panel = (<any>survey.getQuestionByName("q")).choices[0].panel;
+    expect(issues[0].question, "the panel's text question").toBe(panel.getQuestionByName("n"));
+    expect(issues[1].question, "the panel's dropdown").toBe(panel.getQuestionByName("inner"));
+  });
+  test("The questions of a panel that is not showing are verified too", () => {
+    const survey = createSurvey(checkboxJson);
+    expect(shortIssues(survey.setData({ q: ["b"], inner: "z", n: "bad" }))).toEqual([
+      { type: "invalidValueType", path: "n", value: "bad" },
+      { type: "invalidChoiceValue", path: "inner", value: "z" }
+    ]);
+  });
+  test("A choice panel inside a dynamic panel item reports at a root path", () => {
+    const survey = createSurvey({
+      elements: [{ type: "paneldynamic", name: "pd", templateElements: [{ type: "checkbox", name: "c", choices: [choicePanel] }] }]
+    });
+    /* The panel writes to the root keys, and the select question loads its questions from the item's
+       record: the item reports the keys it does not know, and the questions report at the root. */
+    expect(shortIssues(survey.setData({ pd: [{ c: ["a"], inner: "z", n: "bad" }] }))).toEqual([
+      { type: "unknownProperty", path: "pd[0].inner", value: "z" },
+      { type: "unknownProperty", path: "pd[0].n", value: "bad" },
+      { type: "invalidValueType", path: "n", value: "bad" },
+      { type: "invalidChoiceValue", path: "inner", value: "z" }
+    ]);
   });
 });
 

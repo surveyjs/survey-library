@@ -1,6 +1,6 @@
 import { JsonObject, CustomPropertiesCollection, Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { Question, IConditionObject, IQuestionPlainData, IVerifyDataContext } from "./question";
+import { Question, IConditionObject, IQuestionPlainData, IVerifyDataContext, INestedElementInfo, NestedWalkBuild, getNestedElementQuestions } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import { IElement, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks } from "./base-interfaces";
@@ -23,7 +23,7 @@ import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValuePa
 import { ValidationContext } from "./question";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import {
-  QuestionRecordItemGetterContext, QuestionRecordItem, IRecordItemWrite, QuestionRecordsModel,
+  QuestionRecordItemGetterContext, QuestionRecordItem, IRecordItemWrite, QuestionRecordsModel, NestedWalkItem,
   QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties
 } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
@@ -1897,25 +1897,34 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     const index = this.getRecordIndexAtRowPosition(position);
     return (<IRecordsAnswerShape><any>this.recordsSource).getRecordSegment(index > -1 ? index : position);
   }
-  public initializeForVerification(): void {
-    const rows = this.allRows;
-    if (!Array.isArray(rows)) return;
-    rows.forEach(row => {
-      row.cells.forEach(cell => cell?.question?.initializeForVerification());
-      row.ensureDetailPanel();
-      row.detailPanel?.initializeForVerification();
+  // The rows, then the cells of the total row when it is generated, in every build mode.
+  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
+    super.forEachNestedElementCore(visit, build);
+    const totalRow = this.generatedTotalRow;
+    if (!totalRow) return;
+    totalRow.cells.forEach(cell => {
+      if (!!cell?.question) visit({ element: cell.question, role: "total", segment: undefined, location: "nested", visible: true });
     });
   }
-  public verifyNestedValues(context: IVerifyDataContext): void {
-    const rows = this.allRows;
+  // "none": the generated rows; "rows": visibleRows; "all": allRows. visibleRows drops the rows rowsVisibleIf hides.
+  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: NestedWalkItem, position: number, visible: boolean) => void): void {
+    const rows = build === "rows" ? this.visibleRows : (build === "all" ? this.allRows : this.generatedVisibleRows);
     if (!Array.isArray(rows)) return;
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      context.pushSegment(this.getRowDataSegment(i));
-      row.cells.forEach(cell => cell?.question?.verifyDataCore(context));
-      row.detailPanel?.verifyDataCore(context);
-      context.popSegment();
-    }
+    const created = this.generatedVisibleRows;
+    rows.forEach((row, index) => {
+      func(row, rows === created ? index : created.indexOf(row), row.isVisible);
+    });
+  }
+  // The cells, then the detail panel; "all" creates the detail panel after the cells, as the verification always did.
+  protected forEachNestedElementOfItem(item: NestedWalkItem, position: number, visible: boolean,
+    build: NestedWalkBuild, visit: (info: INestedElementInfo) => void): void {
+    const row = <MatrixDropdownRowModelBase>item;
+    const segment = this.getRowDataSegment(position);
+    row.cells.forEach(cell => {
+      if (!!cell?.question) visit({ element: cell.question, role: "cell", segment: segment, location: "nested", visible: visible });
+    });
+    if (build === "all") row.ensureDetailPanel();
+    if (!!row.detailPanel) visit({ element: row.detailPanel, role: "detail", segment: segment, location: "nested", visible: visible });
   }
   protected clearIncorrectValuesInObjects(): void {
     if (!Array.isArray(this.visibleRows)) return;
@@ -2685,23 +2694,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.collectNestedQuestions(questions, true);
     questions.forEach(q => q.onHidingContent());
   }
+  // The questions of the generated rows, the total row included; nothing is built.
   protected getIsReadyNestedQuestions(): Array<Question> {
     if (!this.generatedVisibleRows) return [];
     const res = new Array<Question>();
-    this.collectNestedQuestonsInRows(this.generatedVisibleRows, res, false, true, false);
-    if (!!this.generatedTotalRow) {
-      this.collectNestedQuestonsInRows([this.generatedTotalRow], res, false, true, false);
-    }
+    this.forEachNestedElement(info => {
+      getNestedElementQuestions(info).forEach(q => q.addNestedQuestion(res, false, true, false));
+    }, { build: "none", visibleOnly: false });
     return res;
-  }
-  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    if (includeItSelf) {
-      questions.push(this);
-    }
-    this.collectNestedQuestonsInRows(this.visibleRows, questions, visibleOnly, includeNested, includeItSelf);
-  }
-  protected collectNestedQuestonsInRows(rows: Array<MatrixDropdownRowModelBase>, questions: Question[], visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    this.collectNestedQuestionsOfItems(rows, questions, visibleOnly, includeNested, includeItSelf);
   }
   protected getConditionObjectRowName(index: number): string {
     return "";
@@ -3014,14 +3014,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     return null;
   }
+  // The rows that exist, hidden ones included; nothing is built. A row built later reads the state then.
   protected onReadOnlyChanged() {
     super.onReadOnlyChanged();
-    // Only the rows that exist: rows built later read the matrix state (isMatrixReadOnly).
     const rows = this.generatedVisibleRows;
     if (!rows) return;
-    for (let i = 0; i < rows.length; i++) {
-      rows[i].onQuestionReadOnlyChanged();
-    }
+    rows.forEach(row => row.onQuestionReadOnlyChanged());
   }
 
   //IMatrixDropdownData

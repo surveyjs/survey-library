@@ -1,4 +1,4 @@
-import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext, QuestionValueType, IVerifyDataContext } from "./question";
+import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext, QuestionValueType, INestedElementInfo, NestedWalkBuild } from "./question";
 import { Serializer, CustomPropertiesCollection, JsonObjectProperty } from "./jsonobject";
 import { Base, ArrayChanges } from "./base";
 import {
@@ -545,7 +545,7 @@ export abstract class QuestionCustomModelBase extends Question
     }
   }
   public localeChanged(): void {
-    super.locStrsChanged();
+    super.localeChanged();
     if (!!this.getElement()) {
       this.getElement().localeChanged();
     }
@@ -567,6 +567,11 @@ export abstract class QuestionCustomModelBase extends Question
     return !!el ? el.needResponsiveWidth() : false;
   }
   protected createWrapper(): void { }
+  // The content question or the content panel goes with the question.
+  public dispose(): void {
+    super.dispose();
+    this.getElement()?.dispose();
+  }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (!!this.customQuestion && !this.isLoadingFromJson) {
@@ -892,11 +897,10 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
   // The content question stores the value of the custom question, so it reports at the same
   // location: its getDataSegment() is undefined and verifyDataCore() adds no key for it.
-  public initializeForVerification(): void {
-    this.contentQuestion?.initializeForVerification();
-  }
-  public verifyNestedValues(context: IVerifyDataContext): void {
-    this.contentQuestion?.verifyDataCore(context);
+  // The content question holds the wrapper's value.
+  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
+    const question = this.contentQuestion;
+    if (!!question) visit({ element: question, role: "content", segment: undefined, location: "same", visible: true });
   }
   protected getDefaultTitle(): string {
     if (this.hasJSONTitle && this.contentQuestion) {
@@ -1231,11 +1235,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   // The questions of the content panel keep their values one segment deeper, under the key of the
   // composite question. A key of the composite value that none of them owns is not reported: the
   // composite question does not check its keys today and clearing one would drop the whole value.
-  public initializeForVerification(): void {
-    this.contentPanel?.initializeForVerification();
-  }
-  public verifyNestedValues(context: IVerifyDataContext): void {
-    this.contentPanel?.verifyDataCore(context);
+  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
+    const panel = this.contentPanel;
+    if (!!panel) visit({ element: panel, role: "content", segment: undefined, location: "nested", visible: true });
   }
   public updateElementCss(reNew?: boolean) {
     super.updateElementCss(reNew);
@@ -1486,12 +1488,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       });
     }
   }
-  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    if (!this.contentPanel) return;
-    if (includeItSelf) {
-      questions.push(this);
-    }
-    this.contentPanel.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
+  // Without a content panel a composite question lists nothing, itself included.
+  protected isListedAsNestedQuestion(includeItSelf: boolean): boolean {
+    return includeItSelf && !!this.contentPanel;
   }
   protected convertDataValue(name: string, newValue: any): any {
     var val = !!this.contentPanel && !this.isEditingSurveyElement ?

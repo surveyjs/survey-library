@@ -183,7 +183,7 @@ export class MatrixDropdownColumn extends Base
   getClassNameProperty(): string {
     return "cellType";
   }
-  public getSurvey(live: boolean = false): ISurvey {
+  public getSurvey(): ISurvey {
     return !!this.colOwner ? (<any>this.colOwner).survey : null;
   }
   public getOwner() {
@@ -711,11 +711,7 @@ export class MatrixDropdownColumn extends Base
       this.cellType = this.colOwner.getCellType();
     }
   }
-  public updateCellQuestion(
-    cellQuestion: Question,
-    data: any,
-    onUpdateJson: (json: any) => any = null
-  ) {
+  public updateCellQuestion(cellQuestion: Question, onUpdateJson: (json: any) => any = null) {
     this.setQuestionProperties(cellQuestion, onUpdateJson, !onUpdateJson);
   }
   private callOnCellQuestionUpdate(cellQuestion: Question, data: any) {

@@ -358,7 +358,7 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
 const expectedOwnRegistrations: { [type: string]: { parentName: string, properties: Array<string> } } = {
   matrixdropdown: {
     parentName: "matrixdropdownbase",
-    properties: ["rows", "rowsVisibleIf", "rowTitleWidth", "totalText", "hideIfRowsEmpty", "rowOrder"]
+    properties: ["rows", "rowTitleWidth", "totalText", "hideIfRowsEmpty", "rowOrder"]
   },
   matrixdynamic: {
     parentName: "matrixdropdownbase",

@@ -178,7 +178,7 @@ export class QuestionImageMapModel extends Question {
     if (!context.checks.reportInvalidChoiceValues) return true;
     const values = Array.isArray(val) ? val : [val];
     values.forEach((v: any, index: number) => {
-      if (!!this.areas.find(i => i.value === v)) return;
+      if (!!this.areas.find(i => i.value === this.getItemAreaValue(v))) return;
       context.addIssue("invalidChoiceValue", Array.isArray(val) ? index : undefined, v, this);
     });
     return true;
@@ -193,7 +193,7 @@ export class QuestionImageMapModel extends Question {
     if (!this.value) return;
     if (this.isMultiSelect) {
       this.value = this.value.filter((val: any) => {
-        const item = this.areas.find(i => i.value === val);
+        const item = this.areas.find(i => i.value === this.getItemAreaValue(val));
         return !!item && item.isVisible;
       });
     } else {
@@ -381,6 +381,11 @@ export class QuestionImageMapModel extends Question {
       val = new PropertyNameArray(val, this.valuePropertyName).convert(val);
     }
     return super.convertToCorrectValue(val);
+  }
+  // The area value an item of the value stands for: the item itself, or its valuePropertyName field
+  // while several areas are selected (convertToCorrectValue wraps the items into objects then).
+  private getItemAreaValue(val: any): any {
+    return this.isMultiSelect ? new PropertyNameArray([val], this.valuePropertyName).getValue(0) : val;
   }
 
   public getDisplayValueCore(keysAsText: boolean, value: any): any {

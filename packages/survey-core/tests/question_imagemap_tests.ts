@@ -786,4 +786,39 @@ describe("imagemap", () => {
     expect(q2.svg.childNodes.length, "No new control point for circle").toBe(q2.areas.length + 2);
     expect(q2.areas[2].coords, "No coords changed for circle #2").toBe("1,2,3");
   });
+
+  describe("an image map with valuePropertyName keeps the objects of its selected areas", () => {
+    const json = (extra?: any): any => ({
+      elements: [Object.assign({
+        type: "imagemap", name: "cars", valuePropertyName: "car", imageLink: "x",
+        areas: [{ value: "Ford", coords: "1,1,2,2", shape: "rect" }, { value: "BMW", coords: "3,3,4,4", shape: "rect" }],
+      }, extra || {})],
+    });
+    test("setData reports nothing for a selected area", () => {
+      const survey = new SurveyModel(json());
+      expect(survey.setData({ cars: [{ car: "Ford" }] })).toEqual([]);
+    });
+    test("clearIncorrectValues and complete keep the answer", () => {
+      const survey = new SurveyModel(json());
+      const q = <QuestionImageMapModel>survey.getQuestionByName("cars");
+      q.mapItemToggle(q.areas[0]);
+      expect(survey.data).toEqual({ cars: [{ car: "Ford" }] });
+      survey.clearIncorrectValues();
+      expect(survey.data).toEqual({ cars: [{ car: "Ford" }] });
+      survey.tryComplete();
+      expect(survey.data).toEqual({ cars: [{ car: "Ford" }] });
+    });
+    test("the item of a hidden area is still cleared on complete", () => {
+      const survey = new SurveyModel(json());
+      const q = <QuestionImageMapModel>survey.getQuestionByName("cars");
+      q.areas[1].visibleIf = "false";
+      q.value = [{ car: "Ford" }, { car: "BMW" }];
+      survey.tryComplete();
+      expect(survey.data).toEqual({ cars: [{ car: "Ford" }] });
+    });
+    test("an item of no area is still reported", () => {
+      const survey = new SurveyModel(json());
+      expect(survey.setData({ cars: [{ car: "Audi" }] }).map(issue => issue.type + " @ " + issue.path)).toEqual(["invalidChoiceValue @ cars[0]"]);
+    });
+  });
 });

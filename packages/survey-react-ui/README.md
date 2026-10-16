@@ -68,7 +68,7 @@ import "survey-core/survey-core.css";
 import "survey-core/themes/adapters/shadcn-default.css";
 ```
 
-Adapters are available for [Bootstrap](https://getbootstrap.com) (plus Bootswatch variants), [Material UI](https://mui.com), and [shadcn/ui](https://ui.shadcn.com), with matching icon sets (`survey-core/themes/adapters/icons/lucide`, `.../icons/mui`). See [Theme Adapters](https://surveyjs.io/themes/theme-adapters).
+Adapters are available for [Bootstrap](https://getbootstrap.com) (plus Bootswatch variants), [Material UI](https://mui.com), [shadcn/ui](https://ui.shadcn.com), and [Tailwind CSS v4](https://tailwindcss.com) (`tailwind4.css`), with matching icon sets (`survey-core/themes/adapters/icons/lucide`, `.../icons/mui`). See [Theme Adapters](https://surveyjs.io/themes/theme-adapters).
 
 ## Key Features
 

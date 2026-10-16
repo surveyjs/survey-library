@@ -1,0 +1,209 @@
+/* Tailwind CSS v4 -> SurveyJS adapter.
+
+   Not a true bridge: Tailwind ships no component library and no semantic color tokens, so there
+   is no "stock Tailwind look" to reproduce. This file applies the common Tailwind form pattern
+   (text-sm, py-2 / px-3 -> 36px controls, gap-4 rhythm, p-4 rounded-lg cards) and reads the
+   host's Tailwind theme variables (--spacing, --font-sans, --text-*, --radius-*, --color-gray-*,
+   --color-red-600, --color-white) where they exist.
+
+   Load order (always after the base style sheet):
+     import "survey-core/survey-core.css";
+     import "survey-core/themes/adapters/tailwind4.css";
+
+   Embedded by default: questions have no card frame (the panelless look) and the survey
+   background is transparent, so the host card or page shows through. Do not call
+   model.applyTheme(...): it writes theme variables as inline styles, which override this file.
+
+   To match the host project's look, declare the semantic variables below in the app's Tailwind
+   entry CSS. Take their values from the project's own theme (an existing @theme block, a
+   tailwind.config migration, a shadcn-style palette) or from its brand book. Names follow the
+   shadcn/ui convention, so shadcn-style Tailwind apps work with zero configuration. Every slot
+   falls back to Tailwind's standard variables, then to a literal.
+
+     --color-primary              brand color            (default: SurveyJS teal)
+     --color-primary-hover        pressed/hover shade    (default: derived, l x 0.85)
+     --color-primary-foreground   text on brand          (default: white)
+     --color-foreground           primary text           (default: gray-900)
+     --color-muted-foreground     secondary text         (default: gray-500)
+     --color-card                 input/popup surface    (default: white)
+     --color-input                input border           (default: gray-300)
+     --color-border               dividers               (default: gray-200)
+     --color-ring                 focus ring             (default: primary)
+     --color-destructive          error color            (default: red-600)
+
+   Declare them in `@theme static { ... }`: plain `@theme` drops variables no utility uses, and
+   the survey then silently falls back to the literals below. Example:
+
+     @import "tailwindcss";
+     @theme static {
+       --color-primary: #4f46e5;
+       --color-primary-foreground: #fff;
+       --color-ring: #6366f1;
+       --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+     }
+
+   Density scales with the host's --spacing base. Retune by overriding any --sjs2-* token after
+   this import, scoped to .sjs-theme-overrides. */
+.sjs-theme-overrides {
+  /* Host contract resolution: semantic slot -> Tailwind default -> literal */
+  --sjstw-primary: var(--color-primary, #19b394);
+  --sjstw-primary-foreground: var(--color-primary-foreground, var(--color-white, #fff));
+  --sjstw-foreground: var(--color-foreground, var(--color-gray-900, #111827));
+  --sjstw-muted-foreground: var(--color-muted-foreground, var(--color-gray-500, #6b7280));
+  --sjstw-surface: var(--color-card, var(--color-white, #fff));
+  --sjstw-input-border: var(--color-input, var(--color-gray-300, #d1d5db));
+  --sjstw-border: var(--color-border, var(--color-gray-200, #e5e7eb));
+  --sjstw-ring: var(--color-ring, var(--sjstw-primary));
+  --sjstw-destructive: var(--color-destructive, var(--color-red-600, #dc2626));
+  --sjstw-space: var(--spacing, 0.25rem);
+
+  /* brand (the rest of the sjs2 brand ramp derives from brand-600) */
+  --sjs2-color-project-brand-600: var(--sjstw-primary);
+  --sjs2-color-project-brand-700: var(--color-primary-hover, hsl(from var(--sjstw-primary) h s calc(l * 0.85)));
+  --sjs2-color-fg-brand-on-primary: var(--sjstw-primary-foreground);
+
+  /* typography (text-sm body, text-xs captions, text-base card titles) */
+  --sjs2-typography-font-family-text: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+  --sjs2-typography-font-size-default: var(--text-sm, 0.875rem);
+  --sjs2-typography-line-height-default: calc(var(--sjstw-space) * 5);
+  --sjs2-typography-font-size-small: var(--text-xs, 0.75rem);
+  --sjs2-typography-font-size-component-question-description: var(--text-xs, 0.75rem);
+  --sjs2-typography-line-height-component-question-description: calc(var(--sjstw-space) * 4);
+  --sjs2-typography-font-size-component-panel-title: var(--text-base, 1rem);
+  --sjs2-typography-line-height-component-panel-title: calc(var(--sjstw-space) * 6);
+  --sjs2-typography-font-weight-component-panel-title: 700;
+
+  /* surfaces (embedded: the host draws page/card backgrounds) */
+  --sjs2-color-utility-surface-survey: transparent;
+  --sjs2-color-bg-basic-primary: var(--sjstw-surface);
+  --sjs2-color-bg-basic-secondary: var(--sjstw-surface); /* input fill */
+  --sjs2-color-utility-sheet: var(--sjstw-surface); /* dropdown popups */
+
+  /* text */
+  --sjs2-color-fg-basic-primary: var(--sjstw-foreground);
+  --sjs2-color-fg-basic-secondary: var(--sjstw-muted-foreground);
+  --sjs2-color-fg-basic-tertiary: var(--sjstw-muted-foreground); /* icons */
+
+  /* borders & focus */
+  --sjs2-color-border-basic-secondary: var(--sjstw-border);
+  --sjs2-color-component-formbox-default-border: var(--sjstw-input-border);
+  --sjs2-color-component-formbox-hovered-border: color-mix(in srgb, var(--sjstw-input-border) 75%, var(--sjstw-foreground));
+  --sjs2-color-border-brand-primary: var(--sjstw-ring);
+  --sjs2-color-utility-a11y: color-mix(in srgb, var(--sjstw-ring) 25%, transparent);
+
+  /* Choice controls use the input border, not the divider color. survey-core outlines text
+     inputs, radios, checkboxes and the boolean switch with --sjs2-color-border-basic-secondary,
+     which is mapped to --color-border (dividers) above and is barely visible on white. */
+  --sjs2-color-component-radio-false-default-border: var(--sjs2-color-component-formbox-default-border);
+  --sjs2-color-component-radio-false-hovered-border: var(--sjs2-color-component-formbox-hovered-border);
+  --sjs2-color-component-checkbox-false-default-border: var(--sjs2-color-component-formbox-default-border);
+  --sjs2-color-component-checkbox-false-hovered-border: var(--sjs2-color-component-formbox-hovered-border);
+  --sjs2-color-component-boolean-default-border: var(--sjs2-color-component-formbox-default-border);
+
+  /* radii (rounded-md controls, rounded-lg cards) */
+  --sjs2-radius-form: var(--radius-md, 0.375rem);
+  --sjs2-radius-form-item: var(--radius-sm, 0.25rem);
+  --sjs2-radius-component-drop: var(--radius-md, 0.375rem);
+  --sjs2-radius-component-panel: var(--radius-lg, 0.5rem);
+
+  /* Control height: 1lh + 2 x input padding + 2 x formbox padding, text-sm (20px) + 2 x 6px +
+     2 x 2px -> 36px, matching Tailwind/shadcn h-9 controls. The 2px formbox inset keeps in-field
+     buttons (the dropdown chevron: 20px icon + 2 x 6px = 32px) off the 2px inset focus ring;
+     text still starts 12px (px-3) from the edge. */
+  --sjs2-layout-component-formbox-medium-padding-vertical: calc(var(--sjstw-space) * 0.5);
+  --sjs2-layout-component-formbox-medium-padding-horizontal: calc(var(--sjstw-space) * 0.5);
+  --sjs2-layout-component-input-medium-content-padding-vertical: calc(var(--sjstw-space) * 1.5);
+  --sjs2-layout-component-input-medium-content-padding-horizontal: calc(var(--sjstw-space) * 2.5);
+  --sjs2-layout-component-action-small-box-padding-vertical: calc(var(--sjstw-space) * 1.5);
+  --sjs2-layout-component-action-small-box-padding-horizontal: calc(var(--sjstw-space) * 1.5);
+
+  /* Vertical rhythm (gap-4 between fields; tight label -> input).
+     Field rows: page-content-area-gap-vertical (.sd-page__content row-gap).
+     Page title/description/content: page-box-gap-vertical (.sd-page row-gap). */
+  --sjs2-layout-component-question-header-gap-vertical: calc(var(--sjstw-space) * 0.5);
+  --sjs2-layout-component-question-box-gap-vertical: calc(var(--sjstw-space) * 1.5);
+  --sjs2-layout-component-survey-box-padding-top: 0px;
+  --sjs2-layout-component-survey-box-padding-bottom: 0px;
+  --sjs2-layout-component-page-content-area-padding-horizontal: calc(var(--sjstw-space) * 4);
+  --sjs2-layout-component-survey-box-gap-vertical: calc(var(--sjstw-space) * 4);
+  --sjs2-layout-component-page-box-gap-vertical: calc(var(--sjstw-space) * 4);
+  --sjs2-layout-component-page-content-area-gap-vertical: calc(var(--sjstw-space) * 4);
+  --sjs2-layout-component-page-content-area-gap-horizontal: calc(var(--sjstw-space) * 4);
+  --sjs2-layout-component-panel-box-gap-vertical: calc(var(--sjstw-space) * 3);
+  --sjs2-layout-component-panel-content-area-gap-vertical: calc(var(--sjstw-space) * 4);
+  --sjs2-layout-component-panel-content-area-gap-horizontal: calc(var(--sjstw-space) * 4);
+
+  /* panels as nested host cards (p-4, rounded-lg, divided header) */
+  --sjs2-layout-component-panel-header-padding-top: calc(var(--sjstw-space) * 4);
+  --sjs2-layout-component-panel-header-padding-bottom: calc(var(--sjstw-space) * 3);
+  --sjs2-layout-component-panel-header-padding-left: calc(var(--sjstw-space) * 4);
+  --sjs2-layout-component-panel-header-padding-right: calc(var(--sjstw-space) * 4);
+  --sjs2-layout-component-panel-content-area-padding-horizontal: calc(var(--sjstw-space) * 4);
+  --sjs2-layout-component-panel-content-area-padding-top: calc(var(--sjstw-space) * 3);
+  --sjs2-layout-component-panel-content-area-padding-bottom: calc(var(--sjstw-space) * 4);
+  --sjs2-color-component-panel-default-separator: color-mix(in srgb, var(--sjstw-border) 50%, var(--sjstw-surface));
+
+  /* Questions without a card frame (the panelless look). Panels keep their card (above);
+     matrices are handled further down. Nested questions already have 0 padding. */
+  --sjs2-color-component-panel-simple-default-bg: transparent;
+  --sjs2-color-component-panel-simple-default-border: transparent;
+  --sjs2-radius-component-panel-simple: 0px;
+  --sjs2-layout-component-panel-simple-content-area-padding-horizontal: 0px;
+  --sjs2-layout-component-panel-simple-content-area-padding-top: 0px;
+  --sjs2-layout-component-panel-simple-content-area-padding-bottom: 0px;
+
+  /* Matrices flush with the content edge: no outer cell inset and no box padding (their card
+     frame is removed by the rule below). */
+  --sjs2-layout-component-matrix-box-padding-top: 0px;
+  --sjs2-layout-component-matrix-box-padding-bottom: 0px;
+  --sjs2-layout-component-matrix-cell-left-padding-left: 0px;
+  --sjs2-layout-component-matrix-cell-right-padding-right: 0px;
+  --sjs2-layout-component-matrix-header-cell-left-padding-left: 0px;
+  --sjs2-layout-component-matrix-header-cell-right-padding-right: 0px;
+
+  /* Spacing scale for everything not tuned above (nested and dynamic panels, survey
+     header/footer): p-4 sides, py-3 ends. Under 600px survey-core's --mobile rule sets both
+     to 16px. */
+  --sjs2-spacing-large-horizontal: calc(var(--sjstw-space) * 4);
+  --sjs2-spacing-medium-vertical: calc(var(--sjstw-space) * 3);
+
+  /* buttons (Complete / Add row): 36px flat, px-4 py-2 */
+  --sjs2-layout-component-action-large-box-padding-vertical: calc(var(--sjstw-space) * 2);
+  --sjs2-layout-component-action-large-box-padding-horizontal: 0px;
+  --sjs2-layout-component-action-large-label-padding-horizontal: calc(var(--sjstw-space) * 4);
+  --sjs2-color-utility-shadow-trigger-default: transparent;
+
+  /* validation */
+  --sjs2-palette-red-600: var(--sjstw-destructive);
+  --sjs2-palette-red-700: hsl(from var(--sjstw-destructive) h s calc(l * 0.85));
+}
+
+/* Matrices and composites without a card frame (the panelless look). They share the panel frame
+   tokens, so panels would lose their card too; survey-core's own per-question variables are
+   re-pointed instead. */
+.sjs-theme-overrides .sd-question--table.sd-question--with-frame,
+.sjs-theme-overrides .sd-composite.sd-question--with-frame {
+  --sd-question-container-background: transparent;
+  --sd-question-container-box-shadow: none;
+  --sd-question-container-border-radius: 0px;
+  --sd-question-header-padding-inline: 0px;
+  --sd-question-header-border-bottom: none;
+  --sd-matrixdynamic-toolbar-padding-inline: 0px;
+  --sd-matrixdynamic-toolbar-padding-block-end: 0px;
+}
+
+/* Transparent survey root. .sd-root-modern paints --sjs2-color-utility-body (white) under the
+   surface layer, which shows as a white box on any non-white host surface. The background is
+   cleared with a selector rather than by making --sjs2-color-utility-body transparent, because
+   that token is also the opaque layer of sticky matrix cells. */
+.sd-root-modern.sjs-theme-overrides {
+  background-color: transparent;
+}
+
+/* Under 600px survey-core swaps the header content for .sv-header--mobile with a fixed 24px
+   padding that no layout token feeds. Use the desktop header's tokens so the survey title stays
+   aligned with the fields at every width. */
+.sjs-theme-overrides .sv-header--mobile {
+  padding-top: calc(var(--sjs2-layout-component-survey-header-padding-top) + var(--sjs2-layout-component-survey-box-padding-top));
+  padding-inline: var(--sjs2-layout-component-survey-header-padding-horizontal);
+}

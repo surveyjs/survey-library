@@ -349,12 +349,11 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   public getValueType(): QuestionValueType {
     return "object";
   }
+  // The base adds the columns and the choices.
   protected getAllChildren(): Base[] {
     return [
       ...super.getAllChildren(),
-      ...this.columns,
-      ...this.rows,
-      ...this.choices
+      ...this.rows
     ];
   }
   /**
@@ -511,6 +510,52 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   protected getRecordAccessibilityTitle(index: number, visibleIndex: number): string {
     return this.getRecordItems()[index].locText.renderedHtml;
+  }
+  // The value is keyed by row name.
+  protected createNewValue(nullOnEmpty: boolean = false): any {
+    var res = !this.value ? {} : this.createValueCopy();
+    if (nullOnEmpty && this.isMatrixValueEmpty(res)) return null;
+    return res;
+  }
+  /* A row's record by its row name, read without a walk: a falsy record reads as null, and create puts
+     {} under the name. The Dynamic Matrix reads by record index and keeps a stored 0 or "". */
+  protected getRowValueCore(
+    row: MatrixDropdownRowModelBase,
+    questionValue: any,
+    create: boolean = false
+  ): any {
+    var result =
+      !!questionValue && !!questionValue[row.rowName]
+        ? questionValue[row.rowName]
+        : null;
+    if (!result && create) {
+      result = {};
+      if (!!questionValue) {
+        questionValue[row.rowName] = result;
+      }
+    }
+    return result;
+  }
+  protected deleteRowValue(
+    newValue: any,
+    row: MatrixDropdownRowModelBase
+  ): any {
+    if (!newValue) return newValue;
+    delete newValue[row.rowName];
+    return this.isObject(newValue) && Object.keys(newValue).length == 0
+      ? null
+      : newValue;
+  }
+  private isMatrixValueEmpty(val: any) {
+    if (!val) return;
+    if (Array.isArray(val)) {
+      for (var i = 0; i < val.length; i++) {
+        if (this.isObject(val[i]) && Object.keys(val[i]).length > 0)
+          return false;
+      }
+      return true;
+    }
+    return Object.keys(val).length == 0;
   }
   private defaultValuesInRows: any = {};
   protected clearGeneratedRows(): void {

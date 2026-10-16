@@ -101,6 +101,17 @@ frameworks.forEach(framework => {
         await initSurvey(page, framework, pagerJson(12));
         await resetFocusToBody(page);
         await compareScreenshot(page, paneldynamicRoot, `paneldynamic-pager-12-pages-${viewport.name}.png`);
+        // The footer row: the buttons on the left and the pager on the right; on a phone the buttons stack above it.
+        await page.evaluate(() => {
+          (window as any).survey.getQuestionByName("panel").footerToolbar.addAction({ id: "custom", title: "Custom Action", action: () => { } });
+        });
+        await compareScreenshot(page, paneldynamicRoot, `paneldynamic-pager-custom-action-${viewport.name}.png`);
+        // Without the buttons the pager starts the row.
+        await page.evaluate(() => {
+          (window as any).survey.getQuestionByName("panel").allowAddPanel = false;
+          (window as any).survey.getQuestionByName("panel").footerToolbar.getActionById("custom").visible = false;
+        });
+        await compareScreenshot(page, paneldynamicRoot, `paneldynamic-pager-no-buttons-${viewport.name}.png`);
       });
     });
 

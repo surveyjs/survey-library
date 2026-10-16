@@ -1583,6 +1583,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return false;
   }
+  /* The footer under the table: the bottom toolbar and the pager, which share one row. Without the
+     pager the footer has no box of its own (sd-matrixdynamic__footer is display: contents). */
+  public get showFooter(): boolean {
+    return !!this.getShowToolbar("bottom") || this.showPager;
+  }
+  public getFooterCss(): string {
+    return toCssClasses(this.cssClasses.footer, this.showPager && this.cssClasses.footerWithPager);
+  }
   public getShowPlaceholderToolbar(): boolean {
     // The single input summary adds rows from the survey navigation bar.
     return this.getShowToolbar() && !this.singleInputSummary;

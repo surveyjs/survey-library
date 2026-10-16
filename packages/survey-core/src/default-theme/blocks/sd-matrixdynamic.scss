@@ -40,12 +40,16 @@
   padding-block-end: var(--sd-matrixdynamic-toolbar-padding-block-start);
   padding-block-start: var(--sd-matrixdynamic-toolbar-padding-block-end);
 }
-/* The pager under the table, padded like the toolbar; sticky, so it stays in view while the table
-   scrolls sideways. A sticky box is a stacking context: the bar is above the table's sticky action
-   cells (12), which would cover a list it opens upwards, and below the survey's sticky header (15),
-   which it scrolls under. */
-.sd-matrixdynamic__records-bar,
-.sd-matrixdropdown__records-bar {
+// Without the pager the footer has no box: the bottom toolbar lays out on its own.
+.sd-matrixdynamic__footer {
+  display: contents;
+}
+/* The pager under the table, padded like the bottom toolbar; sticky, so it stays in view while the
+   table scrolls sideways. A sticky box is a stacking context: the bar is above the table's sticky
+   action cells (12), which would cover a list it opens upwards, and below the survey's sticky header
+   (15), which it scrolls under. */
+.sd-matrixdropdown__records-bar,
+.sd-matrixdynamic__footer--pager {
   position: sticky;
   left: 0;
   z-index: 13;
@@ -53,11 +57,24 @@
   box-sizing: border-box;
   padding-inline: var(--sd-matrixdynamic-toolbar-padding-inline);
   padding-block-start: var(--sd-matrixdynamic-toolbar-padding-block-start);
+  padding-block-end: var(--sd-matrixdynamic-toolbar-padding-block-end);
 }
-// The bottom toolbar has no top padding of its own (the footer padding-top is 0): under the pager it
-// keeps the design's gap between the pager and the Add button.
-.sd-matrixdynamic__records-bar ~ .sd-matrixdynamic__toolbar--bottom {
-  padding-block-start: var(--sjs2-spacing-medium-vertical);
+/* With the pager the footer is one row: the toolbar buttons on the left and the pager on the right,
+   or the pager alone at the start. */
+.sd-matrixdynamic__footer--pager {
+  align-items: center;
+  gap: var(--sjs2-layout-component-panel-dynamic-footer-gap);
+
+  .sd-matrixdynamic__toolbar {
+    position: static;
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0;
+  }
+  .sd-matrixdynamic__records-bar {
+    display: flex;
+    flex: 0 0 auto;
+  }
 }
 .sd-matrixdynamic__content > div {
   display: contents;
@@ -220,9 +237,32 @@
     padding-inline-start: var(--sjs2-layout-component-panel-dynamic-footer-padding-left);
     padding-inline-end: var(--sjs2-layout-component-panel-dynamic-footer-padding-right);
   }
-  // The pager and the Add button share one footer: no separator line between them.
-  .sd-matrixdynamic__records-bar ~ .sd-matrixdynamic__toolbar--bottom {
-    border-top: none;
+  // The pager takes the toolbar's line and padding.
+  .sd-matrixdropdown__records-bar,
+  .sd-matrixdynamic__footer--pager {
+    border-top: 1px solid $border-light;
+    padding-top: var(--sjs2-layout-component-panel-dynamic-footer-padding-top);
+    padding-bottom: var(--sjs2-layout-component-panel-dynamic-footer-padding-bottom);
+    padding-inline-start: var(--sjs2-layout-component-panel-dynamic-footer-padding-left);
+    padding-inline-end: var(--sjs2-layout-component-panel-dynamic-footer-padding-right);
+  }
+  // The buttons, full-width, above the pager.
+  .sd-matrixdynamic__footer--pager {
+    flex-direction: column;
+    align-items: stretch;
+
+    .sd-matrixdynamic__toolbar {
+      border-top: none;
+      padding: 0;
+    }
+    .sd-matrixdynamic__toolbar .sd-action-bar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .sd-matrixdynamic__toolbar .sd-action {
+      width: 100%;
+      justify-content: center;
+    }
   }
 }
 

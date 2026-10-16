@@ -26,6 +26,29 @@ frameworks.forEach(framework => {
         });
         await resetFocusToBody(page);
         await compareScreenshot(page, page.locator(".sd-question--matrixdynamic"), `matrixdynamic-pager-12-pages-${viewport.name}.png`);
+        // The footer row: the buttons on the left and the pager on the right; on a phone the buttons stack above it.
+        await page.evaluate(() => {
+          (window as any).survey.getQuestionByName("matrix").toolbar.addAction({ id: "custom", title: "Custom Action", action: () => { } });
+        });
+        await compareScreenshot(page, page.locator(".sd-question--matrixdynamic"), `matrixdynamic-pager-custom-action-${viewport.name}.png`);
+      });
+
+      // No buttons under the table: the pager starts the row.
+      test(`Matrixdropdown pager, ${viewport.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: viewport.width, height: 1080 });
+        await initSurvey(page, framework, {
+          showQuestionNumbers: false,
+          elements: [{
+            type: "matrixdropdown",
+            name: "matrix",
+            title: "Question title",
+            pageSize: 1,
+            rows: Array.from({ length: 12 }, (_, i) => "Row " + (i + 1)),
+            columns: [{ name: "name", cellType: "text" }]
+          }]
+        });
+        await resetFocusToBody(page);
+        await compareScreenshot(page, page.locator(".sd-question--table"), `matrixdropdown-pager-12-pages-${viewport.name}.png`);
       });
     });
 

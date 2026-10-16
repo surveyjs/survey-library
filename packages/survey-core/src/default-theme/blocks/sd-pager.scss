@@ -1,15 +1,31 @@
 @use "../variables.scss" as *;
 
-// The pager of a dynamic panel and of a matrix: one row the width of the question, in three groups
-// (the page dropdown and Next push them apart), with no gap between the buttons of a group.
+// The pager of a dynamic panel and of a matrix, in three groups with no gap between the buttons of a
+// group: [First] [Prev]  [page dropdown] of N  [Next] [Last]. It is compact, its groups a small gap
+// apart; on a phone it takes the width of the question, and the page dropdown and Next push the
+// groups apart.
 .sd-paneldynamic__pager,
 .sd-matrixdynamic__pager,
 .sd-matrixdropdown__pager {
-  width: 100%;
-
   .sd-action-bar {
-    width: 100%;
     --sd-action-bar-gap: var(--sjs2-spacing-x000);
+  }
+  .sd-action-bar__item--space {
+    margin-left: var(--sjs2-spacing-x075);
+  }
+}
+.sd-question--mobile {
+  .sd-paneldynamic__pager,
+  .sd-matrixdynamic__pager,
+  .sd-matrixdropdown__pager {
+    width: 100%;
+
+    .sd-action-bar {
+      width: 100%;
+    }
+    .sd-action-bar__item--space {
+      margin-left: auto;
+    }
   }
 }
 

@@ -121,25 +121,35 @@
     }
 }
 
-// The pager under the panels: the footer row of the design, with the separator line above it.
-.sd-paneldynamic__records-bar {
-    position: relative;
+/* The footer with the pager is one row: the toolbar buttons on the left and the pager on the right, or
+   the pager alone at the start. On a phone the buttons, full-width, stack above the pager. */
+.sd-paneldynamic__footer--pager {
     display: flex;
-    padding-top: var(--sjs2-layout-component-panel-dynamic-footer-padding-top);
-    padding-bottom: var(--sjs2-layout-component-panel-dynamic-footer-padding-bottom);
-    padding-inline-start: var(--sjs2-layout-component-panel-dynamic-footer-padding-left);
-    padding-inline-end: var(--sjs2-layout-component-panel-dynamic-footer-padding-right);
-    gap: var(--sjs2-layout-component-panel-dynamic-footer-gap);
+    align-items: center;
 
-    &:before {
-        content: " ";
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: $border-light;
+    .sd-paneldynamic__buttons-container {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+    .sd-paneldynamic__buttons-container .sd-action-bar {
+        width: 100%;
+    }
+}
+.sd-paneldynamic__records-bar {
+    display: flex;
+    flex: 0 0 auto;
+}
+.sd-question--mobile .sd-paneldynamic__footer--pager {
+    flex-direction: column;
+    align-items: stretch;
+
+    .sd-paneldynamic__buttons-container .sd-action-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .sd-paneldynamic__buttons-container .sd-action {
+        width: 100%;
+        justify-content: center;
     }
 }
 

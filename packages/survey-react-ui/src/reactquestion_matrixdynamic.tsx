@@ -26,10 +26,17 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
       <div>
         {this.renderTopToolbar()}
         {mainDiv}
-        {this.renderRecordsBar()}
-        {this.renderBottomToolbar()}
+        {this.renderRecordsFooter()}
       </div>
     );
+  }
+  // The footer under the table: the bottom toolbar and the pager in one row.
+  protected renderRecordsFooter(): React.JSX.Element | null {
+    if (!this.matrix.showFooter) return null;
+    return <div className={this.matrix.getFooterCss()}>
+      {this.renderBottomToolbar()}
+      {this.renderRecordsBar()}
+    </div>;
   }
   protected renderToolbar(location: "top" | "bottom"): React.JSX.Element | null {
     if (!this.matrix.getShowToolbar(location)) return null;

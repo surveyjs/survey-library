@@ -139,3 +139,30 @@ describe("Records bar: the matrix with fixed rows pages through the same bar", (
     expect(matrix.pageIndex, "#6").toBe(0);
   });
 });
+
+describe("Records bar: the footer it shares with the buttons", () => {
+  test("the dynamic panel: the footer shows for the pager alone and is marked while the pager shows", () => {
+    const panel = createPanel(5);
+    expect([panel.showFooter, panel.getFooterCss()], "#1: Add and the pager")
+      .toEqual([true, "sd-paneldynamic__footer sd-paneldynamic__footer--pager"]);
+    expect([createPanel(2).showFooter, createPanel(2).getFooterCss()], "#2: Add alone")
+      .toEqual([true, "sd-paneldynamic__footer"]);
+    expect(createPanel(5, { allowAddPanel: false }).showFooter, "#3: the pager alone").toBe(true);
+    expect(createPanel(2, { allowAddPanel: false }).showFooter, "#4: nothing").toBe(false);
+    // A read-only panel with one panel on its page has no navigation, but keeps its pager.
+    expect(createPanel(3, { readOnly: true, pageSize: 1 }).showFooter, "#5").toBe(true);
+    panel.pageSize = 0;
+    expect([panel.showFooter, panel.getFooterCss()], "#6: no paging").toEqual([true, "sd-paneldynamic__footer"]);
+  });
+  test("the matrix: the footer shows for the bottom toolbar or the pager and is marked while the pager shows", () => {
+    const matrix = createMatrix(5);
+    expect([matrix.showFooter, matrix.getFooterCss()], "#1: Add and the pager")
+      .toEqual([true, "sd-matrixdynamic__footer sd-matrixdynamic__footer--pager"]);
+    expect([createMatrix(2).showFooter, createMatrix(2).getFooterCss()], "#2: Add alone")
+      .toEqual([true, "sd-matrixdynamic__footer"]);
+    expect(createMatrix(5, { readOnly: true }).showFooter, "#3: the pager alone").toBe(true);
+    expect(createMatrix(2, { readOnly: true }).showFooter, "#4: nothing").toBe(false);
+    expect(createMatrix(5, { addRowLocation: "top" }).showFooter, "#5: Add above the table, the pager below it").toBe(true);
+    expect(createMatrix(2, { addRowLocation: "top" }).showFooter, "#6: Add above the table only").toBe(false);
+  });
+});

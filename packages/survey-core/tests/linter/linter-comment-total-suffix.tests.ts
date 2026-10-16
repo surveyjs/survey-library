@@ -162,4 +162,25 @@ describe("comment and total suffix references", () => {
     expect(lintSurvey(totalSurvey("{mv-total.col1} > 0")).findings).toHaveLength(0);
     expect(unknownRefs(lintSurvey(totalSurvey("{mv-total.nosuchcol} > 0")).findings)).toHaveLength(1);
   });
+
+  // MatrixDropdownTotalRowModel builds a total cell per column of the matrix; a detail panel has none
+  test("the total row holds the matrix's own columns, never a detail-panel question", () => {
+    const totals = (ref: string, where: "column" | "survey") => ({
+      elements: [
+        {
+          type: "matrixdynamic", name: "m", detailPanelMode: "underRow",
+          columns: [{ name: "c1", cellType: "text", inputType: "number", totalType: "sum" },
+            { name: "c2", cellType: "text", visibleIf: where === "column" ? ref : undefined }],
+          detailElements: [{ type: "text", name: "d1" }],
+        },
+        { type: "text", name: "q2", visibleIf: where === "survey" ? ref : undefined },
+      ],
+    });
+    expect(unknownRefs(lintSurvey(totals("{totalRow.c1} > 0", "column")).findings)).toHaveLength(0);
+    expect(unknownRefs(lintSurvey(totals("{totalRow.d1} > 0", "column")).findings).map(f => f.reason + " @" + f.path))
+      .toEqual(["scopedUnknown @elements[0].columns[1].visibleIf"]);
+    expect(unknownRefs(lintSurvey(totals("{m-total.c1} > 0", "survey")).findings)).toHaveLength(0);
+    expect(unknownRefs(lintSurvey(totals("{m-total.d1} > 0", "survey")).findings).map(f => f.reason + " @" + f.path))
+      .toEqual(["inContainer @elements[1].visibleIf"]);
+  });
 });

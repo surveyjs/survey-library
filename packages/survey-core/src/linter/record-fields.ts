@@ -209,6 +209,23 @@ export function getFrameItemFields(frame: ScopeFrame): CIMultiMap<ElementRecord>
   return !!merged && !!merged.ownRowFields ? merged.ownRowFields : getItemFields(frame.owner);
 }
 
+// The fields of the total row: a total cell per column of the matrix itself
+// (MatrixDropdownTotalRowModel), none for a detail-panel question.
+export function getTotalFields(record: ElementRecord): CIMultiMap<ElementRecord> | undefined {
+  const columns = record.matrixColumns;
+  if (!columns) return undefined;
+  let hasDetailElements = false;
+  columns.forEach(records => {
+    if (records.some(sub => sub.kind !== "column")) hasDetailElements = true;
+  });
+  if (!hasDetailElements) return columns;
+  const res = new CIMultiMap<ElementRecord>();
+  columns.forEach((records, name) => records.forEach(sub => {
+    if (sub.kind === "column") res.add(name, sub);
+  }));
+  return res;
+}
+
 // The fields of the object a matrixdropdown value keeps under one row key; undefined for a key
 // that holds no such object (a multiple-text item or a single-choice matrix row).
 export function getRowFields(record: ElementRecord, rowKey: string): CIMultiMap<ElementRecord> | undefined {

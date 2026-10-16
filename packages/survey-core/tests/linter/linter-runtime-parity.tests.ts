@@ -1220,3 +1220,20 @@ describe("linter vs runtime: a name that is not a string", () => {
     expect(errors(panelJson)).toEqual(["property/required @ elements[0].name"]);
   });
 });
+
+describe("linter vs runtime: totals", () => {
+  test("the total row holds the matrix's own columns, never a detail-panel question", () => {
+    const json = { elements: [
+      { type: "matrixdynamic", name: "m", detailPanelMode: "underRow",
+        columns: [{ name: "c1", cellType: "text", inputType: "number", totalType: "sum" }],
+        detailElements: [{ type: "text", name: "d1" }] },
+      { type: "expression", name: "e", expression: "{m-total.d1}" },
+    ] };
+    expect(lintSurvey(json).findings.filter(f => f.ruleId === "reference/unknown").map(f => f.reason + " @" + f.path))
+      .toEqual(["inContainer @elements[1].expression"]);
+    const survey = new SurveyModel(json);
+    survey.setValue("m", [{ c1: 5, d1: 3 }]);
+    expect(survey.data["m-total"]).toEqual({ c1: 5 });
+    expect(survey.getQuestionByName("e").isEmpty()).toBe(true);
+  });
+});

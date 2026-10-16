@@ -20,6 +20,12 @@ import { dynamicDataSortToString, parseDynamicDataSort } from "./dynamic-data-so
    a pure mirror: while an authored value has not been handed to the list yet - during a load, and
    for as long as the question is in design mode - the hash is the truth and the list is the one
    that lags behind. isViewPending says which direction the next sync runs in. */
+/* The keys the paging state is kept under in the owner's property hash: the paging helper writes them
+   (isPageMovePending is the page validation's), and the question reads them back. */
+export const pagingStateKeys = {
+  pageSize: "pageSize", pageIndex: "pageIndex", pageCount: "pageCount", isCountKnown: "isCountKnown",
+  isPageMovePending: "isPageMovePending", sortOrder: "sortOrder", filterExpression: "filterExpression"
+};
 export interface IDynamicDataPagingOwner {
   getPropertyValue(name: string): any;
   setPropertyValue(name: string, val: any): void;
@@ -38,7 +44,7 @@ export interface IDynamicDataPagingOwner {
   // setSortOrderValue). Base.propertyValueChanged is protected, so the owner raises it.
   raiseSortByChanged(oldValue: string, newValue: string): void;
   /* A move the respondent makes: the owner validates the page it leaves when the move goes forward
-     (see DynamicDataPageValidation.leave, question-side) and runs move now, later, or never. Returns
+     (see RecordsPageValidation.leave, question-side) and runs move now, later, or never. Returns
      false only when an error was found synchronously. Absent -> the move just happens. */
   leavePage?(isForward: boolean, move: () => void): boolean;
   // Drops a move that waits for its validators: every change that replaces the page from code.
@@ -71,7 +77,7 @@ export class DynamicDataPagingController {
      JSON. */
   public setPageSize(val: any): void {
     const num = Helpers.getNumber(val);
-    this.owner.setPropertyValue("pageSize", num > 0 ? num : 0);
+    this.owner.setPropertyValue(pagingStateKeys.pageSize, num > 0 ? num : 0);
     this.updatePageSize();
   }
   // Returns true when the list pages by another size now: that resets the list.
@@ -81,7 +87,7 @@ export class DynamicDataPagingController {
     return true;
   }
   public get pageIndex(): number {
-    return this.owner.getPropertyValue("pageIndex") || 0;
+    return this.owner.getPropertyValue(pagingStateKeys.pageIndex) || 0;
   }
   // A page set from code: no validation, and a move that waits for its validators is dropped.
   public set pageIndex(val: number) {
@@ -97,14 +103,14 @@ export class DynamicDataPagingController {
     this.setPageIndexCore(val);
   }
   public get pageCount(): number {
-    const res = this.owner.getPropertyValue("pageCount");
+    const res = this.owner.getPropertyValue(pagingStateKeys.pageCount);
     return res > 0 ? res : 1;
   }
   /* False while the source answers a read without a total: pageCount is then the number of pages
      known to exist and the record count is a lower bound. The default is true - every source that
      is not a paging one hands over the whole storage. */
   public get isCountKnown(): boolean {
-    return this.owner.getPropertyValue("isCountKnown") !== false;
+    return this.owner.getPropertyValue(pagingStateKeys.isCountKnown) !== false;
   }
   /* Through the owner and not through the mirror: the question answers 1 page and page 0 whenever
      it does not page at all, and that is what "can go" has to agree with. */
@@ -144,7 +150,7 @@ export class DynamicDataPagingController {
   // True while a move waits for the asynchronous validators of the page: the pager is not usable.
   // The page validation keeps it in the owner's property hash.
   private get isPageMovePending(): boolean {
-    return this.owner.getPropertyValue("isPageMovePending") === true;
+    return this.owner.getPropertyValue(pagingStateKeys.isPageMovePending) === true;
   }
   private cancelPendingPageMove(): void {
     if (typeof this.owner.cancelPendingPageMove === "function")this.owner.cancelPendingPageMove();
@@ -163,9 +169,9 @@ export class DynamicDataPagingController {
   public syncState(): void {
     this.updateListPageSize();
     const list = this.list;
-    this.owner.setPropertyValue("pageIndex", list.pageIndex);
-    this.owner.setPropertyValue("pageCount", list.pageCount);
-    this.owner.setPropertyValue("isCountKnown", list.isCountKnown);
+    this.owner.setPropertyValue(pagingStateKeys.pageIndex, list.pageIndex);
+    this.owner.setPropertyValue(pagingStateKeys.pageCount, list.pageCount);
+    this.owner.setPropertyValue(pagingStateKeys.isCountKnown, list.isCountKnown);
     // A sync raised by the push itself: the page state is up to date, the view is being handed over
     // right now and mirroring it half way through would wipe the half that is still pending.
     if (this.isPushingView) return;
@@ -205,7 +211,7 @@ export class DynamicDataPagingController {
   }
   private mirrorListView(): void {
     const list = this.list;
-    this.owner.setPropertyValue("filterExpression", list.filter);
+    this.owner.setPropertyValue(pagingStateKeys.filterExpression, list.filter);
     const sort = list.sort;
     if (!Helpers.isTwoValueEquals(this.sortOrder, sort)) {
       this.setSortOrderValue(sort.slice());
@@ -258,14 +264,14 @@ export class DynamicDataPagingController {
      looks the source property up in the Serializer and sortOrder is not registered there. */
   private setSortOrderValue(val: Array<IDynamicDataSort>): void {
     const oldText = this.sortBy;
-    this.owner.setPropertyValue("sortOrder", val);
+    this.owner.setPropertyValue(pagingStateKeys.sortOrder, val);
     const newText = dynamicDataSortToString(val);
     if (oldText !== newText) {
       this.owner.raiseSortByChanged(oldText, newText);
     }
   }
   public get sortOrder(): Array<IDynamicDataSort> {
-    return this.owner.getPropertyValue("sortOrder") || [];
+    return this.owner.getPropertyValue(pagingStateKeys.sortOrder) || [];
   }
   public set sortOrder(val: Array<IDynamicDataSort>) {
     this.setSortOrderCore(val, true);
@@ -348,13 +354,13 @@ export class DynamicDataPagingController {
     this.sortOrder = [];
   }
   public get filterExpression(): string {
-    return this.owner.getPropertyValue("filterExpression") || "";
+    return this.owner.getPropertyValue(pagingStateKeys.filterExpression) || "";
   }
   public set filterExpression(val: string) {
     const newValue = !!val ? val : "";
     if (!this.canPushToList) {
       if (this.filterExpression === newValue) return;
-      this.owner.setPropertyValue("filterExpression", newValue);
+      this.owner.setPropertyValue(pagingStateKeys.filterExpression, newValue);
       this.isViewPending = true;
       return;
     }

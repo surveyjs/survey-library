@@ -40,7 +40,7 @@ import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-da
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel, NestedWalkItem,
   QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
-  IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties, isRecordCountSerializable
+  IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties
 } from "./question_records";
 
 export class PanelDynamicItemGetterContext extends QuestionRecordItemGetterContext {
@@ -188,6 +188,9 @@ interface IPanelRemoval extends IRecordRemoval {
   visiblePosition: number;
   successor: { panel: PanelModel, visibleIndex: number };
 }
+
+// The count properties of the dynamic panel: getRecordCountNames and the Serializer entries read them.
+const panelCountNames = getRecordCountNamesOf("Panel");
 
 /**
   * A class that describes the Dynamic Panel question type.
@@ -1615,8 +1618,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    */
   @property() panelCountExpression: string;
   // The count expression (QuestionRecordsModel.hasRecordCountExpression) sets panelCount.
-  private static recordCountNames = getRecordCountNamesOf("Panel");
-  protected getRecordCountNames(): IRecordCountNames { return QuestionPanelDynamicModel.recordCountNames; }
+  protected getRecordCountNames(): IRecordCountNames { return panelCountNames; }
   /* The count the expression sets writes the value it truncates or pads, also while the count follows
      an assigned value (setPanelCountBasedOnValue): the expression's count wins over the assigned one. */
   protected runRecordCountExpressionWrite(write: () => void): void {
@@ -3903,21 +3905,21 @@ Serializer.addClass(
     { name: "allowRemovePanel:boolean", default: true },
     { name: "newPanelPosition", choices: ["next", "last"], default: "last" },
     {
-      name: "panelCount:number",
+      name: panelCountNames.count + ":number",
       isBindable: true,
       default: 0,
       choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-      isSerializableFunc: isRecordCountSerializable,
+      isSerializableFunc: QuestionRecordsModel.isRecordCountSerializable,
       onSettingValue: (obj: any, val: any): any => {
         if (val < obj.minPanelCount) return obj.minPanelCount;
         if (val > obj.panelCountLimit) return obj.panelCountLimit;
         return val;
       },
     },
-    "panelCountExpression:expression",
-    { name: "minPanelCount:number", default: 0, minValue: 0 },
+    panelCountNames.countExpression + ":expression",
+    { name: panelCountNames.minCount + ":number", default: 0, minValue: 0 },
     {
-      name: "maxPanelCount:number",
+      name: panelCountNames.maxCount + ":number",
       defaultFunc: () => settings.panel.maxPanelCount,
     },
     "defaultPanelValue:panelvalue",

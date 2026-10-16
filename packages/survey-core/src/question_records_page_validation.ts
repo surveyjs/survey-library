@@ -1,8 +1,9 @@
 import { ValidationContext } from "./question";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataPageState } from "./dynamic-data/dynamic-data-page-validation";
+import { pagingStateKeys } from "./dynamic-data/dynamic-data-paging";
 
-export interface IDynamicDataPageValidationOwner {
+export interface IRecordsPageValidationOwner {
   getDataList(): DynamicDataList;
   // Layer 1 is on: the question is in a running survey whose settings validate a page before a
   // forward move (see SurveyModel.canLeavePageWithErrors).
@@ -32,17 +33,17 @@ export interface IDynamicDataPageValidationOwner {
       are remembered, and every full validation of the question (Complete, the survey's next page, an
       ancestor leaving its page) visits the pages that hold them. The cost is bounded by the pages the
       respondent edited, never by the record count. */
-export class DynamicDataPageValidation {
+export class RecordsPageValidation {
   // Record indexes, ascending. Kept in step with the list's own inserts, removes and moves.
   private edited: Array<number> = [];
   private nested: { [recordIndex: number]: { [valueName: string]: IDynamicDataPageState } } = {};
   private moveToken: number = 0;
   private isPendingValue: boolean = false;
-  constructor(private owner: IDynamicDataPageValidationOwner) { }
+  constructor(private owner: IRecordsPageValidationOwner) { }
 
   private setIsPending(val: boolean): void {
     this.isPendingValue = val;
-    this.owner.setPropertyValue("isPageMovePending", val);
+    this.owner.setPropertyValue(pagingStateKeys.isPageMovePending, val);
   }
   /* A page or a current index set from code, another move, a sort or a filter, records replaced
      from outside, dispose: the move that is waiting for its validators is dropped. A late result
@@ -272,7 +273,7 @@ export class DynamicDataPageValidation {
         return false;
       }
       if (res === undefined) {
-        const id = "dynamic-data-page-" + (++DynamicDataPageValidation.asyncPageId);
+        const id = "dynamic-data-page-" + (++RecordsPageValidation.asyncPageId);
         context.addElement(id);
         const page = pages[i];
         const pageRecords = this.owner.getDataList().getMaterializedIndexes().slice();

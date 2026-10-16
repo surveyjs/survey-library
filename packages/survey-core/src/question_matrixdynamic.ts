@@ -27,7 +27,7 @@ import { ComputedUpdater } from "./base";
 import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
-import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsValueGetterContext, IRecordCountNames, getRecordCountNamesOf, isRecordCountSerializable } from "./question_records";
+import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsModel, QuestionRecordsValueGetterContext, IRecordCountNames, getRecordCountNamesOf } from "./question_records";
 import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import { ArrayDynamicDataSource, isRecordEmpty, IArrayDynamicDataSourceOptions } from "./dynamic-data/dynamic-data-sources";
 
@@ -76,6 +76,9 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
 interface IRowRemoval extends IRecordRemoval {
   isSourceWriteOnly?: boolean;
 }
+
+// The count properties of the dynamic matrix: getRecordCountNames and the Serializer entries read them.
+const rowCountNames = getRecordCountNamesOf("Row");
 
 /**
   * A class that describes the Dynamic Matrix question type.
@@ -621,8 +624,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    */
   @property() rowCountExpression: string;
   // The count expression (QuestionRecordsModel.hasRecordCountExpression) sets rowCount.
-  private static recordCountNames = getRecordCountNamesOf("Row");
-  protected getRecordCountNames(): IRecordCountNames { return QuestionMatrixDynamicModel.recordCountNames; }
+  protected getRecordCountNames(): IRecordCountNames { return rowCountNames; }
   // A bound rowCount pads the value with the rows that hold answers (the count expression ignores the binding).
   protected updateBindingProp(propName: string, value: any): void {
     super.updateBindingProp(propName, value);
@@ -1637,11 +1639,11 @@ Serializer.addClass(
   [
     { name: "allowAddRows:boolean", default: true },
     { name: "allowRemoveRows:boolean", default: true },
-    { name: "rowCount:number", default: 2, minValue: 0, isBindable: true, isSerializableFunc: isRecordCountSerializable },
-    "rowCountExpression:expression",
-    { name: "minRowCount:number", default: 0, minValue: 0 },
+    { name: rowCountNames.count + ":number", default: 2, minValue: 0, isBindable: true, isSerializableFunc: QuestionRecordsModel.isRecordCountSerializable },
+    rowCountNames.countExpression + ":expression",
+    { name: rowCountNames.minCount + ":number", default: 0, minValue: 0 },
     {
-      name: "maxRowCount:number",
+      name: rowCountNames.maxCount + ":number",
       default: settings.matrix.maxRowCount,
     },
     { name: "keyName" },

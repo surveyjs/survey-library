@@ -1,4 +1,4 @@
-import { Base, ComputedUpdater } from "./base";
+import { Base } from "./base";
 import { IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
@@ -17,9 +17,9 @@ import {
   IDynamicDataSource
 } from "./dynamic-data/dynamic-data-interfaces";
 import { IDynamicDataPageState, findDuplicatePages, groupByDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
-import { DynamicDataPageValidation, IDynamicDataPageValidationOwner } from "./question_records_page_validation";
+import { RecordsPageValidation, IRecordsPageValidationOwner } from "./question_records_page_validation";
 import { createIndexes } from "./dynamic-data/dynamic-data-filter";
-import { DynamicDataPagingController, IDynamicDataPagingOwner } from "./dynamic-data/dynamic-data-paging";
+import { DynamicDataPagingController, IDynamicDataPagingOwner, pagingStateKeys } from "./dynamic-data/dynamic-data-paging";
 import { applyRecordChange, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-record-remap";
 import { IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
@@ -30,13 +30,15 @@ import { ConsoleWarnings } from "./console-warnings";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import { Scope, ValueScope } from "./utils/scope";
+import { RecordsDataWaits } from "./records/records-data-waits";
+import { createRecordsPagerActions } from "./records/records-pager";
 import type { PanelModelBase } from "./panel";
 
 /* An item of the nested walk of a records question: a matrix row, or a dynamic panel's panel - not its
    QuestionPanelDynamicItem: in design mode the panel shown is the template, which has none. */
 export type NestedWalkItem = QuestionRecordItem | PanelModelBase;
 import type { ItemValue } from "./itemvalue";
-import type { ISurveyDynamicDataWrites, ISurveyOldValueReads } from "./interfaces/survey-callbacks";
+import type { ISurveyOldValueReads } from "./interfaces/survey-callbacks";
 
 export interface IDynamicDataRecordUniqueness {
   // The record keys whose values have to be unique; empty when none has to be.
@@ -105,19 +107,12 @@ function getFieldType(question: Question): DynamicDataFieldType {
   return type === "number" || type === "date" || type === "boolean" ? type : "any";
 }
 // What the list, the page validation and the paging helper call: one object, see helperOwner.
-type RecordsHelperOwner = IDynamicDataOwner & IDynamicDataPageValidationOwner & IDynamicDataPagingOwner;
+type RecordsHelperOwner = IDynamicDataOwner & IRecordsPageValidationOwner & IDynamicDataPagingOwner;
 /* The 0-based number the respondent sees for the record of an object or a record item: its index in
    the whole list - the window offset of a source that pages itself added to the window-local
    getIndex(), which the storage is addressed by. */
 function getRecordNumberOf(item: QuestionRecordItem): number {
   return item.getIndex() + (!!item.data ? item.data.getRecordNumberOffset() : 0);
-}
-/* The survey side that waits for the writes of a records question (ISurveyDynamicDataWrites). It is
-   not part of ISurvey, and SurveyModel keeps it private, so a survey is asked for it by its member: a
-   custom ISurvey without it is never asked to wait. */
-function getSurveyDynamicDataWrites(survey: ISurvey): ISurveyDynamicDataWrites {
-  const writes = <ISurveyDynamicDataWrites><any>survey;
-  return !!writes && typeof writes.dynamicDataWritesChanged === "function" ? writes : undefined;
 }
 
 /* The question side shared by every question whose answer is a collection of records, and the
@@ -150,10 +145,10 @@ function getSurveyDynamicDataWrites(survey: ISurvey): ISurveyDynamicDataWrites {
 export abstract class QuestionRecordsModel extends Question {
   private _dataList: DynamicDataList;
   private _paging: DynamicDataPagingController;
-  private _pageValidation: DynamicDataPageValidation;
+  private _pageValidation: RecordsPageValidation;
   private helperOwnerValue: RecordsHelperOwner;
   private builtRecordIndexes: WeakMap<QuestionRecordItem, number>;
-  /* The owner the list (IDynamicDataOwner), the page validation (IDynamicDataPageValidationOwner) and
+  /* The owner the list (IDynamicDataOwner), the page validation (IRecordsPageValidationOwner) and
      the paging helper (IDynamicDataPagingOwner) talk to. It is built with the first helper, and its
      functions call the question's members when they are called, so an override or a spy on the
      question is honoured. */
@@ -171,11 +166,11 @@ export abstract class QuestionRecordsModel extends Question {
       onDataListChanged: (change: IDynamicDataListChange): void => { question.onDataListChanged(change); },
       onWriteEnded: (): void => { question.onListWriteEnded(); },
       onDataSettled: (): void => { question.onDataSettled(); },
-      onWritesStarted: (): void => { question.onWritesStarted(); },
+      onWritesStarted: (): void => { question.dataWaits.onWritesStarted(); },
       onSourceWriterChanged: (): void => { question.onSourceCapabilitiesChanged(); },
       onDataError: (error: any, operation: DynamicDataOperation): void => { question.onSourceError(error, operation); },
       getSurvey: (): ISurvey => question.survey,
-      // IDynamicDataPageValidationOwner: the rules every records question shares; the rest is the question's.
+      // IRecordsPageValidationOwner: the rules every records question shares; the rest is the question's.
       getDataList: (): DynamicDataList => question.dataList,
       isPageLeaveValidated: (): boolean => question.isPageLeaveValidated(),
       canTrackEditedRecords: (): boolean => question.isPagedByList,
@@ -216,8 +211,7 @@ export abstract class QuestionRecordsModel extends Question {
       this.builtRecordIndexes = new WeakMap<QuestionRecordItem, number>();
     }
     this.builtRecordIndexes.set(item, recordIndex);
-    const list = this._dataList;
-    if (!!list && list.isPagedBySource) {
+    if (this.isPagedBySource) {
       if (!this.builtStateKeys)this.builtStateKeys = new WeakMap<QuestionRecordItem, number | string>();
       this.builtStateKeys.set(item, this.getNestedStateKey(recordIndex));
     }
@@ -228,8 +222,8 @@ export abstract class QuestionRecordsModel extends Question {
      built, since the window has changed by the time its states are kept (builtStateKeys). */
   private builtStateKeys: WeakMap<QuestionRecordItem, number | string>;
   private getNestedStateKey(recordIndex: number): number | string {
+    if (!this.isPagedBySource || recordIndex < 0) return recordIndex;
     const list = this._dataList;
-    if (!list || !list.isPagedBySource || recordIndex < 0) return recordIndex;
     const field = list.keyField;
     const key = !!field ? list.getValue(recordIndex, field) : undefined;
     return key !== undefined ? "k" + JSON.stringify(key) : "i" + (list.windowOffset + recordIndex);
@@ -282,9 +276,9 @@ export abstract class QuestionRecordsModel extends Question {
   }
   // The questions ask for what they need done (leavePage, validateOffPage, ...); _pageValidation is
   // the peek.
-  private get pageValidation(): DynamicDataPageValidation {
+  private get pageValidation(): RecordsPageValidation {
     if (!this._pageValidation) {
-      this._pageValidation = new DynamicDataPageValidation(this.helperOwner);
+      this._pageValidation = new RecordsPageValidation(this.helperOwner);
     }
     return this._pageValidation;
   }
@@ -423,9 +417,7 @@ export abstract class QuestionRecordsModel extends Question {
      and then the objects are rebuilt for the records the window holds. Nothing else may assign the
      value on a load. The position a refill kept is focused last: the objects it names exist now. */
   private commitLoadedRecords(): void {
-    // A copy: an array value is updated in place (Base.setArrayPropertyDirectly).
-    const oldValue = this.getStoredRecords();
-    const oldRecords = Array.isArray(oldValue) ? [].concat(oldValue) : oldValue;
+    const oldRecords = copyRecords(this.getStoredRecords());
     this.storeLoadedRecords();
     this.followReloadedRecords(oldRecords);
     this.rebuildFromDataList(false);
@@ -448,12 +440,11 @@ export abstract class QuestionRecordsModel extends Question {
   private followReloadedRecords(oldRecords: any): void {
     this.heldRemoveTargets = undefined;
     const list = this._dataList;
-    const oldArray = Array.isArray(oldRecords) ? oldRecords : [];
+    const oldArray = asRecords(oldRecords);
     let remap: (index: number) => number = undefined;
     const getRemap = (): ((index: number) => number) => {
       if (!remap) {
-        const newRecords = this.getStoredRecords();
-        remap = getReplacedRecordsRemap(oldArray, Array.isArray(newRecords) ? newRecords : [], list.keyField);
+        remap = getReplacedRecordsRemap(oldArray, asRecords(this.getStoredRecords()), list.keyField);
       }
       return remap;
     };
@@ -467,10 +458,10 @@ export abstract class QuestionRecordsModel extends Question {
       if (!!this._pageValidation && list.isPagedBySource)this._pageValidation.clearEditedRecords();
       return;
     }
-    this.followKeptRecordIndexes(getRemap, (validation: DynamicDataPageValidation, remap: (index: number) => number): void => {
-      const newRecords = this.getStoredRecords();
+    this.followKeptRecordIndexes(getRemap, (validation: RecordsPageValidation, remap: (index: number) => number): void => {
+      const newRecords = asRecords(this.getStoredRecords());
       validation.cancelPendingMove();
-      validation.onRecordsReplaced(oldArray, Array.isArray(newRecords) ? newRecords : [], remap);
+      validation.onRecordsReplaced(oldArray, newRecords, remap);
     });
   }
   /* The record indexes kept besides the records follow one remap of them: the page validation's edited
@@ -478,7 +469,7 @@ export abstract class QuestionRecordsModel extends Question {
      the change needs it), and what the question keeps (remapKeptRecordIndexes: the records the panels
      were built for). The remap is asked for only when something keeps record indexes. */
   private followKeptRecordIndexes(getRemap: () => ((index: number) => number),
-    followValidation: (validation: DynamicDataPageValidation, remap: (index: number) => number) => void): void {
+    followValidation: (validation: RecordsPageValidation, remap: (index: number) => number) => void): void {
     const validation = this._pageValidation;
     const hasValidationRecords = !!validation && validation.hasRecords;
     if (!hasValidationRecords && !this.hasKeptRecordIndexes()) return;
@@ -620,7 +611,7 @@ export abstract class QuestionRecordsModel extends Question {
       return;
     }
     // A copy: the stored array is updated in place when the value is stored (Base.setArrayPropertyDirectly).
-    this.inPlaceWriteScope.run({ before: [].concat(stored), after: newValue }, (): void => this.setOwnRecordsValue(newValue));
+    this.inPlaceWriteScope.run({ before: copyRecords(stored), after: newValue }, (): void => this.setOwnRecordsValue(newValue));
   }
   /* The assignment the question receives is a sibling's in-place write: a question bound to the same
      value is making one, the received value equals the records it stores, and the records the question
@@ -652,10 +643,39 @@ export abstract class QuestionRecordsModel extends Question {
   protected validateRecordObjects<T>(context: ValidationContext, func: () => T): T {
     return this.isRemoteData ? context.runWithoutClearingIncorrectValues(func) : func();
   }
+  /* Whether the question pages is decided by three facts, each in one place:
+     - pageSize: the authored page size, 0 for none;
+     - listPageSize: the size the list is to page by - 0 in single-input mode, which is its own
+       paging, and capped by maxRecordsPerPage;
+     - list.pageSize: the size the list pages by now; the paging helper sets it from listPageSize at
+       every sync, 0 in design mode;
+     and by two facts of the list: isRemoteData (a source is assigned) and isPagedBySource (the source
+     hands over one window per page). The others are derived from them:
+     - isPagingActive: the list pages;
+     - isPagedByList: it pages, and not by the source;
+     - hasDataListView: the objects are built for the records the list holds - a filter or a sort, a
+       source, paging, or objects last built for a view;
+     - isRecordCountLimitedByPageMax: the page maximum limits the record count - design mode, or
+       listPageSize 0.
+                                     pageSize listPageSize PagingActive PagedByList DataListView RemoteData PagedBySource
+       no paging                        0         0            no           no          no          no          no
+       paging over question.value       >0        >0           yes          yes         yes         no          no
+       a source that pages itself       >0        >0           yes          no          yes         yes         yes
+       a source the list pages          >0        >0           yes          yes         yes         yes         no
+       design mode                      >0        >0           no           no          no          no          no
+       single-input mode                >0        0            no           no          no          no          no
+       a filter or a sort, no paging    0         0            no           no          yes         no          no
+     getMaxRecordCount lifts the page maximum whenever pageSize is set, and getRecordCountLimit only
+     while the question pages: in design and single-input mode with a pageSize, maxRowCount /
+     maxPanelCount report the stored maximum while the count is checked against the page maximum. */
   /* Paging is on: the objects are built for the page, and an incremental update of the rendered
      table would work in page-local terms. Off in design mode and without a list. */
   protected get isPagingActive(): boolean {
     return !this.isDesignMode && !!this._dataList && this._dataList.pageSize > 0;
+  }
+  // The source hands over one window per page; a peek: nothing is created for it.
+  private get isPagedBySource(): boolean {
+    return !!this._dataList && this._dataList.isPagedBySource;
   }
   /* The list cuts the page: over question.value, or over the whole storage a source without paging
      answered with - or a paging source, read whole while the list has a filter or a sort it cannot
@@ -663,14 +683,14 @@ export abstract class QuestionRecordsModel extends Question {
      Its opposite is a paging source (list.isPagedBySource): the window IS the page and the records
      of the other pages are on the server. */
   protected get isPagedByList(): boolean {
-    return this.isPagingActive && !this._dataList.isPagedBySource;
+    return this.isPagingActive && !this.isPagedBySource;
   }
   /* The objects are built for the records the list holds and not for 0 ... count-1. A remote window
      is a view of its own, because the count is the server total; a question that pages builds its
      objects for the page, so it takes the view path too. */
   protected get hasDataListView(): boolean {
     const list = this._dataList;
-    return !!list && (list.hasView || this.hasMaterializedView || list.isRemote || this.isPagingActive);
+    return !!list && (list.hasView || this.hasMaterializedView || this.isRemoteData || this.isPagingActive);
   }
   /* The record-index counterpart of getQuestionFromArray: the question of the object the record has,
      whatever position it took; null for a record without one. Nothing is built for it, except what the
@@ -732,15 +752,29 @@ export abstract class QuestionRecordsModel extends Question {
      brought back. Every object is renumbered, also before the first build. An object whose record is
      gone - removed, or not found again by a reload - keeps -1: it is being disposed. */
   protected remapBuiltItems(remap: (index: number) => number): void {
-    for (let i = 0; ; i++) {
-      const item = this.getItem(i);
-      if (!item) return;
-      if (!(item instanceof QuestionRecordItem)) continue;
+    this.forEachItem((item: QuestionRecordItem): void => {
+      if (!isRecordItem(item)) return;
       const from = this.getBuiltRecordIndex(item);
       if (from > -1) {
         const to = remap(from);
         this.setBuiltRecordIndex(item, to === undefined ? -1 : to);
       }
+    });
+  }
+  // The objects in created order, up to the first position getItem answers none for.
+  private forEachItem(func: (item: QuestionRecordItem, position: number) => void): void {
+    for (let i = 0; ; i++) {
+      const item = this.getItem(i);
+      if (!item) return;
+      func(item, i);
+    }
+  }
+  // The same walk, stopped at the first object func answers true for: whether there is one.
+  private someItem(func: (item: QuestionRecordItem) => boolean): boolean {
+    for (let i = 0; ; i++) {
+      const item = this.getItem(i);
+      if (!item) return false;
+      if (func(item)) return true;
     }
   }
   /* The records of indexes, each with the object that holds it when it has one: the value-level
@@ -963,6 +997,11 @@ export abstract class QuestionRecordsModel extends Question {
   protected getRecordCountNames(): IRecordCountNames {
     return undefined;
   }
+  /* The serializer rule of the count property (rowCount, panelCount): left out while a data source is
+     assigned, since the source owns the number of records (recordCount). */
+  public static isRecordCountSerializable(obj: QuestionRecordsModel): boolean {
+    return !obj.isRemoteData;
+  }
   /* The record count of a type with a count of its own (getRecordCountNames): rowCount and panelCount
      delegate to it. Two counts live apart.
      While a data source is assigned, the source owns the number of records: the count is the one
@@ -1007,7 +1046,7 @@ export abstract class QuestionRecordsModel extends Question {
   protected setRecordCountByExpression(val: any): void {
     const names = this.getRecordCountNames();
     if (!names) return;
-    const count = this.getRecordCountByExpressionValue(val, this.getPropertyValue(names.min), this.getRecordCountLimitOf(names.max));
+    const count = this.getRecordCountByExpressionValue(val, this.getPropertyValue(names.minCount), this.getRecordCountLimitOf(names.maxCount));
     this.runRecordCountExpressionWrite((): void => this.writeRecordCount(count, "internal"));
   }
   protected runRecordCountExpressionWrite(write: () => void): void {
@@ -1020,24 +1059,24 @@ export abstract class QuestionRecordsModel extends Question {
     super.onPropertyValueChanged(name, oldValue, newValue);
     const names = this.getRecordCountNames();
     if (!names) return;
-    if (name === names.min) {
+    if (name === names.minCount) {
       this.onMinRecordCountChanged(names);
     }
-    if (name === names.max) {
+    if (name === names.maxCount) {
       this.onMaxRecordCountChanged(names);
     }
   }
   private onMinRecordCountChanged(names: IRecordCountNames): void {
-    const val = this.getPropertyValue(names.min);
-    if (val > this.getMaxRecordCount(names.max))this.setMaxRecordCount(names.max, val);
+    const val = this.getPropertyValue(names.minCount);
+    if (val > this.getMaxRecordCount(names.maxCount))this.setMaxRecordCount(names.maxCount, val);
     this.onMinRecordCountApplied(val);
     if (this.recordCount < val)this.writeRecordCount(val, "internal");
     this.rerunRecordCountExpression();
   }
   private onMaxRecordCountChanged(names: IRecordCountNames): void {
-    const val = this.getMaxRecordCount(names.max);
-    if (val < this.getPropertyValue(names.min))this.setPropertyValue(names.min, val);
-    const limit = this.getRecordCountLimitOf(names.max);
+    const val = this.getMaxRecordCount(names.maxCount);
+    if (val < this.getPropertyValue(names.minCount))this.setPropertyValue(names.minCount, val);
+    const limit = this.getRecordCountLimitOf(names.maxCount);
     if (this.recordCount > limit)this.writeRecordCount(limit, "internal");
     this.rerunRecordCountExpression();
     this.onMaxRecordCountApplied();
@@ -1051,11 +1090,11 @@ export abstract class QuestionRecordsModel extends Question {
      changing a limit runs it again (rerunRecordCountExpression): the raw result is not stored. */
   protected get hasRecordCountExpression(): boolean {
     const names = this.getRecordCountNames();
-    return !!names && !!this.getPropertyValue(names.expression) && !this.isRemoteData;
+    return !!names && !!this.getPropertyValue(names.countExpression) && !this.isRemoteData;
   }
   protected rerunRecordCountExpression(): void {
     if (this.isLoadingFromJson || !this.canRunConditions()) return;
-    this.runExpressionByProperty(this.getRecordCountNames().expression, this.getDataFilteredProperties(),
+    this.runExpressionByProperty(this.getRecordCountNames().countExpression, this.getDataFilteredProperties(),
       (val: any): void => { this.setRecordCountByExpression(val); });
   }
   protected updateBindings(propertyName: string, value: any): void {
@@ -1212,9 +1251,8 @@ export abstract class QuestionRecordsModel extends Question {
      itself and its window may hold hidden records; undefined otherwise: the question counts its
      objects. */
   protected get visibleRecordCount(): number {
-    const list = this.dataListValue;
-    if (!list || !this.isPagingActive && !list.isPagedBySource) return undefined;
-    return list.globalVisibleCount;
+    if (!this.isPagingActive && !this.isPagedBySource) return undefined;
+    return this.dataListValue.globalVisibleCount;
   }
   /* A record follows the one at a visible index: the next index is below visibleCount (what the question
      navigates by), or the source said there are more and the total is unknown. */
@@ -1337,7 +1375,7 @@ export abstract class QuestionRecordsModel extends Question {
     });
   }
 
-  /* The page moves of DynamicDataPageValidation.leave: validate, clearIncorrectValues and
+  /* The page moves of RecordsPageValidation.leave: validate, clearIncorrectValues and
      validatedRecords are what carousel/tab Next and the panel's add pass instead of the page. */
   protected leavePage(isForward: boolean, move: () => void, validate?: (context: ValidationContext) => boolean,
     clearIncorrectValues?: boolean, validatedRecords?: Array<number>): boolean {
@@ -1349,7 +1387,7 @@ export abstract class QuestionRecordsModel extends Question {
       this._pageValidation.cancelPendingMove();
     }
   }
-  // An inserted record is an edit layer 2 tracks (see DynamicDataPageValidation.markEdited).
+  // An inserted record is an edit layer 2 tracks (see RecordsPageValidation.markEdited).
   protected markRecordEdited(recordIndex: number): void {
     this.pageValidation.markEdited(recordIndex);
   }
@@ -1402,7 +1440,7 @@ export abstract class QuestionRecordsModel extends Question {
     }
     return this.pageValidation.validateEditedRecords(context, pages);
   }
-  // IDynamicDataPageValidationOwner: a record of another page judged by a temporary object (cleanRecordWithObject).
+  // IRecordsPageValidationOwner: a record of another page judged by a temporary object (cleanRecordWithObject).
   private isRecordValidQuietly(recordIndex: number): boolean {
     const record = this.getListRecordAt(recordIndex);
     let isValid = true;
@@ -1457,30 +1495,32 @@ export abstract class QuestionRecordsModel extends Question {
      all the same. Returns the objects that are duplicates in any of the fields. */
   protected checkRecordsUniqueness(showErrors: boolean, fields?: Array<string>, onDuplicate?: (question: Question) => void): Array<QuestionRecordItem> {
     const res: Array<QuestionRecordItem> = [];
+    const inRes = new Set<QuestionRecordItem>();
     (fields || this.getUniqueColumnsNames()).forEach((field: string): void => {
-      const duplicates: Array<QuestionRecordItem> = [];
+      const duplicates = new Set<QuestionRecordItem>();
       groupByDuplicateKey(this.getUniquenessEntries(field), (entry: IUniquenessEntry): any => entry.value,
         this.isRecordUniquenessCaseSensitive(), (entry: IUniquenessEntry): boolean => entry.isEmpty)
         .forEach((group: Array<IUniquenessEntry>): void => {
-          if (group.length > 1) group.forEach((entry: IUniquenessEntry): void => { if (!!entry.item) duplicates.push(entry.item); });
+          if (group.length > 1) group.forEach((entry: IUniquenessEntry): void => { if (!!entry.item) duplicates.add(entry.item); });
         });
-      for (let i = 0; ; i++) {
-        const item = this.getItem(i);
-        if (!item) break;
-        const isDuplicate = duplicates.indexOf(item) > -1;
+      this.forEachItem((item: QuestionRecordItem): void => {
+        const isDuplicate = duplicates.has(item);
         const question = this.getUniquenessQuestion(item, field, isDuplicate && showErrors);
         if (!isDuplicate) {
           if (!!question && this.removeDuplicationError(question)) {
             this.onDuplicationErrorRemoved(item, question);
           }
-          continue;
+          return;
         }
-        if (res.indexOf(item) < 0) res.push(item);
+        if (!inRes.has(item)) {
+          inRes.add(item);
+          res.push(item);
+        }
         if (showErrors && !!question) {
           this.addDuplicationError(question);
         }
         if (!!onDuplicate) onDuplicate(question);
-      }
+      });
     });
     return res;
   }
@@ -1503,7 +1543,7 @@ export abstract class QuestionRecordsModel extends Question {
       addValue(item, !!record ? record[field] : undefined);
     };
     if (!this.hasDataListView) {
-      for (let i = 0; !!this.getItem(i); i++) addItem(this.getItem(i), i);
+      this.forEachItem(addItem);
       return res;
     }
     const read = this.createDuplicationRecordReader();
@@ -1805,8 +1845,7 @@ export abstract class QuestionRecordsModel extends Question {
      the dynamic matrix rebuilds its rows, as released, for any other record count. */
   private takeHiddenAnswerFlags(oldRecords: any): IHiddenAnswerFlags {
     if (!this.survey || this.areInvisibleElementsShowing || this.isRemoteData) return undefined;
-    const newRecords = this.getStoredRecords();
-    if (!this.keepsHiddenAnswerStates(Array.isArray(oldRecords) ? oldRecords.length : 0, Array.isArray(newRecords) ? newRecords.length : 0)) return undefined;
+    if (!this.keepsHiddenAnswerStates(asRecords(oldRecords).length, asRecords(this.getStoredRecords()).length)) return undefined;
     const inputs = this.getRecordConditionalInputs().filter((q: Question): boolean => this.canRecordQuestionBeCleared(q, "onHidden"));
     if (inputs.length === 0) return undefined;
     const flags = new Map<any, HashTable<number>>();
@@ -1837,13 +1876,11 @@ export abstract class QuestionRecordsModel extends Question {
   // The built objects with the key their record's hidden-answer state is kept under.
   private forEachBuiltRecordItem(func: (key: any, item: QuestionRecordItem) => void): void {
     const source = this.recordsSource;
-    for (let i = 0; ; i++) {
-      const item = this.getItem(i);
-      if (!item) return;
-      if (!(item instanceof QuestionRecordItem)) continue;
+    this.forEachItem((item: QuestionRecordItem): void => {
+      if (!isRecordItem(item)) return;
       const index = this.getBuiltRecordIndex(item);
       if (index > -1) func(source["getRecordStateKey"](index, undefined), item);
-    }
+    });
   }
   /* The record without the answer stored under name and its comment, the keys clearValue() removes.
      cleared: the copy made so far, undefined for none; the result is that copy, made when needed. */
@@ -2367,7 +2404,7 @@ export abstract class QuestionRecordsModel extends Question {
      list mode the page is what is shown; in tab and carousel mode it is the panels of one page, of
      which one is shown. */
   public get pageSize(): number {
-    return this.getPropertyValue("pageSize");
+    return this.getPropertyValue(pagingStateKeys.pageSize);
   }
   public set pageSize(val: number) {
     this.paging.setPageSize(val);
@@ -2428,51 +2465,13 @@ export abstract class QuestionRecordsModel extends Question {
   private pagerActionsValue: ActionContainer;
   public get pagerActions(): ActionContainer {
     if (!this.pagerActionsValue) {
-      this.pagerActionsValue = this.createPagerActions(this.createActionContainer());
+      // The paging owner answers the reported page index and count.
+      this.pagerActionsValue = createRecordsPagerActions(this.createActionContainer(), this.paging, this.helperOwner);
     }
     return this.pagerActionsValue;
   }
-  /* The pager the renderers show through their action bar: it computes nothing of its own, it shows
-     what the paging helper answers. The page buttons are icons whose localized titles are their
-     accessible names; the page info is a disabled item without a tab stop, text the keyboard passes
-     over. */
-  // A page-move action of the pager: an icon button with a localized title.
-  private createPageMoveAction(id: string, iconName: string, titleName: string, canMove: () => boolean, move: () => void): Action {
-    return new Action({
-      id: id,
-      iconName: iconName,
-      showTitle: false,
-      title: <any>new ComputedUpdater(() => this.getLocalizationFormatString(titleName)),
-      enabled: <any>new ComputedUpdater(canMove),
-      action: move
-    });
-  }
-  private createPagerActions(container: ActionContainer): ActionContainer {
-    const prevAction = this.createPageMoveAction("sv-pager-prev", "icon-arrowleft", "pagePrevText",
-      (): boolean => this.paging.canGoPrevPage, (): void => { this.paging.prevPage(); });
-    const pageInfoAction = new Action({
-      id: "sv-pager-info",
-      /* A count nobody knows has no total to show: the page number alone. A known count goes through
-         indexText like every other pager (some locales reverse the order). survey.locale is a property
-         read, so the updater follows it; the global surveyLocalization.currentLocale is not observed.
-         Both texts are computed on every run: a ComputedUpdater collects its dependencies once, on the
-         first run, so a branch not taken then (the total, while the count is unknown) is never
-         observed afterwards. */
-      title: <any>new ComputedUpdater(() => {
-        const page = this.reportedPageIndex + 1;
-        const text = this.getLocalizationFormatString("indexText", page, this.reportedPageCount);
-        return this.paging.isCountKnown ? text : String(page);
-      }),
-      enabled: false,
-      disableTabStop: true
-    });
-    const nextAction = this.createPageMoveAction("sv-pager-next", "icon-arrowright", "pageNextText",
-      (): boolean => this.paging.canGoNextPage, (): void => { this.paging.nextPage(); });
-    container.setItems([prevAction, pageInfoAction, nextAction]);
-    return container;
-  }
   // True while a page move waits for the asynchronous validators of the page it leaves.
-  public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }
+  public get isPageMovePending(): boolean { return this.getPropertyValue(pagingStateKeys.isPageMovePending, false); }
   // What the question reports. A zero-based page index; always 0 while paging is off.
   protected get reportedPageIndex(): number {
     return this.isPagingActive ? this.paging.pageIndex : 0;
@@ -2530,7 +2529,7 @@ export abstract class QuestionRecordsModel extends Question {
     return this.dataList.getIndexAtGlobalVisibleIndex(visibleIndex);
   }
   protected isRecordNotLoaded(recordIndex: number): boolean {
-    return recordIndex < 0 && !!this.dataListValue && this.dataListValue.isPagedBySource;
+    return recordIndex < 0 && this.isPagedBySource;
   }
   /* Under paging, the record a whole-view number names (getRecordIndexAtVisibleIndex), with its
      object when it has one. undefined: there is none. isNotLoaded: a source that pages itself holds
@@ -2946,8 +2945,8 @@ export abstract class QuestionRecordsModel extends Question {
   }
   // An error of the source: a write it rejected releases a completion that waits for the writes.
   private onSourceError(error: any, operation: DynamicDataOperation): void {
-    if (operation !== "read" && !!this.reportedWritesSurvey) {
-      this.hasRejectedWrite = true;
+    if (!!this._dataWaits) {
+      this._dataWaits.onSourceError(operation);
     }
     this.reportDataError(error, operation);
   }
@@ -3007,17 +3006,13 @@ export abstract class QuestionRecordsModel extends Question {
      (onRecordsValueStored) and after it (onRecordsValueAssigned) - and update isAnswered there, after
      that work: the value is stored with updateIsAnswered = false, whatever the caller passed. */
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
-    // A copy: an array value is updated in place (Base.setArrayPropertyDirectly). A value that is not
-    // an array is kept as it is - a keyed answer is never turned into one.
-    const oldValue = this.getStoredRecords();
-    const oldRecords = Array.isArray(oldValue) ? [].concat(oldValue) : oldValue;
+    const oldRecords = copyRecords(this.getStoredRecords());
     const assignment = this.beginValueAssignment(newValue, oldRecords);
     super.setQuestionValue(newValue, false);
     this.onRecordsValueStored();
     this.endValueAssignment(assignment, oldRecords);
     if (!this.isAssigningOwnValue) {
-      const newRecords = this.getStoredRecords();
-      this.followHiddenAnswerStatesOnAssignment(Array.isArray(oldRecords) ? oldRecords.length : 0, Array.isArray(newRecords) ? newRecords.length : 0);
+      this.followHiddenAnswerStatesOnAssignment(asRecords(oldRecords).length, asRecords(this.getStoredRecords()).length);
     }
     this.onRecordsValueAssigned(oldRecords, this.clearingValueScope.isActive);
   }
@@ -3120,7 +3115,7 @@ export abstract class QuestionRecordsModel extends Question {
   /* The record indexes kept besides the records follow an assignment from outside that replaced
      records - not a sibling's in-place write, which moved none - for a list that pages in memory: the
      edited set and the nested states follow the records they name across the
-     insert, remove or move the assignment made (DynamicDataPageValidation.onRecordsReplaced), the
+     insert, remove or move the assignment made (RecordsPageValidation.onRecordsReplaced), the
      records the objects were built for move with them, and a move that waits for its validators is
      dropped. It runs before any rebuild: a rebuild keeps the nested states of the objects it replaces
      under the records they were built for, and the new objects read them under their own. */
@@ -3129,9 +3124,8 @@ export abstract class QuestionRecordsModel extends Question {
     if (!!validation) {
       validation.cancelPendingMove();
     }
-    this.followKeptRecordIndexes(getRemap, (validation: DynamicDataPageValidation, remap: (index: number) => number): void => {
-      const newRecords = this.getStoredRecords();
-      validation.onRecordsReplaced(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : [], remap);
+    this.followKeptRecordIndexes(getRemap, (validation: RecordsPageValidation, remap: (index: number) => number): void => {
+      validation.onRecordsReplaced(asRecords(oldRecords), asRecords(this.getStoredRecords()), remap);
     });
   }
   /* A reload - survey.data =, setData, mergeData, survey.clear(), each of which assigns under the
@@ -3195,7 +3189,7 @@ export abstract class QuestionRecordsModel extends Question {
     if (!!validation) {
       validation.cancelPendingMove();
     }
-    this.followKeptRecordIndexes(getRemap, (validation: DynamicDataPageValidation, remap: (index: number) => number): void => {
+    this.followKeptRecordIndexes(getRemap, (validation: RecordsPageValidation, remap: (index: number) => number): void => {
       validation.onRecordRemap(remap);
     });
     const list = this._dataList;
@@ -3381,16 +3375,14 @@ export abstract class QuestionRecordsModel extends Question {
        record, and an assignment refreshes it: a row added at runtime runs its expressions only when it
        is refreshed. Otherwise an object without a record is padding. */
     const isRefreshedWithoutRecord = this.isRecordMembershipFixed();
-    for (let i = 0; ; i++) {
-      const item = this.getItem(i);
-      if (!item) return;
-      const recordIndex = !!list ? list.materializedIndexToIndex(i) : i;
+    this.forEachItem((item: QuestionRecordItem, position: number): void => {
+      const recordIndex = !!list ? list.materializedIndexToIndex(position) : position;
       const newRecord = this.getAssignedRecord(newRecords, recordIndex);
       if (isEveryChanged || newRecord === undefined && isRefreshedWithoutRecord ||
         QuestionRecordsModel.isRecordChanged(source["readRecordInAnswer"](oldRecords, recordIndex), newRecord)) {
         item.updateFromRecord(newRecord);
       }
-    }
+    });
   }
   private static isRecordChanged(oldRecord: any, newRecord: any): boolean {
     if (oldRecord === newRecord && oldRecord !== undefined) return true;
@@ -3421,11 +3413,7 @@ export abstract class QuestionRecordsModel extends Question {
     if (!this.areObjectsBuilt() && name === this.getValueName()) {
       this.isValueChangedBeforeBuild = true;
     }
-    for (let i = 0; ; i++) {
-      const item = this.getItem(i);
-      if (!item) return;
-      item.onAnyValueChanged(name, questionName);
-    }
+    this.forEachItem((item: QuestionRecordItem): void => { item.onAnyValueChanged(name, questionName); });
   }
   /* The error walks visit the objects that exist and create none: a record without an object has
      shown no error. Every object is cleared and asked for running validators - a hidden one may
@@ -3436,32 +3424,22 @@ export abstract class QuestionRecordsModel extends Question {
     this.clearItemErrors();
   }
   protected clearItemErrors(): void {
-    for (let i = 0; ; i++) {
-      const item = this.getItem(i);
-      if (!item) return;
-      item.clearErrors();
-    }
+    this.forEachItem((item: QuestionRecordItem): void => { item.clearErrors(); });
   }
   public getAllErrors(): Array<SurveyError> {
     return super.getAllErrors().concat(this.getItemErrors());
   }
   protected getItemErrors(): Array<SurveyError> {
     let res: Array<SurveyError> = [];
-    for (let i = 0; ; i++) {
-      const item = this.getItem(i);
-      if (!item) return res;
+    this.forEachItem((item: QuestionRecordItem): void => {
       if (this.isItemVisible(item)) {
         res = res.concat(item.getAllErrors());
       }
-    }
+    });
+    return res;
   }
   protected getIsRunningValidators(): boolean {
-    if (super.getIsRunningValidators()) return true;
-    for (let i = 0; ; i++) {
-      const item = this.getItem(i);
-      if (!item) return false;
-      if (item.isRunningValidators()) return true;
-    }
+    return super.getIsRunningValidators() || this.someItem((item: QuestionRecordItem): boolean => item.isRunningValidators());
   }
   // Read once, by the first build of the objects.
   protected takeValueChangedBeforeBuild(): boolean {
@@ -3502,7 +3480,9 @@ export abstract class QuestionRecordsModel extends Question {
   /* The list goes after the question's objects: it drops its pending-request counter, so a page or a
      push that is still in flight cannot write into a question that is gone. */
   public dispose(): void {
-    this.releaseDataWaits(false);
+    if (!!this._dataWaits) {
+      this._dataWaits.release(false);
+    }
     this.cancelPendingPageMove();
     this.currentRecordIndex = -1;
     this.pendingVisibleIndex = undefined;
@@ -3518,7 +3498,9 @@ export abstract class QuestionRecordsModel extends Question {
     if (!!this._dataList) {
       this._dataList.dispose();
     }
-    this.reportPendingWrites();
+    if (!!this._dataWaits) {
+      this._dataWaits.reportPendingWrites();
+    }
   }
   // The objects that have to go before the list does.
   protected disposeRecordObjects(): void { }
@@ -3587,102 +3569,53 @@ export abstract class QuestionRecordsModel extends Question {
     }
   }
 
-  /* A validation that answers through a callback - complete, the next page, the preview,
-     validate(callback) - waits while the question's data is read or written: the records the source
-     has not brought yet, or not taken yet, cannot be validated. The context waits for the question
-     (addElement) until the list settles - its last read or write answered or failed, or a new source,
-     or none, was assigned and its first read committed - then the question is validated again into
-     it. A write that never settles keeps the context waiting, and so does a write of a replaced
-     source that never settles (the new source is read after it); a disposed question releases it. A
-     synchronous validation (isCurrentPageValid, validate() without a callback) answers at once, as
-     before. */
-  private dataWaits: Array<{ context: ValidationContext, id: string }>;
-  /* Each registration has an id of its own: the validation a release runs again can register the same
-     context while the release still has to remove the registration it ends. */
-  private dataWaitCount: number;
+  /* What waits for the question's data operations (RecordsDataWaits): the validations that answer
+     through a callback and the survey's completion. Created by the first wait or the first write;
+     _dataWaits is the peek. */
+  private _dataWaits: RecordsDataWaits;
+  private get dataWaits(): RecordsDataWaits {
+    if (!this._dataWaits) {
+      const question = this;
+      this._dataWaits = new RecordsDataWaits({
+        question: question,
+        get id(): string { return question.id; },
+        get isDisposed(): boolean { return question.isDisposed; },
+        get survey(): ISurvey { return question.survey; },
+        isDataRunning: (): boolean => question.isDynamicDataRunning,
+        isWriting: (): boolean => {
+          const list = question._dataList;
+          return !!list && list.isRemote && list.hasPendingWrites;
+        },
+        validate: (context: ValidationContext): void => { question.validateElement(context); }
+      });
+    }
+    return this._dataWaits;
+  }
   /* The question's own objects (validateRecordObjectsOfPage, the type's), then the question, then -
-     when both passed - the records off the page (validateOffPage). */
+     when both passed - the records off the page (validateOffPage). A validation that answers through
+     a callback waits while the data is read or written (RecordsDataWaits.wait). */
   protected validateElementCore(context: ValidationContext): boolean {
     const isObjectsValid = this.validateRecordObjectsOfPage(context);
     const res = super.validateElementCore(context) && isObjectsValid && this.validateOffPage(context);
-    this.waitForDataOperations(context);
+    if (this.isDynamicDataRunning) {
+      this.dataWaits.wait(context);
+    }
     return res;
   }
   protected validateRecordObjectsOfPage(context: ValidationContext): boolean {
     return true;
   }
-  private waitForDataOperations(context: ValidationContext): void {
-    if (!context.hasCallback || context.isOnValueChanged || context.isOnValueChanging || !this.isDynamicDataRunning) return;
-    if (!this.dataWaits)this.dataWaits = [];
-    if (this.dataWaits.some(wait => wait.context === context)) return;
-    this.dataWaitCount = (this.dataWaitCount || 0) + 1;
-    const id = this.id + "_data_" + this.dataWaitCount;
-    this.dataWaits.push({ context: context, id: id });
-    context.addElement(id);
-  }
   /* IDynamicDataOwner.onDataSettled, and the end of setDataSource. The survey is told too: a
      completion it holds for this question's writes goes on. */
   private onDataSettled(): void {
     if (this.dataSourceAssignmentScope.isActive) return;
-    try {
-      if (!!this.dataWaits && !this.isDynamicDataRunning) {
-        this.releaseDataWaits(true);
-      }
-    } finally {
-      this.reportPendingWrites();
-    }
-  }
-  // A write the assigned source has not answered.
-  private get isWritingToSource(): boolean {
-    const list = this._dataList;
-    return !!list && list.isRemote && list.hasPendingWrites;
-  }
-  /* The survey keeps the records questions that have unanswered writes, and a completion waits for
-     them (ISurveyDynamicDataWrites). It is told when the first write starts (IDynamicDataOwner.
-     onWritesStarted) and when the writes have settled with everything else the source was asked
-     for, as the validation waits for. A disposed question and one that leaves its survey are taken
-     off. reportedWritesSurvey is the survey that was told the question writes. */
-  private reportedWritesSurvey: ISurvey;
-  // A write reported to the survey was rejected by the source (onSourceError).
-  private hasRejectedWrite: boolean;
-  private reportPendingWrites(): void {
-    const survey = !this.isDisposed && this.isWritingToSource ? this.survey : undefined;
-    const reported = this.reportedWritesSurvey;
-    if (survey === reported) return;
-    this.reportedWritesSurvey = survey;
-    const isFailed = !!this.hasRejectedWrite;
-    this.hasRejectedWrite = false;
-    const oldWrites = getSurveyDynamicDataWrites(reported);
-    if (!!oldWrites) oldWrites.dynamicDataWritesChanged(this, false, isFailed);
-    const newWrites = getSurveyDynamicDataWrites(survey);
-    if (!!newWrites) newWrites.dynamicDataWritesChanged(this, true);
-  }
-  private onWritesStarted(): void {
-    if (!this.reportedWritesSurvey)this.reportPendingWrites();
+    this.dataWaits.onDataSettled();
   }
   protected setSurveyCore(value: ISurvey): void {
     super.setSurveyCore(value);
-    if (this.reportedWritesSurvey !== undefined && this.reportedWritesSurvey !== value)this.reportPendingWrites();
-  }
-  /* Every held context is released, also when the validation of one throws: the first error is
-     rethrown once all of them are released. */
-  private releaseDataWaits(isValidated: boolean): void {
-    const waits = this.dataWaits;
-    this.dataWaits = undefined;
-    if (!waits) return;
-    let error: { error: any } = undefined;
-    waits.forEach((wait: { context: ValidationContext, id: string }): void => {
-      try {
-        if (isValidated) {
-          this.validateElement(wait.context);
-        }
-      } catch(e) {
-        if (!error) error = { error: e };
-      } finally {
-        wait.context.removeElement(wait.id);
-      }
-    });
-    if (!!error) throw error.error;
+    if (!!this._dataWaits) {
+      this._dataWaits.onSurveyChanged(value);
+    }
   }
   // Objects that were never built were never shown: there is nothing the respondent could have left
   // invalid, and validating them would build them.
@@ -4010,12 +3943,10 @@ export abstract class QuestionRecordsModel extends Question {
      record (keepNestedPageStates). A read that commits again renumbers them with its remap, so that the
      states follow their records. */
   protected hasKeptRecordIndexes(): boolean {
-    for (let i = 0; ; i++) {
-      const item = this.getItem(i);
-      if (!item) return false;
+    return this.someItem((item: QuestionRecordItem): boolean => {
       const questions = this.getNestedStateQuestions(item);
-      if (!!questions && this.hasPagedQuestions(questions)) return true;
-    }
+      return !!questions && this.hasPagedQuestions(questions);
+    });
   }
   protected remapKeptRecordIndexes(remap: (index: number) => number): void {
     this.remapBuiltItems(remap);
@@ -4466,6 +4397,21 @@ class RecordValueItem extends QuestionRecordItem {
     return [];
   }
 }
+// A records value as an array of records: [] for any other value (an empty answer, a keyed one).
+function asRecords(value: any): Array<any> {
+  return Array.isArray(value) ? value : [];
+}
+/* A copy of a records value taken before it is replaced: an array value is updated in place
+   (Base.setArrayPropertyDirectly). A value that is not an array is kept as it is - a keyed answer is
+   never turned into one. */
+function copyRecords(value: any): any {
+  return Array.isArray(value) ? [].concat(value) : value;
+}
+/* getItem is typed to answer a record item, but the dynamic panel answers its panel's data: in design
+   mode the template panel shown takes the survey's data once its survey impl is set again. */
+function isRecordItem(item: QuestionRecordItem): boolean {
+  return item instanceof QuestionRecordItem;
+}
 // The visibility flags of an input in a record, kept by QuestionRecordsModel.clearHiddenAnswersWithoutObjects.
 const HIDDEN_ANSWER_SELF = 1;
 const HIDDEN_ANSWER_CONTAINER = 2;
@@ -4534,22 +4480,20 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
    pager and sortable headers: they load from and save to JSON. sortBy and filterExpression are plain
    strings and not ":condition"/":expression": both of those make JsonObjectProperty.isExpression true,
    and everything that discovers expressions by type - Base.validateExpressions(), the linter - would
-   then read them with the survey as the variable context, while their variables are record fields. */
+   then read them with the survey as the variable context, while their variables are record fields.
+   pageSize and filterExpression are stored in the hash under their own names (pagingStateKeys). */
 export function getRecordViewProperties(): Array<any> {
-  return [{ name: "pageSize:number", default: 0, minValue: 0, visible: false },
-    { name: "sortBy", default: "", visible: false }, { name: "filterExpression", default: "", visible: false }];
+  return [{ name: pagingStateKeys.pageSize + ":number", default: 0, minValue: 0, visible: false },
+    { name: "sortBy", default: "", visible: false }, { name: pagingStateKeys.filterExpression, default: "", visible: false }];
 }
-/* The count properties of a type with a record count (getRecordCountNames): rowCount, rowCountExpression,
-   minRowCount, maxRowCount for "Row". */
-export interface IRecordCountNames { count: string, expression: string, min: string, max: string }
+/* The count properties of a type with a record count, named after its entity: rowCount, minRowCount,
+   maxRowCount and rowCountExpression for "Row". A type makes one (getRecordCountNamesOf), and its
+   getRecordCountNames and its Serializer entries both read it. */
+export interface IRecordCountNames { entity: string, count: string, minCount: string, maxCount: string, countExpression: string }
 export function getRecordCountNamesOf(entity: string): IRecordCountNames {
   const name = entity.charAt(0).toLowerCase() + entity.substring(1);
-  return { count: name + "Count", expression: name + "CountExpression", min: "min" + entity + "Count", max: "max" + entity + "Count" };
-}
-/* The serializer rule of the count property (rowCount, panelCount): left out while a data source is
-   assigned, since the source owns the number of records (QuestionRecordsModel.recordCount). */
-export function isRecordCountSerializable(obj: any): boolean {
-  return !obj.isRemoteData;
+  return { entity: entity, count: name + "Count", minCount: "min" + entity + "Count", maxCount: "max" + entity + "Count",
+    countExpression: name + "CountExpression" };
 }
 // A temporary row or panel of the records clean-up (createRecordCleanupObject).
 export interface IRecordCleanupObject {

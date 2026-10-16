@@ -1,7 +1,7 @@
 // No validation runs here: this file holds the duplicate grouping the records' uniqueness checks share
 // (getDuplicateKey, groupByDuplicateKey, findDuplicatePages) and the page state a paged question hands
 // to the ancestor that rebuilds it (IDynamicDataPageState). The page validation itself is question-side:
-// DynamicDataPageValidation in question_records_page_validation.ts.
+// RecordsPageValidation in question_records_page_validation.ts.
 import { Helpers } from "../helpers";
 
 /* The group key of a value the duplicate checks compare by, in two namespaces that never meet. A

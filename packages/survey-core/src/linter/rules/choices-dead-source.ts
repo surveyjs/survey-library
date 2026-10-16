@@ -2,7 +2,7 @@ import { Serializer } from "survey-core";
 import { closestMatch } from "../levenshtein";
 import { ILintRule, LintContext } from "../rule";
 import { nameCandidates, resolveCarryForwardSource } from "../expression-utils";
-import { CIMultiMap, ElementRecord, getEffectiveType } from "../symbols";
+import { getEffectiveType } from "../symbols";
 import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
 import { setFix } from "../fix-utils";
 import { getItemFields } from "../record-fields";
@@ -12,11 +12,6 @@ const fixReasons = SurveyLintFixReasons["choices/dead-source"];
 
 // carry-forward sources that provide an array of objects to pick fields from
 const ARRAY_SOURCE_TYPES = new Set<string>(["matrixdynamic", "matrixdropdown", "paneldynamic"]);
-
-// the fields of a row/panel object, the ones the questions sharing the value add included
-function getFields(source: ElementRecord): CIMultiMap<ElementRecord> | undefined {
-  return source.matrixColumns || source.templateNames ? getItemFields(source) : undefined;
-}
 
 export const choicesDeadSourceRule: ILintRule = {
   id: "choices/dead-source",
@@ -76,7 +71,8 @@ export const choicesDeadSourceRule: ILintRule = {
         return;
       }
       if (isArraySource) {
-        const fields = getFields(source);
+        // the fields of a row/panel object, the ones the questions sharing the value add included
+        const fields = getItemFields(source);
         if (!fields) return;
         const checkField = (fieldValue: string, fieldPath: string, prop: string) => {
           if (!fieldValue) return;

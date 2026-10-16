@@ -1,7 +1,7 @@
 import { ProcessValue, VariableGetterContext } from "survey-core";
 import { classifySiteRefs, splitRefSegments, tryEvaluate } from "./expression-utils";
 import { quoteValue } from "./message-utils";
-import { getFrameItemFields } from "./record-fields";
+import { getFrameItemFields, getFrameNames } from "./record-fields";
 import {
   CIMap, ElementRecord, ExpressionSite, ParsedRef, ScopeFrame, SurveyIndex,
 } from "./symbols";
@@ -199,12 +199,14 @@ export function extendEnvWithNeverAssigned(env: ConstantEnv,
 }
 
 // The runtime resolves a name inside a matrix row or a dynamic panel against that container
-// first, so a top-level constant of the same name is not what {name} answers there.
+// first, so a top-level constant of the same name is not what {name} answers there. Either map
+// keeps a survey-level constant from folding here: a sub-element by name or a field of the record.
 function isShadowedByScope(name: string, scope: Array<ScopeFrame>): boolean {
   if (!Array.isArray(scope)) return false;
   return scope.some(frame => {
-    if (frame.kind === "matrixRow") return frame.columns.has(name) || getFrameItemFields(frame).has(name);
-    if (frame.kind === "panelDynamic") return frame.templateNames.has(name) || getFrameItemFields(frame).has(name);
+    if (frame.kind === "matrixRow" || frame.kind === "panelDynamic") {
+      return getFrameNames(frame).has(name) || getFrameItemFields(frame).has(name);
+    }
     if (frame.kind === "composite") return frame.fieldNames.has(name);
     return false;
   });

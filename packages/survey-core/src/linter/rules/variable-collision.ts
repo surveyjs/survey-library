@@ -3,6 +3,7 @@ import { equalsCI } from "../expression-utils";
 import { CalculatedValueRecord, ElementRecord, SurveyIndex } from "../symbols";
 import { ILintRelated } from "../types";
 import { SurveyLintReasons } from "../reasons";
+import { getDataKey } from "../record-fields";
 
 const reasons = SurveyLintReasons["variable/collision"];
 
@@ -17,16 +18,12 @@ function definitionRelated(questionName: string): Array<ILintRelated> {
   return [{ path: DEFINITION_PATH, elementName: questionName }];
 }
 
-function dataNameOf(record: ElementRecord): string {
-  return record.valueName || record.name;
-}
-
 // Only a root question shares a data key with a host variable: a question inside a dynamic panel
 // template or a matrix cell writes into its container's value, and its name is addressed through
 // that container's scope. Display-only elements have no value to overwrite.
 function isRootDataKey(record: ElementRecord, name: string): boolean {
   return record.kind === "question" && record.scope.length === 0 && record.valueType.shape !== "none" &&
-    equalsCI(dataNameOf(record), name);
+    equalsCI(getDataKey(record), name);
 }
 
 // findByDataName's order - a name answers before a valueName - narrowed to the records that
@@ -40,7 +37,7 @@ function findRootDataQuestion(index: SurveyIndex, name: string): ElementRecord |
 
 function reportQuestion(ctx: LintContext, variable: string, definitionQuestion: string,
   record: ElementRecord): void {
-  const dataName = dataNameOf(record);
+  const dataName = getDataKey(record);
   const prop = record.valueName ? "valueName" : "name";
   ctx.report({
     message: "The variable definition declares \"" + variable + "\", which is also the data key of " +

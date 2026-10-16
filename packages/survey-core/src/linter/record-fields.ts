@@ -1,6 +1,6 @@
 import { getCheckboxItemFields } from "survey-core";
-import { CIMap, CIMultiMap, ElementRecord, getCapturingFrame, getEffectiveType, ITEM_FIELD_TYPE, MergedObjectKeys,
-  ScopeFrame, SurveyIndex } from "./symbols";
+import { CapturingScopeFrame, CIMap, CIMultiMap, ElementRecord, getCapturingFrame, getEffectiveType, ITEM_FIELD_TYPE,
+  MergedObjectKeys, ScopeFrame, SurveyIndex } from "./symbols";
 import { isDescendantOf } from "./metadata";
 
 // Questions on one data key share one value: the runtime binds them by getValueName() - the
@@ -10,13 +10,27 @@ import { isDescendantOf } from "./metadata";
 // matrix, matrixdropdown) gets keys from every sharing question. Sharing stays within one data
 // scope: a question of a dynamic-panel template or of a matrix row keys its panel's or row's
 // record, never the survey's.
+//
+// So a dynamic panel or a matrix has two maps, and every check reads the one the runtime reads:
+// - its sub-elements by NAME (getSubElementNames, getFrameNames) - a question lookup: a
+//   carry-forward source (findQuestionByName), displayValue/propertyValue (getQuestionByName);
+// - the FIELDS of one panel/row object by data key (getItemFields, getFrameItemFields) - a value
+//   path: {row.x}, {panel.x}, {q[0].x}, keyName, inArray names, default value keys, totals.
 
-function getDataKey(record: ElementRecord): string {
+// The key a question stores its value under.
+export function getDataKey(record: ElementRecord): string {
   return record.valueName || record.name;
 }
 
-function sameKey(a: string, b: string): boolean {
-  return !!a && !!b && a.toLowerCase() === b.toLowerCase();
+// The template questions of a dynamic panel or the columns (detail-panel elements included) of a
+// matrix, by name.
+export function getSubElementNames(record: ElementRecord): CIMultiMap<ElementRecord> | undefined {
+  return record.templateNames || record.matrixColumns;
+}
+
+// The elements of a dynamic-panel template or a matrix row, by name.
+export function getFrameNames(frame: CapturingScopeFrame): CIMultiMap<ElementRecord> {
+  return frame.kind === "panelDynamic" ? frame.templateNames : frame.columns;
 }
 
 // The record itself first, then every other question of its data scope on the same data key.
@@ -24,15 +38,14 @@ function getSharingQuestions(index: SurveyIndex, record: ElementRecord): Array<E
   const key = getDataKey(record);
   const res: Array<ElementRecord> = [record];
   const add = (other: ElementRecord): void => {
-    if (other.kind === "question" && res.indexOf(other) < 0 && sameKey(getDataKey(other), key)) res.push(other);
+    if (other.kind === "question" && res.indexOf(other) < 0 && getDataKey(other).toLowerCase() === key.toLowerCase()) res.push(other);
   };
   const frame = getCapturingFrame(record.scope);
   if (!frame) {
     index.byName.get(key).forEach(add);
     index.byValueName.get(key).forEach(add);
   } else {
-    const names = frame.kind === "panelDynamic" ? frame.templateNames : frame.columns;
-    names.forEach(records => records.forEach(add));
+    getFrameNames(frame).forEach(records => records.forEach(add));
   }
   return res;
 }
@@ -66,7 +79,7 @@ function getItemFieldRecord(record: ElementRecord, field: string): ElementRecord
 // template holds no value and keeps its name - and for a checkbox or an image map with object
 // items the fields of such an item.
 function addOwnItemFields(record: ElementRecord, res: CIMultiMap<ElementRecord>): void {
-  const subs = record.templateNames || record.matrixColumns;
+  const subs = getSubElementNames(record);
   if (subs) {
     subs.forEach((records, name) => records.forEach(sub => {
       res.add(sub.kind === "question" && !!sub.valueName ? sub.valueName : name, sub);
@@ -105,7 +118,7 @@ function annotateMergedObject(record: ElementRecord, partners: Array<ElementReco
 // Run once the index is complete: a question may share its value with one declared after it.
 export function annotateSharedValues(index: SurveyIndex): void {
   index.allElements.forEach(record => {
-    const holdsSubElements = !!record.templateNames || !!record.matrixColumns;
+    const holdsSubElements = !!getSubElementNames(record);
     const objectValued = isObjectValued(record);
     if (!holdsSubElements && !objectValued) return;
     const sharing = getSharingQuestions(index, record);
@@ -128,12 +141,11 @@ export function annotateSharedValues(index: SurveyIndex): void {
 // field of such an object ({panel.x}, {row.x}, {q[0].x}, keyName, carry-forward fields, inArray
 // names, default value keys) asks this, not the template or the columns.
 export function getItemFields(record: ElementRecord): CIMultiMap<ElementRecord> | undefined {
-  return record.itemFields || record.templateNames || record.matrixColumns;
+  return record.itemFields || getSubElementNames(record);
 }
 
 // The fields the object of a {row.x}/{panel.x} scope holds.
 export function getFrameItemFields(frame: ScopeFrame): CIMultiMap<ElementRecord> | undefined {
-  if (frame.kind === "panelDynamic") return getItemFields(frame.owner) || frame.templateNames;
-  if (frame.kind === "matrixRow") return getItemFields(frame.owner) || frame.columns;
-  return undefined;
+  if (frame.kind !== "panelDynamic" && frame.kind !== "matrixRow") return undefined;
+  return getItemFields(frame.owner);
 }

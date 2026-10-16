@@ -401,6 +401,11 @@ describe("name/shadowing - a matrixdropdown row a single value takes", () => {
     expect(conflicts({ elements: [md(), matrix(["r1"])] })).toEqual([]);
     expect(conflicts({ elements: [md(["r1"]), Object.assign(md(["r1"]), { name: "md2", valueName: "md" })] })).toEqual([]);
   });
+  // the runtime compares the keys exactly (hasValueKey: row.value + "" === key)
+  test("keys that differ in case are two keys", () => {
+    expect(conflicts({ elements: [md(["R1"]), matrix(["r1"])] })).toEqual([]);
+    expect(conflicts({ elements: [md(["R1"]), { type: "multipletext", name: "mt", valueName: "md", items: [{ name: "r1" }] }] })).toEqual([]);
+  });
   test("inside one template", () => {
     expect(conflicts({ elements: [{ type: "paneldynamic", name: "p", templateElements: [md(["r1"]), matrix(["r1"])] }] }))
       .toEqual(["elements[0].templateElements[1] r1 m/md"]);

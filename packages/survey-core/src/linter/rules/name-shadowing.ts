@@ -149,13 +149,13 @@ function checkDropdownRowConflict(ctx: LintContext, record: ElementRecord, repor
   if (!rows) return;
   getSharingRecords(ctx.index, record).forEach(other => {
     getSingleValueKeys(other).forEach(key => {
-      const row = rows.filter(r => equalsCI(r, key))[0];
-      const id = other.path + "|" + key.toLowerCase();
-      if (row === undefined || reported.has(id)) return;
+      // the runtime compares the keys exactly (hasValueKey: row.value + "" === key)
+      const id = other.path + "|" + key;
+      if (rows.indexOf(key) < 0 || reported.has(id)) return;
       reported.add(id);
       const what = getEffectiveType(other) === "matrix" ? "a row of matrix" : "an item of multipletext";
       ctx.report({
-        message: "The row \"" + row + "\" of matrixdropdown \"" + record.name + "\" is also " + what + " \"" +
+        message: "The row \"" + key + "\" of matrixdropdown \"" + record.name + "\" is also " + what + " \"" +
           other.name + "\" sharing its value - a cell object and a single value cannot both live under one key;" +
           " the runtime keeps one and deletes the other.",
         path: other.path,

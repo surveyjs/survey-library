@@ -55,7 +55,7 @@ export function getDataKeyRecords(index: SurveyIndex, frame: CapturingScopeFrame
 
 // The record itself first, then every other question (or matrix column) of its data scope on the
 // same data key.
-function getSharingQuestions(index: SurveyIndex, record: ElementRecord): Array<ElementRecord> {
+export function getSharingRecords(index: SurveyIndex, record: ElementRecord): Array<ElementRecord> {
   const others = getDataKeyRecords(index, getCapturingFrame(record.scope), getDataKey(record));
   return [record].concat(others.filter(other => other !== record));
 }
@@ -123,7 +123,7 @@ function isObjectValued(record: ElementRecord): boolean {
 
 // The rows a matrixdropdown lists; undefined when the JSON lists none (rows set in code), so any
 // row may be one of them.
-function getListedRows(record: ElementRecord): Array<string> | undefined {
+export function getListedRows(record: ElementRecord): Array<string> | undefined {
   if (!record.json || !Array.isArray(record.json.rows)) return undefined;
   return (record.matrixRowValues || []).map(row => String(row));
 }
@@ -186,7 +186,7 @@ export function annotateSharedValues(index: SurveyIndex): void {
     const holdsSubElements = !!getSubElementNames(record);
     const objectValued = isObjectValued(record);
     if (!holdsSubElements && !objectValued) return;
-    const sharing = getSharingQuestions(index, record);
+    const sharing = getSharingRecords(index, record);
     if (holdsSubElements) annotateItemFields(record, sharing);
     if (objectValued) {
       const partners = sharing.filter(isObjectValued);

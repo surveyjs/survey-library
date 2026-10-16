@@ -3,7 +3,8 @@ import { classifyTargetName } from "../expression-utils";
 import { CompositeValueIssue, findCompositeValueIssues } from "../composite-values";
 import { isCheckableValue, runtimeEquals, ValueDomain, ValueSetDomain } from "../value-domain";
 import { closestMatch } from "../levenshtein";
-import { ElementRecord, TriggerRecord } from "../symbols";
+import { CIMultiMap, ElementRecord, TriggerRecord } from "../symbols";
+import { getItemFields } from "../record-fields";
 import { quoteValues } from "../message-utils";
 import { SurveyLintReasons } from "../reasons";
 
@@ -24,12 +25,18 @@ function findAlienValues(value: any, domain: ValueSetDomain): Array<any> {
     !domain.values.some(allowed => runtimeEquals(allowed, item)));
 }
 
+// A trigger target is a value path (ValueGetter: the questions of a row by the key they store their
+// value under, then the row record), so a matrix cell target names a field of the row object.
+function getTargetColumns(record: ElementRecord): CIMultiMap<ElementRecord> | undefined {
+  return record.matrixColumns ? getItemFields(record) : undefined;
+}
+
 // The question a trigger writes into: a plain name, or a matrix cell whose column owns the set.
 // An unresolvable target is trigger/unknown-target territory, not this rule.
 function getTargetDomain(ctx: LintContext, name: string): ValueSetDomain | undefined {
   const ref = classifyTargetName(name, ctx.index, ctx.options);
   if (ref.status !== "resolved" || !ref.resolvedTo) return undefined;
-  const columns = ref.resolvedTo.matrixColumns;
+  const columns = getTargetColumns(ref.resolvedTo);
   switch(ref.segments.length) {
     case 1: return asSet(ctx.getRecordValueDomain(ref.resolvedTo));
     // "matrix.column" writes into a cell, and the column owns the set of values
@@ -144,7 +151,7 @@ function resolveTargetRecord(ctx: LintContext, name: string): ElementRecord | un
   const ref = classifyTargetName(name, ctx.index, ctx.options);
   if (ref.status !== "resolved" || !ref.resolvedTo) return undefined;
   if (ref.segments.length === 1) return ref.resolvedTo;
-  const columns = ref.resolvedTo.matrixColumns;
+  const columns = getTargetColumns(ref.resolvedTo);
   if (!!columns && ref.segments.length === 2) return columns.first(ref.segments[1].name);
   return undefined;
 }

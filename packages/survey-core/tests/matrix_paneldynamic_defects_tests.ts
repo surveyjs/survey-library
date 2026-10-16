@@ -435,6 +435,94 @@ describe("a throw while panels are created does not leave the dynamic panel's va
   });
 });
 
+describe("a throw while the panel count follows an assigned value does not leave later assignments ignored", () => {
+  test("a condition of the new panels throws: the next value assigned is stored", () => {
+    const func = useThrowingFunction("throwOnceInAssignedPanelCondition");
+    try {
+      const survey = createSurvey([{ type: "text", name: "q1" }, { type: "paneldynamic", name: "p", panelCount: 1,
+        templateElements: [{ type: "text", name: "a", visibleIf: "throwOnceInAssignedPanelCondition({q1})" }] }]);
+      const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+      panel.panels;
+      func.throwNext();
+      expect(() => { panel.value = [{ a: 1 }, { a: 2 }, { a: 3 }]; }, "#1").toThrow("throwOnceInAssignedPanelCondition");
+      panel.value = [{ a: "x" }];
+      expect(panel.value, "#2").toEqual([{ a: "x" }]);
+      expect(survey.data, "#3").toEqual({ p: [{ a: "x" }] });
+      expect(panel.panels.length, "#4").toBe(1);
+    } finally {
+      FunctionFactory.Instance.unregister("throwOnceInAssignedPanelCondition");
+    }
+  });
+  test("a new panel throws when it is created: the next value from the survey is stored", () => {
+    const survey = createSurvey([{ type: "paneldynamic", name: "p", panelCount: 1, templateElements: [{ type: "throwingonattach", name: "a" }] }]);
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    panel.panels;
+    QuestionThrowingOnAttachModel.throwFor = (q: QuestionThrowingOnAttachModel): boolean => !!q.parent && q.parent !== panel.template;
+    try {
+      expect(() => { panel.value = [{ a: 1 }, { a: 2 }, { a: 3 }]; }, "#1").toThrow("attach");
+    } finally {
+      QuestionThrowingOnAttachModel.throwFor = undefined;
+    }
+    survey.setValue("p", [{ a: "x" }]);
+    expect(panel.value, "#2").toEqual([{ a: "x" }]);
+    expect(survey.data, "#3").toEqual({ p: [{ a: "x" }] });
+    expect(panel.panels.length, "#4").toBe(1);
+  });
+});
+
+describe("a throw while the dynamic matrix's row count follows an assigned value does not change how the next value is taken", () => {
+  const createMatrix = (json: any): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel } => {
+    const survey = createSurvey([Object.assign({ type: "matrixdynamic", name: "m", rowCount: 2 }, json)]);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    return { survey: survey, matrix: matrix };
+  };
+  const throwOnNextCell = (): void => {
+    QuestionThrowingOnAttachModel.throwFor = (): boolean => true;
+  };
+  test("valueChangedCallback throws while the survey assigns the value: the next value below minRowCount is padded with defaultRowValue", () => {
+    const { survey, matrix } = createMatrix({ minRowCount: 2, defaultRowValue: { c: "d" }, columns: [{ name: "c", cellType: "text" }] });
+    let isThrowing = true;
+    matrix.valueChangedCallback = (): void => {
+      if (!isThrowing) return;
+      isThrowing = false;
+      throw new Error("callback");
+    };
+    expect(() => survey.setValue("m", [{ c: 1 }, { c: 2 }, { c: 3 }]), "#1").toThrow("callback");
+    survey.setValue("m", [{ c: "x" }]);
+    expect(matrix.value, "#2").toEqual([{ c: "x" }, { c: "d" }]);
+    expect(survey.data, "#3").toEqual({ m: [{ c: "x" }, { c: "d" }] });
+    expect(matrix.rowCount, "#4").toBe(2);
+  });
+  test("a cell throws while the assigned value rebuilds the rows: the next value below minRowCount is padded with defaultRowValue", () => {
+    const { survey, matrix } = createMatrix({ minRowCount: 2, defaultRowValue: { c: "d" }, columns: [{ name: "c", cellType: "throwingonattach" }] });
+    throwOnNextCell();
+    try {
+      expect(() => { matrix.value = [{ c: 1 }, { c: 2 }, { c: 3 }, { c: 4 }]; }, "#1").toThrow("attach");
+    } finally {
+      QuestionThrowingOnAttachModel.throwFor = undefined;
+    }
+    survey.setValue("m", [{ c: "x" }]);
+    expect(matrix.value, "#2").toEqual([{ c: "x" }, { c: "d" }]);
+    expect(survey.data, "#3").toEqual({ m: [{ c: "x" }, { c: "d" }] });
+    expect(matrix.rowCount, "#4").toBe(2);
+  });
+  test("a cell throws while the assigned value rebuilds the rows: the next value below the initial row count keeps the rows", () => {
+    const { survey, matrix } = createMatrix({ columns: [{ name: "c", cellType: "throwingonattach" }] });
+    throwOnNextCell();
+    try {
+      expect(() => { matrix.value = [{ c: 1 }, { c: 2 }, { c: 3 }, { c: 4 }]; }, "#1").toThrow("attach");
+    } finally {
+      QuestionThrowingOnAttachModel.throwFor = undefined;
+    }
+    matrix.value = [{ c: "x" }];
+    expect(matrix.value, "#2").toEqual([{ c: "x" }]);
+    expect(survey.data, "#3").toEqual({ m: [{ c: "x" }] });
+    expect(matrix.rowCount, "#4").toBe(4);
+    expect(matrix.visibleRows.length, "#5").toBe(4);
+  });
+});
+
 describe("matrix: nested beginUpdate", () => {
   test("one endUpdate per beginUpdate unlocks the matrix", () => {
     const survey = createSurvey([{ type: "matrixdynamic", name: "m", rowCount: 2, columns: [{ name: "c1", cellType: "text" }] }]);

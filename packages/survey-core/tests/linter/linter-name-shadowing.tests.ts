@@ -75,7 +75,8 @@ describe("name/shadowing - valueName over an element name", () => {
     expect(flagged(panel, { type: "checkbox", choices: [{ value: "a", showCommentArea: true }] }), "checkbox with a choice comment").toBe(1);
     expect(flagged(dropdownMatrix("c1"), dropdownMatrix("c2")), "matrixdropdown + matrixdropdown").toBe(1);
     expect(flagged(panel, { type: "checkbox", choices: ["a"] }), "a plain checkbox adds no field").toBe(0);
-    expect(flagged(panel, { type: "imagemap", valuePropertyName: "car", imageLink: "x", areas: [] }), "an image map loses its fields either way").toBe(0);
+    expect(flagged(panel, { type: "imagemap", valuePropertyName: "car", imageLink: "x", areas: [] }), "an image map with valuePropertyName").toBe(1);
+    expect(flagged(panel, { type: "imagemap", multiSelect: false, valuePropertyName: "car", imageLink: "x", areas: [] }), "a single-select image map keeps plain values").toBe(0);
     expect(flagged(panel, { type: "text" }), "a scalar is a type conflict, not this").toBe(0);
     expect(flagged({ type: "text" }, { type: "text" }), "two scalars share a value").toBe(0);
     expect(flagged({ type: "multipletext", items: [{ name: "a" }] }, { type: "multipletext", items: [{ name: "b" }] }),

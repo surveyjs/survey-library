@@ -39,9 +39,9 @@ function reportBuiltIn(ctx: LintContext, name: string, nameKind: string, path: s
 // A dynamic panel or matrix knows the fields another question adds to the value they share only
 // when it declares the valueName itself (QuestionRecordsModel.getSharedQuestionFromArray): keyed by
 // its name alone it treats them as unknown - setData() reports them and clearIncorrectValues()
-// deletes them. An image map with object items loses them either way, so a valueName is no remedy.
+// deletes them.
 function losesSharedFields(shadowed: ElementRecord, record: ElementRecord): boolean {
-  return getEffectiveType(record) !== "imagemap" && addsItemFieldsTo(shadowed, record);
+  return addsItemFieldsTo(shadowed, record);
 }
 
 // Sharing a value through a valueName is a documented feature, on one side or on both (Merge

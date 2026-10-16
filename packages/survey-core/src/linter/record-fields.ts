@@ -121,18 +121,43 @@ function isObjectValued(record: ElementRecord): boolean {
   return record.kind === "question" && OBJECT_TYPES.indexOf(getEffectiveType(record)) > -1;
 }
 
+// The rows a matrixdropdown lists; undefined when the JSON lists none (rows set in code), so any
+// row may be one of them.
+function getListedRows(record: ElementRecord): Array<string> | undefined {
+  if (!record.json || !Array.isArray(record.json.rows)) return undefined;
+  return (record.matrixRowValues || []).map(row => String(row));
+}
+
+function listsRow(rows: Array<string> | undefined, row: string): boolean {
+  return !rows || rows.some(listed => listed.toLowerCase() === row.toLowerCase());
+}
+
+// A matrixdropdown row reads the record of that row only (RowsDynamicDataSource.readStoredAt),
+// so a row key holds the columns of the matrixdropdowns that list the row.
 function annotateMergedObject(record: ElementRecord, partners: Array<ElementRecord>): void {
-  const merged: MergedObjectKeys = { keys: [], dropdownRows: [], columns: new CIMultiMap<ElementRecord>() };
+  const merged: MergedObjectKeys = { keys: [], rowFields: new CIMap<CIMultiMap<ElementRecord>>() };
   partners.forEach(partner => {
     if (partner.multipleTextItems) merged.keys.push(...partner.multipleTextItems.names());
-    if (!Array.isArray(partner.matrixRowValues)) return;
-    const rows = partner.matrixRowValues.map(row => String(row));
-    merged.keys.push(...rows);
-    if (getEffectiveType(partner) === "matrixdropdown") {
-      merged.dropdownRows.push(...rows);
-      addOwnItemFields(partner, merged.columns);
-    }
+    if (Array.isArray(partner.matrixRowValues)) merged.keys.push(...partner.matrixRowValues.map(row => String(row)));
   });
+  const dropdowns = partners.filter(partner => getEffectiveType(partner) === "matrixdropdown");
+  dropdowns.forEach(dropdown => (getListedRows(dropdown) || []).forEach(row => {
+    if (merged.rowFields.has(row)) return;
+    const fields = new CIMultiMap<ElementRecord>();
+    dropdowns.forEach(other => {
+      if (listsRow(getListedRows(other), row)) addOwnItemFields(other, fields);
+    });
+    merged.rowFields.set(row, fields);
+  }));
+  const ownRows = getEffectiveType(record) === "matrixdropdown" ? getListedRows(record) : undefined;
+  if (!!ownRows) {
+    const readers = dropdowns.filter(dropdown => dropdown === record ||
+      ownRows.some(row => listsRow(getListedRows(dropdown), row)));
+    if (readers.length < dropdowns.length) {
+      merged.ownRowFields = new CIMultiMap<ElementRecord>();
+      readers.forEach(dropdown => addOwnItemFields(dropdown, merged.ownRowFields));
+    }
+  }
   record.mergedObject = merged;
 }
 
@@ -180,5 +205,13 @@ export function getItemFields(record: ElementRecord): CIMultiMap<ElementRecord> 
 // The fields the object of a {row.x}/{panel.x} scope holds.
 export function getFrameItemFields(frame: ScopeFrame): CIMultiMap<ElementRecord> | undefined {
   if (frame.kind !== "panelDynamic" && frame.kind !== "matrixRow") return undefined;
-  return getItemFields(frame.owner);
+  const merged = frame.owner.mergedObject;
+  return !!merged && !!merged.ownRowFields ? merged.ownRowFields : getItemFields(frame.owner);
+}
+
+// The fields of the object a matrixdropdown value keeps under one row key; undefined for a key
+// that holds no such object (a multiple-text item or a single-choice matrix row).
+export function getRowFields(record: ElementRecord, rowKey: string): CIMultiMap<ElementRecord> | undefined {
+  if (!!record.mergedObject) return record.mergedObject.rowFields.get(rowKey);
+  return getEffectiveType(record) === "matrixdropdown" ? getItemFields(record) : undefined;
 }

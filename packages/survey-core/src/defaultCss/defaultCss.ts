@@ -388,6 +388,7 @@ export var defaultCss = {
     sliderText: "sd-boolean__thumb-text",
     slider: "sd-boolean__thumb",
     sliderGhost: "sd-boolean__thumb-ghost",
+    clearButton: "",
     //radio
     radioItem: "sd-item sd-radio",
     radioItemChecked: "sd-item--checked sd-radio--checked",

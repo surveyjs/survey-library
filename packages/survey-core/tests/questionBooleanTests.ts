@@ -6,6 +6,7 @@ import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
+import { IAction } from "../src/actions/action";
 
 import { describe, test, expect } from "vitest";
 describe("boolean", () => {
@@ -684,6 +685,72 @@ describe("boolean", () => {
     q1.displayMode = "custom";
     expect(q1.renderAs).toBe("my-custom-renderer");
     expect(q1.toJSON()).toEqual({ name: "q1", renderAs: "my-custom-renderer" });
+  });
+  test("allowClear: serialization, Bug#11936", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "boolean", name: "q1", allowClear: true },
+        { type: "boolean", name: "q2" }
+      ]
+    });
+    const q1 = <QuestionBooleanModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionBooleanModel>survey.getQuestionByName("q2");
+    expect(q1.allowClear, "allowClear is loaded from JSON").toBe(true);
+    expect(q2.allowClear, "allowClear is false by default").toBe(false);
+    expect(q1.toJSON(), "allowClear is serialized").toEqual({ name: "q1", allowClear: true });
+    expect(q2.toJSON(), "default allowClear is not serialized").toEqual({ name: "q2" });
+    expect(q1.getConditionJson().allowClear, "allowClear is removed from the condition JSON").toBeUndefined();
+  });
+  test("allowClear: the Clear title action resets the value, Bug#11936", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "boolean", name: "q1", allowClear: true }]
+    });
+    survey.css = defaultCss;
+    const q1 = <QuestionBooleanModel>survey.getQuestionByName("q1");
+    const action = <IAction>q1.getTitleActions()[0];
+    expect(action.title, "the action uses the clearCaption string").toBe("Clear");
+    expect(action.visible, "the action is visible when allowClear is enabled").toBe(true);
+
+    q1.booleanValue = true;
+    expect(survey.data, "the value is set").toEqual({ q1: true });
+    action.action();
+    expect(q1.isEmpty(), "the value is cleared").toBe(true);
+    expect(q1.isIndeterminate, "the question returns to the unanswered state").toBe(true);
+    expect(survey.data, "the value is removed from survey data").toEqual({});
+
+    q1.booleanValue = false;
+    action.action();
+    expect(q1.isEmpty(), "a false value is cleared as well").toBe(true);
+
+    q1.allowClear = false;
+    expect(action.visible, "the action is hidden when allowClear is disabled").toBe(false);
+  });
+  test("allowClear: the Clear title action is hidden in read-only and display modes, Bug#11936", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "boolean", name: "q1", allowClear: true, defaultValue: "true" }]
+    });
+    const q1 = <QuestionBooleanModel>survey.getQuestionByName("q1");
+    const action = <IAction>q1.getTitleActions()[0];
+    expect(action.visible, "visible by default").toBe(true);
+
+    q1.readOnly = true;
+    expect(action.visible, "hidden for a read-only question").toBe(false);
+    q1.readOnly = false;
+    expect(action.visible, "visible again").toBe(true);
+
+    survey.readOnly = true;
+    expect(action.visible, "hidden in survey read-only mode").toBe(false);
+    survey.readOnly = false;
+    expect(action.visible, "visible after leaving read-only mode").toBe(true);
+  });
+  test("allowClear: no Clear title action in design mode, Bug#11936", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [{ type: "boolean", name: "q1", allowClear: true }]
+    });
+    const q1 = <QuestionBooleanModel>survey.getQuestionByName("q1");
+    expect(q1.getTitleActions().length, "no title actions in design mode").toBe(0);
   });
 
 });

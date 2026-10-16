@@ -8,6 +8,8 @@ import { LocalizableString } from "./localizablestring";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { preventDefaults } from "./utils/dom-utils";
 import { ActionContainer } from "./actions/container";
+import { Action } from "./actions/action";
+import { ComputedUpdater } from "./base";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { RendererFactory } from "./rendererFactory";
 
@@ -160,6 +162,12 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
    * By default, the order is [ "No", "Yes"]. Enable this property to reorder the answers as follows: [ "Yes", "No" ].
    */
   @property({ defaultValue: false }) swapOrder: boolean;
+  // Once answered, a Boolean question cannot be returned to the unanswered state from the UI.
+  // allowClear adds the same "Clear" title action as the Radio Button Group question (#11936).
+  @property({ defaultValue: false }) allowClear: boolean;
+  public get canShowClearButton(): boolean {
+    return this.allowClear && !this.isReadOnly;
+  }
   get locLabelLeft(): LocalizableString {
     return this.swapOrder ? this.locLabelTrue : this.locLabelFalse;
   }
@@ -489,6 +497,29 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   protected createActionContainer(allowAdaptiveActions?: boolean): ActionContainer {
     return super.createActionContainer(this.getRenderAsValue() !== "checkbox");
   }
+  protected getDefaultTitleActions(): Array<Action> {
+    const actions = [];
+    if (!this.isDesignMode) {
+      const clearAction = new Action(
+        {
+          locTitleName: "clearCaption",
+          id: `sv-clr-btn-${this.id}`,
+          action: () => { this.clearValueFromUI(); },
+          innerCss: this.cssClasses.clearButton,
+          appearance: { style: "alert" },
+          visible: <any>new ComputedUpdater(() => this.canShowClearButton),
+          ariaLabelledBy: this.a11y_input_ariaLabelledBy
+        }
+      );
+      actions.push(clearAction);
+    }
+    return actions;
+  }
+  public getConditionJson(operator: string = null, path: string = null): any {
+    const json = super.getConditionJson(operator, path);
+    delete json["allowClear"];
+    return json;
+  }
 
   protected getIsTitleRenderedAsString(): boolean { return false; }
 
@@ -518,6 +549,7 @@ Serializer.addClass(
     "valueTrue",
     "valueFalse",
     { name: "swapOrder:boolean" },
+    { name: "allowClear:boolean" },
     {
       name: "displayMode",
       default: "segmented",

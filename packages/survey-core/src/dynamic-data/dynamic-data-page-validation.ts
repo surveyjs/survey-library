@@ -3,7 +3,6 @@
 // to the ancestor that rebuilds it (IDynamicDataPageState). The page validation itself is question-side:
 // DynamicDataPageValidation in question_records_page_validation.ts.
 import { Helpers } from "../helpers";
-import { DynamicDataList } from "./dynamic-data-list";
 
 /* The group key of a value the duplicate checks compare by, in two namespaces that never meet. A
    scalar is one String() key, so that 1 and "1" are one key; an object or an array is keyed by its
@@ -57,8 +56,8 @@ export function groupByDuplicateKey<T>(entries: Array<T>, getValue: (entry: T) =
    gives the page of its latest visible record, and the check on that page marks every object of the
    group there. A group with no visible record gives no page: it has no record to put the error on.
    Returns the pages, without repeats. */
-export function findDuplicatePages(list: DynamicDataList, indexes: Array<number>, readKey: (index: number) => any,
-  caseSensitive: boolean): Array<number> {
+export function findDuplicatePages(list: { getVisibleIndexes(): Array<number>, getPageOfVisibleIndex(visibleIndex: number): number },
+  indexes: Array<number>, readKey: (index: number) => any, caseSensitive: boolean): Array<number> {
   const visiblePos: { [index: number]: number } = {};
   list.getVisibleIndexes().forEach((index: number, pos: number): void => { visiblePos[index] = pos; });
   const pages: Array<number> = [];

@@ -267,12 +267,10 @@ export abstract class QuestionRecordsModel extends Question {
      objects are in record order. */
   private seedItemRecordsVisibility(): void {
     if (this.isPagingActive) return;
-    const list = this._dataList;
-    for (let i = 0; ; i++) {
-      const item = this.getItem(i);
-      if (!item) return;
-      if (!this.isItemVisible(item)) list.setRecordVisible(i, false);
-    }
+    this._dataList.setRecordsVisible((index: number): boolean => {
+      const item = this.getItem(index);
+      return !item || this.isItemVisible(item);
+    });
   }
   /* The paging helper gets an accessor and not the list: the list is created on demand, and the
      helper is first used while the list is being created. */
@@ -757,13 +755,10 @@ export abstract class QuestionRecordsModel extends Question {
       func(index, position > -1 ? this.getItem(position) || undefined : undefined, position);
     }
   }
-  /* The records of the view in view order, each with its object (undefined for a record without one)
-     and its position in the view: visibleOnly walks the visible records, otherwise every record the view
-     creates. For a visible record the position plus getRecordNumberOffset() is its visible index in the
-     whole list. */
-  protected forEachViewRecord(visibleOnly: boolean, func: (index: number, item: QuestionRecordItem, viewPosition: number) => void): void {
-    let viewPosition = 0;
-    this.forEachRecordItem(this.getViewIndexes(visibleOnly), (index: number, item: QuestionRecordItem): void => { func(index, item, viewPosition++); });
+  /* The records of the view in view order, each with its object (undefined for a record without one):
+     visibleOnly walks the visible records, otherwise every record the view creates. */
+  protected forEachViewRecord(visibleOnly: boolean, func: (index: number, item: QuestionRecordItem) => void): void {
+    this.forEachRecordItem(this.getViewIndexes(visibleOnly), (index: number, item: QuestionRecordItem): void => { func(index, item); });
   }
   protected getViewIndexes(visibleOnly: boolean): Array<number> {
     return visibleOnly ? this.dataList.getVisibleIndexes() : this.dataList.getCreatedIndexes();
@@ -1379,7 +1374,7 @@ export abstract class QuestionRecordsModel extends Question {
      changed. */
   protected showPageOfRecord(recordIndex: number, keepPosition?: (visibleIndex: number) => void): boolean {
     if (!this.isPagedByList || recordIndex < 0) return false;
-    const visibleIndex = this.dataList.getVisibleIndexes().indexOf(recordIndex);
+    const visibleIndex = this.dataList.getGlobalVisibleIndex(recordIndex);
     if (visibleIndex < 0) return false;
     return this.showPageOfVisibleIndex(visibleIndex, !!keepPosition ? (): void => keepPosition(visibleIndex) : undefined);
   }
@@ -2303,7 +2298,7 @@ export abstract class QuestionRecordsModel extends Question {
     if (!this.isPagedByList || recordIndex < 0) return false;
     this.markRecordEdited(recordIndex);
     if (select) {
-      const visibleIndex = this.dataList.getVisibleIndexes().indexOf(recordIndex);
+      const visibleIndex = this.dataList.getGlobalVisibleIndex(recordIndex);
       if (visibleIndex > -1)this.keepPendingVisibleIndex(visibleIndex);
     }
     return this.showPageOfRecord(recordIndex);

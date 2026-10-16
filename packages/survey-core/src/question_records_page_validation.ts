@@ -219,17 +219,14 @@ export class DynamicDataPageValidation {
   public validateEditedRecordsQuietly(extraPages?: Array<number>): boolean {
     if (!this.owner.canTrackEditedRecords()) return true;
     const list = this.owner.getDataList();
-    const pageSize = list.pageSize;
-    if (pageSize <= 0) return true;
-    const visible = list.getVisibleIndexes();
+    if (list.pageSize <= 0) return true;
     const startPage = list.pageIndex;
     return this.getPagesToValidate(extraPages).every((page: number): boolean => page === startPage ||
-      visible.slice(page * pageSize, (page + 1) * pageSize).every((index: number): boolean => this.owner.isRecordValidQuietly(index)));
+      list.getVisibleIndexesOfPage(page).every((index: number): boolean => this.owner.isRecordValidQuietly(index)));
   }
   // The pages a full validation visits: extraPages and the pages of the edited records, in order.
   private getPagesToValidate(extraPages: Array<number>): Array<number> {
     const list = this.owner.getDataList();
-    const pageSize = list.pageSize;
     const pages: Array<number> = Array.isArray(extraPages) ? extraPages.slice() : [];
     if (this.edited.length > 0) {
       const editedHash: { [index: number]: boolean } = {};
@@ -237,7 +234,7 @@ export class DynamicDataPageValidation {
       const visible = list.getVisibleIndexes();
       for (let i = 0; i < visible.length; i++) {
         if (!editedHash[visible[i]]) continue;
-        const page = Math.floor(i / pageSize);
+        const page = list.getPageOfVisibleIndex(i);
         if (pages.indexOf(page) < 0) pages.push(page);
       }
     }

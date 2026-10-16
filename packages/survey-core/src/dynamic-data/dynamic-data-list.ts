@@ -16,6 +16,7 @@ import { ArrayDynamicDataSource, hasFixedMembership, isLocalSource, LocalDynamic
 import { DynamicDataMembership } from "./dynamic-data-membership";
 import { DynamicDataReadState } from "./dynamic-data-read-state";
 import { DynamicDataRecordVisibility, IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data-record-visibility";
+import { DynamicDataViewIndexes } from "./dynamic-data-view-indexes";
 
 // Index vocabulary - binding for every method and parameter name in this file:
 //
@@ -63,6 +64,8 @@ export class DynamicDataList {
     getLocalSort: (): Array<IDynamicDataSort> => this.isWindowWholeStorage ? this._sort : [],
     isMembershipFrozen: (): boolean => this.isViewFrozenOnEdit && this.hasLocalViews
   });
+  // The index arithmetic over the views (dynamic-data-view-indexes.ts); the list delegates to it.
+  private viewIndexes: DynamicDataViewIndexes = new DynamicDataViewIndexes(this, this.membership);
   // What the window in force is and how it was read (dynamic-data-read-state.ts).
   private readState: DynamicDataReadState = new DynamicDataReadState();
   /* Active while the list applies a write of its own. A write-through source assigns the owner's
@@ -544,22 +547,9 @@ export class DynamicDataList {
   public get visibleCount(): number {
     return this.getVisibleIndexes().length;
   }
-  /* The visible records of the whole view: for a source that pages itself the most records known to
-     exist (a lower bound while the total is unknown), otherwise the visible records the list holds. */
-  public get globalVisibleCount(): number {
-    return this.isPagedBySource ? this.knownCount : this.visibleCount;
-  }
-  /* How far a number of the whole view reaches: the records counted, or further where the window holds
-     more - a page of a source that pages itself keeps the records added or edited on it, wherever the
-     source put them, so it may end past the total. The counts (globalVisibleCount, count, pageCount)
-     stay the source's. Over the visible records, and over the created ones (owner-hidden included). */
-  public get globalVisibleExtent(): number {
-    return Math.max(this.globalVisibleCount, this.getRecordNumberOffset() + this.visibleCount);
-  }
-  public get globalCreatedExtent(): number {
-    const created = this.getCreatedIndexes().length;
-    return Math.max(this.isPagedBySource ? this.knownCount : created, this.getRecordNumberOffset() + created);
-  }
+  public get globalVisibleCount(): number { return this.viewIndexes.globalVisibleCount; }
+  public get globalVisibleExtent(): number { return this.viewIndexes.globalVisibleExtent; }
+  public get globalCreatedExtent(): number { return this.viewIndexes.globalCreatedExtent; }
   // The source reported more records behind the window and no total: navigation may go past the last
   // known record.
   public get hasRecordBeyondKnown(): boolean {
@@ -846,20 +836,8 @@ export class DynamicDataList {
   public getCreatedIndexes(): Array<number> {
     return this.membership.getCreatedIndexes();
   }
-  public createdIndexToIndex(createdIndex: number): number {
-    if (!this.hasView) {
-      return createdIndex >= 0 && createdIndex < this.recordCount ? createdIndex : -1;
-    }
-    const indexes = this.getCreatedIndexes();
-    if (createdIndex < 0 || createdIndex >= indexes.length) return -1;
-    return indexes[createdIndex];
-  }
-  public indexToCreatedIndex(index: number): number {
-    if (!this.hasView) {
-      return index >= 0 && index < this.recordCount ? index : -1;
-    }
-    return this.getCreatedIndexes().indexOf(index);
-  }
+  public createdIndexToIndex(createdIndex: number): number { return this.viewIndexes.createdIndexToIndex(createdIndex); }
+  public indexToCreatedIndex(index: number): number { return this.viewIndexes.indexToCreatedIndex(index); }
   // A filter or a sort is set: without one the created indexes are the record indexes and the owner
   // keeps one object per record.
   public get hasView(): boolean {
@@ -868,64 +846,18 @@ export class DynamicDataList {
   public getVisibleIndexes(): Array<number> {
     return this.membership.getVisibleIndexes();
   }
-  /* The owner's side of the index arithmetic matrixdynamic and paneldynamic share. The list answers
-     from its own state: the offset is windowOffset, which only a paged read moves - and a question
-     reads a paging source only when it was assigned - and paging is a page size above 0, which the
-     paging controller sets to 0 in design mode on its next sync. */
-  public getPageStartGlobalVisibleIndex(): number {
-    // A paging decision, not offset arithmetic: a source without paging has offset 0 on every page.
-    if (this.isPagedBySource) return this.windowOffset;
-    return this._pageSize > 0 ? this.pageIndex * this._pageSize : 0;
-  }
-  // Record index + this = the record number the respondent sees ({panelIndex}, {rowIndex}).
-  public getRecordNumberOffset(): number {
-    return this.windowOffset;
-  }
-  // -1 when the record is not visible.
-  public getGlobalVisibleIndex(index: number): number {
-    const pos = this.getVisibleIndexes().indexOf(index);
-    return pos < 0 ? -1 : pos + this.getRecordNumberOffset();
-  }
-  // -1 when there is none: a remote window holds nothing beyond itself.
-  public getIndexAtGlobalVisibleIndex(globalVisibleIndex: number): number {
-    return this.getIndexAtGlobalPosition(this.getVisibleIndexes(), globalVisibleIndex);
-  }
-  // The same over the created records: a position of the whole view that counts the owner-hidden ones.
-  public getIndexAtGlobalCreatedIndex(globalCreatedIndex: number): number {
-    return this.getIndexAtGlobalPosition(this.getCreatedIndexes(), globalCreatedIndex);
-  }
-  private getIndexAtGlobalPosition(indexes: Array<number>, position: number): number {
-    const at = position - this.getRecordNumberOffset();
-    return at < 0 || at >= indexes.length ? -1 : indexes[at];
-  }
-  /* The record an insertion at a position of the whole view goes in front of, as a record index of
-     the loaded window: the record at that visible position, or loadedCount (append) past the last
-     visible record of the whole view. -1: a source that pages itself does not hold that position -
-     the caller refuses and reports it. globalVisibleIndex counts the visible records of the whole
-     view, as getGlobalVisibleIndex does. A negative position appends. */
-  public getInsertIndexAtVisibleIndex(globalVisibleIndex: number): number {
-    if (globalVisibleIndex < 0) return this.loadedCount;
-    return this.getInsertIndexAtGlobalPosition(this.getVisibleIndexes(), globalVisibleIndex);
-  }
-  // The same over the created records (owner-hidden included); a negative position is the first one.
-  public getInsertIndexAtCreatedIndex(globalCreatedIndex: number): number {
-    return this.getInsertIndexAtGlobalPosition(this.getCreatedIndexes(), Math.max(0, globalCreatedIndex));
-  }
-  private getInsertIndexAtGlobalPosition(indexes: Array<number>, position: number): number {
-    const at = position - this.getRecordNumberOffset();
-    if (at >= 0 && at < indexes.length) return indexes[at];
-    if (at === indexes.length) return this.loadedCount;
-    // Outside the window: not loaded while the position is inside the whole view, an append past it.
-    const viewCount = this.isPagedBySource ? this.knownCount : indexes.length;
-    return position < viewCount ? -1 : this.loadedCount;
-  }
-  /* The same for a position among the objects (the materialized records, which under paging is the
-     page): the record at that position, or loadedCount at or past the last one. A negative position
-     is the first one. */
-  public getInsertIndexAtMaterializedPosition(position: number): number {
-    const p = Math.max(0, position);
-    return p < this.getMaterializedIndexes().length ? this.materializedIndexToIndex(p) : this.loadedCount;
-  }
+  public getPageStartGlobalVisibleIndex(): number { return this.viewIndexes.getPageStartGlobalVisibleIndex(); }
+  public getRecordNumberOffset(): number { return this.viewIndexes.getRecordNumberOffset(); }
+  public getGlobalVisibleIndex(index: number): number { return this.viewIndexes.getGlobalVisibleIndex(index); }
+  public getIndexAtGlobalVisibleIndex(globalVisibleIndex: number): number { return this.viewIndexes.getIndexAtGlobalVisibleIndex(globalVisibleIndex); }
+  public getIndexAtGlobalCreatedIndex(globalCreatedIndex: number): number { return this.viewIndexes.getIndexAtGlobalCreatedIndex(globalCreatedIndex); }
+  public getInsertIndexAtVisibleIndex(globalVisibleIndex: number): number { return this.viewIndexes.getInsertIndexAtVisibleIndex(globalVisibleIndex); }
+  public getInsertIndexAtCreatedIndex(globalCreatedIndex: number): number { return this.viewIndexes.getInsertIndexAtCreatedIndex(globalCreatedIndex); }
+  public getInsertIndexAtMaterializedPosition(position: number): number { return this.viewIndexes.getInsertIndexAtMaterializedPosition(position); }
+  public getMaterializedIndexes(): Array<number> { return this.viewIndexes.getMaterializedIndexes(); }
+  public materializedIndexToIndex(position: number): number { return this.viewIndexes.materializedIndexToIndex(position); }
+  public indexToMaterializedIndex(index: number): number { return this.viewIndexes.indexToMaterializedIndex(index); }
+  public getMaterializedPositions(): { [index: number]: number } { return this.viewIndexes.getMaterializedPositions(); }
   // The record index of a record object in the loaded window, -1 when no record is that object.
   public indexOfRecord(record: any): number {
     // The count is the guard, as in getRecord; the array is read once.
@@ -935,33 +867,6 @@ export class DynamicDataList {
       if (records[i] === record) return i;
     }
     return -1;
-  }
-  /* The records an owner materializes an object for, in object order. The view answers every DATA
-     question (which records are in it, their order, the totals, the neighbours); this answers every
-     OBJECT question (which record a panel or a row holds). Without paging they are the created
-     indexes - owner-hidden records included, the owner keeps an object for them. With paging they
-     are the current page, which holds visible records only: an owner that pages builds nothing for a
-     record that is not on it. It lives here and not on the owner because it is the page cut of the
-     view, and the list owns both. */
-  public getMaterializedIndexes(): Array<number> {
-    return this._pageSize > 0 ? this.getPageIndexes() : this.getCreatedIndexes();
-  }
-  public materializedIndexToIndex(position: number): number {
-    if (this._pageSize <= 0) return this.createdIndexToIndex(position);
-    const indexes = this.getPageIndexes();
-    return position >= 0 && position < indexes.length ? indexes[position] : -1;
-  }
-  public indexToMaterializedIndex(index: number): number {
-    if (this._pageSize <= 0) return this.indexToCreatedIndex(index);
-    const position = this.getMaterializedPositions()[index];
-    return position !== undefined ? position : -1;
-  }
-  /* record index -> position among the materialized records, for the records that have an object.
-     Memoized on the identity of the materialized array: the list never changes a view array in
-     place, it replaces it, so a new array is the only way the map can go stale. A content change of
-     the same length is seen through invalidateViews(), the limit the arrays themselves have. */
-  public getMaterializedPositions(): { [index: number]: number } {
-    return this.membership.getMaterializedPositions(this.getMaterializedIndexes());
   }
   /* The owner-visibility of many records at once, decided without an object per record. One view
      reset and one page clamp for the whole run instead of one per record: setRecordVisible
@@ -1029,11 +934,8 @@ export class DynamicDataList {
   public getPageIndexes(): Array<number> {
     return this.membership.getPageIndexes(this._pageSize, this._pageIndex, this.isPagedBySource);
   }
-  // The page that holds a visibleIndex (unpaged, see the vocabulary above); 0 while the list does not page.
-  public getPageOfVisibleIndex(visibleIndex: number): number {
-    if (this._pageSize <= 0 || visibleIndex < 0) return 0;
-    return Math.floor(visibleIndex / this._pageSize);
-  }
+  public getPageOfVisibleIndex(visibleIndex: number): number { return this.viewIndexes.getPageOfVisibleIndex(visibleIndex); }
+  public getVisibleIndexesOfPage(page: number): Array<number> { return this.viewIndexes.getVisibleIndexesOfPage(page); }
 
   // A survey expression over the record fields, e.g. "{country} = 'de' and {age} > 18". An empty
   // string is no filter.

@@ -133,6 +133,10 @@ function createPageDropdownAction(owner: IRecordsPagerOwner): Action {
       list.forceShowFilter = state.pageCount >= pagerEdgeMinPageCount;
       list.setItems(items);
       list.selectedItem = list.actions[state.pageIndex];
+      /* The popup measures itself as it shows, before a renderer has drawn the pages built here: on the
+         first open it would see an empty list, fit it below the dropdown and leave the pages running off
+         the window. It is measured again once the pages are drawn. */
+      action.popupModel.recalculatePositionAfterRender(true);
     }
   }, owner.getLocOwner());
   const list = <ListModel>action.data;

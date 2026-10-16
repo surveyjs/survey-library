@@ -1,4 +1,4 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 import { SurveyModel } from "../../src/survey";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { FunctionFactory } from "../../src/functionsfactory";
@@ -260,5 +260,50 @@ describe("Pager: the page list on a phone is a sheet", () => {
   test("the list shows its filter from pagerEdgeMinPageCount pages", () => {
     expect(openPageList(createMatrix(9).recordsBar.pagerActions).showFilter, "#1").toBe(false);
     expect(openPageList(createMatrix(10).recordsBar.pagerActions).showFilter, "#2").toBe(true);
+  });
+});
+
+describe("Pager: the page list is measured once its pages are drawn", () => {
+  // jsdom does no layout: the dropdown button and the list report the sizes given here.
+  function stubLayout(el: HTMLElement, rect: { left: number, top: number, width: number, height: number }): void {
+    Object.defineProperty(el, "offsetHeight", { configurable: true, value: rect.height });
+    Object.defineProperty(el, "scrollHeight", { configurable: true, value: rect.height });
+    el.getBoundingClientRect = () => <DOMRect>{ x: rect.left, y: rect.top, left: rect.left, top: rect.top,
+      width: rect.width, height: rect.height, right: rect.left + rect.width, bottom: rect.top + rect.height };
+  }
+  function stubListHeight(root: HTMLElement, height: number): void {
+    stubLayout(<HTMLElement>root.querySelector(".sv-popup__container"), { left: 0, top: 0, width: 80, height: height + 2 });
+    stubLayout(<HTMLElement>root.querySelector(".sv-popup__scrolling-content"), { left: 0, top: 0, width: 80, height: height });
+  }
+  test("the first open: the list is measured empty, then again with its pages, and opens above the dropdown", () => {
+    vi.useFakeTimers();
+    try {
+      const page = getAction(createMatrix(12).recordsBar.pagerActions, "sv-pager-page");
+      // The popup's root right after the dropdown button, as the renderers place it.
+      const host = document.createElement("div");
+      const button = document.createElement("button");
+      const root = document.createElement("div");
+      root.innerHTML = "<div class=\"sv-popup\"><div class=\"sv-popup__container\"><div class=\"sv-popup__scrolling-content\"></div></div></div>";
+      host.appendChild(button);
+      host.appendChild(root);
+      document.body.appendChild(host);
+      expect(window.innerHeight, "#0: jsdom's window").toBe(768);
+      stubLayout(button, { left: 400, top: 600, width: 60, height: 32 });
+      const viewModel = new PopupDropdownViewModel(page.popupModel);
+      viewModel.setComponentElement(root);
+      // The renderer has not drawn the pages yet when the popup shows and measures itself.
+      stubListHeight(root, 56);
+      page.action(page, true);
+      viewModel.updateOnShowing();
+      expect([viewModel.top, viewModel.height], "#1: an empty list fits below the button's top").toEqual(["600px", "auto"]);
+      stubListHeight(root, 300);
+      vi.advanceTimersByTime(10);
+      expect([viewModel.top, viewModel.height], "#2: the pages do not fit below: the list ends at the button's bottom").toEqual(["330px", "302px"]);
+      page.popupModel.hide();
+      viewModel.dispose();
+      host.remove();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

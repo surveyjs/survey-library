@@ -465,6 +465,30 @@ frameworks.forEach((framework) => {
       await expect(nameInput).toHaveValue("panel3");
     });
 
+    test("the page list opens inside the window on its first open, near the window's bottom", async ({ page }) => {
+      await page.setViewportSize({ width: 1000, height: 600 });
+      await initSurvey(page, framework, {
+        elements: [
+          { type: "html", name: "spacer", html: "<div style='height: 900px'></div>" },
+          {
+            type: "paneldynamic",
+            name: "panel",
+            pageSize: 1,
+            defaultValue: [1, 2, 3, 4, 5].map(i => ({ name: "panel" + i })),
+            templateElements: [{ type: "text", name: "name" }],
+          },
+          { type: "html", name: "spacer2", html: "<div style='height: 900px'></div>" },
+        ],
+      });
+      const pageButton = page.locator(".sd-paneldynamic__pager").getByRole("button", { name: "Page 1 of 5" });
+      // The dropdown 120px above the window's bottom: the five pages do not fit below it.
+      await pageButton.evaluate(el => { window.scrollBy(0, el.getBoundingClientRect().top - 480); });
+      await pageButton.click();
+      for (const pageNumber of ["1", "5"]) {
+        await expect(page.getByRole("menuitemradio", { name: pageNumber, exact: true }), "page " + pageNumber).toBeInViewport({ ratio: 1 });
+      }
+    });
+
     test("the pager's page list on a phone: a pick waits for Apply, closing the sheet drops it", async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 812 });
       await initSurvey(page, framework, {

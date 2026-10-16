@@ -106,6 +106,13 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
     },
   },
   {
+    ruleId: "name/shadowing", reason: "dropdownRowConflict",
+    json: { elements: [
+      { type: "matrixdropdown", name: "md", rows: ["r1"], columns: [{ name: "c", cellType: "text" }] },
+      { type: "matrix", name: "m", valueName: "md", rows: ["r1"], columns: ["x", "y"] },
+    ] },
+  },
+  {
     ruleId: "name/shadowing", reason: "variableShadowsQuestion",
     json: {
       elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],

@@ -376,3 +376,33 @@ describe("name/shadowing - configuration", () => {
     expect(result.findings.filter(f => f.ruleId === "name/shadowing")).toHaveLength(0);
   });
 });
+
+// A matrixdropdown keeps an object of cells under a row key; a single-choice matrix keeps the column
+// value there and a multiple text the item text. One key holds one of them, and the runtime deletes
+// the other side.
+describe("name/shadowing - a matrixdropdown row a single value takes", () => {
+  const md = (rows?: Array<string>): any => Object.assign({ type: "matrixdropdown", name: "md",
+    columns: [{ name: "c", cellType: "text" }] }, rows ? { rows: rows } : {});
+  const matrix = (rows: Array<string>): any => ({ type: "matrix", name: "m", valueName: "md", rows: rows, columns: ["x", "y"] });
+  const conflicts = (json: any): Array<string> => byRule(json).filter(f => f.reason === "dropdownRowConflict")
+    .map(f => f.path + " " + f.messageData.key + " " + f.messageData.name + "/" + f.messageData.otherName);
+  test("a row of a single-choice matrix on the same data key", () => {
+    const findings = byRule({ elements: [md(["r1"]), matrix(["r1"])] });
+    expect(findings.map(f => f.reason + " @ " + f.path)).toEqual(["dropdownRowConflict @ elements[1]"]);
+    expect(findings[0].messageData).toEqual({ reason: "dropdownRowConflict", key: "r1", name: "m", otherName: "md" });
+    expect(findings[0].related.map(r => r.path).sort()).toEqual(["elements[0]", "elements[1]"]);
+  });
+  test("an item of a multiple text on the same data key", () => {
+    expect(conflicts({ elements: [md(["r1"]), { type: "multipletext", name: "mt", valueName: "md", items: [{ name: "r1" }] }] }))
+      .toEqual(["elements[1] r1 mt/md"]);
+  });
+  test("distinct keys, rows not listed and two matrixdropdowns are fine", () => {
+    expect(conflicts({ elements: [md(["r1"]), matrix(["r2"])] })).toEqual([]);
+    expect(conflicts({ elements: [md(), matrix(["r1"])] })).toEqual([]);
+    expect(conflicts({ elements: [md(["r1"]), Object.assign(md(["r1"]), { name: "md2", valueName: "md" })] })).toEqual([]);
+  });
+  test("inside one template", () => {
+    expect(conflicts({ elements: [{ type: "paneldynamic", name: "p", templateElements: [md(["r1"]), matrix(["r1"])] }] }))
+      .toEqual(["elements[0].templateElements[1] r1 m/md"]);
+  });
+});

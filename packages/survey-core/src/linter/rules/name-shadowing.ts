@@ -3,7 +3,7 @@ import { builtInVariableNames, equalsCI, isBuiltInVariable, stripCommentSuffix }
 import { ElementRecord, getCapturingFrame, getEffectiveType, TriggerRecord } from "../symbols";
 import { isMatrixDropdown, isPropertyOn } from "../metadata";
 import { hasOtherItem } from "../value-types";
-import { addsItemFieldsTo, getDataKey, getDataKeyRecords } from "../record-fields";
+import { addsItemFieldsTo, getDataKey, getDataKeyRecords, getListedRows, getSharingRecords } from "../record-fields";
 import { ILintRelated } from "../types";
 import { SurveyLintReasons } from "../reasons";
 
@@ -131,6 +131,44 @@ function checkDerivedKeyCollision(ctx: LintContext, record: ElementRecord): void
   check(totalBase, totalsSuffix, reasons.totalKeyCollision, hasTotals, "totals");
 }
 
+// The keys a question on the data key fills with a single value: the rows of a single-choice matrix
+// (as the JSON lists them), the items of a multiple text.
+function getSingleValueKeys(record: ElementRecord): Array<string> {
+  const type = getEffectiveType(record);
+  if (type === "matrix") return getListedRows(record) || [];
+  if (type === "multipletext" && !!record.multipleTextItems) return record.multipleTextItems.names();
+  return [];
+}
+
+// A matrixdropdown keeps an object of cells under a row key, a single-choice matrix the column
+// value and a multiple text the item text: on one key the runtime stores one of them and deletes the
+// other side (QuestionMatrixModel / QuestionMatrixDropdownModel clearIncorrectValues).
+function checkDropdownRowConflict(ctx: LintContext, record: ElementRecord, reported: Set<string>): void {
+  if (record.kind !== "question" || getEffectiveType(record) !== "matrixdropdown") return;
+  const rows = getListedRows(record);
+  if (!rows) return;
+  getSharingRecords(ctx.index, record).forEach(other => {
+    getSingleValueKeys(other).forEach(key => {
+      const row = rows.filter(r => equalsCI(r, key))[0];
+      const id = other.path + "|" + key.toLowerCase();
+      if (row === undefined || reported.has(id)) return;
+      reported.add(id);
+      const what = getEffectiveType(other) === "matrix" ? "a row of matrix" : "an item of multipletext";
+      ctx.report({
+        message: "The row \"" + row + "\" of matrixdropdown \"" + record.name + "\" is also " + what + " \"" +
+          other.name + "\" sharing its value - a cell object and a single value cannot both live under one key;" +
+          " the runtime keeps one and deletes the other.",
+        path: other.path,
+        reason: reasons.dropdownRowConflict,
+        messageData: { key: key, name: other.name, otherName: record.name },
+        elementName: other.name,
+        elementType: other.type,
+        related: relatedOf([record, other]),
+      });
+    });
+  });
+}
+
 // setToName with isVariable writes a variable rather than the question's value, and the
 // variables hash is consulted before the survey data: the question's own answer stops
 // answering its name.
@@ -174,9 +212,11 @@ export const nameShadowingRule: ILintRule = {
     ctx.index.calculatedValueList.forEach(cv => {
       reportBuiltIn(ctx, cv.name, "calculatedValue", cv.path);
     });
+    const reportedRows = new Set<string>();
     ctx.index.allElements.forEach(record => {
       checkValueNameOverName(ctx, record);
       checkDerivedKeyCollision(ctx, record);
+      checkDropdownRowConflict(ctx, record, reportedRows);
     });
     ctx.index.triggers.forEach(trigger => checkVariableTrigger(ctx, trigger));
   },

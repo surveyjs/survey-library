@@ -35,6 +35,7 @@ export const SurveyLintReasons = Object.freeze({
     valueNameShadowsElement: "valueNameShadowsElement",
     commentKeyCollision: "commentKeyCollision",
     totalKeyCollision: "totalKeyCollision",
+    dropdownRowConflict: "dropdownRowConflict",
     variableShadowsQuestion: "variableShadowsQuestion",
   }),
   // a member of Object.prototype used as a name: the value objects it keys are plain, so the

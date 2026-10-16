@@ -734,6 +734,23 @@ describe("linter vs runtime: a records question sharing its value without a valu
     expect(survey.data).toEqual({ cars: { r1: { c2: "x" }, r2: { c1: "y" } } });
   });
 
+  test("a matrixdropdown row a single-choice matrix lists too: one side is deleted", () => {
+    const json = (matrixRow: string): any => ({ elements: [
+      { type: "matrixdropdown", name: "md", rows: ["r1"], columns: [{ name: "c", cellType: "text" }] },
+      { type: "matrix", name: "m", valueName: "md", rows: [matrixRow], columns: ["x", "y"] },
+    ] });
+    expect(shadowing(json("r1"))).toEqual(["dropdownRowConflict @ elements[1]"]);
+    let survey = new SurveyModel(json("r1"));
+    expect(survey.setData({ md: { r1: { c: "a" } } }).map(issue => issue.type + " @ " + issue.path)).toEqual(["invalidChoiceValue @ md.r1"]);
+    survey.clearIncorrectValues();
+    expect(survey.data).toEqual({});
+    expect(shadowing(json("r2"))).toEqual([]);
+    survey = new SurveyModel(json("r2"));
+    expect(survey.setData({ md: { r1: { c: "a" }, r2: "x" } })).toEqual([]);
+    survey.clearIncorrectValues();
+    expect(survey.data).toEqual({ md: { r1: { c: "a" }, r2: "x" } });
+  });
+
   test("the merge example with a choice comment keeps the comment", () => {
     const json = { elements: [
       { type: "checkbox", name: "cars", valuePropertyName: "car", choices: [{ value: "Ford", showCommentArea: true }, "Vauxhall"] },

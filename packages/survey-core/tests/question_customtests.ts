@@ -4216,4 +4216,32 @@ describe("custom questions", () => {
 
     ComponentCollection.Instance.clear();
   });
+  test("Single: onCreated reads the panels of an inner dynamic panel with minPanelCount", () => {
+    ComponentCollection.Instance.add({
+      name: "x-rules",
+      questionJSON: { type: "paneldynamic", minPanelCount: 1, templateElements: [{ type: "text", name: "x" }] },
+      onCreated(question: QuestionCustomModel) {
+        (<QuestionPanelDynamicModel>question.contentQuestion).panels.forEach(p => p.questions.forEach(q => q.allowRootStyle = false));
+      }
+    });
+    const survey = new SurveyModel({ elements: [{ type: "x-rules", name: "q" }] });
+    const q = <QuestionCustomModel>survey.getQuestionByName("q");
+    expect((<QuestionPanelDynamicModel>q.contentQuestion).panelCount, "the inner dynamic panel has its minimum panel").toBe(1);
+    ComponentCollection.Instance.clear();
+  });
+  test("Composite: onCreated sets an inner question value", () => {
+    ComponentCollection.Instance.add({
+      name: "x-name",
+      elementsJSON: [{ type: "text", name: "first" }, { type: "text", name: "last" }],
+      onCreated(question: QuestionCompositeModel) {
+        question.contentPanel.getQuestionByName("first").value = "John";
+      }
+    });
+    const survey = new SurveyModel({ elements: [{ type: "x-name", name: "q" }] });
+    const q = <QuestionCompositeModel>survey.getQuestionByName("q");
+    expect(q.contentPanel.getQuestionByName("first").value, "the inner value set in onCreated").toBe("John");
+    q.contentPanel.getQuestionByName("last").value = "Doe";
+    expect(survey.data, "later inner values still reach the survey").toEqual({ q: { first: "John", last: "Doe" } });
+    ComponentCollection.Instance.clear();
+  });
 });

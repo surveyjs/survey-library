@@ -1110,7 +1110,14 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     if (!!this.contentQuestion) return this.getContentQuestionValue();
     return super.getValueCore();
   }
-  private valueChangedDirectlySettingScope = new Scope();
+  // Created on first use: the base constructor calls onCreated, which can get here before this class's field initializers run.
+  private valueChangedDirectlySettingScopeValue: Scope;
+  private get valueChangedDirectlySettingScope(): Scope {
+    if (!this.valueChangedDirectlySettingScopeValue) {
+      this.valueChangedDirectlySettingScopeValue = new Scope();
+    }
+    return this.valueChangedDirectlySettingScopeValue;
+  }
   protected setValueChangedDirectly(val: boolean): void {
     if (this.valueChangedDirectlySettingScope.isActive) return;
     this.valueChangedDirectlySettingScope.run(() => {
@@ -1395,7 +1402,14 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   protected getQuestionByName(name: string): IQuestion {
     return !!this.contentPanel ? this.contentPanel.getQuestionByName(name) : undefined;
   }
-  private newValueSettingScope = new Scope();
+  // Created on first use: the base constructor calls onCreated, which can get here before this class's field initializers run.
+  private newValueSettingScopeValue: Scope;
+  private get newValueSettingScope(): Scope {
+    if (!this.newValueSettingScopeValue) {
+      this.newValueSettingScopeValue = new Scope();
+    }
+    return this.newValueSettingScopeValue;
+  }
   setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
     if (this.newValueSettingScope.isActive) {
       this.setNewValueIntoQuestion(name, newValue);

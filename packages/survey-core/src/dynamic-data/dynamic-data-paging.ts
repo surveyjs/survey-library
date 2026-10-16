@@ -2,6 +2,7 @@ import { Helpers } from "../helpers";
 import { DynamicDataSortDirection, IDynamicDataSort } from "./dynamic-data-interfaces";
 import { DynamicDataList } from "./dynamic-data-list";
 import { dynamicDataSortToString, parseDynamicDataSort } from "./dynamic-data-sort";
+import { Scope } from "../utils/scope";
 
 /* The question side of the list's paging, sorting and filtering. The behaviour lives here and the
    questions keep the thin public accessors. Its owner is a private object of the question
@@ -168,7 +169,7 @@ export class DynamicDataPagingController {
     this.owner.setPropertyValue("isCountKnown", list.isCountKnown);
     // A sync raised by the push itself: the page state is up to date, the view is being handed over
     // right now and mirroring it half way through would wipe the half that is still pending.
-    if (this.isPushingView) return;
+    if (this.viewPushScope.isActive) return;
     if (this.owner.isDesignMode) {
       /* Design mode means exactly one thing: the authored sort and filter are not handed to the
          list, so nothing is sorted or filtered. The hash keeps what was authored - it is what
@@ -199,7 +200,7 @@ export class DynamicDataPagingController {
      opposite directions share those hash entries - the setters (hash -> list, later) and
      syncState() (list -> hash) - and this flag is what keeps them apart. */
   private isViewPending: boolean = false;
-  private isPushingView: boolean = false;
+  private viewPushScope = new Scope();
   private get canPushToList(): boolean {
     return !this.owner.isDesignMode && !this.owner.isLoadingFromJson;
   }
@@ -212,7 +213,7 @@ export class DynamicDataPagingController {
     }
   }
   private pushAuthoredView(): void {
-    if (this.isPushingView) return;
+    if (this.viewPushScope.isActive) return;
     /* Cleared before the assignments and not after: a filter the list cannot run resets itself to
        "" and reports the error through onError, and a value that is still pending would be handed
        back to the list on every following sync. At runtime the hash then holds "" - the mirror
@@ -246,12 +247,7 @@ export class DynamicDataPagingController {
      and a flag that a throw left set would make every later syncState skip the view: the hash would
      stop mirroring the list for good. */
   private runViewPush(func: () => void): void {
-    this.isPushingView = true;
-    try {
-      func();
-    } finally {
-      this.isPushingView = false;
-    }
+    this.viewPushScope.run(func);
   }
   /* The one writer of the sortOrder hash entry. sortBy renders it and stores nothing of its own, so
      nothing would raise its change: dependsOn cannot help either, because addDependsOnProperty

@@ -110,6 +110,7 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ConsoleWarnings } from "./console-warnings";
 import DefaultLightTheme from "./themes/default-light";
 import { createBoxShadowReset } from "./utils/shadow-effects";
+import { Scope } from "./utils/scope";
 
 export var DefaultTheme = DefaultLightTheme;
 
@@ -7129,11 +7130,11 @@ export class SurveyModel extends SurveyElementCore
     }
     return result;
   }
-  private isTriggerIsRunning: boolean = false;
+  private triggersRunScope = new Scope();
   private triggerKeys: any = null;
   private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, isOnNavigation: boolean = false, name?: string, isOnSettingData: boolean = false): void {
     if (this.isCompleted || this.triggers.length == 0 || this.isDisplayMode) return;
-    if (this.isTriggerIsRunning) {
+    if (this.triggersRunScope.isActive) {
       for (var k in key) {
         this.triggerKeys[k] = key[k];
       }
@@ -7144,24 +7145,24 @@ export class SurveyModel extends SurveyElementCore
       const question = <Question>this.getQuestionByValueName(name);
       isQuestionInvalid = question && !question.validate(false);
     }
-    this.isTriggerIsRunning = true;
-    this.triggerKeys = key;
-    const properties = this.getFilteredProperties();
-    const options = { isOnNextPage: isOnNextPage, isOnComplete: isOnComplete, isOnNavigation: isOnNavigation,
-      isOnSettingData: isOnSettingData, keys: this.triggerKeys, properties: properties };
-    let originalKeys = Helpers.createCopy(this.triggerKeys);
-    const maxIterations = 3;
-    for (let i = 0; i < maxIterations; i++) {
-      this.runSurveyTriggers(options, isQuestionInvalid);
-      if (this.isCompleted || Helpers.isTwoValueEquals(originalKeys, this.triggerKeys)) break;
-      this.triggerKeys = Helpers.createDiff(this.triggerKeys, originalKeys);
-      originalKeys = Helpers.createCopy(this.triggerKeys);
-    }
-    let prevCanBeCompleted = this.canBeCompletedByTrigger;
-    if (prevCanBeCompleted !== this.canBeCompletedByTrigger) {
-      this.updateButtonsVisibility();
-    }
-    this.isTriggerIsRunning = false;
+    this.triggersRunScope.run(() => {
+      this.triggerKeys = key;
+      const properties = this.getFilteredProperties();
+      const options = { isOnNextPage: isOnNextPage, isOnComplete: isOnComplete, isOnNavigation: isOnNavigation,
+        isOnSettingData: isOnSettingData, keys: this.triggerKeys, properties: properties };
+      let originalKeys = Helpers.createCopy(this.triggerKeys);
+      const maxIterations = 3;
+      for (let i = 0; i < maxIterations; i++) {
+        this.runSurveyTriggers(options, isQuestionInvalid);
+        if (this.isCompleted || Helpers.isTwoValueEquals(originalKeys, this.triggerKeys)) break;
+        this.triggerKeys = Helpers.createDiff(this.triggerKeys, originalKeys);
+        originalKeys = Helpers.createCopy(this.triggerKeys);
+      }
+      let prevCanBeCompleted = this.canBeCompletedByTrigger;
+      if (prevCanBeCompleted !== this.canBeCompletedByTrigger) {
+        this.updateButtonsVisibility();
+      }
+    });
   }
   private runSurveyTriggers(options: any, isQuestionInvalid: boolean): void {
     for (let i = 0; i < this.triggers.length; i++) {
@@ -7198,9 +7199,9 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].onSurveyLoad();
     }
   }
-  private isRunningConditionsValue: boolean;
+  private runningConditionsScope = new Scope();
   private get isRunningConditions(): boolean {
-    return this.isRunningConditionsValue;
+    return this.runningConditionsScope.isActive;
   }
   private isValueChangedOnRunningCondition: boolean = false;
   private conditionRunnerCounter: number = 0;
@@ -7219,31 +7220,32 @@ export class SurveyModel extends SurveyElementCore
       this.isRunningConditions
     )
       return;
-    this.isRunningConditionsValue = true;
-    var properties = this.getFilteredProperties();
-    this.runConditionsCore(properties);
-    this.isRunningConditionsValue = false;
-    if (
-      this.isValueChangedOnRunningCondition &&
-      this.conditionRunnerCounter <
-      settings.maxConditionRunCountOnValueChanged
-    ) {
-      this.isValueChangedOnRunningCondition = false;
-      this.conditionRunnerCounter++;
-      this.runConditions();
-    } else {
-      this.isValueChangedOnRunningCondition = false;
-      this.conditionRunnerCounter = 0;
-      if (this.conditionUpdateVisibleIndexes) {
-        this.conditionUpdateVisibleIndexes = false;
-        this.updateVisibleIndexes();
-      }
-      if (this.conditionNotifyElementsOnAnyValueOrVariableChanged) {
-        this.conditionNotifyElementsOnAnyValueOrVariableChanged = false;
-        this.notifyElementsOnAnyValueOrVariableChanged("");
-      }
-      if (!this.isRunningConditionOnValueChanged) {
-        this.questionTriggersKeys = undefined;
+    // The work queued during the run waits for the run to end, also when user code inside it throws.
+    try {
+      this.runningConditionsScope.run(() => this.runConditionsCore(this.getFilteredProperties()));
+    } finally {
+      if (
+        this.isValueChangedOnRunningCondition &&
+        this.conditionRunnerCounter <
+        settings.maxConditionRunCountOnValueChanged
+      ) {
+        this.isValueChangedOnRunningCondition = false;
+        this.conditionRunnerCounter++;
+        this.runConditions();
+      } else {
+        this.isValueChangedOnRunningCondition = false;
+        this.conditionRunnerCounter = 0;
+        if (this.conditionUpdateVisibleIndexes) {
+          this.conditionUpdateVisibleIndexes = false;
+          this.updateVisibleIndexes();
+        }
+        if (this.conditionNotifyElementsOnAnyValueOrVariableChanged) {
+          this.conditionNotifyElementsOnAnyValueOrVariableChanged = false;
+          this.notifyElementsOnAnyValueOrVariableChanged("");
+        }
+        if (!this.isRunningConditionOnValueChanged) {
+          this.questionTriggersKeys = undefined;
+        }
       }
     }
   }
@@ -8966,20 +8968,20 @@ export class SurveyModel extends SurveyElementCore
   private get layoutElements(): Array<ISurveyLayoutElement> {
     return this.getPropertyValue("layoutElements", undefined, () => this.createLayoutElements());
   }
-  private isCreatingLayout: boolean | undefined;
+  private layoutCreationScope = new Scope();
   private createLayoutElements(): Array<ISurveyLayoutElement> {
-    if (this.isCreatingLayout) return [];
-    this.isCreatingLayout = true;
-    const res = new Array<ISurveyLayoutElement>();
-    res.push(...this.timerModel.createLayoutElements());
-    res.push(...this.progressTextModel.createLayoutElements());
-    res.push(...this.tocModel.createLayoutElements());
-    res.push(...this.navigationLayoutModel.createLayoutElements());
-    if (this.headerView !== "basic") {
-      res.push(...this.createAdvancedHeader().createLayoutElements());
-    }
-    this.isCreatingLayout = false;
-    return res;
+    if (this.layoutCreationScope.isActive) return [];
+    return this.layoutCreationScope.run(() => {
+      const res = new Array<ISurveyLayoutElement>();
+      res.push(...this.timerModel.createLayoutElements());
+      res.push(...this.progressTextModel.createLayoutElements());
+      res.push(...this.tocModel.createLayoutElements());
+      res.push(...this.navigationLayoutModel.createLayoutElements());
+      if (this.headerView !== "basic") {
+        res.push(...this.createAdvancedHeader().createLayoutElements());
+      }
+      return res;
+    });
   }
   private isElementInContainerByContainerProperty(layoutElement: ISurveyLayoutElement, container: LayoutElementContainer): boolean {
     return Array.isArray(layoutElement.container) && layoutElement.container.indexOf(container) !== -1 || layoutElement.container === container;

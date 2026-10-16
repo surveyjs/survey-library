@@ -2,6 +2,7 @@ import { ConditionRunner } from "../conditions/conditionRunner";
 import { applyFilter, applySort, createIndexes } from "./dynamic-data-filter";
 import { IDynamicDataField, IDynamicDataSort } from "./dynamic-data-interfaces";
 import { insertRemap, moveRemap, removeRemap } from "./dynamic-data-record-remap";
+import { Scope } from "../utils/scope";
 
 // What the membership reads from DynamicDataList. Every member answers from the list's state when it
 // is called; nothing is cached on this side.
@@ -50,7 +51,7 @@ export class DynamicDataMembership {
      has no local view, and its refill keeps them too. Nothing reports whether a given record is
      touched. */
   private touchedIndexes: Array<number> = [];
-  private addScopeDepth: number = 0;
+  private addScope = new Scope();
   // Set by rebuild for the one decision of the view that keeps the touched records.
   private keptTouched: Array<{ index: number, position: number }> = undefined;
   // One slot per view: with no owner-hidden records the created and the visible views are one array,
@@ -111,7 +112,7 @@ export class DynamicDataMembership {
     this.insertIntoMembership(at, countAfter);
     this.remapTouched(insertRemap(at));
     // Touched before the push, which runs the survey handlers: an assignment one of them makes keeps it.
-    if (this.addScopeDepth > 0)this.addTouched(at);
+    if (this.addScope.isActive)this.addTouched(at);
     this.resetViews();
   }
   public onRecordRemoved(index: number, countAfter: number): void {
@@ -275,7 +276,7 @@ export class DynamicDataMembership {
       for (let i = this.frozenRecordCount; i < count; i++) {
         created.push(i);
         // A record count the owner's add grew: the new record is the one added (see runAddScope).
-        if (this.addScopeDepth > 0)this.addTouched(i);
+        if (this.addScope.isActive)this.addTouched(i);
       }
     }
     this.frozenCreatedIndexes = created;
@@ -337,12 +338,7 @@ export class DynamicDataMembership {
   // The owner's add. Every record the list inserts or appends inside it - also by a record count that
   // grows (syncMembershipWithRecordCount) - is touched as it enters the list.
   public runAddScope<T>(func: () => T): T {
-    this.addScopeDepth++;
-    try {
-      return func();
-    } finally {
-      this.addScopeDepth--;
-    }
+    return this.addScope.run(func);
   }
   // A record the respondent edited through an input.
   public markRecordTouched(index: number): void {

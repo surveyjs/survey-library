@@ -33,21 +33,30 @@ export function getFrameNames(frame: CapturingScopeFrame): CIMultiMap<ElementRec
   return frame.kind === "panelDynamic" ? frame.templateNames : frame.columns;
 }
 
+// The questions (and columns) of a panel's or row's record by data key, built once per scope.
+function getFrameDataKeys(frame: CapturingScopeFrame): CIMultiMap<ElementRecord> {
+  if (!frame.dataKeys) {
+    const keys = new CIMultiMap<ElementRecord>();
+    getFrameNames(frame).forEach(records => records.forEach(record => {
+      if (record.kind === "question" || record.kind === "column") keys.add(getDataKey(record), record);
+    }));
+    frame.dataKeys = keys;
+  }
+  return frame.dataKeys;
+}
+
+// The questions writing a data key of a data scope: a dynamic-panel template or a matrix row
+// (frame), or the survey data.
+export function getDataKeyRecords(index: SurveyIndex, frame: CapturingScopeFrame | undefined, key: string): Array<ElementRecord> {
+  if (!!frame) return getFrameDataKeys(frame).get(key);
+  return index.byName.get(key).filter(record => record.kind === "question" && !record.valueName)
+    .concat(index.byValueName.get(key));
+}
+
 // The record itself first, then every other question of its data scope on the same data key.
 function getSharingQuestions(index: SurveyIndex, record: ElementRecord): Array<ElementRecord> {
-  const key = getDataKey(record);
-  const res: Array<ElementRecord> = [record];
-  const add = (other: ElementRecord): void => {
-    if (other.kind === "question" && res.indexOf(other) < 0 && getDataKey(other).toLowerCase() === key.toLowerCase()) res.push(other);
-  };
-  const frame = getCapturingFrame(record.scope);
-  if (!frame) {
-    index.byName.get(key).forEach(add);
-    index.byValueName.get(key).forEach(add);
-  } else {
-    getFrameNames(frame).forEach(records => records.forEach(add));
-  }
-  return res;
+  const others = getDataKeyRecords(index, getCapturingFrame(record.scope), getDataKey(record));
+  return [record].concat(others.filter(other => other !== record && other.kind === "question"));
 }
 
 // What one object of the question's value is: a panel/row/item of an array ("array"), or a row
@@ -115,6 +124,25 @@ function annotateMergedObject(record: ElementRecord, partners: Array<ElementReco
   record.mergedObject = merged;
 }
 
+// A template or detail-panel question with a valueName stores its value under another key than its name.
+function isReKeyed(record: ElementRecord): boolean {
+  let res = false;
+  getSubElementNames(record).forEach((records, name) => {
+    if (!res) res = records.some(sub => sub.kind === "question" && !!sub.valueName && sub.valueName.toLowerCase() !== name.toLowerCase());
+  });
+  return res;
+}
+
+// Set only where the fields differ from the name map, which getItemFields reads otherwise.
+function annotateItemFields(record: ElementRecord, sharing: Array<ElementRecord>): void {
+  const kind = getItemKind(record);
+  const partners = sharing.filter(question => question !== record && !!kind && getItemKind(question) === kind);
+  if (partners.length === 0 && !isReKeyed(record)) return;
+  const fields = new CIMultiMap<ElementRecord>();
+  [record].concat(partners).forEach(question => addOwnItemFields(question, fields));
+  record.itemFields = fields;
+}
+
 // Run once the index is complete: a question may share its value with one declared after it.
 export function annotateSharedValues(index: SurveyIndex): void {
   index.allElements.forEach(record => {
@@ -122,14 +150,7 @@ export function annotateSharedValues(index: SurveyIndex): void {
     const objectValued = isObjectValued(record);
     if (!holdsSubElements && !objectValued) return;
     const sharing = getSharingQuestions(index, record);
-    if (holdsSubElements) {
-      const kind = getItemKind(record);
-      const fields = new CIMultiMap<ElementRecord>();
-      sharing.forEach(question => {
-        if (question === record || (!!kind && getItemKind(question) === kind)) addOwnItemFields(question, fields);
-      });
-      record.itemFields = fields;
-    }
+    if (holdsSubElements) annotateItemFields(record, sharing);
     if (objectValued) {
       const partners = sharing.filter(isObjectValued);
       if (partners.length > 1) annotateMergedObject(record, partners);

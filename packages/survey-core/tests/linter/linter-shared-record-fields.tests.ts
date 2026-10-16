@@ -1,5 +1,8 @@
 import { describe, test, expect } from "vitest";
 import { lintSurvey } from "../../src/linter/index";
+import { buildIndex } from "../../src/linter/walker";
+import { LintMetadata } from "../../src/linter/metadata";
+import { getItemFields } from "../../src/linter/record-fields";
 
 // Questions on one data key share one value, and a panel/row object of a dynamic panel or matrix
 // then holds the fields every one of them writes (record-fields.ts). The runtime side of every case
@@ -208,5 +211,29 @@ describe("the merge examples of the documentation", () => {
         templateElements: [{ type: "dropdown", name: "years-owned", choicesMin: 1, choicesMax: 50 }, { type: "rating", name: "rating" }],
       }],
     })).toEqual([]);
+  });
+});
+
+describe("the fields of a record are the name map until something re-keys or shares them", () => {
+  function index(json: any) {
+    return buildIndex(json, {}, new LintMetadata());
+  }
+  test("a container nothing shares and no valueName re-keys reads its name map", () => {
+    const idx = index({ elements: [
+      { type: "paneldynamic", name: "pd", templateElements: [{ type: "text", name: "q" }] },
+      { type: "matrixdynamic", name: "m", columns: [{ name: "c", cellType: "text" }] },
+    ] });
+    const pd = idx.byName.first("pd");
+    const m = idx.byName.first("m");
+    expect(getItemFields(pd)).toBe(pd.templateNames);
+    expect(getItemFields(m)).toBe(m.matrixColumns);
+  });
+  test("a template valueName re-keys the fields", () => {
+    const pd = index({ elements: [
+      { type: "paneldynamic", name: "pd", templateElements: [{ type: "text", name: "q", valueName: "v1" }] },
+    ] }).byName.first("pd");
+    expect(getItemFields(pd)).not.toBe(pd.templateNames);
+    expect(getItemFields(pd).has("v1")).toBe(true);
+    expect(getItemFields(pd).has("q")).toBe(false);
   });
 });

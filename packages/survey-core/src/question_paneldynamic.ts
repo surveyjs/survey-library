@@ -1448,7 +1448,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         this.setPanelState(panel, this.panelsCore.length - 1);
       }
       if (isAddingOnePanel) {
-        this.singleInputOnAddItem(this.settingPanelCountBasedOnValue);
+        this.singleInputOnAddItem(this.panelCountByValueScope.value);
       }
       if (val < this.panelCount) {
         this.disposePanels(this.panelsCore.splice(val, this.panelCount - val));
@@ -1622,13 +1622,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   /* The count the expression sets writes the value it truncates or pads, also while the count follows
      an assigned value (setPanelCountBasedOnValue): the expression's count wins over the assigned one. */
   protected runRecordCountExpressionWrite(write: () => void): void {
-    const isSettingByValue = this.settingPanelCountBasedOnValue;
-    this.settingPanelCountBasedOnValue = false;
-    try {
-      write();
-    } finally {
-      this.settingPanelCountBasedOnValue = isSettingByValue;
-    }
+    this.panelCountByValueScope.run(false, write);
   }
   /**
    * A minimum number of panels in Dynamic Panel. Users cannot delete panels if `panelCount` equals `minPanelCount`.
@@ -3293,7 +3287,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected createNewPanelObject(): PanelModel {
     return Serializer.createClass("panel");
   }
-  private settingPanelCountBasedOnValue: boolean;
+  private panelCountByValueScope: ValueScope<boolean> = new ValueScope<boolean>(false);
   private setPanelCountBasedOnValue(isCleared: boolean = false) {
     if (this.isValidatingExpressions || this.internalValueChangeScope.isActive || this.useTemplatePanel) return;
     // The count of a remote-backed question comes from the read, never from the length of the window.
@@ -3324,9 +3318,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.buildPanelsAgain(isCleared);
       return;
     }
-    this.settingPanelCountBasedOnValue = true;
-    this.setRecordCountCore(newPanelCount);
-    this.settingPanelCountBasedOnValue = false;
+    this.panelCountByValueScope.run(true, (): void => this.setRecordCountCore(newPanelCount));
   }
   /* The panels are built as the first time: for an assigned value as for stored records, without static
      defaults (see isBuildingChildrenForStoredRecords), for a cleared value with them. What the build
@@ -3336,13 +3328,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const oldPanels = this.panelsCore.splice(0, this.panelsCore.length);
     this.markPanelsLeft(oldPanels);
     this.hasPanelBuildFirstTime = false;
-    const prevIsSettingByValue = this.settingPanelCountBasedOnValue;
-    this.settingPanelCountBasedOnValue = true;
-    try {
+    this.panelCountByValueScope.run(true, (): void => {
       this.storedRecordsBuildScope.run(!isCleared, (): void => this.buildPanelsFirstTime(true));
-    } finally {
-      this.settingPanelCountBasedOnValue = prevIsSettingByValue;
-    }
+    });
     this.disposePanels(oldPanels);
     const values = this.panelsCore.map((panel: PanelModel): any => panel.getValue());
     if (values.every((value: any): boolean => Helpers.isValueEmpty(value))) return;
@@ -3350,7 +3338,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   // The list side of an assignment is QuestionRecordsModel's; the panels follow in onRecordsValueAssigned.
   public setQuestionValue(newValue: any): void {
-    if (this.isValidatingExpressions || this.settingPanelCountBasedOnValue) return;
+    if (this.isValidatingExpressions || this.panelCountByValueScope.value) return;
     super.setQuestionValue(newValue);
   }
   /* The panels take their records after the panel count follows the value. A write of a panel

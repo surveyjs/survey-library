@@ -1426,32 +1426,35 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.isRemoteData) return;
     const isInProcess = this.setRowCountValueFromData;
     this.setRowCountValueFromData = true;
-    let refreshRows = false;
-    if (!isInProcess && this.minRowCount > 0 && !this.draggedRow) {
-      const newLen = Array.isArray(newValue) ? newValue.length : 0;
-      const isEditingEl = this.isEditingSurveyElement;
-      if (newLen < this.minRowCount && (isEditingEl && this.rowCount > 0 || !isEditingEl && !Helpers.isValueEmpty(this.defaultRowValue))) {
-        if (!Array.isArray(newValue)) {
-          newValue = [];
-        }
-        for (let i = newLen; i < this.minRowCount; i ++) {
-          if (isEditingEl) {
-            this.getValueForNewRow();
-          } else {
-            newValue.push(Helpers.createCopy(this.defaultRowValue));
+    try {
+      let refreshRows = false;
+      if (!isInProcess && this.minRowCount > 0 && !this.draggedRow) {
+        const newLen = Array.isArray(newValue) ? newValue.length : 0;
+        const isEditingEl = this.isEditingSurveyElement;
+        if (newLen < this.minRowCount && (isEditingEl && this.rowCount > 0 || !isEditingEl && !Helpers.isValueEmpty(this.defaultRowValue))) {
+          if (!Array.isArray(newValue)) {
+            newValue = [];
+          }
+          for (let i = newLen; i < this.minRowCount; i ++) {
+            if (isEditingEl) {
+              this.getValueForNewRow();
+            } else {
+              newValue.push(Helpers.createCopy(this.defaultRowValue));
+            }
           }
         }
+        if (isEditingEl && (newLen <= this.minRowCount && this.rowCount > this.minRowCount ||
+          newLen > this.minRowCount && this.rowCount <= this.minRowCount)) {
+          refreshRows = true;
+        }
       }
-      if (isEditingEl && (newLen <= this.minRowCount && this.rowCount > this.minRowCount ||
-        newLen > this.minRowCount && this.rowCount <= this.minRowCount)) {
-        refreshRows = true;
+      super.updateValueFromSurvey(newValue, clearData);
+      if (refreshRows) {
+        this.onRowsChanged();
       }
+    } finally {
+      this.setRowCountValueFromData = false;
     }
-    super.updateValueFromSurvey(newValue, clearData);
-    if (refreshRows) {
-      this.onRowsChanged();
-    }
-    this.setRowCountValueFromData = false;
   }
   // Only read, never stored: every padded record can share one default record.
   protected createDuplicationRecordReader(): (index: number) => any {
@@ -1471,6 +1474,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const isOneRecordAdded = newRowCount === this.rowCount + 1;
     this.setRowCountValueFromData = true;
     this.rowCountValue = newRowCount;
+    // Without rows the flag stays set, as it always has. The exits below reset it, the row rebuild also on a throw.
     if (!this.generatedVisibleRows) return;
     /* Under paging the rows are a page, not the records: the rows stay, and the view places one more
        record (decideViewAgain), as the rows stay without paging. */
@@ -1478,21 +1482,24 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.setRowCountValueFromData = false;
       return;
     }
-    if (newRowCount == this.generatedVisibleRows.length + 1) {
-      this.onStartRowAddingRemoving();
-      try {
-        const newValue = this.getRowValueByIndex(val, newRowCount - 1);
-        this.addRowForRecord(this.createMatrixRow(newValue), newRowCount - 1);
-      } finally {
-        this.unlockResetRenderedTable();
+    try {
+      if (newRowCount == this.generatedVisibleRows.length + 1) {
+        this.onStartRowAddingRemoving();
+        try {
+          const newValue = this.getRowValueByIndex(val, newRowCount - 1);
+          this.addRowForRecord(this.createMatrixRow(newValue), newRowCount - 1);
+        } finally {
+          this.unlockResetRenderedTable();
+        }
+        this.onEndRowAdding();
+      } else {
+        this.clearGeneratedRows();
+        this.getVisibleRows();
+        this.onRowsChanged();
       }
-      this.onEndRowAdding();
-    } else {
-      this.clearGeneratedRows();
-      this.getVisibleRows();
-      this.onRowsChanged();
+    } finally {
+      this.setRowCountValueFromData = false;
     }
-    this.setRowCountValueFromData = false;
   }
   /* The row count follows the assigned value as it does for any assignment from the survey
      (updateValueFromSurvey). The rows can be re-created inside a row add or remove, which locks out

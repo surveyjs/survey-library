@@ -622,6 +622,29 @@ describe("linter vs runtime: fields of a shared value", () => {
     survey.clearIncorrectValues();
     expect(survey.data.m).toEqual({ r1: "x", r2: "a", i1: "free" });
   });
+
+  test("a matrixdropdown row holds the columns of every matrixdropdown listing that row", () => {
+    const json = (md2Rows: Array<string>): any => ({ elements: [
+      { type: "matrixdropdown", name: "md", rows: ["r1"],
+        columns: [{ name: "c1", cellType: "text" }, { name: "cv", cellType: "text", visibleIf: "{row.c2} = 'x'" }] },
+      { type: "matrixdropdown", name: "md2", valueName: "md", rows: md2Rows, columns: [{ name: "c2", cellType: "text" }] },
+      { type: "expression", name: "e", expression: "{md.r2.c2}" },
+    ] });
+    expect(referenceFindings(json(["r2"]))).toEqual(["reference/unknown/scopedUnknown @elements[0].columns[1].visibleIf"]);
+    let survey = new SurveyModel(json(["r2"]));
+    const cell = (name: string, row: number, col: number): any =>
+      (<any>survey.getQuestionByName(name)).visibleRows[row].cells[col].question;
+    cell("md2", 0, 0).value = "x";
+    expect(survey.data.md).toEqual({ r2: { c2: "x" } });
+    expect(survey.getQuestionByName("e").value).toBe("x");
+    expect(cell("md", 0, 1).isVisible).toBe(false);
+
+    expect(referenceFindings(json(["r1", "r2"]))).toEqual([]);
+    survey = new SurveyModel(json(["r1", "r2"]));
+    cell("md2", 0, 0).value = "x";
+    expect(survey.data.md).toEqual({ r1: { c2: "x" } });
+    expect(cell("md", 0, 1).isVisible).toBe(true);
+  });
 });
 
 describe("linter vs runtime: configurations that really are dead", () => {

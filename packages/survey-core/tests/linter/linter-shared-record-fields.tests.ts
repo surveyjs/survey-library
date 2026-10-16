@@ -240,15 +240,57 @@ describe("an object value several questions share holds the keys of all of them"
     }).findings.filter(f => f.ruleId === "reference/unknown");
     expect(res.map(f => f.reason + " @" + f.path)).toEqual(["inContainer @elements[2].expression"]);
   });
-  test("a matrixdropdown row sees the columns of the matrixdropdown sharing its value", () => {
-    expect(findings({
+  // a matrixdropdown row reads the record of its own row only (RowsDynamicDataSource.readStoredAt),
+  // so it holds the columns of every matrixdropdown on the data key that lists that row
+  describe("a matrixdropdown row holds the columns of every matrixdropdown listing that row", () => {
+    const json = (md2Rows: Array<string>): any => ({
       elements: [
         { type: "matrixdropdown", name: "md", rows: ["r1"], defaultValue: { r2: { c2: "x" } },
           columns: [{ name: "c1", cellType: "text" }, { name: "cv", cellType: "text", visibleIf: "{row.c2} = 'x'" }] },
-        { type: "matrixdropdown", name: "md2", valueName: "md", rows: ["r2"], columns: [{ name: "c2", cellType: "text" }] },
+        { type: "matrixdropdown", name: "md2", valueName: "md", rows: md2Rows, columns: [{ name: "c2", cellType: "text" }] },
         { type: "expression", name: "e", expression: "{md.r2.c2}" },
+        { type: "expression", name: "e1", expression: "{md.r1.c2}" },
       ],
-    })).toEqual([]);
+    });
+    test("a column of a matrixdropdown listing other rows only", () => {
+      expect(findings(json(["r2"]))).toEqual([
+        "reference/unknown/scopedUnknown @elements[0].columns[1].visibleIf",
+        "reference/unknown/inContainer @elements[3].expression",
+      ]);
+    });
+    test("a column of a matrixdropdown listing the row too", () => {
+      expect(findings(json(["r1", "r2"]))).toEqual([]);
+    });
+    test("a matrixdropdown whose rows are not listed adds its columns to every row", () => {
+      expect(findings({
+        elements: [
+          { type: "matrixdropdown", name: "md", rows: ["r1"],
+            columns: [{ name: "c1", cellType: "text" }, { name: "cv", cellType: "text", visibleIf: "{row.c2} = 'x'" }] },
+          { type: "matrixdropdown", name: "md2", valueName: "md", columns: [{ name: "c2", cellType: "text" }] },
+          { type: "expression", name: "e1", expression: "{md.r1.c2}" },
+        ],
+      })).toEqual([]);
+    });
+    test("a default value of an own row holds the columns of the matrixdropdowns listing that row", () => {
+      const defaults = (md2Rows: Array<string>): any => ({
+        elements: [
+          { type: "matrixdropdown", name: "md", rows: ["r1"], defaultValue: { r1: { c2: "x" } }, columns: [{ name: "c1", cellType: "text" }] },
+          { type: "matrixdropdown", name: "md2", valueName: "md", rows: md2Rows, columns: [{ name: "c2", cellType: "text" }] },
+        ],
+      });
+      expect(findings(defaults(["r1"]))).toEqual([]);
+      expect(findings(defaults(["r2"]))).toEqual(["value/not-a-choice/unknownColumnKey @elements[0].defaultValue"]);
+    });
+    // an inArray function reads every row of the value (calcInArray walks all its keys)
+    test("an inArray function sees the columns of every row", () => {
+      expect(findings({
+        elements: [
+          { type: "matrixdropdown", name: "md", rows: ["r1"], columns: [{ name: "c1", cellType: "text" }] },
+          { type: "matrixdropdown", name: "md2", valueName: "md", rows: ["r2"], columns: [{ name: "c2", cellType: "text" }] },
+          { type: "expression", name: "e", expression: "sumInArray({md}, 'c2')" },
+        ],
+      })).toEqual([]);
+    });
   });
   // the runtime leaves a key another question on the data key holds to that question
   // (QuestionMatrixModel.verifyValueCore: a row of another matrix that shares the value is checked by that matrix)

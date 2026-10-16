@@ -10,7 +10,7 @@ import {
   SegmentLevel, SurveyIndex, CIMap, CIMultiMap, TriggerRecord, ValueTypeInfo,
   ITEM_FIELD_TYPE, SCOPE_INDEX_VARIABLE_TYPE, SCOPE_ROW_VALUE_TYPE,
 } from "./symbols";
-import { getFrameItemFields, getFrameNames, getItemFields } from "./record-fields";
+import { getFrameItemFields, getFrameNames, getItemFields, getRowFields } from "./record-fields";
 
 export interface ParseOutcome {
   ast?: Operand;
@@ -437,7 +437,8 @@ function isUnknownName(ref: ParsedRef, start: number, map: { has(name: string): 
 }
 
 // An object value several questions share holds the keys of all of them: a key is a multiple-text
-// item or a matrix row of one of them, and below a matrixdropdown row come that matrix's columns.
+// item or a matrix row of one of them, and below a matrixdropdown row come the columns of the
+// matrixdropdowns listing that row.
 function validateMergedObjectPath(ref: ParsedRef, record: ElementRecord, type: string): void {
   const merged = record.mergedObject;
   let key = "";
@@ -450,9 +451,9 @@ function validateMergedObjectPath(ref: ParsedRef, record: ElementRecord, type: s
     return;
   }
   const columnStart = keyEnd + 1;
-  if (ref.segments.length > columnStart && merged.dropdownRows.some(row => equalsCI(row, key)) &&
-    isUnknownName(ref, columnStart, merged.columns)) {
-    markUnknownSegment(ref, columnStart, merged.columns.names(), "column");
+  const fields = getRowFields(record, key);
+  if (ref.segments.length > columnStart && !!fields && isUnknownName(ref, columnStart, fields)) {
+    markUnknownSegment(ref, columnStart, fields.names(), "column");
   }
 }
 
@@ -784,7 +785,8 @@ export function getSubPathRecord(ref: ParsedRef | undefined): ElementRecord | un
   const type = getEffectiveType(record);
   if (type === "matrixdropdown" && record.matrixColumns) {
     if (segments.length !== 3 || segments.some(seg => seg.index !== undefined)) return undefined;
-    return getItemFields(record).first(segments[2].name);
+    const fields = getRowFields(record, segments[1].name);
+    return !!fields ? fields.first(segments[2].name) : undefined;
   }
   if (type === "matrixdynamic" && record.matrixColumns) {
     if (segments.length !== 2 || segments[0].index === undefined ||

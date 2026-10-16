@@ -121,10 +121,12 @@ export type CapturingScopeFrame = ScopeFramePanelDynamic | ScopeFrameMatrixRow;
 export interface MergedObjectKeys {
   // the multiple-text items and matrix rows of every sharing question
   keys: Array<string>;
-  // the rows among them that key an object of matrixdropdown columns
-  dropdownRows: Array<string>;
-  // the columns of the sharing matrixdropdowns
-  columns: CIMultiMap<ElementRecord>;
+  // the fields of a key holding a matrixdropdown row object: the columns (detail-panel questions
+  // included) of every matrixdropdown on the data key that lists that row
+  rowFields: CIMap<CIMultiMap<ElementRecord>>;
+  // what a row of this matrixdropdown holds ({row.x}), set only when some matrixdropdown on the
+  // data key lists none of its rows
+  ownRowFields?: CIMultiMap<ElementRecord>;
 }
 
 export interface ElementRecord {

@@ -4,7 +4,7 @@ import { ValueDomain, ValueSetDomain } from "./value-domain";
 import { getStaticChoiceValues } from "./value-types";
 import { ILintResolvedSettings } from "./lint-settings";
 import { userKeys } from "./property-walk";
-import { getItemFields } from "./record-fields";
+import { getItemFields, getRowFields } from "./record-fields";
 
 // One defect found inside a composite value: either a key naming nothing the question holds,
 // or a cell value the addressed sub-element can never hold.
@@ -106,8 +106,11 @@ function checkMatrixObject(record: ElementRecord, value: any, ctx: CompositeCont
 
 function checkMatrixDropdownObject(record: ElementRecord, value: any, ctx: CompositeContext): void {
   if (!isPlainObject(value) || !record.matrixColumns) return;
-  const keys = getItemFields(record);
-  forEachOwnKey(record, value, ctx, key => checkRowObject(value[key], keys, "unknownColumnKey", ctx));
+  // a row holds the columns of every matrixdropdown on the data key that lists it
+  forEachOwnKey(record, value, ctx, key => {
+    const fields = getRowFields(record, key);
+    if (!!fields) checkRowObject(value[key], fields, "unknownColumnKey", ctx);
+  });
 }
 
 function checkRowArray(value: any, keys: CIMultiMap<ElementRecord>,

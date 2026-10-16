@@ -72,11 +72,13 @@ import "survey-core/survey-core.css";
 import "survey-core/themes/adapters/bootstrap-default.css";
 ```
 
-Adapters are available for [Bootstrap](https://getbootstrap.com), [Material UI](https://mui.com) (`mui.css`), and [shadcn/ui](https://ui.shadcn.com) (`shadcn-default.css`, `shadcn-new-york.css`). Bootstrap additionally ships [Bootswatch](https://bootswatch.com) variants — `bootstrap-darkly.css`, `bootstrap-flatly.css`, and others. Because adapters read the host system's live variables, any Bootstrap or Bootswatch build re-skins the survey automatically. Matching icon sets are optional side-effect imports:
+Adapters are available for [Bootstrap](https://getbootstrap.com), [Material UI](https://mui.com) (`mui.css`), [shadcn/ui](https://ui.shadcn.com) (`shadcn-default.css`, `shadcn-new-york.css`), and [Tailwind CSS v4](https://tailwindcss.com) (`tailwind4.css`). Bootstrap additionally ships [Bootswatch](https://bootswatch.com) variants — `bootstrap-darkly.css`, `bootstrap-flatly.css`, and others. Because adapters read the host system's live variables, any Bootstrap or Bootswatch build re-skins the survey automatically. Matching icon sets are optional side-effect imports:
 
 ```js
 import "survey-core/themes/adapters/icons/lucide"; // or ".../icons/mui"
 ```
+
+The Tailwind CSS v4 adapter is not a bridge to a component library: it applies the common Tailwind form layout and reads optional semantic variables (`--color-primary`, `--color-foreground`, `--color-input`, `--color-ring`, and others) that the host app declares in `@theme static { ... }` with values taken from its own theme or brand book. See the comment at the top of `tailwind4.css` for the full list.
 
 Adapters are framework-independent and require no extra markup or configuration. See [Theme Adapters](https://surveyjs.io/themes/theme-adapters).
 

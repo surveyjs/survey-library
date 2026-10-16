@@ -3,9 +3,9 @@ import { builtInVariableNames, equalsCI, isBuiltInVariable, stripCommentSuffix }
 import { ElementRecord, getCapturingFrame, getEffectiveType, TriggerRecord } from "../symbols";
 import { isMatrixDropdown, isPropertyOn } from "../metadata";
 import { hasOtherItem } from "../value-types";
+import { addsItemFieldsTo, getDataKey, getDataKeyRecords } from "../record-fields";
 import { ILintRelated } from "../types";
 import { SurveyLintReasons } from "../reasons";
-import { getDataKey, getDataKeyRecords } from "../record-fields";
 
 const reasons = SurveyLintReasons["name/shadowing"];
 
@@ -36,23 +36,34 @@ function reportBuiltIn(ctx: LintContext, name: string, nameKind: string, path: s
   });
 }
 
-// Two questions may deliberately share a valueName - that is how the runtime lets them answer
-// as one. What is reported here is the one-sided form: a valueName landing on the data key
-// another question writes under its own name, where only one of the two is aware of it.
-// Top-level questions only: a question inside a dynamic-panel template or a matrix detail panel
-// writes into its panel's or row's record, never next to a top-level question, and the one-sided
-// form inside that record is a deliberate share as often as not, so it is left alone (#12014).
+// A dynamic panel or matrix knows the fields another question adds to the value they share only
+// when it declares the valueName itself (QuestionRecordsModel.getSharedQuestionFromArray): keyed by
+// its name alone it treats them as unknown - setData() reports them and clearIncorrectValues()
+// deletes them. An image map with object items loses them either way, so a valueName is no remedy.
+function losesSharedFields(shadowed: ElementRecord, record: ElementRecord): boolean {
+  return getEffectiveType(record) !== "imagemap" && addsItemFieldsTo(shadowed, record);
+}
+
+// Sharing a value through a valueName is a documented feature, on one side or on both (Merge
+// Question Values), so only the form the runtime mishandles is reported: a valueName landing on the
+// name of a dynamic panel or matrix without a valueName of its own, which the question adds fields
+// to (losesSharedFields). Top-level questions only: a question inside a dynamic-panel template or
+// a matrix detail panel writes into its panel's or row's record, never next to a top-level
+// question (#12014).
 function checkValueNameOverName(ctx: LintContext, record: ElementRecord): void {
   const valueName = record.valueName;
   if (!valueName || equalsCI(valueName, record.name)) return;
   if (getCapturingFrame(record.scope)) return;
   const shadowed = ctx.index.byName.get(valueName)
-    .filter(other => other !== record && other.kind === "question" && !other.valueName);
+    .filter(other => other !== record && other.kind === "question" && !other.valueName &&
+      losesSharedFields(other, record));
   if (shadowed.length === 0) return;
+  const other = shadowed[0];
   ctx.report({
-    message: "The valueName \"" + valueName + "\" of \"" + record.name + "\" is also the name of " +
-      "question \"" + shadowed[0].name + "\" - both store their answer under the data key \"" +
-      valueName + "\".",
+    message: "The valueName \"" + valueName + "\" of \"" + record.name + "\" shares the value of " +
+      other.type + " \"" + other.name + "\", which has no valueName of its own - \"" + other.name +
+      "\" treats the fields \"" + record.name + "\" adds as unknown, and clearIncorrectValues() deletes them." +
+      " Set its valueName to \"" + valueName + "\" too.",
     path: record.path + ".valueName",
     reason: reasons.valueNameShadowsElement,
     messageData: {

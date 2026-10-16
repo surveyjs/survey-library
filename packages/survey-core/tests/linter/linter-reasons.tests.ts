@@ -79,7 +79,10 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
   },
   {
     ruleId: "name/shadowing", reason: "valueNameShadowsElement",
-    json: { elements: [{ type: "text", name: "q1", valueName: "q2" }, { type: "text", name: "q2" }] },
+    json: { elements: [
+      { type: "matrixdynamic", name: "q1", valueName: "q2", columns: [{ name: "c1", cellType: "text" }] },
+      { type: "paneldynamic", name: "q2", templateElements: [{ type: "text", name: "t1" }] },
+    ] },
   },
   {
     ruleId: "name/shadowing", reason: "commentKeyCollision",

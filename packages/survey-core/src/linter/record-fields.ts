@@ -195,6 +195,16 @@ export function annotateSharedValues(index: SurveyIndex): void {
   });
 }
 
+// Whether a question adds fields to the panel/row objects of a dynamic panel or matrix it would share
+// the value with: a dynamic panel or matrix of the same kind, or a checkbox or image map with object items.
+export function addsItemFieldsTo(owner: ElementRecord, partner: ElementRecord): boolean {
+  const kind = getItemKind(owner);
+  if (!kind || !getSubElementNames(owner) || getItemKind(partner) !== kind) return false;
+  const fields = new CIMultiMap<ElementRecord>();
+  addOwnItemFields(partner, fields);
+  return fields.names().length > 0;
+}
+
 // The fields one panel/row object of a dynamic panel or matrix holds; every check that reads a
 // field of such an object ({panel.x}, {row.x}, {q[0].x}, keyName, carry-forward fields, inArray
 // names, default value keys) asks this, not the template or the columns.

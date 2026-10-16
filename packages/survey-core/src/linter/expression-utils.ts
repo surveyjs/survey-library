@@ -8,7 +8,7 @@ import {
   ElementRecord, ExpressionSite, getEffectiveType, NameRef, ParsedRef, ParsedRefSegment, ScopeFrame,
   ScopeFrameArrayItem, ScopeFrameComposite, ScopeFrameItemValue, ScopeFrameMatrixRow, ScopeFramePanelDynamic,
   SegmentLevel, SurveyIndex, CIMap, CIMultiMap, TriggerRecord, ValueTypeInfo,
-  SCOPE_INDEX_VARIABLE_TYPE, SCOPE_ROW_VALUE_TYPE,
+  ITEM_FIELD_TYPE, SCOPE_INDEX_VARIABLE_TYPE, SCOPE_ROW_VALUE_TYPE,
 } from "./symbols";
 import { getFrameItemFields, getFrameNames, getItemFields } from "./record-fields";
 
@@ -112,6 +112,14 @@ export function stripCommentSuffix(name: string, lintSettings: ILintResolvedSett
   const suffix = lintSettings.commentSuffix;
   if (!endsWithCI(name, suffix)) return undefined;
   return name.substring(0, name.length - suffix.length);
+}
+
+// Whether a name is the comment key of an element of a row/panel object. The comment lives next
+// to a question's or column's value; an item field a checkbox or an image map keeps in the object
+// of a selected item has none (a choice comment is that object's "comment").
+export function isCommentKeyOf(name: string, map: CIMultiMap<ElementRecord>, lintSettings: ILintResolvedSettings): boolean {
+  const base = stripCommentSuffix(name, lintSettings);
+  return base !== undefined && map.get(base).some(record => record.type !== ITEM_FIELD_TYPE);
 }
 
 // The two sources of host-variable names are a union: what the host listed by hand, and what
@@ -274,8 +282,7 @@ function validateInnerName(ref: ParsedRef, prefix: string, map: CIMultiMap<Eleme
   }
   // a comment lives next to its value inside the row/panel too ({row.col1-Comment}):
   // resolvedTo stays unset, the comment is a plain string, not the base question
-  const commentBase = stripCommentSuffix(ref.segments[1].name, lintSettings);
-  if (ref.segments.length === 2 && commentBase && map.has(commentBase)) {
+  if (ref.segments.length === 2 && isCommentKeyOf(ref.segments[1].name, map, lintSettings)) {
     scopedResolved(ref, prefix);
     ref.resolvedKind = "comment";
     return ref;
@@ -590,8 +597,7 @@ function tryResolveArrayItem(ref: ParsedRef, scope: Array<ScopeFrame>, settings:
     validateElementSubPath(ref, record);
     return true;
   }
-  const commentBase = stripCommentSuffix(ref.segments[0].name, settings);
-  if (ref.segments.length === 1 && commentBase && frame.names.has(commentBase)) {
+  if (ref.segments.length === 1 && isCommentKeyOf(ref.segments[0].name, frame.names, settings)) {
     scopedResolved(ref, "");
     ref.resolvedKind = "comment";
     return true;

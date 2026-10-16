@@ -1,5 +1,5 @@
 import { CIMultiMap, ElementRecord, getEffectiveType } from "./symbols";
-import { equalsCI, stripCommentSuffix } from "./expression-utils";
+import { equalsCI, isCommentKeyOf } from "./expression-utils";
 import { ValueDomain, ValueSetDomain } from "./value-domain";
 import { getStaticChoiceValues } from "./value-types";
 import { ILintResolvedSettings } from "./lint-settings";
@@ -48,11 +48,8 @@ function findByKey(map: CIMultiMap<ElementRecord>, key: string,
   settings: ILintResolvedSettings): { record?: ElementRecord, known: boolean } {
   const direct = map.first(key);
   if (!!direct) return { record: direct, known: true };
-  const commentBase = stripCommentSuffix(key, settings);
-  if (commentBase !== undefined && map.has(commentBase)) {
-    // a comment is a plain string next to the value - known, but nothing types it
-    return { known: true };
-  }
+  // a comment is a plain string next to the value - known, but nothing types it
+  if (isCommentKeyOf(key, map, settings)) return { known: true };
   return { known: false };
 }
 

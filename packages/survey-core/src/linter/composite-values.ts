@@ -74,35 +74,40 @@ function getObjectKeys(record: ElementRecord): Array<any> {
   return record.mergedObject ? record.mergedObject.keys : record.matrixRowValues || [];
 }
 
+function hasKey(keys: Array<any>, key: string): boolean {
+  return keys.some(row => equalsCI(String(row), key));
+}
+
+// The value under a key another question on the data key adds is that question's to check, as the
+// runtime does it (QuestionMatrixModel.verifyValueCore: a row of another matrix that shares the
+// value is checked by that matrix); only the record's own rows are checked here.
+function forEachOwnKey(record: ElementRecord, value: any, ctx: CompositeContext, check: (key: string) => void): void {
+  const keys = getObjectKeys(record);
+  const ownRows = record.matrixRowValues || [];
+  userKeys(value).forEach(key => {
+    if (!hasKey(keys, key)) {
+      ctx.issues.push({ kind: "unknownRowKey", key: key, candidates: keys.map(row => String(row)) });
+      return;
+    }
+    if (hasKey(ownRows, key)) check(key);
+  });
+}
+
 // The {rowValue: columnValue} object of a single-choice matrix: the matrix itself owns the
 // one shared set of columns every row answers with.
 function checkMatrixObject(record: ElementRecord, value: any, ctx: CompositeContext): void {
   if (!isPlainObject(value)) return;
-  const rows = getObjectKeys(record);
   const columnValues = getStaticChoiceValues(record.json ? record.json.columns : undefined);
   const domain: ValueSetDomain | undefined = columnValues.length > 0
     ? { kind: "set", record: record, values: columnValues, listed: columnValues }
     : undefined;
-  userKeys(value).forEach(key => {
-    if (!rows.some(row => equalsCI(String(row), key))) {
-      ctx.issues.push({ kind: "unknownRowKey", key: key, candidates: rows.map(row => String(row)) });
-      return;
-    }
-    checkCellValue(value[key], domain, ctx);
-  });
+  forEachOwnKey(record, value, ctx, key => checkCellValue(value[key], domain, ctx));
 }
 
 function checkMatrixDropdownObject(record: ElementRecord, value: any, ctx: CompositeContext): void {
   if (!isPlainObject(value) || !record.matrixColumns) return;
-  const rows = getObjectKeys(record);
   const keys = getItemFields(record);
-  userKeys(value).forEach(key => {
-    if (!rows.some(row => equalsCI(String(row), key))) {
-      ctx.issues.push({ kind: "unknownRowKey", key: key, candidates: rows.map(row => String(row)) });
-      return;
-    }
-    checkRowObject(value[key], keys, "unknownColumnKey", ctx);
-  });
+  forEachOwnKey(record, value, ctx, key => checkRowObject(value[key], keys, "unknownColumnKey", ctx));
 }
 
 function checkRowArray(value: any, keys: CIMultiMap<ElementRecord>,

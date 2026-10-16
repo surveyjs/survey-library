@@ -8,6 +8,7 @@ import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { settings } from "./settings";
 import { Base } from "./base";
+import { IQuestion } from "./base-interfaces";
 
 function createSVGElement(name: string): SVGElement {
   const document = DomDocumentHelper.getDocument();
@@ -418,6 +419,16 @@ export class QuestionImageMapModel extends Question {
       return;
     }
     this.value = new PropertyNameArray(this.value, this.valuePropertyName).toggle(item.value, this.maxSelectedAreas);
+  }
+
+  // The field a selected area keeps in its object (valuePropertyName): a dynamic panel or matrix
+  // sharing the value knows it through this, as with a checkbox.
+  public getQuestionFromArray(name: string, index: number): IQuestion {
+    if (this.isMultiSelect && !!name && name === this.valuePropertyName) {
+      const v = this.value;
+      if (Array.isArray(v) && index < v.length) return this;
+    }
+    return null;
   }
 
   public isItemSelected(item: ImageMapArea): boolean {

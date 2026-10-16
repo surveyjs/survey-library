@@ -18,7 +18,8 @@ import { createNameFactory } from "./new-name";
 
 export interface ILintRule {
   id: string;
-  defaultSeverity: LintFindingSeverity;
+  // "off": the rule runs only when options.rules turns it on
+  defaultSeverity: LintSeverity;
   run(ctx: LintContext): void;
 }
 

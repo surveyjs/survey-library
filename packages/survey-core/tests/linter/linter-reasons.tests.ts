@@ -380,6 +380,12 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
     },
   },
   {
+    // off by default
+    ruleId: "expression/no-reference", reason: "noReference",
+    json: { elements: [{ type: "text", name: "q1", visibleIf: "false" }] },
+    options: { rules: { "expression/no-reference": "warning" } },
+  },
+  {
     ruleId: "choices/dead-source", reason: "missing",
     json: { elements: [{ type: "dropdown", name: "q1", choicesFromQuestion: "nope" }] },
   },

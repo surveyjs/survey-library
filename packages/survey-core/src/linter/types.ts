@@ -125,7 +125,8 @@ export interface ISurveyLintResult {
 
 export interface ILintRuleInfo {
   id: string;
-  defaultSeverity: LintFindingSeverity;
+  // "off" for a rule a host turns on itself, like expression/no-reference
+  defaultSeverity: LintSeverity;
 }
 
 export interface IRenderOptions {

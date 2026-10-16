@@ -32,7 +32,8 @@ describe("lint rule registry", () => {
     allRules.forEach(rule => {
       expect(seen.has(rule.id), "duplicate rule id \"" + rule.id + "\"").toBe(false);
       seen.add(rule.id);
-      expect(["error", "warning", "info"], rule.id + " has an invalid defaultSeverity").toContain(rule.defaultSeverity);
+      // "off": a rule a host turns on itself (expression/no-reference)
+      expect(["error", "warning", "info", "off"], rule.id + " has an invalid defaultSeverity").toContain(rule.defaultSeverity);
     });
   });
 

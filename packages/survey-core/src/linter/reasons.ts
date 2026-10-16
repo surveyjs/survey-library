@@ -129,6 +129,10 @@ export const SurveyLintReasons = Object.freeze({
     meaninglessFragment: "meaninglessFragment",
     alwaysTrueViaConstants: "alwaysTrueViaConstants",
   }),
+  // a condition that reads no question, calculated value or variable; the rule is off by default
+  "expression/no-reference": Object.freeze({
+    noReference: "noReference",
+  }),
   // these values already shipped inside messageData.reason
   "choices/dead-source": Object.freeze({
     missing: "missing",

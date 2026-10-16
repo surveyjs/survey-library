@@ -10,7 +10,7 @@ import {
   SegmentLevel, SurveyIndex, CIMap, CIMultiMap, TriggerRecord, ValueTypeInfo,
   ITEM_FIELD_TYPE, SCOPE_INDEX_VARIABLE_TYPE, SCOPE_ROW_VALUE_TYPE,
 } from "./symbols";
-import { getFrameItemFields, getFrameNames, getItemFields, getRowFields, getTotalFields } from "./record-fields";
+import { getFrameItemFields, getFrameNames, getItemFields, getRowFields, getTotalFields, isOwnField } from "./record-fields";
 
 export interface ParseOutcome {
   ast?: Operand;
@@ -701,14 +701,21 @@ function classifyRefCore(raw: string, site: { owner?: ElementRecord, scope: Arra
   // a bare name that exists in the enclosing template/matrix scope needs its prefix
   const panelFrame = findFrame<ScopeFramePanelDynamic>(site.scope || [], "panelDynamic");
   const matrixFrame = findFrame<ScopeFrameMatrixRow>(site.scope || [], "matrixRow");
-  if (matrixFrame && getFrameItemFields(matrixFrame).has(root)) {
+  const matrixFields = matrixFrame ? getFrameItemFields(matrixFrame) : undefined;
+  const panelFields = panelFrame ? getFrameItemFields(panelFrame) : undefined;
+  // a field a question sharing the value adds is no column or template question of the container
+  if (matrixFields && matrixFields.has(root)) {
     ref.suggestion = index.settings.expressionVariables.row + "." + root;
-    ref.scopeHint = "\"" + root + "\" is a column of this matrix - reference it as {" + ref.suggestion + "}.";
+    ref.scopeHint = "\"" + root + "\" is " + (isOwnField(matrixFrame.owner, matrixFields, root) ? "a column of this matrix"
+      : "a field of this matrix row, written by a question sharing the matrix value") +
+      " - reference it as {" + ref.suggestion + "}.";
     ref.hintReason = SurveyLintHintReasons.matrixColumn;
     ref.hintName = root;
-  } else if (panelFrame && getFrameItemFields(panelFrame).has(root)) {
+  } else if (panelFields && panelFields.has(root)) {
     ref.suggestion = index.settings.expressionVariables.panel + "." + root;
-    ref.scopeHint = "\"" + root + "\" is a question of this dynamic panel - reference it as {" + ref.suggestion + "}.";
+    ref.scopeHint = "\"" + root + "\" is " + (isOwnField(panelFrame.owner, panelFields, root) ? "a question of this dynamic panel"
+      : "a field of this dynamic panel, written by a question sharing the panel value") +
+      " - reference it as {" + ref.suggestion + "}.";
     ref.hintReason = SurveyLintHintReasons.panelQuestion;
     ref.hintName = root;
   } else {

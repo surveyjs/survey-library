@@ -209,6 +209,13 @@ export function getFrameItemFields(frame: ScopeFrame): CIMultiMap<ElementRecord>
   return !!merged && !!merged.ownRowFields ? merged.ownRowFields : getItemFields(frame.owner);
 }
 
+// Whether a field of a row/panel object is a column or a template question of the container
+// itself rather than one a question sharing its value adds.
+export function isOwnField(owner: ElementRecord, fields: CIMultiMap<ElementRecord>, field: string): boolean {
+  const own = getSubElementNames(owner);
+  return !!own && fields.get(field).some(record => own.get(record.name).indexOf(record) > -1);
+}
+
 // The fields of the total row: a total cell per column of the matrix itself
 // (MatrixDropdownTotalRowModel), none for a detail-panel question.
 export function getTotalFields(record: ElementRecord): CIMultiMap<ElementRecord> | undefined {

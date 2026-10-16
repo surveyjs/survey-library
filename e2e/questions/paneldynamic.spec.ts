@@ -438,6 +438,33 @@ frameworks.forEach((framework) => {
       await expect(page.locator("textarea").first()).toHaveValue("newCountry");
     });
 
+    test("the pager moves the panel pages through its page dropdown", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel",
+            pageSize: 2,
+            defaultValue: [1, 2, 3, 4, 5].map(i => ({ name: "panel" + i })),
+            templateElements: [{ type: "text", name: "name" }],
+          },
+        ],
+      });
+      const pager = page.locator(".sd-paneldynamic__pager");
+      const nameInput = page.locator(".sd-paneldynamic__panel-wrapper input").first();
+
+      await expect(nameInput).toHaveValue("panel1");
+      await expect(pager.locator("button[title='First']"), "no first and last below ten pages").toHaveCount(0);
+      await expect(pager.locator("button[title='Last']")).toHaveCount(0);
+      await expect(pager.locator(".sd-pager__total")).toHaveText("of 3");
+      await pager.getByRole("button", { name: "Page 1 of 3" }).click();
+      await page.getByRole("menuitemradio", { name: "3", exact: true }).click();
+      await expect(nameInput).toHaveValue("panel5");
+      await expect(pager.locator("button[title='Next']")).toBeDisabled();
+      await pager.locator("button[title='Previous']").click();
+      await expect(nameInput).toHaveValue("panel3");
+    });
+
     test("Check valueName for two paneldynamics - #6584", async ({ page }) => {
       await initSurvey(page, framework, {
         logoPosition: "right",

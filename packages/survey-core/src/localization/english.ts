@@ -4,6 +4,9 @@
 export var englishStrings = {
   pagePrevText: "Previous",
   pageNextText: "Next",
+  pageFirstText: "First",
+  pageLastText: "Last",
+  pagerTotalText: "of {0}",
   completeText: "Complete",
   previewText: "Preview",
   editText: "Edit",

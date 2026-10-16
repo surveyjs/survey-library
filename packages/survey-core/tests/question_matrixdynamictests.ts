@@ -11523,41 +11523,42 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
   });
   test("the pager actions are created once", () => {
     const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
-    const actions = matrix.pagerActions;
+    const actions = matrix.recordsBar.pagerActions;
     matrix.nextPage();
-    expect(matrix.pagerActions === actions, "#1: the same container after a page move").toBe(true);
+    expect(matrix.recordsBar.pagerActions === actions, "#1: the same container after a page move").toBe(true);
     matrix.pageSize = 3;
-    expect(matrix.pagerActions === actions, "#2: and after a page size change").toBe(true);
+    expect(matrix.recordsBar.pagerActions === actions, "#2: and after a page size change").toBe(true);
   });
   test("the pager actions run the navigation and follow it", () => {
     const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
-    const actions = matrix.pagerActions.actions;
-    expect(actions.length, "#1: prev, the page info and next").toBe(3);
-    const prev = matrix.pagerActions.getActionById("sv-pager-prev");
-    const next = matrix.pagerActions.getActionById("sv-pager-next");
-    const info = matrix.pagerActions.getActionById("sv-pager-info");
+    const actions = matrix.recordsBar.pagerActions.actions;
+    expect(actions.map(action => action.id), "#1: first, prev, the page dropdown, the total, next and last").toEqual(
+      ["sv-pager-first", "sv-pager-prev", "sv-pager-page", "sv-pager-total", "sv-pager-next", "sv-pager-last"]);
+    const prev = matrix.recordsBar.pagerActions.getActionById("sv-pager-prev");
+    const next = matrix.recordsBar.pagerActions.getActionById("sv-pager-next");
+    const page = matrix.recordsBar.pagerActions.getActionById("sv-pager-page");
     expect(prev.enabled, "#2").toBe(false);
     expect(next.enabled, "#3").toBe(true);
-    expect(info.title, "#4").toBe("1 of 3");
+    expect(page.title, "#4").toBe("1");
     next.action();
     expect(matrix.pageIndex, "#5").toBe(1);
-    expect(info.title, "#6").toBe("2 of 3");
+    expect(page.title, "#6").toBe("2");
     expect(prev.enabled, "#7").toBe(true);
     next.action();
     expect(next.enabled, "#8: the last page").toBe(false);
     prev.action();
     expect(matrix.pageIndex, "#9").toBe(1);
   });
-  test("the pager info follows the survey locale", () => {
+  test("the pager's page dropdown follows the survey locale", () => {
     const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
-    const info = matrix.pagerActions.getActionById("sv-pager-info");
-    expect(info.title, "#1").toBe("1 of 3");
+    const page = matrix.recordsBar.pagerActions.getActionById("sv-pager-page");
+    expect(page.ariaLabel, "#1").toBe("Page 1 of 3");
     (<SurveyModel>matrix.survey).locale = "de";
-    expect(info.title, "#2").toBe("1 von 3");
+    expect(page.ariaLabel, "#2").toBe("Seite 1 von 3");
     matrix.nextPage();
-    expect(info.title, "#3").toBe("2 von 3");
+    expect(page.ariaLabel, "#3").toBe("Seite 2 von 3");
     (<SurveyModel>matrix.survey).locale = "";
-    expect(info.title, "#4").toBe("2 of 3");
+    expect(page.ariaLabel, "#4").toBe("Page 2 of 3");
   });
   test("single input walks every visible row and ignores the page", () => {
     const survey = createSurvey({ rowCount: 4, pageSize: 2 }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);

@@ -121,6 +121,28 @@
     }
 }
 
+// The pager under the panels: the footer row of the design, with the separator line above it.
+.sd-paneldynamic__records-bar {
+    position: relative;
+    display: flex;
+    padding-top: var(--sjs2-layout-component-panel-dynamic-footer-padding-top);
+    padding-bottom: var(--sjs2-layout-component-panel-dynamic-footer-padding-bottom);
+    padding-inline-start: var(--sjs2-layout-component-panel-dynamic-footer-padding-left);
+    padding-inline-end: var(--sjs2-layout-component-panel-dynamic-footer-padding-right);
+    gap: var(--sjs2-layout-component-panel-dynamic-footer-gap);
+
+    &:before {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: $border-light;
+    }
+}
+
 // .sd-root-modern--mobile {
 //     .sd-paneldynamic__header {
 //         padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x300);

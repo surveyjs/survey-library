@@ -1,13 +1,17 @@
 @use "../variables.scss" as *;
 
-.sd-question--matrixdynamic {
+// The matrix with fixed rows has no type class on its question root: its records bar takes the
+// toolbar variables itself.
+.sd-question--matrixdynamic,
+.sd-matrixdropdown__records-bar {
   --sd-matrixdynamic-toolbar-padding-block-start: var(--sjs2-layout-component-panel-footer-padding-top);
   --sd-matrixdynamic-toolbar-padding-block-end: var(--sjs2-layout-component-panel-footer-padding-bottom);
   --sd-matrixdynamic-toolbar-padding-inline: var(--sjs2-layout-component-panel-footer-padding-left)
     var(--sjs2-layout-component-panel-footer-padding-right);
   --sd-matrixdynamic-toolbar-gap: var(--sjs2-layout-component-panel-footer-action-group-gap);
 }
-.sd-question--matrixdynamic:where(.sd-question--nested) {
+.sd-question--matrixdynamic:where(.sd-question--nested),
+.sd-question--nested .sd-matrixdropdown__records-bar {
   --sd-matrixdynamic-toolbar-padding-block-start: var(--sjs2-layout-component-panel-nested-footer-padding-top);
   --sd-matrixdynamic-toolbar-padding-block-end: var(--sjs2-layout-component-panel-nested-footer-padding-bottom);
   --sd-matrixdynamic-toolbar-padding-inline: var(--sjs2-layout-component-panel-nested-footer-padding-left)
@@ -35,6 +39,20 @@
 .sd-matrixdynamic__toolbar--top {
   padding-block-end: var(--sd-matrixdynamic-toolbar-padding-block-start);
   padding-block-start: var(--sd-matrixdynamic-toolbar-padding-block-end);
+}
+/* The pager under the table, padded like the toolbar; sticky, so it stays in view while the table
+   scrolls sideways. A sticky box is a stacking context: the bar is above the table's sticky action
+   cells (12), which would cover a list it opens upwards, and below the survey's sticky header (15),
+   which it scrolls under. */
+.sd-matrixdynamic__records-bar,
+.sd-matrixdropdown__records-bar {
+  position: sticky;
+  left: 0;
+  z-index: 13;
+  display: flex;
+  box-sizing: border-box;
+  padding-inline: var(--sd-matrixdynamic-toolbar-padding-inline);
+  padding-block-start: var(--sd-matrixdynamic-toolbar-padding-block-start);
 }
 .sd-matrixdynamic__content > div {
   display: contents;

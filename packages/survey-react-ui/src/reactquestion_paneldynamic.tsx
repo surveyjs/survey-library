@@ -67,9 +67,15 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         <div className={this.question.cssClasses.panelsContainer}>
           {panels}
         </div>
+        {this.renderRecordsBar()}
         {navigation}
       </div>
     );
+  }
+
+  // The records bar under the panels: the pager.
+  protected renderRecordsBar(): React.JSX.Element | null {
+    return ReactElementFactory.Instance.createElement("sv-records-bar", { model: this.question.recordsBar });
   }
 
   protected renderRange(): React.JSX.Element {

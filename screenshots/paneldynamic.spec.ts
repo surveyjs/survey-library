@@ -80,6 +80,60 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, paneldynamicRoot, "paneldynamic-list.png");
     });
 
+    const pagerJson = (panelCount: number): any => ({
+      showQuestionNumbers: false,
+      elements: [{
+        type: "paneldynamic",
+        name: "panel",
+        title: "Question title",
+        pageSize: 1,
+        defaultValue: Array.from({ length: panelCount }, (_, i) => ({ name: "Panel " + (i + 1) })),
+        templateElements: [{ type: "text", name: "name", title: "Name" }]
+      }]
+    });
+    [{ name: "desktop", width: 1920 }, { name: "mobile", width: 420 }].forEach(viewport => {
+      test(`Paneldynamic pager, ${viewport.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: viewport.width, height: 1080 });
+        const paneldynamicRoot = page.locator(".sd-question--paneldynamic");
+        await initSurvey(page, framework, pagerJson(3));
+        await resetFocusToBody(page);
+        await compareScreenshot(page, paneldynamicRoot, `paneldynamic-pager-3-pages-${viewport.name}.png`);
+        await initSurvey(page, framework, pagerJson(12));
+        await resetFocusToBody(page);
+        await compareScreenshot(page, paneldynamicRoot, `paneldynamic-pager-12-pages-${viewport.name}.png`);
+      });
+    });
+
+    test("Paneldynamic pager, an unknown page count", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: false,
+        elements: [{
+          type: "paneldynamic",
+          name: "panel",
+          title: "Question title",
+          pageSize: 1,
+          templateElements: [{ type: "text", name: "name", title: "Name" }]
+        }]
+      });
+      // A source that pages and answers later, without a total: the count stays unknown.
+      await page.evaluate(() => {
+        const records = Array.from({ length: 25 }, (_, i) => ({ id: i, name: "Panel " + (i + 1) }));
+        (window as any).survey.getQuestionByName("panel").dataSource = {
+          capabilities: { paging: true, filtering: true, sorting: true },
+          keyField: "id",
+          read: (request: any) => new Promise(resolve => setTimeout(() => {
+            resolve({ records: records.slice(request.skip, request.skip + request.take) });
+          }, 10))
+        };
+      });
+      const paneldynamicRoot = page.locator(".sd-question--paneldynamic");
+      await expect(page.locator(".sd-paneldynamic__pager .sd-pager__page")).toBeEnabled();
+      await expect(paneldynamicRoot.locator("input").first()).toHaveValue("Panel 1");
+      await resetFocusToBody(page);
+      await compareScreenshot(page, paneldynamicRoot, "paneldynamic-pager-unknown-count.png");
+    });
+
     test("Check paneldynamic with custom actions", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {});

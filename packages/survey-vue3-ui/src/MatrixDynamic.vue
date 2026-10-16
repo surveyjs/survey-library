@@ -13,6 +13,7 @@
       v-else
       :question="question"
     />
+    <SvComponent :is="'sv-records-bar'" :model="question.recordsBar"></SvComponent>
     <div v-if="question.getShowToolbar('bottom')" :class="question.getToolbarCssClass('bottom')">
       <SvComponent :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
     </div>

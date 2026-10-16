@@ -1,0 +1,29 @@
+@use "../variables.scss" as *;
+
+// The pager of a dynamic panel and of a matrix: one row the width of the question, in three groups
+// (the page dropdown and Next push them apart), with no gap between the buttons of a group.
+.sd-paneldynamic__pager,
+.sd-matrixdynamic__pager,
+.sd-matrixdropdown__pager {
+  width: 100%;
+
+  .sd-action-bar {
+    width: 100%;
+    --sd-action-bar-gap: var(--sjs2-spacing-x000);
+  }
+}
+
+// The page dropdown: the chevron follows the page number.
+.sd-action.sd-pager__page {
+  flex-direction: row-reverse;
+  box-sizing: border-box;
+  min-width: var(--sjs2-spacing-x400);
+}
+
+// "of N": a disabled item without a tab stop that reads as a label, not as a disabled button.
+.sd-action.sd-pager__total {
+  box-sizing: border-box;
+  min-width: var(--sjs2-spacing-x400);
+  --sd-action-disabled-background: var(--sd-action-background);
+  --sd-action-disabled-title-color: var(--sd-action-title-color);
+}

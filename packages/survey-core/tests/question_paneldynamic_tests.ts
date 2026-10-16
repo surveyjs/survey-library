@@ -10873,24 +10873,25 @@ describe("Question Panel Dynamic: paging and sorting", () => {
   });
   test("the pager actions are created once", () => {
     const question = createQuestion({ panelCount: 5, pageSize: 2 }, abcde);
-    const actions = question.pagerActions;
+    const actions = question.recordsBar.pagerActions;
     question.nextPage();
-    expect(question.pagerActions === actions, "#1: the same container after a page move").toBe(true);
+    expect(question.recordsBar.pagerActions === actions, "#1: the same container after a page move").toBe(true);
     question.pageSize = 3;
-    expect(question.pagerActions === actions, "#2: and after a page size change").toBe(true);
+    expect(question.recordsBar.pagerActions === actions, "#2: and after a page size change").toBe(true);
   });
   test("the pager actions run the navigation and follow it", () => {
     const question = createQuestion({ panelCount: 5, pageSize: 2 }, abcde);
-    expect(question.pagerActions.actions.length, "#1: prev, the page info and next").toBe(3);
-    const prev = question.pagerActions.getActionById("sv-pager-prev");
-    const next = question.pagerActions.getActionById("sv-pager-next");
-    const info = question.pagerActions.getActionById("sv-pager-info");
+    expect(question.recordsBar.pagerActions.actions.map(action => action.id), "#1: first, prev, the page dropdown, the total, next and last").toEqual(
+      ["sv-pager-first", "sv-pager-prev", "sv-pager-page", "sv-pager-total", "sv-pager-next", "sv-pager-last"]);
+    const prev = question.recordsBar.pagerActions.getActionById("sv-pager-prev");
+    const next = question.recordsBar.pagerActions.getActionById("sv-pager-next");
+    const page = question.recordsBar.pagerActions.getActionById("sv-pager-page");
     expect(prev.enabled, "#2").toBe(false);
     expect(next.enabled, "#3").toBe(true);
-    expect(info.title, "#4").toBe("1 of 3");
+    expect(page.title, "#4").toBe("1");
     next.action();
     expect(question.pageIndex, "#5").toBe(1);
-    expect(info.title, "#6").toBe("2 of 3");
+    expect(page.title, "#6").toBe("2");
     expect(prev.enabled, "#7").toBe(true);
     next.action();
     expect(next.enabled, "#8: the last page").toBe(false);

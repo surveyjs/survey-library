@@ -657,6 +657,53 @@ describe("linter vs runtime: fields of a shared value", () => {
   });
 });
 
+// name/shadowing reports a valueName landing on a dynamic panel or matrix without one of its own: that
+// question treats the fields the other one adds as unknown. Declared on both sides, nothing is lost.
+describe("linter vs runtime: a records question sharing its value without a valueName", () => {
+  function shadowing(json: any): Array<string> {
+    return lintSurvey(json).findings
+      .filter(f => f.ruleId === "name/shadowing")
+      .map(f => f.reason + " @ " + f.path);
+  }
+  const panel = { type: "paneldynamic", templateElements: [{ type: "text", name: "own" }] };
+  const matrix = { type: "matrixdynamic", rowCount: 0, columns: [{ name: "pk", cellType: "text" }] };
+
+  test("keyed by its name alone, it drops the fields the other one adds", () => {
+    const json = { elements: [Object.assign({ name: "cars" }, panel), Object.assign({ name: "m", valueName: "cars" }, matrix)] };
+    expect(shadowing(json)).toEqual(["valueNameShadowsElement @ elements[1].valueName"]);
+    const survey = new SurveyModel(json);
+    survey.getQuestionByName("m").value = [{ pk: "a" }, { pk: "b" }];
+    const data = JSON.parse(JSON.stringify(survey.data));
+    expect(new SurveyModel(json).setData(data).map(issue => issue.type + " @ " + issue.path))
+      .toEqual(["unknownProperty @ cars[0].pk", "unknownProperty @ cars[1].pk"]);
+    survey.clearIncorrectValues();
+    expect(survey.data).toEqual({ cars: [{}, {}] });
+  });
+
+  test("declared on both sides, the fields stay", () => {
+    const json = { elements: [Object.assign({ name: "p", valueName: "cars" }, panel), Object.assign({ name: "m", valueName: "cars" }, matrix)] };
+    expect(shadowing(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    survey.getQuestionByName("m").value = [{ pk: "a" }, { pk: "b" }];
+    expect(new SurveyModel(json).setData(JSON.parse(JSON.stringify(survey.data)))).toEqual([]);
+    survey.clearIncorrectValues();
+    expect(survey.data).toEqual({ cars: [{ pk: "a" }, { pk: "b" }] });
+  });
+
+  test("the merge example of the documentation keeps its fields", () => {
+    const json = { elements: [
+      { type: "checkbox", name: "cars", valuePropertyName: "car", choices: ["Ford", "Vauxhall"] },
+      { type: "paneldynamic", name: "cars-info", valueName: "cars", templateTitle: "Car: {panel.car}",
+        templateElements: [{ type: "rating", name: "rating" }] },
+    ] };
+    expect(shadowing(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    survey.getQuestionByName("cars").value = ["Ford"];
+    survey.clearIncorrectValues();
+    expect(survey.data).toEqual({ cars: [{ car: "Ford" }] });
+  });
+});
+
 describe("linter vs runtime: configurations that really are dead", () => {
   test("a scoped carry-forward outside a dynamic panel builds no choices", () => {
     const json = {

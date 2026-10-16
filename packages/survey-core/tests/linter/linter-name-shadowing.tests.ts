@@ -46,14 +46,49 @@ describe("name/shadowing - built-in variables", () => {
 });
 
 describe("name/shadowing - valueName over an element name", () => {
-  test("a valueName equal to another question's name is flagged", () => {
+  test("a valueName landing on a dynamic panel without one of its own is flagged", () => {
     const findings = byRule({
-      elements: [{ type: "text", name: "q1", valueName: "q2" }, { type: "comment", name: "q2" }],
+      elements: [
+        { type: "matrixdynamic", name: "q1", valueName: "q2", columns: [{ name: "c1", cellType: "text" }] },
+        { type: "paneldynamic", name: "q2", templateElements: [{ type: "text", name: "t1" }] },
+      ],
     });
     expect(findings).toHaveLength(1);
     expect(findings[0].reason).toBe("valueNameShadowsElement");
     expect(findings[0].messageData.otherName).toBe("q2");
     expect(findings[0].related.map(r => r.path).sort()).toEqual(["elements[0]", "elements[1]"]);
+    expect(findings[0].message).toBe("The valueName \"q2\" of \"q1\" shares the value of paneldynamic \"q2\"," +
+      " which has no valueName of its own - \"q2\" treats the fields \"q1\" adds as unknown," +
+      " and clearIncorrectValues() deletes them. Set its valueName to \"q2\" too.");
+  });
+  test("the records questions and checkboxes that add fields are flagged, the rest is a plain share", () => {
+    const flagged = (shadowed: any, sharing: any): number => byRule({
+      elements: [Object.assign({ name: "q2" }, shadowed), Object.assign({ name: "q1", valueName: "q2" }, sharing)],
+    }).length;
+    const panel = { type: "paneldynamic", templateElements: [{ type: "text", name: "t1" }] };
+    const matrix = { type: "matrixdynamic", columns: [{ name: "c1", cellType: "text" }] };
+    const dropdownMatrix = (column: string) => ({ type: "matrixdropdown", rows: ["r1"], columns: [{ name: column, cellType: "text" }] });
+    expect(flagged(matrix, panel), "matrix + panel").toBe(1);
+    expect(flagged(panel, matrix), "panel + matrix").toBe(1);
+    expect(flagged(panel, { type: "checkbox", choices: ["a"], valuePropertyName: "car" }), "checkbox with valuePropertyName").toBe(1);
+    expect(flagged(panel, { type: "tagbox", choices: ["a"], valuePropertyName: "car" }), "tagbox with valuePropertyName").toBe(1);
+    expect(flagged(panel, { type: "checkbox", choices: [{ value: "a", showCommentArea: true }] }), "checkbox with a choice comment").toBe(1);
+    expect(flagged(dropdownMatrix("c1"), dropdownMatrix("c2")), "matrixdropdown + matrixdropdown").toBe(1);
+    expect(flagged(panel, { type: "checkbox", choices: ["a"] }), "a plain checkbox adds no field").toBe(0);
+    expect(flagged(panel, { type: "imagemap", valuePropertyName: "car", imageLink: "x", areas: [] }), "an image map loses its fields either way").toBe(0);
+    expect(flagged(panel, { type: "text" }), "a scalar is a type conflict, not this").toBe(0);
+    expect(flagged({ type: "text" }, { type: "text" }), "two scalars share a value").toBe(0);
+    expect(flagged({ type: "multipletext", items: [{ name: "a" }] }, { type: "multipletext", items: [{ name: "b" }] }),
+      "multiple texts merge their keys").toBe(0);
+  });
+  test("the merge example of the documentation is clean - the checkbox keeps no records", () => {
+    expect(byRule({
+      elements: [
+        { type: "checkbox", name: "cars", valuePropertyName: "car", choices: ["Ford", "Vauxhall"] },
+        { type: "paneldynamic", name: "cars-info", valueName: "cars", templateTitle: "Car: {panel.car}",
+          templateElements: [{ type: "rating", name: "rating" }] },
+      ],
+    })).toHaveLength(0);
   });
   test("two questions deliberately sharing a valueName stay clean", () => {
     expect(byRule({

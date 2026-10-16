@@ -163,6 +163,29 @@ describe("fields a question sharing the value adds to a panel/row object", () =>
       ],
     })).toEqual(["reference/unknown/scopedUnknown @elements[1].templateTitle"]);
   });
+  // the comment of a choice lives under "comment" inside the item object; a "-Comment" key lives
+  // next to a question's or column's value only, never next to an item field
+  describe("a comment key of an item field is as unknown as a misspelled field", () => {
+    const checkbox = { type: "checkbox", name: "cars", valuePropertyName: "car", choices: ["Ford"] };
+    const cases: Array<{ id: string, json: (field: string) => any }> = [
+      { id: "{panel.x}", json: field => ({ elements: [checkbox, { type: "paneldynamic", name: "info", valueName: "cars",
+        templateTitle: "{panel." + field + "}", templateElements: [{ type: "text", name: "tq" }] }] }) },
+      { id: "{row.x}", json: field => ({ elements: [checkbox, { type: "matrixdynamic", name: "m", valueName: "cars",
+        columns: [{ name: "c", cellType: "text", visibleIf: "{row." + field + "} = 'x'" }] }] }) },
+      { id: "a default value key", json: field => ({ elements: [checkbox, { type: "paneldynamic", name: "info", valueName: "cars",
+        defaultValue: [{ [field]: "x" }], templateElements: [{ type: "text", name: "tq" }] }] }) },
+      // the dynamic panel goes by the key itself: the array source of an inArray function is looked up by name first
+      { id: "an inArray condition", json: field => ({ elements: [
+        { type: "checkbox", name: "cb", valueName: "cars", valuePropertyName: "car", choices: ["Ford"] },
+        { type: "paneldynamic", name: "cars", templateElements: [{ type: "text", name: "tq" }] },
+        { type: "expression", name: "e", expression: "countInArray({cars}, 'car', '{" + field + "} notempty')" }] }) },
+    ];
+    cases.forEach(c => test(c.id, () => {
+      const misspelled = findings(c.json("carX"));
+      expect(misspelled.length).toBeGreaterThan(0);
+      expect(findings(c.json("car-Comment"))).toEqual(misspelled);
+    }));
+  });
 });
 
 describe("a template question is a field under the key it stores its value by", () => {

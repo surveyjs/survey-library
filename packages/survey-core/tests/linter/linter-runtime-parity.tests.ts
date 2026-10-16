@@ -593,6 +593,22 @@ describe("linter vs runtime: fields of a shared value", () => {
     expect(survey.data.cars).toBe("Ford");
     expect((<QuestionPanelDynamicModel>survey.getQuestionByName("info")).panels).toHaveLength(0);
   });
+
+  test("a choice comment lives under \"comment\" in the item object, never under \"<field>-Comment\"", () => {
+    const json = { elements: [
+      { type: "checkbox", name: "cars", valuePropertyName: "car", choices: [{ value: "Ford", showCommentArea: true }, "BMW"] },
+      { type: "paneldynamic", name: "info", valueName: "cars", templateTitle: "T {panel.car-Comment}",
+        templateElements: [{ type: "text", name: "tq" }] },
+    ] };
+    expect(referenceFindings(json)).toEqual(["reference/unknown/scopedUnknown @elements[1].templateTitle"]);
+    const survey = new SurveyModel(json);
+    const q = <QuestionSelectBase>survey.getQuestionByName("cars");
+    q.value = ["Ford"];
+    q.setCommentValue(q.choices[0], "note");
+    expect(survey.data.cars).toEqual([{ car: "Ford", comment: "note" }]);
+    const panels = (<QuestionPanelDynamicModel>survey.getQuestionByName("info")).panels;
+    expect(panels[0].locTitle.renderedHtml).not.toContain("note");
+  });
 });
 
 describe("linter vs runtime: configurations that really are dead", () => {

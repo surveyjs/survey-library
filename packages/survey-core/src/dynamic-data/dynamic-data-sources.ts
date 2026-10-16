@@ -2,6 +2,7 @@ import { ISurveyData } from "../interfaces/data-interfaces";
 import { Helpers } from "../helpers";
 import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data-interfaces";
 import { createKeyRemap, getReplacedRecordsRemap } from "./dynamic-data-record-remap";
+import { Scope } from "../utils/scope";
 
 /* A local source: the owner's records in memory, behind a getter/setter pair. It is read whole and
    synchronously, it is written synchronously and by position - the index a list sends is the position
@@ -40,12 +41,12 @@ export abstract class LocalDynamicDataSource implements IDynamicDataSource {
   }
   protected abstract getStoredCount(): number;
   protected abstract readStoredAt(index: number, defaultRecord: any): any;
-  private batchDepth: number = 0;
+  private batchScope = new Scope();
   private batchArray: Array<any>;
   private batchOperations: Array<DynamicDataOperation> = [];
   // True while a batch is open, a nested one included: read() answers from the array being built.
   private get isBatching(): boolean {
-    return this.batchDepth > 0;
+    return this.batchScope.isActive;
   }
   // One record operation of the list is often several source writes: pad the array, then set a
   // field; move a record, then update it. The owner's array has to be replaced once, not once per
@@ -56,15 +57,13 @@ export abstract class LocalDynamicDataSource implements IDynamicDataSource {
       func();
       return;
     }
-    this.batchDepth = 1;
     this.batchArray = this.readCore();
     this.batchOperations = [];
     let newArray: Array<any>;
     let operations: Array<DynamicDataOperation>;
     try {
-      func();
+      this.batchScope.run(func);
     } finally {
-      this.batchDepth = 0;
       newArray = this.batchArray;
       operations = this.batchOperations;
       this.batchArray = undefined;

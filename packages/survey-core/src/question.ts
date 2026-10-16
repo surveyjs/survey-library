@@ -29,6 +29,7 @@ import { ActionContainer } from "./actions/container";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { isAnimationEnabled } from "./utils/reduced-motion";
 import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choices";
+import { Scope, ValueScope } from "./utils/scope";
 
 export interface IConditionObject {
   name: string;
@@ -293,7 +294,7 @@ function isSameSegments(a: Array<string | number>, b: Array<string | number>): b
 class VerifyDataContext implements IVerifyDataContext {
   public issues: Array<IDataIssue> = [];
   public stopOnFirst: boolean = false;
-  private segments: Array<string | number> = [];
+  private segmentsScope = new ValueScope<Array<string | number>>([]);
   // The segments of every issue, parallel to issues. The public issue has the rendered path only,
   // which is ambiguous; deduplication needs the unambiguous form.
   private issueSegments: Array<Array<string | number>> = [];
@@ -302,23 +303,17 @@ class VerifyDataContext implements IVerifyDataContext {
   public get hasIssues(): boolean { return this.issues.length > 0; }
   public get issueCount(): number { return this.issues.length; }
   public pushSegment(segment: string | number): void {
-    this.segments.push(segment);
+    this.segmentsScope.value.push(segment);
   }
   public popSegment(): void {
-    this.segments.pop();
+    this.segmentsScope.value.pop();
   }
   public runWithEmptySegments(func: () => void): void {
-    const segments = this.segments;
-    this.segments = [];
-    try {
-      func();
-    } finally {
-      this.segments = segments;
-    }
+    this.segmentsScope.run([], func);
   }
   public addIssue(type: DataIssueType, lastSegment: string | number | undefined, value: any, question: Question, expressionResult?: any): void {
     if (this.stopOnFirst && this.hasIssues) return;
-    const segments = this.segments.slice();
+    const segments = this.segmentsScope.value.slice();
     if (lastSegment !== undefined) {
       segments.push(lastSegment);
     }
@@ -364,26 +359,20 @@ export class ValidationContext extends AsyncElementsRunner {
     this.focusOnFirstErrorValue = context.focusOnFirstError || false;
     this.callbackResult = context.callbackResult || null;
     this.changeCurrentPage = context.changeCurrentPage || false;
-    this.clearIncorrectValuesValue = context.clearIncorrectValues !== false;
+    this.clearIncorrectValuesScope = new ValueScope<boolean>(context.clearIncorrectValues !== false);
   }
-  private clearIncorrectValuesValue: boolean;
+  private clearIncorrectValuesScope: ValueScope<boolean>;
   // A matrix with detailPanelMode "underRowSingle" sets isSingleDetailPanel for its rows; the first row
   // whose detail panel has errors sets hideErroredPanel, so that only that panel is shown.
   public isSingleDetailPanel?: boolean;
   public hideErroredPanel?: boolean;
   public get fireCallback(): boolean { return this.fireCallbackValue; }
-  public get clearIncorrectValues(): boolean { return this.clearIncorrectValuesValue; }
+  public get clearIncorrectValues(): boolean { return this.clearIncorrectValuesScope.value; }
   /* Validates a part of the elements without clearing their incorrect values, and in this context:
      its async results, focus and callback stay the caller's. A question reads the flag when its
      validation starts, so an async validator that settles later never clears either. */
   public runWithoutClearingIncorrectValues<T>(func: () => T): T {
-    const prev = this.clearIncorrectValuesValue;
-    this.clearIncorrectValuesValue = false;
-    try {
-      return func();
-    } finally {
-      this.clearIncorrectValuesValue = prev;
-    }
+    return this.clearIncorrectValuesScope.run(false, func);
   }
   public get isOnValueChanged(): boolean { return this.isOnValueChangedValue; }
   public get isOnValueChanging(): boolean { return this.isOnValueChangingValue; }
@@ -3375,7 +3364,8 @@ export class Question extends SurveyElement<Question>
   }
   // Set only while Enter commits the current value. tryGoNextPageAutomatic runs on every
   // value change, so multi-value questions stay opted out until this flag is raised.
-  protected isAutoAdvanceRequested: boolean;
+  private autoAdvanceRequestScope = new Scope();
+  protected get isAutoAdvanceRequested(): boolean { return this.autoAdvanceRequestScope.isActive; }
   // Emptiness is checked separately: comment writes the textarea text before deciding to advance.
   protected isAutoAdvanceEnter(event: any): boolean {
     if (!event || (event.key !== "Enter" && event.keyCode !== 13)) return false;
@@ -3392,12 +3382,7 @@ export class Question extends SurveyElement<Question>
     // getQuestionByValueName only sees top-level questions. A nested question with the same
     // name must not advance on behalf of that other question.
     if (!survey || survey.getQuestionByValueName(this.getValueName()) !== this) return false;
-    this.isAutoAdvanceRequested = true;
-    try {
-      return survey.tryGoNextPageAutomaticCore(this.getValueName());
-    } finally {
-      this.isAutoAdvanceRequested = false;
-    }
+    return this.autoAdvanceRequestScope.run(() => survey.tryGoNextPageAutomaticCore(this.getValueName()));
   }
   protected commitAutoAdvance(event?: any): void {
     if (event?.preventDefault) event.preventDefault();

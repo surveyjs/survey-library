@@ -2,6 +2,7 @@ import { ItemValue } from "../itemvalue";
 import { settings } from "../settings";
 import { choiceKeyCodeHasLongerMatch, choiceKeyCodeToIndex, indexToChoiceKeyCode } from "./choice-key-codes";
 import { KeySequenceBuffer } from "./key-sequence-buffer";
+import { Scope } from "./scope";
 
 export interface IChoiceShortcutsOwner {
   readonly canShowChoiceKeys: boolean;
@@ -15,7 +16,7 @@ export interface IChoiceShortcutsOwner {
 export class ChoiceShortcuts {
   private keys: KeySequenceBuffer = new KeySequenceBuffer();
   private keyedItems: Array<ItemValue> = [];
-  private applying = false;
+  private applyScope = new Scope();
 
   constructor(private owner: IChoiceShortcutsOwner) {}
 
@@ -36,9 +37,8 @@ export class ChoiceShortcuts {
   }
 
   public applyBadges(): void {
-    if (this.applying) return;
-    this.applying = true;
-    try {
+    if (this.applyScope.isActive) return;
+    this.applyScope.run(() => {
       const next = new Map<ItemValue, string>();
       if (this.owner.canShowChoiceKeys) {
         const items = this.owner.getChoiceKeyItems();
@@ -58,9 +58,7 @@ export class ChoiceShortcuts {
         }
       });
       this.keyedItems = Array.from(next.keys());
-    } finally {
-      this.applying = false;
-    }
+    });
   }
 
   public badge(item: ItemValue): string {

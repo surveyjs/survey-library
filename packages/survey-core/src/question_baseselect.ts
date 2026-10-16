@@ -26,6 +26,7 @@ import { ExpressionErrorType } from "./expressions/expressionError";
 import { EventBase } from "./event";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { ChoiceShortcuts, IChoiceShortcutsOwner } from "./utils/choice-shortcuts";
+import { Scope } from "./utils/scope";
 
 const OTHER_ITEM_VALUE = "other";
 // The contract of a question whose value is picked from a list of items it offers: every Select
@@ -566,26 +567,26 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
     super.setNewComment(newValue);
   }
-  private isSettingComment: boolean;
+  private commentSettingScope = new Scope();
   public get otherValue(): string {
     if (this.getStoreOthersAsComment()) return this.getQuestionComment();
     return this.otherValueCore;
   }
   public set otherValue(val: string) {
     val = this.getTrimmedComment(val);
-    if (!this.isSettingComment && this.otherValue !== val) {
+    if (!this.commentSettingScope.isActive && this.otherValue !== val) {
       this.onUpdateCommentOnAutoOtherMode(val);
       this.updatePrevOtherErrorValue(val);
-      this.isSettingComment = true;
-      if (this.getStoreOthersAsComment())
-        this.setNewComment(val);
-      else {
-        this.otherValueCore = val;
-        if (this.isOtherSelected && !this.isRenderedValueSetting) {
-          this.value = this.getValueOnSettingOther(val);
+      this.commentSettingScope.run(() => {
+        if (this.getStoreOthersAsComment())
+          this.setNewComment(val);
+        else {
+          this.otherValueCore = val;
+          if (this.isOtherSelected && !this.isRenderedValueSetting) {
+            this.value = this.getValueOnSettingOther(val);
+          }
         }
-      }
-      this.isSettingComment = false;
+      });
       this.updateChoicesDependedQuestions();
     }
   }
@@ -2303,13 +2304,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
     return { value: value };
   }
-  private isUpdatingChoicesDependedQuestions = false;
+  private choicesDependedQuestionsUpdateScope = new Scope();
   protected updateChoicesDependedQuestions(): void {
-    if (this.isLoadingFromJson || this.isUpdatingChoicesDependedQuestions ||
+    if (this.isLoadingFromJson || this.choicesDependedQuestionsUpdateScope.isActive ||
       !this.allowNotifyValueChanged || this.isRunningChoices) return;
-    this.isUpdatingChoicesDependedQuestions = true;
-    this.updateDependedQuestions();
-    this.isUpdatingChoicesDependedQuestions = false;
+    this.choicesDependedQuestionsUpdateScope.run(() => this.updateDependedQuestions());
   }
   protected updateDependedQuestion(): void {
     if (this.isArrayChoicesSourceUnchanged()) return;

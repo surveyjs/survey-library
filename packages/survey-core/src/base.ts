@@ -19,6 +19,7 @@ import { IObjectValueContext, IValueGetterContext, ValueGetter, VariableGetterCo
 import { EventBase, Event } from "./event";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isAnimationEnabled } from "./utils/reduced-motion";
+import { Scope } from "./utils/scope";
 
 export interface IPropertyValueChangedEvent {
   name: string;
@@ -952,12 +953,14 @@ export class Base implements IObjectValueContext {
       propertyName: item.ownerPropertyName,
     });
   }
-  private isFuncExecuting: boolean;
+  // Created on the first sync: most Base objects never sync properties, and there are many of them.
+  private syncPropertiesScope: Scope;
   protected executeOnSyncPropertiesChanged(func: () => void): void {
-    if (!this.isFuncExecuting) {
-      this.isFuncExecuting = true;
-      func();
-      this.isFuncExecuting = false;
+    if (!this.syncPropertiesScope) {
+      this.syncPropertiesScope = new Scope();
+    }
+    if (!this.syncPropertiesScope.isActive) {
+      this.syncPropertiesScope.run(func);
     }
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges): void { }

@@ -26,6 +26,7 @@ import { ConsoleWarnings } from "./console-warnings";
 import { settings } from "./settings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
 import { ValidationContext } from "./question";
+import { Scope } from "./utils/scope";
 
 /**
  * An interface used to create custom question types.
@@ -627,12 +628,9 @@ export abstract class QuestionCustomModelBase extends Question
     if (!el) return;
     el.setSurveyImpl(this);
   }
-  protected isSettingValOnLoading: boolean;
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
-    this.isSettingValOnLoading = true;
     super.setSurveyImpl(value, isLight);
     this.initElement(this.getElement());
-    this.isSettingValOnLoading = false;
   }
   private isLoadedCalled: boolean;
   private onCustomQuestionLoaded(): void {
@@ -1112,15 +1110,22 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     if (!!this.contentQuestion) return this.getContentQuestionValue();
     return super.getValueCore();
   }
-  private isSettingValueChanged: boolean;
-  protected setValueChangedDirectly(val: boolean): void {
-    if (this.isSettingValueChanged) return;
-    this.isSettingValueChanged = true;
-    super.setValueChangedDirectly(val);
-    if (!!this.contentQuestion) {
-      (<any>this.contentQuestion).setValueChangedDirectly(val);
+  // Created on first use: the base constructor calls onCreated, which can get here before this class's field initializers run.
+  private valueChangedDirectlySettingScopeValue: Scope;
+  private get valueChangedDirectlySettingScope(): Scope {
+    if (!this.valueChangedDirectlySettingScopeValue) {
+      this.valueChangedDirectlySettingScopeValue = new Scope();
     }
-    this.isSettingValueChanged = false;
+    return this.valueChangedDirectlySettingScopeValue;
+  }
+  protected setValueChangedDirectly(val: boolean): void {
+    if (this.valueChangedDirectlySettingScope.isActive) return;
+    this.valueChangedDirectlySettingScope.run(() => {
+      super.setValueChangedDirectly(val);
+      if (!!this.contentQuestion) {
+        (<any>this.contentQuestion).setValueChangedDirectly(val);
+      }
+    });
   }
   private createDynamicProperties(el: SurveyElement): void {
     if (!el) return;
@@ -1343,7 +1348,6 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     super.updateValueFromSurvey(newValue, clearData);
   }
   public onSurveyLoad(): void {
-    this.isSettingValOnLoading = true;
     if (!!this.contentPanel) {
       this.contentPanel.readOnly = this.isReadOnly;
       this.setIsContentElement(this.contentPanel);
@@ -1355,7 +1359,6 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
         this.value = val;
       }
     }
-    this.isSettingValOnLoading = false;
   }
   private setIsContentElement(panel: PanelModel) {
     panel.isContentElement = true;
@@ -1399,23 +1402,30 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   protected getQuestionByName(name: string): IQuestion {
     return !!this.contentPanel ? this.contentPanel.getQuestionByName(name) : undefined;
   }
-  private settingNewValue = false;
+  // Created on first use: the base constructor calls onCreated, which can get here before this class's field initializers run.
+  private newValueSettingScopeValue: Scope;
+  private get newValueSettingScope(): Scope {
+    if (!this.newValueSettingScopeValue) {
+      this.newValueSettingScopeValue = new Scope();
+    }
+    return this.newValueSettingScopeValue;
+  }
   setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
-    if (this.settingNewValue) {
+    if (this.newValueSettingScope.isActive) {
       this.setNewValueIntoQuestion(name, newValue);
       return;
     }
     if (this.isValueChanging(name, newValue)) return;
     const oldValue = this.getValueFromData();
-    this.settingNewValue = true;
-    if (!this.isEditingSurveyElement && !!this.contentPanel) {
-      let index = 0;
-      const maxTimes = this.contentPanel.questions.length + 1;
-      while(index < maxTimes && this.updateValueCoreWithPanelValue()) index ++;
-    }
-    this.setNewValueIntoQuestion(name, newValue);
-    super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
-    this.settingNewValue = false;
+    this.newValueSettingScope.run(() => {
+      if (!this.isEditingSurveyElement && !!this.contentPanel) {
+        let index = 0;
+        const maxTimes = this.contentPanel.questions.length + 1;
+        while(index < maxTimes && this.updateValueCoreWithPanelValue()) index ++;
+      }
+      this.setNewValueIntoQuestion(name, newValue);
+      super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
+    });
     this.notifySurveyOnValueChanged(oldValue);
     this.runPanelTriggers(settings.expressionVariables.composite + "." + name, newValue);
     if (this.isEditingSurveyElement) {
@@ -1436,7 +1446,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     if (!!q && q.comment !== newValue) {
       q.comment = newValue;
     }
-    if (!this.settingNewValue) {
+    if (!this.newValueSettingScope.isActive) {
       this.value = val;
     }
   }
@@ -1514,25 +1524,24 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     super.setQuestionValue(newValue, updateIsAnswered);
   }
   private setValuesIntoQuestions(newValue: any): void {
-    if (!this.contentPanel || this.settingNewValue) return;
+    if (!this.contentPanel || this.newValueSettingScope.isActive) return;
     newValue = this.getValueForContentPanel(newValue);
-    const oldSettingNewValue = this.settingNewValue;
-    this.settingNewValue = true;
-    const questions = this.contentPanel.questions;
-    for (var i = 0; i < questions.length; i++) {
-      const q = questions[i];
-      const key = q.getValueName();
-      const commentKey = Helpers.getCommentKey(key);
-      const val = !!newValue ? newValue[key] : undefined;
-      const commentVal = !!newValue && newValue[commentKey] || "";
-      if (!this.isTwoValueEquals(q.value, val) && (val !== undefined || !q.isEmpty())) {
-        q.value = val;
+    this.newValueSettingScope.run(() => {
+      const questions = this.contentPanel.questions;
+      for (var i = 0; i < questions.length; i++) {
+        const q = questions[i];
+        const key = q.getValueName();
+        const commentKey = Helpers.getCommentKey(key);
+        const val = !!newValue ? newValue[key] : undefined;
+        const commentVal = !!newValue && newValue[commentKey] || "";
+        if (!this.isTwoValueEquals(q.value, val) && (val !== undefined || !q.isEmpty())) {
+          q.value = val;
+        }
+        if (q.comment !== commentVal) {
+          q.comment = commentVal;
+        }
       }
-      if (q.comment !== commentVal) {
-        q.comment = commentVal;
-      }
-    }
-    this.settingNewValue = oldSettingNewValue;
+    });
   }
   public getValueGetterContext(): IValueGetterContext {
     return new CompositeValueGetterContext(this);

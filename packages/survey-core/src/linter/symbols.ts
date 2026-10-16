@@ -111,6 +111,16 @@ export interface ScopeFrameComposite {
 }
 export type ScopeFrame = ScopeFramePanelDynamic | ScopeFrameMatrixRow | ScopeFrameItemValue | ScopeFrameComposite | ScopeFrameArrayItem;
 
+// The keys of an object value several questions share (multiple text, matrix, matrixdropdown).
+export interface MergedObjectKeys {
+  // the multiple-text items and matrix rows of every sharing question
+  keys: Array<string>;
+  // the rows among them that key an object of matrixdropdown columns
+  dropdownRows: Array<string>;
+  // the columns of the sharing matrixdropdowns
+  columns: CIMultiMap<ElementRecord>;
+}
+
 export interface ElementRecord {
   name: string;
   valueName?: string;
@@ -137,6 +147,13 @@ export interface ElementRecord {
   panelDescendantNames?: CIMap<ElementRecord>;
   // memoized synthetic records for the standalone scope variables of this matrix/panel
   scopeValueRecords?: CIMap<ElementRecord>;
+  // the fields one panel/row object of this dynamic panel or matrix holds, under the data key each
+  // is stored by - its own and those of the questions sharing its value (see record-fields.ts)
+  itemFields?: CIMultiMap<ElementRecord>;
+  // set on an object-valued question that shares its value with another one
+  mergedObject?: MergedObjectKeys;
+  // memoized synthetic records for the fields a checkbox keeps in the object of a selected item
+  itemFieldRecords?: CIMap<ElementRecord>;
 }
 
 // A path into the linted JSON, the way every finding addresses it. The survey itself has the
@@ -165,6 +182,9 @@ export function getEffectiveType(record: { type: string, effectiveType?: string 
 // live on ElementRecord.scopeValueRecords, never in the index.
 export const SCOPE_INDEX_VARIABLE_TYPE = "scopeindexvariable";
 export const SCOPE_ROW_VALUE_TYPE = "scoperowvaluevariable";
+// The synthetic record type behind a field a checkbox or an image map keeps in the object of a
+// selected item ({panel.car} for valuePropertyName "car"). Lives on itemFieldRecords, never in the index.
+export const ITEM_FIELD_TYPE = "itemfieldvariable";
 
 export interface ParsedRefSegment {
   name: string;

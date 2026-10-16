@@ -2,7 +2,7 @@ import { SurveyModel } from "../src/survey";
 import { ChoiceItem, QuestionSelectBase } from "../src/question_baseselect";
 import { settings } from "../src/settings";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
-import { QuestionCheckboxModel } from "../src/question_checkbox";
+import { getCheckboxItemFields, QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionTagboxModel } from "../src/question_tagbox";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
@@ -554,6 +554,25 @@ describe("baseselect", () => {
     expect(q.isItemSelected(q.choices[2]), "#3.3").toBe(true);
     survey.doComplete();
     expect(survey.data, "survey.data is correct on complete, #5").toEqual({ q1: [{ fruit: "apple" }, { fruit: "orange" }] });
+  });
+  test("getCheckboxItemFields names the fields a checkbox writes into the object of a selected item", () => {
+    const check = (json: any, fields: Array<string>): void => {
+      expect(getCheckboxItemFields(json.valuePropertyName, json.choices), JSON.stringify(json)).toEqual(fields);
+      const survey = new SurveyModel({ elements: [Object.assign({ type: "checkbox", name: "q1" }, json)] });
+      const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+      q.renderedValue = ["a"];
+      if (q.choices[0].showCommentArea) q.setCommentValue(q.choices[0], "note");
+      const keys: Array<string> = [];
+      q.value.forEach((item: any) => {
+        if (typeof item === "object") Object.keys(item).forEach(key => { if (keys.indexOf(key) < 0) keys.push(key); });
+      });
+      expect(keys.sort(), "the runtime writes the same fields, " + JSON.stringify(json)).toEqual(fields.slice().sort());
+    };
+    check({ choices: ["a", "b"] }, []);
+    check({ valuePropertyName: "car", choices: ["a", "b"] }, ["car"]);
+    check({ choices: [{ value: "a", showCommentArea: true }, "b"] }, ["value", "comment"]);
+    check({ valuePropertyName: "car", choices: [{ value: "a", showCommentArea: true }, "b"] }, ["car", "comment"]);
+    check({ choices: ["a", { value: "other", showCommentArea: true }] }, []);
   });
   test("checkbox valuePropertyName and shared data vs panel dynamic ", () => {
     const survey = new SurveyModel({

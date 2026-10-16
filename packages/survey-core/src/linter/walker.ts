@@ -12,6 +12,7 @@ import {
   ScopeFrameMatrixRow, ScopeFramePanelDynamic, SurveyIndex, TriggerRecord, TriggerTargetRef,
 } from "./symbols";
 import { getChoicesInfo, getStaticChoiceValues, getValueTypeInfo } from "./value-types";
+import { annotateSharedValues } from "./record-fields";
 
 const MAX_DEPTH = 128;
 
@@ -686,6 +687,7 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
   });
 
   walkComponentDefs(state);
+  annotateSharedValues(index);
   addInArrayConditionSites(state);
 
   return index;

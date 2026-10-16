@@ -120,6 +120,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   public getValuePropertyName(): string {
     return getCheckboxValuePropertyName(this.valuePropertyName, this.isTheOnlyComment);
   }
+  // The value field and, while a choice other than "Other" shows a comment area, the choice comment.
+  public hasValueItemKey(key: string): boolean {
+    if (!key) return false;
+    return key === this.getValuePropertyName() || (!this.isTheOnlyComment && key === this.commentPropertyValue);
+  }
   public getQuestionFromArray(name: string, index: number): IQuestion {
     if (!!name && name === this.getValuePropertyName()) {
       const v = this.value;

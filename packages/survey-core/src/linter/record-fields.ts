@@ -53,16 +53,18 @@ export function getDataKeyRecords(index: SurveyIndex, frame: CapturingScopeFrame
     .concat(index.byValueName.get(key));
 }
 
-// The record itself first, then every other question of its data scope on the same data key.
+// The record itself first, then every other question (or matrix column) of its data scope on the
+// same data key.
 function getSharingQuestions(index: SurveyIndex, record: ElementRecord): Array<ElementRecord> {
   const others = getDataKeyRecords(index, getCapturingFrame(record.scope), getDataKey(record));
-  return [record].concat(others.filter(other => other !== record && other.kind === "question"));
+  return [record].concat(others.filter(other => other !== record));
 }
 
 // What one object of the question's value is: a panel/row/item of an array ("array"), or a row
 // of a matrixdropdown ("row"). Only questions of one kind add fields to each other's objects.
 function getItemKind(record: ElementRecord): "array" | "row" | undefined {
-  if (record.kind !== "question") return undefined;
+  // a column of a matrix row shares the row key with a detail-panel question of the same key
+  if (record.kind !== "question" && record.kind !== "column") return undefined;
   const type = getEffectiveType(record);
   if (type === "paneldynamic" || type === "matrixdynamic" || type === "imagemap" ||
     isDescendantOf(type, "checkbox")) return "array";

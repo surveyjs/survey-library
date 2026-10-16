@@ -123,6 +123,25 @@ describe("fields a question sharing the value adds to a panel/row object", () =>
       ],
     })).toEqual(["reference/unknown/scopedUnknown @elements[1].templateTitle"]);
   });
+
+  // a column and a detail-panel question on one key both read and write that key of the row record
+  const rowShare = (detailValueName: string): any => ({
+    elements: [{
+      type: "matrixdynamic", name: "m", detailPanelMode: "underRow",
+      columns: [{ name: "cars", cellType: "checkbox", choices: ["Ford", "BMW"], valuePropertyName: "car" }],
+      detailElements: [{ type: "paneldynamic", name: "pd", valueName: detailValueName, templateTitle: "Car: {panel.car}",
+        templateElements: [{ type: "text", name: "tq", visibleIf: "{panel.car} = 'Ford'" }] }],
+    }],
+  });
+  test("a column adds its fields to a detail-panel question on its row key", () => {
+    expect(findings(rowShare("cars"))).toEqual([]);
+  });
+  test("a column on another row key adds nothing", () => {
+    expect(findings(rowShare("other"))).toEqual([
+      "reference/unknown/scopedUnknown @elements[0].detailElements[0].templateElements[0].visibleIf",
+      "reference/unknown/scopedUnknown @elements[0].detailElements[0].templateTitle",
+    ]);
+  });
 });
 
 describe("a template question is a field under the key it stores its value by", () => {

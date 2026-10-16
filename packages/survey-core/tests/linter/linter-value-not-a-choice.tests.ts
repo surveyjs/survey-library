@@ -69,6 +69,17 @@ describe("a value a trigger writes", () => {
     expect(findings[0].path).toBe("triggers[0].setValue");
     expect(findings[0].messageData.values).toEqual(["z"]);
   });
+  // a target is a value path: a question of a row is found by the key it stores its value under
+  test("setValue into a row field named by a detail-panel valueName", () => {
+    const findings = notAChoiceOf({
+      elements: [{ type: "text", name: "q1" }, {
+        type: "matrixdynamic", name: "m", columns: [{ name: "c1", cellType: "text" }],
+        detailElements: [{ type: "dropdown", name: "d1", valueName: "dv", choices: ["a"] }],
+      }],
+      triggers: [{ type: "setvalue", expression: "{q1} notempty", setToName: "m[0].dv", setValue: "z" }],
+    });
+    expect(findings.map(f => f.reason + " @" + f.path)).toEqual(["triggerSetValue @triggers[0].setValue"]);
+  });
   test("a matrix cell target is resolved to its column", () => {
     const findings = notAChoiceOf({
       elements: [

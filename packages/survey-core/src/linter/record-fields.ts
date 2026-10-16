@@ -99,9 +99,19 @@ function addOwnItemFields(record: ElementRecord, res: CIMultiMap<ElementRecord>)
   }
   const json = record.json || {};
   const valuePropertyName = typeof json.valuePropertyName === "string" ? json.valuePropertyName : "";
-  const fields = getEffectiveType(record) === "imagemap"
-    ? (valuePropertyName ? [valuePropertyName] : [])
-    : getCheckboxItemFields(valuePropertyName, json.choices);
+  const type = getEffectiveType(record);
+  let fields: Array<string>;
+  if (type === "imagemap") {
+    // an image map wraps a selected area into an object only while it selects several
+    // (QuestionImageMapModel.mapItemToggle); multiSelect defaults to true
+    fields = json.multiSelect !== false && !!valuePropertyName ? [valuePropertyName] : [];
+  } else if (isDescendantOf(type, "tagbox")) {
+    // a tag box shows a comment area on its "Other" item alone (QuestionTagboxModel.supportMultipleComment),
+    // so a choice comment never turns its items into objects
+    fields = getCheckboxItemFields(valuePropertyName, []);
+  } else {
+    fields = getCheckboxItemFields(valuePropertyName, json.choices);
+  }
   fields.forEach(field => res.add(field, getItemFieldRecord(record, field)));
 }
 

@@ -142,6 +142,27 @@ describe("fields a question sharing the value adds to a panel/row object", () =>
       "reference/unknown/scopedUnknown @elements[0].detailElements[0].templateTitle",
     ]);
   });
+  // a tag box keeps a comment on "Other" alone, so a choice comment never makes its items objects
+  test("a tag box with a choice comment adds no value/comment field", () => {
+    expect(findings({
+      elements: [
+        { type: "tagbox", name: "cars", choices: [{ value: "Ford", showCommentArea: true }, "BMW"] },
+        { type: "paneldynamic", name: "info", valueName: "cars", templateTitle: "Car: {panel.value} {panel.comment}",
+          templateElements: [{ type: "text", name: "tq" }] },
+      ],
+    })).toEqual(["reference/unknown/scopedUnknown @elements[1].templateTitle", "reference/unknown/scopedUnknown @elements[1].templateTitle"]);
+  });
+  // a single-select image map keeps the area value as it is
+  test("a single-select image map adds no valuePropertyName field", () => {
+    expect(findings({
+      elements: [
+        { type: "imagemap", name: "cars", multiSelect: false, valuePropertyName: "car", imageLink: "x",
+          areas: [{ value: "Ford", coords: "1,1,2,2", shape: "rect" }] },
+        { type: "paneldynamic", name: "info", valueName: "cars", templateTitle: "Car: {panel.car}",
+          templateElements: [{ type: "text", name: "tq" }] },
+      ],
+    })).toEqual(["reference/unknown/scopedUnknown @elements[1].templateTitle"]);
+  });
 });
 
 describe("a template question is a field under the key it stores its value by", () => {

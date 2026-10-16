@@ -5,7 +5,7 @@ import {
 import { closestMatch } from "../levenshtein";
 import { getItemFields } from "../record-fields";
 import {
-  CIMultiMap, ElementRecord, ExpressionSite, getEffectiveType, isCarvedOutSite, NameRef, ParsedRef,
+  ElementRecord, ExpressionSite, getEffectiveType, isCarvedOutSite, NameRef, ParsedRef,
 } from "../symbols";
 import { didYouMean } from "../message-utils";
 import { SurveyLintFixReasons, SurveyLintReasons } from "../reasons";
@@ -162,15 +162,8 @@ function checkKeyName(ctx: LintContext, record: ElementRecord): void {
   const keyName = record.json ? record.json.keyName : undefined;
   if (typeof keyName !== "string" || !keyName) return;
   const type = getEffectiveType(record);
-  let map: CIMultiMap<ElementRecord> | undefined;
-  let label: string;
-  if (type === "matrixdynamic") {
-    map = getItemFields(record);
-    label = "column";
-  } else if (type === "paneldynamic") {
-    map = getItemFields(record);
-    label = "template question";
-  }
+  const label = type === "matrixdynamic" ? "column" : type === "paneldynamic" ? "template question" : undefined;
+  const map = !!label ? getItemFields(record) : undefined;
   if (!map || map.has(keyName)) return;
   const suggestion = closestMatch(keyName, map.names());
   ctx.report({

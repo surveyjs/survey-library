@@ -110,6 +110,8 @@ export interface ScopeFrameComposite {
   fieldNames: CIMap<boolean>;
 }
 export type ScopeFrame = ScopeFramePanelDynamic | ScopeFrameMatrixRow | ScopeFrameItemValue | ScopeFrameComposite | ScopeFrameArrayItem;
+// A frame whose elements write into its own record: a dynamic-panel template or a matrix row.
+export type CapturingScopeFrame = ScopeFramePanelDynamic | ScopeFrameMatrixRow;
 
 // The keys of an object value several questions share (multiple text, matrix, matrixdropdown).
 export interface MergedObjectKeys {
@@ -163,7 +165,7 @@ export function joinPath(base: string, key: string): string {
 }
 
 // The innermost scope frame that owns element names (dynamic-panel template or matrix row).
-export function getCapturingFrame(scope: Array<ScopeFrame>): ScopeFramePanelDynamic | ScopeFrameMatrixRow | undefined {
+export function getCapturingFrame(scope: Array<ScopeFrame>): CapturingScopeFrame | undefined {
   for (let i = scope.length - 1; i >= 0; i--) {
     const frame = scope[i];
     if (frame.kind === "panelDynamic" || frame.kind === "matrixRow") return frame;

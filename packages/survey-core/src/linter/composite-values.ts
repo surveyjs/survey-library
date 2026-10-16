@@ -71,14 +71,14 @@ function checkRowObject(row: any, keys: CIMultiMap<ElementRecord>,
   });
 }
 
-// The {rowValue: columnValue} object of a single-choice matrix: the matrix itself owns the
-// one shared set of columns every row answers with.
 // The keys of an object value: the question's rows, or every key the questions sharing the value
 // add (record-fields.ts).
 function getObjectKeys(record: ElementRecord): Array<any> {
   return record.mergedObject ? record.mergedObject.keys : record.matrixRowValues || [];
 }
 
+// The {rowValue: columnValue} object of a single-choice matrix: the matrix itself owns the
+// one shared set of columns every row answers with.
 function checkMatrixObject(record: ElementRecord, value: any, ctx: CompositeContext): void {
   if (!isPlainObject(value)) return;
   const rows = getObjectKeys(record);

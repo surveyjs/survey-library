@@ -5,12 +5,9 @@ import { isMatrixDropdown, isPropertyOn } from "../metadata";
 import { hasOtherItem } from "../value-types";
 import { ILintRelated } from "../types";
 import { SurveyLintReasons } from "../reasons";
+import { getDataKey, getFrameNames } from "../record-fields";
 
 const reasons = SurveyLintReasons["name/shadowing"];
-
-function getDataName(record: ElementRecord): string {
-  return record.valueName || record.name;
-}
 
 function relatedOf(records: Array<ElementRecord>): Array<ILintRelated> {
   return records.map(record => ({ path: record.path, elementName: record.name }));
@@ -46,7 +43,7 @@ function reportBuiltIn(ctx: LintContext, name: string, nameKind: string, path: s
 function findByDataNameInScope(ctx: LintContext, record: ElementRecord, dataName: string): ElementRecord | undefined {
   const frame = getCapturingFrame(record.scope);
   if (!frame) return ctx.index.findByDataName(dataName);
-  const names = frame.kind === "panelDynamic" ? frame.templateNames : frame.columns;
+  const names = getFrameNames(frame);
   const byName = names.first(dataName);
   if (byName) return byName;
   let byValueName: ElementRecord = undefined;
@@ -108,7 +105,7 @@ function hasTotals(record: ElementRecord): boolean {
 // element whose own key spells one of those overwrites it, in whichever order they are written.
 function checkDerivedKeyCollision(ctx: LintContext, record: ElementRecord): void {
   if (record.kind !== "question") return;
-  const dataName = getDataName(record);
+  const dataName = getDataKey(record);
   const settings = ctx.index.settings;
   const commentBase = stripCommentSuffix(dataName, settings);
   const totalsSuffix = settings.matrixTotalsSuffix;

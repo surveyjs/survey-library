@@ -12,7 +12,7 @@ import {
   ScopeFrameMatrixRow, ScopeFramePanelDynamic, SurveyIndex, TriggerRecord, TriggerTargetRef,
 } from "./symbols";
 import { getChoicesInfo, getStaticChoiceValues, getValueTypeInfo } from "./value-types";
-import { annotateSharedValues } from "./record-fields";
+import { annotateSharedValues, getFrameNames } from "./record-fields";
 
 const MAX_DEPTH = 128;
 
@@ -116,8 +116,7 @@ function registerRecord(state: WalkState, record: ElementRecord, ancestorPanels:
   if (record.name) {
     state.index.elementNames.add(record.name, record);
     if (frame) {
-      const map = frame.kind === "panelDynamic" ? frame.templateNames : frame.columns;
-      map.add(record.name, record);
+      getFrameNames(frame).add(record.name, record);
     } else {
       state.index.byName.add(record.name, record);
       if (record.valueName) state.index.byValueName.add(record.valueName, record);

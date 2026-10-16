@@ -10,7 +10,7 @@ import {
   SegmentLevel, SurveyIndex, CIMap, CIMultiMap, TriggerRecord, ValueTypeInfo,
   SCOPE_INDEX_VARIABLE_TYPE, SCOPE_ROW_VALUE_TYPE,
 } from "./symbols";
-import { getFrameItemFields, getItemFields } from "./record-fields";
+import { getFrameItemFields, getFrameNames, getItemFields } from "./record-fields";
 
 export interface ParseOutcome {
   ast?: Operand;
@@ -847,8 +847,9 @@ function getArrayItemSource(operand: Operand | undefined, index: SurveyIndex):
   { record: ElementRecord, map: CIMultiMap<ElementRecord> } | undefined {
   if (!operand || !(operand instanceof Variable)) return undefined;
   const record = index.findByDataName(operand.variable);
-  if (!record || (!record.matrixColumns && !record.templateNames)) return undefined;
-  return { record: record, map: getItemFields(record) };
+  const map = !!record ? getItemFields(record) : undefined;
+  if (!map) return undefined;
+  return { record: record, map: map };
 }
 
 function classifyArrayItemName(name: string, map: CIMultiMap<ElementRecord>): ParsedRef {
@@ -867,13 +868,14 @@ function classifyArrayItemName(name: string, map: CIMultiMap<ElementRecord>): Pa
 
 // getQuestionValueByContext walks up from the question the expression belongs to before it
 // asks the survey, so a sibling column or a template question answers its bare name here.
+// It is a question lookup (getQuestionByName), so the sub-elements by name, not the record's fields.
 function classifyContainerName(name: string, site: { scope: Array<ScopeFrame> },
   index: SurveyIndex, options: ISurveyLintOptions): ParsedRef {
   const scope = site.scope || [];
   const panelFrame = findFrame<ScopeFramePanelDynamic>(scope, "panelDynamic");
   const matrixFrame = findFrame<ScopeFrameMatrixRow>(scope, "matrixRow");
-  const local = matrixFrame && matrixFrame.columns.has(name) ? matrixFrame.columns
-    : panelFrame && panelFrame.templateNames.has(name) ? panelFrame.templateNames : undefined;
+  const local = matrixFrame && getFrameNames(matrixFrame).has(name) ? getFrameNames(matrixFrame)
+    : panelFrame && getFrameNames(panelFrame).has(name) ? getFrameNames(panelFrame) : undefined;
   if (local) return classifyArrayItemName(name, local);
   return classifyTargetName(name, index, options);
 }
@@ -963,7 +965,8 @@ export interface CarryForwardSource {
 // Mirrors QuestionRecordItem.findQuestionByName: inside a matrix row or a dynamic
 // panel, "<variableName>.<name>" addresses a sibling within that row/panel and anything
 // else falls through to the survey. The runtime compares that prefix case-sensitively,
-// unlike an expression reference, so this does too.
+// unlike an expression reference, so this does too. A question lookup by name, so the
+// sub-elements by name, not the record's fields.
 export function resolveCarryForwardSource(sourceName: string, owner: ElementRecord,
   index: SurveyIndex): CarryForwardSource {
   const vars = index.settings.expressionVariables;
@@ -973,9 +976,9 @@ export function resolveCarryForwardSource(sourceName: string, owner: ElementReco
     const frame = findFrame<ScopeFrameMatrixRow>(scope, "matrixRow");
     const inner = sourceName.substring(rowPrefix.length);
     return {
-      source: frame ? frame.columns.first(inner) : undefined,
+      source: frame ? getFrameNames(frame).first(inner) : undefined,
       scopePrefix: vars.row,
-      candidates: frame ? frame.columns.names().map(name => rowPrefix + name) : [],
+      candidates: frame ? getFrameNames(frame).names().map(name => rowPrefix + name) : [],
     };
   }
   const panelPrefix = vars.panel + ".";
@@ -983,9 +986,9 @@ export function resolveCarryForwardSource(sourceName: string, owner: ElementReco
     const frame = findFrame<ScopeFramePanelDynamic>(scope, "panelDynamic");
     const inner = sourceName.substring(panelPrefix.length);
     return {
-      source: frame ? frame.templateNames.first(inner) : undefined,
+      source: frame ? getFrameNames(frame).first(inner) : undefined,
       scopePrefix: vars.panel,
-      candidates: frame ? frame.templateNames.names().map(name => panelPrefix + name) : [],
+      candidates: frame ? getFrameNames(frame).names().map(name => panelPrefix + name) : [],
     };
   }
   return { source: index.findByDataName(sourceName) };

@@ -411,8 +411,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.updateRenderedPanels();
     }
   }
-  // settings.panel.maxPanelCount is the number of panels one page may hold, in every display mode.
-  protected get maxRecordsPerPage(): number {
+  // settings.panel.maxPanelCount limits the total number of panels while they are not split into pages.
+  protected get maxRecordCountWithoutPaging(): number {
     return settings.panel.maxPanelCount;
   }
   protected onPageSizeAssigned(): void {
@@ -1651,7 +1651,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * @see allowAddPanel
    */
   /* Without paging the setting caps it, as it always has: a value above the setting reads as the
-     setting and is therefore not serialized. With paging the setting is the page maximum and the
+     setting and is therefore not serialized. With paging the setting does not take part and the
      value is kept (panelCountLimit). */
   public get maxPanelCount(): number {
     return this.getMaxRecordCount("maxPanelCount");

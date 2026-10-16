@@ -468,6 +468,9 @@ export var settings = {
    * Default value: 20
    */
   ratingMaximumRateValueCount: 20,
+  /* The maximum page size of a Dynamic Matrix, Multi-Select Matrix and Dynamic Panel while it splits its
+     rows or panels into pages: pageSize above it is capped. Not a positive number: no cap. */
+  maxPageSize: 100,
   /**
    * Specifies the maximum interval, in milliseconds, between consecutive key presses that SurveyJS treats as a single keyboard input sequence.
    *

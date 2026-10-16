@@ -369,6 +369,22 @@ describe("Remote data source: first load", () => {
 });
 
 describe("Remote data source: paging", () => {
+  test("pageSize above settings.maxPageSize: the source is asked for pages of settings.maxPageSize records", async () => {
+    const prev = settings.maxPageSize;
+    settings.maxPageSize = 3;
+    try {
+      const source = new FakeServerSource(serverRecords(12));
+      const { question } = await createMatrix(source, { pageSize: 5 });
+      expect(source.ranges, "#1: the first page").toEqual([[0, 3]]);
+      expect(rowValues(question), "#2").toEqual(["v0", "v1", "v2"]);
+      expect(question.pageCount, "#3").toBe(4);
+      question.nextPage();
+      await flush();
+      expect(source.ranges, "#4: the next page").toEqual([[0, 3], [3, 3]]);
+    } finally {
+      settings.maxPageSize = prev;
+    }
+  });
   test("matrix: a page change rebuilds the rows with no filter and no sort set", async () => {
     const source = new FakeServerSource(serverRecords(12));
     const { question } = await createMatrix(source);

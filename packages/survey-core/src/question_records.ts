@@ -907,24 +907,28 @@ export abstract class QuestionRecordsModel extends Question {
     }
     return record;
   }
-  /* The page maximum (maxRecordsPerPage) is the number of objects one page may hold: without paging
-     every object is on the one page, so it limits the total as well; with paging it limits the page
-     size only (listPageSize). */
-  protected get isRecordCountLimitedByPageMax(): boolean {
+  /* The total record count a type allows while its list does not page (settings.matrix.maxRowCount,
+     settings.panel.maxPanelCount). A type without a record count of its own has no such limit. */
+  protected get maxRecordCountWithoutPaging(): number {
+    return Number.MAX_SAFE_INTEGER;
+  }
+  /* Without paging every object is on the one page, and the type setting (maxRecordCountWithoutPaging)
+     limits the total; with paging it does not take part. */
+  protected get isRecordCountLimitedBySetting(): boolean {
     return this.isDesignMode || !(this.listPageSize > 0);
   }
-  /* The limit the record count is checked against: maxCount and the page maximum without paging; with
+  /* The limit the record count is checked against: maxCount and the type setting without paging; with
      paging explicitMaxCount alone - when the question sets it, since the default of maxCount is the
      setting. */
   private getRecordCountLimit(maxCount: number, explicitMaxCount: number): number {
-    if (this.isRecordCountLimitedByPageMax) return Math.min(maxCount, this.maxRecordsPerPage);
+    if (this.isRecordCountLimitedBySetting) return Math.min(maxCount, this.maxRecordCountWithoutPaging);
     return explicitMaxCount > 0 ? explicitMaxCount : Number.MAX_SAFE_INTEGER;
   }
   /* The maximum record count a type stores under propertyName (maxRowCount, maxPanelCount): paging
-     lifts the page maximum from it; at least 1. The limit the count is checked against follows from it. */
+     lifts the type setting from it; at least 1. The limit the count is checked against follows from it. */
   protected getMaxRecordCount(propertyName: string): number {
     const val = this.getPropertyValue(propertyName);
-    return this.pageSize > 0 ? val : Math.min(val, this.maxRecordsPerPage);
+    return this.pageSize > 0 ? val : Math.min(val, this.maxRecordCountWithoutPaging);
   }
   protected setMaxRecordCount(propertyName: string, val: number): void {
     this.setPropertyValue(propertyName, val <= 0 ? 1 : val);
@@ -1074,14 +1078,16 @@ export abstract class QuestionRecordsModel extends Question {
   protected getRecordCountLimitOf(propertyName: string): number {
     return this.getRecordCountLimit(this.getMaxRecordCount(propertyName), this.getPropertyValueWithoutDefault(propertyName));
   }
-  /* The page size the list gets: the authored one, capped by the number of objects one page may hold
-     (maxRecordsPerPage). Single-input mode walks every object and lists them in its own summary - it
-     is its own paging - so it builds every object and the list does not page. A carousel without
-     pageSize builds every panel, as it always has; with it, it pages like list and tab mode and
-     shows one panel of the page. */
+  /* The page size the list gets: the authored one, capped by settings.maxPageSize - read on each call;
+     a value that is not a positive number is no cap. Single-input mode walks every object and lists
+     them in its own summary - it is its own paging - so it builds every object and the list does not
+     page. A carousel without pageSize builds every panel, as it always has; with it, it pages like
+     list and tab mode and shows one panel of the page. */
   protected get listPageSize(): number {
     if (this.isSingleInputActive) return 0;
-    return Math.min(this.pageSize, this.maxRecordsPerPage);
+    const maxPageSize = settings.maxPageSize;
+    if (typeof maxPageSize !== "number" || !(maxPageSize > 0)) return this.pageSize;
+    return Math.min(this.pageSize, maxPageSize);
   }
   // The nested elements of the rows or panels a build mode reads, item by item.
   protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
@@ -3752,8 +3758,6 @@ export abstract class QuestionRecordsModel extends Question {
   protected abstract removeStoredRecord(removal: IRecordRemoval, refill: () => void): void;
   // The property the record visibility expression is stored under (rowsVisibleIf, templateVisibleIf).
   protected abstract getRecordVisibleIfPropertyName(): string;
-  // The number of objects one page may hold (settings.matrix.maxRowCount, settings.panel.maxPanelCount).
-  protected abstract get maxRecordsPerPage(): number;
   // The objects, by created position (getItemByRecordIndex looks them up by record).
   public abstract getItem(index: number): QuestionRecordItem;
   // An object the question shows: a hidden one reports no errors (see getAllErrors).

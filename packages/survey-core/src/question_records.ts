@@ -2369,9 +2369,15 @@ export abstract class QuestionRecordsModel extends Question {
       dest[key] = Helpers.getUnbindValue(src[key]);
     }
   }
-  /* The authored page size: the number of rows or panels on one page, 0 = no paging. In the panel's
-     list mode the page is what is shown; in tab and carousel mode it is the panels of one page, of
-     which one is shown. */
+  /**
+   * Specifies the number of rows or panels per data page.
+   *
+   * Default value: 0 (pagination is disabled)
+   *
+   * The effective page size is limited by the [`settings.maxPageSize`](https://surveyjs.io/form-library/documentation/api-reference/settings#maxPageSize) property.
+   * @see pageIndex
+   * @see pageCount
+   */
   public get pageSize(): number {
     return this.getPropertyValue("pageSize");
   }
@@ -2393,10 +2399,18 @@ export abstract class QuestionRecordsModel extends Question {
   protected syncPageSizeWithMode(): void {
     this.syncListPageSize();
   }
-  // A zero-based page index; always 0 while paging is off.
+  /**
+   * Gets or sets the zero-based index of the current data page containing rows or panels. Set this property to switch between data pages.
+   * @see pageSize
+   * @see pageCount
+   */
   public get pageIndex(): number { return this.reportedPageIndex; }
   public set pageIndex(val: number) { this.paging.pageIndex = val; }
-  // The number of pages; 1 for an empty question and for one that does not page.
+  /**
+   * Gets the number of data pages used to display rows or panels. Returns 1 when the question is empty or pagination is disabled.
+   * @see pageSize
+   * @see pageIndex
+   */
   public get pageCount(): number { return this.reportedPageCount; }
   /* False while the data source answers a read without a total: the record count (rowCount,
      panelCount) is then the number of records known to exist - a lower bound - and pageCount the

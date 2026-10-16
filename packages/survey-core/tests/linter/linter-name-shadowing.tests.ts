@@ -245,6 +245,39 @@ describe("name/shadowing - data scopes", () => {
   });
 });
 
+// The derived key a question writes - "<data key>-Comment" - and the owner it collides with are
+// both found by data key: the valueName when there is one, else the name.
+describe("name/shadowing - derived keys by data key", () => {
+  const COMMENT_OF_VALUE_NAME = [
+    { type: "text", name: "q1", valueName: "v1", showCommentArea: true },
+    { type: "text", name: "q1-Comment" },
+  ];
+  const COMMENT_OF_OTHER_DATA_KEY = [
+    { type: "text", name: "x", valueName: "q1", showCommentArea: true },
+    { type: "text", name: "q1", valueName: "other" },
+    { type: "text", name: "q1-Comment" },
+  ];
+  test("a question with a valueName writes no comment under its name", () => {
+    expect(byRule({ elements: COMMENT_OF_VALUE_NAME })).toHaveLength(0);
+  });
+  test("the comment key of a valueName collides, whatever question carries the name", () => {
+    const findings = byRule({ elements: COMMENT_OF_OTHER_DATA_KEY });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("commentKeyCollision");
+    expect(findings[0].path).toBe("elements[2]");
+    expect(findings[0].elementName).toBe("q1-Comment");
+  });
+  test("inside a template, a question with a valueName writes no comment under its name", () => {
+    expect(byRule({ elements: [{ type: "paneldynamic", name: "p1", templateElements: COMMENT_OF_VALUE_NAME }] })).toHaveLength(0);
+  });
+  test("inside a template, the comment key of a valueName collides, whatever question carries the name", () => {
+    const findings = byRule({ elements: [{ type: "paneldynamic", name: "p1", templateElements: COMMENT_OF_OTHER_DATA_KEY }] });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("commentKeyCollision");
+    expect(findings[0].path).toBe("elements[0].templateElements[2]");
+  });
+});
+
 describe("name/shadowing - a variable over a question", () => {
   test("a setvalue trigger writing a variable named after a question is flagged", () => {
     const findings = byRule({

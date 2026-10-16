@@ -374,6 +374,44 @@ describe("linter vs runtime: data scopes of name/shadowing", () => {
     expect(survey.data).toEqual({ m1: [{ "c1-Comment": "other" }] });
     expect(cell.comment).toBe("note");
   });
+
+  // The comment of a question with a valueName lives under "<valueName>-Comment", so a question
+  // named "<name>-Comment" next to it writes a key of its own.
+  test("a question named after the comment key of a valueName question writes a key of its own", () => {
+    const json = {
+      elements: [{
+        type: "paneldynamic", name: "p1", panelCount: 1, templateElements: [
+          { type: "text", name: "q1", valueName: "v1", showCommentArea: true },
+          { type: "text", name: "q1-Comment" },
+        ],
+      }],
+    };
+    expect(shadowing(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    templateQuestion(survey, "p1", "q1").comment = "note";
+    templateQuestion(survey, "p1", "q1-Comment").value = "x";
+    expect(survey.data).toEqual({ p1: [{ "v1-Comment": "note", "q1-Comment": "x" }] });
+    expect(templateQuestion(survey, "p1", "q1").comment).toBe("note");
+  });
+
+  test("the comment key of a valueName is overwritten by the question spelling it, whoever carries the name", () => {
+    const json = {
+      elements: [{
+        type: "paneldynamic", name: "p1", panelCount: 1, templateElements: [
+          { type: "text", name: "x", valueName: "q1", showCommentArea: true },
+          { type: "text", name: "q1", valueName: "other" },
+          { type: "text", name: "q1-Comment" },
+        ],
+      }],
+    };
+    expect(shadowing(json)).toEqual(["commentKeyCollision @ elements[0].templateElements[2]"]);
+    const survey = new SurveyModel(json);
+    templateQuestion(survey, "p1", "x").comment = "note";
+    expect(survey.data).toEqual({ p1: [{ "q1-Comment": "note" }] });
+    templateQuestion(survey, "p1", "q1-Comment").value = "other";
+    expect(survey.data).toEqual({ p1: [{ "q1-Comment": "other" }] });
+    expect(templateQuestion(survey, "p1", "x").comment).toBe("note");
+  });
 });
 
 // Questions on one data key share one value; a panel/row object then holds the fields every one of

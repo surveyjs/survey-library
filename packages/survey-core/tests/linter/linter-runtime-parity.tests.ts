@@ -508,6 +508,23 @@ describe("linter vs runtime: fields of a shared value", () => {
     (<QuestionPanelDynamicModel>survey.getQuestionByName("other")).panels[0].getQuestionByName("cb").value = ["Ford"];
     expect((<QuestionPanelDynamicModel>survey.getQuestionByName("cars")).panels).toHaveLength(0);
   });
+
+  test("a column adds its fields to a detail-panel question on its row key", () => {
+    const json = { elements: [{
+      type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow",
+      columns: [{ name: "cars", cellType: "checkbox", choices: ["Ford", "BMW"], valuePropertyName: "car" }],
+      detailElements: [{ type: "paneldynamic", name: "pd", valueName: "cars", templateTitle: "Car: {panel.car}",
+        templateElements: [{ type: "text", name: "tq", visibleIf: "{panel.car} = 'Ford'" }] }],
+    }] };
+    expect(referenceFindings(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    const row = (<QuestionMatrixDynamicModel>survey.getQuestionByName("m")).visibleRows[0];
+    row.showDetailPanel();
+    cellQuestion(survey, "m", 0, 0).value = ["Ford", "BMW"];
+    const panels = (<QuestionPanelDynamicModel>row.detailPanel.getQuestionByName("pd")).panels;
+    expect(panels.map(p => p.locTitle.renderedHtml)).toEqual(["Car: Ford", "Car: BMW"]);
+    expect(panels.map(p => p.getQuestionByName("tq").isVisible)).toEqual([true, false]);
+  });
 });
 
 describe("linter vs runtime: configurations that really are dead", () => {

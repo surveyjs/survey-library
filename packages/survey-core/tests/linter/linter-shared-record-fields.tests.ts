@@ -250,6 +250,38 @@ describe("an object value several questions share holds the keys of all of them"
       ],
     })).toEqual([]);
   });
+  // the runtime leaves a key another question on the data key holds to that question
+  // (QuestionMatrixModel.verifyValueCore: a row of another matrix that shares the value is checked by that matrix)
+  describe("a key another question adds is known, its value is not this question's to check", () => {
+    const mt = (valueName: string): any => ({ type: "multipletext", name: "mt", valueName: valueName, items: [{ name: "i1" }] });
+    test("a multiple-text item under a single-choice matrix", () => {
+      expect(findings({ elements: [
+        { type: "matrix", name: "m", rows: ["r1"], columns: ["x", "y"], defaultValue: { r1: "x", i1: "free" } }, mt("m"),
+      ] })).toEqual([]);
+    });
+    test("a row of another single-choice matrix", () => {
+      expect(findings({ elements: [
+        { type: "matrix", name: "m", rows: ["r1"], columns: ["x", "y"], defaultValue: { r2: "a" } },
+        { type: "matrix", name: "m2", valueName: "m", rows: ["r2"], columns: ["a", "b"] },
+      ] })).toEqual([]);
+    });
+    test("a row of another matrixdropdown", () => {
+      expect(findings({ elements: [
+        { type: "matrixdropdown", name: "md", rows: ["r1"], columns: [{ name: "c", cellType: "dropdown", choices: ["a"] }],
+          defaultValue: { r2: { c: "b" } } },
+        { type: "matrixdropdown", name: "md2", valueName: "md", rows: ["r2"], columns: [{ name: "c", cellType: "dropdown", choices: ["b"] }] },
+      ] })).toEqual([]);
+    });
+    test("an own row is still checked, an unknown key still reported", () => {
+      expect(findings({ elements: [
+        { type: "matrix", name: "m", rows: ["r1"], columns: ["x", "y"], defaultValue: { r1: "z", i1: "free", zz: "x" } }, mt("m"),
+      ] })).toEqual(["value/not-a-choice/defaultValue @elements[0].defaultValue", "value/not-a-choice/unknownRowKey @elements[0].defaultValue"]);
+      expect(findings({ elements: [
+        { type: "matrixdropdown", name: "md", rows: ["r1"], columns: [{ name: "c", cellType: "dropdown", choices: ["a"] }],
+          defaultValue: { r1: { c: "b" }, i1: { c: "a" } } }, mt("md"),
+      ] })).toEqual(["value/not-a-choice/defaultValue @elements[0].defaultValue"]);
+    });
+  });
 });
 
 describe("the merge examples of the documentation", () => {

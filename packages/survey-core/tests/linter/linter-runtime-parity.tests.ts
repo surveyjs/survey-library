@@ -609,6 +609,19 @@ describe("linter vs runtime: fields of a shared value", () => {
     const panels = (<QuestionPanelDynamicModel>survey.getQuestionByName("info")).panels;
     expect(panels[0].locTitle.renderedHtml).not.toContain("note");
   });
+
+  test("a key another question on the data key adds is that question's to check", () => {
+    const json = { elements: [
+      { type: "matrix", name: "m", rows: ["r1"], columns: ["x", "y"], defaultValue: { r1: "x", r2: "a", i1: "free" } },
+      { type: "matrix", name: "m2", valueName: "m", rows: ["r2"], columns: ["a", "b"] },
+      { type: "multipletext", name: "mt", valueName: "m", items: [{ name: "i1" }] },
+    ] };
+    expect(lintSurvey(json).findings.filter(f => f.ruleId === "value/not-a-choice")).toEqual([]);
+    const survey = new SurveyModel(json);
+    expect(survey.data.m).toEqual({ r1: "x", r2: "a", i1: "free" });
+    survey.clearIncorrectValues();
+    expect(survey.data.m).toEqual({ r1: "x", r2: "a", i1: "free" });
+  });
 });
 
 describe("linter vs runtime: configurations that really are dead", () => {

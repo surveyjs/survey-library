@@ -563,6 +563,36 @@ describe("linter vs runtime: fields of a shared value", () => {
     expect(panels.map(p => p.locTitle.renderedHtml)).toEqual(["Car: Ford", "Car: BMW"]);
     expect(panels.map(p => p.getQuestionByName("tq").isVisible)).toEqual([true, false]);
   });
+
+  test("a tag box with a choice comment keeps plain values", () => {
+    const json = { elements: [
+      { type: "tagbox", name: "cars", choices: [{ value: "Ford", showCommentArea: true }, "BMW"] },
+      { type: "paneldynamic", name: "info", valueName: "cars", templateTitle: "Car: {panel.value}",
+        templateElements: [{ type: "text", name: "tq" }] },
+    ] };
+    expect(referenceFindings(json)).toEqual(["reference/unknown/scopedUnknown @elements[1].templateTitle"]);
+    const survey = new SurveyModel(json);
+    const q = <QuestionSelectBase>survey.getQuestionByName("cars");
+    expect(q.choices[0].showCommentArea).toBe(false);
+    q.value = ["Ford"];
+    q.setCommentValue(q.choices[0], "note");
+    expect(survey.data.cars).toEqual(["Ford"]);
+  });
+
+  test("a single-select image map keeps the area value as it is", () => {
+    const json = { elements: [
+      { type: "imagemap", name: "cars", multiSelect: false, valuePropertyName: "car", imageLink: "x",
+        areas: [{ value: "Ford", coords: "1,1,2,2", shape: "rect" }] },
+      { type: "paneldynamic", name: "info", valueName: "cars", templateTitle: "Car: {panel.car}",
+        templateElements: [{ type: "text", name: "tq" }] },
+    ] };
+    expect(referenceFindings(json)).toEqual(["reference/unknown/scopedUnknown @elements[1].templateTitle"]);
+    const survey = new SurveyModel(json);
+    const q = <any>survey.getQuestionByName("cars");
+    q.mapItemToggle(q.areas[0]);
+    expect(survey.data.cars).toBe("Ford");
+    expect((<QuestionPanelDynamicModel>survey.getQuestionByName("info")).panels).toHaveLength(0);
+  });
 });
 
 describe("linter vs runtime: configurations that really are dead", () => {

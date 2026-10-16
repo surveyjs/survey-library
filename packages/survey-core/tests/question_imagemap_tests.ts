@@ -816,6 +816,21 @@ describe("imagemap", () => {
       survey.tryComplete();
       expect(survey.data).toEqual({ cars: [{ car: "Ford" }] });
     });
+    // a dynamic panel sharing the value knows the field through getQuestionFromArray, as with a checkbox
+    test("a dynamic panel sharing the value knows the field", () => {
+      const survey = new SurveyModel({ elements: [json().elements[0],
+        { type: "paneldynamic", name: "cars-info", valueName: "cars", templateElements: [{ type: "rating", name: "rating" }] }] });
+      expect(survey.setData({ cars: [{ car: "Ford", rating: 3 }] })).toEqual([]);
+      survey.clearIncorrectValues();
+      expect(survey.data).toEqual({ cars: [{ car: "Ford", rating: 3 }] });
+      const q = <QuestionImageMapModel>survey.getQuestionByName("cars");
+      expect(q.getQuestionFromArray("car", 0)).toBe(q);
+      expect(q.getQuestionFromArray("rating", 0)).toBeNull();
+      expect(q.getQuestionFromArray("car", 1)).toBeNull();
+      q.multiSelect = false;
+      q.value = "Ford";
+      expect(q.getQuestionFromArray("car", 0)).toBeNull();
+    });
     test("an item of no area is still reported", () => {
       const survey = new SurveyModel(json());
       expect(survey.setData({ cars: [{ car: "Audi" }] }).map(issue => issue.type + " @ " + issue.path)).toEqual(["invalidChoiceValue @ cars[0]"]);

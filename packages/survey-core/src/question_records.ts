@@ -29,6 +29,7 @@ import { LocalizableString } from "./localizablestring";
 import { ConsoleWarnings } from "./console-warnings";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { confirmActionAsync } from "./utils/confirm-dialog";
+import { Scope, ValueScope } from "./utils/scope";
 import type { PanelModelBase } from "./panel";
 
 /* An item of the nested walk of a records question: a matrix row, or a dynamic panel's panel - not its
@@ -510,15 +511,10 @@ export abstract class QuestionRecordsModel extends Question {
      so the question runs its own. Re-entrancy is guarded and not forbidden for a reason: an
      expression writes its result back as a record field, and the nested run would only recompute what
      the outer one has just settled. */
-  private isRunningRemoteWriteConditions: boolean = false;
+  private remoteWriteConditionsScope: Scope = new Scope();
   private runConditionsAfterRemoteWrite(): void {
-    if (this.isRunningRemoteWriteConditions || !this.data) return;
-    this.isRunningRemoteWriteConditions = true;
-    try {
-      this.runRemoteWriteConditions();
-    } finally {
-      this.isRunningRemoteWriteConditions = false;
-    }
+    if (this.remoteWriteConditionsScope.isActive || !this.data) return;
+    this.remoteWriteConditionsScope.run((): void => this.runRemoteWriteConditions());
   }
   /* "the records are owned by a data source": the survey hash, the write routing, the capabilities
      and the record count (recordCount) ask it. It is deliberately not "the list pages itself": a
@@ -565,19 +561,10 @@ export abstract class QuestionRecordsModel extends Question {
       this.warnOutsideAssignment();
       return;
     }
-    this.runClearingValue((): void => super.clearValue(keepComment, fromUI));
+    this.clearingValueScope.run((): void => super.clearValue(keepComment, fromUI));
   }
   // The records the respondent touched go with the value (see isTouchedSetDropped).
-  private isClearingValue: boolean = false;
-  private runClearingValue(func: () => void): void {
-    const prev = this.isClearingValue;
-    this.isClearingValue = true;
-    try {
-      func();
-    } finally {
-      this.isClearingValue = prev;
-    }
-  }
+  private clearingValueScope: Scope = new Scope();
   /* An assignment of the value of a source-backed question is made only by the question itself,
      through setOwnRecordsValue. Any other - value =, a default, setValueExpression, a setvalue or
      copyvalue trigger, user code that runs inside one of the question's own writes - returns here,
@@ -589,19 +576,9 @@ export abstract class QuestionRecordsModel extends Question {
      however it exits. An assignment nested in it - a handler of survey.onValueChanging, which runs
      before the store - has its own kind while it runs and never changes the outer one's. */
   private isOwnValueAssignment: boolean = false;
-  private isOwnAssignmentInForce: boolean = false;
+  private ownAssignmentKindScope: ValueScope<boolean> = new ValueScope<boolean>(false);
   protected get isAssigningOwnValue(): boolean {
-    return this.isOwnAssignmentInForce;
-  }
-  // The one writer of isOwnAssignmentInForce: the kind is in force for func's extent, however it exits.
-  private runAssignmentOfKind(isOwn: boolean, func: () => void): void {
-    const prev = this.isOwnAssignmentInForce;
-    this.isOwnAssignmentInForce = isOwn;
-    try {
-      func();
-    } finally {
-      this.isOwnAssignmentInForce = prev;
-    }
+    return this.ownAssignmentKindScope.value;
   }
   protected setNewValue(newValue: any): void {
     const isOwn = this.isOwnValueAssignment;
@@ -610,7 +587,7 @@ export abstract class QuestionRecordsModel extends Question {
       this.warnOutsideAssignment();
       return;
     }
-    this.runAssignmentOfKind(isOwn, (): void => { super.setNewValue(newValue); });
+    this.ownAssignmentKindScope.run(isOwn, (): void => { super.setNewValue(newValue); });
   }
   /* An own record write copies the old records only for a handler that reads them. The survey is asked by
      its member (ISurveyOldValueReads): a survey without it gets the copy. */
@@ -634,21 +611,18 @@ export abstract class QuestionRecordsModel extends Question {
      replaces (before) and the ones it stores (after) are held for the extent of that one write. A
      sibling that receives the write through the survey reads them (isInPlaceWriteOfSibling) and keeps
      its objects. */
-  private inPlaceWrite: { before: Array<any>, after: Array<any> } = undefined;
+  private inPlaceWriteScope = new ValueScope<{ before: Array<any>, after: Array<any> }>();
+  private get inPlaceWrite(): { before: Array<any>, after: Array<any> } {
+    return this.inPlaceWriteScope.value;
+  }
   protected setOwnRecordsValueInPlace(newValue: any): void {
     const stored = this.getStoredRecords();
     if (!Array.isArray(newValue) || !Array.isArray(stored) || newValue.length !== stored.length) {
       this.setOwnRecordsValue(newValue);
       return;
     }
-    const prev = this.inPlaceWrite;
     // A copy: the stored array is updated in place when the value is stored (Base.setArrayPropertyDirectly).
-    this.inPlaceWrite = { before: [].concat(stored), after: newValue };
-    try {
-      this.setOwnRecordsValue(newValue);
-    } finally {
-      this.inPlaceWrite = prev;
-    }
+    this.inPlaceWriteScope.run({ before: [].concat(stored), after: newValue }, (): void => this.setOwnRecordsValue(newValue));
   }
   /* The assignment the question receives is a sibling's in-place write: a question bound to the same
      value is making one, the received value equals the records it stores, and the records the question
@@ -1934,7 +1908,7 @@ export abstract class QuestionRecordsModel extends Question {
      same factory and the survey's creation events (onMatrixCellCreating, onMatrixCellCreated,
      onQuestionCreated), the detail panel of a matrix that has one. It is loaded without writes, its
      conditions run, and its own released clearIncorrectValues() writes into the copy
-     (recordCleanup); then it is disposed. It is not attached to the rows or panels and no add event
+     (recordCleanupScope); then it is disposed. It is not attached to the rows or panels and no add event
      fires.
      - A record the filter excludes keeps its answers, as it does without paging.
      - An assigned source is skipped, as every survey clean-up skips a source-owned question.
@@ -1956,7 +1930,7 @@ export abstract class QuestionRecordsModel extends Question {
      such records to clean, and a source-owned one is skipped, as every survey clean-up skips it. */
   private cleanRecordsWithoutObjectsBy(clean: (cleanupObject: IRecordCleanupObject) => void): void {
     if (!this.isPagedByList || this.isRemoteData || this.isEmpty()) return;
-    this.runRecordCleanupWalk((): void => {
+    this.recordCleanupWalkScope.run({ json: undefined }, (): void => {
       this.cleanRecordsWithoutObjects((index: number, record: any): any => this.cleanRecordWithObject(index, record, clean));
     });
   }
@@ -1975,7 +1949,7 @@ export abstract class QuestionRecordsModel extends Question {
     if (!this.isPagedByList || this.isRemoteData || this.isEmpty()) return;
     const questions = container.questions.filter((q: Question): boolean => !isRecordCleanupSkipped(q));
     const byObject = questions.filter((q: Question): boolean => isRecordCleanupByObject(q, container));
-    this.runRecordCleanupWalk((): void => {
+    this.recordCleanupWalkScope.run({ json: undefined }, (): void => {
       this.cleanRecordsWithoutObjects((index: number, record: any): any => {
         let res = Object.assign({}, record);
         const objectQuestions = [].concat(byObject);
@@ -2025,10 +1999,10 @@ export abstract class QuestionRecordsModel extends Question {
   /* The record a temporary object of the clean-up judges: the object reads and writes a copy of it,
      never the list. item is the object once it is built; while it is built (isBuilding) the object the
      type does not know is it, and its writes are dropped - a build loads the record without writing. */
-  private recordCleanup: { index: number, copy: any, item: ISurveyData, isBuilding: boolean };
+  private recordCleanupScope = new ValueScope<{ index: number, copy: any, item: ISurveyData, isBuilding: boolean }>();
   // The copy a temporary object reads; isUnknownItem: the type does not know the item as one of its objects.
   protected getRecordCleanupCopy(item: ISurveyData, isUnknownItem: boolean): any {
-    const cleanup = this.recordCleanup;
+    const cleanup = this.recordCleanupScope.value;
     return !!cleanup && (cleanup.item === item || !cleanup.item && isUnknownItem) ? cleanup.copy : undefined;
   }
   /* A write of a temporary object goes into its copy (an empty value removes the key, as a write of
@@ -2036,7 +2010,7 @@ export abstract class QuestionRecordsModel extends Question {
   protected writeRecordCleanupCopy(item: ISurveyData, isUnknownItem: boolean, name: string, val: any): boolean {
     const copy = this.getRecordCleanupCopy(item, isUnknownItem);
     if (copy === undefined) return false;
-    if (this.recordCleanup.isBuilding) return true;
+    if (this.recordCleanupScope.value.isBuilding) return true;
     if (Helpers.isValueEmpty(val)) {
       delete copy[name];
     } else {
@@ -2046,11 +2020,12 @@ export abstract class QuestionRecordsModel extends Question {
   }
   // A temporary object is being built: the types build the questions the clean-up skips without starting their requests.
   protected get isRecordCleanupBuilding(): boolean {
-    return !!this.recordCleanup && this.recordCleanup.isBuilding;
+    const cleanup = this.recordCleanupScope.value;
+    return !!cleanup && cleanup.isBuilding;
   }
   // The record index of a temporary object, -1 for any other object.
   private getRecordCleanupIndex(item: ISurveyData, isUnknownItem: boolean): number {
-    return this.getRecordCleanupCopy(item, isUnknownItem) !== undefined ? this.recordCleanup.index : -1;
+    return this.getRecordCleanupCopy(item, isUnknownItem) !== undefined ? this.recordCleanupScope.value.index : -1;
   }
   /* A copy of the record, cleaned by a temporary object of the type (clearIncorrectValuesWithoutObjects):
      clean runs the object's own released clean-up. */
@@ -2058,21 +2033,21 @@ export abstract class QuestionRecordsModel extends Question {
     const copy = Object.assign({}, record);
     this.getRecordUnknownKeys(index, record, undefined).forEach((key: string): void => { delete copy[key]; });
     const cleanup = { index: index, copy: copy, item: <ISurveyData>undefined, isBuilding: true };
-    const prev = this.recordCleanup;
-    this.recordCleanup = cleanup;
     let cleanupObject: IRecordCleanupObject = undefined;
     try {
-      cleanupObject = this.createRecordCleanupObject(index, copy);
-      if (!cleanupObject) return record;
-      cleanup.item = cleanupObject.item;
-      // Loaded: what its conditions and its clean-up change is written into the copy, as a built object writes it.
-      cleanup.isBuilding = false;
-      cleanupObject.runCondition(this.getDataFilteredProperties());
-      clean(cleanupObject);
+      this.recordCleanupScope.run(cleanup, (): void => {
+        cleanupObject = this.createRecordCleanupObject(index, copy);
+        if (!cleanupObject) return;
+        cleanup.item = cleanupObject.item;
+        // Loaded: what its conditions and its clean-up change is written into the copy, as a built object writes it.
+        cleanup.isBuilding = false;
+        cleanupObject.runCondition(this.getDataFilteredProperties());
+        clean(cleanupObject);
+      });
     } finally {
-      this.recordCleanup = prev;
       if (!!cleanupObject) cleanupObject.dispose();
     }
+    if (!cleanupObject) return record;
     // What the clean-up does not judge is copied back as it was.
     Object.keys(record).forEach((key: string): void => {
       const template = this.getRecordTemplateQuestion(key);
@@ -2085,18 +2060,9 @@ export abstract class QuestionRecordsModel extends Question {
   protected abstract createRecordCleanupObject(index: number, record: any): IRecordCleanupObject;
   /* The JSON the temporary objects are built from (build), made once per walk and parsed for each
      object: an object shares no value or error with the next one. Outside a walk it is made each time. */
-  private recordCleanupWalk: { json: string };
-  private runRecordCleanupWalk(func: () => void): void {
-    const prev = this.recordCleanupWalk;
-    this.recordCleanupWalk = { json: undefined };
-    try {
-      func();
-    } finally {
-      this.recordCleanupWalk = prev;
-    }
-  }
+  private recordCleanupWalkScope = new ValueScope<{ json: string }>();
   protected getRecordCleanupJson(build: () => any): any {
-    const walk = this.recordCleanupWalk;
+    const walk = this.recordCleanupWalkScope.value;
     if (!walk) return build();
     if (walk.json === undefined) walk.json = JSON.stringify(build());
     return JSON.parse(walk.json);
@@ -2159,15 +2125,10 @@ export abstract class QuestionRecordsModel extends Question {
      defaultValueExpression. They are not edits, and a source without update does not refuse them:
      they reach the window and question.value, never the source, as they always have. {panel.x} and
      {row.x} read the record, so a computed value has to reach it - an expression that reads another
-     one would lose it otherwise. A depth: the scopes nest. */
-  private computedWriteDepth: number = 0;
+     one would lose it otherwise. The scopes nest. */
+  private computedWritesScope: Scope = new Scope();
   protected runComputedWrites<T>(func: () => T): T {
-    this.computedWriteDepth++;
-    try {
-      return func();
-    } finally {
-      this.computedWriteDepth--;
-    }
+    return this.computedWritesScope.run(func);
   }
   /* The edit rule both owners' updateItemValue start with: an edit of a record - any write outside
      runComputedWrites - that the source cannot update is refused and reported, nothing is written, and
@@ -2175,7 +2136,7 @@ export abstract class QuestionRecordsModel extends Question {
      getRecordIndex names the item's record; it is read only for a refusal. Returns true when the edit
      is refused. */
   protected refuseRecordEdit(item: QuestionRecordItem, getRecordIndex: () => number): boolean {
-    if (this.computedWriteDepth > 0 || !this.refuseOperationOfSource("update")) return false;
+    if (this.computedWritesScope.isActive || !this.refuseOperationOfSource("update")) return false;
     const index = getRecordIndex();
     item.updateFromRecord(index > -1 ? this.dataList.getRecord(index) : undefined);
     return true;
@@ -2895,19 +2856,13 @@ export abstract class QuestionRecordsModel extends Question {
   /* While a source is assigned the list may read it synchronously and settle inside the swap: what
      waits for the settle (onDataSettled) runs once at the end, after the source's capabilities are
      applied. */
-  private isAssigningDataSource: boolean;
+  private dataSourceAssignmentScope: Scope = new Scope();
   // The survey-data side of the swap. The question follows the call with its own refresh, also for
   // the same source.
   protected setDataSource(val: IDynamicDataSource): void {
     // A source assigned while another one is being assigned (an error handler of its first read) ends
     // inside the outer assignment: the outer one settles the data.
-    const prev = this.isAssigningDataSource;
-    this.isAssigningDataSource = true;
-    try {
-      this.setDataSourceCore(val);
-    } finally {
-      this.isAssigningDataSource = prev;
-    }
+    this.dataSourceAssignmentScope.run((): void => this.setDataSourceCore(val));
     this.onDataSettled();
   }
   private setDataSourceCore(val: IDynamicDataSource): void {
@@ -3044,10 +2999,10 @@ export abstract class QuestionRecordsModel extends Question {
   public updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     if (this.isRemoteData) return;
     // Always an assignment from outside, also when it runs inside one of the question's own.
-    const update = (): void => this.runAssignmentOfKind(false, (): void => { super.updateValueFromSurvey(newValue, clearData); });
+    const update = (): void => this.ownAssignmentKindScope.run(false, (): void => { super.updateValueFromSurvey(newValue, clearData); });
     // survey.clear() and survey.data = null clear the value, as clearValue() does.
     if (clearData && Helpers.isValueEmpty(newValue)) {
-      this.runClearingValue(update);
+      this.clearingValueScope.run(update);
     } else {
       update();
     }
@@ -3069,7 +3024,7 @@ export abstract class QuestionRecordsModel extends Question {
       const newRecords = this.getStoredRecords();
       this.followHiddenAnswerStatesOnAssignment(Array.isArray(oldRecords) ? oldRecords.length : 0, Array.isArray(newRecords) ? newRecords.length : 0);
     }
-    this.onRecordsValueAssigned(oldRecords, this.isClearingValue);
+    this.onRecordsValueAssigned(oldRecords, this.clearingValueScope.isActive);
   }
   /* The list side of a value assignment. Every assignment of the question's value - by the survey,
      a trigger, a default value or one of its own objects - passes through its setQuestionValue, which
@@ -3188,7 +3143,7 @@ export abstract class QuestionRecordsModel extends Question {
      survey's data pass - and clearValue() start over: the records the respondent touched are decided
      again like every other record. */
   private isTouchedSetDropped(): boolean {
-    return this.isClearingValue || !!this.survey && this.survey.isSettingData();
+    return this.clearingValueScope.isActive || !!this.survey && this.survey.isSettingData();
   }
   /* Where each record of an assignment from outside went: the new index of an old record, -1 for a
      removed one, undefined for one it cannot place. The own source answers for the answer's shape; the
@@ -3262,19 +3217,17 @@ export abstract class QuestionRecordsModel extends Question {
   }
   /* The question is writing its records itself - a record on behalf of one of its objects, or what
      its objects hold: the assignment that write makes does not push the records back into the objects
-     (updateItemsFromRecords). A depth: one write can run inside another, from a callback. */
-  private recordWriteDepth: number = 0;
+     (updateItemsFromRecords). The scopes nest: one write can run inside another, from a callback. */
+  private recordWritesScope: Scope = new Scope();
   protected get isWritingRecords(): boolean {
-    return this.recordWriteDepth > 0;
+    return this.recordWritesScope.isActive;
   }
   protected writeRecords<T>(func: () => T): T {
     return this.runOwnRecordsChange((): T => {
-      this.recordWriteDepth++;
       try {
-        return func();
+        return this.recordWritesScope.run(func);
       } finally {
-        this.recordWriteDepth--;
-        if (this.recordWriteDepth === 0)this.disposeItemsLeftByWrites();
+        if (!this.recordWritesScope.isActive)this.disposeItemsLeftByWrites();
       }
     });
   }
@@ -3290,25 +3243,23 @@ export abstract class QuestionRecordsModel extends Question {
      write and wins. The steps of the operation that come after the change see the count and the
      objects of the assigned value; one that would write its own record into it checks
      outsideAssignmentCount. */
-  private ownRecordsChangeDepth: number = 0;
+  private ownRecordsChangeScope: Scope = new Scope();
   private owedAssignment: IDynamicDataValueAssignment = undefined;
   private outsideAssignmentCountValue: number = 0;
   protected get outsideAssignmentCount(): number {
     return this.outsideAssignmentCountValue;
   }
   protected runOwnRecordsChange<T>(func: () => T): T {
-    this.ownRecordsChangeDepth++;
     try {
-      return func();
+      return this.ownRecordsChangeScope.run(func);
     } finally {
-      this.ownRecordsChangeDepth--;
-      if (this.ownRecordsChangeDepth === 0 && !!this.owedAssignment && !(!!this._dataList && this._dataList.isWriteOpen)) {
+      if (!this.ownRecordsChangeScope.isActive && !!this.owedAssignment && !(!!this._dataList && this._dataList.isWriteOpen)) {
         this.followOwedAssignment();
       }
     }
   }
   private get isOwnWriteOpen(): boolean {
-    return this.ownRecordsChangeDepth > 0 || !!this._dataList && this._dataList.isWriteOpen;
+    return this.ownRecordsChangeScope.isActive || !!this._dataList && this._dataList.isWriteOpen;
   }
   /* Owed before the value is stored: a handler that throws after storing it still leaves it owed. The
      view and the records before the first owed assignment are what the follow-up compares with.
@@ -3330,7 +3281,7 @@ export abstract class QuestionRecordsModel extends Question {
   }
   // The outermost write of the list has ended (IDynamicDataOwner.onWriteEnded).
   private onListWriteEnded(): void {
-    if (this.ownRecordsChangeDepth === 0 && !!this.owedAssignment)this.followOwedAssignment();
+    if (!this.ownRecordsChangeScope.isActive && !!this.owedAssignment)this.followOwedAssignment();
     this.runHeldItemsCondition();
   }
   /* An insert, a removal or a move of the list stores the value before the objects follow it: an
@@ -3342,37 +3293,37 @@ export abstract class QuestionRecordsModel extends Question {
      whose page is refilled after the write, and a count change, whose objects follow it afterwards -
      when that operation ends (runObjectsFollowingWrite). Without a view a position is the record
      index, so nothing is held. */
-  private structuralStoreDepth: number = 0;
-  private followingWriteDepth: number = 0;
+  private structuralStoreScope: Scope = new Scope();
+  private followingWriteScope: Scope = new Scope();
   private heldItemsCondition: { properties: HashTable<any> };
   private storeListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void {
     const isStructural = this.hasDataListView && (operations || []).some((operation: DynamicDataOperation): boolean => operation !== "update");
-    if (isStructural)this.structuralStoreDepth++;
-    try {
-      this.setListRecords(records, operations);
-    } finally {
-      if (isStructural)this.structuralStoreDepth--;
+    const store = (): void => this.setListRecords(records, operations);
+    if (isStructural) {
+      this.structuralStoreScope.run(store);
+    } else {
+      store();
     }
   }
   protected runConditionCore(properties: HashTable<any>): void {
     super.runConditionCore(properties);
-    if (this.structuralStoreDepth > 0) {
+    if (this.structuralStoreScope.isActive) {
       this.heldItemsCondition = { properties: properties };
     } else {
       this.runItemsCondition(properties);
     }
   }
   protected runObjectsFollowingWrite(func: () => void): void {
-    this.followingWriteDepth++;
     let isFollowed = false;
     try {
-      func();
-      isFollowed = true;
+      this.followingWriteScope.run((): void => {
+        func();
+        isFollowed = true;
+      });
     } finally {
-      this.followingWriteDepth--;
       // A write that threw (a handler's error) left the objects where they were: a held run would
       // have them write into the records their positions held before, so it is dropped.
-      if (!isFollowed && this.followingWriteDepth === 0)this.heldItemsCondition = undefined;
+      if (!isFollowed && !this.followingWriteScope.isActive)this.heldItemsCondition = undefined;
       this.runHeldItemsCondition();
     }
   }
@@ -3380,7 +3331,7 @@ export abstract class QuestionRecordsModel extends Question {
      it fills in. The run that write makes skips the object that is still computing, so a record count
      that object read before is stale: the objects compute once more when the count changed. */
   private runHeldItemsCondition(): void {
-    if (this.followingWriteDepth > 0) return;
+    if (this.followingWriteScope.isActive) return;
     const held = this.heldItemsCondition;
     this.heldItemsCondition = undefined;
     if (!held || this.isDisposed) return;
@@ -3677,7 +3628,7 @@ export abstract class QuestionRecordsModel extends Question {
   /* IDynamicDataOwner.onDataSettled, and the end of setDataSource. The survey is told too: a
      completion it holds for this question's writes goes on. */
   private onDataSettled(): void {
-    if (this.isAssigningDataSource) return;
+    if (this.dataSourceAssignmentScope.isActive) return;
     try {
       if (!!this.dataWaits && !this.isDynamicDataRunning) {
         this.releaseDataWaits(true);
@@ -4260,7 +4211,10 @@ export abstract class QuestionRecordItemGetterContext extends QuestionItemValueG
 
 export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IObjectValueContext {
 
-  protected isSettingValue: boolean = false;
+  private settingValueScope: Scope = new Scope();
+  protected get isSettingValue(): boolean {
+    return this.settingValueScope.isActive;
+  }
   private textPreProcessor: TextContextProcessor;
   constructor(public data: QuestionRecordsModel) {
     this.textPreProcessor = new TextContextProcessor(this);
@@ -4346,13 +4300,7 @@ export abstract class QuestionRecordItem implements ISurveyData, ISurveyImpl, IO
   }
   // The questions receive values the item does not write back; the flag nests.
   protected runSettingValue(func: () => void): void {
-    const prev = this.isSettingValue;
-    this.isSettingValue = true;
-    try {
-      func();
-    } finally {
-      this.isSettingValue = prev;
-    }
+    this.settingValueScope.run(func);
   }
 
   getFilteredProperties(): any {

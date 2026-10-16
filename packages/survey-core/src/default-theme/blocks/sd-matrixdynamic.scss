@@ -54,6 +54,11 @@
   padding-inline: var(--sd-matrixdynamic-toolbar-padding-inline);
   padding-block-start: var(--sd-matrixdynamic-toolbar-padding-block-start);
 }
+// The bottom toolbar has no top padding of its own (the footer padding-top is 0): under the pager it
+// keeps the design's gap between the pager and the Add button.
+.sd-matrixdynamic__records-bar ~ .sd-matrixdynamic__toolbar--bottom {
+  padding-block-start: var(--sjs2-spacing-medium-vertical);
+}
 .sd-matrixdynamic__content > div {
   display: contents;
 }
@@ -214,6 +219,10 @@
     padding-bottom: var(--sjs2-layout-component-panel-dynamic-footer-padding-bottom);
     padding-inline-start: var(--sjs2-layout-component-panel-dynamic-footer-padding-left);
     padding-inline-end: var(--sjs2-layout-component-panel-dynamic-footer-padding-right);
+  }
+  // The pager and the Add button share one footer: no separator line between them.
+  .sd-matrixdynamic__records-bar ~ .sd-matrixdynamic__toolbar--bottom {
+    border-top: none;
   }
 }
 

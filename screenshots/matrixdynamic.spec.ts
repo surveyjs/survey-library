@@ -9,21 +9,24 @@ frameworks.forEach(framework => {
       await page.goto(`${url}${framework}`);
     });
 
-    test("Matrixdynamic pager", async ({ page }) => {
-      await page.setViewportSize({ width: 1920, height: 1080 });
-      await initSurvey(page, framework, {
-        showQuestionNumbers: false,
-        elements: [{
-          type: "matrixdynamic",
-          name: "matrix",
-          title: "Question title",
-          pageSize: 1,
-          defaultValue: Array.from({ length: 12 }, (_, i) => ({ name: "Row " + (i + 1) })),
-          columns: [{ name: "name", cellType: "text" }]
-        }]
+    // The pager sits right above the Add Row button: the screenshots check the gap between them.
+    [{ name: "desktop", width: 1920 }, { name: "mobile", width: 420 }].forEach(viewport => {
+      test(`Matrixdynamic pager, ${viewport.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: viewport.width, height: 1080 });
+        await initSurvey(page, framework, {
+          showQuestionNumbers: false,
+          elements: [{
+            type: "matrixdynamic",
+            name: "matrix",
+            title: "Question title",
+            pageSize: 1,
+            defaultValue: Array.from({ length: 12 }, (_, i) => ({ name: "Row " + (i + 1) })),
+            columns: [{ name: "name", cellType: "text" }]
+          }]
+        });
+        await resetFocusToBody(page);
+        await compareScreenshot(page, page.locator(".sd-question--matrixdynamic"), `matrixdynamic-pager-12-pages-${viewport.name}.png`);
       });
-      await resetFocusToBody(page);
-      await compareScreenshot(page, page.locator(".sd-question--matrixdynamic"), "matrixdynamic-pager-12-pages.png");
     });
 
     test("Matrixdynamic empty placeholder", async ({ page }) => {

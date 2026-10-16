@@ -412,6 +412,35 @@ describe("ProgressButtons", () => {
     survey.clearValue("q1");
     expect(progress.isListElementPassed(0), "page1 is not passed once its answer is cleared").toBe(false);
   });
+  test("Progress bar does not mark a page with an unanswered required question as passed", () => {
+    const survey: SurveyModel = new SurveyModel({
+      pages: [
+        {
+          name: "page1", elements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2", isRequired: true },
+            { type: "text", name: "q3", isRequired: true, visibleIf: "{q1} != 'hide'" },
+            { type: "panel", name: "panel1", elements: [{ type: "text", name: "q4", isRequired: true }] },
+          ]
+        },
+        { name: "page2", elements: [{ type: "text", name: "q5" }] },
+      ],
+    });
+    const progress: ProgressButtons = new ProgressButtons(survey);
+    survey.setValue("q1", "answer");
+    expect(progress.isListElementPassed(0), "required questions are not answered").toBe(false);
+    survey.setValue("q2", "answer");
+    survey.setValue("q4", "answer");
+    expect(progress.isListElementPassed(0), "the required q3 is not answered").toBe(false);
+    survey.setValue("q1", "hide");
+    expect(progress.isListElementPassed(0), "the unanswered required q3 is invisible").toBe(true);
+    survey.setValue("q1", "answer");
+    survey.setValue("q3", "answer");
+    expect(progress.isListElementPassed(0), "all required questions are answered").toBe(true);
+    survey.clearValue("q4");
+    expect(progress.isListElementPassed(0), "the required q4 in a panel is cleared").toBe(false);
+    expect(survey.getQuestionByName("q4").errors, "no errors are shown").toHaveLength(0);
+  });
   test("ProgressButtons changes a property on survey value change to update the list elements", () => {
     const survey: SurveyModel = new SurveyModel({
       pages: [

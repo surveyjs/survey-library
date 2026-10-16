@@ -690,6 +690,25 @@ describe("linter vs runtime: a records question sharing its value without a valu
     expect(survey.data).toEqual({ cars: [{ pk: "a" }, { pk: "b" }] });
   });
 
+  test("an image map with valuePropertyName: keyed by its name alone the panel drops the field", () => {
+    const imagemap = { type: "imagemap", valuePropertyName: "car", imageLink: "x",
+      areas: [{ value: "Ford", coords: "1,1,2,2", shape: "rect" }] };
+    const json = (panelValueName?: string): any => ({ elements: [
+      Object.assign({ name: "cars" }, panel, panelValueName ? { valueName: panelValueName } : {}),
+      Object.assign({ name: "map", valueName: "cars" }, imagemap),
+    ] });
+    expect(shadowing(json())).toEqual(["valueNameShadowsElement @ elements[1].valueName"]);
+    let survey = new SurveyModel(json());
+    survey.setData({ cars: [{ car: "Ford" }] });
+    survey.clearIncorrectValues();
+    expect(survey.data).toEqual({});
+    expect(shadowing(json("cars"))).toEqual([]);
+    survey = new SurveyModel(json("cars"));
+    expect(survey.setData({ cars: [{ car: "Ford" }] })).toEqual([]);
+    survey.clearIncorrectValues();
+    expect(survey.data).toEqual({ cars: [{ car: "Ford" }] });
+  });
+
   test("a question adding no field it lacks loses nothing", () => {
     const columns = [{ name: "first", cellType: "text" }, { name: "last", cellType: "text" }];
     const json = { elements: [

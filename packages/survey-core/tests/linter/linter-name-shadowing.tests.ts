@@ -81,6 +81,24 @@ describe("name/shadowing - valueName over an element name", () => {
     expect(flagged({ type: "multipletext", items: [{ name: "a" }] }, { type: "multipletext", items: [{ name: "b" }] }),
       "multiple texts merge their keys").toBe(0);
   });
+  // keyed by its name alone, a dynamic panel or matrix still knows the keys its own questions store
+  // (isRecordKeyOfType), and a matrixdropdown keeps a row it does not list (isValueKeyKnown)
+  test("a question adding no field the dynamic panel or matrix lacks is a plain share", () => {
+    const flagged = (shadowed: any, sharing: any): number => byRule({
+      elements: [Object.assign({ name: "q2" }, shadowed), Object.assign({ name: "q1", valueName: "q2" }, sharing)],
+    }).length;
+    const matrix = (columns: Array<string>) => ({ type: "matrixdynamic", columns: columns.map(name => ({ name: name, cellType: "text" })) });
+    const dropdown = (rows: Array<string> | undefined, column: string): any =>
+      Object.assign({ type: "matrixdropdown", columns: [{ name: column, cellType: "text" }] }, rows ? { rows: rows } : {});
+    expect(flagged(matrix(["first", "last"]), matrix(["first", "last"])), "a copy of the matrix").toBe(0);
+    expect(flagged(matrix(["first", "last"]), matrix(["first"])), "a part of its columns").toBe(0);
+    expect(flagged(matrix(["first"]), matrix(["first", "last"])), "a column it lacks").toBe(1);
+    expect(flagged({ type: "paneldynamic", templateElements: [{ type: "text", name: "carName", valueName: "car" }] },
+      { type: "checkbox", choices: ["a"], valuePropertyName: "car" }), "a field its template writes").toBe(0);
+    expect(flagged(dropdown(["r2"], "c1"), dropdown(["r1"], "c2")), "no row in common").toBe(0);
+    expect(flagged(dropdown(["r1", "r2"], "c1"), dropdown(["r1"], "c2")), "a row in common").toBe(1);
+    expect(flagged(dropdown(["r1"], "c1"), dropdown(undefined, "c2")), "rows not listed may be any row").toBe(1);
+  });
   test("the merge example of the documentation is clean - the checkbox keeps no records", () => {
     expect(byRule({
       elements: [

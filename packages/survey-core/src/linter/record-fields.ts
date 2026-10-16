@@ -197,12 +197,24 @@ export function annotateSharedValues(index: SurveyIndex): void {
 
 // Whether a question adds fields to the panel/row objects of a dynamic panel or matrix it would share
 // the value with: a dynamic panel or matrix of the same kind, or a checkbox or image map with object items.
+// A field the owner's own questions store is known to it all the same (isRecordKeyOfType), and a
+// matrixdropdown keeps a row it does not list (isValueKeyKnown), so only a new field in a row both list counts.
 export function addsItemFieldsTo(owner: ElementRecord, partner: ElementRecord): boolean {
   const kind = getItemKind(owner);
   if (!kind || !getSubElementNames(owner) || getItemKind(partner) !== kind) return false;
+  if (kind === "row" && !sharesListedRow(owner, partner)) return false;
+  const own = new CIMultiMap<ElementRecord>();
+  addOwnItemFields(owner, own);
   const fields = new CIMultiMap<ElementRecord>();
   addOwnItemFields(partner, fields);
-  return fields.names().length > 0;
+  return fields.names().some(field => !own.has(field));
+}
+
+// Rows the JSON does not list may be any row.
+function sharesListedRow(a: ElementRecord, b: ElementRecord): boolean {
+  const aRows = getListedRows(a);
+  const bRows = getListedRows(b);
+  return !aRows || !bRows || aRows.some(row => listsRow(bRows, row));
 }
 
 // The fields one panel/row object of a dynamic panel or matrix holds; every check that reads a

@@ -5,7 +5,7 @@ import { isMatrixDropdown, isPropertyOn } from "../metadata";
 import { hasOtherItem } from "../value-types";
 import { ILintRelated } from "../types";
 import { SurveyLintReasons } from "../reasons";
-import { getDataKey, getFrameNames } from "../record-fields";
+import { getDataKey, getDataKeyRecords } from "../record-fields";
 
 const reasons = SurveyLintReasons["name/shadowing"];
 
@@ -34,24 +34,6 @@ function reportBuiltIn(ctx: LintContext, name: string, nameKind: string, path: s
     elementName: record ? record.name : name,
     elementType: record ? record.type : "calculatedvalue",
   });
-}
-
-// The element a data key names within the record's data scope. A question inside a dynamic-panel
-// template writes into its panel's record, one inside a matrix detail panel into its row's record
-// next to the columns; every other question writes into the survey data. A scope keeps no
-// valueName index of its own; the scan runs only for a key a -Comment/-total suffix produced.
-function findByDataNameInScope(ctx: LintContext, record: ElementRecord, dataName: string): ElementRecord | undefined {
-  const frame = getCapturingFrame(record.scope);
-  if (!frame) return ctx.index.findByDataName(dataName);
-  const names = getFrameNames(frame);
-  const byName = names.first(dataName);
-  if (byName) return byName;
-  let byValueName: ElementRecord = undefined;
-  names.forEach(records => {
-    if (byValueName) return;
-    byValueName = records.filter(other => !!other.valueName && equalsCI(other.valueName, dataName))[0];
-  });
-  return byValueName;
 }
 
 // Two questions may deliberately share a valueName - that is how the runtime lets them answer
@@ -116,8 +98,12 @@ function checkDerivedKeyCollision(ctx: LintContext, record: ElementRecord): void
   const check = (base: string, suffix: string, reason: string, owns: (rec: ElementRecord) => boolean,
     what: string): void => {
     if (!base) return;
-    const owner = findByDataNameInScope(ctx, record, base);
-    if (!owner || owner === record || !owns(owner)) return;
+    // the questions writing the base key in the record's data scope: a question of a dynamic-panel
+    // template writes into its panel's record, one of a matrix detail panel into its row's record
+    // next to the columns, every other question into the survey data
+    const owner = getDataKeyRecords(ctx.index, getCapturingFrame(record.scope), base)
+      .filter(other => other !== record && owns(other))[0];
+    if (!owner) return;
     ctx.report({
       message: "The data key \"" + dataName + "\" of \"" + record.name + "\" is also the " + what +
         " key of \"" + owner.name + "\" (its data key plus \"" + suffix +

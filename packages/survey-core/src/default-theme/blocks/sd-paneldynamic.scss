@@ -62,18 +62,6 @@
     .sd-progress ~ .sd-paneldynamic__panels-container {
         padding-top: 1px;
     }
-
-    & .sd-paneldynamic__panel-wrapper > .sd-panel {
-        & > .sd-panel__header {
-            padding-top: var(--sd-base-vertical-padding);
-            padding-bottom: 0;
-            border-bottom: none;
-
-            & > .sd-panel__title {
-                color: $foreground-light;
-            }
-        }
-    }
 }
 
 .sd-paneldynamic ~ .sd-question__comment-area {

@@ -19,6 +19,8 @@ class FakeOwner extends Base implements IRecordsPagerOwner {
   public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }
   public get isDataLoading(): boolean { return this.getPropertyValue("isDataLoading", false); }
   public set isDataLoading(val: boolean) { this.setPropertyValue("isDataLoading", val); }
+  public get isMobile(): boolean { return this.getPropertyValue("isMobile", false); }
+  public set isMobile(val: boolean) { this.setPropertyValue("isMobile", val); }
   public get canGoPrevPage(): boolean { return this.pageIndex > 0; }
   public get canGoNextPage(): boolean { return this.pageIndex < this.pageCount - 1; }
   public goToPage(pageIndex: number): void { this.moves.push("goTo(" + pageIndex + ")"); }

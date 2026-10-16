@@ -465,6 +465,40 @@ frameworks.forEach((framework) => {
       await expect(nameInput).toHaveValue("panel3");
     });
 
+    test("the pager's page list on a phone: a pick waits for Apply, closing the sheet drops it", async ({ page }) => {
+      await page.setViewportSize({ width: 375, height: 812 });
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel",
+            pageSize: 2,
+            defaultValue: [1, 2, 3, 4, 5].map(i => ({ name: "panel" + i })),
+            templateElements: [{ type: "text", name: "name" }],
+          },
+        ],
+      });
+      const pager = page.locator(".sd-paneldynamic__pager");
+      const sheet = page.locator(".sv-popup--sheet");
+      const nameInput = page.locator(".sd-paneldynamic__panel-wrapper input").first();
+
+      await pager.getByRole("button", { name: "Page 1 of 3" }).click();
+      await expect(sheet.locator(".sv-popup__body-header")).toHaveText("Select Page");
+      await sheet.getByRole("menuitemradio", { name: "3", exact: true }).click();
+      await expect(sheet).toBeVisible();
+      await expect(nameInput).toHaveValue("panel1");
+      await sheet.locator(".sv-popup__close-button").click();
+      await expect(sheet).toBeHidden();
+      await expect(nameInput).toHaveValue("panel1");
+
+      await pager.getByRole("button", { name: "Page 1 of 3" }).click();
+      await expect(sheet.getByRole("menuitemradio", { name: "1", exact: true }), "the dropped pick is gone").toHaveAttribute("aria-checked", "true");
+      await sheet.getByRole("menuitemradio", { name: "3", exact: true }).click();
+      await sheet.getByRole("button", { name: "Apply" }).click();
+      await expect(sheet).toBeHidden();
+      await expect(nameInput).toHaveValue("panel5");
+    });
+
     test("Check valueName for two paneldynamics - #6584", async ({ page }) => {
       await initSurvey(page, framework, {
         logoPosition: "right",

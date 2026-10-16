@@ -115,6 +115,22 @@ frameworks.forEach(framework => {
       });
     });
 
+    // On a phone the page list is a sheet: a pick is marked until Apply; from 10 pages it has a filter.
+    test("Paneldynamic pager, the page list on a phone", async ({ page }) => {
+      await page.setViewportSize({ width: 375, height: 812 });
+      for (const pageCount of [9, 12]) {
+        await initSurvey(page, framework, pagerJson(pageCount));
+        await page.locator(".sd-paneldynamic__pager .sd-pager__page").click();
+        const sheet = page.locator(".sv-popup--sheet");
+        await expect(sheet).toBeVisible();
+        await sheet.getByRole("menuitemradio", { name: "2", exact: true }).click();
+        await resetFocusToBody(page);
+        await compareScreenshot(page, undefined, `paneldynamic-pager-sheet-${pageCount}-pages.png`);
+        await sheet.locator(".sv-popup__close-button").click();
+        await expect(sheet).toBeHidden();
+      }
+    });
+
     test("Paneldynamic pager, an unknown page count", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {

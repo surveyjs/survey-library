@@ -2497,6 +2497,7 @@ export abstract class QuestionRecordsModel extends Question {
       nextPage: (): void => { question.nextPage(); },
       get isPageMovePending(): boolean { return question.isPageMovePending; },
       get isDataLoading(): boolean { return question.isDataLoading; },
+      get isMobile(): boolean { return question.isMobile; },
       get isDisposed(): boolean { return question.isDisposed; },
       get showPager(): boolean { return question.showPager; },
       getLocalizationFormatString: (strName: string, ...args: any[]): string => question.getLocalizationFormatString(strName, ...args),

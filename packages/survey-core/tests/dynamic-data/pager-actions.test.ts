@@ -6,6 +6,7 @@ import { ActionContainer } from "../../src/actions/container";
 import { Action } from "../../src/actions/action";
 import { ListModel } from "../../src/list";
 import { surveyLocalization } from "../../src/surveyStrings";
+import { PopupDropdownViewModel } from "../../src/popup-dropdown-view-model";
 
 function rows(count: number): Array<any> {
   const res: Array<any> = [];
@@ -116,7 +117,7 @@ describe("Pager: the page dropdown", () => {
     openPageList(actions);
     expect(list.actions.map(item => item.title), "#2").toEqual(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]);
     expect(list.selectedItem.title, "#3: the current page").toBe("3");
-    expect(list.showFilter, "#4: above ListModel.MINELEMENTCOUNT items the page number can be typed").toBe(true);
+    expect(list.showFilter, "#4: from pagerEdgeMinPageCount pages the page number can be typed").toBe(true);
     pickPage(actions, "7");
     expect(matrix.pageIndex, "#5").toBe(6);
     expect(page.title, "#6").toBe("7");
@@ -210,5 +211,54 @@ describe("Pager: the locale", () => {
     } finally {
       delete surveyLocalization.locales["pagerxx"];
     }
+  });
+});
+
+describe("Pager: the page list on a phone is a sheet", () => {
+  // Taps the dropdown as the renderer does: the popup takes its mode, then shows.
+  function openSheet(actions: ActionContainer): ListModel {
+    const page = getAction(actions, "sv-pager-page");
+    page.action(page, true);
+    return openPageList(actions);
+  }
+  const pick = (list: ListModel, title: string): void => list.onItemClick(list.actions.filter(item => item.title === title)[0]);
+  test("the sheet: a title, a close button and Apply instead of Cancel; a pick waits for Apply", () => {
+    const matrix = createMatrix(12);
+    matrix.survey.setIsMobile(true);
+    const actions = matrix.recordsBar.pagerActions;
+    const popup = getAction(actions, "sv-pager-page").popupModel;
+    const list = openSheet(actions);
+    expect([popup.isVisible, popup.getDisplayMode(), popup.title, popup.showCloseButton, popup.cssClass, popup.isFocusedContent], "#1: no keyboard until the filter is tapped")
+      .toEqual([true, "menu-overlay", "Select Page", true, "sv-popup--sheet", false]);
+    const viewModel = new PopupDropdownViewModel(popup);
+    expect([viewModel.showHeader, viewModel.popupHeaderTemplate, viewModel.showFooter], "#2: the close button, the footer")
+      .toEqual([true, "popup-close-button", true]);
+    expect(viewModel.footerToolbar.actions.map(item => [item.id, item.title]), "#3").toEqual([["sv-pager-apply", "Apply"]]);
+    pick(list, "7");
+    expect([matrix.pageIndex, list.selectedItem.title, popup.isVisible], "#4: the pick is marked, the sheet stays").toEqual([0, "7", true]);
+    viewModel.footerToolbar.actions[0].action();
+    expect([matrix.pageIndex, popup.isVisible], "#5: Apply moves and closes the sheet").toEqual([6, false]);
+    viewModel.dispose();
+  });
+  test("closing the sheet drops the pick; the desktop list moves on a pick again", () => {
+    const matrix = createMatrix(12);
+    matrix.survey.setIsMobile(true);
+    const actions = matrix.recordsBar.pagerActions;
+    const popup = getAction(actions, "sv-pager-page").popupModel;
+    let list = openSheet(actions);
+    pick(list, "7");
+    popup.hide();
+    list = openSheet(actions);
+    expect([matrix.pageIndex, list.selectedItem.title], "#1: the sheet opens on the current page").toEqual([0, "1"]);
+    popup.hide();
+    matrix.survey.setIsMobile(false);
+    list = openSheet(actions);
+    expect([popup.getDisplayMode(), popup.title, popup.showCloseButton, popup.cssClass, popup.isFocusedContent], "#2").toEqual(["menu-popup", "", false, "", true]);
+    pick(list, "7");
+    expect([matrix.pageIndex, popup.isVisible], "#3").toEqual([6, false]);
+  });
+  test("the list shows its filter from pagerEdgeMinPageCount pages", () => {
+    expect(openPageList(createMatrix(9).recordsBar.pagerActions).showFilter, "#1").toBe(false);
+    expect(openPageList(createMatrix(10).recordsBar.pagerActions).showFilter, "#2").toBe(true);
   });
 });

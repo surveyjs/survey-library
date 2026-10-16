@@ -377,6 +377,98 @@ sv-popup {
   }
 }
 
+/* The sheet: a phone menu at the bottom of the screen over the dimmed page, as tall as its content
+   and at most nearly the screen height. A title and a close button above the list (the filter boxed
+   under them), one full-width button below it. The lines around the list show with the filter only:
+   a short list does not scroll. */
+.sv-popup--menu-phone.sv-popup--sheet {
+  background: var(--sjs2-color-utility-overlay);
+
+  & > .sv-popup__container {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    height: auto;
+    max-height: calc(var(--sv-popup-overlay-height, 100vh) - var(--sjs2-spacing-x600));
+    border-radius: var(--sjs2-radius-component-modal) var(--sjs2-radius-component-modal) 0 0;
+    overflow: hidden;
+  }
+  & > .sv-popup__container > .sv-popup__body-content {
+    height: auto;
+    max-height: calc(var(--sv-popup-overlay-height, 100vh) - var(--sjs2-spacing-x600));
+    background-color: var(--sjs2-color-utility-sheet);
+  }
+
+  .sv-popup__body-header {
+    padding: calc(var(--sjs2-spacing-x200) + var(--sjs2-spacing-x050)) var(--sjs2-spacing-x200);
+    padding-inline-end: calc(var(--sjs2-spacing-x200) + var(--sjs2-size-x500));
+  }
+  .sv-popup__close-button {
+    top: var(--sjs2-spacing-x200);
+    right: var(--sjs2-spacing-x200);
+    box-sizing: border-box;
+    width: var(--sjs2-size-x500);
+    height: var(--sjs2-size-x500);
+    padding: var(--sjs2-spacing-x100);
+  }
+  .sv-popup__scrolling-content,
+  .sv-popup__content,
+  .sd-menu-list__container {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+  }
+  .sd-menu-list__container {
+    box-sizing: border-box;
+    min-width: 0;
+    padding: 0;
+    gap: 0;
+  }
+
+  .sd-menu-filter {
+    padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x200) var(--sjs2-spacing-x200);
+  }
+  .sd-menu-filter__box {
+    flex: 1 1 auto;
+    padding: var(--sjs2-spacing-x150);
+    border-radius: var(--sjs2-radius-component-formbox);
+    background: var(--sjs2-color-component-formbox-default-bg);
+    box-shadow: inset 0 0 0 var(--sjs2-border-width-x100) var(--sjs2-color-component-formbox-default-border);
+  }
+  .sd-menu-filter__input {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .sd-menu-list {
+    padding: 0 var(--sjs2-spacing-x200);
+  }
+  .sd-menu-item__body {
+    padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x200);
+  }
+
+  .sv-popup__body-footer {
+    padding: var(--sjs2-spacing-x200);
+    border-top: none;
+    background: var(--sjs2-color-utility-sheet);
+  }
+  &:has(.sd-menu-filter) .sv-popup__body-footer {
+    border-top: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-basic-secondary);
+  }
+  .sv-popup__body-footer .sd-action-bar {
+    width: 100%;
+    padding: 0;
+
+    .sd-action-bar__item {
+      flex: 1 1 auto;
+    }
+    .sd-action {
+      box-sizing: border-box;
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
 .sv-popup--menu-tablet {
   background: var(--sjs2-color-utility-overlay);
 

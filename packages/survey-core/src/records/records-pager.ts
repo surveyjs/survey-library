@@ -19,6 +19,8 @@ export interface IRecordsPagerOwner {
   // A move waits for asynchronous validators, or a page is being read: nothing can be moved meanwhile.
   readonly isPageMovePending: boolean;
   readonly isDataLoading: boolean;
+  // On a phone the page list opens as a sheet (createPageDropdownAction).
+  readonly isMobile: boolean;
   goToPage(pageIndex: number): void;
   prevPage(): void;
   nextPage(): void;
@@ -73,11 +75,27 @@ function createPageMoveAction(owner: IRecordsPagerOwner, options: IAction, title
 /* The page dropdown: the one-based current page, and a list of every page to jump to. The list
    holds pageCount pages, which with an unknown count includes the one page beyond those read: the
    list reaches exactly as far as Next. Its items are built when it opens, not on every page move: a
-   remote source can have thousands of pages. Above ListModel.MINELEMENTCOUNT items the list shows
-   its filter, so the page number can be typed. */
+   remote source can have thousands of pages. From pagerEdgeMinPageCount pages the list shows its
+   filter, so the page number can be typed.
+   On a phone the list opens as a sheet at the bottom of the screen: a title, a close button and an
+   Apply button. A pick there only marks the page; Apply moves to it, and closing the sheet drops it. */
 function createPageDropdownAction(owner: IRecordsPagerOwner): Action {
   const getTitle = (): string => String(getPagerState(owner).pageIndex + 1);
+  let isSheet = false;
+  // Runs before the popup shows, so it opens in the mode the question is in now.
+  const updatePopupMode = (): void => {
+    isSheet = owner.isMobile;
+    const popup = action.popupModel;
+    popup.displayMode = isSheet ? "overlay" : "popup";
+    popup.overlayDisplayMode = "dropdown-overlay";
+    popup.title = isSheet ? owner.getLocalizationFormatString("pagerSelectPageTitle") : "";
+    popup.showCloseButton = isSheet;
+    popup.cssClass = isSheet ? "sv-popup--sheet" : "";
+    // The sheet opens without the phone's keyboard: the filter is focused when the respondent taps it.
+    popup.isFocusedContent = !isSheet;
+  };
   const action = createDropdownActionModel({
+    action: updatePopupMode,
     id: "sv-pager-page",
     title: <any>new ComputedUpdater(getTitle),
     showTitle: true,
@@ -112,10 +130,30 @@ function createPageDropdownAction(owner: IRecordsPagerOwner): Action {
         items.push({ id: "sv-pager-page-" + (i + 1), title: String(i + 1), data: i });
       }
       const list = <ListModel>action.data;
+      list.forceShowFilter = state.pageCount >= pagerEdgeMinPageCount;
       list.setItems(items);
       list.selectedItem = list.actions[state.pageIndex];
     }
   }, owner.getLocOwner());
+  const list = <ListModel>action.data;
+  const moveOnPick = list.onSelectionChanged;
+  // The list has already marked the picked page: in the sheet that is all a pick does.
+  list.onSelectionChanged = (item: Action, ...params: any[]): void => {
+    if (!isSheet) moveOnPick(item, ...params);
+  };
+  // The footer shows in the sheet only: Apply instead of the menu's Cancel.
+  action.popupModel.onFooterActionsCreated.add((_, options: { actions: Array<IAction> }) => {
+    options.actions = [{
+      id: "sv-pager-apply",
+      title: owner.getLocalizationFormatString("modalApplyButtonText"),
+      appearance: { style: "brand", mode: "primary", size: "large" },
+      action: (): void => {
+        const item = list.selectedItem;
+        action.popupModel.hide();
+        if (!!item) owner.goToPage(item.data);
+      }
+    }];
+  });
   return action;
 }
 /* The pager the renderers show through their action bar, as one row of three groups:

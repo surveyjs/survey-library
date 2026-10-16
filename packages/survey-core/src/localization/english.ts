@@ -7,6 +7,7 @@ export var englishStrings = {
   pageFirstText: "First",
   pageLastText: "Last",
   pagerTotalText: "of {0}",
+  pagerSelectPageTitle: "Select Page",
   completeText: "Complete",
   previewText: "Preview",
   editText: "Edit",

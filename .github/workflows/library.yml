@@ -1,0 +1,27 @@
+# survey-library CI on GitHub Actions. Everything lives in surveyjs/azure-pipelines
+# (.github/workflows/library.yml), as the Azure pipeline extended library.yml@azurepipelines: this
+# file holds only what GitHub reads from the repository itself - triggers, token permissions and
+# concurrency. The single required status check is "CI / result".
+name: Library
+
+on:
+  pull_request:
+  push:
+    branches: [master, V2, V3]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  # PRs: a new push cancels the previous run. Pushes: every run is kept - cancelling a pending
+  # master run would lose its backport.
+  group: ${{ github.event_name == 'pull_request' && format('library-pr-{0}', github.event.pull_request.number) || format('library-run-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  ci:
+    name: CI
+    uses: surveyjs/azure-pipelines/.github/workflows/library.yml@gha-migration
+    secrets: inherit

@@ -11,13 +11,17 @@ import { toCssClasses } from "./utils/cssClassBuilder";
 import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { ActionContainer } from "./actions/container";
-import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
+import type { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { settings } from "./settings";
 import { AnimationGroup, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 
 function getId(id: string, isError: boolean, isDetail: boolean) {
   return id + (isError ? "-error" : "") + (isDetail ? "-detail" : "");
+}
+// The matrix whose rows are added, removed and dragged, read by its flag: question_matrixdynamic imports this file.
+function getDynamicMatrix(matrix: QuestionMatrixDropdownModelBase): QuestionMatrixDynamicModel {
+  return matrix.isRowsDynamic ? <QuestionMatrixDynamicModel>matrix : undefined;
 }
 
 export class QuestionMatrixDropdownRenderedCell {
@@ -400,7 +404,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     return this.footerRowValue;
   }
   public get isRowsDragAndDrop(): boolean {
-    return this.matrix.isRowsDragAndDrop && this.matrix.isColumnLayoutHorizontal && !this.matrix.isMobile;
+    const matrix = getDynamicMatrix(this.matrix);
+    return matrix?.isRowsDragAndDrop && matrix.isColumnLayoutHorizontal && !matrix.isMobile;
   }
 
   private get showCellErrorsTop() {
@@ -634,15 +639,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     return this.matrix.visibleRows.some(
       (row, index) => !this.isValueEmpty(this.getRowActions(index, location)));
   }
-  private canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
-    return this.matrix.canRemoveRow(row);
-  }
   private buildHorizontalRows(): Array<QuestionMatrixDropdownRenderedRow> {
     var rows = this.matrix.visibleRows;
     var renderedRows: Array<QuestionMatrixDropdownRenderedRow> = [];
-    if (rows.length == 0 && this.matrix.allowRowReorder && this.matrix.allowRowDragIn) {
+    const dynamicMatrix = getDynamicMatrix(this.matrix);
+    if (rows.length == 0 && !!dynamicMatrix && dynamicMatrix.allowRowReorder && dynamicMatrix.allowRowDragIn) {
       const row = this.createEmptyRow();
-      const cell = this.createTextCell(this.matrix.locNoRowsText);
+      const cell = this.createTextCell(dynamicMatrix.locNoRowsText);
       cell.colSpans = this.headerRow && this.headerRow.cells.length || 1;
       row.cells.push(cell);
       renderedRows.push(row);
@@ -766,52 +769,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.suppliedRowActions = [];
     super.dispose();
   }
-  private get showRemoveButtonAsIcon() {
-    return (
-      settings.matrix.renderRemoveAsIcon && this.matrix.survey && (<any>this.matrix.survey).css.root === "sd-root-modern"
-    );
-  }
+  // The Dynamic Matrix's table adds the drag handle and the remove button before these.
   protected setDefaultRowActions(
     row: MatrixDropdownRowModelBase,
     actions: Array<IAction>
   ) {
-    const matrix = <QuestionMatrixDynamicModel>this.matrix;
-    /* The drag handle is locked by the row's position among the visible rows, as released - under
-       paging among the visible rows of the whole view, not on the page (the row's visibleIndex). The
-       remove lock counts records instead (canRemoveRow), also as released. */
-    const visibleIndex = row.visibleIndex > -1 ? row.visibleIndex : this.matrix.visibleRows.indexOf(row);
-    const lockedRows = (<QuestionMatrixDynamicModel>this.matrix).lockedRowCount;
-    if (this.isRowsDragAndDrop && (lockedRows < 1 || visibleIndex >= lockedRows)) {
-      actions.push(new Action({
-        id: "drag-drop",
-        action: () => {},
-        data: { row, question: this.matrix },
-        iconName: new ComputedUpdater(() => this.matrix.cssClasses.iconDragElement) as unknown as string,
-        component: "sv-matrix-drag-drop-icon"
-      }));
-    }
-    if (this.hasRemoveRows && this.canRemoveRow(row)) {
-      actions.push(
-        new Action({
-          id: "remove-row",
-          css: "sv-action--remove-row",
-          iconSize: "auto",
-          innerCss: toCssClasses(this.matrix.cssClasses.button, this.matrix.cssClasses.buttonRemove),
-          location: "end",
-          iconName: !this.showRemoveButtonAsIcon || matrix.isMobile ? "" : "icon-delete-24x24",
-          showTitle: !this.showRemoveButtonAsIcon || matrix.isMobile,
-          locTitle: matrix.locRemoveRowText,
-          enabled: !matrix.isInputReadOnly,
-          appearance: { style: "alert" },
-          visibleIndex: this.matrix.isMobile ? 20 : undefined,
-          data: { row: row, question: matrix },
-          action: () => {
-            matrix.removeRowUI(row);
-          },
-        })
-      );
-    }
-
     if (row.hasPanel) {
       actions.push(
         new Action({

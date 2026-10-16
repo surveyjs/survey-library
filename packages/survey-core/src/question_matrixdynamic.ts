@@ -103,7 +103,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
-    const resetTableProps = ["allowRowReorder", "isReadOnly", "lockedRowCount"];
+    const resetTableProps = ["allowRowReorder", "isReadOnly", "lockedRowCount",
+      "addRowButtonLocation", "hideColumnsIfEmpty", "minRowCount", "rowCount"];
     if (resetTableProps.indexOf(name) > -1) {
       this.resetRenderedTable();
     }
@@ -265,13 +266,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public getValueType(): QuestionValueType {
     return "array";
   }
-  protected getAllChildren(): Base[] {
-    return [
-      ...super.getAllChildren(),
-      ...this.columns,
-      ...this.choices
-    ];
-  }
   public get isRowsDynamic(): boolean {
     return true;
   }
@@ -319,6 +313,33 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return (
       super.isDefaultValueEmpty() && this.isValueEmpty(this.defaultRowValue)
     );
+  }
+  // A column that becomes a file column takes its answer out of defaultRowValue.
+  onColumnCellTypeChanged(column: MatrixDropdownColumn): void {
+    this.updateDefaultRowValue(column);
+    super.onColumnCellTypeChanged(column);
+  }
+  private updateDefaultRowValue(column: MatrixDropdownColumn): void {
+    let val = this.defaultRowValue;
+    if (!!val) {
+      if (column.cellType === "file" && val[column.name]) {
+        delete val[column.name];
+        if (Object.keys(val).length === 0) {
+          val = undefined;
+        }
+        this.defaultRowValue = val;
+      }
+    }
+  }
+  // A record's names, as its row would give them: the records are numbered.
+  protected getRecordDataName(index: number): string {
+    return "row" + (index + 1);
+  }
+  protected getRecordText(index: number, visibleIndex: number): string {
+    return "row " + (visibleIndex + 1);
+  }
+  protected getRecordAccessibilityTitle(index: number, visibleIndex: number): string {
+    return (visibleIndex + 1).toString();
   }
   protected valueFromData(val: any): any {
     if (this.minRowCount < 1 || this.isEditingSurveyElement || this.isEmpty()) return super.valueFromData(val);
@@ -854,7 +875,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    */
   @property() detailPanelShowOnAdding: boolean;
 
-  protected runConditionsForColumns(properties: HashTable<any>): boolean { return false; }
+  // columnsVisibleIf is not applied: every column stays shown by it.
+  protected runConditionsForColumns(properties: HashTable<any>): void { }
   public unbindValue() {
     this.clearGeneratedRows();
     this.clearPropertyValue("value");
@@ -1593,10 +1615,56 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
 }
 
 class QuestionMatrixDynamicRenderedTable extends QuestionMatrixDropdownRenderedTable {
+  declare public matrix: QuestionMatrixDynamicModel;
+  public constructor(matrix: QuestionMatrixDynamicModel) {
+    super(matrix);
+  }
+  private get showRemoveButtonAsIcon() {
+    return (
+      settings.matrix.renderRemoveAsIcon && this.matrix.survey && (<any>this.matrix.survey).css.root === "sd-root-modern"
+    );
+  }
+  // The drag handle and the remove button go before the base's detail button.
   protected setDefaultRowActions(
     row: MatrixDropdownRowModelBase,
     actions: Array<IAction>
   ) {
+    const matrix = this.matrix;
+    /* The drag handle is locked by the row's position among the visible rows, as released - under
+       paging among the visible rows of the whole view, not on the page (the row's visibleIndex). The
+       remove lock counts records instead (canRemoveRow), also as released. */
+    const visibleIndex = row.visibleIndex > -1 ? row.visibleIndex : this.matrix.visibleRows.indexOf(row);
+    const lockedRows = this.matrix.lockedRowCount;
+    if (this.isRowsDragAndDrop && (lockedRows < 1 || visibleIndex >= lockedRows)) {
+      actions.push(new Action({
+        id: "drag-drop",
+        action: () => {},
+        data: { row, question: this.matrix },
+        iconName: new ComputedUpdater(() => this.matrix.cssClasses.iconDragElement) as unknown as string,
+        component: "sv-matrix-drag-drop-icon"
+      }));
+    }
+    if (this.hasRemoveRows && this.matrix.canRemoveRow(row)) {
+      actions.push(
+        new Action({
+          id: "remove-row",
+          css: "sv-action--remove-row",
+          iconSize: "auto",
+          innerCss: toCssClasses(this.matrix.cssClasses.button, this.matrix.cssClasses.buttonRemove),
+          location: "end",
+          iconName: !this.showRemoveButtonAsIcon || matrix.isMobile ? "" : "icon-delete-24x24",
+          showTitle: !this.showRemoveButtonAsIcon || matrix.isMobile,
+          locTitle: matrix.locRemoveRowText,
+          enabled: !matrix.isInputReadOnly,
+          appearance: { style: "alert" },
+          visibleIndex: this.matrix.isMobile ? 20 : undefined,
+          data: { row: row, question: matrix },
+          action: () => {
+            matrix.removeRowUI(row);
+          },
+        })
+      );
+    }
     super.setDefaultRowActions(row, actions);
   }
 }

@@ -690,6 +690,31 @@ describe("linter vs runtime: a records question sharing its value without a valu
     expect(survey.data).toEqual({ cars: [{ pk: "a" }, { pk: "b" }] });
   });
 
+  test("a question adding no field it lacks loses nothing", () => {
+    const columns = [{ name: "first", cellType: "text" }, { name: "last", cellType: "text" }];
+    const json = { elements: [
+      { type: "matrixdynamic", name: "employees", rowCount: 0, columns: columns },
+      { type: "matrixdynamic", name: "review", valueName: "employees", rowCount: 0, readOnly: true, columns: columns },
+    ] };
+    expect(shadowing(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    expect(survey.setData({ employees: [{ first: "a", last: "b" }] })).toEqual([]);
+    survey.clearIncorrectValues();
+    expect(survey.data).toEqual({ employees: [{ first: "a", last: "b" }] });
+  });
+
+  test("a matrixdropdown keeps a row it does not list", () => {
+    const json = { elements: [
+      { type: "matrixdropdown", name: "cars", rows: ["r2"], columns: [{ name: "c1", cellType: "text" }] },
+      { type: "matrixdropdown", name: "s", valueName: "cars", rows: ["r1"], columns: [{ name: "c2", cellType: "text" }] },
+    ] };
+    expect(shadowing(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    expect(survey.setData({ cars: { r1: { c2: "x" }, r2: { c1: "y" } } })).toEqual([]);
+    survey.clearIncorrectValues();
+    expect(survey.data).toEqual({ cars: { r1: { c2: "x" }, r2: { c1: "y" } } });
+  });
+
   test("the merge example of the documentation keeps its fields", () => {
     const json = { elements: [
       { type: "checkbox", name: "cars", valuePropertyName: "car", choices: ["Ford", "Vauxhall"] },

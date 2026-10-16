@@ -87,11 +87,15 @@ export interface ScopeFramePanelDynamic {
   kind: "panelDynamic";
   owner: ElementRecord;
   templateNames: CIMultiMap<ElementRecord>;
+  // memoized by record-fields.ts: the template questions by data key
+  dataKeys?: CIMultiMap<ElementRecord>;
 }
 export interface ScopeFrameMatrixRow {
   kind: "matrixRow";
   owner: ElementRecord;
   columns: CIMultiMap<ElementRecord>;
+  // memoized by record-fields.ts: the columns and detail-panel questions by data key
+  dataKeys?: CIMultiMap<ElementRecord>;
 }
 export interface ScopeFrameItemValue {
   kind: "itemValue";
@@ -150,7 +154,8 @@ export interface ElementRecord {
   // memoized synthetic records for the standalone scope variables of this matrix/panel
   scopeValueRecords?: CIMap<ElementRecord>;
   // the fields one panel/row object of this dynamic panel or matrix holds, under the data key each
-  // is stored by - its own and those of the questions sharing its value (see record-fields.ts)
+  // is stored by - its own and those of the questions sharing its value (see record-fields.ts);
+  // unset while it would equal templateNames/matrixColumns
   itemFields?: CIMultiMap<ElementRecord>;
   // set on an object-valued question that shares its value with another one
   mergedObject?: MergedObjectKeys;

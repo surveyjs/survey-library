@@ -10,7 +10,7 @@ import {
   SegmentLevel, SurveyIndex, CIMap, CIMultiMap, TriggerRecord, ValueTypeInfo,
   ITEM_FIELD_TYPE, SCOPE_INDEX_VARIABLE_TYPE, SCOPE_ROW_VALUE_TYPE,
 } from "./symbols";
-import { getFrameItemFields, getFrameNames, getItemFields, getRowFields } from "./record-fields";
+import { getFrameItemFields, getFrameNames, getItemFields, getRowFields, getTotalFields } from "./record-fields";
 
 export interface ParseOutcome {
   ast?: Operand;
@@ -329,7 +329,7 @@ function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, sc
       if (!matrixFrame) return inactiveScope(SurveyLintHintReasons.rowScopePrefix, rowPrefixes[i],
         "\"" + rowPrefixes[i] + ".\" references are only available inside a matrix cell or a matrix detail panel.");
       // the total row holds the totals of the matrix's own columns, every other row its record
-      const fields = equalsCI(rowPrefixes[i], vars.totalRow) ? matrixFrame.columns : getFrameItemFields(matrixFrame);
+      const fields = equalsCI(rowPrefixes[i], vars.totalRow) ? getTotalFields(matrixFrame.owner) : getFrameItemFields(matrixFrame);
       return { handled: true, ref: validateInnerName(ref, rowPrefixes[i], fields, lintSettings) };
     }
   }
@@ -560,8 +560,9 @@ function tryResolveMatrixTotal(ref: ParsedRef, root: string, index: SurveyIndex)
   ref.status = "resolved";
   ref.resolvedTo = record;
   ref.resolvedKind = "element";
-  if (ref.segments.length > 1 && record.matrixColumns && isUnknownName(ref, 1, record.matrixColumns)) {
-    markUnknownSegment(ref, 1, record.matrixColumns.names(), "column");
+  const totals = getTotalFields(record);
+  if (ref.segments.length > 1 && !!totals && isUnknownName(ref, 1, totals)) {
+    markUnknownSegment(ref, 1, totals.names(), "column");
   }
   return true;
 }

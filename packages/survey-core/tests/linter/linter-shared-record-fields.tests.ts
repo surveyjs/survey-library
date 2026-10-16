@@ -211,6 +211,17 @@ describe("a template question is a field under the key it stores its value by", 
       ],
     })).toEqual(["reference/unknown/keyNameNotFound @elements[0].keyName", "reference/unknown/inContainer @elements[2].expression"]);
   });
+  // a matrix looks the key question up by name first (getUniquenessQuestion -> row.getQuestionByName),
+  // then by the record's key, so either names a key
+  test("a matrix keyName may name a detail-panel question by its name or by its valueName", () => {
+    const matrix = (keyName: string): any => ({
+      elements: [{ type: "matrixdynamic", name: "m", keyName: keyName, detailPanelMode: "underRow",
+        columns: [{ name: "c1", cellType: "text" }], detailElements: [{ type: "text", name: "d1", valueName: "dv" }] }],
+    });
+    expect(findings(matrix("d1"))).toEqual([]);
+    expect(findings(matrix("dv"))).toEqual([]);
+    expect(findings(matrix("dx"))).toEqual(["reference/unknown/keyNameNotFound @elements[0].keyName"]);
+  });
 });
 
 describe("an object value several questions share holds the keys of all of them", () => {

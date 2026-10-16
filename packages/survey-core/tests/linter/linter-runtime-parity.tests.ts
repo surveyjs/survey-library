@@ -645,6 +645,16 @@ describe("linter vs runtime: fields of a shared value", () => {
     expect(survey.data.md).toEqual({ r1: { c2: "x" } });
     expect(cell("md", 0, 1).isVisible).toBe(true);
   });
+
+  // getUniquenessQuestion -> row.getQuestionByName: the key question is found by its name
+  test("a matrix keyName naming a detail-panel question with a valueName validates duplicates", () => {
+    const json = { elements: [{ type: "matrixdynamic", name: "m", rowCount: 2, keyName: "d1", detailPanelMode: "underRow",
+      columns: [{ name: "c1", cellType: "text" }], detailElements: [{ type: "text", name: "d1", valueName: "dv" }] }] };
+    expect(referenceFindings(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    survey.data = { m: [{ dv: "a" }, { dv: "a" }] };
+    expect(survey.getQuestionByName("m").hasErrors(true)).toBe(true);
+  });
 });
 
 describe("linter vs runtime: configurations that really are dead", () => {

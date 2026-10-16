@@ -3,7 +3,7 @@ import {
   classifyFunctionArgRefs, classifyNameRef, classifySiteRefs, FunctionArgRef, respellRef,
 } from "../expression-utils";
 import { closestMatch } from "../levenshtein";
-import { getItemFields } from "../record-fields";
+import { getItemFields, getSubElementNames } from "../record-fields";
 import {
   ElementRecord, ExpressionSite, getEffectiveType, isCarvedOutSite, NameRef, ParsedRef,
 } from "../symbols";
@@ -157,7 +157,9 @@ function reportRef(ctx: LintContext, ref: ParsedRef, params: {
 
 // A keyName is a runtime name lookup too: a typo silently disables duplicate-key validation.
 // The key is a field of the row/panel object - a template question by its valueName, a column, or
-// a field a question sharing the value adds (record-fields.ts).
+// a field a question sharing the value adds (record-fields.ts). A matrix looks the key question up
+// by name first (getUniquenessQuestion -> row.getQuestionByName), so a column or a detail-panel
+// question is a key by its name too.
 function checkKeyName(ctx: LintContext, record: ElementRecord): void {
   const keyName = record.json ? record.json.keyName : undefined;
   if (typeof keyName !== "string" || !keyName) return;
@@ -165,6 +167,7 @@ function checkKeyName(ctx: LintContext, record: ElementRecord): void {
   const label = type === "matrixdynamic" ? "column" : type === "paneldynamic" ? "template question" : undefined;
   const map = !!label ? getItemFields(record) : undefined;
   if (!map || map.has(keyName)) return;
+  if (type === "matrixdynamic" && getSubElementNames(record).has(keyName)) return;
   const suggestion = closestMatch(keyName, map.names());
   ctx.report({
     message: "The keyName of \"" + record.name + "\" names \"" + keyName + "\" - no such " +

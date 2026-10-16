@@ -574,6 +574,17 @@ describe("baseselect", () => {
     check({ valuePropertyName: "car", choices: [{ value: "a", showCommentArea: true }, "b"] }, ["car", "comment"]);
     check({ choices: ["a", { value: "other", showCommentArea: true }] }, []);
   });
+  test("isTheOnlyComment follows an overridden isOtherValue", () => {
+    class OtherAwareCheckbox extends QuestionCheckboxModel {
+      protected isOtherValue(val: any): boolean { return val === "custom" || super.isOtherValue(val); }
+    }
+    const q = new OtherAwareCheckbox("q1");
+    q.choices = ["custom", "b"];
+    q.choices[0].showCommentArea = true;
+    expect(q.choices[0].showCommentArea, "the item shows a comment area").toBe(true);
+    expect(q.isTheOnlyComment).toBe(true);
+    expect(q.getValuePropertyName()).toBe("");
+  });
   test("checkbox valuePropertyName and shared data vs panel dynamic ", () => {
     const survey = new SurveyModel({
       elements: [

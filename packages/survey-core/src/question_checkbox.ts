@@ -19,11 +19,12 @@ import { PropertyNameArray } from "./propertyNameArray";
 import { QuestionValueType } from "./question";
 
 // True when no choice but "Other" shows a comment area: the comment of "Other" lives next to the
-// question value, any other choice comment needs the object of its selected item.
-function isTheOnlyCheckboxComment(choices: Array<any>): boolean {
+// question value, any other choice comment needs the object of its selected item. isOtherValue tells
+// "Other" apart: the question passes its own (overridable) one.
+function isTheOnlyCheckboxComment(choices: Array<any>, isOtherValue: (val: any) => boolean): boolean {
   for (let i = 0; i < choices.length; i++) {
     const ch = choices[i];
-    if (!!ch && ch.showCommentArea && !isOtherItemValue(ch.value)) return false;
+    if (!!ch && ch.showCommentArea && !isOtherValue(ch.value)) return false;
   }
   return true;
 }
@@ -36,7 +37,7 @@ function getCheckboxValuePropertyName(valuePropertyName: string, isTheOnlyCommen
    or their JSON. Exported so that a tool reading the JSON (survey-core/linter) finds the very fields
    the question writes. */
 export function getCheckboxItemFields(valuePropertyName: string, choices: Array<any>): Array<string> {
-  const isTheOnlyComment = isTheOnlyCheckboxComment(Array.isArray(choices) ? choices : []);
+  const isTheOnlyComment = isTheOnlyCheckboxComment(Array.isArray(choices) ? choices : [], isOtherItemValue);
   const res: Array<string> = [];
   const valueField = getCheckboxValuePropertyName(valuePropertyName, isTheOnlyComment);
   if (valueField) res.push(valueField);
@@ -318,7 +319,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return this.getPropertyValue("isTheOnlyComment", undefined, () => this.calcIsTheOnlyComment());
   }
   private calcIsTheOnlyComment(): boolean {
-    return isTheOnlyCheckboxComment(this.choices);
+    return isTheOnlyCheckboxComment(this.choices, (val: any): boolean => this.isOtherValue(val));
   }
   onItemHasCommentChanged(): void {
     this.resetPropertyValue("isTheOnlyComment");

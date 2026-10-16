@@ -1,6 +1,6 @@
 import { ILintRule, LintContext } from "../rule";
 import { builtInVariableNames, equalsCI, isBuiltInVariable, stripCommentSuffix } from "../expression-utils";
-import { ElementRecord, getEffectiveType, TriggerRecord } from "../symbols";
+import { ElementRecord, getCapturingFrame, getEffectiveType, TriggerRecord } from "../symbols";
 import { isMatrixDropdown, isPropertyOn } from "../metadata";
 import { hasOtherItem } from "../value-types";
 import { ILintRelated } from "../types";
@@ -39,12 +39,34 @@ function reportBuiltIn(ctx: LintContext, name: string, nameKind: string, path: s
   });
 }
 
+// The element a data key names within the record's data scope. A question inside a dynamic-panel
+// template writes into its panel's record, one inside a matrix detail panel into its row's record
+// next to the columns; every other question writes into the survey data. A scope keeps no
+// valueName index of its own; the scan runs only for a key a -Comment/-total suffix produced.
+function findByDataNameInScope(ctx: LintContext, record: ElementRecord, dataName: string): ElementRecord | undefined {
+  const frame = getCapturingFrame(record.scope);
+  if (!frame) return ctx.index.findByDataName(dataName);
+  const names = frame.kind === "panelDynamic" ? frame.templateNames : frame.columns;
+  const byName = names.first(dataName);
+  if (byName) return byName;
+  let byValueName: ElementRecord = undefined;
+  names.forEach(records => {
+    if (byValueName) return;
+    byValueName = records.filter(other => !!other.valueName && equalsCI(other.valueName, dataName))[0];
+  });
+  return byValueName;
+}
+
 // Two questions may deliberately share a valueName - that is how the runtime lets them answer
 // as one. What is reported here is the one-sided form: a valueName landing on the data key
 // another question writes under its own name, where only one of the two is aware of it.
+// Top-level questions only: a question inside a dynamic-panel template or a matrix detail panel
+// writes into its panel's or row's record, never next to a top-level question, and the one-sided
+// form inside that record is a deliberate share as often as not, so it is left alone (#12014).
 function checkValueNameOverName(ctx: LintContext, record: ElementRecord): void {
   const valueName = record.valueName;
   if (!valueName || equalsCI(valueName, record.name)) return;
+  if (getCapturingFrame(record.scope)) return;
   const shadowed = ctx.index.byName.get(valueName)
     .filter(other => other !== record && other.kind === "question" && !other.valueName);
   if (shadowed.length === 0) return;
@@ -97,7 +119,7 @@ function checkDerivedKeyCollision(ctx: LintContext, record: ElementRecord): void
   const check = (base: string, suffix: string, reason: string, owns: (rec: ElementRecord) => boolean,
     what: string): void => {
     if (!base) return;
-    const owner = ctx.index.findByDataName(base);
+    const owner = findByDataNameInScope(ctx, record, base);
     if (!owner || owner === record || !owns(owner)) return;
     ctx.report({
       message: "The data key \"" + dataName + "\" of \"" + record.name + "\" is also the " + what +

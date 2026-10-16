@@ -182,6 +182,200 @@ describe("linter vs runtime: configurations the runtime accepts", () => {
   });
 });
 
+// name/shadowing is a warning, so these cases read its findings rather than errors(): a data key
+// competes only with the keys of the record it is written into.
+describe("linter vs runtime: data scopes of name/shadowing", () => {
+  function shadowing(json: any): Array<string> {
+    return lintSurvey(json).findings
+      .filter(f => f.ruleId === "name/shadowing")
+      .map(f => f.reason + " @ " + f.path);
+  }
+  function templateQuestion(survey: SurveyModel, panelName: string, name: string): any {
+    return (<QuestionPanelDynamicModel>survey.getQuestionByName(panelName)).panels[0].getQuestionByName(name);
+  }
+
+  test("a template valueName writes into its panel, not next to a top-level question (#12014)", () => {
+    const json = {
+      elements: [
+        { type: "text", name: "phone_number" },
+        {
+          type: "paneldynamic", name: "emergency_contacts", panelCount: 1,
+          templateElements: [{ type: "text", name: "contact_phone_number", valueName: "phone_number" }],
+        },
+      ],
+    };
+    expect(shadowing(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    survey.getQuestionByName("phone_number").value = "a";
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("emergency_contacts");
+    panel.panels[0].getQuestionByName("contact_phone_number").value = "b";
+    expect(survey.data).toEqual({ phone_number: "a", emergency_contacts: [{ phone_number: "b" }] });
+  });
+
+  // the share works, and inside a record it is left unreported - a deliberate share as often as not
+  test("a detail-panel valueName shares the row key of a column", () => {
+    const json = {
+      elements: [{
+        type: "matrixdynamic", name: "m1", rowCount: 1, detailPanelMode: "underRow",
+        columns: [{ name: "c1", cellType: "text" }],
+        detailElements: [{ type: "text", name: "d1", valueName: "c1" }],
+      }],
+    };
+    expect(shadowing(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    const row = (<QuestionMatrixDynamicModel>survey.getQuestionByName("m1")).visibleRows[0];
+    row.showDetailPanel();
+    row.detailPanel.getQuestionByName("d1").value = "x";
+    expect(survey.data).toEqual({ m1: [{ c1: "x" }] });
+    expect(cellQuestion(survey, "m1", 0, 0).value).toBe("x");
+  });
+
+  test("a template question spelling a top-level comment key writes into its panel", () => {
+    const json = {
+      elements: [
+        { type: "text", name: "q1", showCommentArea: true },
+        { type: "paneldynamic", name: "p1", panelCount: 1, templateElements: [{ type: "text", name: "q1-Comment" }] },
+      ],
+    };
+    expect(shadowing(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    const q1 = survey.getQuestionByName("q1");
+    q1.value = "a";
+    q1.comment = "note";
+    templateQuestion(survey, "p1", "q1-Comment").value = "b";
+    expect(survey.data).toEqual({ q1: "a", "q1-Comment": "note", p1: [{ "q1-Comment": "b" }] });
+    expect(q1.comment).toBe("note");
+  });
+
+  test("a template question spelling a top-level totals key writes into its panel", () => {
+    const json = {
+      elements: [
+        {
+          type: "matrixdynamic", name: "m1", rowCount: 1,
+          columns: [{ name: "c1", cellType: "text", inputType: "number", totalType: "sum" }],
+        },
+        { type: "paneldynamic", name: "p1", panelCount: 1, templateElements: [{ type: "text", name: "m1-total" }] },
+      ],
+    };
+    expect(shadowing(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    survey.setValue("m1", [{ c1: 5 }]);
+    templateQuestion(survey, "p1", "m1-total").value = "x";
+    expect(survey.data["m1-total"]).toEqual({ c1: 5 });
+    expect(survey.data.p1).toEqual([{ "m1-total": "x" }]);
+  });
+
+  test("questions of two different templates write into different panels", () => {
+    const json = {
+      elements: [
+        { type: "paneldynamic", name: "p1", panelCount: 1, templateElements: [{ type: "text", name: "x" }] },
+        {
+          type: "paneldynamic", name: "p2", panelCount: 1,
+          templateElements: [{ type: "text", name: "y", valueName: "x" }],
+        },
+      ],
+    };
+    expect(shadowing(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    templateQuestion(survey, "p1", "x").value = "a";
+    templateQuestion(survey, "p2", "y").value = "b";
+    expect(survey.data).toEqual({ p1: [{ x: "a" }], p2: [{ x: "b" }] });
+    expect(templateQuestion(survey, "p1", "x").value).toBe("a");
+  });
+
+  test("a top-level valueName and a template question of that name write into different records", () => {
+    const json = {
+      elements: [
+        { type: "text", name: "q1", valueName: "x" },
+        { type: "paneldynamic", name: "p1", panelCount: 1, templateElements: [{ type: "text", name: "x" }] },
+      ],
+    };
+    expect(shadowing(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    survey.getQuestionByName("q1").value = "a";
+    templateQuestion(survey, "p1", "x").value = "b";
+    expect(survey.data).toEqual({ x: "a", p1: [{ x: "b" }] });
+    expect(survey.getQuestionByName("q1").value).toBe("a");
+  });
+
+  // the share works, and inside a record it is left unreported - a deliberate share as often as not
+  test("a valueName landing on another question of the same template shares its panel key", () => {
+    const json = {
+      elements: [{
+        type: "paneldynamic", name: "p1", panelCount: 1, templateElements: [
+          { type: "text", name: "x" },
+          { type: "text", name: "y", valueName: "x" },
+        ],
+      }],
+    };
+    expect(shadowing(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    templateQuestion(survey, "p1", "x").value = "a";
+    expect(templateQuestion(survey, "p1", "y").value).toBe("a");
+    templateQuestion(survey, "p1", "y").value = "b";
+    expect(templateQuestion(survey, "p1", "x").value).toBe("b");
+    expect(survey.data).toEqual({ p1: [{ x: "b" }] });
+  });
+
+  // The comment and the question spelling its key write the same record key without knowing of
+  // each other: the last write wins in the data, and the other question keeps showing its own.
+  test("a comment key inside one template is overwritten by the question spelling it", () => {
+    const json = {
+      elements: [{
+        type: "paneldynamic", name: "p1", panelCount: 1, templateElements: [
+          { type: "text", name: "q1", showCommentArea: true },
+          { type: "text", name: "q1-Comment" },
+        ],
+      }],
+    };
+    expect(shadowing(json)).toEqual(["commentKeyCollision @ elements[0].templateElements[1]"]);
+    const survey = new SurveyModel(json);
+    templateQuestion(survey, "p1", "q1").comment = "note";
+    expect(survey.data).toEqual({ p1: [{ "q1-Comment": "note" }] });
+    templateQuestion(survey, "p1", "q1-Comment").value = "other";
+    expect(survey.data).toEqual({ p1: [{ "q1-Comment": "other" }] });
+    expect(templateQuestion(survey, "p1", "q1").comment).toBe("note");
+  });
+
+  test("a comment key inside one template is overwritten through a valueName too", () => {
+    const json = {
+      elements: [{
+        type: "paneldynamic", name: "p1", panelCount: 1, templateElements: [
+          { type: "text", name: "q1", valueName: "shared", showCommentArea: true },
+          { type: "text", name: "q2", valueName: "shared-Comment" },
+        ],
+      }],
+    };
+    expect(shadowing(json)).toEqual(["commentKeyCollision @ elements[0].templateElements[1]"]);
+    const survey = new SurveyModel(json);
+    templateQuestion(survey, "p1", "q1").comment = "note";
+    expect(survey.data).toEqual({ p1: [{ "shared-Comment": "note" }] });
+    templateQuestion(survey, "p1", "q2").value = "other";
+    expect(survey.data).toEqual({ p1: [{ "shared-Comment": "other" }] });
+    expect(templateQuestion(survey, "p1", "q1").comment).toBe("note");
+  });
+
+  test("a column comment key is overwritten by a detail-panel question spelling it", () => {
+    const json = {
+      elements: [{
+        type: "matrixdynamic", name: "m1", rowCount: 1, detailPanelMode: "underRow",
+        columns: [{ name: "c1", cellType: "text", showCommentArea: true }],
+        detailElements: [{ type: "text", name: "c1-Comment" }],
+      }],
+    };
+    expect(shadowing(json)).toEqual(["commentKeyCollision @ elements[0].detailElements[0]"]);
+    const survey = new SurveyModel(json);
+    const row = (<QuestionMatrixDynamicModel>survey.getQuestionByName("m1")).visibleRows[0];
+    row.showDetailPanel();
+    const cell = cellQuestion(survey, "m1", 0, 0);
+    cell.comment = "note";
+    expect(survey.data).toEqual({ m1: [{ "c1-Comment": "note" }] });
+    row.detailPanel.getQuestionByName("c1-Comment").value = "other";
+    expect(survey.data).toEqual({ m1: [{ "c1-Comment": "other" }] });
+    expect(cell.comment).toBe("note");
+  });
+});
+
 describe("linter vs runtime: configurations that really are dead", () => {
   test("a scoped carry-forward outside a dynamic panel builds no choices", () => {
     const json = {

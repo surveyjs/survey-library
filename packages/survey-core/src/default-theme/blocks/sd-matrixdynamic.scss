@@ -40,10 +40,6 @@
   padding-block-end: var(--sd-matrixdynamic-toolbar-padding-block-start);
   padding-block-start: var(--sd-matrixdynamic-toolbar-padding-block-end);
 }
-// Without the pager the footer has no box: the bottom toolbar lays out on its own.
-.sd-matrixdynamic__footer {
-  display: contents;
-}
 /* The pager under the table, padded like the bottom toolbar; sticky, so it stays in view while the
    table scrolls sideways. A sticky box is a stacking context: the bar is above the table's sticky
    action cells (12), which would cover a list it opens upwards, and below the survey's sticky header

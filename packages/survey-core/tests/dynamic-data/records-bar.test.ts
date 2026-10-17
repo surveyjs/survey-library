@@ -153,16 +153,37 @@ describe("Records bar: the footer it shares with the buttons", () => {
     expect(createPanel(3, { readOnly: true, pageSize: 1 }).showFooter, "#5").toBe(true);
     panel.pageSize = 0;
     expect([panel.showFooter, panel.getFooterCss()], "#6: no paging").toEqual([true, "sd-paneldynamic__footer"]);
+    const onePage = createPanel(2, { pageSize: 10 });
+    expect([onePage.showPager, onePage.showFooter, onePage.getFooterCss()], "#7: one page, Add shows")
+      .toEqual([false, true, "sd-paneldynamic__footer"]);
   });
-  test("the matrix: the footer shows for the bottom toolbar or the pager and is marked while the pager shows", () => {
+  test("the matrix: the footer is the pager row and is marked while the pager shows", () => {
     const matrix = createMatrix(5);
-    expect([matrix.showFooter, matrix.getFooterCss()], "#1: Add and the pager")
+    expect([matrix.showPager, matrix.getFooterCss()], "#1: Add and the pager")
       .toEqual([true, "sd-matrixdynamic__footer sd-matrixdynamic__footer--pager"]);
-    expect([createMatrix(2).showFooter, createMatrix(2).getFooterCss()], "#2: Add alone")
-      .toEqual([true, "sd-matrixdynamic__footer"]);
-    expect(createMatrix(5, { readOnly: true }).showFooter, "#3: the pager alone").toBe(true);
-    expect(createMatrix(2, { readOnly: true }).showFooter, "#4: nothing").toBe(false);
-    expect(createMatrix(5, { addRowLocation: "top" }).showFooter, "#5: Add above the table, the pager below it").toBe(true);
-    expect(createMatrix(2, { addRowLocation: "top" }).showFooter, "#6: Add above the table only").toBe(false);
+    expect([createMatrix(2).showPager, createMatrix(2).getFooterCss()], "#2: Add alone")
+      .toEqual([false, "sd-matrixdynamic__footer"]);
+    const readOnly = createMatrix(5, { readOnly: true });
+    expect([readOnly.showPager, readOnly.getShowToolbar("bottom")], "#3: the pager alone").toEqual([true, false]);
+    const readOnlyOnePage = createMatrix(2, { readOnly: true });
+    expect([readOnlyOnePage.showPager, readOnlyOnePage.getShowToolbar("bottom")], "#4: nothing").toEqual([false, false]);
+    const addTop = createMatrix(5, { addRowLocation: "top" });
+    expect([addTop.showPager, addTop.getShowToolbar("bottom")], "#5: Add above the table, the pager below it").toEqual([true, false]);
+    const addTopOnePage = createMatrix(2, { addRowLocation: "top" });
+    expect([addTopOnePage.showPager, addTopOnePage.getShowToolbar("bottom")], "#6: Add above the table only").toEqual([false, false]);
+    expect(createMatrix(2, { pageSize: 10 }).showPager, "#7: one page").toBe(false);
+  });
+  // The markup tests "... with pageSize and one page" share the etalons of the questions without paging.
+  test("the markup tests' questions with pageSize: 10 show no pager", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m1", pageSize: 10, columns: [{ name: "Column 1" }, { name: "Column 2" }, { name: "Column 3" }] },
+      { type: "matrixdynamic", name: "m2", pageSize: 10, rowCount: 2, columns: [{ name: "q1", html: "test", cellType: "html" }],
+        detailElements: [{ type: "html", html: "test", name: "detail-question" }], detailPanelMode: "underRowSingle" },
+      { type: "paneldynamic", name: "p1", pageSize: 10, displayMode: "carousel", progressBarLocation: "bottom", panelCount: 2 },
+      { type: "paneldynamic", name: "p2", pageSize: 10, allowAddPanel: false, panelCount: 1,
+        templateElements: [{ type: "text", titleLocation: "hidden", name: "question2" }] }
+    ] });
+    const showPager = (name: string): boolean => (<any>survey.getQuestionByName(name)).showPager;
+    expect(["m1", "m2", "p1", "p2"].map(showPager)).toEqual([false, false, false, false]);
   });
 });

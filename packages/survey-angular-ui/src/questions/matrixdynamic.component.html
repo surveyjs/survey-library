@@ -5,11 +5,15 @@
     </div>
     <sv-ng-matrix-table *ngIf="model.renderedTable?.showTable" [question]="model" [table]="model.renderedTable"></sv-ng-matrix-table>
     <sv-ng-placeholder-matrixdynamic *ngIf="!model.renderedTable.showTable" [question]="model"></sv-ng-placeholder-matrixdynamic>
-    <div *ngIf="model.showFooter" [class]="model.getFooterCss()">
-      <div *ngIf="model.getShowToolbar('bottom')" [class]="model.getToolbarCssClass('bottom')">
-        <sv-ng-action-bar [model]="model.toolbar"></sv-ng-action-bar>
-      </div>
+    <ng-container *ngIf="!model.showPager" [ngTemplateOutlet]="bottomToolbar"></ng-container>
+    <div *ngIf="model.showPager" [class]="model.getFooterCss()">
+      <ng-container [ngTemplateOutlet]="bottomToolbar"></ng-container>
       <sv-ng-records-bar [model]="model.recordsBar"></sv-ng-records-bar>
     </div>
+  </div>
+</ng-template>
+<ng-template #bottomToolbar>
+  <div *ngIf="model.getShowToolbar('bottom')" [class]="model.getToolbarCssClass('bottom')">
+    <sv-ng-action-bar [model]="model.toolbar"></sv-ng-action-bar>
   </div>
 </ng-template>

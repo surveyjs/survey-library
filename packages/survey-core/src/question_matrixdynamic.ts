@@ -1583,11 +1583,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return false;
   }
-  /* The footer under the table: the bottom toolbar and the pager, which share one row. Without the
-     pager the footer has no box of its own (sd-matrixdynamic__footer is display: contents). */
-  public get showFooter(): boolean {
-    return !!this.getShowToolbar("bottom") || this.showPager;
-  }
+  /* The footer under the table exists only while the pager shows (showPager): it is the flex row of
+     the bottom toolbar and the pager. Without the pager the bottom toolbar renders on its own, as the
+     next sibling of the table, so the markup stays the same as without paging. */
   public getFooterCss(): string {
     return toCssClasses(this.cssClasses.footer, this.showPager && this.cssClasses.footerWithPager);
   }

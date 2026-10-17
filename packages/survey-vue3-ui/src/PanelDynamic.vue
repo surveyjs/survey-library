@@ -41,9 +41,7 @@
         </div>
         <hr
           :class="question.cssClasses.separator"
-          v-if="
-            question.isRenderModeList && index < question.visiblePanelCount - 1
-          "
+          v-if="question.showSeparator(index)"
           :key="'separator' + panel.id"
         />
       </template>

@@ -1232,6 +1232,15 @@ export class Question extends SurveyElement<Question>
   public getSingleInputElementPos(): number {
     return this.singleInputBehavior.getSingleInputElementPos();
   }
+  public getProgressStepCount(): number {
+    return this.singleInputBehavior.getProgressStepCount();
+  }
+  public getProgressStepIndex(): number {
+    return this.singleInputBehavior.getProgressStepIndex();
+  }
+  public resetSurveyProgressTotal(): void {
+    (<SurveyModel>this.survey)?.resetProgressTotal();
+  }
   protected get isSingleInputActive(): boolean {
     return this.singleInputBehavior.isSingleInputActive;
   }

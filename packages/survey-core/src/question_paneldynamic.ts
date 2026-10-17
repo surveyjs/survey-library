@@ -3806,6 +3806,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
 }
 
 export class PanelDynamicSingleInputBehavior extends QuestionRecordsSingleInputBehavior<PanelModel> {
+  protected isSummaryProgressStep(): boolean {
+    return true;
+  }
   protected get panelDynamic(): QuestionPanelDynamicModel {
     return this.question as QuestionPanelDynamicModel;
   }

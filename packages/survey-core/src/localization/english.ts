@@ -20,6 +20,7 @@ export var englishStrings = {
   panelDynamicProgressText: "{0} of {1}",
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   questionsProgressText: "Answered {0}/{1} questions",
+  questionPositionProgressText: "Question {0} of {1}",
   emptySurvey: "The survey doesn't contain any visible elements.",
   completingSurvey: "Thank you for completing the survey",
   completingSurveyBefore: "You have already completed this survey.",

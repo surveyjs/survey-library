@@ -350,6 +350,9 @@ export abstract class QuestionRecordsModel extends Question {
       this.isDataLoading = change.isLoading;
       return;
     }
+    if (change.type === "recordAdded" || change.type === "recordRemoved" || change.type === "reset") {
+      this.resetSurveyProgressTotal();
+    }
     if (change.type === "pageChanged") {
       this.forgetFocusIndex();
       this.syncPagingState();
@@ -4538,6 +4541,49 @@ export abstract class QuestionRecordsSingleInputBehavior<TRecord extends ISingle
     this.recordsQuestion["addRecordFromUI"]();
   }
   protected abstract getRecords(): Array<TRecord>;
+  // A static matrix never stops on a summary. Dynamic matrix and dynamic panel do.
+  protected isSummaryProgressStep(): boolean {
+    return false;
+  }
+  public getProgressStepCount(): number {
+    const questions = this.getProgressQuestions();
+    if (!questions) return 1;
+    let count = 0;
+    for (let i = 0; i < questions.length; i++) {
+      count += this.getProgressStepCountOf(questions[i]);
+    }
+    return Math.max(1, count);
+  }
+  public getProgressStepIndex(): number {
+    const questions = this.getProgressQuestions();
+    const current = this.singleInputQuestion;
+    if (!questions || !current) return 0;
+    let offset = 0;
+    for (let i = 0; i < questions.length; i++) {
+      const q = questions[i];
+      if (q === current) return offset + (q === this.question ? 0 : q.getProgressStepIndex());
+      offset += this.getProgressStepCountOf(q);
+    }
+    return 0;
+  }
+  // undefined: nested single input is off, the question is one step at index 0.
+  private getProgressQuestions(): Array<Question> {
+    if (!this.supportNestedSingleInput()) return undefined;
+    return this.collectProgressQuestions();
+  }
+  // The question itself is the summary step: one step, not its own nested steps.
+  private getProgressStepCountOf(q: Question): number {
+    return q === this.question ? 1 : q.getProgressStepCount();
+  }
+  private collectProgressQuestions(): Array<Question> {
+    this.recordsQuestion["syncPageSizeWithMode"]();
+    const res = new Array<Question>();
+    this.getRecords().forEach(record => {
+      record.visibleQuestions.forEach(q => res.push(q));
+    });
+    if (this.isSummaryProgressStep()) res.push(this.question);
+    return res;
+  }
   // Not always a record: the lookup is also asked for the question itself and for its parents.
   protected abstract getRecordOfQuestion(question: Question): TRecord;
   protected abstract isRecordValid(record: TRecord): boolean;

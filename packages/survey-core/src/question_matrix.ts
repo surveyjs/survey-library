@@ -782,6 +782,7 @@ export class QuestionMatrixModel
     this.clearGeneratedRows();
     this.updateVisibilityBasedOnRows();
     this.fireCallback(this.visibleRowsChangedCallback);
+    this.resetSurveyProgressTotal();
   }
   public getMatrixRows(): Array<MatrixRowModel> {
     if (!!this.generatedVisibleRows) return this.generatedVisibleRows;

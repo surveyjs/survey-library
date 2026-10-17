@@ -163,6 +163,17 @@ export class QuestionSingleInputBehavior {
     return true;
   }
 
+  public getProgressStepCount(): number {
+    return Math.max(1, this.getProgressSteps().length);
+  }
+  public getProgressStepIndex(): number {
+    return Math.max(0, this.getProgressSteps().indexOf(this.singleInputQuestion));
+  }
+  protected getProgressSteps(): Array<Question> {
+    if (!this.supportNestedSingleInput()) return [];
+    return this.getSingleInputQuestions();
+  }
+
   public getSingleInputElementPos(): number {
     if (this.singleInputQuestion === this.question && this.isSelfSummaryStep()) return 0;
     const pQ = this.currentSingleInputParentQuestion;
@@ -349,7 +360,7 @@ export class QuestionSingleInputBehavior {
     return undefined;
   }
 
-  private supportNestedSingleInput(): boolean {
+  protected supportNestedSingleInput(): boolean {
     return this.survey?.supportsNestedSingleInput(this.question);
   }
 

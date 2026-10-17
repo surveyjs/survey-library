@@ -987,6 +987,106 @@ describe("Survey", () => {
     expect(survey.progressText).toBe("Question 1 of 2");
     expect(survey.getProgress()).toBe(50);
   });
+  test("a static matrixdropdown has no summary screen", () => {
+    const survey = new SurveyModel({
+      showProgressBar: true,
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        {
+          type: "matrixdropdown", name: "m",
+          rows: ["r1", "r2"],
+          columns: [{ name: "c1", cellType: "text" }]
+        },
+        { type: "text", name: "q2" }
+      ]
+    });
+    expect(survey.getProgressPosition(), "two cells and q2").toEqual({ current: 1, total: 3 });
+    expect(survey.progressText).toBe("Question 1 of 3");
+    survey.performNext();
+    expect(survey.progressText).toBe("Question 2 of 3");
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name).toBe("q2");
+    expect(survey.progressText).toBe("Question 3 of 3");
+    expect(survey.getProgress()).toBe(100);
+    survey.performPrevious();
+    expect(survey.progressText, "back to the second cell").toBe("Question 2 of 3");
+    survey.performPrevious();
+    expect(survey.progressText, "back to the first cell").toBe("Question 1 of 3");
+    expect(survey.getProgress(), "the total is unchanged").toBe(33);
+  });
+  test("a static matrix row is one inputPerPage screen and a plain question is one screen", () => {
+    const survey = new SurveyModel({
+      showProgressBar: true,
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "matrix", name: "m1", columns: ["a", "b"], rows: ["r1", "r2"] }
+      ]
+    });
+    expect(survey.getProgressPosition(), "text plus two rows").toEqual({ current: 1, total: 3 });
+    expect(survey.progressText).toBe("Question 1 of 3");
+    survey.performNext();
+    expect(survey.progressText).toBe("Question 2 of 3");
+    survey.performNext();
+    expect(survey.progressText, "second row").toBe("Question 3 of 3");
+    survey.performPrevious();
+    expect(survey.progressText, "back to the first row").toBe("Question 2 of 3");
+    survey.performPrevious();
+    expect(survey.currentSingleQuestion.name, "back to the text question").toBe("q1");
+    expect(survey.progressText, "back to the first screen").toBe("Question 1 of 3");
+  });
+  test("inputPerPage progress updates when the current input changes without a value change", () => {
+    const survey = new SurveyModel({
+      showProgressBar: true,
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        {
+          type: "matrix", name: "m1",
+          columns: ["a", "b"],
+          rows: ["r1", "r2"]
+        }
+      ]
+    });
+    expect(survey.progressText, "first row").toBe("Question 1 of 2");
+    const calls: Array<string> = [];
+    const original = survey.updateProgressText.bind(survey);
+    survey.updateProgressText = (onValueChanged?: boolean) => {
+      calls.push("update");
+      original(onValueChanged);
+    };
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name, "still the matrix").toBe("m1");
+    expect(survey.progressText, "second row").toBe("Question 2 of 2");
+    expect(survey.getProgress(), "full bar").toBe(100);
+    expect(calls.length > 0, "progress was refreshed by the input change").toBe(true);
+    survey.performPrevious();
+    expect(survey.progressText, "back to the first row").toBe("Question 1 of 2");
+    expect(survey.getProgress(), "the total is unchanged").toBe(50);
+  });
+  test("inputPerPage counts questions inside a static panel separately", () => {
+    const survey = new SurveyModel({
+      showProgressBar: true,
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "panel", name: "p1", elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
+        { type: "text", name: "q3" }
+      ]
+    });
+    expect(survey.currentSingleQuestion.name).toBe("q1");
+    expect(survey.progressText).toBe("Question 1 of 3");
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name).toBe("q2");
+    expect(survey.progressText).toBe("Question 2 of 3");
+    survey.performNext();
+    expect(survey.currentSingleQuestion.name).toBe("q3");
+    expect(survey.progressText).toBe("Question 3 of 3");
+    survey.performPrevious();
+    expect(survey.currentSingleQuestion.name).toBe("q2");
+    expect(survey.progressText, "back inside the panel").toBe("Question 2 of 3");
+    survey.performPrevious();
+    expect(survey.currentSingleQuestion.name).toBe("q1");
+    expect(survey.progressText, "back to the first question").toBe("Question 1 of 3");
+  });
   test("explicit progressBarType is ignored in questionPerPage and kept in the JSON", () => {
     const json = {
       showProgressBar: true,

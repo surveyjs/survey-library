@@ -1299,6 +1299,7 @@ export class SurveyModel extends SurveyElementCore
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "questionsOnPageMode") {
+      this.resetProgressTotal();
       this.onQuestionsOnPageModeChanged(oldValue);
     }
     if (name === "locale") {
@@ -3174,12 +3175,36 @@ export class SurveyModel extends SurveyElementCore
     return this.progressBarType;
   }
 
+  // The step total. Dropped when visibility or the question set changes; a page move keeps it.
+  private progressTotal: number;
+  public resetProgressTotal(): void {
+    this.progressTotal = undefined;
+  }
   public getProgressPosition(): { current: number, total: number } {
     const elements = this.getSingleElements();
-    const index = elements.indexOf(this.currentSingleElement);
-    if (index < 0) return { current: 0, total: elements.length };
-    return { current: index + 1, total: elements.length };
+    if (!this.isSingleVisibleInput) {
+      if (this.progressTotal === undefined) {
+        this.progressTotal = elements.length;
+      }
+      return { current: elements.indexOf(this.currentSingleElement) + 1, total: this.progressTotal };
+    }
+    const isTotalKnown = this.progressTotal !== undefined;
+    let passed = 0;
+    let current = 0;
+    for (let i = 0; i < elements.length; i++) {
+      const question = <Question>elements[i];
+      if (question === this.currentSingleElement) {
+        current = passed + question.getProgressStepIndex() + 1;
+        if (isTotalKnown) break;
+      }
+      passed += question.getProgressStepCount();
+    }
+    if (!isTotalKnown) {
+      this.progressTotal = passed;
+    }
+    return { current: current, total: this.progressTotal };
   }
+
   /**
    * Specifies whether the progress bar displays [navigation titles](https://surveyjs.io/form-library/documentation/api-reference/page-model#navigationTitle) and [descriptions](https://surveyjs.io/form-library/documentation/api-reference/page-model#navigationDescription). Applies only when [`showProgressBar`](#showProgressBar) is `true` and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
    *
@@ -5410,6 +5435,9 @@ export class SurveyModel extends SurveyElementCore
   }
   public updateNavigationElements(): void {
     this.updateButtonsVisibility();
+    if (this.isSingleVisibleInput) {
+      this.updateProgressText();
+    }
   }
   private updateButtonsVisibility(): void {
     this.updateIsFirstLastPageState();
@@ -7383,6 +7411,7 @@ export class SurveyModel extends SurveyElementCore
       this.updateVisibleIndexAfterBindings = true;
       return;
     }
+    this.resetProgressTotal();
     this.updatePageVisibleIndexes();
     this.updatePageElementsVisibleIndexes(page);
     this.updateProgressText(true);

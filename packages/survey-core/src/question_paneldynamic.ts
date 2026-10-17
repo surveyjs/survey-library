@@ -1377,12 +1377,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       super.setValueCore(newValue);
     }
   }
-  public setIsMobile(val: boolean) {
-    super.setIsMobile(val);
-    (this.panelsCore || []).forEach(panel => panel.getQuestions(true).forEach(question => {
-      question.setIsMobile(val);
-    }));
-  }
   public themeChanged(theme: ITheme): void {
     super.themeChanged(theme);
     (this.panelsCore || []).forEach(panel =>

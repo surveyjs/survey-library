@@ -2930,6 +2930,9 @@ export class QuestionCheckboxBase extends QuestionSelectBase implements IChoiceS
       this.setPropertyValueDirectly("choiceShortcutsEnabled", next);
     }
     this.propertyValueChanged("choiceShortcutsEnabled", prev, next);
+    if (!this.isLoadingFromJson) {
+      this.updateChoiceKeyBinding(false);
+    }
   }
   public supportsChoiceKeyboardSelection(): boolean {
     return false;
@@ -2946,8 +2949,11 @@ export class QuestionCheckboxBase extends QuestionSelectBase implements IChoiceS
   // which would hide the badges in Creator.
   public get canShowChoiceKeys(): boolean {
     const surveyShortcut = !!this.survey && this.survey.choiceShortcutsEnabled === true;
-    if (!this.supportsChoiceKeyboardSelection() || this.isMobile || this.isReadOnly) return false;
+    const supported = this.supportsChoiceKeyboardSelection();
+    const isMobile = this.isMobile;
+    const isReadOnly = this.isReadOnly;
     const own = this.getPropertyValueWithoutDefault("choiceShortcutsEnabled");
+    if (!supported || isMobile || isReadOnly) return false;
     if (own === true || own === false) return own;
     return surveyShortcut;
   }
@@ -2957,17 +2963,22 @@ export class QuestionCheckboxBase extends QuestionSelectBase implements IChoiceS
   }
   public onSurveyLoad(): void {
     super.onSurveyLoad();
-    this.bindChoiceKeyBadges();
+    this.updateChoiceKeyBinding(true);
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     super.setSurveyImpl(value, isLight);
     // A question built on its own (toolbox drop) runs onSurveyLoad before it joins a survey,
     // so the badge updater never subscribed to the survey flag. Rebind once the survey is set.
     if (!this.isLoadingFromJson) {
-      this.bindChoiceKeyBadges();
+      this.updateChoiceKeyBinding(true);
     }
   }
+  public onSurveyChoiceShortcutsEnabledChanged(): void {
+    super.onSurveyChoiceShortcutsEnabledChanged();
+    this.updateChoiceKeyBinding(false);
+  }
   public dispose(): void {
+    this.disposeChoiceKeyUpdater();
     this.choiceShortcuts.dispose();
     super.dispose();
   }
@@ -2975,8 +2986,38 @@ export class QuestionCheckboxBase extends QuestionSelectBase implements IChoiceS
     onSet: (_val: string, obj: QuestionCheckboxBase) => obj.choiceShortcuts.applyBadges()
   })
   private choiceKeyState: string;
+  private get isChoiceKeyStateBound(): boolean {
+    return !!this.dependencies["choiceKeyState"];
+  }
+  /* The badges are bound only while the flags enable them: a select question with shortcuts off holds no
+     handler on the survey, its parents or itself. rebind: the survey or the parent changed, and the
+     dependencies collected against the old ones are stale, so an existing binding is made again.
+     Otherwise (a flag changed) it binds or unbinds only when the state differs. */
+  private updateChoiceKeyBinding(rebind: boolean): void {
+    if (this.isChoiceKeyboardSelectionEnabled) {
+      if (rebind || !this.isChoiceKeyStateBound) {
+        this.bindChoiceKeyBadges();
+      }
+    } else if (this.isChoiceKeyStateBound) {
+      this.unbindChoiceKeyBadges();
+    }
+  }
   private bindChoiceKeyBadges(): void {
+    // The updater collects its dependencies on this first run only, so buildState() and canShowChoiceKeys
+    // must read every input before combining them: an input skipped now is never observed afterwards.
     this.choiceKeyState = new ComputedUpdater(() => this.choiceShortcuts.buildState()) as any;
+  }
+  private unbindChoiceKeyBadges(): void {
+    this.disposeChoiceKeyUpdater();
+    // Without a stored state the next binding writes its badges again, even when the state is the same.
+    this.setPropertyValue("choiceKeyState", undefined);
+    this.choiceShortcuts.applyBadges();
+  }
+  private disposeChoiceKeyUpdater(): void {
+    const updater = this.dependencies["choiceKeyState"];
+    if (!updater) return;
+    updater.dispose();
+    delete this.dependencies["choiceKeyState"];
   }
   public getChoiceKeyItems(): Array<ItemValue> {
     const items = this.visibleChoices;

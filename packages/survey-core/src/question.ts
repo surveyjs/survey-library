@@ -510,6 +510,13 @@ export class Question extends SurveyElement<Question>
   public setIsMobile(val: boolean): void {
     const newVal = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
     this.isMobile = newVal;
+    // Forwards the received value, not newVal: each nested question applies its own design-mode rule.
+    this.forEachNestedElement(info => getNestedElementQuestions(info).forEach(q => q.setIsMobile(val)), { build: "none", visibleOnly: false });
+  }
+  // The survey calls it on its questions when its choiceShortcutsEnabled changes; a container forwards
+  // it to the nested questions that exist, a select question updates its badge binding.
+  public onSurveyChoiceShortcutsEnabledChanged(): void {
+    this.forEachNestedElement(info => getNestedElementQuestions(info).forEach(q => q.onSurveyChoiceShortcutsEnabledChanged()), { build: "none", visibleOnly: false });
   }
   protected getIsMobile(): boolean {
     return this._isMobile;

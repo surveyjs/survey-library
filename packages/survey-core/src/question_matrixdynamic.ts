@@ -1679,6 +1679,9 @@ class QuestionMatrixDynamicRenderedTable extends QuestionMatrixDropdownRenderedT
 }
 
 export class MatrixDynamicSingleInputBehavior extends MatrixDropdownBaseSingleInputBehavior {
+  protected isSummaryProgressStep(): boolean {
+    return true;
+  }
   protected get matrixDynamic(): QuestionMatrixDynamicModel {
     return this.question as QuestionMatrixDynamicModel;
   }

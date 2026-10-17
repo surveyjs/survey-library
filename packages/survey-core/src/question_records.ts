@@ -4541,6 +4541,10 @@ export abstract class QuestionRecordsSingleInputBehavior<TRecord extends ISingle
     this.recordsQuestion["addRecordFromUI"]();
   }
   protected abstract getRecords(): Array<TRecord>;
+  // A static matrix never stops on a summary. Dynamic matrix and dynamic panel do.
+  protected isSummaryProgressStep(): boolean {
+    return false;
+  }
   public getProgressStepCount(): number {
     const questions = this.getProgressQuestions();
     if (!questions) return 1;
@@ -4577,6 +4581,7 @@ export abstract class QuestionRecordsSingleInputBehavior<TRecord extends ISingle
     this.getRecords().forEach(record => {
       record.visibleQuestions.forEach(q => res.push(q));
     });
+    if (this.isSummaryProgressStep()) res.push(this.question);
     return res;
   }
   // Not always a record: the lookup is also asked for the question itself and for its parents.

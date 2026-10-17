@@ -1646,7 +1646,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    * - [`"rating"`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model)
    * - [`"slider"`](https://surveyjs.io/form-library/documentation/api-reference/questionslidermodel)
    *
-   * Default value: `"dropdown"` (inherited from [`settings.matrix.defaultCellType`](https://surveyjs.io/form-library/documentation/settings#matrixDefaultCellType))
+   * Default value: `"dropdown"` (inherited from [`settings.matrix.defaultCellType`](/form-library/documentation/api-reference/settings#matrix))
    *
    * [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
    *
@@ -2722,10 +2722,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       }
       this.runTotalsCondition(this.getDataFilteredProperties());
     }
-  }
-  // settings.matrix.maxRowCount is the number of rows one page may hold.
-  protected get maxRecordsPerPage(): number {
-    return settings.matrix.maxRowCount;
   }
   /* The renderers show a pager under the table while the matrix has more than one page: never in design
      mode or in single-input mode, which do not page. pageCount is the synced property, so a change of it

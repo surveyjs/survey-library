@@ -12,6 +12,7 @@ import { ISurveyData } from "../../src/base-interfaces";
 import { QuestionMatrixDropdownModel } from "../../src/question_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { settings } from "../../src/settings";
 
 // The released override surface of the matrix base.
 export class MatrixWithOverrides extends QuestionMatrixDropdownModelBase {
@@ -231,7 +232,7 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error protected
   const ddShared3: DeclaredKeys<QuestionMatrixDropdownModel> = "getRecordCountLimit";
   // @ts-expect-error protected
-  const ddShared4: DeclaredKeys<QuestionMatrixDropdownModel> = "isRecordCountLimitedByPageMax";
+  const ddShared4: DeclaredKeys<QuestionMatrixDropdownModel> = "isRecordCountLimitedBySetting";
   // @ts-expect-error protected
   const ddShared6: DeclaredKeys<QuestionMatrixDropdownModel> = "onPageSizeAssigned";
   // @ts-expect-error a hook
@@ -245,7 +246,7 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error protected
   const mdShared3: DeclaredKeys<QuestionMatrixDynamicModel> = "getRecordCountLimit";
   // @ts-expect-error protected
-  const mdShared4: DeclaredKeys<QuestionMatrixDynamicModel> = "isRecordCountLimitedByPageMax";
+  const mdShared4: DeclaredKeys<QuestionMatrixDynamicModel> = "isRecordCountLimitedBySetting";
   // @ts-expect-error protected
   const mdShared6: DeclaredKeys<QuestionMatrixDynamicModel> = "onPageSizeAssigned";
   // @ts-expect-error a hook
@@ -259,7 +260,7 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error protected
   const pdShared3: DeclaredKeys<QuestionPanelDynamicModel> = "getRecordCountLimit";
   // @ts-expect-error protected
-  const pdShared4: DeclaredKeys<QuestionPanelDynamicModel> = "isRecordCountLimitedByPageMax";
+  const pdShared4: DeclaredKeys<QuestionPanelDynamicModel> = "isRecordCountLimitedBySetting";
   // @ts-expect-error protected
   const pdShared6: DeclaredKeys<QuestionPanelDynamicModel> = "onPageSizeAssigned";
   // @ts-expect-error a hook
@@ -320,5 +321,10 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error protected
   const ddItemLookup3: DeclaredKeys<QuestionMatrixDropdownModel> = "getExpressionItem";
   res.push(ddItemLookup1, ddItemLookup2, ddItemLookup3);
+  // settings.maxPageSize, the page cap of every records question that pages, is a number.
+  const maxPageSize: number = settings.maxPageSize;
+  // @ts-expect-error a number
+  settings.maxPageSize = "3";
+  res.push(maxPageSize);
   return res;
 }

@@ -213,6 +213,11 @@ export class ChoiceItem extends ItemValue {
   public get isPanelCreated(): boolean {
     return !!this.panelValue;
   }
+  // The created panel, or undefined. Unlike the panel getter, it neither creates the panel nor links it
+  // to the survey, so a walk can read it while the owner has a survey but no parent yet.
+  public get createdPanel(): PanelModel {
+    return this.panelValue;
+  }
   public get elements(): Array<IElement> {
     return this.panel.elements;
   }
@@ -388,12 +393,15 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   }
   /* Every choice panel that is created, empty ones included, as getPanels() and disposal see them. A
      panel is created by JSON elements or by reading item.panel, and it stays created after its last
-     element is removed; item.panel is never read on an item without one, because reading creates it. */
+     element is removed. The walk reads item.createdPanel, never item.panel: reading item.panel creates
+     the panel and links it to the survey, and a walk run from setSurveyImpl (setIsMobile) happens before
+     the question has its parent, so the panel would keep no parent. */
   protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
     if (!this.supportElementsInChoice()) return;
     this.choices.forEach((item) => {
-      if (item.isPanelCreated) {
-        visit({ element: item.panel, role: "choicePanel", segment: undefined, location: "root", visible: item.isPanelShowing });
+      const panel = item.createdPanel;
+      if (!!panel) {
+        visit({ element: panel, role: "choicePanel", segment: undefined, location: "root", visible: item.isPanelShowing });
       }
     });
   }

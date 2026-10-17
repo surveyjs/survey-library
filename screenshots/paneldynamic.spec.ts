@@ -98,6 +98,8 @@ frameworks.forEach(framework => {
         await initSurvey(page, framework, pagerJson(3));
         await resetFocusToBody(page);
         await compareScreenshot(page, paneldynamicRoot, `paneldynamic-pager-3-pages-${viewport.name}.png`);
+        // Reload the page: initSurvey can't attach a second shadow root to the same host in survey-js-ui.
+        await page.goto(`${url}${framework}`);
         await initSurvey(page, framework, pagerJson(12));
         await resetFocusToBody(page);
         await compareScreenshot(page, paneldynamicRoot, `paneldynamic-pager-12-pages-${viewport.name}.png`);
@@ -133,6 +135,8 @@ frameworks.forEach(framework => {
     test("Paneldynamic pager, the page list on a phone", async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 812 });
       for (const pageCount of [9, 12]) {
+        // A fresh page for each survey: initSurvey can't attach a second shadow root to the same host in survey-js-ui.
+        await page.goto(`${url}${framework}`);
         await initSurvey(page, framework, pagerJson(pageCount));
         await page.locator(".sd-paneldynamic__pager .sd-pager__page").click();
         const sheet = page.locator(".sv-popup--sheet");

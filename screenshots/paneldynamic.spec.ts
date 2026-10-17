@@ -115,6 +115,20 @@ frameworks.forEach(framework => {
       });
     });
 
+    // Right to left: the groups mirror, "of 12" stays next to the page dropdown, and the gaps match LTR.
+    test("Paneldynamic pager, rtl", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await page.evaluate(() => {
+        document.body.setAttribute("dir", "rtl");
+      });
+      await initSurvey(page, framework, pagerJson(12));
+      await resetFocusToBody(page);
+      await compareScreenshot(page, page.locator(".sd-question--paneldynamic"), "paneldynamic-pager-12-pages-rtl.png");
+      await page.evaluate(() => {
+        document.body.setAttribute("dir", "ltr");
+      });
+    });
+
     // On a phone the page list is a sheet: a pick is marked until Apply; from 10 pages it has a filter.
     test("Paneldynamic pager, the page list on a phone", async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 812 });

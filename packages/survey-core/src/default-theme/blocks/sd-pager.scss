@@ -10,8 +10,11 @@
   .sd-action-bar {
     --sd-action-bar-gap: var(--sjs2-spacing-x000);
   }
+  // Logical margins, for a right-to-left survey. margin-inline-end: 0 also resets the shared
+  // margin-left: auto (sd-action-bar.scss), which in RTL would open a second gap on the other side.
   .sd-action-bar__item--space {
-    margin-left: var(--sjs2-spacing-x075);
+    margin-inline-start: var(--sjs2-spacing-x075);
+    margin-inline-end: 0;
   }
 }
 .sd-question--mobile {
@@ -24,7 +27,7 @@
       width: 100%;
     }
     .sd-action-bar__item--space {
-      margin-left: auto;
+      margin-inline-start: auto;
     }
   }
 }

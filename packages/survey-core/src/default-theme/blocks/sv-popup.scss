@@ -405,7 +405,10 @@ sv-popup {
   }
   .sv-popup__close-button {
     top: var(--sjs2-spacing-x200);
-    right: var(--sjs2-spacing-x200);
+    // At the end of the header, where its padding-inline-end leaves room. inset-inline-start resets
+    // the base rule's right: in a right-to-left survey.
+    inset-inline-start: auto;
+    inset-inline-end: var(--sjs2-spacing-x200);
     box-sizing: border-box;
     width: var(--sjs2-size-x500);
     height: var(--sjs2-size-x500);

@@ -37,6 +37,7 @@ import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { IRecordIndexFollower, RecordIndexEvent, RecordRemap, isRecordListChange, toKnownRemap } from "./records/records-index-followers";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel, NestedWalkItem,
   QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
@@ -880,6 +881,79 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     return index;
   }
+  /* The record the current panel holds, kept across rebuilds. It names its record for as long as the
+     record exists: every insert, remove and move of the list renumbers it, and so does every read that
+     commits again (by key, or by content for a source without a key). A record that is gone - removed,
+     not found again, or in a window of a source that pages itself that moved and has no key to follow
+     it by - makes it -1. Replacing the source and disposing clear it. An assignment of the value from
+     outside does not renumber it: without paging the current panel keeps its position then, and the
+     held index names a storage position the same way. */
+  private currentRecordIndex: number = -1;
+  // The window offset of the source the index was taken in, or last renumbered for.
+  private currentRecordWindowOffset: number = 0;
+  // The source was replaced: the index names a record of the old one until the new one commits.
+  private isCurrentRecordOfOldSource: boolean = false;
+  /* The current record last announced (the current-index event), followed through the same inserts,
+     removes, moves and reloads as the current record, so that an operation that ends on the record and
+     the position it started from announces nothing. -1: none, or gone. */
+  private announcedRecordIndex: number = -1;
+  private setCurrentRecordIndex(recordIndex: number): void {
+    this.currentRecordIndex = recordIndex;
+    const list = this.dataListValue;
+    this.currentRecordWindowOffset = !!list ? list.windowOffset : 0;
+  }
+  // -1 when there is none, or when it is stale: the window moved since it was taken.
+  private getCurrentRecordIndex(): number {
+    const list = this.dataListValue;
+    if (!!list && list.windowOffset !== this.currentRecordWindowOffset) return -1;
+    return this.currentRecordIndex;
+  }
+  /* The follower of the current record (QuestionRecordsModel.createCurrentRecordFollower): the record
+     follows its record, also on a move - it is a record, not a position. It also drops the position a
+     move from code is going to (takePendingVisibleIndex) on a failed read, a replaced source and
+     dispose: the window in force stays, and the current panel with it. */
+  protected createCurrentRecordFollower(): IRecordIndexFollower {
+    return { follow: (event: RecordIndexEvent): void => { this.followCurrentRecord(event); } };
+  }
+  private followCurrentRecord(event: RecordIndexEvent): void {
+    if (isRecordListChange(event)) {
+      this.remapCurrentRecord(event.remap);
+    } else if (event.kind === "reload") {
+      this.followReloadedCurrentRecord(event.getRemap);
+    } else if (event.kind === "source") {
+      this.currentRecordIndex = -1;
+      this.announcedRecordIndex = -1;
+      this.isCurrentRecordOfOldSource = true;
+      this.takePendingVisibleIndex();
+    } else if (event.kind === "dispose") {
+      this.currentRecordIndex = -1;
+      this.takePendingVisibleIndex();
+    } else if (event.kind === "readFailed") {
+      this.takePendingVisibleIndex();
+    }
+  }
+  private remapCurrentRecord(remap: RecordRemap): void {
+    const known = toKnownRemap(remap);
+    const follow = (index: number): number => index < 0 ? index : known(index);
+    this.currentRecordIndex = follow(this.currentRecordIndex);
+    this.announcedRecordIndex = follow(this.announcedRecordIndex);
+  }
+  /* A committed read renumbers the current record by the records it brought back. A window of a
+     source that pages itself at another offset has no record in common with the old one when there
+     is no key to find it by. The first read of a replaced source names nothing of the old one. */
+  private followReloadedCurrentRecord(getRemap: () => RecordRemap): void {
+    const list = this.dataListValue;
+    const isLost = this.isCurrentRecordOfOldSource ||
+      list.isPagedBySource && !list.keyField && list.windowOffset !== this.currentRecordWindowOffset;
+    this.isCurrentRecordOfOldSource = false;
+    if (isLost) {
+      this.currentRecordIndex = -1;
+      this.announcedRecordIndex = -1;
+    } else if (this.currentRecordIndex > -1 || this.announcedRecordIndex > -1) {
+      this.remapCurrentRecord(getRemap());
+    }
+    this.currentRecordWindowOffset = list.windowOffset;
+  }
   /**
    * A zero-based index of the currently displayed panel.
    *
@@ -963,7 +1037,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (isAnnounced) {
       this.leftVisibleIndex = this.currentVisibleIndexValue;
       this.currentVisibleIndexValue = visibleIndex;
-      this.setAnnouncedRecordIndex(this.getCurrentRecordIndex());
+      this.announcedRecordIndex = this.getCurrentRecordIndex();
     }
     this.updateRenderedPanels();
     this.updateFooterActions();
@@ -1000,10 +1074,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const visibleIndex = !!panel ? this.getPanelVisibleIndex(panel) : -1;
     if (visibleIndex < 0) return;
     const recordIndex = this.getCurrentRecordIndex();
-    if (recordIndex === this.getAnnouncedRecordIndex() && visibleIndex === this.currentVisibleIndexValue) return;
+    if (recordIndex === this.announcedRecordIndex && visibleIndex === this.currentVisibleIndexValue) return;
     this.leftVisibleIndex = this.currentVisibleIndexValue;
     this.currentVisibleIndexValue = visibleIndex;
-    this.setAnnouncedRecordIndex(recordIndex);
+    this.announcedRecordIndex = recordIndex;
     this.raiseCurrentIndexChanged(panel, visibleIndex);
   }
   /* The record a panel holds. Under a view it is the record the panel was built for, which

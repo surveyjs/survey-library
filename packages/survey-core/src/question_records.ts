@@ -17,10 +17,13 @@ import {
   IDynamicDataSource
 } from "./dynamic-data/dynamic-data-interfaces";
 import { IDynamicDataPageState, findDuplicatePages, groupByDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
-import { RecordsPageValidation, IRecordsPageValidationOwner } from "./question_records_page_validation";
+import { RecordsPageValidation, IRecordsPageValidationOwner, RecordsPageValidationFollower } from "./question_records_page_validation";
 import { createIndexes } from "./dynamic-data/dynamic-data-filter";
 import { DynamicDataPagingController, IDynamicDataPagingOwner, pagingStateKeys } from "./dynamic-data/dynamic-data-paging";
-import { applyRecordChange, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-record-remap";
+import { getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-record-remap";
+import {
+  IRecordIndexFollower, RecordIndexEvent, RecordRemap, createLazyRemap, getRecordListChangeEvent, isRecordListChange, toKnownRemap
+} from "./records/records-index-followers";
 import { IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
@@ -351,7 +354,7 @@ export abstract class QuestionRecordsModel extends Question {
       return;
     }
     if (change.type === "pageChanged") {
-      this.forgetFocusIndex();
+      this.followRecordIndexEvent({ kind: "pageChanged" });
       this.syncPagingState();
       /* The objects that exist are the page: a page the list cuts - from question.value
          or from everything a source without paging answered with - is rebuilt at once, through the path a
@@ -363,21 +366,12 @@ export abstract class QuestionRecordsModel extends Question {
       }
       return;
     }
-    // The record indexes the question keeps - its objects' records, the edited set of layer 2 - name
-    // a record only until something is inserted, removed or moved in front of it. Only a list that
-    // pages in memory creates the edited set here.
-    applyRecordChange(change, this.isPagedByList ? this.pageValidation : this._pageValidation,
-      (remap: (index: number) => number): void => {
-        if (change.type === "recordMoved") {
-          this.followRecordMove(remap);
-        } else {
-          this.remapBuiltItems(remap);
-        }
-        // The current record follows its record, also on a move: it is a record, not a position.
-        this.remapCurrentRecord(remap);
-        this.remapHiddenAnswerStates(remap);
-        this.remapHeldRemoveTargets(remap);
-      });
+    // A list that pages in memory creates the edited set on every change it raises here. An edit
+    // renumbers nothing: it marks the record edited.
+    const validation = this.isPagedByList ? this.pageValidation : this._pageValidation;
+    if (change.type === "recordChanged" && !!validation) validation.markEdited(change.index);
+    const listChange = getRecordListChangeEvent(change);
+    if (!!listChange)this.followRecordIndexEvent(listChange);
     /* A write the list pushed to a data source: with the array source over question.value the push
        IS the value write, a remote source has no such setter, so the question follows the window
        itself. The objects are not rebuilt - the one that was edited, added or removed is handled by
@@ -426,73 +420,44 @@ export abstract class QuestionRecordsModel extends Question {
       this.focusItemAfterRead(index);
     }
   }
-  /* A source without paging holds the whole storage, so layer 2 tracks its edited records by
-     index - and a read that commits again (refresh(), a filter the source answers again) may bring
-     them back at other indexes: another writer moved, added or removed records. The edited set, the
-     states of nested paged questions and what the question keeps besides them follow their records
-     into the new window, by key when the source names its records and by content otherwise
-     (getReplacedRecordsRemap), so that an edited record is still validated wherever it is now. The
-     objects are renumbered only by a question that keeps state under their records (the panel's
-     remapKeptRecordIndexes) while one of them holds a paged question. Replacing the source starts
-     over (see setDataSource). The current record follows every committed read
-     (followReloadedCurrentRecord). The remap is built once per commit, and only when something asks
-     for it. */
+  /* A read that commits again (refresh(), a filter the source answers again) may bring the records
+     back at other indexes: another writer moved, added or removed records. What the question keeps by
+     record index follows them into the new window - by key when the source names its records, by
+     content otherwise (getReplacedRecordsRemap) - as each follower decides. The remap is built once
+     per commit, and only when a follower asks for it. Replacing the source starts over (see
+     setDataSource). */
   private followReloadedRecords(oldRecords: any): void {
-    this.heldRemoveTargets = undefined;
     const list = this._dataList;
     const oldArray = asRecords(oldRecords);
-    let remap: (index: number) => number = undefined;
-    const getRemap = (): ((index: number) => number) => {
-      if (!remap) {
-        remap = getReplacedRecordsRemap(oldArray, asRecords(this.getStoredRecords()), list.keyField);
-      }
-      return remap;
-    };
-    this.followReloadedCurrentRecord(getRemap);
-    if (!this.isPagedByList) {
-      /* A page of a paging source replaced the whole storage the list paged - a paging source is read
-         whole only while the list has a filter or a sort it cannot run. The edited set named records by
-         their index in that storage, which names nothing on a page, and a paging source never
-         validates the records of other pages ahead of their page: they are on the server. Kept, the
-         set would be remapped from the page into the next whole storage and name the wrong records. */
-      if (!!this._pageValidation && list.isPagedBySource)this._pageValidation.clearEditedRecords();
-      return;
-    }
-    this.followKeptRecordIndexes(getRemap, (validation: RecordsPageValidation, remap: (index: number) => number): void => {
-      const newRecords = asRecords(this.getStoredRecords());
-      validation.cancelPendingMove();
-      validation.onRecordsReplaced(oldArray, newRecords, remap);
-    });
+    const newArray = asRecords(this.getStoredRecords());
+    this.followRecordIndexEvent({ kind: "reload", oldRecords: oldArray, newRecords: newArray,
+      getRemap: createLazyRemap(() => getReplacedRecordsRemap(oldArray, newArray, list.keyField)) });
   }
-  /* The record indexes kept besides the records follow one remap of them: the page validation's edited
-     set and the states of nested paged questions (followValidation hands the remap to the validation as
-     the change needs it), and what the question keeps (remapKeptRecordIndexes: the records the panels
-     were built for). The remap is asked for only when something keeps record indexes. */
-  private followKeptRecordIndexes(getRemap: () => ((index: number) => number),
-    followValidation: (validation: RecordsPageValidation, remap: (index: number) => number) => void): void {
-    const validation = this._pageValidation;
-    const hasValidationRecords = !!validation && validation.hasRecords;
-    if (!hasValidationRecords && !this.hasKeptRecordIndexes()) return;
-    if (hasValidationRecords) {
-      followValidation(validation, getRemap());
+  /* The followers of the record indexes the question keeps, in the order they follow an event: the
+     records its objects were built for, the current record of a type that shows one
+     (createCurrentRecordFollower), the hidden-answer states, the held remove targets, the focus kept
+     for a read, and the page validation last. Created on the first event. */
+  private recordIndexFollowers: Array<IRecordIndexFollower>;
+  private followRecordIndexEvent(event: RecordIndexEvent): void {
+    if (!this.recordIndexFollowers) {
+      this.recordIndexFollowers = this.createRecordIndexFollowers();
     }
-    this.remapKeptRecordIndexes(getRemap());
+    this.recordIndexFollowers.forEach((follower: IRecordIndexFollower): void => { follower.follow(event); });
   }
-  /* A committed read renumbers the current record by the records it brought back. A window of a
-     source that pages itself at another offset has no record in common with the old one when there
-     is no key to find it by. The first read of a replaced source names nothing of the old one. */
-  private followReloadedCurrentRecord(getRemap: () => ((index: number) => number)): void {
-    const list = this._dataList;
-    const isLost = this.isCurrentRecordOfOldSource ||
-      list.isPagedBySource && !list.keyField && list.windowOffset !== this.currentRecordWindowOffset;
-    this.isCurrentRecordOfOldSource = false;
-    if (isLost) {
-      this.currentRecordIndex = -1;
-      this.announcedRecordIndex = -1;
-    } else if (this.currentRecordIndex > -1 || this.announcedRecordIndex > -1) {
-      this.remapCurrentRecord(getRemap());
-    }
-    this.currentRecordWindowOffset = list.windowOffset;
+  private createRecordIndexFollowers(): Array<IRecordIndexFollower> {
+    const res: Array<IRecordIndexFollower> = [{ follow: (event: RecordIndexEvent): void => { this.followBuiltItems(event); } }];
+    const current = this.createCurrentRecordFollower();
+    if (!!current) res.push(current);
+    res.push({ follow: (event: RecordIndexEvent): void => { this.followHiddenAnswerStates(event); } },
+      { follow: (event: RecordIndexEvent): void => { this.followHeldRemoveTargets(event); } },
+      { follow: (event: RecordIndexEvent): void => { this.followFocusIndex(event); } },
+      new RecordsPageValidationFollower((create: boolean): RecordsPageValidation => create ? this.pageValidation : this._pageValidation,
+        (): boolean => this.isPagedByList, (): boolean => this.isPagedBySource));
+    return res;
+  }
+  // The record a type that shows one record at a time keeps shown (the dynamic panel's current panel).
+  protected createCurrentRecordFollower(): IRecordIndexFollower {
+    return undefined;
   }
   /* With the array source over question.value a record write reaches the survey, and the survey then
      re-runs the conditions of every question - which is what recalculates an expression, a {row.x} or
@@ -748,16 +713,35 @@ export abstract class QuestionRecordsModel extends Question {
     }
     return !!this.getItem(records.length);
   }
-  /* The record indexes the objects were built for follow an insert, a remove or the records a read
-     brought back. Every object is renumbered, also before the first build. An object whose record is
-     gone - removed, or not found again by a reload - keeps -1: it is being disposed. */
+  /* The records the objects were built for follow the list's own insert and remove, and its move as
+     the type moves its objects (followRecordMove). A reload, an assignment from outside under paging in
+     memory and a redefinition of the records renumber them only while something keeps state under
+     their records (isKeepingRecordIndexes); the objects are rebuilt after them anyway. */
+  private followBuiltItems(event: RecordIndexEvent): void {
+    if (isRecordListChange(event)) {
+      if (event.kind === "move") {
+        this.followRecordMove(toKnownRemap(event.remap));
+      } else {
+        this.remapBuiltItems(toKnownRemap(event.remap));
+      }
+    } else if (event.kind === "reload" || event.kind === "assignment" || event.kind === "redefined") {
+      if (event.kind !== "redefined" && !this.isPagedByList) return;
+      if (this.isKeepingRecordIndexes())this.remapKeptRecordIndexes(toKnownRemap(event.getRemap()));
+    }
+  }
+  // Read before the page validation follows the event: the edited set may be empty afterwards.
+  private isKeepingRecordIndexes(): boolean {
+    const validation = this._pageValidation;
+    return !!validation && validation.hasRecords || this.hasKeptRecordIndexes();
+  }
+  /* Every object is renumbered, also before the first build. An object whose record is gone - not
+     found again by a reload - keeps -1: it is being disposed. */
   protected remapBuiltItems(remap: (index: number) => number): void {
     this.forEachItem((item: QuestionRecordItem): void => {
       if (!isRecordItem(item)) return;
       const from = this.getBuiltRecordIndex(item);
       if (from > -1) {
-        const to = remap(from);
-        this.setBuiltRecordIndex(item, to === undefined ? -1 : to);
+        this.setBuiltRecordIndex(item, remap(from));
       }
     });
   }
@@ -1808,7 +1792,15 @@ export abstract class QuestionRecordsModel extends Question {
     if ((prev & HIDDEN_ANSWER_SELF) && !(flags & HIDDEN_ANSWER_SELF)) return true;
     return (prev & HIDDEN_ANSWER_CONTAINER) && !(flags & HIDDEN_ANSWER_CONTAINER) && this.canRecordQuestionBeCleared(q, "onHiddenContainer");
   }
-  // The question's own insert, remove and move renumber the flags kept by record index.
+  /* The question's own insert, remove and move renumber the flags kept by record index; the end of an
+     assignment from outside keeps them as the objects keep theirs. */
+  private followHiddenAnswerStates(event: RecordIndexEvent): void {
+    if (isRecordListChange(event)) {
+      this.remapHiddenAnswerStates(toKnownRemap(event.remap));
+    } else if (event.kind === "valueAssigned") {
+      this.followHiddenAnswerStatesOnAssignment(event.oldRecords.length, event.newRecords.length);
+    }
+  }
   private remapHiddenAnswerStates(remap: (index: number) => number): void {
     const states = this.hiddenAnswerStates;
     if (!states || states.size === 0) return;
@@ -2742,58 +2734,23 @@ export abstract class QuestionRecordsModel extends Question {
     if (!this.heldRemoveTargets)this.heldRemoveTargets = [];
     this.heldRemoveTargets.push(target);
   }
+  private followHeldRemoveTargets(event: RecordIndexEvent): void {
+    if (isRecordListChange(event)) {
+      this.remapHeldRemoveTargets(toKnownRemap(event.remap));
+    } else if (event.kind === "reload" || event.kind === "assignment" || event.kind === "source") {
+      this.heldRemoveTargets = undefined;
+    }
+  }
   private remapHeldRemoveTargets(remap: (index: number) => number): void {
     if (!this.heldRemoveTargets) return;
     this.heldRemoveTargets.forEach((target: IRecordTarget): void => {
-      const to = target.recordIndex < 0 ? -1 : remap(target.recordIndex);
-      target.recordIndex = to === undefined ? -1 : to;
+      target.recordIndex = target.recordIndex < 0 ? -1 : remap(target.recordIndex);
     });
-  }
-  /* The record a question that shows one record at a time keeps shown (the dynamic panel's current
-     panel), held across rebuilds. It names its record for as long as the record exists: every
-     insert, remove and move of the list renumbers it, and so does every read that commits again (by
-     key, or by content for a source without a key). A record that is gone - removed, not found
-     again, or in a window of a source that pages itself that moved and has no key to follow it by -
-     makes it -1. Replacing the source and disposing clear it. An assignment of the value from outside
-     does not renumber it: without paging the current panel keeps its position then, and the held
-     index names a storage position the same way. */
-  private currentRecordIndex: number = -1;
-  // The window offset of the source the index was taken in, or last renumbered for.
-  private currentRecordWindowOffset: number = 0;
-  // The source was replaced: the index names a record of the old one until the new one commits.
-  private isCurrentRecordOfOldSource: boolean = false;
-  protected setCurrentRecordIndex(recordIndex: number): void {
-    this.currentRecordIndex = recordIndex;
-    this.currentRecordWindowOffset = !!this._dataList ? this._dataList.windowOffset : 0;
-  }
-  // -1 when there is none, or when it is stale: the window moved since it was taken.
-  protected getCurrentRecordIndex(): number {
-    const list = this._dataList;
-    if (!!list && list.windowOffset !== this.currentRecordWindowOffset) return -1;
-    return this.currentRecordIndex;
-  }
-  private remapCurrentRecord(remap: (index: number) => number): void {
-    const follow = (index: number): number => {
-      if (index < 0) return index;
-      const to = remap(index);
-      return to === undefined ? -1 : to;
-    };
-    this.currentRecordIndex = follow(this.currentRecordIndex);
-    this.announcedRecordIndex = follow(this.announcedRecordIndex);
-  }
-  /* The current record the question last announced (the dynamic panel's current-index event), followed
-     through the same inserts, removes, moves and reloads as the current record, so that an operation
-     that ends on the record and the position it started from announces nothing. -1: none, or gone. */
-  private announcedRecordIndex: number = -1;
-  protected setAnnouncedRecordIndex(recordIndex: number): void {
-    this.announcedRecordIndex = recordIndex;
-  }
-  protected getAnnouncedRecordIndex(): number {
-    return this.announcedRecordIndex;
   }
   /* The visible position a move from code goes to while the objects of its page do not exist yet,
      and the move it belongs to: a move made from inside another one - an event handler - supersedes
-     it. */
+     it. A failed read, a replaced source and dispose drop it: the current-record follower of the type
+     that shows one record (createCurrentRecordFollower) takes it. */
   private pendingVisibleIndex: number = undefined;
   private visibleMoveId: number = 0;
   /* Shows the page that holds visibleIndex (the list's getPageOfVisibleIndex; a move from code, as
@@ -2862,18 +2819,10 @@ export abstract class QuestionRecordsModel extends Question {
   private setDataSourceCore(val: IDynamicDataSource): void {
     const newValue = val || undefined;
     /* Another storage: the records layer 2 tracks and the states kept for them name records of the
-       old one, and so do the current record and the position a move is going to. Dropped before the
-       swap, whose first read may commit inside it. */
+       old one, and so do the current record, the position a move is going to and the held remove
+       targets. Their followers drop them before the swap, whose first read may commit inside it. */
     if (newValue !== (!!this._dataList ? this._dataList.assignedSource : undefined)) {
-      if (!!this._pageValidation) {
-        this._pageValidation.cancelPendingMove();
-        this._pageValidation.clearRecords();
-      }
-      this.currentRecordIndex = -1;
-      this.announcedRecordIndex = -1;
-      this.isCurrentRecordOfOldSource = true;
-      this.pendingVisibleIndex = undefined;
-      this.heldRemoveTargets = undefined;
+      this.followRecordIndexEvent({ kind: "source" });
     }
     const list = this.dataList;
     if (list.assignedSource === newValue) {
@@ -2955,8 +2904,7 @@ export abstract class QuestionRecordsModel extends Question {
      force. */
   private reportDataError(error: any, operation: DynamicDataOperation): void {
     if (operation === "read") {
-      this.forgetFocusIndex();
-      this.pendingVisibleIndex = undefined;
+      this.followRecordIndexEvent({ kind: "readFailed" });
     }
     if (!!this.survey) {
       this.survey.dynamicDataError(this, operation, error);
@@ -3012,7 +2960,7 @@ export abstract class QuestionRecordsModel extends Question {
     this.onRecordsValueStored();
     this.endValueAssignment(assignment, oldRecords);
     if (!this.isAssigningOwnValue) {
-      this.followHiddenAnswerStatesOnAssignment(asRecords(oldRecords).length, asRecords(this.getStoredRecords()).length);
+      this.followRecordIndexEvent({ kind: "valueAssigned", oldRecords: asRecords(oldRecords), newRecords: asRecords(this.getStoredRecords()) });
     }
     this.onRecordsValueAssigned(oldRecords, this.clearingValueScope.isActive);
   }
@@ -3088,7 +3036,6 @@ export abstract class QuestionRecordsModel extends Question {
     isUpdatedInPlace: boolean): void {
     const isInPlace = isUpdatedInPlace && Array.isArray(oldRecords) && oldRecords.length === this.getStoredRecordCount();
     if (isInPlace) areRecordsReplaced = false;
-    if (areRecordsReplaced)this.heldRemoveTargets = undefined;
     const list = this._dataList;
     let remap: (index: number) => number = undefined;
     if (!isTouchedSetDropped && list.hasTouchedRecords) {
@@ -3096,9 +3043,16 @@ export abstract class QuestionRecordsModel extends Question {
     }
     list.invalidateViews(remap, !!created ? created : undefined);
     this.syncPagingState();
-    if (this.isPagedByList && areRecordsReplaced) {
-      this.followReplacedRecords(oldRecords, (): ((index: number) => number) =>
-        remap || (remap = this.createAssignmentRemap(oldRecords, this.getStoredRecords())));
+    /* An assignment that replaced records - not a sibling's in-place write, which moved none: the
+       held remove targets go, and under paging in memory the edited set, the nested states and the
+       records the objects were built for follow the records they name across the insert, remove or
+       move the assignment made (RecordsPageValidation.onRecordsReplaced), and a move that waits for
+       its validators is dropped. It runs before any rebuild: a rebuild keeps the nested states of the
+       objects it replaces under the records they were built for, and the new objects read them under
+       their own. */
+    if (areRecordsReplaced) {
+      this.followRecordIndexEvent({ kind: "assignment", oldRecords: asRecords(oldRecords), newRecords: asRecords(this.getStoredRecords()),
+        getRemap: (): RecordRemap => remap || (remap = this.createAssignmentRemap(oldRecords, this.getStoredRecords())) });
     }
     const isMembershipChanged = created === null
       ? list.hasView && this.isPageStale()
@@ -3111,22 +3065,6 @@ export abstract class QuestionRecordsModel extends Question {
     if (this.isPageStale()) {
       this.rebuildFromDataList(false);
     }
-  }
-  /* The record indexes kept besides the records follow an assignment from outside that replaced
-     records - not a sibling's in-place write, which moved none - for a list that pages in memory: the
-     edited set and the nested states follow the records they name across the
-     insert, remove or move the assignment made (RecordsPageValidation.onRecordsReplaced), the
-     records the objects were built for move with them, and a move that waits for its validators is
-     dropped. It runs before any rebuild: a rebuild keeps the nested states of the objects it replaces
-     under the records they were built for, and the new objects read them under their own. */
-  private followReplacedRecords(oldRecords: any, getRemap: () => ((index: number) => number)): void {
-    const validation = this._pageValidation;
-    if (!!validation) {
-      validation.cancelPendingMove();
-    }
-    this.followKeptRecordIndexes(getRemap, (validation: RecordsPageValidation, remap: (index: number) => number): void => {
-      validation.onRecordsReplaced(asRecords(oldRecords), asRecords(this.getStoredRecords()), remap);
-    });
   }
   /* A reload - survey.data =, setData, mergeData, survey.clear(), each of which assigns under the
      survey's data pass - and clearValue() start over: the records the respondent touched are decided
@@ -3178,20 +3116,13 @@ export abstract class QuestionRecordsModel extends Question {
   /* The records were replaced by a change of what defines them - the rows of the fixed matrix - and
      the question knows where each one went: the remap gives the new index of an old record, -1 for
      one that is gone. The edited set, the states kept for nested paged questions and the record
-     indexes the question keeps besides them follow, and the list decides its views again over the new
-     records - a touched record follows the remap, a removed one leaves the touched set - and the page
-     state follows. Nothing is created for it, and the remap is asked for once, only when something
-     keeps record indexes. */
+     indexes the question keeps besides them follow ("redefined"), and the list decides its views again
+     over the new records - a touched record follows the remap, a removed one leaves the touched set -
+     and the page state follows. Nothing is created for it, and the remap is asked for once, only when
+     something keeps record indexes. */
   protected followRemappedRecords(createRemap: () => ((index: number) => number)): void {
-    let remap: (index: number) => number = undefined;
-    const getRemap = (): ((index: number) => number) => remap || (remap = createRemap());
-    const validation = this._pageValidation;
-    if (!!validation) {
-      validation.cancelPendingMove();
-    }
-    this.followKeptRecordIndexes(getRemap, (validation: RecordsPageValidation, remap: (index: number) => number): void => {
-      validation.onRecordRemap(remap);
-    });
+    const getRemap = createLazyRemap(createRemap);
+    this.followRecordIndexEvent({ kind: "redefined", getRemap: getRemap });
     const list = this._dataList;
     if (!list) return;
     list.invalidateViews(list.hasTouchedRecords ? getRemap() : undefined);
@@ -3465,8 +3396,8 @@ export abstract class QuestionRecordsModel extends Question {
     const list = this._dataList;
     this.focusIndexAfterRead = !!list && list.isRemote && list.hasPendingRead && index > -1 ? index : undefined;
   }
-  private forgetFocusIndex(): void {
-    this.focusIndexAfterRead = undefined;
+  private followFocusIndex(event: RecordIndexEvent): void {
+    if (event.kind === "pageChanged" || event.kind === "readFailed")this.focusIndexAfterRead = undefined;
   }
   // Returns the kept position, or -1 when there is none, the read is not committed yet, or the focus
   // has moved out of the question by the time the answer arrives.
@@ -3484,8 +3415,7 @@ export abstract class QuestionRecordsModel extends Question {
       this._dataWaits.release(false);
     }
     this.cancelPendingPageMove();
-    this.currentRecordIndex = -1;
-    this.pendingVisibleIndex = undefined;
+    this.followRecordIndexEvent({ kind: "dispose" });
     this.owedAssignment = undefined;
     super.dispose();
     this.disposeObjectsAwaitingRerender();

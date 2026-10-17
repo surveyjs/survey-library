@@ -3796,11 +3796,15 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   /* The footer under the panels: the bottom progress bar and the footer toolbar while the navigation
      shows, and the pager. The pager shares the footer row with the toolbar buttons. */
   public get showFooter(): boolean {
-    const showNavigation = this.showNavigation && (this.isRangeShowing && this.isProgressBottomShowing || !!this.showFooterToolbar);
-    return showNavigation || this.showPager;
+    return this.showFooterProgress || this.showFooterButtons || this.showPager;
   }
-  public getFooterCss(): string {
-    return toCssClasses(this.cssClasses.footer, this.showPager && this.cssClasses.footerWithPager);
+  // The progress bar in the footer: the navigation shows, and the progress is a bottom bar.
+  public get showFooterProgress(): boolean {
+    return this.showNavigation && this.isRangeShowing && this.isProgressBottomShowing;
+  }
+  // The footer toolbar's buttons: the navigation shows, and the toolbar has a visible action.
+  public get showFooterButtons(): boolean {
+    return this.showNavigation && !!this.showFooterToolbar;
   }
   showSeparator(index: number): boolean {
     return this.isRenderModeList && index < this.renderedPanels.length - 1;

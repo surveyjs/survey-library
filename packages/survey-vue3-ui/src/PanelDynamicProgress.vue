@@ -3,11 +3,7 @@
     <hr :class="question.cssClasses.separator" />
     <div
       :class="question.cssClasses.progress"
-      v-if="
-        question.showNavigation &&
-        question.isRangeShowing &&
-        question.isProgressBottomShowing
-      "
+      v-if="question.showFooterProgress"
     >
       <div
         :class="question.cssClasses.progressBar"
@@ -18,7 +14,7 @@
     </div>
     <div
       :class="question.cssClasses.footerButtonsContainer"
-      v-if="question.showNavigation && question.showFooterToolbar"
+      v-if="question.showFooterButtons"
     >
       <SvComponent :is="'sv-action-bar'" :model="question.footerToolbar" />
     </div>

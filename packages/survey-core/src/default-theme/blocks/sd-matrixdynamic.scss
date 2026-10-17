@@ -59,6 +59,8 @@
    or the pager alone at the start. */
 .sd-matrixdynamic__footer--pager {
   align-items: center;
+  // The matrix has no footer gap token of its own: it follows the dynamic panel's footer on purpose.
+  // --sd-matrixdynamic-toolbar-gap is the narrower gap between the toolbar's buttons.
   gap: var(--sjs2-layout-component-panel-dynamic-footer-gap);
 
   .sd-matrixdynamic__toolbar {
@@ -226,14 +228,8 @@
 }
 
 .sd-question--mobile {
-  .sd-matrixdynamic__toolbar {
-    border-top: 1px solid $border-light;
-    padding-top: var(--sjs2-layout-component-panel-dynamic-footer-padding-top);
-    padding-bottom: var(--sjs2-layout-component-panel-dynamic-footer-padding-bottom);
-    padding-inline-start: var(--sjs2-layout-component-panel-dynamic-footer-padding-left);
-    padding-inline-end: var(--sjs2-layout-component-panel-dynamic-footer-padding-right);
-  }
   // The pager takes the toolbar's line and padding.
+  .sd-matrixdynamic__toolbar,
   .sd-matrixdropdown__records-bar,
   .sd-matrixdynamic__footer--pager {
     border-top: 1px solid $border-light;

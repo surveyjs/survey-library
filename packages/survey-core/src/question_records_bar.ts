@@ -16,8 +16,10 @@ export interface IQuestionRecordsBarOwner extends IRecordsPagerOwner {
 }
 
 /* The bar under the records of a dynamic panel and of a matrix: the pager. It computes nothing about
-   paging of its own: it shows what its question answers and passes the respondent's moves back. The
-   pager container is built on its first read; whether the bar shows is known without it (update()). */
+   paging of its own: it shows what its question answers and passes the respondent's moves back. Only
+   sv-records-bar observes the bar: the question's renderer decides from the question whether the
+   footer shows and where the bar goes. The pager container is built on its first read; whether the
+   bar shows is known without it (update()). */
 export class QuestionRecordsBar extends Base {
   constructor(private owner: IQuestionRecordsBarOwner) {
     super();
@@ -26,7 +28,8 @@ export class QuestionRecordsBar extends Base {
   public getType(): string {
     return "recordsbar";
   }
-  // The question's pager rule, mirrored so that the renderers observe the bar alone.
+  /* The question's pager rule, mirrored so that sv-records-bar re-renders on the bar's own property
+     changes. The question's renderer reads the question's showPager to place the footer. */
   public get showPager(): boolean {
     return this.getPropertyValue("showPager", false);
   }

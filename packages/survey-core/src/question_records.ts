@@ -6,6 +6,7 @@ import { INestedElementInfo, IVerifyDataContext, NestedWalkBuild, Question, Ques
 import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { ArrayDynamicDataSource, hasFixedMembership, IArrayDynamicDataSourceOptions, isLocalSource, LocalDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
@@ -2480,6 +2481,13 @@ export abstract class QuestionRecordsModel extends Question {
       this.recordsBarValue.update();
     }
   }
+  /* The footer under the records: the type's own footer content (the matrix's bottom toolbar, the
+     dynamic panel's progress and buttons) and the pager share one row while the pager shows. The
+     matrix renders the footer only with the pager, so its markup stays the same without paging. A
+     type without a footer class (the matrix dropdown) gets "". */
+  public getFooterCss(): string {
+    return toCssClasses(this.cssClasses.footer, this.showPager && this.cssClasses.footerWithPager);
+  }
   /* The functions call the question's members when they are called, so an override or a spy on the
      question is honoured (see helperOwner). The page index and count are the synced state in the
      property hash, not the reported values: those answer one page without reading the hash while
@@ -4519,12 +4527,13 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
   });
   return json;
 }
-/* The serializer entries of the paging, the sort and the filter of a records question (pageSize,
-   sortBy, filterExpression). sortBy and filterExpression are invisible in the property grid until the
-   UI series ships sortable headers: they load from and save to JSON. sortBy and filterExpression are plain
-   strings and not ":condition"/":expression": both of those make JsonObjectProperty.isExpression true,
-   and everything that discovers expressions by type - Base.validateExpressions(), the linter - would
-   then read them with the survey as the variable context, while their variables are record fields.
+/* The serializer entries of the paging, the sort and the filter of a records question.
+   pageSize shows in the property grid.
+   sortBy and filterExpression stay hidden there until the sortable headers ship, and only load from
+   and save to JSON; they are plain strings rather than ":condition"/":expression", because both of
+   those make JsonObjectProperty.isExpression true, and everything that discovers expressions by type -
+   Base.validateExpressions(), the linter - would then read them with the survey as the variable
+   context, while their variables are record fields.
    pageSize and filterExpression are stored in the hash under their own names (pagingStateKeys). */
 export function getRecordViewProperties(): Array<any> {
   return [{ name: pagingStateKeys.pageSize + ":number", default: 0, minValue: 0 },

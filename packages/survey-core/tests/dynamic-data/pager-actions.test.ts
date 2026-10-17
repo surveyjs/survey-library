@@ -72,6 +72,19 @@ describe("Pager: the items and the range", () => {
     expect(getAction(actions, "sv-pager-next").getActionBarItemCss().indexOf("sd-action--tertiary") > -1, "#5").toBe(true);
     expect(getAction(actions, "sv-pager-page").iconName, "#6").toBe("icon-chevrondown-16x16");
   });
+  test("the item classes follow a css update of the question after the pager is built", () => {
+    const matrix = createMatrix(12);
+    const actions = matrix.recordsBar.pagerActions;
+    const itemCss = (): Array<string> => [getAction(actions, "sv-pager-page").innerCss, getAction(actions, "sv-pager-total").innerCss];
+    expect(itemCss(), "#1").toEqual(["sd-pager__page", "sd-pager__total"]);
+    matrix.survey.onUpdateQuestionCssClasses.add((_, options) => {
+      options.cssClasses.pagerPage = "my-page";
+      options.cssClasses.pagerTotal = "my-total";
+    });
+    matrix.updateElementCss();
+    expect(itemCss(), "#2").toEqual(["my-page", "my-total"]);
+    expect(getAction(actions, "sv-pager-page").getActionBarItemCss().indexOf("my-page") > -1, "#3: the rendered class").toBe(true);
+  });
   test("the range boundary: 9 pages have no first and last, 10 pages have both", () => {
     expect(visibleIds(createMatrix(9).recordsBar.pagerActions).filter(id => moveIds.indexOf(id) > -1), "#1: 9 pages").toEqual(["sv-pager-prev", "sv-pager-next"]);
     expect(visibleIds(createMatrix(10).recordsBar.pagerActions).filter(id => moveIds.indexOf(id) > -1), "#2: 10 pages").toEqual(moveIds);
@@ -117,7 +130,7 @@ describe("Pager: the page dropdown", () => {
     openPageList(actions);
     expect(list.actions.map(item => item.title), "#2").toEqual(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]);
     expect(list.selectedItem.title, "#3: the current page").toBe("3");
-    expect(list.showFilter, "#4: from pagerEdgeMinPageCount pages the page number can be typed").toBe(true);
+    expect(list.showFilter, "#4: above ListModel.MINELEMENTCOUNT pages the page number can be typed").toBe(true);
     pickPage(actions, "7");
     expect(matrix.pageIndex, "#5").toBe(6);
     expect(page.title, "#6").toBe("7");
@@ -257,9 +270,9 @@ describe("Pager: the page list on a phone is a sheet", () => {
     pick(list, "7");
     expect([matrix.pageIndex, popup.isVisible], "#3").toEqual([6, false]);
   });
-  test("the list shows its filter from pagerEdgeMinPageCount pages", () => {
-    expect(openPageList(createMatrix(9).recordsBar.pagerActions).showFilter, "#1").toBe(false);
-    expect(openPageList(createMatrix(10).recordsBar.pagerActions).showFilter, "#2").toBe(true);
+  test("the list shows its filter above ListModel.MINELEMENTCOUNT pages", () => {
+    expect(openPageList(createMatrix(10).recordsBar.pagerActions).showFilter, "#1: 10 pages").toBe(false);
+    expect(openPageList(createMatrix(11).recordsBar.pagerActions).showFilter, "#2: 11 pages").toBe(true);
   });
 });
 

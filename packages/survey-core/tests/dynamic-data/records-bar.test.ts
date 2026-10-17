@@ -4,6 +4,7 @@ import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionMatrixDropdownModel } from "../../src/question_matrixdropdown";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionRecordsBar } from "../../src/question_records_bar";
+import { QuestionRecordsModel } from "../../src/question_records";
 
 function records(count: number): Array<any> {
   const res: Array<any> = [];
@@ -35,13 +36,15 @@ function createFixedMatrix(json?: any): QuestionMatrixDropdownModel {
   return <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
 }
 const barState = (bar: QuestionRecordsBar): Array<boolean> => [bar.showPager, bar.isVisible];
-// The pager container before its first read; private, read here to show it was never built.
+// Reads a private field on purpose: the pager container is built on its first read only.
 const isPagerBuilt = (bar: QuestionRecordsBar): boolean => !!(<any>bar).pagerActionsValue;
+// Reads a private field on purpose: the records bar is created on its first read only.
+const isRecordsBarBuilt = (question: QuestionRecordsModel): boolean => !!(<any>question).recordsBarValue;
 
 describe("Records bar: the object", () => {
   test("created once, on the first read, and disposed with the question together with the pager", () => {
     const panel = createPanel(5);
-    expect((<any>panel).recordsBarValue, "#1: nothing before the first read").toBeUndefined();
+    expect(isRecordsBarBuilt(panel), "#1: nothing before the first read").toBe(false);
     const bar = panel.recordsBar;
     expect(panel.recordsBar, "#2").toBe(bar);
     panel.nextPage();
@@ -56,7 +59,7 @@ describe("Records bar: the object", () => {
     const matrix = createMatrix(5);
     matrix.nextPage();
     matrix.pageSize = 3;
-    expect((<any>matrix).recordsBarValue, "#1").toBeUndefined();
+    expect(isRecordsBarBuilt(matrix), "#1").toBe(false);
   });
   test("its first read already shows the current state, and builds no pager", () => {
     const bar = createPanel(5).recordsBar;
@@ -156,6 +159,25 @@ describe("Records bar: the footer it shares with the buttons", () => {
     const onePage = createPanel(2, { pageSize: 10 });
     expect([onePage.showPager, onePage.showFooter, onePage.getFooterCss()], "#7: one page, Add shows")
       .toEqual([false, true, "sd-paneldynamic__footer"]);
+  });
+  test("the dynamic panel: showFooter is the bottom progress, the buttons or the pager", () => {
+    const footerState = (q: QuestionPanelDynamicModel): Array<boolean> =>
+      [q.showFooterProgress, q.showFooterButtons, q.showPager, q.showFooter];
+    const panel = createPanel(3, { pageSize: 0, displayMode: "carousel", progressBarLocation: "bottom" });
+    expect(footerState(panel), "#1: the navigation, the bottom progress and the buttons").toEqual([true, true, false, true]);
+    panel.progressBarLocation = "top";
+    expect(footerState(panel), "#2: the progress on top").toEqual([false, true, false, true]);
+    panel.progressBarLocation = "bottom";
+    const actions = panel.footerToolbar.actions;
+    actions.forEach(action => action.visible = false);
+    expect(footerState(panel), "#3: no visible button").toEqual([true, false, false, true]);
+    actions[0].visible = true;
+    expect(panel.showFooterButtons, "#4: the toolbar's first visible action is observed").toBe(true);
+    panel.survey.onUpdateQuestionCssClasses.add((_, options) => { options.cssClasses.footer = ""; });
+    panel.updateElementCss();
+    expect(footerState(panel), "#5: no navigation").toEqual([false, false, false, false]);
+    const list = createPanel(5, { allowAddPanel: false });
+    expect(footerState(list), "#6: the pager alone").toEqual([false, false, true, true]);
   });
   test("the matrix: the footer is the pager row and is marked while the pager shows", () => {
     const matrix = createMatrix(5);

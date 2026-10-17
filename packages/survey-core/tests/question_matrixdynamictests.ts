@@ -11593,7 +11593,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(json.sortBy, "#12").toBe("c1");
     expect(json.filterExpression, "#13").toBe("{c1} = 'a'");
   });
-  test("the new properties round-trip through JSON and stay out of the property grid", () => {
+  test("the new properties round-trip through JSON, pageSize is in the property grid", () => {
     const matrix = createMatrix({ rowCount: 2, pageSize: 3, allowSortRows: true,
       columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text", allowSort: false }] });
     expect(matrix.pageSize, "#1").toBe(3);
@@ -11603,7 +11603,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(json.pageSize, "#4").toBe(3);
     expect(json.allowSortRows, "#5").toBe(true);
     expect(json.columns[1].allowSort, "#6").toBe(false);
-    expect(Serializer.findProperty("matrixdynamic", "pageSize").visible, "#7").toBe(false);
+    expect(Serializer.findProperty("matrixdynamic", "pageSize").visible, "#7").toBe(true);
     expect(Serializer.findProperty("matrixdynamic", "allowSortRows").visible, "#8").toBe(false);
     expect(Serializer.findProperty("matrixdropdowncolumn", "allowSort").visible, "#9").toBe(false);
   });

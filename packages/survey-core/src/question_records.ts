@@ -4520,14 +4520,14 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
   return json;
 }
 /* The serializer entries of the paging, the sort and the filter of a records question (pageSize,
-   sortBy, filterExpression). Invisible in the property grid until the UI series ships a
-   pager and sortable headers: they load from and save to JSON. sortBy and filterExpression are plain
+   sortBy, filterExpression). sortBy and filterExpression are invisible in the property grid until the
+   UI series ships sortable headers: they load from and save to JSON. sortBy and filterExpression are plain
    strings and not ":condition"/":expression": both of those make JsonObjectProperty.isExpression true,
    and everything that discovers expressions by type - Base.validateExpressions(), the linter - would
    then read them with the survey as the variable context, while their variables are record fields.
    pageSize and filterExpression are stored in the hash under their own names (pagingStateKeys). */
 export function getRecordViewProperties(): Array<any> {
-  return [{ name: pagingStateKeys.pageSize + ":number", default: 0, minValue: 0, visible: false },
+  return [{ name: pagingStateKeys.pageSize + ":number", default: 0, minValue: 0 },
     { name: "sortBy", default: "", visible: false }, { name: pagingStateKeys.filterExpression, default: "", visible: false }];
 }
 /* The count properties of a type with a record count, named after its entity: rowCount, minRowCount,

@@ -10934,11 +10934,11 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     expect(json.sortBy, "#9").toBe("q1");
     expect(json.filterExpression, "#10").toBe("{q1} = 'a'");
   });
-  test("pageSize round-trips through JSON and stays out of the property grid", () => {
+  test("pageSize round-trips through JSON and is in the property grid", () => {
     const question = createQuestion({ panelCount: 2, pageSize: 3 });
     expect(question.pageSize, "#1").toBe(3);
     expect(question.toJSON().pageSize, "#2").toBe(3);
-    expect(Serializer.findProperty("paneldynamic", "pageSize").visible, "#3").toBe(false);
+    expect(Serializer.findProperty("paneldynamic", "pageSize").visible, "#3").toBe(true);
     const byDefault = createQuestion({ panelCount: 2 });
     expect(byDefault.toJSON().pageSize, "#4: the default is not serialized").toBe(undefined);
     expect(byDefault.pageSize, "#5").toBe(0);

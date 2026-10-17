@@ -375,7 +375,7 @@ describe("Records questions: the serialized page size", () => {
   recordJsons.forEach(json => {
     test("pageSize is the serialized page size, " + json.type, () => {
       const prop = Serializer.findProperty(json.type, "pageSize");
-      expect([prop.defaultValue, prop.minValue, prop.visible], "#1: the property").toEqual([0, 0, false]);
+      expect([prop.defaultValue, prop.minValue, prop.visible], "#1: the property").toEqual([0, 0, true]);
       const survey = new SurveyModel({ elements: [Object.assign({ name: "q", pageSize: 2 }, json)] });
       const q: any = survey.getQuestionByName("q");
       expect([q.pageSize, q.pageCount], "#2: it pages").toEqual([2, 2]);

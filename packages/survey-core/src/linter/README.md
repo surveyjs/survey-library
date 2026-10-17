@@ -311,13 +311,39 @@ another one, and no property holds it.
   built-in variables the survey answers itself (`{pageno}`, `{locale}`, quiz counters) and the
   special choice items (`none`, `other`, `refuse`, `dontknow`) are all resolved.
 * **The condition of an inArray call.** `sumInArray({m1}, 'col1', '{col1} > 5')` runs its
-  third (or fourth) argument as a condition over every row of `m1`, and that string is not part
-  of the enclosing expression's syntax tree - so it becomes a site of its own, analysed in the
-  item data context. The linter accepts both bare keys and scoped `{row.col}` / `{panel.q}`
-  references. Bare column or template-question keys resolve before survey values. Both the
-  syntax and the references of the string are checked, under the path
-  `<property>.inArray[<n>]`. A filter that never holds excludes items without making the
-  enclosing question or page unreachable.
+  third (or fourth, after a return column) argument as a condition over every row of `m1`, so
+  that condition becomes a site of its own, under the path `<property>.inArray[<n>]`. It gets
+  every check a condition gets (syntax, references, choices, types, contradictions); its
+  findings carry no fix, because the document has no property of its own for it. A filter that
+  never holds excludes items without making the enclosing question or page unreachable.
+  * **Both forms.** The filter may be a string (`'{col1} > 5'`) or an operand
+    (`{product} = 'P-100'`); only the second can compare with a string, since the quotes do not
+    nest. The runtime runs the operand's source text per item, and the linter checks that text
+    exactly as it checks the string. The enclosing expression's rules leave the operand alone,
+    so a name in it is never read as a survey name. The first argument (`{m1}`) is still read
+    by the enclosing expression.
+  * **Item first, then the survey.** A name resolves against the item's data and, when the item
+    has no such field, against the survey - never against the scope of the expression that holds
+    the call. A column or template question wins over a survey question of the same name, and
+    its choices and type are the ones checked. `{row.col}` / `{panel.q}` name nothing in a
+    filter, wherever the call sits, and are reported. The runtime falls back per item: an item
+    that lacks the key (an empty cell) reads the survey's value. A survey name read inside a
+    string filter is no dependency of the expression, so changing that question alone does not
+    re-run it; the operand form re-runs.
+  * **An operand that may give a string.** The runtime takes a filter that evaluates to a string
+    as the filter's text, so only an operand that always gives a boolean is checked as a filter:
+    a comparison, `!`, `empty`/`notempty`, `and`/`or` of such operands, and a function registered
+    with `returnType: "boolean"`. Anything else stays a part of the enclosing expression and is
+    checked there: a bare `{filterText}`, a string function, and `iif(...)`, whose condition runs
+    in the enclosing scope. Each branch of that `iif(...)` written as a string is checked as a
+    filter of its own; any other branch is not analysed.
+  * **Items the linter does not know.** When the first argument names no matrix or dynamic
+    panel - a host variable from `knownVariables`, or a name that does not resolve - the item
+    fields are unknown. The filter's names, choice values, types and contradictions are then
+    not checked, survey names included, because they cannot be told apart from item fields. An
+    unknown function in it is still reported.
+  * **A call nested in a filter** is taken apart from that filter's site, under
+    `<property>.inArray[<n>].inArray[<m>]`.
 * **Item-level conditions.** `choicesVisibleIf`, `choicesEnableIf`, `rowsVisibleIf` and
   `columnsVisibleIf` are evaluated with an item frame, so the legitimate "filter my own items
   by my own value" idiom is not reported as a self reference.

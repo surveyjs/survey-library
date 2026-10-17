@@ -2,7 +2,7 @@
 import { Base } from "./base";
 import { EventBase } from "./event";
 import { surveyCss } from "./defaultCss/defaultCss";
-import { propertyArray } from "./decorators";
+import { property, propertyArray } from "./decorators";
 import { PageModel } from "./page";
 import { SurveyModel } from "./survey";
 import { getLocaleString } from "./surveyStrings";
@@ -15,10 +15,12 @@ export class ProgressButtons extends Base {
       this.visiblePages = survey.visiblePages;
     };
     survey.onCurrentPageChanged.add(this.onCurrentPageChanged);
+    survey.onValueChanged.add(this.onSurveyValueChanged);
     this.visiblePages = survey.visiblePages;
   }
 
   @propertyArray() visiblePages: PageModel[];
+  @property({ defaultValue: 0 }) private valueChangedCounter: number;
 
   public isListElementClickable(index: number | any): boolean {
     if (!this.survey.onServerValidateQuestions ||
@@ -29,7 +31,12 @@ export class ProgressButtons extends Base {
     return index <= this.survey.currentPageNo + 1;
   }
   public isListElementPassed(index: number): boolean {
-    return this.survey.visiblePages[index].wasShown;
+    const page = this.survey.visiblePages[index];
+    return page.wasShown && page.hasValueAnyQuestion(false, false) && this.isAllRequiredAnswered(page);
+  }
+  private isAllRequiredAnswered(page: PageModel): boolean {
+    const info = page.getProgressInfo();
+    return info.requiredAnsweredQuestionCount >= info.requiredQuestionCount;
   }
   public getRootCss(container: string = "center"): string {
     let result = this.survey.css.progressButtonsContainerCenter;
@@ -124,11 +131,15 @@ export class ProgressButtons extends Base {
 
   public dispose(): void {
     this.survey.onCurrentPageChanged.remove(this.onCurrentPageChanged);
+    this.survey.onValueChanged.remove(this.onSurveyValueChanged);
     super.dispose();
   }
 
   private readonly onCurrentPageChanged = (): void => {
     this.resetProgressText();
+  };
+  private readonly onSurveyValueChanged = (): void => {
+    this.valueChangedCounter++;
   };
 
   public getButtonAriaLabel(page: PageModel): string {

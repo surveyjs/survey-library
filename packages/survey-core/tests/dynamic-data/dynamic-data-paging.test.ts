@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
-import { DynamicDataPagingController, IDynamicDataPagingOwner } from "../../src/dynamic-data/dynamic-data-paging";
+import { RecordsPagingController, IRecordsPagingOwner } from "../../src/records/records-paging";
 import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 import {
   IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataReadRequest,
@@ -15,8 +15,8 @@ export * from "../../src/question_text";
    from the survey, and a recorder for the sortBy notification. The list under it is a real one over
    a real in-memory source, and it is created lazily exactly as a question creates it - "the setter
    does not create the list" is one of the invariants. */
-class FakePagingOwner implements IDynamicDataPagingOwner, IDynamicDataOwner {
-  public paging: DynamicDataPagingController;
+class FakePagingOwner implements IRecordsPagingOwner, IDynamicDataOwner {
+  public paging: RecordsPagingController;
   public hash: { [index: string]: any } = {};
   public isDesignMode: boolean = false;
   public isLoadingFromJson: boolean = false;
@@ -26,7 +26,7 @@ class FakePagingOwner implements IDynamicDataPagingOwner, IDynamicDataOwner {
   private source: IDynamicDataSource;
   constructor(records: Array<any>) {
     this.source = ArrayDynamicDataSource.fromArray(records);
-    this.paging = new DynamicDataPagingController(this, (): DynamicDataList => this.getDataList());
+    this.paging = new RecordsPagingController(this, (): DynamicDataList => this.getDataList());
   }
   public get hasList(): boolean { return !!this.listValue; }
   public getDataList(): DynamicDataList {
@@ -80,7 +80,7 @@ const abc = (): Array<any> => [{ c1: "c" }, { c1: "a" }, { c1: "b" }];
 const asc: Array<IDynamicDataSort> = [{ field: "c1", direction: "asc" }];
 const desc: Array<IDynamicDataSort> = [{ field: "c1", direction: "desc" }];
 
-describe("DynamicDataPagingController: at runtime the list holds the view and the hash mirrors it", () => {
+describe("RecordsPagingController: at runtime the list holds the view and the hash mirrors it", () => {
   test("the list holds the sort and the filter, the hash mirrors it, the accessors read the hash", () => {
     const owner = new FakePagingOwner(abc());
     owner.paging.sortOrder = asc;
@@ -113,7 +113,7 @@ describe("DynamicDataPagingController: at runtime the list holds the view and th
   });
 });
 
-describe("DynamicDataPagingController: design mode stores the authored view and applies nothing", () => {
+describe("RecordsPagingController: design mode stores the authored view and applies nothing", () => {
   test("the authored sort and filter are stored, read back and not applied", () => {
     const owner = new FakePagingOwner(abc());
     owner.isDesignMode = true;
@@ -171,7 +171,7 @@ describe("DynamicDataPagingController: design mode stores the authored view and 
   });
 });
 
-describe("DynamicDataPagingController: a view authored in design mode is kept by the next runtime assignment", () => {
+describe("RecordsPagingController: a view authored in design mode is kept by the next runtime assignment", () => {
   test("a filter assigned at runtime keeps the sort authored in design mode", () => {
     const owner = new FakePagingOwner(abc());
     owner.getDataList();
@@ -227,7 +227,7 @@ describe("DynamicDataPagingController: a view authored in design mode is kept by
   });
 });
 
-describe("DynamicDataPagingController: while loading the view is stored and reaches the list once", () => {
+describe("RecordsPagingController: while loading the view is stored and reaches the list once", () => {
   test("a setter stores into the hash only and creates no list", () => {
     const owner = new FakePagingOwner(abc());
     owner.isLoadingFromJson = true;
@@ -305,7 +305,7 @@ describe("DynamicDataPagingController: while loading the view is stored and reac
   });
 });
 
-describe("DynamicDataPagingController: a filter the list cannot run is not handed back", () => {
+describe("RecordsPagingController: a filter the list cannot run is not handed back", () => {
   test("a filter the list cannot run is not handed back on the next sync", () => {
     const owner = new FakePagingOwner(abc());
     owner.isLoadingFromJson = true;
@@ -320,7 +320,7 @@ describe("DynamicDataPagingController: a filter the list cannot run is not hande
   });
 });
 
-describe("DynamicDataPagingController: a source swap keeps the view", () => {
+describe("RecordsPagingController: a source swap keeps the view", () => {
   // A source that pages, and so owns the view: it comes inside every request it is asked.
   class SortingSource implements IDynamicDataSource {
     public requests: Array<IDynamicDataReadRequest> = [];
@@ -348,7 +348,7 @@ describe("DynamicDataPagingController: a source swap keeps the view", () => {
   });
 });
 
-describe("DynamicDataPagingController: the sortBy notification", () => {
+describe("RecordsPagingController: the sortBy notification", () => {
   test("it fires once per real change when sortOrder is assigned", () => {
     const owner = new FakePagingOwner(abc());
     owner.getDataList();
@@ -396,7 +396,7 @@ describe("DynamicDataPagingController: the sortBy notification", () => {
 /* Multi-field sorting: the same asc -> desc -> off cycle applied to one entry of the sort instead
    of to the whole of it. It is what a modified header click does, and the renderer only passes the
    modifier on. */
-describe("DynamicDataPagingController: toggleSort(field, addToSort)", () => {
+describe("RecordsPagingController: toggleSort(field, addToSort)", () => {
   const pairs = (): Array<any> => [{ c1: "b", c2: 2 }, { c1: "a", c2: 1 }, { c1: "b", c2: 1 }];
   const records = (owner: FakePagingOwner): Array<string> => {
     const list = owner.getDataList();

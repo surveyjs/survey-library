@@ -6,7 +6,7 @@ import { Question } from "../../src/question";
 import { QuestionMatrixDropdownRenderedTable } from "../../src/question_matrixdropdownrendered";
 import { SurveyElement } from "../../src/survey-element";
 import { settings } from "../../src/settings";
-import { IDynamicDataPageState } from "../../src/dynamic-data/dynamic-data-page-validation";
+import { IRecordsPageState } from "../../src/records/records-paging";
 import { ConditionsParser } from "../../src/conditions/conditionsParser";
 import { Operand } from "../../src/expressions/expressions";
 import { FunctionFactory } from "../../src/functionsfactory";
@@ -17,7 +17,7 @@ import {
 import { ArrayDynamicDataSource, SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 
 // The edited set and the page the page validation keeps for a records question have no public face.
-const getPageState = (q: Question): IDynamicDataPageState => (<any>q).getPageState();
+const getPageState = (q: Question): IRecordsPageState => (<any>q).getPageState();
 
 class Deferred {
   public promise: Promise<any>;

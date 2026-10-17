@@ -28,8 +28,9 @@ import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsModel, QuestionRecordsValueGetterContext, IRecordCountNames, getRecordCountNamesOf } from "./question_records";
-import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { ArrayDynamicDataSource, isRecordEmpty, IArrayDynamicDataSourceOptions } from "./dynamic-data/dynamic-data-sources";
+import { DynamicDataSourceMethod, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { ArrayDynamicDataSource, IArrayDynamicDataSourceOptions } from "./dynamic-data/dynamic-data-sources";
+import { isRecordEmpty } from "./dynamic-data/dynamic-data-records";
 
 export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
   // The design row answers any path; isRoot is left as it is.
@@ -164,7 +165,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return res;
   }
   // The write rules are the matrix's: a removal's count-down, and the value shape of each kind of write.
-  protected setListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void {
+  protected setListRecords(records: Array<any>, operations: Array<DynamicDataSourceMethod>): void {
     // A removal whose count-down waits for the store (removeStoredRecord): the padding stays virtual.
     if ((operations || []).indexOf("remove") > -1) {
       const length = this.takeRowCountDown();
@@ -188,9 +189,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      value and keeps no empty records; an insert, a move and the records a lower rowCount cuts off are
      stored as they are. operations: the writes the default source made, one or every write of a batch
      (ArrayDynamicDataSource.write and batch, the only callers). */
-  private normalizeRecords(records: Array<any>, operations: Array<DynamicDataOperation>): any {
+  private normalizeRecords(records: Array<any>, operations: Array<DynamicDataSourceMethod>): any {
     const res = Array.isArray(records) ? records : [];
-    const isOnly = (operation: DynamicDataOperation): boolean => operations.every((op: DynamicDataOperation): boolean => op === operation);
+    const isOnly = (operation: DynamicDataSourceMethod): boolean => operations.every((op: DynamicDataSourceMethod): boolean => op === operation);
     if (isOnly("update")) return this.correctValueForMinMaxRows(this.deleteRowValue(res, null));
     if (this.isWritingRecords && isOnly("remove")) return this.deleteRowValue(res, null);
     return res;

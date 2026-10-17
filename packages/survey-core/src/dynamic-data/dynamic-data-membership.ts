@@ -1,5 +1,6 @@
 import { ConditionRunner } from "../conditions/conditionRunner";
-import { applyFilter, applySort, createIndexes } from "./dynamic-data-filter";
+import { applyFilter, applySort } from "./dynamic-data-filter";
+import { createIndexes } from "./dynamic-data-records";
 import { IDynamicDataField, IDynamicDataSort } from "./dynamic-data-interfaces";
 import { insertRemap, moveRemap, removeRemap } from "./dynamic-data-record-remap";
 import { Scope } from "../utils/scope";

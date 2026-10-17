@@ -3,7 +3,7 @@ import { SurveyModel } from "../../src/survey";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { Question } from "../../src/question";
-import { getDuplicateKey, groupByDuplicateKey } from "../../src/dynamic-data/dynamic-data-page-validation";
+import { getDuplicateKey, groupByDuplicateKey } from "../../src/records/records-duplicates";
 
 /* The record keys a records question compares for keyName duplicates, and the record fields it gives
    its sort and filter. Both questions compare keys as text, and both declare the field the other text

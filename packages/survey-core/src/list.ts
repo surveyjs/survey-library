@@ -173,11 +173,13 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     this.onTextSearchCallback = callback;
   }
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
-    super.setItems(items, sortByVisibleIndex);
-    this.updateActionsIds();
-    if (!this.isAllDataLoaded && !!this.actions.length) {
-      this.actions.push(this.loadingIndicator);
-    }
+    this.runBulkUpdate(() => {
+      super.setItems(items, sortByVisibleIndex);
+      this.updateActionsIds();
+      if (!this.isAllDataLoaded && !!this.actions.length) {
+        this.actions.push(this.loadingIndicator);
+      }
+    });
   }
   private updateActionsIds(): void {
     if (this.elementId) {

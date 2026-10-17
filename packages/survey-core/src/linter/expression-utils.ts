@@ -1,4 +1,4 @@
-import { ArrayOperand, BinaryOperand, ConditionsParser, Const, findNameByPath, FunctionOperand, getBuiltInVariableNames, IExpressionError, isReturnColumnParam, Operand, parseValuePath, Variable } from "survey-core";
+import { ArrayOperand, BinaryOperand, ConditionsParser, Const, findNameByPath, FunctionFactory, FunctionOperand, getBuiltInVariableNames, IExpressionError, isReturnColumnParam, Operand, parseValuePath, UnaryOperand, Variable } from "survey-core";
 import { FUNCTION_NAME_ARGS, FunctionArgNameScope } from "./catalog";
 import { ISurveyLintOptions, LintReproductionStep } from "./types";
 import { SurveyLintHintReasons, SurveyLintReasons } from "./reasons";
@@ -25,18 +25,43 @@ export function parseExpressionText(text: string): ParseOutcome {
   return { error: { message: "The expression cannot be parsed." } };
 }
 
-export function collectOperands(ast: Operand): Array<Operand> {
+// An inArray filter written as an operand ("sumInArray({m}, 'a', {b} > 0)") sits in the AST of the
+// expression that holds the call, yet the runtime runs it per item, in the item's scope - so it is
+// no part of that expression. "site": the filter got a site of its own, which analyses all of it.
+// "unknownItems": the array's items are unknown, so whatever in it depends on them is not analysed.
+// Keyed by the operand, so every walk over the AST meets the mark, an iif() sub-site's included.
+type ItemFilterKind = "site" | "unknownItems";
+const itemFilterOperands = new WeakMap<Operand, ItemFilterKind>();
+
+function collectAllOperands(ast: Operand): Array<Operand> {
   const list: Array<Operand> = [];
   ast.addOperandsToList(list);
   return list;
+}
+
+// The operands of an expression, without the subtrees of its inArray filters (see
+// itemFilterOperands). keepUnknownItemFilters keeps a filter whose items are unknown, for the
+// checks that do not depend on the items.
+export function collectOperands(ast: Operand, keepUnknownItemFilters?: boolean): Array<Operand> {
+  const list = collectAllOperands(ast);
+  let skipped: Set<Operand> | undefined;
+  list.forEach(op => {
+    const kind = itemFilterOperands.get(op);
+    if (!kind || (keepUnknownItemFilters && kind === "unknownItems")) return;
+    if (!!skipped && skipped.has(op)) return;
+    if (!skipped) skipped = new Set<Operand>();
+    collectAllOperands(op).forEach(item => skipped.add(item));
+  });
+  return !!skipped ? list.filter(op => !skipped.has(op)) : list;
 }
 
 export function getVariableOperands(ast: Operand): Array<Variable> {
   return collectOperands(ast).filter((op): op is Variable => op instanceof Variable);
 }
 
-export function getFunctionOperands(ast: Operand): Array<FunctionOperand> {
-  return collectOperands(ast).filter((op): op is FunctionOperand => op instanceof FunctionOperand);
+export function getFunctionOperands(ast: Operand, keepUnknownItemFilters?: boolean): Array<FunctionOperand> {
+  return collectOperands(ast, keepUnknownItemFilters)
+    .filter((op): op is FunctionOperand => op instanceof FunctionOperand);
 }
 
 // A value known at lint time. Boxed, so that a value of null or false is still a value.
@@ -345,7 +370,8 @@ function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, sc
   }
   if (equalsCI(root, vars.panel)) {
     if (panelFrame) return { handled: true, ref: validateInnerName(ref, vars.panel, panelFrame.templateNames, lintSettings) };
-    const staticPanel = getStaticPanelAncestor(site.owner);
+    // an inArray filter runs against the item and the survey, never against its owner's panel
+    const staticPanel = findFrame<ScopeFrameArrayItem>(scope, "arrayItem") ? undefined : getStaticPanelAncestor(site.owner);
     if (staticPanel && staticPanel.panelDescendantNames) {
       if (ref.segments.length < 2) return { handled: true, ref: scopedResolved(ref, vars.panel) };
       if (findDottedName(ref.segments, 1, name => staticPanel.panelDescendantNames.has(name)) > -1) {
@@ -890,31 +916,75 @@ export function classifyFunctionArgRefs(site: ExpressionSite, index: SurveyIndex
   return res;
 }
 
-// The condition an inArray function takes as a written-out string: it runs as a ConditionRunner
-// over every entry of the element the first argument names, so it is analysed as a site of its
-// own, in that element's scope. Which argument holds it is decided the way getInArrayParams
-// decides it - the third one is the condition unless it names a return column.
+// The condition an inArray function runs as a ConditionRunner over every entry of the element the
+// first argument names: it is analysed as a site of its own, in that entry's scope. Which argument
+// holds it is decided the way getInArrayParams decides it - the third one is the condition unless
+// it names a return column.
 export interface InArrayCondition {
   text: string;
   container: ElementRecord;
   map: CIMultiMap<ElementRecord>;
 }
 
-export function getInArrayConditions(site: ExpressionSite, index: SurveyIndex): Array<InArrayCondition> {
+// Whether an operand gives a boolean whatever it reads. getInArrayParams takes a filter argument
+// that evaluates to a string as the filter's text, so an operand that may give a string is no
+// filter the linter can read: which text runs is only known at run time. and/or answer one of
+// their operands (a && b), so they are boolean only when both sides are.
+function isBooleanOperand(op: Operand): boolean {
+  if (op instanceof UnaryOperand) return true;
+  if (op instanceof BinaryOperand) {
+    if (op.isConjunction) return isBooleanOperand(op.leftOperand) && isBooleanOperand(op.rightOperand);
+    return !op.isArithmetic;
+  }
+  if (op instanceof FunctionOperand) {
+    const name = (op.functionName || "").toLowerCase();
+    return FunctionFactory.Instance.getRegistrations().some(info =>
+      info.name.toLowerCase() === name && info.returnType === "boolean");
+  }
+  return false;
+}
+
+// The texts an inArray filter argument runs per item, as the runtime takes them: a string as it
+// is written, a boolean operand as its source text (originalParams[i].toString()). Of an iif()
+// that picks the filter, each branch written as a string is one of the texts it may run; the
+// iif() itself, and every other operand, stays a part of the expression that holds the call.
+function getFilterTexts(op: Operand): Array<{ text: string, operand?: Operand }> {
+  const text = getConstString(op);
+  if (!!text) return [{ text: text }];
+  if (!op || op.getType() === "const") return [];
+  if (isBooleanOperand(op)) return [{ text: op.toString(), operand: op }];
+  if (op instanceof FunctionOperand && (op.functionName || "").toLowerCase() === "iif") {
+    return op.paramValues.slice(1, 3).map(branch => getConstString(branch))
+      .filter(branch => !!branch).map(branch => ({ text: branch }));
+  }
+  return [];
+}
+
+// The filters of a site's inArray calls. An operand that holds a filter is marked on the way (see
+// itemFilterOperands), so the site's own rules leave it to the filter's site, and a call nested in
+// a filter is found from that filter's site, not from this one.
+export function takeInArrayConditions(site: ExpressionSite, index: SurveyIndex): Array<InArrayCondition> {
   const res: Array<InArrayCondition> = [];
   if (!site.ast) return res;
+  // the calls come outermost first, so a filter is marked before the calls inside it are met
+  const inFilters = new Set<Operand>();
   getFunctionOperands(site.ast).forEach(fn => {
+    if (inFilters.has(fn)) return;
     const def = FUNCTION_NAME_ARGS.get((fn.functionName || "").toLowerCase());
     if (!def || def.scope !== "arrayItem") return;
-    const source = getArrayItemSource(fn.paramValues[0], index);
-    if (!source) return;
     const params = fn.paramValues || [];
     let conditionIndex = 2;
     const third = getConstString(params[2]);
     if (!!third && isReturnColumnParam(third, params[2])) conditionIndex = 3;
-    const text = getConstString(params[conditionIndex]);
-    if (!text) return;
-    res.push({ text: text, container: source.record, map: source.map });
+    const filters = getFilterTexts(params[conditionIndex]);
+    const source = getArrayItemSource(params[0], index);
+    filters.forEach(filter => {
+      if (!!filter.operand) {
+        itemFilterOperands.set(filter.operand, !!source ? "site" : "unknownItems");
+        collectAllOperands(filter.operand).forEach(op => inFilters.add(op));
+      }
+      if (!!source) res.push({ text: filter.text, container: source.record, map: source.map });
+    });
   });
   return res;
 }

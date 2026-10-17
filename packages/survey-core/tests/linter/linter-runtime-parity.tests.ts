@@ -755,3 +755,152 @@ describe("linter vs runtime: a name that is not a string", () => {
     expect(errors(panelJson)).toEqual(["property/required @ elements[0].name"]);
   });
 });
+
+// An inArray filter runs per item with ConditionRunner.runValues(item, { context: the survey's
+// value getter context }): a name resolves against the item first, then against the survey -
+// never against the scope of the expression that holds the call. The quoted and the unquoted
+// form run the same way, so every case is pinned for both.
+describe("linter vs runtime: the scope of an inArray filter", () => {
+  const forms = (filter: string): Array<string> => ["'" + filter + "'", filter];
+  const findingsOf = (json: any, ruleId: string): Array<string> => lintSurvey(json).findings
+    .filter(f => f.ruleId === ruleId).map(f => f.reason + " @ " + f.path);
+  const items = { type: "matrixdynamic", name: "items", columns: [{ name: "amount", cellType: "text", inputType: "number" }] };
+  const itemRows = [{ amount: 3 }, { amount: 1 }];
+
+  test("a name the item does not hold falls back to the survey", () => {
+    forms("{amount} > {threshold}").forEach(filter => {
+      const json = {
+        elements: [items, { type: "text", name: "threshold", inputType: "number" },
+          { type: "expression", name: "total", expression: "sumInArray({items}, 'amount', " + filter + ")" }],
+      };
+      const survey = new SurveyModel(json);
+      survey.data = { items: itemRows, threshold: 2 };
+      expect(survey.getValue("total"), filter).toBe(3);
+      survey.data = { items: itemRows, threshold: 0 };
+      expect(survey.getValue("total"), filter).toBe(4);
+      // a reference written inside the string is no dependency of the expression, so changing
+      // that question alone does not run it again; the unquoted form does depend on it
+      survey.setValue("threshold", 2);
+      expect(survey.getValue("total"), filter).toBe(filter[0] === "'" ? 4 : 3);
+      expect(lintSurvey(json).findings, filter).toEqual([]);
+    });
+  });
+
+  test("an item field wins over a survey question of the same name", () => {
+    const json: any = {
+      elements: [
+        {
+          type: "matrixdynamic", name: "items", columns: [
+            { name: "amount", cellType: "text", inputType: "number" },
+            { name: "status", cellType: "dropdown", choices: [1, 2] },
+            { name: "flag", cellType: "boolean" },
+          ],
+        },
+        { type: "dropdown", name: "status", choices: [7, 8] },
+        { type: "text", name: "flag", inputType: "number" },
+        { type: "expression", name: "total" },
+      ],
+    };
+    let data: any = { items: [{ amount: 3, status: 1, flag: true }, { amount: 1, status: 2, flag: false }], status: 7, flag: 5 };
+    const run = (expression: string): any => {
+      json.elements[3].expression = expression;
+      const survey = new SurveyModel(json);
+      survey.data = data;
+      return survey.getValue("total");
+    };
+    forms("{status} = 1").forEach(filter => {
+      expect(run("sumInArray({items}, 'amount', " + filter + ")"), filter).toBe(3);
+      expect(findingsOf(json, "expression/unknown-choice"), filter).toEqual([]);
+    });
+    // the survey's status is 7, the column's choices are 1 and 2: the column decides
+    forms("{status} = 7").forEach(filter => {
+      expect(run("sumInArray({items}, 'amount', " + filter + ")"), filter).toBe(0);
+      expect(findingsOf(json, "expression/unknown-choice"), filter).toEqual(["notAmongChoices @ elements[3].expression.inArray[0]"]);
+    });
+    // the survey's flag is the number 5, the column is a boolean: the column's type decides
+    forms("{flag} = 5").forEach(filter => {
+      expect(run("sumInArray({items}, 'amount', " + filter + ")"), filter).toBe(0);
+      expect(findingsOf(json, "expression/type-mismatch").length, filter).toBe(1);
+      expect(findingsOf(json, "expression/type-mismatch")[0], filter).toContain(" @ elements[3].expression.inArray[0]");
+    });
+    // the item wins only when it holds the key: an item without one (a cell left empty) reads
+    // the survey's value. The linter types the name by the column, which is what an answered
+    // cell holds.
+    data = { items: [{ amount: 3, flag: true }, { amount: 1 }], flag: 5 };
+    forms("{flag} = 5").forEach(filter => {
+      expect(run("sumInArray({items}, 'amount', " + filter + ")"), filter).toBe(1);
+    });
+  });
+
+  test("row. inside a filter is not the row of a matrix cell that holds the call", () => {
+    forms("{amount} > {row.x}").forEach(filter => {
+      const json = {
+        elements: [items, {
+          type: "matrixdynamic", name: "outer", rowCount: 1, columns: [
+            { name: "x", cellType: "text", inputType: "number" },
+            { name: "t", cellType: "expression", expression: "sumInArray({items}, 'amount', " + filter + ")" },
+            { name: "t2", cellType: "expression", expression: "sumInArray({items}, 'amount', {amount} > 2)" },
+          ],
+        }],
+      };
+      const survey = new SurveyModel(json);
+      survey.data = { items: itemRows, outer: [{ x: 2 }] };
+      const row = (<QuestionMatrixDynamicModel>survey.getQuestionByName("outer")).visibleRows[0];
+      expect(row.getQuestionByName("t2").value, filter).toBe(3);
+      expect(row.getQuestionByName("t").value, filter).toBe(0);
+      row.getQuestionByName("x").value = 0;
+      expect(row.getQuestionByName("t").value, filter).toBe(0);
+      const refs = findingsOf(json, "reference/unknown");
+      expect(refs, filter).toHaveLength(1);
+      expect(refs[0], filter).toContain(" @ elements[1].columns[1].expression.inArray[0]");
+    });
+  });
+
+  test("panel. inside a filter is not the static panel that holds the call", () => {
+    forms("{amount} > {panel.limit}").forEach(filter => {
+      const json = {
+        elements: [items, {
+          type: "panel", name: "box", elements: [
+            { type: "text", name: "limit", inputType: "number" },
+            { type: "expression", name: "total", expression: "sumInArray({items}, 'amount', " + filter + ")" },
+            { type: "expression", name: "outside", expression: "{panel.limit} + 0" },
+          ],
+        }],
+      };
+      const survey = new SurveyModel(json);
+      survey.data = { items: itemRows, limit: 2 };
+      expect(survey.getValue("outside"), filter).toBe(2);
+      expect(survey.getValue("total"), filter).toBe(0);
+      const refs = findingsOf(json, "reference/unknown");
+      expect(refs, filter).toHaveLength(1);
+      expect(refs[0], filter).toContain(" @ elements[1].elements[1].expression.inArray[0]");
+    });
+  });
+
+  test("row. and panel. inside a filter do not name the item", () => {
+    const kids = { type: "paneldynamic", name: "kids", templateElements: [{ type: "text", name: "age", inputType: "number" }] };
+    const cases = [
+      { container: items, value: itemRows, call: "sumInArray({items}, 'amount', ", scoped: "{row.amount} > 2", bare: "{amount} > 2" },
+      { container: kids, value: [{ age: 3 }, { age: 1 }], call: "sumInArray({kids}, 'age', ", scoped: "{panel.age} > 2", bare: "{age} > 2" },
+    ];
+    cases.forEach(item => {
+      const json: any = { elements: [item.container, { type: "expression", name: "total" }] };
+      const run = (filter: string): any => {
+        json.elements[1].expression = item.call + filter + ")";
+        const survey = new SurveyModel(json);
+        survey.data = { [item.container.name]: item.value };
+        return survey.getValue("total");
+      };
+      forms(item.bare).forEach(filter => {
+        expect(run(filter), filter).toBe(3);
+        expect(findingsOf(json, "reference/unknown"), filter).toEqual([]);
+      });
+      forms(item.scoped).forEach(filter => {
+        expect(run(filter), filter).toBe(0);
+        const refs = findingsOf(json, "reference/unknown");
+        expect(refs, filter).toHaveLength(1);
+        expect(refs[0], filter).toContain(" @ elements[1].expression.inArray[0]");
+      });
+    });
+  });
+});

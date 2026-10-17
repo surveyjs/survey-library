@@ -63,7 +63,7 @@ lintSurvey(surveyJson, {
 | Export | Description |
 | --- | --- |
 | `lintSurvey(json, options?): ISurveyLintResult` | Runs every enabled rule over the survey JSON. |
-| `getRules(): Array<ILintRuleInfo>` | The rule registry: `{ id, defaultSeverity }` per rule. |
+| `getRules(): Array<ILintRuleInfo>` | The rule registry: `{ id, defaultSeverity }` per rule. `defaultSeverity` is `"off"` for a rule that runs only when `options.rules` turns it on. |
 | `renderFindings(result \| findings, options?): string` | Human-readable text report (`{ includeSuppressed?: boolean }`). |
 | `applyFix(json, fix): any` | Applies one fix and returns the repaired JSON, leaving the input untouched. See [Fixes](#fixes). |
 | `SurveyLintReasons` | `reason` values per rule id — the localization key, see [Localization](#localization). |
@@ -293,6 +293,7 @@ another one, and no property holds it.
 | `validator/dead` | warning | A validator that cannot do the job it was written for: one whose check the answer's shape makes pointless — it never fires (a length check on a numeric input reads a `length` the answer has none of, an `answercount` on a single-value question) or rejects every answer (a `numeric` validator on a list, an `email` one on a numeric input); a `numeric`, `text` or `answercount` validator whose minimum is above its maximum; an `answercount` minimum above the choices that can be selected together; a `regex` the engine rejects; and an `expression` validator with no expression, which always passes. The criterion is behaviour, not `settings.supportedValidators` — that table says what the Creator offers, while the runtime runs whatever is attached, so a `regex` validator on a number input is left alone: it reads the answer as its digits and works. `tests/linter/linter-runtime-parity.tests.ts` pins every verdict against a live model. |
 | `expression/contradiction` | warning | A condition that can never hold: one that evaluates to false from constants written inline or reached through a reference, one asking for a value the question is not allowed to hold, and one that contradicts itself (`{q} = 'a' and {q} = 'b'`, `{q} empty and {q} notempty`, bounds with nothing between them, `anyof []`). |
 | `expression/meaningless-condition` | warning | A condition whose result is known upfront in some other way - always true, arithmetic where a boolean is expected, or a fragment (a constant branch of `and`/`or`, a comparison of two constants, an operand compared with itself). |
+| `expression/no-reference` | off | A condition that reads no question, calculated value or variable — `false`, `true`, `today() > '2026-12-31'`. Off by default: a lone `false` is how an author switches an element off (see [Relation to `Base.validateExpressions`](#relation-to-basevalidateexpressions)). A host turns it on where a constant condition is suspect, such as a condition an AI wrote. The message does not claim the result never changes — `today()`, `now()` or a custom function can still change it. An element a function names as a string (`isContainerReady('page1')`) counts as read; a condition the two rules above already report gets no second finding; a value expression, an iif() condition and an inArray filter are left alone. |
 | `value/not-a-choice` | warning | A value written in the JSON that its question can never hold: a `defaultValue`, a `correctAnswer`, or the `setValue` of a `setvalue` trigger. The same sets of values as `expression/unknown-choice`, checked from the other side. Composite defaults (matrix/dynamic panel `defaultValue`, `defaultRowValue`, `defaultPanelValue`) are taken apart per key: an unknown row/column/template-question key and an alien cell value are both reported. A `copyvalue` trigger whose ends cannot exchange a value (an array copied into a single-value question, or two listed value sets with nothing in common) is reported too. |
 | `element/count-contradiction` | warning | Authored count and bound constraints the runtime silently reconciles: `minRowCount` above `maxRowCount`, `rowCount`/`panelCount` outside the authored bounds (dynamic matrices and panels), and the same conflict in every other bound pair — `rateMin`/`rateMax`, a numeric or date `min`/`max` (question, matrix column, multiple-text item), slider `min`/`max` and `minRangeLength`/`maxRangeLength`, `minSelectedChoices`/`maxSelectedChoices`, and the fraction-digit pairs of an `expression` question and of column totals. Also a `rateStep` (or slider `step`) wider than the whole range, a `rateCount` outside `[2, settings.ratingMaximumRateValueCount]`, and a `minSelectedChoices` above the number of choices that can be selected together. |
 | `element/never-visible` | warning | An element dead through the cascade: its `visibleIf` demands a value of a question that can never become visible and that nothing (defaults, expressions, triggers, bindings) ever writes to. A question with `visible: false` is not a cascade source - hidden fields are routinely filled from application code. |
@@ -310,13 +311,39 @@ another one, and no property holds it.
   built-in variables the survey answers itself (`{pageno}`, `{locale}`, quiz counters) and the
   special choice items (`none`, `other`, `refuse`, `dontknow`) are all resolved.
 * **The condition of an inArray call.** `sumInArray({m1}, 'col1', '{col1} > 5')` runs its
-  third (or fourth) argument as a condition over every row of `m1`, and that string is not part
-  of the enclosing expression's syntax tree - so it becomes a site of its own, analysed in the
-  item data context. The linter accepts both bare keys and scoped `{row.col}` / `{panel.q}`
-  references. Bare column or template-question keys resolve before survey values. Both the
-  syntax and the references of the string are checked, under the path
-  `<property>.inArray[<n>]`. A filter that never holds excludes items without making the
-  enclosing question or page unreachable.
+  third (or fourth, after a return column) argument as a condition over every row of `m1`, so
+  that condition becomes a site of its own, under the path `<property>.inArray[<n>]`. It gets
+  every check a condition gets (syntax, references, choices, types, contradictions); its
+  findings carry no fix, because the document has no property of its own for it. A filter that
+  never holds excludes items without making the enclosing question or page unreachable.
+  * **Both forms.** The filter may be a string (`'{col1} > 5'`) or an operand
+    (`{product} = 'P-100'`); only the second can compare with a string, since the quotes do not
+    nest. The runtime runs the operand's source text per item, and the linter checks that text
+    exactly as it checks the string. The enclosing expression's rules leave the operand alone,
+    so a name in it is never read as a survey name. The first argument (`{m1}`) is still read
+    by the enclosing expression.
+  * **Item first, then the survey.** A name resolves against the item's data and, when the item
+    has no such field, against the survey - never against the scope of the expression that holds
+    the call. A column or template question wins over a survey question of the same name, and
+    its choices and type are the ones checked. `{row.col}` / `{panel.q}` name nothing in a
+    filter, wherever the call sits, and are reported. The runtime falls back per item: an item
+    that lacks the key (an empty cell) reads the survey's value. A survey name read inside a
+    string filter is no dependency of the expression, so changing that question alone does not
+    re-run it; the operand form re-runs.
+  * **An operand that may give a string.** The runtime takes a filter that evaluates to a string
+    as the filter's text, so only an operand that always gives a boolean is checked as a filter:
+    a comparison, `!`, `empty`/`notempty`, `and`/`or` of such operands, and a function registered
+    with `returnType: "boolean"`. Anything else stays a part of the enclosing expression and is
+    checked there: a bare `{filterText}`, a string function, and `iif(...)`, whose condition runs
+    in the enclosing scope. Each branch of that `iif(...)` written as a string is checked as a
+    filter of its own; any other branch is not analysed.
+  * **Items the linter does not know.** When the first argument names no matrix or dynamic
+    panel - a host variable from `knownVariables`, or a name that does not resolve - the item
+    fields are unknown. The filter's names, choice values, types and contradictions are then
+    not checked, survey names included, because they cannot be told apart from item fields. An
+    unknown function in it is still reported.
+  * **A call nested in a filter** is taken apart from that filter's site, under
+    `<property>.inArray[<n>].inArray[<m>]`.
 * **Item-level conditions.** `choicesVisibleIf`, `choicesEnableIf`, `rowsVisibleIf` and
   `columnsVisibleIf` are evaluated with an item frame, so the legitimate "filter my own items
   by my own value" idiom is not reported as a self reference.
@@ -425,7 +452,9 @@ same four over the **authored JSON**: syntax errors as `expression/syntax`, unkn
 `Operand.addConditionSemanticErrors` rather than reimplementing it — so the two stay in step,
 including the deliberate silence on a lone boolean constant: `visibleIf: "false"` is how an author
 switches an element off, not a defect, and nothing reports it. A lone reference to a constant
-source (`visibleIf: "{c1}"`) is left alone for the same reason.
+source (`visibleIf: "{c1}"`) is left alone for the same reason. The one exception is opt-in:
+`expression/no-reference` is off by default and reports such a condition only for a host that
+turns it on (Survey Creator does so for the conditions its AI assistant writes).
 
 `validateExpressions` also walks only the properties the serializer marks as expressions, so text
 piping is outside it entirely: an unknown name in a `title` is reported here and nowhere else.

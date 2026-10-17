@@ -888,7 +888,6 @@ describe("reference/unknown - names in function arguments", () => {
   });
   test("a listed column of an inArray function is clean", () => {
     expect(withExpression("sumInArray({m1}, 'col1')")).toHaveLength(0);
-    expect(withExpression("avgInArray({m1}, 'col1', '{row.col1} > 1')")).toHaveLength(0);
   });
   test("a bare column in an inArray filter is clean", () => {
     expect(withExpression("avgInArray({m1}, 'col1', '{col1} > 1')")).toHaveLength(0);
@@ -962,15 +961,24 @@ describe("nested conditions of inArray functions", () => {
     }).findings;
   }
   test("an unknown column inside the condition is reported", () => {
-    const findings = lint("sumInArray({m1}, 'col1', '{row.nosuchcol} > 5')");
+    const findings = lint("sumInArray({m1}, 'col1', '{nosuchcol} > 5')");
     expect(findings).toHaveLength(1);
     expect(findings[0].ruleId).toBe("reference/unknown");
-    expect(findings[0].reason).toBe("scopedUnknown");
+    expect(findings[0].reason).toBe("notFound");
     expect(findings[0].path).toBe("elements[2].expression.inArray[0]");
   });
   test("a listed column inside the condition is clean", () => {
-    expect(lint("sumInArray({m1}, 'col1', '{row.col1} > 5')")).toHaveLength(0);
+    expect(lint("sumInArray({m1}, 'col1', '{col1} > 5')")).toHaveLength(0);
     expect(lint("countInArray({m1}, 'col1', '{q1} notempty')")).toHaveLength(0);
+  });
+  // the condition runs against the row's data and then the survey, where "row." names nothing
+  // (pinned against the runtime in linter-runtime-parity.tests.ts)
+  test("a row. reference inside the condition is reported", () => {
+    const findings = lint("sumInArray({m1}, 'col1', '{row.col1} > 5')");
+    expect(findings).toHaveLength(1);
+    expect(findings[0].ruleId).toBe("reference/unknown");
+    expect(findings[0].hint.reason).toBe("rowScopePrefix");
+    expect(findings[0].path).toBe("elements[2].expression.inArray[0]");
   });
   test("an unknown survey name inside the condition is reported", () => {
     const findings = lint("sumInArray({m1}, 'col1', '{nosuchq} > 5')");
@@ -985,14 +993,20 @@ describe("nested conditions of inArray functions", () => {
     expect(findings[0].path).toBe("elements[2].expression.inArray[0]");
   });
   test("a dynamic panel template question resolves inside the condition", () => {
-    expect(lintSurvey({
+    const json = {
       elements: [
         {
           type: "paneldynamic", name: "p1",
           templateElements: [{ type: "text", name: "tq1", inputType: "number" }],
         },
-        { type: "expression", name: "e1", expression: "sumInArray({p1}, 'tq1', '{panel.tq1} > 1')" },
+        { type: "expression", name: "e1", expression: "sumInArray({p1}, 'tq1', '{tq1} > 1')" },
       ],
-    }).findings).toHaveLength(0);
+    };
+    expect(lintSurvey(json).findings).toHaveLength(0);
+    // "panel." names nothing in the panel's data, as "row." names nothing in a row's
+    json.elements[1].expression = "sumInArray({p1}, 'tq1', '{panel.tq1} > 1')";
+    const findings = lintSurvey(json).findings;
+    expect(findings).toHaveLength(1);
+    expect(findings[0].hint.reason).toBe("panelScopePrefix");
   });
 });

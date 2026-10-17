@@ -4,7 +4,7 @@ import {
   ITEMVALUE_SCOPED_PROPS, TEMPLATE_SCOPED_PROPS, TEXT_SCOPED_PROPS, TEXT_TEMPLATE_PROPS,
 } from "./catalog";
 import { ExpressionPropDef, LintMetadata, isMatrixDropdown, isPanel, isSelectBase } from "./metadata";
-import { getInArrayConditions, parseExpressionText, splitRefSegments } from "./expression-utils";
+import { parseExpressionText, splitRefSegments, takeInArrayConditions } from "./expression-utils";
 import { resolveLintSettings } from "./lint-settings";
 import {
   CalculatedValueRecord, NameRefKind, CIMap, CIMultiMap, ContainerRecord, ElementRecord, ExpressionSite,
@@ -582,21 +582,27 @@ function walkTrigger(state: WalkState, json: any, i: number): void {
   state.index.triggers.push(record);
 }
 
-// The string condition of an inArray call is a site of its own: unlike an iif() condition, it
-// is not part of the parent's AST, so nothing else looks inside it. Added in a pass of its own,
-// after the walk, because the element the call reads is only known once the index is complete.
+// The condition of an inArray call is a site of its own, whether it is written as a string or as
+// an operand: either way the runtime runs it per item, so the parent's rules leave it alone (see
+// takeInArrayConditions). Added in a pass of its own, after the walk, because the element the
+// call reads is only known once the index is complete; a filter's site is taken apart in turn,
+// for a call nested in it.
+//
+// Its scope is the item, then the survey - runValues looks a name up in the item and falls back
+// to survey.getValueGetterContext(). The scope of the expression holding the call is not part of
+// it, so {row.x} / {panel.x} name nothing there, however that expression is placed.
 function addInArrayConditionSites(state: WalkState): void {
-  state.index.expressionSites.slice().forEach(site => {
-    getInArrayConditions(site, state.index).forEach((condition, i) => {
-      const frame: ScopeFrame = condition.container.templateNames
-        ? { kind: "panelDynamic", owner: condition.container, templateNames: condition.map }
-        : { kind: "matrixRow", owner: condition.container, columns: condition.map };
+  const queue = state.index.expressionSites.slice();
+  for (let k = 0; k < queue.length; k++) {
+    const site = queue[k];
+    takeInArrayConditions(site, state.index).forEach((condition, i) => {
       const itemFrame: ScopeFrame = { kind: "arrayItem", owner: condition.container, names: condition.map };
       const filterSite = addSite(state, condition.text, "condition", site.path + ".inArray[" + i + "]",
-        site.prop, site.owner, (site.scope || []).concat([frame, itemFrame]), true);
+        site.prop, site.owner, [itemFrame], true);
       filterSite.inArrayOf = site;
+      queue.push(filterSite);
     });
-  });
+  }
 }
 
 export function buildIndex(json: any, options: ISurveyLintOptions, metadata: LintMetadata,

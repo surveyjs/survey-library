@@ -57,7 +57,8 @@ export const expressionUnknownFunctionRule: ILintRule = {
     };
     const candidates = functions.getAll().concat(known);
     ctx.forEachSite("parsed", site => {
-      getFunctionOperands(site.ast).forEach(fn => {
+      // a function is registered or not whatever an inArray filter's items hold
+      getFunctionOperands(site.ast, true).forEach(fn => {
         const name = fn.functionName;
         if (!name || isKnown(name)) return;
         const suggestion = closestMatch(name, candidates);

@@ -2,6 +2,7 @@ import { describe, test, expect, vi, afterEach } from "vitest";
 import { SurveyModel } from "../../src/survey";
 import { FunctionFactory } from "../../src/functionsfactory";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
+import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 import { QuestionPanelDynamicItem, QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import {
   IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSource, IDynamicDataSourceCapabilities
@@ -150,7 +151,7 @@ const matrixAdapter: IQuestionAdapter = {
   name: "matrix",
   create: (source: ContractSource, pageSize: number, json?: any) => {
     const survey = new SurveyModel({ elements: [Object.assign({
-      type: "matrixdynamic", name: "q", rowCount: 0, rowsPerPage: pageSize,
+      type: "matrixdynamic", name: "q", rowCount: 0, pageSize: pageSize,
       columns: [{ name: "id", cellType: "text" }, { name: "name", cellType: "text", isRequired: true }]
     }, json)] });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
@@ -176,7 +177,7 @@ const panelAdapter: IQuestionAdapter = {
   name: "panel",
   create: (source: ContractSource, pageSize: number, json?: any) => {
     const survey = new SurveyModel({ elements: [Object.assign({
-      type: "paneldynamic", name: "q", panelCount: 0, panelsPerPage: pageSize,
+      type: "paneldynamic", name: "q", panelCount: 0, pageSize: pageSize,
       templateElements: [{ type: "text", name: "id" }, { type: "text", name: "name", isRequired: true }]
     }, json)] });
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
@@ -440,6 +441,22 @@ describe.each(namedAdapters)("Question source contract, paging: a total that cha
     question.pageIndex = 2;
     expect(question.pageIndex, "#3").toBe(2);
     expect(adapter.ids(question), "#4").toEqual(range(120, 129));
+  });
+  test("a total that changes while the page stays the same is reported as a change of the record count", () => {
+    const source = new ContractSource(contractRecords(25), { kind: "paging" });
+    const { question } = adapter.create(source, 10);
+    const countName = adapter.name === "matrix" ? "rowCount" : "panelCount";
+    expect(question[countName], "#1").toBe(25);
+    const changes: Array<string> = [];
+    question.onPropertyChanged.add((_: any, options: any) => {
+      if (options.name === countName) changes.push(options.oldValue + " -> " + options.newValue);
+    });
+    source.records = contractRecords(30);
+    question.refreshDataSource();
+    expect(adapter.ids(question), "#2: the same page").toEqual(range(100, 109));
+    expect(question[countName], "#3").toBe(30);
+    expect(changes, "#4").toEqual(["25 -> 30"]);
+    expect(question.toJSON()[countName], "#5: the source owns the count, the JSON leaves it out").toBeUndefined();
   });
 });
 
@@ -944,5 +961,37 @@ describe("Question source contract: header sort", () => {
     expect(question.sortBy, "#4").toBe("id-");
     expect(panelAdapter.ids(question), "#5").toEqual([102, 101]);
     expect(errors, "#6").toEqual([]);
+  });
+});
+
+describe("Question source contract: the question's own records source", () => {
+  // The question's own source fails on its next read while throwNextRead is set.
+  class MatrixWithFailingRecordsSource extends QuestionMatrixDynamicModel {
+    public throwNextRead: boolean = false;
+    protected createRecordsSource(): ArrayDynamicDataSource {
+      const source = super.createRecordsSource();
+      const read = source.read.bind(source);
+      source.read = (): Array<any> => {
+        if (this.throwNextRead) {
+          this.throwNextRead = false;
+          throw new Error("first read");
+        }
+        return read();
+      };
+      return source;
+    }
+  }
+  test("a failure of the first read of the list is reported through onDynamicDataError", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "t" }] });
+    const question = new MatrixWithFailingRecordsSource("m");
+    question.addColumn("id");
+    survey.pages[0].addElement(question);
+    question.value = [{ id: 1 }, { id: 2 }];
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation + ":" + options.error.message); });
+    question.throwNextRead = true;
+    question.filterExpression = "{id} > 0";
+    expect(question.throwNextRead, "#1: the list read the source").toBe(false);
+    expect(errors, "#2").toEqual(["read:first read"]);
   });
 });

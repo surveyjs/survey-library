@@ -2,6 +2,7 @@ import { ConditionRunner } from "../conditions/conditionRunner";
 import { applyFilter, applySort, createIndexes } from "./dynamic-data-filter";
 import { IDynamicDataField, IDynamicDataSort } from "./dynamic-data-interfaces";
 import { insertRemap, moveRemap, removeRemap } from "./dynamic-data-record-remap";
+import { Scope } from "../utils/scope";
 
 // What the membership reads from DynamicDataList. Every member answers from the list's state when it
 // is called; nothing is cached on this side.
@@ -21,7 +22,7 @@ export interface IDynamicDataMembershipHost {
 
 /* Which records of DynamicDataList's window are in the view, in what order, and which ones the
    respondent touched: the owner-hidden flags, the cached views (created, visible, page), the frozen
-   membership, the touched records and the memo of the materialized positions. It decides; the list
+   membership, the touched records and the memos of the positions in the views. It decides; the list
    acts - it owns the window, the count, the page index and the reads, it clamps the page and raises
    every notification, and it calls one member per write it makes (onRecordInserted, onRecordRemoved,
    onRecordMoved). */
@@ -50,11 +51,14 @@ export class DynamicDataMembership {
      has no local view, and its refill keeps them too. Nothing reports whether a given record is
      touched. */
   private touchedIndexes: Array<number> = [];
-  private addScopeDepth: number = 0;
+  private addScope = new Scope();
   // Set by rebuild for the one decision of the view that keeps the touched records.
   private keptTouched: Array<{ index: number, position: number }> = undefined;
-  private materializedPositionsSource: Array<number>;
-  private materializedPositions: { [index: number]: number };
+  // One slot per view: with no owner-hidden records the created and the visible views are one array,
+  // and the materialized one may be a third. A shared slot would rebuild its map on every switch.
+  private createdPositions: ViewPositions = new ViewPositions();
+  private visiblePositions: ViewPositions = new ViewPositions();
+  private materializedPositions: ViewPositions = new ViewPositions();
 
   constructor(private host: IDynamicDataMembershipHost) { }
 
@@ -108,7 +112,7 @@ export class DynamicDataMembership {
     this.insertIntoMembership(at, countAfter);
     this.remapTouched(insertRemap(at));
     // Touched before the push, which runs the survey handlers: an assignment one of them makes keeps it.
-    if (this.addScopeDepth > 0)this.addTouched(at);
+    if (this.addScope.isActive)this.addTouched(at);
     this.resetViews();
   }
   public onRecordRemoved(index: number, countAfter: number): void {
@@ -204,17 +208,15 @@ export class DynamicDataMembership {
     this.visibleIndexes = visible;
     this.viewsRecordCount = recordCount;
   }
-  /* record index -> position among the materialized records (the list's getMaterializedIndexes),
-     memoized on the identity of that array: the list never changes a view array in place, it replaces
-     it, so a new array is the only way the map can go stale. */
+  // record index -> position in a view (ViewPositions); the materialized records are the list's getMaterializedIndexes.
+  public getCreatedPositions(): { [index: number]: number } {
+    return this.createdPositions.get(this.getCreatedIndexes());
+  }
+  public getVisiblePositions(): { [index: number]: number } {
+    return this.visiblePositions.get(this.getVisibleIndexes());
+  }
   public getMaterializedPositions(indexes: Array<number>): { [index: number]: number } {
-    if (this.materializedPositionsSource !== indexes) {
-      const res: { [index: number]: number } = {};
-      indexes.forEach((index: number, pos: number): void => { res[index] = pos; });
-      this.materializedPositionsSource = indexes;
-      this.materializedPositions = res;
-    }
-    return this.materializedPositions;
+    return this.materializedPositions.get(indexes);
   }
 
   /* A window that was replaced as a whole leaves nothing behind: the flags and the membership of the
@@ -274,7 +276,7 @@ export class DynamicDataMembership {
       for (let i = this.frozenRecordCount; i < count; i++) {
         created.push(i);
         // A record count the owner's add grew: the new record is the one added (see runAddScope).
-        if (this.addScopeDepth > 0)this.addTouched(i);
+        if (this.addScope.isActive)this.addTouched(i);
       }
     }
     this.frozenCreatedIndexes = created;
@@ -336,12 +338,7 @@ export class DynamicDataMembership {
   // The owner's add. Every record the list inserts or appends inside it - also by a record count that
   // grows (syncMembershipWithRecordCount) - is touched as it enters the list.
   public runAddScope<T>(func: () => T): T {
-    this.addScopeDepth++;
-    try {
-      return func();
-    } finally {
-      this.addScopeDepth--;
-    }
+    return this.addScope.run(func);
   }
   // A record the respondent edited through an input.
   public markRecordTouched(index: number): void {
@@ -438,5 +435,23 @@ export class DynamicDataMembership {
       this.addTouched(at);
     });
     return res;
+  }
+}
+
+/* record index -> position in a view array, memoized on the identity of that array: the list never
+   changes a view array in place, it replaces it, so a new array is the only way the map can go stale.
+   resetViews() does not clear it: ensureViews() also rebuilds the views without resetViews() when the
+   record count changed outside the list, and the new arrays replace the map either way. */
+class ViewPositions {
+  private source: Array<number>;
+  private positions: { [index: number]: number };
+  public get(indexes: Array<number>): { [index: number]: number } {
+    if (this.source !== indexes) {
+      const res: { [index: number]: number } = {};
+      indexes.forEach((index: number, pos: number): void => { res[index] = pos; });
+      this.source = indexes;
+      this.positions = res;
+    }
+    return this.positions;
   }
 }

@@ -37,6 +37,7 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { getScrollBehavior } from "./utils/reduced-motion";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { ValidationContext, IVerifyDataContext } from "./question";
+import { Scope } from "./utils/scope";
 
 export class QuestionRowModel extends Base {
   protected _scrollableParent: any = undefined;
@@ -616,20 +617,21 @@ export class PanelModelBase extends SurveyElement<Question>
   private canRandomize(isRandom: boolean): boolean {
     return isRandom && (this.questionOrder !== "initial") || this.questionOrder === "random";
   }
-  protected isRandomizing = false;
+  private randomizingScope = new Scope();
+  protected get isRandomizing(): boolean { return this.randomizingScope.isActive; }
   randomizeElements(isRandom: boolean): boolean {
     if (!this.canRandomize(isRandom) || this.isRandomizing) return false;
-    this.isRandomizing = true;
-    var oldElements = [];
-    var elements = this.elements;
-    for (var i = 0; i < elements.length; i++) {
-      oldElements.push(elements[i]);
-    }
-    const newElements = Helpers.randomizeArray<IElement>(oldElements, this.randomSeed);
-    this.setArrayPropertyDirectly("elements", newElements, false);
-    this.updateRows();
-    this.updateVisibleIndexes();
-    this.isRandomizing = false;
+    this.randomizingScope.run(() => {
+      var oldElements = [];
+      var elements = this.elements;
+      for (var i = 0; i < elements.length; i++) {
+        oldElements.push(elements[i]);
+      }
+      const newElements = Helpers.randomizeArray<IElement>(oldElements, this.randomSeed);
+      this.setArrayPropertyDirectly("elements", newElements, false);
+      this.updateRows();
+      this.updateVisibleIndexes();
+    });
     return true;
   }
   /**
@@ -846,7 +848,7 @@ export class PanelModelBase extends SurveyElement<Question>
           if (!!this.data) {
             var comment = this.data.getComment(valueName);
             if (!!comment) {
-              data[valueName + Base.commentSuffix] = comment;
+              data[Helpers.getCommentKey(valueName)] = comment;
             }
           }
         }

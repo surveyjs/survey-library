@@ -2,11 +2,13 @@ import { ISurveyData } from "../interfaces/data-interfaces";
 import { Helpers } from "../helpers";
 import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data-interfaces";
 import { createKeyRemap, getReplacedRecordsRemap } from "./dynamic-data-record-remap";
+import { Scope } from "../utils/scope";
 
 /* A local source: the owner's records in memory, behind a getter/setter pair. It is read whole and
-   synchronously, it is written by position - the index a list sends is the position in the array as
-   that list last read it -, and the push is the storage: the next read already gives what a write
-   stored. The list relies on all three: it reads its owner's own local source through instead of
+   synchronously, it is written synchronously and by position - the index a list sends is the position
+   in the array as that list last read it -, and the push is the storage: the next read already gives
+   what a write stored. A write that returns a promise is reported as an error and not waited for. The
+   list relies on all of it: it reads its owner's own local source through instead of
    keeping a window, it takes the array a write stored as its window, and it lets only one list write
    such a source (positionWriter). A subclass says how the stored records are counted and read one
    by one (getStoredCount, readStoredAt), and it adds the membership writes it has: one without insert
@@ -15,7 +17,11 @@ import { createKeyRemap, getReplacedRecordsRemap } from "./dynamic-data-record-r
    records through question.value, which must be replaced - never mutated - on every write, so that
    Question.setNewValue sees a different array and onValueChanged.oldValue stays correct. Every write
    therefore builds a new array. The source owns how the storage reads; the owner owns how a write is
-   stored (setArray). */
+   stored (setArray).
+   The list and the owner question call its protected and private members by element access
+   (source["readRecordInAnswer"](value, index)). The compiler checks the signature;
+   tests/dynamic-data/internal-access.test.ts checks that the member exists. A member reached this
+   way is added to, or renamed in, that test's list. */
 export abstract class LocalDynamicDataSource implements IDynamicDataSource {
   /* setArray gets the writes that made the array, in order - one, or every write of a batch - so that
      an owner whose value has a shape rule per kind of write can apply it. */
@@ -35,12 +41,12 @@ export abstract class LocalDynamicDataSource implements IDynamicDataSource {
   }
   protected abstract getStoredCount(): number;
   protected abstract readStoredAt(index: number, defaultRecord: any): any;
-  private batchDepth: number = 0;
+  private batchScope = new Scope();
   private batchArray: Array<any>;
   private batchOperations: Array<DynamicDataOperation> = [];
   // True while a batch is open, a nested one included: read() answers from the array being built.
   private get isBatching(): boolean {
-    return this.batchDepth > 0;
+    return this.batchScope.isActive;
   }
   // One record operation of the list is often several source writes: pad the array, then set a
   // field; move a record, then update it. The owner's array has to be replaced once, not once per
@@ -51,15 +57,13 @@ export abstract class LocalDynamicDataSource implements IDynamicDataSource {
       func();
       return;
     }
-    this.batchDepth = 1;
     this.batchArray = this.readCore();
     this.batchOperations = [];
     let newArray: Array<any>;
     let operations: Array<DynamicDataOperation>;
     try {
-      func();
+      this.batchScope.run(func);
     } finally {
-      this.batchDepth = 0;
       newArray = this.batchArray;
       operations = this.batchOperations;
       this.batchArray = undefined;
@@ -104,8 +108,8 @@ export abstract class LocalDynamicDataSource implements IDynamicDataSource {
   }
   /* The answer's shape, for a value the caller passes and for a result built from records - never the
      stored value. The base answers for an array, record i at value[i]; a source over another shape
-     overrides all six members (RowsDynamicDataSource). The owner question calls them through
-     IRecordsAnswerShape. */
+     overrides all six members (RowsDynamicDataSource). The owner question calls them by element
+     access (see the class comment): they are its owner's plumbing, not the public API of the class. */
   // The record at index in a value the caller passes, not in the storage; undefined when the value does not hold it.
   protected readRecordInAnswer(value: any, index: number): any {
     return Array.isArray(value) && index > -1 ? value[index] : undefined;
@@ -142,8 +146,8 @@ export abstract class LocalDynamicDataSource implements IDynamicDataSource {
      keyed source is written by key and stays shared. The question's own default source is never
      assigned, so it has no writer.
      The source holds only the current writer and its callback, and drops both when the writer leaves
-     or another list takes its place. The members are private: the list calls them through
-     IPositionWrittenSource. */
+     or another list takes its place. The members are private: the list calls them by element access
+     (see the class comment). */
   private positionWriter: object;
   private positionWriterChanged: () => void;
   private isPositionWriterReleased: boolean;
@@ -170,30 +174,6 @@ export abstract class LocalDynamicDataSource implements IDynamicDataSource {
     return !!this.isPositionWriterReleased || !!this.positionWriter && this.positionWriter !== writer;
   }
 }
-/* The writer of a local source, for DynamicDataList: the private members of LocalDynamicDataSource
-   above, called through a cast. Not exported from the entries. */
-export interface IPositionWrittenSource {
-  claimPositionWriter(writer: object, onChanged: () => void): void;
-  releasePositionWriter(writer: object): void;
-  isWrittenByAnotherWriter(writer: object): boolean;
-}
-/* The answer's shape of a local source, for the question that owns it: the protected members of
-   LocalDynamicDataSource above, overridden by RowsDynamicDataSource, called through a cast - the
-   compiler does not check it. Not exported from the entries: the class is public, and these are its
-   owner's plumbing. */
-export interface IRecordsAnswerShape {
-  readRecordInAnswer(value: any, index: number): any;
-  createEmptyAnswer(): any;
-  addRecordToAnswer(values: any, index: number, record: any): void;
-  getRecordSegment(index: number): string | number;
-  getRecordStateKey(index: number, record: any): any;
-  createAnswerAssignmentRemap(oldRecords: any, newRecords: any, keyField?: string): (index: number) => number;
-}
-/* The padding of ArrayDynamicDataSource, for the Dynamic Matrix: its protected member, called through a
-   cast the compiler does not check. Not exported from the entries. */
-export interface IMinCountPaddedSource {
-  padRecordsToMinCount(records: Array<any>): Array<any>;
-}
 function isInRange(index: number, length: number): boolean {
   return index >= 0 && index < length;
 }
@@ -217,7 +197,8 @@ export interface IArrayDynamicDataSourceOptions {
 }
 // A local source over an array the caller owns, with every membership write: insert, remove and move.
 // The source owns how the storage reads - the padding included -; the owner owns how a write is
-// stored (setArray).
+// stored (setArray). The Dynamic Matrix calls padRecordsToMinCount by element access: the compiler
+// checks the signature; tests/dynamic-data/internal-access.test.ts checks that the member exists.
 export class ArrayDynamicDataSource extends LocalDynamicDataSource {
   constructor(getArray: () => Array<any> | undefined,
     setArray: (arr: Array<any>, operations?: Array<DynamicDataOperation>) => void,

@@ -55,9 +55,12 @@ export interface IDynamicDataChannelHost {
   /* The write goes to the owner's own storage: its synchronous failure is the caller's exception and
      is not reported. A role, decided by the list, never by the class of the source. */
   isOwnStorage(source: IDynamicDataSource): boolean;
+  // An in-memory source, written synchronously by storage index (isLocalSource in dynamic-data-sources).
+  isLocalSource(source: IDynamicDataSource): boolean;
   // A push failed and was reported: the window keeps the local change, unless the list decides
-  // otherwise for this operation.
-  onPushFailed(operation: DynamicDataOperation): void;
+  // otherwise for this operation. isAsyncLocalWrite: a local source answered with a promise, and
+  // the window goes back to what it stores whatever the operation.
+  onPushFailed(operation: DynamicDataOperation, isAsyncLocalWrite: boolean): void;
   // The survey of the list's question: it keeps the writes in flight per source object (getForeignWrites).
   getSurvey(): ISurvey;
   // No read and no push is pending any more (see notifySettled).
@@ -114,8 +117,8 @@ export interface IDynamicDataPushInfo {
 function createNoKeyError(): Error {
   return new Error("DynamicDataList: the record has no key yet");
 }
-function createStalePositionError(): Error {
-  return new Error("DynamicDataList: a write queued before a failed insert, remove or move was not sent: its storage index is stale");
+function createAsyncLocalWriteError(): Error {
+  return new Error("DynamicDataList: a local data source is written synchronously; asynchronous writes need a data source with keyField");
 }
 /* The one comparison of the records: case-sensitive, strings not trimmed. It decides that a record
    changed (DynamicDataList.isValueChanged) and which of its fields did (getChangedFields), so a
@@ -218,11 +221,6 @@ export class DynamicDataSourceChannel {
   // Bumped by every source change. A push carries the epoch it was enqueued in, so that a chain left
   // running against a replaced source cannot report back into the list.
   private sourceEpoch: number = 0;
-  /* Bumped by a failed insert, remove or move of a source without keyField. Such a source is written
-     by storage index, and every write queued behind the failed one took its index from a window that
-     had the failed change: it is dropped and reported instead of landing on the record next to its
-     own (see onPushFailed). */
-  private addressEpoch: number = 0;
 
   constructor(private host: IDynamicDataChannelHost) { }
 
@@ -475,16 +473,13 @@ export class DynamicDataSourceChannel {
     }
     this.markInFlightReadOvertaken(operation, push);
     const epoch = this.sourceEpoch;
-    const addressEpoch = !host.getKeyField() ? this.addressEpoch : undefined;
     const entry = this.registerPendingInsert(operation, push);
     const onAnswer = !!entry ? (answer: any): void => this.applyInsertAnswer(entry, answer, epoch) : undefined;
-    const onFailed = (): void => this.onPushFailed(epoch, operation);
     /* The key of a write queued behind the insert of its record is read when the write runs: the
        chain runs it after that insert has settled, so the answer has brought the key by then - or
        it never will (the insert failed or answered without it), and the write is reported for its
        own operation instead of being sent, which is the keep-and-report rule above, only later. */
     const action = (): any => {
-      if (addressEpoch !== undefined && addressEpoch !== this.addressEpoch) throw createStalePositionError();
       if (!pending) return method(source, push.key);
       if (!pending.isSettled || pending.key === undefined) {
         host.raiseError(createNoKeyError(), operation);
@@ -498,9 +493,25 @@ export class DynamicDataSourceChannel {
        an in-memory one the developer assigned included. */
     const isOwnStorage = host.isOwnStorage(source);
     if (!this.pushChain) {
-      const res = this.runPush(operation, action, onAnswer, onFailed, isOwnStorage, true);
+      /* A local source is written synchronously, so its writes never start a chain and never queue on
+         one: a promise it answers with is not chained - whatever it does later is ignored - and the
+         write is reported. */
+      let isAsyncLocalWrite = false;
+      const send = !host.isLocalSource(source) ? action : (): any => {
+        const answer = action();
+        if (!isPromiseLike(answer)) return answer;
+        answer.then(undefined, (): void => undefined);
+        isAsyncLocalWrite = true;
+        return undefined;
+      };
+      const res = this.runPush(operation, send, onAnswer, isOwnStorage, true);
+      if (isAsyncLocalWrite)this.reportSyncFailure(createAsyncLocalWriteError(), operation, true);
       if (!isPromiseLike(res)) {
-        this.settleSyncPush(epoch, res === "failed", onFailed);
+        if (host.isDisposed() || epoch !== this.sourceEpoch) return;
+        // After a success the window takes what the storage holds; after a reported failure it keeps
+        // the local change, unless the list puts it back.
+        if (isAsyncLocalWrite || res === "failed") host.onPushFailed(operation, isAsyncLocalWrite);
+        else host.syncWindowAfterSyncPush();
         return;
       }
       this.pendingPushes = 1;
@@ -515,20 +526,17 @@ export class DynamicDataSourceChannel {
       previous.then((): void => {
         let res: PushResult;
         try {
-          res = this.runPush(operation, action, onAnswer, onFailed, isOwnStorage);
+          res = this.runPush(operation, action, onAnswer, isOwnStorage);
         } catch(e) {
           // A synchronous failure whose report threw: the chain goes on, and the exception is the
           // rejection of this continuation. The window keeps the local change.
-          this.settleLink(epoch, false, resolve);
+          this.settleLink(epoch, resolve);
           throw e;
         }
         if (!isPromiseLike(res)) {
-          // A failed link does not sync the window: it keeps the local change.
-          const isFailed = res === "failed";
-          if (isFailed)onFailed();
-          this.settleLink(epoch, !isFailed, resolve);
+          this.settleLink(epoch, resolve);
         } else {
-          (<Promise<void>>res).then((): void => { this.settleLink(epoch, false, resolve); });
+          (<Promise<void>>res).then((): void => { this.settleLink(epoch, resolve); });
         }
       });
     });
@@ -538,13 +546,13 @@ export class DynamicDataSourceChannel {
      write always runs after an earlier one has settled - see runPush. */
   private createFirstLink(res: Promise<void>, epoch: number): Promise<void> {
     return new Promise<void>((resolve: () => void): void => {
-      res.then((): void => { this.settleLink(epoch, false, resolve); });
+      res.then((): void => { this.settleLink(epoch, resolve); });
     });
   }
   // onPushSettled may start the read the chain held, and its commit runs user code: the link settles whatever it does.
-  private settleLink(epoch: number, wasSync: boolean, resolve: () => void): void {
+  private settleLink(epoch: number, resolve: () => void): void {
     try {
-      this.onPushSettled(epoch, wasSync);
+      this.onPushSettled(epoch);
     } finally {
       resolve();
     }
@@ -639,10 +647,10 @@ export class DynamicDataSourceChannel {
      The chain does not wait for it to succeed: the promise returned settles in any case, and an
      exception of that code is the rejection of the answer's own continuation, as an exception of any
      asynchronous callback is - a rejection of the chain would stop every later write and read.
-     onFailed runs after a reported failure, synchronous or asynchronous - for a synchronous one the
-     caller runs it, once the result is known. */
+     Only a keyed source answers asynchronously or queues on the chain, and the list keeps its local
+     change after any failure of it: onPushFailed is the caller's, for a synchronous local push. */
   private runPush(operation: DynamicDataOperation, action: () => any,
-    onAnswer: (answer: any) => void, onFailed: () => void, isOwnStorage: boolean, isInWrite: boolean = false): PushResult {
+    onAnswer: (answer: any) => void, isOwnStorage: boolean, isInWrite: boolean = false): PushResult {
     let res: any;
     try {
       res = action();
@@ -671,7 +679,6 @@ export class DynamicDataSourceChannel {
           resolve();
         }
         this.host.raiseError(error, operation);
-        onFailed();
       });
     });
   }
@@ -697,7 +704,7 @@ export class DynamicDataSourceChannel {
     this.listenerError = undefined;
     return res;
   }
-  private onPushSettled(epoch: number, wasSync: boolean): void {
+  private onPushSettled(epoch: number): void {
     // A chain detached by a source change runs to its end against its own source, but the counters
     // and the window it would touch belong to the source that replaced it.
     if (epoch !== this.sourceEpoch) return;
@@ -705,7 +712,6 @@ export class DynamicDataSourceChannel {
     if (this.pendingPushes <= 0) {
       this.pendingPushes = 0;
       this.pushChain = undefined;
-      if (wasSync)this.syncWindowAfterSyncPush(epoch);
       this.startQueuedRead();
       this.notifySettled();
     }
@@ -718,26 +724,5 @@ export class DynamicDataSourceChannel {
   private notifySettled(): void {
     if (this.hasPendingWrites || this.hasPendingRead || this.host.isDisposed()) return;
     this.host.onSettled();
-  }
-  private syncWindowAfterSyncPush(epoch: number): void {
-    if (this.host.isDisposed() || epoch !== this.sourceEpoch) return;
-    this.host.syncWindowAfterSyncPush();
-  }
-  /* After a synchronous push: the window takes what the storage holds after a success, and keeps the
-     local change after a reported failure (the list may still put it back, see onPushFailed). */
-  private settleSyncPush(epoch: number, isFailed: boolean, onFailed: () => void): void {
-    if (!isFailed) {
-      this.syncWindowAfterSyncPush(epoch);
-      return;
-    }
-    onFailed();
-  }
-  /* A push failed and was reported. A failed insert, remove or move of a source without keyField
-     shifts the storage indexes the writes queued behind it were given: they are dropped
-     (addressEpoch). The list decides what its window becomes. */
-  private onPushFailed(epoch: number, operation: DynamicDataOperation): void {
-    if (this.host.isDisposed() || epoch !== this.sourceEpoch) return;
-    if (operation !== "update" && !this.host.getKeyField())this.addressEpoch++;
-    this.host.onPushFailed(operation);
   }
 }

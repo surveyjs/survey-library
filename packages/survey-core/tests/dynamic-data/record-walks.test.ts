@@ -58,7 +58,7 @@ describe("displayValue: every record is formatted by its own object or by the te
     expect(panel.value, "#3: the answer is not changed").toEqual([{ a: 1 }, { a: 2 }]);
   });
   test("panel with paging: a record off the page is formatted through the template", () => {
-    const panel = createPanel({ panelsPerPage: 1 }, [{ a: 1 }, { a: 2 }]);
+    const panel = createPanel({ pageSize: 1 }, [{ a: 1 }, { a: 2 }]);
     expect(panel.panels.length, "#1: one panel").toBe(1);
     expect(panel.displayValue, "#2").toEqual([{ a: "One" }, { a: "Two" }]);
   });
@@ -82,9 +82,9 @@ describe("unknown keys: every loaded record is checked, whatever hides it", () =
   const data = (): Array<any> => [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4, zzz: 1 }];
 
   test("paged panel: an unknown key on another page is reported with its record", () => {
-    const issues = getIssues(Object.assign({ panelsPerPage: 2 }, panelJson), { p: data() });
+    const issues = getIssues(Object.assign({ pageSize: 2 }, panelJson), { p: data() });
     expect(getPaths(issues), "#1").toEqual(["p[3].zzz"]);
-    const panel = createPanel({ panelsPerPage: 2 }, [{ a: 1 }, { a: 2 }, { a: 1 }, { a: 2, zzz: 1 }]);
+    const panel = createPanel({ pageSize: 2 }, [{ a: 1 }, { a: 2 }, { a: 1 }, { a: 2, zzz: 1 }]);
     expect(panel.panels.length, "#2: the first page").toBe(2);
     expect(panel.isValueCorrect(), "#3").toBe(false);
   });
@@ -103,11 +103,11 @@ describe("unknown keys: every loaded record is checked, whatever hides it", () =
     expect(matrix.isValueCorrect(), "#3").toBe(false);
   });
   test("paged matrix: an unknown key on another page is reported with its record", () => {
-    const issues = getIssues(Object.assign({ rowsPerPage: 2 }, matrixJson), { m: data() });
+    const issues = getIssues(Object.assign({ pageSize: 2 }, matrixJson), { m: data() });
     expect(getPaths(issues), "#1").toEqual(["m[3].zzz"]);
   });
   test("paged matrix with a detail panel: the detail keys of a record off the page are known keys", () => {
-    const json = Object.assign({ rowsPerPage: 2, detailPanelMode: "underRow", detailElements: [{ type: "text", name: "d" }] }, matrixJson);
+    const json = Object.assign({ pageSize: 2, detailPanelMode: "underRow", detailElements: [{ type: "text", name: "d" }] }, matrixJson);
     const issues = getIssues(json, { m: [{ a: 1 }, { a: 2 }, { a: 3, d: "x" }, { a: 4, d: "y", zzz: 1 }] });
     expect(getPaths(issues), "#1").toEqual(["m[3].zzz"]);
   });
@@ -121,7 +121,7 @@ describe("unknown keys: every loaded record is checked, whatever hides it", () =
     const panel = { type: "paneldynamic", name: "p",
       templateElements: [{ type: "dropdown", name: "a", choices: [1, 2], showOtherItem: true, storeOthersAsComment: true }] };
     expect(getPaths(getIssues(panel, { p: [{ a: "other", "a-Comment": "x", "a-total": 3, zzz: 1 }] })), "#2: panel").toEqual(["p[0].zzz"]);
-    const pagedPanel = Object.assign({ panelsPerPage: 1 }, panel);
+    const pagedPanel = Object.assign({ pageSize: 1 }, panel);
     expect(getPaths(getIssues(pagedPanel, { p: [{ a: 1 }, { a: "other", "a-Comment": "x", "a-total": 3, zzz: 1 }] })), "#3: a panel record off the page")
       .toEqual(["p[1].zzz"]);
   });
@@ -132,7 +132,7 @@ describe("unknown keys: every loaded record is checked, whatever hides it", () =
     expect(getPaths(getIssues(filtered, { m: [{ a: 1 }, { a: 2 }, { a: 3, zzz: 1 }] })), "#2: filtered").toEqual(["m[2].zzz"]);
   });
   test("a matrix with fixed rows reports a record by its row name", () => {
-    const json = { type: "matrixdropdown", name: "d", rows: ["r1", "r2", "r3"], rowsPerPage: 1, columns: [{ name: "a", cellType: "text" }] };
+    const json = { type: "matrixdropdown", name: "d", rows: ["r1", "r2", "r3"], pageSize: 1, columns: [{ name: "a", cellType: "text" }] };
     expect(getPaths(getIssues(json, { d: { r1: { a: 1 }, r3: { a: 3, zzz: 1 } } })), "#1: paged").toEqual(["d.r3.zzz"]);
     const unpaged = { type: "matrixdropdown", name: "d", rows: ["r1", "r2", "r3"], columns: [{ name: "a", cellType: "text" }] };
     expect(getPaths(getIssues(unpaged, { d: { r1: { a: 1 }, r3: { a: 3, zzz: 1 } } })), "#2: unpaged").toEqual(["d.r3.zzz"]);
@@ -158,7 +158,7 @@ describe("progress: one count per record", () => {
     expect(progress(survey.getQuestionByName("m")), "#2: rows built").toEqual([7, 5, 3, 2]);
   });
   test("paged dynamic matrix", () => {
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 2, columns: matrixColumns }] });
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, pageSize: 2, columns: matrixColumns }] });
     survey.data = { m: data() };
     (<QuestionMatrixDynamicModel>survey.getQuestionByName("m")).visibleRows;
     expect(progress(survey.getQuestionByName("m")), "#1").toEqual([7, 5, 3, 2]);
@@ -169,7 +169,7 @@ describe("progress: one count per record", () => {
     expect(progress(survey.getQuestionByName("p")), "#1").toEqual([7, 5, 3, 2]);
   });
   test("paged dynamic panel", () => {
-    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelsPerPage: 2, templateElements: templateElements }] });
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", pageSize: 2, templateElements: templateElements }] });
     survey.data = { p: data() };
     (<QuestionPanelDynamicModel>survey.getQuestionByName("p")).panels;
     expect(progress(survey.getQuestionByName("p")), "#1").toEqual([7, 5, 3, 2]);
@@ -179,7 +179,7 @@ describe("progress: one count per record", () => {
     const unpaged = new SurveyModel({ elements: [json] });
     unpaged.data = { p: [{ a: 1 }, { a: 2 }, { a: 3 }] };
     expect(progress(unpaged.getQuestionByName("p")), "#1: unpaged").toEqual([3, 3, 1, 1]);
-    const paged = new SurveyModel({ elements: [Object.assign({ panelsPerPage: 2 }, json)] });
+    const paged = new SurveyModel({ elements: [Object.assign({ pageSize: 2 }, json)] });
     paged.data = { p: [{ a: 1 }, { a: 2 }, { a: 3 }] };
     (<QuestionPanelDynamicModel>paged.getQuestionByName("p")).panels;
     expect(progress(paged.getQuestionByName("p")), "#2: paged").toEqual([3, 3, 1, 1]);
@@ -189,7 +189,7 @@ describe("progress: one count per record", () => {
     const survey = new SurveyModel({ elements: [json] });
     survey.data = { d: { r1: { a: 1, c: 2 }, r2: { b: 2 }, r3: { a: 3, b: 3 } } };
     expect(progress(survey.getQuestionByName("d")), "#1: rows not built").toEqual([7, 5, 3, 2]);
-    const paged = new SurveyModel({ elements: [Object.assign({ rowsPerPage: 2 }, json)] });
+    const paged = new SurveyModel({ elements: [Object.assign({ pageSize: 2 }, json)] });
     paged.data = { d: { r1: { a: 1, c: 2 }, r2: { b: 2 }, r3: { a: 3, b: 3 } } };
     (<QuestionMatrixDropdownModel>paged.getQuestionByName("d")).visibleRows;
     expect(progress(paged.getQuestionByName("d")), "#2: paged").toEqual([7, 5, 3, 2]);
@@ -262,7 +262,7 @@ describe("getFilteredData: the visible rows that hold an answer, in the answer's
 });
 
 describe("the Multi-Select Matrix display value: each record is keyed by its own row", () => {
-  [{ name: "without paging", json: {} }, { name: "with paging", json: { rowsPerPage: 1 } }].forEach(mode => {
+  [{ name: "without paging", json: {} }, { name: "with paging", json: { pageSize: 1 } }].forEach(mode => {
     function create(rows: Array<any>, data: any): QuestionMatrixDropdownModel {
       const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdropdown", name: "d",
         columns: [{ name: "a", cellType: "dropdown", choices: choices }], rows: rows }, mode.json)] });
@@ -293,7 +293,7 @@ describe("the Multi-Select Matrix display value: each record is keyed by its own
 
 describe("page validation: objects that were never built are valid", () => {
   test("design mode: the template's questions are not validated on a page leave", () => {
-    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelsPerPage: 1,
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", pageSize: 1,
       templateElements: [{ type: "text", name: "a", isRequired: true }] }] });
     survey.setDesignMode(true);
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
@@ -317,7 +317,7 @@ describe("displayValue: a record without a row is formatted as its row would be"
 describe("the keys of a record no question stores", () => {
   const run = (json: any, data: Array<any>, isPaged: boolean): any => {
     const element = Object.assign({}, json);
-    element[element.type === "paneldynamic" ? "panelsPerPage" : "rowsPerPage"] = isPaged ? 1 : 0;
+    element.pageSize = isPaged ? 1 : 0;
     const survey = new SurveyModel({ elements: [element] });
     survey.data = { q: JSON.parse(JSON.stringify(data)) };
     const question: any = survey.getQuestionByName("q");
@@ -345,8 +345,8 @@ describe("the keys of a record no question stores", () => {
 
 describe("the question that formats a field of a record without a row", () => {
   test("the display value of a record without a row formats a detail-panel field by value name", () => {
-    const displayValue = (rowsPerPage: number): any => {
-      const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: rowsPerPage, detailPanelMode: "underRow",
+    const displayValue = (pageSize: number): any => {
+      const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, pageSize: pageSize, detailPanelMode: "underRow",
         columns: [{ name: "c", cellType: "dropdown", choices: [{ value: 1, text: "One" }] }],
         detailElements: [{ type: "dropdown", name: "d", choices: [{ value: 2, text: "Two" }] }] }] });
       survey.data = { m: [{ c: 1, d: 2 }, { c: 1, d: 2 }] };

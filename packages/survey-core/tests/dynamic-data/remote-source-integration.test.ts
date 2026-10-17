@@ -250,7 +250,7 @@ async function createMatrix(source: FakeServerSource, json?: any, extra?: Array<
   Promise<{ survey: SurveyModel, question: QuestionMatrixDynamicModel }> {
   const survey = new SurveyModel({
     elements: [Object.assign({
-      type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: 5,
+      type: "matrixdynamic", name: "matrix", rowCount: 0, pageSize: 5,
       columns: [{ name: "col1" }, { name: "col2" }]
     }, json)].concat(extra || [])
   });
@@ -263,7 +263,7 @@ async function createPanel(source: FakeServerSource, json?: any, extra?: Array<a
   Promise<{ survey: SurveyModel, question: QuestionPanelDynamicModel }> {
   const survey = new SurveyModel({
     elements: [Object.assign({
-      type: "paneldynamic", name: "panel", panelCount: 0, panelsPerPage: 5,
+      type: "paneldynamic", name: "panel", panelCount: 0, pageSize: 5,
       templateElements: [{ type: "text", name: "col1" }, { type: "text", name: "col2" }]
     }, json)].concat(extra || [])
   });
@@ -303,7 +303,7 @@ describe("Remote data source: first load", () => {
     const source = new FakeServerSource(serverRecords(10));
     source.auto = false;
     const survey = new SurveyModel({
-      elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: 5, columns: [{ name: "col1" }] }]
+      elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, pageSize: 5, columns: [{ name: "col1" }] }]
     });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     expect(question.isDataLoading, "#1: nothing is loading yet").toBe(false);
@@ -319,7 +319,7 @@ describe("Remote data source: first load", () => {
     const source = new FakeServerSource(serverRecords(10));
     source.auto = false;
     const survey = new SurveyModel({
-      elements: [{ type: "paneldynamic", name: "panel", panelCount: 0, panelsPerPage: 5, templateElements: [{ type: "text", name: "col1" }] }]
+      elements: [{ type: "paneldynamic", name: "panel", panelCount: 0, pageSize: 5, templateElements: [{ type: "text", name: "col1" }] }]
     });
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
     question.dataSource = source;
@@ -334,7 +334,7 @@ describe("Remote data source: first load", () => {
     const source = new FakeServerSource(serverRecords(10));
     source.auto = false;
     const survey = new SurveyModel({
-      elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: 5, columns: [{ name: "col1" }] }]
+      elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, pageSize: 5, columns: [{ name: "col1" }] }]
     });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     question.dataSource = source;
@@ -361,7 +361,7 @@ describe("Remote data source: first load", () => {
   });
   test("a source that returns everything in one read is still a source", async () => {
     const source = new FakeServerSource(serverRecords(4), ["update"]);
-    const { question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { question } = await createMatrix(source, { pageSize: 0 });
     expect(source.callsOf("read").length, "#1: a read of the whole table, not of a page").toBe(1);
     expect(question.rowCount, "#2").toBe(4);
     expect(question.visibleRows.length, "#3").toBe(4);
@@ -561,7 +561,7 @@ describe("Remote data source: editing", () => {
 describe("Remote data source: adding and removing", () => {
   test("matrix: addRow is one insert carrying the complete record", async () => {
     const source = new FakeServerSource(serverRecords(3));
-    const { question } = await createMatrix(source, { rowsPerPage: 0, defaultRowValue: { col2: 7 } });
+    const { question } = await createMatrix(source, { pageSize: 0, defaultRowValue: { col2: 7 } });
     source.reset();
     question.addRow();
     expect(source.callsOf("insert").length, "#1: exactly one insert").toBe(1);
@@ -588,7 +588,7 @@ describe("Remote data source: adding and removing", () => {
   });
   test("panel: addPanel is one insert carrying the complete record", async () => {
     const source = new FakeServerSource(serverRecords(3));
-    const { question } = await createPanel(source, { rowsPerPage: 0, panelsPerPage: 0, defaultPanelValue: { col2: 7 } });
+    const { question } = await createPanel(source, { pageSize: 0, defaultPanelValue: { col2: 7 } });
     source.reset();
     question.addPanel();
     expect(source.callsOf("insert").length, "#1: exactly one insert").toBe(1);
@@ -614,7 +614,7 @@ describe("Remote data source: adding and removing", () => {
   });
   test("matrix: the added row is in the window at once and the value follows", async () => {
     const source = new FakeServerSource(serverRecords(3));
-    const { question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { question } = await createMatrix(source, { pageSize: 0 });
     question.addRow();
     expect(question.value.length, "#1: optimistic - the record is in the window").toBe(4);
     expect(question.rowCount, "#2").toBe(4);
@@ -704,7 +704,7 @@ describe("Remote data source: sorting and filtering", () => {
      a window is gone with the "pages but does not sort" source it belonged to. */
   test("a source that pages sorts itself: the request carries the sort and the list does not sort the window", async () => {
     const source = new FakeServerSource(serverRecords(6), ["paging", "update"]);
-    const { question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { question } = await createMatrix(source, { pageSize: 0 });
     source.reset();
     question.sortOrder = [{ field: "col2", direction: "desc" }];
     await flush();
@@ -728,44 +728,44 @@ describe("Remote data source: sorting and filtering", () => {
 describe("Remote data source: capabilities", () => {
   test("no insert: the matrix cannot add rows", async () => {
     const source = new FakeServerSource(serverRecords(6), ["paging", "update", "remove"]);
-    const { question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { question } = await createMatrix(source, { pageSize: 0 });
     expect(question.canAddRow, "#1").toBe(false);
     expect(question.canRemoveRows, "#2: remove is there").toBe(true);
   });
   test("no remove: the matrix cannot delete rows", async () => {
     const source = new FakeServerSource(serverRecords(6), ["paging", "update", "insert"]);
-    const { question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { question } = await createMatrix(source, { pageSize: 0 });
     expect(question.canRemoveRows, "#1").toBe(false);
     expect(question.canAddRow, "#2: insert is there").toBe(true);
   });
   test("no update: the matrix is read-only for cells", async () => {
     const source = new FakeServerSource(serverRecords(6), ["paging", "insert", "remove"]);
-    const { question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { question } = await createMatrix(source, { pageSize: 0 });
     expect(question.isMatrixReadOnly(), "#1").toBe(true);
     expect(question.visibleRows[0].getQuestionByName("col1").isReadOnly, "#2: the cells follow").toBe(true);
     expect(question.canAddRow, "#3: adding is a different capability").toBe(true);
   });
   test("with or without a move method, a source gives the matrix no drag reorder", async () => {
-    const withoutMove = await createMatrix(new FakeServerSource(serverRecords(6), ["paging", "update"]), { rowsPerPage: 0, allowRowReorder: true });
+    const withoutMove = await createMatrix(new FakeServerSource(serverRecords(6), ["paging", "update"]), { pageSize: 0, allowRowReorder: true });
     expect(withoutMove.question.isRowsDragAndDrop, "#1").toBe(false);
-    const withMove = await createMatrix(new FakeServerSource(serverRecords(6)), { rowsPerPage: 0, allowRowReorder: true });
+    const withMove = await createMatrix(new FakeServerSource(serverRecords(6)), { pageSize: 0, allowRowReorder: true });
     expect(withMove.question.isRowsDragAndDrop, "#2").toBe(false);
   });
   test("no insert / no remove: the panel cannot add or delete panels", async () => {
     const source = new FakeServerSource(serverRecords(6), ["paging", "update"]);
-    const { question } = await createPanel(source, { panelsPerPage: 0 });
+    const { question } = await createPanel(source, { pageSize: 0 });
     expect(question.canAddPanel, "#1").toBe(false);
     expect(question.canRemovePanel, "#2").toBe(false);
   });
   test("no update: the panels are read-only", async () => {
     const source = new FakeServerSource(serverRecords(6), ["paging", "insert", "remove"]);
-    const { question } = await createPanel(source, { panelsPerPage: 0 });
+    const { question } = await createPanel(source, { pageSize: 0 });
     expect(question.panels[0].getQuestionByName("col1").isReadOnly, "#1").toBe(true);
     expect(question.canAddPanel, "#2: adding is a different capability").toBe(true);
   });
   test("matrix: assigning a source refreshes the cells' read-only state, also for the same source", async () => {
     const source = new FakeServerSource(serverRecords(6), ["paging", "insert", "remove"]);
-    const { question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { question } = await createMatrix(source, { pageSize: 0 });
     const rows = question.visibleRows;
     const spies = rows.map(row => vi.spyOn(row, "onQuestionReadOnlyChanged"));
     question.dataSource = source;
@@ -775,7 +775,7 @@ describe("Remote data source: capabilities", () => {
   });
   test("panel: the same source assigned again keeps the add action off for a source that cannot insert", async () => {
     const source = new FakeServerSource(serverRecords(6), ["paging", "update"]);
-    const { question } = await createPanel(source, { panelsPerPage: 0 });
+    const { question } = await createPanel(source, { pageSize: 0 });
     question.dataSource = source;
     expect(question.canAddPanel, "#2").toBe(false);
   });
@@ -816,7 +816,7 @@ describe("Remote data source: survey data", () => {
   });
   test("an incoming assignment is ignored while a source is attached", async () => {
     const source = new FakeServerSource(serverRecords(6));
-    const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { survey, question } = await createMatrix(source, { pageSize: 0 });
     survey.data = { matrix: [{ col1: "outside" }] };
     expect(question.value.length, "#1: the window is unchanged").toBe(6);
     expect(rowValues(question)[0], "#2").toBe("v0");
@@ -841,7 +841,7 @@ describe("Remote data source: survey data", () => {
   });
   test("detaching with an empty hash leaves an empty question", async () => {
     const source = new FakeServerSource(serverRecords(6));
-    const { question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { question } = await createMatrix(source, { pageSize: 0 });
     question.dataSource = undefined;
     await flush();
     expect(question.rowCount, "#1").toBe(0);
@@ -1149,13 +1149,13 @@ describe("Remote data source: attaching and detaching a source", () => {
     expect(list.isLoading, "#3").toBe(false);
   });
   /* The trap: an attach that creates the list. A page size from JSON is not a way there -
-     rowsPerPage/panelsPerPage create the list when they are set, and a panel creates it when the
+     pageSize creates the list when it is set, and a panel creates it when the
      survey loads - so the attach that creates it creates a list that does not page. */
   test("matrix: an attach to a question whose list does not exist yet creates the list and shows the empty window, then the records", async () => {
     const paged = new SurveyModel({
-      elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: 5, columns: [{ name: "col1" }] }]
+      elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, pageSize: 5, columns: [{ name: "col1" }] }]
     });
-    expect(!!(<any>paged.getQuestionByName("matrix")).dataListValue, "#0: rowsPerPage from JSON creates the list").toBe(true);
+    expect(!!(<any>paged.getQuestionByName("matrix")).dataListValue, "#0: pageSize from JSON creates the list").toBe(true);
     const survey = new SurveyModel({
       elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, columns: [{ name: "col1" }] }]
     });
@@ -1216,8 +1216,8 @@ describe("Remote data source: design mode gives unpaged positions", () => {
     const res = item.getValueGetterContext().getValue({ path: [{ name: name }], index: 0, isRoot: false });
     return !!res ? res.value : undefined;
   }
-  const matrixJson = { type: "matrixdynamic", name: "matrix", rowCount: 6, rowsPerPage: 2, columns: [{ name: "col1" }] };
-  const panelJson = { type: "paneldynamic", name: "panel", panelCount: 6, panelsPerPage: 2, templateElements: [{ type: "text", name: "col1" }] };
+  const matrixJson = { type: "matrixdynamic", name: "matrix", rowCount: 6, pageSize: 2, columns: [{ name: "col1" }] };
+  const panelJson = { type: "paneldynamic", name: "panel", panelCount: 6, pageSize: 2, templateElements: [{ type: "text", name: "col1" }] };
   test("matrix: design mode set before the JSON", () => {
     const survey = new SurveyModel();
     survey.setDesignMode(true);
@@ -1500,7 +1500,7 @@ describe("Remote data source: an assigned source is read, not read through", () 
   questionTypes.forEach((type: string): void => {
     test(type + ": a setter that drops the record of the last page: the question shows a page that exists", async () => {
       const { question } = createQuestion(type);
-      if (type === "matrix") question.rowsPerPage = 2; else question.panelsPerPage = 2;
+      question.pageSize = 2;
       let arr: Array<any> = records("a0", "a1", "a2");
       question.dataSource = new ArrayDynamicDataSource((): Array<any> => arr,
         (a: Array<any>): void => { arr = a.filter((r: any): boolean => r.col1 !== "drop"); });
@@ -1551,7 +1551,7 @@ describe("Remote data source: a page load is not an answer", () => {
     const source = new FakeServerSource(serverRecords(12));
     source.auto = false;
     const survey = new SurveyModel({
-      elements: [Object.assign({ type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: 5, columns: [{ name: "col1" }] }, json)].concat(extra)
+      elements: [Object.assign({ type: "matrixdynamic", name: "matrix", rowCount: 0, pageSize: 5, columns: [{ name: "col1" }] }, json)].concat(extra)
     });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     question.dataSource = source;
@@ -1619,7 +1619,7 @@ describe("Remote data source: a page load is not an answer", () => {
   });
   test("a remote edit does not make the question answered in the survey", async () => {
     const source = new FakeServerSource(serverRecords(4));
-    const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { survey, question } = await createMatrix(source, { pageSize: 0 });
     question.visibleRows[0].getQuestionByName("col1").value = "edited";
     expect(survey.data, "#1: nothing in the hash").toEqual({});
   });
@@ -1639,21 +1639,21 @@ describe("Remote data source: limits, expressions and errors", () => {
   });
   test("rowCountExpression is ignored while a source is attached", async () => {
     const source = new FakeServerSource(serverRecords(7));
-    const { question } = await createMatrix(source, { rowsPerPage: 0, rowCountExpression: "3" });
+    const { question } = await createMatrix(source, { pageSize: 0, rowCountExpression: "3" });
     expect(question.rowCount, "#1: the server decides").toBe(7);
     expect(question.visibleRows.length, "#2").toBe(7);
     expect(question.canAddRow, "#3: the expression does not lock the add button either").toBe(true);
   });
   test("panelCountExpression is ignored while a source is attached", async () => {
     const source = new FakeServerSource(serverRecords(7));
-    const { question } = await createPanel(source, { panelsPerPage: 0, panelCountExpression: "3" });
+    const { question } = await createPanel(source, { pageSize: 0, panelCountExpression: "3" });
     expect(question.panelCount, "#1").toBe(7);
     expect(question.panels.length, "#2").toBe(7);
     expect(question.canAddPanel, "#3").toBe(true);
   });
   test("the rowCount setter is a no-op while a source is attached", async () => {
     const source = new FakeServerSource(serverRecords(7));
-    const { question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { question } = await createMatrix(source, { pageSize: 0 });
     question.rowCount = 2;
     expect(question.rowCount, "#1: unchanged").toBe(7);
     expect(question.value.length, "#2: the window was not truncated").toBe(7);
@@ -1661,7 +1661,7 @@ describe("Remote data source: limits, expressions and errors", () => {
   });
   test("the panelCount setter is a no-op while a source is attached", async () => {
     const source = new FakeServerSource(serverRecords(7));
-    const { question } = await createPanel(source, { panelsPerPage: 0 });
+    const { question } = await createPanel(source, { pageSize: 0 });
     question.panelCount = 2;
     expect(question.panelCount, "#1").toBe(7);
     expect(question.panels.length, "#2").toBe(7);
@@ -1669,7 +1669,7 @@ describe("Remote data source: limits, expressions and errors", () => {
   });
   test("a rejected update raises onDynamicDataError and keeps the local value", async () => {
     const source = new FakeServerSource(serverRecords(6));
-    const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { survey, question } = await createMatrix(source, { pageSize: 0 });
     const errors: Array<any> = [];
     survey.onDynamicDataError.add((sender, options) => {
       errors.push({ name: options.question.name, operation: options.operation, message: options.error.message });
@@ -1695,7 +1695,7 @@ describe("Remote data source: limits, expressions and errors", () => {
   });
   test("panel: a rejected update raises onDynamicDataError", async () => {
     const source = new FakeServerSource(serverRecords(6));
-    const { survey, question } = await createPanel(source, { panelsPerPage: 0 });
+    const { survey, question } = await createPanel(source, { pageSize: 0 });
     const errors: Array<string> = [];
     survey.onDynamicDataError.add((sender, options) => { errors.push(options.question.name + ":" + options.operation); });
     source.auto = false;
@@ -1713,7 +1713,7 @@ describe("Remote data source: the current panel stays on its record", () => {
   const currentValue = (question: QuestionPanelDynamicModel): any => question.currentPanel.getQuestionByName("col1").value;
   test("a panel removed in front of the current one: the refilled window shows the same record", async () => {
     const source = new FakeServerSource(serverRecords(6));
-    const { question } = await createPanel(source, { displayMode: "tab", panelsPerPage: 3 });
+    const { question } = await createPanel(source, { displayMode: "tab", pageSize: 3 });
     question.currentIndex = 2;
     question.removePanel(0);
     await flush();
@@ -1724,7 +1724,7 @@ describe("Remote data source: the current panel stays on its record", () => {
   });
   test("the server reorders the window: the current panel follows its record", async () => {
     const source = new FakeServerSource(serverRecords(12));
-    const { question } = await createPanel(source, { displayMode: "tab", panelsPerPage: 3 });
+    const { question } = await createPanel(source, { displayMode: "tab", pageSize: 3 });
     question.currentIndex = 7;
     await flush();
     expect(currentValue(question), "#1").toBe("v7");
@@ -1737,7 +1737,7 @@ describe("Remote data source: the current panel stays on its record", () => {
   });
   test("records inserted in front of the window: the current panel follows its record or starts over", async () => {
     const source = new FakeServerSource(serverRecords(12));
-    const { question } = await createPanel(source, { displayMode: "tab", panelsPerPage: 3 });
+    const { question } = await createPanel(source, { displayMode: "tab", pageSize: 3 });
     question.currentIndex = 7;
     await flush();
     source.records.splice(0, 0, { id: 100, col1: "w100" });
@@ -1754,7 +1754,7 @@ describe("Remote data source: the current panel stays on its record", () => {
   });
   test("a replaced source starts with its first panel", async () => {
     const source = new FakeServerSource(serverRecords(6));
-    const { question } = await createPanel(source, { displayMode: "tab", panelsPerPage: 3 });
+    const { question } = await createPanel(source, { displayMode: "tab", pageSize: 3 });
     question.currentIndex = 2;
     question.dataSource = new FakeServerSource(serverRecords(6, 100));
     await flush();
@@ -1782,7 +1782,7 @@ describe("Remote data source: where a move from code to another page ends", () =
   };
   const currentValue = (question: QuestionPanelDynamicModel): any => question.currentPanel.getQuestionByName("col1").value;
   test("a source that answers at once: carousel Next selects the next record before it returns", async () => {
-    const { question } = await createPanel(<any>createSyncSource(9), { displayMode: "carousel", panelsPerPage: 3 });
+    const { question } = await createPanel(<any>createSyncSource(9), { displayMode: "carousel", pageSize: 3 });
     question.currentIndex = 2;
     expect(question.goToNextPanel(), "#1").toBe(true);
     expect(question.pageIndex, "#2").toBe(1);
@@ -1791,7 +1791,7 @@ describe("Remote data source: where a move from code to another page ends", () =
   });
   test("a source replaced while the read of the page a move goes to is pending: the page shows its first panel", async () => {
     const source = new FakeServerSource(serverRecords(12));
-    const { question } = await createPanel(source, { displayMode: "tab", panelsPerPage: 3 });
+    const { question } = await createPanel(source, { displayMode: "tab", pageSize: 3 });
     source.auto = false;
     question.currentIndex = 7;
     expect(source.pending.length, "#1: the page is being read").toBe(1);
@@ -1807,7 +1807,7 @@ describe("Remote data source: where a move from code to another page ends", () =
      question reaches a page the list has to clamp. */
   test("a position on a page the list clamps to the page in force is selected at once, and a later rebuild keeps it", async () => {
     const source = new FakeServerSource(serverRecords(12));
-    const { question } = await createPanel(source, { displayMode: "tab", panelsPerPage: 5 });
+    const { question } = await createPanel(source, { displayMode: "tab", pageSize: 5 });
     question.goToPage(2);
     await flush();
     expect(panelValues(question), "#1").toEqual(["v10", "v11"]);
@@ -1822,7 +1822,7 @@ describe("Remote data source: where a move from code to another page ends", () =
   });
   ["tab", "carousel"].forEach((mode: string): void => {
     test(mode + ": a read that throws at once: the page and the current panel stay, the error is reported once", async () => {
-      const { survey, question } = await createPanel(<any>createSyncSource(12, 3), { displayMode: mode, panelsPerPage: 3 });
+      const { survey, question } = await createPanel(<any>createSyncSource(12, 3), { displayMode: mode, pageSize: 3 });
       const errors: Array<string> = [];
       survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
       const start = mode === "tab" ? 0 : 2;
@@ -1840,7 +1840,7 @@ describe("Remote data source: where a move from code to another page ends", () =
     });
   });
   test("a move made while a failed move is reported wins: the failed one selects nothing over it", async () => {
-    const { survey, question } = await createPanel(<any>createSyncSource(12, 3), { displayMode: "tab", panelsPerPage: 3 });
+    const { survey, question } = await createPanel(<any>createSyncSource(12, 3), { displayMode: "tab", pageSize: 3 });
     survey.onDynamicDataError.add(() => { question.currentIndex = 2; });
     question.currentIndex = 7;
     expect(question.pageIndex, "#1").toBe(0);
@@ -1884,7 +1884,7 @@ describe("Remote data source: the objects an added record keeps", () => {
   });
   test("panel: an appended panel leaves a panel the respondent collapsed collapsed", async () => {
     const source = new FakeServerSource(serverRecords(3));
-    const { question } = await createPanel(source, { panelsPerPage: 0, templateTitle: "Item {panelIndex}" });
+    const { question } = await createPanel(source, { pageSize: 0, templateTitle: "Item {panelIndex}" });
     question.panels[1].collapse();
     question.addPanel();
     expect(question.panels.length, "#1").toBe(4);
@@ -1893,7 +1893,7 @@ describe("Remote data source: the objects an added record keeps", () => {
   });
   test("matrix, a source the list pages: an added record rowsVisibleIf hides raises no onMatrixRowAdded", async () => {
     const source = new FakeServerSource(serverRecords(6), ["insert", "update", "remove", "move"]);
-    const { survey, question } = await createMatrix(source, { rowsPerPage: 2, rowsVisibleIf: "{row.col1} notempty" });
+    const { survey, question } = await createMatrix(source, { pageSize: 2, rowsVisibleIf: "{row.col1} notempty" });
     question.visibleRows;
     question.pageIndex = 1;
     const added: Array<any> = [];
@@ -1935,7 +1935,7 @@ describe("Remote data source: the objects an added record keeps", () => {
   test("panel: a template default value is part of the one insert", async () => {
     const source = new FakeServerSource(serverRecords(3), ["insert", "update", "remove", "move"]);
     const { question } = await createPanel(source, {
-      panelsPerPage: 0, templateElements: [{ type: "text", name: "col1", defaultValue: "d" }, { type: "text", name: "col2" }]
+      pageSize: 0, templateElements: [{ type: "text", name: "col1", defaultValue: "d" }, { type: "text", name: "col2" }]
     });
     question.panels;
     source.reset();
@@ -2143,7 +2143,7 @@ function isRowDisposed(row: any): boolean {
 describe("Remote data source: a removed record refills the page", () => {
   test("matrix: removeRow on page one of three leaves ten rows and fires no value change", async () => {
     const source = new FakeServerSource(serverRecords(30));
-    const { survey, question } = await createMatrix(source, { rowsPerPage: 10 });
+    const { survey, question } = await createMatrix(source, { pageSize: 10 });
     question.removeRow(0);
     const changes: Array<string> = [];
     survey.onValueChanged.add((sender, options) => { changes.push(options.name); });
@@ -2156,7 +2156,7 @@ describe("Remote data source: a removed record refills the page", () => {
   });
   test("panel: removePanel on page one of three leaves ten panels and fires no value change", async () => {
     const source = new FakeServerSource(serverRecords(30));
-    const { survey, question } = await createPanel(source, { panelsPerPage: 10 });
+    const { survey, question } = await createPanel(source, { pageSize: 10 });
     question.removePanel(0);
     const changes: Array<string> = [];
     survey.onValueChanged.add((sender, options) => { changes.push(options.name); });
@@ -2184,7 +2184,7 @@ describe("Remote data source: the focus after a row is removed from a refilled p
   });
   const createPagedMatrix = async (source: IDynamicDataSource): Promise<QuestionMatrixDynamicModel> => {
     const survey = new SurveyModel({
-      elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: 10, columns: [{ name: "col1" }] }]
+      elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, pageSize: 10, columns: [{ name: "col1" }] }]
     });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     question.dataSource = source;
@@ -2310,7 +2310,7 @@ describe("Remote data source: the focus after a row is removed from a refilled p
     const focusElementSpy = vi.spyOn(SurveyElement, "FocusElement").mockImplementation(() => true);
     try {
       const source = new FakeServerSource(serverRecords(30));
-      const { question } = await createPanel(source, { panelsPerPage: 10 });
+      const { question } = await createPanel(source, { pageSize: 10 });
       source.auto = false;
       question.removePanelUI(question.panels[0]);
       expect(focusElementSpy.mock.calls.length, "#1: focused at once, as before").toBe(1);
@@ -2335,11 +2335,11 @@ describe("Remote data source: the authored view costs one read", () => {
      used to reach the source one after the other - a push and a read each - and the request carries
      both, so the whole authored view is one round trip. */
   const matrixJson = {
-    type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: 5,
+    type: "matrixdynamic", name: "matrix", rowCount: 0, pageSize: 5,
     sortBy: "col2-", filterExpression: "{col1} = 'v7'", columns: [{ name: "col1" }, { name: "col2" }]
   };
   const panelJson = {
-    type: "paneldynamic", name: "panel", panelCount: 0, panelsPerPage: 5,
+    type: "paneldynamic", name: "panel", panelCount: 0, pageSize: 5,
     sortBy: "col2-", filterExpression: "{col1} = 'v7'",
     templateElements: [{ type: "text", name: "col1" }, { type: "text", name: "col2" }]
   };
@@ -2398,7 +2398,7 @@ describe("Remote data source: a total the source does not know", () => {
   };
   test("matrix: the row count is a lower bound and the pager walks to the end", async () => {
     const source = createNoTotalSource(25);
-    const { question } = await createMatrix(source, { rowsPerPage: 10 });
+    const { question } = await createMatrix(source, { pageSize: 10 });
     expect(question.isCountKnown, "#1").toBe(false);
     expect(question.rowCount, "#2: the rows known to exist").toBe(10);
     expect(question.pageCount, "#3").toBe(2);
@@ -2416,7 +2416,7 @@ describe("Remote data source: a total the source does not know", () => {
   });
   test("matrix: the pager shows the page number alone while the count is unknown", async () => {
     const source = createNoTotalSource(25);
-    const { question } = await createMatrix(source, { rowsPerPage: 10 });
+    const { question } = await createMatrix(source, { pageSize: 10 });
     const info = question.pagerActions.getActionById("sv-pager-info");
     expect(info.title, "#1: no total to show").toBe("1");
     question.nextPage();
@@ -2432,7 +2432,7 @@ describe("Remote data source: a total the source does not know", () => {
   });
   test("matrix: the pager follows the locale once an unknown count becomes known", async () => {
     const source = createNoTotalSource(25);
-    const { question } = await createMatrix(source, { rowsPerPage: 10 });
+    const { question } = await createMatrix(source, { pageSize: 10 });
     const info = question.pagerActions.getActionById("sv-pager-info");
     expect(info.title, "#1: no total to show").toBe("1");
     question.nextPage();
@@ -2445,7 +2445,7 @@ describe("Remote data source: a total the source does not know", () => {
   });
   test("panel: the panel count is a lower bound and isCountKnown says so", async () => {
     const source = createNoTotalSource(25);
-    const { question } = await createPanel(source, { panelsPerPage: 10 });
+    const { question } = await createPanel(source, { pageSize: 10 });
     expect(question.isCountKnown, "#1").toBe(false);
     expect(question.panelCount, "#2: the records known to exist").toBe(10);
     expect(question.pageCount, "#3").toBe(2);
@@ -2460,7 +2460,7 @@ describe("Remote data source: a total the source does not know", () => {
     expect(question.pageCount, "#7").toBe(3);
   });
   test("a source that reports its total leaves both questions knowing it", async () => {
-    const { question } = await createMatrix(new FakeServerSource(serverRecords(25)), { rowsPerPage: 10 });
+    const { question } = await createMatrix(new FakeServerSource(serverRecords(25)), { pageSize: 10 });
     expect(question.isCountKnown, "#1").toBe(true);
     expect(question.rowCount, "#2").toBe(25);
     expect(question.pageCount, "#3").toBe(3);
@@ -2618,7 +2618,7 @@ describe("Remote data source: a keyed source and a read in flight", () => {
 describe("Remote data source: a record without a key", () => {
   test("the insert answer brings the key and later edits use it", async () => {
     const source = keyedSource(3);
-    const { question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { question } = await createMatrix(source, { pageSize: 0 });
     source.reset();
     question.addRow();
     const row = question.visibleRows[3];
@@ -2633,7 +2633,7 @@ describe("Remote data source: a record without a key", () => {
   });
   test("a field edited between the insert and its answer keeps the client value", async () => {
     const source = keyedSource(3);
-    const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { survey, question } = await createMatrix(source, { pageSize: 0 });
     const errors: Array<any> = [];
     survey.onDynamicDataError.add((sender, options) => {
       errors.push({ operation: options.operation, message: options.error.message });
@@ -2662,7 +2662,7 @@ describe("Remote data source: a record without a key", () => {
   test("an insert that answers with nothing leaves the record keyless", async () => {
     const source = keyedSource(3);
     source.insertAnswersRecord = false;
-    const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { survey, question } = await createMatrix(source, { pageSize: 0 });
     const errors: Array<string> = [];
     survey.onDynamicDataError.add((sender, options) => { errors.push(options.operation); });
     source.reset();
@@ -2678,7 +2678,7 @@ describe("Remote data source: a record without a key", () => {
   test("the next read reconciles a record whose edits were not delivered", async () => {
     const source = keyedSource(3);
     source.insertAnswersRecord = false;
-    const { question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { question } = await createMatrix(source, { pageSize: 0 });
     question.addRow();
     await flush();
     question.visibleRows[3].getQuestionByName("col1").value = "typed";
@@ -2690,7 +2690,7 @@ describe("Remote data source: a record without a key", () => {
   });
   test("a remove before the insert answers is sent after it", async () => {
     const source = keyedSource(3);
-    const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { survey, question } = await createMatrix(source, { pageSize: 0 });
     const errors: Array<any> = [];
     survey.onDynamicDataError.add((sender, options) => {
       errors.push(options.operation + ":" + options.error.message);
@@ -2722,14 +2722,14 @@ describe("Remote data source: a record without a key", () => {
       source.insertDefaults = { createdBy: "server" };
       source.auto = false;
       if (type === "matrix") {
-        const { question } = await createMatrix(source, { rowsPerPage: 0 });
+        const { question } = await createMatrix(source, { pageSize: 0 });
         source.settleAll();
         await flush();
         source.reset();
         question.addRow();
         question.visibleRows[3].getQuestionByName("col1").value = "typed";
       } else {
-        const { question } = await createPanel(source, { panelsPerPage: 0 });
+        const { question } = await createPanel(source, { pageSize: 0 });
         source.settleAll();
         await flush();
         source.reset();
@@ -2748,7 +2748,7 @@ describe("Remote data source: a record without a key", () => {
   test("a later queued update that fails leaves the server-filled field of the earlier one in place", async () => {
     const source = keyedSource(3);
     source.insertDefaults = { col2: 7 };
-    const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { survey, question } = await createMatrix(source, { pageSize: 0 });
     const errors: Array<string> = [];
     survey.onDynamicDataError.add((sender, options) => { errors.push(options.operation); });
     source.auto = false;
@@ -2771,7 +2771,7 @@ describe("Remote data source: a record without a key", () => {
   });
   test("the writes behind a rejected insert are reported one by one", async () => {
     const source = keyedSource(3);
-    const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { survey, question } = await createMatrix(source, { pageSize: 0 });
     const errors: Array<string> = [];
     survey.onDynamicDataError.add((sender, options) => { errors.push(options.operation + ":" + options.error.message); });
     source.auto = false;
@@ -2800,7 +2800,7 @@ describe("Remote data source: a record without a key", () => {
   swapTargets.forEach(([name, createTarget]: [string, () => FakeServerSource]): void => {
     test("a source swap while the insert is pending delivers the queued write to the old source: " + name, async () => {
       const source = keyedSource(3);
-      const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+      const { survey, question } = await createMatrix(source, { pageSize: 0 });
       const errors: Array<string> = [];
       survey.onDynamicDataError.add((sender, options) => { errors.push(options.operation); });
       source.auto = false;
@@ -3006,7 +3006,7 @@ describe("Remote data source: the coordination between a question and its list",
     expect(editedTrace(), "#c").toEqual(["value=5:v0,10,1 old", "value=5:v0,10,11 old", "done old"]);
     // (d) a filter assigned on the default source.
     const survey = new SurveyModel({
-      elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: 5, columns: [{ name: "col1" }, { name: "col2" }] }]
+      elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, pageSize: 5, columns: [{ name: "col1" }, { name: "col2" }] }]
     });
     survey.data = { matrix: serverRecords(12) };
     const local = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
@@ -3036,7 +3036,7 @@ describe("Remote data source: the coordination between a question and its list",
     await flush();
     expect(editedTrace(), "#c").toEqual(["value=5:v0,10,1 old", "value=5:v0,10,11 old", "done old"]);
     const survey = new SurveyModel({
-      elements: [{ type: "paneldynamic", name: "panel", panelCount: 0, panelsPerPage: 5,
+      elements: [{ type: "paneldynamic", name: "panel", panelCount: 0, pageSize: 5,
         templateElements: [{ type: "text", name: "col1" }, { type: "text", name: "col2" }] }]
     });
     survey.data = { panel: serverRecords(12) };
@@ -3063,7 +3063,7 @@ describe("Remote data source: the coordination between a question and its list",
     });
     test("matrix: one read error, and the next committed read does not focus the position", async () => {
       const source = new FakeServerSource(serverRecords(30));
-      const { survey, question } = await createMatrix(source, { rowsPerPage: 10 });
+      const { survey, question } = await createMatrix(source, { pageSize: 10 });
       const errors: Array<string> = [];
       survey.onDynamicDataError.add((sender, options) => { errors.push(options.operation); });
       source.auto = false;
@@ -3088,7 +3088,7 @@ describe("Remote data source: the coordination between a question and its list",
       const focusElementSpy = vi.spyOn(SurveyElement, "FocusElement").mockImplementation(() => true);
       try {
         const source = new FakeServerSource(serverRecords(30));
-        const { survey, question } = await createPanel(source, { panelsPerPage: 10 });
+        const { survey, question } = await createPanel(source, { pageSize: 10 });
         const errors: Array<string> = [];
         survey.onDynamicDataError.add((sender, options) => { errors.push(options.operation); });
         source.auto = false;
@@ -3114,7 +3114,7 @@ describe("Remote data source: the coordination between a question and its list",
 
   test("matrix: isDynamicDataRunning spans the refill of a page, from the request to the commit", async () => {
     const source = new FakeServerSource(serverRecords(30));
-    const { question } = await createMatrix(source, { rowsPerPage: 10 });
+    const { question } = await createMatrix(source, { pageSize: 10 });
     const list = question["dataList"];
     expect(question.isDynamicDataRunning, "#1: nothing is running").toBe(false);
     source.auto = false;
@@ -3133,7 +3133,7 @@ describe("Remote data source: the coordination between a question and its list",
   });
   test("panel: isDynamicDataRunning spans the refill of a page, from the request to the commit", async () => {
     const source = new FakeServerSource(serverRecords(30));
-    const { question } = await createPanel(source, { panelsPerPage: 10 });
+    const { question } = await createPanel(source, { pageSize: 10 });
     const list = question["dataList"];
     expect(question.isDynamicDataRunning, "#1: nothing is running").toBe(false);
     source.auto = false;
@@ -3157,7 +3157,7 @@ describe("Remote data source: the coordination between a question and its list",
       const data = serverRecords(12);
       delete data[2].col1;
       const survey = new SurveyModel({
-        elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: 5,
+        elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, pageSize: 5,
           columns: [{ name: "col1", cellType: "text", isRequired: true }, { name: "col2", cellType: "text" }] }]
       });
       if (!!checkErrorsMode) survey.checkErrorsMode = <any>checkErrorsMode;
@@ -3203,7 +3203,7 @@ describe("Remote data source: the coordination between a question and its list",
     expect(question.toggleSort("col2"), "#2").toBe(true);
     question.visibleRows[3].getQuestionByName("col1").value = "edited";
     question.clearSort();
-    question.rowsPerPage = 5;
+    question.pageSize = 5;
     expect(getPageState(question).edited, "#3: layer 2 tracks the edits of a list that pages in memory").toEqual([]);
   });
   test("panel: an edit made while the list does not page is not tracked", () => {
@@ -3217,7 +3217,7 @@ describe("Remote data source: the coordination between a question and its list",
     expect(question.toggleSort("col2"), "#2").toBe(true);
     question.panels[3].getQuestionByName("col1").value = "edited";
     question.clearSort();
-    question.panelsPerPage = 5;
+    question.pageSize = 5;
     expect(getPageState(question).edited, "#3: layer 2 tracks the edits of a list that pages in memory").toEqual([]);
   });
 });
@@ -3255,9 +3255,9 @@ describe("Remote data source: a read that commits again", () => {
         ({ id: i, items: [0, 1, 2, 3, 4, 5].map((j: number): any => ({ a: "a" + i + j })) }));
       const source = new FakeServerSource(outerRecords, ["insert", "update", "remove", "move"], keyField);
       const { question } = await createPanel(source, {
-        panelsPerPage: 2,
+        pageSize: 2,
         templateElements: [{ type: "text", name: "id" }, {
-          type: "matrixdynamic", name: "items", rowCount: 0, rowsPerPage: 2, columns: [{ name: "a", cellType: "text" }]
+          type: "matrixdynamic", name: "items", rowCount: 0, pageSize: 2, columns: [{ name: "a", cellType: "text" }]
         }]
       });
       const matrixOf = (id: number): QuestionMatrixDynamicModel => {
@@ -3430,7 +3430,7 @@ describe("Remote data source: the focus after the last panel of a refilled page 
     const removeActionSpy = vi.spyOn(QuestionPanelDynamicModel.prototype, "getRemovePanelAction");
     try {
       const source = new FakeServerSource(serverRecords(30));
-      const { question } = await createPanel(source, { panelsPerPage: 10 });
+      const { question } = await createPanel(source, { pageSize: 10 });
       source.auto = false;
       question.removePanelUI(question.panels[9]);
       source.settleAll();
@@ -3607,7 +3607,7 @@ describe("Remote data source: recovery from failed reads and throwing handlers",
   });
   test("an error listener that throws for a rejected insert: the exception surfaces, a later update and read still run", async () => {
     const source = new FakeServerSource(serverRecords(3), ["insert", "update"]);
-    const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { survey, question } = await createMatrix(source, { pageSize: 0 });
     survey.onDynamicDataError.add(() => { throw new Error("listener"); });
     const unhandled = catchUnhandled();
     try {
@@ -3631,7 +3631,7 @@ describe("Remote data source: recovery from failed reads and throwing handlers",
   });
   test("the follow-up of an insert answer throws: the exception surfaces, a later update and read still run in order", async () => {
     const source = new FakeServerSource(serverRecords(3), ["insert", "update"]);
-    const { question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { question } = await createMatrix(source, { pageSize: 0 });
     const list = question["dataList"];
     let isThrowing = false;
     list.onChanged = (change: any): void => {
@@ -3672,7 +3672,7 @@ describe("Remote data source: an added panel lands in front of the record a numb
   const hideOneAndFour = "{panel.id} <> 1 and {panel.id} <> 4";
   const insertAt = async (page: number, index: number): Promise<{ question: QuestionPanelDynamicModel, source: FakeServerSource, res: any, added: Array<any> }> => {
     const source = new FakeServerSource(serverRecords(12));
-    const { survey, question } = await createPanel(source, { panelsPerPage: 3, templateVisibleIf: hideOneAndFour, defaultPanelValue: { col1: "new" } });
+    const { survey, question } = await createPanel(source, { pageSize: 3, templateVisibleIf: hideOneAndFour, defaultPanelValue: { col1: "new" } });
     if (page > 0) {
       question.goToPage(page);
       await flush();
@@ -3705,7 +3705,7 @@ describe("Remote data source: an added panel lands in front of the record a numb
   });
   test("a sorted source without paging: Add in tab mode inserts after the current panel", async () => {
     const source = new FakeServerSource(serverRecords(5), ["insert", "update", "remove", "move"]);
-    const { survey, question } = await createPanel(source, { panelsPerPage: 0, displayMode: "tab", defaultPanelValue: { col1: "new" } });
+    const { survey, question } = await createPanel(source, { pageSize: 0, displayMode: "tab", defaultPanelValue: { col1: "new" } });
     question.sortOrder = [{ field: "col2", direction: "desc" }];
     expect(panelValues(question), "#1").toEqual(["v4", "v3", "v2", "v1", "v0"]);
     question.currentIndex = 1;
@@ -3727,7 +3727,7 @@ describe("Remote data source: an added panel lands in front of the record a numb
   ["list", "tab"].forEach((mode: string): void => {
     test(mode + ": a record templateVisibleIf hides gets no panel, appended or inserted", async () => {
       const source = new FakeServerSource(serverRecords(12));
-      const { survey, question } = await createPanel(source, { displayMode: mode, panelsPerPage: 3,
+      const { survey, question } = await createPanel(source, { displayMode: mode, pageSize: 3,
         templateVisibleIf: "{panel.col1} <> 'hidden'", defaultPanelValue: { col1: "hidden" } });
       const added: Array<any> = [];
       survey.onDynamicPanelAdded.add((_, options) => { added.push(options.panel); });
@@ -3778,9 +3778,9 @@ function expectUntouched(survey: SurveyModel, question: Question, source: FakeSe
   expect(survey.data[question.name], "no key in survey.data").toBeUndefined();
 }
 const ownedElement = (kind: string, json?: any, isPaged: boolean = true): any => kind === "matrix" ?
-  Object.assign({ type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: isPaged ? 5 : 0,
+  Object.assign({ type: "matrixdynamic", name: "matrix", rowCount: 0, pageSize: isPaged ? 5 : 0,
     columns: [{ name: "col1" }, { name: "col2" }] }, json) :
-  Object.assign({ type: "paneldynamic", name: "panel", panelCount: 0, panelsPerPage: isPaged ? 5 : 0,
+  Object.assign({ type: "paneldynamic", name: "panel", panelCount: 0, pageSize: isPaged ? 5 : 0,
     templateElements: [{ type: "text", name: "col1" }, { type: "text", name: "col2" }] }, json);
 async function attach(question: Question, source: IDynamicDataSource): Promise<void> {
   (<any>question).dataSource = source;
@@ -4016,7 +4016,7 @@ describe("Remote data source: an outside assignment of the value is not made", (
         arr = newArray;
         question.value = [{ col1: "x" }];
       });
-      const survey = new SurveyModel({ elements: [ownedElement(kind, { rowsPerPage: 0, panelsPerPage: 0 })] });
+      const survey = new SurveyModel({ elements: [ownedElement(kind, { pageSize: 0 })] });
       question = <Question>survey.getQuestionByName(kind);
       await attach(question, source);
       editFirst(question, "col1", "edited");
@@ -4052,7 +4052,7 @@ describe("Remote data source: an outside assignment of the value is not made", (
     expect(warningsFor("panel"), "#4").toBe(1);
   });
   test("matrix: an assignment made inside the write of the column defaults on row generation is skipped, the write lands", async () => {
-    const survey = new SurveyModel({ elements: [ownedElement("matrix", { rowsPerPage: 0,
+    const survey = new SurveyModel({ elements: [ownedElement("matrix", { pageSize: 0,
       columns: [{ name: "col1" }, { name: "col2" }, { name: "col3", defaultValue: "d" }] })] });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     const attempts: Array<boolean> = [];
@@ -4236,7 +4236,7 @@ describe("Remote data source: a failed write to an assigned in-memory source is 
   }
   const col1 = (records: Array<any>): Array<any> => records.map((r: any): any => r.col1);
   async function create(kind: string): Promise<{ survey: SurveyModel, question: any, errors: Array<string>, failing: ReturnType<typeof createFailing> }> {
-    const survey = new SurveyModel({ elements: [ownedElement(kind, { rowsPerPage: 0, panelsPerPage: 0 })] });
+    const survey = new SurveyModel({ elements: [ownedElement(kind, { pageSize: 0 })] });
     const question = <any>survey.getQuestionByName(kind);
     const failing = createFailing();
     await attach(question, failing.source);
@@ -4296,7 +4296,7 @@ describe("Remote data source: a failed write to an assigned in-memory source is 
 
         const others = ["insert", "update", "remove"].filter((name: string): boolean => name !== operation);
         const source = new CapabilitySource([0, 1, 2].map((i: number): any => ({ id: i, col1: "ABC"[i] })), others);
-        const survey = new SurveyModel({ elements: [ownedElement(kind, { rowsPerPage: 0, panelsPerPage: 0 })] });
+        const survey = new SurveyModel({ elements: [ownedElement(kind, { pageSize: 0 })] });
         const refused = <any>survey.getQuestionByName(kind);
         refused.dataSource = source;
         const errors: Array<string> = [];
@@ -4321,7 +4321,7 @@ describe("Remote data source: a failed write to an assigned in-memory source is 
       expect(shownCol1(question)[0], "#2: kept").toBe("edited");
 
       const source = new CapabilitySource([0, 1, 2].map((i: number): any => ({ id: i, col1: "ABC"[i] })), ["insert", "remove"]);
-      const refusedSurvey = new SurveyModel({ elements: [ownedElement(kind, { rowsPerPage: 0, panelsPerPage: 0 })] });
+      const refusedSurvey = new SurveyModel({ elements: [ownedElement(kind, { pageSize: 0 })] });
       const refused = <any>refusedSurvey.getQuestionByName(kind);
       refused.dataSource = source;
       const refusals: Array<string> = [];
@@ -4333,7 +4333,7 @@ describe("Remote data source: a failed write to an assigned in-memory source is 
     });
   });
   test("matrix: an assigned SurveyDataDynamicDataSource whose write runs a throwing onValueChanged handler is reported", async () => {
-    const survey = new SurveyModel({ elements: [ownedElement("matrix", { rowsPerPage: 0 })] });
+    const survey = new SurveyModel({ elements: [ownedElement("matrix", { pageSize: 0 })] });
     survey.setValue("store", [{ col1: "A" }, { col1: "B" }, { col1: "C" }]);
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     await attach(question, new SurveyDataDynamicDataSource(survey, "store"));
@@ -4411,8 +4411,8 @@ describe("Remote data source: an attached source replaces the shown records at o
    new row or panel, and what the respondent typed before the answer arrived stays theirs. */
 describe("Remote data source: the server's fields in an insert answer are shown", () => {
   const json = (kind: string): any => kind === "matrix" ?
-    { rowsPerPage: 0, columns: [{ name: "a" }, { name: "b" }] } :
-    { panelsPerPage: 0, templateElements: [{ type: "text", name: "a" }, { type: "text", name: "b" }] };
+    { pageSize: 0, columns: [{ name: "a" }, { name: "b" }] } :
+    { pageSize: 0, templateElements: [{ type: "text", name: "a" }, { type: "text", name: "b" }] };
   async function create(kind: string): Promise<{ question: any, source: FakeServerSource }> {
     const survey = new SurveyModel({ elements: [ownedElement(kind, json(kind))] });
     const question = <any>survey.getQuestionByName(kind);
@@ -4471,7 +4471,7 @@ describe("Remote data source: the server's fields in an insert answer are shown"
 describe("Remote data source: an added record starts from the defaults", () => {
   test("panel: defaultPanelValue and a template default for different fields are both in the insert", async () => {
     const source = new FakeServerSource(serverRecords(2), ["insert", "update", "remove", "move"]);
-    const { question } = await createPanel(source, { panelsPerPage: 0, defaultPanelValue: { col2: "p" },
+    const { question } = await createPanel(source, { pageSize: 0, defaultPanelValue: { col2: "p" },
       templateElements: [{ type: "text", name: "col1", defaultValue: "d" }, { type: "text", name: "col2" }] });
     source.reset();
     question.addPanel();
@@ -4480,7 +4480,7 @@ describe("Remote data source: an added record starts from the defaults", () => {
     expect(source.argsOf("insert")[0][0], "#2").toEqual({ col1: "d", col2: "p" });
   });
   test("panel: defaultPanelValue wins over a template default for the same field, as in the local add", async () => {
-    const json = { panelsPerPage: 0, defaultPanelValue: { col1: "p" },
+    const json = { pageSize: 0, defaultPanelValue: { col1: "p" },
       templateElements: [{ type: "text", name: "col1", defaultValue: "d" }, { type: "text", name: "col2" }] };
     const source = new FakeServerSource(serverRecords(2), ["insert", "update", "remove", "move"]);
     const { question } = await createPanel(source, json);
@@ -4495,7 +4495,7 @@ describe("Remote data source: an added record starts from the defaults", () => {
   });
   test("matrix: a column default value is part of the one insert", async () => {
     const source = new FakeServerSource(serverRecords(2), ["insert", "update", "remove", "move"]);
-    const { question } = await createMatrix(source, { rowsPerPage: 0,
+    const { question } = await createMatrix(source, { pageSize: 0,
       columns: [{ name: "col1", defaultValue: "d" }, { name: "col2" }] });
     question.visibleRows;
     source.reset();
@@ -4521,7 +4521,7 @@ describe("Remote data source: the refill after a remove keeps the touched record
   const refillKinds: Array<IRefillKind> = [
     {
       name: "panel",
-      create: (source, json) => createPanel(source, Object.assign({ panelsPerPage: 4,
+      create: (source, json) => createPanel(source, Object.assign({ pageSize: 4,
         templateElements: [{ type: "text", name: "col1" }, { type: "text", name: "flag" }, { type: "text", name: "col2", inputType: "number" }] }, json)),
       values: (q, name) => panelValues(q, name),
       set: (q, position, name, value) => { q.panels[position].getQuestionByName(name).value = value; },
@@ -4534,7 +4534,7 @@ describe("Remote data source: the refill after a remove keeps the touched record
     },
     {
       name: "matrix",
-      create: (source, json) => createMatrix(source, Object.assign({ rowsPerPage: 4,
+      create: (source, json) => createMatrix(source, Object.assign({ pageSize: 4,
         columns: [{ name: "col1" }, { name: "flag" }, { name: "col2", cellType: "text", inputType: "number" }] }, json)),
       values: (q, name) => rowValues(q, name),
       set: (q, position, name, value) => { q.visibleRows[position].getQuestionByName(name).value = value; },
@@ -4672,7 +4672,7 @@ describe("Remote data source: the refill after a remove keeps the touched record
   // Every committed read rebuilds the panels; the current panel is the kept record's again.
   test("panel: the current panel stays on a kept record through the refill", async () => {
     const source = flagSource(12);
-    const { question } = await createPanel(source, Object.assign({ panelsPerPage: 4, displayMode: "carousel",
+    const { question } = await createPanel(source, Object.assign({ pageSize: 4, displayMode: "carousel",
       templateElements: [{ type: "text", name: "col1" }, { type: "text", name: "flag" }] }, filter));
     question.currentIndex = 2;
     question.currentPanel.getQuestionByName("flag").value = "n";
@@ -4688,9 +4688,9 @@ describe("Remote data source: the refill after a remove keeps the touched record
 describe("Remote data source: an operation the source cannot take is refused and reported", () => {
   const sixRecords = (): Array<any> => [0, 1, 2, 3, 4, 5].map((i: number): any => ({ id: i, a: "a" + i }));
   const elementOf = (kind: string, json?: any): any => kind === "matrix" ?
-    Object.assign({ type: "matrixdynamic", name: "q", rowCount: 0, rowsPerPage: 2,
+    Object.assign({ type: "matrixdynamic", name: "q", rowCount: 0, pageSize: 2,
       columns: [{ name: "a", cellType: "text" }, { name: "sel", cellType: "dropdown", choices: ["x", "y"] }] }, json) :
-    Object.assign({ type: "paneldynamic", name: "q", panelCount: 0, panelsPerPage: 2,
+    Object.assign({ type: "paneldynamic", name: "q", panelCount: 0, pageSize: 2,
       templateElements: [{ type: "text", name: "a" }, { type: "dropdown", name: "sel", choices: ["x", "y"], showCommentArea: true }] }, json);
   function create(kind: string, source: IDynamicDataSource, json?: any, surveyJson?: any): { survey: SurveyModel, question: any, errors: Array<string> } {
     const survey = new SurveyModel(Object.assign({ elements: [elementOf(kind, json)] }, surveyJson));
@@ -5254,7 +5254,7 @@ describe("Remote data source: the current panel of a paged dynamic panel", () =>
   };
   const currentCol1 = (question: QuestionPanelDynamicModel): any => question.currentPanel.getQuestionByName("col1").value;
   test("a refresh of the same page raises nothing; a move on the page one event", async () => {
-    const { question, events } = await setUp(7, { panelsPerPage: 2 });
+    const { question, events } = await setUp(7, { pageSize: 2 });
     question.currentIndex = 1;
     events.splice(0);
     question.refreshDataSource();
@@ -5427,7 +5427,7 @@ describe("Remote data source: showing records sends nothing", () => {
     { name: "st", cellType: "text", defaultValue: "new" }].concat(extra || []) });
   test("panel: moving between pages sends no update for the template default", async () => {
     const source = pagingSource();
-    const { question } = await createPanel(source, Object.assign({ panelsPerPage: 2 }, panelTemplate()));
+    const { question } = await createPanel(source, Object.assign({ pageSize: 2 }, panelTemplate()));
     question.nextPage();
     await flush();
     question.prevPage();
@@ -5437,7 +5437,7 @@ describe("Remote data source: showing records sends nothing", () => {
   });
   test("matrix: moving between pages sends no update for the column default", async () => {
     const source = pagingSource();
-    const { question } = await createMatrix(source, Object.assign({ rowsPerPage: 2 }, matrixColumns()));
+    const { question } = await createMatrix(source, Object.assign({ pageSize: 2 }, matrixColumns()));
     question.visibleRows;
     question.nextPage();
     await flush();
@@ -5449,13 +5449,13 @@ describe("Remote data source: showing records sends nothing", () => {
   });
   test("panel: building the panels of a source without paging sends no update", async () => {
     const source = new FakeServerSource(serverRecords(3, 100), ["insert", "update", "remove", "move"], "id");
-    const { question } = await createPanel(source, Object.assign({ panelsPerPage: 0 }, panelTemplate()));
+    const { question } = await createPanel(source, Object.assign({ pageSize: 0 }, panelTemplate()));
     expect(question.panels.length, "#1").toBe(3);
     expect(source.argsOf("update"), "#2").toEqual([]);
   });
   test("panel: an expression question sends nothing on a page view, and an edit sends the edit and the recomputed expression", async () => {
     const source = pagingSource();
-    const { question } = await createPanel(source, Object.assign({ panelsPerPage: 2 },
+    const { question } = await createPanel(source, Object.assign({ pageSize: 2 },
       panelTemplate([{ type: "expression", name: "ex", expression: "{panel.col1} + '!'" }])));
     question.nextPage();
     await flush();
@@ -5472,7 +5472,7 @@ describe("Remote data source: showing records sends nothing", () => {
   });
   test("matrix: an expression column sends nothing on a page view, and an edit sends the edit and the recomputed expression", async () => {
     const source = pagingSource();
-    const { question } = await createMatrix(source, Object.assign({ rowsPerPage: 2 },
+    const { question } = await createMatrix(source, Object.assign({ pageSize: 2 },
       matrixColumns([{ name: "ex", cellType: "expression", expression: "{row.col1} + '!'" }])));
     question.visibleRows;
     question.nextPage();
@@ -5497,7 +5497,7 @@ describe("Remote data source: showing records sends nothing", () => {
       read: () => Promise.resolve(records.map(record => Object.assign({}, record))),
       update: (key: any, record: any, fields: Array<string>) => { updates.push([key, fields]); return Promise.resolve(); }
     };
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowsPerPage: 2, sortBy: "n-", rowCount: 0,
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", pageSize: 2, sortBy: "n-", rowCount: 0,
       columns: [{ name: "n", cellType: "text" }, { name: "e", cellType: "expression", expression: "{rowIndex}" }] }] });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     question.dataSource = source;
@@ -5514,12 +5514,12 @@ describe("Remote data source: showing records sends nothing", () => {
   });
   test("the first edit of a record shown with a default lists the edited field and the default's field", async () => {
     const panelSource = pagingSource();
-    const panel = (await createPanel(panelSource, Object.assign({ panelsPerPage: 2 }, panelTemplate()))).question;
+    const panel = (await createPanel(panelSource, Object.assign({ pageSize: 2 }, panelTemplate()))).question;
     panel.panels[0].getQuestionByName("col1").value = "e";
     await flush();
     expect(panelSource.argsOf("update"), "#1: panel").toEqual([[100, { id: 100, col1: "e", col2: 100, st: "new" }, ["col1", "st"]]]);
     const matrixSource = pagingSource();
-    const matrix = (await createMatrix(matrixSource, Object.assign({ rowsPerPage: 2 },
+    const matrix = (await createMatrix(matrixSource, Object.assign({ pageSize: 2 },
       matrixColumns([{ name: "ex", cellType: "expression", expression: "{row.st} + '!'" }])))).question;
     matrix.visibleRows[0].getQuestionByName("col1").value = "e";
     await flush();
@@ -5527,14 +5527,14 @@ describe("Remote data source: showing records sends nothing", () => {
   });
   test("panel: another expression reads the default while nothing was sent", async () => {
     const source = pagingSource();
-    const { question } = await createPanel(source, Object.assign({ panelsPerPage: 2 },
+    const { question } = await createPanel(source, Object.assign({ pageSize: 2 },
       panelTemplate([{ type: "expression", name: "copy", expression: "{panel.st}" }])));
     expect(question.panels[0].getQuestionByName("copy").value, "#1").toBe("new");
     expect(source.argsOf("update"), "#2").toEqual([]);
   });
   test("panel: addPanel sends the default in the insert", async () => {
     const source = pagingSource();
-    const { question } = await createPanel(source, Object.assign({ panelsPerPage: 2 }, panelTemplate()));
+    const { question } = await createPanel(source, Object.assign({ pageSize: 2 }, panelTemplate()));
     question.addPanel();
     await flush();
     expect(source.argsOf("insert").map(args => args[0]), "#1").toEqual([{ st: "new" }]);
@@ -5543,7 +5543,7 @@ describe("Remote data source: showing records sends nothing", () => {
 });
 
 describe("Remote data source: a validated navigation waits for the question's pending data operations", () => {
-  const requiredMatrix = (extra?: any): any => Object.assign({ type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: 5,
+  const requiredMatrix = (extra?: any): any => Object.assign({ type: "matrixdynamic", name: "matrix", rowCount: 0, pageSize: 5,
     columns: [{ name: "col1", isRequired: true }, { name: "col2" }] }, extra);
   async function createSurvey(records: Array<any>, json?: any):
     Promise<{ survey: SurveyModel, question: QuestionMatrixDynamicModel, source: FakeServerSource, completed: Array<boolean> }> {
@@ -5880,6 +5880,45 @@ describe("Remote data source: a validated navigation waits for the question's pe
     expect(completed, "#6").toEqual([true]);
     expect(survey.state, "#7").toBe("completed");
   });
+  test("a read started by the validation that a settled read runs again keeps the validation waiting until it settles", async () => {
+    const { survey, question, source } = await createSurvey([{ id: 1, col1: "a", col2: 1 }]);
+    let validateCount = 0;
+    survey.onValidateQuestion.add((_, options) => {
+      // The first call is the validation itself, the second one runs again once the first read settled.
+      if (options.name === "matrix" && ++validateCount === 2) question.refreshDataSource();
+    });
+    const answers: Array<boolean> = [];
+    survey.validate(false, false, (hasErrors: boolean) => { answers.push(hasErrors); });
+    expect(answers, "#1: waits for the first read").toEqual([]);
+    source.settleAll();
+    await flush();
+    expect(validateCount, "#2: validated again").toBe(2);
+    expect(source.pending.length, "#3: the second read is pending").toBe(1);
+    expect(answers, "#4: waits for the second read").toEqual([]);
+    source.settleAll();
+    await flush();
+    expect(answers, "#5: answered once").toEqual([false]);
+  });
+  test("a source assigned by the error handler of a source being assigned answers a waiting validation once the outer assignment ends", async () => {
+    const { survey, question } = await createSurvey([{ id: 1, col1: "a", col2: 1 }]);
+    const answers: Array<boolean> = [];
+    survey.validate(false, false, (hasErrors: boolean) => { answers.push(hasErrors); });
+    expect(answers, "#1: waits for the first read").toEqual([]);
+    const failing = ArrayDynamicDataSource.fromArray([{ id: 2, col1: "b" }]);
+    vi.spyOn(failing, "read").mockImplementation((): Array<any> => { throw new Error("read"); });
+    const second = ArrayDynamicDataSource.fromArray([{ id: 3, col1: "c" }, { id: 4, col1: "d" }]);
+    const answersInHandler: Array<Array<boolean>> = [];
+    survey.onDynamicDataError.add(() => {
+      if (question.dataSource === second) return;
+      question.dataSource = second;
+      answersInHandler.push(answers.slice());
+    });
+    question.dataSource = failing;
+    expect(answersInHandler, "#2: the outer assignment was still running").toEqual([[]]);
+    expect(question.dataSource, "#3").toBe(second);
+    expect(question.visibleRows.map(row => row.getValue("col1")), "#4").toEqual(["c", "d"]);
+    expect(answers, "#5: answered once").toEqual([false]);
+  });
 });
 
 describe("Remote data source: the survey learns of pending writes from the records questions", () => {
@@ -5951,7 +5990,7 @@ describe("Remote data source: the survey learns of pending writes from the recor
     };
     await run("a source that cannot remove", new FakeServerSource([{ id: 1, col1: "x" }, { id: 2, col1: "y" }], ["update"]), {},
       () => { }, question => question.removeRowByIndex(1));
-    await run("a record a paging source has not loaded", new FakeServerSource(serverRecords(12)), { rowsPerPage: 5 },
+    await run("a record a paging source has not loaded", new FakeServerSource(serverRecords(12)), { pageSize: 5 },
       question => question.goToPage(1), question => question.removeRowByIndex(0));
   });
 });
@@ -5959,7 +5998,7 @@ describe("Remote data source: the survey learns of pending writes from the recor
 describe("Remote data source: what a developer assigns through the survey is stored as assigned", () => {
   test("survey.setValue and mergeData reach survey.data, the rows keep showing the source and nothing is sent", async () => {
     const source = keyedSource(2);
-    const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { survey, question } = await createMatrix(source, { pageSize: 0 });
     source.reset();
     survey.setValue("matrix", [{ col1: "assigned" }]);
     expect(survey.data.matrix, "#1").toEqual([{ col1: "assigned" }]);
@@ -5972,7 +6011,7 @@ describe("Remote data source: what a developer assigns through the survey is sto
   });
   test("question.value is ignored with a warning", async () => {
     const source = keyedSource(2);
-    const { question } = await createMatrix(source, { rowsPerPage: 0 });
+    const { question } = await createMatrix(source, { pageSize: 0 });
     const warn = vi.spyOn(ConsoleWarnings, "warn").mockImplementation(() => { });
     try {
       question.value = [{ col1: "x" }];
@@ -5988,7 +6027,7 @@ describe("Remote data source: a source replaced while a write is pending", () =>
   test("a new object over the same storage does not bring a removed record back, and the next removal works", async () => {
     const source = new FakeServerSource([{ id: 1, a: "r0" }, { id: 2, a: "r1" }, { id: 3, a: "r2" }], undefined, "id");
     source.auto = false;
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 5, columns: [{ name: "a" }] }] });
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, pageSize: 5, columns: [{ name: "a" }] }] });
     const errors: Array<string> = [];
     survey.onDynamicDataError.add((_, options) => { errors.push(options.operation); });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
@@ -6021,7 +6060,7 @@ describe("Remote data source: Next with an unknown total", () => {
     const source = new FakeServerSource([0, 1, 2, 3, 4].map(i => ({ id: i, a: "r" + i })), undefined, "id");
     source.reportTotal = false;
     source.auto = false;
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 2, columns: [{ name: "a" }] }] });
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, pageSize: 2, columns: [{ name: "a" }] }] });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     question.dataSource = source;
     source.settleAll();
@@ -6058,9 +6097,9 @@ describe("Remote data source: the page of a nested paged question follows its re
     const items = (name: string): Array<any> => [0, 1, 2, 3, 4, 5].map(i => ({ x: name + "-" + i }));
     const source = new FakeServerSource([{ id: 1, a: "A", items: items("A") }, { id: 2, a: "B", items: items("B") },
       { id: 3, a: "C", items: items("C") }], undefined, "id");
-    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelsPerPage: 1,
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", pageSize: 1,
       templateElements: [{ type: "text", name: "a" },
-        { type: "paneldynamic", name: "items", panelsPerPage: 2, templateElements: [{ type: "text", name: "x" }] }] }] });
+        { type: "paneldynamic", name: "items", pageSize: 2, templateElements: [{ type: "text", name: "x" }] }] }] });
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
     question.dataSource = source;
     await flush();
@@ -6080,8 +6119,8 @@ describe("Remote data source: two questions share one source object", () => {
   const createShared = async (): Promise<{ m1: QuestionMatrixDynamicModel, m2: QuestionMatrixDynamicModel, source: FakeServerSource }> => {
     const source = keyedSource(3);
     const survey = new SurveyModel({ elements: [
-      { type: "matrixdynamic", name: "m1", rowCount: 0, rowsPerPage: 5, columns: [{ name: "col1" }] },
-      { type: "matrixdynamic", name: "m2", rowCount: 0, rowsPerPage: 5, columns: [{ name: "col1" }] }] });
+      { type: "matrixdynamic", name: "m1", rowCount: 0, pageSize: 5, columns: [{ name: "col1" }] },
+      { type: "matrixdynamic", name: "m2", rowCount: 0, pageSize: 5, columns: [{ name: "col1" }] }] });
     const m1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("m1");
     const m2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("m2");
     m1.dataSource = source;
@@ -6123,8 +6162,8 @@ describe("Remote data source: two questions share one source object", () => {
   test("two dynamic panels: a refresh of one while the other's write is pending reads after the write", async () => {
     const source = keyedSource(3);
     const survey = new SurveyModel({ elements: [
-      { type: "paneldynamic", name: "p1", panelCount: 0, panelsPerPage: 5, templateElements: [{ type: "text", name: "col1" }] },
-      { type: "paneldynamic", name: "p2", panelCount: 0, panelsPerPage: 5, templateElements: [{ type: "text", name: "col1" }] }] });
+      { type: "paneldynamic", name: "p1", panelCount: 0, pageSize: 5, templateElements: [{ type: "text", name: "col1" }] },
+      { type: "paneldynamic", name: "p2", panelCount: 0, pageSize: 5, templateElements: [{ type: "text", name: "col1" }] }] });
     const p1 = <QuestionPanelDynamicModel>survey.getQuestionByName("p1");
     const p2 = <QuestionPanelDynamicModel>survey.getQuestionByName("p2");
     p1.dataSource = source;
@@ -6144,8 +6183,8 @@ describe("Remote data source: two questions share one source object", () => {
   test("a matrix and a dynamic panel: a refresh of the panel while the matrix's write is pending reads after the write", async () => {
     const source = keyedSource(3);
     const survey = new SurveyModel({ elements: [
-      { type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 5, columns: [{ name: "col1" }] },
-      { type: "paneldynamic", name: "p", panelCount: 0, panelsPerPage: 5, templateElements: [{ type: "text", name: "col1" }] }] });
+      { type: "matrixdynamic", name: "m", rowCount: 0, pageSize: 5, columns: [{ name: "col1" }] },
+      { type: "paneldynamic", name: "p", panelCount: 0, pageSize: 5, templateElements: [{ type: "text", name: "col1" }] }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
     matrix.dataSource = source;
@@ -6165,7 +6204,7 @@ describe("Remote data source: two questions share one source object", () => {
   test("two surveys: a refresh in one does not wait for the other survey's write, and both settle", async () => {
     const source = keyedSource(3);
     const createMatrixOnSource = async (): Promise<QuestionMatrixDynamicModel> => {
-      const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 5, columns: [{ name: "col1" }] }] });
+      const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, pageSize: 5, columns: [{ name: "col1" }] }] });
       const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
       matrix.dataSource = source;
       await flush();
@@ -6278,7 +6317,7 @@ describe("Remote data source: a throwing error handler", () => {
     process.on("unhandledRejection", onRejection);
     try {
       const source = keyedSource(2);
-      const { survey, question } = await createMatrix(source, { rowsPerPage: 0 });
+      const { survey, question } = await createMatrix(source, { pageSize: 0 });
       survey.onDynamicDataError.add(() => { throw new Error("handler"); });
       source.auto = false;
       question.visibleRows[0].getQuestionByName("col1").value = "e0";
@@ -6859,7 +6898,7 @@ describe("a data source owns the record count", () => {
   });
   test("with a data source the row count and the panel count follow the source's count after a read and after an add", async () => {
     const matrixSource = new FakeServerSource(serverRecords(3));
-    const { question: matrix } = await createMatrix(matrixSource, { rowsPerPage: 0 });
+    const { question: matrix } = await createMatrix(matrixSource, { pageSize: 0 });
     expect(matrix.rowCount, "#1: after the read").toBe(3);
     matrix.addRow();
     expect(matrix.rowCount, "#2: right after the add").toBe(4);
@@ -6869,7 +6908,7 @@ describe("a data source owns the record count", () => {
     await flush();
     expect(matrix.rowCount, "#4: after a remove").toBe(3);
     const panelSource = new FakeServerSource(serverRecords(3));
-    const { question: panel } = await createPanel(panelSource, { panelsPerPage: 0 });
+    const { question: panel } = await createPanel(panelSource, { pageSize: 0 });
     expect(panel.panelCount, "#5: after the read").toBe(3);
     panel.addPanel();
     expect(panel.panelCount, "#6: right after the add").toBe(4);
@@ -6882,8 +6921,8 @@ describe("the page of a nested paged question follows its record through a re-re
   test("a nested paged question in a detail panel keeps its page after a re-read that moves its record", async () => {
     const records = [0, 1, 2].map((i: number): any => ({ id: i, col1: "r" + i, inner: [{ a: 1 }, { a: 2 }, { a: 3 }] }));
     const source = new FakeServerSource(records, ["insert", "update", "remove", "move"]);
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, rowsPerPage: 5, detailPanelMode: "underRow",
-      columns: [{ name: "col1" }], detailElements: [{ type: "matrixdynamic", name: "inner", rowCount: 0, rowsPerPage: 1, columns: [{ name: "a" }] }] }] });
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, pageSize: 5, detailPanelMode: "underRow",
+      columns: [{ name: "col1" }], detailElements: [{ type: "matrixdynamic", name: "inner", rowCount: 0, pageSize: 1, columns: [{ name: "a" }] }] }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     matrix.dataSource = source;
     await flush();

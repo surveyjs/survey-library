@@ -1683,6 +1683,15 @@
             },
             "allowAdaptiveActions": {
               "type": "boolean"
+            },
+            "rowsPerPage": {
+              "type": "number"
+            },
+            "sortBy": {
+              "type": "string"
+            },
+            "filterExpression": {
+              "type": "string"
             }
           }
         }
@@ -2050,6 +2059,9 @@
         "renderAs": {
           "type": "string"
         },
+        "allowSort": {
+          "type": "boolean"
+        },
         "defaultDisplayValue": {
           "oneOf": [
             {
@@ -2246,6 +2258,9 @@
               "type": "boolean"
             },
             "allowRowReorder": {
+              "type": "boolean"
+            },
+            "allowSortRows": {
               "type": "boolean"
             }
           }
@@ -4571,6 +4586,15 @@
               ]
             },
             "questionStartIndex": {
+              "type": "string"
+            },
+            "panelsPerPage": {
+              "type": "number"
+            },
+            "sortBy": {
+              "type": "string"
+            },
+            "filterExpression": {
               "type": "string"
             },
             "displayMode": {

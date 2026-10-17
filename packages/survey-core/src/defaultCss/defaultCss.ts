@@ -263,6 +263,7 @@ export var defaultCss = {
     breadcrumbsItemButton: "sd-breadcrumbs-item__button",
     breadcrumbsSeparator: "sd-breadcrumbs-separator",
     summary: "sd-summary",
+    summaryPlaceholder: "sd-summary-placeholder",
     summaryRow: "sd-summary-row",
     summaryRowContent: "sd-summary-row__content",
     summaryRowActions: "sd-summary-row__actions",
@@ -326,7 +327,9 @@ export var defaultCss = {
     itemPanelEnter: "sd-selectbase__item-panel--enter",
     itemPanelLeave: "sd-selectbase__item-panel--leave",
     itemCommentEnter: "sd-selectbase__item-comment--enter",
-    itemCommentLeave: "sd-selectbase__item-comment--leave"
+    itemCommentLeave: "sd-selectbase__item-comment--leave",
+    itemShortcutKey: "sd-item__shortcut-key",
+    itemShortcutKeyDisabled: "sd-item__shortcut-key--disabled"
   },
   radiogroup: {
     root: "sd-selectbase",
@@ -357,7 +360,9 @@ export var defaultCss = {
     itemPanelEnter: "sd-selectbase__item-panel--enter",
     itemPanelLeave: "sd-selectbase__item-panel--leave",
     itemCommentEnter: "sd-selectbase__item-comment--enter",
-    itemCommentLeave: "sd-selectbase__item-comment--leave"
+    itemCommentLeave: "sd-selectbase__item-comment--leave",
+    itemShortcutKey: "sd-item__shortcut-key",
+    itemShortcutKeyDisabled: "sd-item__shortcut-key--disabled"
   },
   boolean: {
     mainRoot: "sd-element sd-question sd-row__question sd-question--boolean",
@@ -522,6 +527,8 @@ export var defaultCss = {
     itemNoImageSvgIcon: "sd-imagepicker__no-image-svg",
     itemNoImageSvgIconId: "icon-no-image",
     column: "sd-selectbase__column sd-imagepicker__column",
+    itemShortcutKey: "sd-item__shortcut-key sd-imagepicker__shortcut-key",
+    itemShortcutKeyDisabled: "sd-item__shortcut-key--disabled",
     checkedItemDecorator: "sd-imagepicker__check-decorator",
     checkedItemSvgIcon: "sd-imagepicker__check-icon",
     checkedItemSvgIconId: "icon-check-24x24",

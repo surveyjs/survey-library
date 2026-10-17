@@ -41,7 +41,7 @@ describe("a stale page is rebuilt once", () => {
   test("matrix: a record a condition hides leaves the page and the next one takes its slot", () => {
     const survey = new SurveyModel({ elements: [
       { type: "text", name: "hide" },
-      { type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 2, rowsVisibleIf: "{row.a} != {hide}", columns: [{ name: "a", cellType: "text" }] }
+      { type: "matrixdynamic", name: "m", rowCount: 0, pageSize: 2, rowsVisibleIf: "{row.a} != {hide}", columns: [{ name: "a", cellType: "text" }] }
     ] });
     survey.data = { m: records(4) };
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
@@ -51,7 +51,7 @@ describe("a stale page is rebuilt once", () => {
     expect(matrix.pageCount, "#4").toBe(2);
   });
   test("matrix: a grown rowCount appends rows to the page while the page has room", () => {
-    const matrix = createMatrix({ rowsPerPage: 3 }, records(1));
+    const matrix = createMatrix({ pageSize: 3 }, records(1));
     const rows = matrix.visibleRows;
     matrix.rowCount = 3;
     expect(matrix.visibleRows[0], "#1: the row that was there stays").toBe(rows[0]);
@@ -97,7 +97,7 @@ describe("a fixed matrix re-decides its view when the row titles change", () => 
     expect(matrix.visibleRows.map(r => r.rowName), "#2").toEqual(["r1", "r2"]);
   });
   test("a rows change keeps the view and the pager in step", () => {
-    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", rows: ["r1", "r2", "r3"], rowsPerPage: 2,
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", rows: ["r1", "r2", "r3"], pageSize: 2,
       columns: [{ name: "c1", cellType: "text" }] }] });
     const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
     matrix.visibleRows;
@@ -141,7 +141,7 @@ describe("filtered data and progress of a matrix with a filter, before and after
 
 describe("the Next button on the last known record of a source without a total", () => {
   test("the footer shows Next where goToNextPanel goes on", () => {
-    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", displayMode: "carousel", panelsPerPage: 2,
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", displayMode: "carousel", pageSize: 2,
       templateElements: [{ type: "text", name: "a" }] }] });
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
     panel.dataSource = new Source(records(4).map((r, i) => Object.assign({ id: i + 1 }, r)), false);
@@ -265,7 +265,7 @@ describe("the totals of a fixed matrix follow a rows change under a view", () =>
     expect(createFixed({ filterExpression: "{a} > 1" }, ["r1", "r2", "r3"]).matrix.totalValue, "#3: the same rows from the start").toEqual({ a: 7 });
   });
   test("paging: the total equals the same sorted matrix without paging, and page 1 shows its first row", () => {
-    const matrix = pushR3({ sortBy: "a+", rowsPerPage: 1 });
+    const matrix = pushR3({ sortBy: "a+", pageSize: 1 });
     expect(matrix.totalValue, "#1").toEqual(pushR3({ sortBy: "a+" }).totalValue);
     expect(matrix.totalValue, "#2").toEqual({ a: 8 });
     expect(rowNames(matrix), "#3").toEqual(["r2"]);
@@ -282,7 +282,7 @@ describe("the totals of a fixed matrix follow a rows change under a view", () =>
 describe("a nested paged matrix follows its row when the rows of a fixed matrix are reordered", () => {
   test("no answer, so no list: the page states move with the rows", () => {
     const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", rows: ["a", "b"], columns: [{ name: "x" }],
-      detailPanelMode: "underRow", detailElements: [{ type: "matrixdynamic", name: "inner", rowCount: 3, rowsPerPage: 1, columns: [{ name: "c" }] }] }] });
+      detailPanelMode: "underRow", detailElements: [{ type: "matrixdynamic", name: "inner", rowCount: 3, pageSize: 1, columns: [{ name: "c" }] }] }] });
     const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
     const nested = (rowName: string): QuestionMatrixDynamicModel => {
       const row = matrix.visibleRows.filter((r: any): boolean => r.rowName === rowName)[0];

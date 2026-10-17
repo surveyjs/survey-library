@@ -38,6 +38,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public getType(): string {
     return "ranking";
   }
+  public supportsChoiceKeyboardSelection(): boolean {
+    return false;
+  }
   supportElementsInChoice(): boolean { return false; }
   public getItemTabIndex(item: ItemValue) {
     if (this.isDesignMode || item.disabled) return undefined;
@@ -493,6 +496,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   public handleKeydown = (event: KeyboardEvent, choice: ItemValue): void => {
     if (this.isReadOnlyAttr) return;
+    if (event.key === "Enter" || event.keyCode === 13) {
+      if (this.canCommitAutoAdvanceOnEnter(event)) {
+        this.commitAutoAdvance(event);
+      }
+      return;
+    }
     if (!this.isDesignMode) {
       const key: any = event.key;
       const index = this.rankingChoices.indexOf(choice);
@@ -670,6 +679,15 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
   public get dashSvgIcon(): string {
     return this.cssClasses.dashSvgIconId || "#icon-rankingundefined-16x16";
+  }
+  public get dotSvgIcon(): string {
+    return this.cssClasses.dotSvgIconId || "#icon-rankingdot-16x16";
+  }
+  public get plusSvgIcon(): string {
+    return this.cssClasses.plusSvgIconId || "#icon-rankingplus-16x16";
+  }
+  public get emptyIndexSvgIcon(): string {
+    return this.selectToRankEnabled ? this.plusSvgIcon : this.dotSvgIcon;
   }
 
   //a11y

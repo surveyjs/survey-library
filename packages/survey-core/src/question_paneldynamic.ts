@@ -14,7 +14,7 @@ import {
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
 import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
-import { Question, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType, IVerifyDataContext } from "./question";
+import { Question, IConditionObject, IQuestionPlainData, ValidationContext, QuestionValueType, IVerifyDataContext, INestedElementInfo, NestedWalkBuild } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -23,6 +23,7 @@ import { settings } from "./settings";
 import { classesToSelector } from "./utils/dom-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/animation-dom";
 import { toCssClasses } from "./utils/cssClassBuilder";
+import { Scope, ValueScope } from "./utils/scope";
 import { ActionContainer } from "./actions/container";
 import { defaultActionBarCss } from "./actions/actionBarCss";
 import { Action, IAction } from "./actions/action";
@@ -37,9 +38,9 @@ import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInf
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
 import {
-  QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel,
+  QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel, NestedWalkItem,
   QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
-  IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties, isRecordCountSerializable
+  IRecordCountNames, getRecordCountNamesOf, getRecordViewProperties
 } from "./question_records";
 
 export class PanelDynamicItemGetterContext extends QuestionRecordItemGetterContext {
@@ -53,10 +54,10 @@ export class PanelDynamicItemGetterContext extends QuestionRecordItemGetterConte
     const path = params.path;
     if (path.length > 1 && path[0].name.toLocaleLowerCase() === settings.expressionVariables.parentPanel.toLocaleLowerCase()) {
       const q = this.item.data;
-      if (!!q && !!q.parentQuestion && !!q.parent && !!(<any>q.parent).data) {
+      if (!!q && !!q.parentQuestion && !!q.parent && !!(<PanelModel>q.parent).data) {
         path[0].name = this.variableName;
         params.isRoot = true;
-        return (<QuestionPanelDynamicItem>(<any>q.parent).data).getValueGetterContext().getValue(params);
+        return (<QuestionPanelDynamicItem>(<PanelModel>q.parent).data).getValueGetterContext().getValue(params);
       }
     }
     return null;
@@ -103,7 +104,6 @@ export class PanelDynamicValueGetterContext extends QuestionRecordsValueGetterCo
   }
 }
 
-// What a removal acts on (QuestionPanelDynamicModel.resolvePanelTarget): a panel, or a record without one.
 interface IPanelDynamicTabbedMenuItem extends IAction {
   panelId: string;
 }
@@ -155,7 +155,7 @@ export class QuestionPanelDynamicItem extends QuestionRecordItem {
     return this.panel.questions;
   }
   public getComment(name: string): string {
-    var result = this.getValue(name + settings.commentSuffix);
+    var result = this.getValue(Helpers.getCommentKey(name));
     return result ? result : "";
   }
   protected updateQuestionFromRecord(question: Question, record: any): void {
@@ -189,6 +189,9 @@ interface IPanelRemoval extends IRecordRemoval {
   successor: { panel: PanelModel, visibleIndex: number };
 }
 
+// The count properties of the dynamic panel: getRecordCountNames and the Serializer entries read them.
+const panelCountNames = getRecordCountNamesOf("Panel");
+
 /**
   * A class that describes the Dynamic Panel question type.
   *
@@ -198,8 +201,8 @@ interface IPanelRemoval extends IRecordRemoval {
   */
 export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private templateValue: PanelModel;
-  private isValueChangingInternally: boolean;
-  private changingValueQuestions: Array<Question>;
+  private internalValueChangeScope: Scope = new Scope();
+  private changingValueQuestionsScope: ValueScope<Array<Question>> = new ValueScope<Array<Question>>();
   public get dynamicPanelCallbacks(): ISurveyDynamicPanelCallbacks {
     return this.survey as ISurveyDynamicPanelCallbacks;
   }
@@ -222,7 +225,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.addOnPropertyChangedCallback(<SurveyElement><any>element);
       this.rebuildPanels();
     };
-    this.template.removeElementCallback = () => {
+    this.template.removeElementCallback = (element) => {
+      this.removeOnPropertyChangedCallback(<SurveyElement><any>element);
       this.rebuildPanels();
     };
     this.template.onPropertyChanged.add((sender: Base, options: any) => {
@@ -263,13 +267,28 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   public dispose(): void {
     super.dispose();
+    this.template.elements.forEach((element: IElement): void => { this.removeOnPropertyChangedCallback(<SurveyElement><any>element); });
     this.templateValue.dispose();
   }
-  // The panels kept for a later dispose (still animated out) go with the question, before the list.
+  /* The panels go with the question, before the list: the ones kept for a later dispose (still animated
+     out) and the live ones, with their actions; then the toolbars. In design mode a panel can be the
+     template, which goes in dispose. */
   protected disposeRecordObjects(): void {
     const left = this.panelsToDispose;
     this.panelsToDispose = [];
     left.forEach((panel: PanelModel): void => { this.disposePanelObject(panel); });
+    this.panelsCore.filter((panel: PanelModel): boolean => panel !== this.template)
+      .forEach((panel: PanelModel): void => { this.disposePanelObject(panel); });
+    this.disposeActions(this.removePanelActions);
+    this.removePanelActions = {};
+    this.disposeActions(this.tabActions);
+    this.tabActions = {};
+    if (!!this.tabbedMenuValue) {
+      this.tabbedMenuValue.dispose();
+    }
+    if (!!this.footerToolbarValue) {
+      this.footerToolbarValue.dispose();
+    }
   }
   public validateExpressions(options: IExpressionValidationOptions = { functions: true, variables: true, semantics: true }): IExpressionValidationResult[] {
     if (!this.useTemplatePanel) {
@@ -383,7 +402,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   // A sync is deferred while it is suspended, and the rendered panels follow it.
   protected syncPagingState(): void {
     if (!this.dataListValue) return;
-    if (this.isPagingSyncSuspended) {
+    if (this.pagingSyncSuspendScope.isActive) {
       this.isPagingSyncPending = true;
       return;
     }
@@ -398,17 +417,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   // settings.panel.maxPanelCount is the number of panels one page may hold, in every display mode.
   protected get maxRecordsPerPage(): number {
     return settings.panel.maxPanelCount;
-  }
-  /* The number of panels on one page, 0 = no paging. In list mode the page is what is shown; in tab
-     and carousel mode it is the panels of one page, of which one is shown. */
-  public get panelsPerPage(): number {
-    return this.pageSize;
-  }
-  public set panelsPerPage(val: number) {
-    this.pageSize = val;
-  }
-  protected getRecordEntityName(): string {
-    return "Panel";
   }
   protected onPageSizeAssigned(): void {
     this.updateRenderedPanels();
@@ -432,16 +440,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.runWithOneRender((): void => this.rebuildPanelsFromDataListCore(isPageMove));
   }
   private rebuildPanelsFromDataListCore(isPageMove: boolean): void {
-    const prevIsRebuildingView = this.isRebuildingView;
-    this.isRebuildingView = true;
-    try {
+    this.rebuildingViewScope.run((): void => {
       this.runCurrentPanelChange((): void => { this.rebuildPanelsForView(isPageMove); });
-    } finally {
-      this.isRebuildingView = prevIsRebuildingView;
-    }
+    });
   }
   // While the panels are rebuilt for the view, the ones added and removed select nothing: restoreCurrentPanel chooses.
-  private isRebuildingView: boolean = false;
+  private rebuildingViewScope: Scope = new Scope();
   private rebuildPanelsForView(isPageMove: boolean): void {
     this.decideRecordsVisibility();
     if (!this.isWritingRecords) {
@@ -482,28 +486,28 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   /* The panels of the view are built for records the value holds: without a view the same records got
      their panels while the survey loaded its data, which writes no static default into them and
      clears no answer a first condition run hides. Their questions ask it (Question). */
-  private isBuildingPanelsForStoredRecords: boolean = false;
+  private storedRecordsBuildScope: ValueScope<boolean> = new ValueScope<boolean>(false);
   protected isBuildingChildrenForStoredRecords(): boolean {
-    return this.isBuildingPanelsForStoredRecords;
+    return this.storedRecordsBuildScope.value;
   }
   /* The panels func creates are stored with the values they wrote and their first conditions run. The
      records of a data source are shown with what the panels compute, defaults included, and it goes
      with their next update (runShowingRecords). */
   private buildPanels(func: () => void, areRecordsStored: boolean): void {
-    const prev = this.isBuildingPanelsForStoredRecords;
-    this.isBuildingPanelsForStoredRecords = areRecordsStored && !this.isRemoteData;
     try {
-      this.prepareValueForPanelCreating();
-      func();
-      this.setValueAfterPanelsCreating();
+      this.storedRecordsBuildScope.run(areRecordsStored && !this.isRemoteData, (): void => {
+        this.prepareValueForPanelCreating();
+        func();
+        this.setValueAfterPanelsCreating();
+      });
     } finally {
-      this.isBuildingPanelsForStoredRecords = prev;
+      this.clearPanelsCreating();
     }
   }
   /* A panel that is still on screen - the one a carousel animates out, a removed one leaving the
      list - is disposed when its animation ends, not under it. */
   private panelsToDispose: Array<PanelModel> = [];
-  // A panel still rendered waits for its animation; one whose question is still writing waits for the write (disposeReplacedItem).
+  // A panel still rendered waits for its animation; then it is disposed as any object that leaves (disposeLeftObject).
   private disposePanels(panels: Array<PanelModel>): void {
     panels.forEach((panel: PanelModel): void => {
       if (this.panelsCore.indexOf(panel) > -1) return;
@@ -512,7 +516,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       if (this._renderedPanels.indexOf(panel) > -1) {
         if (this.panelsToDispose.indexOf(panel) < 0)this.panelsToDispose.push(panel);
       } else {
-        this.disposeReplacedItem((): void => this.disposePanelObject(panel));
+        this.disposePanelObject(panel);
       }
     });
   }
@@ -528,12 +532,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (this.panelsToDispose.length === 0) return;
     const left = this.panelsToDispose.filter((panel: PanelModel): boolean => rendered.indexOf(panel) < 0);
     this.panelsToDispose = this.panelsToDispose.filter((panel: PanelModel): boolean => rendered.indexOf(panel) > -1);
-    left.forEach((panel: PanelModel): void => { this.disposeReplacedItem((): void => this.disposePanelObject(panel)); });
+    left.forEach((panel: PanelModel): void => { this.disposePanelObject(panel); });
   }
   private disposePanelObject(panel: PanelModel): void {
     if (panel.isDisposed) return;
-    // A panel that left renderedPanels can still be on screen until the UI rerenders the question.
-    this.disposeAfterRerender(panel, (): void => this.disposePanelObjectCore(panel));
+    // A panel that left renderedPanels can still be on screen until the UI rerenders the question,
+    // or one of its questions can still be writing.
+    this.disposeLeftObject(panel, (): void => this.disposePanelObjectCore(panel));
   }
   /* The panel was never announced to the survey as added - it is built before it has one - so its
      questions are not announced as removed either: the guard an element moved between pages uses.
@@ -549,7 +554,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       });
     };
     markElements(panel);
-    delete this.removePanelActions[panel.uniqueId];
+    this.disposeRemovePanelAction(panel);
     panel.dispose();
   }
   /* The current panel follows its record (QuestionRecordsModel keeps it renumbered); when that
@@ -594,17 +599,35 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.addOnPropertyChangedCallback(<SurveyElement><any>elements[i]);
     }
   }
+  /* One handler for every template element, so that the element is subscribed once however often the
+     panels are built (assignOnPropertyChangedToTemplate): onPropertyChanged.add skips a callback it
+     holds. It is removed when the element leaves the template, and with the question. */
+  private onTemplateElementPropertyChangedHandler = (element: any, options: any): void => {
+    this.onTemplateElementPropertyChanged(element, options);
+  };
+  private onNestedTemplateElementAdded = (element: IElement): void => {
+    this.addOnPropertyChangedCallback(<SurveyElement><any>element);
+  };
+  private onNestedTemplateElementRemoved = (element: IElement): void => {
+    this.removeOnPropertyChangedCallback(<SurveyElement><any>element);
+  };
   private addOnPropertyChangedCallback(element: SurveyElement) {
     if (element.isQuestion) {
       (<Question>element).setParentQuestion(this);
     }
-    element.onPropertyChanged.add((element, options) => {
-      this.onTemplateElementPropertyChanged(element, options);
-    });
+    element.onPropertyChanged.add(this.onTemplateElementPropertyChangedHandler);
     if (element.isPanel) {
-      (<PanelModel>element).addElementCallback = (element) => {
-        this.addOnPropertyChangedCallback(<SurveyElement><any>element);
-      };
+      (<PanelModel>element).addElementCallback = this.onNestedTemplateElementAdded;
+      (<PanelModel>element).removeElementCallback = this.onNestedTemplateElementRemoved;
+    }
+  }
+  private removeOnPropertyChangedCallback(element: SurveyElement): void {
+    element.onPropertyChanged.remove(this.onTemplateElementPropertyChangedHandler);
+    if (element.isPanel) {
+      const panel = <PanelModel>element;
+      if (panel.addElementCallback === this.onNestedTemplateElementAdded) panel.addElementCallback = undefined;
+      if (panel.removeElementCallback === this.onNestedTemplateElementRemoved) panel.removeElementCallback = undefined;
+      panel.elements.forEach((el: IElement): void => { this.removeOnPropertyChangedCallback(<SurveyElement><any>el); });
     }
   }
   private onTemplateElementPropertyChanged(element: any, options: any) {
@@ -677,7 +700,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected mergeLocalizationWithInnerObjects(src: Base, locales?: Array<string>): void {
     const srcTemplate = (<QuestionPanelDynamicModel><unknown>src).template;
     if (srcTemplate) {
-      (<any>this.template).mergeLocalizationObj(srcTemplate, locales);
+      this.template["mergeLocalizationObj"](srcTemplate, locales);
     }
   }
   /**
@@ -725,12 +748,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * @see displayMode
    */
   @property({ localizable: { defaultStr: "panelDynamicTabTextFormat", markdown: true } }) templateTabTitle: string;
+  declare readonly locTemplateTabTitle: LocalizableString;
   /**
    * A placeholder for tab titles that applies when the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) expression doesn't produce a meaningful value.
    *
    * Default value: `"New Panel"` (taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization))
    */
   @property({ localizable: { defaultStr: true, markdown: true } }) tabTitlePlaceholder: string;
+  declare readonly locTabTitlePlaceholder: LocalizableString;
   /**
    * A template for panel descriptions.
    * @see template
@@ -829,7 +854,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     this.visiblePanelsCore.splice(index, 0, panel);
     this.updateTabbedMenuItems();
-    if (!this.isRebuildingView && !this.currentPanel) {
+    if (!this.rebuildingViewScope.isActive && !this.currentPanel) {
       this.currentPanel = panel;
     }
     this.requestRenderedPanelsUpdate();
@@ -839,7 +864,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      successor itself (removePanelCore), and a rebuild leaves the choice to restoreCurrentPanel. */
   private onPanelRemoved(panel: PanelModel): void {
     let index = this.onPanelRemovedCore(panel);
-    if (!this.isRebuildingView && !this.isDetachingPanel && !this.isPagingActive && this.getPropertyValue("currentPanel", null) === panel) {
+    if (!this.rebuildingViewScope.isActive && !this.isDetachingPanel && !this.isPagingActive && this.getPropertyValue("currentPanel", null) === panel) {
       const visPanels = this.visiblePanelsCore;
       if (index >= visPanels.length) index = visPanels.length - 1;
       this.currentPanel = index >= 0 ? visPanels[index] : null;
@@ -934,7 +959,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.setPropertyValue("currentPanelId", !!val ? val.id : "");
     this.setCurrentRecordIndex(!val ? -1 : this.getPanelRecordIndex(val));
     // Inside an operation the change is announced when the operation ends (announceCurrentPanel).
-    const isAnnounced = !!val && this.currentPanelChangeDepth === 0;
+    const isAnnounced = !!val && !this.currentPanelChangeScope.isActive;
     if (isAnnounced) {
       this.leftVisibleIndex = this.currentVisibleIndexValue;
       this.currentVisibleIndexValue = visibleIndex;
@@ -958,19 +983,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      visible index differs from the ones announced last. A new panel object for the same record at the
      same index announces nothing, and neither does a current panel that is not on the page yet - a read
      of its page is pending, and the rebuild of its commit announces it. */
-  private currentPanelChangeDepth: number = 0;
+  private currentPanelChangeScope: Scope = new Scope();
   private runCurrentPanelChange(func: () => void): void {
     if (!this.hasDataListView) {
       func();
       return;
     }
-    this.currentPanelChangeDepth++;
-    try {
-      func();
-    } finally {
-      this.currentPanelChangeDepth--;
-    }
-    if (this.currentPanelChangeDepth === 0) {
+    this.currentPanelChangeScope.run(func);
+    if (!this.currentPanelChangeScope.isActive) {
       this.announceCurrentPanel();
     }
   }
@@ -1208,6 +1228,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * @since 2.0.0
    */
   @property({ localizable: { defaultStr: "pagePrevText" } }) prevPanelText: string;
+  declare readonly locPrevPanelText: LocalizableString;
   /**
    * @deprecated Use the [`prevPanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#prevPanelText) property instead.
    * @hidden
@@ -1221,6 +1242,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * @since 2.0.0
    */
   @property({ localizable: { defaultStr: "pageNextText" } }) nextPanelText: string;
+  declare readonly locNextPanelText: LocalizableString;
   /**
    * @deprecated Use the [`nextPanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#nextPanelText) property instead.
    * @hidden
@@ -1231,6 +1253,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * A caption for the Add Panel button.
    */
   @property({ localizable: { defaultStr: "addPanel" } }) addPanelText: string;
+  declare readonly locAddPanelText: LocalizableString;
   /**
    * @deprecated Use the [`addPanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#addPanelText) property instead.
    * @hidden
@@ -1242,6 +1265,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * @see removePanelButtonLocation
    */
   @property({ localizable: { defaultStr: "removePanel" } }) removePanelText: string;
+  declare readonly locRemovePanelText: LocalizableString;
   /**
    * @deprecated Use the [`removePanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanelText) property instead.
    * @hidden
@@ -1261,7 +1285,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * @see prevPanelText
    */
   public get isPrevButtonVisible(): boolean { return this.currentIndex > 0; }
-  public get isPrevButtonShowing(): boolean { return this.isPrevButtonVisible; }
   /**
    * Indicates whether the Next button is visible.
    * @see currentIndex
@@ -1271,7 +1294,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public get isNextButtonVisible(): boolean {
     return this.canGoToNextRecord;
   }
-  public get isNextButtonShowing(): boolean { return this.isNextButtonVisible; }
   public get isRangeShowing(): boolean {
     return (
       this.showProgressBar && this.currentIndex >= 0 && this.visiblePanelCount > 1
@@ -1307,6 +1329,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      the panels were built (a handler that set question.value) went into the same buffer, and then the
      store is one from outside. */
   private isNewPanelsValueAssignedFromOutside: boolean;
+  /* The end of every scope that runs from prepareValueForPanelCreating to the end of
+     setValueAfterPanelsCreating, in a finally: after a throw the value is not left buffered
+     (getValueCore / setValueCore), and no panel waits for its conditions. After the normal end both
+     are clear already. */
+  private clearPanelsCreating(): void {
+    this.isAddingNewPanels = false;
+    this.lightBuiltPanels = [];
+  }
   private setValueAfterPanelsCreating() {
     this.runLightBuiltPanelsConditions();
     this.isAddingNewPanels = false;
@@ -1329,15 +1359,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      own changes: an assignment from outside made meanwhile is followed after it, with the state
      already restored (runOwnRecordsChange). */
   private runInternalValueChange<T>(func: () => T): T {
-    return this.runOwnRecordsChange((): T => {
-      const prev = this.isValueChangingInternally;
-      this.isValueChangingInternally = true;
-      try {
-        return func();
-      } finally {
-        this.isValueChangingInternally = prev;
-      }
-    });
+    return this.runOwnRecordsChange((): T => this.internalValueChangeScope.run(func));
   }
   protected getValueCore() {
     return this.isAddingNewPanels
@@ -1419,27 +1441,23 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.prepareValueForPanelCreating();
     const isAddingOnePanel = val - this.panelCount === 1;
     const firstAddedIndex = this.panelCount;
-    for (let i = this.panelCount; i < val; i++) {
-      const panel = this.createNewPanel();
-      this.panelsCore.push(panel);
-      if (this.displayMode == "list" && this.panelsState != "default") {
-        if (this.panelsState === "expanded") {
-          panel.expand();
-        } else {
-          if (!!panel.title) {
-            panel.collapse();
-          }
-        }
+    try {
+      for (let i = this.panelCount; i < val; i++) {
+        const panel = this.createNewPanel();
+        this.panelsCore.push(panel);
+        this.setPanelState(panel, this.panelsCore.length - 1);
       }
+      if (isAddingOnePanel) {
+        this.singleInputOnAddItem(this.panelCountByValueScope.value);
+      }
+      if (val < this.panelCount) {
+        this.disposePanels(this.panelsCore.splice(val, this.panelCount - val));
+      }
+      this.disablePanelsAnimations();
+      this.setValueAfterPanelsCreating();
+    } finally {
+      this.clearPanelsCreating();
     }
-    if (isAddingOnePanel) {
-      this.singleInputOnAddItem(this.settingPanelCountBasedOnValue);
-    }
-    if (val < this.panelCount) {
-      this.markPanelsLeft(this.panelsCore.splice(val, this.panelCount - val));
-    }
-    this.disablePanelsAnimations();
-    this.setValueAfterPanelsCreating();
     this.setValueBasedOnPanelCount();
     this.reRunCondition();
     this.updateFooterActions();
@@ -1454,19 +1472,16 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      the running change decides the count, as without a view. Applied inside it, it would truncate the
      records the change is still adding, and the panels left past them would pad the records again on
      every write. */
-  private isSettingPanelCountInView: boolean = false;
+  private panelCountInViewScope: Scope = new Scope();
   private setPanelCountInView(val: number): void {
-    if (val === this.storedRecordCount || this.useTemplatePanel || this.isSettingPanelCountInView) return;
+    if (val === this.storedRecordCount || this.useTemplatePanel || this.panelCountInViewScope.isActive) return;
     this.updateBindings("panelCount", val);
-    this.isSettingPanelCountInView = true;
-    try {
+    this.panelCountInViewScope.run((): void => {
       this.runObjectsFollowingWrite((): void => {
         this.syncRecordCount(val);
         this.followRecordsWithObjects((recordIndex: number): void => { this.appendItemForRecord(recordIndex); });
       });
-    } finally {
-      this.isSettingPanelCountInView = false;
-    }
+    });
   }
   /* Grows or truncates the records to a count. createRecord makes a new record; by default, under
      paging most of the new records never get a panel, so they are created with the defaults their
@@ -1558,9 +1573,16 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.setPanelState(this.panelsCore[i], i);
     }
   }
-  // index: the panel's position in panelsCore.
+  /* index: the panel's position in panelsCore. A panel without a title has no header to expand it
+     from: it is not collapsed, but "expanded" still expands it. */
   private setPanelState(panel: PanelModel, index: number): void {
-    if (this.useTemplatePanel || this.displayMode != "list" || !this.templateTitle) return;
+    if (this.useTemplatePanel || this.displayMode != "list") return;
+    if (!this.templateTitle) {
+      if (this.panelsState === "expanded") {
+        panel.expand(false);
+      }
+      return;
+    }
     let state = this.panelsState;
     if (state === "firstExpanded") {
       state = index === 0 ? "expanded" : "collapsed";
@@ -1596,18 +1618,11 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    */
   @property() panelCountExpression: string;
   // The count expression (QuestionRecordsModel.hasRecordCountExpression) sets panelCount.
-  private static recordCountNames = getRecordCountNamesOf("Panel");
-  protected getRecordCountNames(): IRecordCountNames { return QuestionPanelDynamicModel.recordCountNames; }
+  protected getRecordCountNames(): IRecordCountNames { return panelCountNames; }
   /* The count the expression sets writes the value it truncates or pads, also while the count follows
      an assigned value (setPanelCountBasedOnValue): the expression's count wins over the assigned one. */
   protected runRecordCountExpressionWrite(write: () => void): void {
-    const isSettingByValue = this.settingPanelCountBasedOnValue;
-    this.settingPanelCountBasedOnValue = false;
-    try {
-      write();
-    } finally {
-      this.settingPanelCountBasedOnValue = isSettingByValue;
-    }
+    this.panelCountByValueScope.run(false, write);
   }
   /**
    * A minimum number of panels in Dynamic Panel. Users cannot delete panels if `panelCount` equals `minPanelCount`.
@@ -1835,7 +1850,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     } else {
       this.displayMode = val as any;
     }
-    // this.updatePanelView();
   }
   private updatePanelView() {
     this.blockAnimations();
@@ -1881,11 +1895,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * - `"bottom"` - Displays the progress bar at the bottom of the current panel.
    * - `"topBottom"` - Displays the progress bar at the top and bottom of the current panel.
    */
-  @property({
-    onSet: (val, target: QuestionPanelDynamicModel) => {
-      // target.updatePanelView();
-    }
-  }) progressBarLocation: "top" | "bottom" | "topBottom";
+  @property() progressBarLocation: "top" | "bottom" | "topBottom";
   @property() tabAlign: "center" | "left" | "right";
 
   public get isRenderModeList(): boolean {
@@ -1980,22 +1990,26 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const oldPanels = [].concat(this.panelsCore);
     this.keepNestedPageStatesOfPanels(oldPanels);
     this.prepareValueForPanelCreating();
-    var panels = [];
-    if (this.useTemplatePanel) {
-      new QuestionPanelDynamicItem(this, this.template);
-      panels.push(this.template);
-    } else {
-      for (var i = 0; i < this.panelCount; i++) {
-        panels.push(this.createNewPanel());
-      }
-    }
-    this.isRebuildingPanels = true;
     try {
-      this.panelsCore.splice(0, this.panelsCore.length, ...panels);
+      var panels = [];
+      if (this.useTemplatePanel) {
+        new QuestionPanelDynamicItem(this, this.template);
+        panels.push(this.template);
+      } else {
+        for (var i = 0; i < this.panelCount; i++) {
+          panels.push(this.createNewPanel());
+        }
+      }
+      this.isRebuildingPanels = true;
+      try {
+        this.panelsCore.splice(0, this.panelsCore.length, ...panels);
+      } finally {
+        this.isRebuildingPanels = false;
+      }
+      this.setValueAfterPanelsCreating();
     } finally {
-      this.isRebuildingPanels = false;
+      this.clearPanelsCreating();
     }
-    this.setValueAfterPanelsCreating();
     this.restoreNestedPageStates();
     this.setPanelsState();
     this.reRunCondition();
@@ -2139,7 +2153,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         newPanel.expand();
       }
       this.focusNewPanelCallback = () => {
-        newPanel?.focusFirstQuestion();
+        this.focusNewRecord(newPanel, this.panelsCore.indexOf(newPanel), true);
       };
       if (!this.isPanelsAnimationRunning) {
         this.focusNewPanel();
@@ -2320,9 +2334,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       if (this.isValueEmpty(this.defaultPanelValue) && !copyFrom) return undefined;
       return Object.assign({}, list.getRecord(recordIndex), this.composeNewRecord([], undefined, undefined, this.defaultPanelValue, copyFrom));
     });
-  }
-  public getPanelRemoveButtonId(panel: PanelModel): string {
-    return panel.id + "_remove_button";
   }
   public isRequireConfirmOnDelete(val: any): boolean {
     if (!this.confirmDelete) return false;
@@ -2582,7 +2593,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (!super.verifyValueCore(val, context)) return false;
     if (!context.checks.reportUnknownProperties || !Array.isArray(val)) return true;
     // Verification builds the panels, as it always has.
-    this.panels;
+    this.buildPanelsFirstTime(this.canBuildPanels);
     this.verifyRecordsUnknownKeys(val, context);
     return true;
   }
@@ -2591,19 +2602,21 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      totals key of such a question by its name, the suffix at the end. */
   protected isRecordKeyOfType(key: string, item: QuestionRecordItem): boolean {
     const panel = !!item ? (<QuestionPanelDynamicItem>item).panel : this.template;
-    return !!panel.getQuestionByValueName(key) || this.iscorrectValueWithPostPrefix(panel, key, settings.commentSuffix) ||
-      this.iscorrectValueWithPostPrefix(panel, key, settings.matrix.totalsSuffix);
+    return !!panel.getQuestionByValueName(key) || this.isCorrectValueWithPostPrefix(panel, key, settings.commentSuffix) ||
+      this.isCorrectValueWithPostPrefix(panel, key, settings.matrix.totalsSuffix);
   }
-  public initializeForVerification(): void {
-    this.panels.forEach(panel => panel.initializeForVerification());
+  // "none" and "rows": the panels that exist; "all": panels, which builds them.
+  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: NestedWalkItem, position: number, visible: boolean) => void): void {
+    const panels = build === "all" ? this.panels : this.panelsCore;
+    const visiblePanels = new Set<PanelModel>(this.visiblePanelsCore);
+    panels.forEach((panel, position) => {
+      func(panel, position, visiblePanels.has(panel));
+    });
   }
-  public verifyNestedValues(context: IVerifyDataContext): void {
-    const panels = this.panels;
-    for (let i = 0; i < panels.length; i++) {
-      context.pushSegment(this.getRecordIndexAtCreatedPosition(i));
-      panels[i].verifyDataCore(context);
-      context.popSegment();
-    }
+  protected forEachNestedElementOfItem(item: NestedWalkItem, position: number, visible: boolean,
+    build: NestedWalkBuild, visit: (info: INestedElementInfo) => void): void {
+    const segment = this.getRecordIndexAtCreatedPosition(position);
+    visit({ element: <PanelModel>item, role: "item", segment: segment, location: "nested", visible: visible });
   }
   protected clearIncorrectValuesInObjects(): void {
     for (var i = 0; i < this.panelsCore.length; i++) {
@@ -2673,7 +2686,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (keys.length === 0) return;
     this.writeRecordAt(index, (values: any): void => { keys.forEach((key: string): void => { delete values[key]; }); });
   }
-  private iscorrectValueWithPostPrefix(
+  private isCorrectValueWithPostPrefix(
     panel: PanelModel,
     key: string,
     postPrefix: string
@@ -2720,15 +2733,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
         objects.push(obj);
       }
     }
-  }
-  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    if (includeItSelf) {
-      questions.push(this);
-    }
-    this.collectNestedQuestionsOfItems(
-      visibleOnly ? this.visiblePanelsCore : this.panelsCore,
-      questions, visibleOnly, includeNested, includeItSelf
-    );
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     if (!path) return super.getConditionJson(operator);
@@ -2791,6 +2795,14 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (this.hasPanelBuildFirstTime) return;
     if (!force && this.wasNotRenderedInSurvey) return;
     this.blockAnimations();
+    try {
+      this.buildPanelsFirstTimeCore();
+    } finally {
+      this.isBuildingPanelsFirstTime = false;
+      this.releaseAnimations();
+    }
+  }
+  private buildPanelsFirstTimeCore(): void {
     // Before the flag: a page size that changes here resets the list, and that reset must not build.
     this.syncListPageSize();
     this.hasPanelBuildFirstTime = true;
@@ -2835,8 +2847,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.updateNoEntriesTextDefaultLoc();
     }
     this.updateFooterActions();
-    this.isBuildingPanelsFirstTime = false;
-    this.releaseAnimations();
   }
   private get showAddPanelButton(): boolean { return this.isRecordAddAllowed(this.allowAddPanel); }
   private get wasNotRenderedInSurvey(): boolean {
@@ -2919,18 +2929,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
      can be disposed. So every panel that appears, disappears or is created during a run would render
      the page again; while a run is suspended, those renders and paging syncs are only noted and
      runDeferredPagingSync makes one of each after it. A nested run leaves it to the outer one. */
-  private isPagingSyncSuspended: boolean;
+  private pagingSyncSuspendScope: Scope = new Scope();
   private isPagingSyncPending: boolean;
   private isRenderedPanelsUpdatePending: boolean;
   private runWithOneRender(func: () => void): void {
-    const prevIsPagingSyncSuspended = this.isPagingSyncSuspended;
-    this.isPagingSyncSuspended = true;
-    try {
-      func();
-    } finally {
-      this.isPagingSyncSuspended = prevIsPagingSyncSuspended;
-    }
-    if (!this.isPagingSyncSuspended) {
+    this.pagingSyncSuspendScope.run(func);
+    if (!this.pagingSyncSuspendScope.isActive) {
       this.runDeferredPagingSync();
     }
   }
@@ -2949,7 +2953,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   // The render a panel that appeared or disappeared asks for; deferred while conditions run.
   private requestRenderedPanelsUpdate(): void {
-    if (this.isPagingSyncSuspended) {
+    if (this.pagingSyncSuspendScope.isActive) {
       this.isRenderedPanelsUpdatePending = true;
       return;
     }
@@ -2960,7 +2964,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private hasKeysDuplicated(context: ValidationContext): boolean {
     const keyName = this.getRecordKeyName();
     if (!keyName) return false;
-    const qs = this.changingValueQuestions;
+    const qs = this.changingValueQuestionsScope.value;
     this.visiblePanelsCore.forEach((panel: PanelModel): void => {
       const question = <Question>panel.getQuestionByValueName(keyName);
       if (!!question && !question.isEmpty() && qs.indexOf(question) < 0) {
@@ -2970,7 +2974,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return this.checkRecordsUniqueness(context.fireCallback, undefined, (question: Question): void => context.setErrorElement(question)).length > 0;
   }
   private updatePanelsContainsErrors() {
-    const qs = this.changingValueQuestions;
+    const qs = this.changingValueQuestionsScope.value;
     if (!Array.isArray(qs) || qs.length === 0) return;
     var question = qs[0];
     var parent = <PanelModel>question.parent;
@@ -2981,12 +2985,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.updateContainsErrors();
   }
   protected validateElementCore(context: ValidationContext): boolean {
-    if (this.isValueChangingInternally && !this.hasInputInChangedQuestions() || this.isBuildingPanelsFirstTime) return true;
+    if (this.internalValueChangeScope.isActive && !this.hasInputInChangedQuestions() || this.isBuildingPanelsFirstTime) return true;
     return super.validateElementCore(context);
   }
   // QuestionRecordsModel hook of validateElementCore: the questions a value change wrote, otherwise the panels.
   protected validateRecordObjectsOfPage(context: ValidationContext): boolean {
-    const qs = this.changingValueQuestions;
+    const qs = this.changingValueQuestionsScope.value;
     if (!Array.isArray(qs)) return this.validateInPanels(context);
     let qRes = true;
     this.validateRecordObjects(context, (): void => {
@@ -3006,7 +3010,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return this.keyDuplicationError;
   }
   private hasInputInChangedQuestions(): boolean {
-    const qs = this.changingValueQuestions;
+    const qs = this.changingValueQuestionsScope.value;
     if (!Array.isArray(qs) || qs.length === 0) return false;
     for (let i = 0; i < qs.length; i++) {
       if (qs[i].hasInput) return true;
@@ -3155,7 +3159,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     return false;
   }
-  private removePanelActions: {[index: number]: Action} = { };
+  // Keyed by panel.uniqueId. An action goes with its panel (disposePanelObjectCore): its computed
+  // properties keep handlers on the question.
+  private removePanelActions: { [uniqueId: string]: Action } = { };
   public getRemovePanelAction(panel: PanelModel) {
     if (!panel) return undefined;
     if (!this.removePanelActions[panel.uniqueId]) {
@@ -3168,18 +3174,30 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
           if (!this.isInputReadOnly) {
             this.removePanelUI(panel);
             if (panel.isDisposed) {
-              delete this.removePanelActions[panel.uniqueId];
+              this.disposeRemovePanelAction(panel);
             }
           }
         },
-        visible: <any>new ComputedUpdater(() => [this.canRenderRemovePanel(panel)].every((val: boolean) => val === true)),
+        visible: <any>new ComputedUpdater(() => this.canRenderRemovePanel(panel) === true),
         enabled: <any>new ComputedUpdater(() => this.enableRemovePanel !== false),
         data: { question: this, panel: panel }
       });
-      action.cssClasses = this.survey.getCss().actionBar || defaultActionBarCss;
+      action.cssClasses = this.survey?.getCss().actionBar || defaultActionBarCss;
       this.removePanelActions[panel.uniqueId] = action;
     }
     return this.removePanelActions[panel.uniqueId];
+  }
+  private disposeRemovePanelAction(panel: PanelModel): void {
+    const action = this.removePanelActions[panel.uniqueId];
+    delete this.removePanelActions[panel.uniqueId];
+    if (!!action && !action.isDisposed) {
+      action.dispose();
+    }
+  }
+  private disposeActions(actions: { [key: string]: Action }): void {
+    Object.keys(actions).forEach((key: string): void => {
+      if (!actions[key].isDisposed) actions[key].dispose();
+    });
   }
   public getPanelActions(panel: PanelModel): Array<IAction> {
     let actions = panel.footerActions;
@@ -3269,9 +3287,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected createNewPanelObject(): PanelModel {
     return Serializer.createClass("panel");
   }
-  private settingPanelCountBasedOnValue: boolean;
+  private panelCountByValueScope: ValueScope<boolean> = new ValueScope<boolean>(false);
   private setPanelCountBasedOnValue(isCleared: boolean = false) {
-    if (this.isValidatingExpressions || this.isValueChangingInternally || this.useTemplatePanel) return;
+    if (this.isValidatingExpressions || this.internalValueChangeScope.isActive || this.useTemplatePanel) return;
     // The count of a remote-backed question comes from the read, never from the length of the window.
     if (this.isRemoteData) return;
     var newPanelCount = this.storedRecordCount;
@@ -3300,34 +3318,27 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.buildPanelsAgain(isCleared);
       return;
     }
-    this.settingPanelCountBasedOnValue = true;
-    this.setRecordCountCore(newPanelCount);
-    this.settingPanelCountBasedOnValue = false;
+    this.panelCountByValueScope.run(true, (): void => this.setRecordCountCore(newPanelCount));
   }
   /* The panels are built as the first time: for an assigned value as for stored records, without static
      defaults (see isBuildingChildrenForStoredRecords), for a cleared value with them. What the build
      writes is dropped, and what the new panels hold is stored once afterwards - nothing when they hold
      nothing: the empty records the first build pads the value with are no answer. */
   private buildPanelsAgain(isCleared: boolean): void {
-    this.markPanelsLeft(this.panelsCore.splice(0, this.panelsCore.length));
+    const oldPanels = this.panelsCore.splice(0, this.panelsCore.length);
+    this.markPanelsLeft(oldPanels);
     this.hasPanelBuildFirstTime = false;
-    const prevIsForStoredRecords = this.isBuildingPanelsForStoredRecords;
-    const prevIsSettingByValue = this.settingPanelCountBasedOnValue;
-    this.isBuildingPanelsForStoredRecords = !isCleared;
-    this.settingPanelCountBasedOnValue = true;
-    try {
-      this.buildPanelsFirstTime(true);
-    } finally {
-      this.isBuildingPanelsForStoredRecords = prevIsForStoredRecords;
-      this.settingPanelCountBasedOnValue = prevIsSettingByValue;
-    }
+    this.panelCountByValueScope.run(true, (): void => {
+      this.storedRecordsBuildScope.run(!isCleared, (): void => this.buildPanelsFirstTime(true));
+    });
+    this.disposePanels(oldPanels);
     const values = this.panelsCore.map((panel: PanelModel): any => panel.getValue());
     if (values.every((value: any): boolean => Helpers.isValueEmpty(value))) return;
     this.runInternalValueChange((): void => this.setOwnRecordsValue(values));
   }
   // The list side of an assignment is QuestionRecordsModel's; the panels follow in onRecordsValueAssigned.
   public setQuestionValue(newValue: any): void {
-    if (this.isValidatingExpressions || this.settingPanelCountBasedOnValue) return;
+    if (this.isValidatingExpressions || this.panelCountByValueScope.value) return;
     super.setQuestionValue(newValue);
   }
   /* The panels take their records after the panel count follows the value. A write of a panel
@@ -3376,9 +3387,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   public getValueChangingOptions(childQuestion: Question): any {
     let pnl = childQuestion.parent;
-    while(pnl.parent) {
+    while(!!pnl && !!pnl.parent) {
       pnl = pnl.parent;
     }
+    if (!pnl) return undefined;
     const panel = pnl;
     const position = this.panels.indexOf(<PanelModel>panel);
     // A question of a removed panel writes nothing: there is no change to announce.
@@ -3459,18 +3471,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       super.writeItemRecordValue(item, position, name, val, isDeleting);
       return;
     }
-    const prevChangingValueQuestions = this.changingValueQuestions;
+    const prevChangingValueQuestions = this.changingValueQuestionsScope.value;
     const questions = Array.isArray(prevChangingValueQuestions) ? [].concat(prevChangingValueQuestions) : [];
     const q = this.getRecordFieldQuestion(item, name);
     if (!!q) {
       questions.push(q);
     }
-    this.changingValueQuestions = questions;
-    try {
-      super.writeItemRecordValue(item, position, name, val, isDeleting);
-    } finally {
-      this.changingValueQuestions = prevChangingValueQuestions;
-    }
+    this.changingValueQuestionsScope.run(questions, (): void => super.writeItemRecordValue(item, position, name, val, isDeleting));
   }
   protected get isAddingNewItems(): boolean {
     return this.isAddingNewPanels;
@@ -3569,6 +3576,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   public getShowNoEntriesPlaceholder(): boolean {
     return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.visiblePanelCount === 0;
+  }
+  public getShowPlaceholderToolbar(): boolean {
+    // The single input summary adds panels from the survey navigation bar.
+    return !this.singleInputSummary;
   }
   public needResponsiveWidth(): boolean {
     const panels = this.getPanels();
@@ -3739,7 +3750,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private updateTabbedMenuItems(): void {
     if (!this.tabbedMenuValue || this.isRebuildingPanels) return;
     if (!this.isRenderModeTab) {
-      this.tabActions = {};
+      this.disposeReplacedTabActions({});
       if (this.tabbedMenuValue.actions.length > 0)this.tabbedMenuValue.setItems([]);
       return;
     }
@@ -3749,10 +3760,23 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       actions[panel.id] = action;
       return action;
     });
-    this.tabActions = actions;
+    this.disposeReplacedTabActions(actions);
     const current = this.tabbedMenuValue.actions;
     if (current.length === items.length && current.every((a: Action, i: number): boolean => a === items[i])) return;
     this.tabbedMenuValue.setItems(items);
+  }
+  /* A tab whose panel left the page is never reused: a panel that comes back gets a new one. The old one
+     keeps handlers on the question (its computed properties), and the menu can still show it until the
+     UI rerenders the question. */
+  private disposeReplacedTabActions(actions: { [panelId: string]: PanelDynamicTabbedMenuItem }): void {
+    const old = this.tabActions;
+    this.tabActions = actions;
+    Object.keys(old).forEach((panelId: string): void => {
+      const action = old[panelId];
+      if (actions[panelId] !== action && !action.isDisposed) {
+        this.disposeLeftObject(action);
+      }
+    });
   }
 
   get showNavigation(): boolean {
@@ -3869,21 +3893,21 @@ Serializer.addClass(
     { name: "allowRemovePanel:boolean", default: true },
     { name: "newPanelPosition", choices: ["next", "last"], default: "last" },
     {
-      name: "panelCount:number",
+      name: panelCountNames.count + ":number",
       isBindable: true,
       default: 0,
       choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-      isSerializableFunc: isRecordCountSerializable,
+      isSerializableFunc: QuestionRecordsModel.isRecordCountSerializable,
       onSettingValue: (obj: any, val: any): any => {
         if (val < obj.minPanelCount) return obj.minPanelCount;
         if (val > obj.panelCountLimit) return obj.panelCountLimit;
         return val;
       },
     },
-    "panelCountExpression:expression",
-    { name: "minPanelCount:number", default: 0, minValue: 0 },
+    panelCountNames.countExpression + ":expression",
+    { name: panelCountNames.minCount + ":number", default: 0, minValue: 0 },
     {
-      name: "maxPanelCount:number",
+      name: panelCountNames.maxCount + ":number",
       defaultFunc: () => settings.panel.maxPanelCount,
     },
     "defaultPanelValue:panelvalue",
@@ -3935,7 +3959,7 @@ Serializer.addClass(
       return sQN === "onpanel" || sQN === "recursive";
     } },
     { name: "renderMode", visible: false, isSerializable: false },
-    ...getRecordViewProperties("panelsPerPage"),
+    ...getRecordViewProperties(),
     { name: "displayMode", default: "list", choices: ["list", "carousel", "tab"] },
     {
       name: "showProgressBar:boolean", alternativeName: "showRangeInProgress",

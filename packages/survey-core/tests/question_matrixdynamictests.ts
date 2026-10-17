@@ -8092,6 +8092,26 @@ describe("Survey_QuestionMatrixDynamic", () => {
 
     settings.confirmActionAsync = prevAsync;
   });
+  test("matrixdynamic without a survey: removeRowUI with confirmDelete asks and removes the row", () => {
+    const prevAsync = settings.confirmActionAsync;
+    try {
+      const q = new QuestionMatrixDynamicModel("q");
+      q.addColumn("col1");
+      q.confirmDelete = true;
+      q.value = [{ col1: 1 }, { col1: 2 }, { col1: 3 }];
+      const asked: Array<any> = [];
+      settings.confirmActionAsync = (message: string, resFunc: (res: boolean) => void, options: any): boolean => {
+        asked.push(options.rootElement);
+        resFunc(true);
+        return true;
+      };
+      q.removeRowUI(q.visibleRows[1]);
+      expect(asked, "#1: asked once, with no root element").toEqual([undefined]);
+      expect(q.value, "#2").toEqual([{ col1: 1 }, { col1: 3 }]);
+    } finally {
+      settings.confirmActionAsync = prevAsync;
+    }
+  });
   test("matrixdynamic.removeRow & settings.confirmActionFunc, #10145", () => {
     let funcRes = false;
     settings.confirmActionFunc = (message: string): boolean => {
@@ -9992,17 +10012,17 @@ describe("Survey_QuestionMatrixDynamic", () => {
     }
     return <QuestionMatrixDynamicModel>survey.getQuestionByName("md");
   }
-  test("settings.matrix.maxRowCount is the maximum number of rows on one page: rowsPerPage above it is capped", () => {
+  test("settings.matrix.maxRowCount is the maximum number of rows on one page: pageSize above it is capped", () => {
     settings.matrix.maxRowCount = 5;
     try {
-      const matrix = createMaxRowCountMatrix({ rowCount: 0, rowsPerPage: 10 }, 12);
+      const matrix = createMaxRowCountMatrix({ rowCount: 0, pageSize: 10 }, 12);
       expect(matrix.visibleRows.length, "#1: five rows on the page").toBe(5);
       expect(matrix.pageCount, "#2: 12 records, five per page").toBe(3);
-      expect(matrix.rowsPerPage, "#3: the property keeps its value").toBe(10);
-      expect(matrix.toJSON().rowsPerPage, "#4: and its JSON").toBe(10);
+      expect(matrix.pageSize, "#3: the property keeps its value").toBe(10);
+      expect(matrix.toJSON().pageSize, "#4: and its JSON").toBe(10);
       matrix.pageIndex = 2;
       expect(matrix.visibleRows.length, "#5: the last page").toBe(2);
-      matrix.rowsPerPage = 4;
+      matrix.pageSize = 4;
       expect(matrix.visibleRows.length, "#6: a page size below the setting is used as is").toBe(4);
       expect(matrix.pageCount, "#7").toBe(3);
     } finally {
@@ -10012,15 +10032,15 @@ describe("Survey_QuestionMatrixDynamic", () => {
   test("settings.matrix.maxRowCount does not limit the total number of rows while paging is on", () => {
     settings.matrix.maxRowCount = 5;
     try {
-      const matrix = createMaxRowCountMatrix({ rowCount: 0, rowsPerPage: 3 }, 12);
+      const matrix = createMaxRowCountMatrix({ rowCount: 0, pageSize: 3 }, 12);
       expect(matrix.rowCount, "#1: every record is kept").toBe(12);
       expect(matrix.canAddRow, "#2: a row can be added").toBe(true);
       matrix.addRow();
       expect(matrix.rowCount, "#3: the add is not blocked").toBe(13);
       matrix.rowCount = 15;
       expect(matrix.rowCount, "#4: rowCount above the setting from code").toBe(15);
-      const fromJson = createMaxRowCountMatrix({ rowCount: 8, rowsPerPage: 3 });
-      expect(fromJson.rowCount, "#5: rowCount from JSON, rowsPerPage loaded after it").toBe(8);
+      const fromJson = createMaxRowCountMatrix({ rowCount: 8, pageSize: 3 });
+      expect(fromJson.rowCount, "#5: rowCount from JSON, pageSize loaded after it").toBe(8);
       expect(fromJson.visibleRows.length, "#6").toBe(3);
       expect(fromJson.pageCount, "#7").toBe(3);
     } finally {
@@ -10030,7 +10050,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
   test("settings.matrix.maxRowCount: an explicit maxRowCount above it limits the total while paging is on", () => {
     settings.matrix.maxRowCount = 5;
     try {
-      const matrix = createMaxRowCountMatrix({ rowCount: 0, rowsPerPage: 3, maxRowCount: 8 }, 7);
+      const matrix = createMaxRowCountMatrix({ rowCount: 0, pageSize: 3, maxRowCount: 8 }, 7);
       expect(matrix.maxRowCount, "#1: the value is not capped by the setting").toBe(8);
       expect(matrix.toJSON().maxRowCount, "#2: and it is serialized").toBe(8);
       expect(matrix.canAddRow, "#3: 7 of 8").toBe(true);
@@ -10049,7 +10069,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
       expect(matrix.canAddRow, "#2: 6 rows on the only page, above the setting").toBe(false);
       matrix.rowCount = 7;
       expect(matrix.rowCount, "#3: rowCount above the setting is rejected").toBe(6);
-      matrix.rowsPerPage = 3;
+      matrix.pageSize = 3;
       expect(matrix.maxRowCount, "#4: paging on, the property is not capped").toBe(8);
       expect(matrix.canAddRow, "#4: paging on, maxRowCount is the limit").toBe(true);
       matrix.addRow();
@@ -10063,7 +10083,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
   test("settings.matrix.maxRowCount and rowCountExpression: the result is limited by the setting without paging only", () => {
     settings.matrix.maxRowCount = 5;
     try {
-      const matrix = createMaxRowCountMatrix({ rowsPerPage: 3, rowCountExpression: "{n}" });
+      const matrix = createMaxRowCountMatrix({ pageSize: 3, rowCountExpression: "{n}" });
       matrix.survey.setValue("n", 9);
       expect(matrix.rowCount, "#1: paging on").toBe(9);
       expect(matrix.visibleRows.length, "#2").toBe(3);
@@ -10071,12 +10091,12 @@ describe("Survey_QuestionMatrixDynamic", () => {
       settings.matrix.maxRowCount = 1000;
     }
   });
-  test("settings.matrix.maxRowCount limits the total number of rows in design mode, whatever rowsPerPage says", () => {
+  test("settings.matrix.maxRowCount limits the total number of rows in design mode, whatever pageSize says", () => {
     settings.matrix.maxRowCount = 5;
     try {
       const survey = new SurveyModel();
       survey.setDesignMode(true);
-      survey.fromJSON({ elements: [{ type: "matrixdynamic", name: "md", rowCount: 2, rowsPerPage: 3, columns: [{ name: "id" }] }] });
+      survey.fromJSON({ elements: [{ type: "matrixdynamic", name: "md", rowCount: 2, pageSize: 3, columns: [{ name: "id" }] }] });
       const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("md");
       matrix.rowCount = 7;
       expect(matrix.rowCount, "#2: above the setting is rejected").toBe(2);
@@ -11031,7 +11051,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
 
   test("paging is off by default: the page is every visible row", () => {
     const matrix = createMatrix({ rowCount: 3 }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }]);
-    expect(matrix.rowsPerPage, "#1: off").toBe(0);
+    expect(matrix.pageSize, "#1: off").toBe(0);
     expect(matrix.pageSize, "#2: the alias reads it").toBe(0);
     expect(matrix.visibleRows.length, "#3: every row").toBe(3);
     expect(matrix.pageCount, "#4: one page").toBe(1);
@@ -11043,21 +11063,21 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     const survey = new SurveyModel({
       pages: [
         { name: "intro", elements: [{ type: "html", name: "intro", html: "start" }] },
-        { name: "p1", elements: [{ type: "matrixdynamic", name: "matrix", columns: cols, rowsPerPage: 2 }] }
+        { name: "p1", elements: [{ type: "matrixdynamic", name: "matrix", columns: cols, pageSize: 2 }] }
       ]
     });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     survey.data = { matrix: abcde };
-    matrix.rowsPerPage = 3;
-    matrix.rowsPerPage = 0;
-    matrix.rowsPerPage = 2;
+    matrix.pageSize = 3;
+    matrix.pageSize = 0;
+    matrix.pageSize = 2;
     expect((<any>matrix).generatedVisibleRows, "#1: generatedVisibleRows is protected").toBeFalsy();
     survey.currentPageNo = 1;
     expect(pageValues(matrix), "#2").toEqual(["a", "b"]);
     expect(matrix.pageCount, "#3").toBe(3);
   });
   test("an empty question reports one page", () => {
-    const matrix = createMatrix({ rowCount: 0, rowsPerPage: 2 });
+    const matrix = createMatrix({ rowCount: 0, pageSize: 2 });
     expect(matrix.visibleRows.length, "#1: no rows").toBe(0);
     expect(matrix.pageCount, "#2: still one page").toBe(1);
     expect(matrix.pageIndex, "#3: page 0 is always valid").toBe(0);
@@ -11065,7 +11085,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.canGoPrevPage, "#5").toBe(false);
   });
   test("pageCount for one, N and an exact multiple of records", () => {
-    const matrix = createMatrix({ rowCount: 1, rowsPerPage: 2 }, [{ c1: "a" }]);
+    const matrix = createMatrix({ rowCount: 1, pageSize: 2 }, [{ c1: "a" }]);
     expect(matrix.pageCount, "#1: one record").toBe(1);
     matrix.rowCount = 5;
     expect(matrix.pageCount, "#2: five records of two").toBe(3);
@@ -11073,7 +11093,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.pageCount, "#3: an exact multiple").toBe(2);
   });
   test("the rows of every page, and the last page is the shorter one", () => {
-    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2 }, abcde);
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
     expect(pageValues(matrix), "#1").toEqual(["a", "b"]);
     matrix.nextPage();
     expect(matrix.pageIndex, "#2").toBe(1);
@@ -11085,7 +11105,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.allRows.length, "#7").toBe(1);
   });
   test("navigation clamps at both ends", () => {
-    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2 }, abcde);
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
     matrix.prevPage();
     expect(matrix.pageIndex, "#1: there is no page before the first").toBe(0);
     matrix.goToPage(-5);
@@ -11101,50 +11121,50 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.canGoNextPage, "#8").toBe(true);
   });
   test("switching paging off restores the unpaged rows and page 0", () => {
-    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2 }, abcde);
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
     matrix.goToPage(2);
-    matrix.rowsPerPage = 0;
+    matrix.pageSize = 0;
     expect(matrix.visibleRows.length, "#1: every row again").toBe(5);
     expect(matrix.pageCount, "#2").toBe(1);
     expect(matrix.pageIndex, "#3").toBe(0);
   });
-  test("a negative rowsPerPage is 0, from the setter and from JSON", () => {
-    const matrix = createMatrix({ rowCount: 3, rowsPerPage: -2 }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }]);
-    expect(matrix.rowsPerPage, "#1: JSON is clamped too - the onSettingValue hook would be skipped").toBe(0);
-    matrix.rowsPerPage = -1;
-    expect(matrix.rowsPerPage, "#2").toBe(0);
+  test("a negative pageSize is 0, from the setter and from JSON", () => {
+    const matrix = createMatrix({ rowCount: 3, pageSize: -2 }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }]);
+    expect(matrix.pageSize, "#1: JSON is clamped too - the onSettingValue hook would be skipped").toBe(0);
+    matrix.pageSize = -1;
+    expect(matrix.pageSize, "#2").toBe(0);
     expect(matrix.visibleRows.length, "#3").toBe(3);
-    matrix.rowsPerPage = 2;
+    matrix.pageSize = 2;
     expect(matrix.visibleRows.length, "#4").toBe(2);
   });
-  test("rowsPerPage and pageSize are one value, from code and from JSON", () => {
-    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2 }, abcde);
+  test("pageSize is one value, from code and from JSON", () => {
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
     expect(matrix.pageSize, "#1: JSON, read through pageSize").toBe(2);
     matrix.pageSize = 3;
-    expect(matrix.rowsPerPage, "#2: pageSize writes rowsPerPage").toBe(3);
+    expect(matrix.pageSize, "#2: set from code").toBe(3);
     expect(matrix.visibleRows.length, "#3").toBe(3);
-    expect(matrix.toJSON().rowsPerPage, "#4: and its JSON").toBe(3);
-    matrix.rowsPerPage = 4;
-    expect(matrix.pageSize, "#5: rowsPerPage writes pageSize").toBe(4);
+    expect(matrix.toJSON().pageSize, "#4: and its JSON").toBe(3);
+    matrix.pageSize = 4;
+    expect(matrix.pageSize, "#5: set from code again").toBe(4);
     matrix.pageSize = <any>"abc";
-    expect(matrix.rowsPerPage, "#6: a value that is not a number is 0").toBe(0);
+    expect(matrix.pageSize, "#6: a value that is not a number is 0").toBe(0);
     expect(matrix.pageCount, "#7: no paging").toBe(1);
     matrix.pageSize = <any>"2";
-    expect(matrix.rowsPerPage, "#8: a numeric string is its number").toBe(2);
+    expect(matrix.pageSize, "#8: a numeric string is its number").toBe(2);
     expect(matrix.visibleRows.length, "#9").toBe(2);
   });
   test("an assigned page size refreshes the rendered table, also when the value is the same", () => {
-    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2 }, abcde);
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
     let table = matrix.renderedTable;
-    matrix.rowsPerPage = 2;
-    expect(matrix.renderedTable !== table, "#1: rowsPerPage").toBe(true);
+    matrix.pageSize = 2;
+    expect(matrix.renderedTable !== table, "#1: assigned").toBe(true);
     table = matrix.renderedTable;
     matrix.pageSize = 2;
-    expect(matrix.renderedTable !== table, "#2: pageSize").toBe(true);
+    expect(matrix.renderedTable !== table, "#2: assigned again").toBe(true);
     expect(dataRows(matrix).length, "#3: the page").toBe(2);
   });
   test("a row hidden by rowsVisibleIf takes no page slot", () => {
-    const matrix = createMatrix({ rowCount: 4, rowsPerPage: 2, rowsVisibleIf: "{row.c1} != 'b'" },
+    const matrix = createMatrix({ rowCount: 4, pageSize: 2, rowsVisibleIf: "{row.c1} != 'b'" },
       [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
     expect(matrix["dataList"].visibleCount, "#1: three records are visible").toBe(3);
     expect(matrix.allRows.length, "#2: the page's two rows exist, a hidden record has none").toBe(2);
@@ -11154,21 +11174,21 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(pageValues(matrix), "#5").toEqual(["d"]);
   });
   test("pageCount follows a row that becomes hidden, with no list event", () => {
-    const survey = createSurvey({ rowCount: 4, rowsPerPage: 2, rowsVisibleIf: "{row.c1} != {q0}" },
+    const survey = createSurvey({ rowCount: 4, pageSize: 2, rowsVisibleIf: "{row.c1} != {q0}" },
       [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }], [{ type: "text", name: "q0" }]);
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     expect(matrix.pageCount, "#1").toBe(2);
     survey.setValue("q0", "b");
     expect(matrix["dataList"].visibleCount, "#2").toBe(3);
     expect(matrix.pageCount, "#3: three visible rows still need two pages").toBe(2);
-    matrix.rowsPerPage = 3;
+    matrix.pageSize = 3;
     expect(matrix.pageCount, "#4: three visible rows fit on one page").toBe(1);
     survey.setValue("q0", "");
     expect(matrix["dataList"].visibleCount, "#5").toBe(4);
     expect(matrix.pageCount, "#6: the row that came back needs a second one").toBe(2);
   });
   test("pageCount follows an array replaced by survey.setValue", () => {
-    const survey = createSurvey({ rowCount: 5, rowsPerPage: 2 }, abcde);
+    const survey = createSurvey({ rowCount: 5, pageSize: 2 }, abcde);
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     expect(matrix.pageCount, "#1").toBe(3);
     survey.setValue("matrix", [{ c1: "a" }, { c1: "b" }, { c1: "c" }]);
@@ -11179,7 +11199,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.pageIndex, "#5: the page index was clamped").toBe(0);
   });
   test("the rendered table renders the page, horizontal layout", () => {
-    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2 }, abcde);
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
     expect(dataRows(matrix).length, "#1: two rows on the page").toBe(2);
     matrix.goToPage(1);
     const rows = dataRows(matrix);
@@ -11192,7 +11212,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(dataRows(matrix)[0].cells[0].question.value, "#7").toBe("e");
   });
   test("the rendered table renders the page, vertical layout", () => {
-    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2, columnLayout: "vertical" }, abcde);
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2, columnLayout: "vertical" }, abcde);
     const table = matrix.renderedTable;
     expect(table.rows[0].cells.length, "#1: the leading cell and the page, not all five rows").toBe(3);
     expect(table.rows[1].cells.length, "#2: every rendered row is the page wide").toBe(3);
@@ -11206,7 +11226,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.renderedTable.rows[0].cells.length, "#7: one row on the last page").toBe(2);
   });
   test("the remove action of a page-2 row removes that row", () => {
-    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2, allowRemoveRows: true }, abcde);
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2, allowRemoveRows: true }, abcde);
     matrix.goToPage(1);
     const row = matrix.visibleRows[0];
     const rendered = dataRows(matrix)[0];
@@ -11220,7 +11240,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.value, "#5: and it is the one the row held").toEqual([{ c1: "a" }, { c1: "b" }, { c1: "d" }, { c1: "e" }]);
   });
   test("an open detail panel on page 2 is rendered, and closing it removes the rendered row", () => {
-    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2, detailPanelMode: "underRow" }, abcde);
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2, detailPanelMode: "underRow" }, abcde);
     matrix.detailPanel.addNewQuestion("text", "d1");
     matrix.goToPage(1);
     const row = matrix.visibleRows[0];
@@ -11232,7 +11252,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.renderedTable.rows.filter(r => r.isDetailRow).length, "#3: it is gone").toBe(0);
   });
   test("an error row belongs to the row on the page", () => {
-    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2, columns: [{ name: "c1", cellType: "text", isRequired: true }] },
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2, columns: [{ name: "c1", cellType: "text", isRequired: true }] },
       [{ c1: "a" }, { c1: "b" }, { c1: "" }, { c1: "d" }, { c1: "e" }]);
     matrix.goToPage(1);
     matrix.hasErrors(true);
@@ -11243,7 +11263,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.visibleRows[1].cells[0].question.errors.length, "#4: the other row on the page is valid").toBe(0);
   });
   test("adding a row lands on the last page and the page index follows", () => {
-    const matrix = createMatrix({ rowCount: 4, rowsPerPage: 2 }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
+    const matrix = createMatrix({ rowCount: 4, pageSize: 2 }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
     expect(matrix.pageIndex, "#1").toBe(0);
     matrix.addRowUI();
     expect(matrix.rowCount, "#2").toBe(5);
@@ -11254,7 +11274,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(dataRows(matrix).length, "#7: the rendered table was reset to the page").toBe(1);
   });
   test("removing the last row of the last page moves the page index back", () => {
-    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2, allowRemoveRows: true }, abcde);
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2, allowRemoveRows: true }, abcde);
     matrix.goToPage(2);
     expect(matrix.visibleRows.length, "#1").toBe(1);
     matrix.removeRow(4);
@@ -11264,7 +11284,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(pageValues(matrix), "#5").toEqual(["c", "d"]);
   });
   test("removing the last row of the last page moves the page index back when the matrix has no value", () => {
-    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2, allowRemoveRows: true });
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2, allowRemoveRows: true });
     matrix.goToPage(2);
     expect(matrix.visibleRows.length, "#1").toBe(1);
     matrix.removeRowUI(matrix.visibleRows[0]);
@@ -11276,7 +11296,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(dataRows(matrix).length, "#7: the rendered table shows the page it fell back to").toBe(2);
   });
   test("removing a row that was added and never filled moves the page index back", () => {
-    const matrix = createMatrix({ rowCount: 4, rowsPerPage: 2, allowRemoveRows: true }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
+    const matrix = createMatrix({ rowCount: 4, pageSize: 2, allowRemoveRows: true }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
     matrix.addRowUI();
     expect(matrix.pageCount, "#1").toBe(3);
     expect(matrix.pageIndex, "#2").toBe(2);
@@ -11290,7 +11310,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.value, "#9: the value is untouched").toEqual([{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
   });
   test("a required cell on a page that was never opened does not block the survey", () => {
-    const survey = createSurvey({ rowCount: 5, rowsPerPage: 2, columns: [{ name: "c1", cellType: "text", isRequired: true }] },
+    const survey = createSurvey({ rowCount: 5, pageSize: 2, columns: [{ name: "c1", cellType: "text", isRequired: true }] },
       [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "" }, { c1: "e" }]);
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     expect(matrix.pageIndex, "#1").toBe(0);
@@ -11298,7 +11318,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
   });
   test("totals are the totals of every visible row, not of the page", () => {
     const matrix = createMatrix({
-      rowCount: 4, rowsPerPage: 2,
+      rowCount: 4, pageSize: 2,
       columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text", inputType: "number", totalType: "sum" }]
     }, [{ c2: 1 }, { c2: 10 }, { c2: 100 }, { c2: 1000 }]);
     expect(matrix.totalValue.c2, "#1").toBe(1111);
@@ -11307,7 +11327,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
   });
   test("the neighbour expressions follow the sorted rows and ignore the page", () => {
     const matrix = createMatrix({
-      rowCount: 4, rowsPerPage: 2,
+      rowCount: 4, pageSize: 2,
       columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "expression", expression: "{prevRow.c1}" }]
     }, [{ c1: "d" }, { c1: "c" }, { c1: "b" }, { c1: "a" }]);
     expect(matrix.visibleRows.map(r => r.getQuestionByName("c2").value), "#1: the record order, page 1").toEqual([undefined, "d"]);
@@ -11318,7 +11338,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(pageValues(matrix, "c2"), "#4").toEqual(["b", "c"]);
   });
   test("keyName duplicates are looked for in every record, on-page or not", () => {
-    const matrix = createMatrix({ rowCount: 4, rowsPerPage: 2, keyName: "c1" },
+    const matrix = createMatrix({ rowCount: 4, pageSize: 2, keyName: "c1" },
       [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "a" }]);
     expect(matrix.hasErrors(true), "#1: the pair is on two different pages").toBe(true);
     matrix.value = [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }];
@@ -11328,7 +11348,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     return matrix.visibleRows.map(row => row.getQuestionByName("c1").errors.length);
   };
   test("a key typed on the page repeats a record without a row: a filtered-out record takes part, an owner-hidden one does not", () => {
-    const create = (): QuestionMatrixDynamicModel => createMatrix({ rowCount: 6, rowsPerPage: 2, keyName: "c1",
+    const create = (): QuestionMatrixDynamicModel => createMatrix({ rowCount: 6, pageSize: 2, keyName: "c1",
       filterExpression: "{c2} != 'out'", rowsVisibleIf: "{row.c2} != 'hide'" },
     [{ c1: "x", c2: "out" }, { c1: "y", c2: "hide" }, { c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
     const matrix = create();
@@ -11346,7 +11366,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(keyErrors(pair), "#6: every row of the group").toEqual([1, 1]);
   });
   test("a key typed on a sorted page repeats a record of another page: every row of the group gets the error", () => {
-    const matrix = createMatrix({ rowCount: 4, rowsPerPage: 2, keyName: "c1" },
+    const matrix = createMatrix({ rowCount: 4, pageSize: 2, keyName: "c1" },
       [{ c1: "x", c2: "1" }, { c1: "b", c2: "4" }, { c1: "c", c2: "3" }, { c1: "d", c2: "2" }]);
     matrix.sortOrder = [{ field: "c2", direction: "asc" }];
     matrix.goToPage(1);
@@ -11363,7 +11383,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
   });
   test("keys on the page and keys off it compare alike: case as useCaseSensitiveComparison says, a number as its string", () => {
     const create = (first: any, caseSensitive: boolean): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel } => {
-      const survey = createSurvey({ rowCount: 4, rowsPerPage: 2, keyName: "c1" }, [{ c1: first }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
+      const survey = createSurvey({ rowCount: 4, pageSize: 2, keyName: "c1" }, [{ c1: first }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
       const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
       matrix.useCaseSensitiveComparison = caseSensitive;
       return { survey: survey, matrix: matrix };
@@ -11383,7 +11403,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(check("x", "y", false), "#4").toEqual([true, true]);
   });
   test("a key typed on the page repeats a padded record: it reads the default row value", () => {
-    const matrix = createMatrix({ rowCount: 2, rowsPerPage: 2, keyName: "c1", defaultRowValue: { c1: "same" } }, [{ c1: "a" }, { c1: "b" }]);
+    const matrix = createMatrix({ rowCount: 2, pageSize: 2, keyName: "c1", defaultRowValue: { c1: "same" } }, [{ c1: "a" }, { c1: "b" }]);
     matrix.visibleRows;
     matrix.rowCount = 3;
     expect(matrix.getPropertyValueWithoutDefault("value").length, "#1: record 2 is padded, not stored").toBe(2);
@@ -11394,7 +11414,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(keyErrors(matrix), "#5").toEqual([0, 1]);
   });
   test("rowCountExpression pages like a rowCount that was set", () => {
-    const survey = createSurvey({ rowsPerPage: 2, rowCountExpression: "{q0}" }, undefined, [{ type: "text", name: "q0" }]);
+    const survey = createSurvey({ pageSize: 2, rowCountExpression: "{q0}" }, undefined, [{ type: "text", name: "q0" }]);
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     survey.setValue("q0", 5);
     expect(matrix.rowCount, "#1").toBe(5);
@@ -11404,7 +11424,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.pageCount, "#4").toBe(1);
   });
   test("a filter, a sort and a page combined", () => {
-    const matrix = createMatrix({ rowCount: 6, rowsPerPage: 2 },
+    const matrix = createMatrix({ rowCount: 6, pageSize: 2 },
       [{ c1: "a", c2: "6" }, { c1: "b", c2: "5" }, { c1: "a", c2: "4" }, { c1: "a", c2: "3" }, { c1: "b", c2: "2" }, { c1: "a", c2: "1" }]);
     matrix.filterExpression = "{c1} = 'a'";
     matrix.sortOrder = [{ field: "c2", direction: "asc" }];
@@ -11486,7 +11506,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.allRows[0] === rows[0], "#3: a different sort does rebuild them").toBe(false);
   });
   test("pageIndex, pageCount, sortOrder and filterExpression notify the reactivity bridge", () => {
-    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2 }, abcde);
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
     const changed: Array<string> = [];
     matrix.onPropertyChanged.add((sender, options) => { changed.push(options.name); });
     matrix.nextPage();
@@ -11502,15 +11522,15 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(changed.indexOf("filterExpression") > -1, "#4").toBe(true);
   });
   test("the pager actions are created once", () => {
-    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2 }, abcde);
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
     const actions = matrix.pagerActions;
     matrix.nextPage();
     expect(matrix.pagerActions === actions, "#1: the same container after a page move").toBe(true);
-    matrix.rowsPerPage = 3;
+    matrix.pageSize = 3;
     expect(matrix.pagerActions === actions, "#2: and after a page size change").toBe(true);
   });
   test("the pager actions run the navigation and follow it", () => {
-    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2 }, abcde);
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
     const actions = matrix.pagerActions.actions;
     expect(actions.length, "#1: prev, the page info and next").toBe(3);
     const prev = matrix.pagerActions.getActionById("sv-pager-prev");
@@ -11529,7 +11549,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.pageIndex, "#9").toBe(1);
   });
   test("the pager info follows the survey locale", () => {
-    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2 }, abcde);
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
     const info = matrix.pagerActions.getActionById("sv-pager-info");
     expect(info.title, "#1").toBe("1 of 3");
     (<SurveyModel>matrix.survey).locale = "de";
@@ -11540,7 +11560,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(info.title, "#4").toBe("2 of 3");
   });
   test("single input walks every visible row and ignores the page", () => {
-    const survey = createSurvey({ rowCount: 4, rowsPerPage: 2 }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
+    const survey = createSurvey({ rowCount: 4, pageSize: 2 }, [{ c1: "a" }, { c1: "b" }, { c1: "c" }, { c1: "d" }]);
     survey.questionsOnPageMode = "inputPerPage";
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     expect(matrix.singleInputSummary?.items.length, "#1: every visible row, not the page - single input is its own paging").toBe(4);
@@ -11550,9 +11570,9 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
   test("design mode pages nothing and keeps the authored value", () => {
     const survey = new SurveyModel();
     survey.setDesignMode(true);
-    survey.fromJSON({ elements: [{ type: "matrixdynamic", name: "matrix", columns: cols, rowCount: 5, rowsPerPage: 2, allowSortRows: true }] });
+    survey.fromJSON({ elements: [{ type: "matrixdynamic", name: "matrix", columns: cols, rowCount: 5, pageSize: 2, allowSortRows: true }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
-    expect(matrix.rowsPerPage, "#1: the authored value is kept for serialization").toBe(2);
+    expect(matrix.pageSize, "#1: the authored value is kept for serialization").toBe(2);
     expect(matrix.visibleRows.length, "#2").toBe(5);
     expect(matrix.visibleRows.length, "#3: every row is shown").toBe(5);
     expect(matrix.pageCount, "#4").toBe(1);
@@ -11568,31 +11588,31 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix["dataList"].sort, "#9: and not applied").toEqual([]);
     expect(matrix.visibleRows.length, "#10: every row, in storage order").toBe(5);
     const json = matrix.toJSON();
-    expect(json.rowsPerPage, "#11").toBe(2);
+    expect(json.pageSize, "#11").toBe(2);
     expect(json.sortBy, "#12").toBe("c1");
     expect(json.filterExpression, "#13").toBe("{c1} = 'a'");
   });
   test("the new properties round-trip through JSON and stay out of the property grid", () => {
-    const matrix = createMatrix({ rowCount: 2, rowsPerPage: 3, allowSortRows: true,
+    const matrix = createMatrix({ rowCount: 2, pageSize: 3, allowSortRows: true,
       columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text", allowSort: false }] });
-    expect(matrix.rowsPerPage, "#1").toBe(3);
+    expect(matrix.pageSize, "#1").toBe(3);
     expect(matrix.allowSortRows, "#2").toBe(true);
     expect(matrix.columns[1].allowSort, "#3").toBe(false);
     const json = matrix.toJSON();
-    expect(json.rowsPerPage, "#4").toBe(3);
+    expect(json.pageSize, "#4").toBe(3);
     expect(json.allowSortRows, "#5").toBe(true);
     expect(json.columns[1].allowSort, "#6").toBe(false);
-    expect(Serializer.findProperty("matrixdynamic", "rowsPerPage").visible, "#7").toBe(false);
+    expect(Serializer.findProperty("matrixdynamic", "pageSize").visible, "#7").toBe(false);
     expect(Serializer.findProperty("matrixdynamic", "allowSortRows").visible, "#8").toBe(false);
     expect(Serializer.findProperty("matrixdropdowncolumn", "allowSort").visible, "#9").toBe(false);
   });
   test("the defaults are not serialized", () => {
     const matrix = createMatrix({ rowCount: 2 });
     const json = matrix.toJSON();
-    expect(json.rowsPerPage, "#1").toBe(undefined);
+    expect(json.pageSize, "#1").toBe(undefined);
     expect(json.allowSortRows, "#2").toBe(undefined);
     expect(json.columns[0].allowSort, "#3").toBe(undefined);
-    expect(matrix.rowsPerPage, "#4").toBe(0);
+    expect(matrix.pageSize, "#4").toBe(0);
     expect(matrix.allowSortRows, "#5").toBe(false);
     expect(matrix.columns[0].allowSort, "#6: a column sorts by default").toBe(true);
   });
@@ -11651,14 +11671,14 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.sortBy, "#5: a click without the modifier starts over").toBe("c1-");
   });
   test("removing a row on an earlier page fills the vacated slot from the next one", () => {
-    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2, allowRemoveRows: true }, abcde);
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2, allowRemoveRows: true }, abcde);
     expect(dataRows(matrix).map(row => row.cells[0].question.value), "#1").toEqual(["a", "b"]);
     matrix.removeRow(0);
     expect(pageValues(matrix), "#2: the first row of page 2 moved up").toEqual(["b", "c"]);
     expect(dataRows(matrix).map(row => row.cells[0].question.value), "#3: and the table shows it").toEqual(["b", "c"]);
   });
   test("removing the last row of the last page re-renders the page it falls back to", () => {
-    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2, allowRemoveRows: true }, abcde);
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2, allowRemoveRows: true }, abcde);
     matrix.goToPage(2);
     expect(dataRows(matrix).map(row => row.cells[0].question.value), "#1: the last page is rendered").toEqual(["e"]);
     matrix.removeRow(4);
@@ -11666,7 +11686,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(dataRows(matrix).map(row => row.cells[0].question.value), "#3: not an empty table").toEqual(["c", "d"]);
   });
   test("lockedRowCount locks the first records, whatever page they are on", () => {
-    const matrix = createMatrix({ rowCount: 5, rowsPerPage: 2, allowRowReorder: true }, abcde);
+    const matrix = createMatrix({ rowCount: 5, pageSize: 2, allowRowReorder: true }, abcde);
     matrix.lockedRowCount = 1;
     expect(dataRows(matrix)[0].cells[0].isActionsCell, "#1: record 0 is locked - no drag handle").toBe(false);
     expect(dataRows(matrix)[1].cells[0].isActionsCell, "#2: record 1 is not").toBe(true);
@@ -11768,16 +11788,16 @@ describe("Survey_QuestionMatrixDynamic: the sort and the filter in JSON", () => 
     expect(changed, "#4: the list changed it on its own").toEqual([" -> c1", "c1 -> c1-", "c1- -> "]);
   });
   test("the JSON key order does not decide the sort", () => {
-    const before = createMatrix({ sortBy: "c1-", rowsPerPage: 2, rowCount: 3 }, cba);
-    expect(before.sortBy, "#1: sortBy before rowsPerPage").toBe("c1-");
+    const before = createMatrix({ sortBy: "c1-", pageSize: 2, rowCount: 3 }, cba);
+    expect(before.sortBy, "#1: sortBy before pageSize").toBe("c1-");
     expect(values(before), "#2: the first page of the sorted records").toEqual(["c", "b"]);
-    const after = createMatrix({ rowsPerPage: 2, sortBy: "c1-", rowCount: 3 }, cba);
+    const after = createMatrix({ pageSize: 2, sortBy: "c1-", rowCount: 3 }, cba);
     expect(after.sortBy, "#3: and after it").toBe("c1-");
     expect(values(after), "#4").toEqual(["c", "b"]);
     expect(after.visibleRows.length, "#5: the page size survived it too").toBe(2);
   });
   test("the authored sort orders the first page", () => {
-    const matrix = createMatrix({ sortBy: "c1-", rowsPerPage: 2, rowCount: 3 }, cba);
+    const matrix = createMatrix({ sortBy: "c1-", pageSize: 2, rowCount: 3 }, cba);
     expect(values(matrix), "#2: the first page of the sorted records").toEqual(["c", "b"]);
   });
   test("fromJSON into an attached question that already runs a different sort", () => {
@@ -11946,7 +11966,7 @@ describe("value assigned by a handler during an add or remove", () => {
     expect(isRenderedTableOfRows(matrix), "#4: the rendered table shows the rows").toBe(true);
   });
   test("a value assigned on value changed while a paged matrix removes a row replaces the rows", () => {
-    const { survey, matrix } = createSurvey({ rowsPerPage: 2 });
+    const { survey, matrix } = createSurvey({ pageSize: 2 });
     expect(getRowValues(matrix), "#0").toEqual([{ a: "1" }, { a: "2" }]);
     expect(isRenderedTableOfRows(matrix), "#0: rendered").toBe(true);
     runOnce(survey.onValueChanged, () => survey.setValue("q", [{ a: "x" }]));
@@ -12024,7 +12044,7 @@ describe("value assigned by a handler during an add or remove", () => {
     expect(matrix.rowCount, "#6").toBe(4);
   });
 });
-/* A survey that sets none of the new properties - rowsPerPage, sortBy, filterExpression, a data
+/* A survey that sets none of the new properties - pageSize, sortBy, filterExpression, a data
    source - gets the dynamic matrix it has always had. */
 describe("Dynamic matrix without paging keeps its released behaviour", () => {
   const createMatrix = (json: any, extra?: Array<any>): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel } => {
@@ -12339,8 +12359,8 @@ describe("the minimum row count check of a required matrix", () => {
     expect(errorsOf(create({}, [{ a: 1 }, {}, { a: 3 }])), "#2").toEqual(["minrowcounterror"]);
   });
   test("under paging the check counts the filled records of every page", () => {
-    expect(errorsOf(create({ rowsPerPage: 1 }, [{ a: 1 }, { a: 2 }, { a: 3 }])), "#1: three filled records, one per page").toEqual([]);
-    expect(errorsOf(create({ rowsPerPage: 1 }, [{ a: 1 }, {}, { a: 3 }])), "#2: two filled records").toEqual(["minrowcounterror"]);
+    expect(errorsOf(create({ pageSize: 1 }, [{ a: 1 }, { a: 2 }, { a: 3 }])), "#1: three filled records, one per page").toEqual([]);
+    expect(errorsOf(create({ pageSize: 1 }, [{ a: 1 }, {}, { a: 3 }])), "#2: two filled records").toEqual(["minrowcounterror"]);
   });
   test("under a filter without paging the check counts the filled records the view shows", () => {
     expect(errorsOf(create({ filterExpression: "{a} != 2" }, [{ a: 1 }, { a: 2 }, { a: 3 }])), "#1").toEqual(["minrowcounterror"]);

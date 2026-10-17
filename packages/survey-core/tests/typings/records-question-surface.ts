@@ -126,6 +126,16 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
     "clearSort", "filterExpression", "refreshView", "isDataLoading", "isPageMovePending", "getRecordNumberOffset",
     "refreshDataSource"];
   res.push(mdApi, pdApi);
+  // The page size is pageSize on every records question: the type-specific names are gone.
+  // @ts-expect-error renamed to pageSize
+  const ddRowsPerPage: DeclaredKeys<QuestionMatrixDropdownModel> = "rowsPerPage";
+  // @ts-expect-error renamed to pageSize
+  const mdRowsPerPage: DeclaredKeys<QuestionMatrixDynamicModel> = "rowsPerPage";
+  // @ts-expect-error renamed to pageSize
+  const dbRowsPerPage: DeclaredKeys<QuestionMatrixDropdownModelBase> = "rowsPerPage";
+  // @ts-expect-error renamed to pageSize
+  const pdPanelsPerPage: DeclaredKeys<QuestionPanelDynamicModel> = "panelsPerPage";
+  res.push(ddRowsPerPage, mdRowsPerPage, dbRowsPerPage, pdPanelsPerPage);
   // The paging state shared by the records questions is protected on every one of them.
   // @ts-expect-error protected
   const md7: DeclaredKeys<QuestionMatrixDynamicModel> = "isPagingActive";
@@ -223,8 +233,6 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error protected
   const ddShared4: DeclaredKeys<QuestionMatrixDropdownModel> = "isRecordCountLimitedByPageMax";
   // @ts-expect-error protected
-  const ddShared5: DeclaredKeys<QuestionMatrixDropdownModel> = "getPageSizePropertyName";
-  // @ts-expect-error protected
   const ddShared6: DeclaredKeys<QuestionMatrixDropdownModel> = "onPageSizeAssigned";
   // @ts-expect-error a hook
   const ddShared7: DeclaredKeys<QuestionMatrixDropdownModel> = "getRecordVisibleIfPropertyName";
@@ -238,8 +246,6 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   const mdShared3: DeclaredKeys<QuestionMatrixDynamicModel> = "getRecordCountLimit";
   // @ts-expect-error protected
   const mdShared4: DeclaredKeys<QuestionMatrixDynamicModel> = "isRecordCountLimitedByPageMax";
-  // @ts-expect-error protected
-  const mdShared5: DeclaredKeys<QuestionMatrixDynamicModel> = "getPageSizePropertyName";
   // @ts-expect-error protected
   const mdShared6: DeclaredKeys<QuestionMatrixDynamicModel> = "onPageSizeAssigned";
   // @ts-expect-error a hook
@@ -255,13 +261,11 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error protected
   const pdShared4: DeclaredKeys<QuestionPanelDynamicModel> = "isRecordCountLimitedByPageMax";
   // @ts-expect-error protected
-  const pdShared5: DeclaredKeys<QuestionPanelDynamicModel> = "getPageSizePropertyName";
-  // @ts-expect-error protected
   const pdShared6: DeclaredKeys<QuestionPanelDynamicModel> = "onPageSizeAssigned";
   // @ts-expect-error a hook
   const pdShared7: DeclaredKeys<QuestionPanelDynamicModel> = "getRecordVisibleIfPropertyName";
-  res.push(ddShared1, ddShared2, ddShared3, ddShared4, ddShared5, ddShared6, ddShared7, ddShared8, mdShared1, mdShared2, mdShared3, mdShared4, mdShared5,
-    mdShared6, mdShared7, mdShared8, pdShared1, pdShared2, pdShared3, pdShared4, pdShared5, pdShared6, pdShared7);
+  res.push(ddShared1, ddShared2, ddShared3, ddShared4, ddShared6, ddShared7, ddShared8, mdShared1, mdShared2, mdShared3, mdShared4,
+    mdShared6, mdShared7, mdShared8, pdShared1, pdShared2, pdShared3, pdShared4, pdShared6, pdShared7);
 
   // The helpers the rows and panels share, and the record item the question creates, are not public either.
   // @ts-expect-error protected

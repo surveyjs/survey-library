@@ -510,7 +510,7 @@ frameworks.forEach((framework) => {
           {
             type: "matrixdynamic",
             name: "matrix",
-            rowsPerPage: 2,
+            pageSize: 2,
             defaultValue: defaultValue,
             columns: [
               { name: "id", cellType: "text" },

@@ -9,6 +9,8 @@ import { settings } from "../src/settings";
 import { CustomError } from "../src/error";
 import { ArrayDynamicDataSource } from "../src/dynamic-data/dynamic-data-sources";
 import { ItemValue } from "../src/itemvalue";
+import { SurveyElement } from "../src/survey-element";
+import { Serializer, JsonUnknownPropertyError } from "../src/jsonobject";
 
 /* The record list and its helpers are created on demand. A matrix whose rows are fixed creates its
    list on the first cell edit, when the list is asked for and when it pages, sorts or filters - and on no other
@@ -151,9 +153,9 @@ describe("Records question: fixed matrix", () => {
   test("nested page state: a fixed matrix in a rebuilt dynamic panel has none and creates no list", () => {
     const survey = new SurveyModel({
       elements: [{
-        type: "paneldynamic", name: "outer", panelsPerPage: 1,
+        type: "paneldynamic", name: "outer", pageSize: 1,
         templateElements: [{ type: "text", name: "id" }, {
-          type: "matrixdynamic", name: "paged", rowCount: 0, rowsPerPage: 1,
+          type: "matrixdynamic", name: "paged", rowCount: 0, pageSize: 1,
           columns: [{ name: "a", cellType: "text" }]
         }, {
           type: "matrixdropdown", name: "fixed", rows: ["r1", "r2"],
@@ -217,7 +219,7 @@ describe("Records question: the objects an assignment refreshes", () => {
 describe("Records question: value assignment", () => {
   function createPagedMatrix(): QuestionMatrixDynamicModel {
     const survey = new SurveyModel({
-      elements: [{ type: "matrixdynamic", name: "q", rowCount: 3, rowsPerPage: 2, columns: [{ name: "a", cellType: "text" }] }]
+      elements: [{ type: "matrixdynamic", name: "q", rowCount: 3, pageSize: 2, columns: [{ name: "a", cellType: "text" }] }]
     });
     const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
     expect(q.visibleRows.length, "the page is built").toBe(2);
@@ -233,7 +235,7 @@ describe("Records question: value assignment", () => {
   });
   test("panel: an assignment sets the panel count", () => {
     const survey = new SurveyModel({
-      elements: [{ type: "paneldynamic", name: "q", panelsPerPage: 2, templateElements: [{ type: "text", name: "a" }] }]
+      elements: [{ type: "paneldynamic", name: "q", pageSize: 2, templateElements: [{ type: "text", name: "a" }] }]
     });
     const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
     q.value = [{ a: "1" }];
@@ -256,7 +258,7 @@ describe("Records question: value assignment", () => {
 describe("Records question: dispose", () => {
   test("matrix: dispose disposes the questions of the rows", () => {
     const survey = new SurveyModel({
-      elements: [{ type: "matrixdynamic", name: "q", rowCount: 3, rowsPerPage: 2, columns: [{ name: "a", cellType: "text" }] }]
+      elements: [{ type: "matrixdynamic", name: "q", rowCount: 3, pageSize: 2, columns: [{ name: "a", cellType: "text" }] }]
     });
     const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
     expect(q.visibleRows.length, "the rows are built").toBe(2);
@@ -266,7 +268,7 @@ describe("Records question: dispose", () => {
   });
   test("panel: dispose disposes the template", () => {
     const survey = new SurveyModel({
-      elements: [{ type: "paneldynamic", name: "q", panelsPerPage: 2, templateElements: [{ type: "text", name: "a" }] }]
+      elements: [{ type: "paneldynamic", name: "q", pageSize: 2, templateElements: [{ type: "text", name: "a" }] }]
     });
     const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
     q.value = [{ a: "1" }, { a: "2" }, { a: "3" }];
@@ -279,8 +281,8 @@ describe("Records question: dispose", () => {
 describe("Records question: dispose of the pager", () => {
   test("dispose disposes the pager actions of the matrix and the panel", () => {
     const survey = new SurveyModel({ elements: [
-      { type: "matrixdynamic", name: "m", rowCount: 3, rowsPerPage: 2, columns: [{ name: "a", cellType: "text" }] },
-      { type: "paneldynamic", name: "p", panelCount: 3, panelsPerPage: 2, templateElements: [{ type: "text", name: "a" }] }] });
+      { type: "matrixdynamic", name: "m", rowCount: 3, pageSize: 2, columns: [{ name: "a", cellType: "text" }] },
+      { type: "paneldynamic", name: "p", panelCount: 3, pageSize: 2, templateElements: [{ type: "text", name: "a" }] }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
     const matrixPager = matrix.pagerActions;
@@ -295,7 +297,6 @@ describe("Records question: dispose of the pager", () => {
 describe("Records questions: one API across the three types", () => {
   interface IKind {
     type: string;
-    pageSizeName: string;
     json: any;
     data: any;
     // The record the filter below hides, read from the value.
@@ -304,21 +305,21 @@ describe("Records questions: one API across the three types", () => {
   }
   const kinds: Array<IKind> = [
     {
-      type: "matrixdropdown", pageSizeName: "rowsPerPage",
+      type: "matrixdropdown",
       json: { rows: ["r1", "r2", "r3"], columns: [{ name: "a", cellType: "text" }] },
       data: { r1: { a: "1" }, r2: { a: "2" }, r3: { a: "3" } },
       hiddenRecord: (value: any): any => value.r2,
       shown: (q: any): Array<any> => q.visibleRows.map((row: any) => row.getQuestionByName("a").value)
     },
     {
-      type: "matrixdynamic", pageSizeName: "rowsPerPage",
+      type: "matrixdynamic",
       json: { rowCount: 3, columns: [{ name: "a", cellType: "text" }] },
       data: [{ a: "1" }, { a: "2" }, { a: "3" }],
       hiddenRecord: (value: any): any => value[1],
       shown: (q: any): Array<any> => q.visibleRows.map((row: any) => row.getQuestionByName("a").value)
     },
     {
-      type: "paneldynamic", pageSizeName: "panelsPerPage",
+      type: "paneldynamic",
       json: { templateElements: [{ type: "text", name: "a" }] },
       data: [{ a: "1" }, { a: "2" }, { a: "3" }],
       hiddenRecord: (value: any): any => value[1],
@@ -332,10 +333,10 @@ describe("Records questions: one API across the three types", () => {
   };
   kinds.forEach(kind => {
     test("paging, sorting, filtering and the record list, " + kind.type, () => {
-      const q = create(kind, { [kind.pageSizeName]: 2 });
-      expect([q[kind.pageSizeName], q.pageSize], "#1: the type-specific name and pageSize agree").toEqual([2, 2]);
+      const q = create(kind, { pageSize: 2 });
+      expect(q.pageSize, "#1: from JSON").toBe(2);
       q.pageSize = 1;
-      expect(q[kind.pageSizeName], "#1: set through pageSize").toBe(1);
+      expect(q.pageSize, "#1: set through pageSize").toBe(1);
       expect(q["dataList"].loadedCount, "#2: the record list").toBe(3);
       expect(q.pageCount, "#3").toBe(3);
       q.pageIndex = 1;
@@ -356,12 +357,43 @@ describe("Records questions: one API across the three types", () => {
     const survey = new SurveyModel({ elements: [json] });
     survey.data = { m: { r1: "c2" } };
     const m: any = survey.getQuestionByName("m");
-    ["pageSize", "rowsPerPage", "sortBy", "filterExpression", "getDataList", "pagerActions", "pageIndex"].forEach(name => {
+    ["pageSize", "sortBy", "filterExpression", "getDataList", "pagerActions", "pageIndex"].forEach(name => {
       expect(name in m, "#1: " + name).toBe(false);
     });
     expect(m.value, "#2: the answer").toEqual({ r1: "c2" });
     expect(m.visibleRows.map((row: any) => row.name), "#3: the rows").toEqual(["r1", "r2"]);
     expect(m.toJSON(), "#4: the JSON").toEqual({ name: "m", columns: ["c1", "c2"], rows: ["r1", "r2"] });
+  });
+});
+
+describe("Records questions: the serialized page size", () => {
+  const recordJsons: Array<any> = [
+    { type: "matrixdropdown", rows: ["r1", "r2", "r3"], columns: [{ name: "a", cellType: "text" }] },
+    { type: "matrixdynamic", rowCount: 3, columns: [{ name: "a", cellType: "text" }] },
+    { type: "paneldynamic", panelCount: 3, templateElements: [{ type: "text", name: "a" }] }
+  ];
+  recordJsons.forEach(json => {
+    test("pageSize is the serialized page size, " + json.type, () => {
+      const prop = Serializer.findProperty(json.type, "pageSize");
+      expect([prop.defaultValue, prop.minValue, prop.visible], "#1: the property").toEqual([0, 0, false]);
+      const survey = new SurveyModel({ elements: [Object.assign({ name: "q", pageSize: 2 }, json)] });
+      const q: any = survey.getQuestionByName("q");
+      expect([q.pageSize, q.pageCount], "#2: it pages").toEqual([2, 2]);
+      expect(q.toJSON().pageSize, "#3: it is saved").toBe(2);
+      expect(Serializer.findProperty(json.type, "rowsPerPage"), "#4: no rowsPerPage").toBeUndefined();
+      expect(Serializer.findProperty(json.type, "panelsPerPage"), "#5: no panelsPerPage").toBeUndefined();
+    });
+  });
+  [{ key: "rowsPerPage", json: recordJsons[1] }, { key: "panelsPerPage", json: recordJsons[2] }].forEach(item => {
+    test("JSON with " + item.key + " reports an unknown property and does not page, " + item.json.type, () => {
+      const survey = new SurveyModel({ elements: [Object.assign({ name: "q", [item.key]: 2 }, item.json)] });
+      const q: any = survey.getQuestionByName("q");
+      const errors = (survey.jsonErrors || []).filter((error: any) => error instanceof JsonUnknownPropertyError);
+      expect(errors.map((error: any) => error.propertyName), "#1: the error").toEqual([item.key]);
+      expect([q.pageSize, q.pageCount], "#2: no paging").toEqual([0, 1]);
+      const saved = q.toJSON();
+      expect([item.key in saved, "pageSize" in saved], "#3: neither key is saved").toEqual([false, false]);
+    });
   });
 });
 
@@ -683,7 +715,7 @@ describe("Records questions: writes through an item", () => {
           columns: [{ name: "a", cellType: "text" }, { name: "s", cellType: "text", inputType: "number" },
             { name: "b", cellType: "text", setValueIf: "{row.a} = 'z'", setValueExpression: "logRecordTrigger({row.a})" }]
         },
-        { type: "paneldynamic", name: "paged", valueName: "rec", panelsPerPage: 1, templateElements: [{ type: "text", name: "a" }] }
+        { type: "paneldynamic", name: "paged", valueName: "rec", pageSize: 1, templateElements: [{ type: "text", name: "a" }] }
       ]
     });
     const log: Array<string> = [];
@@ -857,7 +889,7 @@ describe("Records questions: error walks", () => {
         : "without paging, a detail-panel error is not reported and stays until the matrix is validated, ";
       test(name + kind.type, () => {
         const survey = createSurvey(kind, [{ name: "q1", cellType: "text", inputType: "number" }],
-          Object.assign({ rowsPerPage: isPaged ? 3 : 0 }, detail));
+          Object.assign({ pageSize: isPaged ? 3 : 0 }, detail));
         const q = survey.getQuestionByName("q");
         const row = q.visibleRows[0];
         row.showDetailPanel();
@@ -898,7 +930,7 @@ describe("Records questions: error walks", () => {
     });
     test("with paging, clearErrors clears the rows of the page and their detail panels, the panel's own error included, and creates no detail panel, " + kind.type, () => {
       const survey = createSurvey(kind, [{ name: "a", isRequired: true }], {
-        rowsPerPage: 3,
+        pageSize: 3,
         detailPanelMode: "underRow",
         detailElements: [{ type: "text", name: "d", isRequired: true }]
       });
@@ -959,8 +991,8 @@ describe("Records questions: error walks", () => {
       const elements = [{ name: "id" }, { name: "name", isRequired: true }];
       const survey = new SurveyModel({
         elements: [isMatrix
-          ? { type: "matrixdynamic", name: "q", rowsPerPage: 5, columns: elements.map(e => Object.assign({ cellType: "text" }, e)) }
-          : { type: "paneldynamic", name: "q", panelsPerPage: 5, templateElements: elements.map(e => Object.assign({ type: "text" }, e)) }]
+          ? { type: "matrixdynamic", name: "q", pageSize: 5, columns: elements.map(e => Object.assign({ cellType: "text" }, e)) }
+          : { type: "paneldynamic", name: "q", pageSize: 5, templateElements: elements.map(e => Object.assign({ type: "text" }, e)) }]
       });
       survey.data = { q: records };
       const q: any = survey.getQuestionByName("q");
@@ -1025,7 +1057,7 @@ describe("Records questions: the object of a record", () => {
     test(name + ": under paging, a record off the page has no object and the lookup builds none", () => {
       const records: Array<any> = [];
       for (let i = 0; i < 12; i++) records.push({ a: "v" + i });
-      const q = createDynamic(isMatrix, records, isMatrix ? { rowsPerPage: 5 } : { panelsPerPage: 5 });
+      const q = createDynamic(isMatrix, records, { pageSize: 5 });
       q.pageIndex = 1;
       const objects = getObjects(q, isMatrix);
       expect(objects.length, "#1: the page only").toBe(5);
@@ -1097,7 +1129,7 @@ describe("Records questions: public surface", () => {
     expect(matrix.toJSON().rows, "#3").toBeUndefined();
   });
   test("refreshDataSource reads an assigned source again with the request in force, and does nothing without one", async () => {
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, rowsPerPage: 2, columns: [{ name: "a", cellType: "text" }] }] });
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, pageSize: 2, columns: [{ name: "a", cellType: "text" }] }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     matrix.value = [{ a: 1 }, { a: 2 }];
     expect(matrix.refreshDataSource(), "#1: question.value is read through: nothing to read").toBeUndefined();
@@ -1109,7 +1141,7 @@ describe("Records questions: public surface", () => {
     matrix.refreshDataSource();
     expect(matrix.rowCount, "#3: read again").toBe(4);
     const requests: Array<any> = [];
-    const paged = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelCount: 0, panelsPerPage: 2, templateElements: [{ type: "text", name: "id" }] }] });
+    const paged = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", panelCount: 0, pageSize: 2, templateElements: [{ type: "text", name: "id" }] }] });
     const panel = <QuestionPanelDynamicModel>paged.getQuestionByName("p");
     panel.dataSource = {
       capabilities: { paging: true, sorting: true, filtering: true },
@@ -1145,11 +1177,11 @@ describe("Records questions: public surface", () => {
   });
   test("the property names round-trip on every records question, a sort made at runtime included", () => {
     const json = { elements: [
-      { type: "matrixdynamic", name: "md", rowsPerPage: 5, sortBy: "a-", filterExpression: "{a} > 1", allowSortRows: true,
+      { type: "matrixdynamic", name: "md", pageSize: 5, sortBy: "a-", filterExpression: "{a} > 1", allowSortRows: true,
         columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", allowSort: false }] },
-      { type: "matrixdropdown", name: "dd", rowsPerPage: 2, sortBy: "a", filterExpression: "{a} > 1",
+      { type: "matrixdropdown", name: "dd", pageSize: 2, sortBy: "a", filterExpression: "{a} > 1",
         rows: ["r1", "r2"], columns: [{ name: "a", cellType: "text" }] },
-      { type: "paneldynamic", name: "pd", panelsPerPage: 3, sortBy: "q;a-", filterExpression: "{q} notempty",
+      { type: "paneldynamic", name: "pd", pageSize: 3, sortBy: "q;a-", filterExpression: "{q} notempty",
         templateElements: [{ type: "text", name: "q" }, { type: "text", name: "a" }] }] };
     const survey = new SurveyModel(json);
     expect(survey.toJSON().pages[0].elements, "#1: as authored").toEqual(json.elements);
@@ -1158,5 +1190,165 @@ describe("Records questions: public surface", () => {
     expect(matrix.toJSON().sortBy, "#2: the sort made at runtime is saved").toBe("b");
     const loaded = new SurveyModel(survey.toJSON());
     expect((<QuestionMatrixDynamicModel>loaded.getQuestionByName("md")).sortOrder, "#3: and loads back").toEqual([{ field: "b", direction: "asc" }]);
+  });
+});
+
+/* "Add" moves the focus into the new record: to its first question a respondent can answer - visible,
+   with an input and not read-only. The panel and the matrix pick it by the same rule, and a paged add
+   focuses the new record on the page it lands on. */
+describe("Records questions: the focus after an add", () => {
+  function trackFocus(func: (focused: Array<string>) => void): void {
+    const focused: Array<string> = [];
+    const oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: any): boolean {
+      focused.push(typeof elId === "string" ? elId : "<function>");
+      return true;
+    };
+    try {
+      func(focused);
+    } finally {
+      SurveyElement.FocusElement = oldFunc;
+    }
+  }
+  const panelJSON = (props: any): any => ({ elements: [Object.assign({
+    type: "paneldynamic", name: "q", panelCount: 1,
+    templateElements: [
+      { type: "html", name: "info" },
+      { type: "text", name: "id", readOnly: true },
+      { type: "text", name: "hidden", visible: false },
+      { type: "text", name: "name" }, { type: "text", name: "city" }]
+  }, props)] });
+  const matrixJSON = (props: any): any => ({ elements: [Object.assign({
+    type: "matrixdynamic", name: "q", rowCount: 1,
+    columns: [
+      { name: "id", cellType: "text", readOnly: true },
+      { name: "hidden", cellType: "text", visible: false },
+      { name: "name", cellType: "text" }, { name: "city", cellType: "text" }]
+  }, props)] });
+
+  test("panel: a read-only first question is skipped, the first answerable question is focused", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel(panelJSON({}));
+      const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+      const panel = q.addPanelUI();
+      expect(focused, "#1").toEqual([panel.getQuestionByName("name").inputId]);
+    });
+  });
+  test("panel: a question inside a nested panel is found, a question of a hidden nested panel is not", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel({ elements: [{
+        type: "paneldynamic", name: "q", panelCount: 1,
+        templateElements: [
+          { type: "text", name: "id", readOnly: true },
+          { type: "panel", name: "hiddenPanel", visible: false, elements: [{ type: "text", name: "skipped" }] },
+          { type: "panel", name: "inner", elements: [{ type: "text", name: "ro", readOnly: true }, { type: "text", name: "name" }] }]
+      }] });
+      const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+      const panel = q.addPanelUI();
+      expect(focused, "#1").toEqual([panel.getQuestionByName("name").inputId]);
+    });
+  });
+  test("panel: nothing is focused when every question is read-only", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel({ elements: [{
+        type: "paneldynamic", name: "q", panelCount: 1,
+        templateElements: [{ type: "text", name: "id", readOnly: true }, { type: "text", name: "name", enableIf: "{panel.id} = 'x'" }]
+      }] });
+      const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+      q.addPanelUI();
+      expect(q.panelCount, "#1: the panel is added").toBe(2);
+      expect(focused, "#2").toEqual([]);
+    });
+  });
+  test("panel in carousel mode: a read-only first question is skipped", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel(panelJSON({ displayMode: "carousel" }));
+      const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+      const panel = q.addPanelUI();
+      expect(q.currentPanel === panel, "#1: the new panel is shown").toBe(true);
+      expect(focused, "#2").toEqual([panel.getQuestionByName("name").inputId]);
+    });
+  });
+  test("matrix: a read-only first cell is skipped, the first answerable cell is focused", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel(matrixJSON({}));
+      const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+      q.addRowUI();
+      const row = q.visibleRows[1];
+      expect(focused, "#1").toEqual([row.getQuestionByName("name").inputId]);
+    });
+  });
+  test("matrix: nothing is focused when every cell is read-only", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel({ elements: [{
+        type: "matrixdynamic", name: "q", rowCount: 1,
+        columns: [{ name: "id", cellType: "text", readOnly: true }, { name: "total", cellType: "expression", expression: "1" }]
+      }] });
+      const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+      q.addRowUI();
+      expect(q.visibleRows.length, "#1: the row is added").toBe(2);
+      expect(focused, "#2").toEqual([]);
+    });
+  });
+  test("matrix: the detail panel of a row shown on adding is searched after the cells", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel({ elements: [{
+        type: "matrixdynamic", name: "q", rowCount: 1, detailPanelMode: "underRow", detailPanelShowOnAdding: true,
+        columns: [{ name: "id", cellType: "text", readOnly: true }],
+        detailElements: [{ type: "text", name: "ro", readOnly: true }, { type: "text", name: "name" }]
+      }] });
+      const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+      q.addRowUI();
+      const row = q.visibleRows[1];
+      expect(row.isDetailPanelShowing, "#1").toBe(true);
+      expect(focused, "#2").toEqual([row.detailPanel.getQuestionByName("name").inputId]);
+    });
+  });
+  test("matrix: the detail panel of a row that does not show it is not searched", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel({ elements: [{
+        type: "matrixdynamic", name: "q", rowCount: 1, detailPanelMode: "underRow",
+        columns: [{ name: "id", cellType: "text", readOnly: true }],
+        detailElements: [{ type: "text", name: "name" }]
+      }] });
+      const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+      q.addRowUI();
+      expect(q.visibleRows[1].isDetailPanelShowing, "#1").toBe(false);
+      expect(focused, "#2").toEqual([]);
+    });
+  });
+  test("paged panel: the new record lands on the next page and its first answerable question is focused", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel(panelJSON({ pageSize: 1 }));
+      const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+      expect(q.pageIndex, "#1").toBe(0);
+      const panel = q.addPanelUI();
+      expect(q.pageIndex, "#2: the page of the new record").toBe(1);
+      expect(q.renderedPanels.length, "#3").toBe(1);
+      expect(q.renderedPanels[0] === panel, "#4: the new panel is rendered").toBe(true);
+      expect(focused, "#5").toEqual([panel.getQuestionByName("name").inputId]);
+    });
+  });
+  test("paged panel in carousel mode: the new record is shown and focused", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel(panelJSON({ displayMode: "carousel", pageSize: 1 }));
+      const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+      const panel = q.addPanelUI();
+      expect(q.pageIndex, "#1").toBe(1);
+      expect(q.currentPanel === panel, "#2").toBe(true);
+      expect(focused, "#3").toEqual([panel.getQuestionByName("name").inputId]);
+    });
+  });
+  test("paged matrix: the new row lands on the next page and its first answerable cell is focused", () => {
+    trackFocus((focused) => {
+      const survey = new SurveyModel(matrixJSON({ pageSize: 1 }));
+      const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+      expect(q.pageIndex, "#1").toBe(0);
+      q.addRowUI();
+      expect(q.pageIndex, "#2: the page of the new row").toBe(1);
+      const rows = q.visibleRows;
+      expect(rows.length, "#3: the page shows the new row only").toBe(1);
+      expect(focused, "#4").toEqual([rows[0].getQuestionByName("name").inputId]);
+    });
   });
 });

@@ -159,6 +159,27 @@ describe("linter vs runtime: configurations the runtime accepts", () => {
     expect(survey.data["mv-total"]).toEqual({ col1: 5 });
     expect(survey.getQuestionByName("q2").isVisible).toBe(true);
   });
+
+  test("a template question reading itself in the previous panel follows that panel (#12014)", () => {
+    const json = {
+      elements: [{
+        type: "paneldynamic", name: "question1", panelCount: 2,
+        templateElements: [{
+          type: "boolean", name: "agree",
+          enableIf: "{panelIndex} = 0 || {prevPanel.agree} = true",
+        }],
+      }],
+    };
+    expect(errors(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    const panels = (<QuestionPanelDynamicModel>survey.getQuestionByName("question1")).panels;
+    const first = panels[0].getQuestionByName("agree");
+    const second = panels[1].getQuestionByName("agree");
+    expect(first.isReadOnly).toBe(false);
+    expect(second.isReadOnly).toBe(true);
+    first.value = true;
+    expect(second.isReadOnly).toBe(false);
+  });
 });
 
 describe("linter vs runtime: configurations that really are dead", () => {

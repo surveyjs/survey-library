@@ -20,6 +20,7 @@ import { toCssClasses } from "./utils/cssClassBuilder";
 import { IsTouch, calculateIsTablet } from "./utils/devices";
 import { classesToSelector } from "./utils/dom-utils";
 import { doKey2ClickBlur, doKey2ClickUp } from "./utils/key2click";
+import { ValueScope } from "./utils/scope";
 
 export class DropdownListModel extends Base {
   readonly minPageSize = 25;
@@ -28,7 +29,7 @@ export class DropdownListModel extends Base {
   private htmlCleanerElement: HTMLDivElement;
 
   private _markdownMode = false;
-  private skipListFilterUpdate = false;
+  private skipListFilterUpdateScope = new ValueScope<boolean>(false);
   private _popupModel: PopupModel;
   private renderStateValue: DropdownRenderState;
   private ownEditorButtons: DropdownEditorButtons;
@@ -409,12 +410,7 @@ export class DropdownListModel extends Base {
   }
   protected resetFilterString(updateList = false): void {
     if (!!this.filterString) {
-      this.skipListFilterUpdate = !updateList;
-      try {
-        this.filterString = undefined;
-      } finally {
-        this.skipListFilterUpdate = false;
-      }
+      this.skipListFilterUpdateScope.run(!updateList, () => { this.filterString = undefined; });
     }
     this.inputString = null;
     this.hintString = "";
@@ -425,7 +421,7 @@ export class DropdownListModel extends Base {
   }
   protected onSetFilterString(): void {
     this.filteredItems = undefined;
-    if (this.skipListFilterUpdate) return;
+    if (this.skipListFilterUpdateScope.value) return;
     if (!this.filterString && !this.popupModel.isVisible) return;
     const options = { question: this.question, choices: this.getAvailableItems(), filter: this.filterString, filteredChoices: undefined as Array<ItemValue> };
     (this.question.survey as SurveyModel).onChoicesSearch.fire(this.question.survey as SurveyModel, options);

@@ -15,7 +15,7 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
     const description = this.question.canRenderLabelDescription ?
       SurveyElementBase.renderQuestionDescription(this.question) : null;
     return (
-      <div className={cssClasses.rootCheckbox}>
+      <div className={cssClasses.rootCheckbox} onKeyDown={(event) => this.question.onKeyDown(event.nativeEvent ?? event)}>
         <div className={itemClass}>
           <label className={cssClasses.checkboxLabel}>
             <input

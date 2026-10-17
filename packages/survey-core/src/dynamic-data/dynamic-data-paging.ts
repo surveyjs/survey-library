@@ -2,6 +2,7 @@ import { Helpers } from "../helpers";
 import { DynamicDataSortDirection, IDynamicDataSort } from "./dynamic-data-interfaces";
 import { DynamicDataList } from "./dynamic-data-list";
 import { dynamicDataSortToString, parseDynamicDataSort } from "./dynamic-data-sort";
+import { Scope } from "../utils/scope";
 
 /* The question side of the list's paging, sorting and filtering. The behaviour lives here and the
    questions keep the thin public accessors. Its owner is a private object of the question
@@ -20,11 +21,17 @@ import { dynamicDataSortToString, parseDynamicDataSort } from "./dynamic-data-so
    a pure mirror: while an authored value has not been handed to the list yet - during a load, and
    for as long as the question is in design mode - the hash is the truth and the list is the one
    that lags behind. isViewPending says which direction the next sync runs in. */
+/* The keys the paging state is kept under in the owner's property hash: the paging helper writes them
+   (isPageMovePending is the page validation's), and the question reads them back. */
+export const pagingStateKeys = {
+  pageSize: "pageSize", pageIndex: "pageIndex", pageCount: "pageCount", isCountKnown: "isCountKnown",
+  isPageMovePending: "isPageMovePending", sortOrder: "sortOrder", filterExpression: "filterExpression"
+};
 export interface IDynamicDataPagingOwner {
   getPropertyValue(name: string): any;
   setPropertyValue(name: string, val: any): void;
   getLocalizationFormatString(strName: string, ...args: any[]): string;
-  // The authored page size: rowsPerPage / panelsPerPage.
+  // The authored page size: pageSize.
   pageSize: number;
   /* The page size the list gets at runtime: the authored one, except in single-input mode, which is
      its own paging and builds every object. Absent -> pageSize. */
@@ -38,7 +45,7 @@ export interface IDynamicDataPagingOwner {
   // setSortOrderValue). Base.propertyValueChanged is protected, so the owner raises it.
   raiseSortByChanged(oldValue: string, newValue: string): void;
   /* A move the respondent makes: the owner validates the page it leaves when the move goes forward
-     (see DynamicDataPageValidation.leave, question-side) and runs move now, later, or never. Returns
+     (see RecordsPageValidation.leave, question-side) and runs move now, later, or never. Returns
      false only when an error was found synchronously. Absent -> the move just happens. */
   leavePage?(isForward: boolean, move: () => void): boolean;
   // Drops a move that waits for its validators: every change that replaces the page from code.
@@ -51,7 +58,7 @@ export class DynamicDataPagingController {
   private get list(): DynamicDataList {
     return this.getList();
   }
-  /* In design mode nothing is paged: the authored rowsPerPage/panelsPerPage keeps its value for
+  /* In design mode nothing is paged: the authored pageSize keeps its value for
      serialization, but the Creator shows every row. The page size is re-pushed on every sync and
      not only from the property setter, because both the survey and the design mode reach a question
      that has already created its list. */
@@ -66,12 +73,12 @@ export class DynamicDataPagingController {
     this.updateListPageSize();
     this.syncState();
   }
-  /* The setter of the authored page size (propertyName: rowsPerPage / panelsPerPage). The clamp is
+  /* The setter of the authored page size (pageSize). The clamp is
      here and not in an onSettingValue hook: the hook is skipped while the question is loading from
      JSON. */
-  public setPageSize(propertyName: string, val: any): void {
+  public setPageSize(val: any): void {
     const num = Helpers.getNumber(val);
-    this.owner.setPropertyValue(propertyName, num > 0 ? num : 0);
+    this.owner.setPropertyValue(pagingStateKeys.pageSize, num > 0 ? num : 0);
     this.updatePageSize();
   }
   // Returns true when the list pages by another size now: that resets the list.
@@ -81,7 +88,7 @@ export class DynamicDataPagingController {
     return true;
   }
   public get pageIndex(): number {
-    return this.owner.getPropertyValue("pageIndex") || 0;
+    return this.owner.getPropertyValue(pagingStateKeys.pageIndex) || 0;
   }
   // A page set from code: no validation, and a move that waits for its validators is dropped.
   public set pageIndex(val: number) {
@@ -97,14 +104,14 @@ export class DynamicDataPagingController {
     this.setPageIndexCore(val);
   }
   public get pageCount(): number {
-    const res = this.owner.getPropertyValue("pageCount");
+    const res = this.owner.getPropertyValue(pagingStateKeys.pageCount);
     return res > 0 ? res : 1;
   }
   /* False while the source answers a read without a total: pageCount is then the number of pages
      known to exist and the record count is a lower bound. The default is true - every source that
      is not a paging one hands over the whole storage. */
   public get isCountKnown(): boolean {
-    return this.owner.getPropertyValue("isCountKnown") !== false;
+    return this.owner.getPropertyValue(pagingStateKeys.isCountKnown) !== false;
   }
   /* Through the owner and not through the mirror: the question answers 1 page and page 0 whenever
      it does not page at all, and that is what "can go" has to agree with. */
@@ -144,7 +151,7 @@ export class DynamicDataPagingController {
   // True while a move waits for the asynchronous validators of the page: the pager is not usable.
   // The page validation keeps it in the owner's property hash.
   private get isPageMovePending(): boolean {
-    return this.owner.getPropertyValue("isPageMovePending") === true;
+    return this.owner.getPropertyValue(pagingStateKeys.isPageMovePending) === true;
   }
   private cancelPendingPageMove(): void {
     if (typeof this.owner.cancelPendingPageMove === "function")this.owner.cancelPendingPageMove();
@@ -163,12 +170,12 @@ export class DynamicDataPagingController {
   public syncState(): void {
     this.updateListPageSize();
     const list = this.list;
-    this.owner.setPropertyValue("pageIndex", list.pageIndex);
-    this.owner.setPropertyValue("pageCount", list.pageCount);
-    this.owner.setPropertyValue("isCountKnown", list.isCountKnown);
+    this.owner.setPropertyValue(pagingStateKeys.pageIndex, list.pageIndex);
+    this.owner.setPropertyValue(pagingStateKeys.pageCount, list.pageCount);
+    this.owner.setPropertyValue(pagingStateKeys.isCountKnown, list.isCountKnown);
     // A sync raised by the push itself: the page state is up to date, the view is being handed over
     // right now and mirroring it half way through would wipe the half that is still pending.
-    if (this.isPushingView) return;
+    if (this.viewPushScope.isActive) return;
     if (this.owner.isDesignMode) {
       /* Design mode means exactly one thing: the authored sort and filter are not handed to the
          list, so nothing is sorted or filtered. The hash keeps what was authored - it is what
@@ -199,20 +206,20 @@ export class DynamicDataPagingController {
      opposite directions share those hash entries - the setters (hash -> list, later) and
      syncState() (list -> hash) - and this flag is what keeps them apart. */
   private isViewPending: boolean = false;
-  private isPushingView: boolean = false;
+  private viewPushScope = new Scope();
   private get canPushToList(): boolean {
     return !this.owner.isDesignMode && !this.owner.isLoadingFromJson;
   }
   private mirrorListView(): void {
     const list = this.list;
-    this.owner.setPropertyValue("filterExpression", list.filter);
+    this.owner.setPropertyValue(pagingStateKeys.filterExpression, list.filter);
     const sort = list.sort;
     if (!Helpers.isTwoValueEquals(this.sortOrder, sort)) {
       this.setSortOrderValue(sort.slice());
     }
   }
   private pushAuthoredView(): void {
-    if (this.isPushingView) return;
+    if (this.viewPushScope.isActive) return;
     /* Cleared before the assignments and not after: a filter the list cannot run resets itself to
        "" and reports the error through onError, and a value that is still pending would be handed
        back to the list on every following sync. At runtime the hash then holds "" - the mirror
@@ -229,6 +236,13 @@ export class DynamicDataPagingController {
     }
     this.mirrorListView();
   }
+  /* A view authored in design mode is still pending when the owner comes back to runtime with no sync
+     in between: setDesignMode() notifies nobody. A runtime assignment hands it over first, or the
+     sync after the assignment would push the old authored value over the new one. The caller reads
+     the list first: a list created by that read has received the view already. */
+  private flushPendingView(): void {
+    if (this.isViewPending)this.pushAuthoredView();
+  }
   // In design mode the list holds no sort and no filter: what is authored stays in the hash.
   private clearListView(): void {
     const list = this.list;
@@ -239,26 +253,21 @@ export class DynamicDataPagingController {
      and a flag that a throw left set would make every later syncState skip the view: the hash would
      stop mirroring the list for good. */
   private runViewPush(func: () => void): void {
-    this.isPushingView = true;
-    try {
-      func();
-    } finally {
-      this.isPushingView = false;
-    }
+    this.viewPushScope.run(func);
   }
   /* The one writer of the sortOrder hash entry. sortBy renders it and stores nothing of its own, so
      nothing would raise its change: dependsOn cannot help either, because addDependsOnProperty
      looks the source property up in the Serializer and sortOrder is not registered there. */
   private setSortOrderValue(val: Array<IDynamicDataSort>): void {
     const oldText = this.sortBy;
-    this.owner.setPropertyValue("sortOrder", val);
+    this.owner.setPropertyValue(pagingStateKeys.sortOrder, val);
     const newText = dynamicDataSortToString(val);
     if (oldText !== newText) {
       this.owner.raiseSortByChanged(oldText, newText);
     }
   }
   public get sortOrder(): Array<IDynamicDataSort> {
-    return this.owner.getPropertyValue("sortOrder") || [];
+    return this.owner.getPropertyValue(pagingStateKeys.sortOrder) || [];
   }
   public set sortOrder(val: Array<IDynamicDataSort>) {
     this.setSortOrderCore(val, true);
@@ -279,6 +288,7 @@ export class DynamicDataPagingController {
       return;
     }
     const list = this.list;
+    this.flushPendingView();
     // The sort setter raises a reset even when the value did not change, and every reset costs a
     // full rebuild of the rows/panels.
     if (Helpers.isTwoValueEquals(list.sort, newValue)) return;
@@ -340,17 +350,18 @@ export class DynamicDataPagingController {
     this.sortOrder = [];
   }
   public get filterExpression(): string {
-    return this.owner.getPropertyValue("filterExpression") || "";
+    return this.owner.getPropertyValue(pagingStateKeys.filterExpression) || "";
   }
   public set filterExpression(val: string) {
     const newValue = !!val ? val : "";
     if (!this.canPushToList) {
       if (this.filterExpression === newValue) return;
-      this.owner.setPropertyValue("filterExpression", newValue);
+      this.owner.setPropertyValue(pagingStateKeys.filterExpression, newValue);
       this.isViewPending = true;
       return;
     }
     const list = this.list;
+    this.flushPendingView();
     if (list.filter === newValue) return;
     this.cancelPendingPageMove();
     list.filter = newValue;

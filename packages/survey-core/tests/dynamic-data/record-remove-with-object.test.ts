@@ -79,7 +79,7 @@ describe("a removed record takes its object with it, in every mode", () => {
   const cases: Array<{ name: string, json: any, view?: (q: any) => void }> = [
     { name: "no view", json: {} },
     { name: "a sort", json: {}, view: q => { q.sortOrder = [{ field: "a", direction: "desc" }]; } },
-    { name: "paging", json: { rowsPerPage: 10 } }
+    { name: "paging", json: { pageSize: 10 } }
   ];
   cases.forEach(c => {
     [0, 2, 4].forEach(pos => {
@@ -95,8 +95,7 @@ describe("a removed record takes its object with it, in every mode", () => {
         expect(matrix.value.length, "#3").toBe(4);
       });
       test("panel, " + c.name.replace("rows", "panels") + ": removePanel(" + pos + ") removes the record of that panel and reports its view index", () => {
-        const json = c.json.rowsPerPage ? { panelsPerPage: c.json.rowsPerPage } : {};
-        const panel = createPanel(json, records(5));
+        const panel = createPanel(c.json, records(5));
         if (!!c.view) c.view(panel);
         const expected = panelValues(panel)[pos];
         const removed: Array<any> = [];
@@ -148,7 +147,7 @@ describe("the panel that takes over after a removal", () => {
       expect(currentValue(panel), "#2: record 2 is hidden").toBe(3);
     });
     test(mode + ", paging: the next panel, the previous one for the last of the page", () => {
-      const panel = createPanel({ displayMode: mode, panelsPerPage: 2 }, records(4));
+      const panel = createPanel({ displayMode: mode, pageSize: 2 }, records(4));
       panel.currentIndex = 0;
       panel.removePanel(0);
       expect(currentValue(panel), "#1: first -> the next").toBe(1);
@@ -159,7 +158,7 @@ describe("the panel that takes over after a removal", () => {
     });
   });
   test("list mode, with and without paging: no panel is current", () => {
-    [{}, { panelsPerPage: 2 }].forEach((json, i) => {
+    [{}, { pageSize: 2 }].forEach((json, i) => {
       const panel = createPanel(json, records(3));
       panel.removePanel(0);
       expect(panel.currentPanel, "#" + i).toBeNull();
@@ -182,7 +181,7 @@ describe("the panel that takes over after a removal", () => {
 
 describe("what a removed-event handler sees under paging", () => {
   test("panel: the refilled page", () => {
-    const panel = createPanel({ panelsPerPage: 2 }, records(5));
+    const panel = createPanel({ pageSize: 2 }, records(5));
     let seen: any;
     runOnce((<SurveyModel>panel.survey).onDynamicPanelRemoved, () => { seen = { count: panel.panels.length, values: panelValues(panel) }; });
     panel.removePanel(0);
@@ -190,7 +189,7 @@ describe("what a removed-event handler sees under paging", () => {
     expect(panelValues(panel), "#2").toEqual([1, 2]);
   });
   test("matrix: the refilled page", () => {
-    const matrix = createMatrix({ rowsPerPage: 2 }, records(5));
+    const matrix = createMatrix({ pageSize: 2 }, records(5));
     let seen: any;
     runOnce((<SurveyModel>matrix.survey).onMatrixRowRemoved, () => { seen = rowValues(matrix); });
     matrix.removeRow(0);
@@ -198,7 +197,7 @@ describe("what a removed-event handler sees under paging", () => {
   });
   test("panel with a source that answers at once: one event, after the refill", () => {
     const source = new Source(keyedRecords(5));
-    const panel = createPanel({ panelsPerPage: 2 });
+    const panel = createPanel({ pageSize: 2 });
     panel.dataSource = source;
     const seen: Array<any> = [];
     (<SurveyModel>panel.survey).onDynamicPanelRemoved.add(() => { seen.push(panelValues(panel)); });
@@ -209,7 +208,7 @@ describe("what a removed-event handler sees under paging", () => {
   test("panel with an asynchronous source: the event does not wait for the read", async () => {
     const source = new Source(keyedRecords(5));
     source.isAsync = true;
-    const panel = createPanel({ panelsPerPage: 2 });
+    const panel = createPanel({ pageSize: 2 });
     panel.dataSource = source;
     await new Promise(resolve => setTimeout(resolve, 10));
     expect(panelValues(panel), "#1").toEqual([0, 1]);
@@ -225,7 +224,7 @@ describe("what a removed-event handler sees under paging", () => {
 
 describe("a handler that assigns the value inside the removed event, under paging", () => {
   const createSurvey = (): { survey: SurveyModel, question: QuestionPanelDynamicModel } => {
-    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "q", panelsPerPage: 2, templateElements: [{ type: "text", name: "a" }] }] });
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "q", pageSize: 2, templateElements: [{ type: "text", name: "a" }] }] });
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
     question.value = [{ a: "1" }, { a: "2" }, { a: "3" }];
     return { survey: survey, question: question };
@@ -267,7 +266,7 @@ describe("the view index a removal reports", () => {
     expect(values(matrix.value), "#2").toEqual([1, 2, 3]);
   });
   test("panel on the second page: the position in the whole view", () => {
-    const panel = createPanel({ panelsPerPage: 2 }, records(5));
+    const panel = createPanel({ pageSize: 2 }, records(5));
     panel.pageIndex = 1;
     const reported: Array<any> = [];
     (<SurveyModel>panel.survey).onDynamicPanelRemoving.add((_, options) => { reported.push(["removing", options.panelIndex]); });
@@ -452,7 +451,7 @@ describe("removing a record of another page by number keeps the other records", 
     });
   }
   function removeRow(perPage: number, json: any, expression: string, throwOnce: boolean = false): any {
-    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "m", rowsPerPage: perPage,
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdynamic", name: "m", pageSize: perPage,
       columns: [{ name: "n", cellType: "text" }, { name: "t", cellType: "text" }, { name: "e", cellType: "expression", expression: expression }] }, json)] });
     survey.setValue("m", getData());
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
@@ -467,7 +466,7 @@ describe("removing a record of another page by number keeps the other records", 
     return { values: strip(survey.getValue("m")), count: matrix.rowCount };
   }
   function removePanel(perPage: number, json: any, expression: string, throwOnce: boolean = false): any {
-    const survey = new SurveyModel({ elements: [Object.assign({ type: "paneldynamic", name: "p", panelsPerPage: perPage,
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "paneldynamic", name: "p", pageSize: perPage,
       templateElements: [{ type: "text", name: "n" }, { type: "text", name: "t" }, { type: "expression", name: "e", expression: expression }] }, json)] });
     survey.setValue("p", getData());
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
@@ -589,7 +588,7 @@ describe("a sorted or filtered view keeps the records of a count change and a re
   test("a dynamic panel under a view: a handler that sets panelCount while a count change runs leaves the running change's count, as without a view", () => {
     const unsorted = setPanelCountFromHandler({});
     expect({ count: unsorted.count, records: unsorted.records }, "#1").toEqual({ count: 5, records: 5 });
-    const paged = setPanelCountFromHandler({ panelsPerPage: 2 });
+    const paged = setPanelCountFromHandler({ pageSize: 2 });
     expect({ count: paged.count, records: paged.records }, "#2 paged: the records stop growing").toEqual({ count: 5, records: 5 });
     expect(setPanelCountFromHandler({ sortBy: "name" }), "#3 sorted").toEqual(unsorted);
     expect(setPanelCountFromHandler({ filterExpression: "{name} <> 'x'" }), "#4 filtered").toEqual(unsorted);

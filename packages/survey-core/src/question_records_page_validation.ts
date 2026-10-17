@@ -1,8 +1,9 @@
 import { ValidationContext } from "./question";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IDynamicDataPageState } from "./dynamic-data/dynamic-data-page-validation";
+import { pagingStateKeys } from "./dynamic-data/dynamic-data-paging";
 
-export interface IDynamicDataPageValidationOwner {
+export interface IRecordsPageValidationOwner {
   getDataList(): DynamicDataList;
   // Layer 1 is on: the question is in a running survey whose settings validate a page before a
   // forward move (see SurveyModel.canLeavePageWithErrors).
@@ -32,17 +33,17 @@ export interface IDynamicDataPageValidationOwner {
       are remembered, and every full validation of the question (Complete, the survey's next page, an
       ancestor leaving its page) visits the pages that hold them. The cost is bounded by the pages the
       respondent edited, never by the record count. */
-export class DynamicDataPageValidation {
+export class RecordsPageValidation {
   // Record indexes, ascending. Kept in step with the list's own inserts, removes and moves.
   private edited: Array<number> = [];
   private nested: { [recordIndex: number]: { [valueName: string]: IDynamicDataPageState } } = {};
   private moveToken: number = 0;
   private isPendingValue: boolean = false;
-  constructor(private owner: IDynamicDataPageValidationOwner) { }
+  constructor(private owner: IRecordsPageValidationOwner) { }
 
   private setIsPending(val: boolean): void {
     this.isPendingValue = val;
-    this.owner.setPropertyValue("isPageMovePending", val);
+    this.owner.setPropertyValue(pagingStateKeys.isPageMovePending, val);
   }
   /* A page or a current index set from code, another move, a sort or a filter, records replaced
      from outside, dispose: the move that is waiting for its validators is dropped. A late result
@@ -219,17 +220,14 @@ export class DynamicDataPageValidation {
   public validateEditedRecordsQuietly(extraPages?: Array<number>): boolean {
     if (!this.owner.canTrackEditedRecords()) return true;
     const list = this.owner.getDataList();
-    const pageSize = list.pageSize;
-    if (pageSize <= 0) return true;
-    const visible = list.getVisibleIndexes();
+    if (list.pageSize <= 0) return true;
     const startPage = list.pageIndex;
     return this.getPagesToValidate(extraPages).every((page: number): boolean => page === startPage ||
-      visible.slice(page * pageSize, (page + 1) * pageSize).every((index: number): boolean => this.owner.isRecordValidQuietly(index)));
+      list.getVisibleIndexesOfPage(page).every((index: number): boolean => this.owner.isRecordValidQuietly(index)));
   }
   // The pages a full validation visits: extraPages and the pages of the edited records, in order.
   private getPagesToValidate(extraPages: Array<number>): Array<number> {
     const list = this.owner.getDataList();
-    const pageSize = list.pageSize;
     const pages: Array<number> = Array.isArray(extraPages) ? extraPages.slice() : [];
     if (this.edited.length > 0) {
       const editedHash: { [index: number]: boolean } = {};
@@ -237,7 +235,7 @@ export class DynamicDataPageValidation {
       const visible = list.getVisibleIndexes();
       for (let i = 0; i < visible.length; i++) {
         if (!editedHash[visible[i]]) continue;
-        const page = Math.floor(i / pageSize);
+        const page = list.getPageOfVisibleIndex(i);
         if (pages.indexOf(page) < 0) pages.push(page);
       }
     }
@@ -275,7 +273,7 @@ export class DynamicDataPageValidation {
         return false;
       }
       if (res === undefined) {
-        const id = "dynamic-data-page-" + (++DynamicDataPageValidation.asyncPageId);
+        const id = "dynamic-data-page-" + (++RecordsPageValidation.asyncPageId);
         context.addElement(id);
         const page = pages[i];
         const pageRecords = this.owner.getDataList().getMaterializedIndexes().slice();
@@ -308,12 +306,13 @@ export class DynamicDataPageValidation {
   }
 
   public getState(pageIndex: number): IDynamicDataPageState {
-    return { pageIndex: pageIndex, edited: this.edited.slice(), nested: this.nested };
+    return { pageIndex: pageIndex, edited: this.edited.slice(), nested: Object.assign({}, this.nested) };
   }
+  // Copies, as getState makes: a restored question that keeps its nested states never changes the state an ancestor keeps.
   public setState(state: IDynamicDataPageState): void {
     if (!state) return;
     this.edited = Array.isArray(state.edited) ? state.edited.slice() : [];
-    this.nested = state.nested || {};
+    this.nested = Object.assign({}, state.nested);
   }
   // The ancestor side: the states of the paged questions nested in one of its records.
   public keepNestedStates(recordIndex: number | string, states: { [valueName: string]: IDynamicDataPageState }): void {

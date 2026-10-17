@@ -16,7 +16,7 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
   }
   protected override onModelChanged(): void {
     if (!!this.previousModel) {
-      this.previousModel.destroyResizeObserver();
+      this.previousModel.beforeDestroySurveyElement();
       this.previousModel.renderCallback = <any>undefined;
     }
     if (!!this.model) {
@@ -29,8 +29,7 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
   override ngOnDestroy(): void {
     super.ngOnDestroy();
     if (!!this.model) {
-      this.model.rootElement = undefined as any;
-      this.model.destroyResizeObserver();
+      this.model.beforeDestroySurveyElement();
       this.model.renderCallback = <any>undefined;
     }
   }

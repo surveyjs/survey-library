@@ -249,6 +249,10 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   protected renderElement(): React.JSX.Element {
     return this.renderTableDiv();
   }
+  // The records bar under the table: the pager.
+  protected renderRecordsBar(): React.JSX.Element | null {
+    return ReactElementFactory.Instance.createElement("sv-records-bar", { model: this.question.recordsBar });
+  }
   renderTableDiv(): React.JSX.Element {
     return (
       <div className={this.question.getTableWrapperCss()} ref={(root) => (this.setControl(root))}>

@@ -185,6 +185,8 @@ export class PopupDropdownContainer extends PopupContainer {
   protected renderHeaderPopup(popupModel: PopupBaseViewModel): React.JSX.Element | null {
     const popupDropdownModel = popupModel as PopupDropdownViewModel;
     if (!popupDropdownModel || !popupDropdownModel.showHeader) return null;
+    // An overlay's header is its close button, not the pointer.
+    if (popupDropdownModel.isOverlay) return super.renderHeaderPopup(popupModel);
 
     return (
       <span

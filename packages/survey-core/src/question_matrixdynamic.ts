@@ -1757,7 +1757,7 @@ Serializer.addClass(
       },
     },
     { name: "allowRowReorder:switch", alternativeName: "allowRowsDragAndDrop" },
-    // Invisible in the property grid until the UI series ships sortable headers (pageSize, sortBy and filterExpression are the base's).
+    // Invisible in the property grid until the UI series ships sortable headers (sortBy and filterExpression are the base's).
     { name: "allowSortRows:boolean", default: false, visible: false },
   ],
   function() {

@@ -181,6 +181,27 @@ frameworks.forEach((framework) => {
       await expect(elementVisisbleInViewPort).toBeTruthy();
     });
 
+    test("the pager of a matrix with fixed rows moves its pages", async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "matrixdropdown",
+            name: "matrix",
+            pageSize: 2,
+            columns: [{ name: "col1", cellType: "text" }],
+            rows: ["Row 1", "Row 2", "Row 3", "Row 4", "Row 5"]
+          }
+        ]
+      });
+      const pager = page.locator(".sd-matrixdropdown__pager");
+      await expect(page.locator("tbody tr").first()).toContainText("Row 1");
+      await expect(pager.locator(".sd-pager__total")).toHaveText("of 3");
+      await pager.locator("button[title='Next']").click();
+      await expect(page.locator("tbody tr").first()).toContainText("Row 3");
+      await expect(pager.getByRole("button", { name: "Page 2 of 3" }).locator(".sd-action__title")).toHaveText("2");
+    });
+
     test("Remove a row and insert a row before the last row, Bug#11212", async ({ page }) => {
       await page.goto(`${url}${framework}`);
       const json = {

@@ -10,8 +10,8 @@ export class SurveyPage extends SurveyPanelBase {
   constructor(props: any) {
     super(props);
   }
-  protected getPanelBase(): PanelModelBase {
-    return this.props.page;
+  protected getPanelFromProps(props: any): PanelModelBase {
+    return props.page;
   }
   public get page(): PageModel {
     return this.panelBase as PageModel;

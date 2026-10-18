@@ -25,8 +25,11 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
   protected get css(): any {
     return this.getCss();
   }
+  protected getPanelFromProps(props: any): PanelModelBase {
+    return this.props.element || this.props.question;
+  }
   public get panelBase(): PanelModelBase {
-    return this.getPanelBase();
+    return this.getPanelFromProps(this.props);
   }
   protected getPanelBase(): PanelModelBase {
     return this.props.element || this.props.question;
@@ -49,6 +52,9 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
     if (!!el) {
       el.removeAttribute("data-rendered");
     }
+    if (this.panelBase) {
+      this.panelBase.beforeDestroy();
+    }
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
@@ -59,6 +65,10 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
       prevProps.page.id === this.survey.activePage.id
     )
       return;
+    const prevPanel = this.getPanelFromProps(prevProps);
+    if (prevPanel) {
+      prevPanel.beforeDestroy();
+    }
     this.doAfterRender();
   }
   private doAfterRender() {

@@ -216,7 +216,7 @@
     margin: 0 0 var(--sjs2-layout-component-page-content-area-gap-vertical) 0;
   }
 
-  & > .sd-panel__content {
+  & > .sd-panel__expandable-content > .sd-panel__content {
     padding: 0;
     row-gap: var(--sjs2-layout-component-page-content-area-gap-vertical);
   }

@@ -60,8 +60,10 @@ export class SurveyPanel extends SurveyPanelBase {
         {this.panel.showErrorsAbovePanel ? errors : null}
         {header}
         {this.panel.showErrorsAbovePanel ? null : errors}
-        {content}
-        {bottom}
+        <div className={this.panel.cssClasses.panel.expandableContent}>
+          {content}
+          {bottom}
+        </div>
       </div>
     );
   }

@@ -3172,7 +3172,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
             }
           }
         },
-        visible: <any>new ComputedUpdater(() => [this.canRenderRemovePanel(panel)].every((val: boolean) => val === true)),
+        visible: <any>new ComputedUpdater(() => this.canRenderRemovePanel(panel) === true),
         enabled: <any>new ComputedUpdater(() => this.enableRemovePanel !== false),
         data: { question: this, panel: panel }
       });
@@ -3192,12 +3192,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return actions;
   }
   public canRenderRemovePanelOnRight(panel: PanelModel): boolean {
-    return this.canRenderRemovePanel(panel, "right");
+    const notCollpased = panel.state !== "collapsed";
+    return this.canRenderRemovePanel(panel, "right") && notCollpased;
   }
   private canRenderRemovePanel(panel: PanelModel, side?: string): boolean {
     const canRemove = this.canRemovePanel;
-    const notCollpased = panel.state !== "collapsed";
-    return (side !== undefined ? this.removePanelButtonLocation === side : true) && canRemove && notCollpased;
+    return (side !== undefined ? this.removePanelButtonLocation === side : true) && canRemove;
   }
   // The values a new panel writes while it is attached - its defaults - are computed (runComputedWrites).
   protected createNewPanel(): PanelModel {

@@ -1322,8 +1322,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       },
       getAnimatedElement: () => {
         const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
-        if (cssClasses.content) {
-          const selector = classesToSelector(cssClasses.content);
+        if (cssClasses.expandableContent) {
+          const selector = classesToSelector(cssClasses.expandableContent);
           if (selector) {
             return this.rootElement?.querySelector(`:scope ${selector}`);
           }

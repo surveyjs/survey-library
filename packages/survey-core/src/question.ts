@@ -1652,6 +1652,7 @@ export class Question extends SurveyElement<Question>
   protected getCssContent(cssClasses: any): string {
     return toCssClasses(
       cssClasses.content,
+      (this.state !== "default") && cssClasses.expandableContent,
       this.supportContainerQueries() && cssClasses.contentSupportContainerQueries,
       this.hasTitleOnLeft && cssClasses.contentLeft
     );

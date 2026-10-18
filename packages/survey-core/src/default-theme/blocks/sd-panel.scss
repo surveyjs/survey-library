@@ -113,6 +113,11 @@
   gap: var(--sd-panel-gap-vertical);
   transition: background $transition-duration;
 }
+.sd-panel__expandable-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sd-panel-gap-vertical);
+}
 
 .sd-panel__header {
   display: flex;

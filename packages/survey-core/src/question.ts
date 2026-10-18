@@ -1524,7 +1524,7 @@ export class Question extends SurveyElement<Question>
 
   protected contentElement: HTMLElement;
   public afterRenderQuestionElement(el: HTMLElement): void {
-    this.contentElement = this.el;
+    this.contentElement = el;
     if (!this.survey || !this.hasSingleInput) return;
     this.afterRenderCallbacks.afterRenderQuestionInput(this, el);
   }

@@ -9,6 +9,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { classesToSelector } from "./utils/dom-utils";
 import { DomDocumentHelper } from "./global_variables_utils";
+import { Action } from "./actions/action";
 
 export class ImageItemValue extends ChoiceItem implements ILocalizableOwner {
 
@@ -135,6 +136,22 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * [View Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
    */
   @property() multiSelect: boolean;
+  // Lets respondents return the question to the unanswered state, as in Radio Button Group (#11936).
+  // Clears every selected image when multiSelect is enabled.
+  @property({ defaultValue: false, onSet: (_: boolean, target: any) => target.resetTitleActions() }) allowClear: boolean;
+  public get canShowClearButton(): boolean {
+    return this.allowClear && !this.isReadOnly;
+  }
+  // Created only while allowClear is on, so questions without it render no title-actions wrapper.
+  protected getDefaultTitleActions(): Array<Action> {
+    if (this.isDesignMode || !this.allowClear) return [];
+    return [this.createClearTitleAction(() => this.canShowClearButton)];
+  }
+  public getConditionJson(operator: string = null, path: string = null): any {
+    const json = super.getConditionJson(operator, path);
+    delete json["allowClear"];
+    return json;
+  }
 
   public isItemSelected(item: ItemValue): boolean {
     var val = this.value;
@@ -578,7 +595,8 @@ Serializer.addClass(
     { name: "maxImageHeight:responsiveImageSize", default: 3000, minValue: 0 },
     "showLabel:boolean",
     { name: "colCount:number", default: 0, choices: [0, 1, 2, 3, 4, 5] },
-    "multiSelect:boolean"
+    "multiSelect:boolean",
+    { name: "allowClear:boolean" }
   ],
   function () {
     return new QuestionImagePickerModel("");

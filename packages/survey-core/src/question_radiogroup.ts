@@ -4,7 +4,6 @@ import { QuestionFactory } from "./questionfactory";
 import { ChoiceItem, QuestionCheckboxBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
 import { Action } from "./actions/action";
-import { ComputedUpdater } from "./base";
 
 /**
  * A class that describes the Radio Button Group question type.
@@ -80,22 +79,8 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     return !this.selectedItem?.showCommentArea;
   }
   protected getDefaultTitleActions(): Array<Action> {
-    const actions = [];
-    if (!this.isDesignMode) {
-      const clearAction = new Action(
-        {
-          locTitleName: "clearCaption",
-          id: `sv-clr-btn-${this.id}`,
-          action: () => { this.clearValueFromUI(); },
-          innerCss: this.cssClasses.clearButton,
-          appearance: { style: "alert" },
-          visible: <any>new ComputedUpdater(() => this.canShowClearButton),
-          ariaLabelledBy: this.a11y_input_ariaLabelledBy
-        }
-      );
-      actions.push(clearAction);
-    }
-    return actions;
+    if (this.isDesignMode) return [];
+    return [this.createClearTitleAction(() => this.canShowClearButton)];
   }
 
   //a11y

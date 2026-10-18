@@ -17,6 +17,7 @@ import { getMatrixCellAriaLabel, getMatrixTableBodyCss, getMatrixTableCss, getMa
 import { IPlainDataOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { Question, QuestionValueType, IVerifyDataContext } from "./question";
+import { Action } from "./actions/action";
 import { ISurveyData, ISurvey, ITextProcessor, IQuestion } from "./base-interfaces";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
@@ -1139,8 +1140,22 @@ export class QuestionMatrixModel
       }
     }
   }
+  // Lets respondents clear every row in one step, as in Radio Button Group (#11936).
+  @property({ defaultValue: false, onSet: (_: boolean, target: any) => target.resetTitleActions() }) allowClear: boolean;
+  public get canShowClearButton(): boolean {
+    return this.allowClear && !this.isReadOnly;
+  }
+  // Created only while allowClear is on, so questions without it render no title-actions wrapper.
+  protected getDefaultTitleActions(): Array<Action> {
+    if (this.isDesignMode || !this.allowClear) return [];
+    return [this.createClearTitleAction(() => this.canShowClearButton)];
+  }
   public getConditionJson(operator: string = null, path: string = null): any {
-    if (!path) return super.getConditionJson(operator);
+    if (!path) {
+      const json = super.getConditionJson(operator);
+      delete json["allowClear"];
+      return json;
+    }
     var question = new QuestionDropdownModel(path);
     question.choices = this.columns;
     var json = new JsonObject().toJsonObject(question);
@@ -1394,6 +1409,7 @@ Serializer.addClass(
     },
     { name: "eachRowRequired:boolean", alternativeName: "isAllRowRequired" },
     { name: "eachRowUnique:boolean" },
+    { name: "allowClear:boolean" },
     "hideIfRowsEmpty:boolean",
     { name: "cellComponent", visible: false, default: "survey-matrix-cell" },
     { name: "cellType", default: "radio", choices: ["radio", "checkbox"] },

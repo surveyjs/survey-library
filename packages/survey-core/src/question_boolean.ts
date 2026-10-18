@@ -9,7 +9,6 @@ import { toCssClasses } from "./utils/cssClassBuilder";
 import { preventDefaults } from "./utils/dom-utils";
 import { ActionContainer } from "./actions/container";
 import { Action } from "./actions/action";
-import { ComputedUpdater } from "./base";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { RendererFactory } from "./rendererFactory";
 
@@ -163,8 +162,8 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
    */
   @property({ defaultValue: false }) swapOrder: boolean;
   // Once answered, a Boolean question cannot be returned to the unanswered state from the UI.
-  // allowClear adds the same "Clear" title action as the Radio Button Group question (#11936).
-  @property({ defaultValue: false }) allowClear: boolean;
+  // allowClear adds the shared "Clear" title action (see Question.createClearTitleAction, #11936).
+  @property({ defaultValue: false, onSet: (_: boolean, target: any) => target.resetTitleActions() }) allowClear: boolean;
   public get canShowClearButton(): boolean {
     return this.allowClear && !this.isReadOnly;
   }
@@ -497,23 +496,10 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   protected createActionContainer(allowAdaptiveActions?: boolean): ActionContainer {
     return super.createActionContainer(this.getRenderAsValue() !== "checkbox");
   }
+  // Created only while allowClear is on, so questions without it render no title-actions wrapper.
   protected getDefaultTitleActions(): Array<Action> {
-    const actions = [];
-    if (!this.isDesignMode) {
-      const clearAction = new Action(
-        {
-          locTitleName: "clearCaption",
-          id: `sv-clr-btn-${this.id}`,
-          action: () => { this.clearValueFromUI(); },
-          innerCss: this.cssClasses.clearButton,
-          appearance: { style: "alert" },
-          visible: <any>new ComputedUpdater(() => this.canShowClearButton),
-          ariaLabelledBy: this.a11y_input_ariaLabelledBy
-        }
-      );
-      actions.push(clearAction);
-    }
-    return actions;
+    if (this.isDesignMode || !this.allowClear) return [];
+    return [this.createClearTitleAction(() => this.canShowClearButton)];
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     const json = super.getConditionJson(operator, path);

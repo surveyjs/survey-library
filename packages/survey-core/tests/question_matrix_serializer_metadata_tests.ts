@@ -99,6 +99,7 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "rowOrder", default: "initial", visible: true },
     { name: "eachRowRequired", visible: true },
     { name: "eachRowUnique", visible: true },
+    { name: "allowClear", visible: true },
     { name: "hideIfRowsEmpty", visible: true },
     { name: "cellComponent", default: "survey-matrix-cell", visible: false },
     { name: "cellType", default: "radio", visible: true },

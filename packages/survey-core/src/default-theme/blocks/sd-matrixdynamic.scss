@@ -1,18 +1,11 @@
 @use "../variables.scss" as *;
 
 .sd-question--matrixdynamic {
-  --sd-matrixdynamic-toolbar-padding-block-start: var(--sjs2-layout-component-panel-footer-padding-top);
-  --sd-matrixdynamic-toolbar-padding-block-end: var(--sjs2-layout-component-panel-footer-padding-bottom);
-  --sd-matrixdynamic-toolbar-padding-inline: var(--sjs2-layout-component-panel-footer-padding-left)
-    var(--sjs2-layout-component-panel-footer-padding-right);
-  --sd-matrixdynamic-toolbar-gap: var(--sjs2-layout-component-panel-footer-action-group-gap);
-}
-.sd-question--matrixdynamic:where(.sd-question--nested) {
-  --sd-matrixdynamic-toolbar-padding-block-start: var(--sjs2-layout-component-panel-nested-footer-padding-top);
-  --sd-matrixdynamic-toolbar-padding-block-end: var(--sjs2-layout-component-panel-nested-footer-padding-bottom);
-  --sd-matrixdynamic-toolbar-padding-inline: var(--sjs2-layout-component-panel-nested-footer-padding-left)
-    var(--sjs2-layout-component-panel-nested-footer-padding-right);
-  --sd-matrixdynamic-toolbar-gap: var(--sjs2-layout-component-panel-nested-footer-action-group-gap);
+  --sd-matrixdynamic-toolbar-padding-block: var(--sjs2-layout-component-panel-matrix-footer-padding-top)
+    var(--sjs2-layout-component-panel-matrix-footer-padding-bottom);
+  --sd-matrixdynamic-toolbar-padding-inline: var(--sjs2-layout-component-panel-matrix-footer-padding-left)
+    var(--sjs2-layout-component-panel-matrix-footer-padding-right);
+  --sd-matrixdynamic-toolbar-gap: var(--sjs2-layout-component-panel-matrix-footer-gap);
 }
 
 .sd-matrixdynamic__btn.sd-matrixdynamic__add-btn {
@@ -25,16 +18,15 @@
   position: sticky;
   left: 0;
   box-sizing: border-box;
+  padding-block: var(--sd-matrixdynamic-toolbar-padding-block);
   padding-inline: var(--sd-matrixdynamic-toolbar-padding-inline);
   --sd-action-bar-gap: var(--sd-matrixdynamic-toolbar-gap);
 }
 .sd-matrixdynamic__toolbar--bottom {
-  padding-block-start: var(--sd-matrixdynamic-toolbar-padding-block-start);
-  padding-block-end: var(--sd-matrixdynamic-toolbar-padding-block-end);
+  border-top: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-basic-secondary);
 }
 .sd-matrixdynamic__toolbar--top {
-  padding-block-end: var(--sd-matrixdynamic-toolbar-padding-block-start);
-  padding-block-start: var(--sd-matrixdynamic-toolbar-padding-block-end);
+  border-bottom: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-basic-secondary);
 }
 .sd-matrixdynamic__content > div {
   display: contents;

@@ -649,6 +649,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public getType(): string {
     return "paneldynamic";
   }
+  // Records can belong to dataSource, and each panel already has remove. A title Clear does not fit.
+  protected get supportClearTitleAction(): boolean {
+    return false;
+  }
   public getValueType(): QuestionValueType {
     return "array";
   }
@@ -3867,6 +3871,7 @@ export class PanelDynamicSingleInputBehavior extends QuestionRecordsSingleInputB
 Serializer.addClass(
   "paneldynamic",
   [
+    { name: "allowClear:boolean", visible: false, isSerializable: false },
     { name: "showCommentArea:switch", visible: true },
     {
       name: "templateElements",

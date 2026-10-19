@@ -1006,6 +1006,9 @@
         "readOnly": {
           "type": "boolean"
         },
+        "allowClear": {
+          "type": "boolean"
+        },
         "validators": {
           "type": "array",
           "items": {

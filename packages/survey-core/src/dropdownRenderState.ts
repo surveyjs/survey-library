@@ -240,7 +240,10 @@ export class DropdownEditorButtons extends ActionContainer {
     }
   }
   private get isClearButtonVisible(): boolean {
-    return this.question.allowClear && !this.question.isEmpty() && !this.question.isReadOnly;
+    // A Rating question rendered as a dropdown keeps its input clear button.
+    // allowClear on that question controls the title button only.
+    const allowClear = this.question.getType() === "rating" && this.question.renderAs === "dropdown" ? true : this.question.allowClear;
+    return !!allowClear && !this.question.isEmpty() && !this.question.isReadOnly;
   }
   public updateState(): void {
     this.chevronButton.setEnabled(!this.question.isInputReadOnly);

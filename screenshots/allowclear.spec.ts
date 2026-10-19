@@ -68,6 +68,21 @@ const json = {
       ]
     },
     {
+      type: "text",
+      name: "text",
+      title: "Single-Line Input",
+      allowClear: true,
+      defaultValue: "Hello"
+    },
+    {
+      type: "checkbox",
+      name: "checkbox",
+      title: "Checkboxes",
+      allowClear: true,
+      defaultValue: ["Paris"],
+      choices: ["Paris", "London", "Madrid"]
+    },
+    {
       type: "matrix",
       name: "matrix",
       title: "Single-Select Matrix",
@@ -106,6 +121,8 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, question("boolean-checkbox"), "allowclear-boolean-checkbox.png");
       await compareScreenshot(page, question("boolean-switch"), "allowclear-boolean-switch.png");
       await compareScreenshot(page, question("image"), "allowclear-imagepicker.png");
+      await compareScreenshot(page, question("text"), "allowclear-text.png");
+      await compareScreenshot(page, question("checkbox"), "allowclear-checkbox.png");
       await compareScreenshot(page, question("matrix"), "allowclear-matrix.png");
     });
   });

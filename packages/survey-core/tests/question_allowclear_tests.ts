@@ -1,3 +1,4 @@
+import { Serializer } from "../src/jsonobject";
 import { SurveyModel } from "../src/survey";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { QuestionMatrixModel } from "../src/question_matrix";
@@ -51,15 +52,8 @@ describe("allowClear, Bug#11936", () => {
       expect(survey.data, "the value is removed from survey data").toEqual({});
 
       q1.allowClear = false;
-      expect(q1.getTitleActions().length, "the action is removed when allowClear is disabled").toBe(0);
-    });
-    test("the Clear title action is hidden when the title is hidden", () => {
-      const survey = new SurveyModel(imagePickerJson({ allowClear: true, titleLocation: "hidden" }));
-      const q1 = <QuestionImagePickerModel>survey.getQuestionByName("q1");
-      expect(q1.hasTitle, "the title is hidden").toBe(false);
-      expect(getClearAction(q1).visible, "Clear is hidden with the title").toBe(false);
-      q1.titleLocation = "top";
-      expect(getClearAction(q1).visible, "Clear returns with the title").toBe(true);
+      expect(q1.getTitleActions().length, "the action stays in the title").toBe(1);
+      expect(getClearAction(q1).visible, "the action is hidden when allowClear is disabled").toBe(false);
     });
     test("the Clear title action clears every image when multiSelect is enabled", () => {
       const survey = new SurveyModel(imagePickerJson({ allowClear: true, multiSelect: true }));
@@ -123,15 +117,8 @@ describe("allowClear, Bug#11936", () => {
       });
 
       q1.allowClear = false;
-      expect(q1.getTitleActions().length, "the action is removed when allowClear is disabled").toBe(0);
-    });
-    test("the Clear title action is hidden when the title is hidden", () => {
-      const survey = new SurveyModel(matrixJson({ allowClear: true, titleLocation: "hidden" }));
-      const q1 = <QuestionMatrixModel>survey.getQuestionByName("q1");
-      expect(q1.hasTitle, "the title is hidden").toBe(false);
-      expect(getClearAction(q1).visible, "Clear is hidden with the title").toBe(false);
-      q1.titleLocation = "top";
-      expect(getClearAction(q1).visible, "Clear returns with the title").toBe(true);
+      expect(q1.getTitleActions().length, "the action stays in the title").toBe(1);
+      expect(getClearAction(q1).visible, "the action is hidden when allowClear is disabled").toBe(false);
     });
     test("the Clear title action clears a checkbox-cell matrix", () => {
       const survey = new SurveyModel(matrixJson({ allowClear: true, cellType: "checkbox" }));
@@ -157,45 +144,62 @@ describe("allowClear, Bug#11936", () => {
     });
   });
 
-  test("no title actions unless allowClear is enabled, so existing markup is unchanged", () => {
-    const survey = new SurveyModel({
-      elements: [
-        { type: "boolean", name: "bool", renderAs: "checkbox" },
-        { type: "imagepicker", name: "image", choices: ["a"] },
-        { type: "matrix", name: "matrix", rows: ["r"], columns: ["c"] }
-      ]
-    });
-    survey.getAllQuestions().forEach((q) => {
-      expect(q.getTitleActions().length, `${q.getType()}: no title actions`).toBe(0);
-      expect(q.hasTitleActions, `${q.getType()}: hasTitleActions is false`).toBe(false);
-    });
-  });
-  test("Radio Button Group keeps its existing hidden Clear action", () => {
-    const survey = new SurveyModel({ elements: [{ type: "radiogroup", name: "q1", choices: ["a"] }] });
-    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
-    expect(q1.getTitleActions().length, "the action exists without allowClear").toBe(1);
-    expect(getClearAction(q1).visible, "and is hidden").toBe(false);
-  });
-  test("turning allowClear on and off at runtime adds and removes the Clear action", () => {
+  test("the Clear action stays in the title and allowClear only changes its visibility", () => {
     const survey = new SurveyModel({
       elements: [
         { type: "boolean", name: "bool" },
         { type: "imagepicker", name: "image", choices: ["a"] },
-        { type: "matrix", name: "matrix", rows: ["r"], columns: ["c"] }
+        { type: "matrix", name: "matrix", rows: ["r"], columns: ["c"] },
+        { type: "text", name: "text" },
+        { type: "checkbox", name: "check", choices: ["a"] }
       ]
     });
     survey.getAllQuestions().forEach((q: any) => {
       const toolbar = q.getTitleToolbar();
-      expect(toolbar.actions.length, `${q.getType()}: empty toolbar at start`).toBe(0);
+      expect(toolbar.actions.length, `${q.getType()}: the action exists before allowClear`).toBe(1);
+      expect(toolbar.actions[0].visible, `${q.getType()}: hidden while allowClear is off`).toBe(false);
 
       q.allowClear = true;
-      expect(q.hasTitleActions, `${q.getType()}: hasTitleActions after enabling`).toBe(true);
-      expect(toolbar.actions.length, `${q.getType()}: the toolbar gets the action`).toBe(1);
-      expect(toolbar.actions[0].visible, `${q.getType()}: the action is visible`).toBe(true);
+      expect(toolbar.actions.length, `${q.getType()}: the same action stays`).toBe(1);
+      expect(toolbar.actions[0].visible, `${q.getType()}: visible after allowClear`).toBe(true);
 
       q.allowClear = false;
-      expect(q.hasTitleActions, `${q.getType()}: hasTitleActions after disabling`).toBe(false);
-      expect(toolbar.actions.length, `${q.getType()}: the toolbar loses the action`).toBe(0);
+      expect(toolbar.actions[0].visible, `${q.getType()}: hidden again`).toBe(false);
+    });
+  });
+  test("questions that already clear a value, or have no value, do not add a title button", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "boolean", name: "check", displayMode: "checkbox", allowClear: true },
+        { type: "dropdown", name: "drop", choices: ["a"], allowClear: true },
+        { type: "tagbox", name: "tags", choices: ["a"], allowClear: true },
+        { type: "file", name: "file" },
+        { type: "html", name: "html", html: "<p>x</p>" },
+        { type: "image", name: "image", imageLink: "https://surveyjs.io/favicon.ico" },
+        { type: "signaturepad", name: "sign" },
+        { type: "expression", name: "expr", expression: "1 + 1", allowClear: true },
+        { type: "matrixdynamic", name: "md", columns: [{ name: "col" }], allowClear: true },
+        { type: "paneldynamic", name: "pd", templateElements: [{ type: "text", name: "t" }], allowClear: true }
+      ]
+    });
+    survey.getAllQuestions().forEach((q) => {
+      expect(q.getTitleActions().length, `${q.getType()}: no title Clear action`).toBe(0);
+    });
+    expect(Serializer.findProperty("file", "allowClear").visible, "file hides allowClear").toBe(false);
+    expect(Serializer.findProperty("html", "allowClear").visible, "html hides allowClear").toBe(false);
+    expect(Serializer.findProperty("image", "allowClear").visible, "image hides allowClear").toBe(false);
+    expect(Serializer.findProperty("expression", "allowClear").visible, "expression hides allowClear").toBe(false);
+    expect(Serializer.findProperty("matrixdynamic", "allowClear").visible, "matrixdynamic hides allowClear").toBe(false);
+    expect(Serializer.findProperty("paneldynamic", "allowClear").visible, "paneldynamic hides allowClear").toBe(false);
+  });
+  test("allowClear is placed in Choices or General", () => {
+    const choices = ["checkbox", "radiogroup", "dropdown", "tagbox", "ranking", "imagepicker", "matrixdropdown"];
+    const general = ["text", "comment", "boolean", "rating", "slider", "multipletext", "matrix", "signaturepad"];
+    choices.forEach((type) => {
+      expect(Serializer.findProperty(type, "allowClear").category, `${type} category`).toBe("choices");
+    });
+    general.forEach((type) => {
+      expect(Serializer.findProperty(type, "allowClear").category, `${type} category`).toBe("general");
     });
   });
   test("every question type builds the same Clear action", () => {

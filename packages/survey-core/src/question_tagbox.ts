@@ -104,6 +104,10 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
    * Specifies whether to display a button that clears the selected value.
    */
   @property() allowClear: boolean;
+  // The clear button lives in the input, not in the question title.
+  protected get supportClearTitleAction(): boolean {
+    return false;
+  }
   /**
    * Specifies whether users can enter a value into the input field to filter the drop-down list.
    */
@@ -255,7 +259,7 @@ Serializer.addClass(
   "tagbox",
   [
     { name: "placeholder", serializationProperty: "locPlaceholder" },
-    { name: "allowClear:boolean", default: true },
+    { name: "allowClear:boolean", category: "choices", default: true },
     { name: "searchEnabled:boolean", default: true },
     {
       name: "allowCustomChoices:boolean", default: false,

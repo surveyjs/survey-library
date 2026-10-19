@@ -2239,15 +2239,32 @@ export class Question extends SurveyElement<Question>
   clearValueFromUI(): void {
     this.clearValue(true, true);
   }
-  // The "Clear" title action shared by the question types that support allowClear
-  // (Radio Button Group, Yes/No, Image Picker and Single-Select Matrix, #11936).
+  /**
+   * Specifies whether to display a button that clears the question value.
+   *
+   * The button appears in the question title. A question renders the button only when it supports a title action. Dropdown, Multi-Select Dropdown, and Signature Pad use this property for their own clear button. File Upload, HTML, Image, Expression, Dynamic Matrix, and Dynamic Panel do not show it.
+   *
+   * Default value: `false`
+   */
+  @property() allowClear: boolean;
+  public get canShowClearButton(): boolean {
+    return !!this.allowClear && !this.isReadOnly;
+  }
+  // False for a question whose clear control lives somewhere other than the title,
+  // or for a render mode that has no title-action slot.
+  protected get supportClearTitleAction(): boolean {
+    return true;
+  }
+  protected getDefaultTitleActions(): Array<Action> {
+    if (this.isDesignMode || !this.supportClearTitleAction) return [];
+    return [this.createClearTitleAction(() => this.canShowClearButton)];
+  }
   protected createClearTitleAction(isVisible: () => boolean): Action {
     return new Action({
       locTitleName: "clearCaption",
       id: `sv-clr-btn-${this.id}`,
       action: () => { this.clearValueFromUI(); },
       innerCss: this.cssClasses.clearButton,
-      appearance: { style: "alert" },
       visible: <any>new ComputedUpdater(isVisible),
       ariaLabelledBy: this.a11y_input_ariaLabelledBy
     });
@@ -2815,6 +2832,7 @@ export class Question extends SurveyElement<Question>
   public getConditionJson(operator: string = null, path: string = null): any {
     const json = new JsonObject().toJsonObject(this);
     json["type"] = this.getType();
+    delete json["allowClear"];
     return json;
   }
   public hasErrors(fireCallback: boolean = true, focusOnFirstError: boolean = false): boolean {
@@ -3960,5 +3978,6 @@ Serializer.addClass("question", [
   { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
   { name: "randomize:boolean", default: true, visible: false, locationInTable: "detail" },
   { name: "randomizeCategory:string", visible: false, locationInTable: "detail" },
+  { name: "allowClear:boolean", category: "general" },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

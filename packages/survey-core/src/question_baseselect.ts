@@ -3040,6 +3040,7 @@ Serializer.addClass("choiceitem",
 Serializer.addClass(
   "selectbase",
   [
+    { name: "allowClear:boolean", category: "choices" },
     { name: "showCommentArea:switch", visible: true },
     "choicesFromQuestion:question_carryforward",
     {

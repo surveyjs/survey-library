@@ -457,8 +457,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   protected getDefaultTitleActions(): Array<IAction> {
     return [];
   }
-  // Rebuilds the title actions after a property that adds or removes a default action changes
-  // (for example, allowClear). Does nothing until the actions are first requested.
+  // Rebuilds the title actions after a property that adds or removes a default action changes.
+  // Does nothing until the actions are first requested.
   protected resetTitleActions(): void {
     if (!this.isTitleActionRequested) return;
     this.updateTitleActions();

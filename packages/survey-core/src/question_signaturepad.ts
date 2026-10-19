@@ -506,7 +506,7 @@ Serializer.addClass(
     { name: "penMaxWidth:number", default: 2.5 },
     //need to remove this property
     { name: "height:number", visible: false },
-    { name: "allowClear:boolean", default: true },
+    { name: "allowClear:boolean", category: "general", default: true },
     { name: "showPlaceholder:boolean", default: true },
     {
       name: "placeholder:text",

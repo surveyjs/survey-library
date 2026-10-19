@@ -266,6 +266,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public getType(): string {
     return "matrixdynamic";
   }
+  // Records can belong to dataSource, and each row already has remove. A title Clear does not fit.
+  protected get supportClearTitleAction(): boolean {
+    return false;
+  }
   public getValueType(): QuestionValueType {
     return "array";
   }
@@ -1712,6 +1716,7 @@ export class MatrixDynamicSingleInputBehavior extends MatrixDropdownBaseSingleIn
 Serializer.addClass(
   "matrixdynamic",
   [
+    { name: "allowClear:boolean", visible: false, isSerializable: false },
     { name: "allowAddRows:boolean", default: true },
     { name: "allowRemoveRows:boolean", default: true },
     { name: rowCountNames.count + ":number", default: 2, minValue: 0, isBindable: true, isSerializableFunc: QuestionRecordsModel.isRecordCountSerializable },

@@ -8,7 +8,6 @@ import { LocalizableString } from "./localizablestring";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { preventDefaults } from "./utils/dom-utils";
 import { ActionContainer } from "./actions/container";
-import { Action } from "./actions/action";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { RendererFactory } from "./rendererFactory";
 
@@ -164,20 +163,19 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   /**
    * Specifies whether to display a button that clears the question value.
    *
-   * The button appears in the question title. It is available for the segmented and radio display modes when the title is visible. Checkbox and switch modes do not support it.
+   * The button appears in the question title. Checkbox and switch modes do not support it.
    *
    * Default value: `false`
    * @see displayMode
-   * @see titleLocation
    */
-  @property({ defaultValue: false, onSet: (_: boolean, target: any) => target.resetTitleActions() }) allowClear: boolean;
+  @property() allowClear: boolean;
   // Checkbox and switch draw the title inside the control and have no Clear slot.
   private get isAllowClearSupported(): boolean {
     const renderAs = this.getRenderAsValue();
     return renderAs !== "checkbox" && renderAs !== "switch";
   }
-  public get canShowClearButton(): boolean {
-    return this.allowClear && this.isAllowClearSupported && !this.isReadOnly && this.hasTitle;
+  protected get supportClearTitleAction(): boolean {
+    return this.isAllowClearSupported;
   }
   get locLabelLeft(): LocalizableString {
     return this.swapOrder ? this.locLabelTrue : this.locLabelFalse;
@@ -511,16 +509,6 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   protected createActionContainer(allowAdaptiveActions?: boolean): ActionContainer {
     return super.createActionContainer(this.getRenderAsValue() !== "checkbox");
   }
-  // Created only while allowClear is on and the renderer can show it in the title.
-  protected getDefaultTitleActions(): Array<Action> {
-    if (this.isDesignMode || !this.allowClear || !this.isAllowClearSupported) return [];
-    return [this.createClearTitleAction(() => this.canShowClearButton)];
-  }
-  public getConditionJson(operator: string = null, path: string = null): any {
-    const json = super.getConditionJson(operator, path);
-    delete json["allowClear"];
-    return json;
-  }
 
   protected getIsTitleRenderedAsString(): boolean { return false; }
 
@@ -552,6 +540,7 @@ Serializer.addClass(
     { name: "swapOrder:boolean" },
     {
       name: "allowClear:boolean",
+      category: "general",
       visibleIf: (obj: QuestionBooleanModel) => obj.displayMode !== "checkbox" && obj.displayMode !== "switch"
     },
     {

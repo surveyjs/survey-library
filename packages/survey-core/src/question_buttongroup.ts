@@ -66,12 +66,9 @@ export class QuestionButtonGroupModel extends dropdownQuestionMixin(QuestionChec
     return this.inputId + "_" + index;
   }
   @property({ localizable: { defaultStr: "buttongroupOptionsCaption" } }) placeholder: string;
-  _allowClear = true;
-  get allowClear(): boolean {
-    return this._allowClear;
-  }
-  set allowClear(newVal) {
-    this._allowClear = newVal;
+  // allowClear stays the dropdown input button. The title does not get a second Clear button.
+  protected get supportClearTitleAction(): boolean {
+    return false;
   }
   get searchEnabled(): boolean {
     return false;
@@ -138,6 +135,7 @@ export class QuestionButtonGroupModel extends dropdownQuestionMixin(QuestionChec
 Serializer.addClass(
   "buttongroup",
   [
+    { name: "allowClear:boolean", default: true, visible: false },
     {
       name: "choices:buttongroupitemvalue[]",
     },

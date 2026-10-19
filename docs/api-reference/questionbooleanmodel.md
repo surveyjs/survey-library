@@ -24,11 +24,11 @@ A class that describes the Yes/No (Boolean) question type.
 
 Specifies whether to display a button that clears the question value.
 
-The button appears in the question title. It is available for the segmented and radio display modes when the title is visible. Checkbox and switch modes do not support it.
+The button appears in the question title. Checkbox and switch modes do not support it.
 
 Default value: `false`
 
-**Related APIs:** [`displayMode`](#displayMode), [`titleLocation`](#titleLocation)
+**Related APIs:** [`displayMode`](#displayMode)
 
 ### `booleanValue`
 

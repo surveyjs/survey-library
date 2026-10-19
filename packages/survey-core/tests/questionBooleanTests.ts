@@ -800,12 +800,10 @@ describe("boolean", () => {
 
     q1.titleLocation = "hidden";
     expect(q1.hasTitle, "a hidden title is not rendered").toBe(false);
-    expect(q1.canShowClearButton, "Clear is hidden with the title").toBe(false);
-    expect(toolbar.actions[0].visible, "the action follows the title").toBe(false);
+    expect(q1.canShowClearButton, "visibility does not depend on the title").toBe(true);
+    expect(toolbar.actions[0].visible, "the action stays visible for the title bar").toBe(true);
 
     q1.titleLocation = "top";
-    expect(toolbar.actions[0].visible, "Clear returns with the title").toBe(true);
-
     q1.displayMode = "checkbox";
     expect(q1.getTitleActions().length, "checkbox removes Clear").toBe(0);
     expect(toolbar.actions.length, "the toolbar drops Clear").toBe(0);

@@ -29,6 +29,10 @@ export class QuestionExpressionModel extends Question {
   public getType(): string {
     return "expression";
   }
+  // The value comes from the expression. A respondent has nothing to clear.
+  protected get supportClearTitleAction(): boolean {
+    return false;
+  }
   public get hasInput(): boolean {
     return false;
   }
@@ -420,6 +424,7 @@ Serializer.addClass(
     },
     { name: "useGrouping:boolean", default: true },
     { name: "precision:number", default: -1 },
+    { name: "allowClear:boolean", visible: false, isSerializable: false },
     { name: "enableIf", visible: false, isSerializable: false },
     { name: "isRequired", visible: false, isSerializable: false },
     { name: "readOnly", visible: false, isSerializable: false },

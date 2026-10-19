@@ -8319,7 +8319,7 @@ describe("Survey_Questions", () => {
     const changes: Array<string> = [];
     q1.addOnArrayChangedCallback((_, options) => changes.push(options.name));
     expect(q1.hasTitleActions, "q1 has title actions").toBe(true);
-    expect(q1.titleActions.map(a => a.id), "q1 title actions").toEqual(["action1"]);
+    expect(q1.titleActions.map(a => a.id), "q1 title actions").toEqual([`sv-clr-btn-${q1.id}`, "action1"]);
     expect(changes, "The existing (possibly rendered) array is changed, notify UI subscribers").toEqual(["titleActions"]);
   });
   test("The expression of matrix cell value is shown in display value when there is no value, bug#11140", () => {

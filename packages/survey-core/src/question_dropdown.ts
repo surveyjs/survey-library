@@ -172,6 +172,10 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
    * Specifies whether to display a button that clears the selected value.
    */
   @property() allowClear: boolean;
+  // The clear button lives in the input, not in the question title.
+  protected get supportClearTitleAction(): boolean {
+    return false;
+  }
   /**
    * Specifies whether users can enter a value into the input field to filter the drop-down list.
    *
@@ -385,7 +389,7 @@ Serializer.addClass(
   "dropdown",
   [
     { name: "placeholder", alternativeName: "optionsCaption", serializationProperty: "locPlaceholder" },
-    { name: "allowClear:boolean", alternativeName: "showOptionsCaption", default: true },
+    { name: "allowClear:boolean", alternativeName: "showOptionsCaption", category: "choices", default: true },
     { name: "choicesMin:number", default: 0 },
     { name: "choicesMax:number", default: 0 },
     { name: "choicesStep:number", default: 1, minValue: 1 },

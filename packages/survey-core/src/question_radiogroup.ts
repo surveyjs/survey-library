@@ -1,10 +1,7 @@
 import { Serializer } from "./jsonobject";
-import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { ChoiceItem, QuestionCheckboxBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
-import { Action } from "./actions/action";
-
 /**
  * A class that describes the Radio Button Group question type.
  *
@@ -29,12 +26,6 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
    */
   public get selectedItem(): ChoiceItem { return <ChoiceItem>this.getSingleSelectedItem(); }
   /**
-   * Specifies whether to display a button that clears the question value.
-   *
-   * Default value: `false`
-   */
-  @property() allowClear: boolean;
-  /**
    * @deprecated Use the [`allowClear`](https://surveyjs.io/form-library/documentation/api-reference/radio-button-question-model#allowClear) property instead.
    * @hidden
    */
@@ -43,9 +34,6 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   }
   public set showClearButton(val: boolean) {
     this.allowClear = val;
-  }
-  public get canShowClearButton(): boolean {
-    return this.allowClear && !this.isReadOnly;
   }
   public get clearButtonCaption() {
     return this.getLocalizationString("clearCaption");
@@ -63,7 +51,6 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     const json = super.getConditionJson(operator, path);
-    delete json["allowClear"];
     delete json["showClearButton"];
     return json;
   }
@@ -77,10 +64,6 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   }
   protected isOtherValueUnused(): boolean {
     return !this.selectedItem?.showCommentArea;
-  }
-  protected getDefaultTitleActions(): Array<Action> {
-    if (this.isDesignMode) return [];
-    return [this.createClearTitleAction(() => this.canShowClearButton)];
   }
 
   //a11y
@@ -96,7 +79,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
 Serializer.addClass(
   "radiogroup",
   [
-    { name: "allowClear:boolean", alternativeName: "showClearButton" },
+    { name: "allowClear:boolean", alternativeName: "showClearButton", category: "choices" },
     { name: "separateSpecialChoices", visible: true },
     { name: "itemComponent", visible: false, default: "survey-radiogroup-item" }
   ],

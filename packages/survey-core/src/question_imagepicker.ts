@@ -9,8 +9,6 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { classesToSelector } from "./utils/dom-utils";
 import { DomDocumentHelper } from "./global_variables_utils";
-import { Action } from "./actions/action";
-
 export class ImageItemValue extends ChoiceItem implements ILocalizableOwner {
 
   @property({ defaultValue: false }) private videoNotLoaded: boolean;
@@ -136,30 +134,6 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * [View Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
    */
   @property() multiSelect: boolean;
-  /**
-   * Specifies whether to display a button that clears the selected image or video.
-   *
-   * When [`multiSelect`](#multiSelect) is enabled, the button clears every selected item. The button appears in the question title and stays hidden when the title is hidden.
-   *
-   * Default value: `false`
-   * @see multiSelect
-   * @see titleLocation
-   */
-  @property({ defaultValue: false, onSet: (_: boolean, target: any) => target.resetTitleActions() }) allowClear: boolean;
-  public get canShowClearButton(): boolean {
-    return this.allowClear && !this.isReadOnly && this.hasTitle;
-  }
-  // Created only while allowClear is on, so questions without it render no title-actions wrapper.
-  protected getDefaultTitleActions(): Array<Action> {
-    if (this.isDesignMode || !this.allowClear) return [];
-    return [this.createClearTitleAction(() => this.canShowClearButton)];
-  }
-  public getConditionJson(operator: string = null, path: string = null): any {
-    const json = super.getConditionJson(operator, path);
-    delete json["allowClear"];
-    return json;
-  }
-
   public isItemSelected(item: ItemValue): boolean {
     var val = this.value;
     const imageItemValue = item as ImageItemValue;
@@ -602,8 +576,7 @@ Serializer.addClass(
     { name: "maxImageHeight:responsiveImageSize", default: 3000, minValue: 0 },
     "showLabel:boolean",
     { name: "colCount:number", default: 0, choices: [0, 1, 2, 3, 4, 5] },
-    "multiSelect:boolean",
-    { name: "allowClear:boolean" }
+    "multiSelect:boolean"
   ],
   function () {
     return new QuestionImagePickerModel("");

@@ -3,7 +3,7 @@ import { builtInVariableNames, equalsCI, isBuiltInVariable, stripCommentSuffix }
 import { ElementRecord, getCapturingFrame, getEffectiveType, TriggerRecord } from "../symbols";
 import { isMatrixDropdown, isPropertyOn } from "../metadata";
 import { hasOtherItem } from "../value-types";
-import { addsItemFieldsTo, getDataKey, getDataKeyRecords, getListedRows, getSharingRecords } from "../record-fields";
+import { addsItemFieldsTo, getDataKey, getDataKeyRecords, getListedRows, getSharedValueShape, getSharingRecords } from "../record-fields";
 import { ILintRelated } from "../types";
 import { SurveyLintReasons } from "../reasons";
 
@@ -36,27 +36,21 @@ function reportBuiltIn(ctx: LintContext, name: string, nameKind: string, path: s
   });
 }
 
-// A dynamic panel or matrix knows the fields another question adds to the value they share only
-// when it declares the valueName itself (QuestionRecordsModel.getSharedQuestionFromArray): keyed by
-// its name alone it treats them as unknown - setData() reports them and clearIncorrectValues()
-// deletes them.
-function losesSharedFields(shadowed: ElementRecord, record: ElementRecord): boolean {
-  return addsItemFieldsTo(shadowed, record);
-}
-
 // Sharing a value through a valueName is a documented feature, on one side or on both (Merge
 // Question Values), so only the form the runtime mishandles is reported: a valueName landing on the
 // name of a dynamic panel or matrix without a valueName of its own, which the question adds fields
-// to (losesSharedFields). Top-level questions only: a question inside a dynamic-panel template or
-// a matrix detail panel writes into its panel's or row's record, never next to a top-level
-// question (#12014).
+// to. Such a question knows those fields only when it declares the valueName itself
+// (QuestionRecordsModel.getSharedQuestionFromArray): keyed by its name alone it treats them as
+// unknown - setData() reports them and clearIncorrectValues() deletes them. Top-level questions
+// only: a question inside a dynamic-panel template or a matrix detail panel writes into its panel's
+// or row's record, never next to a top-level question (#12014).
 function checkValueNameOverName(ctx: LintContext, record: ElementRecord): void {
   const valueName = record.valueName;
   if (!valueName || valueName === record.name) return;
   if (getCapturingFrame(record.scope)) return;
   const shadowed = getSharingRecords(ctx.index, record)
     .filter(other => other !== record && other.kind === "question" && !other.valueName &&
-      losesSharedFields(other, record));
+      addsItemFieldsTo(other, record));
   if (shadowed.length === 0) return;
   const other = shadowed[0];
   ctx.report({
@@ -169,6 +163,40 @@ function checkDropdownRowConflict(ctx: LintContext, record: ElementRecord, repor
   });
 }
 
+const SHAPE_RANK: { [shape: string]: number } = { records: 2, object: 1, plain: 0 };
+const SHAPE_TEXT: { [shape: string]: string } = { records: "an array of objects", object: "an object", plain: "a plain value" };
+
+// Questions on one data key keeping values of different shapes (getSharedValueShape): each side
+// reports the other one's value (invalidValueType) and clearIncorrectValues() deletes it. Reported
+// once per pair, on the question of the simpler shape. Top-level questions only, as with
+// checkValueNameOverName.
+function checkValueShapeConflict(ctx: LintContext, record: ElementRecord): void {
+  if (record.kind !== "question" || getCapturingFrame(record.scope)) return;
+  // the map lookup first: few questions share their data key
+  const sharing = getSharingRecords(ctx.index, record);
+  if (sharing.length < 2) return;
+  const shape = getSharedValueShape(record);
+  if (!shape || SHAPE_RANK[shape] === 0) return;
+  sharing.forEach(other => {
+    if (other === record || other.kind !== "question") return;
+    const otherShape = getSharedValueShape(other);
+    if (!otherShape || SHAPE_RANK[otherShape] >= SHAPE_RANK[shape]) return;
+    const dataKey = getDataKey(record);
+    ctx.report({
+      message: "\"" + other.name + "\" shares the data key \"" + dataKey + "\" with " + record.type + " \"" +
+        record.name + "\", which keeps " + SHAPE_TEXT[shape] + " there, while " + other.type + " \"" + other.name +
+        "\" keeps " + SHAPE_TEXT[otherShape] + " - one cannot hold the other's value; setData() reports it" +
+        " and clearIncorrectValues() deletes it.",
+      path: other.path,
+      reason: reasons.valueShapeConflict,
+      messageData: { name: other.name, otherName: record.name, otherType: record.type, dataKey: dataKey },
+      elementName: other.name,
+      elementType: other.type,
+      related: relatedOf([record, other]),
+    });
+  });
+}
+
 // setToName with isVariable writes a variable rather than the question's value, and the
 // variables hash is consulted before the survey data: the question's own answer stops
 // answering its name.
@@ -217,6 +245,7 @@ export const nameShadowingRule: ILintRule = {
       checkValueNameOverName(ctx, record);
       checkDerivedKeyCollision(ctx, record);
       checkDropdownRowConflict(ctx, record, reportedRows);
+      checkValueShapeConflict(ctx, record);
     });
     ctx.index.triggers.forEach(trigger => checkVariableTrigger(ctx, trigger));
   },

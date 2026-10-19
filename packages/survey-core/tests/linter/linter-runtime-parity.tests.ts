@@ -821,6 +821,55 @@ describe("linter vs runtime: a records question sharing its value without a valu
   });
 });
 
+// name/shadowing reports questions on one data key keeping values of different shapes (an array of
+// objects, an object, a plain value): whichever writes, the other one's checks drop the answer.
+describe("linter vs runtime: values of different shapes on one data key", () => {
+  const area = { value: "a", coords: "1,1,2,2", shape: "rect" };
+  // a JSON and an answer it writes
+  const QUESTIONS: { [key: string]: [any, any] } = {
+    paneldynamic: [{ type: "paneldynamic", templateElements: [{ type: "text", name: "own" }] }, [{ own: "x" }]],
+    matrixdynamic: [{ type: "matrixdynamic", rowCount: 0, columns: [{ name: "pk", cellType: "text" }] }, [{ pk: "x" }]],
+    multipletext: [{ type: "multipletext", items: [{ name: "i1" }] }, { i1: "x" }],
+    matrix: [{ type: "matrix", rows: ["r1"], columns: ["x", "y"] }, { r1: "x" }],
+    matrixdropdown: [{ type: "matrixdropdown", rows: ["r2"], columns: [{ name: "c", cellType: "text" }] }, { r2: { c: "x" } }],
+    text: [{ type: "text" }, "abc"],
+    dropdown: [{ type: "dropdown", choices: ["a", "b"] }, "a"],
+    checkbox: [{ type: "checkbox", choices: ["a", "b"] }, ["a"]],
+    checkboxObjects: [{ type: "checkbox", valuePropertyName: "car", choices: ["a", "b"] }, [{ car: "a" }]],
+    imagemap: [{ type: "imagemap", imageLink: "x", areas: [area] }, ["a"]],
+    imagemapSingle: [{ type: "imagemap", imageLink: "x", multiSelect: false, valuePropertyName: "car", areas: [area] }, "a"],
+    file: [{ type: "file" }, [{ name: "f", type: "t", content: "c" }]],
+  };
+  // both declare the valueName, so a dynamic panel or matrix knows the fields the other one adds
+  const json = (a: string, b: string): any => ({ elements: [
+    Object.assign({ name: "qa", valueName: "k" }, QUESTIONS[a][0]),
+    Object.assign({ name: "qb", valueName: "k" }, QUESTIONS[b][0]),
+  ] });
+  const keeps = (a: string, b: string, answer: any): boolean => {
+    const survey = new SurveyModel(json(a, b));
+    const reported = survey.setData({ k: answer }).length > 0;
+    survey.clearIncorrectValues();
+    return !reported && JSON.stringify(survey.data) === JSON.stringify({ k: answer });
+  };
+  const reported = (a: string, b: string): boolean =>
+    lintSurvey(json(a, b)).findings.some(f => f.reason === "valueShapeConflict");
+  const PAIRS: Array<[string, string, boolean]> = [
+    ["paneldynamic", "text", true], ["paneldynamic", "dropdown", true], ["paneldynamic", "checkbox", true],
+    ["paneldynamic", "imagemap", true], ["paneldynamic", "imagemapSingle", true], ["paneldynamic", "file", true],
+    ["paneldynamic", "multipletext", true], ["matrixdynamic", "matrixdropdown", true], ["matrixdynamic", "text", true],
+    ["multipletext", "text", true], ["multipletext", "checkbox", true], ["matrix", "dropdown", true],
+    ["matrixdropdown", "checkbox", true], ["matrixdropdown", "file", true],
+    ["paneldynamic", "matrixdynamic", false], ["paneldynamic", "checkboxObjects", false], ["multipletext", "matrix", false],
+    ["multipletext", "matrixdropdown", false], ["text", "dropdown", false],
+  ];
+  PAIRS.forEach(([a, b, conflict]) => {
+    test(a + " + " + b + (conflict ? ": one side is dropped" : ": both answers stay"), () => {
+      expect(reported(a, b), "the linter").toBe(conflict);
+      expect(keeps(a, b, QUESTIONS[a][1]) && keeps(a, b, QUESTIONS[b][1]), "the runtime keeps both answers").toBe(!conflict);
+    });
+  });
+});
+
 describe("linter vs runtime: configurations that really are dead", () => {
   test("a scoped carry-forward outside a dynamic panel builds no choices", () => {
     const json = {

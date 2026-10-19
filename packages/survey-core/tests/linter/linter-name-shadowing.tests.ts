@@ -64,7 +64,7 @@ describe("name/shadowing - valueName over an element name", () => {
   test("the records questions and checkboxes that add fields are flagged, the rest is a plain share", () => {
     const flagged = (shadowed: any, sharing: any): number => byRule({
       elements: [Object.assign({ name: "q2" }, shadowed), Object.assign({ name: "q1", valueName: "q2" }, sharing)],
-    }).length;
+    }).filter(f => f.reason === "valueNameShadowsElement").length;
     const panel = { type: "paneldynamic", templateElements: [{ type: "text", name: "t1" }] };
     const matrix = { type: "matrixdynamic", columns: [{ name: "c1", cellType: "text" }] };
     const dropdownMatrix = (column: string) => ({ type: "matrixdropdown", rows: ["r1"], columns: [{ name: column, cellType: "text" }] });
@@ -127,6 +127,53 @@ describe("name/shadowing - valueName over an element name", () => {
         { type: "text", name: "q2", valueName: "elsewhere" },
       ],
     })).toHaveLength(0);
+  });
+});
+
+describe("name/shadowing - values of different shapes on one data key", () => {
+  function shapes(owner: any, partner: any): Array<string> {
+    return byRule({ elements: [Object.assign({ name: "k" }, owner), Object.assign({ name: "p", valueName: "k" }, partner)] })
+      .filter(f => f.reason === "valueShapeConflict").map(f => f.path);
+  }
+  const panel = { type: "paneldynamic", templateElements: [{ type: "text", name: "t1" }] };
+  const matrix = { type: "matrixdynamic", columns: [{ name: "c1", cellType: "text" }] };
+  const multipleText = { type: "multipletext", items: [{ name: "a" }] };
+  const area = { value: "a", coords: "1,1,2,2", shape: "rect" };
+  test("a records question and a question keeping no objects are flagged", () => {
+    const findings = byRule({ elements: [Object.assign({ name: "k" }, matrix), { type: "text", name: "p", valueName: "k" }] });
+    expect(findings.map(f => f.reason)).toEqual(["valueShapeConflict"]);
+    expect(findings[0].path).toBe("elements[1]");
+    expect(findings[0].messageData).toMatchObject({ name: "p", otherName: "k", otherType: "matrixdynamic", dataKey: "k" });
+    expect(findings[0].related.map(r => r.path)).toEqual(["elements[0]", "elements[1]"]);
+    expect(findings[0].message).toBe("\"p\" shares the data key \"k\" with matrixdynamic \"k\", which keeps an array of objects" +
+      " there, while text \"p\" keeps a plain value - one cannot hold the other's value; setData() reports it" +
+      " and clearIncorrectValues() deletes it.");
+    expect(shapes(panel, { type: "text" }), "text").toEqual(["elements[1]"]);
+    expect(shapes(panel, { type: "checkbox", choices: ["a"] }), "a plain checkbox").toEqual(["elements[1]"]);
+    expect(shapes(panel, { type: "imagemap", imageLink: "x", areas: [area] }), "an image map without valuePropertyName").toEqual(["elements[1]"]);
+    expect(shapes(panel, { type: "imagemap", multiSelect: false, valuePropertyName: "car", imageLink: "x", areas: [area] }),
+      "a single-select image map").toEqual(["elements[1]"]);
+    expect(shapes(panel, { type: "file" }), "a file").toEqual(["elements[1]"]);
+    expect(shapes(panel, multipleText), "an object").toEqual(["elements[1]"]);
+    expect(shapes(multipleText, panel), "the simpler side is reported").toEqual(["elements[0]"]);
+    expect(shapes({ type: "matrix", rows: ["r1"], columns: ["x"] }, { type: "dropdown", choices: ["a"] }), "an object and a plain value")
+      .toEqual(["elements[1]"]);
+  });
+  test("questions keeping one shape, or a shape the JSON does not tell, share a value", () => {
+    expect(shapes(panel, matrix), "two records questions").toEqual([]);
+    expect(shapes(panel, { type: "checkbox", choices: ["a"], valuePropertyName: "car" }), "the merge pattern").toEqual([]);
+    expect(shapes(panel, { type: "checkbox", choices: [{ value: "a", showCommentArea: true }] }), "a checkbox with a choice comment").toEqual([]);
+    expect(shapes(panel, { type: "imagemap", valuePropertyName: "car", imageLink: "x", areas: [area] }), "an image map with object items").toEqual([]);
+    expect(shapes(multipleText, { type: "matrix", rows: ["r1"], columns: ["x"] }), "two objects").toEqual([]);
+    expect(shapes({ type: "text" }, { type: "dropdown", choices: ["a"] }), "two plain values").toEqual([]);
+    expect(shapes(panel, { type: "expression", expression: "1" }), "an expression").toEqual([]);
+    expect(shapes(panel, { type: "html", html: "x" }), "a question writing nothing").toEqual([]);
+    expect(shapes(panel, { type: "boolean", valueTrue: "y" }), "a boolean with custom values").toEqual([]);
+  });
+  test("a share inside a dynamic-panel template is not compared", () => {
+    expect(byRule({ elements: [{ type: "paneldynamic", name: "outer", templateElements: [
+      Object.assign({ name: "k" }, panel), { type: "text", name: "p", valueName: "k" },
+    ] }] }).filter(f => f.reason === "valueShapeConflict")).toEqual([]);
   });
 });
 

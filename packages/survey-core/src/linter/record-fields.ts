@@ -212,6 +212,28 @@ export function addsItemFieldsTo(owner: ElementRecord, partner: ElementRecord): 
   return fields.names().some(field => !own.has(field));
 }
 
+// What a question keeps under its data key, as far as sharing it goes: an array of objects
+// ("records": a dynamic panel or matrix, a checkbox or image map with object items), an object
+// ("object": multiple text, matrix, matrixdropdown) or anything else ("plain"). Questions keeping
+// different ones cannot share a key: setData() reports one side and clearIncorrectValues() deletes
+// it. Undefined when the JSON does not tell (an expression, a custom type, a boolean with custom
+// values) or the question writes nothing.
+export type SharedValueShape = "records" | "object" | "plain";
+export function getSharedValueShape(record: ElementRecord): SharedValueShape | undefined {
+  if (record.kind !== "question" && record.kind !== "column") return undefined;
+  if (getItemKind(record) === "array") {
+    if (getSubElementNames(record)) return "records";
+    const fields = new CIMultiMap<ElementRecord>();
+    addOwnItemFields(record, fields);
+    return fields.names().length > 0 ? "records" : "plain";
+  }
+  if (OBJECT_TYPES.indexOf(getEffectiveType(record)) > -1) return "object";
+  const valueType = record.valueType;
+  if (!valueType || valueType.shape === "unknown" || valueType.shape === "none") return undefined;
+  if (valueType.shape === "scalar" && valueType.scalarType === "any") return undefined;
+  return "plain";
+}
+
 // Rows the JSON does not list may be any row.
 function sharesListedRow(a: ElementRecord, b: ElementRecord): boolean {
   const aRows = getListedRows(a);

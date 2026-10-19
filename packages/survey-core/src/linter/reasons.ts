@@ -36,6 +36,8 @@ export const SurveyLintReasons = Object.freeze({
     commentKeyCollision: "commentKeyCollision",
     totalKeyCollision: "totalKeyCollision",
     dropdownRowConflict: "dropdownRowConflict",
+    // questions on one data key keeping values of different shapes: an array of objects, an object, a plain value
+    valueShapeConflict: "valueShapeConflict",
     variableShadowsQuestion: "variableShadowsQuestion",
   }),
   // a member of Object.prototype used as a name: the value objects it keys are plain, so the

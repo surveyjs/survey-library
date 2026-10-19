@@ -1,6 +1,7 @@
 import { ValidationContext } from "./question";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { IRecordsPageState, pagingStateKeys } from "./records/records-paging";
+import { IRecordIndexFollower, RecordIndexEvent, RecordRemap, isRecordListChange } from "./records/records-index-followers";
 
 export interface IRecordsPageValidationOwner {
   getDataList(): DynamicDataList;
@@ -143,7 +144,7 @@ export class RecordsPageValidation {
      change the remap cannot place marks every record of the changed part as edited. */
   /* remap: where each old record went, built by the caller (getReplacedRecordsRemap), which moves the
      record indexes of its own with it (the records the dynamic panel's panels were built for). */
-  public onRecordsReplaced(oldRecords: Array<any>, newRecords: Array<any>, remap: (index: number) => number): void {
+  public onRecordsReplaced(oldRecords: Array<any>, newRecords: Array<any>, remap: RecordRemap): void {
     if (!this.hasRecords) return;
     const edited: Array<number> = [];
     let isUnplaced = false;
@@ -330,5 +331,55 @@ export class RecordsPageValidation {
   }
   public getNestedStates(recordIndex: number | string): { [valueName: string]: IRecordsPageState } {
     return typeof recordIndex === "string" ? this.nestedBySourceKey[recordIndex] : this.nested[recordIndex];
+  }
+}
+
+/* The page validation's side of the record-index events. The validation is created on first use, so
+   it is not a follower itself - registered, it would be created at once or missed: this adapter
+   decides per event which instance follows (getValidation(true) creates it). The edited set names
+   records of the storage the list pages in memory (isPagedByList); a page of a source that pages
+   itself (isPagedBySource) names other records on every read. */
+export class RecordsPageValidationFollower implements IRecordIndexFollower {
+  constructor(private getValidation: (create: boolean) => RecordsPageValidation,
+    private isPagedByList: () => boolean, private isPagedBySource: () => boolean) { }
+  public follow(event: RecordIndexEvent): void {
+    if (isRecordListChange(event)) {
+      // Only a list that pages in memory creates the edited set here.
+      const created = this.getValidation(this.isPagedByList());
+      if (!!created) created.onRecordRemap(event.remap);
+      return;
+    }
+    const validation = this.getValidation(false);
+    if (!validation) return;
+    if (event.kind === "source") {
+      // Another storage: the records it tracks and the states kept for them name records of the old one.
+      validation.cancelPendingMove();
+      validation.clearRecords();
+    } else if (event.kind === "redefined") {
+      validation.cancelPendingMove();
+      if (validation.hasRecords) validation.onRecordRemap(event.getRemap());
+    } else if (event.kind === "assignment") {
+      if (!this.isPagedByList()) return;
+      validation.cancelPendingMove();
+      if (validation.hasRecords) validation.onRecordsReplaced(event.oldRecords, event.newRecords, event.getRemap());
+    } else if (event.kind === "reload") {
+      this.followReload(validation, event.oldRecords, event.newRecords, event.getRemap);
+    }
+  }
+  /* A source without paging holds the whole storage, and a read that commits again may bring the
+     edited records back at other indexes: they follow, by key or by content. A page of a paging source
+     replaced the whole storage the list paged - a paging source is read whole only while the list has a
+     filter or a sort it cannot run. The edited set named records by their index in that storage, which
+     names nothing on a page, and a paging source never validates the records of other pages ahead of
+     their page: they are on the server. Kept, the set would be remapped from the page into the next
+     whole storage and name the wrong records. */
+  private followReload(validation: RecordsPageValidation, oldRecords: Array<any>, newRecords: Array<any>, getRemap: () => RecordRemap): void {
+    if (!this.isPagedByList()) {
+      if (this.isPagedBySource()) validation.clearEditedRecords();
+      return;
+    }
+    if (!validation.hasRecords) return;
+    validation.cancelPendingMove();
+    validation.onRecordsReplaced(oldRecords, newRecords, getRemap());
   }
 }

@@ -29,6 +29,15 @@ import { ChoiceShortcuts, IChoiceShortcutsOwner } from "./utils/choice-shortcuts
 import { Scope } from "./utils/scope";
 
 const OTHER_ITEM_VALUE = "other";
+// The key a choice comment is kept under in the object of a selected item (commentPropertyValue).
+export const CHOICE_COMMENT_PROPERTY = "comment";
+// Whether a value is (or, for an array, holds) the value of the built-in "Other" item.
+export function isOtherItemValue(val: any): boolean {
+  if (Array.isArray(val)) {
+    return val.indexOf(OTHER_ITEM_VALUE) > -1;
+  }
+  return val === OTHER_ITEM_VALUE;
+}
 // The contract of a question whose value is picked from a list of items it offers: every Select
 // question, plus Boolean and Rating, which build their items themselves. Question.isSelectQuestion()
 // says whether a question implements it, so a consumer that only exchanges data with the survey -
@@ -640,7 +649,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
   }
   public get commentPropertyValue(): string {
-    return "comment";
+    return CHOICE_COMMENT_PROPERTY;
   }
   protected getCommentValueCore(item: ItemValue): string {
     if (this.isOtherItemByValue(item)) return this.otherValue;
@@ -1022,10 +1031,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return false;
   }
   protected isOtherValue(val: any): boolean {
-    if (Array.isArray(val)) {
-      return val.indexOf(OTHER_ITEM_VALUE) > -1;
-    }
-    return val === OTHER_ITEM_VALUE;
+    return isOtherItemValue(val);
   }
   protected getIsItemValue(val: any, item: ItemValue): boolean {
     return val === item.value;

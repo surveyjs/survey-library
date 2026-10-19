@@ -1,4 +1,4 @@
-import { QuestionImageMapModel } from "../src/question_imagemap";
+import { getImageMapItemFields, QuestionImageMapModel } from "../src/question_imagemap";
 import { SurveyModel } from "../src/survey";
 import { Serializer } from "../src/jsonobject";
 
@@ -785,5 +785,80 @@ describe("imagemap", () => {
     flushRAF();
     expect(q2.svg.childNodes.length, "No new control point for circle").toBe(q2.areas.length + 2);
     expect(q2.areas[2].coords, "No coords changed for circle #2").toBe("1,2,3");
+  });
+
+  describe("an image map with valuePropertyName keeps the objects of its selected areas", () => {
+    const json = (extra?: any): any => ({
+      elements: [Object.assign({
+        type: "imagemap", name: "cars", valuePropertyName: "car", imageLink: "x",
+        areas: [{ value: "Ford", coords: "1,1,2,2", shape: "rect" }, { value: "BMW", coords: "3,3,4,4", shape: "rect" }],
+      }, extra || {})],
+    });
+    test("setData reports nothing for a selected area", () => {
+      const survey = new SurveyModel(json());
+      expect(survey.setData({ cars: [{ car: "Ford" }] })).toEqual([]);
+    });
+    test("clearIncorrectValues and complete keep the answer", () => {
+      const survey = new SurveyModel(json());
+      const q = <QuestionImageMapModel>survey.getQuestionByName("cars");
+      q.mapItemToggle(q.areas[0]);
+      expect(survey.data).toEqual({ cars: [{ car: "Ford" }] });
+      survey.clearIncorrectValues();
+      expect(survey.data).toEqual({ cars: [{ car: "Ford" }] });
+      survey.tryComplete();
+      expect(survey.data).toEqual({ cars: [{ car: "Ford" }] });
+    });
+    test("the item of a hidden area is still cleared on complete", () => {
+      const survey = new SurveyModel(json());
+      const q = <QuestionImageMapModel>survey.getQuestionByName("cars");
+      q.areas[1].visibleIf = "false";
+      q.value = [{ car: "Ford" }, { car: "BMW" }];
+      survey.tryComplete();
+      expect(survey.data).toEqual({ cars: [{ car: "Ford" }] });
+    });
+    // a dynamic panel sharing the value knows the field through getQuestionFromArray, as with a checkbox
+    test("a dynamic panel sharing the value knows the field", () => {
+      const survey = new SurveyModel({ elements: [json().elements[0],
+        { type: "paneldynamic", name: "cars-info", valueName: "cars", templateElements: [{ type: "rating", name: "rating" }] }] });
+      expect(survey.setData({ cars: [{ car: "Ford", rating: 3 }] })).toEqual([]);
+      survey.clearIncorrectValues();
+      expect(survey.data).toEqual({ cars: [{ car: "Ford", rating: 3 }] });
+      const q = <QuestionImageMapModel>survey.getQuestionByName("cars");
+      expect(q.getQuestionFromArray("car", 0)).toBe(q);
+      expect(q.getQuestionFromArray("rating", 0)).toBeNull();
+      expect(q.getQuestionFromArray("car", 1)).toBeNull();
+      q.multiSelect = false;
+      q.value = "Ford";
+      expect(q.getQuestionFromArray("car", 0)).toBeNull();
+    });
+    test("an item of no area is still reported", () => {
+      const survey = new SurveyModel(json());
+      expect(survey.setData({ cars: [{ car: "Audi" }] }).map(issue => issue.type + " @ " + issue.path)).toEqual(["invalidChoiceValue @ cars[0]"]);
+    });
+    test("getImageMapItemFields names the fields the runtime writes into the object of a selected area", () => {
+      const check = (extra: any, fields: Array<string>): void => {
+        const valuePropertyName = "valuePropertyName" in extra ? extra.valuePropertyName : "car";
+        expect(getImageMapItemFields(extra.multiSelect !== false, valuePropertyName), JSON.stringify(extra)).toEqual(fields);
+        const survey = new SurveyModel(json(extra));
+        const q = <QuestionImageMapModel>survey.getQuestionByName("cars");
+        q.mapItemToggle(q.areas[0]);
+        const item = Array.isArray(q.value) ? q.value[0] : q.value;
+        expect(typeof item === "object" ? Object.keys(item) : [], "the runtime writes the same fields, " + JSON.stringify(extra)).toEqual(fields);
+        fields.forEach(field => expect(q.hasValueItemKey(field), field).toBe(true));
+      };
+      check({}, ["car"]);
+      check({ valuePropertyName: "" }, []);
+      check({ multiSelect: false }, []);
+      check({ multiSelect: false, valuePropertyName: "" }, []);
+    });
+    test("an image map claims its field only while it selects several areas", () => {
+      const survey = new SurveyModel(json());
+      const q = <QuestionImageMapModel>survey.getQuestionByName("cars");
+      expect(q.hasValueItemKey("car")).toBe(true);
+      expect(q.hasValueItemKey("rating")).toBe(false);
+      expect(q.hasValueItemKey("")).toBe(false);
+      q.multiSelect = false;
+      expect(q.hasValueItemKey("car")).toBe(false);
+    });
   });
 });

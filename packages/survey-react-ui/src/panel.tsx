@@ -33,17 +33,14 @@ export class SurveyPanel extends SurveyPanelBase {
       paddingInlineStart: this.panel.innerPaddingLeft
         ? `calc(${panelPaddingHorizontal} + ${this.panel.innerPaddingLeft})`
         : this.panel.innerPaddingLeft,
-      // paddingInlineEnd: this.panel.innerPaddingLeft ? panelPaddingHorizontal : undefined,
-      display: this.panel.renderedIsExpanded ? undefined : "none",
     };
-    let content: React.JSX.Element | null = null;
-    let bottom: React.JSX.Element | null = null;
+    const className: string = this.panelBase.cssClasses.panel.content;
+    let expandableContent = null;
     if (this.panel.renderedIsExpanded) {
-      // this.hasBeenExpanded = true;
-      const rows: React.JSX.Element[] = this.renderRows(this.panelBase.cssClasses);
-      const className: string = this.panelBase.cssClasses.panel.content;
-      content = this.renderContent(style, rows, className);
-      bottom = this.renderBottom();
+      expandableContent = <div className={this.panel.cssClasses.panel.expandableContent}>
+        {this.renderContent(style, this.renderRows(this.panelBase.cssClasses), className)}
+        {this.renderBottom()}
+      </div>;
     }
     const focusIn = () => {
       if (this.panelBase) (this.panelBase as PanelModel).focusIn();
@@ -60,8 +57,7 @@ export class SurveyPanel extends SurveyPanelBase {
         {this.panel.showErrorsAbovePanel ? errors : null}
         {header}
         {this.panel.showErrorsAbovePanel ? null : errors}
-        {content}
-        {bottom}
+        {expandableContent}
       </div>
     );
   }

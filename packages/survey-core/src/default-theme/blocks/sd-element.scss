@@ -208,13 +208,13 @@
   box-sizing: border-box;
 }
 
-.sd-element__content--enter,
-.sd-element__content--leave {
+.sd-element__expandable-content--enter,
+.sd-element__expandable-content--leave {
   --animation-padding-top: 0;
   --animation-padding-bottom: 0;
 }
 
-.sd-element__content--enter {
+.sd-element__expandable-content--enter {
   animation-name: fadeIn, moveInWithOverflow;
   min-height: 0 !important;
   opacity: 0;
@@ -224,7 +224,7 @@
   animation-delay: $expand-fade-in-delay, 0s, 0s;
 }
 
-.sd-element__content--leave {
+.sd-element__expandable-content--leave {
   animation-name: fadeIn, moveInWithOverflow;
   min-height: 0 !important;
   animation-direction: reverse;

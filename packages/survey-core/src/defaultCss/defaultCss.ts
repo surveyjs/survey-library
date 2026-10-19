@@ -60,8 +60,9 @@ export var defaultCss = {
     edit: "sd-navigation__edit-btn",
   },
   panel: {
-    contentEnter: "sd-element__content--enter",
-    contentLeave: "sd-element__content--leave",
+    contentEnter: "sd-element__expandable-content--enter",
+    contentLeave: "sd-element__expandable-content--leave",
+    expandableContent: "sd-panel__expandable-content sd-element__expandable-content",
     enter: "sd-element-wrapper--enter",
     leave: "sd-element-wrapper--leave",
     asPage: "sd-panel--as-page",
@@ -191,8 +192,9 @@ export var defaultCss = {
   elementWrapper: "sd-element-wrapper",
   elementWrapperMinWidth: "sd-element-wrapper--min-width",
   question: {
-    contentEnter: "sd-element__content--enter",
-    contentLeave: "sd-element__content--leave",
+    contentEnter: "sd-element__expandable-content--enter",
+    contentLeave: "sd-element__expandable-content--leave",
+    expandableContent: "sd-element__expandable-content",
     enter: "sd-element-wrapper--enter",
     leave: "sd-element-wrapper--leave",
     mobile: "sd-question--mobile",

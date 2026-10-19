@@ -2024,6 +2024,7 @@ export class SurveyModel extends SurveyElementCore
    * Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
    */
   @property({ defaultValue: false }) choiceShortcutsEnabled: boolean;
+  @property({ defaultValue: false }) keyboardHintsEnabled: boolean;
   /**
    * Specifies when the survey validates answers.
    *
@@ -9480,6 +9481,7 @@ Serializer.addClass("survey", [
     visibleIf: (obj: any): boolean => obj.autoAdvanceEnabled === true
   },
   { name: "choiceShortcutsEnabled:boolean", default: false },
+  { name: "keyboardHintsEnabled:boolean", default: false },
   {
     name: "clearInvisibleValues",
     default: "onComplete",

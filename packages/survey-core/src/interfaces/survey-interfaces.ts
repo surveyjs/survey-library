@@ -150,6 +150,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   isUpdateValueTextOnTyping: boolean;
   autoGrowComment: boolean;
   choiceShortcutsEnabled: boolean;
+  keyboardHintsEnabled: boolean;
   allowResizeComment: boolean;
   commentAreaRows: number;
   maxTextLength: number;

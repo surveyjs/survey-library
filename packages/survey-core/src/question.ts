@@ -30,6 +30,7 @@ import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { isAnimationEnabled } from "./utils/reduced-motion";
 import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choices";
 import { Scope, ValueScope } from "./utils/scope";
+import { IKeyboardHint } from "./keyboard-hints";
 
 export interface IConditionObject {
   name: string;
@@ -3361,6 +3362,26 @@ export class Question extends SurveyElement<Question>
   supportGoNextPageAutomatic(): boolean { return this.supportAutoAdvance(); }
   public supportAutoAdvance(): boolean {
     return false;
+  }
+  public getKeyboardHints(): IKeyboardHint[] {
+    if (!this.canShowKeyboardHints()) return [];
+    return this.getKeyboardHintsCore();
+  }
+  protected canShowKeyboardHints(): boolean {
+    const survey = this.survey as SurveyModel;
+    if (!survey || survey.keyboardHintsEnabled !== true) return false;
+    if (this.isDesignMode || this.isReadOnly || this.inMatrixMode) return false;
+    return true;
+  }
+  protected getKeyboardHintsCore(): IKeyboardHint[] {
+    return [];
+  }
+  public get ariaKeyShortcuts(): string | undefined {
+    const parts: string[] = [];
+    this.getKeyboardHints().forEach(hint => {
+      hint.keys.filter(key => key.visible && key.shortcut).forEach(key => parts.push(key.shortcut));
+    });
+    return parts.length > 0 ? parts.join(" ") : undefined;
   }
   // Set only while Enter commits the current value. tryGoNextPageAutomatic runs on every
   // value change, so multi-value questions stay opted out until this flag is raised.

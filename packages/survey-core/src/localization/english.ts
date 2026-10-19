@@ -136,7 +136,15 @@ export var englishStrings = {
   maskPlaceholderMinute: "M", // [Do not translate]
   maskPlaceholderSecond: "s", // [Do not translate]
   maskPlaceholderTimeMarkerLower: "t", // [Do not translate]
-  maskPlaceholderTimeMarkerUpper: "T" // [Do not translate]
+  maskPlaceholderTimeMarkerUpper: "T", // [Do not translate]
+  keyboardHintSelectText: "to select",
+  keyboardHintSubmitText: "to submit",
+  keyboardHintOrText: "or",
+  keyboardHintNewLineText: "to add a line",
+  keyboardHintNextItemText: "to the next item",
+  keyboardHintMoveText: "to move",
+  keyboardHintOpenText: "to open",
+  keyboardHintCloseText: "to close"
 };
 
 /*

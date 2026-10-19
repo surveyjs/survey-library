@@ -1,3 +1,6 @@
+import { Question } from "./question";
+import { SurveyModel } from "./survey";
+
 export interface IKeyboardHintKey {
   label: string;
   shortcut: string;
@@ -29,4 +32,13 @@ export function keyboardHintKey(face: KeyboardHintFace, visible: boolean): IKeyb
 
 export function keyboardHint(owner: { getLocalizationString(name: string): string }, textKey: string, keys: IKeyboardHintKey[]): IKeyboardHint {
   return { text: owner.getLocalizationString(textKey), keys: keys };
+}
+
+export function singleChoiceKeyboardHints(question: Question, submitVisible: boolean): IKeyboardHint[] {
+  const survey = question.survey as SurveyModel;
+  const rows = [keyboardHint(question, "keyboardHintSelectText", [keyboardHintKey("arrowsAll", true)])];
+  if (survey.autoAdvanceEnabled === true) {
+    rows.push(keyboardHint(question, "keyboardHintSubmitText", [keyboardHintKey("enter", submitVisible)]));
+  }
+  return rows;
 }

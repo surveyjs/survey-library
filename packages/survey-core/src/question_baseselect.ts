@@ -3002,9 +3002,14 @@ export class QuestionCheckboxBase extends QuestionSelectBase implements IChoiceS
     );
   }
   public getItemAriaKeyShortcuts(item: ItemValue): string | undefined {
-    if (!this.canUseChoiceKeys || !this.getItemEnabled(item)) return undefined;
-    const code = this.getChoiceKeyBadge(item);
-    return code && code.length === 1 ? code : undefined;
+    if (!this.getItemEnabled(item)) return undefined;
+    const parts: string[] = [];
+    if (this.canUseChoiceKeys) {
+      const code = this.getChoiceKeyBadge(item);
+      if (code && code.length === 1) parts.push(code);
+    }
+    if (this.ariaKeyShortcuts) parts.push(this.ariaKeyShortcuts);
+    return parts.length > 0 ? parts.join(" ") : undefined;
   }
   public onChoiceKeyDown(event: any): void {
     this.choiceShortcuts.onKeyDown(event);

@@ -28,6 +28,15 @@ describe("DynamicDataView: the filter, the sort and the filter runner of the lis
     expect(view.setView("{age} > 15", undefined)).toBe(false);
     expect(view.sort).toEqual([]);
   });
+  test("setView normalizes the sort: plain criteria, no empty field, the first occurrence of a field", () => {
+    const view = new DynamicDataView((): void => { });
+    const item = { field: "age", direction: "desc", extra: true };
+    view.setView("", [null, { field: "" }, <any>item, { field: "name", direction: "up" }, { field: "age", direction: "asc" }]);
+    expect(view.sort, "#1").toEqual([{ field: "age", direction: "desc" }, { field: "name", direction: "asc" }]);
+    expect(view.sort[0] === <any>item, "#2: a copy, never the caller's object").toBe(false);
+    item.direction = "asc";
+    expect(view.sort[0].direction, "#3: an edit of the caller's object changes nothing").toBe("desc");
+  });
   test("clear drops the runner and keeps the filter and the sort", () => {
     const view = createView([], "{age} > 15", [{ field: "age", direction: "asc" }]);
     view.updateFilterRunner(readState(true));

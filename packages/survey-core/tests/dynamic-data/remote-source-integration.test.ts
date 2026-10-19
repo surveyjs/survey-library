@@ -12,7 +12,7 @@ import { Operand } from "../../src/expressions/expressions";
 import { FunctionFactory } from "../../src/functionsfactory";
 import { ConsoleWarnings } from "../../src/console-warnings";
 import {
-  IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataSource, IDynamicDataSourceCapabilities
+  IDynamicDataReadRequest, IDynamicDataReadResult, ISortCriterion, IDynamicDataSource, IDynamicDataSourceCapabilities
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 import { ArrayDynamicDataSource, SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 import { ActionContainer } from "../../src/actions/container";
@@ -185,7 +185,7 @@ class FakeServerSource implements IDynamicDataSource {
       res = res.filter(dialectToPredicate(translateFilterToDialect(request.filter)));
     }
     // Applied back to front, so that the first descriptor wins.
-    (request.sort || []).slice().reverse().forEach((s: IDynamicDataSort): void => {
+    (request.sort || []).slice().reverse().forEach((s: ISortCriterion): void => {
       const sign = s.direction === "desc" ? -1 : 1;
       res.sort((a: any, b: any): number => {
         const x = a[s.field];
@@ -675,13 +675,13 @@ describe("Remote data source: adding and removing", () => {
 });
 
 describe("Remote data source: sorting and filtering", () => {
-  test("sortOrder is pushed to the source and keeps the page", async () => {
+  test("sort() is pushed to the source and keeps the page", async () => {
     const source = new FakeServerSource(serverRecords(20));
     const { question } = await createMatrix(source);
     question.goToPage(1);
     await flush();
     source.reset();
-    question.sortOrder = [{ field: "col2", direction: "desc" }];
+    question.sort([{ field: "col2", direction: "desc" }]);
     await flush();
     expect(source.requests[0].sort, "#1: the descriptors reach the source").toEqual([{ field: "col2", direction: "desc" }]);
     expect(question.pageIndex, "#2: a sort keeps the page").toBe(1);
@@ -724,7 +724,7 @@ describe("Remote data source: sorting and filtering", () => {
     const source = new FakeServerSource(serverRecords(6), ["paging", "update"]);
     const { question } = await createMatrix(source, { pageSize: 0 });
     source.reset();
-    question.sortOrder = [{ field: "col2", direction: "desc" }];
+    question.sort([{ field: "col2", direction: "desc" }]);
     await flush();
     expect(source.requests.length, "#1: exactly one read").toBe(1);
     expect(source.requests[0].sort, "#2: with the sort inside it").toEqual([{ field: "col2", direction: "desc" }]);
@@ -2094,7 +2094,7 @@ describe("Remote data source: replacing a source", () => {
       elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, columns: [{ name: "col1" }, { name: "col2" }] }]
     });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
-    question.sortOrder = [{ field: "col2", direction: "desc" }];
+    question.sort([{ field: "col2", direction: "desc" }]);
     const source = new FakeServerSource(serverRecords(4));
     question.dataSource = source;
     await flush();
@@ -2354,11 +2354,11 @@ describe("Remote data source: the authored view costs one read", () => {
      both, so the whole authored view is one round trip. */
   const matrixJson = {
     type: "matrixdynamic", name: "matrix", rowCount: 0, pageSize: 5,
-    sortBy: "col2-", filterExpression: "{col1} = 'v7'", columns: [{ name: "col1" }, { name: "col2" }]
+    sortCriteria: [{ field: "col2", direction: "desc" }], filterExpression: "{col1} = 'v7'", columns: [{ name: "col1" }, { name: "col2" }]
   };
   const panelJson = {
     type: "paneldynamic", name: "panel", panelCount: 0, pageSize: 5,
-    sortBy: "col2-", filterExpression: "{col1} = 'v7'",
+    sortCriteria: [{ field: "col2", direction: "desc" }], filterExpression: "{col1} = 'v7'",
     templateElements: [{ type: "text", name: "col1" }, { type: "text", name: "col2" }]
   };
   const authoredSort = [{ field: "col2", direction: "desc" }];
@@ -3759,7 +3759,7 @@ describe("Remote data source: an added panel lands in front of the record a numb
   test("a sorted source without paging: Add in tab mode inserts after the current panel", async () => {
     const source = new FakeServerSource(serverRecords(5), ["insert", "update", "remove", "move"]);
     const { survey, question } = await createPanel(source, { pageSize: 0, displayMode: "tab", defaultPanelValue: { col1: "new" } });
-    question.sortOrder = [{ field: "col2", direction: "desc" }];
+    question.sort([{ field: "col2", direction: "desc" }]);
     expect(panelValues(question), "#1").toEqual(["v4", "v3", "v2", "v1", "v0"]);
     question.currentIndex = 1;
     const added: Array<any> = [];
@@ -4659,7 +4659,7 @@ describe("Remote data source: the refill after a remove keeps the touched record
     });
     test(kind.name + ": under a server sort an edited record stays at its place through the refill", async () => {
       const source = flagSource(12);
-      const { question } = await kind.create(source, { sortBy: "col2" });
+      const { question } = await kind.create(source, { sortCriteria: [{ field: "col2" }] });
       kind.set(question, 1, "col2", 100);
       await flush(REFILL_TURNS);
       kind.remove(question, 0);
@@ -4671,7 +4671,7 @@ describe("Remote data source: the refill after a remove keeps the touched record
       { name: "refreshView()", read: (q: any) => { q.refreshView(); } },
       { name: "refreshDataSource()", read: (q: any) => { q.refreshDataSource(); } },
       { name: "a filter change", read: (q: any) => { q.filterExpression = "{flag} = 'y' "; } },
-      { name: "a sort change", read: (q: any) => { q.sortBy = "col1"; } }].forEach(way => {
+      { name: "a sort change", read: (q: any) => { q.sort([{ field: "col1", direction: "asc" }]); } }].forEach(way => {
       test(kind.name + ": " + way.name + " is the server's alone", async () => {
         const source = flagSource(12);
         const { question } = await kind.create(source, filter);
@@ -5217,7 +5217,7 @@ describe("Remote data source: a refresh during a page move reads the page of the
   });
   test("a new sort on page 3, then a refresh: page 3 in the new order, one read each, none of page 0", async () => {
     const { question, source } = await setUp(40, 3);
-    question.sortOrder = [{ field: "col2", direction: "desc" }];
+    question.sort([{ field: "col2", direction: "desc" }]);
     question.refreshDataSource();
     expect(source.ranges, "#1").toEqual([[15, 5], [15, 5]]);
     source.settleAll();
@@ -5550,7 +5550,7 @@ describe("Remote data source: showing records sends nothing", () => {
       read: () => Promise.resolve(records.map(record => Object.assign({}, record))),
       update: (key: any, record: any, fields: Array<string>) => { updates.push([key, fields]); return Promise.resolve(); }
     };
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", pageSize: 2, sortBy: "n-", rowCount: 0,
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", pageSize: 2, sortCriteria: [{ field: "n", direction: "desc" }], rowCount: 0,
       columns: [{ name: "n", cellType: "text" }, { name: "e", cellType: "expression", expression: "{rowIndex}" }] }] });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     question.dataSource = source;

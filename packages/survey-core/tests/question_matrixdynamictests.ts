@@ -25,6 +25,10 @@ import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessVal
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { ArrayDynamicDataSource } from "../src/dynamic-data/dynamic-data-sources";
 import { describe, test, expect, vi } from "vitest";
+
+// The current sort of a records question, as plain { field, direction } criteria.
+const getSort = (q: any): Array<any> => q.sortCriteria.map((c: any) => ({ field: c.field, direction: c.direction }));
+const sortText = (sort: Array<any>): string => sort.map((c: any): string => c.field + " " + c.direction).join(", ");
 describe("Survey_QuestionMatrixDynamic", () => {
   test("Matrixdropdown cells tests", () => {
     var question = new QuestionMatrixDropdownModel("matrixDropdown");
@@ -11333,7 +11337,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
       columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "expression", expression: "{prevRow.c1}" }]
     }, [{ c1: "d" }, { c1: "c" }, { c1: "b" }, { c1: "a" }]);
     expect(matrix.visibleRows.map(r => r.getQuestionByName("c2").value), "#1: the record order, page 1").toEqual([undefined, "d"]);
-    matrix.sortOrder = [{ field: "c1", direction: "asc" }];
+    matrix.sort([{ field: "c1", direction: "asc" }]);
     expect(matrix.visibleRows.map(r => r.getQuestionByName("c2").value), "#2: the sorted neighbour, page 1").toEqual([undefined, "a"]);
     matrix.goToPage(1);
     expect(matrix.visibleRows.map(r => r.getQuestionByName("c2").value), "#3: the first row of page 2 reads a record of page 1").toEqual(["b", "c"]);
@@ -11370,7 +11374,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
   test("a key typed on a sorted page repeats a record of another page: every row of the group gets the error", () => {
     const matrix = createMatrix({ rowCount: 4, pageSize: 2, keyName: "c1" },
       [{ c1: "x", c2: "1" }, { c1: "b", c2: "4" }, { c1: "c", c2: "3" }, { c1: "d", c2: "2" }]);
-    matrix.sortOrder = [{ field: "c2", direction: "asc" }];
+    matrix.sort([{ field: "c2", direction: "asc" }]);
     matrix.goToPage(1);
     expect(pageValues(matrix), "#1").toEqual(["c", "b"]);
     matrix.visibleRows[0].getQuestionByName("c1").value = "x";
@@ -11429,7 +11433,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     const matrix = createMatrix({ rowCount: 6, pageSize: 2 },
       [{ c1: "a", c2: "6" }, { c1: "b", c2: "5" }, { c1: "a", c2: "4" }, { c1: "a", c2: "3" }, { c1: "b", c2: "2" }, { c1: "a", c2: "1" }]);
     matrix.filterExpression = "{c1} = 'a'";
-    matrix.sortOrder = [{ field: "c2", direction: "asc" }];
+    matrix.sort([{ field: "c2", direction: "asc" }]);
     expect(matrix["dataList"].visibleCount, "#1: four records pass the filter").toBe(4);
     expect(matrix.pageCount, "#2").toBe(2);
     expect(pageValues(matrix, "c2"), "#3: the first two of the sorted rows").toEqual(["1", "3"]);
@@ -11438,31 +11442,31 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.rowCount, "#5: the records are untouched").toBe(6);
     expect(matrix.value.length, "#6").toBe(6);
   });
-  test("sortOrder, toggleSort and clearSort reach the list and read back from it", () => {
+  test("sort(), toggleSort and clearSort reach the list and read back from it", () => {
     const matrix = createMatrix({ rowCount: 3 }, [{ c1: "c" }, { c1: "a" }, { c1: "b" }]);
     const list = matrix["dataList"];
-    expect(matrix.sortOrder, "#1: none").toEqual([]);
+    expect(getSort(matrix), "#1: none").toEqual([]);
     matrix.toggleSort("c1");
-    expect(matrix.sortOrder, "#2: a header click sorts ascending").toEqual([{ field: "c1", direction: "asc" }]);
+    expect(getSort(matrix), "#2: a header click sorts ascending").toEqual([{ field: "c1", direction: "asc" }]);
     expect(list.sort, "#3: the list has it").toEqual([{ field: "c1", direction: "asc" }]);
     expect(matrix.allRows.map(r => r.getQuestionByName("c1").value), "#4").toEqual(["a", "b", "c"]);
     matrix.toggleSort("c1");
-    expect(matrix.sortOrder, "#5: the second click is descending").toEqual([{ field: "c1", direction: "desc" }]);
+    expect(getSort(matrix), "#5: the second click is descending").toEqual([{ field: "c1", direction: "desc" }]);
     expect(matrix.allRows.map(r => r.getQuestionByName("c1").value), "#6").toEqual(["c", "b", "a"]);
     matrix.toggleSort("c1");
-    expect(matrix.sortOrder, "#7: the third clears it").toEqual([]);
+    expect(getSort(matrix), "#7: the third clears it").toEqual([]);
     expect(matrix.allRows.map(r => r.getQuestionByName("c1").value), "#8: the record order is back").toEqual(["c", "a", "b"]);
-    matrix.sortOrder = [{ field: "c1", direction: "desc" }];
-    expect(matrix.sortOrder, "#9: an explicit sort skips the toggle").toEqual([{ field: "c1", direction: "desc" }]);
+    matrix.sort([{ field: "c1", direction: "desc" }]);
+    expect(getSort(matrix), "#9: an explicit sort skips the toggle").toEqual([{ field: "c1", direction: "desc" }]);
     matrix.clearSort();
-    expect(matrix.sortOrder, "#10").toEqual([]);
+    expect(getSort(matrix), "#10").toEqual([]);
     expect(list.sort, "#11").toEqual([]);
   });
   test("a sort never reorders the value and drag reorder is off while it is on", () => {
     const survey = createSurvey({ rowCount: 3, allowRowReorder: true }, [{ c1: "c" }, { c1: "a" }, { c1: "b" }]);
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     expect(matrix.isRowsDragAndDrop, "#1").toBe(true);
-    matrix.sortOrder = [{ field: "c1", direction: "asc" }];
+    matrix.sort([{ field: "c1", direction: "asc" }]);
     expect(matrix.value, "#2: the value kept its order").toEqual([{ c1: "c" }, { c1: "a" }, { c1: "b" }]);
     expect(matrix.isRowsDragAndDrop, "#3: a sorted table cannot be reordered by hand").toBe(false);
     matrix.clearSort();
@@ -11497,17 +11501,17 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
   });
   test("assigning the same sort or the same filter rebuilds nothing", () => {
     const matrix = createMatrix({ rowCount: 3 }, [{ c1: "c" }, { c1: "a" }, { c1: "b" }]);
-    matrix.sortOrder = [{ field: "c1", direction: "asc" }];
+    matrix.sort([{ field: "c1", direction: "asc" }]);
     matrix.filterExpression = "{c1} != 'z'";
     const rows = matrix.allRows.slice();
-    matrix.sortOrder = [{ field: "c1", direction: "asc" }];
+    matrix.sort([{ field: "c1", direction: "asc" }]);
     expect(matrix.allRows.every((row, i) => row === rows[i]), "#1: the same row instances").toBe(true);
     matrix.filterExpression = "{c1} != 'z'";
     expect(matrix.allRows.every((row, i) => row === rows[i]), "#2: the same row instances").toBe(true);
-    matrix.sortOrder = [{ field: "c1", direction: "desc" }];
+    matrix.sort([{ field: "c1", direction: "desc" }]);
     expect(matrix.allRows[0] === rows[0], "#3: a different sort does rebuild them").toBe(false);
   });
-  test("pageIndex, pageCount, sortOrder and filterExpression notify the reactivity bridge", () => {
+  test("pageIndex, pageCount, sortCriteria and filterExpression notify the reactivity bridge", () => {
     const matrix = createMatrix({ rowCount: 5, pageSize: 2 }, abcde);
     const changed: Array<string> = [];
     matrix.onPropertyChanged.add((sender, options) => { changed.push(options.name); });
@@ -11517,8 +11521,8 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     matrix.rowCount = 2;
     expect(changed.indexOf("pageCount") > -1, "#2").toBe(true);
     changed.splice(0, changed.length);
-    matrix.sortOrder = [{ field: "c1", direction: "asc" }];
-    expect(changed.indexOf("sortOrder") > -1, "#3").toBe(true);
+    matrix.sort([{ field: "c1", direction: "asc" }]);
+    expect(changed.indexOf("sortCriteria") > -1, "#3").toBe(true);
     changed.splice(0, changed.length);
     matrix.filterExpression = "{c1} != 'z'";
     expect(changed.indexOf("filterExpression") > -1, "#4").toBe(true);
@@ -11585,14 +11589,14 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     matrix.filterExpression = "{c1} = 'a'";
     expect(matrix.filterExpression, "#5: it is kept").toBe("{c1} = 'a'");
     expect(matrix["dataList"].filter, "#6: and not applied").toBe("");
-    matrix.sortOrder = [{ field: "c1", direction: "asc" }];
-    expect(matrix.sortOrder, "#7").toEqual([{ field: "c1", direction: "asc" }]);
-    expect(matrix.sortBy, "#8").toBe("c1");
+    matrix.sort([{ field: "c1", direction: "asc" }]);
+    expect(getSort(matrix), "#7").toEqual([{ field: "c1", direction: "asc" }]);
+    expect(matrix.sortCriteria[0].getType(), "#8: the items are sort criteria").toBe("sortcriterion");
     expect(matrix["dataList"].sort, "#9: and not applied").toEqual([]);
     expect(matrix.visibleRows.length, "#10: every row, in storage order").toBe(5);
     const json = matrix.toJSON();
     expect(json.pageSize, "#11").toBe(2);
-    expect(json.sortBy, "#12").toBe("c1");
+    expect(json.sortCriteria, "#12").toEqual([{ field: "c1" }]);
     expect(json.filterExpression, "#13").toBe("{c1} = 'a'");
   });
   test("the new properties round-trip through JSON, pageSize is in the property grid", () => {
@@ -11655,7 +11659,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
   test("a date column sorts by date and not by text", () => {
     const matrix = createMatrix({ rowCount: 3, columns: [{ name: "c1", cellType: "text", inputType: "date" }] },
       [{ c1: "2024-01-10" }, { c1: "2024-1-5" }, { c1: "2023-12-31" }]);
-    matrix.sortBy = "c1";
+    matrix.sort([{ field: "c1", direction: "asc" }]);
     expect(pageValues(matrix), "#1: as text 2024-1-5 would be last").toEqual(["2023-12-31", "2024-1-5", "2024-01-10"]);
   });
   test("toggleSort adds a field to the sort instead of replacing it", () => {
@@ -11663,15 +11667,15 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
       [{ c1: "b", c2: "2" }, { c1: "a", c2: "1" }, { c1: "b", c2: "1" }]);
     matrix.toggleSort("c1", true);
     matrix.toggleSort("c2", true);
-    expect(matrix.sortBy, "#1: both fields, in click order").toBe("c1;c2");
+    expect(getSort(matrix), "#1: both fields, in click order").toEqual([{ field: "c1", direction: "asc" }, { field: "c2", direction: "asc" }]);
     expect(matrix.allRows.map(r => r.getQuestionByName("c1").value + r.getQuestionByName("c2").value), "#2")
       .toEqual(["a1", "b1", "b2"]);
     matrix.toggleSort("c2", true);
-    expect(matrix.sortBy, "#3: the second field turns around, the first keeps its place").toBe("c1;c2-");
+    expect(getSort(matrix), "#3: the second field turns around, the first keeps its place").toEqual([{ field: "c1", direction: "asc" }, { field: "c2", direction: "desc" }]);
     expect(matrix.allRows.map(r => r.getQuestionByName("c1").value + r.getQuestionByName("c2").value), "#4")
       .toEqual(["a1", "b2", "b1"]);
     matrix.toggleSort("c1");
-    expect(matrix.sortBy, "#5: a click without the modifier starts over").toBe("c1-");
+    expect(getSort(matrix), "#5: a click without the modifier starts over").toEqual([{ field: "c1", direction: "desc" }]);
   });
   test("removing a row on an earlier page fills the vacated slot from the next one", () => {
     const matrix = createMatrix({ rowCount: 5, pageSize: 2, allowRemoveRows: true }, abcde);
@@ -11701,7 +11705,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
       rowCount: 3,
       columns: [{ name: "c1", cellType: "dropdown", choices: [{ value: 1, text: "zebra" }, { value: 2, text: "apple" }, { value: 3, text: "mango" }] }]
     }, [{ c1: 3 }, { c1: 1 }, { c1: 2 }]);
-    matrix.sortOrder = [{ field: "c1", direction: "asc" }];
+    matrix.sort([{ field: "c1", direction: "asc" }]);
     expect(matrix.allRows.map(row => row.getQuestionByName("c1").value), "#1: by value").toEqual([1, 2, 3]);
   });
 });
@@ -11725,124 +11729,125 @@ describe("Survey_QuestionMatrixDynamic: the sort and the filter in JSON", () => 
   };
   const cba = [{ c1: "c" }, { c1: "a" }, { c1: "b" }];
 
-  test("sortBy and filterExpression load from JSON, apply and round-trip", () => {
-    const matrix = createMatrix({ rowCount: 4, sortBy: "c1-", filterExpression: "{c1} <> 'z'" },
+  test("sortCriteria and filterExpression load from JSON, apply and round-trip", () => {
+    const matrix = createMatrix({ rowCount: 4, sortCriteria: [{ field: "c1", direction: "desc" }], filterExpression: "{c1} <> 'z'" },
       [{ c1: "c" }, { c1: "z" }, { c1: "a" }, { c1: "b" }]);
-    expect(matrix.sortBy, "#1").toBe("c1-");
-    expect(matrix.sortOrder, "#2: the two faces of one storage").toEqual([{ field: "c1", direction: "desc" }]);
+    expect(getSort(matrix), "#1").toEqual([{ field: "c1", direction: "desc" }]);
+    expect(matrix.sortCriteria[0].getType(), "#2: the items are sort criteria").toBe("sortcriterion");
     expect(matrix.filterExpression, "#3").toBe("{c1} <> 'z'");
     expect(values(matrix), "#4: the rows are sorted and the filtered record has none").toEqual(["c", "b", "a"]);
     expect(matrix.rowCount, "#5: the records are untouched").toBe(4);
     const json = matrix.toJSON();
-    expect(json.sortBy, "#6: the canonical text").toBe("c1-");
+    expect(json.sortCriteria, "#6").toEqual([{ field: "c1", direction: "desc" }]);
     expect(json.filterExpression, "#7").toBe("{c1} <> 'z'");
-    expect(json.sortOrder, "#8: the descriptors are not serialized").toBe(undefined);
   });
-  test("a multi-field sortBy loads and is written back canonically", () => {
-    const matrix = createMatrix({ rowCount: 4, sortBy: " c1 ; c2 - " },
-      [{ c1: "a", c2: "1" }, { c1: "b", c2: "2" }, { c1: "a", c2: "3" }, { c1: "b", c2: "1" }]);
-    expect(matrix.sortOrder, "#1").toEqual([{ field: "c1", direction: "asc" }, { field: "c2", direction: "desc" }]);
+  test("an authored sort with an empty and a repeated field is normalized once it runs", () => {
+    const matrix = createMatrix({ rowCount: 4, sortCriteria: [{ field: "c1" }, { field: "" }, { field: "c2", direction: "desc" },
+      { field: "c1", direction: "desc" }] },
+    [{ c1: "a", c2: "1" }, { c1: "b", c2: "2" }, { c1: "a", c2: "3" }, { c1: "b", c2: "1" }]);
+    expect(getSort(matrix), "#1: the first occurrence of a field wins").toEqual([{ field: "c1", direction: "asc" }, { field: "c2", direction: "desc" }]);
     expect(values(matrix, "c2"), "#2").toEqual(["3", "1", "2", "1"]);
-    expect(matrix.toJSON().sortBy, "#3: normalized").toBe("c1;c2-");
+    expect(matrix.toJSON().sortCriteria, "#3: normalized").toEqual([{ field: "c1" }, { field: "c2", direction: "desc" }]);
   });
   test("the defaults are not serialized and the properties stay out of the property grid", () => {
     const matrix = createMatrix({ rowCount: 2 }, cba);
     const json = matrix.toJSON();
-    expect(json.sortBy, "#1").toBe(undefined);
+    expect(json.sortCriteria, "#1").toBe(undefined);
     expect(json.filterExpression, "#2").toBe(undefined);
-    expect(matrix.sortBy, "#3").toBe("");
+    expect(getSort(matrix), "#3").toEqual([]);
     expect(matrix.filterExpression, "#4").toBe("");
-    expect(Serializer.findProperty("matrixdynamic", "sortBy").visible, "#5").toBe(false);
+    expect(Serializer.findProperty("matrixdynamic", "sortCriteria").visible, "#5").toBe(false);
     expect(Serializer.findProperty("matrixdynamic", "filterExpression").visible, "#6").toBe(false);
-    expect(Serializer.findProperty("matrixdynamic", "sortBy").isExpression, "#7: a plain string, not a condition").toBe(false);
+    const sortProp = Serializer.findProperty("matrixdynamic", "sortCriteria");
+    expect([sortProp.className, sortProp.isArray], "#7: an array of sortcriterion objects").toEqual(["sortcriterion", true]);
     expect(Serializer.findProperty("matrixdynamic", "filterExpression").isExpression, "#8").toBe(false);
   });
-  test("sortBy assigned at runtime equals the parsed sortOrder", () => {
-    const byText = createMatrix({ rowCount: 3 }, cba);
-    byText.sortBy = "c1-";
-    const byOrder = createMatrix({ rowCount: 3 }, cba);
-    byOrder.sortOrder = [{ field: "c1", direction: "desc" }];
-    expect(byText.sortOrder, "#1").toEqual(byOrder.sortOrder);
-    expect(values(byText), "#2").toEqual(values(byOrder));
-    expect(byText.toJSON().sortBy, "#3").toBe(byOrder.toJSON().sortBy);
+  test("sort(field, direction) equals sort(criteria)", () => {
+    const byField = createMatrix({ rowCount: 3 }, cba);
+    byField.sort("c1", "desc");
+    const byCriteria = createMatrix({ rowCount: 3 }, cba);
+    byCriteria.sort([{ field: "c1", direction: "desc" }]);
+    expect(getSort(byField), "#1").toEqual(getSort(byCriteria));
+    expect(values(byField), "#2").toEqual(values(byCriteria));
+    expect(byField.toJSON().sortCriteria, "#3").toEqual(byCriteria.toJSON().sortCriteria);
   });
   test("the sort a header click makes is what toJSON emits", () => {
     const matrix = createMatrix({ rowCount: 3, allowSortRows: true }, cba);
     matrix.toggleSort("c1");
-    expect(matrix.toJSON().sortBy, "#1").toBe("c1");
+    expect(matrix.toJSON().sortCriteria, "#1").toEqual([{ field: "c1" }]);
     matrix.toggleSort("c1");
-    expect(matrix.toJSON().sortBy, "#2").toBe("c1-");
+    expect(matrix.toJSON().sortCriteria, "#2").toEqual([{ field: "c1", direction: "desc" }]);
     matrix.toggleSort("c1");
-    expect(matrix.toJSON().sortBy, "#3: the third click clears it").toBe(undefined);
+    expect(matrix.toJSON().sortCriteria, "#3: the third click clears it").toBe(undefined);
   });
-  test("onPropertyChanged fires for sortBy once per real change", () => {
+  test("onPropertyChanged fires for sortCriteria once per real change", () => {
     const matrix = createMatrix({ rowCount: 3 }, cba);
     const changed: Array<any> = [];
     matrix.onPropertyChanged.add((sender, options) => {
-      if (options.name === "sortBy") changed.push(options.oldValue + " -> " + options.newValue);
+      if (options.name === "sortCriteria") changed.push(sortText(options.oldValue) + " -> " + sortText(options.newValue));
     });
-    matrix.sortOrder = [{ field: "c1", direction: "asc" }];
-    expect(changed, "#1: sortOrder is assigned").toEqual([" -> c1"]);
-    matrix.sortOrder = [{ field: "c1", direction: "asc" }];
-    expect(changed, "#2: the same sort says nothing").toEqual([" -> c1"]);
+    matrix.sort([{ field: "c1", direction: "asc" }]);
+    expect(changed, "#1: sort() runs").toEqual([" -> c1 asc"]);
+    matrix.sort([{ field: "c1", direction: "asc" }]);
+    expect(changed, "#2: the same sort says nothing").toEqual([" -> c1 asc"]);
     matrix.toggleSort("c1");
-    expect(changed, "#3: a header click").toEqual([" -> c1", "c1 -> c1-"]);
+    expect(changed, "#3: a header click").toEqual([" -> c1 asc", "c1 asc -> c1 desc"]);
     matrix["dataList"].sort = [];
-    expect(changed, "#4: the list changed it on its own").toEqual([" -> c1", "c1 -> c1-", "c1- -> "]);
+    expect(changed, "#4: the list changed it on its own").toEqual([" -> c1 asc", "c1 asc -> c1 desc", "c1 desc -> "]);
   });
   test("the JSON key order does not decide the sort", () => {
-    const before = createMatrix({ sortBy: "c1-", pageSize: 2, rowCount: 3 }, cba);
-    expect(before.sortBy, "#1: sortBy before pageSize").toBe("c1-");
+    const before = createMatrix({ sortCriteria: [{ field: "c1", direction: "desc" }], pageSize: 2, rowCount: 3 }, cba);
+    expect(getSort(before), "#1: sortCriteria before pageSize").toEqual([{ field: "c1", direction: "desc" }]);
     expect(values(before), "#2: the first page of the sorted records").toEqual(["c", "b"]);
-    const after = createMatrix({ pageSize: 2, sortBy: "c1-", rowCount: 3 }, cba);
-    expect(after.sortBy, "#3: and after it").toBe("c1-");
+    const after = createMatrix({ pageSize: 2, sortCriteria: [{ field: "c1", direction: "desc" }], rowCount: 3 }, cba);
+    expect(getSort(after), "#3: and after it").toEqual([{ field: "c1", direction: "desc" }]);
     expect(values(after), "#4").toEqual(["c", "b"]);
     expect(after.visibleRows.length, "#5: the page size survived it too").toBe(2);
   });
   test("the authored sort orders the first page", () => {
-    const matrix = createMatrix({ sortBy: "c1-", pageSize: 2, rowCount: 3 }, cba);
+    const matrix = createMatrix({ sortCriteria: [{ field: "c1", direction: "desc" }], pageSize: 2, rowCount: 3 }, cba);
     expect(values(matrix), "#2: the first page of the sorted records").toEqual(["c", "b"]);
   });
   test("fromJSON into an attached question that already runs a different sort", () => {
     const matrix = createMatrix({ rowCount: 3 }, cba);
-    matrix.sortBy = "c1";
+    matrix.sort([{ field: "c1", direction: "asc" }]);
     expect(values(matrix), "#1").toEqual(["a", "b", "c"]);
-    matrix.fromJSON({ type: "matrixdynamic", name: "matrix", columns: cols, rowCount: 3, sortBy: "c1-",
+    matrix.fromJSON({ type: "matrixdynamic", name: "matrix", columns: cols, rowCount: 3, sortCriteria: [{ field: "c1", direction: "desc" }],
       filterExpression: "{c1} <> 'a'" });
-    expect(matrix.sortBy, "#2: the new sort, not the one that was mirrored").toBe("c1-");
+    expect(getSort(matrix), "#2: the new sort, not the one that was mirrored").toEqual([{ field: "c1", direction: "desc" }]);
     expect(matrix["dataList"].sort, "#3: and the list has it").toEqual([{ field: "c1", direction: "desc" }]);
     expect(values(matrix), "#4").toEqual(["c", "b"]);
   });
-  test("a reload whose JSON has no sortBy key leaves the current sort alone", () => {
+  test("a reload whose JSON has no sortCriteria key leaves the current sort alone", () => {
     const matrix = createMatrix({ rowCount: 3 }, cba);
-    matrix.sortBy = "c1-";
+    matrix.sort([{ field: "c1", direction: "desc" }]);
     matrix.fromJSON({ type: "matrixdynamic", name: "matrix", columns: cols, rowCount: 3 });
-    expect(matrix.sortBy, "#1").toBe("c1-");
+    expect(getSort(matrix), "#1").toEqual([{ field: "c1", direction: "desc" }]);
     expect(values(matrix), "#2").toEqual(["c", "b", "a"]);
   });
   test("design mode set before the load, the Creator's order: the authored view is stored and not applied", () => {
-    const matrix = createMatrix({ rowCount: 3, sortBy: "c1-", filterExpression: "{c1} = 'a'" }, undefined, true);
+    const matrix = createMatrix({ rowCount: 3, sortCriteria: [{ field: "c1", direction: "desc" }], filterExpression: "{c1} = 'a'" }, undefined, true);
     matrix.value = cba;
-    expect(matrix.sortBy, "#1: authored and read back").toBe("c1-");
+    expect(getSort(matrix), "#1: authored and read back").toEqual([{ field: "c1", direction: "desc" }]);
     expect(matrix.filterExpression, "#2").toBe("{c1} = 'a'");
     expect(matrix["dataList"].sort, "#3: the list has nothing").toEqual([]);
     expect(matrix["dataList"].filter, "#4").toBe("");
     expect(values(matrix), "#5: every row, in storage order").toEqual(["c", "a", "b"]);
     const json = matrix.toJSON();
-    expect(json.sortBy, "#6: and both are serialized").toBe("c1-");
+    expect(json.sortCriteria, "#6: and both are serialized").toEqual([{ field: "c1", direction: "desc" }]);
     expect(json.filterExpression, "#7").toBe("{c1} = 'a'");
   });
   test("a design-mode switch after the load takes effect at the next sync", () => {
-    const survey = createSurvey({ rowCount: 3, sortBy: "c1-" }, cba);
+    const survey = createSurvey({ rowCount: 3, sortCriteria: [{ field: "c1", direction: "desc" }] }, cba);
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     expect(values(matrix), "#1").toEqual(["c", "b", "a"]);
     survey.setDesignMode(true);
-    expect(matrix.sortBy, "#2: the hash is right at once").toBe("c1-");
-    expect(matrix.toJSON().sortBy, "#3: and so is the JSON").toBe("c1-");
+    expect(getSort(matrix), "#2: the hash is right at once").toEqual([{ field: "c1", direction: "desc" }]);
+    expect(matrix.toJSON().sortCriteria, "#3: and so is the JSON").toEqual([{ field: "c1", direction: "desc" }]);
     expect(matrix["dataList"].sort, "#4: nothing told the list yet").toEqual([{ field: "c1", direction: "desc" }]);
     matrix.refreshView();
     expect(matrix["dataList"].sort, "#5: the next sync clears it").toEqual([]);
-    expect(matrix.sortBy, "#6: and keeps what was authored").toBe("c1-");
+    expect(getSort(matrix), "#6: and keeps what was authored").toEqual([{ field: "c1", direction: "desc" }]);
     survey.setDesignMode(false);
     matrix.refreshView();
     expect(matrix["dataList"].sort, "#7: the way back").toEqual([{ field: "c1", direction: "desc" }]);
@@ -12047,7 +12052,7 @@ describe("value assigned by a handler during an add or remove", () => {
     expect(matrix.rowCount, "#6").toBe(4);
   });
 });
-/* A survey that sets none of the new properties - pageSize, sortBy, filterExpression, a data
+/* A survey that sets none of the new properties - pageSize, sortCriteria, filterExpression, a data
    source - gets the dynamic matrix it has always had. */
 describe("Dynamic matrix without paging keeps its released behaviour", () => {
   const createMatrix = (json: any, extra?: Array<any>): { survey: SurveyModel, matrix: QuestionMatrixDynamicModel } => {

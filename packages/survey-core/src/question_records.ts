@@ -15,8 +15,9 @@ import { SurveyError } from "./survey-error";
 import { KeyDuplicationError } from "./error";
 import {
   DynamicDataErrorOperation, DynamicDataFieldType, DynamicDataSourceMethod, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
-  IDynamicDataSort, IDynamicDataSource
+  ISortCriterion, IDynamicDataSource, SortDirection
 } from "./dynamic-data/dynamic-data-interfaces";
+import { SortCriterion } from "./records/records-sort-criterion";
 import { findDuplicatePages, groupByDuplicateKey } from "./records/records-duplicates";
 import { RecordsPageValidation, IRecordsPageValidationOwner, RecordsPageValidationFollower } from "./question_records_page_validation";
 import { createIndexes } from "./dynamic-data/dynamic-data-records";
@@ -188,6 +189,8 @@ export abstract class QuestionRecordsModel extends Question {
          both helpers), which is what the renderers observe. The page moves are leavePage and
          cancelPendingPageMove. */
       getPropertyValue: (name: string): any => question.getPropertyValue(name),
+      getArrayPropertyValue: (name: string, onPush: (item: any) => void): Array<any> => question.getArrayPropertyValue(name, onPush),
+      setArrayPropertyValue: (name: string, val: Array<any>): void => { question.setArrayPropertyValue(name, val); },
       getLocalizationFormatString: (strName: string, ...args: any[]): string => question.getLocalizationFormatString(strName, ...args),
       get pageSize(): number { return question.pageSize; },
       get listPageSize(): number { return question.listPageSize; },
@@ -195,7 +198,6 @@ export abstract class QuestionRecordsModel extends Question {
       get pageCount(): number { return question.reportedPageCount; },
       get isDesignMode(): boolean { return question.isDesignMode; },
       get isLoadingFromJson(): boolean { return question.isLoadingFromJson; },
-      raiseSortByChanged: (oldValue: string, newValue: string): void => { question.raiseSortByChanged(oldValue, newValue); },
       leavePage: (isForward: boolean, move: () => void): boolean => question.leavePage(isForward, move),
       cancelPendingPageMove: (): void => { question.cancelPendingPageMove(); }
     };
@@ -313,11 +315,6 @@ export abstract class QuestionRecordsModel extends Question {
   // The survey hashes no question inside a dynamic panel or a matrix detail panel and answers null for it.
   private getQuestionsSharingValue(name: string): Array<IQuestion> {
     return this.survey.getQuestionsByValueName(name) || [];
-  }
-  protected isPropertyStoredInHash(name: string): boolean {
-    // sortBy renders sortOrder and stores nothing of its own, so the serializer has to read the
-    // accessor instead of looking for a hash entry that will never be there.
-    return name !== "sortBy" && super.isPropertyStoredInHash(name);
   }
   /* The record fields the template questions of a dynamic panel or the column questions of a matrix
      contribute to the list: one per question, under its value name, and one more for a comment,
@@ -1048,6 +1045,10 @@ export abstract class QuestionRecordsModel extends Question {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === pagingStateKeys.pageCount) {
       this.updateRecordsBar();
+    }
+    // A push or a splice on sortCriteria: the array that raised it exists, and so does the helper.
+    if (name === pagingStateKeys.sortCriteria && !!this._paging) {
+      this._paging.onSortCriteriaChanged();
     }
     const names = this.getRecordCountNames();
     if (!names) return;
@@ -2456,20 +2457,28 @@ export abstract class QuestionRecordsModel extends Question {
   public goToPage(index: number): boolean { return this.paging.goToPage(index); }
   public nextPage(): boolean { return this.paging.nextPage(); }
   public prevPage(): boolean { return this.paging.prevPage(); }
-  /* The sort the records are displayed in: { field, direction } descriptors applied in array order,
-     an empty array = no sort. It never reorders the question value. */
-  public get sortOrder(): Array<IDynamicDataSort> { return this.paging.sortOrder; }
-  public set sortOrder(val: Array<IDynamicDataSort>) { this.paging.sortOrder = val; }
-  /* The serialized form of sortOrder: "price-;name" = price descending, then name ascending (see
-     dynamic-data-sort.ts for the grammar). One storage and two faces - this is the current sort,
-     so a sort made at runtime, a header click included, changes what toJSON() emits. */
-  public get sortBy(): string { return this.paging.sortBy; }
-  public set sortBy(val: string) { this.paging.sortBy = val; }
-  /* What a click on a sortable header does: ascending, then descending, then not sorted. With
-     addToSort the field is cycled inside the current sort instead of replacing it, which is the
-     multi-field sort a modified header click makes. */
-  public toggleSort(field: string, addToSort?: boolean): boolean { return this.paging.toggleSort(field, addToSort); }
+  /* The sort the records are displayed in: criteria applied in array order, an empty array = no sort.
+     It never reorders the question value. A live array, like choices: an assignment, a push or a
+     splice on it, or an edit of an item's field or direction re-applies it. The setter takes plain
+     { field, direction } objects and copies them - the question never holds the caller's objects -,
+     so its type is wider than the getter's. It is the current sort: a sort made at runtime changes
+     what toJSON() emits. */
+  public get sortCriteria(): Array<SortCriterion> { return this.paging.sortCriteria; }
+  public set sortCriteria(val: Array<ISortCriterion>) { this.paging.sortCriteria = val; }
+  /* sort("price") sorts by one field, ascending unless direction is "desc"; with append the current
+     sort stays and the field takes the direction where it already is, or joins at the end.
+     sort([...]) is the assignment of sortCriteria. A sort from code does not validate the page. */
+  public sort(field: string, direction?: SortDirection, append?: boolean): void;
+  public sort(criteria: Array<ISortCriterion>): void;
+  public sort(fieldOrCriteria: string | Array<ISortCriterion>, direction?: SortDirection, append?: boolean): void {
+    this.paging.sort(fieldOrCriteria, direction, append);
+  }
   public clearSort(): void { this.paging.clearSort(); }
+  /* What a click on a sortable header does: ascending, then descending, then not sorted. With
+     append the field is cycled inside the current sort instead of replacing it, which is the
+     multi-field sort a modified header click makes. It validates the page it replaces. For the
+     renderers: code sorts with sort(). */
+  public toggleSort(field: string, append?: boolean): boolean { return this.paging.toggleSort(field, append); }
   /* A survey expression over the record values - the same language as visibleIf, with the record
      fields as its variables. A record that does not satisfy it has no object; the question value
      keeps every record. An empty string = no filter. It is not rowsVisibleIf / templateVisibleIf:
@@ -3969,12 +3978,6 @@ export abstract class QuestionRecordsModel extends Question {
   protected appendItemForRecord(recordIndex: number, isStoredRecord: boolean = false): void {
     this.rebuildFromDataList(false);
   }
-  /* sortBy is computed from sortOrder and nothing raises its change on its own (see
-     RecordsPagingController.setSortOrderValue). Base.propertyValueChanged is protected, so the
-     question raises it. */
-  protected raiseSortByChanged(oldValue: string, newValue: string): void {
-    this.propertyValueChanged("sortBy", oldValue, newValue);
-  }
 }
 
 // The question-level context of matrixdynamic and paneldynamic: {matrix[2].col1}, {panel[2].q1}.
@@ -4485,15 +4488,18 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
 }
 /* The serializer entries of the paging, the sort and the filter of a records question.
    pageSize shows in the property grid.
-   sortBy and filterExpression stay hidden there until the sortable headers ship, and only load from
-   and save to JSON; they are plain strings rather than ":condition"/":expression", because both of
-   those make JsonObjectProperty.isExpression true, and everything that discovers expressions by type -
-   Base.validateExpressions(), the linter - would then read them with the survey as the variable
-   context, while their variables are record fields.
-   pageSize and filterExpression are stored in the hash under their own names (pagingStateKeys). */
+   sortCriteria and filterExpression stay hidden there until the sortable headers ship, and only load
+   from and save to JSON. sortCriteria is an array of sortcriterion objects (the shape of
+   calculatedValues); an element that is a plain string is not a criterion and has no shorthand.
+   filterExpression is a plain string rather than ":condition"/":expression", because both of those
+   make JsonObjectProperty.isExpression true, and everything that discovers expressions by type -
+   Base.validateExpressions(), the linter - would then read it with the survey as the variable
+   context, while its variables are record fields.
+   All three are stored in the hash under their own names (pagingStateKeys). */
 export function getRecordViewProperties(): Array<any> {
   return [{ name: pagingStateKeys.pageSize + ":number", default: 0, minValue: 0 },
-    { name: "sortBy", default: "", visible: false }, { name: pagingStateKeys.filterExpression, default: "", visible: false }];
+    { name: pagingStateKeys.sortCriteria + ":sortcriteria", className: "sortcriterion", isArray: true, visible: false },
+    { name: pagingStateKeys.filterExpression, default: "", visible: false }];
 }
 /* The count properties of a type with a record count, named after its entity: rowCount, minRowCount,
    maxRowCount and rowCountExpression for "Row". A type makes one (getRecordCountNamesOf), and its

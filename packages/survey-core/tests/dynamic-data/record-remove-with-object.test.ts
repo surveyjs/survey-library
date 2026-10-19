@@ -78,7 +78,7 @@ function keyedRecords(count: number): Array<any> {
 describe("a removed record takes its object with it, in every mode", () => {
   const cases: Array<{ name: string, json: any, view?: (q: any) => void }> = [
     { name: "no view", json: {} },
-    { name: "a sort", json: {}, view: q => { q.sortOrder = [{ field: "a", direction: "desc" }]; } },
+    { name: "a sort", json: {}, view: q => { q.sort([{ field: "a", direction: "desc" }]); } },
     { name: "paging", json: { pageSize: 10 } }
   ];
   cases.forEach(c => {
@@ -405,7 +405,7 @@ describe("a removal under a view after a removing handler assigned the value", (
     const data = [{ a: 3 }, { a: 2 }, { a: 1 }];
     const assigned = [{ a: 3 }, { a: 2 }, { a: 2.5 }];
     // Sorted by a: [1, 2, 3]; position 1 is the record { a: 2 }. After the assignment the view is [2, 2.5, 3].
-    const matrixSurvey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, sortBy: "a",
+    const matrixSurvey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, sortCriteria: [{ field: "a" }],
       columns: [{ name: "a", cellType: "text", inputType: "number" }] }] });
     matrixSurvey.data = { m: JSON.parse(JSON.stringify(data)) };
     const matrix = <QuestionMatrixDynamicModel>matrixSurvey.getQuestionByName("m");
@@ -419,7 +419,7 @@ describe("a removal under a view after a removing handler assigned the value", (
     });
     matrix.removeRow(1);
     expect(matrixSurvey.data.m, "matrix").toEqual([{ a: 3 }, { a: 2.5 }]);
-    const panelSurvey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", sortBy: "a",
+    const panelSurvey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", sortCriteria: [{ field: "a" }],
       templateElements: [{ type: "text", name: "a", inputType: "number" }] }] });
     panelSurvey.data = { p: JSON.parse(JSON.stringify(data)) };
     const panel = <QuestionPanelDynamicModel>panelSurvey.getQuestionByName("p");
@@ -488,9 +488,9 @@ describe("removing a record of another page by number keeps the other records", 
     expect(paged, "#2: as without paging").toEqual(removeRow(0, {}, "{m.length}"));
   });
   test("the sorted matrix, with an expression column on the row index", () => {
-    const paged = removeRow(2, { sortBy: "n" }, "{rowIndex}");
+    const paged = removeRow(2, { sortCriteria: [{ field: "n" }] }, "{rowIndex}");
     expect(paged.values, "#1: the first record of the sorted view goes").toEqual(["5b", "3c", "4d", "2e", "6f"]);
-    expect(paged, "#2: as without paging").toEqual(removeRow(0, { sortBy: "n" }, "{rowIndex}"));
+    expect(paged, "#2: as without paging").toEqual(removeRow(0, { sortCriteria: [{ field: "n" }] }, "{rowIndex}"));
   });
   test("the dynamic panel in list mode, with an expression on the record count", () => {
     const paged = removePanel(2, { displayMode: "list" }, "{p.length}");
@@ -503,9 +503,9 @@ describe("removing a record of another page by number keeps the other records", 
     expect(paged, "#2: as without paging").toEqual(removePanel(0, { displayMode: "carousel" }, "{p.length}"));
   });
   test("the sorted dynamic panel, with an expression on the panel index", () => {
-    const paged = removePanel(2, { displayMode: "list", sortBy: "n" }, "{panelIndex}");
+    const paged = removePanel(2, { displayMode: "list", sortCriteria: [{ field: "n" }] }, "{panelIndex}");
     expect(paged, "#1: the first record of the sorted view goes").toEqual({ values: ["5b", "3c", "4d", "2e", "6f"], count: 5 });
-    expect(paged, "#2: as without paging").toEqual(removePanel(0, { displayMode: "list", sortBy: "n" }, "{panelIndex}"));
+    expect(paged, "#2: as without paging").toEqual(removePanel(0, { displayMode: "list", sortCriteria: [{ field: "n" }] }, "{panelIndex}"));
   });
   test("the matrix, when a value-changed handler throws during the removal", () => {
     const paged = removeRow(2, {}, "{m.length}", true);
@@ -531,11 +531,11 @@ describe("a sorted or filtered view keeps the records of a count change and a re
   }
   const names = [{ name: "Zoe" }, { name: "Adam" }, { name: "Mia" }];
   test("the sorted dynamic panel: panelCount 0 empties the value", () => {
-    expect(lowerPanelCount({ sortBy: "name" }, names, 0)).toEqual({ names: [], count: 0 });
+    expect(lowerPanelCount({ sortCriteria: [{ field: "name" }] }, names, 0)).toEqual({ names: [], count: 0 });
   });
   test("the sorted dynamic panel: a lower panelCount keeps the first records, as without a sort", () => {
-    expect(lowerPanelCount({ sortBy: "name" }, names, 1), "#1").toEqual({ names: ["Zoe"], count: 1 });
-    expect(lowerPanelCount({ sortBy: "name" }, names, 1), "#2").toEqual(lowerPanelCount({}, names, 1));
+    expect(lowerPanelCount({ sortCriteria: [{ field: "name" }] }, names, 1), "#1").toEqual({ names: ["Zoe"], count: 1 });
+    expect(lowerPanelCount({ sortCriteria: [{ field: "name" }] }, names, 1), "#2").toEqual(lowerPanelCount({}, names, 1));
   });
   test("the filtered dynamic panel: a lower panelCount keeps the first records", () => {
     expect(lowerPanelCount({ filterExpression: "{name} <> 'Adam'" }, names, 1)).toEqual({ names: ["Zoe"], count: 1 });
@@ -552,7 +552,7 @@ describe("a sorted or filtered view keeps the records of a count change and a re
     return { value: survey.getValue("m"), rowCount: matrix.rowCount, rows: matrix.visibleRows.map(row => row.getQuestionByColumnName("id").value) };
   }
   test("the sorted matrix: a removal after an edited sort key and a grown rowCount keeps the other records", () => {
-    const sorted = removeAfterCountGrows({ sortBy: "a" });
+    const sorted = removeAfterCountGrows({ sortCriteria: [{ field: "a" }] });
     expect(sorted.value, "#1").toEqual([{ id: "C", a: 3, i: 1 }, { id: "B", a: 9, i: 2 }, { i: 3 }]);
     expect(sorted.rowCount, "#2").toBe(3);
     expect(sorted.rows, "#3: the edited record keeps its place").toEqual(["B", "C", undefined]);
@@ -590,7 +590,7 @@ describe("a sorted or filtered view keeps the records of a count change and a re
     expect({ count: unsorted.count, records: unsorted.records }, "#1").toEqual({ count: 5, records: 5 });
     const paged = setPanelCountFromHandler({ pageSize: 2 });
     expect({ count: paged.count, records: paged.records }, "#2 paged: the records stop growing").toEqual({ count: 5, records: 5 });
-    expect(setPanelCountFromHandler({ sortBy: "name" }), "#3 sorted").toEqual(unsorted);
+    expect(setPanelCountFromHandler({ sortCriteria: [{ field: "name" }] }), "#3 sorted").toEqual(unsorted);
     expect(setPanelCountFromHandler({ filterExpression: "{name} <> 'x'" }), "#4 filtered").toEqual(unsorted);
   });
   function removeWithHandlerAssignment(json: any, action: string): any {
@@ -613,7 +613,7 @@ describe("a sorted or filtered view keeps the records of a count change and a re
   test("a sorted or filtered matrix: a value a handler assigns while the expressions follow a removal is kept, as without a view", () => {
     ["assign", "addRow", "clear"].forEach(action => {
       const unsorted = removeWithHandlerAssignment({}, action);
-      expect(removeWithHandlerAssignment({ sortBy: "a" }, action), "#1 sorted, " + action).toEqual(unsorted);
+      expect(removeWithHandlerAssignment({ sortCriteria: [{ field: "a" }] }, action), "#1 sorted, " + action).toEqual(unsorted);
       expect(removeWithHandlerAssignment({ filterExpression: "{a} <> 99" }, action), "#2 filtered, " + action).toEqual(unsorted);
     });
   });
@@ -621,7 +621,7 @@ describe("a sorted or filtered view keeps the records of a count change and a re
     ["A", "B", "C"].forEach(id => {
       const unsorted = removeWithRecordCount({}, id);
       expect(unsorted.value.map((record: any) => record.len), "#1 " + id).toEqual([4, 4, 4, 4]);
-      expect(removeWithRecordCount({ sortBy: "a" }, id), "#2 sorted, " + id).toEqual(unsorted);
+      expect(removeWithRecordCount({ sortCriteria: [{ field: "a" }] }, id), "#2 sorted, " + id).toEqual(unsorted);
       expect(removeWithRecordCount({ filterExpression: "{a} <> 9" }, id), "#3 filtered, " + id).toEqual(unsorted);
     });
   });

@@ -10,13 +10,18 @@ import { CustomError } from "../src/error";
 import { ArrayDynamicDataSource } from "../src/dynamic-data/dynamic-data-sources";
 import { ItemValue } from "../src/itemvalue";
 import { SurveyElement } from "../src/survey-element";
-import { Serializer, JsonUnknownPropertyError } from "../src/jsonobject";
+import { Serializer, JsonUnknownPropertyError, JsonRequiredPropertyError } from "../src/jsonobject";
+import { SortCriterion } from "../src/records/records-sort-criterion";
 
 /* The record list and its helpers are created on demand. A matrix whose rows are fixed creates its
    list on the first cell edit, when the list is asked for and when it pages, sorts or filters - and on no other
    path; the dynamic questions create the list at the points that need it. Every records question
    coordinates its value assignments and its disposal with the list. */
 
+// The current sort of a records question, as plain { field, direction } criteria.
+function getSort(q: any): Array<any> {
+  return q.sortCriteria.map((c: any) => ({ field: c.field, direction: c.direction }));
+}
 function hasNoRecordList(q: any): boolean {
   return q._dataList === undefined && q._paging === undefined && q._pageValidation === undefined;
 }
@@ -143,7 +148,7 @@ describe("Records question: fixed matrix", () => {
     expect(q.canGoNextPage, "#5: nothing to move to").toBe(false);
     expect(q.nextPage(), "#6: the move does not happen").toBe(false);
     expect(q.pageIndex, "#7: still page 0").toBe(0);
-    expect(q.sortBy, "#8: no sort").toBe("");
+    expect(getSort(q), "#8: no sort").toEqual([]);
     expect(q.filterExpression, "#9: no filter").toBe("");
     expect((<any>q).dataListValue, "#10: no record list").toBeUndefined();
   });
@@ -176,8 +181,8 @@ describe("Records question: fixed matrix", () => {
     expect(getPageState(fixed), "#2: the fixed matrix has no page state").toBeUndefined();
     expect(hasNoRecordList(fixed), "#3").toBe(true);
 
-    outer.sortOrder = [{ field: "id", direction: "desc" }];
-    outer.sortOrder = [{ field: "id", direction: "asc" }];
+    outer.sort([{ field: "id", direction: "desc" }]);
+    outer.sort([{ field: "id", direction: "asc" }]);
     const newFixed = <QuestionMatrixDropdownModel>questionOf("fixed");
     expect(newFixed === fixed, "#4: the panel was rebuilt").toBe(false);
     expect(questionOf("id").value, "#5: for the same record").toBe(0);
@@ -341,8 +346,8 @@ describe("Records questions: one API across the three types", () => {
       expect(q.pageCount, "#3").toBe(3);
       q.pageIndex = 1;
       expect([q.pageIndex, kind.shown(q)], "#4: the page moves").toEqual([1, ["2"]]);
-      const sorted = create(kind, { sortBy: "a-" });
-      expect(sorted.toJSON().sortBy, "#5: sortBy round-trips through JSON").toBe("a-");
+      const sorted = create(kind, { sortCriteria: [{ field: "a", direction: "desc" }] });
+      expect(sorted.toJSON().sortCriteria, "#5: sortCriteria round-trips through JSON").toEqual([{ field: "a", direction: "desc" }]);
       expect(kind.shown(sorted), "#5: applied").toEqual(["3", "2", "1"]);
       const filtered = create(kind, { filterExpression: "{a} != '2'" });
       expect(kind.shown(filtered), "#6: the filter hides a record").toEqual(["1", "3"]);
@@ -357,7 +362,7 @@ describe("Records questions: one API across the three types", () => {
     const survey = new SurveyModel({ elements: [json] });
     survey.data = { m: { r1: "c2" } };
     const m: any = survey.getQuestionByName("m");
-    ["pageSize", "sortBy", "filterExpression", "getDataList", "pagerActions", "recordsBar", "pageIndex"].forEach(name => {
+    ["pageSize", "sortCriteria", "sort", "filterExpression", "getDataList", "pagerActions", "recordsBar", "pageIndex"].forEach(name => {
       expect(name in m, "#1: " + name).toBe(false);
     });
     expect(m.value, "#2: the answer").toEqual({ r1: "c2" });
@@ -823,7 +828,7 @@ describe("Records questions: writes through an item", () => {
       elements: [
         { type: "paneldynamic", name: "pd", valueName: "rec", templateElements: [{ type: "text", name: "a" }] },
         {
-          type: "matrixdynamic", name: "md", valueName: "rec", sortBy: "s-",
+          type: "matrixdynamic", name: "md", valueName: "rec", sortCriteria: [{ field: "s", direction: "desc" }],
           columns: [{ name: "a", cellType: "text" }, { name: "s", cellType: "text", inputType: "number" },
             { name: "b", cellType: "text", setValueIf: "{row.a} = 'z'", setValueExpression: "logRecordTrigger({row.a})" }]
         },
@@ -1160,7 +1165,7 @@ describe("Records questions: the object of a record", () => {
     });
     test(name + ": under a sort, a record is found at the position the sort gave it", () => {
       const q = createDynamic(isMatrix, [{ a: "1" }, { a: "3" }, { a: "2" }]);
-      q.sortBy = "a-";
+      q.sort([{ field: "a", direction: "desc" }]);
       const objects = getObjects(q, isMatrix);
       expect(isObjectOf(q, 1, objects[0]), "#1: the largest value is first").toBe(true);
       expect(isObjectOf(q, 2, objects[1]), "#2: then the middle one").toBe(true);
@@ -1259,7 +1264,7 @@ describe("Records questions: public surface", () => {
       capabilities: { paging: true, sorting: true, filtering: true },
       read: (request: any): any => { requests.push(request); return { records: [{ id: request.skip }, { id: request.skip + 1 }], total: 10 }; }
     };
-    panel.sortBy = "id-";
+    panel.sort([{ field: "id", direction: "desc" }]);
     panel.pageIndex = 2;
     const before = requests.length;
     await panel.refreshDataSource();
@@ -1289,19 +1294,19 @@ describe("Records questions: public surface", () => {
   });
   test("the property names round-trip on every records question, a sort made at runtime included", () => {
     const json = { elements: [
-      { type: "matrixdynamic", name: "md", pageSize: 5, sortBy: "a-", filterExpression: "{a} > 1", allowSortRows: true,
+      { type: "matrixdynamic", name: "md", pageSize: 5, sortCriteria: [{ field: "a", direction: "desc" }], filterExpression: "{a} > 1", allowSortRows: true,
         columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", allowSort: false }] },
-      { type: "matrixdropdown", name: "dd", pageSize: 2, sortBy: "a", filterExpression: "{a} > 1",
+      { type: "matrixdropdown", name: "dd", pageSize: 2, sortCriteria: [{ field: "a" }], filterExpression: "{a} > 1",
         rows: ["r1", "r2"], columns: [{ name: "a", cellType: "text" }] },
-      { type: "paneldynamic", name: "pd", pageSize: 3, sortBy: "q;a-", filterExpression: "{q} notempty",
+      { type: "paneldynamic", name: "pd", pageSize: 3, sortCriteria: [{ field: "q" }, { field: "a", direction: "desc" }], filterExpression: "{q} notempty",
         templateElements: [{ type: "text", name: "q" }, { type: "text", name: "a" }] }] };
     const survey = new SurveyModel(json);
     expect(survey.toJSON().pages[0].elements, "#1: as authored").toEqual(json.elements);
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("md");
     matrix.toggleSort("b");
-    expect(matrix.toJSON().sortBy, "#2: the sort made at runtime is saved").toBe("b");
+    expect(matrix.toJSON().sortCriteria, "#2: the sort made at runtime is saved").toEqual([{ field: "b" }]);
     const loaded = new SurveyModel(survey.toJSON());
-    expect((<QuestionMatrixDynamicModel>loaded.getQuestionByName("md")).sortOrder, "#3: and loads back").toEqual([{ field: "b", direction: "asc" }]);
+    expect(getSort(loaded.getQuestionByName("md")), "#3: and loads back").toEqual([{ field: "b", direction: "asc" }]);
   });
 });
 
@@ -1461,6 +1466,215 @@ describe("Records questions: the focus after an add", () => {
       const rows = q.visibleRows;
       expect(rows.length, "#3: the page shows the new row only").toBe(1);
       expect(focused, "#4").toEqual([rows[0].getQuestionByName("name").inputId]);
+    });
+  });
+});
+
+/* The sort is a live array of SortCriterion items: sort(), an assignment, a push or a splice on it and an
+   edit of an item all re-apply it. In design mode and while the question loads it is only stored; at
+   runtime the list holds a normalized copy and sortCriteria mirrors it. */
+describe("Records sort: sortCriteria", () => {
+  interface ISortKind {
+    type: string;
+    json: any;
+    prefix: string;
+    shown(q: any): Array<any>;
+  }
+  const sortKinds: Array<ISortKind> = [
+    {
+      type: "matrixdynamic", prefix: "row",
+      json: { columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text" }] },
+      shown: (q: any): Array<any> => q.visibleRows.map((row: any) => row.getQuestionByName("a").value)
+    },
+    {
+      type: "paneldynamic", prefix: "panel",
+      json: { templateElements: [{ type: "text", name: "a" }, { type: "text", name: "b" }] },
+      shown: (q: any): Array<any> => q.panels.map((panel: any) => panel.getQuestionByName("a").value)
+    }
+  ];
+  // Storage order 2, 1, 3; by b ascending: 2, 3 (x), then 1 (y).
+  const records = (): Array<any> => [{ a: "2", b: "x" }, { a: "1", b: "y" }, { a: "3", b: "x" }];
+  const create = (kind: ISortKind, extra?: any, isDesign: boolean = false): any => {
+    const survey = new SurveyModel();
+    if (isDesign) {
+      survey.setDesignMode(true);
+    }
+    survey.fromJSON({ elements: [Object.assign({ type: kind.type, name: "q" }, kind.json, extra)] });
+    const q: any = survey.getQuestionByName("q");
+    q.value = records();
+    return q;
+  };
+  const listSort = (q: any): Array<any> => q["dataList"].sort;
+  sortKinds.forEach(kind => {
+    test("sort(), sort with append, a sort that replaces, sort(criteria) and clearSort, " + kind.type, () => {
+      const q = create(kind);
+      q.sort("a");
+      expect(getSort(q), "#1").toEqual([{ field: "a", direction: "asc" }]);
+      expect(kind.shown(q), "#1: sorted").toEqual(["1", "2", "3"]);
+      q.sort("b", "desc", true);
+      expect(getSort(q), "#2: appended").toEqual([{ field: "a", direction: "asc" }, { field: "b", direction: "desc" }]);
+      q.sort("b");
+      expect(getSort(q), "#3: replaced").toEqual([{ field: "b", direction: "asc" }]);
+      expect(kind.shown(q), "#3: sorted").toEqual(["2", "3", "1"]);
+      q.sort([{ field: "b", direction: "desc" }, { field: "a", direction: "desc" }]);
+      expect(getSort(q), "#4: criteria").toEqual([{ field: "b", direction: "desc" }, { field: "a", direction: "desc" }]);
+      expect(kind.shown(q), "#4: sorted").toEqual(["1", "3", "2"]);
+      q.clearSort();
+      expect(getSort(q), "#5: cleared").toEqual([]);
+      expect(kind.shown(q), "#5: the storage order").toEqual(["2", "1", "3"]);
+    });
+    test("sort with append on a field already in the sort keeps its place, " + kind.type, () => {
+      const q = create(kind);
+      q.sort([{ field: "a", direction: "asc" }, { field: "b", direction: "asc" }]);
+      q.sort("a", "desc", true);
+      expect(getSort(q), "#1: a keeps its place and takes the direction").toEqual([{ field: "a", direction: "desc" }, { field: "b", direction: "asc" }]);
+      expect(kind.shown(q), "#2").toEqual(["3", "2", "1"]);
+      q.sort("b", <any>"up", true);
+      expect(getSort(q), "#3: a direction that is not desc is ascending").toEqual([{ field: "a", direction: "desc" }, { field: "b", direction: "asc" }]);
+      q.sort("");
+      expect(getSort(q), "#4: an empty field does nothing").toEqual([{ field: "a", direction: "desc" }, { field: "b", direction: "asc" }]);
+    });
+    test("sortCriteria round-trips through JSON, " + kind.type, () => {
+      const q = create(kind, { sortCriteria: [{ field: "b", direction: "desc" }, { field: "a" }] });
+      expect(getSort(q), "#1: loaded").toEqual([{ field: "b", direction: "desc" }, { field: "a", direction: "asc" }]);
+      expect(kind.shown(q), "#2: and applied").toEqual(["1", "2", "3"]);
+      expect(q.toJSON().sortCriteria, "#3: an ascending item has no direction").toEqual([{ field: "b", direction: "desc" }, { field: "a" }]);
+      q.clearSort();
+      expect("sortCriteria" in q.toJSON(), "#4: an empty sort is not written").toBe(false);
+    });
+    test("a sort made at runtime is what toJSON writes, " + kind.type, () => {
+      const q = create(kind);
+      expect("sortCriteria" in q.toJSON(), "#1").toBe(false);
+      q.sort("a", "desc");
+      expect(q.toJSON().sortCriteria, "#2").toEqual([{ field: "a", direction: "desc" }]);
+    });
+    test("push, splice and an item edit re-sort at runtime, " + kind.type, () => {
+      const q = create(kind);
+      q.sort("b");
+      expect(kind.shown(q), "#1").toEqual(["2", "3", "1"]);
+      q.sortCriteria.push(new SortCriterion("a", "desc"));
+      expect(listSort(q), "#2: a push reaches the list").toEqual([{ field: "b", direction: "asc" }, { field: "a", direction: "desc" }]);
+      expect(kind.shown(q), "#2").toEqual(["3", "2", "1"]);
+      q.sortCriteria[0].direction = "desc";
+      expect(listSort(q), "#3: an item edit").toEqual([{ field: "b", direction: "desc" }, { field: "a", direction: "desc" }]);
+      expect(kind.shown(q), "#3").toEqual(["1", "3", "2"]);
+      q.sortCriteria.splice(0, 1);
+      expect(listSort(q), "#4: a splice").toEqual([{ field: "a", direction: "desc" }]);
+      expect(kind.shown(q), "#4").toEqual(["3", "2", "1"]);
+    });
+    test("push, splice and an item edit in design mode only change the stored sort, and reach the list at runtime, " + kind.type, () => {
+      const q = create(kind, undefined, true);
+      q.sort("b");
+      q.sortCriteria.push(new SortCriterion("a", "asc"));
+      q.sortCriteria[1].direction = "desc";
+      q.sortCriteria.splice(0, 1);
+      expect(getSort(q), "#1: stored").toEqual([{ field: "a", direction: "desc" }]);
+      expect(listSort(q), "#2: not applied").toEqual([]);
+      q.survey.setDesignMode(false);
+      q.refreshView();
+      expect(listSort(q), "#3: the edited sort reaches the list").toEqual([{ field: "a", direction: "desc" }]);
+      expect(getSort(q), "#4").toEqual([{ field: "a", direction: "desc" }]);
+    });
+    test("an assignment copies the items of another question and leaves them alone, " + kind.type, () => {
+      const source = create(kind);
+      source.sort([{ field: "a", direction: "asc" }, { field: "b", direction: "desc" }]);
+      const items = source.sortCriteria.slice();
+      const q = create(kind);
+      q.sortCriteria = source.sortCriteria;
+      expect(getSort(q), "#1").toEqual([{ field: "a", direction: "asc" }, { field: "b", direction: "desc" }]);
+      expect(q.sortCriteria[0] === items[0], "#2: its own items").toBe(false);
+      expect(source.sortCriteria[0] === items[0], "#3: the source keeps its items").toBe(true);
+      items[0].direction = "desc";
+      expect(getSort(q), "#4: an edit of the source's item does not reach the copy").toEqual([{ field: "a", direction: "asc" }, { field: "b", direction: "desc" }]);
+      expect(kind.shown(source), "#5: it re-sorts the source").toEqual(["3", "2", "1"]);
+    });
+    test("an empty field is dropped at runtime and kept in design mode, " + kind.type, () => {
+      const q = create(kind);
+      q.sortCriteria = [{ field: "", direction: "asc" }, { field: "a", direction: "desc" }];
+      expect(getSort(q), "#1: runtime").toEqual([{ field: "a", direction: "desc" }]);
+      const design = create(kind, undefined, true);
+      design.sortCriteria = [{ field: "", direction: "asc" }, { field: "a", direction: "desc" }];
+      expect(getSort(design), "#2: design mode keeps what was authored").toEqual([{ field: "", direction: "asc" }, { field: "a", direction: "desc" }]);
+      // What a Creator editor does: an item is added, and its field is typed afterwards.
+      design.sortCriteria.push(new SortCriterion());
+      design.sortCriteria[2].field = "b";
+      expect(getSort(design), "#3").toEqual([{ field: "", direction: "asc" }, { field: "a", direction: "desc" }, { field: "b", direction: "asc" }]);
+    });
+    test("a repeated field at runtime: the first occurrence wins and sortCriteria takes the normalized sort, " + kind.type, () => {
+      const q = create(kind);
+      q.sort([{ field: "a", direction: "desc" }, { field: "b", direction: "asc" }, { field: "a", direction: "asc" }]);
+      expect(getSort(q), "#1").toEqual([{ field: "a", direction: "desc" }, { field: "b", direction: "asc" }]);
+      expect(listSort(q), "#2").toEqual([{ field: "a", direction: "desc" }, { field: "b", direction: "asc" }]);
+      q.sortCriteria.push(new SortCriterion("b", "desc"));
+      expect(getSort(q), "#3: a pushed repeat is normalized away").toEqual([{ field: "a", direction: "desc" }, { field: "b", direction: "asc" }]);
+    });
+    test("a data source receives plain criteria, normalized, " + kind.type, () => {
+      const requests: Array<any> = [];
+      const survey = new SurveyModel({ elements: [Object.assign({ type: kind.type, name: "q", pageSize: 2 }, kind.json)] });
+      const q: any = survey.getQuestionByName("q");
+      q.dataSource = {
+        capabilities: { paging: true, sorting: true, filtering: true },
+        read: (request: any): any => { requests.push(request); return { records: records().slice(0, 2), total: 3 }; }
+      };
+      q.sort("a", "desc");
+      const sort = requests[requests.length - 1].sort;
+      expect(sort, "#1").toEqual([{ field: "a", direction: "desc" }]);
+      expect(sort[0] instanceof SortCriterion, "#2: not a SortCriterion").toBe(false);
+      expect(Object.keys(sort[0]), "#3: a plain object").toEqual(["field", "direction"]);
+      q.sortCriteria = [{ field: "b", direction: "asc" }, { field: "", direction: "asc" }, { field: "b", direction: "desc" }, { field: "a", direction: "asc" }];
+      expect(requests[requests.length - 1].sort, "#4: no empty and no repeated field").toEqual([{ field: "b", direction: "asc" }, { field: "a", direction: "asc" }]);
+    });
+    test("an authored sort survives a sync before the first render, " + kind.type, () => {
+      const survey = new SurveyModel({ elements: [Object.assign({ type: kind.type, name: "q", sortCriteria: [{ field: "a", direction: "desc" }] }, kind.json)] });
+      const q: any = survey.getQuestionByName("q");
+      q["paging"].syncState();
+      expect(getSort(q), "#1: the authored sort").toEqual([{ field: "a", direction: "desc" }]);
+      q.value = records();
+      expect(kind.shown(q), "#2: and it sorts").toEqual(["3", "2", "1"]);
+      const loaded: any = new SurveyModel().addNewPage("p").addNewQuestion(kind.type, "q");
+      loaded.fromJSON(Object.assign({ sortCriteria: [{ field: "a", direction: "desc" }] }, kind.json));
+      loaded["paging"].syncState();
+      expect(getSort(loaded), "#3: a question loaded on its own").toEqual([{ field: "a", direction: "desc" }]);
+    });
+    test("a plain string in the JSON is not a criterion, " + kind.type, () => {
+      const survey = new SurveyModel({ elements: [Object.assign({ type: kind.type, name: "q", sortCriteria: ["a"] }, kind.json)] });
+      const q: any = survey.getQuestionByName("q");
+      q.value = records();
+      expect(getSort(q), "#1: no sort at runtime").toEqual([]);
+      expect(kind.shown(q), "#2: the storage order").toEqual(["2", "1", "3"]);
+      expect("sortCriteria" in q.toJSON(), "#3").toBe(false);
+      expect(survey.jsonErrors.some((error: any) => error instanceof JsonRequiredPropertyError), "#4: the required field is reported").toBe(true);
+      const design = new SurveyModel();
+      design.setDesignMode(true);
+      design.fromJSON({ elements: [Object.assign({ type: kind.type, name: "q", sortCriteria: ["a"] }, kind.json)] });
+      expect(getSort(design.getQuestionByName("q")), "#5: design mode keeps an item with no field").toEqual([{ field: "", direction: "asc" }]);
+    });
+    test("an item that left the sort changes nothing and does not drop a pending page move, " + kind.type, () => {
+      const results: Array<(res: any) => void> = [];
+      FunctionFactory.Instance.register("sortAsyncFunc", function (this: any) { results.push(this.returnResult); return false; }, true);
+      try {
+        const json = JSON.parse(JSON.stringify(kind.json));
+        (json.columns || json.templateElements)[0].validators = [{ type: "expression", expression: "sortAsyncFunc({" + kind.prefix + ".a}) = 1" }];
+        const q = create(kind, Object.assign(json, { pageSize: 2 }));
+        q.sort("a");
+        const cleared = q.sortCriteria[0];
+        q.clearSort();
+        q.sort("b");
+        const replaced = q.sortCriteria[0];
+        q.sortCriteria = [{ field: "b", direction: "desc" }];
+        expect(kind.shown(q), "#0: the page that is validated").toEqual(["1", "2"]);
+        q.nextPage();
+        expect(q.isPageMovePending, "#1: the move waits").toBe(true);
+        cleared.direction = "desc";
+        replaced.direction = "desc";
+        expect(q.isPageMovePending, "#2: still waits").toBe(true);
+        expect(getSort(q), "#3: the sort is untouched").toEqual([{ field: "b", direction: "desc" }]);
+        expect(kind.shown(q), "#4: and so are the objects").toEqual(["1", "2"]);
+        q.sortCriteria[0].direction = "asc";
+        expect(q.isPageMovePending, "#5: an item of the sort is a sort from code: it drops the move").toBe(false);
+      } finally {
+        FunctionFactory.Instance.unregister("sortAsyncFunc");
+      }
     });
   });
 });

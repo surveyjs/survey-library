@@ -3661,12 +3661,20 @@ export abstract class QuestionRecordsModel extends Question {
   }
   /* One rule for a key of a record, with or without its object: the type's own questions and its
      released suffix rule know a key (isRecordKeyOfType), and so do another records question on the same
-     value name - asked for the name the type stores the key under (getRecordKeyValueName) - and a
-     question on the same value name that reads the record (getSharedQuestionFromArray). */
+     value name - asked for the name the type stores the key under (getRecordKeyValueName) -, a
+     question on the same value name that keeps the key in the object of its item (hasValueItemKey, a
+     checkbox choice comment) and a question on the same value name that reads the record
+     (getSharedQuestionFromArray). */
   protected isRecordKeyUnknown(key: string, recordIndex: number, item: QuestionRecordItem): boolean {
     if (this.isRecordKeyOfType(key, item)) return false;
     if (this.isRecordKeyStoredByAnotherQuestion(this.getRecordKeyValueName(key))) return false;
+    if (this.isRecordKeyOfSharedItem(key)) return false;
     return !this.getSharedQuestionFromArray(key, recordIndex);
+  }
+  private isRecordKeyOfSharedItem(key: string): boolean {
+    if (!this.survey || !this.valueName) return false;
+    return this.getQuestionsSharingValue(this.valueName).some((question: IQuestion): boolean =>
+      question !== this && question instanceof Question && question.hasValueItemKey(key));
   }
   protected abstract isRecordKeyOfType(key: string, item: QuestionRecordItem): boolean;
   protected getRecordKeyValueName(key: string): string {

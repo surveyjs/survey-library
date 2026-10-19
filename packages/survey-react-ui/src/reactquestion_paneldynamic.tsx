@@ -72,6 +72,11 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
 
+  // The records bar in the footer: the pager.
+  protected renderRecordsBar(): React.JSX.Element | null {
+    return ReactElementFactory.Instance.createElement("sv-records-bar", { model: this.question.recordsBar });
+  }
+
   protected renderRange(): React.JSX.Element {
     return (
       <div className={this.question.cssClasses.progress}>
@@ -85,15 +90,15 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
   protected renderNavigator(): React.JSX.Element | null {
-    if (!this.question.showNavigation) return null;
-    const range: React.JSX.Element | null = this.question.isRangeShowing && this.question.isProgressBottomShowing ? this.renderRange() : null;
-    if (!range && !this.question.showFooterToolbar) return null;
-    return (<div className={this.question.cssClasses.footer}>
+    if (!this.question.showFooter) return null;
+    const range: React.JSX.Element | null = this.question.showFooterProgress ? this.renderRange() : null;
+    return (<div className={this.question.getFooterCss()}>
       <hr className={this.question.cssClasses.separator} />
       {range}
-      {this.question.showFooterToolbar ? (<div className={this.question.cssClasses.footerButtonsContainer}>
+      {this.question.showFooterButtons ? (<div className={this.question.cssClasses.footerButtonsContainer}>
         <SurveyActionBar model={this.question.footerToolbar}></SurveyActionBar>
       </div>) : null}
+      {this.renderRecordsBar()}
     </div>);
   }
   protected renderPlaceholder(cssClasses: any): React.JSX.Element | null {

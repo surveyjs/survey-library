@@ -109,6 +109,40 @@
     }
 }
 
+/* The footer with the pager is one row: the toolbar buttons on the left and the pager on the right, or
+   the pager alone at the start. On a phone the buttons, full-width, stack above the pager. */
+.sd-paneldynamic__footer--pager {
+    display: flex;
+    align-items: center;
+
+    .sd-paneldynamic__buttons-container {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+    .sd-paneldynamic__buttons-container .sd-action-bar {
+        width: 100%;
+    }
+}
+.sd-paneldynamic__records-bar {
+    display: flex;
+    flex: 0 0 auto;
+}
+.sd-question--mobile .sd-paneldynamic__footer--pager {
+    flex-direction: column;
+    align-items: stretch;
+
+    .sd-paneldynamic__buttons-container .sd-action-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    // border-box: .sd-action is content-box, so its padding would push it past the footer's padding.
+    .sd-paneldynamic__buttons-container .sd-action {
+        box-sizing: border-box;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
 // .sd-root-modern--mobile {
 //     .sd-paneldynamic__header {
 //         padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x300);

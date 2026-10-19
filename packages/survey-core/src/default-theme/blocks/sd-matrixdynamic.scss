@@ -1,13 +1,17 @@
 @use "../variables.scss" as *;
 
-.sd-question--matrixdynamic {
+// The matrix with fixed rows has no type class on its question root: its records bar takes the
+// toolbar variables itself.
+.sd-question--matrixdynamic,
+.sd-matrixdropdown__records-bar {
   --sd-matrixdynamic-toolbar-padding-block-start: var(--sjs2-layout-component-panel-footer-padding-top);
   --sd-matrixdynamic-toolbar-padding-block-end: var(--sjs2-layout-component-panel-footer-padding-bottom);
   --sd-matrixdynamic-toolbar-padding-inline: var(--sjs2-layout-component-panel-footer-padding-left)
     var(--sjs2-layout-component-panel-footer-padding-right);
   --sd-matrixdynamic-toolbar-gap: var(--sjs2-layout-component-panel-footer-action-group-gap);
 }
-.sd-question--matrixdynamic:where(.sd-question--nested) {
+.sd-question--matrixdynamic:where(.sd-question--nested),
+.sd-question--nested .sd-matrixdropdown__records-bar {
   --sd-matrixdynamic-toolbar-padding-block-start: var(--sjs2-layout-component-panel-nested-footer-padding-top);
   --sd-matrixdynamic-toolbar-padding-block-end: var(--sjs2-layout-component-panel-nested-footer-padding-bottom);
   --sd-matrixdynamic-toolbar-padding-inline: var(--sjs2-layout-component-panel-nested-footer-padding-left)
@@ -35,6 +39,40 @@
 .sd-matrixdynamic__toolbar--top {
   padding-block-end: var(--sd-matrixdynamic-toolbar-padding-block-start);
   padding-block-start: var(--sd-matrixdynamic-toolbar-padding-block-end);
+}
+/* The pager under the table, padded like the bottom toolbar; sticky, so it stays in view while the
+   table scrolls sideways. A sticky box is a stacking context: the bar is above the table's sticky
+   action cells (12), which would cover a list it opens upwards, and below the survey's sticky header
+   (15), which it scrolls under. */
+.sd-matrixdropdown__records-bar,
+.sd-matrixdynamic__footer--pager {
+  position: sticky;
+  left: 0;
+  z-index: 13;
+  display: flex;
+  box-sizing: border-box;
+  padding-inline: var(--sd-matrixdynamic-toolbar-padding-inline);
+  padding-block-start: var(--sd-matrixdynamic-toolbar-padding-block-start);
+  padding-block-end: var(--sd-matrixdynamic-toolbar-padding-block-end);
+}
+/* With the pager the footer is one row: the toolbar buttons on the left and the pager on the right,
+   or the pager alone at the start. */
+.sd-matrixdynamic__footer--pager {
+  align-items: center;
+  // The matrix has no footer gap token of its own: it follows the dynamic panel's footer on purpose.
+  // --sd-matrixdynamic-toolbar-gap is the narrower gap between the toolbar's buttons.
+  gap: var(--sjs2-layout-component-panel-dynamic-footer-gap);
+
+  .sd-matrixdynamic__toolbar {
+    position: static;
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0;
+  }
+  .sd-matrixdynamic__records-bar {
+    display: flex;
+    flex: 0 0 auto;
+  }
 }
 .sd-matrixdynamic__content > div {
   display: contents;
@@ -190,12 +228,35 @@
 }
 
 .sd-question--mobile {
-  .sd-matrixdynamic__toolbar {
+  // The pager takes the toolbar's line and padding.
+  .sd-matrixdynamic__toolbar,
+  .sd-matrixdropdown__records-bar,
+  .sd-matrixdynamic__footer--pager {
     border-top: 1px solid $border-light;
     padding-top: var(--sjs2-layout-component-panel-dynamic-footer-padding-top);
     padding-bottom: var(--sjs2-layout-component-panel-dynamic-footer-padding-bottom);
     padding-inline-start: var(--sjs2-layout-component-panel-dynamic-footer-padding-left);
     padding-inline-end: var(--sjs2-layout-component-panel-dynamic-footer-padding-right);
+  }
+  // The buttons, full-width, above the pager.
+  .sd-matrixdynamic__footer--pager {
+    flex-direction: column;
+    align-items: stretch;
+
+    .sd-matrixdynamic__toolbar {
+      border-top: none;
+      padding: 0;
+    }
+    .sd-matrixdynamic__toolbar .sd-action-bar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    // border-box: .sd-action is content-box, so its padding would push it past the footer's padding.
+    .sd-matrixdynamic__toolbar .sd-action {
+      box-sizing: border-box;
+      width: 100%;
+      justify-content: center;
+    }
   }
 }
 

@@ -250,6 +250,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (footerProps.indexOf(name) > -1) {
       this.updateFooterActions();
     }
+    // The pager shows in list mode only (showPager).
+    if (name === "displayMode") {
+      this.updateRecordsBar();
+    }
     if (name === "allowAddPanel" || name === "panelCountExpression") {
       this.updateNoEntriesTextDefaultLoc();
       this.updateFooterActions();
@@ -3652,6 +3656,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     return false;
   }
+  /* The renderers show a pager under the panels while the list has more than one page. Carousel and
+     tab mode page too, but their own navigation crosses pages. One page is no paging: design and
+     single-input mode report one as well. */
+  public get showPager(): boolean {
+    return this.pageCount > 1 && this.isRenderModeList;
+  }
   private tabbedMenuValue: AdaptiveActionContainer<PanelDynamicTabbedMenuItem>;
   public get hasTabbedMenu(): boolean {
     return this.isRenderModeTab && this.visiblePanels.length > 0;
@@ -3845,6 +3855,19 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   get showNavigation(): boolean {
     if (this.isReadOnly && this.visiblePanelCount == 1) return false;
     return this.visiblePanelCount > 0 && !!this.cssClasses.footer;
+  }
+  /* The footer under the panels: the bottom progress bar and the footer toolbar while the navigation
+     shows, and the pager. The pager shares the footer row with the toolbar buttons. */
+  public get showFooter(): boolean {
+    return this.showFooterProgress || this.showFooterButtons || this.showPager;
+  }
+  // The progress bar in the footer: the navigation shows, and the progress is a bottom bar.
+  public get showFooterProgress(): boolean {
+    return this.showNavigation && this.isRangeShowing && this.isProgressBottomShowing;
+  }
+  // The footer toolbar's buttons: the navigation shows, and the toolbar has a visible action.
+  public get showFooterButtons(): boolean {
+    return this.showNavigation && !!this.showFooterToolbar;
   }
   showSeparator(index: number): boolean {
     return this.isRenderModeList && index < this.renderedPanels.length - 1;

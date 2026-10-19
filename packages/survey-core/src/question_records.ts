@@ -6,6 +6,7 @@ import { INestedElementInfo, IVerifyDataContext, NestedWalkBuild, Question, Ques
 import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
+import { toCssClasses } from "./utils/cssClassBuilder";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
 import { ArrayDynamicDataSource, hasFixedMembership, IArrayDynamicDataSourceOptions, isLocalSource, LocalDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditions/conditionProcessValue";
@@ -28,13 +29,13 @@ import { IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { Action } from "./actions/action";
-import { LocalizableString } from "./localizablestring";
+import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ConsoleWarnings } from "./console-warnings";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import { Scope, ValueScope } from "./utils/scope";
 import { RecordsDataWaits } from "./records/records-data-waits";
-import { createRecordsPagerActions } from "./records/records-pager";
+import { IQuestionRecordsBarOwner, IRecordsBarCssClasses, QuestionRecordsBar } from "./question_records_bar";
 import type { PanelModelBase } from "./panel";
 
 /* An item of the nested walk of a records question: a matrix row, or a dynamic panel's panel - not its
@@ -1045,6 +1046,9 @@ export abstract class QuestionRecordsModel extends Question {
      onMinRecordCountApplied before the count follows a new minimum, onMaxRecordCountApplied last. */
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === pagingStateKeys.pageCount) {
+      this.updateRecordsBar();
+    }
     const names = this.getRecordCountNames();
     if (!names) return;
     if (name === names.minCount) {
@@ -2474,13 +2478,61 @@ export abstract class QuestionRecordsModel extends Question {
   public get filterExpression(): string { return this.paging.filterExpression; }
   public set filterExpression(val: string) { this.paging.filterExpression = val; }
   public refreshView(): void { this.paging.refreshView(); }
-  private pagerActionsValue: ActionContainer;
-  public get pagerActions(): ActionContainer {
-    if (!this.pagerActionsValue) {
-      // The paging owner answers the reported page index and count.
-      this.pagerActionsValue = createRecordsPagerActions(this.createActionContainer(), this.paging, this.helperOwner);
+  /* The bar the renderers show under the records: the pager. Created on its first read; the question
+     keeps it current through updateRecordsBar(). */
+  private recordsBarValue: QuestionRecordsBar;
+  public get recordsBar(): QuestionRecordsBar {
+    if (!this.recordsBarValue) {
+      this.recordsBarValue = new QuestionRecordsBar(this.createRecordsBarOwner());
     }
-    return this.pagerActionsValue;
+    return this.recordsBarValue;
+  }
+  // Nothing to do before the bar is created: it reads the current state when it is.
+  protected updateRecordsBar(): void {
+    if (!!this.recordsBarValue) {
+      this.recordsBarValue.update();
+    }
+  }
+  /* The footer under the records: the type's own footer content (the matrix's bottom toolbar, the
+     dynamic panel's progress and buttons) and the pager share one row while the pager shows. The
+     matrix renders the footer only with the pager, so its markup stays the same without paging. A
+     type without a footer class (the matrix dropdown) gets "". */
+  public getFooterCss(): string {
+    return toCssClasses(this.cssClasses.footer, this.showPager && this.cssClasses.footerWithPager);
+  }
+  /* The functions call the question's members when they are called, so an override or a spy on the
+     question is honoured (see helperOwner). The page index and count are the synced state in the
+     property hash, not the reported values: those answer one page without reading the hash while
+     the list does not page yet, and a pager updater would then never observe them. */
+  private createRecordsBarOwner(): IQuestionRecordsBarOwner {
+    const question = this;
+    return {
+      get pageIndex(): number { return question.paging.pageIndex; },
+      get pageCount(): number { return question.paging.pageCount; },
+      get isCountKnown(): boolean { return question.isCountKnown; },
+      get canGoPrevPage(): boolean { return question.canGoPrevPage; },
+      get canGoNextPage(): boolean { return question.canGoNextPage; },
+      goToPage: (pageIndex: number): void => { question.goToPage(pageIndex); },
+      prevPage: (): void => { question.prevPage(); },
+      nextPage: (): void => { question.nextPage(); },
+      get isPageMovePending(): boolean { return question.isPageMovePending; },
+      get isDataLoading(): boolean { return question.isDataLoading; },
+      get isMobile(): boolean { return question.isMobile; },
+      get isDisposed(): boolean { return question.isDisposed; },
+      get showPager(): boolean { return question.showPager; },
+      getLocalizationFormatString: (strName: string, ...args: any[]): string => question.getLocalizationFormatString(strName, ...args),
+      getLocOwner: (): ILocalizableOwner => question,
+      getCssClasses: (): IRecordsBarCssClasses => {
+        const css = question.cssClasses;
+        return { root: css.recordsBar, pager: css.pager, pagerPage: css.pagerPage, pagerTotal: css.pagerTotal };
+      },
+      createActionContainer: (): ActionContainer => question.createActionContainer()
+    };
+  }
+  /* The type's pager rule: the renderers draw the pager under the records while it is true. The bar
+     mirrors it (QuestionRecordsBar.showPager). */
+  public get showPager(): boolean {
+    return false;
   }
   // True while a page move waits for the asynchronous validators of the page it leaves.
   public get isPageMovePending(): boolean { return this.getPropertyValue(pagingStateKeys.isPageMovePending, false); }
@@ -3441,9 +3493,9 @@ export abstract class QuestionRecordsModel extends Question {
     this.disposeObjectsAwaitingRerender();
     this.disposeItemsLeftByWrites();
     this.disposeRecordObjects();
-    if (!!this.pagerActionsValue) {
-      this.pagerActionsValue.dispose();
-      this.pagerActionsValue = undefined;
+    if (!!this.recordsBarValue) {
+      this.recordsBarValue.dispose();
+      this.recordsBarValue = undefined;
     }
     if (!!this._dataList) {
       this._dataList.dispose();
@@ -4431,15 +4483,16 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
   });
   return json;
 }
-/* The serializer entries of the paging, the sort and the filter of a records question (pageSize,
-   sortBy, filterExpression). Invisible in the property grid until the UI series ships a
-   pager and sortable headers: they load from and save to JSON. sortBy and filterExpression are plain
-   strings and not ":condition"/":expression": both of those make JsonObjectProperty.isExpression true,
-   and everything that discovers expressions by type - Base.validateExpressions(), the linter - would
-   then read them with the survey as the variable context, while their variables are record fields.
+/* The serializer entries of the paging, the sort and the filter of a records question.
+   pageSize shows in the property grid.
+   sortBy and filterExpression stay hidden there until the sortable headers ship, and only load from
+   and save to JSON; they are plain strings rather than ":condition"/":expression", because both of
+   those make JsonObjectProperty.isExpression true, and everything that discovers expressions by type -
+   Base.validateExpressions(), the linter - would then read them with the survey as the variable
+   context, while their variables are record fields.
    pageSize and filterExpression are stored in the hash under their own names (pagingStateKeys). */
 export function getRecordViewProperties(): Array<any> {
-  return [{ name: pagingStateKeys.pageSize + ":number", default: 0, minValue: 0, visible: false },
+  return [{ name: pagingStateKeys.pageSize + ":number", default: 0, minValue: 0 },
     { name: "sortBy", default: "", visible: false }, { name: pagingStateKeys.filterExpression, default: "", visible: false }];
 }
 /* The count properties of a type with a record count, named after its entity: rowCount, minRowCount,

@@ -285,8 +285,8 @@ describe("Records question: dispose of the pager", () => {
       { type: "paneldynamic", name: "p", panelCount: 3, pageSize: 2, templateElements: [{ type: "text", name: "a" }] }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
-    const matrixPager = matrix.pagerActions;
-    const panelPager = panel.pagerActions;
+    const matrixPager = matrix.recordsBar.pagerActions;
+    const panelPager = panel.recordsBar.pagerActions;
     matrix.dispose();
     panel.dispose();
     expect(matrixPager.isDisposed, "#1: matrix").toBe(true);
@@ -357,7 +357,7 @@ describe("Records questions: one API across the three types", () => {
     const survey = new SurveyModel({ elements: [json] });
     survey.data = { m: { r1: "c2" } };
     const m: any = survey.getQuestionByName("m");
-    ["pageSize", "sortBy", "filterExpression", "getDataList", "pagerActions", "pageIndex"].forEach(name => {
+    ["pageSize", "sortBy", "filterExpression", "getDataList", "pagerActions", "recordsBar", "pageIndex"].forEach(name => {
       expect(name in m, "#1: " + name).toBe(false);
     });
     expect(m.value, "#2: the answer").toEqual({ r1: "c2" });
@@ -375,7 +375,7 @@ describe("Records questions: the serialized page size", () => {
   recordJsons.forEach(json => {
     test("pageSize is the serialized page size, " + json.type, () => {
       const prop = Serializer.findProperty(json.type, "pageSize");
-      expect([prop.defaultValue, prop.minValue, prop.visible], "#1: the property").toEqual([0, 0, false]);
+      expect([prop.defaultValue, prop.minValue, prop.visible], "#1: the property").toEqual([0, 0, true]);
       const survey = new SurveyModel({ elements: [Object.assign({ name: "q", pageSize: 2 }, json)] });
       const q: any = survey.getQuestionByName("q");
       expect([q.pageSize, q.pageCount], "#2: it pages").toEqual([2, 2]);

@@ -12,6 +12,7 @@ import { ISurveyData } from "../../src/base-interfaces";
 import { QuestionMatrixDropdownModel } from "../../src/question_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { QuestionRecordsBar } from "../../src/question_records_bar";
 import { settings } from "../../src/settings";
 
 // The released override surface of the matrix base.
@@ -96,8 +97,23 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // Every records question shares the paging, sorting and filtering API, the fixed matrix included.
   const ddApi: Array<DeclaredKeys<QuestionMatrixDropdownModel>> = ["pageIndex", "pageCount", "isCountKnown", "sortBy",
     "filterExpression", "sortOrder", "toggleSort", "clearSort", "refreshView", "canGoNextPage", "canGoPrevPage", "goToPage",
-    "nextPage", "prevPage", "isPageMovePending", "pagerActions", "pageSize"];
+    "nextPage", "prevPage", "isPageMovePending", "recordsBar", "showPager", "pageSize"];
   res.push(ddApi);
+  // The pager is the records bar's: it left the questions.
+  // @ts-expect-error the records bar's
+  const ddPager: DeclaredKeys<QuestionMatrixDropdownModel> = "pagerActions";
+  // @ts-expect-error the records bar's
+  const mdPager: DeclaredKeys<QuestionMatrixDynamicModel> = "pagerActions";
+  // @ts-expect-error the records bar's
+  const pdPager: DeclaredKeys<QuestionPanelDynamicModel> = "pagerActions";
+  res.push(ddPager, mdPager, pdPager);
+  // The records bar's public surface.
+  const barApi: Array<DeclaredKeys<QuestionRecordsBar>> = ["pagerActions", "showPager", "isVisible", "cssClasses"];
+  const bar: QuestionRecordsBar = md.recordsBar;
+  res.push(barApi, pd.recordsBar === bar);
+  // @ts-expect-error the question's state reaches the bar through its owner object
+  const barOwner: DeclaredKeys<QuestionRecordsBar> = "owner";
+  res.push(barOwner);
   // @ts-expect-error the single-input behavior reaches it through the question's owner object
   const ddSync: DeclaredKeys<QuestionMatrixDropdownModel> = "syncPageSizeWithMode";
   res.push(ddSync);

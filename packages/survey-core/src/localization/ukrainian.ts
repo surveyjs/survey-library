@@ -5,6 +5,14 @@ export var ukrainianSurveyStrings = {
   pagePrevText: "Назад",
   // "Next"
   pageNextText: "Далі",
+  // [Auto-translated] "First"
+  pageFirstText: "Перше",
+  // [Auto-translated] "Last"
+  pageLastText: "Останній",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Вибрати сторінку",
   // "Complete"
   completeText: "Завершити",
   // "Preview"

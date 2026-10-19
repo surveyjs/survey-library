@@ -5,6 +5,14 @@ export var thaiStrings = {
   pagePrevText: "ก่อนหน้า",
   // "Next"
   pageNextText: "ถัดไป",
+  // [Auto-translated] "First"
+  pageFirstText: "อันดับแรก",
+  // [Auto-translated] "Last"
+  pageLastText: "สุดท้าย",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "ของ{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "เลือกหน้า",
   // "Complete"
   completeText: "สำเร็จ",
   // "Preview"

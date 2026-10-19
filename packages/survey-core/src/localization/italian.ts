@@ -5,6 +5,14 @@ export var italianSurveyStrings = {
   pagePrevText: "Precedente",
   // "Next"
   pageNextText: "Successivo",
+  // [Auto-translated] "First"
+  pageFirstText: "Primo",
+  // [Auto-translated] "Last"
+  pageLastText: "Ultimo",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "di {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Seleziona pagina",
   // "Complete"
   completeText: "Salva",
   // "Preview"

@@ -5,6 +5,14 @@ export var macedonianSurveyStrings = {
   pagePrevText: "Претходна",
   // "Next"
   pageNextText: "Следно",
+  // [Auto-translated] "First"
+  pageFirstText: "Прво",
+  // [Auto-translated] "Last"
+  pageLastText: "Последна",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "од {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Изберете страница",
   // "Complete"
   completeText: "Заврши",
   // "Preview"

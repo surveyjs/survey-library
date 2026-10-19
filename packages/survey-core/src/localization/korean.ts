@@ -5,6 +5,14 @@ export var koreanStrings = {
   pagePrevText: "이전",
   // "Next"
   pageNextText: "다음",
+  // [Auto-translated] "First"
+  pageFirstText: "첫째",
+  // [Auto-translated] "Last"
+  pageLastText: "마지막입니다",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "선택 페이지",
   // "Complete"
   completeText: "완료",
   // "Preview"

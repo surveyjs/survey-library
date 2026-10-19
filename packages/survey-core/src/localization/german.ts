@@ -5,6 +5,14 @@ export var germanSurveyStrings = {
   pagePrevText: "Zurück",
   // "Next"
   pageNextText: "Weiter",
+  // [Auto-translated] "First"
+  pageFirstText: "Erster",
+  // [Auto-translated] "Last"
+  pageLastText: "Letzter",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "von {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Seite auswählen",
   // "Complete"
   completeText: "Abschließen",
   // "Preview"

@@ -207,7 +207,7 @@ export {
   ChoiceItem,
   ISelectQuestion
 } from "../../src/question_baseselect";
-export { QuestionCheckboxModel, CheckboxItem } from "../../src/question_checkbox";
+export { QuestionCheckboxModel, CheckboxItem, getCheckboxItemFields } from "../../src/question_checkbox";
 export { QuestionTagboxModel } from "../../src/question_tagbox";
 export { QuestionRankingModel } from "../../src/question_ranking";
 export { QuestionCommentModel } from "../../src/question_comment";
@@ -226,7 +226,7 @@ export {
   QuestionImagePickerModel,
   ImageItemValue
 } from "../../src/question_imagepicker";
-export { QuestionImageMapModel } from "../../src/question_imagemap";
+export { QuestionImageMapModel, getImageMapItemFields } from "../../src/question_imagemap";
 export { QuestionImageModel } from "../../src/question_image";
 export { QuestionSignaturePadModel } from "../../src/question_signaturepad";
 export {

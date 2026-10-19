@@ -3153,6 +3153,11 @@ export class Question extends SurveyElement<Question>
   protected hasValueKey(key: string): boolean {
     return false;
   }
+  // Tells whether a key of one item of an array value belongs to this question: a field it keeps in
+  // the object of a selected item. A dynamic panel or matrix sharing the value knows the key then.
+  public hasValueItemKey(key: string): boolean {
+    return false;
+  }
   // Several questions may share the same valueName and keep their rows or items in one object.
   // A key that belongs to any of them is a known key for all of them.
   protected isValueKeyKnown(key: string): boolean {

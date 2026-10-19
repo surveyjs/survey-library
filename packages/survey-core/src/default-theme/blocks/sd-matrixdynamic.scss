@@ -251,7 +251,9 @@
       flex-direction: column;
       align-items: stretch;
     }
+    // border-box: .sd-action is content-box, so its padding would push it past the footer's padding.
     .sd-matrixdynamic__toolbar .sd-action {
+      box-sizing: border-box;
       width: 100%;
       justify-content: center;
     }

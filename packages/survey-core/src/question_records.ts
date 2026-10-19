@@ -2451,11 +2451,18 @@ export abstract class QuestionRecordsModel extends Question {
   public get isCountKnown(): boolean { return this.paging.isCountKnown; }
   public get canGoNextPage(): boolean { return this.paging.canGoNextPage; }
   public get canGoPrevPage(): boolean { return this.paging.canGoPrevPage; }
+  private changePageWithoutAnimation(func: () => boolean) {
+    this.blockAnimations();
+    const res = func();
+    this.releaseAnimations();
+    return res;
+  }
   /* The respondent's page moves: a move forward validates the page it leaves. false = an error was
      found at once; true = moved, or waiting for asynchronous validators (see isPageMovePending). */
-  public goToPage(index: number): boolean { return this.paging.goToPage(index); }
-  public nextPage(): boolean { return this.paging.nextPage(); }
-  public prevPage(): boolean { return this.paging.prevPage(); }
+
+  public goToPage(index: number): boolean { return this.changePageWithoutAnimation(() => this.paging.goToPage(index)); }
+  public nextPage(): boolean { return this.changePageWithoutAnimation(() => this.paging.nextPage()); }
+  public prevPage(): boolean { return this.changePageWithoutAnimation(() => this.paging.prevPage()); }
   /* The sort the records are displayed in: { field, direction } descriptors applied in array order,
      an empty array = no sort. It never reorders the question value. */
   public get sortOrder(): Array<IDynamicDataSort> { return this.paging.sortOrder; }

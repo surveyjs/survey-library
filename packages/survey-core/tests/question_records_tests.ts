@@ -349,6 +349,60 @@ describe("Records questions: one API across the three types", () => {
       expect(kind.hiddenRecord(filtered.value), "#6: the value keeps it").toEqual({ a: "2" });
     });
   });
+  /* A page move swaps the shown records at once: the question blocks its animations for the move
+     and releases them after it, whatever the move answers. */
+  const recordAnimationsInMoves = (q: any): Array<string> => {
+    const log: Array<string> = [];
+    const paging = q["paging"];
+    ["goToPage", "nextPage", "prevPage"].forEach(name => {
+      const original = paging[name].bind(paging);
+      vi.spyOn(paging, name).mockImplementation((...args: Array<any>) => {
+        log.push(name + ":" + q.animationAllowed);
+        return original(...args);
+      });
+    });
+    return log;
+  };
+  kinds.forEach(kind => {
+    test("a page move runs without animations, " + kind.type, () => {
+      settings.animationEnabled = true;
+      const q = create(kind, { pageSize: 1 });
+      q.enableOnElementRerenderedEvent();
+      expect(q.animationAllowed, "#1: animations are on before the moves").toBe(true);
+      const log = recordAnimationsInMoves(q);
+      expect([q.nextPage(), q.pageIndex, kind.shown(q)], "#2: next").toEqual([true, 1, ["2"]]);
+      expect(q.animationAllowed, "#2: released after next").toBe(true);
+      expect([q.goToPage(2), q.pageIndex, kind.shown(q)], "#3: go to").toEqual([true, 2, ["3"]]);
+      expect(q.animationAllowed, "#3: released after go to").toBe(true);
+      expect([q.prevPage(), q.pageIndex, kind.shown(q)], "#4: prev").toEqual([true, 1, ["2"]]);
+      expect(q.animationAllowed, "#4: released after prev").toBe(true);
+      expect(log, "#5: blocked during every move").toEqual(["nextPage:false", "goToPage:false", "prevPage:false"]);
+    });
+  });
+  test("a page move that does not happen releases the animations", () => {
+    settings.animationEnabled = true;
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "q", pageSize: 1, panelCount: 2, templateElements: [{ type: "text", name: "a", isRequired: true }] }]
+    });
+    const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+    q.enableOnElementRerenderedEvent();
+    const log = recordAnimationsInMoves(q);
+    expect(q.prevPage(), "#1: no page before the first").toBe(false);
+    expect(q.nextPage(), "#2: the first page has an error").toBe(false);
+    expect(q.pageIndex, "#3: still the first page").toBe(0);
+    expect(log, "#4: blocked during both moves").toEqual(["prevPage:false", "nextPage:false"]);
+    expect(q.animationAllowed, "#5: released").toBe(true);
+  });
+  test("a page move keeps a block the question already had", () => {
+    settings.animationEnabled = true;
+    const q = create(kinds[2], { pageSize: 1 });
+    q.enableOnElementRerenderedEvent();
+    q.blockAnimations();
+    q.nextPage();
+    expect(q.animationAllowed, "#1: the outer block holds").toBe(false);
+    q.releaseAnimations();
+    expect(q.animationAllowed, "#2: released by its owner").toBe(true);
+  });
   test("the three records questions are composite questions", () => {
     expect(kinds.map(kind => create(kind).isCompositeQuestion), "#1").toEqual([true, true, true]);
   });

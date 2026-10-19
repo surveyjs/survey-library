@@ -5,6 +5,14 @@ export var hindiStrings = {
   pagePrevText: "पिछला",
   // "Next"
   pageNextText: "अगला",
+  // [Auto-translated] "First"
+  pageFirstText: "पहला",
+  // [Auto-translated] "Last"
+  pageLastText: "पिछला",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0} की संख्या",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "पृष्ठ का चयन करें",
   // "Complete"
   completeText: "पूरा",
   // "Preview"

@@ -5,6 +5,14 @@ export var slovakSurveyStrings = {
   pagePrevText: "Predchádzajúca",
   // "Next"
   pageNextText: "Ďalej",
+  // [Auto-translated] "First"
+  pageFirstText: "Prvá",
+  // [Auto-translated] "Last"
+  pageLastText: "Posledný",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Vybrať stránku",
   // "Complete"
   completeText: "Dokončené",
   // "Preview"

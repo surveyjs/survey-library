@@ -5,6 +5,14 @@ export var croatianStrings = {
   pagePrevText: "Prethodni",
   // "Next"
   pageNextText: "Sljedeći",
+  // [Auto-translated] "First"
+  pageFirstText: "Prvo",
+  // [Auto-translated] "Last"
+  pageLastText: "Zadnji",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "od {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Odaberi stranicu",
   // "Complete"
   completeText: "Kompletan",
   // "Preview"

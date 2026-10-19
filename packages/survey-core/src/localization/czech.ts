@@ -5,6 +5,14 @@ export var czechSurveyStrings = {
   pagePrevText: "Předchozí",
   // "Next"
   pageNextText: "Další",
+  // [Auto-translated] "First"
+  pageFirstText: "První",
+  // [Auto-translated] "Last"
+  pageLastText: "Poslední",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Vybrat stránku",
   // "Complete"
   completeText: "Dokončit",
   // "Preview"

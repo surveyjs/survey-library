@@ -5,6 +5,14 @@ export var dutchSurveyStrings = {
   pagePrevText: "Vorige",
   // "Next"
   pageNextText: "Volgende",
+  // [Auto-translated] "First"
+  pageFirstText: "Eerste",
+  // [Auto-translated] "Last"
+  pageLastText: "Laatste",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "van {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Selecteer pagina",
   // "Complete"
   completeText: "Verzenden",
   // "Preview"

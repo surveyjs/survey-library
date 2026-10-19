@@ -5,6 +5,14 @@ export var romanianSurveyStrings = {
   pagePrevText: "Precedent",
   // "Next"
   pageNextText: "Următor",
+  // [Auto-translated] "First"
+  pageFirstText: "Primul",
+  // [Auto-translated] "Last"
+  pageLastText: "Ultimul",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "de {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Selectează pagina",
   // "Complete"
   completeText: "Finalizare",
   // "Preview"

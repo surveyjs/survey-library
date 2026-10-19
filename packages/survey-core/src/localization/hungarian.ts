@@ -5,6 +5,14 @@ export var hungarianSurveyStrings = {
   pagePrevText: "Vissza",
   // "Next"
   pageNextText: "Tovább",
+  // [Auto-translated] "First"
+  pageFirstText: "Első",
+  // [Auto-translated] "Last"
+  pageLastText: "Utolsó",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Oldal kiválasztása",
   // "Complete"
   completeText: "Kész",
   // "Preview"

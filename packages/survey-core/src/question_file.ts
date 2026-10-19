@@ -449,7 +449,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     }, 0);
   }
   private get videoHtmlElement() {
-    return this.rootElement?.querySelector(`#${this.videoId}`) as HTMLVideoElement;
+    return this.contentElement?.querySelector(`#${this.videoId}`) as HTMLVideoElement;
   }
   private startVideoInCamera(): void {
     this.camera.startVideo(this.videoHtmlElement, (stream: MediaStream) => {
@@ -711,9 +711,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
   @property() maxFiles: number;
 
   public chooseFile(event: MouseEvent): void {
-    if (!this.rootElement) return;
+    if (!this.contentElement) return;
 
-    const inputElement = this.rootElement.querySelector(`#${this.inputId}`) as HTMLInputElement;
+    const inputElement = this.contentElement.querySelector(`#${this.inputId}`) as HTMLInputElement;
     if (!inputElement) return;
 
     event.preventDefault();
@@ -1181,10 +1181,10 @@ export class QuestionFileModel extends QuestionFileModelBase {
         };
       },
       getAnimatedElement: (page: QuestionFilePage) => {
-        return this.rootElement?.querySelector(`#${page.id}`);
+        return this.contentElement?.querySelector(`#${page.id}`);
       },
       isAnimationEnabled: () => {
-        return this.animationAllowed && !!this.rootElement;
+        return this.animationAllowed && !!this.contentElement;
       },
       getRerenderEvent: () => {
         return this.onElementRerendered;
@@ -1212,10 +1212,10 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   protected processResponsiveness(_: number, availableWidth: number): boolean {
     this._width = availableWidth;
-    if (this.rootElement) {
+    if (this.contentElement) {
       if ((!this.calculatedGapBetweenItems || !this.calculatedItemWidth) && this.allowMultiple) {
         const fileListSelector = this.getFileListSelector();
-        const fileListElement = fileListSelector ? this.rootElement.querySelector(this.getFileListSelector()) : undefined;
+        const fileListElement = fileListSelector ? this.contentElement.querySelector(this.getFileListSelector()) : undefined;
         if (fileListElement) {
           const visiblePage = fileListElement.querySelector(classesToSelector(this.cssClasses.page));
           if (visiblePage) {
@@ -1237,16 +1237,10 @@ export class QuestionFileModel extends QuestionFileModelBase {
 
   //#region
   // web-based methods
-  private rootElement: HTMLElement;
   private canDragDrop(): boolean { return !this.isInputReadOnly && this.currentMode !== "camera" && !this.isPlayingVideo; }
-  public afterRenderQuestionElement(el: HTMLElement): void {
-    super.afterRenderQuestionElement(el);
-    this.rootElement = el;
-  }
   public beforeDestroyQuestionElement(el: HTMLElement): void {
     super.beforeDestroyQuestionElement(el);
     this.stopVideo();
-    this.rootElement = undefined;
   }
   private dragCounter: number = 0;
   onDragEnter = (event: any) => {
@@ -1299,8 +1293,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.clearFilesCore();
   };
   private clearFilesCore(): void {
-    if (this.rootElement) {
-      const input = this.rootElement.querySelectorAll("input")[0];
+    if (this.contentElement) {
+      const input = this.contentElement.querySelectorAll("input")[0];
       if (input) {
         input.value = "";
       }

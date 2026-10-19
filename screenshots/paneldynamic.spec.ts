@@ -474,5 +474,29 @@ frameworks.forEach(framework => {
       const paneldynamicRoot = page.locator(".sd-question--paneldynamic");
       await compareScreenshot(page, paneldynamicRoot, "panel-dynamic-removepanelbuttonlocation-right.png");
     });
+    test("Paneldynamic: two collapsed panels", async({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            "type": "paneldynamic",
+            "panelsState": "collapsed",
+            "name": "panel",
+            "title": "Panel",
+            "templateTitle": "Nested panel",
+            "panelCount": 2,
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "question"
+              }
+            ]
+          }
+
+        ]
+      });
+      const paneldynamicRoot = page.locator(".sd-question--paneldynamic");
+      await compareScreenshot(page, paneldynamicRoot, "paneldynamic-collapsed-panels.png");
+    });
   });
 });

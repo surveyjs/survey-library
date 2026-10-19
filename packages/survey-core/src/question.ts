@@ -1569,7 +1569,10 @@ export class Question extends SurveyElement<Question>
       event.target.value = this.comment;
     }
   }
+
+  protected contentElement: HTMLElement;
   public afterRenderQuestionElement(el: HTMLElement): void {
+    this.contentElement = el;
     if (!this.survey || !this.hasSingleInput) return;
     this.afterRenderCallbacks.afterRenderQuestionInput(this, el);
   }
@@ -1590,6 +1593,10 @@ export class Question extends SurveyElement<Question>
     }
     this.checkForResponsiveness(el);
   }
+  public beforeDestroy(): void {
+    super.beforeDestroy();
+    this.destroyResizeObserver();
+  }
   public afterRenderCore(element: HTMLElement): void {
     super.afterRenderCore(element);
   }
@@ -1597,6 +1604,7 @@ export class Question extends SurveyElement<Question>
     return [this.commentId];
   }
   public beforeDestroyQuestionElement(el: HTMLElement): void {
+    this.contentElement = undefined;
     this.commentElements = undefined;
   }
   public get processedTitle(): string {
@@ -1692,6 +1700,7 @@ export class Question extends SurveyElement<Question>
   protected getCssContent(cssClasses: any): string {
     return toCssClasses(
       cssClasses.content,
+      (this.state !== "default") && cssClasses.expandableContent,
       this.supportContainerQueries() && cssClasses.contentSupportContainerQueries,
       this.hasTitleOnLeft && cssClasses.contentLeft
     );

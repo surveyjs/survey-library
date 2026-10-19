@@ -2557,14 +2557,14 @@ describe("Survey_QuestionFile", () => {
     survey.data = {
       image1: [{ name: "item1" }, { name: "item2" }, { name: "item3" }],
     };
-    q1["rootElement"] = document.createElement("div");
+    q1["contentElement"] = document.createElement("div");
 
     //check animation enabled
     q1.enableOnElementRerenderedEvent();
     expect(fpNavigationOptions.isAnimationEnabled()).toBeTruthy();
-    q1["rootElement"] = undefined as any;
+    q1["contentElement"] = undefined as any;
     expect(fpNavigationOptions.isAnimationEnabled()).toBeFalsy();
-    q1["rootElement"] = document.createElement("div");
+    q1["contentElement"] = document.createElement("div");
     expect(fpNavigationOptions.isAnimationEnabled()).toBeTruthy();
     settings.animationEnabled = false;
     expect(fpNavigationOptions.isAnimationEnabled()).toBeFalsy();

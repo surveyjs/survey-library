@@ -734,6 +734,22 @@ describe("linter vs runtime: a records question sharing its value without a valu
     expect(survey.data).toEqual({ cars: { r1: { c2: "x" }, r2: { c1: "y" } } });
   });
 
+  test("the merge example with a choice comment keeps the comment", () => {
+    const json = { elements: [
+      { type: "checkbox", name: "cars", valuePropertyName: "car", choices: [{ value: "Ford", showCommentArea: true }, "Vauxhall"] },
+      { type: "paneldynamic", name: "cars-info", valueName: "cars", templateTitle: "Car: {panel.car} {panel.comment}",
+        templateElements: [{ type: "rating", name: "rating" }] },
+    ] };
+    expect(shadowing(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    const q = <QuestionSelectBase>survey.getQuestionByName("cars");
+    q.value = ["Ford"];
+    q.setCommentValue(q.choices[0], "note");
+    expect(survey.data).toEqual({ cars: [{ car: "Ford", comment: "note" }] });
+    survey.clearIncorrectValues();
+    expect(survey.data).toEqual({ cars: [{ car: "Ford", comment: "note" }] });
+  });
+
   test("the merge example of the documentation keeps its fields", () => {
     const json = { elements: [
       { type: "checkbox", name: "cars", valuePropertyName: "car", choices: ["Ford", "Vauxhall"] },

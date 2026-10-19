@@ -182,3 +182,21 @@ test("multi-select image picker uses the checkbox hint row", () => {
     type: "imagepicker", choices: choices, defaultValue: "a"
   }, { autoAdvanceEnabled: true })[0].keys[0].label).toBe("↑↓←→"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
 });
+
+test("boolean radio, switch, and segmented use arrow hints", () => {
+  for (const displayMode of ["segmented", "radio", "switch"]) {
+    expect(hints({ type: "boolean", displayMode: displayMode })).toEqual([
+      { text: "to select", keys: [arrows] }
+    ]);
+  }
+});
+
+test("boolean checkbox uses space and enter", () => {
+  expect(hints({ type: "boolean", displayMode: "checkbox" })).toEqual([
+    { text: "to select", keys: [space] }
+  ]);
+  expect(hints({ type: "boolean", displayMode: "checkbox" }, { autoAdvanceEnabled: true })[1].keys[0].visible).toBe(false);
+  expect(hints({
+    type: "boolean", displayMode: "checkbox", defaultValue: false
+  }, { autoAdvanceEnabled: true })[1].keys[0].visible).toBe(true);
+});

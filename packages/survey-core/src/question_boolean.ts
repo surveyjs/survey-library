@@ -2,6 +2,8 @@ import { QuestionFactory } from "./questionfactory";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Question, QuestionValueType, getScalarValueType, IVerifyDataContext } from "./question";
+import { keyboardHint, keyboardHintKey, IKeyboardHint } from "./keyboard-hints";
+import { SurveyModel } from "./survey";
 import { ItemValue } from "./itemvalue";
 import type { ISelectQuestion } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
@@ -44,6 +46,19 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
     if (this.canCommitAutoAdvanceOnEnter(event)) {
       this.commitAutoAdvance(event);
     }
+  }
+  protected getKeyboardHintsCore(): IKeyboardHint[] {
+    const survey = this.survey as SurveyModel;
+    const displayMode = this.displayMode;
+    if (displayMode === "checkbox") {
+      const rows = [keyboardHint(this, "keyboardHintSelectText", [keyboardHintKey("space", true)])];
+      if (survey.autoAdvanceEnabled === true) {
+        rows.push(keyboardHint(this, "keyboardHintSubmitText", [keyboardHintKey("enter", !this.isEmpty())]));
+      }
+      return rows;
+    }
+    if (displayMode !== "segmented" && displayMode !== "radio" && displayMode !== "switch") return [];
+    return [keyboardHint(this, "keyboardHintSelectText", [keyboardHintKey("arrowsAll", true)])];
   }
   private isCheckboxAutoAdvanceTarget(event: any): boolean {
     const target = event?.target;

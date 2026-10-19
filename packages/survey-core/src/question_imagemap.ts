@@ -10,6 +10,14 @@ import { settings } from "./settings";
 import { Base } from "./base";
 import { IQuestion } from "./base-interfaces";
 
+/* The fields an image map keeps in the object of a selected area: the area value under
+   valuePropertyName while it selects several areas - a single selection stays a plain value.
+   Exported so that a tool reading the JSON (survey-core/linter) finds the very fields the question
+   writes. */
+export function getImageMapItemFields(multiSelect: boolean, valuePropertyName: string): Array<string> {
+  return multiSelect && !!valuePropertyName ? [valuePropertyName] : [];
+}
+
 function createSVGElement(name: string): SVGElement {
   const document = DomDocumentHelper.getDocument();
   if (!document) return null;
@@ -422,9 +430,12 @@ export class QuestionImageMapModel extends Question {
   }
 
   // The field a selected area keeps in its object (valuePropertyName): a dynamic panel or matrix
-  // sharing the value knows it through this, as with a checkbox.
+  // sharing the value knows it through these, as with a checkbox.
+  public hasValueItemKey(key: string): boolean {
+    return !!key && getImageMapItemFields(this.isMultiSelect, this.valuePropertyName).indexOf(key) > -1;
+  }
   public getQuestionFromArray(name: string, index: number): IQuestion {
-    if (this.isMultiSelect && !!name && name === this.valuePropertyName) {
+    if (this.hasValueItemKey(name)) {
       const v = this.value;
       if (Array.isArray(v) && index < v.length) return this;
     }

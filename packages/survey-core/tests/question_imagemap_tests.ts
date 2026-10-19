@@ -1,4 +1,4 @@
-import { QuestionImageMapModel } from "../src/question_imagemap";
+import { getImageMapItemFields, QuestionImageMapModel } from "../src/question_imagemap";
 import { SurveyModel } from "../src/survey";
 import { Serializer } from "../src/jsonobject";
 
@@ -834,6 +834,31 @@ describe("imagemap", () => {
     test("an item of no area is still reported", () => {
       const survey = new SurveyModel(json());
       expect(survey.setData({ cars: [{ car: "Audi" }] }).map(issue => issue.type + " @ " + issue.path)).toEqual(["invalidChoiceValue @ cars[0]"]);
+    });
+    test("getImageMapItemFields names the fields the runtime writes into the object of a selected area", () => {
+      const check = (extra: any, fields: Array<string>): void => {
+        const valuePropertyName = "valuePropertyName" in extra ? extra.valuePropertyName : "car";
+        expect(getImageMapItemFields(extra.multiSelect !== false, valuePropertyName), JSON.stringify(extra)).toEqual(fields);
+        const survey = new SurveyModel(json(extra));
+        const q = <QuestionImageMapModel>survey.getQuestionByName("cars");
+        q.mapItemToggle(q.areas[0]);
+        const item = Array.isArray(q.value) ? q.value[0] : q.value;
+        expect(typeof item === "object" ? Object.keys(item) : [], "the runtime writes the same fields, " + JSON.stringify(extra)).toEqual(fields);
+        fields.forEach(field => expect(q.hasValueItemKey(field), field).toBe(true));
+      };
+      check({}, ["car"]);
+      check({ valuePropertyName: "" }, []);
+      check({ multiSelect: false }, []);
+      check({ multiSelect: false, valuePropertyName: "" }, []);
+    });
+    test("an image map claims its field only while it selects several areas", () => {
+      const survey = new SurveyModel(json());
+      const q = <QuestionImageMapModel>survey.getQuestionByName("cars");
+      expect(q.hasValueItemKey("car")).toBe(true);
+      expect(q.hasValueItemKey("rating")).toBe(false);
+      expect(q.hasValueItemKey("")).toBe(false);
+      q.multiSelect = false;
+      expect(q.hasValueItemKey("car")).toBe(false);
     });
   });
 });

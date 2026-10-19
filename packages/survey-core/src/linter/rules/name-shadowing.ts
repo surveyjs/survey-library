@@ -52,9 +52,9 @@ function losesSharedFields(shadowed: ElementRecord, record: ElementRecord): bool
 // question (#12014).
 function checkValueNameOverName(ctx: LintContext, record: ElementRecord): void {
   const valueName = record.valueName;
-  if (!valueName || equalsCI(valueName, record.name)) return;
+  if (!valueName || valueName === record.name) return;
   if (getCapturingFrame(record.scope)) return;
-  const shadowed = ctx.index.byName.get(valueName)
+  const shadowed = getSharingRecords(ctx.index, record)
     .filter(other => other !== record && other.kind === "question" && !other.valueName &&
       losesSharedFields(other, record));
   if (shadowed.length === 0) return;

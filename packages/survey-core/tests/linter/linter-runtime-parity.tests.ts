@@ -779,6 +779,46 @@ describe("linter vs runtime: a records question sharing its value without a valu
     survey.clearIncorrectValues();
     expect(survey.data).toEqual({ cars: [{ car: "Ford" }] });
   });
+
+  // getQuestionsByValueName is case-sensitive: a valueName differing in case only shares nothing
+  test("a valueName differing in case only shares no value", () => {
+    const json = { elements: [
+      Object.assign({ name: "cars" }, panel),
+      { type: "checkbox", name: "cb", valueName: "Cars", valuePropertyName: "car", choices: ["Ford", "BMW"] },
+    ] };
+    expect(shadowing(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    const data = { cars: [{ own: "a" }], Cars: [{ car: "Ford" }] };
+    expect(survey.setData(data)).toEqual([]);
+    survey.clearIncorrectValues();
+    expect(survey.data).toEqual(data);
+  });
+
+  test("a matrixdropdown and a single-choice matrix on keys differing in case keep both", () => {
+    const json = { elements: [
+      { type: "matrixdropdown", name: "md", rows: ["r1"], columns: [{ name: "c", cellType: "text" }] },
+      { type: "matrix", name: "m", valueName: "MD", rows: ["r1"], columns: ["x", "y"] },
+    ] };
+    expect(shadowing(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    const data = { md: { r1: { c: "a" } }, MD: { r1: "x" } };
+    expect(survey.setData(data)).toEqual([]);
+    survey.clearIncorrectValues();
+    expect(survey.data).toEqual(data);
+  });
+
+  test("matrixdropdown rows differing in case are different records", () => {
+    const json = { elements: [
+      { type: "matrixdropdown", name: "cars", rows: ["R1"], columns: [{ name: "c1", cellType: "text" }] },
+      { type: "matrixdropdown", name: "s", valueName: "cars", rows: ["r1"], columns: [{ name: "c2", cellType: "text" }] },
+    ] };
+    expect(shadowing(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    const data = { cars: { r1: { c2: "x" }, R1: { c1: "y" } } };
+    expect(survey.setData(data)).toEqual([]);
+    survey.clearIncorrectValues();
+    expect(survey.data).toEqual(data);
+  });
 });
 
 describe("linter vs runtime: configurations that really are dead", () => {

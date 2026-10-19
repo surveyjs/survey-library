@@ -46,11 +46,13 @@ function getFrameDataKeys(frame: CapturingScopeFrame): CIMultiMap<ElementRecord>
 }
 
 // The questions writing a data key of a data scope: a dynamic-panel template or a matrix row
-// (frame), or the survey data.
+// (frame), or the survey data. The runtime binds them by the exact key (getQuestionsByValueName is
+// case-sensitive), so the case-insensitive maps only narrow the search down.
 export function getDataKeyRecords(index: SurveyIndex, frame: CapturingScopeFrame | undefined, key: string): Array<ElementRecord> {
-  if (!!frame) return getFrameDataKeys(frame).get(key);
-  return index.byName.get(key).filter(record => record.kind === "question" && !record.valueName)
-    .concat(index.byValueName.get(key));
+  const candidates = !!frame ? getFrameDataKeys(frame).get(key)
+    : index.byName.get(key).filter(record => record.kind === "question" && !record.valueName)
+      .concat(index.byValueName.get(key));
+  return candidates.filter(record => getDataKey(record) === key);
 }
 
 // The record itself first, then every other question (or matrix column) of its data scope on the
@@ -127,8 +129,9 @@ export function getListedRows(record: ElementRecord): Array<string> | undefined 
   return (record.matrixRowValues || []).map(row => String(row));
 }
 
+// a row value names its record by the exact key
 function listsRow(rows: Array<string> | undefined, row: string): boolean {
-  return !rows || rows.some(listed => listed.toLowerCase() === row.toLowerCase());
+  return !rows || rows.indexOf(row) > -1;
 }
 
 // A matrixdropdown row reads the record of that row only (RowsDynamicDataSource.readStoredAt),

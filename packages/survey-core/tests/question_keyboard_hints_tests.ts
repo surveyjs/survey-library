@@ -1,4 +1,4 @@
-import { expect, test } from "vitest";
+import { afterEach, expect, test } from "vitest";
 import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
@@ -294,4 +294,35 @@ test("ranking hints follow select-to-rank and auto-advance", () => {
     type: "ranking", choices: ["a", "b", "c"], selectToRankEnabled: true, defaultValue: ["b", "a"]
   }, { autoAdvanceEnabled: true });
   expect(filledRank[filledRank.length - 1].keys[0].visible).toBe(true);
+});
+
+import { _setIsTouch } from "../src/utils/devices";
+
+afterEach(() => {
+  _setIsTouch(false);
+});
+
+test("single-line text hints enter only when the input can auto-advance", () => {
+  expect(hints({ type: "text" }, { autoAdvanceEnabled: true })).toEqual([
+    { text: "to submit", keys: [enterHidden] }
+  ]);
+  expect(hints({ type: "text", defaultValue: "a" }, { autoAdvanceEnabled: true })[0].keys[0].visible).toBe(true);
+  expect(hints({ type: "text" })).toEqual([]);
+  expect(hints({ type: "text", inputType: "date", defaultValue: "2020-01-01" }, { autoAdvanceEnabled: true })).toEqual([]);
+  expect(hints({ type: "text", inputType: "datetime-local", defaultValue: "2020-01-01T00:00" }, { autoAdvanceEnabled: true })).toEqual([]);
+  expect(hints({ type: "text", textUpdateMode: "onTyping", defaultValue: "a" }, { autoAdvanceEnabled: true })).toEqual([]);
+});
+
+test("long text hints shift+enter and enter", () => {
+  const shift = { label: "Shift+Enter", shortcut: "Shift+Enter", visible: true };
+  expect(hints({ type: "comment", defaultValue: "a" })).toEqual([]);
+  expect(hints({ type: "comment" }, { autoAdvanceEnabled: true })).toEqual([
+    { text: "to add a line", keys: [shift] },
+    { text: "to submit", keys: [enterHidden] }
+  ]);
+  expect(hints({ type: "comment", defaultValue: "a" }, { autoAdvanceEnabled: true })[1].keys[0].visible).toBe(true);
+  expect(hints({ type: "comment", acceptCarriageReturn: false, defaultValue: "a" }, { autoAdvanceEnabled: true }).map(row => row.text)).toEqual(["to submit"]);
+  _setIsTouch(true);
+  expect(hints({ type: "comment", defaultValue: "a" }, { autoAdvanceEnabled: true })).toEqual([]);
+  _setIsTouch(false);
 });

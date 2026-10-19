@@ -245,7 +245,7 @@ A base class for all questions. Required: `name`.
 | `isRequired` | `boolean` |  | Makes the question required. |
 | `maxWidth` | `string` |  | Gets or sets maximum survey element width in CSS values. |
 | `minWidth` | `string` |  | Gets or sets minimum survey element width in CSS values. |
-| `allowClear` | `boolean` | `false` | Specifies whether to display a button that clears the question value. The button appears in the question title. File Upload, HTML, Image, Expression, Dynamic Matrix, and Dynamic Panel do not show it. Dropdown, Tag Box, and Signature Pad use the property for their own clear button. |
+| `allowClear` | `boolean` | `false` | Specifies whether to display a button that clears the question value. The button appears in the question title and stays hidden when the title is hidden. File Upload, HTML, Image, Expression, Dynamic Matrix, and Dynamic Panel do not show it. Dropdown, Tag Box, and Signature Pad use the property for their own clear button. |
 | `readOnly` | `boolean` |  | Makes the survey element read-only. |
 | `requiredErrorText` *(loc)* | `string` |  | Specifies a custom error message for a required form field. |
 | `showNumber` | `boolean` | `true` | Specifies whether to show a number for this question. |
@@ -302,7 +302,7 @@ A class that describes the Yes/No (Boolean) question type. Inherits the properti
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
-| `allowClear` | `boolean` | `false` | Specifies whether to display a button that clears the question value. Checkbox and switch modes do not support it. |
+| `allowClear` | `boolean` | `false` | Specifies whether to display a button that clears the question value. It is available for the segmented and radio display modes when the title is visible. Checkbox and switch modes do not support it. |
 | `displayMode` | `segmented, radio, checkbox, switch` | `"segmented"` | Specifies the visual representation of the Yes/No question. |
 | `labelFalse` *(loc)* | `string` |  | Gets or sets a text label that corresponds to a negative answer. |
 | `labelTrue` *(loc)* | `string` |  | Gets or sets a text label that corresponds to a positive answer. |
@@ -510,7 +510,7 @@ A class that describes the Image Picker question type. Inherits the properties o
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
-| `allowClear` | `boolean` | `false` | Specifies whether to display a button that clears the selected image or video. Clears every selected item when `multiSelect` is enabled. |
+| `allowClear` | `boolean` | `false` | Specifies whether to display a button that clears the selected image or video. Clears every selected item when `multiSelect` is enabled. The button stays hidden when the title is hidden. |
 | `contentMode` | `image, video` | `"image"` | Specifies the type of content that choice items display. |
 | `imageFit` | `none, contain, cover, fill` | `"contain"` | Specifies how to resize images or videos to fit them into their containers. |
 | `imageHeight` | `number` |  | Specifies the height of containers for images or videos. |
@@ -543,7 +543,7 @@ A class that describes the Single-Select Matrix question type. Inherits the prop
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
-| `allowClear` | `boolean` | `false` | Specifies whether to display a button that clears the answer in every matrix row. |
+| `allowClear` | `boolean` | `false` | Specifies whether to display a button that clears the answer in every matrix row. The button stays hidden when the title is hidden. It clears both radio and checkbox cells. |
 | `columns` | `array` of `matrixcolumn` | `[]` | An array of matrix columns. |
 | `rows` | `array` of `itemvalue` | `[]` | An array of matrix rows. |
 | `columnsVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each matrix column. |

@@ -163,7 +163,7 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   /**
    * Specifies whether to display a button that clears the question value.
    *
-   * The button appears in the question title. It is available for the segmented and radio [display modes](#displayMode). Checkbox and switch modes do not support it.
+   * The button appears in the question title. It is available for the segmented and radio [display modes](#displayMode) when the title is visible. Checkbox and switch modes do not support it.
    *
    * Default value: `false`
    */

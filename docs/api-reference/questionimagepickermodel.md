@@ -24,7 +24,7 @@ A class that describes the Image Picker question type.
 
 Specifies whether to display a button that clears the selected image or video.
 
-The button appears in the question title. When [`multiSelect`](#multiSelect) is enabled, the button clears every selected item.
+When [`multiSelect`](#multiSelect) is enabled, the button clears every selected item. The button appears in the question title and stays hidden when the [title is hidden](#titleLocation).
 
 Default value: `false`
 

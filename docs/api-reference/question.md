@@ -22,7 +22,7 @@ A base class for all questions.
 
 Specifies whether to display a button that clears the question value.
 
-The button appears in the question title. A question renders the button only when it supports a title action. Dropdown, Multi-Select Dropdown, and Signature Pad use this property for their own clear button. File Upload, HTML, Image, Expression, Dynamic Matrix, and Dynamic Panel do not show it.
+The button appears in the question title and stays hidden when the [title is hidden](#titleLocation). A question renders the button only when it supports a title action. Dropdown, Multi-Select Dropdown, and Signature Pad use this property for their own clear button. File Upload, HTML, Image, Expression, Dynamic Matrix, and Dynamic Panel do not show it.
 
 Default value: `false`
 

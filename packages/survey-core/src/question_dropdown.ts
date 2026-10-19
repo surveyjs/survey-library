@@ -1,4 +1,5 @@
 import { Serializer } from "./jsonobject";
+import { keyboardHint, keyboardHintKey, IKeyboardHint } from "./keyboard-hints";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { ChoiceItem, QuestionSelectBase } from "./question_baseselect";
@@ -13,6 +14,7 @@ import { questionDropdownMixin } from "./question_dropdown_mixin";
 import { ActionContainer } from "./actions/container";
 import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
+import { SurveyModel } from "./survey";
 
 /**
  * A class that describes the Dropdown question type.
@@ -66,6 +68,21 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
 
   public getType(): string {
     return "dropdown";
+  }
+  protected getKeyboardHintsCore(): IKeyboardHint[] {
+    const survey = this.survey as SurveyModel;
+    const rows = [
+      keyboardHint(this, "keyboardHintOpenText", [keyboardHintKey("arrowDown", true)])
+    ];
+    if (survey.autoAdvanceEnabled === true) {
+      rows.push(keyboardHint(this, "keyboardHintSubmitText", [keyboardHintKey("enter", !this.isEmpty())]));
+    }
+    rows.push(keyboardHint(this, "keyboardHintSelectText", [
+      keyboardHintKey("space", true),
+      keyboardHintKey("enter", true)
+    ]));
+    rows.push(keyboardHint(this, "keyboardHintCloseText", [keyboardHintKey("esc", true)]));
+    return rows;
   }
   // Design mode draws dropdown choices with the radio item component and passes this question
   // into it. That component always asks for a shortcut badge. Dropdown does not show one.

@@ -1,4 +1,6 @@
 import { Serializer } from "./jsonobject";
+import { keyboardHint, keyboardHintKey, IKeyboardHint } from "./keyboard-hints";
+import { SurveyModel } from "./survey";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
@@ -157,6 +159,21 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
   @property({ localizable: { defaultStr: true } }) placeholder: string;
   public getType(): string {
     return "tagbox";
+  }
+  protected getKeyboardHintsCore(): IKeyboardHint[] {
+    const survey = this.survey as SurveyModel;
+    const rows = [
+      keyboardHint(this, "keyboardHintOpenText", [keyboardHintKey("arrowDown", true)])
+    ];
+    if (survey.autoAdvanceEnabled === true) {
+      rows.push(keyboardHint(this, "keyboardHintSubmitText", [keyboardHintKey("enter", !this.isEmpty())]));
+    }
+    rows.push(keyboardHint(this, "keyboardHintSelectText", [
+      keyboardHintKey("space", true),
+      keyboardHintKey("enter", true)
+    ]));
+    rows.push(keyboardHint(this, "keyboardHintCloseText", [keyboardHintKey("esc", true)]));
+    return rows;
   }
   public supportMultipleComment(item: ItemValue): boolean { return this.isOtherValue(item.value); }
   public get a11yInputAriaRole(): string | null {

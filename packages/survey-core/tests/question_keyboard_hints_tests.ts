@@ -200,3 +200,64 @@ test("boolean checkbox uses space and enter", () => {
     type: "boolean", displayMode: "checkbox", defaultValue: false
   }, { autoAdvanceEnabled: true })[1].keys[0].visible).toBe(true);
 });
+
+const down = { label: "↓", shortcut: "ArrowDown", visible: true }; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+const spaceShown = { label: "Space", shortcut: "Space", visible: true };
+const esc = { label: "Esc", shortcut: "Escape", visible: true };
+const dropdownSet = [
+  { text: "to open", keys: [down] },
+  { text: "to select", keys: [spaceShown, enterShown] },
+  { text: "to close", keys: [esc] }
+];
+
+test("dropdown hints stay one set for both popup states", () => {
+  expect(hints({ type: "dropdown", choices: ["a", "b"] })).toEqual(dropdownSet);
+  const empty = [
+    { text: "to open", keys: [down] },
+    { text: "to submit", keys: [enterHidden] },
+    { text: "to select", keys: [spaceShown, enterShown] },
+    { text: "to close", keys: [esc] }
+  ];
+  expect(hints({ type: "dropdown", choices: ["a", "b"] }, { autoAdvanceEnabled: true })).toEqual(empty);
+  const filled = [
+    { text: "to open", keys: [down] },
+    { text: "to submit", keys: [enterShown] },
+    { text: "to select", keys: [spaceShown, enterShown] },
+    { text: "to close", keys: [esc] }
+  ];
+  const survey = new SurveyModel({
+    keyboardHintsEnabled: true,
+    autoAdvanceEnabled: true,
+    elements: [{ type: "dropdown", name: "q", choices: ["a", "b"], defaultValue: "a" }]
+  });
+  const q = survey.getQuestionByName("q") as any;
+  expect(q.getKeyboardHints()).toEqual(filled);
+  expect(q.ariaKeyShortcuts).toBe("ArrowDown Enter Space Enter Escape");
+  q.dropdownListModel.popupModel.show();
+  q.dropdownListModel.inputString = "x";
+  expect(q.getKeyboardHints()).toEqual(filled);
+  expect(JSON.stringify(q.getKeyboardHints())).not.toContain("Backspace");
+});
+
+test("tagbox adds a submit chip and does not swap the set when the popup opens", () => {
+  const choices = ["a", "b"];
+  expect(hints({ type: "tagbox", choices: choices }).map(row => row.text)).toEqual([
+    "to open", "to select", "to close"
+  ]);
+  const empty = hints({ type: "tagbox", choices: choices }, { autoAdvanceEnabled: true });
+  expect(empty.map(row => row.text)).toEqual(["to open", "to submit", "to select", "to close"]);
+  expect(empty[1].keys).toEqual([{ label: "Enter ↵", shortcut: "Enter", visible: false }]); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  const filled = hints({ type: "tagbox", choices: choices, defaultValue: ["a"] }, { autoAdvanceEnabled: true });
+  expect(filled[1].keys[0].visible).toBe(true);
+  const survey = new SurveyModel({
+    keyboardHintsEnabled: true,
+    autoAdvanceEnabled: true,
+    elements: [{ type: "tagbox", name: "q", choices: choices, defaultValue: ["a"] }]
+  });
+  const q = survey.getQuestionByName("q") as any;
+  const before = q.getKeyboardHints();
+  q.dropdownListModel.popupModel.show();
+  q.dropdownListModel.inputString = "";
+  expect(q.getKeyboardHints()).toEqual(before);
+  expect(q.getKeyboardHints()[2].keys.every((key: { visible: boolean }) => key.visible)).toBe(true);
+});

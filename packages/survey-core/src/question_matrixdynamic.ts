@@ -701,11 +701,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.allowRowReorder && !this.isReadOnly && !this.hasRecordSort && this.canWriteRecords("move");
   }
   @property({ defaultValue: 0 }) lockedRowCount: number;
-  /* Enables the header-click sort a renderer may offer; a column opts out with
-     column.allowSort = false. A data source that pages without declaring sorting is read whole while
-     a sort is set. The property is stored and exposed (column.isSortable reads it) - the sort itself
-     is assigned through sort()/sortCriteria/toggleSort. */
-  @property({ defaultValue: false }) allowSortRows: boolean;
 
   public get iconDragElement(): string {
     return this.cssClasses.iconDragElement;
@@ -1760,8 +1755,6 @@ Serializer.addClass(
       },
     },
     { name: "allowRowReorder:switch", alternativeName: "allowRowsDragAndDrop" },
-    // Invisible in the property grid until the UI series ships sortable headers (sortCriteria and filterExpression are the base's).
-    { name: "allowSortRows:boolean", default: false, visible: false },
   ],
   function() {
     return new QuestionMatrixDynamicModel("");

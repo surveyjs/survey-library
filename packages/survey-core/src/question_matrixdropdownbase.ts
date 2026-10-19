@@ -1389,6 +1389,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   public get isColumnLayoutHorizontal(): boolean {
     return this.isMobile ? true : !this.transposeData;
   }
+  // The table renders a header row with one column per header.
+  protected get canSortByHeaders(): boolean {
+    return !this.isMobile && !!this.showHeader && !this.transposeData;
+  }
   /**
    * Enables case-sensitive comparison in columns with the `isUnique` property set to `true`.
    *

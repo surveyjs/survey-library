@@ -40,6 +40,9 @@ export interface IRecordsPagingOwner {
   /* The page size the list gets at runtime: the authored one, except in single-input mode, which is
      its own paging and builds every object. Absent -> pageSize. */
   listPageSize?: number;
+  /* The most criteria a respondent's toggleSort(field, true) leaves in the sort: maxSortLevel.
+     Absent or 0 -> no limit. sort(), sortCriteria and JSON are never limited. */
+  maxSortLevel?: number;
   // What the question reports: 1 page and page 0 while it does not page.
   pageIndex: number;
   pageCount: number;
@@ -432,8 +435,11 @@ export class RecordsPagingController implements ISortCriterionOwner {
       return sort.filter((s: ISortCriterion): boolean => s.field !== field);
     }
     if (!current) {
-      // A field joins at the end: the last one clicked is the last tie-breaker.
-      return sort.concat([{ field: field, direction: dir }]);
+      // A field joins at the end: the last one clicked is the last tie-breaker. At the level limit
+      // it replaces the last level, so with a limit of 1 an append is a plain click.
+      const limit = this.owner.maxSortLevel > 0 ? this.owner.maxSortLevel : 0;
+      const kept = limit > 0 && sort.length >= limit ? sort.slice(0, limit - 1) : sort;
+      return kept.concat([{ field: field, direction: dir }]);
     }
     return sort.map((s: ISortCriterion): ISortCriterion =>
       s.field === field ? { field: field, direction: dir } : s);

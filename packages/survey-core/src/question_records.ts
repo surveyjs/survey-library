@@ -194,6 +194,7 @@ export abstract class QuestionRecordsModel extends Question {
       getLocalizationFormatString: (strName: string, ...args: any[]): string => question.getLocalizationFormatString(strName, ...args),
       get pageSize(): number { return question.pageSize; },
       get listPageSize(): number { return question.listPageSize; },
+      get maxSortLevel(): number { return question.maxSortLevel; },
       get pageIndex(): number { return question.reportedPageIndex; },
       get pageCount(): number { return question.reportedPageCount; },
       get isDesignMode(): boolean { return question.isDesignMode; },
@@ -2476,9 +2477,38 @@ export abstract class QuestionRecordsModel extends Question {
   public clearSort(): void { this.paging.clearSort(); }
   /* What a click on a sortable header does: ascending, then descending, then not sorted. With
      append the field is cycled inside the current sort instead of replacing it, which is the
-     multi-field sort a modified header click makes. It validates the page it replaces. For the
-     renderers: code sorts with sort(). */
+     multi-field sort a modified header click makes; a new field that would go past maxSortLevel
+     replaces the last level. It validates the page it replaces. For the renderers: code sorts with
+     sort(). */
   public toggleSort(field: string, append?: boolean): boolean { return this.paging.toggleSort(field, append); }
+  /* The sort a respondent can make: by a header click a renderer may offer (a column opts out with
+     column.allowSort = false) or from the Sort by menu. It does not gate the code API - sort(),
+     sortCriteria, clearSort() and toggleSort() work whatever its value: the renderers gate on
+     column.isSortable and isSortMenuVisible. */
+  @property({ defaultValue: false }) allowSort: boolean;
+  /* The most criteria a respondent's toggleSort(field, true) leaves in the sort: at least 1, with no
+     upper bound. sort(), sortCriteria and JSON are not limited by it. The clamp is in the setter, which
+     also runs while the question loads from JSON. */
+  public get maxSortLevel(): number {
+    return this.getPropertyValue("maxSortLevel", 1);
+  }
+  public set maxSortLevel(val: number) {
+    const num = Helpers.getNumber(val);
+    this.setPropertyValue("maxSortLevel", num >= 1 ? Math.floor(num) : 1);
+  }
+  // true, false or "auto": "auto" shows the Sort by menu only where the column headers cannot sort.
+  public get showSortMenu(): boolean | "auto" {
+    return this.getPropertyValue("showSortMenu", "auto");
+  }
+  public set showSortMenu(val: boolean | "auto") {
+    this.setPropertyValue("showSortMenu", val === true || val === false ? val : "auto");
+  }
+  public get isSortMenuVisible(): boolean {
+    const show = this.showSortMenu;
+    return this.allowSort === true && (show === true || show === "auto" && !this.canSortByHeaders);
+  }
+  // Whether the rendered column headers sort: paneldynamic has no headers.
+  protected get canSortByHeaders(): boolean { return false; }
   /* A survey expression over the record values - the same language as visibleIf, with the record
      fields as its variables. A record that does not satisfy it has no object; the question value
      keeps every record. An empty string = no filter. It is not rowsVisibleIf / templateVisibleIf:
@@ -4495,11 +4525,17 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
    make JsonObjectProperty.isExpression true, and everything that discovers expressions by type -
    Base.validateExpressions(), the linter - would then read it with the survey as the variable
    context, while its variables are record fields.
-   All three are stored in the hash under their own names (pagingStateKeys). */
+   All three are stored in the hash under their own names (pagingStateKeys). The respondent's sort
+   (allowSort, maxSortLevel, showSortMenu) follows them. */
 export function getRecordViewProperties(): Array<any> {
   return [{ name: pagingStateKeys.pageSize + ":number", default: 0, minValue: 0 },
     { name: pagingStateKeys.sortCriteria + ":sortcriteria", className: "sortcriterion", isArray: true, visible: false },
-    { name: pagingStateKeys.filterExpression, default: "", visible: false }];
+    { name: pagingStateKeys.filterExpression, default: "", visible: false },
+    /* The respondent's sort. A developer sets it in code or JSON; it is invisible in the property
+       grid - on the Multi-Select Matrix for good, on the dynamic types until the sort UI ships. */
+    { name: "allowSort:boolean", default: false, visible: false },
+    { name: "maxSortLevel:number", default: 1, minValue: 1, visible: false },
+    { name: "showSortMenu", default: "auto", choices: ["auto", true, false], visible: false }];
 }
 /* The count properties of a type with a record count, named after its entity: rowCount, minRowCount,
    maxRowCount and rowCountExpression for "Row". A type makes one (getRecordCountNamesOf), and its

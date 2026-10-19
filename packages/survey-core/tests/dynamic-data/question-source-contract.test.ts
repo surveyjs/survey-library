@@ -836,7 +836,7 @@ describe.each(namedAdapters)("Question source contract, paging without a declare
    sort is set. A header click is a move the respondent makes, so the page is validated first. */
 describe("Question source contract: header sort", () => {
   function createSortableMatrix(source: ContractSource): { survey: SurveyModel, question: QuestionMatrixDynamicModel, errors: Array<string> } {
-    const { survey, question } = matrixAdapter.create(source, 2, { allowSortRows: true });
+    const { survey, question } = matrixAdapter.create(source, 2, { allowSort: true });
     const errors: Array<string> = [];
     survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation); });
     return { survey: survey, question: question, errors: errors };
@@ -945,7 +945,7 @@ describe("Question source contract: header sort", () => {
     expect(question.toggleSort("id"), "#1: design mode stores the sort").toBe(true);
     expect(getSort(question), "#2").toEqual([{ field: "id", direction: "asc" }]);
     const standalone = new QuestionMatrixDynamicModel("m");
-    standalone.allowSortRows = true;
+    standalone.allowSort = true;
     standalone.addColumn("col1");
     expect((<any>standalone)._dataList, "#3: no list yet").toBeUndefined();
     expect(standalone.columns[0].isSortable, "#4").toBe(true);

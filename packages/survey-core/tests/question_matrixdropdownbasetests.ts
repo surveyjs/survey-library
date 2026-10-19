@@ -3431,10 +3431,13 @@ describe("Fixed matrix sorts and filters its rows", () => {
     matrix.toggleSort("rowTitle");
     expect([getSort(matrix), names(matrix)[0]], "#3").toEqual([[], "r1"]);
   });
-  test("no UI: the fixed matrix has no allowSortRows and no sortable column", () => {
-    const { matrix } = createFixed({ columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text" }] });
-    expect(Serializer.findProperty("matrixdropdown", "allowSortRows"), "#1").toBeFalsy();
-    expect(matrix.columns.map(column => column.isSortable), "#2").toEqual([false, false]);
+  test("the fixed matrix sorts by its headers once a developer sets allowSort, which the property grid hides", () => {
+    const { matrix } = createFixed({ columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", allowSort: false }] });
+    expect(Serializer.findProperty("matrixdropdown", "allowSort").visible, "#1: hidden in the property grid").toBe(false);
+    expect(matrix.columns.map(column => column.isSortable), "#2: not allowed by default").toEqual([false, false]);
+    matrix.allowSort = true;
+    expect(matrix.columns.map(column => column.isSortable), "#3: the column that opted out stays unsortable").toEqual([true, false]);
+    expect(matrix.isSortMenuVisible, "#4: \"auto\" and sortable headers: no menu").toBe(false);
   });
   describe("filtered-out rows", () => {
     test("their answers are kept by clearIncorrectValues", () => {

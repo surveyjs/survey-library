@@ -172,6 +172,9 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "pageSize", default: 0, visible: true },
     { name: "sortCriteria", visible: false },
     { name: "filterExpression", default: "", visible: false },
+    { name: "allowSort", default: false, visible: false },
+    { name: "maxSortLevel", default: 1, visible: false },
+    { name: "showSortMenu", default: "auto", visible: false },
     { name: "rows", default: [], visible: true },
     { name: "rowTitleWidth", visible: true },
     { name: "totalText", visible: true },
@@ -247,6 +250,9 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "pageSize", default: 0, visible: true },
     { name: "sortCriteria", visible: false },
     { name: "filterExpression", default: "", visible: false },
+    { name: "allowSort", default: false, visible: false },
+    { name: "maxSortLevel", default: 1, visible: false },
+    { name: "showSortMenu", default: "auto", visible: false },
     { name: "allowAddRows", default: true, visible: true },
     { name: "allowRemoveRows", default: true, visible: true },
     { name: "rowCount", default: 2, visible: true },
@@ -265,7 +271,6 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "noRowsText", visible: true },
     { name: "detailPanelShowOnAdding", visible: true },
     { name: "allowRowReorder", visible: true },
-    { name: "allowSortRows", default: false, visible: false },
   ],
   paneldynamic: [
     { name: "name", visible: true },
@@ -341,6 +346,9 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "pageSize", default: 0, visible: true },
     { name: "sortCriteria", visible: false },
     { name: "filterExpression", default: "", visible: false },
+    { name: "allowSort", default: false, visible: false },
+    { name: "maxSortLevel", default: 1, visible: false },
+    { name: "showSortMenu", default: "auto", visible: false },
     { name: "displayMode", default: "list", visible: true },
     { name: "showProgressBar", default: true, visible: true },
     { name: "progressBarLocation", default: "top", visible: true },
@@ -366,8 +374,7 @@ const expectedOwnRegistrations: { [type: string]: { parentName: string, properti
       "allowAddRows", "allowRemoveRows", "rowCount", "rowCountExpression", "minRowCount", "maxRowCount",
       "keyName", "defaultRowValue", "copyDefaultValueFromLastEntry", "confirmDelete", "confirmDeleteText",
       "addRowButtonLocation", "addRowText", "removeRowText", "hideColumnsIfEmpty", "noRowsText",
-      "detailPanelShowOnAdding", "allowRowReorder",
-      "allowSortRows"
+      "detailPanelShowOnAdding", "allowRowReorder"
     ]
   },
   paneldynamic: {
@@ -379,7 +386,7 @@ const expectedOwnRegistrations: { [type: string]: { parentName: string, properti
       "copyDefaultValueFromLastEntry", "panelsState", "keyName", "keyDuplicationError", "confirmDelete",
       "confirmDeleteText", "addPanelText", "removePanelText", "prevPanelText", "nextPanelText",
       "showQuestionNumbers", "questionStartIndex", "renderMode",
-      "pageSize", "sortCriteria", "filterExpression",
+      "pageSize", "sortCriteria", "filterExpression", "allowSort", "maxSortLevel", "showSortMenu",
       "displayMode", "showProgressBar", "progressBarLocation", "tabAlign", "templateQuestionTitleLocation",
       "templateQuestionTitleWidth", "templateErrorLocation", "templateVisibleIf", "removePanelButtonLocation"
     ]
@@ -474,7 +481,7 @@ describe("Matrix and dynamic panel serializer metadata", () => {
 describe("the paging, sort and filter properties of the matrices with rows", () => {
   test("Serializer.findProperty and a JSON round-trip are the same for the Dynamic Matrix and the Multi-Select Matrix", () => {
     ["matrixdynamic", "matrixdropdown"].forEach(type => {
-      ["pageSize", "sortCriteria", "filterExpression"].forEach(name => {
+      ["pageSize", "sortCriteria", "filterExpression", "allowSort", "maxSortLevel", "showSortMenu"].forEach(name => {
         const prop = Serializer.findProperty(type, name);
         expect(!!prop, type + "." + name).toBe(true);
         expect(prop.visible, type + "." + name + " visible").toBe(name === "pageSize");
@@ -486,7 +493,5 @@ describe("the paging, sort and filter properties of the matrices with rows", () 
       const res = survey.getQuestionByName("q").toJSON();
       expect([res.pageSize, res.sortCriteria, res.filterExpression], type + " round-trip").toEqual([3, [{ field: "a" }], "{a} > 1"]);
     });
-    expect(!!Serializer.findProperty("matrixdynamic", "allowSortRows"), "allowSortRows").toBe(true);
-    expect(!!Serializer.findProperty("matrixdropdown", "allowSortRows"), "allowSortRows stays on matrixdynamic").toBe(false);
   });
 });

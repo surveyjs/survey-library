@@ -11577,7 +11577,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
   test("design mode pages nothing and keeps the authored value", () => {
     const survey = new SurveyModel();
     survey.setDesignMode(true);
-    survey.fromJSON({ elements: [{ type: "matrixdynamic", name: "matrix", columns: cols, rowCount: 5, pageSize: 2, allowSortRows: true }] });
+    survey.fromJSON({ elements: [{ type: "matrixdynamic", name: "matrix", columns: cols, rowCount: 5, pageSize: 2, allowSort: true }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     expect(matrix.pageSize, "#1: the authored value is kept for serialization").toBe(2);
     expect(matrix.visibleRows.length, "#2").toBe(5);
@@ -11600,33 +11600,33 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(json.filterExpression, "#13").toBe("{c1} = 'a'");
   });
   test("the new properties round-trip through JSON, pageSize is in the property grid", () => {
-    const matrix = createMatrix({ rowCount: 2, pageSize: 3, allowSortRows: true,
+    const matrix = createMatrix({ rowCount: 2, pageSize: 3, allowSort: true,
       columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text", allowSort: false }] });
     expect(matrix.pageSize, "#1").toBe(3);
-    expect(matrix.allowSortRows, "#2").toBe(true);
+    expect(matrix.allowSort, "#2").toBe(true);
     expect(matrix.columns[1].allowSort, "#3").toBe(false);
     const json = matrix.toJSON();
     expect(json.pageSize, "#4").toBe(3);
-    expect(json.allowSortRows, "#5").toBe(true);
+    expect(json.allowSort, "#5").toBe(true);
     expect(json.columns[1].allowSort, "#6").toBe(false);
     expect(Serializer.findProperty("matrixdynamic", "pageSize").visible, "#7").toBe(true);
-    expect(Serializer.findProperty("matrixdynamic", "allowSortRows").visible, "#8").toBe(false);
+    expect(Serializer.findProperty("matrixdynamic", "allowSort").visible, "#8").toBe(false);
     expect(Serializer.findProperty("matrixdropdowncolumn", "allowSort").visible, "#9").toBe(false);
   });
   test("the defaults are not serialized", () => {
     const matrix = createMatrix({ rowCount: 2 });
     const json = matrix.toJSON();
     expect(json.pageSize, "#1").toBe(undefined);
-    expect(json.allowSortRows, "#2").toBe(undefined);
+    expect(json.allowSort, "#2").toBe(undefined);
     expect(json.columns[0].allowSort, "#3").toBe(undefined);
     expect(matrix.pageSize, "#4").toBe(0);
-    expect(matrix.allowSortRows, "#5").toBe(false);
+    expect(matrix.allowSort, "#5").toBe(false);
     expect(matrix.columns[0].allowSort, "#6: a column sorts by default").toBe(true);
   });
   test("a column is sortable when the matrix allows it and the column does not opt out", () => {
     const matrix = createMatrix({ rowCount: 2, columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "dropdown", allowSort: false }] });
     expect(matrix.columns[0].isSortable, "#1: the matrix does not allow it yet").toBe(false);
-    matrix.allowSortRows = true;
+    matrix.allowSort = true;
     expect(matrix.columns[0].isSortable, "#2").toBe(true);
     expect(matrix.columns[1].isSortable, "#3: the column opted out").toBe(false);
     matrix.columns[1].allowSort = true;
@@ -11663,7 +11663,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(pageValues(matrix), "#1: as text 2024-1-5 would be last").toEqual(["2023-12-31", "2024-1-5", "2024-01-10"]);
   });
   test("toggleSort adds a field to the sort instead of replacing it", () => {
-    const matrix = createMatrix({ rowCount: 3, allowSortRows: true },
+    const matrix = createMatrix({ rowCount: 3, allowSort: true, maxSortLevel: 2 },
       [{ c1: "b", c2: "2" }, { c1: "a", c2: "1" }, { c1: "b", c2: "1" }]);
     matrix.toggleSort("c1", true);
     matrix.toggleSort("c2", true);
@@ -11772,7 +11772,7 @@ describe("Survey_QuestionMatrixDynamic: the sort and the filter in JSON", () => 
     expect(byField.toJSON().sortCriteria, "#3").toEqual(byCriteria.toJSON().sortCriteria);
   });
   test("the sort a header click makes is what toJSON emits", () => {
-    const matrix = createMatrix({ rowCount: 3, allowSortRows: true }, cba);
+    const matrix = createMatrix({ rowCount: 3, allowSort: true }, cba);
     matrix.toggleSort("c1");
     expect(matrix.toJSON().sortCriteria, "#1").toEqual([{ field: "c1" }]);
     matrix.toggleSort("c1");

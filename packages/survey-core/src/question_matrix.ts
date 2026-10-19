@@ -1143,11 +1143,9 @@ export class QuestionMatrixModel
   /**
    * Specifies whether to display a button that clears the answer in every matrix row.
    *
-   * The button appears in the question title and stays hidden when the title is hidden. It clears both radio and checkbox cells.
+   * The button appears in the question title and stays hidden when the [title is hidden](#titleLocation). It clears both [radio and checkbox cells](#cellType).
    *
    * Default value: `false`
-   * @see titleLocation
-   * @see cellType
    */
   @property({ defaultValue: false, onSet: (_: boolean, target: any) => target.resetTitleActions() }) allowClear: boolean;
   public get canShowClearButton(): boolean {

@@ -164,11 +164,9 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   /**
    * Specifies whether to display a button that clears the question value.
    *
-   * The button appears in the question title. It is available for the segmented and radio display modes when the title is visible. Checkbox and switch modes do not support it.
+   * The button appears in the question title. It is available for the segmented and radio [display modes](#displayMode) when the title is visible. Checkbox and switch modes do not support it.
    *
    * Default value: `false`
-   * @see displayMode
-   * @see titleLocation
    */
   @property({ defaultValue: false, onSet: (_: boolean, target: any) => target.resetTitleActions() }) allowClear: boolean;
   // Checkbox and switch draw the title inside the control and have no Clear slot.

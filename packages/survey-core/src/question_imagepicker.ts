@@ -139,11 +139,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   /**
    * Specifies whether to display a button that clears the selected image or video.
    *
-   * When [`multiSelect`](#multiSelect) is enabled, the button clears every selected item. The button appears in the question title and stays hidden when the title is hidden.
+   * When [`multiSelect`](#multiSelect) is enabled, the button clears every selected item. The button appears in the question title and stays hidden when the [title is hidden](#titleLocation).
    *
    * Default value: `false`
-   * @see multiSelect
-   * @see titleLocation
    */
   @property({ defaultValue: false, onSet: (_: boolean, target: any) => target.resetTitleActions() }) allowClear: boolean;
   public get canShowClearButton(): boolean {

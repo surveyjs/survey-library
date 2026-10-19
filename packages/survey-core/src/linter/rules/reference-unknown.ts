@@ -1,7 +1,6 @@
 import { ILintRule, LintContext } from "../rule";
 import {
-  classifyFunctionArgRefs, classifyNameRef, classifySiteRefs, equalsCI, FunctionArgRef,
-  respellSegment,
+  classifyFunctionArgRefs, classifyNameRef, classifySiteRefs, equalsCI, FunctionArgRef, respellRef,
 } from "../expression-utils";
 import { closestMatch } from "../levenshtein";
 import {
@@ -16,24 +15,31 @@ import { ILintResolvedSettings } from "../lint-settings";
 const reasons = SurveyLintReasons["reference/unknown"];
 const fixReasons = SurveyLintFixReasons["reference/unknown"];
 
-// The name the author meant, with only the segment that did not resolve respelled: the
+// The name the author meant, with only the segments the suggestion spells respelled: the
 // container a dotted reference starts with is right where it was written.
 function respellRaw(ref: ParsedRef): string | undefined {
-  return respellSegment(ref.raw, ref.unknownSegmentIndex || 0, ref.suggestion);
+  const start = ref.unknownSegmentIndex || 0;
+  const end = ref.suggestionEnd !== undefined ? ref.suggestionEnd : start;
+  return respellRef(ref, start, end, ref.suggestion);
 }
 
 // A reference stands between the delimiters the settings configure, so the whole token is
 // replaced rather than the name inside it - {q1} then never matches inside {q10}. Every
-// occurrence goes: they are one and the same defect.
+// occurrence goes: they are one and the same defect. The core drops the conversion char from
+// the name it hands over ({#q1}), so the token is looked for with that char as well, and keeps it.
 function rewriteReference(text: string, ref: ParsedRef,
   settings: ILintResolvedSettings): string | undefined {
   const raw = respellRaw(ref);
   if (!raw || !text) return undefined;
   const start = settings.expressionVariableStartDelimiter;
   const end = settings.expressionVariableEndDelimiter;
-  const token = start + ref.raw + end;
-  if (text.indexOf(token) < 0) return undefined;
-  return text.split(token).join(start + raw + end);
+  const prefixes = [""];
+  if (!!settings.expressionDisableConversionChar) prefixes.push(settings.expressionDisableConversionChar);
+  let res = text;
+  prefixes.forEach(prefix => {
+    res = res.split(start + prefix + ref.raw + end).join(start + prefix + raw + end);
+  });
+  return res === text ? undefined : res;
 }
 
 function segmentName(ref: ParsedRef): string {

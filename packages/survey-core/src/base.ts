@@ -19,6 +19,7 @@ import { IObjectValueContext, IValueGetterContext, ValueGetter, VariableGetterCo
 import { EventBase, Event } from "./event";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isAnimationEnabled } from "./utils/reduced-motion";
+import { Scope } from "./utils/scope";
 
 export interface IPropertyValueChangedEvent {
   name: string;
@@ -302,9 +303,7 @@ export class Base implements IObjectValueContext {
     return Helpers.isTwoValueEquals(this.toJSON(), obj.toJSON(), false, true, false);
   }
   protected trimValue(value: any): any {
-    if (!!value && (typeof value === "string" || value instanceof String))
-      return value.trim();
-    return value;
+    return Helpers.trimValue(value);
   }
   public static createPropertiesHash() {
     return {};
@@ -565,6 +564,8 @@ export class Base implements IObjectValueContext {
   endLoadingFromJson() {
     this.isLoadingFromJsonValue = false;
   }
+  // The matrix and the dynamic panel call it on their inner panels by element access: the compiler
+  // checks the signature; tests/dynamic-data/internal-access.test.ts checks that the member exists.
   protected mergeLocalizationObj(obj: Base, locales?: Array<string>): void {
     this.mergeLocalizationInObjectCore(obj, locales);
     this.mergeLocalizationInArrays(obj, locales);
@@ -791,7 +792,12 @@ export class Base implements IObjectValueContext {
   }
   public getIsSerializablePropertyEmpty(prop: JsonObjectProperty): boolean {
     const orgObj = this.getOriginalByProperty(prop.name);
-    if (prop.isLocalizable && !prop.isMultipleText) return !orgObj.getLocalizableString(prop.name);
+    if (prop.isLocalizable && !prop.isMultipleText) {
+      // getOriginalByProperty can return a wrapper. The value for a question-level
+      // loc string (description, requiredErrorText) stays on this object.
+      const locStr = this.getLocalizableString(prop.name) || orgObj !== this && orgObj.getLocalizableString(prop.name);
+      return !locStr;
+    }
     if (orgObj === this && this.doNotSerializeEmptyProperty(prop)) return this.getPropertyValueWithoutDefault(prop.name) == undefined;
     return false;
   }
@@ -947,12 +953,14 @@ export class Base implements IObjectValueContext {
       propertyName: item.ownerPropertyName,
     });
   }
-  private isFuncExecuting: boolean;
+  // Created on the first sync: most Base objects never sync properties, and there are many of them.
+  private syncPropertiesScope: Scope;
   protected executeOnSyncPropertiesChanged(func: () => void): void {
-    if (!this.isFuncExecuting) {
-      this.isFuncExecuting = true;
-      func();
-      this.isFuncExecuting = false;
+    if (!this.syncPropertiesScope) {
+      this.syncPropertiesScope = new Scope();
+    }
+    if (!this.syncPropertiesScope.isActive) {
+      this.syncPropertiesScope.run(func);
     }
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges): void { }

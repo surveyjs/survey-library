@@ -209,6 +209,20 @@ describe("Question.isValueCorrect", () => {
       expect(survey.data, label + ": clearIncorrectValues removes the key that nobody owns").toEqual({ shared: value });
     });
   });
+  test("A record key owned by a question that shares the valueName is known; a key nobody owns is reported", () => {
+    const shared = new SurveyModel({ elements: [
+      { type: "checkbox", name: "cb", valueName: "shared", valuePropertyName: "fruit", choices: ["apple", "pear"] },
+      { type: "paneldynamic", name: "p", valueName: "shared", templateElements: [{ type: "text", name: "name" }] }
+    ] });
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => { });
+    try {
+      expect(shared.setData({ shared: [{ fruit: "apple", name: "x" }] }), "#1: fruit is the checkbox's key").toEqual([]);
+      const matrix = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", valueName: "v", columns: [{ name: "c", cellType: "text" }] }] });
+      expect(matrix.setData({ v: [{ c: 1, zz: 2 }] }).map(issue => issue.path), "#2: a key nobody owns").toEqual(["v[0].zz"]);
+    } finally {
+      warn.mockRestore();
+    }
+  });
   test("A matrix detail panel question with valueName is a known key", () => {
     const survey = new SurveyModel({
       elements: [{

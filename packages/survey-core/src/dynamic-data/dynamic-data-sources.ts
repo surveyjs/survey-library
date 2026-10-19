@@ -1,0 +1,500 @@
+import { ISurveyData } from "../interfaces/data-interfaces";
+import { Helpers } from "../helpers";
+import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data-interfaces";
+import { createKeyRemap, getReplacedRecordsRemap } from "./dynamic-data-record-remap";
+import { Scope } from "../utils/scope";
+
+/* A local source: the owner's records in memory, behind a getter/setter pair. It is read whole and
+   synchronously, it is written synchronously and by position - the index a list sends is the position
+   in the array as that list last read it -, and the push is the storage: the next read already gives
+   what a write stored. A write that returns a promise is reported as an error and not waited for. The
+   list relies on all of it: it reads its owner's own local source through instead of
+   keeping a window, it takes the array a write stored as its window, and it lets only one list write
+   such a source (positionWriter). A subclass says how the stored records are counted and read one
+   by one (getStoredCount, readStoredAt), and it adds the membership writes it has: one without insert
+   has a membership that is not the list's to change (hasFixedMembership).
+   It is constructed from a getter/setter pair, not from an array reference: the questions expose their
+   records through question.value, which must be replaced - never mutated - on every write, so that
+   Question.setNewValue sees a different array and onValueChanged.oldValue stays correct. Every write
+   therefore builds a new array. The source owns how the storage reads; the owner owns how a write is
+   stored (setArray).
+   The list and the owner question call its protected and private members by element access
+   (source["readRecordInAnswer"](value, index)). The compiler checks the signature;
+   tests/dynamic-data/internal-access.test.ts checks that the member exists. A member reached this
+   way is added to, or renamed in, that test's list. */
+export abstract class LocalDynamicDataSource implements IDynamicDataSource {
+  /* setArray gets the writes that made the array, in order - one, or every write of a batch - so that
+     an owner whose value has a shape rule per kind of write can apply it. */
+  constructor(private getArray: () => Array<any> | undefined,
+    private setArray: (arr: Array<any>, operations?: Array<DynamicDataOperation>) => void) { }
+  // The length read() would return, without composing the array. Inside a batch the array being built.
+  public get count(): number {
+    if (this.isBatching) return this.batchArray.length;
+    return this.getStoredCount();
+  }
+  /* One record of read(), without composing the array; undefined out of range. defaultRecord is what a
+     position the storage does not hold reads, for a subclass that has such positions. Inside a batch,
+     the array being built. */
+  public readAt(index: number, defaultRecord?: any): any {
+    if (this.isBatching) return this.batchArray[index];
+    return this.readStoredAt(index, defaultRecord);
+  }
+  protected abstract getStoredCount(): number;
+  protected abstract readStoredAt(index: number, defaultRecord: any): any;
+  private batchScope = new Scope();
+  private batchArray: Array<any>;
+  private batchOperations: Array<DynamicDataOperation> = [];
+  // True while a batch is open, a nested one included: read() answers from the array being built.
+  private get isBatching(): boolean {
+    return this.batchScope.isActive;
+  }
+  // One record operation of the list is often several source writes: pad the array, then set a
+  // field; move a record, then update it. The owner's array has to be replaced once, not once per
+  // step, or every intermediate state would reach the owner as a value change of its own. Reads
+  // inside the batch answer from the array being built, so a read-through list stays consistent.
+  public batch(func: () => void): void {
+    if (this.isBatching) {
+      func();
+      return;
+    }
+    this.batchArray = this.readCore();
+    this.batchOperations = [];
+    let newArray: Array<any>;
+    let operations: Array<DynamicDataOperation>;
+    try {
+      this.batchScope.run(func);
+    } finally {
+      newArray = this.batchArray;
+      operations = this.batchOperations;
+      this.batchArray = undefined;
+      this.batchOperations = [];
+    }
+    // The writes are counted instead of comparing the result with a fresh read: a read that pads the
+    // stored array (getMinCount) or a getter that composes it returns a different instance every time,
+    // and an empty batch would write the composed array back into the owner.
+    if (operations.length > 0) {
+      this.setArray(newArray, operations);
+    }
+  }
+  /* The source does not page, so the request has nothing to say to it: the list reads it with no
+     request at all wherever it reads through (a method with fewer parameters satisfies the
+     interface), and the answer is the array itself, never a wrapper. */
+  public read(): Array<any> {
+    return this.isBatching ? this.batchArray : this.readCore();
+  }
+  // The array read() gives outside a batch: the stored one, unless a subclass composes it.
+  protected readCore(): Array<any> {
+    return this.readStored();
+  }
+  protected readStored(): Array<any> {
+    const res = this.getArray();
+    return Array.isArray(res) ? res : [];
+  }
+  protected write(arr: Array<any>, operation: DynamicDataOperation): void {
+    if (this.isBatching) {
+      this.batchArray = arr;
+      this.batchOperations.push(operation);
+    } else {
+      this.setArray(arr, [operation]);
+    }
+  }
+  // A source without keyField: the key IS the source index, so update takes a position.
+  public update(sourceIndex: number, record: any): void {
+    const arr = this.read();
+    if (!isInRange(sourceIndex, arr.length)) return;
+    const newArray = arr.slice();
+    newArray[sourceIndex] = record;
+    this.write(newArray, "update");
+  }
+  /* The answer's shape, for a value the caller passes and for a result built from records - never the
+     stored value. The base answers for an array, record i at value[i]; a source over another shape
+     overrides all six members (RowsDynamicDataSource). The owner question calls them by element
+     access (see the class comment): they are its owner's plumbing, not the public API of the class. */
+  // The record at index in a value the caller passes, not in the storage; undefined when the value does not hold it.
+  protected readRecordInAnswer(value: any, index: number): any {
+    return Array.isArray(value) && index > -1 ? value[index] : undefined;
+  }
+  // An empty result in the answer's shape, filled by addRecordToAnswer.
+  protected createEmptyAnswer(): any {
+    return [];
+  }
+  // Adds the record at index to a result of createEmptyAnswer: an array takes every record in the order it gets them, undefined included.
+  protected addRecordToAnswer(values: any, index: number, record: any): void {
+    values.push(record);
+  }
+  // The segment of the record at index in a data location.
+  protected getRecordSegment(index: number): string | number {
+    return index;
+  }
+  // What per-record state is kept under.
+  protected getRecordStateKey(index: number, record: any): any {
+    return index;
+  }
+  // Where each record of an assignment from outside went: by keyField when the records name themselves, else by content (getReplacedRecordsRemap).
+  protected createAnswerAssignmentRemap(oldRecords: any, newRecords: any, keyField?: string): (index: number) => number {
+    return getReplacedRecordsRemap(Array.isArray(oldRecords) ? oldRecords : [], Array.isArray(newRecords) ? newRecords : [], keyField);
+  }
+  /* A source without keyField is written by position: the index a list sends is the position in the
+     array as that list last read it. Two lists that write one such array would each send positions
+     the other one's writes have shifted, and a write would land on another record. So such a source
+     has one writer: the list it was assigned to last (DynamicDataList.assignSource) - also when it is
+     assigned again to a list that holds it already. A list that holds it while another list writes it
+     only reads it: its write capabilities are false, and the question reports each refused write.
+     When the writer changes, the earlier writer is told (positionWriterChanged), so that its question
+     refreshes what it shows. A list that leaves the source or is disposed releases it, and a list that
+     only reads stays read-only until the source is assigned to it again (isPositionWriterReleased). A
+     keyed source is written by key and stays shared. The question's own default source is never
+     assigned, so it has no writer.
+     The source holds only the current writer and its callback, and drops both when the writer leaves
+     or another list takes its place. The members are private: the list calls them by element access
+     (see the class comment). */
+  private positionWriter: object;
+  private positionWriterChanged: () => void;
+  private isPositionWriterReleased: boolean;
+  private get isKeyed(): boolean {
+    return !!(<IDynamicDataSource>this).keyField;
+  }
+  private claimPositionWriter(writer: object, onChanged: () => void): void {
+    if (this.isKeyed) return;
+    const previous = this.positionWriter;
+    const notify = this.positionWriterChanged;
+    this.positionWriter = writer;
+    this.positionWriterChanged = onChanged;
+    this.isPositionWriterReleased = false;
+    if (!!previous && previous !== writer && !!notify) notify();
+  }
+  private releasePositionWriter(writer: object): void {
+    if (this.positionWriter !== writer) return;
+    this.positionWriter = undefined;
+    this.positionWriterChanged = undefined;
+    this.isPositionWriterReleased = true;
+  }
+  private isWrittenByAnotherWriter(writer: object): boolean {
+    if (this.isKeyed) return false;
+    return !!this.isPositionWriterReleased || !!this.positionWriter && this.positionWriter !== writer;
+  }
+}
+function isInRange(index: number, length: number): boolean {
+  return index >= 0 && index < length;
+}
+// Read whole and synchronously, written by position, the push is the storage (LocalDynamicDataSource).
+export function isLocalSource(source: IDynamicDataSource): source is LocalDynamicDataSource {
+  return source instanceof LocalDynamicDataSource;
+}
+// The list cannot add or remove a record of a source without insert: its membership is the owner's.
+export function hasFixedMembership(source: IDynamicDataSource): boolean {
+  return typeof source.insert !== "function";
+}
+
+/* What an owner adds to the array source.
+   getMinCount: the records the owner always has (the Dynamic Matrix's rowCount). A stored array that
+   is shorter reads padded up to it with copies of getDefaultRecord(); the padding is virtual and
+   reaches the storage only with a write. The stored array is never truncated to it.
+   getDefaultRecord: what a padded record reads as; undefined without it. */
+export interface IArrayDynamicDataSourceOptions {
+  getMinCount?: () => number;
+  getDefaultRecord?: () => any;
+}
+// A local source over an array the caller owns, with every membership write: insert, remove and move.
+// The source owns how the storage reads - the padding included -; the owner owns how a write is
+// stored (setArray). The Dynamic Matrix calls padRecordsToMinCount by element access: the compiler
+// checks the signature; tests/dynamic-data/internal-access.test.ts checks that the member exists.
+export class ArrayDynamicDataSource extends LocalDynamicDataSource {
+  constructor(getArray: () => Array<any> | undefined,
+    setArray: (arr: Array<any>, operations?: Array<DynamicDataOperation>) => void,
+    private options: IArrayDynamicDataSourceOptions = {}) {
+    super(getArray, setArray);
+  }
+  /* The stored array padded up to the minimum count. Inside a batch the base counts the array being built,
+     which is not padded again: a removal may leave it below the minimum until the owner stores it. */
+  protected getStoredCount(): number {
+    return Math.max(this.readStored().length, this.getMinCount());
+  }
+  /* A padded position reads defaultRecord when it is given - shared, not copied: a caller that only
+     reads passes one for every index -, else getDefaultRecord(). */
+  protected readStoredAt(index: number, defaultRecord: any): any {
+    if (index < 0) return undefined;
+    const stored = this.readStored();
+    if (index < stored.length) return stored[index];
+    if (index >= this.getMinCount()) return undefined;
+    return defaultRecord !== undefined ? defaultRecord : this.getDefaultRecord();
+  }
+  // Appends copies of the default record until records holds the minimum count; records is modified and returned.
+  protected padRecordsToMinCount(records: Array<any>): Array<any> {
+    const minCount = this.getMinCount();
+    if (records.length >= minCount) return records;
+    const defaultRecord = this.getDefaultRecord();
+    for (let i = records.length; i < minCount; i++) {
+      records.push(Helpers.getUnbindValue(defaultRecord));
+    }
+    return records;
+  }
+  private getMinCount(): number {
+    return !!this.options.getMinCount ? this.options.getMinCount() : 0;
+  }
+  private getDefaultRecord(): any {
+    return !!this.options.getDefaultRecord ? this.options.getDefaultRecord() : undefined;
+  }
+  // Wraps a local variable; the mutations replace it. For tests and standalone use.
+  public static fromArray(arr?: Array<any>): ArrayDynamicDataSource {
+    let local: Array<any> = Array.isArray(arr) ? arr : [];
+    return new ArrayDynamicDataSource(() => local, (newArray: Array<any>): void => { local = newArray; });
+  }
+  public get array(): Array<any> {
+    return this.read();
+  }
+  // The stored array as read() gives it outside a batch: itself when it holds the minimum count, else a padded copy.
+  protected readCore(): Array<any> {
+    const res = this.readStored();
+    return res.length >= this.getMinCount() ? res : this.padRecordsToMinCount(res.slice());
+  }
+  public insert(record: any, sourceIndex: number): void {
+    const arr = this.read().slice();
+    const index = Math.max(0, Math.min(sourceIndex, arr.length));
+    arr.splice(index, 0, record);
+    this.write(arr, "insert");
+  }
+  public remove(sourceIndex: number): void {
+    const arr = this.read();
+    if (!isInRange(sourceIndex, arr.length)) return;
+    const newArray = arr.slice();
+    newArray.splice(sourceIndex, 1);
+    this.write(newArray, "remove");
+  }
+  public move(fromSourceIndex: number, toSourceIndex: number): void {
+    const arr = this.read();
+    if (!isInRange(fromSourceIndex, arr.length) || !isInRange(toSourceIndex, arr.length)) return;
+    if (fromSourceIndex === toSourceIndex) return;
+    const newArray = arr.slice();
+    const record = newArray[fromSourceIndex];
+    newArray.splice(fromSourceIndex, 1);
+    newArray.splice(toSourceIndex, 0, record);
+    this.write(newArray, "move");
+  }
+}
+
+// The same array source over a value stored in ISurveyData (a survey, a panel item or a matrix row).
+// getValue/setValue are all the list needs from ISurveyData: comments are ordinary keys inside the
+// records, so getComment/setComment never come into play.
+export class SurveyDataDynamicDataSource extends ArrayDynamicDataSource {
+  constructor(public data: ISurveyData, public valueName: string) {
+    super(() => data.getValue(valueName), (arr: Array<any>): void => { data.setValue(valueName, arr, false); });
+  }
+}
+
+/* The released rule of a row: a record is empty when it holds no value but undefined or null. One rule
+   for an object and for a stored record without one (a cleared cell removes the row's key). */
+export function isRecordEmpty(record: any): boolean {
+  if (Helpers.isValueEmpty(record)) return true;
+  for (const key in record) {
+    if (record[key] !== undefined && record[key] !== null) return false;
+  }
+  return true;
+}
+
+// A row of RowsDynamicDataSource: its value is the key of its record in the answer; a row without a value (hasValue) is no record.
+export interface IDynamicDataRow {
+  value: any;
+  hasValue: boolean;
+}
+/* The records of an owner whose rows define them (the Multi-Select Matrix), over its keyed answer. A
+   record is one row with a non-empty value, in rows order - the record index -, and it is the answer's
+   object under the row's value itself, value[row.value], never a copy. A row the answer holds no key for
+   reads undefined: a virtual empty record that a read never writes. Two rows with one value are two
+   records that read one key. A key is compared as a string, the way an object key is.
+   The keyed answer is the only stored value. The composed array is derived from it and cached by the
+   answer instance and the rows: a list reads through it on every record access, and a write compares
+   the records it gets back with the composed ones by instance (writeRecords), so a read must give the
+   same instances again.
+   The membership is the rows': the source has no insert, remove or move, and a write of an array of
+   another length, or of one that moves a record to another position, is refused and stores nothing.
+   getRows: the rows, in their order. getValue: the keyed answer. storeValue: the new answer - a copy
+   of the stored one with the written records in place - and the indexes of the records written.
+   The owner calls rowsChanged() after every change of its rows - an assignment, an array change, a
+   reorder, a row value renamed -; the caches go, onRecordsReplaced is told where each old record
+   went, and the owner gets back what changed (IRowsChange). */
+export class RowsDynamicDataSource<T extends IDynamicDataRow = IDynamicDataRow> extends LocalDynamicDataSource {
+  // createRemap: the new index of an old record by its key - two rows of one key by occurrence -, -1 for a key that is gone.
+  public onRecordsReplaced: (createRemap: () => ((index: number) => number)) => void;
+  constructor(private getRows: () => Array<T>, private getValue: () => any,
+    private storeValue: (newValue: any, changedIndexes: Array<number>) => void) {
+    super(() => this.getRecords(), (records: Array<any>): void => { this.writeRecords(records); });
+  }
+  private rowsCache: { items: Array<T>, keys: Array<string>, hasDuplicates: boolean };
+  private recordsCache: { value: any, records: Array<any> };
+  private getRowsCache(): { items: Array<T>, keys: Array<string>, hasDuplicates: boolean } {
+    if (!!this.rowsCache) return this.rowsCache;
+    const items = (this.getRows() || []).filter((item: T): boolean => item.hasValue);
+    const keys = items.map((item: T): string => String(item.value));
+    const hasDuplicates = keys.some((key: string, index: number): boolean => keys.indexOf(key) !== index);
+    this.rowsCache = { items: items, keys: keys, hasDuplicates: hasDuplicates };
+    return this.rowsCache;
+  }
+  // The rows of the records, in record order.
+  public get items(): Array<T> {
+    return this.getRowsCache().items;
+  }
+  // The rows' count; inside a batch the base counts the array being built, which has the same length.
+  protected getStoredCount(): number {
+    return this.items.length;
+  }
+  public itemAt(index: number): T {
+    return this.items[index];
+  }
+  // One stored record, without composing the array. No row pads, so a defaultRecord is never read.
+  protected readStoredAt(index: number): any {
+    const item = this.itemAt(index);
+    if (!item) return undefined;
+    const value = this.getValue();
+    return isObject(value) ? value[item.value] : undefined;
+  }
+  // The keyed answer: a record in a value the caller passes is under its row's value.
+  protected readRecordInAnswer(value: any, index: number): any {
+    const item = index > -1 ? this.itemAt(index) : undefined;
+    return !!item && isObject(value) ? value[item.value] : undefined;
+  }
+  // A result keyed by the row value, as the answer is.
+  protected createEmptyAnswer(): any {
+    return {};
+  }
+  // An empty record adds no key, and the last record of a key wins.
+  protected addRecordToAnswer(values: any, index: number, record: any): void {
+    if (record === undefined || record === null) return;
+    values[this.itemAt(index).value] = record;
+  }
+  // The row value, as a string; the index for a record without a row.
+  protected getRecordSegment(index: number): string | number {
+    const item = this.itemAt(index);
+    return !!item ? String(item.value) : index;
+  }
+  // A write of one row copies every row object of the answer: the row is what stays.
+  protected getRecordStateKey(index: number, record: any): any {
+    return this.itemAt(index) || record;
+  }
+  /* An answer assignment never adds, removes or moves a record: the rows define them. A row whose
+     answer changed or went is the same record, so every record keeps its index. Only a rows change
+     moves or removes one (rowsChanged). */
+  protected createAnswerAssignmentRemap(oldRecords: any, newRecords: any, keyField?: string): (index: number) => number {
+    return (index: number): number => index;
+  }
+  /* The records whose rows were changed by indexes keep other rows on their keys: two rows with one
+     value are two records that read one key. The indexes of those other records, not in indexes, in
+     record order; empty without duplicate keys. */
+  public getIndexesOfSameKeys(indexes: Array<number>): Array<number> {
+    const cache = this.getRowsCache();
+    if (!cache.hasDuplicates) return [];
+    const keys = cache.keys;
+    const changedKeys = indexes.filter((index: number): boolean => index > -1 && index < keys.length)
+      .map((index: number): string => keys[index]);
+    const res: Array<number> = [];
+    keys.forEach((key: string, index: number): void => {
+      if (indexes.indexOf(index) < 0 && changedKeys.indexOf(key) > -1) res.push(index);
+    });
+    return res;
+  }
+  /* Drops the caches and returns what changed between the keys of the rows before and after
+     (IRowsChange). onRecordsReplaced gets the same remap the change gives. */
+  public rowsChanged(): IRowsChange {
+    const oldKeys = this.getRowsCache().keys;
+    this.rowsCache = undefined;
+    this.recordsCache = undefined;
+    const change = createRowsChange(oldKeys, this.getRowsCache().keys);
+    if (!!this.onRecordsReplaced) {
+      this.onRecordsReplaced((): ((index: number) => number) => change.getRemap());
+    }
+    return change;
+  }
+  // Composed once per answer instance and rows change.
+  private getRecords(): Array<any> {
+    const value = this.getValue();
+    const cache = this.recordsCache;
+    if (!!cache && cache.value === value) return cache.records;
+    const records = this.composeRecords();
+    this.recordsCache = { value: value, records: records };
+    return records;
+  }
+  // The one method that composes the records; everything else reads the cache (getRecords).
+  private composeRecords(): Array<any> {
+    const value = this.getValue();
+    const isValueObject = isObject(value);
+    return this.items.map((item: T): any => isValueObject ? value[item.value] : undefined);
+  }
+  /* The list hands the whole array back, and only the positions whose record instance changed are
+     written: a write replaces one element of the array it read and keeps every other one, so the stale
+     record of another row on the same key never overwrites it. The answer is copied first, which keeps
+     the keys that are not rows - a question sharing the value name, an unknown key -, and an empty
+     record deletes its key. */
+  private writeRecords(records: Array<any>): void {
+    const composed = this.getRecords();
+    if (!Array.isArray(records) || records.length !== composed.length) return;
+    const changed: Array<number> = [];
+    for (let i = 0; i < records.length; i++) {
+      const record = records[i];
+      if (record === composed[i]) continue;
+      // Only a record with content can be moved: an empty one is what every unanswered row holds.
+      if (!isRecordEmpty(record) && composed.indexOf(record) > -1) return;
+      changed.push(i);
+    }
+    if (changed.length === 0) return;
+    const items = this.items;
+    const value = this.getValue();
+    const newValue = isObject(value) ? Object.assign({}, value) : {};
+    changed.forEach((index: number): void => {
+      const key = items[index].value;
+      if (isRecordEmpty(records[index])) {
+        delete newValue[key];
+      } else {
+        newValue[key] = records[index];
+      }
+    });
+    this.storeValue(newValue, changed);
+  }
+}
+function isObject(value: any): boolean {
+  return value !== null && typeof value === "object";
+}
+/* What a change of the rows did to the records (RowsDynamicDataSource.rowsChanged), each member
+   computed on its first call.
+   getRemap: the new index of an old record by its key - two rows of one key by occurrence -, -1 for a
+   key that is gone.
+   getAddedIndexes: the new records no old record went to, whose key no other new record has.
+   getRemovedIndexes: the old records that are gone, whose key no other old record had.
+   A change of a shared key is in neither list: pairing by occurrence cannot tell which of two rows on
+   one value was added or removed. The records of the other keys still map correctly. */
+export interface IRowsChange {
+  getRemap(): (index: number) => number;
+  getAddedIndexes(): Array<number>;
+  getRemovedIndexes(): Array<number>;
+}
+function createRowsChange(oldKeys: Array<string>, newKeys: Array<string>): IRowsChange {
+  let remap: (index: number) => number;
+  let added: Array<number>;
+  let removed: Array<number>;
+  const getRemap = (): ((index: number) => number) => remap || (remap = createKeyRemap(oldKeys, newKeys, String, true));
+  return {
+    getRemap: getRemap,
+    getAddedIndexes: (): Array<number> => {
+      if (!added) {
+        const reached = new Set<number>(oldKeys.map((key: string, index: number): number => getRemap()(index)));
+        added = getUniqueKeyIndexes(newKeys, (index: number): boolean => !reached.has(index));
+      }
+      return added;
+    },
+    getRemovedIndexes: (): Array<number> => {
+      if (!removed) {
+        removed = getUniqueKeyIndexes(oldKeys, (index: number): boolean => getRemap()(index) === -1);
+      }
+      return removed;
+    }
+  };
+}
+// The indexes that pass the filter and whose key no other index has, in order.
+function getUniqueKeyIndexes(keys: Array<string>, filter: (index: number) => boolean): Array<number> {
+  const counts = new Map<string, number>();
+  keys.forEach((key: string): void => { counts.set(key, (counts.get(key) || 0) + 1); });
+  const res: Array<number> = [];
+  keys.forEach((key: string, index: number): void => {
+    if (counts.get(key) === 1 && filter(index)) res.push(index);
+  });
+  return res;
+}

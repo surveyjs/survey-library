@@ -10,10 +10,6 @@ source: https://surveyjs.io/form-library/documentation/api-reference/questionmat
 
 A base class for the [`QuestionMatrixDropdownModel`](https://surveyjs.io/form-library/documentation/questionmatrixdropdownmodel) and [`QuestionMatrixDynamicModel`](https://surveyjs.io/form-library/documentation/questionmatrixdynamicmodel) classes.
 
-## Inheritance
-
-[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; `QuestionMatrixDropdownModelBase`
-
 ## Properties
 
 ### `alternateRows`
@@ -195,7 +191,7 @@ Use the [`detailElements`](#detailElements) property to specify content of detai
 
 ### `displayMode`
 
-**Type**: `"auto" | "list" | "table"`
+**Type**: `"auto" | "table" | "list"`
 
 Specifies how to arrange matrix questions.
 

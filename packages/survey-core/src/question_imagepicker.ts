@@ -86,8 +86,18 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public getType(): string {
     return "imagepicker";
   }
+  public supportsChoiceKeyboardSelection(): boolean {
+    return true;
+  }
   supportAutoAdvance(): boolean {
-    return !this.multiSelect;
+    if (this.multiSelect) return this.isAutoAdvanceRequested === true;
+    return this.isMouseDown === true || this.isAutoAdvanceRequested === true;
+  }
+  // Single-select follows radiogroup: a click advances, a keyboard selection waits for Enter.
+  public onKeyDown(event: any): void {
+    if (this.canCommitAutoAdvanceOnEnter(event)) {
+      this.commitAutoAdvance(event);
+    }
   }
   public get hasSingleInput(): boolean {
     return false;
@@ -143,7 +153,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     if (!imageItemValue.imageLink || imageItemValue.contentNotLoaded) return false;
     return super.getItemEnabled(item);
   }
-  public clearIncorrectValues() {
+  protected clearIncorrectOwnValue(): void {
     if (this.multiSelect) {
       var val = this.value;
       if (!val) return;
@@ -164,7 +174,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
         this.value = newValue;
       }
     } else {
-      super.clearIncorrectValues();
+      super.clearIncorrectOwnValue();
     }
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
@@ -271,6 +281,27 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   public get inputType() {
     return this.multiSelect ? "checkbox" : "radio";
+  }
+  protected applyChoiceKeyboardSelection(item: ItemValue): void {
+    if (!this.multiSelect) {
+      super.applyChoiceKeyboardSelection(item);
+      return;
+    }
+    if (this.isReadOnlyAttr || !item) return;
+    const current: Array<any> = [].concat(this.value || []);
+    let index = -1;
+    for (let i = 0; i < current.length; i++) {
+      if (this.isTwoValueEquals(current[i], item.value)) {
+        index = i;
+        break;
+      }
+    }
+    if (index > -1) {
+      current.splice(index, 1);
+    } else {
+      current.push(item.value);
+    }
+    this.value = current;
   }
 
   public isBuiltInChoice(item: ItemValue): boolean {

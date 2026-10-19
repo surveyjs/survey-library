@@ -5,6 +5,7 @@ export * from "./etalon_text";
 export * from "./etalon_dropdown";
 export * from "./etalon_tagbox";
 export * from "./etalon_checkbox";
+export * from "./etalon_choice_shortcut";
 export * from "./etalon_radiogroup";
 export * from "./etalon_imagepicker";
 export * from "./etalon_comment";

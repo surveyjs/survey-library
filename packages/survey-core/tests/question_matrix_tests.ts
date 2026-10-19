@@ -5,6 +5,13 @@ import { Serializer } from "../src/jsonobject";
 
 import { describe, test, expect } from "vitest";
 describe("Survey_QuestionMatrix", () => {
+  test("a row valued with spaces produces no row", () => {
+    const matrix = new QuestionMatrixModel("q1");
+    matrix.rows = ["row1", "   ", "row2"];
+    matrix.columns = ["col1", "col2"];
+    expect(matrix.rows.length, "#1: the item stays").toBe(3);
+    expect(matrix.visibleRows.map(row => row.name), "#2").toEqual(["row1", "row2"]);
+  });
   test("Matrix Question eachRowRequired property", () => {
     var matrix = new QuestionMatrixModel("q1");
     matrix.rows = ["row1", "row2"];

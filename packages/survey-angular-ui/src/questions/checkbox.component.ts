@@ -7,6 +7,10 @@ import { SelectBaseComponent } from "./selectbase.component";
   selector: "sv-ng-checkbox-question",
   templateUrl: "./selectbase.component.html"
 })
-export class CheckboxComponent extends SelectBaseComponent<QuestionCheckboxModel> {}
+export class CheckboxComponent extends SelectBaseComponent<QuestionCheckboxModel> {
+  public override onRootKeyDown(event: any): void {
+    this.model.onKeyDown?.(event);
+  }
+}
 
 AngularComponentFactory.Instance.registerComponent("checkbox-question", CheckboxComponent);

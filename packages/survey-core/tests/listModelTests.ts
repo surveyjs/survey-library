@@ -1,10 +1,11 @@
 import { Action, IAction } from "../src/actions/action";
+import { ActionContainer } from "../src/actions/container";
 import { ElementHelper } from "../src/element-helper";
 import { ListModel } from "../src/list";
 import { settings } from "../src/settings";
 import { createIActionArray, createListContainerHtmlElement } from "./test-helpers";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 describe("List Model", () => {
   const oldValueMINELEMENTCOUNT = ListModel.MINELEMENTCOUNT;
 
@@ -607,5 +608,59 @@ describe("List Model", () => {
     list.disableSearch = true;
     list.flushUpdates();
     expect(list.renderedActions.filter(item => list.isItemVisible(item)).length, "all items are visible when disableSearch is true and filterString is empty").toBe(12);
+  });
+
+  describe("bulk assignment of items", () => {
+    function createItems(count: number, prefix: string): Array<IAction> {
+      return createIActionArray(count).map(item => ({ id: prefix + item.id, title: prefix + item.title }));
+    }
+    function checkOneUpdatePerAssignment(createList: (items: Array<IAction>) => ListModel, lastVisibleId: string) {
+      const update = vi.spyOn(ActionContainer.prototype as any, "update");
+      const getVisibleActions = vi.spyOn(ActionContainer.prototype, "getVisibleActions");
+      try {
+        const list = createList(createItems(1000, "a"));
+        const callsOf = (spy: any) => spy.mock.contexts.filter((context: any) => context === list).length;
+        expect(callsOf(update), "constructor: update").toBe(1);
+        expect(callsOf(getVisibleActions), "constructor: getVisibleActions").toBe(1);
+        expect(list.visibleActions[0].id).toBe("atest0");
+        expect(list.visibleActions[list.visibleActions.length - 1].id).toBe(lastVisibleId || "atest999");
+        expect(list.isEmpty).toBe(false);
+
+        list.setItems(createItems(1000, "b"));
+        expect(callsOf(update), "setItems: update").toBe(2);
+        expect(callsOf(getVisibleActions), "setItems: getVisibleActions").toBe(2);
+        expect(list.visibleActions[0].id).toBe("btest0");
+        expect(list.visibleActions[list.visibleActions.length - 1].id).toBe(lastVisibleId || "btest999");
+      } finally {
+        update.mockRestore();
+        getVisibleActions.mockRestore();
+      }
+    }
+    test("an unmounted list updates once on construction and once per setItems", () => {
+      checkOneUpdatePerAssignment(items => new ListModel(items), "");
+    });
+    test("an unmounted list that has not loaded all data updates once per setItems, loading indicator included", () => {
+      checkOneUpdatePerAssignment(items => new ListModel({ items, isAllDataLoaded: false } as any), "loadingIndicator");
+    });
+    test("a mounted list updates in one microtask after a bulk assignment", async () => {
+      const list = new ListModel(createItems(5, "a"));
+      list.initListContainerHtmlElement(createListContainerHtmlElement());
+      const update = vi.spyOn(list as any, "update");
+      list.setItems(createItems(1000, "b"));
+      expect(update).toHaveBeenCalledTimes(0);
+      expect(list.visibleActions.length).toBe(5);
+      await Promise.resolve();
+      expect(update).toHaveBeenCalledTimes(1);
+      expect(list.visibleActions.length).toBe(1000);
+      expect(list.visibleActions[0].id).toBe("btest0");
+
+      list.actions = createItems(10, "c").map(item => new Action(item));
+      expect(update).toHaveBeenCalledTimes(1);
+      expect(list.visibleActions.length).toBe(1000);
+      await Promise.resolve();
+      expect(update).toHaveBeenCalledTimes(2);
+      expect(list.visibleActions.length).toBe(10);
+      list.initListContainerHtmlElement(undefined as any);
+    });
   });
 });

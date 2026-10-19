@@ -1,4 +1,5 @@
 import { SurveyModel } from "../src/survey";
+import { settings } from "../src/settings";
 
 import { QuestionBooleanModel } from "../src/question_boolean";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
@@ -474,6 +475,200 @@ describe("boolean", () => {
     expect(q1.toJSON()).toEqual({ name: "q1", displayMode: "checkbox" });
   });
 
+  test("Boolean checkbox: autoAdvanceEnabled waits for Enter", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "boolean", name: "q1", displayMode: "checkbox" }] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      const question = <QuestionBooleanModel>survey.getQuestionByName("q1");
+      question.value = true;
+      expect(survey.currentPageNo, "Selecting a value does not auto-advance").toBe(0);
+      expect(question.supportAutoAdvance(), "Mouse or Space selection does not opt in").toBe(false);
+
+      question.onKeyDown({ key: " ", keyCode: 32, preventDefault: () => {} });
+      expect(survey.currentPageNo, "Space does not auto-advance").toBe(0);
+
+      let prevented = false;
+      question.onKeyDown({
+        key: "Enter",
+        keyCode: 13,
+        preventDefault: () => { prevented = true; }
+      });
+      expect(prevented, "Enter is prevented when auto-advancing").toBe(true);
+      expect(survey.currentPageNo, "Enter confirms true and auto-advances").toBe(1);
+
+      const falseSurvey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "boolean", name: "q1", displayMode: "checkbox" }] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      const falseQuestion = <QuestionBooleanModel>falseSurvey.getQuestionByName("q1");
+      falseQuestion.value = false;
+      expect(falseQuestion.isEmpty(), "false is an answer").toBe(false);
+      falseQuestion.onKeyDown({ key: "Enter", keyCode: 13, preventDefault: () => {} });
+      expect(falseSurvey.currentPageNo, "Enter confirms false and auto-advances").toBe(1);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+  test("Boolean checkbox: Enter does not auto-advance when the value is empty, read-only, or autoAdvanceEnabled is false", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const createSurvey = (autoAdvanceEnabled?: boolean) => new SurveyModel({
+        autoAdvanceEnabled,
+        pages: [
+          { elements: [{ type: "boolean", name: "q1", displayMode: "checkbox" }] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      const enterEvent = () => ({ key: "Enter", keyCode: 13, shiftKey: false, preventDefault: () => {} });
+
+      const emptySurvey = createSurvey(true);
+      const emptyQuestion = <QuestionBooleanModel>emptySurvey.getQuestionByName("q1");
+      emptyQuestion.onKeyDown(enterEvent());
+      expect(emptySurvey.currentPageNo, "Empty value stays on the page").toBe(0);
+      expect(emptyQuestion.isEmpty(), "Enter does not coerce empty to false").toBe(true);
+
+      const readOnlySurvey = createSurvey(true);
+      const readOnlyQuestion = <QuestionBooleanModel>readOnlySurvey.getQuestionByName("q1");
+      readOnlyQuestion.value = true;
+      readOnlyQuestion.readOnly = true;
+      readOnlyQuestion.onKeyDown(enterEvent());
+      expect(readOnlySurvey.currentPageNo, "Read-only stays on the page").toBe(0);
+
+      const disabledSurvey = createSurvey(false);
+      const disabledQuestion = <QuestionBooleanModel>disabledSurvey.getQuestionByName("q1");
+      disabledQuestion.value = true;
+      disabledQuestion.onKeyDown(enterEvent());
+      expect(disabledSurvey.currentPageNo, "autoAdvanceEnabled false stays on the page").toBe(0);
+
+      const shiftSurvey = createSurvey(true);
+      const shiftQuestion = <QuestionBooleanModel>shiftSurvey.getQuestionByName("q1");
+      shiftQuestion.value = true;
+      shiftQuestion.onKeyDown({ key: "Enter", keyCode: 13, shiftKey: true, preventDefault: () => {} });
+      expect(shiftSurvey.currentPageNo, "Shift+Enter stays on the page").toBe(0);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+  test("Boolean checkbox: Enter on a title action does not auto-advance", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "boolean", name: "q1", displayMode: "checkbox" }] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      const question = <QuestionBooleanModel>survey.getQuestionByName("q1");
+      question.value = true;
+      const root = { tagName: "DIV" };
+      let prevented = false;
+      question.onKeyDown({
+        key: "Enter",
+        keyCode: 13,
+        target: { tagName: "BUTTON" },
+        currentTarget: root,
+        preventDefault: () => { prevented = true; }
+      });
+      expect(prevented, "Enter on a title action is not prevented").toBe(false);
+      expect(survey.currentPageNo, "Title action stays on the page").toBe(0);
+
+      question.onKeyDown({
+        key: "Enter",
+        keyCode: 13,
+        target: { tagName: "INPUT", type: "checkbox" },
+        currentTarget: root,
+        preventDefault: () => { prevented = true; }
+      });
+      expect(survey.currentPageNo, "Enter on the checkbox input auto-advances").toBe(1);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+  test("Boolean checkbox: legacy renderAs checkbox waits for Enter", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "boolean", name: "q1", renderAs: "checkbox" }] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      const question = <QuestionBooleanModel>survey.getQuestionByName("q1");
+      expect(question.displayMode, "legacy renderAs migrates to checkbox").toBe("checkbox");
+      question.value = true;
+      expect(survey.currentPageNo, "Selecting a value does not auto-advance").toBe(0);
+      question.onKeyDown({ key: "Enter", keyCode: 13, preventDefault: () => {} });
+      expect(survey.currentPageNo, "Enter confirms the value and auto-advances").toBe(1);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+  test("Boolean switch and segmented still auto-advance on value change", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const createSurvey = (element: any) => new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [element] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      const switchSurvey = createSurvey({ type: "boolean", name: "q1", displayMode: "switch" });
+      switchSurvey.getQuestionByName("q1").value = true;
+      expect(switchSurvey.currentPageNo, "Switch advances on value change").toBe(1);
+
+      const segmentedSurvey = createSurvey({ type: "boolean", name: "q1", displayMode: "segmented" });
+      segmentedSurvey.getQuestionByName("q1").value = true;
+      expect(segmentedSurvey.currentPageNo, "Segmented advances on value change").toBe(1);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+  test("Boolean checkbox cell in matrixdropdown does not auto-advance", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          {
+            elements: [{
+              type: "matrixdropdown",
+              name: "q1",
+              columns: [{ name: "col1", cellType: "boolean", displayMode: "checkbox" }],
+              rows: ["row1"]
+            }]
+          },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+      const cellQuestion = <QuestionBooleanModel>matrix.visibleRows[0].cells[0].question;
+      cellQuestion.value = true;
+      expect(survey.currentPageNo, "Cell value change stays on the page").toBe(0);
+      expect(cellQuestion.supportAutoAdvance(), "Cell stays opted out").toBe(false);
+      cellQuestion.onKeyDown({ key: "Enter", keyCode: 13, preventDefault: () => {} });
+      expect(survey.currentPageNo, "Enter in a matrix cell stays on the page").toBe(0);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
   test("custom renderAs is restored when switching displayMode custom -> radio -> custom", () => {
     const survey = new SurveyModel({
       elements: [{ type: "boolean", name: "q1", renderAs: "my-custom-renderer" }],

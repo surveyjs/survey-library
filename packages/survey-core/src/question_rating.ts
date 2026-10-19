@@ -6,10 +6,12 @@ import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
+import { KeySequenceBuffer } from "./utils/key-sequence-buffer";
 import { getLocaleString } from "./surveyStrings";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { updateListCssValues } from "./utils/dom-utils";
 import { DropdownListModel } from "./dropdownListModel";
+import { dropdownQuestionMixin } from "./dropdownRenderState";
 import { SurveyModel } from "./survey";
 import { ISurveyImpl } from "./base-interfaces";
 import { IsTouch } from "./utils/devices";
@@ -134,7 +136,7 @@ export function getRatingItemByDigitShortcut(items: Array<ItemValue>, digits: st
  *
  * [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
  */
-export class QuestionRatingModel extends Question implements IRatingItemOwner, ISelectQuestion {
+export class QuestionRatingModel extends dropdownQuestionMixin(Question) implements IRatingItemOwner, ISelectQuestion {
   constructor(name: string) {
     super(name);
 
@@ -539,8 +541,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
     return this.inputId + "_" + index;
   }
   private isEnterKey: boolean;
-  private digitShortcutBuffer: string = "";
-  private digitShortcutTimer: any;
+  private digitKeys: KeySequenceBuffer = new KeySequenceBuffer();
   supportAutoAdvance(): boolean {
     return this.isMouseDown === true || this.isDropdown || this.isEnterKey === true;
   }
@@ -596,9 +597,9 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
       return;
     }
     const items = this.visibleChoices;
-    if (this.digitShortcutBuffer) {
-      const digits = this.digitShortcutBuffer + digit;
-      this.resetDigitShortcut();
+    if (this.digitKeys.text) {
+      const digits = this.digitKeys.append(digit);
+      this.digitKeys.reset();
       const twoDigitItem = getRatingItemByDigitShortcut(items, digits);
       if (twoDigitItem) {
         this.applyDigitShortcut(twoDigitItem, event);
@@ -611,11 +612,8 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
       return;
     }
     if (ratingDigitShortcutHasPrefix(items, digit)) {
-      this.digitShortcutBuffer = digit;
-      this.digitShortcutTimer = setTimeout(() => {
-        this.digitShortcutTimer = undefined;
-        const pending = this.digitShortcutBuffer;
-        this.digitShortcutBuffer = "";
+      this.digitKeys.append(digit);
+      this.digitKeys.waitAndApply((pending) => {
         if (this.isDisposed || !pending) return;
         const item = getRatingItemByDigitShortcut(this.visibleChoices, pending);
         if (item) {
@@ -665,11 +663,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
     }
   }
   private resetDigitShortcut(): void {
-    if (this.digitShortcutTimer !== undefined && this.digitShortcutTimer !== null) {
-      clearTimeout(this.digitShortcutTimer);
-      this.digitShortcutTimer = undefined;
-    }
-    this.digitShortcutBuffer = "";
+    this.digitKeys.reset();
   }
   public supportOther(): boolean {
     return false;
@@ -1111,11 +1105,6 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
   protected supportResponsiveness(): boolean {
     return !this.inMatrixMode;
   }
-  protected onBeforeSetCompactRenderer(): void {
-    if (!this.isDisposed && !this.dropdownListModelValue) {
-      this.dropdownListModelValue = new DropdownListModel(this);
-    }
-  }
   protected getCompactRenderAs(): string {
     return (this.displayMode == "buttons") ? "default" : "dropdown";
   }
@@ -1123,31 +1112,18 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
     return (this.displayMode == "dropdown") ? "dropdown" : "default";
   }
 
-  private dropdownListModelValue: DropdownListModel;
-  public set dropdownListModel(val: DropdownListModel) {
-    this.dropdownListModelValue = val;
+  protected canCreateDropdownListModel(): boolean {
+    return this.isDropdown;
+  }
+  protected createDropdownListModel(): DropdownListModel {
+    return new DropdownListModel(this);
+  }
+  protected onDropdownListModelAssigned(): void {
     this.updateElementCss();
-  }
-  public get dropdownListModel(): DropdownListModel {
-    if (this.isDropdown) {
-      this.onBeforeSetCompactRenderer();
-    }
-    return this.dropdownListModelValue;
-  }
-  protected onBlurCore(event: any): void {
-    this.dropdownListModel?.onBlur(event);
-    super.onBlurCore(event);
   }
   protected updateCssClasses(res: any, css: any) {
     super.updateCssClasses(res, css);
     updateListCssValues(res, css);
-  }
-  protected calcCssClasses(css: any): any {
-    const classes = super.calcCssClasses(css);
-    if (this.dropdownListModelValue) {
-      this.dropdownListModelValue.updateCssClasses(classes.popup, classes.list);
-    }
-    return classes;
   }
   public themeChanged(theme: ITheme): void {
     this.colorsCalculated = false;
@@ -1162,10 +1138,6 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner, I
   public dispose(): void {
     this.resetDigitShortcut();
     super.dispose();
-    if (!!this.dropdownListModelValue) {
-      this.dropdownListModelValue.dispose();
-      this.dropdownListModelValue = undefined;
-    }
   }
 
   //a11y

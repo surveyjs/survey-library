@@ -286,6 +286,10 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   public set value(newValue: any) {
     this.setValue(newValue, false);
   }
+  // A value of spaces is no value: such an item defines no row of a matrix.
+  public get hasValue(): boolean {
+    return !Helpers.isValueEmpty(this.value, true);
+  }
   private setValue(newValue: any, newItem: boolean): void {
     let text: string = undefined;
     newValue = this.getCorrectValue(newValue);

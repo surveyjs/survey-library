@@ -11,7 +11,7 @@ import {
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
-import { Question, IConditionObject, ValidationContext, QuestionValueType, IVerifyDataContext } from "./question";
+import { Question, IConditionObject, ValidationContext, QuestionValueType, IVerifyDataContext, INestedElementInfo, NestedWalkBuild } from "./question";
 import { QuestionTextModel, isMinMaxType } from "./question_text";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -571,11 +571,8 @@ export class QuestionMultipleTextModel extends Question
       });
     }
   }
-  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    if (includeItSelf) {
-      questions.push(this);
-    }
-    this.items.forEach(item => item.editor.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
+  protected isListedAsNestedQuestion(includeItSelf: boolean): boolean {
+    return includeItSelf;
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     if (!path) return super.getConditionJson(operator);
@@ -632,11 +629,13 @@ export class QuestionMultipleTextModel extends Question
     });
     return true;
   }
-  public initializeForVerification(): void {
-    this.items.forEach(item => item.editor.initializeForVerification());
+  // The editors go with the question; the items are its definition.
+  public dispose(): void {
+    super.dispose();
+    this.items.forEach(item => item.editor.dispose());
   }
-  public verifyNestedValues(context: IVerifyDataContext): void {
-    this.items.forEach(item => item.editor.verifyDataCore(context));
+  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
+    this.items.forEach(item => visit({ element: item.editor, role: "editor", segment: undefined, location: "nested", visible: true }));
   }
   protected hasValueKey(key: string): boolean {
     return !!this.getItemByName(key);
@@ -655,10 +654,6 @@ export class QuestionMultipleTextModel extends Question
       }
     });
     this.value = newValue;
-  }
-  public clearIncorrectValues(): void {
-    super.clearIncorrectValues();
-    this.items.forEach(item => item.editor.clearIncorrectValues());
   }
   supportAutoAdvance(): boolean {
     for (var i = 0; i < this.items.length; i++) {

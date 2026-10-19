@@ -32,6 +32,11 @@ export interface IMatrixColumnOwner extends ILocalizableOwner {
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void;
   getCellAriaLabel(row: any, column: any, directRowTitle?: string): string;
   getDesignRowContext(): IValueGetterContext;
+  // Not the survey property: Survey Creator reads colOwner["survey"] as SurveyModel.
+  getSurvey(): ISurvey;
+  readonly isQuestion: boolean;
+  // The dynamic matrix only: its rows sort by a header click.
+  readonly allowSortRows?: boolean;
 }
 export class MatrixColumnGetterContext implements IValueGetterContext {
   constructor(private column: MatrixDropdownColumn) {
@@ -145,6 +150,16 @@ export class MatrixDropdownColumn extends Base
     super();
     this.colOwnerValue = colOwner;
     this.updateTemplateQuestion(undefined, name, title);
+    this.applyIsRequiredDefault();
+  }
+  /* The template question holds isRequired. matrixdropdowncolumn.isRequired can have a Serializer
+     default that differs from the question's: the first template takes it, and a template created for
+     another cell type copies it from the previous one (setQuestionProperties). */
+  private applyIsRequiredDefault(): void {
+    const val = this.getDefaultPropertyValue("isRequired");
+    if (val !== undefined && val !== this.templateQuestion.isRequired) {
+      this.templateQuestion.isRequired = val;
+    }
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -173,8 +188,8 @@ export class MatrixDropdownColumn extends Base
   getClassNameProperty(): string {
     return "cellType";
   }
-  public getSurvey(live: boolean = false): ISurvey {
-    return !!this.colOwner ? (<any>this.colOwner).survey : null;
+  public getSurvey(): ISurvey {
+    return !!this.colOwner ? this.colOwner.getSurvey() : null;
   }
   public getOwner() {
     return this.colOwner;
@@ -384,7 +399,13 @@ export class MatrixDropdownColumn extends Base
    * @see visible
    * @see readOnly
    */
-  @property({ onSet: (val: boolean, obj: MatrixDropdownColumn) => obj.templateQuestion.isRequired = val }) isRequired: boolean;
+  // Base reads the property before the template exists when a custom property is registered.
+  public get isRequired(): boolean {
+    return this.templateQuestion?.isRequired;
+  }
+  public set isRequired(val: boolean) {
+    this.templateQuestion.isRequired = val;
+  }
   @property({ getDefaultValue: (obj: MatrixDropdownColumn) => obj.isRequired }) isRenderedRequired: boolean;
   public updateIsRenderedRequired(val: boolean): void {
     this.isRenderedRequired = val || this.isRequired;
@@ -525,6 +546,19 @@ export class MatrixDropdownColumn extends Base
    * Default value: `false`
    */
   @property() isUnique: boolean;
+  /* Opts this column out of the header-click sort. Every cell type has a comparer, so no type is
+     unsortable by construction: the opt-out is the author's. */
+  @property({ defaultValue: true }) allowSort: boolean;
+  public get isSortable(): boolean {
+    const matrix = this.colOwner;
+    return !!matrix && matrix.allowSortRows === true && this.allowSort;
+  }
+  /* The record key this column sorts by, which is the key the cell writes and not the column name:
+     a column with a valueName shares the key with the question it is bound to. It is the same name
+     QuestionMatrixDynamicModel.getFields() registers with the data list. */
+  public get sortField(): string {
+    return this.templateQuestion?.getValueName() || this.name;
+  }
   /**
    * Specifies whether to create an individual column for each choice option. Applies only to columns of `"checkbox"` or `"radiogroup"` [`cellType`](#cellType).
    *
@@ -676,15 +710,13 @@ export class MatrixDropdownColumn extends Base
   }
   startLoadingFromJson(json?: any): void {
     super.startLoadingFromJson(json);
-    if (!!json && !json.cellType && !!json.choices) {
-      json.cellType = this.colOwner.getCellType();
+    // A column with choices and no cellType takes the matrix cell type explicitly. It is set on the
+    // column, not written into the caller's JSON.
+    if (!!json && !json.cellType && !!json.choices && !!this.colOwner) {
+      this.cellType = this.colOwner.getCellType();
     }
   }
-  public updateCellQuestion(
-    cellQuestion: Question,
-    data: any,
-    onUpdateJson: (json: any) => any = null
-  ) {
+  public updateCellQuestion(cellQuestion: Question, onUpdateJson: (json: any) => any = null) {
     this.setQuestionProperties(cellQuestion, onUpdateJson, !onUpdateJson);
   }
   private callOnCellQuestionUpdate(cellQuestion: Question, data: any) {
@@ -725,7 +757,12 @@ export class MatrixDropdownColumn extends Base
       this.removeProperties(prevCellType);
     }
     this.templateQuestionJsonValue = undefined;
+    // The first cell that loads choices from the server gives them to the column: a new template starts over.
+    this.previousChoicesId = undefined;
+    // The new template copies the old one's properties (setQuestionProperties): the old one goes after that.
+    const oldTemplate = this.templateQuestionValue;
     this.templateQuestionValue = this.createNewQuestion(curCellType);
+    this.disposeTemplateQuestion(oldTemplate);
     this.templateQuestion.locOwner = this;
     this.addProperties(curCellType);
     if (!!name) {
@@ -739,32 +776,9 @@ export class MatrixDropdownColumn extends Base
     if (settings.serialization.matrixDropdownColumnSerializeTitle) {
       this.templateQuestion.locTitle.serializeCallBackText = true;
     }
-    this.templateQuestion.onPropertyChanged.add((sender, options) => {
-      this.templateQuestionJsonValue = undefined;
-      this.propertyValueChanged(
-        options.name,
-        options.oldValue,
-        options.newValue,
-        options.arrayChanges,
-        options.target
-      );
-    });
-    this.templateQuestion.onNestedPropertyChanged.add((sender, options) => {
-      this.templateQuestionJsonValue = undefined;
-      if (this.colOwner && !this.isLoadingFromJson) {
-        this.colOwner.onColumnNestedPropertyChanged(this, options.name, options.nestedName, options.newValue);
-      }
-    });
-    this.templateQuestion.onItemValuePropertyChanged.add((sender, options) => {
-      this.templateQuestionJsonValue = undefined;
-      this.doItemValuePropertyChanged(
-        options.propertyName,
-        options.obj,
-        options.name,
-        options.newValue,
-        options.oldValue
-      );
-    });
+    this.templateQuestion.onPropertyChanged.add(this.onTemplatePropertyChanged);
+    this.templateQuestion.onNestedPropertyChanged.add(this.onTemplateNestedPropertyChanged);
+    this.templateQuestion.onItemValuePropertyChanged.add(this.onTemplateItemValuePropertyChanged);
     this.templateQuestion.isContentElement = true;
     if (!this.isLoadingFromJson) {
       this.templateQuestion.onGetSurvey = () => {
@@ -772,6 +786,40 @@ export class MatrixDropdownColumn extends Base
       };
     }
     this.templateQuestion.locTitle.strChanged();
+  }
+  // The column's handlers on its template question: added to each new template, removed from the one it replaces.
+  private onTemplatePropertyChanged = (sender: Base, options: any): void => {
+    this.templateQuestionJsonValue = undefined;
+    this.propertyValueChanged(
+      options.name,
+      options.oldValue,
+      options.newValue,
+      options.arrayChanges,
+      options.target
+    );
+  };
+  private onTemplateNestedPropertyChanged = (sender: Base, options: any): void => {
+    this.templateQuestionJsonValue = undefined;
+    if (this.colOwner && !this.isLoadingFromJson) {
+      this.colOwner.onColumnNestedPropertyChanged(this, options.name, options.nestedName, options.newValue);
+    }
+  };
+  private onTemplateItemValuePropertyChanged = (sender: Base, options: any): void => {
+    this.templateQuestionJsonValue = undefined;
+    this.doItemValuePropertyChanged(
+      options.propertyName,
+      options.obj,
+      options.name,
+      options.newValue,
+      options.oldValue
+    );
+  };
+  private disposeTemplateQuestion(question: Question): void {
+    if (!question) return;
+    question.onPropertyChanged.remove(this.onTemplatePropertyChanged);
+    question.onNestedPropertyChanged.remove(this.onTemplateNestedPropertyChanged);
+    question.onItemValuePropertyChanged.remove(this.onTemplateItemValuePropertyChanged);
+    question.dispose();
   }
   protected createNewQuestion(cellType: string): Question {
     var question = <Question>Serializer.createClass(cellType);
@@ -786,7 +834,7 @@ export class MatrixDropdownColumn extends Base
     return question;
   }
   private setParentQuestionToTemplate(question: Question): void {
-    if (!!this.colOwner && (<any>this.colOwner).isQuestion) {
+    if (!!this.colOwner && this.colOwner.isQuestion) {
       question.setParentQuestion(<any>this.colOwner);
     }
   }
@@ -823,7 +871,6 @@ export class MatrixDropdownColumn extends Base
       }
       new JsonObject().toObject(json, question);
       question.isContentElement = this.templateQuestion.isContentElement;
-      this.previousChoicesId = undefined;
       question.loadedChoicesFromServerCallback = () => {
         if (!this.isShowInMultipleColumns) return;
         if (!!this.previousChoicesId && this.previousChoicesId !== question.id) return;
@@ -986,6 +1033,8 @@ Serializer.addClass(
     { name: "totalMaximumFractionDigits:number", default: -1, visibleIf: (obj: any): boolean => obj.hasTotal },
     { name: "totalMinimumFractionDigits:number", default: -1, visibleIf: (obj: any): boolean => obj.hasTotal },
     { name: "renderAs", default: "default", visible: false },
+    // Invisible until the UI series renders sortable headers, see matrixdynamic.allowSortRows.
+    { name: "allowSort:boolean", default: true, visible: false },
     { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
   ],
   function () {

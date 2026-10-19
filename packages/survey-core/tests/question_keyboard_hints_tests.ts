@@ -261,3 +261,37 @@ test("tagbox adds a submit chip and does not swap the set when the popup opens",
   expect(q.getKeyboardHints()).toEqual(before);
   expect(q.getKeyboardHints()[2].keys.every((key: { visible: boolean }) => key.visible)).toBe(true);
 });
+
+const upDown = { label: "↑↓", shortcut: "ArrowUp ArrowDown", visible: true }; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+
+test("rating hints are only enter, and only when auto-advance is on", () => {
+  expect(hints({ type: "rating" })).toEqual([]);
+  expect(hints({ type: "rating" }, { autoAdvanceEnabled: true })).toEqual([
+    { text: "to submit", keys: [enterShown] }
+  ]);
+  expect(JSON.stringify(hints({ type: "rating" }, { autoAdvanceEnabled: true }))).not.toContain("Digit");
+});
+
+test("ranking hints follow select-to-rank and auto-advance", () => {
+  expect(hints({ type: "ranking", choices: ["a", "b", "c"] }).map(row => row.text)).toEqual([
+    "to the next item",
+    "to move"
+  ]);
+  const ranked = hints({ type: "ranking", choices: ["a", "b", "c"] }, { autoAdvanceEnabled: true });
+  expect(ranked.map(row => row.text)).toEqual(["to the next item", "to move", "to submit"]);
+  expect(ranked[1].keys).toEqual([upDown]);
+  expect(ranked[2].keys[0].visible).toBe(false);
+  const selectToRank = hints({
+    type: "ranking", choices: ["a", "b", "c"], selectToRankEnabled: true
+  });
+  expect(selectToRank.map(row => row.text)).toEqual(["to the next item", "to move", "to select"]);
+  expect(selectToRank[2].keys).toEqual([space]);
+  const emptyRank = hints({
+    type: "ranking", choices: ["a", "b", "c"], selectToRankEnabled: true
+  }, { autoAdvanceEnabled: true });
+  expect(emptyRank[emptyRank.length - 1].keys[0].visible).toBe(false);
+  const filledRank = hints({
+    type: "ranking", choices: ["a", "b", "c"], selectToRankEnabled: true, defaultValue: ["b", "a"]
+  }, { autoAdvanceEnabled: true });
+  expect(filledRank[filledRank.length - 1].keys[0].visible).toBe(true);
+});

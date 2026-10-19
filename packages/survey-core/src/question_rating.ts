@@ -13,6 +13,7 @@ import { updateListCssValues } from "./utils/dom-utils";
 import { DropdownListModel } from "./dropdownListModel";
 import { dropdownQuestionMixin } from "./dropdownRenderState";
 import { SurveyModel } from "./survey";
+import { keyboardHint, keyboardHintKey, IKeyboardHint } from "./keyboard-hints";
 import { ISurveyImpl } from "./base-interfaces";
 import { IsTouch } from "./utils/devices";
 import { getColorFromProperty } from "./utils/utils";
@@ -523,6 +524,11 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
   }
   public getType(): string {
     return "rating";
+  }
+  protected getKeyboardHintsCore(): IKeyboardHint[] {
+    const survey = this.survey as SurveyModel;
+    if (survey.autoAdvanceEnabled !== true) return [];
+    return [keyboardHint(this, "keyboardHintSubmitText", [keyboardHintKey("enter", true)])];
   }
   protected getAllChildren(): Base[] {
     return [

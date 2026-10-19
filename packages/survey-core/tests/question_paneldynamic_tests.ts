@@ -8370,8 +8370,9 @@ describe("Survey_QuestionPanelDynamic", () => {
     }
     return <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
   }
-  test("settings.panel.maxPanelCount is the maximum number of panels on one page: pageSize above it is capped", () => {
-    settings.panel.maxPanelCount = 5;
+  test("settings.maxPageSize, not settings.panel.maxPanelCount, is the maximum number of panels on one page: pageSize above it is capped", () => {
+    settings.maxPageSize = 5;
+    settings.panel.maxPanelCount = 3;
     try {
       const question = createMaxPanelCountSurvey({ pageSize: 10 }, 12);
       expect(question.panels.length, "#1: five panels on the page").toBe(5);
@@ -8381,9 +8382,10 @@ describe("Survey_QuestionPanelDynamic", () => {
       question.pageIndex = 2;
       expect(question.panels.length, "#5: the last page").toBe(2);
       question.pageSize = 4;
-      expect(question.panels.length, "#6: a page size below the setting is used as is").toBe(4);
+      expect(question.panels.length, "#6: a page size below settings.maxPageSize and above the type setting is used as is").toBe(4);
       expect(question.pageCount, "#7").toBe(3);
     } finally {
+      settings.maxPageSize = 100;
       settings.panel.maxPanelCount = 100;
     }
   });

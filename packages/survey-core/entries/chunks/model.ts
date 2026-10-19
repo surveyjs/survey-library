@@ -240,7 +240,7 @@ export { parseDynamicDataSort, dynamicDataSortToString } from "../../src/dynamic
 export type {
   IDynamicDataSource, IDynamicDataSourceCapabilities, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataField,
   DynamicDataSortDirection,
-  DynamicDataFieldType, DynamicDataOperation
+  DynamicDataFieldType, DynamicDataSourceMethod, DynamicDataErrorOperation, DynamicDataOperation
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 export { SurveyTimer } from "../../src/surveytimer";
 export { SurveyTimerModel } from "../../src/surveyTimerModel";

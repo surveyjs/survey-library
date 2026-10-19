@@ -6,7 +6,7 @@ import { Question } from "../../src/question";
 import { QuestionMatrixDropdownRenderedTable } from "../../src/question_matrixdropdownrendered";
 import { SurveyElement } from "../../src/survey-element";
 import { settings } from "../../src/settings";
-import { IDynamicDataPageState } from "../../src/dynamic-data/dynamic-data-page-validation";
+import { IRecordsPageState } from "../../src/records/records-paging";
 import { ConditionsParser } from "../../src/conditions/conditionsParser";
 import { Operand } from "../../src/expressions/expressions";
 import { FunctionFactory } from "../../src/functionsfactory";
@@ -19,7 +19,7 @@ import { ActionContainer } from "../../src/actions/container";
 import { ListModel } from "../../src/list";
 
 // The edited set and the page the page validation keeps for a records question have no public face.
-const getPageState = (q: Question): IDynamicDataPageState => (<any>q).getPageState();
+const getPageState = (q: Question): IRecordsPageState => (<any>q).getPageState();
 
 class Deferred {
   public promise: Promise<any>;
@@ -371,6 +371,22 @@ describe("Remote data source: first load", () => {
 });
 
 describe("Remote data source: paging", () => {
+  test("pageSize above settings.maxPageSize: the source is asked for pages of settings.maxPageSize records", async () => {
+    const prev = settings.maxPageSize;
+    settings.maxPageSize = 3;
+    try {
+      const source = new FakeServerSource(serverRecords(12));
+      const { question } = await createMatrix(source, { pageSize: 5 });
+      expect(source.ranges, "#1: the first page").toEqual([[0, 3]]);
+      expect(rowValues(question), "#2").toEqual(["v0", "v1", "v2"]);
+      expect(question.pageCount, "#3").toBe(4);
+      question.nextPage();
+      await flush();
+      expect(source.ranges, "#4: the next page").toEqual([[0, 3], [3, 3]]);
+    } finally {
+      settings.maxPageSize = prev;
+    }
+  });
   test("matrix: a page change rebuilds the rows with no filter and no sort set", async () => {
     const source = new FakeServerSource(serverRecords(12));
     const { question } = await createMatrix(source);

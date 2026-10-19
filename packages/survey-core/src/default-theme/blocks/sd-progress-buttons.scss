@@ -124,7 +124,7 @@
     }
   }
 
-  &:not(.sd-progress-buttons__list-element--passed) + .sd-progress-buttons__list-element--passed {
+  &:not(.sd-progress-buttons__list-element--passed) + li {
     &::after {
       background-color: var(--sjs2-color-border-basic-secondary);
     }

@@ -10012,8 +10012,9 @@ describe("Survey_QuestionMatrixDynamic", () => {
     }
     return <QuestionMatrixDynamicModel>survey.getQuestionByName("md");
   }
-  test("settings.matrix.maxRowCount is the maximum number of rows on one page: pageSize above it is capped", () => {
-    settings.matrix.maxRowCount = 5;
+  test("settings.maxPageSize, not settings.matrix.maxRowCount, is the maximum number of rows on one page: pageSize above it is capped", () => {
+    settings.maxPageSize = 5;
+    settings.matrix.maxRowCount = 3;
     try {
       const matrix = createMaxRowCountMatrix({ rowCount: 0, pageSize: 10 }, 12);
       expect(matrix.visibleRows.length, "#1: five rows on the page").toBe(5);
@@ -10023,9 +10024,10 @@ describe("Survey_QuestionMatrixDynamic", () => {
       matrix.pageIndex = 2;
       expect(matrix.visibleRows.length, "#5: the last page").toBe(2);
       matrix.pageSize = 4;
-      expect(matrix.visibleRows.length, "#6: a page size below the setting is used as is").toBe(4);
+      expect(matrix.visibleRows.length, "#6: a page size below settings.maxPageSize and above the type setting is used as is").toBe(4);
       expect(matrix.pageCount, "#7").toBe(3);
     } finally {
+      settings.maxPageSize = 100;
       settings.matrix.maxRowCount = 1000;
     }
   });

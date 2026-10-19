@@ -103,7 +103,13 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 
 export type DynamicDataSortDirection = "asc" | "desc";
 export type DynamicDataFieldType = "string" | "number" | "date" | "boolean" | "any";
-export type DynamicDataOperation = "read" | "insert" | "update" | "remove" | "move" | "count";
+// The source methods the list calls; a capability is declared by the presence of the method.
+export type DynamicDataSourceMethod = "read" | "insert" | "update" | "remove" | "move";
+/* The operation survey.onDynamicDataError names: a source method that failed or was refused, or
+   "count" - the record count, which the question refuses to set while the source owns it. */
+export type DynamicDataErrorOperation = DynamicDataSourceMethod | "count";
+// The name of DynamicDataErrorOperation released in v3.2.1, kept so that code importing it compiles.
+export type DynamicDataOperation = DynamicDataErrorOperation;
 
 export interface IDynamicDataSort {
   field: string;
@@ -209,7 +215,7 @@ export interface IDynamicDataOwner {
   onSourceWriterChanged?(): void;
   /* A read or a write of the source failed. The owner hears it from the list's construction on: the
      first load of a read-through list runs before anyone could assign the list's onError. */
-  onDataError?(error: any, operation: DynamicDataOperation): void;
+  onDataError?(error: any, operation: DynamicDataErrorOperation): void;
   /* The survey of the question the list belongs to: the asynchronous writes of the lists in one
      survey that share a source object are ordered (DynamicDataSourceChannel.getForeignWrites). */
   getSurvey?(): ISurvey;

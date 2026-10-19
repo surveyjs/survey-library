@@ -14,14 +14,15 @@ import { TextContextProcessor } from "./textPreProcessor";
 import { SurveyError } from "./survey-error";
 import { KeyDuplicationError } from "./error";
 import {
-  DynamicDataFieldType, DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataSort,
-  IDynamicDataSource
+  DynamicDataErrorOperation, DynamicDataFieldType, DynamicDataSourceMethod, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
+  IDynamicDataSort, IDynamicDataSource
 } from "./dynamic-data/dynamic-data-interfaces";
-import { IDynamicDataPageState, findDuplicatePages, groupByDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
+import { findDuplicatePages, groupByDuplicateKey } from "./records/records-duplicates";
 import { RecordsPageValidation, IRecordsPageValidationOwner } from "./question_records_page_validation";
-import { createIndexes } from "./dynamic-data/dynamic-data-filter";
-import { DynamicDataPagingController, IDynamicDataPagingOwner, pagingStateKeys } from "./dynamic-data/dynamic-data-paging";
-import { applyRecordChange, getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-record-remap";
+import { createIndexes } from "./dynamic-data/dynamic-data-records";
+import { RecordsPagingController, IRecordsPageState, IRecordsPagingOwner, pagingStateKeys } from "./records/records-paging";
+import { getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-record-remap";
+import { applyRecordChange } from "./records/records-change";
 import { IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data/dynamic-data-record-visibility";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
@@ -108,7 +109,7 @@ function getFieldType(question: Question): DynamicDataFieldType {
   return type === "number" || type === "date" || type === "boolean" ? type : "any";
 }
 // What the list, the page validation and the paging helper call: one object, see helperOwner.
-type RecordsHelperOwner = IDynamicDataOwner & IRecordsPageValidationOwner & IDynamicDataPagingOwner;
+type RecordsHelperOwner = IDynamicDataOwner & IRecordsPageValidationOwner & IRecordsPagingOwner;
 /* The 0-based number the respondent sees for the record of an object or a record item: its index in
    the whole list - the window offset of a source that pages itself added to the window-local
    getIndex(), which the storage is addressed by. */
@@ -145,12 +146,12 @@ function getRecordNumberOf(item: QuestionRecordItem): number {
    other modules ask the protected helpers of QuestionRecordItem. */
 export abstract class QuestionRecordsModel extends Question {
   private _dataList: DynamicDataList;
-  private _paging: DynamicDataPagingController;
+  private _paging: RecordsPagingController;
   private _pageValidation: RecordsPageValidation;
   private helperOwnerValue: RecordsHelperOwner;
   private builtRecordIndexes: WeakMap<QuestionRecordItem, number>;
   /* The owner the list (IDynamicDataOwner), the page validation (IRecordsPageValidationOwner) and
-     the paging helper (IDynamicDataPagingOwner) talk to. It is built with the first helper, and its
+     the paging helper (IRecordsPagingOwner) talk to. It is built with the first helper, and its
      functions call the question's members when they are called, so an override or a spy on the
      question is honoured. */
   private get helperOwner(): RecordsHelperOwner {
@@ -169,7 +170,7 @@ export abstract class QuestionRecordsModel extends Question {
       onDataSettled: (): void => { question.onDataSettled(); },
       onWritesStarted: (): void => { question.dataWaits.onWritesStarted(); },
       onSourceWriterChanged: (): void => { question.onSourceCapabilitiesChanged(); },
-      onDataError: (error: any, operation: DynamicDataOperation): void => { question.onSourceError(error, operation); },
+      onDataError: (error: any, operation: DynamicDataErrorOperation): void => { question.onSourceError(error, operation); },
       getSurvey: (): ISurvey => question.survey,
       // IRecordsPageValidationOwner: the rules every records question shares; the rest is the question's.
       getDataList: (): DynamicDataList => question.dataList,
@@ -180,7 +181,7 @@ export abstract class QuestionRecordsModel extends Question {
       validatePageObjects: (context: ValidationContext): boolean => question.validatePageObjects(context),
       setPropertyValue: (name: string, val: any): void => { question.setPropertyValue(name, val); },
       get isDisposed(): boolean { return question.isDisposed; },
-      /* IDynamicDataPagingOwner: the question's paging state never has to be public for the paging
+      /* IRecordsPagingOwner: the question's paging state never has to be public for the paging
          helper. The state itself stays in the question's property hash (setPropertyValue above serves
          both helpers), which is what the renderers observe. The page moves are leavePage and
          cancelPendingPageMove. */
@@ -269,9 +270,9 @@ export abstract class QuestionRecordsModel extends Question {
   }
   /* The paging helper gets an accessor and not the list: the list is created on demand, and the
      helper is first used while the list is being created. */
-  protected get paging(): DynamicDataPagingController {
+  protected get paging(): RecordsPagingController {
     if (!this._paging) {
-      this._paging = new DynamicDataPagingController(this.helperOwner, (): DynamicDataList => this.dataList);
+      this._paging = new RecordsPagingController(this.helperOwner, (): DynamicDataList => this.dataList);
     }
     return this._paging;
   }
@@ -942,24 +943,28 @@ export abstract class QuestionRecordsModel extends Question {
     }
     return record;
   }
-  /* The page maximum (maxRecordsPerPage) is the number of objects one page may hold: without paging
-     every object is on the one page, so it limits the total as well; with paging it limits the page
-     size only (listPageSize). */
-  protected get isRecordCountLimitedByPageMax(): boolean {
+  /* The total record count a type allows while its list does not page (settings.matrix.maxRowCount,
+     settings.panel.maxPanelCount). A type without a record count of its own has no such limit. */
+  protected get maxRecordCountWithoutPaging(): number {
+    return Number.MAX_SAFE_INTEGER;
+  }
+  /* Without paging every object is on the one page, and the type setting (maxRecordCountWithoutPaging)
+     limits the total; with paging it does not take part. */
+  protected get isRecordCountLimitedBySetting(): boolean {
     return this.isDesignMode || !(this.listPageSize > 0);
   }
-  /* The limit the record count is checked against: maxCount and the page maximum without paging; with
+  /* The limit the record count is checked against: maxCount and the type setting without paging; with
      paging explicitMaxCount alone - when the question sets it, since the default of maxCount is the
      setting. */
   private getRecordCountLimit(maxCount: number, explicitMaxCount: number): number {
-    if (this.isRecordCountLimitedByPageMax) return Math.min(maxCount, this.maxRecordsPerPage);
+    if (this.isRecordCountLimitedBySetting) return Math.min(maxCount, this.maxRecordCountWithoutPaging);
     return explicitMaxCount > 0 ? explicitMaxCount : Number.MAX_SAFE_INTEGER;
   }
   /* The maximum record count a type stores under propertyName (maxRowCount, maxPanelCount): paging
-     lifts the page maximum from it; at least 1. The limit the count is checked against follows from it. */
+     lifts the type setting from it; at least 1. The limit the count is checked against follows from it. */
   protected getMaxRecordCount(propertyName: string): number {
     const val = this.getPropertyValue(propertyName);
-    return this.pageSize > 0 ? val : Math.min(val, this.maxRecordsPerPage);
+    return this.pageSize > 0 ? val : Math.min(val, this.maxRecordCountWithoutPaging);
   }
   protected setMaxRecordCount(propertyName: string, val: number): void {
     this.setPropertyValue(propertyName, val <= 0 ? 1 : val);
@@ -1117,14 +1122,16 @@ export abstract class QuestionRecordsModel extends Question {
   protected getRecordCountLimitOf(propertyName: string): number {
     return this.getRecordCountLimit(this.getMaxRecordCount(propertyName), this.getPropertyValueWithoutDefault(propertyName));
   }
-  /* The page size the list gets: the authored one, capped by the number of objects one page may hold
-     (maxRecordsPerPage). Single-input mode walks every object and lists them in its own summary - it
-     is its own paging - so it builds every object and the list does not page. A carousel without
-     pageSize builds every panel, as it always has; with it, it pages like list and tab mode and
-     shows one panel of the page. */
+  /* The page size the list gets: the authored one, capped by settings.maxPageSize - read on each call;
+     a value that is not a positive number is no cap. Single-input mode walks every object and lists
+     them in its own summary - it is its own paging - so it builds every object and the list does not
+     page. A carousel without pageSize builds every panel, as it always has; with it, it pages like
+     list and tab mode and shows one panel of the page. */
   protected get listPageSize(): number {
     if (this.isSingleInputActive) return 0;
-    return Math.min(this.pageSize, this.maxRecordsPerPage);
+    const maxPageSize = settings.maxPageSize;
+    if (typeof maxPageSize !== "number" || !(maxPageSize > 0)) return this.pageSize;
+    return Math.min(this.pageSize, maxPageSize);
   }
   // The nested elements of the rows or panels a build mode reads, item by item.
   protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
@@ -1309,12 +1316,12 @@ export abstract class QuestionRecordsModel extends Question {
      the object holding it: undefined when the list does not page in memory, since a question that
      does not page validates every object anyway. The ancestor reads it for the questions nested in
      its records (getPageStateOf). */
-  private getPageState(): IDynamicDataPageState {
+  private getPageState(): IRecordsPageState {
     if (!this.isPagedByList) return undefined;
     return this.pageValidation.getState(this.paging.pageIndex);
   }
   // The page is kept as well: the respondent comes back to where they were.
-  private setPageState(state: IDynamicDataPageState): void {
+  private setPageState(state: IRecordsPageState): void {
     if (!state) return;
     this.pageValidation.setState(state);
     if (state.pageIndex > 0) {
@@ -1325,14 +1332,14 @@ export abstract class QuestionRecordsModel extends Question {
      rebuilds the object holding it: undefined for a question that is not a records question, and for
      one whose list does not page in memory, since a question that does not page validates every
      object anyway. */
-  private static getPageStateOf(question: Question): IDynamicDataPageState {
+  private static getPageStateOf(question: Question): IRecordsPageState {
     return question instanceof QuestionRecordsModel ? question.getPageState() : undefined;
   }
   protected hasPagedQuestions(questions: Array<Question>): boolean {
     return questions.some((q: Question): boolean => !!QuestionRecordsModel.getPageStateOf(q));
   }
   /* The state a paged question keeps for its records outlives the object that holds it (see
-     IDynamicDataPageState): before the objects are disposed - or an object drops its questions - the
+     IRecordsPageState): before the objects are disposed - or an object drops its questions - the
      states of the paged questions of each object are kept under the record the object was built for,
      and the questions the record's next object holds take them back (restorePageStatesOfQuestions).
      getQuestions answers an object's questions: the panel's, a matrix row's detail panel's. undefined
@@ -1356,7 +1363,7 @@ export abstract class QuestionRecordsModel extends Question {
      states, which clear its entry - and need no page validation to be created for that - while states
      that are not empty create it. */
   protected keepPageStatesOfQuestions(recordIndex: number | string, questions: Array<Question>): void {
-    const states: { [valueName: string]: IDynamicDataPageState } = {};
+    const states: { [valueName: string]: IRecordsPageState } = {};
     questions.forEach((q: Question): void => {
       const state = QuestionRecordsModel.getPageStateOf(q);
       if (!!state) states[q.getValueName()] = state;
@@ -2125,7 +2132,7 @@ export abstract class QuestionRecordsModel extends Question {
      question without a data source has every capability, except the membership operations of a
      question that defines its records itself (isRecordMembershipFixed). The list is not created for
      the answer. */
-  protected canWriteRecords(operation: DynamicDataOperation): boolean {
+  protected canWriteRecords(operation: DynamicDataSourceMethod): boolean {
     if (this.isRecordMembershipFixed() && (operation === "insert" || operation === "remove" || operation === "move")) return false;
     const list = this._dataList;
     if (!list || !list.isRemote) return true;
@@ -2136,7 +2143,7 @@ export abstract class QuestionRecordsModel extends Question {
      asked - code or UI - and the refusal is reported once, under the operation. The membership rule of
      a question that defines its records itself is not a refusal of the source and stays silent, as
      does every other reason not to make an operation. Returns true when the operation is refused. */
-  protected refuseOperationOfSource(operation: DynamicDataOperation): boolean {
+  protected refuseOperationOfSource(operation: DynamicDataSourceMethod): boolean {
     if (this.isRecordMembershipFixed() && operation !== "update") return false;
     const list = this._dataList;
     if (!list || !list.isRemote) return false;
@@ -2404,9 +2411,15 @@ export abstract class QuestionRecordsModel extends Question {
       dest[key] = Helpers.getUnbindValue(src[key]);
     }
   }
-  /* The authored page size: the number of rows or panels on one page, 0 = no paging. In the panel's
-     list mode the page is what is shown; in tab and carousel mode it is the panels of one page, of
-     which one is shown. */
+  /**
+   * Specifies the number of rows or panels per data page.
+   *
+   * Default value: 0 (pagination is disabled)
+   *
+   * The effective page size is limited by the [`settings.maxPageSize`](https://surveyjs.io/form-library/documentation/api-reference/settings#maxPageSize) property.
+   * @see pageIndex
+   * @see pageCount
+   */
   public get pageSize(): number {
     return this.getPropertyValue(pagingStateKeys.pageSize);
   }
@@ -2428,10 +2441,18 @@ export abstract class QuestionRecordsModel extends Question {
   protected syncPageSizeWithMode(): void {
     this.syncListPageSize();
   }
-  // A zero-based page index; always 0 while paging is off.
+  /**
+   * Gets or sets the zero-based index of the current data page containing rows or panels. Set this property to switch between data pages.
+   * @see pageSize
+   * @see pageCount
+   */
   public get pageIndex(): number { return this.reportedPageIndex; }
   public set pageIndex(val: number) { this.paging.pageIndex = val; }
-  // The number of pages; 1 for an empty question and for one that does not page.
+  /**
+   * Gets the number of data pages used to display rows or panels. Returns 1 when the question is empty or pagination is disabled.
+   * @see pageSize
+   * @see pageIndex
+   */
   public get pageCount(): number { return this.reportedPageCount; }
   /* False while the data source answers a read without a total: the record count (rowCount,
      panelCount) is then the number of records known to exist - a lower bound - and pageCount the
@@ -2615,12 +2636,12 @@ export abstract class QuestionRecordsModel extends Question {
   /* The record a created position of the whole view names, for an operation on it: -1 when there is
      none, and a record a source that pages itself has not loaded is refused and reported under the
      operation. */
-  protected getRecordIndexForOperation(createdIndex: number, operation: DynamicDataOperation): number {
+  protected getRecordIndexForOperation(createdIndex: number, operation: DynamicDataSourceMethod): number {
     const target = this.getRecordTargetForOperation(createdIndex, operation);
     return !!target ? target.recordIndex : -1;
   }
   // The same, with the record's object when it has one: undefined when there is no record to act on.
-  protected getRecordTargetForOperation(createdIndex: number, operation: DynamicDataOperation): IRecordTarget {
+  protected getRecordTargetForOperation(createdIndex: number, operation: DynamicDataSourceMethod): IRecordTarget {
     const target = this.getRecordTargetAtCreatedIndex(createdIndex);
     if (!target) return undefined;
     if (target.isNotLoaded) {
@@ -2887,12 +2908,12 @@ export abstract class QuestionRecordsModel extends Question {
   /* An operation a number asked for is refused: the record is on a page a source that pages itself
      has not loaded, and acting on any record the window does hold would act on the wrong one. It is
      reported the way a source error is (onDynamicDataError), under the operation it refused. */
-  protected reportRecordNotLoaded(operation: DynamicDataOperation): void {
+  protected reportRecordNotLoaded(operation: DynamicDataSourceMethod): void {
     this.reportOperationRefused(operation, "The record is not in the loaded page of the data source");
   }
   /* An operation the question refused before it changed anything, reported under that operation. No
      write was made, so none was rejected: a completion that waits for the pending writes keeps waiting. */
-  protected reportOperationRefused(operation: DynamicDataOperation, reason: string): void {
+  protected reportOperationRefused(operation: DynamicDataErrorOperation, reason: string): void {
     this.reportDataError(new Error(reason + "; the " + operation + " was not made."), operation);
   }
   // The assigned data source, read back from the list (assignedSource); nothing is created for it.
@@ -2945,7 +2966,7 @@ export abstract class QuestionRecordsModel extends Question {
        not at once. The list reads through again after a detach. Because of the frozen membership,
        refreshView() on a source that pages has to be a refresh(): the server decides which records
        are in the window, so re-deciding the view means re-reading it (see
-       DynamicDataPagingController.refreshView). */
+       RecordsPagingController.refreshView). */
     list.assignSource(newValue, (): void => {
       if (!!newValue && !wasRemote)this.clearValueInSurveyData();
     });
@@ -2996,7 +3017,7 @@ export abstract class QuestionRecordsModel extends Question {
     }
   }
   // An error of the source: a write it rejected releases a completion that waits for the writes.
-  private onSourceError(error: any, operation: DynamicDataOperation): void {
+  private onSourceError(error: any, operation: DynamicDataErrorOperation): void {
     if (!!this._dataWaits) {
       this._dataWaits.onSourceError(operation);
     }
@@ -3005,7 +3026,7 @@ export abstract class QuestionRecordsModel extends Question {
   /* A rejected read leaves the short window and its focused item in place: the kept position goes,
      and so does the position a move went to - the current object stays the one of the window in
      force. */
-  private reportDataError(error: any, operation: DynamicDataOperation): void {
+  private reportDataError(error: any, operation: DynamicDataErrorOperation): void {
     if (operation === "read") {
       this.forgetFocusIndex();
       this.pendingVisibleIndex = undefined;
@@ -3337,8 +3358,8 @@ export abstract class QuestionRecordsModel extends Question {
   private structuralStoreScope: Scope = new Scope();
   private followingWriteScope: Scope = new Scope();
   private heldItemsCondition: { properties: HashTable<any> };
-  private storeListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void {
-    const isStructural = this.hasDataListView && (operations || []).some((operation: DynamicDataOperation): boolean => operation !== "update");
+  private storeListRecords(records: Array<any>, operations: Array<DynamicDataSourceMethod>): void {
+    const isStructural = this.hasDataListView && (operations || []).some((operation: DynamicDataSourceMethod): boolean => operation !== "update");
     const store = (): void => this.setListRecords(records, operations);
     if (isStructural) {
       this.structuralStoreScope.run(store);
@@ -3737,8 +3758,6 @@ export abstract class QuestionRecordsModel extends Question {
   protected abstract removeStoredRecord(removal: IRecordRemoval, refill: () => void): void;
   // The property the record visibility expression is stored under (rowsVisibleIf, templateVisibleIf).
   protected abstract getRecordVisibleIfPropertyName(): string;
-  // The number of objects one page may hold (settings.matrix.maxRowCount, settings.panel.maxPanelCount).
-  protected abstract get maxRecordsPerPage(): number;
   // The objects, by created position (getItemByRecordIndex looks them up by record).
   public abstract getItem(index: number): QuestionRecordItem;
   // An object the question shows: a hidden one reports no errors (see getAllErrors).
@@ -3899,7 +3918,7 @@ export abstract class QuestionRecordsModel extends Question {
   // An array source over question.value: every record can be inserted, removed and moved.
   protected createArrayRecordsSource(): ArrayDynamicDataSource {
     return new ArrayDynamicDataSource((): Array<any> => this.value,
-      (records: Array<any>, operations?: Array<DynamicDataOperation>): void => { this.storeListRecords(records, operations); },
+      (records: Array<any>, operations?: Array<DynamicDataSourceMethod>): void => { this.storeListRecords(records, operations); },
       this.getRecordsSourceOptions());
   }
   // What the array records source adds to the array: a type's padding.
@@ -3918,8 +3937,8 @@ export abstract class QuestionRecordsModel extends Question {
     return this.recordsSourceValue;
   }
   /* The write of the default records source, as a type stores it. operations: the writes the source
-     made (DynamicDataOperation names), in order. */
-  protected setListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void {
+     made (DynamicDataSourceMethod names), in order. */
+  protected setListRecords(records: Array<any>, operations: Array<DynamicDataSourceMethod>): void {
     this.setOwnRecordsValue(records);
   }
   /* A full validation visits every page of the view, not only the pages of the edited records: the
@@ -3951,7 +3970,7 @@ export abstract class QuestionRecordsModel extends Question {
   protected get storedRecordCount(): number {
     return this.isRemoteData ? this.dataListValue.count : this.getListRecordCount();
   }
-  /* Mirrors the paging state of the list into the question (see DynamicDataPagingController.syncState).
+  /* Mirrors the paging state of the list into the question (see RecordsPagingController.syncState).
      The list announces a page index it had to clamp, but not a page count that changed because a
      record became hidden or because the records were replaced: those points call this. */
   protected syncPagingState(): void {
@@ -4014,7 +4033,7 @@ export abstract class QuestionRecordsModel extends Question {
     this.rebuildFromDataList(false);
   }
   /* sortBy is computed from sortOrder and nothing raises its change on its own (see
-     DynamicDataPagingController.setSortOrderValue). Base.propertyValueChanged is protected, so the
+     RecordsPagingController.setSortOrderValue). Base.propertyValueChanged is protected, so the
      question raises it. */
   protected raiseSortByChanged(oldValue: string, newValue: string): void {
     this.propertyValueChanged("sortBy", oldValue, newValue);

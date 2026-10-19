@@ -8,7 +8,7 @@ import { Question } from "../../src/question";
 import { PanelModel } from "../../src/panel";
 import { FunctionFactory } from "../../src/functionsfactory";
 import { settings } from "../../src/settings";
-import { IDynamicDataPageState } from "../../src/dynamic-data/dynamic-data-page-validation";
+import { IRecordsPageState } from "../../src/records/records-paging";
 import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 import { DragDropMatrixRows } from "../../src/dragdrop/matrix-rows";
 import { SurveyTestTargets } from "../../src/tester/test-targets";
@@ -20,8 +20,8 @@ import {
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 
 // The edited set and the page the page validation keeps for a records question have no public face.
-const getPageState = (q: Question): IDynamicDataPageState => (<any>q).getPageState();
-const setPageState = (q: Question, state: IDynamicDataPageState): void => { (<any>q).setPageState(state); };
+const getPageState = (q: Question): IRecordsPageState => (<any>q).getPageState();
+const setPageState = (q: Question, state: IRecordsPageState): void => { (<any>q).setPageState(state); };
 
 /* With paging on, the panels and rows that exist are the current page, for an in-memory list as for
    a data source that pages itself. */

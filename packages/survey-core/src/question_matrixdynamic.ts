@@ -28,8 +28,9 @@ import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsModel, QuestionRecordsValueGetterContext, IRecordCountNames, getRecordCountNamesOf } from "./question_records";
-import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { ArrayDynamicDataSource, isRecordEmpty, IArrayDynamicDataSourceOptions } from "./dynamic-data/dynamic-data-sources";
+import { DynamicDataSourceMethod, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { ArrayDynamicDataSource, IArrayDynamicDataSourceOptions } from "./dynamic-data/dynamic-data-sources";
+import { isRecordEmpty } from "./dynamic-data/dynamic-data-records";
 
 export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
   // The design row answers any path; isRoot is left as it is.
@@ -164,7 +165,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return res;
   }
   // The write rules are the matrix's: a removal's count-down, and the value shape of each kind of write.
-  protected setListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void {
+  protected setListRecords(records: Array<any>, operations: Array<DynamicDataSourceMethod>): void {
     // A removal whose count-down waits for the store (removeStoredRecord): the padding stays virtual.
     if ((operations || []).indexOf("remove") > -1) {
       const length = this.takeRowCountDown();
@@ -188,9 +189,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      value and keeps no empty records; an insert, a move and the records a lower rowCount cuts off are
      stored as they are. operations: the writes the default source made, one or every write of a batch
      (ArrayDynamicDataSource.write and batch, the only callers). */
-  private normalizeRecords(records: Array<any>, operations: Array<DynamicDataOperation>): any {
+  private normalizeRecords(records: Array<any>, operations: Array<DynamicDataSourceMethod>): any {
     const res = Array.isArray(records) ? records : [];
-    const isOnly = (operation: DynamicDataOperation): boolean => operations.every((op: DynamicDataOperation): boolean => op === operation);
+    const isOnly = (operation: DynamicDataSourceMethod): boolean => operations.every((op: DynamicDataSourceMethod): boolean => op === operation);
     if (isOnly("update")) return this.correctValueForMinMaxRows(this.deleteRowValue(res, null));
     if (this.isWritingRecords && isOnly("remove")) return this.deleteRowValue(res, null);
     return res;
@@ -563,6 +564,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected getRecordCountCore(): number {
     return this.rowCountValue;
   }
+  // settings.matrix.maxRowCount limits the total number of rows while they are not split into pages.
+  protected get maxRecordCountWithoutPaging(): number {
+    return settings.matrix.maxRowCount;
+  }
   // The rowCount setter without a source.
   protected setRecordCountCore(val: number): void {
     val = Helpers.getNumber(val);
@@ -573,7 +578,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.rowCountAboveSettings = val;
         return;
       }
-      if (this.isRecordCountLimitedByPageMax) return;
+      if (this.isRecordCountLimitedBySetting) return;
     }
     this.setRowCountCore(val);
   }
@@ -581,7 +586,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   endLoadingFromJson(): void {
     const val = this.rowCountAboveSettings;
     this.rowCountAboveSettings = undefined;
-    if (val > 0 && !this.isRecordCountLimitedByPageMax) {
+    if (val > 0 && !this.isRecordCountLimitedBySetting) {
       this.setRowCountCore(val);
     }
     super.endLoadingFromJson();
@@ -735,17 +740,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /**
    * A maximum number of rows in the matrix. Users cannot add new rows if `rowCount` equals `maxRowCount`.
    *
-   * Default value: 1000 (inherited from [`settings.matrix.maxRowCount`](https://surveyjs.io/form-library/documentation/settings#matrixMaximumRowCount))
+   * Default value: 1000 (inherited from [`settings.matrix.maxRowCount`](/form-library/documentation/api-reference/settings#matrix))
    *
-   * `settings.matrix.maxRowCount` is the maximum number of rows on one page. If rows are not split into pages, it also limits `maxRowCount`. If they are, only `maxRowCount` limits the total number of rows, and only when you set it.
-   *
-   * [View Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
+   * [Demo: Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
    * @see rowCount
    * @see minRowCount
    * @see allowAddRows
    */
   /* Without paging the setting caps it, as it always has: a value above the setting reads as the
-     setting and is therefore not serialized. With paging the setting is the page maximum and the
+     setting and is therefore not serialized. With paging the setting does not take part and the
      value is kept (rowCountLimit). */
   public get maxRowCount(): number {
     return this.getMaxRecordCount("maxRowCount");

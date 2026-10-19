@@ -116,7 +116,7 @@ export interface ISurveyDynamicPanelCallbacks {
 }
 // A dynamic question whose records come from a caller-provided data source reports every failure of
 // that source here - a page that could not be read, an edit the server rejected. The operation names
-// are the source method names (DynamicDataOperation).
+// are the source method names, and "count" for the record count (DynamicDataErrorOperation).
 export interface ISurveyDynamicDataCallbacks {
   dynamicDataError(question: IQuestion, operation: string, error: any): void;
 }

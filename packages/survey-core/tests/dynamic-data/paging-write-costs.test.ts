@@ -13,7 +13,7 @@ import { QuestionSelectBase } from "../../src/question_baseselect";
 import { ItemValue } from "../../src/itemvalue";
 import { HashTable, Helpers } from "../../src/helpers";
 import { ConditionRunner } from "../../src/conditions/conditionRunner";
-import { createIndexes } from "../../src/dynamic-data/dynamic-data-filter";
+import { createIndexes } from "../../src/dynamic-data/dynamic-data-records";
 import { ChoicesRestful } from "../../src/choicesRestful";
 import { settings } from "../../src/settings";
 import { ArrayDynamicDataSource, RowsDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";

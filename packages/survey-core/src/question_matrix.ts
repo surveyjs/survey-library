@@ -1140,10 +1140,18 @@ export class QuestionMatrixModel
       }
     }
   }
-  // Lets respondents clear every row in one step, as in Radio Button Group (#11936).
+  /**
+   * Specifies whether to display a button that clears the answer in every matrix row.
+   *
+   * The button appears in the question title and stays hidden when the title is hidden. It clears both radio and checkbox cells.
+   *
+   * Default value: `false`
+   * @see titleLocation
+   * @see cellType
+   */
   @property({ defaultValue: false, onSet: (_: boolean, target: any) => target.resetTitleActions() }) allowClear: boolean;
   public get canShowClearButton(): boolean {
-    return this.allowClear && !this.isReadOnly;
+    return this.allowClear && !this.isReadOnly && this.hasTitle;
   }
   // Created only while allowClear is on, so questions without it render no title-actions wrapper.
   protected getDefaultTitleActions(): Array<Action> {

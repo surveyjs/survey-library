@@ -53,6 +53,14 @@ describe("allowClear, Bug#11936", () => {
       q1.allowClear = false;
       expect(q1.getTitleActions().length, "the action is removed when allowClear is disabled").toBe(0);
     });
+    test("the Clear title action is hidden when the title is hidden", () => {
+      const survey = new SurveyModel(imagePickerJson({ allowClear: true, titleLocation: "hidden" }));
+      const q1 = <QuestionImagePickerModel>survey.getQuestionByName("q1");
+      expect(q1.hasTitle, "the title is hidden").toBe(false);
+      expect(getClearAction(q1).visible, "Clear is hidden with the title").toBe(false);
+      q1.titleLocation = "top";
+      expect(getClearAction(q1).visible, "Clear returns with the title").toBe(true);
+    });
     test("the Clear title action clears every image when multiSelect is enabled", () => {
       const survey = new SurveyModel(imagePickerJson({ allowClear: true, multiSelect: true }));
       const q1 = <QuestionImagePickerModel>survey.getQuestionByName("q1");
@@ -116,6 +124,14 @@ describe("allowClear, Bug#11936", () => {
 
       q1.allowClear = false;
       expect(q1.getTitleActions().length, "the action is removed when allowClear is disabled").toBe(0);
+    });
+    test("the Clear title action is hidden when the title is hidden", () => {
+      const survey = new SurveyModel(matrixJson({ allowClear: true, titleLocation: "hidden" }));
+      const q1 = <QuestionMatrixModel>survey.getQuestionByName("q1");
+      expect(q1.hasTitle, "the title is hidden").toBe(false);
+      expect(getClearAction(q1).visible, "Clear is hidden with the title").toBe(false);
+      q1.titleLocation = "top";
+      expect(getClearAction(q1).visible, "Clear returns with the title").toBe(true);
     });
     test("the Clear title action clears a checkbox-cell matrix", () => {
       const survey = new SurveyModel(matrixJson({ allowClear: true, cellType: "checkbox" }));

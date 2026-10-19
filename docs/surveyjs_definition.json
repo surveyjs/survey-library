@@ -2779,6 +2779,9 @@
             },
             "multiSelect": {
               "type": "boolean"
+            },
+            "allowClear": {
+              "type": "boolean"
             }
           }
         }
@@ -3016,6 +3019,9 @@
               "type": "boolean"
             },
             "eachRowUnique": {
+              "type": "boolean"
+            },
+            "allowClear": {
               "type": "boolean"
             },
             "hideIfRowsEmpty": {
@@ -4078,6 +4084,9 @@
               "type": "string"
             },
             "swapOrder": {
+              "type": "boolean"
+            },
+            "allowClear": {
               "type": "boolean"
             },
             "displayMode": {

@@ -136,11 +136,18 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * [View Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
    */
   @property() multiSelect: boolean;
-  // Lets respondents return the question to the unanswered state, as in Radio Button Group (#11936).
-  // Clears every selected image when multiSelect is enabled.
+  /**
+   * Specifies whether to display a button that clears the selected image or video.
+   *
+   * When [`multiSelect`](#multiSelect) is enabled, the button clears every selected item. The button appears in the question title and stays hidden when the title is hidden.
+   *
+   * Default value: `false`
+   * @see multiSelect
+   * @see titleLocation
+   */
   @property({ defaultValue: false, onSet: (_: boolean, target: any) => target.resetTitleActions() }) allowClear: boolean;
   public get canShowClearButton(): boolean {
-    return this.allowClear && !this.isReadOnly;
+    return this.allowClear && !this.isReadOnly && this.hasTitle;
   }
   // Created only while allowClear is on, so questions without it render no title-actions wrapper.
   protected getDefaultTitleActions(): Array<Action> {

@@ -161,11 +161,23 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
    * By default, the order is [ "No", "Yes"]. Enable this property to reorder the answers as follows: [ "Yes", "No" ].
    */
   @property({ defaultValue: false }) swapOrder: boolean;
-  // Once answered, a Boolean question cannot be returned to the unanswered state from the UI.
-  // allowClear adds the shared "Clear" title action (see Question.createClearTitleAction, #11936).
+  /**
+   * Specifies whether to display a button that clears the question value.
+   *
+   * The button appears in the question title. It is available for the segmented and radio display modes when the title is visible. Checkbox and switch modes do not support it.
+   *
+   * Default value: `false`
+   * @see displayMode
+   * @see titleLocation
+   */
   @property({ defaultValue: false, onSet: (_: boolean, target: any) => target.resetTitleActions() }) allowClear: boolean;
+  // Checkbox and switch draw the title inside the control and have no Clear slot.
+  private get isAllowClearSupported(): boolean {
+    const renderAs = this.getRenderAsValue();
+    return renderAs !== "checkbox" && renderAs !== "switch";
+  }
   public get canShowClearButton(): boolean {
-    return this.allowClear && !this.isReadOnly;
+    return this.allowClear && this.isAllowClearSupported && !this.isReadOnly && this.hasTitle;
   }
   get locLabelLeft(): LocalizableString {
     return this.swapOrder ? this.locLabelTrue : this.locLabelFalse;
@@ -467,6 +479,9 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
     if (name === "renderAs" && this.displayMode === "custom") {
       this.saveCustomRenderAs(newValue);
     }
+    if (name === "displayMode" || name === "renderAs") {
+      this.resetTitleActions();
+    }
   }
   private updateRenderAsOnDisplayModeChanged(oldValue: string, newValue: string): void {
     if (newValue === "custom") {
@@ -496,9 +511,9 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   protected createActionContainer(allowAdaptiveActions?: boolean): ActionContainer {
     return super.createActionContainer(this.getRenderAsValue() !== "checkbox");
   }
-  // Created only while allowClear is on, so questions without it render no title-actions wrapper.
+  // Created only while allowClear is on and the renderer can show it in the title.
   protected getDefaultTitleActions(): Array<Action> {
-    if (this.isDesignMode || !this.allowClear) return [];
+    if (this.isDesignMode || !this.allowClear || !this.isAllowClearSupported) return [];
     return [this.createClearTitleAction(() => this.canShowClearButton)];
   }
   public getConditionJson(operator: string = null, path: string = null): any {
@@ -535,7 +550,10 @@ Serializer.addClass(
     "valueTrue",
     "valueFalse",
     { name: "swapOrder:boolean" },
-    { name: "allowClear:boolean" },
+    {
+      name: "allowClear:boolean",
+      visibleIf: (obj: QuestionBooleanModel) => obj.displayMode !== "checkbox" && obj.displayMode !== "switch"
+    },
     {
       name: "displayMode",
       default: "segmented",

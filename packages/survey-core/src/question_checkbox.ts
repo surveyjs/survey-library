@@ -2,7 +2,9 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import {
+  CHOICE_COMMENT_PROPERTY,
   ChoiceItem,
+  isOtherItemValue,
   QuestionCheckboxBase
 } from "./question_baseselect";
 import { Helpers } from "./helpers";
@@ -15,6 +17,33 @@ import { CustomError } from "./error";
 import { settings } from "./settings";
 import { PropertyNameArray } from "./propertyNameArray";
 import { QuestionValueType } from "./question";
+
+// True when no choice but "Other" shows a comment area: the comment of "Other" lives next to the
+// question value, any other choice comment needs the object of its selected item. isOtherValue tells
+// "Other" apart: the question passes its own (overridable) one.
+function isTheOnlyCheckboxComment(choices: Array<any>, isOtherValue: (val: any) => boolean): boolean {
+  for (let i = 0; i < choices.length; i++) {
+    const ch = choices[i];
+    if (!!ch && ch.showCommentArea && !isOtherValue(ch.value)) return false;
+  }
+  return true;
+}
+function getCheckboxValuePropertyName(valuePropertyName: string, isTheOnlyComment: boolean): string {
+  return valuePropertyName || (!isTheOnlyComment ? "value" : "");
+}
+/* The fields a checkbox keeps in the object of a selected item: the value under valuePropertyName -
+   or under "value" when a choice other than "Other" shows a comment area - and that choice comment
+   under commentPropertyValue. Empty when the items stay plain values. The choices may be ItemValues
+   or their JSON. Exported so that a tool reading the JSON (survey-core/linter) finds the very fields
+   the question writes. */
+export function getCheckboxItemFields(valuePropertyName: string, choices: Array<any>): Array<string> {
+  const isTheOnlyComment = isTheOnlyCheckboxComment(Array.isArray(choices) ? choices : [], isOtherItemValue);
+  const res: Array<string> = [];
+  const valueField = getCheckboxValuePropertyName(valuePropertyName, isTheOnlyComment);
+  if (valueField) res.push(valueField);
+  if (!isTheOnlyComment) res.push(CHOICE_COMMENT_PROPERTY);
+  return res;
+}
 
 export class CheckboxItem extends ChoiceItem {
   @property() isExclusive: boolean;
@@ -92,7 +121,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    */
   @property() valuePropertyName: string;
   public getValuePropertyName(): string {
-    return this.valuePropertyName || (!this.isTheOnlyComment ? "value" : "");
+    return getCheckboxValuePropertyName(this.valuePropertyName, this.isTheOnlyComment);
   }
   public getQuestionFromArray(name: string, index: number): IQuestion {
     if (!!name && name === this.getValuePropertyName()) {
@@ -296,11 +325,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return this.getPropertyValue("isTheOnlyComment", undefined, () => this.calcIsTheOnlyComment());
   }
   private calcIsTheOnlyComment(): boolean {
-    for (let i = 0; i < this.choices.length; i++) {
-      const ch = this.choices[i];
-      if (ch.showCommentArea && !this.isOtherValue(ch.value)) return false;
-    }
-    return true;
+    return isTheOnlyCheckboxComment(this.choices, (val: any): boolean => this.isOtherValue(val));
   }
   onItemHasCommentChanged(): void {
     this.resetPropertyValue("isTheOnlyComment");

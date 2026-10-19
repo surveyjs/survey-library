@@ -71,12 +71,16 @@ const panelContentStyle = computed(() => {
     : {};
 });
 
-useBase(() => props.element, undefined, (panel) => {
+useBase(() => props.element, (newValue) => {
+  if(root.value) {
+    newValue.afterRender(root.value);
+  }
+}, (panel) => {
   panel.beforeDestroy();
 });
 
 onMounted(() => {
-  if (props.element.survey) {
+  if(root.value) {
     props.element.afterRender(root.value);
   }
 });

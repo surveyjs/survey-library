@@ -1,4 +1,4 @@
-import { getCheckboxItemFields } from "survey-core";
+import { getCheckboxItemFields, getImageMapItemFields } from "survey-core";
 import { CapturingScopeFrame, CIMap, CIMultiMap, ElementRecord, getCapturingFrame, getEffectiveType, ITEM_FIELD_TYPE,
   MergedObjectKeys, ScopeFrame, SurveyIndex } from "./symbols";
 import { isDescendantOf } from "./metadata";
@@ -102,9 +102,8 @@ function addOwnItemFields(record: ElementRecord, res: CIMultiMap<ElementRecord>)
   const type = getEffectiveType(record);
   let fields: Array<string>;
   if (type === "imagemap") {
-    // an image map wraps a selected area into an object only while it selects several
-    // (QuestionImageMapModel.mapItemToggle); multiSelect defaults to true
-    fields = json.multiSelect !== false && !!valuePropertyName ? [valuePropertyName] : [];
+    // multiSelect defaults to true
+    fields = getImageMapItemFields(json.multiSelect !== false, valuePropertyName);
   } else if (isDescendantOf(type, "tagbox")) {
     // a tag box shows a comment area on its "Other" item alone (QuestionTagboxModel.supportMultipleComment),
     // so a choice comment never turns its items into objects

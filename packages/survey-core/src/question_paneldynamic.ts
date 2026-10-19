@@ -415,8 +415,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.updateRenderedPanels();
     }
   }
-  // settings.panel.maxPanelCount is the number of panels one page may hold, in every display mode.
-  protected get maxRecordsPerPage(): number {
+  // settings.panel.maxPanelCount limits the total number of panels while they are not split into pages.
+  protected get maxRecordCountWithoutPaging(): number {
     return settings.panel.maxPanelCount;
   }
   protected onPageSizeAssigned(): void {
@@ -1451,12 +1451,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       super.setValueCore(newValue);
     }
   }
-  public setIsMobile(val: boolean) {
-    super.setIsMobile(val);
-    (this.panelsCore || []).forEach(panel => panel.getQuestions(true).forEach(question => {
-      question.setIsMobile(val);
-    }));
-  }
   public themeChanged(theme: ITheme): void {
     super.themeChanged(theme);
     (this.panelsCore || []).forEach(panel =>
@@ -1711,18 +1705,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   /**
    * A maximum number of panels in Dynamic Panel. Users cannot add new panels if `panelCount` equals `maxPanelCount`.
    *
-   * Default value: 100 (inherited from [`settings.panel.maxPanelCount`](https://surveyjs.io/form-library/documentation/settings#panelMaximumPanelCount))
+   * Default value: 100 (inherited from [`settings.panel.maxPanelCount`](/form-library/documentation/api-reference/settings#panel))
    *
-   * `settings.panel.maxPanelCount` is the maximum number of panels on one page. If panels are not split into pages, it also limits `maxPanelCount`. If they are, only `maxPanelCount` limits the total number of panels, and only when you set it.
-   *
-   * [View Demo](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
+   * [Demo: Dynamic Panel with Repeating Group of Fields](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
    * @see panelCount
    * @see minPanelCount
    * @see allowAddPanel
    */
-  /* Without paging the setting caps it, as it always has: a value above the setting reads as the
-     setting and is therefore not serialized. With paging the setting is the page maximum and the
-     value is kept (panelCountLimit). */
   public get maxPanelCount(): number {
     return this.getMaxRecordCount("maxPanelCount");
   }

@@ -126,9 +126,11 @@ describe("a confirmation whose object is gone removes nothing", () => {
 });
 
 describe("the page size the list gets", () => {
+  const maxPageSize = settings.maxPageSize;
   const maxRowCount = settings.matrix.maxRowCount;
   const maxPanelCount = settings.panel.maxPanelCount;
   afterEach(() => {
+    settings.maxPageSize = maxPageSize;
     settings.matrix.maxRowCount = maxRowCount;
     settings.panel.maxPanelCount = maxPanelCount;
   });
@@ -140,14 +142,15 @@ describe("the page size the list gets", () => {
       { type: "paneldynamic", name: "p", panelCount: 3, pageSize: 2, templateElements: [{ type: "text", name: "a" }] }] });
     expect((<any>survey2.getQuestionByName("p")).listPageSize, "#2: panel").toBe(0);
   });
-  test("a page size above the setting pages by the setting", () => {
-    settings.matrix.maxRowCount = 3;
+  test("a page size above settings.maxPageSize pages by settings.maxPageSize, not by the type setting", () => {
+    settings.maxPageSize = 3;
+    settings.matrix.maxRowCount = 2;
     settings.panel.maxPanelCount = 2;
     const matrix = createMatrix({ pageSize: 5 }, [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }]);
     expect((<any>matrix).listPageSize, "#1: matrix").toBe(3);
     expect(matrix.visibleRows.length, "#2").toBe(3);
-    const panel = createPanel({ pageSize: 5 }, [{ a: 1 }, { a: 2 }, { a: 3 }]);
-    expect((<any>panel).listPageSize, "#3: panel").toBe(2);
-    expect(panel.panels.length, "#4").toBe(2);
+    const panel = createPanel({ pageSize: 5 }, [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }]);
+    expect((<any>panel).listPageSize, "#3: panel").toBe(3);
+    expect(panel.panels.length, "#4").toBe(3);
   });
 });

@@ -1,5 +1,5 @@
 import { IDynamicDataListChange } from "./dynamic-data-interfaces";
-import { isRecordValueChanged } from "./dynamic-data-channel";
+import { isRecordValueChanged } from "./dynamic-data-records";
 
 /* A record index names a record only as long as nothing is inserted, removed or moved in front of
    it. Everything that keeps record indexes across the list's own writes - the frozen membership of

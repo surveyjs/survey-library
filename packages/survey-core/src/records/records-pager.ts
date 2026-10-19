@@ -1,7 +1,7 @@
 import { ComputedUpdater } from "../base";
 import { Action } from "../actions/action";
 import type { ActionContainer } from "../actions/container";
-import type { DynamicDataPagingController } from "../dynamic-data/dynamic-data-paging";
+import type { RecordsPagingController } from "./records-paging";
 
 // What the pager reads from the records question besides the paging helper.
 export interface IRecordsPagerOwner {
@@ -26,7 +26,7 @@ function createPageMoveAction(owner: IRecordsPagerOwner, id: string, iconName: s
    computes nothing of its own, it shows what the paging helper answers. The page buttons are icons
    whose localized titles are their accessible names; the page info is a disabled item without a tab
    stop, text the keyboard passes over. */
-export function createRecordsPagerActions(container: ActionContainer, paging: DynamicDataPagingController, owner: IRecordsPagerOwner): ActionContainer {
+export function createRecordsPagerActions(container: ActionContainer, paging: RecordsPagingController, owner: IRecordsPagerOwner): ActionContainer {
   const prevAction = createPageMoveAction(owner, "sv-pager-prev", "icon-arrowleft", "pagePrevText",
     (): boolean => paging.canGoPrevPage, (): void => { paging.prevPage(); });
   const pageInfoAction = new Action({

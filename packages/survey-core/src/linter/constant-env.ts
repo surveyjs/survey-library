@@ -1,6 +1,7 @@
 import { ProcessValue, VariableGetterContext } from "survey-core";
 import { classifySiteRefs, splitRefSegments, tryEvaluate } from "./expression-utils";
 import { quoteValue } from "./message-utils";
+import { getFrameItemFields } from "./record-fields";
 import {
   CIMap, ElementRecord, ExpressionSite, ParsedRef, ScopeFrame, SurveyIndex,
 } from "./symbols";
@@ -202,8 +203,8 @@ export function extendEnvWithNeverAssigned(env: ConstantEnv,
 function isShadowedByScope(name: string, scope: Array<ScopeFrame>): boolean {
   if (!Array.isArray(scope)) return false;
   return scope.some(frame => {
-    if (frame.kind === "matrixRow") return frame.columns.has(name);
-    if (frame.kind === "panelDynamic") return frame.templateNames.has(name);
+    if (frame.kind === "matrixRow") return frame.columns.has(name) || getFrameItemFields(frame).has(name);
+    if (frame.kind === "panelDynamic") return frame.templateNames.has(name) || getFrameItemFields(frame).has(name);
     if (frame.kind === "composite") return frame.fieldNames.has(name);
     return false;
   });

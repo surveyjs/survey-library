@@ -376,6 +376,140 @@ describe("linter vs runtime: data scopes of name/shadowing", () => {
   });
 });
 
+// Questions on one data key share one value; a panel/row object then holds the fields every one of
+// them writes, whichever side declares the valueName. Each case writes through the partner and reads
+// the field through the owner, the way a respondent's answer reaches it.
+describe("linter vs runtime: fields of a shared value", () => {
+  function referenceFindings(json: any): Array<string> {
+    return lintSurvey(json).findings
+      .filter(f => f.ruleId === "reference/unknown" || f.ruleId === "choices/dead-source")
+      .map(f => f.ruleId + "/" + f.reason + " @" + f.path);
+  }
+  const PARTNERS: Array<{ id: string, field: string, json: any, write: (q: any) => void, first: any }> = [
+    { id: "checkbox with valuePropertyName", field: "car", first: "Ford",
+      json: { type: "checkbox", choices: ["Ford", "BMW"], valuePropertyName: "car" }, write: q => { q.value = ["Ford", "BMW"]; } },
+    { id: "tagbox with valuePropertyName", field: "car", first: "Ford",
+      json: { type: "tagbox", choices: ["Ford", "BMW"], valuePropertyName: "car" }, write: q => { q.value = ["Ford", "BMW"]; } },
+    { id: "ranking with valuePropertyName", field: "car", first: "Ford",
+      json: { type: "ranking", choices: ["Ford", "BMW"], valuePropertyName: "car" }, write: q => { q.value = ["Ford", "BMW"]; } },
+    { id: "image map with valuePropertyName", field: "car", first: "Ford",
+      json: { type: "imagemap", valuePropertyName: "car", imageLink: "x",
+        areas: [{ value: "Ford", coords: "1,1,2,2", shape: "rect" }, { value: "BMW", coords: "3,3,4,4", shape: "rect" }] },
+      write: q => { q.value = ["Ford", "BMW"]; } },
+    { id: "checkbox with a choice comment (value)", field: "value", first: "Ford",
+      json: { type: "checkbox", choices: [{ value: "Ford", showCommentArea: true }, "BMW"] }, write: q => { q.value = ["Ford", "BMW"]; } },
+    { id: "checkbox with a choice comment (comment)", field: "comment", first: "note",
+      json: { type: "checkbox", choices: [{ value: "Ford", showCommentArea: true }, "BMW"] },
+      write: q => { q.value = ["Ford", "BMW"]; q.setCommentValue(q.choices[0], "note"); } },
+    { id: "dynamic matrix", field: "pcol", first: "Ford",
+      json: { type: "matrixdynamic", rowCount: 0, columns: [{ name: "pcol", cellType: "text" }] },
+      write: q => { q.value = [{ pcol: "Ford" }, { pcol: "BMW" }]; } },
+    { id: "dynamic panel", field: "ptq", first: "Ford",
+      json: { type: "paneldynamic", panelCount: 0, templateElements: [{ type: "text", name: "ptq" }] },
+      write: q => { q.value = [{ ptq: "Ford" }, { ptq: "BMW" }]; } },
+  ];
+  const ORIENTATIONS = [
+    { id: "both declare the valueName", owner: { name: "O", valueName: "cars" }, partner: { name: "P", valueName: "cars" } },
+    { id: "the owner declares it", owner: { name: "O", valueName: "cars" }, partner: { name: "cars" } },
+    { id: "the partner declares it", owner: { name: "cars" }, partner: { name: "P", valueName: "cars" } },
+  ];
+  PARTNERS.forEach(partner => ORIENTATIONS.forEach(or => {
+    const f = partner.field;
+    test("dynamic panel + " + partner.id + ", " + or.id, () => {
+      const json = { elements: [
+        Object.assign({ type: "paneldynamic", panelCount: 0, templateTitle: "T {panel." + f + "}",
+          templateElements: [{ type: "text", name: "tq", visibleIf: "{panel." + f + "} = '" + partner.first + "'" }] }, or.owner),
+        Object.assign({}, partner.json, or.partner),
+        { type: "expression", name: "e", expression: "{cars[0]." + f + "}" },
+      ] };
+      expect(referenceFindings(json)).toEqual([]);
+      const survey = new SurveyModel(json);
+      partner.write(survey.getQuestionByName(or.partner.name));
+      const panels = (<QuestionPanelDynamicModel>survey.getQuestionByName(or.owner.name)).panels;
+      expect(panels[0].locTitle.renderedHtml).toBe("T " + partner.first);
+      expect(panels.map(p => p.getQuestionByName("tq").isVisible)).toEqual([true, false]);
+      expect(survey.getQuestionByName("e").value).toBe(partner.first);
+    });
+    test("dynamic matrix + " + partner.id + ", " + or.id, () => {
+      const json = { elements: [
+        Object.assign({ type: "matrixdynamic", rowCount: 0, columns: [{ name: "own", cellType: "text" },
+          { name: "c2", cellType: "text", visibleIf: "{row." + f + "} = '" + partner.first + "'" }] }, or.owner),
+        Object.assign({}, partner.json, or.partner),
+      ] };
+      expect(referenceFindings(json)).toEqual([]);
+      const survey = new SurveyModel(json);
+      partner.write(survey.getQuestionByName(or.partner.name));
+      const rows = (<QuestionMatrixDynamicModel>survey.getQuestionByName(or.owner.name)).visibleRows;
+      expect(rows.map(row => row.cells[1].question.isVisible)).toEqual([true, false]);
+    });
+  }));
+
+  test("countInArray, choiceValuesFromQuestion, keyName and default keys read the shared field", () => {
+    const json = { elements: [
+      { type: "paneldynamic", name: "info", valueName: "cars", keyName: "car", templateElements: [{ type: "text", name: "rating" }] },
+      { type: "checkbox", name: "cars", choices: ["Ford", "BMW", "Audi"], valuePropertyName: "car" },
+      { type: "expression", name: "count", expression: "countInArray({cars}, 'car')" },
+      { type: "dropdown", name: "dd", choicesFromQuestion: "info", choiceValuesFromQuestion: "car" },
+    ] };
+    expect(errors(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    survey.getQuestionByName("cars").value = ["Ford", "BMW"];
+    expect(survey.getQuestionByName("count").value).toBe(2);
+    expect((<QuestionSelectBase>survey.getQuestionByName("dd")).visibleChoices.map(c => c.value)).toEqual(["Ford", "BMW"]);
+    survey.setValue("cars", [{ car: "Ford" }, { car: "Ford" }]);
+    expect(survey.getQuestionByName("info").hasErrors(true)).toBe(true);
+    const withDefault = { elements: [
+      { type: "paneldynamic", name: "info", valueName: "cars", defaultValue: [{ car: "Audi" }], templateElements: [{ type: "text", name: "rating" }] },
+      { type: "checkbox", name: "cars", choices: ["Ford", "BMW", "Audi"], valuePropertyName: "car" },
+    ] };
+    expect(lintSurvey(withDefault).findings.filter(f => f.ruleId === "value/not-a-choice")).toEqual([]);
+    expect(new SurveyModel(withDefault).getQuestionByName("cars").value).toEqual([{ car: "Audi" }]);
+  });
+
+  test("a template question is read by the key it stores its value under", () => {
+    const json = { elements: [
+      { type: "paneldynamic", name: "pd", panelCount: 1, templateTitle: "T {panel.v1} {panel.tv}",
+        templateElements: [{ type: "text", name: "tv", valueName: "v1" }] },
+    ] };
+    expect(referenceFindings(json)).toEqual(["reference/unknown/scopedUnknown @elements[0].templateTitle"]);
+    expect(lintSurvey(json).findings.filter(f => f.ruleId === "reference/unknown")[0].message).toContain("{panel.tv}");
+    const survey = new SurveyModel(json);
+    const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("pd")).panels[0];
+    panel.getQuestionByName("tv").value = "a";
+    expect(panel.locTitle.renderedHtml).toBe("T a {panel.tv}");
+  });
+
+  test("object values merge the keys of every sharing question", () => {
+    const json = { elements: [
+      { type: "multipletext", name: "obj", items: [{ name: "a" }] },
+      { type: "matrixdropdown", name: "md", valueName: "obj", rows: ["r1"], columns: [{ name: "c", cellType: "text" }] },
+      { type: "matrix", name: "m", valueName: "obj", rows: ["r2"], columns: ["x", "y"] },
+      { type: "expression", name: "e1", expression: "{obj.r1.c}" },
+      { type: "expression", name: "e2", expression: "{obj.r2}" },
+    ] };
+    expect(referenceFindings(json)).toEqual([]);
+    const survey = new SurveyModel(json);
+    // a matrix answer replaces the whole object, so it goes first
+    survey.getQuestionByName("m").value = { r2: "x" };
+    (<any>survey.getQuestionByName("md")).visibleRows[0].cells[0].question.value = "v";
+    expect(survey.data.obj).toEqual({ r2: "x", r1: { c: "v" } });
+    expect(survey.getQuestionByName("e1").value).toBe("v");
+    expect(survey.getQuestionByName("e2").value).toBe("x");
+  });
+
+  test("a question on the same key in another data scope adds no field", () => {
+    const json = { elements: [
+      { type: "paneldynamic", name: "cars", templateTitle: "T {panel.car}", templateElements: [{ type: "text", name: "tq" }] },
+      { type: "paneldynamic", name: "other", panelCount: 1, templateElements: [
+        { type: "checkbox", name: "cb", valueName: "cars", valuePropertyName: "car", choices: ["Ford"] }] },
+    ] };
+    expect(referenceFindings(json)).toEqual(["reference/unknown/scopedUnknown @elements[0].templateTitle"]);
+    const survey = new SurveyModel(json);
+    (<QuestionPanelDynamicModel>survey.getQuestionByName("other")).panels[0].getQuestionByName("cb").value = ["Ford"];
+    expect((<QuestionPanelDynamicModel>survey.getQuestionByName("cars")).panels).toHaveLength(0);
+  });
+});
+
 describe("linter vs runtime: configurations that really are dead", () => {
   test("a scoped carry-forward outside a dynamic panel builds no choices", () => {
     const json = {

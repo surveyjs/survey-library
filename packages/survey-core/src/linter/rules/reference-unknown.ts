@@ -1,8 +1,9 @@
 import { ILintRule, LintContext } from "../rule";
 import {
-  classifyFunctionArgRefs, classifyNameRef, classifySiteRefs, equalsCI, FunctionArgRef, respellRef,
+  classifyFunctionArgRefs, classifyNameRef, classifySiteRefs, FunctionArgRef, respellRef,
 } from "../expression-utils";
 import { closestMatch } from "../levenshtein";
+import { getItemFields } from "../record-fields";
 import {
   CIMultiMap, ElementRecord, ExpressionSite, getEffectiveType, isCarvedOutSite, NameRef, ParsedRef,
 } from "../symbols";
@@ -155,8 +156,8 @@ function reportRef(ctx: LintContext, ref: ParsedRef, params: {
 }
 
 // A keyName is a runtime name lookup too: a typo silently disables duplicate-key validation.
-// The panel key is resolved by getQuestionByValueName, so a template question's valueName
-// counts; a matrix key is a column name.
+// The key is a field of the row/panel object - a template question by its valueName, a column, or
+// a field a question sharing the value adds (record-fields.ts).
 function checkKeyName(ctx: LintContext, record: ElementRecord): void {
   const keyName = record.json ? record.json.keyName : undefined;
   if (typeof keyName !== "string" || !keyName) return;
@@ -164,18 +165,13 @@ function checkKeyName(ctx: LintContext, record: ElementRecord): void {
   let map: CIMultiMap<ElementRecord> | undefined;
   let label: string;
   if (type === "matrixdynamic") {
-    map = record.matrixColumns;
+    map = getItemFields(record);
     label = "column";
   } else if (type === "paneldynamic") {
-    map = record.templateNames;
+    map = getItemFields(record);
     label = "template question";
   }
   if (!map || map.has(keyName)) return;
-  let matchesValueName = false;
-  map.forEach(records => records.forEach(sub => {
-    if (sub.valueName && equalsCI(sub.valueName, keyName)) matchesValueName = true;
-  }));
-  if (matchesValueName) return;
   const suggestion = closestMatch(keyName, map.names());
   ctx.report({
     message: "The keyName of \"" + record.name + "\" names \"" + keyName + "\" - no such " +

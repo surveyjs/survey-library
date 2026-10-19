@@ -42,3 +42,15 @@ export function singleChoiceKeyboardHints(question: Question, submitVisible: boo
   }
   return rows;
 }
+
+export function multiChoiceKeyboardHints(question: Question, submitVisible: boolean): IKeyboardHint[] {
+  const survey = question.survey as SurveyModel;
+  const rows = [
+    keyboardHint(question, "keyboardHintNextItemText", [keyboardHintKey("tab", true)]),
+    keyboardHint(question, "keyboardHintSelectText", [keyboardHintKey("space", true)])
+  ];
+  if (survey.autoAdvanceEnabled === true) {
+    rows.push(keyboardHint(question, "keyboardHintSubmitText", [keyboardHintKey("enter", submitVisible)]));
+  }
+  return rows;
+}

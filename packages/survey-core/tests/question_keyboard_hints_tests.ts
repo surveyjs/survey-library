@@ -152,3 +152,33 @@ test("keyboard hints and letter badges stay independent", () => {
   expect(hinted.getItemAriaKeyShortcuts(hinted.visibleChoices[0])).toBe("A ArrowUp ArrowDown ArrowLeft ArrowRight");
   expect(hinted.ariaKeyShortcuts).toBe("ArrowUp ArrowDown ArrowLeft ArrowRight");
 });
+
+const tab = { label: "Tab", shortcut: "Tab", visible: true };
+const space = { label: "Space", shortcut: "Space", visible: true };
+
+test("checkbox hints are tab, space, and enter when auto-advance is on", () => {
+  expect(hints({ type: "checkbox", choices: ["a", "b"] })).toEqual([
+    { text: "to the next item", keys: [tab] },
+    { text: "to select", keys: [space] }
+  ]);
+  expect(hints({ type: "checkbox", choices: ["a", "b"] }, { autoAdvanceEnabled: true })).toEqual([
+    { text: "to the next item", keys: [tab] },
+    { text: "to select", keys: [space] },
+    { text: "to submit", keys: [enterHidden] }
+  ]);
+  expect(hints({ type: "checkbox", choices: ["a", "b"], defaultValue: ["a"] }, { autoAdvanceEnabled: true })[2].keys[0].visible).toBe(true);
+});
+
+test("multi-select image picker uses the checkbox hint row", () => {
+  const choices = [{ value: "a", imageLink: "#a" }, { value: "b", imageLink: "#b" }];
+  expect(hints({ type: "imagepicker", multiSelect: true, choices: choices })).toEqual([
+    { text: "to the next item", keys: [tab] },
+    { text: "to select", keys: [space] }
+  ]);
+  expect(hints({
+    type: "imagepicker", multiSelect: true, choices: choices, defaultValue: ["a"]
+  }, { autoAdvanceEnabled: true })[2].keys[0].visible).toBe(true);
+  expect(hints({
+    type: "imagepicker", choices: choices, defaultValue: "a"
+  }, { autoAdvanceEnabled: true })[0].keys[0].label).toBe("↑↓←→"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+});

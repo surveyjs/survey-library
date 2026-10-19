@@ -17350,10 +17350,7 @@ describe("Survey", () => {
     expect(getContainerContent("header"), "").toEqual([]);
     expect(getContainerContent("footer"), "").toEqual([]);
     expect(getContainerContent("contentTop"), "").toEqual([]);
-    expect(getContainerContent("contentBottom"), "").toEqual([{
-      "component": "sv-action-bar",
-      "id": "buttons-navigation"
-    }]);
+    expect(getContainerContent("contentBottom"), "no navigation buttons on complete page").toEqual([]);
     expect(getContainerContent("left"), "").toEqual([]);
     expect(getContainerContent("right"), "").toEqual([]);
   });
@@ -17395,10 +17392,7 @@ describe("Survey", () => {
     expect(getContainerContent("header"), "header on complete page").toEqual([]);
     expect(getContainerContent("footer"), "").toEqual([]);
     expect(getContainerContent("contentTop"), "").toEqual([]);
-    expect(getContainerContent("contentBottom"), "").toEqual([{
-      "component": "sv-action-bar",
-      "id": "buttons-navigation"
-    }]);
+    expect(getContainerContent("contentBottom"), "no navigation buttons on complete page").toEqual([]);
     expect(getContainerContent("left"), "").toEqual([]);
     expect(getContainerContent("right"), "").toEqual([]);
   });
@@ -17449,10 +17443,7 @@ describe("Survey", () => {
     }]);
     expect(getContainerContent("footer"), "").toEqual([]);
     expect(getContainerContent("contentTop"), "").toEqual([]);
-    expect(getContainerContent("contentBottom"), "").toEqual([{
-      "component": "sv-action-bar",
-      "id": "buttons-navigation"
-    }]);
+    expect(getContainerContent("contentBottom"), "no navigation buttons on complete page").toEqual([]);
     expect(getContainerContent("left"), "").toEqual([]);
     expect(getContainerContent("right"), "").toEqual([]);
   });
@@ -19597,10 +19588,7 @@ describe("Survey", () => {
     expect(getContainerContent("center"), "default center").toEqual([]);
     expect(getContainerContent("footer"), "default footer").toEqual([]);
     expect(getContainerContent("contentTop"), "default contentTop").toEqual([]);
-    expect(getContainerContent("contentBottom"), "default contentBottom").toEqual([{
-      "component": "sv-action-bar",
-      "id": "buttons-navigation"
-    }]);
+    expect(getContainerContent("contentBottom"), "no navigation buttons in display mode").toEqual([]);
     expect(getContainerContent("left"), "default left").toEqual([]);
     expect(getContainerContent("right"), "default right").toEqual([]);
   });

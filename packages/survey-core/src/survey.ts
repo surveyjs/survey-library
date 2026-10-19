@@ -2798,8 +2798,21 @@ export class SurveyModel extends SurveyElementCore
       if (!this.navigationBarValue.locOwner)this.navigationBarValue.locOwner = this;
       this.updateNavigationCss();
       this.navigationBarValue.flushUpdates();
+      this.updateHasVisibleNavigationActions();
+      this.navigationBarValue.registerPropertyChangedHandlers(["isEmpty"], () => this.updateHasVisibleNavigationActions());
     }
     return this.navigationBarValue;
+  }
+  // Mirrors navigationBar.isEmpty in the survey's own property hash: UI layout containers are rendered
+  // by the survey component, which isn't subscribed to the navigation bar while the bar isn't rendered.
+  public get hasVisibleNavigationActions(): boolean {
+    if (!this.navigationBarValue) {
+      void this.navigationBar;
+    }
+    return this.getPropertyValue("hasVisibleNavigationActions", false);
+  }
+  private updateHasVisibleNavigationActions(): void {
+    this.setPropertyValue("hasVisibleNavigationActions", this.navigationBarValue.hasVisibleActions);
   }
   public createNavigationBarCallback: () => ActionContainer;
   protected createNavigationBar(): ActionContainer {

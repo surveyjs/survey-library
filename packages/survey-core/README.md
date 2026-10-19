@@ -65,7 +65,7 @@ Pass the `survey` instance to the component from your UI package to render it �
 
 ## Theme Adapters
 
-Themes are built on `--sjs-*` CSS custom properties (design tokens). A theme adapter maps an existing design system's variables onto those tokens, so an embedded survey inherits the look of the host application instead of being restyled by hand. Adapters ship with `survey-core` as plain CSS — import one after the base style sheet:
+Themes are built on `--sjs2-*` CSS custom properties ([design tokens](https://surveyjs.io/documentation/design-tokens-css-customization)). A theme adapter maps an existing design system's variables onto those tokens, so an embedded survey inherits the look of the host application instead of being restyled by hand. Adapters ship with `survey-core` as plain CSS — import one after the base style sheet:
 
 ```js
 import "survey-core/survey-core.css";
@@ -77,8 +77,6 @@ Adapters are available for [Bootstrap](https://getbootstrap.com), [Material UI](
 ```js
 import "survey-core/themes/adapters/icons/lucide"; // or ".../icons/mui"
 ```
-
-The Tailwind CSS v4 adapter is not a bridge to a component library: it applies the common Tailwind form layout and reads optional semantic variables (`--color-primary`, `--color-foreground`, `--color-input`, `--color-ring`, and others) that the host app declares in `@theme static { ... }` with values taken from its own theme or brand book. See the comment at the top of `tailwind4.css` for the full list.
 
 Adapters are framework-independent and require no extra markup or configuration. See [Theme Adapters](https://surveyjs.io/themes/theme-adapters).
 

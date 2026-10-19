@@ -1,6 +1,6 @@
 /* Tailwind CSS v4 -> SurveyJS adapter.
 
-   Not a true bridge: Tailwind ships no component library and no semantic color tokens, so there
+   Tailwind ships no component library and no semantic color tokens, so there
    is no "stock Tailwind look" to reproduce. This file applies the common Tailwind form pattern
    (text-sm, py-2 / px-3 -> 36px controls, gap-4 rhythm, p-4 rounded-lg cards) and reads the
    host's Tailwind theme variables (--spacing, --font-sans, --text-*, --radius-*, --color-gray-*,

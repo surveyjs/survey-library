@@ -2,6 +2,7 @@ import { ConditionRunner } from "../conditions/conditionRunner";
 import { Helpers, createDate } from "../helpers";
 import { settings } from "../settings";
 import { IDynamicDataField, IDynamicDataSort, DynamicDataSortDirection } from "./dynamic-data-interfaces";
+import { createIndexes } from "./dynamic-data-records";
 
 // Local filtering/sorting for DynamicDataList: pure functions over an array of records, so they can
 // be unit-tested without a list.
@@ -29,13 +30,6 @@ function findField(fields: Array<IDynamicDataField>, name: string): IDynamicData
     if (fields[i].name === name) return fields[i];
   }
   return undefined;
-}
-export function createIndexes(count: number): Array<number> {
-  const res = new Array<number>(count);
-  for (let i = 0; i < count; i++) {
-    res[i] = i;
-  }
-  return res;
 }
 function compareStrings(a: any, b: any): number {
   const normalize = settings.comparator.normalizeTextCallback;

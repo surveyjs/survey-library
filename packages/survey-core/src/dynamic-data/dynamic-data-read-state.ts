@@ -1,11 +1,17 @@
 import { IDynamicDataSort, IDynamicDataSource, IDynamicDataSourceCapabilities } from "./dynamic-data-interfaces";
 
+// The parts of the view the read state decides by (DynamicDataView). It only reads them.
+export interface IDynamicDataReadStateView {
+  readonly filter: string;
+  readonly sort: Array<IDynamicDataSort>;
+}
+
 /* What the window of DynamicDataList in force is and how it was read: its offset, whether a read has
    committed one, whether the source paged it and with which view, the page it was read for, the
    capabilities of the source, and the marks of the read that is requested. That decides what the next
-   read asks for. It decides; the list acts - it owns the records, the filter, the sort and the page
-   index, it requests and commits the reads and raises every notification, and it hands in the filter,
-   the sort and the page wherever a decision depends on them. */
+   read asks for. It decides; the list acts - it owns the records, the view and the page index, it
+   requests and commits the reads and raises every notification, and it hands in the page wherever a
+   decision depends on it. The filter and the sort are read from the view (dynamic-data-view.ts). */
 export class DynamicDataReadState {
   private _windowOffset: number = 0;
   private _isLoaded: boolean = false;
@@ -30,6 +36,7 @@ export class DynamicDataReadState {
      in force (isPagedBySource). */
   private capabilities: IDynamicDataSourceCapabilities = { paging: false, filtering: false, sorting: false };
 
+  constructor(private view: IDynamicDataReadStateView) { }
   public takeCapabilities(source: IDynamicDataSource): void {
     const caps = !!source ? source.capabilities : undefined;
     this.capabilities = {
@@ -54,30 +61,30 @@ export class DynamicDataReadState {
      storage until the next read commits - a read that is pending or failed changes nothing about it.
      Before the first commit there is no window to describe, and the mode is the one the next read asks
      for. */
-  public isPagedBySource(filter: string, sort: Array<IDynamicDataSort>): boolean {
-    return this._isLoaded ? this.isWindowPagedBySource : this.isReadPagedBySource(filter, sort);
+  public get isPagedBySource(): boolean {
+    return this._isLoaded ? this.isWindowPagedBySource : this.isReadPagedBySource;
   }
   /* The next read asks the source for a page: the source pages, and it runs every part of the view
      the list has - it filters or there is no filter, it sorts or there is no sort. Otherwise the
      source is read whole and the list filters, sorts and pages the answer. It decides what a read
      requests; isPagedBySource decides how the window that is in force is read. */
-  public isReadPagedBySource(filter: string, sort: Array<IDynamicDataSort>): boolean {
+  public get isReadPagedBySource(): boolean {
     const caps = this.capabilities;
-    return caps.paging && (caps.filtering || !filter) && (caps.sorting || sort.length === 0);
+    return caps.paging && (caps.filtering || !this.view.filter) && (caps.sorting || this.view.sort.length === 0);
   }
   /* A change of the view or of the page is answered by a read of the source: the source pages it, or
      a paging source owes the whole storage that a view part it cannot run is run over - the window in
      force is still a page, because the read of the whole storage is pending or failed, or nothing
      was committed yet. Once the whole storage is in force, the list answers those changes itself. */
-  public readsSourceOnViewChange(filter: string, sort: Array<IDynamicDataSort>): boolean {
-    if (this.isReadPagedBySource(filter, sort)) return true;
+  public get readsSourceOnViewChange(): boolean {
+    if (this.isReadPagedBySource) return true;
     if (!this.capabilities.paging || !this._isLoadRequested) return false;
     return !this._isLoaded || this.isWindowPagedBySource;
   }
   // The list runs the filter over the records it holds, sorts them, and a write to the window is a
   // write to the whole storage: the window holds every record of the source.
-  public isWindowWholeStorage(filter: string, sort: Array<IDynamicDataSort>): boolean {
-    return !this.isPagedBySource(filter, sort);
+  public get isWindowWholeStorage(): boolean {
+    return !this.isPagedBySource;
   }
   // A paging source answered with the whole storage, because it cannot run the view the list has, and
   // that window is in force.
@@ -97,9 +104,8 @@ export class DynamicDataReadState {
      commits (pageIndex, setView), so a refresh or the refill after a remove that starts meanwhile -
      in flight, queued behind writes, or issued again after a write overtook it - reads the page the
      newest navigation asked for, and that page commits with its index. */
-  public getReadRange(useWindowOffset: boolean, pageIndex: number, pageSize: number, retryPageIndex: number,
-    filter: string, sort: Array<IDynamicDataSort>): { skip: number, take: number } {
-    if (!this.isReadPagedBySource(filter, sort)) return { skip: 0, take: 0 };
+  public getReadRange(useWindowOffset: boolean, pageIndex: number, pageSize: number, retryPageIndex: number): { skip: number, take: number } {
+    if (!this.isReadPagedBySource) return { skip: 0, take: 0 };
     let skip: number;
     if (retryPageIndex !== undefined) {
       skip = retryPageIndex * pageSize;

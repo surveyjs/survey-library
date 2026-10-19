@@ -1,7 +1,6 @@
 import { ValidationContext } from "./question";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { IDynamicDataPageState } from "./dynamic-data/dynamic-data-page-validation";
-import { pagingStateKeys } from "./dynamic-data/dynamic-data-paging";
+import { IRecordsPageState, pagingStateKeys } from "./records/records-paging";
 
 export interface IRecordsPageValidationOwner {
   getDataList(): DynamicDataList;
@@ -36,7 +35,7 @@ export interface IRecordsPageValidationOwner {
 export class RecordsPageValidation {
   // Record indexes, ascending. Kept in step with the list's own inserts, removes and moves.
   private edited: Array<number> = [];
-  private nested: { [recordIndex: number]: { [valueName: string]: IDynamicDataPageState } } = {};
+  private nested: { [recordIndex: number]: { [valueName: string]: IRecordsPageState } } = {};
   private moveToken: number = 0;
   private isPendingValue: boolean = false;
   constructor(private owner: IRecordsPageValidationOwner) { }
@@ -134,7 +133,7 @@ export class RecordsPageValidation {
   }
   /* The states kept under a name that is not a record index (a record's key, or its index in the whole
      source of a source that pages itself): no remap of the window touches them. */
-  private nestedBySourceKey: { [key: string]: { [valueName: string]: IDynamicDataPageState } } = {};
+  private nestedBySourceKey: { [key: string]: { [valueName: string]: IRecordsPageState } } = {};
   // The records are not tracked any more (canTrackEditedRecords): the indexes name nothing.
   public clearEditedRecords(): void {
     this.edited = [];
@@ -186,8 +185,8 @@ export class RecordsPageValidation {
     this.edited = res.sort((a: number, b: number): number => a - b);
     this.nested = this.remapNested(remap);
   }
-  private remapNested(remap: (i: number) => number): { [recordIndex: number]: { [valueName: string]: IDynamicDataPageState } } {
-    const res: { [recordIndex: number]: { [valueName: string]: IDynamicDataPageState } } = {};
+  private remapNested(remap: (i: number) => number): { [recordIndex: number]: { [valueName: string]: IRecordsPageState } } {
+    const res: { [recordIndex: number]: { [valueName: string]: IRecordsPageState } } = {};
     Object.keys(this.nested).forEach((key: string): void => {
       const to = remap(Number(key));
       if (to > -1) res[to] = this.nested[<any>key];
@@ -305,17 +304,17 @@ export class RecordsPageValidation {
     return true;
   }
 
-  public getState(pageIndex: number): IDynamicDataPageState {
+  public getState(pageIndex: number): IRecordsPageState {
     return { pageIndex: pageIndex, edited: this.edited.slice(), nested: Object.assign({}, this.nested) };
   }
   // Copies, as getState makes: a restored question that keeps its nested states never changes the state an ancestor keeps.
-  public setState(state: IDynamicDataPageState): void {
+  public setState(state: IRecordsPageState): void {
     if (!state) return;
     this.edited = Array.isArray(state.edited) ? state.edited.slice() : [];
     this.nested = Object.assign({}, state.nested);
   }
   // The ancestor side: the states of the paged questions nested in one of its records.
-  public keepNestedStates(recordIndex: number | string, states: { [valueName: string]: IDynamicDataPageState }): void {
+  public keepNestedStates(recordIndex: number | string, states: { [valueName: string]: IRecordsPageState }): void {
     const isEmpty = !states || Object.keys(states).length === 0;
     if (typeof recordIndex === "string") {
       if (isEmpty) delete this.nestedBySourceKey[recordIndex];
@@ -329,7 +328,7 @@ export class RecordsPageValidation {
       this.nested[recordIndex] = states;
     }
   }
-  public getNestedStates(recordIndex: number | string): { [valueName: string]: IDynamicDataPageState } {
+  public getNestedStates(recordIndex: number | string): { [valueName: string]: IRecordsPageState } {
     return typeof recordIndex === "string" ? this.nestedBySourceKey[recordIndex] : this.nested[recordIndex];
   }
 }

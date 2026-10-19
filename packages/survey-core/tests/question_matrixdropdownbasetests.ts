@@ -3120,18 +3120,19 @@ describe("The pager of a matrix that pages its rows", () => {
       expect((<QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix")).showPager, "#5: design mode").toBe(false);
     });
   });
-  test("the page buttons are icons with localized titles, the page info is text without a tab stop", () => {
+  test("the page buttons are icons with localized titles, the total is text without a tab stop", () => {
     const matrix = createMatrix("matrixdropdown", { pageSize: 2 });
-    const prev = matrix.pagerActions.getActionById("sv-pager-prev");
-    const next = matrix.pagerActions.getActionById("sv-pager-next");
-    const info = matrix.pagerActions.getActionById("sv-pager-info");
-    expect([prev.title, next.title, info.title], "#1").toEqual(["Previous", "Next", "1 of 3"]);
-    expect([prev.iconName, next.iconName], "#2").toEqual(["icon-arrowleft", "icon-arrowright"]);
+    const prev = matrix.recordsBar.pagerActions.getActionById("sv-pager-prev");
+    const next = matrix.recordsBar.pagerActions.getActionById("sv-pager-next");
+    const page = matrix.recordsBar.pagerActions.getActionById("sv-pager-page");
+    const total = matrix.recordsBar.pagerActions.getActionById("sv-pager-total");
+    expect([prev.title, next.title, page.title, total.title], "#1").toEqual(["Previous", "Next", "1", "of 3"]);
+    expect([prev.iconName, next.iconName], "#2").toEqual(["icon-chevronleft-16x16", "icon-chevronright-16x16"]);
     expect([prev.hasTitle, next.hasTitle], "#3: the title is the tooltip and the accessible name").toEqual([false, false]);
     expect([prev.getTooltip(), next.getTooltip()], "#3").toEqual(["Previous", "Next"]);
-    expect([info.enabled, info.disableTabStop], "#4: the info is not a button").toEqual([false, true]);
+    expect([total.enabled, total.disableTabStop], "#4: the total is not a button").toEqual([false, true]);
     (<SurveyModel>matrix.survey).locale = "de";
-    expect([prev.title, next.title, info.title], "#5: the titles follow the locale").toEqual([germanSurveyStrings.pagePrevText, germanSurveyStrings.pageNextText, "1 von 3"]);
+    expect([prev.title, next.title, page.ariaLabel], "#5: the titles follow the locale").toEqual([germanSurveyStrings.pagePrevText, germanSurveyStrings.pageNextText, "Seite 1 von 3"]);
     (<SurveyModel>matrix.survey).locale = "";
     expect(prev.title, "#6").toBe("Previous");
   });
@@ -3145,8 +3146,8 @@ describe("The pager of a matrix that pages its rows", () => {
       });
       matrix.value = { r1: { a: "x" }, r2: { a: "y" } };
       expect(matrix.visibleRows.length, "#0: the page is shown").toBe(2);
-      const prev = matrix.pagerActions.getActionById("sv-pager-prev");
-      const next = matrix.pagerActions.getActionById("sv-pager-next");
+      const prev = matrix.recordsBar.pagerActions.getActionById("sv-pager-prev");
+      const next = matrix.recordsBar.pagerActions.getActionById("sv-pager-next");
       expect([prev.enabled, next.enabled], "#1: page 0").toEqual([false, true]);
       next.action();
       expect(matrix.isPageMovePending, "#2: the move waits").toBe(true);

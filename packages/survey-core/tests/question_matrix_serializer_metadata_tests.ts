@@ -171,7 +171,7 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "cellType", default: "dropdown", visible: true },
     { name: "columnColCount", default: 0, visible: true },
     { name: "allowAdaptiveActions", default: false, visible: false },
-    { name: "pageSize", default: 0, visible: false },
+    { name: "pageSize", default: 0, visible: true },
     { name: "sortBy", default: "", visible: false },
     { name: "filterExpression", default: "", visible: false },
     { name: "rows", default: [], visible: true },
@@ -247,7 +247,7 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "cellType", default: "dropdown", visible: true },
     { name: "columnColCount", default: 0, visible: true },
     { name: "allowAdaptiveActions", default: false, visible: false },
-    { name: "pageSize", default: 0, visible: false },
+    { name: "pageSize", default: 0, visible: true },
     { name: "sortBy", default: "", visible: false },
     { name: "filterExpression", default: "", visible: false },
     { name: "allowAddRows", default: true, visible: true },
@@ -342,7 +342,7 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "showQuestionNumbers", default: "off", visible: true },
     { name: "questionStartIndex", visible: true },
     { name: "renderMode", visible: false },
-    { name: "pageSize", default: 0, visible: false },
+    { name: "pageSize", default: 0, visible: true },
     { name: "sortBy", default: "", visible: false },
     { name: "filterExpression", default: "", visible: false },
     { name: "displayMode", default: "list", visible: true },
@@ -483,7 +483,7 @@ describe("the paging, sort and filter properties of the matrices with rows", () 
       ["pageSize", "sortBy", "filterExpression"].forEach(name => {
         const prop = Serializer.findProperty(type, name);
         expect(!!prop, type + "." + name).toBe(true);
-        expect(prop.visible, type + "." + name + " visible").toBe(false);
+        expect(prop.visible, type + "." + name + " visible").toBe(name === "pageSize");
       });
       expect(Serializer.findProperty(type, "pageSize").defaultValue, type + " default").toBe(0);
       const json: any = { type: type, name: "q", pageSize: 3, sortBy: "a", filterExpression: "{a} > 1", columns: [{ name: "a" }] };

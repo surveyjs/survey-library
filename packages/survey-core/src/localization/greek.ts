@@ -5,6 +5,14 @@ export var greekSurveyStrings = {
   pagePrevText: "Προηγούμενο",
   // "Next"
   pageNextText: "Επόμενο",
+  // [Auto-translated] "First"
+  pageFirstText: "Πρώτα",
+  // [Auto-translated] "Last"
+  pageLastText: "Τελευταία",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "της {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Επιλογή Σελίδας",
   // "Complete"
   completeText: "Ολοκλήρωση",
   // "Preview"

@@ -5,6 +5,14 @@ export var frenchSurveyStrings = {
   pagePrevText: "Précédent",
   // "Next"
   pageNextText: "Suivant",
+  // [Auto-translated] "First"
+  pageFirstText: "Première",
+  // [Auto-translated] "Last"
+  pageLastText: "Dernier",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "de {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Sélectionner la page",
   // "Complete"
   completeText: "Terminer",
   // "Preview"

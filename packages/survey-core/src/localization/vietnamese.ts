@@ -5,6 +5,14 @@ export var vietnameseSurveyStrings = {
   pagePrevText: "Trở về",
   // "Next"
   pageNextText: "Tiếp theo",
+  // [Auto-translated] "First"
+  pageFirstText: "Đầu tiên",
+  // [Auto-translated] "Last"
+  pageLastText: "Cuối cùng",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "của {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Chọn trang",
   // "Complete"
   completeText: "Hoàn thành",
   // "Preview"

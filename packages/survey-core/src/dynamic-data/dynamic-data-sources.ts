@@ -1,7 +1,8 @@
 import { ISurveyData } from "../interfaces/data-interfaces";
 import { Helpers } from "../helpers";
-import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data-interfaces";
+import { DynamicDataSourceMethod, IDynamicDataSource } from "./dynamic-data-interfaces";
 import { createKeyRemap, getReplacedRecordsRemap } from "./dynamic-data-record-remap";
+import { isRecordEmpty } from "./dynamic-data-records";
 import { Scope } from "../utils/scope";
 
 /* A local source: the owner's records in memory, behind a getter/setter pair. It is read whole and
@@ -26,7 +27,7 @@ export abstract class LocalDynamicDataSource implements IDynamicDataSource {
   /* setArray gets the writes that made the array, in order - one, or every write of a batch - so that
      an owner whose value has a shape rule per kind of write can apply it. */
   constructor(private getArray: () => Array<any> | undefined,
-    private setArray: (arr: Array<any>, operations?: Array<DynamicDataOperation>) => void) { }
+    private setArray: (arr: Array<any>, operations?: Array<DynamicDataSourceMethod>) => void) { }
   // The length read() would return, without composing the array. Inside a batch the array being built.
   public get count(): number {
     if (this.isBatching) return this.batchArray.length;
@@ -43,7 +44,7 @@ export abstract class LocalDynamicDataSource implements IDynamicDataSource {
   protected abstract readStoredAt(index: number, defaultRecord: any): any;
   private batchScope = new Scope();
   private batchArray: Array<any>;
-  private batchOperations: Array<DynamicDataOperation> = [];
+  private batchOperations: Array<DynamicDataSourceMethod> = [];
   // True while a batch is open, a nested one included: read() answers from the array being built.
   private get isBatching(): boolean {
     return this.batchScope.isActive;
@@ -60,7 +61,7 @@ export abstract class LocalDynamicDataSource implements IDynamicDataSource {
     this.batchArray = this.readCore();
     this.batchOperations = [];
     let newArray: Array<any>;
-    let operations: Array<DynamicDataOperation>;
+    let operations: Array<DynamicDataSourceMethod>;
     try {
       this.batchScope.run(func);
     } finally {
@@ -90,7 +91,7 @@ export abstract class LocalDynamicDataSource implements IDynamicDataSource {
     const res = this.getArray();
     return Array.isArray(res) ? res : [];
   }
-  protected write(arr: Array<any>, operation: DynamicDataOperation): void {
+  protected write(arr: Array<any>, operation: DynamicDataSourceMethod): void {
     if (this.isBatching) {
       this.batchArray = arr;
       this.batchOperations.push(operation);
@@ -201,7 +202,7 @@ export interface IArrayDynamicDataSourceOptions {
 // checks the signature; tests/dynamic-data/internal-access.test.ts checks that the member exists.
 export class ArrayDynamicDataSource extends LocalDynamicDataSource {
   constructor(getArray: () => Array<any> | undefined,
-    setArray: (arr: Array<any>, operations?: Array<DynamicDataOperation>) => void,
+    setArray: (arr: Array<any>, operations?: Array<DynamicDataSourceMethod>) => void,
     private options: IArrayDynamicDataSourceOptions = {}) {
     super(getArray, setArray);
   }
@@ -280,16 +281,6 @@ export class SurveyDataDynamicDataSource extends ArrayDynamicDataSource {
   constructor(public data: ISurveyData, public valueName: string) {
     super(() => data.getValue(valueName), (arr: Array<any>): void => { data.setValue(valueName, arr, false); });
   }
-}
-
-/* The released rule of a row: a record is empty when it holds no value but undefined or null. One rule
-   for an object and for a stored record without one (a cleared cell removes the row's key). */
-export function isRecordEmpty(record: any): boolean {
-  if (Helpers.isValueEmpty(record)) return true;
-  for (const key in record) {
-    if (record[key] !== undefined && record[key] !== null) return false;
-  }
-  return true;
 }
 
 // A row of RowsDynamicDataSource: its value is the key of its record in the answer; a row without a value (hasValue) is no record.

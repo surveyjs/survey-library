@@ -8370,8 +8370,9 @@ describe("Survey_QuestionPanelDynamic", () => {
     }
     return <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
   }
-  test("settings.panel.maxPanelCount is the maximum number of panels on one page: pageSize above it is capped", () => {
-    settings.panel.maxPanelCount = 5;
+  test("settings.maxPageSize, not settings.panel.maxPanelCount, is the maximum number of panels on one page: pageSize above it is capped", () => {
+    settings.maxPageSize = 5;
+    settings.panel.maxPanelCount = 3;
     try {
       const question = createMaxPanelCountSurvey({ pageSize: 10 }, 12);
       expect(question.panels.length, "#1: five panels on the page").toBe(5);
@@ -8381,9 +8382,10 @@ describe("Survey_QuestionPanelDynamic", () => {
       question.pageIndex = 2;
       expect(question.panels.length, "#5: the last page").toBe(2);
       question.pageSize = 4;
-      expect(question.panels.length, "#6: a page size below the setting is used as is").toBe(4);
+      expect(question.panels.length, "#6: a page size below settings.maxPageSize and above the type setting is used as is").toBe(4);
       expect(question.pageCount, "#7").toBe(3);
     } finally {
+      settings.maxPageSize = 100;
       settings.panel.maxPanelCount = 100;
     }
   });
@@ -10873,24 +10875,25 @@ describe("Question Panel Dynamic: paging and sorting", () => {
   });
   test("the pager actions are created once", () => {
     const question = createQuestion({ panelCount: 5, pageSize: 2 }, abcde);
-    const actions = question.pagerActions;
+    const actions = question.recordsBar.pagerActions;
     question.nextPage();
-    expect(question.pagerActions === actions, "#1: the same container after a page move").toBe(true);
+    expect(question.recordsBar.pagerActions === actions, "#1: the same container after a page move").toBe(true);
     question.pageSize = 3;
-    expect(question.pagerActions === actions, "#2: and after a page size change").toBe(true);
+    expect(question.recordsBar.pagerActions === actions, "#2: and after a page size change").toBe(true);
   });
   test("the pager actions run the navigation and follow it", () => {
     const question = createQuestion({ panelCount: 5, pageSize: 2 }, abcde);
-    expect(question.pagerActions.actions.length, "#1: prev, the page info and next").toBe(3);
-    const prev = question.pagerActions.getActionById("sv-pager-prev");
-    const next = question.pagerActions.getActionById("sv-pager-next");
-    const info = question.pagerActions.getActionById("sv-pager-info");
+    expect(question.recordsBar.pagerActions.actions.map(action => action.id), "#1: first, prev, the page dropdown, the total, next and last").toEqual(
+      ["sv-pager-first", "sv-pager-prev", "sv-pager-page", "sv-pager-total", "sv-pager-next", "sv-pager-last"]);
+    const prev = question.recordsBar.pagerActions.getActionById("sv-pager-prev");
+    const next = question.recordsBar.pagerActions.getActionById("sv-pager-next");
+    const page = question.recordsBar.pagerActions.getActionById("sv-pager-page");
     expect(prev.enabled, "#2").toBe(false);
     expect(next.enabled, "#3").toBe(true);
-    expect(info.title, "#4").toBe("1 of 3");
+    expect(page.title, "#4").toBe("1");
     next.action();
     expect(question.pageIndex, "#5").toBe(1);
-    expect(info.title, "#6").toBe("2 of 3");
+    expect(page.title, "#6").toBe("2");
     expect(prev.enabled, "#7").toBe(true);
     next.action();
     expect(next.enabled, "#8: the last page").toBe(false);
@@ -10933,11 +10936,11 @@ describe("Question Panel Dynamic: paging and sorting", () => {
     expect(json.sortBy, "#9").toBe("q1");
     expect(json.filterExpression, "#10").toBe("{q1} = 'a'");
   });
-  test("pageSize round-trips through JSON and stays out of the property grid", () => {
+  test("pageSize round-trips through JSON and is in the property grid", () => {
     const question = createQuestion({ panelCount: 2, pageSize: 3 });
     expect(question.pageSize, "#1").toBe(3);
     expect(question.toJSON().pageSize, "#2").toBe(3);
-    expect(Serializer.findProperty("paneldynamic", "pageSize").visible, "#3").toBe(false);
+    expect(Serializer.findProperty("paneldynamic", "pageSize").visible, "#3").toBe(true);
     const byDefault = createQuestion({ panelCount: 2 });
     expect(byDefault.toJSON().pageSize, "#4: the default is not serialized").toBe(undefined);
     expect(byDefault.pageSize, "#5").toBe(0);

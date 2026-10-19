@@ -29,6 +29,15 @@ import { ChoiceShortcuts, IChoiceShortcutsOwner } from "./utils/choice-shortcuts
 import { Scope } from "./utils/scope";
 
 const OTHER_ITEM_VALUE = "other";
+// The key a choice comment is kept under in the object of a selected item (commentPropertyValue).
+export const CHOICE_COMMENT_PROPERTY = "comment";
+// Whether a value is (or, for an array, holds) the value of the built-in "Other" item.
+export function isOtherItemValue(val: any): boolean {
+  if (Array.isArray(val)) {
+    return val.indexOf(OTHER_ITEM_VALUE) > -1;
+  }
+  return val === OTHER_ITEM_VALUE;
+}
 // The contract of a question whose value is picked from a list of items it offers: every Select
 // question, plus Boolean and Rating, which build their items themselves. Question.isSelectQuestion()
 // says whether a question implements it, so a consumer that only exchanges data with the survey -
@@ -213,6 +222,11 @@ export class ChoiceItem extends ItemValue {
   public get isPanelCreated(): boolean {
     return !!this.panelValue;
   }
+  // The created panel, or undefined. Unlike the panel getter, it neither creates the panel nor links it
+  // to the survey, so a walk can read it while the owner has a survey but no parent yet.
+  public get createdPanel(): PanelModel {
+    return this.panelValue;
+  }
   public get elements(): Array<IElement> {
     return this.panel.elements;
   }
@@ -388,12 +402,15 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   }
   /* Every choice panel that is created, empty ones included, as getPanels() and disposal see them. A
      panel is created by JSON elements or by reading item.panel, and it stays created after its last
-     element is removed; item.panel is never read on an item without one, because reading creates it. */
+     element is removed. The walk reads item.createdPanel, never item.panel: reading item.panel creates
+     the panel and links it to the survey, and a walk run from setSurveyImpl (setIsMobile) happens before
+     the question has its parent, so the panel would keep no parent. */
   protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
     if (!this.supportElementsInChoice()) return;
     this.choices.forEach((item) => {
-      if (item.isPanelCreated) {
-        visit({ element: item.panel, role: "choicePanel", segment: undefined, location: "root", visible: item.isPanelShowing });
+      const panel = item.createdPanel;
+      if (!!panel) {
+        visit({ element: panel, role: "choicePanel", segment: undefined, location: "root", visible: item.isPanelShowing });
       }
     });
   }
@@ -632,7 +649,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
   }
   public get commentPropertyValue(): string {
-    return "comment";
+    return CHOICE_COMMENT_PROPERTY;
   }
   protected getCommentValueCore(item: ItemValue): string {
     if (this.isOtherItemByValue(item)) return this.otherValue;
@@ -1014,10 +1031,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return false;
   }
   protected isOtherValue(val: any): boolean {
-    if (Array.isArray(val)) {
-      return val.indexOf(OTHER_ITEM_VALUE) > -1;
-    }
-    return val === OTHER_ITEM_VALUE;
+    return isOtherItemValue(val);
   }
   protected getIsItemValue(val: any, item: ItemValue): boolean {
     return val === item.value;
@@ -2930,6 +2944,9 @@ export class QuestionCheckboxBase extends QuestionSelectBase implements IChoiceS
       this.setPropertyValueDirectly("choiceShortcutsEnabled", next);
     }
     this.propertyValueChanged("choiceShortcutsEnabled", prev, next);
+    if (!this.isLoadingFromJson) {
+      this.updateChoiceKeyBinding(false);
+    }
   }
   public supportsChoiceKeyboardSelection(): boolean {
     return false;
@@ -2946,8 +2963,11 @@ export class QuestionCheckboxBase extends QuestionSelectBase implements IChoiceS
   // which would hide the badges in Creator.
   public get canShowChoiceKeys(): boolean {
     const surveyShortcut = !!this.survey && this.survey.choiceShortcutsEnabled === true;
-    if (!this.supportsChoiceKeyboardSelection() || this.isMobile || this.isReadOnly) return false;
+    const supported = this.supportsChoiceKeyboardSelection();
+    const isMobile = this.isMobile;
+    const isReadOnly = this.isReadOnly;
     const own = this.getPropertyValueWithoutDefault("choiceShortcutsEnabled");
+    if (!supported || isMobile || isReadOnly) return false;
     if (own === true || own === false) return own;
     return surveyShortcut;
   }
@@ -2957,17 +2977,22 @@ export class QuestionCheckboxBase extends QuestionSelectBase implements IChoiceS
   }
   public onSurveyLoad(): void {
     super.onSurveyLoad();
-    this.bindChoiceKeyBadges();
+    this.updateChoiceKeyBinding(true);
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     super.setSurveyImpl(value, isLight);
     // A question built on its own (toolbox drop) runs onSurveyLoad before it joins a survey,
     // so the badge updater never subscribed to the survey flag. Rebind once the survey is set.
     if (!this.isLoadingFromJson) {
-      this.bindChoiceKeyBadges();
+      this.updateChoiceKeyBinding(true);
     }
   }
+  public onSurveyChoiceShortcutsEnabledChanged(): void {
+    super.onSurveyChoiceShortcutsEnabledChanged();
+    this.updateChoiceKeyBinding(false);
+  }
   public dispose(): void {
+    this.disposeChoiceKeyUpdater();
     this.choiceShortcuts.dispose();
     super.dispose();
   }
@@ -2975,8 +3000,38 @@ export class QuestionCheckboxBase extends QuestionSelectBase implements IChoiceS
     onSet: (_val: string, obj: QuestionCheckboxBase) => obj.choiceShortcuts.applyBadges()
   })
   private choiceKeyState: string;
+  private get isChoiceKeyStateBound(): boolean {
+    return !!this.dependencies["choiceKeyState"];
+  }
+  /* The badges are bound only while the flags enable them: a select question with shortcuts off holds no
+     handler on the survey, its parents or itself. rebind: the survey or the parent changed, and the
+     dependencies collected against the old ones are stale, so an existing binding is made again.
+     Otherwise (a flag changed) it binds or unbinds only when the state differs. */
+  private updateChoiceKeyBinding(rebind: boolean): void {
+    if (this.isChoiceKeyboardSelectionEnabled) {
+      if (rebind || !this.isChoiceKeyStateBound) {
+        this.bindChoiceKeyBadges();
+      }
+    } else if (this.isChoiceKeyStateBound) {
+      this.unbindChoiceKeyBadges();
+    }
+  }
   private bindChoiceKeyBadges(): void {
+    // The updater collects its dependencies on this first run only, so buildState() and canShowChoiceKeys
+    // must read every input before combining them: an input skipped now is never observed afterwards.
     this.choiceKeyState = new ComputedUpdater(() => this.choiceShortcuts.buildState()) as any;
+  }
+  private unbindChoiceKeyBadges(): void {
+    this.disposeChoiceKeyUpdater();
+    // Without a stored state the next binding writes its badges again, even when the state is the same.
+    this.setPropertyValue("choiceKeyState", undefined);
+    this.choiceShortcuts.applyBadges();
+  }
+  private disposeChoiceKeyUpdater(): void {
+    const updater = this.dependencies["choiceKeyState"];
+    if (!updater) return;
+    updater.dispose();
+    delete this.dependencies["choiceKeyState"];
   }
   public getChoiceKeyItems(): Array<ItemValue> {
     const items = this.visibleChoices;

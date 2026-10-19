@@ -774,6 +774,177 @@ describe("Base", () => {
     expect(updaterCallCount, "updater doesn't react on changes").toBe(2);
     expect(base3.propC, "no value updates").toBe(4);
   });
+  describe("property change handlers", () => {
+    let changeCounter = 0;
+    const fire = (obj: Base, name: string): void => {
+      obj.setPropertyValue(name, ++changeCounter);
+    };
+    const handlersOf = (obj: Base, name: string): Array<{ name: string, func: any, key: string }> =>
+      obj["onPropChangeFunctions"].filter(item => item.name === name);
+
+    test("a keyed re-registration replaces the handler and keeps its position", () => {
+      const obj = new Base();
+      const calls = new Array<string>();
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("A"), "a");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("B"), "b");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("C"), "c");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("B2"), "b");
+      fire(obj, "p");
+      expect(calls).toEqual(["A", "B2", "C"]);
+      expect(handlersOf(obj, "p").map(item => item.key)).toEqual(["a", "b", "c"]);
+    });
+    test("unkeyed handlers stack, and one unkeyed removal removes only the first", () => {
+      const obj = new Base();
+      let count = 0;
+      const func = () => count++;
+      obj.registerFunctionOnPropertyValueChanged("p", func);
+      obj.registerFunctionOnPropertyValueChanged("p", func);
+      fire(obj, "p");
+      expect(count, "#1: both fire").toBe(2);
+      const removed = obj.unRegisterFunctionOnPropertyValueChanged("p");
+      expect(removed.length, "#2: the removed entry is returned").toBe(1);
+      expect(removed[0].func, "#3").toBe(func);
+      fire(obj, "p");
+      expect(count, "#4: one is left").toBe(3);
+      expect(handlersOf(obj, "p").length, "#5").toBe(1);
+    });
+    test("removal by key leaves the handlers of other keys and of other names intact", () => {
+      const obj = new Base();
+      const calls = new Array<string>();
+      obj.registerPropertyChangedHandlers(["p", "q"], () => calls.push("k1"), "k1");
+      obj.registerPropertyChangedHandlers(["p", "q"], () => calls.push("k2"), "k2");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("unkeyed"));
+      const removed = obj.unRegisterFunctionOnPropertyValueChanged("p", "k1");
+      expect(removed.map(item => item.key), "#1").toEqual(["k1"]);
+      expect(obj.unRegisterFunctionOnPropertyValueChanged("p", "k1"), "#2: nothing left to remove").toBeUndefined();
+      fire(obj, "p");
+      expect(calls, "#3").toEqual(["k2", "unkeyed"]);
+      calls.splice(0);
+      fire(obj, "q");
+      expect(calls, "#4: the same key on another name stays").toEqual(["k1", "k2"]);
+    });
+    test("a handler that removes itself while firing does not stop the next handlers", () => {
+      const obj = new Base();
+      const calls = new Array<string>();
+      obj.registerFunctionOnPropertyValueChanged("p", () => {
+        calls.push("H1");
+        obj.unRegisterFunctionOnPropertyValueChanged("p", "h1");
+      }, "h1");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("H2"), "h2");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("H3"), "h3");
+      fire(obj, "p");
+      expect(calls, "#1").toEqual(["H1", "H2", "H3"]);
+      calls.splice(0);
+      fire(obj, "p");
+      expect(calls, "#2").toEqual(["H2", "H3"]);
+    });
+    test("a handler that removes a later handler while firing: the removed one does not fire", () => {
+      const obj = new Base();
+      const calls = new Array<string>();
+      obj.registerFunctionOnPropertyValueChanged("p", () => {
+        calls.push("H1");
+        obj.unRegisterFunctionOnPropertyValueChanged("p", "h2");
+      }, "h1");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("H2"), "h2");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("H3"), "h3");
+      fire(obj, "p");
+      expect(calls).toEqual(["H1", "H3"]);
+    });
+    test("a handler registered while firing fires in the same pass", () => {
+      const obj = new Base();
+      const calls = new Array<string>();
+      obj.registerFunctionOnPropertyValueChanged("p", () => {
+        calls.push("H1");
+        obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("H4"), "h4");
+      }, "h1");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("H2"), "h2");
+      fire(obj, "p");
+      expect(calls).toEqual(["H1", "H2", "H4"]);
+    });
+    [{ title: "keyed", h1: "h1", h4: "h4" }, { title: "unkeyed", h1: undefined, h4: undefined }].forEach(kind => {
+      test("the only handler removes itself and registers another one while firing: the new one fires in the same pass, " + kind.title, () => {
+        const obj = new Base();
+        const calls = new Array<string>();
+        obj.registerFunctionOnPropertyValueChanged("p", () => {
+          calls.push("H1");
+          obj.unRegisterFunctionOnPropertyValueChanged("p", kind.h1);
+          obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("H4"), kind.h4);
+        }, kind.h1);
+        fire(obj, "p");
+        expect(calls, "#1").toEqual(["H1", "H4"]);
+        calls.splice(0);
+        fire(obj, "p");
+        expect(calls, "#2").toEqual(["H4"]);
+      });
+    });
+    test("20,000 keyed handlers on one object register and unregister completely", () => {
+      const obj = new Base();
+      let count = 0;
+      const func = () => count++;
+      const total = 20000;
+      for (let i = 0; i < total; i++) {
+        obj.registerFunctionOnPropertyValueChanged("p", func, "k" + i);
+      }
+      expect(obj["onPropChangeFunctions"].length, "#1").toBe(total);
+      fire(obj, "p");
+      expect(count, "#2").toBe(total);
+      for (let i = 0; i < total; i++) {
+        obj.unRegisterFunctionOnPropertyValueChanged("p", "k" + i);
+      }
+      expect(obj["onPropChangeFunctions"], "#3: the snapshot is empty").toEqual([]);
+      fire(obj, "p");
+      expect(count, "#4: nothing fires").toBe(total);
+    });
+    test("firing a property does not touch the handlers of other properties", () => {
+      const obj = new Base();
+      let otherCount = 0;
+      for (let i = 0; i < 10000; i++) {
+        obj.registerFunctionOnPropertyValueChanged("other", () => otherCount++, "k" + i);
+      }
+      let targetCount = 0;
+      obj.registerFunctionOnPropertyValueChanged("target", () => targetCount++, "k0");
+      const storage: Map<string, any> = obj["propChangeHandlers"];
+      expect(storage instanceof Map, "#1: the handlers are kept by name").toBe(true);
+      storage.set("other", new Proxy({}, { get: () => { throw new Error("the handlers of 'other' were accessed"); } }));
+      fire(obj, "target");
+      expect(targetCount, "#2").toBe(1);
+      expect(otherCount, "#3").toBe(0);
+    });
+    test("empty-string keys stack like unkeyed handlers, apart from null and undefined keys", () => {
+      const obj = new Base();
+      const calls = new Array<string>();
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("E1"), "");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("N"), null);
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("E2"), "");
+      fire(obj, "p");
+      expect(calls, "#1").toEqual(["E1", "N", "E2"]);
+      expect(obj.unRegisterFunctionOnPropertyValueChanged("p", null).map(item => item.key), "#2").toEqual([null]);
+      expect(obj.unRegisterFunctionOnPropertyValueChanged("p", undefined), "#3: no null or undefined key is left").toBeUndefined();
+      calls.splice(0);
+      fire(obj, "p");
+      expect(calls, "#4").toEqual(["E1", "E2"]);
+      expect(obj.unRegisterFunctionOnPropertyValueChanged("p", "").map(item => item.key), "#5").toEqual([""]);
+      calls.splice(0);
+      fire(obj, "p");
+      expect(calls, "#6").toEqual(["E2"]);
+    });
+    test("two computed updaters on a shared object: disposing one keeps the other's handler", () => {
+      const shared = new BaseTester1();
+      const owner1 = new BaseTester3();
+      const owner2 = new BaseTester3();
+      owner1.propC = <any>new ComputedUpdater<number>(() => shared.propA + 1);
+      owner2.propC = <any>new ComputedUpdater<number>(() => shared.propA * 10);
+      expect(handlersOf(shared, "propA").length, "#1").toBe(2);
+      shared.propA = 5;
+      expect(owner1.propC, "#2").toBe(6);
+      expect(owner2.propC, "#3").toBe(50);
+      owner1.dispose();
+      expect(handlersOf(shared, "propA").length, "#4").toBe(1);
+      shared.propA = 7;
+      expect(owner1.propC, "#5: the disposed owner does not update").toBe(6);
+      expect(owner2.propC, "#6").toBe(70);
+    });
+  });
 
   test("findParentByClassNames function", () => {
     const parentElement = document.createElement("div");

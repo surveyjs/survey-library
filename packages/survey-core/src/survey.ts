@@ -2023,7 +2023,20 @@ export class SurveyModel extends SurveyElementCore
    *
    * Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
    */
-  @property({ defaultValue: false }) choiceShortcutsEnabled: boolean;
+  @property({
+    defaultValue: false,
+    onSet: (_newValue, target: SurveyModel) => target.onChoiceShortcutsEnabledChanged()
+  }) choiceShortcutsEnabled: boolean;
+  private onChoiceShortcutsEnabledChanged(): void {
+    // While loading, onSurveyLoad binds what the JSON enables.
+    if (this.isLoadingFromJson) return;
+    // The design-time questions too (a dynamic panel's template, a detail panel, choice panels), which
+    // onSurveyLoad binds as well; matrix columns are listed there and are not questions. Each question
+    // forwards to its nested instances.
+    this.getAllQuestions(false, true).forEach(q => {
+      if (q.isQuestion) q.onSurveyChoiceShortcutsEnabledChanged();
+    });
+  }
   /**
    * Specifies when the survey validates answers.
    *

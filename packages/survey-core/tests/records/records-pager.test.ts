@@ -1,47 +1,69 @@
 import { describe, test, expect } from "vitest";
 import { ActionContainer } from "../../src/actions/container";
-import { createRecordsPagerActions, IRecordsPagerOwner } from "../../src/records/records-pager";
+import { Base } from "../../src/base";
+import { ILocalizableOwner } from "../../src/localizablestring";
+import { createRecordsPagerActions, IRecordsPagerCssClasses, IRecordsPagerOwner, pagerEdgeMinPageCount } from "../../src/records/records-pager";
 
-class FakePaging {
-  public canGoPrevPage = false;
-  public canGoNextPage = true;
-  public isCountKnown = true;
+// A fake question: the state is in a property hash, so the pager's updaters observe it.
+class FakeOwner extends Base implements IRecordsPagerOwner {
   public moves: Array<string> = [];
-  public prevPage(): boolean { this.moves.push("prev"); return true; }
-  public nextPage(): boolean { this.moves.push("next"); return true; }
-}
-class FakeOwner implements IRecordsPagerOwner {
-  public pageIndex = 1;
-  public pageCount = 4;
+  constructor(pageIndex: number, pageCount: number) {
+    super();
+    this.setPropertyValue("pageIndex", pageIndex);
+    this.setPropertyValue("pageCount", pageCount);
+  }
+  public get pageIndex(): number { return this.getPropertyValue("pageIndex"); }
+  public get pageCount(): number { return this.getPropertyValue("pageCount"); }
+  public get isCountKnown(): boolean { return this.getPropertyValue("isCountKnown", true); }
+  public set isCountKnown(val: boolean) { this.setPropertyValue("isCountKnown", val); }
+  public get isPageMovePending(): boolean { return this.getPropertyValue("isPageMovePending", false); }
+  public get isDataLoading(): boolean { return this.getPropertyValue("isDataLoading", false); }
+  public set isDataLoading(val: boolean) { this.setPropertyValue("isDataLoading", val); }
+  public get isMobile(): boolean { return this.getPropertyValue("isMobile", false); }
+  public set isMobile(val: boolean) { this.setPropertyValue("isMobile", val); }
+  public get canGoPrevPage(): boolean { return this.pageIndex > 0; }
+  public get canGoNextPage(): boolean { return this.pageIndex < this.pageCount - 1; }
+  public goToPage(pageIndex: number): void { this.moves.push("goTo(" + pageIndex + ")"); }
+  public prevPage(): void { this.moves.push("prev"); }
+  public nextPage(): void { this.moves.push("next"); }
   public getLocalizationFormatString(strName: string, ...args: any[]): string {
     return strName + (args.length > 0 ? "(" + args.join(",") + ")" : "");
   }
+  public getLocOwner(): ILocalizableOwner { return null; }
+  public getCssClasses(): IRecordsPagerCssClasses { return { pagerPage: "page-css", pagerTotal: "total-css" }; }
 }
 
 describe("The pager actions of a records question", () => {
-  test("the previous button, the page info and the next button show what the paging answers", () => {
-    const paging = new FakePaging();
-    const owner = new FakeOwner();
-    const container = createRecordsPagerActions(new ActionContainer(), <any>paging, owner);
+  test("first, prev, the page dropdown, the total, next and last show what the owner answers", () => {
+    const owner = new FakeOwner(1, pagerEdgeMinPageCount);
+    const container = createRecordsPagerActions(new ActionContainer(), owner);
     const actions = container.actions;
-    expect(actions.map(a => a.id), "#1").toEqual(["sv-pager-prev", "sv-pager-info", "sv-pager-next"]);
-    expect(actions.map(a => a.iconName), "#2").toEqual(["icon-arrowleft", undefined, "icon-arrowright"]);
-    expect(actions[0].title, "#3").toBe("pagePrevText");
-    expect(actions[2].title, "#4").toBe("pageNextText");
-    expect(actions[0].showTitle, "#5").toBe(false);
-    expect(actions[0].enabled, "#6").toBe(false);
-    expect(actions[2].enabled, "#7").toBe(true);
-    expect(actions[1].title, "#8: page 2 of 4").toBe("indexText(2,4)");
-    expect(actions[1].enabled, "#9").toBe(false);
-    expect(actions[1].disableTabStop, "#10").toBe(true);
-    actions[0].action();
-    actions[2].action();
-    expect(paging.moves, "#11").toEqual(["prev", "next"]);
+    expect(actions.map(a => a.id), "#1").toEqual(["sv-pager-first", "sv-pager-prev", "sv-pager-page", "sv-pager-total", "sv-pager-next", "sv-pager-last"]);
+    expect(actions.map(a => a.title), "#2").toEqual(["pageFirstText", "pagePrevText", "2", "pagerTotalText(10)", "pageNextText", "pageLastText"]);
+    expect(actions.map(a => a.visible), "#3: ten pages show first and last").toEqual([true, true, true, true, true, true]);
+    expect(actions.map(a => a.enabled), "#4").toEqual([true, true, true, false, true, true]);
+    expect(actions[2].ariaLabel, "#5").toBe("progressText(2,10)");
+    expect([actions[2].innerCss, actions[3].innerCss], "#6").toEqual(["page-css", "total-css"]);
+    expect(actions[3].action, "#7: the total is not a button").toBeUndefined();
+    [0, 1, 4, 5].forEach(index => actions[index].action());
+    expect(owner.moves, "#8").toEqual(["goTo(0)", "prev", "next", "goTo(9)"]);
   });
-  test("an unknown count shows the page number alone", () => {
-    const paging = new FakePaging();
-    paging.isCountKnown = false;
-    const container = createRecordsPagerActions(new ActionContainer(), <any>paging, new FakeOwner());
-    expect(container.actions[1].title, "#1").toBe("2");
+  test("an unknown count: no total, no first and last, the dropdown's name without a total", () => {
+    const owner = new FakeOwner(1, 12);
+    owner.isCountKnown = false;
+    const actions = createRecordsPagerActions(new ActionContainer(), owner).actions;
+    expect(actions.filter(a => a.visible).map(a => a.id), "#1").toEqual(["sv-pager-prev", "sv-pager-page", "sv-pager-next"]);
+    expect(actions[2].ariaLabel, "#2").toBe("progressbarPage(2)");
+    owner.isCountKnown = true;
+    expect(actions.filter(a => a.visible).length, "#3: the count settled").toBe(6);
+    expect(actions[2].ariaLabel, "#4").toBe("progressText(2,12)");
+  });
+  test("nothing can be moved while a page is read", () => {
+    const owner = new FakeOwner(1, 12);
+    const actions = createRecordsPagerActions(new ActionContainer(), owner).actions;
+    owner.isDataLoading = true;
+    expect(actions.map(a => a.enabled), "#1").toEqual([false, false, false, false, false, false]);
+    owner.isDataLoading = false;
+    expect(actions.map(a => a.enabled), "#2").toEqual([true, true, true, false, true, true]);
   });
 });

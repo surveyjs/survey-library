@@ -511,6 +511,13 @@ export class Question extends SurveyElement<Question>
   public setIsMobile(val: boolean): void {
     const newVal = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
     this.isMobile = newVal;
+    // Forwards the received value, not newVal: each nested question applies its own design-mode rule.
+    this.forEachNestedElement(info => getNestedElementQuestions(info).forEach(q => q.setIsMobile(val)), { build: "none", visibleOnly: false });
+  }
+  // The survey calls it on its questions when its choiceShortcutsEnabled changes; a container forwards
+  // it to the nested questions that exist, a select question updates its badge binding.
+  public onSurveyChoiceShortcutsEnabledChanged(): void {
+    this.forEachNestedElement(info => getNestedElementQuestions(info).forEach(q => q.onSurveyChoiceShortcutsEnabledChanged()), { build: "none", visibleOnly: false });
   }
   protected getIsMobile(): boolean {
     return this._isMobile;
@@ -1563,7 +1570,10 @@ export class Question extends SurveyElement<Question>
       event.target.value = this.comment;
     }
   }
+
+  protected contentElement: HTMLElement;
   public afterRenderQuestionElement(el: HTMLElement): void {
+    this.contentElement = el;
     if (!this.survey || !this.hasSingleInput) return;
     this.afterRenderCallbacks.afterRenderQuestionInput(this, el);
   }
@@ -1584,6 +1594,10 @@ export class Question extends SurveyElement<Question>
     }
     this.checkForResponsiveness(el);
   }
+  public beforeDestroy(): void {
+    super.beforeDestroy();
+    this.destroyResizeObserver();
+  }
   public afterRenderCore(element: HTMLElement): void {
     super.afterRenderCore(element);
   }
@@ -1591,6 +1605,7 @@ export class Question extends SurveyElement<Question>
     return [this.commentId];
   }
   public beforeDestroyQuestionElement(el: HTMLElement): void {
+    this.contentElement = undefined;
     this.commentElements = undefined;
   }
   public get processedTitle(): string {
@@ -1686,6 +1701,7 @@ export class Question extends SurveyElement<Question>
   protected getCssContent(cssClasses: any): string {
     return toCssClasses(
       cssClasses.content,
+      (this.state !== "default") && cssClasses.expandableContent,
       this.supportContainerQueries() && cssClasses.contentSupportContainerQueries,
       this.hasTitleOnLeft && cssClasses.contentLeft
     );
@@ -3167,6 +3183,11 @@ export class Question extends SurveyElement<Question>
   }
   // Tells whether a key of an object value belongs to this question: it is its row or its item.
   protected hasValueKey(key: string): boolean {
+    return false;
+  }
+  // Tells whether a key of one item of an array value belongs to this question: a field it keeps in
+  // the object of a selected item. A dynamic panel or matrix sharing the value knows the key then.
+  public hasValueItemKey(key: string): boolean {
     return false;
   }
   // Several questions may share the same valueName and keep their rows or items in one object.

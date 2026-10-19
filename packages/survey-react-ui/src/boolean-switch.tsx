@@ -14,6 +14,7 @@ export class SurveyQuestionBooleanSwitch extends SurveyQuestionBoolean {
     const buttonClass = this.question.getSwitchButtonCss();
     const button = attachKey2click(<div className={buttonClass} tabIndex={0}
       role="checkbox"
+      aria-keyshortcuts={this.question.ariaKeyShortcuts}
       aria-checked={this.question.booleanValue || false}
       aria-required={this.question.a11y_input_ariaRequired}
       aria-label={this.question.a11y_input_ariaLabel}

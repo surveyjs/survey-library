@@ -81,6 +81,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             aria-describedby={this.question.a11y_input_ariaDescribedBy}
             aria-invalid={this.question.a11y_input_ariaInvalid}
             aria-errormessage={this.question.a11y_input_ariaErrormessage}
+            aria-keyshortcuts={this.question.ariaKeyShortcuts}
           />
           <div className={cssClasses.sliderGhost} onClick={(event) => this.handleOnLabelClick(event, this.question.swapOrder)}>
             <span className={this.question.getLabelCss(this.question.swapOrder)}>

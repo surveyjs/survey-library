@@ -15,6 +15,7 @@ import { SurveyCustomWidget } from "./custom-widget";
 import { SurveyElementHeader } from "./element-header";
 import { SurveyQuestionSigleInputSummary } from "./reactquestion_singleinputsummary";
 import { SurveyBreadcrumbs } from "./components/breadcrumbs/breadcrumbs";
+import { QuestionHint } from "./components/question-hint";
 import { SurveyAction } from "./components/action-bar/action-bar-item";
 
 export interface ISurveyCreator {
@@ -173,6 +174,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
             {errorsBelowQuestion}
           </div>
         </div>
+        <QuestionHint question={question} />
       </>
     );
   }

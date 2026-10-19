@@ -53,6 +53,7 @@ export class RatingItem extends RatingItemBase {
           onClick={this.props.handleOnClick}
           onChange={() => { }}
           aria-label={this.question.ariaLabel}
+          aria-keyshortcuts={this.question.ariaKeyShortcuts}
         />
         <span className={this.question.cssClasses.itemText} data-text={this.item.text}>{itemText}</span>
       </label>

@@ -289,7 +289,9 @@
   align-items: center;
   column-gap: var(--sjs2-spacing-x300);
   row-gap: var(--sjs2-spacing-x100);
+  margin-top: var(--sjs2-layout-component-page-content-area-gap-vertical);
   padding-bottom: var(--sjs2-spacing-x150);
+  white-space: normal;
 }
 
 .sd-question__keyboard-hint {
@@ -305,8 +307,4 @@
 .sd-question__keyboard-hint-text,
 .sd-question__keyboard-hint-or {
   @include sjs2--typography--small;
-}
-
-.sd-question__keyboard-hint--hidden {
-  visibility: hidden;
 }

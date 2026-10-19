@@ -29,6 +29,7 @@ export class RatingItemSmiley extends RatingItemBase {
           onClick={this.props.handleOnClick}
           onChange={() => { }}
           aria-label={this.question.ariaLabel}
+          aria-keyshortcuts={this.question.ariaKeyShortcuts}
         />
         <SvgIcon
           size={"auto"}

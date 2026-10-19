@@ -185,6 +185,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
         id={this.question.getItemId(this.item)}
         tabIndex={this.itemTabIndex}
         className={this.itemClass}
+        aria-keyshortcuts={this.question.ariaKeyShortcuts}
         onKeyDown={this.handleKeydown}
         onPointerDown={this.handlePointerDown}
         onPointerUp={this.handlePointerUp}

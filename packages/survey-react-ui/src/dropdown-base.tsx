@@ -176,6 +176,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       aria-describedby={renderState.ariaInputDescribedby}
       aria-controls={renderState.ariaInputControls}
       aria-activedescendant={renderState.ariaInputActivedescendant}
+      aria-keyshortcuts={this.question.ariaKeyShortcuts}
       placeholder={renderState.placeholderRendered}
       readOnly={renderState.filterReadOnly ? true : undefined}
       tabIndex={renderState.noTabIndex ? undefined : -1}

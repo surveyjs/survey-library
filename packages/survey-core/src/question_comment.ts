@@ -52,6 +52,7 @@ export class QuestionCommentModel extends QuestionTextBase {
       ariaDescribedBy: () => this.a11y_input_ariaDescribedBy,
       ariaInvalid: () => this.a11y_input_ariaInvalid,
       ariaErrormessage: () => this.a11y_input_ariaErrormessage,
+      ariaKeyShortcuts: () => this.ariaKeyShortcuts,
       getTextValue: () => { return this.value; },
       onTextAreaChange: (e) => { this.updateValueFromTextArea(e.target.value); },
       onTextAreaInput: (event) => { this.onInput(event); },

@@ -270,7 +270,23 @@ export var germanSurveyStrings = {
   // "t" - a lowercase AM/PM marker placeholder symbol in a datetime input mask
   maskPlaceholderTimeMarkerLower: "v",
   // "T" - an uppercase AM/PM marker placeholder symbol in a datetime input mask
-  maskPlaceholderTimeMarkerUpper: "V"
+  maskPlaceholderTimeMarkerUpper: "V",
+  // "to select"
+  keyboardHintSelectText: "zum Auswählen",
+  // "to submit"
+  keyboardHintSubmitText: "zum Absenden",
+  // "or"
+  keyboardHintOrText: "oder",
+  // "to add a line"
+  keyboardHintNewLineText: "zum Hinzufügen einer Zeile",
+  // "to the next item"
+  keyboardHintNextItemText: "zum nächsten Element",
+  // "to move"
+  keyboardHintMoveText: "zum Verschieben",
+  // "to open"
+  keyboardHintOpenText: "zum Öffnen",
+  // "to close"
+  keyboardHintCloseText: "zum Schließen"
 };
 
 setupLocale({ localeCode: "de", strings: germanSurveyStrings, nativeName: "deutsch", englishName: "German" });

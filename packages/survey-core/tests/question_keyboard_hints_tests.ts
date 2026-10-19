@@ -39,3 +39,17 @@ test("english keyboard hint strings", () => {
   expect(survey.getLocalizationString("keyboardHintOpenText")).toBe("to open");
   expect(survey.getLocalizationString("keyboardHintCloseText")).toBe("to close");
 });
+
+import { getLocaleString } from "../src/surveyStrings";
+import "../src/localization/german";
+
+test("german keyboard hint strings are translated", () => {
+  expect(getLocaleString("keyboardHintSelectText", "de")).toBe("zum Auswählen"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  expect(getLocaleString("keyboardHintSubmitText", "de")).toBe("zum Absenden");
+  expect(getLocaleString("keyboardHintOrText", "de")).toBe("oder");
+  expect(getLocaleString("keyboardHintNewLineText", "de")).toBe("zum Hinzufügen einer Zeile"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  expect(getLocaleString("keyboardHintNextItemText", "de")).toBe("zum nächsten Element"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  expect(getLocaleString("keyboardHintMoveText", "de")).toBe("zum Verschieben");
+  expect(getLocaleString("keyboardHintOpenText", "de")).toBe("zum Öffnen"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  expect(getLocaleString("keyboardHintCloseText", "de")).toBe("zum Schließen"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+});

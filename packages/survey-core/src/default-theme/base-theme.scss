@@ -114,6 +114,20 @@
   --sjs2-border-width-x100: calc(var(--sjs2-base-unit-border-width) * 1);
   --sjs2-border-width-x200: calc(var(--sjs2-base-unit-border-width) * 2);
   --sjs2-border-width-x400: calc(var(--sjs2-base-unit-border-width) * 4);
+  --sjs2-animation-time-x000: 0ms;
+  --sjs2-animation-time-x100: 100ms;
+  --sjs2-animation-time-x150: 150ms;
+  --sjs2-animation-time-x200: 200ms;
+  --sjs2-animation-time-x250: 250ms;
+  --sjs2-animation-time-x300: 300ms;
+  --sjs2-animation-time-x350: 350ms;
+  --sjs2-animation-time-x400: 400ms;
+  --sjs2-animation-time-x450: 450ms;
+  --sjs2-animation-time-x500: 500ms;
+  --sjs2-animation-time-x600: 600ms;
+  --sjs2-animation-time-x700: 700ms;
+  --sjs2-animation-time-x800: 800ms;
+  --sjs2-animation-ease-base: cubic-bezier(0.4, 0.24, 0, 1);
   --sjs2-font-weight-regular: 400;
   --sjs2-font-weight-medium: 500;
   --sjs2-font-weight-semibold: 600;
@@ -286,6 +300,8 @@
   --sjs2-layout-component-page-box-padding-top: var(--sjs2-spacing-x000);
   --sjs2-layout-component-page-box-padding-bottom: var(--sjs2-spacing-x000);
   --sjs2-layout-component-page-box-gap-vertical: var(--sjs2-spacing-large-vertical);
+}
+:where(.sd-theme-root) {
   --sjs2-layout-component-page-content-area-padding-horizontal: var(--sjs2-spacing-large-horizontal);
   --sjs2-layout-component-page-content-area-padding-top: var(--sjs2-spacing-x000);
   --sjs2-layout-component-page-content-area-padding-bottom: var(--sjs2-spacing-x000);
@@ -300,8 +316,6 @@
   --sjs2-layout-component-page-description-padding-horizontal: var(--sjs2-spacing-x000);
   --sjs2-layout-component-page-description-padding-top: var(--sjs2-spacing-x000);
   --sjs2-layout-component-page-description-padding-bottom: var(--sjs2-spacing-x000);
-}
-:where(.sd-theme-root) {
   --sjs2-layout-component-panel-box-padding-horizontal: var(--sjs2-spacing-x000);
   --sjs2-layout-component-panel-box-padding-top: var(--sjs2-spacing-x000);
   --sjs2-layout-component-panel-box-padding-bottom: var(--sjs2-spacing-x000);
@@ -326,7 +340,7 @@
   --sjs2-layout-component-panel-footer-padding-right: var(--sjs2-spacing-large-horizontal);
   --sjs2-layout-component-panel-footer-padding-top: var(--sjs2-spacing-x000);
   --sjs2-layout-component-panel-footer-padding-bottom: var(--sjs2-spacing-medium-vertical);
-  --sjs2-layout-component-panel-footer-gap: var(--sjs2-spacing-x150);
+  --sjs2-layout-component-panel-footer-gap: var(--sjs2-spacing-x300);
   --sjs2-layout-component-panel-footer-action-group-gap: var(--sjs2-spacing-x150);
   --sjs2-layout-component-panel-header-action-group-gap: var(--sjs2-spacing-x150);
   --sjs2-layout-component-panel-simple-box-padding-horizontal: var(--sjs2-spacing-x000);
@@ -351,7 +365,7 @@
   --sjs2-layout-component-panel-nested-footer-padding-right: var(--sjs2-spacing-large-horizontal);
   --sjs2-layout-component-panel-nested-footer-padding-top: var(--sjs2-spacing-x000);
   --sjs2-layout-component-panel-nested-footer-padding-bottom: var(--sjs2-spacing-medium-vertical);
-  --sjs2-layout-component-panel-nested-footer-gap: var(--sjs2-spacing-x150);
+  --sjs2-layout-component-panel-nested-footer-gap: var(--sjs2-spacing-x300);
   --sjs2-layout-component-panel-nested-box-padding-horizontal: var(--sjs2-spacing-x000);
   --sjs2-layout-component-panel-nested-box-padding-top: var(--sjs2-spacing-x000);
   --sjs2-layout-component-panel-nested-box-padding-bottom: var(--sjs2-spacing-x000);
@@ -398,7 +412,7 @@
   --sjs2-layout-component-panel-dynamic-footer-padding-right: var(--sjs2-spacing-large-horizontal);
   --sjs2-layout-component-panel-dynamic-footer-padding-top: var(--sjs2-spacing-medium-vertical);
   --sjs2-layout-component-panel-dynamic-footer-padding-bottom: var(--sjs2-spacing-medium-vertical);
-  --sjs2-layout-component-panel-dynamic-footer-gap: var(--sjs2-spacing-x150);
+  --sjs2-layout-component-panel-dynamic-footer-gap: var(--sjs2-spacing-x300);
   --sjs2-layout-component-panel-dynamic-footer-action-group-gap: var(--sjs2-spacing-x150);
   --sjs2-layout-component-panel-dynamic-header-action-group-gap: var(--sjs2-spacing-x150);
   --sjs2-layout-component-labeled-group-box-padding-vertical: var(--sjs2-spacing-x150);
@@ -548,6 +562,33 @@
   --sjs2-layout-component-matrix-action-group-right-gap-horizontal: var(--sjs2-spacing-x100);
   --sjs2-layout-component-matrix-action-group-right-padding-left: var(--sjs2-spacing-x050);
   --sjs2-layout-component-matrix-action-group-right-padding-right: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-matrix-box-padding-horizontal: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-matrix-box-padding-top: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-matrix-box-padding-bottom: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-matrix-box-gap-vertical: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-matrix-content-area-padding-horizontal: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-matrix-content-area-padding-top: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-matrix-content-area-padding-bottom: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-matrix-content-area-gap-horizontal: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-matrix-content-area-gap-vertical: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-matrix-header-padding-left: var(--sjs2-spacing-large-horizontal);
+  --sjs2-layout-component-panel-matrix-header-padding-right: var(--sjs2-spacing-large-horizontal);
+  --sjs2-layout-component-panel-matrix-header-padding-top: var(--sjs2-spacing-medium-vertical);
+  --sjs2-layout-component-panel-matrix-header-padding-bottom: var(--sjs2-spacing-medium-vertical);
+  --sjs2-layout-component-panel-matrix-header-gap-vertical: var(--sjs2-spacing-x050);
+  --sjs2-layout-component-panel-matrix-header-gap-horizontal: var(--sjs2-spacing-x150);
+  --sjs2-layout-component-panel-matrix-title-padding-horizontal: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-matrix-title-padding-vertical: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-matrix-description-padding-horizontal: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-matrix-description-padding-top: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-matrix-description-padding-bottom: var(--sjs2-spacing-x000);
+  --sjs2-layout-component-panel-matrix-footer-padding-left: var(--sjs2-spacing-large-horizontal);
+  --sjs2-layout-component-panel-matrix-footer-padding-right: var(--sjs2-spacing-large-horizontal);
+  --sjs2-layout-component-panel-matrix-footer-padding-top: var(--sjs2-spacing-medium-vertical);
+  --sjs2-layout-component-panel-matrix-footer-padding-bottom: var(--sjs2-spacing-medium-vertical);
+  --sjs2-layout-component-panel-matrix-footer-gap: var(--sjs2-spacing-x300);
+  --sjs2-layout-component-panel-matrix-footer-action-group-gap: var(--sjs2-spacing-x150);
+  --sjs2-layout-component-panel-matrix-header-action-group-gap: var(--sjs2-spacing-x150);
   --sjs2-size-xxx-small: var(--sjs2-size-x200);
   --sjs2-size-xx-small: var(--sjs2-size-x300);
   --sjs2-size-x-small: var(--sjs2-size-x400);
@@ -561,6 +602,8 @@
   --sjs2-size-component-checkbox-icon: var(--sjs2-size-x200);
   --sjs2-size-component-radio-box: var(--sjs2-size-x300);
   --sjs2-size-component-radio-icon: var(--sjs2-size-x200);
+}
+:where(.sd-theme-root) {
   --sjs2-size-component-action-large-icon: var(--sjs2-typography-line-height-component-action-large-content);
   --sjs2-size-component-action-medium-icon: var(--sjs2-typography-line-height-component-action-medium-content);
   --sjs2-size-component-action-small-icon: var(--sjs2-typography-line-height-component-action-small-content);
@@ -602,8 +645,6 @@
   --sjs2-radius-component-stepper-item: var(--sjs2-radius-form);
   --sjs2-is-panelless: false;
   --sjs2-is-mobile: false;
-}
-:where(.sd-theme-root) {
   --sjs2-typography-font-family-text: Open Sans;
   --sjs2-typography-font-family-code: DM Mono;
   --sjs2-typography-font-family-component-input-content: var(--sjs2-typography-font-family-text);
@@ -863,6 +904,8 @@
   --sjs2-color-border-alert-primary: var(--sjs2-palette-red-600);
   --sjs2-color-border-alert-on-primary: var(--sjs2-palette-gray-000);
   --sjs2-color-border-static-1-primary: var(--sjs2-palette-gray-000);
+}
+:where(.sd-theme-root) {
   --sjs2-color-border-static-2-primary: var(--sjs2-palette-gray-900);
   --sjs2-color-data-chart-bg-color-0: var(--sjs2-color-bg-brand-primary);
   --sjs2-color-data-chart-bg-color-1: #84CAD4;
@@ -904,8 +947,6 @@
   --sjs2-color-data-chart-border-color-4: var(--sjs2-color-data-chart-bg-color-4);
   --sjs2-color-data-chart-border-color-5: var(--sjs2-color-data-chart-bg-color-5);
   --sjs2-color-data-chart-border-color-6: var(--sjs2-color-data-chart-bg-color-6);
-}
-:where(.sd-theme-root) {
   --sjs2-color-data-chart-border-color-7: var(--sjs2-color-data-chart-bg-color-7);
   --sjs2-color-data-chart-border-color-8: var(--sjs2-color-data-chart-bg-color-8);
   --sjs2-color-data-chart-border-color-9: var(--sjs2-color-data-chart-bg-color-9);
@@ -1165,6 +1206,8 @@
   --sjs2-color-component-input-disabled-limit: var(--sjs2-color-fg-basic-secondary-disabled);
   --sjs2-color-component-input-disabled-icon: var(--sjs2-color-fg-basic-tertiary-disabled);
   --sjs2-color-component-input-disabled-description: var(--sjs2-color-fg-basic-primary-disabled);
+}
+:where(.sd-theme-root) {
   --sjs2-color-component-toggle-false-default-bg: var(--sjs2-color-bg-basic-secondary);
   --sjs2-color-component-toggle-false-default-border: var(--sjs2-color-border-basic-secondary);
   --sjs2-color-component-toggle-false-default-thumb: var(--sjs2-color-fg-basic-secondary);
@@ -1206,8 +1249,6 @@
   --sjs2-color-component-slider-disabled-fg: var(--sjs2-color-fg-basic-tertiary-disabled);
   --sjs2-color-component-slider-disabled-thumb: var(--sjs2-color-bg-basic-primary);
   --sjs2-color-component-slider-disabled-dot: var(--sjs2-color-fg-basic-tertiary-disabled);
-}
-:where(.sd-theme-root) {
   --sjs2-color-component-slider-readonly-bg: var(--sjs2-color-bg-basic-tertiary);
   --sjs2-color-component-slider-readonly-fg: var(--sjs2-color-bg-neutral-primary);
   --sjs2-color-component-slider-readonly-thumb: var(--sjs2-color-bg-basic-primary);
@@ -1405,6 +1446,18 @@
   --sjs2-color-component-checkbox-true-invalid-border: var(--sjs2-color-bg-alert-primary);
   --sjs2-color-component-checkbox-true-invalid-icon: var(--sjs2-color-fg-alert-on-primary);
   --sjs2-color-component-matrix-default-separator: transparent;
+  --sjs2-color-component-panel-matrix-default-bg: var(--sjs2-color-bg-basic-primary);
+  --sjs2-color-component-panel-matrix-default-border: var(--sjs2-color-border-basic-secondary);
+  --sjs2-color-component-panel-matrix-default-title: var(--sjs2-color-fg-basic-primary);
+  --sjs2-color-component-panel-matrix-default-title-placeholder: var(--sjs2-color-fg-basic-secondary);
+  --sjs2-color-component-panel-matrix-default-description: var(--sjs2-color-fg-basic-secondary);
+  --sjs2-color-component-panel-matrix-default-description-placeholder: var(--sjs2-color-fg-basic-tertiary);
+  --sjs2-color-component-panel-matrix-default-separator: var(--sjs2-color-border-basic-secondary);
+  --sjs2-color-component-panel-matrix-hovered-bg: var(--sjs2-color-bg-basic-primary);
+  --sjs2-color-component-panel-matrix-hovered-title: var(--sjs2-color-fg-basic-primary-dim);
+  --sjs2-color-component-panel-matrix-focused-bg: var(--sjs2-color-bg-basic-primary);
+  --sjs2-color-component-panel-matrix-disabled-bg: var(--sjs2-color-bg-basic-primary);
+  --sjs2-color-component-panel-matrix-dragging-bg: var(--sjs2-color-bg-basic-primary);
   --sjs2-opacity-visible: var(--sjs2-opacity-x100);
   --sjs2-opacity-hovered: var(--sjs2-opacity-x080);
   --sjs2-opacity-pressed: var(--sjs2-opacity-x080);
@@ -1455,6 +1508,8 @@
   --sjs2-border-blur-trigger-invalid: 0px;
   --sjs2-border-blur-surface-default: 0px;
   --sjs2-border-blur-surface-hovered: 0px;
+}
+:where(.sd-theme-root) {
   --sjs2-border-blur-surface-pressed: 0px;
   --sjs2-border-blur-surface-focused: 0px;
   --sjs2-border-blur-surface-disabled: 0px;
@@ -1508,8 +1563,6 @@
   --sjs2-border-offset-y-surface-disabled: 0px;
   --sjs2-border-offset-y-surface-dragging: 6px;
   --sjs2-border-offset-y-floating-default: 6px;
-}
-:where(.sd-theme-root) {
   --sjs2-border-effect-a11y: 0px 0px 0px var(--sjs2-border-width-a11y) var(--sjs2-color-utility-a11y);
   --sjs2-border-effect-component-formbox-default: inset var(--sjs2-border-offset-x-form-default) var(--sjs2-border-offset-y-form-default) var(--sjs2-border-blur-form-default) var(--sjs2-border-spread-form-default) var(--sjs2-color-component-formbox-default-border);
   --sjs2-border-effect-component-formbox-hovered: inset var(--sjs2-border-offset-x-form-hovered) var(--sjs2-border-offset-y-form-hovered) var(--sjs2-border-blur-form-hovered) var(--sjs2-border-spread-form-hovered) var(--sjs2-color-component-formbox-hovered-border);

@@ -54,9 +54,11 @@ import { Model } from "survey-core";
 const surveyJson = {
   "elements": [{
     "name": "firstName",
+    "type": "text",
     "title": "First Name"
   }, {
     "name": "lastName",
+    "type": "text",
     "title": "Last Name"
   }]
 }

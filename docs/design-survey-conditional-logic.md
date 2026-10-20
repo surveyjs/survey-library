@@ -1238,8 +1238,11 @@ Assign Boolean expressions to the [`visibleIf`](https://surveyjs.io/Documentatio
 ```js
 const surveyJson = {
   "elements": [{
-    "name": "birthdate"
+    "type": "text",
+    "name": "birthdate",
+    "inputType": "date"
   }, {
+    "type": "boolean",
     "name": "drivers-license",
     "title": "Have you got a driver's license?",
     "visibleIf": "age({birthdate}) >= 16"
@@ -1264,7 +1267,8 @@ In the following code, the `SMS` and `WhatsApp` choices are visible only if a us
 ```js
 const surveyJson = {
   "elements": [{
-    "name": "Contacts"
+    "type": "checkbox",
+    "name": "Contacts",
     "choices": [
       "Email",
       { "value": "SMS", "visibleIf": "{phone} notempty" },
@@ -1289,15 +1293,18 @@ The following code shows how to specify the `choicesVisibleIf` property. The `"d
 ```js
 const surveyJson = {
   "elements": [{
+    "type": "checkbox",
     "name": "installed",
     "choices": ["Google Chrome", "Microsoft Edge", "Firefox", "Internet Explorer", "Safari", "Opera"],
     // ...
   }, {
+    "type": "dropdown",
     "name": "default",
     "choicesFromQuestion": "installed",
     "choicesFromQuestionMode": "selected"
     // ...
   }, {
+    "type": "dropdown",
     "name": "secondChoice",
     "choicesFromQuestion": "installed",
     "choicesFromQuestionMode": "selected",
@@ -1330,7 +1337,9 @@ In the following code, a trigger completes the survey if the `"age"` question on
 ```js
 const surveyJson = {
   "elements": [{
+    "type": "text",
     "name": "age", 
+    "inputType": "number",
     // ...
   }],
   "triggers": [
@@ -1352,9 +1361,12 @@ In the following code, triggers are used to set the `"ageType"` value to `"minor
 ```js
 const surveyJson = {
   "elements": [{
+    "type": "text",
     "name": "age", 
+    "inputType": "number",
     // ...
   }, {
+    "type": "text",
     "name": "ageType",
     // ...
   }],
@@ -1385,12 +1397,15 @@ In the following code, a trigger copies the `"billingAddress"` question value in
 ```js
 const surveyJson = {
   "elements": [{
+    "type": "text",
     "name": "billingAddress", 
     // ...
   }, {
+    "type": "text",
     "name": "shippingAddress",
     // ...
   }, {
+    "type": "radiogroup",
     "name": "sameAsBilling",
     "choices": [ "Yes", "No" ]
     // ...
@@ -1425,16 +1440,19 @@ const surveyJson = {
  "pages": [{
    "name": "billingAddressPage",
    "elements": [{
+     "type": "text",
      "name": "billingAddress",
      // ...
     }]
   }, {
    "name": "shippingAddressPage",
    "elements": [{
+      "type": "radiogroup",
       "name": "sameAsBilling",
       "choices": [ "Yes", "No" ]
       // ...
   }, {     
+     "type": "text",
      "name": "shippingAddress",
      "visibleIf": "{sameAsBilling} = 'No'",
      // ...
@@ -1442,6 +1460,7 @@ const surveyJson = {
   }, {
    "name": "additionalInfoPage",
    "elements": [{
+     "type": "comment",
      "name": "additionalInfo",
      // ...
     }]

@@ -410,6 +410,9 @@
     "autoAdvanceAllowComplete": {
       "type": "boolean"
     },
+    "choiceShortcutsEnabled": {
+      "type": "boolean"
+    },
     "clearInvisibleValues": {
       "type": "string",
       "enum": [
@@ -1684,14 +1687,31 @@
             "allowAdaptiveActions": {
               "type": "boolean"
             },
-            "rowsPerPage": {
+            "pageSize": {
               "type": "number"
             },
-            "sortBy": {
-              "type": "string"
+            "sortCriteria": {
+              "type": "array",
+              "items": {
+                "$ref": "sortcriterion"
+              }
             },
             "filterExpression": {
               "type": "string"
+            },
+            "allowSort": {
+              "type": "boolean"
+            },
+            "maxSortLevel": {
+              "type": "number"
+            },
+            "showSortMenu": {
+              "type": "string",
+              "enum": [
+                "auto",
+                true,
+                false
+              ]
             }
           }
         }
@@ -2259,9 +2279,6 @@
             },
             "allowRowReorder": {
               "type": "boolean"
-            },
-            "allowSortRows": {
-              "type": "boolean"
             }
           }
         }
@@ -2556,6 +2573,9 @@
                 4,
                 5
               ]
+            },
+            "choiceShortcutsEnabled": {
+              "type": "boolean"
             }
           }
         }
@@ -4588,14 +4608,31 @@
             "questionStartIndex": {
               "type": "string"
             },
-            "panelsPerPage": {
+            "pageSize": {
               "type": "number"
             },
-            "sortBy": {
-              "type": "string"
+            "sortCriteria": {
+              "type": "array",
+              "items": {
+                "$ref": "sortcriterion"
+              }
             },
             "filterExpression": {
               "type": "string"
+            },
+            "allowSort": {
+              "type": "boolean"
+            },
+            "maxSortLevel": {
+              "type": "number"
+            },
+            "showSortMenu": {
+              "type": "string",
+              "enum": [
+                "auto",
+                true,
+                false
+              ]
             },
             "displayMode": {
               "type": "string",
@@ -4741,6 +4778,25 @@
             }
           }
         }
+      ]
+    },
+    "sortcriterion": {
+      "type": "object",
+      "$id": "sortcriterion",
+      "properties": {
+        "field": {
+          "type": "string"
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      },
+      "required": [
+        "field"
       ]
     },
     "choicesByUrl": {

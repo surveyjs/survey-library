@@ -235,7 +235,7 @@ A string value that specifies the property name. It is the only required propert
 A string value that specifies the property type. Accepts one of the values described in the table below. Each type produces a different property editor in Survey Creator's Property Grid.
 
 | `type` | Property Editor | Description |
-| ------ | --------------- | ----------- |
+| --- | --- | --- |
 | `"string"` (default) | Text input | Use this type for short string values. |
 | `"dropdown"` | Drop-down menu | Use this type to allow respondents to select from a set of predefined options. Requires a defined [`choices`](#choices) array. |
 | `"buttongroup"` | A group of related buttons | Use this type to allow respondents to select from a small set of predefined options (typically, no more than three). Requires a defined [`choices`](#choices) array. |
@@ -249,7 +249,7 @@ A string value that specifies the property type. Accepts one of the values descr
 | `"color"` | Color picker | Use this type for color values. |
 | `"html"` | Multi-line text input | Use this type for HTML markup. |
 | [`"itemvalues"`](#define-a-custom-item-collection-property) | Customized text inputs for entering value-text pairs | Use this type for arrays of objects with the following structure: `{ value: any, text: string }`. For example, Dropdown, Checkboxes, and Radio Button Group questions use this type for the [`choices`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choices) property. |
-| `"value"` | Button that opens a dialog window  | The dialog window displays the survey element and allows users to set the element's default value. |
+| `"value"` | Button that opens a dialog window | The dialog window displays the survey element and allows users to set the element's default value. |
 | `"multiplevalues"` | Multi-select dropdown (tag box) | Use this type to allow respondents to select more than one predefined option. Requires a defined [`choices`](#choices) array. |
 
 `type` can also accept custom values. In this case, you need to register a property editor for the custom type in the `PropertyGridEditorCollection` and specify a standard JSON object that the custom type should produce. For example, the following code configures a `"shortname"` property that has a custom `"shorttext"` type: 
@@ -522,35 +522,35 @@ A string value that specifies a category in which to display the property. If `c
 
 The following table describes predefined categories:
 
-| `category`           | Category title             | Element types that have the category                  | `categoryIndex` |
-| -------------------- | -------------------------- | ----------------------------------------------------- | --------------- |
-| `"general"`          | General                    | Question, Panel, Page, Survey                         | -1              |
-| `"logo"`             | Logo in the Survey Header  | Survey                                                | 50              |
-| `"navigation"`       | Navigation                 | Survey                                                | 100             |
-| `"navigation"`       | Navigation                 | Page                                                  | 350             |
-| `"question"`         | Question Settings          | Survey                                                | 200             |
-| `"pages"`            | Pages                      | Survey                                                | 250             |
-| `"logic"`            | Conditions                 | Survey                                                | 300             |
-| `"logic"`            | Conditions                 | Question, Panel, Page                                 | 200             |
-| `"data"`             | Data                       | Survey                                                | 400             |
-| `"data"`             | Data                       | Question, Panel, Page                                 | 300             |
-| `"validation"`       | Validation                 | Survey                                                | 500             |
-| `"validation"`       | Validation                 | Question, Panel, Page                                 | 400             |
-| `"showOnCompleted"`  | "Thank You" Page           | Survey                                                | 600             |
-| `"timer"`            | Quiz Mode                  | Survey                                                | 700             |
-| `"questionSettings"` | Question Settings          | Panel, Page                                           | 100             |
-| `"layout"`           | Layout                     | Question                                              | 100             |
-| `"layout"`           | Panel Layout               | Panel                                                 | 150             |
-| `"numbering"`        | Numbering                  | Panel                                                 | 350             |
-| `"mask"`             | Input Mask Settings        | Single-Line Input, individual items in Multiple Textboxes | 250         |
-| `"columns"`          | Columns                    | Matrices                                              | 10              |
-| `"rows"`             | Rows                       | Matrices                                              | 11              |
-| `"choices"`          | Choice Options             | Multi-Select Matrix, Dynamic Matrix                   | 12              |
-| `"cells"`            | Individual Cell Texts      | Single-Select Matrix                                  | 500             |
-| `"items"`            | Items                      | Multiple Textboxes                                    | 10              |
-| `"rateValues"`       | Rating Values              | Rating Scale                                          | 10              |
-| `"choices"`          | Choice Options             | SelectBase (Dropdown, Checkboxes, Radio Button Group) | 10              |
-| `"choicesByUrl"`     | Choices from a Web Service | SelectBase (Dropdown, Checkboxes, Radio Button Group) | 11              |
+| `category` | Category title | Element types that have the category | `categoryIndex` |
+| --- | --- | --- | --- |
+| `"general"` | General | Question, Panel, Page, Survey | -1 |
+| `"logo"` | Logo in the Survey Header | Survey | 50 |
+| `"navigation"` | Navigation | Survey | 100 |
+| `"navigation"` | Navigation | Page | 350 |
+| `"question"` | Question Settings | Survey | 200 |
+| `"pages"` | Pages | Survey | 250 |
+| `"logic"` | Conditions | Survey | 300 |
+| `"logic"` | Conditions | Question, Panel, Page | 200 |
+| `"data"` | Data | Survey | 400 |
+| `"data"` | Data | Question, Panel, Page | 300 |
+| `"validation"` | Validation | Survey | 500 |
+| `"validation"` | Validation | Question, Panel, Page | 400 |
+| `"showOnCompleted"` | "Thank You" Page | Survey | 600 |
+| `"timer"` | Quiz Mode | Survey | 700 |
+| `"questionSettings"` | Question Settings | Panel, Page | 100 |
+| `"layout"` | Layout | Question | 100 |
+| `"layout"` | Panel Layout | Panel | 150 |
+| `"numbering"` | Numbering | Panel | 350 |
+| `"mask"` | Input Mask Settings | Single-Line Input, individual items in Multiple Textboxes | 250 |
+| `"columns"` | Columns | Matrices | 10 |
+| `"rows"` | Rows | Matrices | 11 |
+| `"choices"` | Choice Options | Multi-Select Matrix, Dynamic Matrix | 12 |
+| `"cells"` | Individual Cell Texts | Single-Select Matrix | 500 |
+| `"items"` | Items | Multiple Textboxes | 10 |
+| `"rateValues"` | Rating Values | Rating Scale | 10 |
+| `"choices"` | Choice Options | SelectBase (Dropdown, Checkboxes, Radio Button Group) | 10 |
+| `"choicesByUrl"` | Choices from a Web Service | SelectBase (Dropdown, Checkboxes, Radio Button Group) | 11 |
 
 ### `categoryIndex`
 
@@ -770,7 +770,12 @@ Serializer.addProperty("matrix", {
 // Usage
 const surveyJson = {
   "elements": [{
+    "type": "radiogroup",
+    "name": "question1",
+    "choices": ["item1", "item2"]
+  }, {
     "type": "matrix",
+    "name": "matrixQuestion",
     "showHeaderIf": "{question1} = 'item2'"
   }]
 }

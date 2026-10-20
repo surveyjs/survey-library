@@ -212,11 +212,9 @@ Specifies a key question. Set this property to the name of a question used in th
 
 A maximum number of panels in Dynamic Panel. Users cannot add new panels if `panelCount` equals `maxPanelCount`.
 
-Default value: 100 (inherited from [`settings.panel.maxPanelCount`](https://surveyjs.io/form-library/documentation/settings#panelMaximumPanelCount))
+Default value: 100 (inherited from [`settings.panel.maxPanelCount`](/form-library/documentation/api-reference/settings#panel))
 
-`settings.panel.maxPanelCount` is the maximum number of panels on one page. If panels are not split into pages, it also limits `maxPanelCount`. If they are, only `maxPanelCount` limits the total number of panels, and only when you set it.
-
-[View Demo](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
+[Demo: Dynamic Panel with Repeating Group of Fields](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
 
 **Related APIs:** [`panelCount`](#panelCount), [`minPanelCount`](#minPanelCount), [`allowAddPanel`](#allowAddPanel)
 

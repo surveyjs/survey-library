@@ -172,6 +172,7 @@ const surveyJson = {
   pages: [{
     elements: [{
       type: "html",
+      name: "introduction",
       html: "You are about to start a quiz on American history. <br>You will have 10 seconds for every question and 25 seconds to end the quiz.<br>Enter your name below and click <b>Start Quiz</b> to begin."
     }, {
       type: "text",
@@ -212,6 +213,7 @@ const surveyJson = {
   pages: [{
     elements: [{
       type: "html",
+      name: "introduction",
       html: "You are about to start a quiz on American history. <br>You will have 10 seconds for every question and 25 seconds to end the quiz.<br>Enter your name below and click <b>Start Quiz</b> to begin."
     }, {
       type: "text",
@@ -305,6 +307,7 @@ const surveyJson = {
   pages: [{
     elements: [{
       type: "html",
+      name: "introduction",
       html: "You are about to start a quiz on American history. <br>You will have 10 seconds for every question and 25 seconds to end the quiz.<br>Enter your name below and click <b>Start Quiz</b> to begin."
     }, {
       type: "text",

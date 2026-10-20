@@ -13,6 +13,7 @@ import { IConditionObject, IQuestionPlainData } from "./question";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { toCssClasses } from "./utils/cssClassBuilder";
+import { ItemsByNameIndex } from "./utils/items-by-name-index";
 import { getMatrixCellAriaLabel, getMatrixTableBodyCss, getMatrixTableCss, getMatrixTableWrapperCss, isMatrixColumnsAutoWidth } from "./utils/matrix-table";
 import { IPlainDataOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ConditionRunner } from "./conditions/conditionRunner";
@@ -793,29 +794,17 @@ export class QuestionMatrixModel
     this.generatedVisibleRows = result;
     return result;
   }
-  // A lookup by name used to lower-case every row name. The index is built from one getMatrixRows() array
-  // and is rebuilt when that array changes or a row is renamed in place (itemValuePropertyChanged).
-  private rowsByNameIndex: { rows: Array<MatrixRowModel>, rowsByName: Map<string, MatrixRowModel> };
+  /* The rows by name, built from one getMatrixRows() array: it is rebuilt when that array changes or a row
+     is renamed in place (itemValuePropertyChanged). A row whose item lost its value after the rows were
+     built has a null name and answers "", as the lookup always did. */
+  private rowsByNameIndex = new ItemsByNameIndex<MatrixRowModel>(row => row.name?.toString() || "");
   private getMatrixRowByName(name: string): MatrixRowModel {
-    const rows = this.getMatrixRows();
-    let index = this.rowsByNameIndex;
-    if (!index || index.rows !== rows) {
-      const rowsByName = new Map<string, MatrixRowModel>();
-      for (let i = 0; i < rows.length; i++) {
-        const key = (rows[i].name?.toString() || "").toLocaleLowerCase();
-        if (!rowsByName.has(key)) {
-          rowsByName.set(key, rows[i]);
-        }
-      }
-      index = { rows: rows, rowsByName: rowsByName };
-      this.rowsByNameIndex = index;
-    }
-    return index.rowsByName.get(name.toLocaleLowerCase());
+    return this.rowsByNameIndex.find(this.getMatrixRows(), name);
   }
   public itemValuePropertyChanged(item: ItemValue, name: string, oldValue: any, newValue: any): void {
     // Reset before super: it fires onItemValuePropertyChanged, and a listener may look up the renamed row.
     if (name === "value" && item.ownerPropertyName === "rows") {
-      this.rowsByNameIndex = undefined;
+      this.rowsByNameIndex.reset();
     }
     super.itemValuePropertyChanged(item, name, oldValue, newValue);
   }

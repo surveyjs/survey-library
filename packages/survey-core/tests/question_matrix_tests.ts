@@ -1175,4 +1175,29 @@ describe("Single-select matrix: row lookup by name", () => {
       nameGetter.mockRestore();
     }
   });
+  test("a row that lost its name after the rows were built", () => {
+    const lookUp = (m: QuestionMatrixModel, name: string): any => {
+      const res = m.getValueGetterContext().getValue({ path: [{ name: name }], isRoot: false, index: -1 });
+      return !!res ? { isFound: res.isFound, value: res.value } : res;
+    };
+    const { survey, m } = createSurvey({ rows: ["a", "b"] });
+    survey.setValue("m", { a: "c1", b: "c2" });
+    expect(survey.runExpression("{m.a}"), "#1").toBe("c1");
+    expect(m.getMatrixRows().length, "#2: the rows are built").toBe(2);
+    m.rows[0].value = null;
+    expect(m.getMatrixRows()[0].name, "#3: the built row has no name now").toBeNull();
+    expect(lookUp(m, ""), "#4: the row without a name").toEqual({ isFound: true, value: "c1" });
+    expect(lookUp(m, "a"), "#5: the value key").toEqual({ isFound: true, value: "c1" });
+    expect(lookUp(m, "b"), "#6").toEqual({ isFound: true, value: "c2" });
+
+    const reloaded = createSurvey({ rows: ["a", "b"] });
+    reloaded.survey.setValue("m", { a: "c1", z: "c2" });
+    expect(reloaded.survey.runExpression("{m.a}"), "#7: the index is built").toBe("c1");
+    reloaded.m.fromJSON({ name: "m", rows: ["z"], columns: ["c1", "c2"] });
+    reloaded.m.value = { z: "c2" };
+    expect(reloaded.m.getMatrixRows().map(row => row.name), "#8").toEqual(["z"]);
+    expect(lookUp(reloaded.m, "z"), "#9: a row of the new JSON").toEqual({ isFound: true, value: "c2" });
+    expect(lookUp(reloaded.m, "a"), "#10: a row of the old JSON").toBeUndefined();
+    expect(runInRow(reloaded.m, "{z}"), "#11").toBe("c2");
+  });
 });

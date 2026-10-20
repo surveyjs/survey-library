@@ -2803,13 +2803,12 @@ export class SurveyModel extends SurveyElementCore
     }
     return this.navigationBarValue;
   }
-  // Mirrors navigationBar.isEmpty in the survey's own property hash: UI layout containers are rendered
-  // by the survey component, which isn't subscribed to the navigation bar while the bar isn't rendered.
+  // Mirrors navigationBar.isEmpty onto the survey so layout containers re-render: the survey component
+  // is not subscribed to the bar while the bar itself is not rendered.
+  // The bar read has to be part of the returned value. Production builds treat getters as pure and drop
+  // an unused `void this.navigationBar`, which leaves the flag at its default and hides the buttons.
   public get hasVisibleNavigationActions(): boolean {
-    if (!this.navigationBarValue) {
-      void this.navigationBar;
-    }
-    return this.getPropertyValue("hasVisibleNavigationActions", false);
+    return !this.navigationBar.isEmpty;
   }
   private updateHasVisibleNavigationActions(): void {
     this.setPropertyValue("hasVisibleNavigationActions", this.navigationBarValue.hasVisibleActions);

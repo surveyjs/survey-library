@@ -315,5 +315,24 @@ registerMarkupTests(
     snapshot: "radiogroup-multiple-comments",
     removeIds: true
   },
+  {
+    name: "Test radiogroup keyboard hints",
+    json: {
+      keyboardHintsEnabled: true,
+      autoAdvanceEnabled: true,
+      elements: [
+        {
+          type: "radiogroup",
+          name: "name",
+          title: "Question title",
+          choices: ["item1", "item2", "item3"],
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    snapshot: "radiogroup-keyboard-hints",
+    removeIds: true,
+    getElement: (element) => element?.parentElement
+  },
   ]
 );

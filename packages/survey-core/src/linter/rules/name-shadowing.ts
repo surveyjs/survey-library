@@ -189,7 +189,10 @@ function checkValueShapeConflict(ctx: LintContext, record: ElementRecord): void 
         " and clearIncorrectValues() deletes it.",
       path: other.path,
       reason: reasons.valueShapeConflict,
-      messageData: { name: other.name, otherName: record.name, otherType: record.type, dataKey: dataKey },
+      messageData: {
+        name: other.name, otherName: record.name, otherType: record.type, dataKey: dataKey,
+        shape: otherShape, otherShape: shape,
+      },
       elementName: other.name,
       elementType: other.type,
       related: relatedOf([record, other]),

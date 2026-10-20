@@ -143,7 +143,9 @@ describe("name/shadowing - values of different shapes on one data key", () => {
     const findings = byRule({ elements: [Object.assign({ name: "k" }, matrix), { type: "text", name: "p", valueName: "k" }] });
     expect(findings.map(f => f.reason)).toEqual(["valueShapeConflict"]);
     expect(findings[0].path).toBe("elements[1]");
-    expect(findings[0].messageData).toMatchObject({ name: "p", otherName: "k", otherType: "matrixdynamic", dataKey: "k" });
+    expect(findings[0].messageData).toMatchObject({
+      name: "p", otherName: "k", otherType: "matrixdynamic", dataKey: "k", shape: "plain", otherShape: "records",
+    });
     expect(findings[0].related.map(r => r.path)).toEqual(["elements[0]", "elements[1]"]);
     expect(findings[0].message).toBe("\"p\" shares the data key \"k\" with matrixdynamic \"k\", which keeps an array of objects" +
       " there, while text \"p\" keeps a plain value - one cannot hold the other's value; setData() reports it" +

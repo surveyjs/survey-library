@@ -8,7 +8,7 @@ import {
 } from "./interview-types";
 import {
   IInterviewContainer, IInterviewInput, IInterviewPanel, clearUntouchedChoiceErrors, getAnsweredValue,
-  getInputErrors, getInterviewInputs, getInterviewPanels, getUnreportedContainers, isAskableInput,
+  getDataSourceOwner, getInputErrors, getInterviewInputs, getInterviewPanels, getUnreportedContainers, isAskableInput,
   isInShowingChoice, isInputAnswered, isInputValid, makeInputCurrent, updateCurrentItem, validateInput,
   validatePanels,
 } from "./interview-items";
@@ -28,9 +28,9 @@ import { createAnswerSchema } from "./interview-schema";
 import { InterviewToolNames, getToolBaseName, getToolDefinitions } from "./interview-tools";
 import { InterviewSkipped, diffSnapshots, noChanges, takeSnapshot } from "./interview-state";
 import {
-  InterviewErrorCodes, badAddressError, completionBlockedError, invalidCannotSkipError, notAskableError,
-  nothingToAnswerError, requiredCannotSkipError, surveyCompletedError, unknownQuestionError,
-  unknownToolError,
+  InterviewErrorCodes, InterviewNotAskableReason, badAddressError, completionBlockedError,
+  getUnsupportedReason, invalidCannotSkipError, notAskableError, nothingToAnswerError,
+  requiredCannotSkipError, surveyCompletedError, unknownQuestionError, unknownToolError,
 } from "./interview-errors";
 
 // The interview conducts one SurveyModel the integrator owns (overview 2.6). It sets exactly one
@@ -329,7 +329,7 @@ export class Interview implements IInterview {
     }
     if (!isAskableInput(target)) {
       return this.createErrorResult(
-        notAskableError(target.address, target.item.disabled ? "disabled" : "unsupported"), inputs);
+        notAskableError(target.address, target.item.disabled ? "disabled" : getUnsupportedReason(target.item)), inputs);
     }
     // The summary step of a dynamic container takes an action - add, remove, edit, done - and not a
     // value: the entries are grown and shrunk through the model's own summary, which is what the UI
@@ -395,8 +395,9 @@ export class Interview implements IInterview {
       // Growing, shrinking or revisiting the list re-opens it: a "done" said earlier was about the
       // list as it was then, and the interviewee gets the summary back when the new entry is filled.
       this.skipped.remove(target.address);
-      // MinRowCountError, a duplicated key, a required container that has just lost its last entry:
-      // the container's own errors are written by validating it after every add and every remove.
+      // MinRowCountError, a required container that has just lost its last entry: the container's
+      // own errors are written by validating it after every add and every remove, and so is a
+      // duplicated key on the key fields of its entries.
       validateInput(this.surveyValue, target);
       // Validating the container validates its entries with it, and that would put "Response
       // required." on an input nobody has been asked for yet - a freshly added entry is empty by
@@ -533,9 +534,11 @@ export class Interview implements IInterview {
   // names nothing that is being asked for, and the message lists what is.
   private createAddressError(inputs: Array<IInterviewInput>, name: string): IInterviewError {
     const resolved = resolveAddress(this.surveyValue, name);
-    return resolved.isBad === true
-      ? badAddressError(name)
-      : unknownQuestionError(name, this.getAskableAddresses(inputs));
+    if (resolved.isBad === true) return badAddressError(name);
+    // The model builds the entries of a container with a data source, so the address resolves, but
+    // nothing inside it is an item (interview-items.ts hasDataSource).
+    if (!!resolved.question && !!getDataSourceOwner(resolved.question)) return notAskableError(name, "dataSource");
+    return unknownQuestionError(name, this.getAskableAddresses(inputs));
   }
 
   private getAskableAddresses(inputs: Array<IInterviewInput>): Array<string> {
@@ -880,9 +883,9 @@ function getResolutionErrors(keys: Array<string>, refused: { [key: string]: IInt
   return res;
 }
 
-function getNotWritableReason(entry: IInterviewBatchEntry): "disabled" | "unsupported" | "batch" {
+function getNotWritableReason(entry: IInterviewBatchEntry): InterviewNotAskableReason {
   if (entry.item.disabled === true) return "disabled";
-  return entry.item.reason === "batch" ? "batch" : "unsupported";
+  return getUnsupportedReason(entry.item);
 }
 
 // An address wins over a comment key: a question really named "note-Comment" is answered by its own

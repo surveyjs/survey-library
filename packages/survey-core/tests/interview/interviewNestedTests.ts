@@ -3,7 +3,7 @@
 // rest of the module.
 import { createInterview, InterviewErrorCodes } from "survey-core/interview";
 import type { IInterview } from "survey-core/interview";
-import { ComponentCollection, SurveyModel, settings } from "survey-core";
+import { ArrayDynamicDataSource, ComponentCollection, SurveyModel, settings } from "survey-core";
 
 import { afterEach, describe, expect, test } from "vitest";
 
@@ -291,7 +291,7 @@ describe("interview nested inputs (issue #11818)", () => {
     expect(iv.data.items).toEqual([{ sku: "A-1" }]);
   });
 
-  test("A duplicated key is reported under the entry that carries it", async () => {
+  test("A duplicated key is reported under every entry that carries it", async () => {
     const iv = await createInterview(medicationsJson({ keyName: "name" }));
     await addEntry(iv, "Aspirin", "10mg");
     await addEntry(iv, "Aspirin", "20mg");
@@ -299,7 +299,9 @@ describe("interview nested inputs (issue #11818)", () => {
     expect(completed.completed).toBe(false);
     // KeyDuplicationError is put on the question that holds the key, not on the container, so it is
     // reported at that question's address - where a consumer can ask for a different value.
+    // The model marks every entry of a duplicate group, the first one included.
     expect(completed.errors).toEqual([
+      { name: "medications[0].name", message: "This value should be unique." },
       { name: "medications[1].name", message: "This value should be unique." },
     ]);
   });
@@ -690,4 +692,75 @@ describe("interview nested inputs (issue #11818)", () => {
       "```"
     ));
   });
+
+  test("A dynamic container backed by a dataSource is never current, and its addresses are notAskable", async () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "items", rowCount: 0, columns: [{ name: "sku", cellType: "text" }] },
+      { type: "text", name: "note" },
+    ] });
+    const source = ArrayDynamicDataSource.fromArray([{ sku: "A-1" }]);
+    (<any>survey.getQuestionByName("items")).dataSource = source;
+    const iv = await createInterview(survey);
+    expect(iv.current().name).toBe("note");
+    const summary = await iv.answer("items", { action: "add" });
+    expect(summary.errors.map(error => ({ name: error.name, code: error.code })))
+      .toEqual([{ name: "items", code: InterviewErrorCodes.notAskable }]);
+    const cell = await iv.answer("items[0].sku", "B-2");
+    expect(cell.errors.map(error => ({ name: error.name, code: error.code })))
+      .toEqual([{ name: "items[0].sku", code: InterviewErrorCodes.notAskable }]);
+    expect(source.array).toEqual([{ sku: "A-1" }]);
+  });
+
+  test("A container inside an entry backed by a dataSource is skipped by the walk and refused by address", async () => {
+    const survey = new SurveyModel(medicationsJson({ panelCount: 1, templateElements: [
+      { type: "text", name: "name", title: "Name" },
+      { type: "matrixdynamic", name: "items", rowCount: 0, columns: [{ name: "sku", cellType: "text" }] },
+    ] }));
+    const source = ArrayDynamicDataSource.fromArray([{ sku: "A-1" }]);
+    (<any>survey.getQuestionByName("medications")).panels[0].getQuestionByName("items").dataSource = source;
+    const iv = await createInterview(survey);
+    expect(iv.current().name).toBe("medications[0].name");
+    await iv.answer("Aspirin");
+    expect(iv.current().name).toBe("medications");
+    const cell = await iv.answer("medications[0].items[0].sku", "B-2");
+    expect(cell.errors.map(error => ({ name: error.name, code: error.code })))
+      .toEqual([{ name: "medications[0].items[0].sku", code: InterviewErrorCodes.notAskable }]);
+    expect(source.array).toEqual([{ sku: "A-1" }]);
+  });
+
+  test.each(["paneldynamic", "matrixdynamic"])("A %s with pageSize: every entry is asked while it is the current question", async (type) => {
+    const iv = await createInterview(pagedSurvey(type, false));
+    expect(iv.survey.currentSingleQuestion.name).toBe("meds");
+    const asked: Array<string> = [];
+    for (let i = 1; i <= 5; i++) {
+      asked.push(iv.current().name);
+      await iv.answer("d" + i);
+    }
+    expect(asked).toEqual(["meds[0].dose", "meds[1].dose", "meds[2].dose", "meds[3].dose", "meds[4].dose"]);
+    expect(iv.data.meds[4]).toEqual({ name: "n5", dose: "d5" });
+  });
+
+  // Expected to fail until OPEN 34 (prompt 23, task 3) is decided: the model turns paging off only for the
+  // container whose root is survey.currentSingleQuestion, so while "intro" is current the matrix or
+  // panel exposes its first page only and "meds[4].dose" is badAddress.
+  test.fails.each(["paneldynamic", "matrixdynamic"])("A %s with pageSize: an entry past the first page is reachable while another question is current", async (type) => {
+    const iv = await createInterview(pagedSurvey(type, true));
+    expect(iv.survey.currentSingleQuestion.name).toBe("intro");
+    const result = await iv.answer("meds[4].dose", "d5");
+    expect(result.errors).toEqual([]);
+    expect(iv.data.meds[4]).toEqual({ name: "n5", dose: "d5" });
+  });
 });
+
+// Five entries and a pageSize of two, the required "dose" of every entry empty. "intro" comes first
+// when introFirst is set, and is then the current question.
+function pagedSurvey(type: string, introFirst: boolean): SurveyModel {
+  const fields = [{ name: "name" }, { name: "dose", isRequired: true }];
+  const container = type === "paneldynamic" ?
+    { type: type, name: "meds", pageSize: 2, templateElements: fields.map(field => Object.assign({ type: "text" }, field)) } :
+    { type: type, name: "meds", pageSize: 2, rowCount: 0, columns: fields.map(field => Object.assign({ cellType: "text" }, field)) };
+  const intro = { type: "text", name: "intro" };
+  const survey = new SurveyModel({ elements: introFirst ? [intro, container] : [container, intro] });
+  survey.data = { meds: [1, 2, 3, 4, 5].map(i => ({ name: "n" + i })) };
+  return survey;
+}

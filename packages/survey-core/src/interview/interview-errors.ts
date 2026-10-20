@@ -1,4 +1,4 @@
-import type { IInterviewError } from "./interview-types";
+import type { IInterviewError, IInterviewItem } from "./interview-types";
 import { MAX_NESTING_DEPTH } from "./interview-address";
 
 // Every error the interview raises itself, in one frozen table. A host localizes on the code, the
@@ -58,12 +58,13 @@ export function unknownQuestionError(name: string, known: Array<string>): IInter
   };
 }
 
-// One code, four reasons. "batch" and "hidden" belong to answerAll(): a container below the depth
+// One code, five reasons. "batch" and "hidden" belong to answerAll(): a container below the depth
 // ceiling is one no mode reaches, and a question the survey does not show now - hidden before the
 // call, or by an earlier answer of the same call - is one the batch may not write. Both are the same
 // statement to the caller - "this key was not written" - so they are the same code with a message
-// that says which.
-export type InterviewNotAskableReason = "disabled" | "unsupported" | "batch" | "hidden";
+// that says which. "dataSource" is a dynamic container whose records a data source owns, and
+// anything inside it, in either mode.
+export type InterviewNotAskableReason = "disabled" | "unsupported" | "batch" | "hidden" | "dataSource";
 
 const NOT_ASKABLE_REASONS: { [reason: string]: string } = {
   disabled: "an \"enableIf\" expression turned it off, and it takes an answer again once that expression turns true",
@@ -72,7 +73,13 @@ const NOT_ASKABLE_REASONS: { [reason: string]: string } = {
     "and neither mode reaches it",
   hidden: "the survey hides it or no longer offers it, whether that was so before this call or an earlier " +
     "answer of the same call caused it, so it is no longer being asked",
+  dataSource: "its entries belong to a data source, which the interview does not read or write",
 };
+
+// The reason an unsupported item gives: the one its record names, or none at all - a file, a signature.
+export function getUnsupportedReason(item: IInterviewItem): InterviewNotAskableReason {
+  return item.reason || "unsupported";
+}
 
 export function notAskableError(name: string, reason: InterviewNotAskableReason): IInterviewError {
   return {

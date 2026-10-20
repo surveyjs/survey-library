@@ -3,7 +3,7 @@
 // needs a DOM.
 import { createInterview, InterviewErrorCodes } from "survey-core/interview";
 import type { IInterview } from "survey-core/interview";
-import { ComponentCollection, SurveyModel, settings, surveyLocalization } from "survey-core";
+import { ArrayDynamicDataSource, ComponentCollection, SurveyModel, settings, surveyLocalization } from "survey-core";
 
 import { afterEach, describe, expect, test } from "vitest";
 
@@ -684,4 +684,62 @@ describe("interview dynamic containers in batch mode (issue #11818)", () => {
     expect(iv.getAnswerSchema().properties.medications.description)
       .toContain("A list of entries by position.");
   });
+
+  test("A dynamic container backed by a dataSource is unsupported, and a key for it is notAskable", async () => {
+    const survey = new SurveyModel(itemsJson({ rowCount: 0 }));
+    const source = ArrayDynamicDataSource.fromArray([{ sku: "A-1" }]);
+    (<any>survey.getQuestionByName("items")).dataSource = source;
+    const iv = await createInterview(survey);
+    const record = iv.getBatchDocument().items[0];
+    expect(record.name).toBe("items");
+    expect(record.unsupported).toBe(true);
+    expect(record.reason).toBe("dataSource");
+    expect(record.entries).toBeUndefined();
+    expect(record.template).toBeUndefined();
+    expect(record.canAdd).toBeUndefined();
+    expect(iv.current()).toBeNull();
+    expect(iv.getAnswerSchema().properties.items).toBeUndefined();
+
+    const res = await iv.answerAll({ items: [{ sku: "B-2" }] });
+    expect(res.errors.map(error => ({ name: error.name, code: error.code })))
+      .toEqual([{ name: "items", code: InterviewErrorCodes.notAskable }]);
+    expect(res.errors[0].message).toContain("data source");
+    expect(source.array).toEqual([{ sku: "A-1" }]);
+  });
+
+  test.each(["paneldynamic", "matrixdynamic"])("A %s with pageSize lists and writes every entry while it is the current question", async (type) => {
+    const iv = await createInterview(pagedSurvey(type, false));
+    expect(iv.survey.currentSingleQuestion.name).toBe("meds");
+    const record = iv.getBatchDocument().items.filter(item => item.name === "meds")[0];
+    expect(record.entries.map(entry => entry.index)).toEqual([0, 1, 2, 3, 4]);
+    const res = await iv.answerAll({ meds: [{}, {}, {}, {}, { dose: "d5" }] });
+    expect(res.errors).toEqual([]);
+    expect(iv.data.meds[4]).toEqual({ name: "n5", dose: "d5" });
+  });
+
+  // Expected to fail until OPEN 34 (prompt 23, task 3) is decided: the model turns paging off only for the
+  // container whose root is survey.currentSingleQuestion, so while "intro" is current the record lists
+  // the first page only, and the patch of position 4 writes nothing and reports no error.
+  test.fails.each(["paneldynamic", "matrixdynamic"])("A %s with pageSize lists and writes every entry while another question is current", async (type) => {
+    const iv = await createInterview(pagedSurvey(type, true));
+    expect(iv.survey.currentSingleQuestion.name).toBe("intro");
+    const record = iv.getBatchDocument().items.filter(item => item.name === "meds")[0];
+    expect(record.entries.map(entry => entry.index)).toEqual([0, 1, 2, 3, 4]);
+    const res = await iv.answerAll({ meds: [{}, {}, {}, {}, { dose: "d5" }] });
+    expect(res.errors).toEqual([]);
+    expect(iv.data.meds[4]).toEqual({ name: "n5", dose: "d5" });
+  });
 });
+
+// Five entries and a pageSize of two, the required "dose" of every entry empty. "intro" comes first
+// when introFirst is set, and is then the current question.
+function pagedSurvey(type: string, introFirst: boolean): SurveyModel {
+  const fields = [{ name: "name" }, { name: "dose", isRequired: true }];
+  const container = type === "paneldynamic" ?
+    { type: type, name: "meds", pageSize: 2, templateElements: fields.map(field => Object.assign({ type: "text" }, field)) } :
+    { type: type, name: "meds", pageSize: 2, rowCount: 0, columns: fields.map(field => Object.assign({ cellType: "text" }, field)) };
+  const intro = { type: "text", name: "intro" };
+  const survey = new SurveyModel({ elements: introFirst ? [intro, container] : [container, intro] });
+  survey.data = { meds: [1, 2, 3, 4, 5].map(i => ({ name: "n" + i })) };
+  return survey;
+}

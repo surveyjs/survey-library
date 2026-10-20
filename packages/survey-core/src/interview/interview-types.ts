@@ -41,10 +41,11 @@ export interface IInterviewItem extends IQuestionDescription {
   // ({ value, comment } when a comment is set). Never on a field that is a container: its entries and
   // fields say what it holds.
   value?: any;
-  // batch mode, next to unsupported: the only container a batch cannot fill is one below the depth
-  // ceiling, and "batch" says that is why. No reason at all says nothing ever will: a file to upload,
-  // a signature to draw.
-  reason?: "batch";
+  // next to unsupported: "batch" (batch mode) is a container below the depth ceiling, which a batch
+  // cannot fill. "dataSource" (both modes) is a dynamic container whose records a data source owns,
+  // which the interview does not support yet. No reason at all says nothing ever will: a file to
+  // upload, a signature to draw.
+  reason?: "batch" | "dataSource";
   // single mode: the current item's first error text, if any
   error?: string;
 }

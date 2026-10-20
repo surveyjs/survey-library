@@ -1,12 +1,12 @@
 import { Helpers } from "survey-core";
 import type { Question } from "survey-core";
 import type { IInterviewError, IInterviewItem, IInterviewRow } from "./interview-types";
-import { IInterviewContainer, hasChoiceElements } from "./interview-items";
+import { IInterviewContainer, hasChoiceElements, markDataSourceItem } from "./interview-items";
 import { createNameLookup, formatAddressSegment, getAddress } from "./interview-address";
 import { isAction } from "./interview-summary";
 import { describeQuestion } from "./question-description";
 import {
-  badActionError, badRecordError, notAChoiceError, notANumberError, notAskableError,
+  badActionError, badRecordError, getUnsupportedReason, notAChoiceError, notANumberError, notAskableError,
   unknownQuestionError,
 } from "./interview-errors";
 
@@ -306,6 +306,8 @@ export function createBatchItem(question: Question): IInterviewItem | undefined 
   if (!description) return undefined;
   const res: IInterviewItem = { ...description };
   delete res.items;
+  // Marked here, so describeContainer and describeShallow stop at it as at any unsupported question.
+  markDataSourceItem(question, res);
   return res;
 }
 
@@ -322,8 +324,8 @@ export function createFieldItem(question: Question, address: string | undefined,
 // first error text it carries. Both are keys of a field and of nothing else - a field sits where the
 // document put it, so there is no "entry" breadcrumb to write. A field that is a container has no
 // value: its value is what its entries and fields say, and writing the whole array next to them would
-// say it twice. Its own first error - MinRowCountError, a required container with no entries, a
-// duplicated key - is on it all the same.
+// say it twice. Its own first error - MinRowCountError, a required container with no entries - is
+// on it all the same.
 export function getFieldItems(fields: Array<IInterviewField>): Array<IInterviewItem> {
   return fields.map(field => {
     const item = field.item;
@@ -556,9 +558,8 @@ function writeField(res: IFieldWriteResult, write: IFieldWrite, owner: IFieldOwn
   }
   if (field.item.unsupported === true) {
     // A file, a signature - or a container below the depth ceiling, which the describer reports with
-    // reason "batch" and which nothing reaches.
-    res.errors.push(notAskableError(field.address,
-      field.item.reason === "batch" ? "batch" : "unsupported"));
+    // reason "batch" and which nothing reaches, or one with a data source (reason "dataSource").
+    res.errors.push(notAskableError(field.address, getUnsupportedReason(field.item)));
     return;
   }
   if (field.item.disabled === true) {

@@ -176,7 +176,7 @@ Every mutating call answers with an `errors` array of `{ name, message, code? }`
 | --- | --- |
 | `nothingToAnswer` | `answer(value)` or `skip()` with no current item — everything that can be asked is answered and valid. |
 | `unknownQuestion` | `answer(name, value)` with a name that is not an item: it does not exist, it is invisible, or it is read-only by property and can never be answered. In `answerAll()`, a key that names no question the survey has, or a visible one that is not an item; a hidden one is `notAskable`. |
-| `notAskable` | The item or the field exists but cannot take a value: an `enableIf` turned it off (`disabled`), it has no plain input — a file, a signature, an image picker (`unsupported`), it sits deeper than the 20 nested containers the interview addresses and neither mode reaches it (`reason: "batch"`, see [the ceiling](#the-depth-ceiling)), or the survey hid it, an earlier key of the same `answerAll()` included. The message says which. |
+| `notAskable` | The item or the field exists but cannot take a value: an `enableIf` turned it off (`disabled`), it has no plain input — a file, a signature, an image picker (`unsupported`), it sits deeper than the 20 nested containers the interview addresses and neither mode reaches it (`reason: "batch"`, see [the ceiling](#the-depth-ceiling)), it is a dynamic container with a `dataSource` or sits inside one (`reason: "dataSource"`), or the survey hid it, an earlier key of the same `answerAll()` included. The message says which. |
 | `notAChoice` | The value is not among the choices the item lists — `choices`, or a rating's `rateValues` — or it is a choice listed with `disabled: true` that the question does not already hold. Checked per element for a multi-select; `other` and `none` are choices like any other; skipped entirely when the item says `choicesUnknown`. A disabled choice that is already selected stays accepted, as the UI keeps a checked item checked: `["cat", "dog"]` with `cat` stored and disabled is accepted, `["cat", "dog"]` after `cat` was dropped is not. A value that differs from one choice only in case or surrounding spaces is not an error — the choice's own value is written (see [the matching rule](#items-are-the-models-own-single-inputs)) — but one that differs that way from several (`" a"` against `"a"` and `"A"`) is `notAChoice`. |
 | `notANumber` | A string that is not a number, for an item whose value is a number. |
 | `badAction` | An action object (`{ action: "add" }`) sent to an item that takes a value, a plain value sent to a [summary step](#the-summary-step), an action the step does not offer, or a `remove` / `edit` without an `index` of an entry that exists. |
@@ -403,7 +403,8 @@ with the navigation instead of with the answers.
 
 `current()` is **the first item, in document order, that can be asked and is either unanswered or
 invalid**, and `null` when there is none. "Can be asked" leaves out an item that an `enableIf` turned
-off (`disabled`) and one with no plain input — a file, a signature, an image picker (`unsupported`).
+off (`disabled`) and one with no plain input — a file, a signature, an image picker (`unsupported`) —
+or whose records a data source owns (`unsupported`, `reason: "dataSource"`).
 
 That is the issue's rule, and it is not the mode's own navigation: `performNext()` goes to the input
 *after* the one the respondent is on, wherever that is. So the interview selects first and then
@@ -482,6 +483,12 @@ below it, the address says which container, which entry of it, and which input i
   the list the summary step numbers and the `remove` and `edit` actions index. An index past the
   entries that exist is `badAddress`: an entry comes into being through the summary step's `add`,
   never by answering an address that names nothing.
+* The view decides, whatever made it. A **sort** puts the entries in its order: after
+  `sort("c", "asc")` on a matrix holding the rows `b`, `a`, `c`, `m[0].note` is the row of `a`, which
+  is `data.m[1]`. A **`filterExpression`** leaves out the entries that fail it: with
+  `"{dose} notempty"` and only the second and third panels holding a dose, `meds[0]` is the second
+  panel, `meds[1]` the third, `meds[2]` is `badAddress`, and the first panel has no address and is
+  never asked. Its value stays in `data` untouched. Batch positions follow the same view.
 * A segment that carries a `.`, a `[`, a `]` or a `"` is written as a double-quoted JSON string:
   `contact."e.mail"`, `matrix."row.one".c1`.
 * A revisit works whatever the mode is doing. The mode's own navigation list drops a panel that is
@@ -561,7 +568,8 @@ await iv.answer({ action: "done" });       // -> the next question
 * The container's own errors — `MinRowCountError`, a required container left empty — are reported
   under the container's address and shown on its summary step. An error the model puts on a question
   inside an entry, `KeyDuplicationError` among them, is reported at that question's address, which is
-  where a consumer can ask for a different value.
+  where a consumer can ask for a different value. A duplicated key is reported under every entry that
+  carries it, the first one included.
 * **Removing never prompts.** The buttons the summary carries go through `removePanelUI` /
   `removeRowUI`, which consult `confirmDelete` and hand a populated entry to a confirmation dialog —
   and nobody answers a dialog in Node, so the removal would stay pending forever. The action uses the
@@ -1023,7 +1031,14 @@ carries — and not of the nested input a respondent fills one at a time. So:
   `notAChoice`. See [the rule in single mode](#items-are-the-models-own-single-inputs).
 * a question with **no plain input** — a file to upload, a signature to draw, an image picker — is
   `unsupported: true` with **no** `reason`. The distinction is the point of the key: `reason:
-  "batch"` is the depth ceiling, no reason at all says nothing ever will.
+  "batch"` is the depth ceiling, `reason: "dataSource"` is the case below, and no reason at all says
+  nothing ever will.
+* a dynamic panel or a dynamic matrix with a **`dataSource`** — at the root or inside an entry — is
+  `unsupported: true` with `reason: "dataSource"`, and has no `entries`, `template` or `canAdd`. The
+  source owns the records: the question refuses writes to its value, it may page them on its own
+  terms, and for most sources they are not in `survey.data`. So the interview does not support it
+  yet. It is listed and never current, a key for it is `notAskable`, and in single mode so is an
+  address inside it (`items[0].sku`). It has no property in the answer schema.
 * an item an `enableIf` turned off is listed with `disabled: true` and refused by `answerAll()`; a
   question that is read-only by property is not an item and is not listed.
 * items the interviewee **skipped** in single mode are listed. Skipping is a gesture of a
@@ -1346,9 +1361,10 @@ items:
 * **`constraints.minCount` / `maxCount`** are `minPanelCount` / `maxPanelCount` and `minRowCount` /
   `maxRowCount`, each only when the survey set one: both maximums otherwise fall back to a global
   default (`settings.panel.maxPanelCount`, `settings.matrix.maxRowCount`) that nobody asked for.
-* The container's own first error — `MinRowCountError`, a duplicated `keyName`, a required container
-  with no entries — is on the record's `error` and under its own address in `errors`. A field's
-  errors are under the field's address: `medications[1].dose`.
+* The container's own first error — `MinRowCountError`, a required container with no entries — is
+  on the record's `error` and under its own address in `errors`. A field's errors are under the
+  field's address: `medications[1].dose`. A duplicated `keyName` is a field's error: it is on the key
+  field of every entry that carries the value, `medications[0].name` and `medications[1].name`.
 * A **container inside an entry** — a dynamic panel or a matrix in a panel template, a multiple text
   in a detail panel — is a field of the entry whose record is the container record itself: live in the
   entry's `fields`, a declaration in `template`. See [Nested containers](#nested-containers).
@@ -1510,7 +1526,7 @@ items:
 ````
 
 * A field that is a container keeps the field keys — `name` relative to its owner, `error` for its own
-  first error (`MinRowCountError`, a required container with no entries, a duplicated key) — and has
+  first error (`MinRowCountError`, a required container with no entries) — and has
   **no `value`**: its value is what its entries and fields say. There is no `entry` key anywhere; the
   position says which entry.
 * **A container inside a `template` is a declaration**, as the template is: `template` and `canAdd`, or

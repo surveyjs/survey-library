@@ -92,7 +92,8 @@ export function getBatchItems(entries: Array<IInterviewBatchEntry>): Array<IInte
 function getEntryErrors(entry: IInterviewBatchEntry): Array<string> {
   if (!!entry.input) return getInputErrors(entry.input);
   // A container's own errors: RequiredInAllRowsError, EachRowUniqueError, MinRowCountError, a
-  // duplicated key, a required container left empty. Its fields carry theirs on their own records.
+  // required container left empty. Its fields carry theirs on their own records, a duplicated key
+  // among them.
   const container = entry.container || entry.records;
   return !!container ? container.errors.map(error => error.getText()) : [];
 }

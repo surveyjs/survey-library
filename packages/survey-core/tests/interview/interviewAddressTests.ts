@@ -207,6 +207,44 @@ describe("interview addresses (issue #11818)", () => {
     await iv.answer({ action: "done" });
     expect(iv.data).toEqual({ contactEmail: "a@b.c", meds: [{ dose: "10mg" }] });
   });
+
+  test("A sorted dynamic matrix: an index is a position in the sorted view", async () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, columns: [
+        { name: "c", cellType: "text" }, { name: "note", cellType: "text", isRequired: true },
+      ] }],
+    });
+    survey.data = { m: [{ c: "b" }, { c: "a" }, { c: "c" }] };
+    (<any>survey.getQuestionByName("m")).sort("c", "asc");
+    const iv = await createInterview(survey);
+    const record = iv.getBatchDocument().items[0];
+    expect(record.entries.map(entry => entry.fields[0].value)).toEqual(["a", "b", "c"]);
+    expect(iv.current().name).toBe("m[0].note");
+
+    // "a" is at position 0 of the view and at index 1 of the value, in both modes.
+    expect((await iv.answer("m[0].note", "single")).errors).toEqual([]);
+    expect(iv.data.m[1]).toEqual({ c: "a", note: "single" });
+    expect((await iv.answerAll({ m: [{}, {}, { note: "batch" }] })).errors).toEqual([]);
+    expect(iv.data.m[2]).toEqual({ c: "c", note: "batch" });
+  });
+
+  test("A filtered dynamic panel: a filtered-out entry is neither listed nor addressable", async () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "meds", filterExpression: "{dose} notempty", templateElements: [
+        { type: "text", name: "name" }, { type: "text", name: "dose" }, { type: "text", name: "freq", isRequired: true },
+      ] }],
+    });
+    survey.data = { meds: [{ name: "A" }, { name: "B", dose: "1" }, { name: "C", dose: "2" }] };
+    const iv = await createInterview(survey);
+    const record = iv.getBatchDocument().items[0];
+    expect(record.entries.map(entry => entry.fields[0].value)).toEqual(["B", "C"]);
+
+    // Position 0 is "B", the first entry that passes; "A" has no address in either mode.
+    expect((await iv.answer("meds[0].name", "B2")).errors).toEqual([]);
+    expect((await iv.answer("meds[2].name", "x")).errors[0].code).toBe(InterviewErrorCodes.badAddress);
+    expect((await iv.answerAll({ meds: [{}, { name: "C2" }] })).errors).toEqual([]);
+    expect(iv.data.meds).toEqual([{ name: "A" }, { name: "B2", dose: "1" }, { name: "C2", dose: "2" }]);
+  });
 });
 
 // The survey side of the round trip, written here rather than borrowed from the module: a test that

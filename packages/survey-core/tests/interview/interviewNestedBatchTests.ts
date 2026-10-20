@@ -4,7 +4,7 @@
 // container's own value form, at any depth. An agent runs on a server; nothing here needs a DOM.
 import { createInterview, InterviewErrorCodes } from "survey-core/interview";
 import type { IInterview, IInterviewItem } from "survey-core/interview";
-import { ComponentCollection, SurveyModel, surveyLocalization } from "survey-core";
+import { ArrayDynamicDataSource, ComponentCollection, SurveyModel, surveyLocalization } from "survey-core";
 import type { ISurveyWebRequest, ISurveyWebResponse } from "survey-core";
 import { MAX_NESTING_DEPTH, getAddress, parseAddress } from "../../src/interview/interview-address";
 import { ensureDetailPanels } from "../../src/interview/interview-detail";
@@ -618,7 +618,7 @@ describe("interview nested containers in batch mode (issue #11818)", () => {
         templateElements: [{ type: "text", name: "title", title: "Title" }] },
     ]));
     const duplicate = await keyed.answerAll({ orders: [{ notes: [{ title: "same" }, { title: "same" }] }] });
-    expect(duplicate.errors.map(error => error.name)).toEqual(["orders[0].notes[1].title"]);
+    expect(duplicate.errors.map(error => error.name)).toEqual(["orders[0].notes[0].title", "orders[0].notes[1].title"]);
     expect(keyed.getBatchDocument().items.map(item => item.name)).toEqual(["orders"]);
 
     // A row added inside a panel added in the same call, its required cell left empty.
@@ -855,6 +855,26 @@ describe("interview nested containers in batch mode (issue #11818)", () => {
     expect(recordOf(rootRecord(iv, "orders"), "entries", 0, "items", "entries", 0, "notes",
       "entries", 0, "text").title).toBe("Notiz");
     expect(iv.getAnswerSchema().properties.orders.description).toContain("A list of entries by position.");
+  });
+
+  test("A container inside an entry backed by a dataSource is an unsupported field, and a key for it is notAskable", async () => {
+    const survey = new SurveyModel(ordersJson(undefined, [
+      { type: "text", name: "ref", title: "Reference" },
+      itemsMatrix({ isRequired: false, minRowCount: 0, rowCount: 0, detailPanelMode: "none" }),
+    ]));
+    const source = ArrayDynamicDataSource.fromArray([{ sku: "A-1" }]);
+    (<any>survey.getQuestionByName("orders")).panels[0].getQuestionByName("items").dataSource = source;
+    const iv = await createInterview(survey);
+    const field = recordOf(rootRecord(iv, "orders"), "entries", 0, "items");
+    expect(field.unsupported).toBe(true);
+    expect(field.reason).toBe("dataSource");
+    expect(field.entries).toBeUndefined();
+
+    const res = await iv.answerAll({ orders: [{ ref: "PO-1", items: [{ sku: "B-2" }] }] });
+    expect(res.errors.map(error => ({ name: error.name, code: error.code })))
+      .toEqual([{ name: "orders[0].items", code: InterviewErrorCodes.notAskable }]);
+    expect(iv.data.orders[0].ref).toBe("PO-1");
+    expect(source.array).toEqual([{ sku: "A-1" }]);
   });
 });
 

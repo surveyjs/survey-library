@@ -113,6 +113,35 @@ export function hasChoiceElements(question: Question): boolean {
     target.supportElementsInChoice() === true;
 }
 
+// A dynamic panel or a dynamic matrix whose records belong to a data source (the records layer's
+// public "dataSource"). The source owns them: the question refuses writes to its value, it may page
+// them on its own terms, and the records are in survey.data only for some sources. The interview does
+// not support it yet (OPEN 32): the container is one unsupported item with reason "dataSource", in
+// both modes, and nothing below it is an item. Duck-typed, as hasChoiceElements is.
+export function hasDataSource(question: Question): boolean {
+  const target: any = question;
+  return !!target && !!target.dataSource;
+}
+
+// The container with a data source that holds the question - the question itself included - at any
+// depth; undefined for one outside every such container. A cell or an entry's question names its
+// container as parentQuestion.
+export function getDataSourceOwner(question: Question): Question | undefined {
+  let current: any = question;
+  for (let depth = 0; depth <= MAX_NESTING_DEPTH && !!current; depth++) {
+    if (hasDataSource(current)) return current;
+    current = current.parentQuestion;
+  }
+  return undefined;
+}
+
+// The one place the pair is written for a data source: the single-mode item and the batch record.
+export function markDataSourceItem(question: Question, item: IInterviewItem): void {
+  if (!hasDataSource(question)) return;
+  item.unsupported = true;
+  item.reason = "dataSource";
+}
+
 // The select question whose selected choice holds the question, and for a choice inside a choice the
 // outermost one; undefined for a question that is in no choice. Derived from the model, never
 // remembered: the question's parents are walked up through the static panels to the choice panel,
@@ -169,8 +198,9 @@ function addInputs(survey: SurveyModel, question: Question, root: Question, dept
   res: Array<IInterviewInput>): void {
   // The host turned nesting off for this question through onCheckSingleInputPerPageMode: the
   // container is one input holding the whole array or object, exactly as the mode would show it. A
-  // select question with choice questions is one input too, for the reason isContainerQuestion gives.
-  if (!survey.supportsNestedSingleInput(question) || hasChoiceElements(question)) {
+  // select question with choice questions is one input too, for the reason isContainerQuestion gives,
+  // and so is a container with a data source, which is described as unsupported (hasDataSource).
+  if (!survey.supportsNestedSingleInput(question) || hasChoiceElements(question) || hasDataSource(question)) {
     addInput(question, root, res);
     return;
   }
@@ -334,6 +364,7 @@ function createItem(question: Question, address: string, root: Question, isSumma
   // "name" is replaced in place; anything added lands after the described keys.
   const res: IInterviewItem = { ...description };
   res.name = address;
+  markDataSourceItem(question, res);
   if (question !== root) {
     const entry = getEntryTitle(root);
     if (!!entry) res.entry = entry;
@@ -469,9 +500,10 @@ export function getAnsweredValue(input: IInterviewInput): any {
 export function validateInput(survey: SurveyModel, input: IInterviewInput): void {
   const root = input.root;
   if (input.isSummary) {
-    // The container's own errors - MinRowCountError, a required container with no entries, a
-    // duplicated key - are what a summary step reports, and they are written by validating the
-    // container itself after every add and every remove.
+    // The container's own errors - MinRowCountError, a required container with no entries - are
+    // what a summary step reports, and they are written by validating the container itself after
+    // every add and every remove. The same run puts a duplicated key on the key field of every entry
+    // that carries it.
     input.question.validate(true);
     return;
   }

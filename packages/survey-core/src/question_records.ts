@@ -3208,6 +3208,10 @@ export abstract class QuestionRecordsModel extends Question {
     super.runTriggers(name, value, keys);
     this.runComputedWrites((): void => { this.runTriggersInObjects(name, value, keys); });
   }
+  // Forwards triggers to the questions of its rows or panels, so the survey always walks it
+  public canRunTriggers(): boolean {
+    return true;
+  }
   protected abstract runTriggersInObjects(name: string, value: any, keys: any): void;
   /* A write of a record by one of its questions. A question the respondent answers (hasInput) touches
      the record - and so does code that assigns it, setValueExpression and a trigger included: the

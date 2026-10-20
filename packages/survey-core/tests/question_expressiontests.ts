@@ -6,6 +6,12 @@ import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { ComponentCollection, QuestionCustomModel } from "../src/question_custom";
 import { FunctionFactory } from "../src/functionsfactory";
 import { settings } from "../src/settings";
+import { Question } from "../src/question";
+import { QuestionTextModel } from "../src/question_text";
+import { PanelModel } from "../src/panel";
+import { PageModel } from "../src/page";
+import { Serializer } from "../src/jsonobject";
+import { ElementFactory } from "../src/questionfactory";
 
 import { describe, test, expect, vi } from "vitest";
 describe("QuestionExpression", () => {
@@ -1280,5 +1286,353 @@ describe("Strict dependencies: which changes run a visibleIf", () => {
     expect(survey.getQuestionByName("q4").isVisible, "key m, name {M.row1}").toBe(true);
     survey.getQuestionByName("Fruits").renderedValue = ["apple"];
     expect(survey.getQuestionByName("q5").isVisible, "key Fruits, name {fruits-unwrapped}").toBe(true);
+  });
+});
+// The survey walks only the questions whose resetValueIf/setValueIf/setValueExpression (or a trigger
+// a subclass registers) can run, plus the questions that forward triggers to nested questions.
+// The list is built on the first walk, so every test changes a value first ("warm-up") and only then
+// changes the survey or a trigger property.
+describe("Question triggers: the survey walks only the questions that have them", () => {
+  const hasTriggers = (q: Question): boolean => !!q.resetValueIf || !!q.setValueIf || !!q.setValueExpression;
+  const spyRunTriggers = () => vi.spyOn(Question.prototype, "runTriggers");
+  const calledOn = (spy: any): Array<Question> => spy.mock.contexts as Array<Question>;
+
+  test("trigger properties set at runtime run", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "a" }, { type: "text", name: "q" }, { type: "text", name: "r" }]
+    });
+    const q = <Question>survey.getQuestionByName("q");
+    const r = <Question>survey.getQuestionByName("r");
+    survey.setValue("a", 0);
+    q.setValueIf = "{a} = 1";
+    q.setValueExpression = "'set'";
+    survey.setValue("a", 1);
+    expect(q.value, "setValueIf set at runtime").toBe("set");
+    r.resetValueIf = "{a} = 2";
+    r.value = "v";
+    survey.setValue("a", 2);
+    expect(r.isEmpty(), "resetValueIf set at runtime").toBe(true);
+  });
+  test("a question added at runtime runs its triggers", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "a" }] });
+    const page = survey.pages[0];
+    survey.setValue("a", 0);
+    const q2 = <Question>page.addNewQuestion("text", "q2");
+    q2.setValueIf = "{a} = 2";
+    q2.setValueExpression = "'set2'";
+    survey.setValue("a", 2);
+    expect(q2.value, "added, then its triggers set").toBe("set2");
+    const q3 = new QuestionTextModel("q3");
+    q3.setValueIf = "{a} = 3";
+    q3.setValueExpression = "'set3'";
+    page.addElement(q3);
+    survey.setValue("a", 3);
+    expect(q3.value, "triggers set, then added").toBe("set3");
+  });
+  test("a panel or a page added at runtime runs the triggers of its questions", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "a" }] });
+    survey.setValue("a", 0);
+    const panel = new PanelModel("panel1");
+    const pq = <Question>panel.addNewQuestion("text", "pq");
+    pq.setValueIf = "{a} = 1";
+    pq.setValueExpression = "'panel-set'";
+    survey.pages[0].addElement(panel);
+    survey.setValue("a", 1);
+    expect(pq.value, "question in an added panel").toBe("panel-set");
+    const page2 = new PageModel("page2");
+    const pq2 = <Question>page2.addNewQuestion("text", "pq2");
+    pq2.resetValueIf = "{a} = 2";
+    survey.addPage(page2);
+    pq2.value = "v";
+    survey.setValue("a", 2);
+    expect(pq2.isEmpty(), "question in an added page").toBe(true);
+  });
+  test("a question moved to another page runs its triggers", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "text", name: "a" }] },
+        { elements: [{ type: "text", name: "q", setValueIf: "{a} = 1", setValueExpression: "'moved'" }] }
+      ]
+    });
+    const q = <Question>survey.getQuestionByName("q");
+    survey.setValue("a", 0);
+    q.moveTo(survey.pages[0]);
+    expect(q.page, "moved to page 1").toBe(survey.pages[0]);
+    survey.setValue("a", 1);
+    expect(q.value, "moved question").toBe("moved");
+  });
+  test("a removed question, panel or page no longer runs its triggers", () => {
+    const json = {
+      pages: [
+        { elements: [{ type: "text", name: "a" },
+          { type: "text", name: "q", setValueIf: "{a} = 1", setValueExpression: "'set'" },
+          { type: "panel", name: "panel1", elements: [{ type: "text", name: "pq", setValueIf: "{a} = 1", setValueExpression: "'set'" }] }] },
+        { name: "page2", elements: [{ type: "text", name: "p2q", setValueIf: "{a} = 1", setValueExpression: "'set'" }] }
+      ]
+    };
+    const checkRemoved = (remove: (survey: SurveyModel) => void, name: string) => {
+      const survey = new SurveyModel(json);
+      const q = <Question>survey.getQuestionByName(name);
+      survey.setValue("a", 0);
+      remove(survey);
+      expect(survey.getAllQuestions().indexOf(q), name + " is removed").toBe(-1);
+      q.value = "own";
+      const spy = spyRunTriggers();
+      try {
+        survey.setValue("a", 1);
+        expect(calledOn(spy).indexOf(q), name + ": no runTriggers call").toBe(-1);
+      } finally {
+        spy.mockRestore();
+      }
+      expect(q.value, name + ": value stays as set").toBe("own");
+    };
+    checkRemoved(survey => survey.pages[0].removeElement(survey.getQuestionByName("q")), "q");
+    checkRemoved(survey => survey.pages[0].removeElement(survey.getPanelByName("panel1")), "pq");
+    checkRemoved(survey => survey.removePage(survey.getPageByName("page2")), "p2q");
+  });
+  test("a question whose triggers were cleared no longer runs them", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "a" }, { type: "text", name: "q", setValueIf: "{a} = 1", setValueExpression: "'set'" }]
+    });
+    const q = <Question>survey.getQuestionByName("q");
+    survey.setValue("a", 0);
+    q.setValueIf = "";
+    q.setValueExpression = "";
+    q.value = "kept";
+    const spy = spyRunTriggers();
+    try {
+      survey.setValue("a", 1);
+      expect(calledOn(spy).indexOf(q), "no runTriggers call after the clear").toBe(-1);
+    } finally {
+      spy.mockRestore();
+    }
+    expect(q.value, "the old condition is true").toBe("kept");
+  });
+  test("trigger properties loaded from JSON into a question in the survey run", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "a" }, { type: "text", name: "q" }] });
+    const q = <Question>survey.getQuestionByName("q");
+    survey.setValue("a", 0);
+    q.fromJSON({ name: "q", setValueIf: "{a} = 1", setValueExpression: "'json'" });
+    expect(q.setValueIf, "loaded").toBe("{a} = 1");
+    survey.setValue("a", 1);
+    expect(q.value).toBe("json");
+  });
+  test("a trigger in a dynamic panel template runs", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "a" },
+        { type: "paneldynamic", name: "pd", panelCount: 1,
+          templateElements: [{ type: "text", name: "t", setValueIf: "{a} = 1", setValueExpression: "'pd-set'" }] }]
+    });
+    survey.setValue("a", 1);
+    expect(survey.getQuestionByName("pd").value).toEqual([{ t: "pd-set" }]);
+  });
+  test("the questions with triggers run in the order of getAllQuestions()", () => {
+    const never = { setValueIf: "{a} = -1", setValueExpression: "'x'" };
+    const reset = { resetValueIf: "{a} = -1" };
+    const survey = new SurveyModel({
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "a" }, { type: "text", name: "x1" },
+          { type: "text", name: "t1", ...never }, { type: "text", name: "x2" }, { type: "text", name: "t2", ...reset }] },
+        { name: "page2", elements: [{ type: "text", name: "x3" }, { type: "text", name: "t3", ...reset },
+          { type: "panel", name: "panel1", elements: [{ type: "text", name: "t4", ...never }, { type: "text", name: "x4" }] },
+          { type: "text", name: "t5", ...never }] }
+      ]
+    });
+    let counter = 0;
+    const checkOrder = (reason: string) => {
+      const spy = spyRunTriggers();
+      try {
+        survey.setValue("a", ++counter);
+        const expected = survey.getAllQuestions().filter(q => hasTriggers(q)).map(q => q.name);
+        const actual = calledOn(spy).filter(q => hasTriggers(q)).map(q => q.name);
+        expect(actual, reason).toEqual(expected);
+      } finally {
+        spy.mockRestore();
+      }
+    };
+    checkOrder("initial");
+    checkOrder("warm-up done");
+    survey.getQuestionByName("t5").moveTo(survey.pages[0], 0);
+    checkOrder("t5 moved to the start of page 1");
+    survey.getQuestionByName("t1").moveTo(survey.getPanelByName("panel1"));
+    checkOrder("t1 moved into panel1");
+    const page2 = survey.pages[1];
+    survey.pages.splice(1, 1);
+    survey.pages.splice(0, 0, page2);
+    expect(survey.pages[0].name, "pages reordered").toBe("page2");
+    checkOrder("pages reordered");
+  });
+  test("the questions with triggers run in the order of getAllQuestions() after the questions are randomized", () => {
+    const elements: Array<any> = [{ type: "text", name: "a" }];
+    for (let i = 1; i <= 8; i++) {
+      elements.push({ type: "text", name: "t" + i, setValueIf: "{a} = -1", setValueExpression: "'x'" });
+    }
+    const survey = new SurveyModel({ pages: [{ name: "page1", questionOrder: "random", elements: elements }] });
+    const names = () => survey.getAllQuestions().map(q => q.name);
+    const checkOrder = (value: number, reason: string) => {
+      const spy = spyRunTriggers();
+      try {
+        survey.setValue("a", value);
+        const expected = survey.getAllQuestions().filter(q => hasTriggers(q)).map(q => q.name);
+        expect(calledOn(spy).filter(q => hasTriggers(q)).map(q => q.name), reason).toEqual(expected);
+      } finally {
+        spy.mockRestore();
+      }
+    };
+    checkOrder(1, "warm-up");
+    const oldOrder = names();
+    survey.randomSeed = 123456;
+    expect(names(), "the questions are reordered").not.toEqual(oldOrder);
+    checkOrder(2, "after randomSeed changed");
+  });
+  test("one value change runs only the questions in the list (instrumented)", () => {
+    const elements: Array<any> = [];
+    for (let i = 0; i < 200; i++) {
+      elements.push({ type: "text", name: "q" + i });
+    }
+    elements.push({ type: "text", name: "trigger1", setValueIf: "{q0} = -1", setValueExpression: "'x'" });
+    elements.push({ type: "paneldynamic", name: "pd", panelCount: 2, templateElements: [{ type: "text", name: "t" }] });
+    const survey = new SurveyModel({ elements: elements });
+    const countTopLevelCalls = (value: any): number => {
+      const spy = spyRunTriggers();
+      try {
+        survey.setValue("q0", value);
+        const all = survey.getAllQuestions();
+        return calledOn(spy).filter(q => all.indexOf(q) > -1).length;
+      } finally {
+        spy.mockRestore();
+      }
+    };
+    expect(countTopLevelCalls(1), "trigger1 and pd").toBe(2);
+    const added = <Question>survey.pages[0].addNewQuestion("text", "trigger2");
+    added.resetValueIf = "{q0} = -1";
+    expect(countTopLevelCalls(2), "trigger1, pd and trigger2").toBe(3);
+  });
+  test("a trigger registered by a subclass through addTriggerInfo runs", () => {
+    class QuestionCustomTriggerTextModel extends QuestionTextModel {
+      constructor(name: string) {
+        super(name);
+        this.addTriggerInfo({
+          name: "customIf",
+          canRun: (): boolean => true,
+          doComplete: (res: any): void => { if (res === true) { this.value = "custom"; } }
+        });
+      }
+      public getType(): string { return "customtriggertext"; }
+      public get customIf(): string { return this.getPropertyValue("customIf"); }
+      public set customIf(val: string) { this.setPropertyValue("customIf", val); }
+      public lateIf: string = "{a} = 3";
+      public addLateTrigger(): void {
+        this.addTriggerInfo({
+          name: "lateIf",
+          canRun: (): boolean => true,
+          doComplete: (res: any): void => { if (res === true) { this.value = "late"; } }
+        });
+      }
+    }
+    Serializer.addClass("customtriggertext", [{ name: "customIf:condition" }], () => new QuestionCustomTriggerTextModel(""), "text");
+    ElementFactory.Instance.registerElement("customtriggertext", (name: string) => new QuestionCustomTriggerTextModel(name));
+    try {
+      const survey = new SurveyModel({
+        elements: [{ type: "text", name: "a" },
+          { type: "customtriggertext", name: "c1", customIf: "{a} = 1" },
+          { type: "customtriggertext", name: "c2" }]
+      });
+      const c1 = <QuestionCustomTriggerTextModel>survey.getQuestionByName("c1");
+      const c2 = <QuestionCustomTriggerTextModel>survey.getQuestionByName("c2");
+      expect(c1.getType(), "the custom class is created").toBe("customtriggertext");
+      expect(hasTriggers(c1), "no built-in trigger").toBe(false);
+      survey.setValue("a", 1);
+      expect(c1.value, "customIf from JSON").toBe("custom");
+      expect(c2.isEmpty(), "c2 has no customIf").toBe(true);
+      c2.customIf = "{a} = 2";
+      survey.setValue("a", 2);
+      expect(c2.value, "customIf set at runtime").toBe("custom");
+      const c3 = <QuestionCustomTriggerTextModel>survey.pages[0].addNewQuestion("customtriggertext", "c3");
+      survey.setValue("a", 0);
+      c3.addLateTrigger();
+      survey.setValue("a", 3);
+      expect(c3.value, "trigger info registered at runtime").toBe("late");
+    } finally {
+      ElementFactory.Instance.unregisterElement("customtriggertext");
+      Serializer.removeClass("customtriggertext");
+    }
+  });
+  test("a trigger enabled on a later question during the walk runs in that walk", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "a" },
+        { type: "text", name: "q1", setValueIf: "{a} = 1", setValueExpression: "'first'" },
+        { type: "text", name: "q2" }]
+    });
+    const q2 = <Question>survey.getQuestionByName("q2");
+    survey.onValueChanged.add((_, options) => {
+      if (options.name === "q1") {
+        q2.setValueIf = "{a} = 1";
+        q2.setValueExpression = "'second'";
+      }
+    });
+    survey.setValue("a", 1);
+    expect(survey.getValue("q1"), "q1").toBe("first");
+    expect(q2.value, "q2 enabled by the q1 change").toBe("second");
+  });
+  // The walk rebuilds its list when the survey changes during it, so a question added after the current
+  // one runs and a removed one does not. A walk over the questions taken at its start did the opposite.
+  test("a question added during the walk after the current one runs in that walk", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "a" },
+        { type: "text", name: "q1", setValueIf: "{a} = 1", setValueExpression: "'first'" }]
+    });
+    let q3: Question;
+    survey.onValueChanged.add((_, options) => {
+      if (options.name === "q1") {
+        q3 = new QuestionTextModel("q3");
+        q3.setValueIf = "{a} = 1";
+        q3.setValueExpression = "'third'";
+        survey.pages[0].addElement(q3);
+      }
+    });
+    survey.setValue("a", 1);
+    expect(survey.getValue("q1"), "q1").toBe("first");
+    expect(q3.value, "q3 added by the q1 change").toBe("third");
+  });
+  test("a question removed during the walk after the current one does not run", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "a" },
+        { type: "text", name: "q1", setValueIf: "{a} = 1", setValueExpression: "'first'" },
+        { type: "text", name: "q2", setValueIf: "{a} = 1", setValueExpression: "'second'" },
+        { type: "text", name: "q3", setValueIf: "{a} = 1", setValueExpression: "'third'" }]
+    });
+    const q2 = <Question>survey.getQuestionByName("q2");
+    // onValueChanging: the nested walk the q1 change starts would run q2 before onValueChanged
+    survey.onValueChanging.add((_, options) => {
+      if (options.name === "q1") {
+        survey.pages[0].removeElement(q2);
+      }
+    });
+    survey.setValue("a", 1);
+    expect(survey.getValue("q1"), "q1").toBe("first");
+    expect(q2.isEmpty(), "q2 removed by the q1 change").toBe(true);
+    expect(survey.getValue("q3"), "q3 after the removed question").toBe("third");
+  });
+  test("the walk continues after the current question when the current question removes itself", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "a" },
+        { type: "text", name: "q1", setValueIf: "{a} = 1", setValueExpression: "'first'" },
+        { type: "text", name: "q2", setValueIf: "{a} = 1", setValueExpression: "'second'" }]
+    });
+    const q1 = <Question>survey.getQuestionByName("q1");
+    survey.onValueChanged.add((_, options) => {
+      if (options.name === "q1") {
+        survey.pages[0].removeElement(q1);
+      }
+    });
+    const spy = spyRunTriggers();
+    try {
+      survey.setValue("a", 1);
+      expect(calledOn(spy).filter(q => q.name === "q2").length > 0, "q2 runs").toBe(true);
+    } finally {
+      spy.mockRestore();
+    }
+    expect(survey.getValue("q2"), "q2 after the removed current question").toBe("second");
   });
 });

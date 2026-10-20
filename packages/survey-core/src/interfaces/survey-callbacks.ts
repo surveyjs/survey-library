@@ -58,6 +58,8 @@ export interface ISurveyElementLifecycle {
     oldName: string,
     oldValueName: string
   ): any;
+  // A trigger property of a question changed, or the question order changed without an add or a remove
+  questionTriggersChanged(): void;
   pageVisibilityChanged(page: IPage, newValue: boolean): any;
   panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
   questionVisibilityChanged(question: IQuestion, newValue: boolean, resetIndexes: boolean): any;

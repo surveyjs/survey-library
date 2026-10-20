@@ -316,14 +316,66 @@ export class ValueGetterContextCore implements IValueGetterContext {
   protected updateItemByIndex(index: number, res: IValueGetterInfo): void {}
 }
 
+// The rule by which a key answers a name ignoring letter case: the same lower-case form, and a first
+// character equal to the name's lower-case or locale upper-case first character. The key scan and
+// HashKeyIndex both apply it, so the two lookups cannot answer a name differently.
+function isKeyOfName(key: string, nameInLow: string, upperFirst: string): boolean {
+  const first = key[0];
+  return (first === nameInLow[0] || first === upperFirst) && key.toLowerCase() === nameInLow;
+}
+// A lookup used to scan every key of the hash for the one that answers a name. This index keeps the
+// keys under their lower-case form, in for...in order, so a lookup checks only the keys that can
+// answer it. The owner of the hash calls reset() whenever the hash gains or loses a key; the index
+// is built again on the next read. A read of another hash builds it again too, so a reader that
+// still holds a hash the owner has since replaced gets the answers of that hash.
+export class HashKeyIndex {
+  private keys: Map<string, Array<string>>;
+  private hash: HashTable<any>;
+  public reset(): void {
+    this.keys = undefined;
+    this.hash = undefined;
+  }
+  public getValue(hash: HashTable<any>, name: string): any {
+    if (!hash || !name) return undefined;
+    if (!this.keys || this.hash !== hash) {
+      this.keys = this.build(hash);
+      this.hash = hash;
+    }
+    const nameInLow = name.toLowerCase();
+    const keys = this.keys.get(nameInLow);
+    if (!keys) return undefined;
+    const upperFirst = name[0].toLocaleUpperCase();
+    for (let i = 0; i < keys.length; i++) {
+      if (isKeyOfName(keys[i], nameInLow, upperFirst)) return hash[keys[i]];
+    }
+    return undefined;
+  }
+  private build(hash: HashTable<any>): Map<string, Array<string>> {
+    const res = new Map<string, Array<string>>();
+    for (const key in hash) {
+      const keyInLow = key.toLowerCase();
+      const keys = res.get(keyInLow);
+      if (keys) {
+        keys.push(key);
+      } else {
+        res.set(keyInLow, [key]);
+      }
+    }
+    return res;
+  }
+}
+
 export class VariableGetterContext extends ValueGetterContextCore {
-  constructor(private variables: HashTable<any>) {
+  // rootLookup answers the names of the root object in place of the scan of its keys, with the
+  // scan's contract: undefined is not found. The members of a value found are still scanned.
+  constructor(private variables: HashTable<any>, private rootLookup?: (name: string) => any) {
     super();
   }
   protected getInitialvalue(): any { return this.variables; }
   protected isSearchNameRevert(): boolean { return true; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
-    const val = this.getValueByItemCore(res.value, name);
+    const isRoot = !!this.rootLookup && res.value === this.variables;
+    const val = isRoot ? this.rootLookup(name) : this.getValueByItemCore(res.value, name);
     res.isFound = val !== undefined;
     if (res.isFound) {
       res.value = val;
@@ -347,14 +399,9 @@ export class VariableGetterContext extends ValueGetterContextCore {
     const nameInLow = name.toLowerCase();
     if (name === "length" && (Array.isArray(obj) || typeof obj === "string")) return obj.length;
     if (typeof obj !== "object") return undefined;
-    let a = nameInLow[0];
-    let A = name[0].toLocaleUpperCase();
+    const upperFirst = name[0].toLocaleUpperCase();
     for (var key in obj) {
-      var first = key[0];
-      if (first === a || first === A) {
-        var keyName = key.toLowerCase();
-        if (keyName == nameInLow) return obj[key];
-      }
+      if (isKeyOfName(key, nameInLow, upperFirst)) return obj[key];
     }
     return undefined;
   }

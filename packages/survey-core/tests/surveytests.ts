@@ -2,6 +2,7 @@ import { Base } from "../src/base";
 import { SurveyElement } from "../src/survey-element";
 import { AnimationFrameQueue, mockRect, mockScrolledRect } from "./test-helpers";
 import { SurveyModel, DefaultTheme } from "../src/survey";
+import { ProcessValue } from "../src/conditions/conditionProcessValue";
 import { PageModel } from "../src/page";
 import { PanelModel, QuestionRowModel } from "../src/panel";
 import { ElementFactory, QuestionFactory } from "../src/questionfactory";
@@ -22180,6 +22181,28 @@ describe("Survey: Object.prototype member names and the __proto__ key", () => {
     expect(survey.getVariable("constructor")).toBeUndefined();
     expect(survey.getVariableNames()).toEqual([]);
     expect(survey.runCondition("{constructor} empty"), "an unknown name is empty in an expression").toBe(true);
+    ["constructor", "Constructor", "valueOf", "toString", "hasOwnProperty", "__proto__"].forEach((name: string) => {
+      expect(survey.runExpression("{" + name + "}"), "an unknown name is not found: " + name).toBeNull();
+    });
+    survey.dispose();
+  });
+  test("Expressions read data keys named after Object.prototype members, Bug#11858", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }, { type: "text", name: "constructor" }] });
+    survey.data = { valueOf: 1, toString: 2, q1: 3 };
+    expect(survey.runExpression("{valueOf}"), "valueOf").toBe(1);
+    expect(survey.runExpression("{VALUEOF}"), "valueOf, upper case").toBe(1);
+    expect(survey.runExpression("{toString}"), "toString").toBe(2);
+    expect(survey.runExpression("{tostring}"), "toString, lower case").toBe(2);
+    expect(survey.runExpression("{constructor}"), "the question has no value").toBeUndefined();
+    survey.setValue("constructor", 4);
+    expect(survey.runExpression("{constructor}"), "the question's value").toBe(4);
+    expect(survey.runExpression("{Constructor}"), "the question's value, another case").toBe(4);
+    survey.clearValue("constructor");
+    survey.pages[0].removeElement(survey.getQuestionByName("constructor"));
+    survey.setValue("constructor", 5);
+    expect(survey.runExpression("{constructor}"), "a data key without a question").toBe(5);
+    survey.clearValue("constructor");
+    expect(survey.runExpression("{constructor}"), "the deleted data key").toBeNull();
     survey.dispose();
   });
   test("Variables named after Object.prototype members, Bug#11858", () => {
@@ -22264,5 +22287,268 @@ describe("completing a survey builds nothing the respondent did not see", () => 
     expect(survey.tryComplete(), "#1").toBe(true);
     expect(survey.state, "#2").toBe("completed");
     expect(cells, "#3").toBe(0);
+  });
+});
+
+describe("Survey: expressions read values and variables by name, ignoring letter case", () => {
+  // Counts the key enumerations of one of the survey's hashes: a lookup that scans the hash
+  // enumerates its keys, a lookup that goes to the key directly does not. The proxy is a new hash
+  // object, so the first read after it is installed indexes the keys again; that one is not counted.
+  function watchKeyEnumerations(survey: SurveyModel, hashName: "valuesHash" | "variablesHash"): { count: number } {
+    const res = { count: 0 };
+    (<any>survey)[hashName] = new Proxy((<any>survey)[hashName], {
+      ownKeys(target: any) {
+        res.count++;
+        return Reflect.ownKeys(target);
+      }
+    });
+    survey.runExpression("{watchKeyEnumerations}");
+    res.count = 0;
+    return res;
+  }
+  // runExpression() answers null for a missing name and for a found empty value alike
+  function isFound(survey: SurveyModel, name: string): boolean {
+    return new ProcessValue(survey.getValueGetterContext()).hasValue(name);
+  }
+  function setWritingHooks(survey: SurveyModel): void {
+    survey.valueHashGetDataCallback = (valuesHash: any, key: string): any => valuesHash[key];
+    survey.valueHashSetDataCallback = (valuesHash: any, key: string, value: any): void => { valuesHash[key] = value; };
+    survey.valueHashDeleteDataCallback = (valuesHash: any, key: string): void => { delete valuesHash[key]; };
+  }
+  function setOwnStoreHooks(survey: SurveyModel): any {
+    const store: any = {};
+    survey.valueHashGetDataCallback = (_, key: string): any => store[key];
+    survey.valueHashSetDataCallback = (_, key: string, value: any): void => { store[key] = value; };
+    survey.valueHashDeleteDataCallback = (_, key: string): void => { delete store[key]; };
+    return store;
+  }
+
+  test("A question value and a variable are read in any letter case", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "Age" }] });
+    survey.setValue("Age", 30);
+    expect(survey.runCondition("{age} = 30"), "{age}").toBe(true);
+    expect(survey.runCondition("{AGE} = 30"), "{AGE}").toBe(true);
+    expect(survey.runCondition("{Age} = 30"), "{Age}").toBe(true);
+    survey.setVariable("MyVar", 5);
+    expect(survey.runCondition("{myvar} = 5"), "{myvar}").toBe(true);
+    expect(survey.runCondition("{MYVAR} = 5"), "{MYVAR}").toBe(true);
+    expect(survey.runCondition("{MyVar} = 5"), "{MyVar}").toBe(true);
+    survey.setVariable("obj", { Prop: 7 });
+    expect(survey.getVariable("OBJ.prop"), "getVariable walks into a variable").toBe(7);
+    expect(survey.getVariable("Obj.Missing"), "getVariable, a missing member").toBeUndefined();
+    survey.dispose();
+  });
+  test("Data keys that differ only in letter case: the first key in the hash answers both names", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    survey.data = { q: 1, Q: 2 };
+    expect(survey.runExpression("{q}"), "{q}").toBe(1);
+    expect(survey.runExpression("{Q}"), "{Q}").toBe(1);
+    survey.clearValue("q");
+    expect(survey.data, "the other key is left").toEqual({ Q: 2 });
+    expect(survey.runExpression("{q}"), "{q} after the first key is deleted").toBe(2);
+    expect(survey.runExpression("{Q}"), "{Q} after the first key is deleted").toBe(2);
+    survey.setValue("q", 3);
+    expect(survey.runExpression("{q}"), "{q}: the key added back is the second one").toBe(2);
+    expect(survey.runExpression("{Q}"), "{Q}: the key added back is the second one").toBe(2);
+    survey.dispose();
+  });
+  test("Data keys whose lower-case forms are equal: the first character of the key must match the name", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    // The Kelvin sign: its lower-case form is the Latin "k"
+    const kelvin = String.fromCharCode(0x212A);
+    survey.data = { [kelvin]: 1, "K": 2 };
+    expect(survey.runExpression("{k}"), "{k}").toBe(2);
+    expect(survey.runExpression("{K}"), "{K}").toBe(2);
+    expect(survey.runExpression("{" + kelvin + "}"), "{Kelvin sign}").toBe(1);
+    survey.dispose();
+  });
+  test("A data key with an undefined value is not found, and a data key named length is read", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    survey.setVariable("v", 1);
+    survey.setDataCore({ x: undefined, X: 2, length: 3 });
+    expect(survey.runExpression("{x}"), "the first key answers, its value is undefined").toBeNull();
+    expect(survey.runExpression("{X}"), "{X}, the same key").toBeNull();
+    expect(isFound(survey, "x"), "{x} is not found").toBe(false);
+    expect(isFound(survey, "X"), "{X} is not found").toBe(false);
+    expect(isFound(survey, "v"), "a variable is found").toBe(true);
+    expect(survey.runExpression("{length}"), "{length}").toBe(3);
+    expect(survey.runExpression("{LENGTH}"), "{LENGTH}").toBe(3);
+    survey.data = { a: 1 };
+    expect(survey.runExpression("{length}"), "{length} without the key").toBeNull();
+    expect(isFound(survey, "length"), "{length} without the key is not found").toBe(false);
+    survey.dispose();
+  });
+  test("Expressions follow the data keys as they are added, deleted and replaced", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    expect(survey.runExpression("{x}"), "#1 not found").toBeNull();
+    survey.setValue("x", 1);
+    expect(survey.runExpression("{x}"), "#2 setValue").toBe(1);
+    expect(survey.runExpression("{X}"), "#2 setValue, upper case").toBe(1);
+    survey.clearValue("x");
+    expect(survey.runExpression("{x}"), "#3 clearValue").toBeNull();
+    expect(isFound(survey, "x"), "#3 clearValue, not found").toBe(false);
+    survey.setValue("x", 2);
+    survey.data = { y: 3, Z: 4 };
+    expect(isFound(survey, "x"), "#4 the data setter drops the old key").toBe(false);
+    expect(survey.runExpression("{y}"), "#4 the data setter, a new key").toBe(3);
+    expect(survey.runExpression("{z}"), "#4 the data setter, a new key, lower case").toBe(4);
+    survey.mergeData({ w: 5 });
+    expect(survey.runExpression("{W}"), "#5 mergeData, a new key").toBe(5);
+    expect(survey.runExpression("{y}"), "#5 mergeData keeps the old keys").toBe(3);
+    survey.setDataCore({ v: 6 }, true);
+    expect(isFound(survey, "y"), "#6 setDataCore with clearData drops the old keys").toBe(false);
+    expect(survey.runExpression("{v}"), "#6 setDataCore with clearData, a new key").toBe(6);
+    survey.dispose();
+  });
+  test("A variable deletes the data key of the same name, and the other letter case is still read", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    survey.data = { x: 1, X: 2 };
+    expect(survey.runExpression("{x}"), "#1 the first key").toBe(1);
+    survey.setVariable("x", 3);
+    expect(survey.runExpression("{x}"), "#2 the variable").toBe(3);
+    expect(survey.data, "#2 the data key of the same name is deleted").toEqual({ X: 2 });
+    survey.setVariables({}, true);
+    expect(survey.getVariableNames(), "#3 no variables").toEqual([]);
+    expect(survey.runExpression("{x}"), "#3 {x} reads the key left").toBe(2);
+    expect(survey.runExpression("{X}"), "#3 {X} reads the key left").toBe(2);
+    survey.dispose();
+  });
+  test("Incorrect root keys are dropped from expressions too", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    survey.data = { q1: 1, extra: 2 };
+    expect(survey.runExpression("{extra}"), "#1").toBe(2);
+    survey.clearIncorrectValues(true);
+    expect(survey.data, "#2 data").toEqual({ q1: 1 });
+    expect(isFound(survey, "extra"), "#2 the dropped key").toBe(false);
+    expect(survey.runExpression("{q1}"), "#2 the kept key").toBe(1);
+    survey.dispose();
+  });
+  test("A context taken before the data is replaced still reads the data it was taken with", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    survey.data = { a: 1 };
+    const oldContext = survey.getValueGetterContext();
+    expect(new ProcessValue(oldContext).getValue("A"), "#1").toBe(1);
+    survey.data = { b: 2 };
+    expect(new ProcessValue(survey.getValueGetterContext()).getValue("B"), "#2 the new data").toBe(2);
+    expect(new ProcessValue(oldContext).getValue("a"), "#3 the old data").toBe(1);
+    expect(new ProcessValue(oldContext).hasValue("b"), "#3 the old data has no b").toBe(false);
+    expect(isFound(survey, "a"), "#4 the new data has no a").toBe(false);
+    expect(survey.runExpression("{b}"), "#4 the new data").toBe(2);
+    survey.dispose();
+  });
+  test("Expressions see the data keys written and deleted by value hash callbacks", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    setWritingHooks(survey);
+    expect(survey.runExpression("{a}"), "#1").toBeNull();
+    survey.setValue("a", "abc");
+    expect(survey.runExpression("{A}"), "#2 a new key").toBe("abc");
+    survey.setValue("a", "def");
+    expect(survey.runExpression("{a}"), "#3 a new value").toBe("def");
+    survey.clearValue("a");
+    expect(isFound(survey, "a"), "#4 a deleted key").toBe(false);
+    survey.dispose();
+  });
+  test("Value hash callbacks with a store of their own: questions are read, other keys are not", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const store = setOwnStoreHooks(survey);
+    survey.setValue("q1", 1);
+    survey.setValue("a", 2);
+    expect(store, "the store holds the values").toEqual({ q1: 1, a: 2 });
+    expect(survey.runExpression("{Q1}"), "a question reads its value through the callback").toBe(1);
+    expect(survey.runExpression("{a}"), "a key without a question is not in the values hash").toBeNull();
+    survey.dispose();
+  });
+  test("Dotted references to a question, a variable and a data key", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "name005" }] });
+    survey.setValue("name005", { "1": 2 });
+    survey.setVariable("a.b", 3);
+    survey.setValue("c.D", 4);
+    survey.setValue("e", { f: 5 });
+    expect(survey.runExpression("{name005.1}"), "a member of a question value").toBe(2);
+    expect(survey.runExpression("{a.b}"), "a variable with a dot in the name").toBe(3);
+    expect(survey.runExpression("{A.B}"), "a variable with a dot in the name, upper case").toBe(3);
+    expect(survey.runExpression("{c.d}"), "a data key with a dot in the name").toBe(4);
+    expect(survey.runExpression("{e.F}"), "a member of a data value").toBe(5);
+    expect(survey.runExpression("{e.g}"), "a missing member of a data value").toBeNull();
+    survey.dispose();
+  });
+  test("Reading the values hash does not enumerate its keys again until a key is added", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    for (let i = 0; i < 10; i++) survey.setValue("k" + i, i);
+    expect(survey.runExpression("{k1}"), "the first read").toBe(1);
+    const values = watchKeyEnumerations(survey, "valuesHash");
+    for (let i = 0; i < 1000; i++) {
+      expect(survey.runExpression("{K" + (i % 10) + "}")).toBe(i % 10);
+      expect(survey.runExpression("{missing" + i + "}")).toBeNull();
+    }
+    expect(values.count, "#1 reads of present and missing names").toBe(0);
+    for (let i = 0; i < 1000; i++) {
+      survey.setValue("k1", i + 100);
+      expect(survey.runExpression("{k1}")).toBe(i + 100);
+    }
+    expect(values.count, "#2 a new value under an existing key").toBe(0);
+    survey.setValue("newKey", 1);
+    expect(survey.runExpression("{newkey}")).toBe(1);
+    expect(values.count, "#3 a new key").toBe(1);
+    for (let i = 0; i < 1000; i++) expect(survey.runExpression("{newKey}")).toBe(1);
+    expect(values.count, "#4 reads after the new key").toBe(1);
+    survey.clearValue("newKey");
+    expect(survey.runExpression("{newkey}")).toBeNull();
+    expect(values.count, "#5 a deleted key").toBe(2);
+    survey.dispose();
+  });
+  test("Reading the values hash written by value hash callbacks does not enumerate its keys again until a key is added", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    setWritingHooks(survey);
+    for (let i = 0; i < 10; i++) survey.setValue("k" + i, i);
+    expect(survey.runExpression("{k1}"), "the first read").toBe(1);
+    const values = watchKeyEnumerations(survey, "valuesHash");
+    for (let i = 0; i < 1000; i++) {
+      survey.setValue("k1", i + 100);
+      expect(survey.runExpression("{k1}")).toBe(i + 100);
+    }
+    expect(values.count, "#1 a new value under an existing key").toBe(0);
+    survey.setValue("newKey", 1);
+    for (let i = 0; i < 1000; i++) expect(survey.runExpression("{newkey}")).toBe(1);
+    expect(values.count, "#2 a new key").toBe(1);
+    survey.dispose();
+  });
+  test("Value hash callbacks with a store of their own leave the values hash alone: no enumeration", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    setOwnStoreHooks(survey);
+    expect(survey.runExpression("{k1}"), "the first read").toBeNull();
+    const values = watchKeyEnumerations(survey, "valuesHash");
+    for (let i = 0; i < 1000; i++) {
+      survey.setValue("k" + (i % 10), i + 1);
+      survey.setValue("q1", i + 1);
+      expect(survey.runExpression("{k1}")).toBeNull();
+      expect(survey.runExpression("{q1}")).toBe(i + 1);
+    }
+    survey.clearValue("k1");
+    expect(survey.runExpression("{k1}")).toBeNull();
+    expect(values.count).toBe(0);
+    survey.dispose();
+  });
+  test("Reading the variables hash never enumerates its keys", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    for (let i = 0; i < 10; i++) survey.setVariable("V" + i, i);
+    survey.setVariable("obj", { prop: 1 });
+    survey.setValue("q1", 1);
+    const variables = watchKeyEnumerations(survey, "variablesHash");
+    for (let i = 0; i < 1000; i++) {
+      expect(survey.runExpression("{v" + (i % 10) + "}")).toBe(i % 10);
+      expect(survey.runExpression("{q1}"), "a question name is looked up in the variables first").toBe(1);
+      expect(survey.getVariable("obj.prop"), "getVariable walks into a variable").toBe(1);
+    }
+    expect(variables.count, "#1 reads").toBe(0);
+    for (let i = 0; i < 1000; i++) {
+      survey.setVariable("v1", i + 100);
+      expect(survey.runExpression("{V1}")).toBe(i + 100);
+    }
+    expect(variables.count, "#2 a new value under an existing name").toBe(0);
+    survey.setVariable("newVar", 1);
+    expect(survey.runExpression("{newvar}")).toBe(1);
+    expect(variables.count, "#3 a new name").toBe(0);
+    survey.dispose();
   });
 });

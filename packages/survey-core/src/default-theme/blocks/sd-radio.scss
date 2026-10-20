@@ -9,6 +9,18 @@
   box-shadow: var(--sjs2-border-effect-component-radio-false-default);
 }
 
+// TalkBack outlines the native input, so it lies over the decorator instead of being a 1px dot
+.sd-selectbase__label > .sd-radio__control {
+  font: inherit;
+  inset-inline-start: 0;
+  top: calc(calc(1lh - var(--sjs2-size-component-radio-box)) / 2 + var(--sjs2-layout-component-labeled-item-box-padding-vertical));
+  width: var(--sjs2-size-component-radio-box);
+  height: var(--sjs2-size-component-radio-box);
+  margin: 0;
+  clip: auto;
+  opacity: 0;
+}
+
 .sd-radio__svg {
   display: block;
   width: var(--sjs2-size-component-radio-icon);

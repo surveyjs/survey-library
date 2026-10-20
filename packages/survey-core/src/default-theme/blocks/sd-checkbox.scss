@@ -9,6 +9,18 @@
   box-shadow: var(--sjs2-border-effect-component-checkbox-false-default);
 }
 
+// TalkBack outlines the native input, so it lies over the decorator instead of being a 1px dot
+.sd-selectbase__label > .sd-checkbox__control {
+  font: inherit;
+  inset-inline-start: 0;
+  top: calc(calc(1lh - var(--sjs2-size-component-checkbox-box)) / 2 + var(--sjs2-layout-component-labeled-item-box-padding-vertical));
+  width: var(--sjs2-size-component-checkbox-box);
+  height: var(--sjs2-size-component-checkbox-box);
+  margin: 0;
+  clip: auto;
+  opacity: 0;
+}
+
 .sd-checkbox__svg {
   display: block;
   width: var(--sjs2-size-component-checkbox-icon);

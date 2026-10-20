@@ -445,6 +445,13 @@ export var settings = {
   // MERGE(V3): default is `true` in V3, `false` in master (V2). Keep V3's `true` (and the
   // matching doc lines above) on merge; discard master's `@since 2.5.27` doc variant.
   expressionQuestionTrackDependencies: true,
+  /**
+   * Specifies whether [calculated values](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#calculated-values) recalculate only when their dependencies change.
+   *
+   * - `true` (default) - Recalculate on the initial run, when all expressions are re-evaluated, when the calculated value's expression or owner changes, and on a value change that affects a value or variable the expression references. Expressions with parameterless functions still recalculate on every value change. A custom function with parameters that reads other survey values by itself (for example, `this.survey.getValue(...)`) does not trigger recalculation when only those other values change.
+   * - `false` - Recalculate on every value change in the survey.
+   */
+  calculatedValueTrackDependencies: true,
   get commentPrefix(): string { return settings.commentSuffix; },
   set commentPrefix(val: string) { settings.commentSuffix = val; },
   /**

@@ -1240,3 +1240,45 @@ describe("QuestionExpression", () => {
     expect(q.value, "the expression is not run in the design mode").toBeFalsy();
   });
 });
+// visibleIf is registered with strict dependencies: it runs only when a value or variable it uses
+// changed. These cover the references that never appear in the changed keys as written.
+describe("Strict dependencies: which changes run a visibleIf", () => {
+  test("a built-in variable {correctanswers} counts as changed", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", correctAnswer: "a" },
+        { type: "text", name: "q2", visibleIf: "{correctanswers} = 1" }
+      ]
+    });
+    const q2 = survey.getQuestionByName("q2");
+    expect(q2.isVisible, "nothing answered").toBe(false);
+    survey.setValue("q1", "a");
+    expect(q2.isVisible, "q1 is correct").toBe(true);
+    survey.setValue("q1", "b");
+    expect(q2.isVisible, "q1 is wrong").toBe(false);
+  });
+  test("names and changed keys are compared case-insensitively", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "Age" },
+        { type: "text", name: "q2", visibleIf: "{age} > 1" },
+        { type: "text", name: "age2" },
+        { type: "text", name: "q3", visibleIf: "{AGE2} > 1" },
+        { type: "matrix", name: "m", columns: ["a", "b"], rows: ["row1", "row2"] },
+        { type: "text", name: "q4", visibleIf: "{M.row1} = 'b'" },
+        { type: "checkbox", name: "Fruits", choices: ["apple", "banana"], valuePropertyName: "fruit" },
+        { type: "text", name: "q5", visibleIf: "{fruits-unwrapped} contains 'apple'" }
+      ]
+    });
+    survey.setValue("Age", 30);
+    expect(survey.getQuestionByName("q2").isVisible, "key Age, name {age}").toBe(true);
+    survey.setValue("age2", 40);
+    expect(survey.getQuestionByName("q3").isVisible, "key age2, name {AGE2}").toBe(true);
+    survey.setValue("m", { row2: "a" });
+    expect(survey.getQuestionByName("q4").isVisible, "key m, another row").toBe(false);
+    survey.setValue("m", { row2: "a", row1: "b" });
+    expect(survey.getQuestionByName("q4").isVisible, "key m, name {M.row1}").toBe(true);
+    survey.getQuestionByName("Fruits").renderedValue = ["apple"];
+    expect(survey.getQuestionByName("q5").isVisible, "key Fruits, name {fruits-unwrapped}").toBe(true);
+  });
+});

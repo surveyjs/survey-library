@@ -39,6 +39,7 @@ import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { HashKeyIndex, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { getBuiltInVariableNames, getBuiltInVariableValue } from "./conditions/builtInVariables";
 import { getLocaleString, surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
@@ -127,31 +128,8 @@ function createVariablesContext(variablesHash: HashTable<any>): VariableGetterCo
   });
 }
 
-// The variables a survey answers by itself. They are declared nowhere in the survey
-// JSON and resolve before any question, calculated value or variable of the same name.
-// This table is the single source of truth for the list: tools read the names from it
-// (getBuiltInVariableNames) instead of keeping their own copy.
-// A Map, not an object literal: the key is an arbitrary name taken from an expression
-// and must not hit Object.prototype ("constructor", ...).
-const builtInVariables = new Map<string, (survey: SurveyModel) => any>([
-  ["pageno", (survey: SurveyModel): any => {
-    const page = survey.currentPage;
-    return page != null ? survey.visiblePages.indexOf(page) + 1 : 0;
-  }],
-  ["pagecount", (survey: SurveyModel): any => survey.visiblePageCount],
-  ["questioncount", (survey: SurveyModel): any => survey.getQuizQuestionCount()],
-  ["correctedanswers", (survey: SurveyModel): any => survey.getCorrectedAnswerCount()],
-  ["correctanswers", (survey: SurveyModel): any => survey.getCorrectedAnswerCount()],
-  ["correctedanswercount", (survey: SurveyModel): any => survey.getCorrectedAnswerCount()],
-  ["incorrectedanswers", (survey: SurveyModel): any => survey.getInCorrectedAnswerCount()],
-  ["incorrectanswers", (survey: SurveyModel): any => survey.getInCorrectedAnswerCount()],
-  ["incorrectedanswercount", (survey: SurveyModel): any => survey.getInCorrectedAnswerCount()],
-  ["locale", (survey: SurveyModel): any => survey.locale || surveyLocalization.defaultLocale],
-]);
-
-export function getBuiltInVariableNames(): Array<string> {
-  return Array.from(builtInVariables.keys());
-}
+// The built-in variables live in their own module; the name list stays exported from here
+export { getBuiltInVariableNames };
 
 class SurveyValueGetterContext extends ValueGetterContextCore {
   constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>, private valuesKeyIndex: HashKeyIndex) {
@@ -161,7 +139,7 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
     if (path.length === 1) {
-      const val: any = this.getBuiltInVariableValue(path[0].name);
+      const val: any = getBuiltInVariableValue(this.survey, path[0].name);
       if (val !== undefined) return { value: val, isFound: true };
     }
     if (params.isProperty && path.length > 1) {
@@ -218,11 +196,6 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
     }
   }
   protected isSearchNameRevert(): boolean { return true; }
-  private getBuiltInVariableValue(name: string): any {
-    const func = builtInVariables.get(name.toLocaleLowerCase());
-    return !!func ? func(this.survey) : undefined;
-  }
-
 }
 
 // One entry of getRunningAsyncOperations(): which mechanism is still running and on which object.

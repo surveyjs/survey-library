@@ -1144,12 +1144,12 @@ export class Base implements IObjectValueContext {
     if (!keys) return false;
     return this.canSkipExpressionByKeys(this.getExpressionByProperty(propName), keys);
   }
-  protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[]): boolean {
+  protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[], isClearedKeyChanged?: boolean): boolean {
     if (!keys) return false;
     if (!!runner && runner.hasFunction(true)) return false;
     if (vars === undefined) vars = !!runner ? runner.getVariables() : [];
     if (!Array.isArray(vars) || vars.length === 0) return false;
-    return !new ValueGetter().isAnyKeyChanged(keys, vars);
+    return !new ValueGetter().isAnyKeyChanged(keys, vars, isClearedKeyChanged);
   }
   private asynExpressionHash: any;
   private doBeforeAsynRun(id: number): void {

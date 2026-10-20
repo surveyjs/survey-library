@@ -1,6 +1,7 @@
 import { IQuestion } from "../base-interfaces";
 import { Helpers, HashTable } from "../helpers";
 import { settings } from "../settings";
+import { isBuiltInVariableName } from "./builtInVariables";
 
 export interface IValueGetterItem {
   name: string;
@@ -106,52 +107,79 @@ export class ValueGetter {
   public getDisplayValue(name: string, context: IValueGetterContext, isDisplayValue: boolean = true): string {
     return this.getValue(name, context, true, isDisplayValue);
   }
-  public isAnyKeyChanged(keys: any, usedNames: string[]): boolean {
+  // isClearedKeyChanged: a path under a key whose value has been cleared ({m.row1} for a cleared m)
+  // counts as changed. Elements leave it off: a matrix cell expression re-run while a handler clears
+  // the matrix writes its result back into the cleared rows.
+  public isAnyKeyChanged(keys: any, usedNames: string[], isClearedKeyChanged?: boolean): boolean {
     const propPrefix = settings.expressionElementPropertyPrefix;
+    // Names are case-insensitive in expressions ({age} reads the question "Age"), so the keys are
+    // matched by their lower-case form, in both directions. Built when the first name needs it.
+    let lowerKeys: HashTable<Array<string>>;
     for (var i = 0; i < usedNames.length; i++) {
       const name = usedNames[i];
       if (!name) continue;
       // An element property reference ({$q1.isVisible}) can change without any value key change
       if (!!propPrefix && name[0] === propPrefix) return true;
+      const path = this.getPath(name);
+      // A built-in variable ({pageno}, {correctanswers}, ...) is never a key, but its value can change
+      // in any value-change run. It resolves for a one-item path only, the way the survey reads it.
+      if (path.length === 1 && isBuiltInVariableName(path[0].name)) return true;
+      if (!lowerKeys) lowerKeys = this.getLowerCaseKeys(keys);
       const lowerName = name.toLowerCase();
-      if (hasOwnKey(keys, name)) return true;
-      if (name !== lowerName && hasOwnKey(keys, lowerName)) return true;
-      if (this.isUnwrappedNameChanged(keys, name)) return true;
-      const firstName = this.getFirstNameByKeys(keys, name);
-      if (!firstName) continue;
-      if (name === firstName) return true;
-      const keyValue = keys[firstName];
-      if (keyValue == undefined) continue;
-      if (
-        !hasOwnKey(keyValue, "oldValue") ||
-        !hasOwnKey(keyValue, "newValue")
-      )
-        return true;
-      const v: any = {};
-      v[firstName] = keyValue["oldValue"];
-      var oldValue = this.getValueFromObject(v, name);
-      v[firstName] = keyValue["newValue"];
-      var newValue = this.getValueFromObject(v, name);
-      if (!Helpers.isTwoValueEquals(oldValue, newValue, false, false, false)) return true;
+      if (!!lowerKeys[lowerName]) return true;
+      if (this.isUnwrappedNameChanged(lowerKeys, path)) return true;
+      const prefix = this.getFirstNameByKeys(lowerKeys, path);
+      if (!prefix) continue;
+      if (lowerName === prefix) return true;
+      const keyNames = lowerKeys[prefix];
+      for (let j = 0; j < keyNames.length; j++) {
+        if (this.isKeyValueChanged(keys, keyNames[j], name, isClearedKeyChanged)) return true;
+      }
     }
     return false;
   }
-  private isUnwrappedNameChanged(keys: any, name: string): boolean {
+  // Every key under its lower-case form. Two keys that differ in case only share one entry.
+  private getLowerCaseKeys(keys: any): HashTable<Array<string>> {
+    const res: HashTable<Array<string>> = Object.create(null);
+    for (const key in keys) {
+      if (!hasOwnKey(keys, key)) continue;
+      const lowerKey = key.toLowerCase();
+      if (!res[lowerKey]) res[lowerKey] = [];
+      res[lowerKey].push(key);
+    }
+    return res;
+  }
+  // Whether the part of the key's value that the name points to ({m.row1} in the key "m") changed.
+  // The key's own oldValue/newValue are read, whatever the letter case of the name.
+  private isKeyValueChanged(keys: any, keyName: string, name: string, isClearedKeyChanged: boolean): boolean {
+    const keyValue = keys[keyName];
+    if (keyValue == undefined) return !!isClearedKeyChanged;
+    if (
+      !hasOwnKey(keyValue, "oldValue") ||
+      !hasOwnKey(keyValue, "newValue")
+    )
+      return true;
+    const v: any = {};
+    v[keyName] = keyValue["oldValue"];
+    var oldValue = this.getValueFromObject(v, name);
+    v[keyName] = keyValue["newValue"];
+    var newValue = this.getValueFromObject(v, name);
+    return !Helpers.isTwoValueEquals(oldValue, newValue, false, false, false);
+  }
+  private isUnwrappedNameChanged(lowerKeys: HashTable<Array<string>>, path: Array<IValueGetterItem>): boolean {
     const postfix = settings.expressionVariables.unwrapPostfix;
     if (!postfix) return false;
-    const first = this.getPath(name)[0].name;
+    const first = path[0].name;
     if (!first.endsWith(postfix)) return false;
     const baseName = first.substring(0, first.length - postfix.length);
-    return hasOwnKey(keys, baseName) || hasOwnKey(keys, baseName.toLowerCase());
+    return !!lowerKeys[baseName.toLowerCase()];
   }
-  private getFirstNameByKeys(keys: any, name: string): string {
-    const path = this.getPath(name);
+  // The shortest path prefix ("m" for "m.row1") that is a key, in lower case
+  private getFirstNameByKeys(lowerKeys: HashTable<Array<string>>, path: Array<IValueGetterItem>): string {
     let res = "";
     for (let i = 0; i < path.length; i++) {
-      res += (i > 0 ? "." : "") + path[i].name;
-      if (hasOwnKey(keys, res)) return res;
-      const lowerRes = res.toLowerCase();
-      if (lowerRes !== res && hasOwnKey(keys, lowerRes)) return lowerRes;
+      res += (i > 0 ? "." : "") + path[i].name.toLowerCase();
+      if (!!lowerKeys[res]) return res;
     }
     return "";
   }

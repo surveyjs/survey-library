@@ -1531,22 +1531,34 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         clearRows: (): void => this.clearGeneratedRows(),
         isUpdateLocked: (): boolean => this.isUpdateLocked,
         isPagingActive: (): boolean => this.isPagingActive,
+        canAppendAddedRow: (): boolean => this.canAppendAddedRow(),
         getVisibleRows: (): Array<MatrixDropdownRowModelBase> => this.visibleRows
       });
     }
     return this.renderedTableHostValue;
   }
-  // Survey Creator sets it directly around an add (logic-ui.ts): it stays readable and writable here.
+  // The rows of a matrix that pages are a page: the base cannot tell that the added row is its last one.
+  protected canAppendAddedRow(): boolean {
+    return !this.isPagingActive;
+  }
+  /* Survey Creator sets it directly around an add (logic-ui.ts): it stays readable and writable here.
+     Released, it resets a table whose rows were disposed while it was locked: a paged value assignment
+     that rebuilt the page ends with no add or remove that would. */
   private get lockResetRenderedTable(): boolean {
     return this.renderedTableHost.isResetLocked;
   }
   private set lockResetRenderedTable(val: boolean) {
-    this.renderedTableHost.isResetLocked = val;
+    if (val) {
+      this.renderedTableHost.isResetLocked = true;
+    } else {
+      this.renderedTableHost.releaseResetLock();
+    }
   }
-  // The callers end an add or a remove with this in a finally: a handler that throws between
-  // onStartRowAddingRemoving and its end does not leave the rendered table locked.
+  /* The callers end an add or a remove with this in a finally: a handler that throws between
+     onStartRowAddingRemoving and its end does not leave the rendered table locked. It only clears the
+     lock: onEndRowAdding / onEndRowRemoving, called right after it, check the table themselves. */
   protected unlockResetRenderedTable(): void {
-    this.lockResetRenderedTable = false;
+    this.renderedTableHost.isResetLocked = false;
   }
   protected onStartRowAddingRemoving() {
     this.renderedTableHost.onStartRowAddingRemoving();
@@ -1569,6 +1581,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.clearVisibleRows();
     this.clearDesignRow();
     if (!this.generatedVisibleRows) return;
+    this.renderedTableHost.onRowsDisposed();
     this.keepDetailPanelPageStates(this.generatedVisibleRows);
     this.generatedVisibleRows.forEach((row: MatrixDropdownRowModelBase): void => { this.disposeRow(row); });
     this.generatedVisibleRows = null;

@@ -8,6 +8,7 @@ function createTable(): any {
   const table: any = { isDisposed: false, isRequireResetValue: false, log: [] };
   table.requireReset = () => { table.isRequireResetValue = true; table.log.push("requireReset"); };
   table.isRequireReset = () => table.isRequireResetValue;
+  table.isResetRequested = () => table.isRequireResetValue;
   table.onAddedRow = (row: any, index: number) => table.log.push("added:" + row + ":" + index);
   table.onRemovedRow = (row: any) => table.log.push("removed:" + row);
   table.updateShowTable = () => table.log.push("updateShowTable");
@@ -27,6 +28,7 @@ function createHost(): { host: MatrixRenderedTableHost, state: any } {
     clearRows: () => { state.cleared++; },
     isUpdateLocked: () => state.updateLocked,
     isPagingActive: () => state.paging,
+    canAppendAddedRow: () => !state.paging,
     getVisibleRows: () => state.rows
   });
   return { host, state };
@@ -71,6 +73,27 @@ describe("MatrixRenderedTableHost", () => {
     host.table.requireReset();
     host.onEndRowAdding();
     expect(state.resets, "#4: a table that needs a reset").toBe(2);
+  });
+  test("rows disposed while the reset is locked mark the table; the external release resets a marked table only", () => {
+    const { host, state } = createHost();
+    host.onRowsDisposed();
+    expect(state.created, "#1: no table, nothing is created").toBe(0);
+    const table = host.table;
+    host.onRowsDisposed();
+    expect(table.log, "#2: not locked, the reset that follows does it").toEqual([]);
+    host.isResetLocked = true;
+    host.reset();
+    host.releaseResetLock();
+    expect([host.isResetLocked, host.isCreated, state.resets], "#3: a routine reset under the lock stays skipped").toEqual([false, true, 0]);
+    host.isResetLocked = true;
+    host.onRowsDisposed();
+    expect(table.log, "#4: marked").toEqual(["requireReset"]);
+    host.releaseResetLock();
+    expect([host.isResetLocked, host.isCreated, state.resets], "#5: reset on release").toEqual([false, false, 1]);
+    const next = host.table;
+    state.updateLocked = true;
+    host.onRowsDisposed();
+    expect(next.log, "#6: an update lock marks too").toEqual(["requireReset"]);
   });
   test("the end of a row remove takes the row out, or resets a table that needs it or pages", () => {
     const { host, state } = createHost();

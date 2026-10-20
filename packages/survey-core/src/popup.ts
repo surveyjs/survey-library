@@ -74,7 +74,7 @@ export interface IConfirmDialogOptions {
 }
 
 export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
-  public setWidthByTarget: boolean;
+  public setWidthByTarget: boolean | "fit-content" = false;
   public focusFirstInputSelector = "";
   public locale: string;
   public onCancel: () => void = () => { };

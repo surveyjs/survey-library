@@ -10,7 +10,9 @@ import { DynamicDataSourceChannel, IDynamicDataChannelHost, IDynamicDataPushInfo
 import { getChangedFields, isRecordValueChanged, toReadResult } from "./dynamic-data-records";
 import { IPendingInsert, getOwnedFields, getUpdatePayload, mergeInsertAnswer } from "./dynamic-data-pending-insert";
 import { DynamicDataCount } from "./dynamic-data-count";
-import { ArrayDynamicDataSource, hasFixedMembership, isLocalSource, LocalDynamicDataSource } from "./dynamic-data-sources";
+import { ArrayDynamicDataSource, isLocalSource, LocalDynamicDataSource } from "./dynamic-data-sources";
+import { DynamicDataSourceBinding } from "./dynamic-data-source-binding";
+import { DynamicDataWriteScope } from "./dynamic-data-write-scope";
 import { DynamicDataMembership } from "./dynamic-data-membership";
 import { DynamicDataReadState } from "./dynamic-data-read-state";
 import { DynamicDataRecordVisibility, IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data-record-visibility";
@@ -48,6 +50,12 @@ export class DynamicDataList {
   private _pageIndex: number = 0;
   private isDisposed: boolean = false;
   private onWriterChanged = (): void => { if (!!this.owner && !!this.owner.onSourceWriterChanged)this.owner.onSourceWriterChanged(); };
+  // The default and the assigned source, and what the source in use may be sent (dynamic-data-source-binding.ts).
+  private binding: DynamicDataSourceBinding = new DynamicDataSourceBinding(this, {
+    getSource: (): IDynamicDataSource => this._source,
+    setSource: (source: IDynamicDataSource): void => { this.source = source; },
+    onWriterChanged: this.onWriterChanged
+  });
   // The reads, the push chain and the pending inserts: everything that orders the requests to the
   // source (see the header of dynamic-data-channel.ts).
   private channel: DynamicDataSourceChannel = new DynamicDataSourceChannel(this.createChannelHost());
@@ -67,10 +75,16 @@ export class DynamicDataList {
   private view: DynamicDataView = new DynamicDataView((error: any): void => this.raiseError(error, "read"));
   // What the window in force is and how it was read (dynamic-data-read-state.ts).
   private readState: DynamicDataReadState = new DynamicDataReadState(this.view);
-  /* Active while the list applies a write of its own. A write-through source assigns the owner's
-     storage, and an owner that reports an assignment made meanwhile through invalidateViews() is
-     ignored: the membership must not be re-evaluated by the very write that maintains it. */
-  private writeScope: Scope = new Scope();
+  // The write transaction: its scopes, the window it started with, the reset it owes (dynamic-data-write-scope.ts).
+  private writes: DynamicDataWriteScope = new DynamicDataWriteScope({
+    getWindowRecords: (): Array<any> => this.windowRecords,
+    getSource: (): IDynamicDataSource => this._source,
+    isAssignedSourceInUse: (): boolean => this.binding.isAssignedSourceInUse,
+    isWindowWholeStorage: (): boolean => this.isWindowWholeStorage,
+    takeListenerError: (): { error: any } => this.channel.takeListenerError(),
+    onWriteEnded: (): void => { if (!this.isDisposed && !!this.owner && !!this.owner.onWriteEnded)this.owner.onWriteEnded(); },
+    raiseChanged: (change: IDynamicDataListChange): void => this.raiseChanged(change)
+  });
 
   public onChanged: (change: IDynamicDataListChange) => void;
   public onError: (error: any, operation: DynamicDataErrorOperation) => void;
@@ -95,8 +109,7 @@ export class DynamicDataList {
   public static createReadThrough(owner: IDynamicDataOwner, createSource: () => LocalDynamicDataSource): DynamicDataList {
     const source = createSource();
     const list = new DynamicDataList(source, owner);
-    list.createDefaultSource = createSource;
-    list.defaultSource = source;
+    list.binding.setDefaultSource(createSource, source);
     list.isReadThroughValue = true;
     // The owner materializes one object per record in the view: its membership may not change under
     // an edit that is being made through one of those objects.
@@ -104,67 +117,11 @@ export class DynamicDataList {
     list.load();
     return list;
   }
-  private createDefaultSource: () => IDynamicDataSource;
-  // The source createDefaultSource built last: the owner's own storage.
-  private defaultSource: IDynamicDataSource;
-  private assignedSourceValue: IDynamicDataSource;
-  /* The owner defines its records (isMembershipFixed): any other source would replace them. Refused
-     before anything changes. */
-  private checkSourceReplaceable(): void {
-    if (this.isMembershipFixed) throw new Error("DynamicDataList: the owner defines the records, the source cannot be replaced.");
-  }
   // The source the developer assigned (question.dataSource); undefined while the default one is used.
-  public get assignedSource(): IDynamicDataSource {
-    return this.assignedSourceValue;
-  }
-  // A source is remote because it was assigned, never because of its type or because it pages.
-  public get isRemote(): boolean {
-    return !!this.assignedSourceValue;
-  }
-  /* The owner's swap: undefined goes back to the default source. The flag is stored first, then
-     onAssigning runs, then the source is swapped: the owner reads isRemote inside onAssigning and
-     inside the notifications the swap raises. A list without a default source (a standalone one)
-     keeps its source on a detach - there is nothing to go back to - and only the flag changes.
-     An onAssigning that throws rolls the flag and the writer claims back. A list that wrote the new
-     source before was told it lost it (claimPositionWriter), and the rollback cannot undo that. */
-  public assignSource(source: IDynamicDataSource, onAssigning?: () => void): void {
-    const newValue = source || undefined;
-    // An in-memory source is written by its last assignment only, the same one again included (LocalDynamicDataSource.positionWriter).
-    if (this.assignedSourceValue === newValue) {
-      if (isLocalSource(newValue)) newValue["claimPositionWriter"](this, this.onWriterChanged);
-      return;
-    }
-    this.checkSourceReplaceable();
-    const oldValue = this.assignedSourceValue;
-    this.movePositionWriter(oldValue, newValue);
-    this.assignedSourceValue = newValue;
-    try {
-      if (!!onAssigning) onAssigning();
-    } catch(e) {
-      this.movePositionWriter(newValue, oldValue);
-      this.assignedSourceValue = oldValue;
-      throw e;
-    }
-    if (!!newValue) {
-      this.source = newValue;
-    } else if (!!this.createDefaultSource) {
-      this.defaultSource = this.createDefaultSource();
-      this.source = this.defaultSource;
-    }
-  }
-  private movePositionWriter(from: IDynamicDataSource, to: IDynamicDataSource): void {
-    if (isLocalSource(from)) from["releasePositionWriter"](this);
-    if (isLocalSource(to)) to["claimPositionWriter"](this, this.onWriterChanged);
-  }
-  /* A write to the owner's own storage - its default source, never the assigned one - fails only when
-     the code behind the owner's setter throws, and that exception is the caller's. Every other
-     source's failure is reported (onError). A role, not a class: a standalone list has no default
-     source, so all of its sources report. The isLocalSource tests elsewhere in the list (hasCapability,
-     useReadThrough, getIsAssignedArrayInSync, restoreWindowToStorage, syncWindowAfterSyncPush) ask
-     another question - does the source answer synchronously and is it written by index - and stay. */
-  private isOwnStorage(source: IDynamicDataSource): boolean {
-    return !!source && source === this.defaultSource && source !== this.assignedSourceValue;
-  }
+  public get assignedSource(): IDynamicDataSource { return this.binding.assignedSource; }
+  public get isRemote(): boolean { return this.binding.isRemote; }
+  // The owner's swap: undefined goes back to the default source (DynamicDataSourceBinding.assignSource).
+  public assignSource(source: IDynamicDataSource, onAssigning?: () => void): void { this.binding.assignSource(source, onAssigning); }
 
   // An owner whose source reads and writes its storage directly - the questions, whose local
   // source is a getter/setter pair over their value - sets this flag and the list
@@ -186,15 +143,8 @@ export class DynamicDataList {
      those points an edited record keeps its place, an added record is always in the view, a removed
      record leaves it, and only a change made outside the list re-evaluates it. */
   public isViewFrozenOnEdit: boolean = false;
-  /* The owner defines which records exist and in what order; the list only reads and updates them.
-     add, remove, move, ensureCount and truncate are refused before they touch any state - the hidden
-     flags, the storage count, the membership, the views - so a refused call leaves no trace and
-     raises nothing, and hasCapability answers false for the three operations. It follows from the
-     owner's own default source - one without insert (hasFixedMembership) -, never from an assigned
-     one, and a standalone list has none. */
-  public get isMembershipFixed(): boolean {
-    return !!this.defaultSource && hasFixedMembership(this.defaultSource);
-  }
+  // The owner defines which records exist and in what order (DynamicDataSourceBinding.isMembershipFixed).
+  public get isMembershipFixed(): boolean { return this.binding.isMembershipFixed; }
   /* Two conditions that are kept apart. Ownership: only the owner's own storage is read through. A
      source the owner assigned is read, not watched, whatever its class: the owner is not told when
      the developer's array changes, so a list that followed it at once would serve records the
@@ -203,12 +153,7 @@ export class DynamicDataList {
      isLocalSource is checked for that and for nothing else, so a standalone list that sets
      isReadThrough by hand reads through its local source, and never through any other. */
   private get useReadThrough(): boolean {
-    return this.isReadThrough && !this.isAssignedSourceInUse && this.isWindowWholeStorage && isLocalSource(this._source);
-  }
-  // Not isRemote alone: assignSource sets the flag before it swaps, and until the swap the list
-  // still holds the default source - the owner's storage - and reads through it.
-  private get isAssignedSourceInUse(): boolean {
-    return this.isRemote && this._source === this.assignedSourceValue;
+    return this.isReadThrough && !this.binding.isAssignedSourceInUse && this.isWindowWholeStorage && isLocalSource(this._source);
   }
   private get records(): Array<any> {
     if (!this.useReadThrough) return this.windowRecords;
@@ -242,7 +187,7 @@ export class DynamicDataList {
   // through assignSource.
   public set source(v: IDynamicDataSource) {
     if (this._source === v) return;
-    this.checkSourceReplaceable();
+    this.binding.checkSourceReplaceable();
     /* A list that was asked to fill itself reads the source that replaces the one it had, whatever
        became of that read: an answer that is merely late, and a read that failed or was refused, do
        not make the list a standalone one that was never loaded. Without the in-flight half a source
@@ -275,13 +220,13 @@ export class DynamicDataList {
      a change notification the owner never asked for. A source that can collect its writes (the
      array source) does so; every other source just runs the function. */
   public batch(func: () => void): void {
-    this.runOpenWrite((): void => { this.batchCore(func); });
+    this.writes.runOpenWrite((): void => { this.batchCore(func); });
   }
   private batchCore(func: () => void): void {
     const source: any = this._source;
     let changes: Array<IDynamicDataListChange>;
     try {
-      this.runWrite((): void => {
+      this.writes.runWrite((): void => {
         if (!source || typeof source.batch !== "function") {
           func();
           return;
@@ -322,7 +267,7 @@ export class DynamicDataList {
       });
     } finally {
       (changes || []).forEach((change: IDynamicDataListChange): void => this.raiseChanged(change));
-      this.raisePendingReset();
+      this.writes.raisePendingReset();
     }
   }
   private batchScope: Scope = new Scope();
@@ -348,7 +293,7 @@ export class DynamicDataList {
      storage too. Returns true when the failure was reported. */
   private onBatchFailed(source: IDynamicDataSource, before: Array<any>, error: any, isFuncError: boolean): boolean {
     const pushes = this.batchPushes;
-    if (isFuncError || this.isOwnStorage(source) || !pushes.operation) {
+    if (isFuncError || this.binding.isOwnStorage(source) || !pushes.operation) {
       this.restoreWindowToStorage(source, before);
       return false;
     }
@@ -368,7 +313,7 @@ export class DynamicDataList {
      broke its contract: what it stored is unknown, so the window goes back for any operation. */
   private onPushFailed(operation: DynamicDataSourceMethod, isAsyncLocalWrite: boolean): void {
     if (!isAsyncLocalWrite && (operation === "update" || !!this.keyField)) return;
-    this.restoreWindowToStorage(this._source, this.batchScope.isActive ? undefined : this.windowAtWriteStart || this.windowRecords);
+    this.restoreWindowToStorage(this._source, this.batchScope.isActive ? undefined : this.writes.windowAtWriteStart || this.windowRecords);
   }
   /* An array source assigns its array once, when its batch ends, and the setter may store something
      else than it was handed: trimmed strings, a normalized shape. The writes inside the batch synced
@@ -400,10 +345,10 @@ export class DynamicDataList {
   private restoreWindowToStorage(source: IDynamicDataSource, before: Array<any>): void {
     if (this._source !== source || !this.isWindowWholeStorage || this.useReadThrough) return;
     if (!isLocalSource(source)) return;
-    const stored = before !== undefined && this.isAssignedSourceInUse && !this.isAssignedArrayInSync ? before : source.read();
+    const stored = before !== undefined && this.binding.isAssignedSourceInUse && !this.writes.isAssignedArrayInSync ? before : source.read();
     this.records = Array.isArray(stored) ? stored : [];
     this.resetWindowState();
-    this.isResetPending = true;
+    this.writes.isResetPending = true;
   }
   // What a window that was replaced as a whole leaves behind: the flags and the membership of the
   // records it held. They are decided again over the new one, and the page index is clamped to it.
@@ -411,93 +356,9 @@ export class DynamicDataList {
     this.membership.reset(keepTouched);
     this.clampPageIndex();
   }
-  /* A reset the list owes its owner for a window it replaced inside a write (takeStoredArray,
-     restoreWindowToStorage). It is raised once the outermost write has notified: the owner
-     follows that notification by record index, and a reset in front of it would have it renumber
-     the objects it has just rebuilt. */
-  private isResetPending: boolean = false;
-  private raisePendingReset(): void {
-    if (!this.isResetPending || this.writeScope.isActive) return;
-    this.isResetPending = false;
-    this.raiseChanged({ type: "reset" });
-  }
-  // The notification of a write, raised after its scope.
-  private notifyWrite(change: IDynamicDataListChange): void {
-    this.raiseChanged(change);
-    this.raisePendingReset();
-  }
-  // True while the list applies a write of its own: the views it caches are its own to maintain then,
-  // and an owner that is assigned inside the write may not read them (invalidateViews is ignored).
-  public get isWriting(): boolean {
-    return this.writeScope.isActive;
-  }
-  /* True from the start of an outermost write - batch, ensureCount, truncate, setValue, setRecord,
-     add, remove, move, an insert answer - until its notifications have been raised, and until it
-     unwinds when it throws. isWriting is narrower: a write notifies after its own scope, and a write
-     whose push throws never notifies. The owner is told when it ends (onWriteEnded): a change it owes
-     a write - an assignment made from outside while the write was open - is followed then. */
-  public get isWriteOpen(): boolean {
-    return this.openWriteScope.isActive;
-  }
-  private openWriteScope: Scope = new Scope();
-  // An error listener's exception the channel kept for a push of this write is rethrown at its end.
-  private runOpenWrite<T>(func: () => T): T {
-    let listenerError: { error: any } = undefined;
-    let res: T;
-    try {
-      res = this.openWriteScope.run(func);
-    } finally {
-      if (!this.openWriteScope.isActive) {
-        listenerError = this.channel.takeListenerError();
-        if (!this.isDisposed && !!this.owner && !!this.owner.onWriteEnded)this.owner.onWriteEnded();
-      }
-    }
-    if (!!listenerError) throw listenerError.error;
-    return res;
-  }
-  /* Every write of the list runs here. The code inside runs user code - the owner's createRecord,
-     the notifications of a nested write or a clamp, onError, a read-through source's setter and the
-     survey handlers behind it - and a write scope that a throw left open would make isWriting true
-     for good: invalidateViews would ignore every later assignment and the owners would take every
-     assignment from outside for their own. The nesting and the timing of the notifications are
-     unchanged: each method notifies after its own scope, so a write nested in ensureCount, truncate
-     or batch still notifies with the outer scope open. */
-  private runWrite<T>(func: () => T): T {
-    // Before the write edits the window: see isAssignedArrayInSync. editWindow copies before it
-    // edits, so the window captured here is never mutated.
-    if (!this.writeScope.isActive) {
-      this.isAssignedArrayInSync = this.getIsAssignedArrayInSync();
-      this.windowAtWriteStart = this.windowRecords;
-    }
-    try {
-      return this.writeScope.run(func);
-    } finally {
-      if (!this.writeScope.isActive) {
-        this.isAssignedArrayInSync = false;
-        this.windowAtWriteStart = undefined;
-      }
-    }
-  }
-  // The window when the outermost write started (runWrite).
-  private windowAtWriteStart: Array<any>;
-  /* True for the span of the outermost write to an assigned local source whose array was,
-     when the write started, the window record for record: nothing has replaced it outside the list
-     since the list last read or wrote it. Only then does the window take the array the write stores
-     (syncWindowAfterSyncPush). */
-  private isAssignedArrayInSync: boolean = false;
-  private getIsAssignedArrayInSync(): boolean {
-    if (!this.isAssignedSourceInUse || !this.isWindowWholeStorage || !isLocalSource(this._source)) return false;
-    const stored = this._source.read();
-    const records = this.windowRecords;
-    // The common case: the window IS the array, taken by the last read or the last write.
-    if (stored === records) return true;
-    // A source that hands out a copy on every read (SurveyDataDynamicDataSource) is compared by content.
-    if (!Array.isArray(stored) || stored.length !== records.length) return false;
-    for (let i = 0; i < records.length; i++) {
-      if (stored[i] !== records[i] && DynamicDataList.isValueChanged(stored[i], records[i])) return false;
-    }
-    return true;
-  }
+  // DynamicDataWriteScope.isWriting / isWriteOpen: the questions read them.
+  public get isWriting(): boolean { return this.writes.isWriting; }
+  public get isWriteOpen(): boolean { return this.writes.isWriteOpen; }
   // Every read asked for from outside the retry supersedes a retry that is pending.
   public load(): void | Promise<void> {
     return this.requestRead(false, false);
@@ -569,30 +430,30 @@ export class DynamicDataList {
     return res;
   }
   public ensureCount(n: number, createRecord?: (i: number) => any): void {
-    this.runOpenWrite((): void => { this.ensureCountCore(n, createRecord); });
+    this.writes.runOpenWrite((): void => { this.ensureCountCore(n, createRecord); });
   }
   private ensureCountCore(n: number, createRecord: (i: number) => any): void {
     if (this.isMembershipFixed) return;
     this.checkWindowIsWholeStorage("ensureCount");
-    this.runWrite((): void => {
+    this.writes.runWrite((): void => {
       for (let i = this.loadedCount; i < n; i++) {
         this.add(!!createRecord ? createRecord(i) : {});
       }
     });
-    this.raisePendingReset();
+    this.writes.raisePendingReset();
   }
   public truncate(n: number): void {
-    this.runOpenWrite((): void => { this.truncateCore(n); });
+    this.writes.runOpenWrite((): void => { this.truncateCore(n); });
   }
   private truncateCore(n: number): void {
     if (this.isMembershipFixed) return;
     this.checkWindowIsWholeStorage("truncate");
-    this.runWrite((): void => {
+    this.writes.runWrite((): void => {
       for (let i = this.loadedCount - 1; i >= n && i >= 0; i--) {
         this.remove(i);
       }
     });
-    this.raisePendingReset();
+    this.writes.raisePendingReset();
   }
 
   public getRecord(index: number): any {
@@ -605,7 +466,7 @@ export class DynamicDataList {
     return !!record ? record[field] : undefined;
   }
   public setValue(index: number, field: string, value: any): boolean {
-    return this.runOpenWrite((): boolean => this.setValueCore(index, field, value));
+    return this.writes.runOpenWrite((): boolean => this.setValueCore(index, field, value));
   }
   /* What an owner computes while it builds its objects for records the source holds (a default, an
      expression) only shows the record: a write reaches the window, not the source, and its fields wait
@@ -635,7 +496,7 @@ export class DynamicDataList {
     const key = this.getRecordKey(index);
     const pending = this.findPendingInsert(index);
     const isShowing = this.isShowingWrite(index);
-    this.runWrite((): void => {
+    this.writes.runWrite((): void => {
       const fields = this.channel.takeUnsentFields(record, [field]);
       this.replaceRecord(index, newRecord);
       if (isShowing) {
@@ -646,14 +507,14 @@ export class DynamicDataList {
       // write, so the owner must not be notified of a change it cannot read yet.
       this.pushUpdate(key, pending, newRecord, fields);
     });
-    this.notifyWrite({ type: "recordChanged", index: index, field: field });
+    this.writes.notifyWrite({ type: "recordChanged", index: index, field: field });
     return true;
   }
   // force: push the record even when it did not change. An owner that composes its window on the
   // fly - the matrix pads question.value up to rowCount on read - uses it when the composed records
   // themselves have to reach the storage: the stored value changes although the record does not.
   public setRecord(index: number, record: any, force: boolean = false): boolean {
-    return this.runOpenWrite((): boolean => this.setRecordCore(index, record, force));
+    return this.writes.runOpenWrite((): boolean => this.setRecordCore(index, record, force));
   }
   private setRecordCore(index: number, record: any, force: boolean): boolean {
     const oldRecord = this.getRecord(index);
@@ -664,12 +525,12 @@ export class DynamicDataList {
     const key = this.getRecordKey(index);
     const pending = this.findPendingInsert(index);
     const isShowing = this.isShowingWrite(index);
-    this.runWrite((): void => {
+    this.writes.runWrite((): void => {
       this.replaceRecord(index, record);
       if (isShowing) return this.channel.keepUnsentFields(record, changedFields);
       this.pushUpdate(key, pending, record, changedFields);
     });
-    this.notifyWrite({ type: "recordChanged", index: index, field: undefined });
+    this.writes.notifyWrite({ type: "recordChanged", index: index, field: undefined });
     return true;
   }
   // The update of a record replaced in the window; key and pending belong to the record it replaced.
@@ -681,7 +542,7 @@ export class DynamicDataList {
   /* The source assigns the key: with a keyField, a key the record carries - copied from the last
      entry, or put on a default value - is taken out before anything else sees the record. */
   public add(record?: any, index?: number): number {
-    return this.runOpenWrite((): number => this.addCore(record, index));
+    return this.writes.runOpenWrite((): number => this.addCore(record, index));
   }
   private addCore(record: any, index: number): number {
     if (this.isMembershipFixed) return -1;
@@ -693,7 +554,7 @@ export class DynamicDataList {
     const at = index === undefined || index === null
       ? this.recordCount
       : Math.max(0, Math.min(index, this.recordCount));
-    this.runWrite((): void => {
+    this.writes.runWrite((): void => {
       this.editWindow((records: Array<any>): void => { records.splice(at, 0, newRecord); });
       this.storageCount.onRecordInserted(this.windowOffset, countAfter);
       this.membership.onRecordInserted(at, countAfter);
@@ -704,11 +565,11 @@ export class DynamicDataList {
       this.pushToSource("insert", (source: IDynamicDataSource): any => source.insert(newRecord, sourceIndex),
         { insertedRecord: newRecord });
     });
-    this.notifyWrite({ type: "recordAdded", index: at });
+    this.writes.notifyWrite({ type: "recordAdded", index: at });
     return at;
   }
   public remove(index: number): void {
-    this.runOpenWrite((): void => { this.removeCore(index); });
+    this.writes.runOpenWrite((): void => { this.removeCore(index); });
   }
   private removeCore(index: number): void {
     if (this.isMembershipFixed || index < 0 || index >= this.recordCount) return;
@@ -717,14 +578,14 @@ export class DynamicDataList {
     const key = this.getRecordKey(index);
     const pending = this.findPendingInsert(index);
     const countAfter = this.recordCount - 1;
-    this.runWrite((): void => {
+    this.writes.runWrite((): void => {
       this.editWindow((records: Array<any>): void => { records.splice(index, 1); });
       this.storageCount.onRecordRemoved(this.windowOffset, countAfter);
       this.membership.onRecordRemoved(index, countAfter);
       this.pushToSource("remove", (source: IDynamicDataSource, runKey: any): any => source.remove(runKey),
         { key: key, pendingInsert: pending });
     });
-    this.notifyWrite({ type: "recordRemoved", index: index });
+    this.writes.notifyWrite({ type: "recordRemoved", index: index });
     // Never two reads for one remove: a clamp to the previous page has already asked for its page.
     if (!this.clampPageIndexAfterChange()) {
       this.refillWindowAfterRemove();
@@ -748,7 +609,7 @@ export class DynamicDataList {
     this.requestRead(true, true);
   }
   public move(fromIndex: number, toIndex: number): void {
-    this.runOpenWrite((): void => { this.moveCore(fromIndex, toIndex); });
+    this.writes.runOpenWrite((): void => { this.moveCore(fromIndex, toIndex); });
   }
   // Refused before any state changes unless the source can take a move (hasCapability).
   private moveCore(fromIndex: number, toIndex: number): void {
@@ -758,7 +619,7 @@ export class DynamicDataList {
     if (fromIndex === toIndex) return;
     // Before the splice, for the same reason as in remove. A storage index: the source has no keyField.
     const key = this.getRecordKey(fromIndex);
-    this.runWrite((): void => {
+    this.writes.runWrite((): void => {
       this.editWindow((records: Array<any>): void => {
         const record = records[fromIndex];
         records.splice(fromIndex, 1);
@@ -769,7 +630,7 @@ export class DynamicDataList {
       this.pushToSource("move", (source: IDynamicDataSource, runKey: any): any =>
         (<ArrayDynamicDataSource>source).move(runKey, toSourceIndex), { key: key });
     });
-    this.notifyWrite({ type: "recordMoved", from: fromIndex, to: toIndex });
+    this.writes.notifyWrite({ type: "recordMoved", from: fromIndex, to: toIndex });
   }
 
   // Returns whether the flag changed: the owner syncs its page state only then.
@@ -794,7 +655,7 @@ export class DynamicDataList {
     // A write of the list's own maintains the membership record by record; re-evaluating it here
     // would undo that from inside the very assignment that made it. refreshView() is the owner's
     // explicit request and runs during a write too, so the guard stays here and not in the helper.
-    if (this.writeScope.isActive) return;
+    if (this.writes.isWriting) return;
     this.membership.rebuild(remap, previousCreated);
     this.clampPageIndexAfterChange();
   }
@@ -991,15 +852,13 @@ export class DynamicDataList {
   }
   public dispose(): void {
     this.isDisposed = true;
-    this.movePositionWriter(this.assignedSourceValue, undefined);
+    this.binding.dispose();
     this.channel.cancelReads();
     // No notification: a disposed list raises nothing, and a read in flight will never clear it.
     this._isLoading = false;
     this.onChanged = undefined;
     this.onError = undefined;
     this.owner = undefined;
-    // The factory's closures hold the owner.
-    this.createDefaultSource = undefined;
     this.records = [];
     this.channel.clearPendingInserts();
     this.storageCount.cancelRetry();
@@ -1031,21 +890,8 @@ export class DynamicDataList {
   private get isWindowWholeStorage(): boolean {
     return this.readState.isWindowWholeStorage;
   }
-  /* A capability is declared by the presence of the matching method: the operation names are the
-     source method names. A write names its record by key; only a local source is written by
-     position - the list is its only writer, it writes synchronously, and the remap layer renumbers
-     what holds an index. Any other source without keyField is read-only, whatever methods it has: a
-     position it resolves another way - it sorts or filters on its side, another writer changed it -
-     would name another record. A move is not part of the source contract: only a local source with
-     a move method that is not assigned, written by storage index, takes one. An assigned source -
-     local ones included - and a standalone list's keyed source never do, whatever methods they have. */
-  public hasCapability(operation: DynamicDataSourceMethod): boolean {
-    if (this.isMembershipFixed && (operation === "insert" || operation === "remove" || operation === "move")) return false;
-    const source: any = this._source;
-    if (!source || typeof source[operation] !== "function") return false;
-    if (operation === "move") return !this.isRemote && isLocalSource(source) && !this.keyField && !source["isWrittenByAnotherWriter"](this);
-    return operation === "read" || !!this.keyField || isLocalSource(source) && !source["isWrittenByAnotherWriter"](this);
-  }
+  // What the source in use may be sent (DynamicDataSourceBinding.hasCapability).
+  public hasCapability(operation: DynamicDataSourceMethod): boolean { return this.binding.hasCapability(operation); }
   private getFields(): Array<IDynamicDataField> {
     return !!this.owner && !!this.owner.getFields ? this.owner.getFields() : undefined;
   }
@@ -1173,7 +1019,7 @@ export class DynamicDataList {
       raiseError: (error: any, operation: DynamicDataErrorOperation): void => this.raiseError(error, operation),
       applyInsertAnswer: (entry: IPendingInsert): void => this.applyInsertAnswer(entry),
       syncWindowAfterSyncPush: (): void => this.syncWindowAfterSyncPush(),
-      isOwnStorage: (source: IDynamicDataSource): boolean => this.isOwnStorage(source),
+      isOwnStorage: (source: IDynamicDataSource): boolean => this.binding.isOwnStorage(source),
       isLocalSource: (source: IDynamicDataSource): boolean => isLocalSource(source),
       onPushFailed: (operation: DynamicDataSourceMethod, isAsyncLocalWrite: boolean): void => this.onPushFailed(operation, isAsyncLocalWrite),
       getSurvey: (): ISurvey => !!this.owner && !!this.owner.getSurvey ? this.owner.getSurvey() : undefined,
@@ -1250,7 +1096,7 @@ export class DynamicDataList {
     this.resetWindowState(isRefill);
     this.readState.commitPageIndex(this._pageIndex);
     // The reset of a read stands for the one a write still owed (raisePendingReset).
-    this.isResetPending = false;
+    this.writes.isResetPending = false;
     this.raiseChanged({ type: "reset" });
     return true;
   }
@@ -1271,8 +1117,8 @@ export class DynamicDataList {
     // the key itself.
     const index = this.records.indexOf(entry.record);
     if (index < 0) return;
-    this.runOpenWrite((): void => {
-      this.runWrite((): void => { this.replaceRecord(index, mergeInsertAnswer(entry, entry.record)); });
+    this.writes.runOpenWrite((): void => {
+      this.writes.runWrite((): void => { this.replaceRecord(index, mergeInsertAnswer(entry, entry.record)); });
       this.raiseChanged({ type: "recordChanged", index: index, field: undefined, isInsertAnswer: true });
     });
   }
@@ -1284,7 +1130,7 @@ export class DynamicDataList {
        array replaced outside the list would otherwise enter the window with the next write and
        without a reset: the owner would hold it in its value and not in its objects. The window then
        keeps the list's own writes (editWindow), and the rest arrives with the next read. */
-    if (this.isAssignedSourceInUse && !this.isAssignedArrayInSync) return;
+    if (this.binding.isAssignedSourceInUse && !this.writes.isAssignedArrayInSync) return;
     /* For a local source the push IS the storage and is synchronous: the window is
        rebuilt from it so that the list never holds an array the owner does not. useReadThrough above
        does not already answer this - it is true only when the list reads through as well, and a
@@ -1308,7 +1154,7 @@ export class DynamicDataList {
     if (stored === written) return;
     if (stored.length !== written.length) {
       this.resetWindowState();
-      this.isResetPending = true;
+      this.writes.isResetPending = true;
       return;
     }
     // Nothing is cached over the contents of the records without a local filter or sort.

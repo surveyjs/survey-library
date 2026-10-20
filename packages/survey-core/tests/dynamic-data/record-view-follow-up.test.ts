@@ -90,7 +90,7 @@ describe("a fixed matrix re-decides its view when the row titles change", () => 
     const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", rows: [{ value: "r1", text: "b" }, { value: "r2", text: "a" }],
       columns: [{ name: "c1", cellType: "text" }] }] });
     const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m");
-    matrix.sortOrder = [{ field: "rowTitle", direction: "asc" }];
+    matrix.sort([{ field: "rowTitle", direction: "asc" }]);
     expect(matrix.visibleRows.map(r => r.rowName), "#1").toEqual(["r2", "r1"]);
     matrix.rows[1].text = "c";
     matrix.localeChanged();
@@ -127,7 +127,7 @@ describe("filtered data and progress of a matrix with a filter, before and after
     expect([after.questionCount, after.answeredQuestionCount, after.requiredQuestionCount], "#2").toEqual([4, 3, 2]);
   });
   test("rows built under a sort: an answered hidden cell is not counted", () => {
-    const matrix = createMatrix({ sortBy: "a-", columns: [{ name: "a", cellType: "text" },
+    const matrix = createMatrix({ sortCriteria: [{ field: "a", direction: "desc" }], columns: [{ name: "a", cellType: "text" },
       { name: "b", cellType: "text", visibleIf: "{row.a} != 1" }] }, [{ a: 1, b: "x" }, { a: 2 }]);
     matrix.visibleRows;
     const res = (<SurveyModel>matrix.survey).getProgressInfo();
@@ -162,8 +162,8 @@ describe("a dynamic panel with an authored filter and a value builds its panels"
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
     expect(panel.panels.map(p => p.getQuestionByName("a").value), "#1").toEqual([1, 3]);
   });
-  test("sortBy, no paging, the value set before the first render", () => {
-    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", sortBy: "a-",
+  test("sortCriteria, no paging, the value set before the first render", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", sortCriteria: [{ field: "a", direction: "desc" }],
       templateElements: [{ type: "text", name: "a" }] }] });
     survey.data = { p: [{ a: 1 }, { a: 2 }] };
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
@@ -250,7 +250,7 @@ describe("the totals of a fixed matrix follow a rows change under a view", () =>
     return matrix;
   };
   test("a sort: the total equals the unsorted matrix's, and the view keeps its order", () => {
-    const { matrix, cells } = createFixed({ sortBy: "a+" }, ["r1", "r2"]);
+    const { matrix, cells } = createFixed({ sortCriteria: [{ field: "a" }] }, ["r1", "r2"]);
     const before = cells();
     matrix.rows.push(new ItemValue("r3"));
     expect(rowNames(matrix), "#1: sorted by a: 1, 2, 5").toEqual(["r2", "r1", "r3"]);
@@ -265,8 +265,8 @@ describe("the totals of a fixed matrix follow a rows change under a view", () =>
     expect(createFixed({ filterExpression: "{a} > 1" }, ["r1", "r2", "r3"]).matrix.totalValue, "#3: the same rows from the start").toEqual({ a: 7 });
   });
   test("paging: the total equals the same sorted matrix without paging, and page 1 shows its first row", () => {
-    const matrix = pushR3({ sortBy: "a+", pageSize: 1 });
-    expect(matrix.totalValue, "#1").toEqual(pushR3({ sortBy: "a+" }).totalValue);
+    const matrix = pushR3({ sortCriteria: [{ field: "a" }], pageSize: 1 });
+    expect(matrix.totalValue, "#1").toEqual(pushR3({ sortCriteria: [{ field: "a" }] }).totalValue);
     expect(matrix.totalValue, "#2").toEqual({ a: 8 });
     expect(rowNames(matrix), "#3").toEqual(["r2"]);
   });
@@ -307,7 +307,7 @@ describe("an outside assignment to a matrix with a view shows the records of the
   interface IViewCase { name: string, view: any, select: (keys: Array<any>) => Array<any> }
   const byKey = (keys: Array<any>): Array<any> => keys.slice().sort((a: any, b: any): number => a - b);
   const cases: Array<IViewCase> = [
-    { name: "a sort", view: { sortBy: "k" }, select: byKey },
+    { name: "a sort", view: { sortCriteria: [{ field: "k" }] }, select: byKey },
     { name: "a filter", view: { filterExpression: "{k} != 9" }, select: (keys: Array<any>): Array<any> => keys.filter((k: any): boolean => k !== 9) }
   ];
   const columns = [{ name: "k", cellType: "text", inputType: "number" }, { name: "t", cellType: "text" }];
@@ -375,7 +375,7 @@ describe("an outside assignment to a matrix with a view shows the records of the
     });
   });
   test("a sort: the new value is shown in key order", () => {
-    const result = run({ sortBy: "k" }, addThenAssign((survey: SurveyModel): void => { survey.setValue("q1", newValue()); }));
+    const result = run({ sortCriteria: [{ field: "k" }] }, addThenAssign((survey: SurveyModel): void => { survey.setValue("q1", newValue()); }));
     expect(result.keys).toEqual([0, 5, 9]);
   });
 });

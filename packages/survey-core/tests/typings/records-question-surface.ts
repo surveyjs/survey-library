@@ -13,6 +13,7 @@ import { QuestionMatrixDropdownModel } from "../../src/question_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionRecordsBar } from "../../src/question_records_bar";
+import { SortCriterion } from "../../src/records/records-sort-criterion";
 import { settings } from "../../src/settings";
 
 // The released override surface of the matrix base.
@@ -95,8 +96,8 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   const dd29: DeclaredKeys<QuestionMatrixDropdownModel> = "isRowCountKnown";
   res.push(dd26, dd27, dd29);
   // Every records question shares the paging, sorting and filtering API, the fixed matrix included.
-  const ddApi: Array<DeclaredKeys<QuestionMatrixDropdownModel>> = ["pageIndex", "pageCount", "isCountKnown", "sortBy",
-    "filterExpression", "sortOrder", "toggleSort", "clearSort", "refreshView", "canGoNextPage", "canGoPrevPage", "goToPage",
+  const ddApi: Array<DeclaredKeys<QuestionMatrixDropdownModel>> = ["pageIndex", "pageCount", "isCountKnown", "sortCriteria",
+    "filterExpression", "sort", "toggleSort", "clearSort", "refreshView", "canGoNextPage", "canGoPrevPage", "goToPage",
     "nextPage", "prevPage", "isPageMovePending", "recordsBar", "showPager", "pageSize"];
   res.push(ddApi);
   // The pager is the records bar's: it left the questions.
@@ -135,14 +136,23 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
 
   // The feature's public API stays public on the dynamic questions.
   const mdApi: Array<DeclaredKeys<QuestionMatrixDynamicModel>> = ["dataSource", "pageIndex", "pageCount", "pageSize",
-    "isCountKnown", "canGoNextPage", "canGoPrevPage", "goToPage", "nextPage", "prevPage", "sortOrder", "sortBy", "toggleSort",
+    "isCountKnown", "canGoNextPage", "canGoPrevPage", "goToPage", "nextPage", "prevPage", "sortCriteria", "sort", "toggleSort",
     "clearSort", "filterExpression", "refreshView", "isDataLoading", "isPageMovePending", "getRecordNumberOffset",
     "refreshDataSource"];
   const pdApi: Array<DeclaredKeys<QuestionPanelDynamicModel>> = ["dataSource", "pageIndex", "pageCount", "pageSize",
-    "isCountKnown", "canGoNextPage", "canGoPrevPage", "goToPage", "nextPage", "prevPage", "sortOrder", "sortBy", "toggleSort",
+    "isCountKnown", "canGoNextPage", "canGoPrevPage", "goToPage", "nextPage", "prevPage", "sortCriteria", "sort", "toggleSort",
     "clearSort", "filterExpression", "refreshView", "isDataLoading", "isPageMovePending", "getRecordNumberOffset",
     "refreshDataSource"];
   res.push(mdApi, pdApi);
+  // sortCriteria reads SortCriterion items and takes plain { field, direction } objects.
+  md.sortCriteria = [{ field: "price", direction: "desc" }];
+  pd.sortCriteria = [{ field: "price", direction: "desc" }];
+  const criterion: SortCriterion = md.sortCriteria[0];
+  md.sort("price", "desc", true);
+  md.sort([{ field: "price", direction: "asc" }]);
+  // @ts-expect-error a direction is "asc" or "desc"
+  md.sort("price", "up");
+  res.push(criterion);
   // The page size is pageSize on every records question: the type-specific names are gone.
   // @ts-expect-error renamed to pageSize
   const ddRowsPerPage: DeclaredKeys<QuestionMatrixDropdownModel> = "rowsPerPage";

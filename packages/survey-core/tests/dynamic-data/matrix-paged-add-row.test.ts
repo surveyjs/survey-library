@@ -203,7 +203,7 @@ describe("an add without paging, and with a sort or a filter in force", () => {
   });
   test("B.9 a sort in force: an add rebuilds the page", () => {
     const matrix = createMatrix({ pageSize: 10 }, 25);
-    matrix.sortOrder = [{ field: "a", direction: "asc" }];
+    matrix.sortCriteria = [{ field: "a", direction: "asc" }];
     const { table } = showPage(matrix, 2);
     const t = startTracking(matrix);
     matrix.value = [].concat(matrix.value, [{ a: 25 }]);

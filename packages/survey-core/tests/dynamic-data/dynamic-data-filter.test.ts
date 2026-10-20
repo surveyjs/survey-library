@@ -1,12 +1,12 @@
 import { describe, test, expect, afterEach } from "vitest";
 import { applyFilter, applySort, createFilterRunner } from "../../src/dynamic-data/dynamic-data-filter";
-import { DynamicDataSortDirection, IDynamicDataField } from "../../src/dynamic-data/dynamic-data-interfaces";
+import { SortDirection, IDynamicDataField } from "../../src/dynamic-data/dynamic-data-interfaces";
 import { ConditionsParser } from "../../src/conditions/conditionsParser";
 import { BinaryOperand, Const, Operand, Variable } from "../../src/expressions/expressions";
 import { FunctionFactory } from "../../src/functionsfactory";
 import { settings } from "../../src/settings";
 
-function sortBy(records: Array<any>, field: string, direction: DynamicDataSortDirection,
+function sortRecords(records: Array<any>, field: string, direction: SortDirection,
   fields?: Array<IDynamicDataField>): Array<number> {
   return applySort(records, [{ field: field, direction: direction }], fields);
 }
@@ -152,39 +152,39 @@ describe("dynamic-data-filter: translating the expression for a source", () => {
 describe("dynamic-data-filter: comparison", () => {
   test("dataType number compares numerically, even for strings", () => {
     const records = [{ v: "10" }, { v: "9" }, { v: "2" }];
-    expect(sortBy(records, "v", "asc", [{ name: "v", dataType: "number" }])).toEqual([2, 1, 0]);
+    expect(sortRecords(records, "v", "asc", [{ name: "v", dataType: "number" }])).toEqual([2, 1, 0]);
   });
   test("dataType string compares as text", () => {
     const records = [{ v: "10" }, { v: "9" }, { v: "2" }];
-    expect(sortBy(records, "v", "asc", [{ name: "v", dataType: "string" }])).toEqual([0, 2, 1]);
+    expect(sortRecords(records, "v", "asc", [{ name: "v", dataType: "string" }])).toEqual([0, 2, 1]);
   });
   test("dataType date compares chronologically", () => {
     const records = [{ v: "2021-01-01" }, { v: "2019-05-06" }, { v: new Date("2020-01-01") }];
-    expect(sortBy(records, "v", "asc", [{ name: "v", dataType: "date" }])).toEqual([1, 2, 0]);
+    expect(sortRecords(records, "v", "asc", [{ name: "v", dataType: "date" }])).toEqual([1, 2, 0]);
   });
   test("dataType boolean sorts false before true", () => {
     const records = [{ v: true }, { v: false }, { v: "true" }];
-    expect(sortBy(records, "v", "asc", [{ name: "v", dataType: "boolean" }])).toEqual([1, 0, 2]);
+    expect(sortRecords(records, "v", "asc", [{ name: "v", dataType: "boolean" }])).toEqual([1, 0, 2]);
   });
   test("dataType any: two numbers compare numerically", () => {
     const records = [{ v: 10 }, { v: 9 }, { v: 2 }];
-    expect(sortBy(records, "v", "asc")).toEqual([2, 1, 0]);
+    expect(sortRecords(records, "v", "asc")).toEqual([2, 1, 0]);
   });
   test("dataType any: two numeric strings compare numerically", () => {
     const records = [{ v: "10" }, { v: "9" }, { v: "2" }];
-    expect(sortBy(records, "v", "asc")).toEqual([2, 1, 0]);
+    expect(sortRecords(records, "v", "asc")).toEqual([2, 1, 0]);
   });
   test("dataType any: two strings compare with localeCompare", () => {
     const records = [{ v: "b" }, { v: "c" }, { v: "a" }];
-    expect(sortBy(records, "v", "asc")).toEqual([2, 0, 1]);
+    expect(sortRecords(records, "v", "asc")).toEqual([2, 0, 1]);
   });
   test("dataType any: two Dates compare chronologically", () => {
     const records = [{ v: new Date("2021-01-01") }, { v: new Date("2019-01-01") }];
-    expect(sortBy(records, "v", "asc")).toEqual([1, 0]);
+    expect(sortRecords(records, "v", "asc")).toEqual([1, 0]);
   });
   test("dataType any: two booleans sort false first", () => {
     const records = [{ v: true }, { v: false }];
-    expect(sortBy(records, "v", "asc")).toEqual([1, 0]);
+    expect(sortRecords(records, "v", "asc")).toEqual([1, 0]);
   });
   test("a custom comparer wins over the dataType", () => {
     const fields: Array<IDynamicDataField> = [{
@@ -192,8 +192,8 @@ describe("dynamic-data-filter: comparison", () => {
       compare: (a: any, b: any): number => String(a).length - String(b).length
     }];
     const records = [{ v: 100 }, { v: 1 }, { v: 10 }];
-    expect(sortBy(records, "v", "asc", fields)).toEqual([1, 2, 0]);
-    expect(sortBy(records, "v", "desc", fields)).toEqual([0, 2, 1]);
+    expect(sortRecords(records, "v", "asc", fields)).toEqual([1, 2, 0]);
+    expect(sortRecords(records, "v", "desc", fields)).toEqual([0, 2, 1]);
   });
 });
 
@@ -209,7 +209,7 @@ describe("dynamic-data-filter: comparison follows the library settings", () => {
   test("dataType string honours settings.comparator.normalizeTextCallback", () => {
     settings.comparator.normalizeTextCallback = (str: string): string => str.indexOf("z-") === 0 ? str.substring(2) : str;
     const records = [{ v: "z-a" }, { v: "b" }, { v: "z-c" }];
-    expect(sortBy(records, "v", "asc", [{ name: "v", dataType: "string" }])).toEqual([0, 1, 2]);
+    expect(sortRecords(records, "v", "asc", [{ name: "v", dataType: "string" }])).toEqual([0, 1, 2]);
   });
   test("dataType date creates its dates through createDate", () => {
     settings.storeUtcDates = false;
@@ -222,19 +222,19 @@ describe("dynamic-data-filter: comparison follows the library settings", () => {
     };
     const fields: Array<IDynamicDataField> = [{ name: "v", dataType: "date" }];
     const records = [{ v: "2024-01-07" }, { v: "2024-01-05" }, { v: "2024-01-06" }];
-    expect(sortBy(records, "v", "asc", fields), "#1").toEqual([1, 2, 0]);
+    expect(sortRecords(records, "v", "asc", fields), "#1").toEqual([1, 2, 0]);
     expect(reasons.length > 0, "#2: the hook is called").toBe(true);
     expect(reasons.every(reason => reason === "sort"), "#3: every reason is sort").toBe(true);
     const distinct = values.filter((val, index) => values.indexOf(val) === index).sort();
     expect(distinct, "#4: the normalized strings").toEqual(["2024-01-05T00:00:00", "2024-01-06T00:00:00", "2024-01-07T00:00:00"]);
     // A date-only string is local midnight, as a datetime string without a zone is: equal in every zone.
     const sameDay = [{ v: "2024-01-05T00:00:00" }, { v: "2024-01-05" }];
-    expect(sortBy(sameDay, "v", "asc", fields), "#5: asc").toEqual([0, 1]);
-    expect(sortBy(sameDay, "v", "desc", fields), "#6: desc").toEqual([0, 1]);
+    expect(sortRecords(sameDay, "v", "asc", fields), "#5: asc").toEqual([0, 1]);
+    expect(sortRecords(sameDay, "v", "desc", fields), "#6: desc").toEqual([0, 1]);
   });
   test("dataType date keeps false at the epoch", () => {
     const records = [{ v: "2024-01-05" }, { v: false }];
-    expect(sortBy(records, "v", "asc", [{ name: "v", dataType: "date" }])).toEqual([1, 0]);
+    expect(sortRecords(records, "v", "asc", [{ name: "v", dataType: "date" }])).toEqual([1, 0]);
   });
 });
 
@@ -246,8 +246,8 @@ describe("dynamic-data-filter: applySort", () => {
     { group: "a", name: "z", order: 4 }
   ];
   test("ascending and descending", () => {
-    expect(sortBy(records, "order", "asc")).toEqual([1, 0, 2, 3]);
-    expect(sortBy(records, "order", "desc")).toEqual([3, 2, 0, 1]);
+    expect(sortRecords(records, "order", "asc")).toEqual([1, 0, 2, 3]);
+    expect(sortRecords(records, "order", "desc")).toEqual([3, 2, 0, 1]);
   });
   test("multi-field sort applies the items in order", () => {
     expect(applySort(records, [
@@ -257,13 +257,13 @@ describe("dynamic-data-filter: applySort", () => {
   });
   test("the sort is stable: equal records keep their original order", () => {
     const equalRecords = [{ k: 1, id: "a" }, { k: 1, id: "b" }, { k: 0, id: "c" }, { k: 1, id: "d" }];
-    expect(sortBy(equalRecords, "k", "asc")).toEqual([2, 0, 1, 3]);
-    expect(sortBy(equalRecords, "k", "desc")).toEqual([0, 1, 3, 2]);
+    expect(sortRecords(equalRecords, "k", "asc")).toEqual([2, 0, 1, 3]);
+    expect(sortRecords(equalRecords, "k", "desc")).toEqual([0, 1, 3, 2]);
   });
   test("empty values sort last in both directions", () => {
     const withEmpty = [{ v: 2 }, { v: undefined }, { v: 1 }, { v: "" }];
-    expect(sortBy(withEmpty, "v", "asc")).toEqual([2, 0, 1, 3]);
-    expect(sortBy(withEmpty, "v", "desc")).toEqual([0, 2, 1, 3]);
+    expect(sortRecords(withEmpty, "v", "asc")).toEqual([2, 0, 1, 3]);
+    expect(sortRecords(withEmpty, "v", "desc")).toEqual([0, 2, 1, 3]);
   });
   test("an empty sort returns the incoming indexes instance", () => {
     const indexes = [2, 0];

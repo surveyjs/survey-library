@@ -1197,7 +1197,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
   }
   protected getChoiceValue(choice: ItemValue, val: any, objOnComment: boolean): any {
-    const isObj = typeof val === "object";
+    const isObj = !!val && typeof val === "object";
     const comment = isObj ? val[this.commentPropertyValue] : "";
     const hasComment = !Helpers.isValueEmpty(comment);
     if (isObj && choice.showCommentArea && (objOnComment || hasComment)) {

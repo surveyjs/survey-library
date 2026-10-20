@@ -101,7 +101,7 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 // they are. While a source is attached the question is excluded from survey.data - the records are
 // the source's, not an answer - and question.isReady is false while a page is being read.
 
-export type DynamicDataSortDirection = "asc" | "desc";
+export type SortDirection = "asc" | "desc";
 export type DynamicDataFieldType = "string" | "number" | "date" | "boolean" | "any";
 // The source methods the list calls; a capability is declared by the presence of the method.
 export type DynamicDataSourceMethod = "read" | "insert" | "update" | "remove" | "move";
@@ -111,9 +111,9 @@ export type DynamicDataErrorOperation = DynamicDataSourceMethod | "count";
 // The name of DynamicDataErrorOperation released in v3.2.1, kept so that code importing it compiles.
 export type DynamicDataOperation = DynamicDataErrorOperation;
 
-export interface IDynamicDataSort {
+export interface ISortCriterion {
   field: string;
-  direction: DynamicDataSortDirection;
+  direction: SortDirection;
 }
 // One read = one request: the range and the view the list wants, so that the source keeps no state
 // of its own and two questions can share it.
@@ -125,7 +125,7 @@ export interface IDynamicDataReadRequest {
   // The expression text of the filter, "" for no filter. The list never parses it.
   filter: string;
   // The sort descriptors, applied in array order; [] for the source order.
-  sort: Array<IDynamicDataSort>;
+  sort: Array<ISortCriterion>;
 }
 export interface IDynamicDataReadResult {
   records: Array<any>;

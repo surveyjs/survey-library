@@ -40,6 +40,30 @@ describe("Layout element models", () => {
     expect(bottomElement.isInContainer("contentBottom")).toBe(false);
   });
 
+  test("SurveyNavigationLayoutModel: navigation is not placed into a container if the navigation bar is empty", async () => {
+    const survey = new SurveyModel({
+      navigationButtonsLocation: "topBottom",
+      elements: [{ type: "text", name: "q1" }]
+    });
+    survey.showCompleteButton = false;
+    expect(survey.navigationBar.hasVisibleActions, "the navigation bar is empty").toBe(false);
+    expect(survey.getContainerContent("contentTop"), "no top navigation").toEqual([]);
+    expect(survey.getContainerContent("contentBottom"), "no bottom navigation").toEqual([]);
+
+    survey.showCompleteButton = true;
+    expect(survey.getContainerContent("contentTop").map(el => el.id), "top navigation is shown").toEqual(["buttons-navigation-top"]);
+    expect(survey.getContainerContent("contentBottom").map(el => el.id), "bottom navigation is shown").toEqual(["buttons-navigation"]);
+
+    survey.navigationBar.initResponsivityManager(<any>{});
+    let changedCount = 0;
+    survey.registerPropertyChangedHandlers(["hasVisibleNavigationActions"], () => changedCount++);
+    survey.showCompleteButton = false;
+    await Promise.resolve();
+    expect(changedCount, "the survey is notified when the mounted navigation bar becomes empty").toBe(1);
+    expect(survey.getContainerContent("contentBottom"), "no bottom navigation after hiding the complete button").toEqual([]);
+    survey.navigationBar.resetResponsivityManager();
+  });
+
   test("SurveyProgressTextModel: returns all progress variants and picks active one", () => {
     const oldLegacyProgressBarView = settings.legacyProgressBarView;
     const oldCssType = surveyCss.currentType;

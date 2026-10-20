@@ -4,7 +4,7 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 import { Scope } from "../utils/scope";
 import {
   DynamicDataErrorOperation, DynamicDataSourceMethod, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
-  IDynamicDataReadRequest, IDynamicDataSort, IDynamicDataSource
+  IDynamicDataReadRequest, ISortCriterion, IDynamicDataSource
 } from "./dynamic-data-interfaces";
 import { DynamicDataSourceChannel, IDynamicDataChannelHost, IDynamicDataPushInfo } from "./dynamic-data-channel";
 import { getChangedFields, isRecordValueChanged, toReadResult } from "./dynamic-data-records";
@@ -57,7 +57,7 @@ export class DynamicDataList {
     getRecords: (): Array<any> => this.records,
     getFields: (): Array<IDynamicDataField> => this.getFields(),
     getLocalFilterRunner: (): ConditionRunner => this.isWindowWholeStorage ? this.view.filterRunner : undefined,
-    getLocalSort: (): Array<IDynamicDataSort> => this.isWindowWholeStorage ? this.view.sort : [],
+    getLocalSort: (): Array<ISortCriterion> => this.isWindowWholeStorage ? this.view.sort : [],
     isMembershipFrozen: (): boolean => this.isViewFrozenOnEdit && this.hasLocalViews
   });
   // The index arithmetic over the views (dynamic-data-view-indexes.ts); the list delegates to it.
@@ -946,7 +946,7 @@ export class DynamicDataList {
      inside the read request, so two assignments would be two requests, the second superseding the
      first. It is what the two setters are made of - and what a question that has both authored
      hands over on its first sync. */
-  public setView(filter: string, sort: Array<IDynamicDataSort>): void {
+  public setView(filter: string, sort: Array<ISortCriterion>): void {
     const newFilter = !!filter ? filter : "";
     this.membership.clearTouched();
     /* The page reset belongs to the filter: a different membership makes the page the respondent is
@@ -983,10 +983,10 @@ export class DynamicDataList {
     this.membership.refreezeMembership();
     this.raiseChanged({ type: "reset" });
   }
-  public get sort(): Array<IDynamicDataSort> {
+  public get sort(): Array<ISortCriterion> {
     return this.view.sort.slice();
   }
-  public set sort(v: Array<IDynamicDataSort>) {
+  public set sort(v: Array<ISortCriterion>) {
     this.setView(this.view.filter, v);
   }
   public dispose(): void {

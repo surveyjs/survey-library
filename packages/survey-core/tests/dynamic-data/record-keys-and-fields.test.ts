@@ -185,14 +185,14 @@ describe("record fields: the other text of a hasOther question", () => {
     ]);
   });
   test("panel: a sort by the other text compares strings", () => {
-    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", sortBy: "q-Comment",
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", sortCriteria: [{ field: "q-Comment" }],
       templateElements: [{ type: "dropdown", name: "q", choices: [1, 2], showOtherItem: true }] }] });
     survey.data = { p: [other("9"), other("10")] };
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
     expect(panel.panels.map((p): string => (<Question>p.getQuestionByName("q")).comment), "#1").toEqual(["10", "9"]);
   });
   test("matrix: a sort by the other text compares strings", () => {
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, sortBy: "q-Comment",
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, sortCriteria: [{ field: "q-Comment" }],
       columns: [{ name: "q", cellType: "dropdown", choices: [1, 2], showOtherItem: true }] }] });
     survey.data = { m: [other("9"), other("10")] };
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");

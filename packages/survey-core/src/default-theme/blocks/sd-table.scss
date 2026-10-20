@@ -52,6 +52,12 @@
     var(--sjs2-layout-component-panel-description-padding-bottom);
   --sd-question-description-color: var(--sjs2-color-component-panel-default-description);
 
+  //description under input
+  --sd-question-description-under-input-padding-block: var(--sjs2-layout-component-question-box-gap-vertical)
+    var(--sjs2-layout-component-matrix-box-padding-bottom);
+  --sd-question-description-under-input-padding-inline: var(--sd-question-header-padding-inline);
+  --sd-question-description-under-input-margin-block: 0;
+
   &:where(.sd-question--with-frame) {
     --sd-question-container-border-radius: var(--sjs2-radius-component-panel);
     --sd-question-container-background: var(--sjs2-color-component-panel-default-bg);
@@ -101,7 +107,6 @@
     --sd-question-header-border-bottom: none;
   }
 }
-
 .sd-table-wrapper {
   display: block;
   --sd-table-sticky-background-color: #{table-sticky-background(

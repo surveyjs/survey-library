@@ -7,6 +7,14 @@ export var haitianCreoleStrings = {
   pagePrevText: "Anvan",
   // "Next"
   pageNextText: "Pwochen",
+  // [Auto-translated] "First"
+  pageFirstText: "Premye",
+  // [Auto-translated] "Last"
+  pageLastText: "Denye",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "nan {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Chwazi paj",
   // "Complete"
   completeText: "Ranpli",
   // [Auto-translated] "Preview"

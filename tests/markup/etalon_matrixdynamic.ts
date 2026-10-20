@@ -34,6 +34,38 @@ registerMarkupTests(
       snapshot: "matrixdynamic-default"
     },
     {
+      name: "Test matrixdynamic question (default) markup with pageSize and one page",
+      json: {
+        "elements": [
+          {
+            "type": "matrixdynamic",
+            "titleLocation": "hidden",
+            "name": "question1",
+            "pageSize": 10,
+            "columns": [
+              {
+                "name": "Column 1"
+              },
+              {
+                "name": "Column 2"
+              },
+              {
+                "name": "Column 3"
+              }
+            ],
+            "choices": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          }
+        ]
+      },
+      snapshot: "matrixdynamic-default"
+    },
+    {
       name: "Test matrixdynamic question (defaultV2) markup",
       json: {
         "elements": [
@@ -147,6 +179,69 @@ registerMarkupTests(
       },
       initSurveyAfterIdSetup: (survey) => {
         survey.getQuestionByName("matrix").visibleRows[0].showHideDetailPanelClick();
+      }
+    },
+    {
+      name: "Test matrixdynamic question with detail panel with pageSize and one page",
+      json: {
+        "elements": [
+          {
+            "type": "matrixdynamic",
+            "name": "matrix",
+            "titleLocation": "hidden",
+            "columns": [
+              {
+                "name": "q1",
+                "html": "test",
+                "cellType": "html",
+              },
+            ],
+            "detailElements": [
+              {
+                "type": "html",
+                "html": "test",
+                "name": "detail-question",
+              },
+            ],
+            "detailPanelMode": "underRowSingle",
+            "rowCount": 2,
+            "pageSize": 10,
+          }
+        ],
+      },
+      snapshot: "matrixdynamic-detail",
+      isCorrectEvent: (options) => {
+        return options.question.name == "matrix";
+      },
+      initSurvey: (survey) => {
+        survey.getQuestionByName("matrix").visibleRows[0].showHideDetailPanelClick();
+      },
+      initSurveyAfterIdSetup: (survey) => {
+        survey.getQuestionByName("matrix").visibleRows[0].showHideDetailPanelClick();
+      }
+    },
+    {
+      name: "matrixdynamic with visible pager",
+      json: {
+        "elements": [
+          {
+            "type": "matrixdynamic",
+            "name": "matrix",
+            "titleLocation": "hidden",
+            "columns": [
+              {
+                "name": "q1",
+                "cellType": "text",
+              },
+            ],
+            "rowCount": 5,
+            "pageSize": 2,
+          }
+        ],
+      },
+      snapshot: "matrixdynamic-pager",
+      isCorrectEvent: (options) => {
+        return options.question.name == "matrix";
       }
     }
   ]

@@ -160,6 +160,7 @@ export {
 } from "../../src/jsonobject";
 export { property, propertyArray } from "../../src/decorators";
 export { QuestionRecordsModel } from "../../src/question_records";
+export { QuestionRecordsBar } from "../../src/question_records_bar";
 export {
   IMatrixDropdownData,
   MatrixDropdownCell,
@@ -239,7 +240,7 @@ export { parseDynamicDataSort, dynamicDataSortToString } from "../../src/dynamic
 export type {
   IDynamicDataSource, IDynamicDataSourceCapabilities, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataField,
   DynamicDataSortDirection,
-  DynamicDataFieldType, DynamicDataOperation
+  DynamicDataFieldType, DynamicDataSourceMethod, DynamicDataErrorOperation, DynamicDataOperation
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 export { SurveyTimer } from "../../src/surveytimer";
 export { SurveyTimerModel } from "../../src/surveyTimerModel";

@@ -5,6 +5,14 @@ export var hebrewSurveyStrings = {
   pagePrevText: "אחורה",
   // "Next"
   pageNextText: "קדימה",
+  // [Auto-translated] "First"
+  pageFirstText: "ראשונה",
+  // [Auto-translated] "Last"
+  pageLastText: "אחרון",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "של {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Select Page",
   // "Complete"
   completeText: "סיום",
   // "Preview"

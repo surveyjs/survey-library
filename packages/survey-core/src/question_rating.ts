@@ -363,12 +363,12 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
     if (!DomDocumentHelper.isAvailable()) return;
     if (QuestionRatingModel.colorsCalculated) return;
 
-    QuestionRatingModel.badColor = getRGBColor(themeVariables, "--sjs2-color-bg-alert-primary", "--sd-rating-bad-color", this.rootElement);
-    QuestionRatingModel.normalColor = getRGBColor(themeVariables, "--sjs2-color-bg-warning-primary", "--sd-rating-normal-color", this.rootElement);
-    QuestionRatingModel.goodColor = getRGBColor(themeVariables, "--sjs2-color-bg-positive-primary", "--sd-rating-good-color", this.rootElement);
-    QuestionRatingModel.badColorLight = getRGBColor(themeVariables, "--sjs2-color-bg-alert-secondary", "--sd-rating-bad-color-light", this.rootElement);
-    QuestionRatingModel.normalColorLight = getRGBColor(themeVariables, "--sjs2-color-bg-warning-secondary", "--sd-rating-normal-color-light", this.rootElement);
-    QuestionRatingModel.goodColorLight = getRGBColor(themeVariables, "--sjs2-color-bg-positive-secondary", "--sd-rating-good-color-light", this.rootElement);
+    QuestionRatingModel.badColor = getRGBColor(themeVariables, "--sjs2-color-bg-alert-primary", "--sd-rating-bad-color", this.contentElement);
+    QuestionRatingModel.normalColor = getRGBColor(themeVariables, "--sjs2-color-bg-warning-primary", "--sd-rating-normal-color", this.contentElement);
+    QuestionRatingModel.goodColor = getRGBColor(themeVariables, "--sjs2-color-bg-positive-primary", "--sd-rating-good-color", this.contentElement);
+    QuestionRatingModel.badColorLight = getRGBColor(themeVariables, "--sjs2-color-bg-alert-secondary", "--sd-rating-bad-color-light", this.contentElement);
+    QuestionRatingModel.normalColorLight = getRGBColor(themeVariables, "--sjs2-color-bg-warning-secondary", "--sd-rating-normal-color-light", this.contentElement);
+    QuestionRatingModel.goodColorLight = getRGBColor(themeVariables, "--sjs2-color-bg-positive-secondary", "--sd-rating-good-color-light", this.contentElement);
 
     this.colorsCalculated = true;
     this.resetRenderedItems();
@@ -586,7 +586,7 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
     if (this.visibleChoices.length === 0) return false;
     if (this.isDigitShortcutTargetBlocked(event?.target)) return false;
     const target = event?.target;
-    if (this.rootElement && target && target.nodeType && typeof this.rootElement.contains === "function" && !this.rootElement.contains(target)) {
+    if (this.contentElement && target && target.nodeType && typeof this.contentElement.contains === "function" && !this.contentElement.contains(target)) {
       return false;
     }
     return true;
@@ -649,7 +649,7 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
     if (index < 0) return;
     const id = this.getInputId(index);
     const selector = "#" + (typeof CSS !== "undefined" && CSS.escape ? CSS.escape(id) : id);
-    const roots = [this.rootElement, this.getWrapperElement(), (this.survey as SurveyModel)?.rootElement];
+    const roots = [this.contentElement, this.getWrapperElement(), (this.survey as SurveyModel)?.rootElement];
     let el: HTMLElement = undefined;
     for (let i = 0; i < roots.length; i++) {
       const root = roots[i];
@@ -923,14 +923,11 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
 
   public afterRenderQuestionElement(el: HTMLElement): void {
     super.afterRenderQuestionElement(el);
-    this.rootElement = el;
     if (this.renderAs !== "dropdown") {
       this.colorsCalculated = false;
       this.updateColors((this.survey as SurveyModel).themeVariables);
     }
   }
-
-  private rootElement: HTMLElement;
 
   private getRenderedItemColor(index: number, light: boolean): string {
     let startColor = light ? QuestionRatingModel.badColorLight : QuestionRatingModel.badColor;

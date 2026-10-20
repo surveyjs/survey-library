@@ -8,7 +8,7 @@ import { Question } from "../../src/question";
 import { PanelModel } from "../../src/panel";
 import { FunctionFactory } from "../../src/functionsfactory";
 import { settings } from "../../src/settings";
-import { IDynamicDataPageState } from "../../src/dynamic-data/dynamic-data-page-validation";
+import { IRecordsPageState } from "../../src/records/records-paging";
 import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 import { DragDropMatrixRows } from "../../src/dragdrop/matrix-rows";
 import { SurveyTestTargets } from "../../src/tester/test-targets";
@@ -20,8 +20,8 @@ import {
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 
 // The edited set and the page the page validation keeps for a records question have no public face.
-const getPageState = (q: Question): IDynamicDataPageState => (<any>q).getPageState();
-const setPageState = (q: Question, state: IDynamicDataPageState): void => { (<any>q).setPageState(state); };
+const getPageState = (q: Question): IRecordsPageState => (<any>q).getPageState();
+const setPageState = (q: Question, state: IRecordsPageState): void => { (<any>q).setPageState(state); };
 
 /* With paging on, the panels and rows that exist are the current page, for an in-memory list as for
    a data source that pages itself. */
@@ -590,7 +590,7 @@ describe("Page window: asynchronous validators and the survey's settings", () =>
     expect(question.pageIndex, "#2: not moved yet").toBe(0);
     expect(question.isPageMovePending, "#3").toBe(true);
     expect(question.canGoNextPage, "#4: the pager is not usable").toBe(false);
-    expect(question.pagerActions.getActionById("sv-pager-next").enabled, "#5: nor are its actions").toBe(false);
+    expect(question.recordsBar.pagerActions.getActionById("sv-pager-next").enabled, "#5: nor are its actions").toBe(false);
     expect(results.length, "#6: one validator per panel of the page").toBe(5);
     results.forEach(setResult => setResult(1));
     expect(question.pageIndex, "#7: moved once every validator settled clean").toBe(1);

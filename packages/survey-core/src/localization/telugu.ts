@@ -5,6 +5,14 @@ export var teluguStrings = {
   pagePrevText: "వెనకటి",
   // "Next"
   pageNextText: "తరువాయ",
+  // [Auto-translated] "First"
+  pageFirstText: "మొదట",
+  // [Auto-translated] "Last"
+  pageLastText: "చివరిది",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "పేజీని ఎంచుకోండి",
   // "Complete"
   completeText: "పూర్తి చేయండి",
   // "Preview"

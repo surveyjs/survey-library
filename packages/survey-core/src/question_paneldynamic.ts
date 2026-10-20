@@ -37,6 +37,7 @@ import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IDynamicDataField, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { IRecordIndexFollower, RecordIndexEvent, RecordRemap, isRecordListChange, toKnownRemap } from "./records/records-index-followers";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, QuestionRecordsValueGetterContext, QuestionRecordsModel, NestedWalkItem,
   QuestionRecordsSingleInputBehavior, IRecordTarget, IRecordRemoval, IRecordElementVisibility, IRecordCleanupObject, removeRecordCleanupSkipped,
@@ -249,6 +250,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (footerProps.indexOf(name) > -1) {
       this.updateFooterActions();
     }
+    // The pager shows in list mode only (showPager).
+    if (name === "displayMode") {
+      this.updateRecordsBar();
+    }
     if (name === "allowAddPanel" || name === "panelCountExpression") {
       this.updateNoEntriesTextDefaultLoc();
       this.updateFooterActions();
@@ -414,8 +419,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.updateRenderedPanels();
     }
   }
-  // settings.panel.maxPanelCount is the number of panels one page may hold, in every display mode.
-  protected get maxRecordsPerPage(): number {
+  // settings.panel.maxPanelCount limits the total number of panels while they are not split into pages.
+  protected get maxRecordCountWithoutPaging(): number {
     return settings.panel.maxPanelCount;
   }
   protected onPageSizeAssigned(): void {
@@ -880,6 +885,79 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     return index;
   }
+  /* The record the current panel holds, kept across rebuilds. It names its record for as long as the
+     record exists: every insert, remove and move of the list renumbers it, and so does every read that
+     commits again (by key, or by content for a source without a key). A record that is gone - removed,
+     not found again, or in a window of a source that pages itself that moved and has no key to follow
+     it by - makes it -1. Replacing the source and disposing clear it. An assignment of the value from
+     outside does not renumber it: without paging the current panel keeps its position then, and the
+     held index names a storage position the same way. */
+  private currentRecordIndex: number = -1;
+  // The window offset of the source the index was taken in, or last renumbered for.
+  private currentRecordWindowOffset: number = 0;
+  // The source was replaced: the index names a record of the old one until the new one commits.
+  private isCurrentRecordOfOldSource: boolean = false;
+  /* The current record last announced (the current-index event), followed through the same inserts,
+     removes, moves and reloads as the current record, so that an operation that ends on the record and
+     the position it started from announces nothing. -1: none, or gone. */
+  private announcedRecordIndex: number = -1;
+  private setCurrentRecordIndex(recordIndex: number): void {
+    this.currentRecordIndex = recordIndex;
+    const list = this.dataListValue;
+    this.currentRecordWindowOffset = !!list ? list.windowOffset : 0;
+  }
+  // -1 when there is none, or when it is stale: the window moved since it was taken.
+  private getCurrentRecordIndex(): number {
+    const list = this.dataListValue;
+    if (!!list && list.windowOffset !== this.currentRecordWindowOffset) return -1;
+    return this.currentRecordIndex;
+  }
+  /* The follower of the current record (QuestionRecordsModel.createCurrentRecordFollower): the record
+     follows its record, also on a move - it is a record, not a position. It also drops the position a
+     move from code is going to (takePendingVisibleIndex) on a failed read, a replaced source and
+     dispose: the window in force stays, and the current panel with it. */
+  protected createCurrentRecordFollower(): IRecordIndexFollower {
+    return { follow: (event: RecordIndexEvent): void => { this.followCurrentRecord(event); } };
+  }
+  private followCurrentRecord(event: RecordIndexEvent): void {
+    if (isRecordListChange(event)) {
+      this.remapCurrentRecord(event.remap);
+    } else if (event.kind === "reload") {
+      this.followReloadedCurrentRecord(event.getRemap);
+    } else if (event.kind === "source") {
+      this.currentRecordIndex = -1;
+      this.announcedRecordIndex = -1;
+      this.isCurrentRecordOfOldSource = true;
+      this.takePendingVisibleIndex();
+    } else if (event.kind === "dispose") {
+      this.currentRecordIndex = -1;
+      this.takePendingVisibleIndex();
+    } else if (event.kind === "readFailed") {
+      this.takePendingVisibleIndex();
+    }
+  }
+  private remapCurrentRecord(remap: RecordRemap): void {
+    const known = toKnownRemap(remap);
+    const follow = (index: number): number => index < 0 ? index : known(index);
+    this.currentRecordIndex = follow(this.currentRecordIndex);
+    this.announcedRecordIndex = follow(this.announcedRecordIndex);
+  }
+  /* A committed read renumbers the current record by the records it brought back. A window of a
+     source that pages itself at another offset has no record in common with the old one when there
+     is no key to find it by. The first read of a replaced source names nothing of the old one. */
+  private followReloadedCurrentRecord(getRemap: () => RecordRemap): void {
+    const list = this.dataListValue;
+    const isLost = this.isCurrentRecordOfOldSource ||
+      list.isPagedBySource && !list.keyField && list.windowOffset !== this.currentRecordWindowOffset;
+    this.isCurrentRecordOfOldSource = false;
+    if (isLost) {
+      this.currentRecordIndex = -1;
+      this.announcedRecordIndex = -1;
+    } else if (this.currentRecordIndex > -1 || this.announcedRecordIndex > -1) {
+      this.remapCurrentRecord(getRemap());
+    }
+    this.currentRecordWindowOffset = list.windowOffset;
+  }
   /**
    * A zero-based index of the currently displayed panel.
    *
@@ -963,7 +1041,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (isAnnounced) {
       this.leftVisibleIndex = this.currentVisibleIndexValue;
       this.currentVisibleIndexValue = visibleIndex;
-      this.setAnnouncedRecordIndex(this.getCurrentRecordIndex());
+      this.announcedRecordIndex = this.getCurrentRecordIndex();
     }
     this.updateRenderedPanels();
     this.updateFooterActions();
@@ -1000,10 +1078,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const visibleIndex = !!panel ? this.getPanelVisibleIndex(panel) : -1;
     if (visibleIndex < 0) return;
     const recordIndex = this.getCurrentRecordIndex();
-    if (recordIndex === this.getAnnouncedRecordIndex() && visibleIndex === this.currentVisibleIndexValue) return;
+    if (recordIndex === this.announcedRecordIndex && visibleIndex === this.currentVisibleIndexValue) return;
     this.leftVisibleIndex = this.currentVisibleIndexValue;
     this.currentVisibleIndexValue = visibleIndex;
-    this.setAnnouncedRecordIndex(recordIndex);
+    this.announcedRecordIndex = recordIndex;
     this.raiseCurrentIndexChanged(panel, visibleIndex);
   }
   /* The record a panel holds. Under a view it is the record the panel was built for, which
@@ -1377,12 +1455,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       super.setValueCore(newValue);
     }
   }
-  public setIsMobile(val: boolean) {
-    super.setIsMobile(val);
-    (this.panelsCore || []).forEach(panel => panel.getQuestions(true).forEach(question => {
-      question.setIsMobile(val);
-    }));
-  }
   public themeChanged(theme: ITheme): void {
     super.themeChanged(theme);
     (this.panelsCore || []).forEach(panel =>
@@ -1637,18 +1709,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   /**
    * A maximum number of panels in Dynamic Panel. Users cannot add new panels if `panelCount` equals `maxPanelCount`.
    *
-   * Default value: 100 (inherited from [`settings.panel.maxPanelCount`](https://surveyjs.io/form-library/documentation/settings#panelMaximumPanelCount))
+   * Default value: 100 (inherited from [`settings.panel.maxPanelCount`](/form-library/documentation/api-reference/settings#panel))
    *
-   * `settings.panel.maxPanelCount` is the maximum number of panels on one page. If panels are not split into pages, it also limits `maxPanelCount`. If they are, only `maxPanelCount` limits the total number of panels, and only when you set it.
-   *
-   * [View Demo](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
+   * [Demo: Dynamic Panel with Repeating Group of Fields](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
    * @see panelCount
    * @see minPanelCount
    * @see allowAddPanel
    */
-  /* Without paging the setting caps it, as it always has: a value above the setting reads as the
-     setting and is therefore not serialized. With paging the setting is the page maximum and the
-     value is kept (panelCountLimit). */
   public get maxPanelCount(): number {
     return this.getMaxRecordCount("maxPanelCount");
   }
@@ -3210,12 +3277,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return actions;
   }
   public canRenderRemovePanelOnRight(panel: PanelModel): boolean {
-    return this.canRenderRemovePanel(panel, "right");
+    const notCollpased = panel.state !== "collapsed";
+    return this.canRenderRemovePanel(panel, "right") && notCollpased;
   }
   private canRenderRemovePanel(panel: PanelModel, side?: string): boolean {
     const canRemove = this.canRemovePanel;
-    const notCollpased = panel.state !== "collapsed";
-    return (side !== undefined ? this.removePanelButtonLocation === side : true) && canRemove && notCollpased;
+    return (side !== undefined ? this.removePanelButtonLocation === side : true) && canRemove;
   }
   // The values a new panel writes while it is attached - its defaults - are computed (runComputedWrites).
   protected createNewPanel(): PanelModel {
@@ -3589,6 +3656,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     return false;
   }
+  /* The renderers show a pager under the panels while the list has more than one page. Carousel and
+     tab mode page too, but their own navigation crosses pages. One page is no paging: design and
+     single-input mode report one as well. */
+  public get showPager(): boolean {
+    return this.pageCount > 1 && this.isRenderModeList;
+  }
   private tabbedMenuValue: AdaptiveActionContainer<PanelDynamicTabbedMenuItem>;
   public get hasTabbedMenu(): boolean {
     return this.isRenderModeTab && this.visiblePanels.length > 0;
@@ -3782,6 +3855,19 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   get showNavigation(): boolean {
     if (this.isReadOnly && this.visiblePanelCount == 1) return false;
     return this.visiblePanelCount > 0 && !!this.cssClasses.footer;
+  }
+  /* The footer under the panels: the bottom progress bar and the footer toolbar while the navigation
+     shows, and the pager. The pager shares the footer row with the toolbar buttons. */
+  public get showFooter(): boolean {
+    return this.showFooterProgress || this.showFooterButtons || this.showPager;
+  }
+  // The progress bar in the footer: the navigation shows, and the progress is a bottom bar.
+  public get showFooterProgress(): boolean {
+    return this.showNavigation && this.isRangeShowing && this.isProgressBottomShowing;
+  }
+  // The footer toolbar's buttons: the navigation shows, and the toolbar has a visible action.
+  public get showFooterButtons(): boolean {
+    return this.showNavigation && !!this.showFooterToolbar;
   }
   showSeparator(index: number): boolean {
     return this.isRenderModeList && index < this.renderedPanels.length - 1;

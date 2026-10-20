@@ -1,7 +1,7 @@
 import { Helpers } from "../helpers";
-import { DynamicDataSortDirection, IDynamicDataSort } from "./dynamic-data-interfaces";
-import { DynamicDataList } from "./dynamic-data-list";
-import { dynamicDataSortToString, parseDynamicDataSort } from "./dynamic-data-sort";
+import { DynamicDataSortDirection, IDynamicDataSort } from "../dynamic-data/dynamic-data-interfaces";
+import { DynamicDataList } from "../dynamic-data/dynamic-data-list";
+import { dynamicDataSortToString, parseDynamicDataSort } from "../dynamic-data/dynamic-data-sort";
 import { Scope } from "../utils/scope";
 
 /* The question side of the list's paging, sorting and filtering. The behaviour lives here and the
@@ -27,7 +27,7 @@ export const pagingStateKeys = {
   pageSize: "pageSize", pageIndex: "pageIndex", pageCount: "pageCount", isCountKnown: "isCountKnown",
   isPageMovePending: "isPageMovePending", sortOrder: "sortOrder", filterExpression: "filterExpression"
 };
-export interface IDynamicDataPagingOwner {
+export interface IRecordsPagingOwner {
   getPropertyValue(name: string): any;
   setPropertyValue(name: string, val: any): void;
   getLocalizationFormatString(strName: string, ...args: any[]): string;
@@ -52,9 +52,19 @@ export interface IDynamicDataPagingOwner {
   cancelPendingPageMove?(): void;
 }
 
-export class DynamicDataPagingController {
+/* What a paged question hands to the ancestor that rebuilds the object holding it, and gets back
+   when that object is created again for the same outer record: the records edited and not validated
+   yet, the page it was on, and - one level down - the same for the paged questions nested in its own
+   records. It belongs to the records and not to the object, so it has to outlive the object. */
+export interface IRecordsPageState {
+  pageIndex: number;
+  edited: Array<number>;
+  nested: { [recordIndex: number]: { [valueName: string]: IRecordsPageState } };
+}
+
+export class RecordsPagingController {
   // getList: whoever holds the list hands it over; it may create the list when it is asked.
-  constructor(private owner: IDynamicDataPagingOwner, private getList: () => DynamicDataList) { }
+  constructor(private owner: IRecordsPagingOwner, private getList: () => DynamicDataList) { }
   private get list(): DynamicDataList {
     return this.getList();
   }

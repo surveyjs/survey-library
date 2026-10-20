@@ -12,6 +12,8 @@ import { ISurveyData } from "../../src/base-interfaces";
 import { QuestionMatrixDropdownModel } from "../../src/question_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { QuestionRecordsBar } from "../../src/question_records_bar";
+import { settings } from "../../src/settings";
 
 // The released override surface of the matrix base.
 export class MatrixWithOverrides extends QuestionMatrixDropdownModelBase {
@@ -95,8 +97,23 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // Every records question shares the paging, sorting and filtering API, the fixed matrix included.
   const ddApi: Array<DeclaredKeys<QuestionMatrixDropdownModel>> = ["pageIndex", "pageCount", "isCountKnown", "sortBy",
     "filterExpression", "sortOrder", "toggleSort", "clearSort", "refreshView", "canGoNextPage", "canGoPrevPage", "goToPage",
-    "nextPage", "prevPage", "isPageMovePending", "pagerActions", "pageSize"];
+    "nextPage", "prevPage", "isPageMovePending", "recordsBar", "showPager", "pageSize"];
   res.push(ddApi);
+  // The pager is the records bar's: it left the questions.
+  // @ts-expect-error the records bar's
+  const ddPager: DeclaredKeys<QuestionMatrixDropdownModel> = "pagerActions";
+  // @ts-expect-error the records bar's
+  const mdPager: DeclaredKeys<QuestionMatrixDynamicModel> = "pagerActions";
+  // @ts-expect-error the records bar's
+  const pdPager: DeclaredKeys<QuestionPanelDynamicModel> = "pagerActions";
+  res.push(ddPager, mdPager, pdPager);
+  // The records bar's public surface.
+  const barApi: Array<DeclaredKeys<QuestionRecordsBar>> = ["pagerActions", "showPager", "isVisible", "cssClasses"];
+  const bar: QuestionRecordsBar = md.recordsBar;
+  res.push(barApi, pd.recordsBar === bar);
+  // @ts-expect-error the question's state reaches the bar through its owner object
+  const barOwner: DeclaredKeys<QuestionRecordsBar> = "owner";
+  res.push(barOwner);
   // @ts-expect-error the single-input behavior reaches it through the question's owner object
   const ddSync: DeclaredKeys<QuestionMatrixDropdownModel> = "syncPageSizeWithMode";
   res.push(ddSync);
@@ -231,7 +248,7 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error protected
   const ddShared3: DeclaredKeys<QuestionMatrixDropdownModel> = "getRecordCountLimit";
   // @ts-expect-error protected
-  const ddShared4: DeclaredKeys<QuestionMatrixDropdownModel> = "isRecordCountLimitedByPageMax";
+  const ddShared4: DeclaredKeys<QuestionMatrixDropdownModel> = "isRecordCountLimitedBySetting";
   // @ts-expect-error protected
   const ddShared6: DeclaredKeys<QuestionMatrixDropdownModel> = "onPageSizeAssigned";
   // @ts-expect-error a hook
@@ -245,7 +262,7 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error protected
   const mdShared3: DeclaredKeys<QuestionMatrixDynamicModel> = "getRecordCountLimit";
   // @ts-expect-error protected
-  const mdShared4: DeclaredKeys<QuestionMatrixDynamicModel> = "isRecordCountLimitedByPageMax";
+  const mdShared4: DeclaredKeys<QuestionMatrixDynamicModel> = "isRecordCountLimitedBySetting";
   // @ts-expect-error protected
   const mdShared6: DeclaredKeys<QuestionMatrixDynamicModel> = "onPageSizeAssigned";
   // @ts-expect-error a hook
@@ -259,7 +276,7 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error protected
   const pdShared3: DeclaredKeys<QuestionPanelDynamicModel> = "getRecordCountLimit";
   // @ts-expect-error protected
-  const pdShared4: DeclaredKeys<QuestionPanelDynamicModel> = "isRecordCountLimitedByPageMax";
+  const pdShared4: DeclaredKeys<QuestionPanelDynamicModel> = "isRecordCountLimitedBySetting";
   // @ts-expect-error protected
   const pdShared6: DeclaredKeys<QuestionPanelDynamicModel> = "onPageSizeAssigned";
   // @ts-expect-error a hook
@@ -320,5 +337,10 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error protected
   const ddItemLookup3: DeclaredKeys<QuestionMatrixDropdownModel> = "getExpressionItem";
   res.push(ddItemLookup1, ddItemLookup2, ddItemLookup3);
+  // settings.maxPageSize, the page cap of every records question that pages, is a number.
+  const maxPageSize: number = settings.maxPageSize;
+  // @ts-expect-error a number
+  settings.maxPageSize = "3";
+  res.push(maxPageSize);
   return res;
 }

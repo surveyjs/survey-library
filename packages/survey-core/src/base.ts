@@ -179,6 +179,12 @@ export class Bindings {
   }
 }
 
+interface IPropChangeHandler {
+  name: string;
+  func: (...args: any[]) => void;
+  key: string;
+}
+
 export class Dependencies {
   private static DependenciesCount = 0;
   constructor(public currentDependency: () => void, public target: Base, public property: string) {
@@ -316,11 +322,19 @@ export class Base implements IObjectValueContext {
   private expressionInfo: { [index: string]: IExpressionRunnerInfo };
   private isDisposedValue: boolean;
   private classMetaData: JsonMetadataClass;
-  private onPropChangeFunctions: Array<{
-    name: string,
-    func: (...args: any[]) => void,
-    key: string,
-  }>;
+  // A map by name, then by slot: shared objects (the survey, a page, a matrix) carry thousands of keyed handlers.
+  // A truthy key is its own slot; an entry without one is its own slot. Empty name maps are kept, so a running
+  // dispatch never loses its map when the last handler removes itself and another one is registered.
+  private propChangeHandlers: Map<string, Map<any, IPropChangeHandler>>;
+  // A snapshot for tests only.
+  private get onPropChangeFunctions(): Array<IPropChangeHandler> {
+    if (!this.propChangeHandlers) return undefined;
+    const res = new Array<IPropChangeHandler>();
+    this.propChangeHandlers.forEach(handlers => {
+      handlers.forEach(entry => res.push({ name: entry.name, func: entry.func, key: entry.key }));
+    });
+    return res;
+  }
   protected isLoadingFromJsonValue: boolean = false;
   public loadingOwner: Base = null;
 
@@ -983,11 +997,10 @@ export class Base implements IObjectValueContext {
       this
     );
     this.checkConditionPropertyChanged(name);
-    if (!this.onPropChangeFunctions) return;
-    for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
-      if (this.onPropChangeFunctions[i].name == name)
-        this.onPropChangeFunctions[i].func(newValue, arrayChanges);
-    }
+    const handlers = this.propChangeHandlers?.get(name);
+    if (!handlers) return;
+    // Map.forEach is live: an entry removed before its turn does not fire, an entry added during the pass fires.
+    handlers.forEach(entry => entry.func(newValue, arrayChanges));
   }
   public onBindingChanged(oldValue: any, newValue: any): void {
     if (this.isLoadingFromJson) return;
@@ -1131,12 +1144,12 @@ export class Base implements IObjectValueContext {
     if (!keys) return false;
     return this.canSkipExpressionByKeys(this.getExpressionByProperty(propName), keys);
   }
-  protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[]): boolean {
+  protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[], isClearedKeyChanged?: boolean): boolean {
     if (!keys) return false;
     if (!!runner && runner.hasFunction(true)) return false;
     if (vars === undefined) vars = !!runner ? runner.getVariables() : [];
     if (!Array.isArray(vars) || vars.length === 0) return false;
-    return !new ValueGetter().isAnyKeyChanged(keys, vars);
+    return !new ValueGetter().isAnyKeyChanged(keys, vars, isClearedKeyChanged);
   }
   private asynExpressionHash: any;
   private doBeforeAsynRun(id: number): void {
@@ -1261,31 +1274,47 @@ export class Base implements IObjectValueContext {
     }
   }
   public registerFunctionOnPropertyValueChanged(name: string, func: any, key: string = null): void {
-    if (!this.onPropChangeFunctions) {
-      this.onPropChangeFunctions = [];
+    if (!this.propChangeHandlers) {
+      this.propChangeHandlers = new Map<string, Map<any, IPropChangeHandler>>();
+    }
+    let handlers = this.propChangeHandlers.get(name);
+    if (!handlers) {
+      handlers = new Map<any, IPropChangeHandler>();
+      this.propChangeHandlers.set(name, handlers);
     }
     if (key) {
-      for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
-        var item = this.onPropChangeFunctions[i];
-        if (item.name == name && item.key == key) {
-          item.func = func;
-          return;
-        }
+      const item = handlers.get(key);
+      if (item) {
+        item.func = func;
+        return;
       }
     }
-    this.onPropChangeFunctions.push({ name: name, func: func, key: key });
+    const entry: IPropChangeHandler = { name: name, func: func, key: key };
+    // Only a truthy key replaces; null, undefined and "" entries stack, each one in its own slot.
+    handlers.set(key ? key : entry, entry);
   }
   public registerFunctionOnPropertiesValueChanged(names: Array<string>, func: any, key: string = null): void {
     this.registerPropertyChangedHandlers(names, func, key);
   }
   public unRegisterFunctionOnPropertyValueChanged(name: string, key: string = null): Array<any> {
-    if (!this.onPropChangeFunctions) return;
-    for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
-      var item = this.onPropChangeFunctions[i];
-      if (item.name == name && item.key == key) {
-        return this.onPropChangeFunctions.splice(i, 1);
+    const handlers = this.propChangeHandlers?.get(name);
+    if (!handlers) return undefined;
+    let slot: any = undefined;
+    if (key) {
+      if (handlers.has(key)) slot = key;
+    } else {
+      // Stacked entries are rare: scan this name only. "==" lets null and undefined match each other, not "".
+      for (const [itemSlot, item] of handlers) {
+        if (!item.key && item.key == key) {
+          slot = itemSlot;
+          break;
+        }
       }
     }
+    if (slot === undefined) return undefined;
+    const removed = handlers.get(slot);
+    handlers.delete(slot);
+    return [removed];
   }
   public unRegisterFunctionOnPropertiesValueChanged(names: Array<string>, key: string = null): void {
     this.unregisterPropertyChangedHandlers(names, key);

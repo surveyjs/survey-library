@@ -5,6 +5,14 @@ export var malaySurveyStrings = {
   pagePrevText: "Sebelumnya",
   // "Next"
   pageNextText: "Seterusnya",
+  // [Auto-translated] "First"
+  pageFirstText: "Pertama",
+  // [Auto-translated] "Last"
+  pageLastText: "Terakhir",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Pilih Halaman",
   // "Complete"
   completeText: "Selesai",
   // "Preview"

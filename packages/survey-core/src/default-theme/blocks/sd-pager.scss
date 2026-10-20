@@ -1,0 +1,48 @@
+@use "../variables.scss" as *;
+
+// The pager of a dynamic panel and of a matrix, in three groups with no gap between the buttons of a
+// group: [First] [Prev]  [page dropdown] of N  [Next] [Last]. It is compact, its groups a small gap
+// apart; on a phone it takes the width of the question, and the page dropdown and Next push the
+// groups apart.
+.sd-paneldynamic__pager,
+.sd-matrixdynamic__pager,
+.sd-matrixdropdown__pager {
+  .sd-action-bar {
+    --sd-action-bar-gap: var(--sjs2-spacing-x000);
+  }
+  // Logical margins, for a right-to-left survey. margin-inline-end: 0 also resets the shared
+  // margin-left: auto (sd-action-bar.scss), which in RTL would open a second gap on the other side.
+  .sd-action-bar__item--space {
+    margin-inline-start: var(--sjs2-spacing-x075);
+    margin-inline-end: 0;
+  }
+}
+.sd-question--mobile {
+  .sd-paneldynamic__pager,
+  .sd-matrixdynamic__pager,
+  .sd-matrixdropdown__pager {
+    width: 100%;
+
+    .sd-action-bar {
+      width: 100%;
+    }
+    .sd-action-bar__item--space {
+      margin-inline-start: auto;
+    }
+  }
+}
+
+// The page dropdown: the chevron follows the page number.
+.sd-action.sd-pager__page {
+  flex-direction: row-reverse;
+  box-sizing: border-box;
+  min-width: var(--sjs2-spacing-x400);
+}
+
+// "of N": a disabled item without a tab stop that reads as a label, not as a disabled button.
+.sd-action.sd-pager__total {
+  box-sizing: border-box;
+  min-width: var(--sjs2-spacing-x400);
+  --sd-action-disabled-background: var(--sd-action-background);
+  --sd-action-disabled-title-color: var(--sd-action-title-color);
+}

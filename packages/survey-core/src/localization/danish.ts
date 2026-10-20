@@ -5,6 +5,14 @@ export var danishSurveyStrings = {
   pagePrevText: "Tilbage",
   // "Next"
   pageNextText: "Videre",
+  // [Auto-translated] "First"
+  pageFirstText: "Første",
+  // [Auto-translated] "Last"
+  pageLastText: "Sidste",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "af {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Vælg side",
   // "Complete"
   completeText: "Færdig",
   // "Preview"

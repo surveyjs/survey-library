@@ -83,6 +83,7 @@ import Action from "./components/action-bar/Action.vue";
 import ActionBarItem from "./components/action-bar/ActionBarItem.vue";
 import ActionBarItemDropdown from "./components/action-bar/ActionBarItemDropdown.vue";
 import ActionBarSeparator from "./components/action-bar/ActionBarSeparator.vue";
+import RecordsBar from "./components/records-bar/RecordsBar.vue";
 
 import List from "./components/list/List.vue";
 import ListItem from "./components/list/ListItem.vue";
@@ -264,6 +265,7 @@ function registerComponents(
   registerComponent("sv-action-bar-item", ActionBarItem);
   registerComponent("sv-action-bar-item-dropdown", ActionBarItemDropdown);
   registerComponent("sv-action-bar-separator", ActionBarSeparator);
+  registerComponent("sv-records-bar", RecordsBar);
 
   registerComponent("sv-list", List);
   registerComponent("sv-list-item-content", ListItemContent);

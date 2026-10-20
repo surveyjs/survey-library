@@ -1,4 +1,4 @@
-import { describe, test, expect, vi } from "vitest";
+import { describe, test, expect, vi, afterEach } from "vitest";
 import { SurveyModel } from "../src/survey";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
@@ -285,8 +285,8 @@ describe("Records question: dispose of the pager", () => {
       { type: "paneldynamic", name: "p", panelCount: 3, pageSize: 2, templateElements: [{ type: "text", name: "a" }] }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
-    const matrixPager = matrix.pagerActions;
-    const panelPager = panel.pagerActions;
+    const matrixPager = matrix.recordsBar.pagerActions;
+    const panelPager = panel.recordsBar.pagerActions;
     matrix.dispose();
     panel.dispose();
     expect(matrixPager.isDisposed, "#1: matrix").toBe(true);
@@ -349,6 +349,60 @@ describe("Records questions: one API across the three types", () => {
       expect(kind.hiddenRecord(filtered.value), "#6: the value keeps it").toEqual({ a: "2" });
     });
   });
+  /* A page move swaps the shown records at once: the question blocks its animations for the move
+     and releases them after it, whatever the move answers. */
+  const recordAnimationsInMoves = (q: any): Array<string> => {
+    const log: Array<string> = [];
+    const paging = q["paging"];
+    ["goToPage", "nextPage", "prevPage"].forEach(name => {
+      const original = paging[name].bind(paging);
+      vi.spyOn(paging, name).mockImplementation((...args: Array<any>) => {
+        log.push(name + ":" + q.animationAllowed);
+        return original(...args);
+      });
+    });
+    return log;
+  };
+  kinds.forEach(kind => {
+    test("a page move runs without animations, " + kind.type, () => {
+      settings.animationEnabled = true;
+      const q = create(kind, { pageSize: 1 });
+      q.enableOnElementRerenderedEvent();
+      expect(q.animationAllowed, "#1: animations are on before the moves").toBe(true);
+      const log = recordAnimationsInMoves(q);
+      expect([q.nextPage(), q.pageIndex, kind.shown(q)], "#2: next").toEqual([true, 1, ["2"]]);
+      expect(q.animationAllowed, "#2: released after next").toBe(true);
+      expect([q.goToPage(2), q.pageIndex, kind.shown(q)], "#3: go to").toEqual([true, 2, ["3"]]);
+      expect(q.animationAllowed, "#3: released after go to").toBe(true);
+      expect([q.prevPage(), q.pageIndex, kind.shown(q)], "#4: prev").toEqual([true, 1, ["2"]]);
+      expect(q.animationAllowed, "#4: released after prev").toBe(true);
+      expect(log, "#5: blocked during every move").toEqual(["nextPage:false", "goToPage:false", "prevPage:false"]);
+    });
+  });
+  test("a page move that does not happen releases the animations", () => {
+    settings.animationEnabled = true;
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "q", pageSize: 1, panelCount: 2, templateElements: [{ type: "text", name: "a", isRequired: true }] }]
+    });
+    const q = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+    q.enableOnElementRerenderedEvent();
+    const log = recordAnimationsInMoves(q);
+    expect(q.prevPage(), "#1: no page before the first").toBe(false);
+    expect(q.nextPage(), "#2: the first page has an error").toBe(false);
+    expect(q.pageIndex, "#3: still the first page").toBe(0);
+    expect(log, "#4: blocked during both moves").toEqual(["prevPage:false", "nextPage:false"]);
+    expect(q.animationAllowed, "#5: released").toBe(true);
+  });
+  test("a page move keeps a block the question already had", () => {
+    settings.animationEnabled = true;
+    const q = create(kinds[2], { pageSize: 1 });
+    q.enableOnElementRerenderedEvent();
+    q.blockAnimations();
+    q.nextPage();
+    expect(q.animationAllowed, "#1: the outer block holds").toBe(false);
+    q.releaseAnimations();
+    expect(q.animationAllowed, "#2: released by its owner").toBe(true);
+  });
   test("the three records questions are composite questions", () => {
     expect(kinds.map(kind => create(kind).isCompositeQuestion), "#1").toEqual([true, true, true]);
   });
@@ -357,7 +411,7 @@ describe("Records questions: one API across the three types", () => {
     const survey = new SurveyModel({ elements: [json] });
     survey.data = { m: { r1: "c2" } };
     const m: any = survey.getQuestionByName("m");
-    ["pageSize", "sortBy", "filterExpression", "getDataList", "pagerActions", "pageIndex"].forEach(name => {
+    ["pageSize", "sortBy", "filterExpression", "getDataList", "pagerActions", "recordsBar", "pageIndex"].forEach(name => {
       expect(name in m, "#1: " + name).toBe(false);
     });
     expect(m.value, "#2: the answer").toEqual({ r1: "c2" });
@@ -375,7 +429,7 @@ describe("Records questions: the serialized page size", () => {
   recordJsons.forEach(json => {
     test("pageSize is the serialized page size, " + json.type, () => {
       const prop = Serializer.findProperty(json.type, "pageSize");
-      expect([prop.defaultValue, prop.minValue, prop.visible], "#1: the property").toEqual([0, 0, false]);
+      expect([prop.defaultValue, prop.minValue, prop.visible], "#1: the property").toEqual([0, 0, true]);
       const survey = new SurveyModel({ elements: [Object.assign({ name: "q", pageSize: 2 }, json)] });
       const q: any = survey.getQuestionByName("q");
       expect([q.pageSize, q.pageCount], "#2: it pages").toEqual([2, 2]);
@@ -393,6 +447,118 @@ describe("Records questions: the serialized page size", () => {
       expect([q.pageSize, q.pageCount], "#2: no paging").toEqual([0, 1]);
       const saved = q.toJSON();
       expect([item.key in saved, "pageSize" in saved], "#3: neither key is saved").toEqual([false, false]);
+    });
+  });
+});
+
+/* settings.maxPageSize caps the page size of every records question while it pages; the type settings
+   (settings.matrix.maxRowCount, settings.panel.maxPanelCount) limit the total without paging only. */
+describe("Records questions: settings.maxPageSize caps the page size", () => {
+  interface IPagedKind {
+    type: string;
+    create(count: number, json?: any): any;
+    // The rows or panels built on the page.
+    shown(q: any): number;
+  }
+  interface IDynamicKind extends IPagedKind {
+    count(q: any): number;
+    add(q: any): void;
+    canAdd(q: any): boolean;
+    setTypeSetting(val: number): void;
+  }
+  const createQuestion = (json: any, data?: Array<any>): any => {
+    const survey = new SurveyModel({ elements: [Object.assign({ name: "q" }, json)] });
+    if (!!data) survey.data = { q: data };
+    return survey.getQuestionByName("q");
+  };
+  const records = (count: number): Array<any> => {
+    const res: Array<any> = [];
+    for (let i = 0; i < count; i++) res.push({ a: String(i) });
+    return res;
+  };
+  const fixedMatrix: IPagedKind = {
+    type: "matrixdropdown",
+    create: (count: number, json?: any): any => createQuestion(Object.assign({ type: "matrixdropdown",
+      rows: records(count).map((rec: any) => "r" + rec.a), columns: [{ name: "a", cellType: "text" }] }, json)),
+    shown: (q: any): number => q.visibleRows.length
+  };
+  const dynamicMatrix: IDynamicKind = {
+    type: "matrixdynamic",
+    create: (count: number, json?: any): any => createQuestion(Object.assign({ type: "matrixdynamic", rowCount: 0,
+      columns: [{ name: "a", cellType: "text" }] }, json), records(count)),
+    shown: (q: any): number => q.visibleRows.length,
+    count: (q: any): number => q.rowCount,
+    add: (q: any): void => q.addRow(),
+    canAdd: (q: any): boolean => q.canAddRow,
+    setTypeSetting: (val: number): void => { settings.matrix.maxRowCount = val; }
+  };
+  const dynamicPanel: IDynamicKind = {
+    type: "paneldynamic",
+    create: (count: number, json?: any): any => createQuestion(Object.assign({ type: "paneldynamic",
+      templateElements: [{ type: "text", name: "a" }] }, json), records(count)),
+    shown: (q: any): number => q.panels.length,
+    count: (q: any): number => q.panelCount,
+    add: (q: any): void => q.addPanel(),
+    canAdd: (q: any): boolean => q.canAddPanel,
+    setTypeSetting: (val: number): void => { settings.panel.maxPanelCount = val; }
+  };
+  const allKinds: Array<IPagedKind> = [fixedMatrix, dynamicMatrix, dynamicPanel];
+  const dynamicKinds: Array<IDynamicKind> = [dynamicMatrix, dynamicPanel];
+  const maxPageSize = settings.maxPageSize;
+  const maxRowCount = settings.matrix.maxRowCount;
+  const maxPanelCount = settings.panel.maxPanelCount;
+  afterEach(() => {
+    settings.maxPageSize = maxPageSize;
+    settings.matrix.maxRowCount = maxRowCount;
+    settings.panel.maxPanelCount = maxPanelCount;
+  });
+  test("settings.maxPageSize defaults to 100", () => {
+    expect(settings.maxPageSize).toBe(100);
+  });
+  allKinds.forEach(kind => {
+    test("pageSize above settings.maxPageSize pages by settings.maxPageSize and keeps its own value, " + kind.type, () => {
+      settings.maxPageSize = 3;
+      const q = kind.create(7, { pageSize: 5 });
+      expect(q.listPageSize, "#1: the size the list pages by").toBe(3);
+      expect(kind.shown(q), "#2: built on page 0").toBe(3);
+      expect(q.pageCount, "#3").toBe(3);
+      expect(q.pageSize, "#4: the property keeps the authored value").toBe(5);
+      expect(q.toJSON().pageSize, "#5: and so does its JSON").toBe(5);
+    });
+    test("the type setting does not cap the page while paging is on, " + kind.type, () => {
+      settings.matrix.maxRowCount = 2;
+      settings.panel.maxPanelCount = 2;
+      const q = kind.create(6, { pageSize: 4 });
+      expect(q.listPageSize, "#1").toBe(4);
+      expect(kind.shown(q), "#2: the page holds pageSize objects").toBe(4);
+    });
+    test("settings.maxPageSize is ignored without paging, " + kind.type, () => {
+      settings.maxPageSize = 2;
+      const q = kind.create(5);
+      expect(q.listPageSize, "#1: no paging").toBe(0);
+      expect(kind.shown(q), "#2: every object is built on the one page").toBe(5);
+    });
+    test.each([0, -1, NaN, "3"])("settings.maxPageSize %o is no cap, " + kind.type, (val: any) => {
+      settings.maxPageSize = val;
+      settings.matrix.maxRowCount = 2;
+      settings.panel.maxPanelCount = 2;
+      const q = kind.create(6, { pageSize: 4 });
+      expect(q.listPageSize, "#1: the authored pageSize").toBe(4);
+      expect(kind.shown(q), "#2").toBe(4);
+    });
+  });
+  dynamicKinds.forEach(kind => {
+    test("settings.maxPageSize does not limit the total, " + kind.type, () => {
+      settings.maxPageSize = 2;
+      const q = kind.create(5, { pageSize: 2 });
+      kind.add(q);
+      expect(kind.count(q), "#1: the add is not blocked").toBe(6);
+      expect(q.pageCount, "#2").toBe(3);
+    });
+    test("without paging the type setting still limits the total, " + kind.type, () => {
+      kind.setTypeSetting(4);
+      const q = kind.create(4);
+      expect(kind.canAdd(q), "#1: 4 of 4").toBe(false);
     });
   });
 });

@@ -9,6 +9,7 @@ export interface IMatrixRenderedTableOwner {
   getTable(): QuestionMatrixDropdownRenderedTable;
   removeStoredTable(): void;
   disposeTable(table: QuestionMatrixDropdownRenderedTable): void;
+  onTableCreated(table: QuestionMatrixDropdownRenderedTable): void;
   onTableReset(): void;
   clearRows(): void;
   isUpdateLocked(): boolean;
@@ -30,8 +31,17 @@ export class MatrixRenderedTableHost {
   public get isCreated(): boolean {
     return !!this.owner.getStoredTable();
   }
+  /* The read that creates a table reports it once it is stored: getTable stores the table only after
+     building it, so a callback fired inside the build would find nothing stored and build again. A read
+     in the callback gets the stored table. A callback that resets the table it was given (not locked)
+     leaves nothing stored: this read builds the replacement, reports it and returns it, never the
+     dropped one. */
   public get table(): QuestionMatrixDropdownRenderedTable {
-    return this.owner.getTable();
+    const wasCreated = this.isCreated;
+    const table = this.owner.getTable();
+    if (wasCreated || !table || this.owner.getStoredTable() !== table) return table;
+    this.owner.onTableCreated(table);
+    return this.owner.getStoredTable() === table ? table : this.table;
   }
   public reset(columnVisibilityChanged?: boolean): void {
     if (!this.isCreated) return;

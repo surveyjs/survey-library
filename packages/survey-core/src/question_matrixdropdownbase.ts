@@ -1059,6 +1059,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.isRowChangingValue = val;
   }
   onRenderedTableResetCallback: () => void;
+  /* Fires once per rendered table, when the first read of renderedTable (the renderer's or code's) has
+     built and stored it: only the table that is shown is built, so a page that is never shown fires
+     nothing. It exists for owners that decorate rendered rows (the creator's Logic tab marks rules
+     not saved yet): they mark every table they are given and need not build one themselves. A read
+     of renderedTable inside the callback returns the same table. */
+  onRenderedTableCreatedCallback: (table: QuestionMatrixDropdownRenderedTable) => void;
   onCellCreatedCallback: (options: any) => void;
   onHasDetailPanelCallback: (row: MatrixDropdownRowModelBase) => boolean;
   onCreateDetailPanelCallback: (
@@ -1527,6 +1533,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         getTable: (): QuestionMatrixDropdownRenderedTable => this.getPropertyValue("renderedTable", undefined, () => this.createRenderedTable()),
         removeStoredTable: (): void => this.resetPropertyValue("renderedTable"),
         disposeTable: (table: QuestionMatrixDropdownRenderedTable): void => this.disposeLeftObject(table),
+        onTableCreated: (table: QuestionMatrixDropdownRenderedTable): void => {
+          if (!!this.onRenderedTableCreatedCallback)this.onRenderedTableCreatedCallback(table);
+        },
         onTableReset: (): void => this.fireCallback(this.onRenderedTableResetCallback),
         clearRows: (): void => this.clearGeneratedRows(),
         isUpdateLocked: (): boolean => this.isUpdateLocked,
@@ -2721,9 +2730,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (hasRows) {
       this.decideRecordsVisibility();
     }
+    /* One reset, in onRowsChanged, once the new rows exist: a reset before getVisibleRows too would let
+       an onRenderedTableResetCallback that reads renderedTable build a table the second reset drops. */
     if (hasRows) {
       this.clearGeneratedRows();
-      this.resetRenderedTable();
       this.getVisibleRows();
       this.onRowsChanged();
     }

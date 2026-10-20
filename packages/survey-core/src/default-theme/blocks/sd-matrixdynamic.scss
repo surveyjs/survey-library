@@ -8,15 +8,7 @@
   --sd-matrixdynamic-toolbar-gap: var(--sjs2-layout-component-panel-matrix-footer-gap);
 }
 
-.sd-matrixdynamic__btn.sd-matrixdynamic__add-btn {
-  position: sticky;
-  left: calc(var(--sjs2-spacing-negative-x150) + var(--sjs2-spacing-negative-x025));
-  z-index: 12;
-}
-
 .sd-matrixdynamic__toolbar {
-  position: sticky;
-  left: 0;
   box-sizing: border-box;
   padding-block: var(--sd-matrixdynamic-toolbar-padding-block);
   padding-inline: var(--sd-matrixdynamic-toolbar-padding-inline);

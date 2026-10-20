@@ -1,7 +1,8 @@
 import { Helpers } from "../helpers";
-import { DynamicDataSortDirection, IDynamicDataSort } from "../dynamic-data/dynamic-data-interfaces";
+import { SortDirection, ISortCriterion } from "../dynamic-data/dynamic-data-interfaces";
 import { DynamicDataList } from "../dynamic-data/dynamic-data-list";
-import { dynamicDataSortToString, parseDynamicDataSort } from "../dynamic-data/dynamic-data-sort";
+import { normalizeSort } from "../dynamic-data/dynamic-data-view";
+import { ISortCriterionOwner, SortCriterion } from "./records-sort-criterion";
 import { Scope } from "../utils/scope";
 
 /* The question side of the list's paging, sorting and filtering. The behaviour lives here and the
@@ -10,40 +11,43 @@ import { Scope } from "../utils/scope";
    owner members are not part of any question's public type.
 
    The division of labour is the one every helper of this library follows: the list computes, the
-   question stores. pageIndex, pageCount, sortOrder and filterExpression are mirrored into the
+   question stores. pageIndex, pageCount, sortCriteria and filterExpression are mirrored into the
    owner's property hash by syncState(), so that React/Vue/Angular re-render through the ordinary
    onPropertyChanged bridge; the accessors read the mirror and never the list. Every change the list
-   makes on its own - a clamped page index, a filter it refused to run - reaches the mirror through
-   QuestionRecordsModel.onDataListChanged, which calls syncState() for a
+   makes on its own - a clamped page index, a filter it refused to run, a sort it normalized - reaches
+   the mirror through QuestionRecordsModel.onDataListChanged, which calls syncState() for a
    "reset" and a "pageChanged".
 
-   The sort and the filter are serialized (sortBy / filterExpression), so their hash entries are not
-   a pure mirror: while an authored value has not been handed to the list yet - during a load, and
+   The sort and the filter are serialized (sortCriteria / filterExpression), so their hash entries are
+   not a pure mirror: while an authored value has not been handed to the list yet - during a load, and
    for as long as the question is in design mode - the hash is the truth and the list is the one
    that lags behind. isViewPending says which direction the next sync runs in. */
 /* The keys the paging state is kept under in the owner's property hash: the paging helper writes them
    (isPageMovePending is the page validation's), and the question reads them back. */
 export const pagingStateKeys = {
   pageSize: "pageSize", pageIndex: "pageIndex", pageCount: "pageCount", isCountKnown: "isCountKnown",
-  isPageMovePending: "isPageMovePending", sortOrder: "sortOrder", filterExpression: "filterExpression"
+  isPageMovePending: "isPageMovePending", sortCriteria: "sortCriteria", filterExpression: "filterExpression"
 };
 export interface IRecordsPagingOwner {
   getPropertyValue(name: string): any;
   setPropertyValue(name: string, val: any): void;
+  // The owner's live array property (Base.getArrayPropertyValue / setArrayPropertyValue): sortCriteria.
+  getArrayPropertyValue(name: string, onPush: (item: any) => void): Array<any>;
+  setArrayPropertyValue(name: string, val: Array<any>): void;
   getLocalizationFormatString(strName: string, ...args: any[]): string;
   // The authored page size: pageSize.
   pageSize: number;
   /* The page size the list gets at runtime: the authored one, except in single-input mode, which is
      its own paging and builds every object. Absent -> pageSize. */
   listPageSize?: number;
+  /* The most criteria a respondent's toggleSort(field, true) leaves in the sort: maxSortLevel.
+     Absent or 0 -> no limit. sort(), sortCriteria and JSON are never limited. */
+  maxSortLevel?: number;
   // What the question reports: 1 page and page 0 while it does not page.
   pageIndex: number;
   pageCount: number;
   isDesignMode: boolean;
   isLoadingFromJson: boolean;
-  // sortBy is computed from sortOrder and nothing raises its change on its own (see
-  // setSortOrderValue). Base.propertyValueChanged is protected, so the owner raises it.
-  raiseSortByChanged(oldValue: string, newValue: string): void;
   /* A move the respondent makes: the owner validates the page it leaves when the move goes forward
      (see RecordsPageValidation.leave, question-side) and runs move now, later, or never. Returns
      false only when an error was found synchronously. Absent -> the move just happens. */
@@ -62,7 +66,20 @@ export interface IRecordsPageState {
   nested: { [recordIndex: number]: { [valueName: string]: IRecordsPageState } };
 }
 
-export class RecordsPagingController {
+// The sort as plain { field, direction } objects, in the order given: never the caller's own objects.
+function toPlainSort(sort: Array<ISortCriterion>): Array<ISortCriterion> {
+  if (!Array.isArray(sort)) return [];
+  return sort.filter((item: ISortCriterion): boolean => !!item)
+    .map((item: ISortCriterion): ISortCriterion => ({ field: item.field, direction: item.direction }));
+}
+/* Compared as { field, direction } projections and in order: Helpers.isTwoValueEquals never finds a
+   SortCriterion equal to a plain object. */
+function isSameSort(a: Array<ISortCriterion>, b: Array<ISortCriterion>): boolean {
+  return a.length === b.length && a.every((item: ISortCriterion, index: number): boolean =>
+    item.field === b[index].field && item.direction === b[index].direction);
+}
+
+export class RecordsPagingController implements ISortCriterionOwner {
   // getList: whoever holds the list hands it over; it may create the list when it is asked.
   constructor(private owner: IRecordsPagingOwner, private getList: () => DynamicDataList) { }
   private get list(): DynamicDataList {
@@ -209,6 +226,12 @@ export class RecordsPagingController {
   // The load is over (or a list/survey arrived after it): what was authored reaches the list now,
   // once, whatever order the JSON keys came in.
   public flushAuthoredView(): void {
+    /* The serializer fills sortCriteria through the array's own push, and a question raises no change
+       while it loads: an authored sort marks nothing pending on its way in, so a non-empty one is
+       pending here. A sync before this point would mirror the list's empty sort over it. */
+    if (this.currentSort.length > 0) {
+      this.isViewPending = true;
+    }
     if (!this.isViewPending || this.owner.isLoadingFromJson) return;
     this.syncState();
   }
@@ -223,9 +246,10 @@ export class RecordsPagingController {
   private mirrorListView(): void {
     const list = this.list;
     this.owner.setPropertyValue(pagingStateKeys.filterExpression, list.filter);
+    // The items that already say what the list sorts by stay: a caller may hold them.
     const sort = list.sort;
-    if (!Helpers.isTwoValueEquals(this.sortOrder, sort)) {
-      this.setSortOrderValue(sort.slice());
+    if (!isSameSort(this.currentSort, sort)) {
+      this.writeSortCriteria(sort);
     }
   }
   private pushAuthoredView(): void {
@@ -238,10 +262,10 @@ export class RecordsPagingController {
     this.isViewPending = false;
     const list = this.list;
     const filter = this.filterExpression;
-    const sort = this.sortOrder;
+    const sort = this.currentSort;
     // One setView and not the two setters: with a paging source each of them is a read of its own,
     // and the authored view has to cost one request.
-    if (list.filter !== filter || !Helpers.isTwoValueEquals(list.sort, sort)) {
+    if (list.filter !== filter || !isSameSort(list.sort, normalizeSort(sort))) {
       this.runViewPush((): void => { list.setView(filter, sort); });
     }
     this.mirrorListView();
@@ -265,99 +289,163 @@ export class RecordsPagingController {
   private runViewPush(func: () => void): void {
     this.viewPushScope.run(func);
   }
-  /* The one writer of the sortOrder hash entry. sortBy renders it and stores nothing of its own, so
-     nothing would raise its change: dependsOn cannot help either, because addDependsOnProperty
-     looks the source property up in the Serializer and sortOrder is not registered there. */
-  private setSortOrderValue(val: Array<IDynamicDataSort>): void {
-    const oldText = this.sortBy;
-    this.owner.setPropertyValue(pagingStateKeys.sortOrder, val);
-    const newText = dynamicDataSortToString(val);
-    if (oldText !== newText) {
-      this.owner.raiseSortByChanged(oldText, newText);
+  /* The sort is a live array of SortCriterion items, the way choices is: an assignment, a push or a
+     splice on it, and an edit of an item, all re-apply it. Every one of them goes through setSortCore,
+     so design mode, the load, a pending view and the "same sort, no reset" check treat them alike.
+     It is the CURRENT sort and not only the declared one - a header click through toggleSort()
+     changes what toJSON() emits, which is what the Creator wants and what a running survey never
+     asks for. */
+  public get sortCriteria(): Array<SortCriterion> {
+    return this.owner.getArrayPropertyValue(pagingStateKeys.sortCriteria, (item: any): void => { this.onSortCriterionAdded(item); });
+  }
+  public set sortCriteria(val: Array<ISortCriterion>) {
+    this.setSortCore(toPlainSort(val), true);
+  }
+  // The sort the hash holds, as plain criteria. A peek: it never creates the array.
+  private get currentSort(): Array<ISortCriterion> {
+    return toPlainSort(this.owner.getPropertyValue(pagingStateKeys.sortCriteria));
+  }
+  /* True while the question writes sortCriteria itself - an assignment, or the mirror of what the
+     list ended up with: the array and item hooks it raises are not changes to re-apply. A Scope and
+     not a flag: a throw would leave a flag set and every later change would be dropped. */
+  private sortWriteScope = new Scope();
+  /* The question never holds the caller's objects: every write creates its own items. The array is
+     read first, so that setArrayPropertyValue finds it created. */
+  private writeSortCriteria(val: Array<ISortCriterion>): void {
+    const items = val.map((item: ISortCriterion): SortCriterion => new SortCriterion(item.field, item.direction));
+    this.sortWriteScope.run((): void => {
+      this.sortCriteria;
+      this.owner.setArrayPropertyValue(pagingStateKeys.sortCriteria, items);
+    });
+  }
+  private onSortCriterionAdded(item: any): void {
+    if (!!item && typeof item.setOwner === "function") {
+      item.setOwner(this);
+    }
+    // The serializer pushes the authored items while the question loads, and the question raises no
+    // change then: the push itself marks the view pending, so that no sync mirrors it away.
+    if (!this.sortWriteScope.isActive && this.owner.isLoadingFromJson) {
+      this.isViewPending = true;
     }
   }
-  public get sortOrder(): Array<IDynamicDataSort> {
-    return this.owner.getPropertyValue(pagingStateKeys.sortOrder) || [];
+  // A push, a splice, or any other change made on the array in place (the owner's property hook).
+  public onSortCriteriaChanged(): void {
+    if (this.sortWriteScope.isActive) return;
+    this.applyChangedSort();
   }
-  public set sortOrder(val: Array<IDynamicDataSort>) {
-    this.setSortOrderCore(val, true);
+  /* An item may outlive its place in the array - a caller can keep it after clearSort(), after an
+     assignment or after the mirror rebuilt the items - and setArray never detaches it. Only an item of
+     the current sort changes the sort: an edit of any other one would still drop a pending page move. */
+  public onSortCriterionChanged(item: SortCriterion): void {
+    if (this.sortWriteScope.isActive) return;
+    const items = this.owner.getPropertyValue(pagingStateKeys.sortCriteria);
+    if (!Array.isArray(items) || items.indexOf(item) < 0) return;
+    this.applyChangedSort();
+  }
+  /* The hash IS the edited array, so the equality check of setSortCore would always pass while the
+     question cannot push: the view is pending with no check. At runtime the list holds a copy, and
+     setSortCore compares with it. */
+  private applyChangedSort(): void {
+    if (!this.canPushToList) {
+      this.isViewPending = true;
+      return;
+    }
+    this.setSortCore(this.currentSort, true);
   }
   // A sort from code drops a move that waits for its validators; the one toggleSort validated is
   // that move, and it has already been dropped by leavePage.
-  private setSortOrderCore(val: Array<IDynamicDataSort>, isFromCode: boolean): void {
-    const newValue = Array.isArray(val) ? val.slice() : [];
+  private setSortCore(val: Array<ISortCriterion>, isFromCode: boolean): void {
     if (isFromCode && this.canPushToList) {
       this.cancelPendingPageMove();
     }
     if (!this.canPushToList) {
       // The hash only: the setter neither pushes nor creates the list while the question is loading
-      // or in design mode.
-      if (Helpers.isTwoValueEquals(this.sortOrder, newValue)) return;
-      this.setSortOrderValue(newValue);
+      // or in design mode. What was authored is kept as it is - an item with an empty field included,
+      // which a Creator editor holds while the author types.
+      if (isSameSort(this.currentSort, val)) return;
+      this.writeSortCriteria(val);
       this.isViewPending = true;
       return;
     }
     const list = this.list;
     this.flushPendingView();
     // The sort setter raises a reset even when the value did not change, and every reset costs a
-    // full rebuild of the rows/panels.
-    if (Helpers.isTwoValueEquals(list.sort, newValue)) return;
-    list.sort = newValue;
+    // full rebuild of the rows/panels. The list normalizes what it is given: a sort it already has
+    // after that is no change, but the items still take the normalized form.
+    if (isSameSort(list.sort, normalizeSort(val))) {
+      this.mirrorListView();
+      return;
+    }
+    list.sort = val;
     this.syncState();
   }
-  /* The serialized face of sortOrder: one storage, two faces. It is the CURRENT sort and not only
-     the declared one - a header click through toggleSort() changes what toJSON() emits, which is
-     what the Creator wants and what a running survey never asks for. */
-  public get sortBy(): string {
-    return dynamicDataSortToString(this.sortOrder);
-  }
-  public set sortBy(val: string) {
-    this.sortOrder = parseDynamicDataSort(val);
+  /* sort("price"): the sort becomes this one field. sort("price", "desc", true): the field takes the
+     direction where it already is in the sort, or joins it at the end. sort([...]): the same as an
+     assignment of sortCriteria. Any direction but "desc" is ascending. */
+  public sort(fieldOrCriteria: string | Array<ISortCriterion>, direction?: SortDirection, append?: boolean): void {
+    if (Array.isArray(fieldOrCriteria)) {
+      this.sortCriteria = fieldOrCriteria;
+      return;
+    }
+    const field = fieldOrCriteria;
+    if (!field || typeof field !== "string") return;
+    const criterion: ISortCriterion = { field: field, direction: direction === "desc" ? "desc" : "asc" };
+    if (!append) {
+      this.setSortCore([criterion], true);
+      return;
+    }
+    const sort = this.currentSort;
+    const isInSort = sort.some((s: ISortCriterion): boolean => s.field === field);
+    this.setSortCore(isInSort ? sort.map((s: ISortCriterion): ISortCriterion => s.field === field ? criterion : s) :
+      sort.concat([criterion]), true);
   }
   /* One field, the way a header click sorts: ascending, then descending, then not sorted. Sorting
-     by a field in a given direction is sortOrder = [{...}] or sortBy = "price-" and does not need a
-     third spelling; what is unique here is the cycle, which every renderer needs in one place.
-     addToSort runs the same cycle over one entry of the sort instead of over the whole of it - what
-     a modified header click does in a grid - and leaves the other fields where they are. */
+     by a field in a given direction is sort() and does not need a third spelling; what is unique here
+     is the cycle, which every renderer needs in one place. append runs the same cycle over one entry
+     of the sort instead of over the whole of it - what a modified header click does in a grid - and
+     leaves the other fields where they are. */
   /* A header click is a move the respondent makes: it replaces the page, so the page it replaces is
      validated first (layer 1). Returns false only for an error found synchronously. Every list can
      sort: a paging source that cannot sort is read whole while a sort is set (DynamicDataList). */
-  public toggleSort(field: string, addToSort?: boolean): boolean {
+  public toggleSort(field: string, append?: boolean): boolean {
     if (!field) return false;
-    const newSort = this.getToggledSort(field, addToSort);
+    const newSort = this.getToggledSort(field, append);
     if (!this.canPushToList) {
-      this.setSortOrderCore(newSort, true);
+      this.setSortCore(newSort, true);
       return true;
     }
-    return this.leavePage(true, (): void => { this.setSortOrderCore(newSort, false); });
+    return this.leavePage(true, (): void => { this.setSortCore(newSort, false); });
   }
-  private getToggledSort(field: string, addToSort: boolean): Array<IDynamicDataSort> {
-    const sort = this.sortOrder;
-    const current = sort.filter((s: IDynamicDataSort): boolean => s.field === field)[0];
-    let dir: DynamicDataSortDirection = undefined;
+  private getToggledSort(field: string, append: boolean): Array<ISortCriterion> {
+    const sort = this.currentSort;
+    const current = sort.filter((s: ISortCriterion): boolean => s.field === field)[0];
+    let dir: SortDirection = undefined;
     if (!current) {
       dir = "asc";
     } else if (current.direction === "asc") {
       dir = "desc";
     }
-    if (!addToSort) {
+    if (!append) {
       return !dir ? [] : [{ field: field, direction: dir }];
     }
     // Every branch below builds a NEW array: the setter compares the incoming value with the sort
     // the list already has, so an array changed in place would be a silent no-op.
     if (!dir) {
       // Cycled off: it leaves the sort and the fields around it keep their order.
-      return sort.filter((s: IDynamicDataSort): boolean => s.field !== field);
+      return sort.filter((s: ISortCriterion): boolean => s.field !== field);
     }
     if (!current) {
-      // A field joins at the end: the last one clicked is the last tie-breaker.
-      return sort.concat([{ field: field, direction: dir }]);
+      // A field joins at the end: the last one clicked is the last tie-breaker. At the level limit
+      // it replaces the last level, so with a limit of 1 an append is a plain click.
+      const limit = this.owner.maxSortLevel > 0 ? this.owner.maxSortLevel : 0;
+      const kept = limit > 0 && sort.length >= limit ? sort.slice(0, limit - 1) : sort;
+      return kept.concat([{ field: field, direction: dir }]);
     }
-    return sort.map((s: IDynamicDataSort): IDynamicDataSort =>
+    return sort.map((s: ISortCriterion): ISortCriterion =>
       s.field === field ? { field: field, direction: dir } : s);
   }
   public clearSort(): void {
-    this.sortOrder = [];
+    this.setSortCore([], true);
   }
   public get filterExpression(): string {
     return this.owner.getPropertyValue(pagingStateKeys.filterExpression) || "";

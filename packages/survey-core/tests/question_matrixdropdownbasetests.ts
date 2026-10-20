@@ -3342,15 +3342,17 @@ describe("Fixed matrix sorts and filters its rows", () => {
     return { survey: survey, matrix: <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix") };
   };
   const names = (matrix: QuestionMatrixDropdownModel): Array<string> => matrix.visibleRows.map(row => row.rowName);
-  test("sortBy the row title, descending, and by a column; the answer does not change", () => {
+  // The current sort, as plain { field, direction } criteria.
+  const getSort = (matrix: QuestionMatrixDropdownModel): Array<any> => matrix.sortCriteria.map(c => ({ field: c.field, direction: c.direction }));
+  test("sort by the row title, descending, and by a column; the answer does not change", () => {
     const { matrix } = createFixed();
     const before = JSON.stringify(matrix.value);
-    matrix.sortBy = "rowTitle";
+    matrix.sort([{ field: "rowTitle", direction: "asc" }]);
     expect(names(matrix), "#1: Alpha, Bravo, Charlie, Delta, Echo, Foxtrot").toEqual(["r2", "r4", "r6", "r1", "r5", "r3"]);
-    expect(matrix.toJSON().sortBy, "#1: written back").toBe("rowTitle");
-    matrix.sortBy = "rowTitle-";
+    expect(matrix.toJSON().sortCriteria, "#1: written back").toEqual([{ field: "rowTitle" }]);
+    matrix.sort([{ field: "rowTitle", direction: "desc" }]);
     expect(names(matrix), "#2").toEqual(["r3", "r5", "r1", "r6", "r4", "r2"]);
-    matrix.sortBy = "a-";
+    matrix.sort([{ field: "a", direction: "desc" }]);
     expect(names(matrix), "#3: ties keep the record order").toEqual(["r4", "r6", "r1", "r3", "r2", "r5"]);
     expect(JSON.stringify(matrix.value), "#4: not a byte of the answer").toBe(before);
   });
@@ -3364,16 +3366,16 @@ describe("Fixed matrix sorts and filters its rows", () => {
     matrix.filterExpression = "{rowTitle} contains 'ha'";
     expect(names(matrix), "#4: Alpha, Charlie").toEqual(["r2", "r6"]);
   });
-  test("an authored sortBy and filterExpression load, apply once, and are saved back unchanged", () => {
-    const json = { type: "matrixdropdown", name: "matrix", rows: sixRows, columns: numberColumn, sortBy: "rowTitle-", filterExpression: "{a} > 1" };
+  test("an authored sortCriteria and filterExpression load, apply once, and are saved back unchanged", () => {
+    const json = { type: "matrixdropdown", name: "matrix", rows: sixRows, columns: numberColumn, sortCriteria: [{ field: "rowTitle", direction: "desc" }], filterExpression: "{a} > 1" };
     const survey = new SurveyModel({ elements: [json] });
     survey.data = { matrix: data() };
     const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
     expect(names(matrix), "#1").toEqual(["r3", "r1", "r6", "r4"]);
     const saved = matrix.toJSON();
-    expect([saved.sortBy, saved.filterExpression], "#2").toEqual(["rowTitle-", "{a} > 1"]);
-    matrix.sortBy = "a";
-    expect(matrix.toJSON().sortBy, "#3: a sort set at runtime is serialized").toBe("a");
+    expect([saved.sortCriteria, saved.filterExpression], "#2").toEqual([[{ field: "rowTitle", direction: "desc" }], "{a} > 1"]);
+    matrix.sort([{ field: "a", direction: "asc" }]);
+    expect(matrix.toJSON().sortCriteria, "#3: a sort set at runtime is serialized").toEqual([{ field: "a" }]);
   });
   test("an edit that makes a row fail the filter keeps the row until refreshView", () => {
     const { matrix } = createFixed();
@@ -3388,7 +3390,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
   test("a column named rowTitle: the virtual field wins", () => {
     const { matrix } = createFixed({ columns: [{ name: "rowTitle", cellType: "text" }] },
       { r1: { rowTitle: "z" }, r2: { rowTitle: "y" }, r3: { rowTitle: "x" } });
-    matrix.sortBy = "rowTitle";
+    matrix.sort([{ field: "rowTitle", direction: "asc" }]);
     expect(names(matrix), "#1: by the row titles, not the column").toEqual(["r2", "r4", "r6", "r1", "r5", "r3"]);
     matrix.filterExpression = "{rowTitle} = 'x'";
     expect(names(matrix), "#2: the column is not a filter variable either").toEqual([]);
@@ -3397,7 +3399,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
     const { survey, matrix } = createFixed({ rowOrder: "random", columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text" }] });
     survey.randomSeed = 12345;
     const randomized = names(matrix);
-    matrix.sortBy = "b";
+    matrix.sort([{ field: "b", direction: "asc" }]);
     expect(names(matrix), "#1: every b is empty, the order is the randomized one").toEqual(randomized);
     matrix.visibleRows[2].cells[1].question.value = "first";
     matrix.refreshView();
@@ -3408,31 +3410,34 @@ describe("Fixed matrix sorts and filters its rows", () => {
       columnsVisibleIf: "{item} != 'hiddenByCondition'",
       columns: [{ name: "a", cellType: "text" }, { name: "invisible", cellType: "text", visible: false }, { name: "hiddenByCondition", cellType: "text" }]
     }, { r1: { invisible: 2, hiddenByCondition: 6, extra: "b" }, r2: { invisible: 1, hiddenByCondition: 5, extra: "a" }, r3: { invisible: 3, hiddenByCondition: 4 } });
-    matrix.sortBy = "invisible";
+    matrix.sort([{ field: "invisible", direction: "asc" }]);
     expect(names(matrix).slice(0, 3), "#1: an invisible column").toEqual(["r2", "r1", "r3"]);
-    matrix.sortBy = "hiddenByCondition";
+    matrix.sort([{ field: "hiddenByCondition", direction: "asc" }]);
     expect(names(matrix).slice(0, 3), "#2: a column hidden by columnsVisibleIf").toEqual(["r3", "r2", "r1"]);
-    matrix.sortBy = "extra";
+    matrix.sort([{ field: "extra", direction: "asc" }]);
     expect(names(matrix).slice(0, 2), "#3: a key no column registers").toEqual(["r2", "r1"]);
-    matrix.sortBy = "nothing";
+    matrix.sort([{ field: "nothing", direction: "asc" }]);
     expect(names(matrix), "#4: a field no record holds keeps the record order").toEqual(["r1", "r2", "r3", "r4", "r5", "r6"]);
-    matrix.sortBy = "";
+    matrix.sort([]);
     matrix.filterExpression = "{invisible} > 1";
     expect(names(matrix), "#5: a filter on an invisible column's key").toEqual(["r1", "r3"]);
   });
   test("toggleSort cycles ascending, descending and none", () => {
     const { matrix } = createFixed();
     matrix.toggleSort("rowTitle");
-    expect([matrix.sortBy, names(matrix)[0]], "#1").toEqual(["rowTitle", "r2"]);
+    expect([getSort(matrix), names(matrix)[0]], "#1").toEqual([[{ field: "rowTitle", direction: "asc" }], "r2"]);
     matrix.toggleSort("rowTitle");
-    expect([matrix.sortBy, names(matrix)[0]], "#2").toEqual(["rowTitle-", "r3"]);
+    expect([getSort(matrix), names(matrix)[0]], "#2").toEqual([[{ field: "rowTitle", direction: "desc" }], "r3"]);
     matrix.toggleSort("rowTitle");
-    expect([matrix.sortBy, names(matrix)[0]], "#3").toEqual(["", "r1"]);
+    expect([getSort(matrix), names(matrix)[0]], "#3").toEqual([[], "r1"]);
   });
-  test("no UI: the fixed matrix has no allowSortRows and no sortable column", () => {
-    const { matrix } = createFixed({ columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text" }] });
-    expect(Serializer.findProperty("matrixdropdown", "allowSortRows"), "#1").toBeFalsy();
-    expect(matrix.columns.map(column => column.isSortable), "#2").toEqual([false, false]);
+  test("the fixed matrix sorts by its headers once a developer sets allowSort, which the property grid hides", () => {
+    const { matrix } = createFixed({ columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", allowSort: false }] });
+    expect(Serializer.findProperty("matrixdropdown", "allowSort").visible, "#1: hidden in the property grid").toBe(false);
+    expect(matrix.columns.map(column => column.isSortable), "#2: not allowed by default").toEqual([false, false]);
+    matrix.allowSort = true;
+    expect(matrix.columns.map(column => column.isSortable), "#3: the column that opted out stays unsortable").toEqual([true, false]);
+    expect(matrix.isSortMenuVisible, "#4: \"auto\" and sortable headers: no menu").toBe(false);
   });
   describe("filtered-out rows", () => {
     test("their answers are kept by clearIncorrectValues", () => {
@@ -3502,7 +3507,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
   test("duplicate row keys apart under a sort: both edit orders, the answer holds the last edit and both rows show it", () => {
     const rows = [{ value: "a", text: "Alpha" }, { value: "b", text: "Bravo" }, { value: "a", text: "Charlie" }];
     [0, 2].forEach(first => {
-      const { matrix } = createFixed({ rows: rows, sortBy: "rowTitle-", columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }] }, null);
+      const { matrix } = createFixed({ rows: rows, sortCriteria: [{ field: "rowTitle", direction: "desc" }], columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }] }, null);
       expect(matrix.visibleRows.map(row => row.rowName), "#0: the two a rows are apart").toEqual(["a", "b", "a"]);
       const second = 2 - first;
       matrix.visibleRows[first].cells[0].question.value = "1";
@@ -3512,7 +3517,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
       expect(matrix.visibleRows[first].cells[1].question.value, "#3 from " + first).toBe("2");
     });
   });
-  [{ sortBy: "rowTitle" }, { filterExpression: "{a} > 1" }].forEach(view => {
+  [{ sortCriteria: [{ field: "rowTitle" }] }, { filterExpression: "{a} > 1" }].forEach(view => {
     test("insert, remove and move are refused under a view, leave no trace, and the source has no insert, " + Object.keys(view)[0], () => {
       const { survey, matrix } = createFixed(view);
       const rowsBefore = names(matrix);
@@ -3531,7 +3536,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
     });
   });
   test("the fixed matrix has no data source", () => {
-    const { matrix } = createFixed({ sortBy: "a" });
+    const { matrix } = createFixed({ sortCriteria: [{ field: "a" }] });
     expect((<any>matrix).getDataSource(), "#1").toBeUndefined();
     expect((<any>matrix).dataSource, "#2").toBeUndefined();
   });
@@ -3545,7 +3550,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
   });
   describe("a change of the row metadata re-decides the view", () => {
     test("a renamed row title moves its row under a sort", () => {
-      const { survey, matrix } = createFixed({ sortBy: "rowTitle" });
+      const { survey, matrix } = createFixed({ sortCriteria: [{ field: "rowTitle" }] });
       let changes = 0;
       survey.onValueChanged.add(() => changes++);
       matrix.rows[2].text = "Aardvark";
@@ -3563,7 +3568,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
     });
     test("switching the survey locale re-sorts by the localized titles", () => {
       const { survey, matrix } = createFixed({
-        sortBy: "rowTitle",
+        sortCriteria: [{ field: "rowTitle" }],
         rows: [{ value: "r1", text: { default: "Apple", de: "Zebra" } }, { value: "r2", text: { default: "Banana", de: "Affe" } }]
       }, {});
       expect(names(matrix), "#1").toEqual(["r1", "r2"]);
@@ -3573,7 +3578,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
       expect(names(matrix), "#3").toEqual(["r1", "r2"]);
     });
     test("a piped title is not followed until refreshView", () => {
-      const { survey, matrix } = createFixed({ sortBy: "rowTitle", rows: [{ value: "r1", text: "M {name}" }, { value: "r2", text: "N" }] }, {});
+      const { survey, matrix } = createFixed({ sortCriteria: [{ field: "rowTitle" }], rows: [{ value: "r1", text: "M {name}" }, { value: "r2", text: "N" }] }, {});
       survey.setValue("name", "z");
       expect(names(matrix), "#1: M z, N").toEqual(["r1", "r2"]);
       survey.setValue("name", "");

@@ -1239,6 +1239,30 @@ describe("QuestionExpression", () => {
     q.expression = "1 + 1";
     expect(q.value, "the expression is not run in the design mode").toBeFalsy();
   });
+  test("Bug#12075 an expression with {correctAnswers} and {questionCount} follows the quiz answers", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "radiogroup", name: "q1", correctAnswer: "a", choices: ["a", "b"] },
+        { type: "radiogroup", name: "q2", correctAnswer: "a", choices: ["a", "b"], visibleIf: "{hideQ2} <> true" },
+        { type: "boolean", name: "hideQ2" },
+        { type: "expression", name: "correct", expression: "{correctAnswers}" },
+        { type: "expression", name: "count", expression: "{questionCount}" },
+        { type: "expression", name: "score", expression: "{correctAnswers} / {questionCount}" }
+      ]
+    });
+    const getValues = (): Array<any> => [survey.getValue("correct"), survey.getValue("count"), survey.getValue("score")];
+    expect(getValues(), "nothing answered").toEqual([0, 2, 0]);
+    survey.setValue("q1", "a");
+    expect(getValues(), "q1 is correct").toEqual([1, 2, 0.5]);
+    survey.setValue("q2", "a");
+    expect(getValues(), "q1 and q2 are correct").toEqual([2, 2, 1]);
+    survey.setValue("q1", "b");
+    expect(getValues(), "q1 is wrong").toEqual([1, 2, 0.5]);
+    survey.setValue("hideQ2", true);
+    expect(getValues(), "q2 is hidden").toEqual([0, 1, 0]);
+    survey.setValue("hideQ2", false);
+    expect(getValues(), "q2 is shown again").toEqual([1, 2, 0.5]);
+  });
 });
 // visibleIf is registered with strict dependencies: it runs only when a value or variable it uses
 // changed. These cover the references that never appear in the changed keys as written.

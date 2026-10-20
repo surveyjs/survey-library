@@ -52,7 +52,7 @@ export class SurveyQuestionCheckboxItem extends SurveyQuestionSelectBaseItem {
     const id = this.question.getItemId(this.item);
     const itemClass = this.question.getItemClass(this.item);
     const labelClass = this.question.getLabelClass(this.item);
-    const itemLabel = !this.hideCaption ? <span className={this.cssClasses.controlLabel}>{this.renderLocString(this.item.locText, this.textStyle)}</span> : null;
+    const itemLabel = !this.hideCaption ? <span className={this.cssClasses.controlLabel} id={this.question.getItemLabelId(this.item)} aria-hidden={this.question.isItemLabelAriaHidden ? "true" : undefined}>{this.renderLocString(this.item.locText, this.textStyle)}</span> : null;
 
     return (
       <div className={itemClass} role="presentation" ref={this.rootRef}>
@@ -69,7 +69,9 @@ export class SurveyQuestionCheckboxItem extends SurveyQuestionSelectBaseItem {
             checked={isChecked}
             onChange={this.handleOnChange}
             required={this.question.hasRequiredError()}
-            aria-label={this.ariaLabel}          />
+            aria-label={this.ariaLabel}
+            aria-labelledby={!this.ariaLabel && !this.hideCaption ? this.question.getItemLabelId(this.item) : undefined}
+          />
           {
             this.cssClasses.materialDecorator ?
               <span className={this.cssClasses.materialDecorator} aria-hidden="true">

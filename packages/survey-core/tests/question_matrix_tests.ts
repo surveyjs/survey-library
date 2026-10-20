@@ -1,9 +1,11 @@
 import { Helpers } from "../src/helpers";
-import { QuestionMatrixModel } from "../src/question_matrix";
+import { QuestionMatrixModel, MatrixRowModel } from "../src/question_matrix";
 import { SurveyModel } from "../src/survey";
 import { Serializer } from "../src/jsonobject";
+import { ItemValue } from "../src/itemvalue";
+import { ExpressionRunner } from "../src/expressions/expressionRunner";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 describe("Survey_QuestionMatrix", () => {
   test("a row valued with spaces produces no row", () => {
     const matrix = new QuestionMatrixModel("q1");
@@ -1036,5 +1038,141 @@ describe("Survey_QuestionMatrix", () => {
     counter = 0;
     survey.setValue("b", 1);
     expect(counter, "no row visibility changes").toBe(0);
+  });
+});
+describe("Single-select matrix: row lookup by name", () => {
+  const createSurvey = (matrixJson: any, elements: Array<any> = []): { survey: SurveyModel, m: QuestionMatrixModel } => {
+    const survey = new SurveyModel({ elements: [...elements, { type: "matrix", name: "m", columns: ["c1", "c2"], ...matrixJson }] });
+    return { survey, m: <QuestionMatrixModel>survey.getQuestionByName("m") };
+  };
+  // Runs an expression in a row item's context, as a row visibleIf does.
+  const runInRow = (m: QuestionMatrixModel, expression: string): any =>
+    new ExpressionRunner(expression).runContext(m.rows[0].getValueGetterContext());
+  const visibleRowNames = (m: QuestionMatrixModel): Array<string> => m.visibleRows.map(row => row.name);
+
+  test("a row is found from outside in any letter case", () => {
+    const { survey } = createSurvey({ rows: ["Row1", "row2"] });
+    survey.setValue("m", { Row1: "c1", row2: "c2" });
+    expect(survey.runExpression("{m.row1}"), "#1").toBe("c1");
+    expect(survey.runExpression("{m.ROW2}"), "#2").toBe("c2");
+  });
+  test("a row renamed in place and a pushed row are found", () => {
+    const { survey, m } = createSurvey({ rows: ["Row1", "row2"] });
+    survey.setValue("m", { Row1: "c1", row2: "c2" });
+    expect(survey.runExpression("{m.row1}"), "#1").toBe("c1");
+    m.rows[0].value = "renamed";
+    expect(survey.runExpression("{m.renamed}"), "#2: the renamed row").toBe("c1");
+    expect(survey.runExpression("{m.row1}"), "#3: the value key").toBe("c1");
+    m.rows.push(new ItemValue("Row3"));
+    survey.setValue("m", { Row1: "c1", row2: "c2", Row3: "c2" });
+    expect(survey.runExpression("{m.row3}"), "#4: the pushed row").toBe("c2");
+    m.rows[2].value = "Row3b";
+    expect(survey.runExpression("{m.row3b}"), "#5: the pushed row renamed, no such value key").toBe("c2");
+  });
+  test("an item listener sees a row renamed in place", () => {
+    const { survey, m } = createSurvey({ rows: ["Row1", "row2"] });
+    survey.setValue("m", { Row1: "c1", row2: "c2" });
+    expect(survey.runExpression("{m.row1}"), "#1: a lookup before the rename").toBe("c1");
+    const seen: Array<any> = [];
+    m.onItemValuePropertyChanged.add((_, options) => {
+      if (options.propertyName === "rows" && options.name === "value") {
+        seen.push([survey.runExpression("{m.renamed}"), survey.runExpression("{m.row1}")]);
+      }
+    });
+    m.rows[0].value = "renamed";
+    expect(seen, "#2").toEqual([["c1", "c1"]]);
+  });
+  test("two rows that differ only in letter case answer with the first one", () => {
+    const { survey } = createSurvey({ rows: ["a", "A"] });
+    survey.setValue("m", { a: "c1", A: "c2" });
+    expect(survey.runExpression("{m.a}"), "#1").toBe("c1");
+    expect(survey.runExpression("{m.A}"), "#2").toBe("c1");
+  });
+  test("a row visibleIf reads another row and a survey question", () => {
+    const { survey, m } = createSurvey({ rows: [
+      "r1",
+      { value: "r2", visibleIf: "{r1} = 'c1'" },
+      { value: "r3", visibleIf: "{x} = 1" }
+    ] }, [{ type: "text", name: "x" }]);
+    expect(visibleRowNames(m), "#1").toEqual(["r1"]);
+    m.value = { r1: "c1" };
+    expect(visibleRowNames(m), "#2").toEqual(["r1", "r2"]);
+    survey.setValue("x", 1);
+    expect(visibleRowNames(m), "#3").toEqual(["r1", "r2", "r3"]);
+    m.value = { r1: "c2" };
+    expect(visibleRowNames(m), "#4").toEqual(["r1", "r3"]);
+  });
+  test("a row visibleIf finds a row renamed in place", () => {
+    const { m } = createSurvey({ rows: ["r1", { value: "r2", visibleIf: "{k1} = 'c1'" }] });
+    m.value = { r1: "c1" };
+    expect(visibleRowNames(m), "#1").toEqual(["r1"]);
+    m.rows[0].value = "k1";
+    m.value = { k1: "c1" };
+    expect(visibleRowNames(m), "#2").toEqual(["k1", "r2"]);
+  });
+  test("the lookup follows rows replaced, reordered and hidden", () => {
+    const { m } = createSurvey({ rows: ["a", "b"] }, [{ type: "text", name: "n1", defaultValue: "s" }]);
+    m.value = { a: "c1" };
+    expect(runInRow(m, "{n1}"), "#1: no such row, the survey question").toBe("s");
+    m.rows = ["n1", "b"];
+    expect(runInRow(m, "{n1}"), "#2: rows replaced, the row has no value").toBeUndefined();
+    expect(runInRow(m, "{a}"), "#3: no row a, the value key").toBe("c1");
+
+    const reordered = createSurvey({ rows: ["a", "b", "c", "A", "d"], rowOrder: "random" });
+    reordered.m.value = { a: "c1", A: "c2" };
+    const firstNames = new Set<string>();
+    for (let seed = 1; seed <= 20; seed++) {
+      reordered.survey.randomSeed = seed;
+      const first = reordered.m.getMatrixRows().filter(row => row.name.toLowerCase() === "a")[0];
+      firstNames.add(first.name);
+      expect(reordered.survey.runExpression("{m.A}"), "#4: seed " + seed).toBe(first.value);
+    }
+    expect(Array.from(firstNames).sort(), "#5: both orders were seen").toEqual(["A", "a"]);
+
+    const hidden = createSurvey({ rows: ["r1", { value: "r2", visibleIf: "{x} = 1" }] }, [{ type: "text", name: "x" }]);
+    hidden.survey.setValue("x", 1);
+    hidden.m.value = { r1: "c1", r2: "c2" };
+    expect(visibleRowNames(hidden.m), "#6").toEqual(["r1", "r2"]);
+    expect(runInRow(hidden.m, "{r2}"), "#7").toBe("c2");
+    hidden.survey.setValue("x", 2);
+    expect(visibleRowNames(hidden.m), "#8").toEqual(["r1"]);
+    expect(runInRow(hidden.m, "{r2}"), "#9: a hidden row is still a row").toBe("c2");
+    expect(hidden.survey.runExpression("{m.r2}"), "#10").toBe("c2");
+  });
+  test("a lookup reads the row names only when the index is rebuilt", () => {
+    const rows: Array<string> = [];
+    for (let i = 1; i <= 100; i++) rows.push("r" + i);
+    const { m } = createSurvey({ rows: rows }, [{ type: "text", name: "x", defaultValue: 1 }]);
+    m.value = { r50: "c1", r7: "c2" };
+    const present = new ExpressionRunner("{R50}");
+    const missing = new ExpressionRunner("{x}");
+    const context = () => m.rows[0].getValueGetterContext();
+    expect(present.runContext(context()), "#1").toBe("c1");
+    const nameGetter = vi.spyOn(MatrixRowModel.prototype, "name", "get");
+    try {
+      for (let i = 0; i < 500; i++) {
+        expect(present.runContext(context())).toBe("c1");
+        expect(missing.runContext(context())).toBe(1);
+      }
+      expect(nameGetter.mock.calls.length <= 100, "#2: 1,000 lookups, reads: " + nameGetter.mock.calls.length).toBe(true);
+
+      m.rows[49].value = "renamed";
+      nameGetter.mockClear();
+      expect(new ExpressionRunner("{renamed}").runContext(context()), "#3").toBe("c1");
+      expect(nameGetter.mock.calls.length, "#4: renamed in place, each row once").toBe(100);
+      nameGetter.mockClear();
+      for (let i = 0; i < 100; i++) missing.runContext(context());
+      expect(nameGetter.mock.calls.length, "#5").toBe(0);
+
+      m.rows = rows.map(name => name + "x");
+      nameGetter.mockClear();
+      expect(new ExpressionRunner("{r7x}").runContext(context()), "#6: no value for r7x").toBeUndefined();
+      expect(nameGetter.mock.calls.length, "#7: rows replaced, each row once").toBe(100);
+      nameGetter.mockClear();
+      for (let i = 0; i < 100; i++) missing.runContext(context());
+      expect(nameGetter.mock.calls.length, "#8").toBe(0);
+    } finally {
+      nameGetter.mockRestore();
+    }
   });
 });

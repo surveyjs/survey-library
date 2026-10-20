@@ -317,7 +317,8 @@ export class MatrixCells extends Base {
 }
 
 export class MatrixValueGetterContext extends ValueGetterContextCore {
-  constructor (protected question: QuestionMatrixModel) {
+  // findRow: the question's row lookup by name, which it keeps private.
+  constructor (protected question: QuestionMatrixModel, private findRow: (name: string) => MatrixRowModel) {
     super();
   }
   public getObj(): Base { return this.question; }
@@ -330,17 +331,11 @@ export class MatrixValueGetterContext extends ValueGetterContextCore {
   }
   getRootObj(): IObjectValueContext { return <any>this.question.data; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
-    const rows = this.question.getMatrixRows();
-    name = name.toLocaleLowerCase();
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      const itemName = row.name?.toString() || "";
-      if (itemName.toLocaleLowerCase() === name) {
-        res.isFound = true;
-        res.obj = row;
-        res.context = row.getValueGetterContext();
-        return;
-      }
+    const row = this.findRow(name);
+    if (!!row) {
+      res.isFound = true;
+      res.obj = row;
+      res.context = row.getValueGetterContext();
     }
   }
 }
@@ -798,6 +793,32 @@ export class QuestionMatrixModel
     this.generatedVisibleRows = result;
     return result;
   }
+  // A lookup by name used to lower-case every row name. The index is built from one getMatrixRows() array
+  // and is rebuilt when that array changes or a row is renamed in place (itemValuePropertyChanged).
+  private rowsByNameIndex: { rows: Array<MatrixRowModel>, rowsByName: Map<string, MatrixRowModel> };
+  private getMatrixRowByName(name: string): MatrixRowModel {
+    const rows = this.getMatrixRows();
+    let index = this.rowsByNameIndex;
+    if (!index || index.rows !== rows) {
+      const rowsByName = new Map<string, MatrixRowModel>();
+      for (let i = 0; i < rows.length; i++) {
+        const key = (rows[i].name?.toString() || "").toLocaleLowerCase();
+        if (!rowsByName.has(key)) {
+          rowsByName.set(key, rows[i]);
+        }
+      }
+      index = { rows: rows, rowsByName: rowsByName };
+      this.rowsByNameIndex = index;
+    }
+    return index.rowsByName.get(name.toLocaleLowerCase());
+  }
+  public itemValuePropertyChanged(item: ItemValue, name: string, oldValue: any, newValue: any): void {
+    // Reset before super: it fires onItemValuePropertyChanged, and a listener may look up the renamed row.
+    if (name === "value" && item.ownerPropertyName === "rows") {
+      this.rowsByNameIndex = undefined;
+    }
+    super.itemValuePropertyChanged(item, name, oldValue, newValue);
+  }
   protected getVisibleRows(): Array<MatrixRowModel> {
     const rows = [];
     this.getMatrixRows().forEach(row => {
@@ -1068,7 +1089,7 @@ export class QuestionMatrixModel
     this.isRowChanging = false;
   }
   public getValueGetterContext(): IValueGetterContext {
-    return new MatrixValueGetterContext(this);
+    return new MatrixValueGetterContext(this, name => this.getMatrixRowByName(name));
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var res: { [index: string]: any } = {};

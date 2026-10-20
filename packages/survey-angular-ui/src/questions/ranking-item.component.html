@@ -1,5 +1,6 @@
 <div [id]="question.getItemId(model)" [attr.tabindex]="question.getItemTabIndex(model)" [attr.data-sv-drop-target-ranking-item]="index" 
     [class]="question.getItemClass(model)"
+    [attr.aria-keyshortcuts]="question.ariaKeyShortcuts"
     (keydown)="question.handleKeydown($event, model)"
     (pointerdown)="question.handlePointerDown($event, model, $any($event.currentTarget))"
     (pointerup)="question.handlePointerUp($event, model, $any($event.currentTarget))">

@@ -17,6 +17,7 @@
         [attr.aria-label]="renderState.ariaInputLabel" [attr.aria-labelledby]="renderState.ariaInputLabelledby"
         [attr.aria-describedby]="renderState.ariaInputDescribedby" [attr.aria-controls]="renderState.ariaInputControls"
         [attr.aria-activedescendant]="renderState.ariaInputActivedescendant"
+        [attr.aria-keyshortcuts]="question.ariaKeyShortcuts"
         [attr.placeholder]="renderState.filterStringPlaceholder" (keydown)="inputKeyHandler($event)"
         (blur)="question.onBlur($event)" (focus)="question.onFocus($event)" />
     </div>

@@ -36,6 +36,7 @@
                     [attr.aria-labelledby]="renderState.ariaInputLabelledby"
                     [attr.aria-describedby]="renderState.ariaInputDescribedby"
                     [attr.aria-activedescendant]="renderState.ariaInputActivedescendant"
+                    [attr.aria-keyshortcuts]="model.ariaKeyShortcuts"
                     [attr.placeholder]="renderState.placeholderRendered"
                     [attr.readonly]="renderState.filterReadOnly ? true : null" (change)="inputChange($event)"
                     (blur)="blur($event)" (focus)="focus($event)" />

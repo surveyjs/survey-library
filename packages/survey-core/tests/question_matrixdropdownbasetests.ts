@@ -11,7 +11,6 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { ItemValue } from "../src/itemvalue";
 import { settings } from "../src/settings";
 import { setOldTheme } from "./oldTheme";
-import { Question } from "../src/question";
 import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
 import { describe, test, expect } from "vitest";
 import { FunctionFactory } from "../src/functionsfactory";

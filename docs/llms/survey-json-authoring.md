@@ -302,7 +302,7 @@ A class that describes the Yes/No (Boolean) question type. Inherits the properti
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
-| `allowClear` | `boolean` | `false` | Specifies whether to display a button that clears the question value. It is available for the segmented and radio display modes when the title is visible. Checkbox and switch modes do not support it. |
+| `allowClear` | `boolean` | `false` | Specifies whether to display a button that clears the question value. Segmented and radio modes show it when the title is visible. Checkbox and switch show it when `useTitleAsLabel` is `false` and the title is visible. |
 | `displayMode` | `segmented, radio, checkbox, switch` | `"segmented"` | Specifies the visual representation of the Yes/No question. |
 | `labelFalse` *(loc)* | `string` |  | Gets or sets a text label that corresponds to a negative answer. |
 | `labelTrue` *(loc)* | `string` |  | Gets or sets a text label that corresponds to a positive answer. |

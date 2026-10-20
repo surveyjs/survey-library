@@ -769,13 +769,17 @@ describe("boolean", () => {
     const radio = <QuestionBooleanModel>survey.getQuestionByName("radio");
     const segmented = <QuestionBooleanModel>survey.getQuestionByName("segmented");
 
-    expect(check.getTitleActions().length, "checkbox has no Clear action").toBe(0);
-    expect(check.hasTitleActions, "checkbox keeps the title markup").toBe(false);
+    expect(check.getTitleActions().length, "checkbox label has no Clear action").toBe(0);
+    expect(check.hasTitleActions, "checkbox keeps the label markup").toBe(false);
     check.useTitleAsLabel = false;
-    expect(check.hasTitle, "a checkbox can still show its title").toBe(true);
-    expect(check.getTitleActions().length, "checkbox still has no Clear action").toBe(0);
-    expect(sw.getTitleActions().length, "switch has no Clear action").toBe(0);
-    expect(sw.hasTitleActions, "switch keeps the title markup").toBe(false);
+    expect(check.hasTitle, "a checkbox shows its title").toBe(true);
+    expect(check.getTitleActions().length, "checkbox title gets Clear").toBe(1);
+    expect(sw.getTitleActions().length, "switch label has no Clear action").toBe(0);
+    expect(sw.hasTitleActions, "switch keeps the label markup").toBe(false);
+    sw.useTitleAsLabel = false;
+    expect(sw.getTitleActions().length, "switch title gets Clear").toBe(1);
+    sw.titleLocation = "hidden";
+    expect(sw.getTitleActions().length, "a hidden switch title drops Clear").toBe(0);
     expect(asCheckbox.displayMode, "renderAs checkbox becomes displayMode").toBe("checkbox");
     expect(asCheckbox.getTitleActions().length, "renderAs checkbox has no Clear action").toBe(0);
     expect(radio.getTitleActions().length, "radio keeps Clear").toBe(1);
@@ -783,8 +787,8 @@ describe("boolean", () => {
     expect(segmented.getTitleActions().length, "segmented keeps Clear").toBe(1);
 
     const prop = Serializer.findProperty("boolean", "allowClear");
-    expect(prop.isVisible("", check), "property is hidden for checkbox").toBe(false);
-    expect(prop.isVisible("", sw), "property is hidden for switch").toBe(false);
+    expect(prop.isVisible("", check), "property is visible when the checkbox title is shown").toBe(true);
+    expect(prop.isVisible("", sw), "property is hidden when the switch title is hidden").toBe(false);
     expect(prop.isVisible("", radio), "property is visible for radio").toBe(true);
     expect(prop.isVisible("", segmented), "property is visible for segmented").toBe(true);
   });

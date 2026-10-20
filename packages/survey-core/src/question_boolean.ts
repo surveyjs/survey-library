@@ -163,18 +163,16 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
   /**
    * Specifies whether to display a button that clears the question value.
    *
-   * The button appears in the question title. It is available for the segmented and radio [display modes](#displayMode) when the title is visible. Checkbox and switch modes do not support it.
+   * The button appears in the question title. Segmented and radio [display modes](#displayMode) show it when the title is visible. Checkbox and switch show it when [`useTitleAsLabel`](#useTitleAsLabel) is `false` and the title is visible.
    *
    * Default value: `false`
    */
   @property() allowClear: boolean;
-  // Checkbox and switch draw the title inside the control and have no Clear slot.
-  private get isAllowClearSupported(): boolean {
-    const renderAs = this.getRenderAsValue();
-    return renderAs !== "checkbox" && renderAs !== "switch";
-  }
+  // Checkbox and switch have no question header while the title is the control label.
   protected get supportClearTitleAction(): boolean {
-    return this.isAllowClearSupported;
+    const renderAs = this.getRenderAsValue();
+    if (renderAs !== "checkbox" && renderAs !== "switch") return true;
+    return this.hasTitle;
   }
   get locLabelLeft(): LocalizableString {
     return this.swapOrder ? this.locLabelTrue : this.locLabelFalse;
@@ -476,7 +474,7 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
     if (name === "renderAs" && this.displayMode === "custom") {
       this.saveCustomRenderAs(newValue);
     }
-    if (name === "displayMode" || name === "renderAs") {
+    if (name === "displayMode" || name === "renderAs" || name === "useTitleAsLabel" || name === "titleLocation") {
       this.resetTitleActions();
     }
   }
@@ -540,7 +538,10 @@ Serializer.addClass(
     {
       name: "allowClear:boolean",
       category: "general",
-      visibleIf: (obj: QuestionBooleanModel) => obj.displayMode !== "checkbox" && obj.displayMode !== "switch"
+      visibleIf: (obj: QuestionBooleanModel) => {
+        if (obj.displayMode !== "checkbox" && obj.displayMode !== "switch") return true;
+        return obj.hasTitle;
+      }
     },
     {
       name: "displayMode",

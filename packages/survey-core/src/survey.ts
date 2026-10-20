@@ -2782,8 +2782,20 @@ export class SurveyModel extends SurveyElementCore
       if (!this.navigationBarValue.locOwner)this.navigationBarValue.locOwner = this;
       this.updateNavigationCss();
       this.navigationBarValue.flushUpdates();
+      this.updateHasVisibleNavigationActions();
+      this.navigationBarValue.registerPropertyChangedHandlers(["isEmpty"], () => this.updateHasVisibleNavigationActions());
     }
     return this.navigationBarValue;
+  }
+  // Mirrors navigationBar.isEmpty onto the survey so layout containers re-render: the survey component
+  // is not subscribed to the bar while the bar itself is not rendered.
+  // The bar read has to be part of the returned value. Production builds treat getters as pure and drop
+  // an unused `void this.navigationBar`, which leaves the flag at its default and hides the buttons.
+  public get hasVisibleNavigationActions(): boolean {
+    return this.navigationBar.hasVisibleActions;
+  }
+  private updateHasVisibleNavigationActions(): void {
+    this.setPropertyValue("hasVisibleNavigationActions", this.navigationBarValue.hasVisibleActions);
   }
   public createNavigationBarCallback: () => ActionContainer;
   protected createNavigationBar(): ActionContainer {

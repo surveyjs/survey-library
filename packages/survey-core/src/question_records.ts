@@ -3140,10 +3140,17 @@ export abstract class QuestionRecordsModel extends Question {
       this.followRecordsWithObjects((recordIndex: number): void => { this.appendItemForRecord(recordIndex, true); });
     }
     if (!this.isPagedByList) return;
-    // The page is rebuilt when it names other records than its objects hold now.
-    if (this.isPageStale()) {
+    // The page is rebuilt when it names other records than its objects hold now - unless the type
+    // takes in a record that landed at the end of the page without one (followRecordAppendedToPage).
+    if (this.isPageStale() && !this.followRecordAppendedToPage()) {
       this.rebuildFromDataList(false);
     }
+  }
+  /* An assignment from outside under in-memory paging left the objects one record short of the page:
+     the type appends an object for it and returns true, or returns false and the page is rebuilt. The
+     default rebuilds. */
+  protected followRecordAppendedToPage(): boolean {
+    return false;
   }
   /* A reload - survey.data =, setData, mergeData, survey.clear(), each of which assigns under the
      survey's data pass - and clearValue() start over: the records the respondent touched are decided

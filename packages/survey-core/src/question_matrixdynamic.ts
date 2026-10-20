@@ -218,6 +218,45 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const created = this.dataList.getCreatedIndexes();
     return created.length > 0 ? created[created.length - 1] : -1;
   }
+  /* Whether an add under in-memory paging is taken in as without paging - one row appended, and the
+     rendered table told -: the added record is the last record of the page shown, and the rows hold
+     every other record of the page in order - before the new row is appended, or with it. In practice
+     an append to the last page while it has room. Not when the record starts a new page or an insert pushes a record onto the next one,
+     and not under a sort or a filter, which place the record by its values: the page is rebuilt then.
+     The value assignment (followRecordAppendedToPage) and addRow (canAppendAddedRow) both ask this. */
+  private isRecordAddedToShownPage(recordIndex: number): boolean {
+    const rows = this.generatedVisibleRows;
+    if (!this.isPagedByList || this.isEditingObjectValue || !rows || recordIndex < 0) return false;
+    const list = this.dataList;
+    if (list.hasView) return false;
+    const records = list.getMaterializedIndexes();
+    return records[records.length - 1] === recordIndex && rows.length >= records.length - 1 && !this.isPageStale(true);
+  }
+  protected canAppendAddedRow(): boolean {
+    return super.canAppendAddedRow() || this.isRecordAddedToShownPage(this.getLastRowRecordIndex());
+  }
+  /* The value side of the paged add (see the isPagedByList branch of onBeforeValueChanged): the page
+     shown got one more record at its end, which gets a row, and the rendered table that row, as the
+     unpaged value assignment adds one. An assignment that inserted the record in front of others is not
+     told from an append: the rows keep their positions and take the records the value has there, as
+     without paging. */
+  protected followRecordAppendedToPage(): boolean {
+    const recordIndex = this.getLastRowRecordIndex();
+    const rows = this.generatedVisibleRows;
+    if (!this.isRecordAddedToShownPage(recordIndex) || rows.length !== this.dataList.getMaterializedIndexes().length - 1) return false;
+    this.onStartRowAddingRemoving();
+    try {
+      this.appendItemForRecord(recordIndex);
+      if (this.data) {
+        this.runCellsCondition(this.getDataFilteredProperties());
+      }
+      this.onRowsChanged();
+    } finally {
+      this.unlockResetRenderedTable();
+    }
+    this.onEndRowAdding();
+    return true;
+  }
   /* question.value is shorter than rowCount: the padded records the list reads have not reached the
      storage yet. A write that used to compare whole values (it assigned the padded array and the
      comparison saw the new records) has to reach question.value even when its own record did not
@@ -1480,7 +1519,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     // Without rows the flag stays set, as it always has. The exits below reset it, the row rebuild also on a throw.
     if (!this.generatedVisibleRows) return;
     /* Under paging the rows are a page, not the records: the rows stay, and the view places one more
-       record (decideViewAgain), as the rows stay without paging. */
+       record (decideViewAgain), as the rows stay without paging. A record that lands at the end of the
+       page shown gets its row there, and the rendered table that row (followRecordAppendedToPage); any
+       other change of the page rebuilds it. */
     if (this.isPagedByList && isOneRecordAdded) {
       this.setRowCountValueFromData = false;
       return;

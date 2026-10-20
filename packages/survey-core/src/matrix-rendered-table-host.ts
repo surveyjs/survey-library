@@ -13,12 +13,18 @@ export interface IMatrixRenderedTableOwner {
   clearRows(): void;
   isUpdateLocked(): boolean;
   isPagingActive(): boolean;
+  // The end of an add can append the last visible row to the table: always without paging; under paging
+  // when the added record landed at the end of the page shown and no record moved between pages.
+  canAppendAddedRow(): boolean;
   getVisibleRows(): Array<MatrixDropdownRowModelBase>;
 }
 
 // The rendered table of a matrix: when it is reset, and how a row add or remove reaches it.
 export class MatrixRenderedTableHost {
-  // Set from the start of a row add or remove to its end: a reset asked for meanwhile is skipped.
+  /* Set from the start of a row add or remove to its end, and by Survey Creator around an add: a reset
+     asked for meanwhile is skipped. Every add and remove asks for one while the rows the table holds
+     stay alive, and the end of the add or remove decides. A reset that is needed - the rows the table
+     holds were disposed - is not lost: the table is marked (onRowsDisposed). */
   public isResetLocked: boolean = false;
   constructor(private owner: IMatrixRenderedTableOwner) { }
   public get isCreated(): boolean {
@@ -55,14 +61,30 @@ export class MatrixRenderedTableHost {
   public onStartRowAddingRemoving(): void {
     this.isResetLocked = true;
   }
+  // The rows the table holds are disposed while its reset is locked: the reset is owed, and the table says so.
+  public onRowsDisposed(): void {
+    if (this.isCreated && (this.isResetLocked || this.owner.isUpdateLocked())) {
+      this.table.requireReset();
+    }
+  }
+  /* The lock is released from outside (Survey Creator's lockResetRenderedTable): a table whose rows
+     were disposed meanwhile is reset now. The question releases its own lock without this: the end of
+     its add or remove checks the table right after. */
+  public releaseResetLock(): void {
+    this.isResetLocked = false;
+    if (this.isCreated && this.table.isResetRequested()) {
+      this.reset();
+    }
+  }
   public onEndRowAdding(): void {
     this.isResetLocked = false;
     if (!this.isCreated) return;
-    /* The incremental add appends the new row to the rendered table, which is right for a table
-       that shows every visible row and wrong for a page that may not hold the new one at all. With
-       paging on the table is reset instead - the question moves pageIndex to the page the new row
-       landed on, which resets it anyway. */
-    if (this.table.isRequireReset() || this.owner.isPagingActive()) {
+    /* The incremental add appends the new row to the rendered table: right for a table that shows
+       every visible row, and for a page whose last row is the new one while every other row stayed
+       (canAppendAddedRow). Any other page is reset: the record started a new page or pushed one onto
+       the next, or a sort or a filter placed it. A page move rebuilt the rows and marked the table
+       (onRowsDisposed). */
+    if (this.table.isRequireReset() || !this.owner.canAppendAddedRow()) {
       this.reset();
     } else {
       const index = this.owner.getVisibleRows().length - 1;

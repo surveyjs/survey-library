@@ -5,6 +5,14 @@ export var estonianSurveyStrings = {
   pagePrevText: "Tagasi",
   // "Next"
   pageNextText: "Edasi",
+  // [Auto-translated] "First"
+  pageFirstText: "Esimene",
+  // [Auto-translated] "Last"
+  pageLastText: "Viimane",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Vali lehekülg",
   // "Complete"
   completeText: "Lõpeta",
   // "Preview"

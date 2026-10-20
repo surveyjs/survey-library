@@ -40,45 +40,45 @@ The following model defines a four-page survey that contains the [Radiogroup](ht
 
 ```js
 const surveyJson = {
-    pages: [{
-        elements: [{
-            name: "satisfaction-score",
-            title: "How would you describe your experience with our product?",
-            type: "radiogroup",
-            choices: [
-                { value: 5, text: "Fully satisfying" },
-                { value: 4, text: "Generally satisfying" },
-                { value: 3, text: "Neutral" },
-                { value: 2, text: "Rather unsatisfying" },
-                { value: 1, text: "Not satisfying at all" }
-            ],
-            isRequired: true
-        }]
-    }, {
-        elements: [{
-            name: "what-would-make-you-more-satisfied",
-            title: "What can we do to make your experience more satisfying?",
-            type: "comment",
-        }, {
-            name: "nps-score",
-            title: "On a scale of zero to ten, how likely are you to recommend our product to a friend or colleague?",
-            type: "rating",
-            rateMin: 0,
-            rateMax: 10
-        }],
-    }, {
-        elements: [{
-            name: "how-can-we-improve",
-            title: "In your opinion, how could we improve our product?",
-            type: "comment"
-        }],
-    }, {
-        elements: [{
-            name: "disappointing-experience",
-            title: "Please let us know why you had such a disappointing experience with our product",
-            type: "comment"
-        }],
+  pages: [{
+    elements: [{
+      name: "satisfaction-score",
+      title: "How would you describe your experience with our product?",
+      type: "radiogroup",
+      choices: [
+        { value: 5, text: "Fully satisfying" },
+        { value: 4, text: "Generally satisfying" },
+        { value: 3, text: "Neutral" },
+        { value: 2, text: "Rather unsatisfying" },
+        { value: 1, text: "Not satisfying at all" }
+      ],
+      isRequired: true
     }]
+  }, {
+    elements: [{
+      name: "what-would-make-you-more-satisfied",
+      title: "What can we do to make your experience more satisfying?",
+      type: "comment",
+    }, {
+      name: "nps-score",
+      title: "On a scale of zero to ten, how likely are you to recommend our product to a friend or colleague?",
+      type: "rating",
+      rateMin: 0,
+      rateMax: 10
+    }],
+  }, {
+    elements: [{
+      name: "how-can-we-improve",
+      title: "In your opinion, how could we improve our product?",
+      type: "comment"
+    }],
+  }, {
+    elements: [{
+      name: "disappointing-experience",
+      title: "Please let us know why you had such a disappointing experience with our product",
+      type: "comment"
+    }],
+  }]
 };
 ```
 
@@ -98,34 +98,39 @@ In the following code, the `visibleIf` property is set to a Boolean expression t
 
 ```js
 const surveyJson = {
-    pages: [{
-        elements: [{
-            name: "satisfaction-score",
-            // ...
-        }]
+  pages: [{
+    elements: [{
+      name: "satisfaction-score",
+      type: "radiogroup",
+      // ...
+    }]
+  }, {
+    elements: [{
+      name: "what-would-make-you-more-satisfied",
+      type: "comment",
+      // ...
+      visibleIf: "{satisfaction-score} = 4"
     }, {
-        elements: [{
-            name: "what-would-make-you-more-satisfied",
-            // ...
-            visibleIf: "{satisfaction-score} = 4"
-        }, {
-            name: "nps-score",
-            // ...
-        }],
-        visibleIf: "{satisfaction-score} >= 4"
-    }, {
-        elements: [{
-            name: "how-can-we-improve",
-            // ...
-        }],
-        visibleIf: "{satisfaction-score} = 3"
-    }, {
-        elements: [{
-            name: "disappointing-experience",
-            // ...
-        }],
-        visibleIf: "{satisfaction-score} =< 2"
+      name: "nps-score",
+      type: "rating",
+      // ...
     }],
+    visibleIf: "{satisfaction-score} >= 4"
+  }, {
+    elements: [{
+      name: "how-can-we-improve",
+      type: "comment",
+      // ...
+    }],
+    visibleIf: "{satisfaction-score} = 3"
+  }, {
+    elements: [{
+      name: "disappointing-experience",
+      type: "comment",
+      // ...
+    }],
+    visibleIf: "{satisfaction-score} =< 2"
+  }],
 };
 ```
 
@@ -136,49 +141,49 @@ If you need to access an array of visible pages, use the [SurveyModel](https://s
 
 ```js
 const surveyJson = {
-    pages: [{
-        elements: [{
-            name: "satisfaction-score",
-            title: "How would you describe your experience with our product?",
-            type: "radiogroup",
-            choices: [
-                { value: 5, text: "Fully satisfying" },
-                { value: 4, text: "Generally satisfying" },
-                { value: 3, text: "Neutral" },
-                { value: 2, text: "Rather unsatisfying" },
-                { value: 1, text: "Not satisfying at all" }
-            ],
-            isRequired: true
-        }]
-    }, {
-        elements: [{
-            name: "what-would-make-you-more-satisfied",
-            title: "What can we do to make your experience more satisfying?",
-            type: "comment",
-            visibleIf: "{satisfaction-score} = 4"
-        }, {
-            name: "nps-score",
-            title: "On a scale of zero to ten, how likely are you to recommend our product to a friend or colleague?",
-            type: "rating",
-            rateMin: 0,
-            rateMax: 10
-        }],
-        visibleIf: "{satisfaction-score} >= 4"
-    }, {
-        elements: [{
-            name: "how-can-we-improve",
-            title: "In your opinion, how could we improve our product?",
-            type: "comment"
-        }],
-        visibleIf: "{satisfaction-score} = 3"
-    }, {
-        elements: [{
-            name: "disappointing-experience",
-            title: "Please let us know why you had such a disappointing experience with our product",
-            type: "comment"
-        }],
-        visibleIf: "{satisfaction-score} =< 2"
+  pages: [{
+    elements: [{
+      name: "satisfaction-score",
+      title: "How would you describe your experience with our product?",
+      type: "radiogroup",
+      choices: [
+        { value: 5, text: "Fully satisfying" },
+        { value: 4, text: "Generally satisfying" },
+        { value: 3, text: "Neutral" },
+        { value: 2, text: "Rather unsatisfying" },
+        { value: 1, text: "Not satisfying at all" }
+      ],
+      isRequired: true
     }]
+  }, {
+    elements: [{
+      name: "what-would-make-you-more-satisfied",
+      title: "What can we do to make your experience more satisfying?",
+      type: "comment",
+      visibleIf: "{satisfaction-score} = 4"
+    }, {
+      name: "nps-score",
+      title: "On a scale of zero to ten, how likely are you to recommend our product to a friend or colleague?",
+      type: "rating",
+      rateMin: 0,
+      rateMax: 10
+    }],
+    visibleIf: "{satisfaction-score} >= 4"
+  }, {
+    elements: [{
+      name: "how-can-we-improve",
+      title: "In your opinion, how could we improve our product?",
+      type: "comment"
+    }],
+    visibleIf: "{satisfaction-score} = 3"
+  }, {
+    elements: [{
+      name: "disappointing-experience",
+      title: "Please let us know why you had such a disappointing experience with our product",
+      type: "comment"
+    }],
+    visibleIf: "{satisfaction-score} =< 2"
+  }]
 };
 ```
 </details>
@@ -234,17 +239,17 @@ survey.start();
 
 const navigatedForward = survey.nextPage();
 if (!navigatedForward) {
-    alert("Navigation failed!")
+  alert("Navigation failed!")
 }
 
 const navigatedBack = survey.prevPage();
 if (!navigatedBack) {
-    alert("Navigation failed!")
+  alert("Navigation failed!")
 }
 
 const completedSuccessfully = survey.tryComplete();
 if (!completedSuccessfully) {
-    alert("Check the answers for validation errors")
+  alert("Check the answers for validation errors")
 }
 
 survey.doComplete();
@@ -260,9 +265,9 @@ Respondents can click the Next, Previous, and Complete buttons to navigate surve
 
 ```js
 const surveyJson = {
-    pageNextText: "Forward",
-    pagePrevText: "Back",
-    completeText: "Submit"
+  pageNextText: "Forward",
+  pagePrevText: "Back",
+  completeText: "Submit"
 };
 ```
 
@@ -270,9 +275,9 @@ If you want to hide the buttons, set the [`showNavigationButtons`](https://surve
 
 ```js
 const surveyJson = {
-    showNavigationButtons: false,
-    autoAdvanceEnabled: true,
-    autoAdvanceAllowComplete: true
+  showNavigationButtons: false,
+  autoAdvanceEnabled: true,
+  autoAdvanceAllowComplete: true
 };
 ```
 
@@ -280,7 +285,7 @@ If you only want to hide the Previous button, disable the [`showPrevButton`](htt
 
 ```js
 const surveyJson = {
-    showPrevButton: false,
+  showPrevButton: false,
 };
 ```
 
@@ -288,8 +293,8 @@ You can also indicate survey progress on a progress bar. To display and position
 
 ```js
 const surveyJson = {
-    showProgressBar: true,
-    progressBarLocation: "top"
+  showProgressBar: true,
+  progressBarLocation: "aboveheader"
 };
 ```
 
@@ -302,52 +307,52 @@ The example in this tutorial uses only the `pageNextText`, `completeText`, and `
 
 ```js
 const surveyJson = {
-    pages: [{
-        elements: [{
-            name: "satisfaction-score",
-            title: "How would you describe your experience with our product?",
-            type: "radiogroup",
-            choices: [
-                { value: 5, text: "Fully satisfying" },
-                { value: 4, text: "Generally satisfying" },
-                { value: 3, text: "Neutral" },
-                { value: 2, text: "Rather unsatisfying" },
-                { value: 1, text: "Not satisfying at all" }
-            ],
-            isRequired: true
-        }]
+  pages: [{
+    elements: [{
+      name: "satisfaction-score",
+      title: "How would you describe your experience with our product?",
+      type: "radiogroup",
+      choices: [
+        { value: 5, text: "Fully satisfying" },
+        { value: 4, text: "Generally satisfying" },
+        { value: 3, text: "Neutral" },
+        { value: 2, text: "Rather unsatisfying" },
+        { value: 1, text: "Not satisfying at all" }
+      ],
+      isRequired: true
+    }]
+  }, {
+    elements: [{
+      name: "what-would-make-you-more-satisfied",
+      title: "What can we do to make your experience more satisfying?",
+      type: "comment",
+      visibleIf: "{satisfaction-score} = 4"
     }, {
-        elements: [{
-            name: "what-would-make-you-more-satisfied",
-            title: "What can we do to make your experience more satisfying?",
-            type: "comment",
-            visibleIf: "{satisfaction-score} = 4"
-        }, {
-            name: "nps-score",
-            title: "On a scale of zero to ten, how likely are you to recommend our product to a friend or colleague?",
-            type: "rating",
-            rateMin: 0,
-            rateMax: 10
-        }],
-        visibleIf: "{satisfaction-score} >= 4"
-    }, {
-        elements: [{
-            name: "how-can-we-improve",
-            title: "In your opinion, how could we improve our product?",
-            type: "comment"
-        }],
-        visibleIf: "{satisfaction-score} = 3"
-    }, {
-        elements: [{
-            name: "disappointing-experience",
-            title: "Please let us know why you had such a disappointing experience with our product",
-            type: "comment"
-        }],
-        visibleIf: "{satisfaction-score} =< 2"
+      name: "nps-score",
+      title: "On a scale of zero to ten, how likely are you to recommend our product to a friend or colleague?",
+      type: "rating",
+      rateMin: 0,
+      rateMax: 10
     }],
-    pageNextText: "Forward",
-    completeText: "Submit",
-    showPrevButton: false,
+    visibleIf: "{satisfaction-score} >= 4"
+  }, {
+    elements: [{
+      name: "how-can-we-improve",
+      title: "In your opinion, how could we improve our product?",
+      type: "comment"
+    }],
+    visibleIf: "{satisfaction-score} = 3"
+  }, {
+    elements: [{
+      name: "disappointing-experience",
+      title: "Please let us know why you had such a disappointing experience with our product",
+      type: "comment"
+    }],
+    visibleIf: "{satisfaction-score} =< 2"
+  }],
+  pageNextText: "Forward",
+  completeText: "Submit",
+  showPrevButton: false,
 };
 ```
 </details>
@@ -360,16 +365,17 @@ A start page usually shows an introduction to your survey. It does not affect th
 
 ```js
 const surveyJson = {
-    pages: [{
-        elements: [{
-            type: "html",
-            html: "<h2>In this survey, we will ask you a couple questions about your impressions of our product.</h2>"
-        }]
-    },
-    // ...
-    // Other pages are configured here
-    // ...
-    ],
+  pages: [{
+    elements: [{
+      type: "html",
+      name: "introduction",
+      html: "<h2>In this survey, we will ask you a couple questions about your impressions of our product.</h2>"
+    }]
+  },
+  // ...
+  // Other pages are configured here
+  // ...
+  ],
 };
 ```
 
@@ -377,8 +383,8 @@ Enable the [`firstPageIsStartPage`](https://surveyjs.io/Documentation/Library?id
 
 ```js
 const surveyJson = {
-    firstPageIsStartPage: true,
-    startSurveyText: "Take the Survey",
+  firstPageIsStartPage: true,
+  startSurveyText: "Take the Survey",
 };
 ```
 
@@ -397,59 +403,60 @@ const startPage = survey.startPage;
 
 ```js
 const surveyJson = {
-    pages: [{
-        elements: [{
-            type: "html",
-            html: "<h2>In this survey, we will ask you a couple questions about your impressions of our product.</h2>"
-        }]
+  pages: [{
+    elements: [{
+      type: "html",
+      name: "introduction",
+      html: "<h2>In this survey, we will ask you a couple questions about your impressions of our product.</h2>"
+    }]
+  }, {
+    elements: [{
+      name: "satisfaction-score",
+      title: "How would you describe your experience with our product?",
+      type: "radiogroup",
+      choices: [
+        { value: 5, text: "Fully satisfying" },
+        { value: 4, text: "Generally satisfying" },
+        { value: 3, text: "Neutral" },
+        { value: 2, text: "Rather unsatisfying" },
+        { value: 1, text: "Not satisfying at all" }
+      ],
+      isRequired: true
+    }]
+  }, {
+    elements: [{
+      name: "what-would-make-you-more-satisfied",
+      title: "What can we do to make your experience more satisfying?",
+      type: "comment",
+      visibleIf: "{satisfaction-score} = 4"
     }, {
-        elements: [{
-            name: "satisfaction-score",
-            title: "How would you describe your experience with our product?",
-            type: "radiogroup",
-            choices: [
-                { value: 5, text: "Fully satisfying" },
-                { value: 4, text: "Generally satisfying" },
-                { value: 3, text: "Neutral" },
-                { value: 2, text: "Rather unsatisfying" },
-                { value: 1, text: "Not satisfying at all" }
-            ],
-            isRequired: true
-        }]
-    }, {
-        elements: [{
-            name: "what-would-make-you-more-satisfied",
-            title: "What can we do to make your experience more satisfying?",
-            type: "comment",
-            visibleIf: "{satisfaction-score} = 4"
-        }, {
-            name: "nps-score",
-            title: "On a scale of zero to ten, how likely are you to recommend our product to a friend or colleague?",
-            type: "rating",
-            rateMin: 0,
-            rateMax: 10
-        }],
-        visibleIf: "{satisfaction-score} >= 4"
-    }, {
-        elements: [{
-            name: "how-can-we-improve",
-            title: "In your opinion, how could we improve our product?",
-            type: "comment"
-        }],
-        visibleIf: "{satisfaction-score} = 3"
-    }, {
-        elements: [{
-            name: "disappointing-experience",
-            title: "Please let us know why you had such a disappointing experience with our product",
-            type: "comment"
-        }],
-        visibleIf: "{satisfaction-score} =< 2"
+      name: "nps-score",
+      title: "On a scale of zero to ten, how likely are you to recommend our product to a friend or colleague?",
+      type: "rating",
+      rateMin: 0,
+      rateMax: 10
     }],
-    pageNextText: "Forward",
-    completeText: "Submit",
-    showPrevButton: false,
-    firstPageIsStartPage: true,
-    startSurveyText: "Take the Survey",
+    visibleIf: "{satisfaction-score} >= 4"
+  }, {
+    elements: [{
+      name: "how-can-we-improve",
+      title: "In your opinion, how could we improve our product?",
+      type: "comment"
+    }],
+    visibleIf: "{satisfaction-score} = 3"
+  }, {
+    elements: [{
+      name: "disappointing-experience",
+      title: "Please let us know why you had such a disappointing experience with our product",
+      type: "comment"
+    }],
+    visibleIf: "{satisfaction-score} =< 2"
+  }],
+  pageNextText: "Forward",
+  completeText: "Submit",
+  showPrevButton: false,
+  firstPageIsStartPage: true,
+  startSurveyText: "Take the Survey",
 };
 ```
 </details>
@@ -461,28 +468,28 @@ A complete page displays a "Thank you" message when the survey ends. If you want
 - [`completedHtml`](https://surveyjs.io/Documentation/Library?id=surveymodel#completedHtml)       
 Custom HTML content displayed on the complete page.
 
-    ```js
-    const surveyJson = {
-        completedHtml: "Thank you for your feedback!",
-    };
-    ```
+  ```js
+  const surveyJson = {
+    completedHtml: "Thank you for your feedback!",
+  };
+  ```
 
 - [`completedHtmlOnCondition`](https://surveyjs.io/Documentation/Library?id=surveymodel#completedHtmlOnCondition)        
 An array that allows you to specify different complete page content based on conditions. Each object is this array should contain a [Boolean expression](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-display#boolean-expressions) and HTML markup that applies when this expression evaluates to `true`:
 
-    ```js
-    const surveyJson = {
-        completedHtmlOnCondition: [{
-            expression: "{some_field} > 10",
-            html: "Custom markup to show when some_field is greater than 10"
-        }, {
-            expression: "{some_field} < 10",
-            html: "Custom markup to show when some_field is less than 10"
-        },
-        // ...
-        ]
-    };
-    ```
+  ```js
+  const surveyJson = {
+    completedHtmlOnCondition: [{
+      expression: "{some_field} > 10",
+      html: "Custom markup to show when some_field is greater than 10"
+    }, {
+      expression: "{some_field} < 10",
+      html: "Custom markup to show when some_field is less than 10"
+    },
+    // ...
+    ]
+  };
+  ```
 
     When none of the expressions evaluate to `true`, the complete page displays the HTML markup from the `completedHtml` property.
 
@@ -493,60 +500,61 @@ If your survey should not display a complete page, disable the [`showCompletePag
 
 ```js
 const surveyJson = {
-    pages: [{
-        elements: [{
-            type: "html",
-            html: "<h2>In this survey, we will ask you a couple questions about your impressions of our product.</h2>"
-        }]
+  pages: [{
+    elements: [{
+      type: "html",
+      name: "introduction",
+      html: "<h2>In this survey, we will ask you a couple questions about your impressions of our product.</h2>"
+    }]
+  }, {
+    elements: [{
+      name: "satisfaction-score",
+      title: "How would you describe your experience with our product?",
+      type: "radiogroup",
+      choices: [
+        { value: 5, text: "Fully satisfying" },
+        { value: 4, text: "Generally satisfying" },
+        { value: 3, text: "Neutral" },
+        { value: 2, text: "Rather unsatisfying" },
+        { value: 1, text: "Not satisfying at all" }
+      ],
+      isRequired: true
+    }]
+  }, {
+    elements: [{
+      name: "what-would-make-you-more-satisfied",
+      title: "What can we do to make your experience more satisfying?",
+      type: "comment",
+      visibleIf: "{satisfaction-score} = 4"
     }, {
-        elements: [{
-            name: "satisfaction-score",
-            title: "How would you describe your experience with our product?",
-            type: "radiogroup",
-            choices: [
-                { value: 5, text: "Fully satisfying" },
-                { value: 4, text: "Generally satisfying" },
-                { value: 3, text: "Neutral" },
-                { value: 2, text: "Rather unsatisfying" },
-                { value: 1, text: "Not satisfying at all" }
-            ],
-            isRequired: true
-        }]
-    }, {
-        elements: [{
-            name: "what-would-make-you-more-satisfied",
-            title: "What can we do to make your experience more satisfying?",
-            type: "comment",
-            visibleIf: "{satisfaction-score} = 4"
-        }, {
-            name: "nps-score",
-            title: "On a scale of zero to ten, how likely are you to recommend our product to a friend or colleague?",
-            type: "rating",
-            rateMin: 0,
-            rateMax: 10
-        }],
-        visibleIf: "{satisfaction-score} >= 4"
-    }, {
-        elements: [{
-            name: "how-can-we-improve",
-            title: "In your opinion, how could we improve our product?",
-            type: "comment"
-        }],
-        visibleIf: "{satisfaction-score} = 3"
-    }, {
-        elements: [{
-            name: "disappointing-experience",
-            title: "Please let us know why you had such a disappointing experience with our product",
-            type: "comment"
-        }],
-        visibleIf: "{satisfaction-score} =< 2"
+      name: "nps-score",
+      title: "On a scale of zero to ten, how likely are you to recommend our product to a friend or colleague?",
+      type: "rating",
+      rateMin: 0,
+      rateMax: 10
     }],
-    pageNextText: "Forward",
-    completeText: "Submit",
-    showPrevButton: false,
-    firstPageIsStartPage: true,
-    startSurveyText: "Take the Survey",
-    completedHtml: "Thank you for your feedback!",
+    visibleIf: "{satisfaction-score} >= 4"
+  }, {
+    elements: [{
+      name: "how-can-we-improve",
+      title: "In your opinion, how could we improve our product?",
+      type: "comment"
+    }],
+    visibleIf: "{satisfaction-score} = 3"
+  }, {
+    elements: [{
+      name: "disappointing-experience",
+      title: "Please let us know why you had such a disappointing experience with our product",
+      type: "comment"
+    }],
+    visibleIf: "{satisfaction-score} =< 2"
+  }],
+  pageNextText: "Forward",
+  completeText: "Submit",
+  showPrevButton: false,
+  firstPageIsStartPage: true,
+  startSurveyText: "Take the Survey",
+  completedHtml: "Thank you for your feedback!",
 };
 ```
 </details>
@@ -559,8 +567,8 @@ To enable the preview page, set the [`showPreviewBeforeComplete`](https://survey
 
 ```js
 const surveyJson = {
-    showPreviewBeforeComplete: true,
-    previewMode: "answeredQuestions"
+  showPreviewBeforeComplete: true,
+  previewMode: "answeredQuestions"
 };
 ```
 
@@ -570,7 +578,7 @@ When the preview page is enabled, the last page in the survey displays a Preview
 
 ```js
 const surveyJson = {
-    previewText: "Preview answers"
+  previewText: "Preview answers"
 };
 ```
 
@@ -589,7 +597,7 @@ const survey = new Survey.Model(surveyJson);
 
 const previewShown = survey.showPreview();
 if (!previewShown) {
-    alert("Check the answers for validation errors")
+  alert("Check the answers for validation errors")
 }
 
 survey.cancelPreview();
@@ -602,62 +610,63 @@ The example in this tutorial uses only the `showPreviewBeforeComplete` and `prev
 
 ```js
 const surveyJson = {
-    pages: [{
-        elements: [{
-            type: "html",
-            html: "<h2>In this survey, we will ask you a couple questions about your impressions of our product.</h2>"
-        }]
+  pages: [{
+    elements: [{
+      type: "html",
+      name: "introduction",
+      html: "<h2>In this survey, we will ask you a couple questions about your impressions of our product.</h2>"
+    }]
+  }, {
+    elements: [{
+      name: "satisfaction-score",
+      title: "How would you describe your experience with our product?",
+      type: "radiogroup",
+      choices: [
+        { value: 5, text: "Fully satisfying" },
+        { value: 4, text: "Generally satisfying" },
+        { value: 3, text: "Neutral" },
+        { value: 2, text: "Rather unsatisfying" },
+        { value: 1, text: "Not satisfying at all" }
+      ],
+      isRequired: true
+    }]
+  }, {
+    elements: [{
+      name: "what-would-make-you-more-satisfied",
+      title: "What can we do to make your experience more satisfying?",
+      type: "comment",
+      visibleIf: "{satisfaction-score} = 4"
     }, {
-        elements: [{
-            name: "satisfaction-score",
-            title: "How would you describe your experience with our product?",
-            type: "radiogroup",
-            choices: [
-                { value: 5, text: "Fully satisfying" },
-                { value: 4, text: "Generally satisfying" },
-                { value: 3, text: "Neutral" },
-                { value: 2, text: "Rather unsatisfying" },
-                { value: 1, text: "Not satisfying at all" }
-            ],
-            isRequired: true
-        }]
-    }, {
-        elements: [{
-            name: "what-would-make-you-more-satisfied",
-            title: "What can we do to make your experience more satisfying?",
-            type: "comment",
-            visibleIf: "{satisfaction-score} = 4"
-        }, {
-            name: "nps-score",
-            title: "On a scale of zero to ten, how likely are you to recommend our product to a friend or colleague?",
-            type: "rating",
-            rateMin: 0,
-            rateMax: 10
-        }],
-        visibleIf: "{satisfaction-score} >= 4"
-    }, {
-        elements: [{
-            name: "how-can-we-improve",
-            title: "In your opinion, how could we improve our product?",
-            type: "comment"
-        }],
-        visibleIf: "{satisfaction-score} = 3"
-    }, {
-        elements: [{
-            name: "disappointing-experience",
-            title: "Please let us know why you had such a disappointing experience with our product",
-            type: "comment"
-        }],
-        visibleIf: "{satisfaction-score} =< 2"
+      name: "nps-score",
+      title: "On a scale of zero to ten, how likely are you to recommend our product to a friend or colleague?",
+      type: "rating",
+      rateMin: 0,
+      rateMax: 10
     }],
-    pageNextText: "Forward",
-    completeText: "Submit",
-    showPrevButton: false,
-    firstPageIsStartPage: true,
-    startSurveyText: "Take the Survey",
-    completedHtml: "Thank you for your feedback!",
-    showPreviewBeforeComplete: true,
-    previewMode: "answeredQuestions"
+    visibleIf: "{satisfaction-score} >= 4"
+  }, {
+    elements: [{
+      name: "how-can-we-improve",
+      title: "In your opinion, how could we improve our product?",
+      type: "comment"
+    }],
+    visibleIf: "{satisfaction-score} = 3"
+  }, {
+    elements: [{
+      name: "disappointing-experience",
+      title: "Please let us know why you had such a disappointing experience with our product",
+      type: "comment"
+    }],
+    visibleIf: "{satisfaction-score} =< 2"
+  }],
+  pageNextText: "Forward",
+  completeText: "Submit",
+  showPrevButton: false,
+  firstPageIsStartPage: true,
+  startSurveyText: "Take the Survey",
+  completedHtml: "Thank you for your feedback!",
+  showPreviewBeforeComplete: true,
+  previewMode: "answeredQuestions"
 };
 ```
 </details>

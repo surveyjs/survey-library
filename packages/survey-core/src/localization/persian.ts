@@ -5,6 +5,14 @@ export var persianSurveyStrings = {
   pagePrevText: "قبلی",
   // "Next"
   pageNextText: "بعدی",
+  // [Auto-translated] "First"
+  pageFirstText: "اول",
+  // [Auto-translated] "Last"
+  pageLastText: "آخرین",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "از {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "صفحه انتخاب",
   // "Complete"
   completeText: "تکمیل",
   // "Preview"

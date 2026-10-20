@@ -14,6 +14,8 @@ export class SelectBaseComponent<T extends QuestionSelectBase> extends QuestionA
   public inputType: string = "checkbox";
   public showLegend: boolean = true;
 
+  public onRootKeyDown(_event: any): void {}
+
   public getDefaultComponentName(): string {
     return "sv-ng-selectbase-item";
   }

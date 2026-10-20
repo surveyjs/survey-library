@@ -38,7 +38,8 @@ import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
-import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { HashKeyIndex, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { getBuiltInVariableNames, getBuiltInVariableValue } from "./conditions/builtInVariables";
 import { getLocaleString, surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
@@ -59,6 +60,7 @@ import { settings } from "./settings";
 import { RegionalFormat } from "./regional-format";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
+import { getClosestSurveyScroller } from "./utils/scroll-utils";
 import { FocusedQuestionScrollController } from "./focused-question-scroll-controller";
 import { isReducedMotionPreferred, subscribeReducedMotionChange } from "./utils/reduced-motion";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
@@ -87,7 +89,8 @@ import {
   GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, GetExpressionDisplayValueEvent, CheckSingleInputPerPageModeEvent,
   GetLoopQuestionsEvent, ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent,
   PopupVisibleChangedEvent, ChoicesSearchEvent, OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent, GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent,
-  IsAnswerCorrectEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, CreateCustomChoiceItemEvent, MatrixRowDragOverEvent, ExpressionRunningEvent, UIStateChangedEvent
+  IsAnswerCorrectEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, CreateCustomChoiceItemEvent, MatrixRowDragOverEvent, ExpressionRunningEvent, UIStateChangedEvent,
+  DynamicDataErrorEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -108,6 +111,7 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ConsoleWarnings } from "./console-warnings";
 import DefaultLightTheme from "./themes/default-light";
 import { createBoxShadowReset } from "./utils/shadow-effects";
+import { Scope } from "./utils/scope";
 
 export var DefaultTheme = DefaultLightTheme;
 
@@ -115,42 +119,27 @@ export var DefaultTheme = DefaultLightTheme;
 function createHash(): HashTable<any> {
   return Object.create(null);
 }
-
-// The variables a survey answers by itself. They are declared nowhere in the survey
-// JSON and resolve before any question, calculated value or variable of the same name.
-// This table is the single source of truth for the list: tools read the names from it
-// (getBuiltInVariableNames) instead of keeping their own copy.
-// A Map, not an object literal: the key is an arbitrary name taken from an expression
-// and must not hit Object.prototype ("constructor", ...).
-const builtInVariables = new Map<string, (survey: SurveyModel) => any>([
-  ["pageno", (survey: SurveyModel): any => {
-    const page = survey.currentPage;
-    return page != null ? survey.visiblePages.indexOf(page) + 1 : 0;
-  }],
-  ["pagecount", (survey: SurveyModel): any => survey.visiblePageCount],
-  ["questioncount", (survey: SurveyModel): any => survey.getQuizQuestionCount()],
-  ["correctedanswers", (survey: SurveyModel): any => survey.getCorrectedAnswerCount()],
-  ["correctanswers", (survey: SurveyModel): any => survey.getCorrectedAnswerCount()],
-  ["correctedanswercount", (survey: SurveyModel): any => survey.getCorrectedAnswerCount()],
-  ["incorrectedanswers", (survey: SurveyModel): any => survey.getInCorrectedAnswerCount()],
-  ["incorrectanswers", (survey: SurveyModel): any => survey.getInCorrectedAnswerCount()],
-  ["incorrectedanswercount", (survey: SurveyModel): any => survey.getInCorrectedAnswerCount()],
-  ["locale", (survey: SurveyModel): any => survey.locale || surveyLocalization.defaultLocale],
-]);
-
-export function getBuiltInVariableNames(): Array<string> {
-  return Array.from(builtInVariables.keys());
+// Every key of the variables hash is lower-case (setVariableCore lower-cases the names), so the one
+// key that can answer a name ignoring letter case is the name's lower-case form: no key scan
+function createVariablesContext(variablesHash: HashTable<any>): VariableGetterContext {
+  return new VariableGetterContext(variablesHash, (name: string): any => {
+    const key = name.toLowerCase();
+    return Object.prototype.hasOwnProperty.call(variablesHash, key) ? variablesHash[key] : undefined;
+  });
 }
 
+// The built-in variables live in their own module; the name list stays exported from here
+export { getBuiltInVariableNames };
+
 class SurveyValueGetterContext extends ValueGetterContextCore {
-  constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>) {
+  constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>, private valuesKeyIndex: HashKeyIndex) {
     super();
   }
   public getObj(): Base { return this.survey; }
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
     if (path.length === 1) {
-      const val: any = this.getBuiltInVariableValue(path[0].name);
+      const val: any = getBuiltInVariableValue(this.survey, path[0].name);
       if (val !== undefined) return { value: val, isFound: true };
     }
     if (params.isProperty && path.length > 1) {
@@ -167,11 +156,11 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
         return new PropertyGetterContext(panel).getValue({ path: path.slice(1), isRoot: false, index: -1 });
       }
     }
-    let res = new VariableGetterContext(this.variablesHash).getValue(params);
+    let res = createVariablesContext(this.variablesHash).getValue(params);
     if (!!res && res.isFound) return res;
     res = super.getValue(params);
     if (!!res && res.isFound) return res;
-    return new VariableGetterContext(this.valuesHash).getValue(params);
+    return new VariableGetterContext(this.valuesHash, (name: string): any => this.valuesKeyIndex.getValue(this.valuesHash, name)).getValue(params);
   }
   private getPageByName(name: string): PageModel | undefined {
     if (!name) return undefined;
@@ -207,11 +196,6 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
     }
   }
   protected isSearchNameRevert(): boolean { return true; }
-  private getBuiltInVariableValue(name: string): any {
-    const func = builtInVariables.get(name.toLocaleLowerCase());
-    return !!func ? func(this.survey) : undefined;
-  }
-
 }
 
 // One entry of getRunningAsyncOperations(): which mechanism is still running and on which object.
@@ -219,9 +203,10 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
 // "navigationHandler" - a handler of onCompleting or onCurrentPageChanging holds its callback;
 // "validators" - the asynchronous validators of the owner question have not finished;
 // "expressions" - an asynchronous expression of the owner has not finished;
-// "webChoices" - a choicesByUrl request of the owner question has not answered.
+// "webChoices" - a choicesByUrl request of the owner question has not answered;
+// "dynamicData" - the data source of the owner question is reading a page or has an unpushed edit.
 export type SurveyAsyncOperationType =
-  "serverValidation" | "navigationHandler" | "validators" | "expressions" | "webChoices";
+  "serverValidation" | "navigationHandler" | "validators" | "expressions" | "webChoices" | "dynamicData";
 export interface IRunningAsyncOperation {
   type: SurveyAsyncOperationType;
   // The object that runs the operation: the survey itself for a server validation and a held
@@ -288,6 +273,9 @@ export class SurveyModel extends SurveyElementCore
   // names and variable names, and a name like "constructor" or "valueOf" must not read an
   // Object.prototype member back (Bug#11858)
   private valuesHash: HashTable<any> = createHash();
+  // Expressions read the values hash by name ignoring letter case, which used to scan every key of
+  // the hash. Reset whenever the hash gains or loses a key or is replaced.
+  private valuesKeyIndex: HashKeyIndex = new HashKeyIndex();
   private variablesHash: HashTable<any> = createHash();
   private editingObjValue: Base;
 
@@ -1056,6 +1044,11 @@ export class SurveyModel extends SurveyElementCore
    * @since 2.0.0
    */
   public onDynamicPanelValueChanged: EventBase<SurveyModel, DynamicPanelItemValueChangedEvent> = this.addEvent<SurveyModel, DynamicPanelValueChangedEvent>();
+
+  /* Raised when the data source of a dynamic matrix or panel (its dataSource property) reports an error:
+     a page that could not be read, an edit the server rejected, or a number naming a record the loaded
+     page does not hold. The survey does nothing on its own: the records the question shows are kept. */
+  public onDynamicDataError: EventBase<SurveyModel, DynamicDataErrorEvent> = this.addEvent<SurveyModel, DynamicDataErrorEvent>();
   /**
    * @deprecated Use the [`onDynamicPanelValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onDynamicPanelValueChanged) event instead.
    * @hidden
@@ -1312,6 +1305,9 @@ export class SurveyModel extends SurveyElementCore
     if (updateStateProps.indexOf(name) > -1) {
       this.updateState();
     }
+    if (name === "state") {
+      this.dropHeldCompletion();
+    }
     const curPageStateProps = ["state", "currentPage", "showPreviewBeforeComplete"];
     if (curPageStateProps.indexOf(name) > -1) {
       this.onStateAndCurrentPageChanged();
@@ -1465,11 +1461,16 @@ export class SurveyModel extends SurveyElementCore
   public get cssTitle(): string {
     return this.css.title;
   }
+  // Shared by the root and the body so the two classes cannot drift apart.
+  private get isSingleQuestionLayout(): boolean {
+    return this.isSingleVisibleQuestion && this.state === "running";
+  }
   public get bodyCss(): string {
     return toCssClasses(
       this.css.body,
       this.showTimer && this.state === "running" && this.css.bodyWithTimer,
-      this.css.body + "--" + this.calculatedWidthMode
+      this.css.body + "--" + this.calculatedWidthMode,
+      this.isSingleQuestionLayout && this.css.bodySingleQuestion
     );
   }
   public get bodyContainerCss(): string {
@@ -1949,15 +1950,20 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * Specifies whether the survey switches to the next page automatically after a user answers all questions on the current page.
+   * Specifies whether the survey advances to the next page automatically after a respondent answers all questions on the current page and the answers pass validation.
    *
    * Default value: `false`
    *
-   * If you enable this property, the survey is also completed automatically. Set the [`autoAdvanceAllowComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceAllowComplete) property to `false` if you want to disable this behavior.
+   * Auto-advance behavior depends on the question type:
    *
-   * > If any of the following questions is answered last, the survey does not switch to the next page: Checkboxes, Yes/No (Boolean) (rendered as Checkbox), Long Text, Signature, Image Picker (with Multi Select), File Upload, Single-Select Matrix (not all rows are answered), Dynamic Matrix, Dynamic Panel.
+   * - The survey does not auto-advance if the last answered question is a Signature, File Upload, Dynamic Matrix, or Dynamic Panel.
+   * - A Single-Select Matrix can trigger auto-advance only when all its rows are answered.
+   * - For Checkboxes, Multi-Select Dropdown (Tag Box), Image Picker with `multiSelect: true`, Ranking, Yes/No (Boolean) rendered as a checkbox, and Long Text, respondents must press Enter after answering to trigger auto-advance.
+   * - For Radio Button Group and single-select Image Picker, a mouse or touch selection triggers auto-advance. After a keyboard selection, respondents must press Enter to trigger auto-advance.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
+   * If you set `autoAdvanceEnabled` to `true`, the survey also completes automatically after the last page. To require respondents to complete it manually, set the [`autoAdvanceAllowComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceAllowComplete) property to `false`.
+   *
+   * [Demo: Move to the Next Page Automatically](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
    * @since 2.0.0
    */
@@ -1989,6 +1995,31 @@ export class SurveyModel extends SurveyElementCore
   }
   public set allowCompleteSurveyAutomatic(val: boolean) {
     this.autoAdvanceAllowComplete = val;
+  }
+  /**
+   * Specifies whether to enable letter shortcuts for selecting choices in [Radio Button Group](https://surveyjs.io/form-library/examples/single-select-radio-button-group/), [Checkboxes](https://surveyjs.io/form-library/examples/create-checkboxes-question-in-javascript/), and [Image Picker](https://surveyjs.io/form-library/examples/image-picker-question/) questions.
+   *
+   * Default value: `false`
+   *
+   * When enabled, choices display letter codes (`A`, `B`, ..., `Z`, `AA`, ...) that respondents can type while the question has focus. In questions that allow multiple selection, shortcuts toggle choice selection.
+   *
+   * You can override this setting for individual questions using their `choiceShortcutsEnabled` property.
+   *
+   * Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
+   */
+  @property({
+    defaultValue: false,
+    onSet: (_newValue, target: SurveyModel) => target.onChoiceShortcutsEnabledChanged()
+  }) choiceShortcutsEnabled: boolean;
+  private onChoiceShortcutsEnabledChanged(): void {
+    // While loading, onSurveyLoad binds what the JSON enables.
+    if (this.isLoadingFromJson) return;
+    // The design-time questions too (a dynamic panel's template, a detail panel, choice panels), which
+    // onSurveyLoad binds as well; matrix columns are listed there and are not questions. Each question
+    // forwards to its nested instances.
+    this.getAllQuestions(false, true).forEach(q => {
+      if (q.isQuestion) q.onSurveyChoiceShortcutsEnabledChanged();
+    });
   }
   /**
    * Specifies when the survey validates answers.
@@ -2109,19 +2140,16 @@ export class SurveyModel extends SurveyElementCore
     if (hasChanges) {
       /* bypass the data setter: this only filters incorrect keys out of the current state
       and should not mark pages as shown the way an external data assignment does */
-      this.valuesHash = createHash();
+      this.resetValuesHash();
       this.setDataCore(data);
     }
   }
-  private iscorrectValueWithPostPrefix(
+  private isCorrectValueWithPostPrefix(
     key: string,
     postPrefix: string
   ): boolean {
-    if (key.indexOf(postPrefix) !== key.length - postPrefix.length)
-      return false;
-    return !!this.getQuestionByValueName(
-      key.substring(0, key.indexOf(postPrefix))
-    );
+    if (!key.endsWith(postPrefix)) return false;
+    return !!this.getQuestionByValueName(key.substring(0, key.length - postPrefix.length));
   }
   /**
    * Specifies whether to keep values that cannot be assigned to questions, for example, choices unlisted in the `choices` array.
@@ -2754,8 +2782,20 @@ export class SurveyModel extends SurveyElementCore
       if (!this.navigationBarValue.locOwner)this.navigationBarValue.locOwner = this;
       this.updateNavigationCss();
       this.navigationBarValue.flushUpdates();
+      this.updateHasVisibleNavigationActions();
+      this.navigationBarValue.registerPropertyChangedHandlers(["isEmpty"], () => this.updateHasVisibleNavigationActions());
     }
     return this.navigationBarValue;
+  }
+  // Mirrors navigationBar.isEmpty onto the survey so layout containers re-render: the survey component
+  // is not subscribed to the bar while the bar itself is not rendered.
+  // The bar read has to be part of the returned value. Production builds treat getters as pure and drop
+  // an unused `void this.navigationBar`, which leaves the flag at its default and hides the buttons.
+  public get hasVisibleNavigationActions(): boolean {
+    return this.navigationBar.hasVisibleActions;
+  }
+  private updateHasVisibleNavigationActions(): void {
+    this.setPropertyValue("hasVisibleNavigationActions", this.navigationBarValue.hasVisibleActions);
   }
   public createNavigationBarCallback: () => ActionContainer;
   protected createNavigationBar(): ActionContainer {
@@ -3353,7 +3393,8 @@ export class SurveyModel extends SurveyElementCore
   }
   // The data setter and setData() both assign through here, so the two can never drift apart.
   private assignData(data: any): void {
-    this.valuesHash = createHash();
+    this.dropHeldCompletion();
+    this.resetValuesHash();
     this.setDataCore(data, !data);
     this.markAnsweredPagesAsShown();
     this.checkTriggersOnSettingData();
@@ -3368,6 +3409,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public mergeData(data: any): void {
     if (!data) return;
+    this.dropHeldCompletion();
     const newData = this.data;
     this.mergeValues(data, newData);
     this.setDataCore(newData);
@@ -3475,7 +3517,7 @@ export class SurveyModel extends SurveyElementCore
   private isSettingDataValue: boolean;
   public setDataCore(data: any, clearData: boolean = false): void {
     if (clearData) {
-      this.valuesHash = createHash();
+      this.resetValuesHash();
     }
     if (data) {
       for (var key in data) {
@@ -3492,6 +3534,10 @@ export class SurveyModel extends SurveyElementCore
     this.updateAllQuestionsValue(clearData);
   }
   public isSettingData(): boolean { return this.isSettingDataValue === true; }
+  private resetValuesHash(): void {
+    this.valuesHash = createHash();
+    this.valuesKeyIndex.reset();
+  }
   public get isSurvey(): boolean { return true; }
   /**
    * Returns an object with survey results.
@@ -3723,6 +3769,13 @@ export class SurveyModel extends SurveyElementCore
       const choicesByUrl: any = (<any>question).choicesByUrl;
       if (!!choicesByUrl && choicesByUrl.isRunning === true) res.push({ type: "webChoices", owner: question });
     });
+    // A dynamic matrix or panel over a caller-provided data source: a page it is reading, or an edit
+    // the source has not acknowledged. Duck-typed like choicesByUrl above - the flag is
+    // QuestionRecordsModel.isDynamicDataRunning, and the survey does not import the question classes
+    // at runtime.
+    questions.forEach(question => {
+      if ((<any>question).isDynamicDataRunning === true) res.push({ type: "dynamicData", owner: question });
+    });
     return res;
   }
   getFilteredProperties(): any {
@@ -3767,17 +3820,32 @@ export class SurveyModel extends SurveyElementCore
     return valuesHash[key];
   }
   private setDataToValueHash(valuesHash: any, key: string, value: any): void {
+    const hadKey = this.isValuesHashKey(valuesHash, key);
     if (!!this.valueHashSetDataCallback) {
       this.valueHashSetDataCallback(valuesHash, key, value);
     } else {
       valuesHash[key] = value;
     }
+    this.updateValuesKeyIndex(valuesHash, key, hadKey);
   }
   private deleteDataFromValueHash(valuesHash: any, key: string): void {
+    const hadKey = this.isValuesHashKey(valuesHash, key);
     if (!!this.valueHashDeleteDataCallback) {
       this.valueHashDeleteDataCallback(valuesHash, key);
     } else {
       delete valuesHash[key];
+    }
+    this.updateValuesKeyIndex(valuesHash, key, hadKey);
+  }
+  // The key index follows the key set of the survey's own values hash, decided from the hash and
+  // not from who wrote it: a callback may write the hash or keep the data in a store of its own.
+  // A new value under an existing key keeps the index.
+  private isValuesHashKey(valuesHash: any, key: string): boolean {
+    return !!valuesHash && valuesHash === this.valuesHash && Object.prototype.hasOwnProperty.call(valuesHash, key);
+  }
+  private updateValuesKeyIndex(valuesHash: any, key: string, hadKey: boolean): void {
+    if (valuesHash === this.valuesHash && hadKey !== this.isValuesHashKey(valuesHash, key)) {
+      this.valuesKeyIndex.reset();
     }
   }
   /**
@@ -3993,7 +4061,7 @@ export class SurveyModel extends SurveyElementCore
     const index = this.visiblePages.indexOf(page);
     if (index < 0 || index >= this.visiblePageCount) return false;
     if (index === this.currentPageNo) return false;
-    if (index < this.currentPageNo || this.checkErrorsMode === "onComplete" || this.validationAllowSwitchPages)
+    if (index < this.currentPageNo || this.canLeavePageWithErrors)
       return true;
     if (!this.validateCurrentPage()) return false;
     for (let i = this.currentPageNo + 1; i < index; i++) {
@@ -4238,6 +4306,7 @@ export class SurveyModel extends SurveyElementCore
    * @param goToFirstPage *(Optional)* Specifies whether to switch the survey to the first page. Default value: `true`.
    */
   public clear(clearData: boolean = true, goToFirstPage: boolean = true): void {
+    this.dropHeldCompletion();
     this.isCompleted = false;
     this.isCompletedBefore = false;
     this.isLoading = false;
@@ -4309,6 +4378,7 @@ export class SurveyModel extends SurveyElementCore
     this.onCurrentPageChanging.fire(this, options, () => onComplete(), () => this.setIsNavigationBlocked(true));
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
+    this.dropHeldCompletion();
     this.notifyQuestionsOnHidingContent(oldValue);
     if (oldValue && !oldValue.isDisposed && !oldValue.passed) {
       if (oldValue.validate(false)) {
@@ -4584,8 +4654,10 @@ export class SurveyModel extends SurveyElementCore
       doFunc();
       return true;
     }
+    // A validation that waits for a records question's pending write is dropped with the held completion.
+    const epoch = this.questionsWithPendingWrites.length > 0 ? this.heldCompletionEpoch : undefined;
     const func = (hasErrors: boolean) => {
-      if (!hasErrors) {
+      if (!hasErrors && (epoch === undefined || epoch === this.heldCompletionEpoch)) {
         doFunc();
       }
     };
@@ -4729,8 +4801,8 @@ export class SurveyModel extends SurveyElementCore
   // totals key of such a question, a calculated value that is a part of the result.
   private isKnownRootKey(key: string): boolean {
     if (!!this.getQuestionByValueName(key)) return true;
-    if (this.iscorrectValueWithPostPrefix(key, settings.commentSuffix) ||
-      this.iscorrectValueWithPostPrefix(key, settings.matrix.totalsSuffix)) return true;
+    if (this.isCorrectValueWithPostPrefix(key, settings.commentSuffix) ||
+      this.isCorrectValueWithPostPrefix(key, settings.matrix.totalsSuffix)) return true;
     const calcValue = this.getCalculatedValueByName(key);
     return !!calcValue && calcValue.includeIntoResult;
   }
@@ -5044,6 +5116,7 @@ export class SurveyModel extends SurveyElementCore
     return this.validateOnNavigate(doComplete) === true;
   }
   private doCurrentPageCompleteCore(doComplete: boolean): boolean {
+    if (doComplete && this.holdCompletionForSourceWrites()) return false;
     if (this.doServerValidation(doComplete)) return false;
     if (doComplete) {
       if (this.currentPage)this.currentPage.passed = true;
@@ -5681,8 +5754,9 @@ export class SurveyModel extends SurveyElementCore
         if (page) {
           this.currentPage = page;
         } else {
-          if (self.isLastPage) self.doComplete();
-          else self.doNextPage();
+          if (self.isLastPage) {
+            if (!self.holdCompletionForSourceWrites()) self.doComplete();
+          } else self.doNextPage();
         }
       }
     }
@@ -5833,7 +5907,8 @@ export class SurveyModel extends SurveyElementCore
       this.isMobile && this.css.rootMobile,
       (reducedMotion || !settings.animationEnabled) && this.css.rootAnimationDisabled,
       this.readOnly && !this.isDesignMode && this.css.rootReadOnly,
-      this.fitToContainer && this.css.rootFitToContainer
+      this.fitToContainer && this.css.rootFitToContainer,
+      this.isSingleQuestionLayout && this.css.rootSingleQuestion
     );
   }
   private isSmoothScrollEnabled = false;
@@ -5905,6 +5980,7 @@ export class SurveyModel extends SurveyElementCore
       survey: this,
       htmlElement: htmlElement,
     });
+    this.removeScrollEventListener();
     this.rootElement = htmlElement;
     this.scrollerElement = htmlElement.getElementsByClassName("sv-scroll__scroller")[0];
     this.addScrollEventListener();
@@ -5921,6 +5997,7 @@ export class SurveyModel extends SurveyElementCore
     this.destroyResizeObserver();
     this.focusedQuestionScrollValue?.dispose();
     this.removeScrollEventListener();
+    this.tocModelValue?.removeStickyTOCSubscriptions();
     this.rootElement = undefined;
     this.scrollerElement = undefined;
   }
@@ -6095,6 +6172,22 @@ export class SurveyModel extends SurveyElementCore
     }
     return null;
   }
+  /* The record index is the only index two questions over one value share: each of them may create
+     its rows/panels for another set of records (a filtered list) or in another order (a sorted
+     one). A question that does not know about records answers positionally, as before. */
+  getQuestionByValueNameFromRecord(
+    valueName: string,
+    name: string,
+    recordIndex: number
+  ): IQuestion {
+    const questions = this.getQuestionsByValueName(valueName);
+    if (!questions) return;
+    for (let i = 0; i < questions.length; i++) {
+      const res = questions[i].getQuestionFromRecord(name, recordIndex);
+      if (!!res) return res;
+    }
+    return null;
+  }
   matrixRowRemoved(question: QuestionMatrixDynamicModel, rowIndex: number, row: any) {
     this.onMatrixRowRemoved.fire(this, {
       question: question,
@@ -6156,6 +6249,13 @@ export class SurveyModel extends SurveyElementCore
   private get isValidateOnComplete(): boolean {
     return this.checkErrorsMode === "onComplete" || this.validationAllowSwitchPages && !this.validationAllowComplete;
   }
+  /* The survey moves forward to another page although the page it leaves has errors: it does not
+     validate (a read-only survey, validationEnabled false), or its settings allow the move. A question
+     that pages its own records reads it (ISurveyValidation), so that its page moves follow the same
+     rule. */
+  get canLeavePageWithErrors(): boolean {
+    return this.canGoTroughValidation() || this.checkErrorsMode === "onComplete" || this.validationAllowSwitchPages;
+  }
   matrixCellValidate(question: QuestionMatrixDropdownModelBase, options: MatrixCellValidateEvent): SurveyError {
     options.question = question;
     this.onMatrixCellValidate.fire(this, options);
@@ -6199,6 +6299,90 @@ export class SurveyModel extends SurveyElementCore
     options.question = question;
     this.onDynamicPanelCurrentIndexChanged.fire(this, options);
     this.doUIStateChanged("activePanelIndex", question);
+  }
+  // ISurveyDynamicDataCallbacks: the default does nothing - survey-core writes nothing to the
+  // console for an error an application is expected to handle, the way onServerValidateQuestions
+  // failures are the application's business too.
+  dynamicDataError(question: IQuestion, operation: string, error: any): void {
+    this.onDynamicDataError.fire(this, { question: <Question>question, operation: operation, error: error });
+  }
+  /* A completion the respondent or tryComplete started waits while a records question has a write
+     its data source has not answered: a write is part of what is submitted. A pending read does not
+     hold it. Where it was started is kept - the page, or the preview - and it completes from there when
+     the writes have settled. A page change (currentPageChanged), a state change, clear(), assigning
+     or merging data and a rejected write drop it. doComplete() completes regardless and is not held. */
+  private heldCompletion: { page: PageModel, state: string };
+  /* Bumped whenever a held completion is dropped. A validation that started while a write was pending
+     waits for the question's data and answers later: it completes only if nothing dropped it meanwhile. */
+  private heldCompletionEpoch: number = 0;
+  private dropHeldCompletion(): void {
+    this.heldCompletion = undefined;
+    this.heldCompletionEpoch++;
+  }
+  /* The records questions that have a write their source has not answered. The questions report it
+     themselves (dynamicDataWritesChanged), nested ones included, so nothing walks the survey and no
+     question is built for it. */
+  private questionsWithPendingWrites: Array<IQuestion> = [];
+  private holdCompletionForSourceWrites(): boolean {
+    if (this.questionsWithPendingWrites.length === 0) return false;
+    this.heldCompletion = { page: this.currentPage, state: this.state };
+    return true;
+  }
+  /* ISurveyDynamicDataWrites (interfaces/survey-callbacks.ts), not a member of ISurvey and private, so
+     it is not API: the records questions reach it by duck typing. A records question's writes started
+     or settled. When the last one settles, the held completion runs again, and validates again. A write the source rejected (isFailed) never reached it: the completion is
+     dropped, the survey stays where it is and the respondent can complete again. */
+  private dynamicDataWritesChanged(question: IQuestion, hasPendingWrites: boolean, isFailed?: boolean): void {
+    const questions = this.questionsWithPendingWrites;
+    const index = questions.indexOf(question);
+    if (hasPendingWrites) {
+      if (index < 0) questions.push(question);
+      return;
+    }
+    if (index < 0) return;
+    questions.splice(index, 1);
+    if (isFailed) {
+      this.dropHeldCompletion();
+      return;
+    }
+    this.continueHeldCompletion();
+  }
+  /* The asynchronous writes the records questions send to their data sources, in flight, per source
+     object. Not a member of ISurvey and private, so it is not API: the data source channel
+     (dynamic-data-channel.ts) reaches it by duck typing, so that the questions of this survey that
+     share a source object read after each other's writes. */
+  private dynamicDataWriteChains: WeakMap<object, Map<object, Promise<void>>>;
+  private getDynamicDataWriteChains(): WeakMap<object, Map<object, Promise<void>>> {
+    if (!this.dynamicDataWriteChains)this.dynamicDataWriteChains = new WeakMap<object, Map<object, Promise<void>>>();
+    return this.dynamicDataWriteChains;
+  }
+  /* A records question that left the survey - removed from its page, inside a removed panel or page -
+     stops holding a completion: what it writes is no longer submitted. */
+  private dropRemovedQuestionsWithPendingWrites(): void {
+    const questions = this.questionsWithPendingWrites;
+    if (questions.length === 0) return;
+    this.questionsWithPendingWrites = questions.filter((question: IQuestion): boolean => this.isElementInPages(<any>question));
+    if (this.questionsWithPendingWrites.length !== questions.length)this.continueHeldCompletion();
+  }
+  // The element is inside one of the survey's pages: its parents, or the dynamic question it is nested in, lead to one.
+  private isElementInPages(element: { parent?: any, parentQuestion?: any, isPage?: boolean, isDisposed?: boolean }): boolean {
+    let el = element;
+    while(!!el && !el.isDisposed) {
+      if (el.isPage) return this.pages.indexOf(<any>el) > -1;
+      el = el.parent || el.parentQuestion;
+    }
+    return false;
+  }
+  private continueHeldCompletion(): void {
+    const held = this.heldCompletion;
+    if (!held) return;
+    if (held.state !== this.state || held.state === "running" && held.page !== this.currentPage) {
+      this.heldCompletion = undefined;
+      return;
+    }
+    if (this.questionsWithPendingWrites.length > 0) return;
+    this.heldCompletion = undefined;
+    this.doCurrentPageComplete(true);
   }
   dragAndDropAllow(options: DragDropAllowEvent): boolean {
     this.onDragDropAllow.fire(this, options);
@@ -6302,6 +6486,14 @@ export class SurveyModel extends SurveyElementCore
 
   public skeletonHeight: number = undefined;
 
+  private getPageScrollTarget(surveyRootElement: HTMLElement): HTMLElement {
+    const wrapper = surveyRootElement?.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
+    if (!wrapper || !!getClosestSurveyScroller(wrapper)) return wrapper;
+    // With a fixed background image the wrapper stays still and the form scrolls inside it.
+    const scroller = wrapper.querySelector(".sv-scroll__scroller");
+    return (scroller?.firstElementChild as HTMLElement) || wrapper;
+  }
+
   scrollElementToTop(scrollOptions: IScrollElementToTopOptions): any;
   scrollElementToTop(element: ISurveyElement, question?: IQuestion, page?: IPage, id?: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, passedRootElement?: HTMLElement, onScolledCallback?: () => void): any;
   scrollElementToTop(elementOrOptions: ISurveyElement | IScrollElementToTopOptions, question?: IQuestion, page?: IPage, id?: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, passedRootElement?: HTMLElement, onScolledCallback?: () => void): any {
@@ -6357,7 +6549,7 @@ export class SurveyModel extends SurveyElementCore
         }, elementsToRenderBefore);
       } else {
         if (element.isPage && !this.isSinglePage && !this.isDesignMode && this.rootElement) {
-          const elementToScroll = surveyRootElement.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
+          const elementToScroll = this.getPageScrollTarget(surveyRootElement);
           SurveyElement.ScrollElementToViewCore(elementToScroll, false, optScrollIfVisible, optScrollIntoViewOptions, optOnScolledCallback);
         } else {
           const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`) as HTMLElement;
@@ -6966,11 +7158,11 @@ export class SurveyModel extends SurveyElementCore
     }
     return result;
   }
-  private isTriggerIsRunning: boolean = false;
+  private triggersRunScope = new Scope();
   private triggerKeys: any = null;
   private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, isOnNavigation: boolean = false, name?: string, isOnSettingData: boolean = false): void {
     if (this.isCompleted || this.triggers.length == 0 || this.isDisplayMode) return;
-    if (this.isTriggerIsRunning) {
+    if (this.triggersRunScope.isActive) {
       for (var k in key) {
         this.triggerKeys[k] = key[k];
       }
@@ -6981,24 +7173,24 @@ export class SurveyModel extends SurveyElementCore
       const question = <Question>this.getQuestionByValueName(name);
       isQuestionInvalid = question && !question.validate(false);
     }
-    this.isTriggerIsRunning = true;
-    this.triggerKeys = key;
-    const properties = this.getFilteredProperties();
-    const options = { isOnNextPage: isOnNextPage, isOnComplete: isOnComplete, isOnNavigation: isOnNavigation,
-      isOnSettingData: isOnSettingData, keys: this.triggerKeys, properties: properties };
-    let originalKeys = Helpers.createCopy(this.triggerKeys);
-    const maxIterations = 3;
-    for (let i = 0; i < maxIterations; i++) {
-      this.runSurveyTriggers(options, isQuestionInvalid);
-      if (this.isCompleted || Helpers.isTwoValueEquals(originalKeys, this.triggerKeys)) break;
-      this.triggerKeys = Helpers.createDiff(this.triggerKeys, originalKeys);
-      originalKeys = Helpers.createCopy(this.triggerKeys);
-    }
-    let prevCanBeCompleted = this.canBeCompletedByTrigger;
-    if (prevCanBeCompleted !== this.canBeCompletedByTrigger) {
-      this.updateButtonsVisibility();
-    }
-    this.isTriggerIsRunning = false;
+    this.triggersRunScope.run(() => {
+      this.triggerKeys = key;
+      const properties = this.getFilteredProperties();
+      const options = { isOnNextPage: isOnNextPage, isOnComplete: isOnComplete, isOnNavigation: isOnNavigation,
+        isOnSettingData: isOnSettingData, keys: this.triggerKeys, properties: properties };
+      let originalKeys = Helpers.createCopy(this.triggerKeys);
+      const maxIterations = 3;
+      for (let i = 0; i < maxIterations; i++) {
+        this.runSurveyTriggers(options, isQuestionInvalid);
+        if (this.isCompleted || Helpers.isTwoValueEquals(originalKeys, this.triggerKeys)) break;
+        this.triggerKeys = Helpers.createDiff(this.triggerKeys, originalKeys);
+        originalKeys = Helpers.createCopy(this.triggerKeys);
+      }
+      let prevCanBeCompleted = this.canBeCompletedByTrigger;
+      if (prevCanBeCompleted !== this.canBeCompletedByTrigger) {
+        this.updateButtonsVisibility();
+      }
+    });
   }
   private runSurveyTriggers(options: any, isQuestionInvalid: boolean): void {
     for (let i = 0; i < this.triggers.length; i++) {
@@ -7035,9 +7227,9 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].onSurveyLoad();
     }
   }
-  private isRunningConditionsValue: boolean;
+  private runningConditionsScope = new Scope();
   private get isRunningConditions(): boolean {
-    return this.isRunningConditionsValue;
+    return this.runningConditionsScope.isActive;
   }
   private isValueChangedOnRunningCondition: boolean = false;
   private conditionRunnerCounter: number = 0;
@@ -7056,31 +7248,32 @@ export class SurveyModel extends SurveyElementCore
       this.isRunningConditions
     )
       return;
-    this.isRunningConditionsValue = true;
-    var properties = this.getFilteredProperties();
-    this.runConditionsCore(properties);
-    this.isRunningConditionsValue = false;
-    if (
-      this.isValueChangedOnRunningCondition &&
-      this.conditionRunnerCounter <
-      settings.maxConditionRunCountOnValueChanged
-    ) {
-      this.isValueChangedOnRunningCondition = false;
-      this.conditionRunnerCounter++;
-      this.runConditions();
-    } else {
-      this.isValueChangedOnRunningCondition = false;
-      this.conditionRunnerCounter = 0;
-      if (this.conditionUpdateVisibleIndexes) {
-        this.conditionUpdateVisibleIndexes = false;
-        this.updateVisibleIndexes();
-      }
-      if (this.conditionNotifyElementsOnAnyValueOrVariableChanged) {
-        this.conditionNotifyElementsOnAnyValueOrVariableChanged = false;
-        this.notifyElementsOnAnyValueOrVariableChanged("");
-      }
-      if (!this.isRunningConditionOnValueChanged) {
-        this.questionTriggersKeys = undefined;
+    // The work queued during the run waits for the run to end, also when user code inside it throws.
+    try {
+      this.runningConditionsScope.run(() => this.runConditionsCore(this.getFilteredProperties()));
+    } finally {
+      if (
+        this.isValueChangedOnRunningCondition &&
+        this.conditionRunnerCounter <
+        settings.maxConditionRunCountOnValueChanged
+      ) {
+        this.isValueChangedOnRunningCondition = false;
+        this.conditionRunnerCounter++;
+        this.runConditions();
+      } else {
+        this.isValueChangedOnRunningCondition = false;
+        this.conditionRunnerCounter = 0;
+        if (this.conditionUpdateVisibleIndexes) {
+          this.conditionUpdateVisibleIndexes = false;
+          this.updateVisibleIndexes();
+        }
+        if (this.conditionNotifyElementsOnAnyValueOrVariableChanged) {
+          this.conditionNotifyElementsOnAnyValueOrVariableChanged = false;
+          this.notifyElementsOnAnyValueOrVariableChanged("");
+        }
+        if (!this.isRunningConditionOnValueChanged) {
+          this.questionTriggersKeys = undefined;
+        }
       }
     }
   }
@@ -7426,7 +7619,7 @@ export class SurveyModel extends SurveyElementCore
     const res = this.variablesHash[name];
     if (!this.isValueEmpty(res)) return res;
     if (name.indexOf(".") > -1 || name.indexOf("[") > -1) {
-      return new ValueGetter().getValue(name, new VariableGetterContext(this.variablesHash));
+      return new ValueGetter().getValue(name, createVariablesContext(this.variablesHash));
     }
     return res;
   }
@@ -7469,9 +7662,11 @@ export class SurveyModel extends SurveyElementCore
   // The only place that writes the variables hash. A variable shadows a data key with the same
   // name, so the data key is deleted under the name exactly as it was passed in, before the
   // variable name itself is lower-cased. Callers skip "__proto__" before calling it (Bug#11858).
+  // createVariablesContext() relies on it: every key of the variables hash is lower-case.
   private setVariableCore(name: string, newValue: any): string {
-    if (!!this.valuesHash) {
+    if (this.isValuesHashKey(this.valuesHash, name)) {
       delete this.valuesHash[name];
+      this.valuesKeyIndex.reset();
     }
     name = name.toLowerCase();
     this.variablesHash[name] = newValue;
@@ -7615,13 +7810,23 @@ export class SurveyModel extends SurveyElementCore
       questionName
     );
   }
+  // The dynamic panel that fires event for a value change of question: its parent, when the event has handlers.
+  private getDynamicPanelFiring(question: IQuestion, event: EventBase<SurveyModel>): Question {
+    const parentQ = (<Question>question).parentQuestion;
+    return !!parentQ && parentQ.isDescendantOf("paneldynamic") && !event.isEmpty ? parentQ : undefined;
+  }
+  /* The one reader of the old value of questionValueChanged: onDynamicPanelValueChanged (options.oldValue).
+     Private: a records question reaches it through ISurveyOldValueReads. */
+  private isQuestionOldValueRead(question: IQuestion): boolean {
+    return !!this.getDynamicPanelFiring(question, this.onDynamicPanelValueChanged);
+  }
   private getDynamicPanelOptions(question: IQuestion, event: EventBase<SurveyModel>, isComment?: boolean): any {
     const q = <Question>question;
-    const parentQ = q.parentQuestion;
-    if (!parentQ || !parentQ.isDescendantOf("paneldynamic") || event.isEmpty) return undefined;
+    const parentQ = this.getDynamicPanelFiring(q, event);
+    if (!parentQ) return undefined;
     const options = parentQ.getValueChangingOptions(q);
     if (options && isComment) {
-      options.name = q.name + this.commentSuffix;
+      options.name = Helpers.getCommentKey(q.name);
     }
     return options;
   }
@@ -7673,7 +7878,8 @@ export class SurveyModel extends SurveyElementCore
   }
   private isValueEqual(name: string, newValue: any): boolean {
     if (newValue === "" || newValue === undefined) newValue = null;
-    var oldValue = this.getValue(name);
+    // Compared only: the stored value is read without the copy getValue makes.
+    var oldValue = !name ? null : this.getDataValueCore(this.valuesHash, name);
     if (oldValue === "" || oldValue === undefined) oldValue = null;
     if (newValue === null || oldValue === null) return newValue === oldValue;
     return this.isTwoValueEquals(newValue, oldValue);
@@ -7715,10 +7921,14 @@ export class SurveyModel extends SurveyElementCore
     return this.generateNewName(elements, baseName);
   }
   public tryGoNextPageAutomatic(name: string): void {
-    if (!!this.isEndLoadingFromJson || !this.autoAdvanceEnabled || !this.currentPage) return;
+    this.tryGoNextPageAutomaticCore(name);
+  }
+  public tryGoNextPageAutomaticCore(name: string): boolean {
+    if (!!this.isEndLoadingFromJson || !this.autoAdvanceEnabled || !this.currentPage) return false;
     const question = <Question>this.getQuestionByValueName(name);
-    if (!question || (!!question && (!question.visible || !question.supportAutoAdvance()))) return;
-    if (!question.validate(false) && !question.supportGoNextPageError()) return;
+    if (!question || (!!question && (!question.visible || !question.supportAutoAdvance()))) return false;
+    if (!question.validate(false) && !question.supportGoNextPageError()) return false;
+    let scheduled = false;
     if (!!this.currentSingleElement) {
       const curQuestion = this.currentSingleElement;
       const goNextQuestion = () => {
@@ -7732,14 +7942,15 @@ export class SurveyModel extends SurveyElementCore
         }
       };
       surveyTimerFunctions.safeTimeOut(goNextQuestion, settings.autoAdvanceDelay);
+      scheduled = true;
     }
     var questions = this.getCurrentPageQuestions();
-    if (questions.indexOf(question) < 0) return;
+    if (questions.indexOf(question) < 0) return scheduled;
     for (var i = 0; i < questions.length; i++) {
-      if (questions[i].hasInput && questions[i].isEmpty()) return;
+      if (questions[i].hasInput && questions[i].isEmpty()) return scheduled;
     }
-    if (this.isLastPage && (this.autoAdvanceEnabled !== true || !this.autoAdvanceAllowComplete)) return;
-    if (!this.validateActivePage(false)) return;
+    if (this.isLastPage && (this.autoAdvanceEnabled !== true || !this.autoAdvanceAllowComplete)) return scheduled;
+    if (!this.validateActivePage(false)) return scheduled;
     const curPage = this.currentPage;
     const goNextPage = () => {
       if (curPage !== this.currentPage) return;
@@ -7750,6 +7961,7 @@ export class SurveyModel extends SurveyElementCore
       }
     };
     surveyTimerFunctions.safeTimeOut(goNextPage, settings.autoAdvanceDelay);
+    return true;
   }
   private tryCompleteOrShowPreview(): void {
     if (this.showPreviewBeforeComplete) {
@@ -7765,7 +7977,7 @@ export class SurveyModel extends SurveyElementCore
    * @see setComment
    */
   public getComment(name: string): string {
-    const res = this.getValue(name + this.commentSuffix);
+    const res = this.getValue(Helpers.getCommentKey(name));
     return res || "";
   }
   /**
@@ -7778,7 +7990,7 @@ export class SurveyModel extends SurveyElementCore
   public setComment(name: string, newValue: string, locNotification: boolean | "text" = false): void {
     if (!newValue) newValue = "";
     if (this.isTwoValueEquals(newValue, this.getComment(name))) return;
-    const commentName = name + this.commentSuffix;
+    const commentName = Helpers.getCommentKey(name);
     newValue = this.questionOnValueChanging(commentName, newValue, name);
     const oldValue = this.getComment(name);
     locNotification = this.getLocNotification(locNotification, newValue, oldValue);
@@ -7917,6 +8129,7 @@ export class SurveyModel extends SurveyElementCore
     return !this.isMovingQuestion;
   }
   questionRemoved(question: Question): void {
+    this.dropRemovedQuestionsWithPendingWrites();
     this.questionHashesRemoved(
       <Question>question,
       question.name,
@@ -8050,6 +8263,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   panelRemoved(panel: PanelModel): void {
+    this.dropRemovedQuestionsWithPendingWrites();
     this.updateVisibleIndexes(panel.page);
     this.onPanelRemoved.fire(this, { panel: panel, name: panel.name });
     this.updateLazyRenderingRowsOnRemovingElements();
@@ -8096,7 +8310,7 @@ export class SurveyModel extends SurveyElementCore
     return this.processText(options.html, true);
   }
   public getValueGetterContext(): IValueGetterContext {
-    return new SurveyValueGetterContext(this, this.valuesHash, this.variablesHash);
+    return new SurveyValueGetterContext(this, this.valuesHash, this.variablesHash, this.valuesKeyIndex);
   }
   processText(text: string, returnDisplayValue: boolean, context?: any): string {
     return this.processTextEx({ text: text, returnDisplayValue: returnDisplayValue, doEncoding: false, context: context }).text;
@@ -8784,20 +8998,20 @@ export class SurveyModel extends SurveyElementCore
   private get layoutElements(): Array<ISurveyLayoutElement> {
     return this.getPropertyValue("layoutElements", undefined, () => this.createLayoutElements());
   }
-  private isCreatingLayout: boolean | undefined;
+  private layoutCreationScope = new Scope();
   private createLayoutElements(): Array<ISurveyLayoutElement> {
-    if (this.isCreatingLayout) return [];
-    this.isCreatingLayout = true;
-    const res = new Array<ISurveyLayoutElement>();
-    res.push(...this.timerModel.createLayoutElements());
-    res.push(...this.progressTextModel.createLayoutElements());
-    res.push(...this.tocModel.createLayoutElements());
-    res.push(...this.navigationLayoutModel.createLayoutElements());
-    if (this.headerView !== "basic") {
-      res.push(...this.createAdvancedHeader().createLayoutElements());
-    }
-    this.isCreatingLayout = false;
-    return res;
+    if (this.layoutCreationScope.isActive) return [];
+    return this.layoutCreationScope.run(() => {
+      const res = new Array<ISurveyLayoutElement>();
+      res.push(...this.timerModel.createLayoutElements());
+      res.push(...this.progressTextModel.createLayoutElements());
+      res.push(...this.tocModel.createLayoutElements());
+      res.push(...this.navigationLayoutModel.createLayoutElements());
+      if (this.headerView !== "basic") {
+        res.push(...this.createAdvancedHeader().createLayoutElements());
+      }
+      return res;
+    });
   }
   private isElementInContainerByContainerProperty(layoutElement: ISurveyLayoutElement, container: LayoutElementContainer): boolean {
     return Array.isArray(layoutElement.container) && layoutElement.container.indexOf(container) !== -1 || layoutElement.container === container;
@@ -8970,6 +9184,7 @@ export class SurveyModel extends SurveyElementCore
       }
       this.layoutElements.splice(0, this.layoutElements.length);
     }
+    this.tocModelValue?.dispose();
     this.resetRegionalFormat();
     super.dispose();
     this.editingObj = null;
@@ -9294,6 +9509,7 @@ Serializer.addClass("survey", [
     name: "autoAdvanceAllowComplete:boolean", default: true, alternativeName: "allowCompleteSurveyAutomatic",
     visibleIf: (obj: any): boolean => obj.autoAdvanceEnabled === true
   },
+  { name: "choiceShortcutsEnabled:boolean", default: false },
   {
     name: "clearInvisibleValues",
     default: "onComplete",

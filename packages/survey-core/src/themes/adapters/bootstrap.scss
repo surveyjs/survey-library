@@ -215,6 +215,7 @@
   --sjs2-layout-component-input-small-tag-group-gap: 0.25rem;
   --sjs2-color-component-tagbox-item-action-default-bg: transparent;
   --sjs2-color-component-tagbox-item-action-hovered-bg: var(--bs-secondary-bg);
+  --sjs2-color-component-tagbox-item-action-pressed-bg: transparent;
 
   /* common and other */
   --sjs2-color-bg-alert-primary-dim: color-mix(in srgb, var(--bs-danger) 90%, black);
@@ -242,6 +243,10 @@
 
   --sjs2-color-fg-alert-on-primary: #fff;
   --sjs2-color-fg-basic-primary: var(--bs-body-color);
+  --sjs2-color-component-shortcut-key-bg: var(--bs-body-bg);
+  --sjs2-color-component-shortcut-key-border: var(--bs-border-color);
+  --sjs2-color-component-shortcut-key-text: var(--bs-body-color);
+  --sjs2-radius-component-shortcut-key: var(--bs-border-radius-sm, 0.25rem);
   --sjs2-color-fg-basic-secondary: var(--bs-secondary-color);
   --sjs2-color-fg-brand-on-primary: var(--sjs-bs-on-primary);
   --sjs2-color-fg-brand-on-secondary: var(--sjs-bs-on-secondary);
@@ -312,6 +317,7 @@
   --sjs-bs-card-action-gap: 0.5rem;
 
   --sjs2-layout-component-question-box-gap-vertical: 0.5rem;
+  --sjs2-layout-component-question-header-gap-vertical: 0;
 
   --sjs2-radius-component-panel: var(--bs-border-radius-lg, var(--bs-border-radius));
   --sjs2-color-component-panel-default-bg: var(--bs-card-bg, var(--bs-body-bg));
@@ -542,6 +548,11 @@
 }
 
 .sd-question__erbox--below-question {
+  margin-top: 0.25rem;
+}
+
+.sd-question__erbox {
+  order: 1;
   margin-top: 0.25rem;
 }
 

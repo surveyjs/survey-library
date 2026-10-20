@@ -60,6 +60,7 @@ export class PresenceOverlay {
   private resizeObserver: ResizeObserver | undefined;
   private mutationObserver: MutationObserver | undefined;
   private observedRoot: Element | null = null;
+  private appliedFont = "";
   private onScroll = () => this.refresh();
 
   constructor(private scene: IPresenceScene, private getPeers: () => ReadonlyMap<string, IPresencePeer>) {
@@ -93,6 +94,7 @@ export class PresenceOverlay {
   public render(): void {
     if (this.disposed || !this.layer) return;
     this.observe();
+    this.syncFont();
     const peers = this.getPeers();
     const now = Date.now();
 
@@ -141,6 +143,19 @@ export class PresenceOverlay {
       this.mutationObserver = new win.MutationObserver(() => this.refresh());
       this.mutationObserver!.observe(root, { childList: true, subtree: true, attributes: false });
     }
+  }
+
+  // The layer sits in <body>, outside the themed root: the theme's font is a variable
+  // scoped to that root (or set inline on it by applyTheme), so it never reaches the
+  // badges by inheritance. Resolved from the root instead, like the peer colours.
+  private syncFont(): void {
+    const root = this.scene.getRoot();
+    const view = root?.ownerDocument?.defaultView;
+    if (!root || !this.layer || !view || typeof view.getComputedStyle !== "function") return;
+    const font = view.getComputedStyle(root).fontFamily;
+    if (!font || font === this.appliedFont) return;
+    this.layer.style.fontFamily = font;
+    this.appliedFont = font;
   }
 
   private applyDecorations(wanted: Map<HTMLElement, IDecoration>): void {

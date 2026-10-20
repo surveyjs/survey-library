@@ -66,4 +66,9 @@ export class SurveyError {
     }
     this.locText.text = this.getText();
   }
+  // Re-renders the text if a value it interpolates ({name}) has changed since it was rendered.
+  // The text is not created here: creating it fires the survey's custom error text callback.
+  public updateRenderedText(): void {
+    this.locTextValue?.renderedTextChanged();
+  }
 }

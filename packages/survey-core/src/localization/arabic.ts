@@ -5,6 +5,14 @@ export var arabicSurveyStrings = {
   pagePrevText: "السابق",
   // "Next"
   pageNextText: "التالي",
+  // [Auto-translated] "First"
+  pageFirstText: "أولا",
+  // [Auto-translated] "Last"
+  pageLastText: "الأخير",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "من {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "اختر الصفحة",
   // "Complete"
   completeText: "إرسال البيانات",
   // "Preview"

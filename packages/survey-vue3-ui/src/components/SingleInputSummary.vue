@@ -24,7 +24,7 @@
         </div>
       </div>
     </div>
-    <div v-else>
+    <div v-else :class="css.summaryPlaceholder">
       <SvComponent
         v-if="componentRegistered"
         :is="'survey-placeholder-' + summary.question.getTemplate()"

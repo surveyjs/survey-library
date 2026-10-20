@@ -256,6 +256,7 @@ const survey = new Model(surveyJson);
 // components/Survey.tsx
 'use client'
 
+import { useMemo } from 'react';
 import { Model } from 'survey-core';
 import { Survey, PopupSurvey } from 'survey-react-ui';
 
@@ -264,7 +265,7 @@ const surveyJson = {
 };
 
 export default function SurveyComponent() {
-  const survey = new Model(surveyJson);
+  const survey = useMemo(() => new Model(surveyJson), []);
 
   // Render the survey inside the page
   return <Survey model={survey} />;

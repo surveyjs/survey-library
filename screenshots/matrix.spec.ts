@@ -845,6 +845,31 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, questionRoot, "question-matrix-description-under-input.png");
     });
 
+    test("Matrix with comment area", async ({ page }) => {
+      await page.setViewportSize({ width: 1200, height: 800 });
+      await initSurvey(page, framework, {
+        "showQuestionNumbers": "off",
+        "autoFocusFirstQuestion": false,
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "matrix",
+                "name": "question1",
+                "showCommentArea": true,
+                "columns": ["Column 1", "Column 2", "Column 3"],
+                "rows": ["Row 1", "Row 2"]
+              }
+            ]
+          }
+        ]
+      });
+
+      const questionRoot = page.locator(".sd-question--table");
+      await compareScreenshot(page, questionRoot, "question-matrix-comment-area.png");
+    });
+
     test("Matrix with boolean column", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
@@ -1105,6 +1130,26 @@ frameworks.forEach(framework => {
 
       const questionRoot = page.locator(".sd-row");
       await compareScreenshot(page, questionRoot, "matrix-focus-frame-in-one-line.png");
+    });
+
+    // No buttons under the table: the pager starts the row.
+    [{ name: "desktop", width: 1920 }, { name: "mobile", width: 420 }].forEach(viewport => {
+      test(`Matrixdropdown pager, ${viewport.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: viewport.width, height: 1080 });
+        await initSurvey(page, framework, {
+          showQuestionNumbers: false,
+          elements: [{
+            type: "matrixdropdown",
+            name: "matrix",
+            title: "Question title",
+            pageSize: 1,
+            rows: Array.from({ length: 12 }, (_, i) => "Row " + (i + 1)),
+            columns: [{ name: "name", cellType: "text" }]
+          }]
+        });
+        await resetFocusToBody(page);
+        await compareScreenshot(page, page.locator(".sd-question--table"), `matrixdropdown-pager-12-pages-${viewport.name}.png`);
+      });
     });
   });
 });

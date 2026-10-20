@@ -47,11 +47,23 @@ export function normalizeTextForSearch(text: string, reason: string = "filter"):
 }
 
 export class Helpers {
+  public static getCommentKey(name: string): string {
+    return name + settings.commentSuffix;
+  }
+  // The value name a comment key belongs to; undefined when the key is not a comment key.
+  // A key that is only the suffix is not a comment key.
+  public static getNameOfCommentKey(key: string): string {
+    const suffix = settings.commentSuffix;
+    if (!key || key.length <= suffix.length || !key.endsWith(suffix)) return undefined;
+    return key.substring(0, key.length - suffix.length);
+  }
   /**
    * A static methods that returns true if a value undefined, null, empty string or empty array.
    * @param value
    */
-  public static isValueEmpty(value: any): boolean {
+  // trimString: a string of spaces is empty. Only the value itself is trimmed, not the values inside it.
+  public static isValueEmpty(value: any, trimString: boolean = false): boolean {
+    if (trimString) value = Helpers.trimValue(value);
     if (Array.isArray(value) && value.length === 0) return true;
     if (!!value && Helpers.isValueObject(value) && value.constructor === Object) {
       for (var key in value) {
@@ -60,6 +72,11 @@ export class Helpers {
       return true;
     }
     return !value && value !== 0 && value !== false;
+  }
+  // A string or a String object trimmed; any other value as it is.
+  public static trimValue(value: any): any {
+    if (!!value && (typeof value === "string" || value instanceof String)) return value.trim();
+    return value;
   }
   public static isValueUndefined(value: any): boolean {
     return (value === undefined || value === null) || (typeof value === "number" && isNaN(value));

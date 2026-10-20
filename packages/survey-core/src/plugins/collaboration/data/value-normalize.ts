@@ -111,8 +111,9 @@ export function syncMatrixRowCount(survey: SurveyModel, name: string, value: any
   });
 }
 
+// A matrix with a data source has no shared value, and its count is the source's: it is never set.
 function setRowCount(matrix: QuestionMatrixDynamicModel, value: any): void {
-  if (!Array.isArray(value)) return;
+  if (!Array.isArray(value) || !!matrix.dataSource) return;
   if (matrix.rowCount !== value.length) matrix.rowCount = value.length;
 }
 

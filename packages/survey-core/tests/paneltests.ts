@@ -3983,4 +3983,47 @@ describe("Panel", () => {
     expect(page2.isRequired, "page2 should not be required when question1 = 'Item 2'").toBe(false);
     expect(page2.errors.length, "page2 error should disappear after condition becomes false, Bug#11285").toBe(0);
   });
+
+  test("panel.isContentVisible is updated on child visibility changes", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        {
+          type: "panel", name: "panel1",
+          elements: [
+            { type: "text", name: "q2", visibleIf: "{q1} = 'a'" },
+            { type: "text", name: "q3", visible: false }
+          ]
+        }
+      ]
+    });
+    const panel = <PanelModel>survey.getPanelByName("panel1");
+    const q3 = survey.getQuestionByName("q3");
+    expect(panel.renderedIsContentVisible, "all children are invisible").toBe(false);
+    expect(panel.isVisible, "panel is invisible").toBe(false);
+
+    survey.setValue("q1", "a");
+    expect(panel.renderedIsContentVisible, "q2 becomes visible via condition").toBe(true);
+    expect(panel.isVisible, "panel becomes visible").toBe(true);
+
+    survey.setValue("q1", "b");
+    expect(panel.renderedIsContentVisible, "q2 becomes invisible via condition").toBe(false);
+    expect(panel.isVisible, "panel becomes invisible again").toBe(false);
+
+    q3.visible = true;
+    expect(panel.renderedIsContentVisible, "q3 becomes visible directly").toBe(true);
+    q3.visible = false;
+    expect(panel.renderedIsContentVisible, "q3 becomes invisible directly").toBe(false);
+
+    survey.showInvisibleElements = true;
+    expect(panel.renderedIsContentVisible, "showInvisibleElements is on").toBe(true);
+    survey.showInvisibleElements = false;
+    expect(panel.renderedIsContentVisible, "showInvisibleElements is off").toBe(false);
+
+    const q4 = new QuestionTextModel("q4");
+    panel.addElement(q4);
+    expect(panel.renderedIsContentVisible, "a visible question is added").toBe(true);
+    panel.removeElement(q4);
+    expect(panel.renderedIsContentVisible, "the visible question is removed").toBe(false);
+  });
 });

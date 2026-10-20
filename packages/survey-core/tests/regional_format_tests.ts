@@ -567,11 +567,23 @@ describe("RegionalFormat: metadata for the Creator", () => {
   test("The locale choice list is the curated locale data", () => {
     const localeProp = Serializer.findProperty("regionalformat", "locale");
     const choices = localeProp.getChoices(null);
-    expect(choices.length, "non-empty").toBeGreaterThan(0);
-    expect(choices, "the curated keys").toEqual(getLocaleDataLocales());
+    expect(choices.length, "non-empty").toBeGreaterThan(1);
+    expect(choices[0], "the empty item comes first").toBe("");
+    expect(choices.slice(1), "the curated keys").toEqual(getLocaleDataLocales());
     expect(choices.indexOf("en-GB") >= 0, "contains a regional entry").toBe(true);
     expect(choices.indexOf("de") >= 0, "contains a language entry").toBe(true);
-    expect(choices, "the same set as the table").toEqual(Object.keys(localeData));
+    expect(choices.slice(1), "the same set as the table").toEqual(Object.keys(localeData));
+  });
+
+  test("Bug#11971 The locale can be cleared in the property grid", () => {
+    const localeProp = Serializer.findProperty("regionalformat", "locale");
+    expect(localeProp.getChoices(null).filter(item => item === ""), "one empty item to clear the value").toEqual([""]);
+    const survey = new SurveyModel({ regionalFormat: { locale: "de" } });
+    expect(survey.regionalFormat.locale, "loaded").toBe("de");
+    survey.regionalFormat.locale = "";
+    expect(survey.regionalFormat.locale, "cleared").toBeUndefined();
+    expect(survey.regionalFormat.isEmpty, "nothing stored").toBe(true);
+    expect(survey.toJSON().regionalFormat, "not serialized").toBeUndefined();
   });
 });
 

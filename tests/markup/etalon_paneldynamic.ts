@@ -68,6 +68,24 @@ registerMarkupTests(
 
   },
   {
+    name: "Test paneldynamic (progressBottom) markup with pageSize and one page",
+    json: {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "pd",
+          titleLocation: "hidden",
+          displayMode: "carousel",
+          progressBarLocation: "bottom",
+          panelCount: 2,
+          pageSize: 10,
+        },
+      ]
+    },
+    snapshot: "paneldynamic-progress-bottom",
+
+  },
+  {
     name: "Test paneldynamic with old navigation (list) markup",
     json: {
       elements: [
@@ -178,6 +196,33 @@ registerMarkupTests(
     before: () => { },
   },
   {
+    name: "Test paneldynamic do not render empty footer (do not allow add) markup with pageSize and one page",
+    json: {
+      elements: [
+        {
+          "type": "paneldynamic",
+          "name": "question1",
+          "titleLocation": "hidden",
+          "templateElements": [
+            {
+              "type": "text",
+              "titleLocation": "hidden",
+              "name": "question2"
+            }
+          ],
+          "allowAddPanel": false,
+          "panelCount": 1,
+          "pageSize": 10
+        },
+      ]
+    },
+    event: "onAfterRenderPage",
+    snapshot: "paneldynamic-no-footer-1",
+    removeIds: true,
+    excludePlatform: "Vue",
+    before: () => { },
+  },
+  {
     name: "Test paneldynamic do not render empty footer (max panels reached) markup",
     json: {
       elements: [
@@ -265,6 +310,31 @@ registerMarkupTests(
       AdaptiveActionContainer["ContainerID"] = 1;
 
     },
+  }, {
+    name: "paneldynamic with visible pager",
+    json: {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "pd",
+          titleLocation: "hidden",
+          templateElements: [
+            {
+              type: "text",
+              titleLocation: "hidden",
+              name: "q1"
+            }
+          ],
+          panelCount: 5,
+          pageSize: 2,
+        },
+      ]
+    },
+    snapshot: "paneldynamic-pager",
+    removeIds: true,
+    isCorrectEvent: (options) => {
+      return options.question.name == "pd";
+    }
   }
   ]
 );

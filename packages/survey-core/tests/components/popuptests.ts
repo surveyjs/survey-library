@@ -1912,4 +1912,28 @@ describe("Popup", () => {
       vi.useRealTimers();
     }
   });
+  test("PopupModel recalculatePositionAfterRender: once the content is rendered, only while the popup is shown", () => {
+    vi.useFakeTimers();
+    try {
+      const model = new PopupModel("sv-list", {});
+      const log: Array<boolean> = [];
+      model.onRecalculatePosition.add((_, options: { isResetHeight: boolean }) => log.push(options.isResetHeight));
+      model.show();
+      model.recalculatePositionAfterRender(true);
+      expect(log, "#1: not before the renderer has caught up").toEqual([]);
+      vi.advanceTimersByTime(10);
+      expect(log, "#2").toEqual([true]);
+      model.recalculatePositionAfterRender(false);
+      model.hide();
+      vi.advanceTimersByTime(10);
+      expect(log, "#3: hidden meanwhile").toEqual([true]);
+      model.show();
+      model.recalculatePositionAfterRender(false);
+      model.dispose();
+      vi.advanceTimersByTime(10);
+      expect(log, "#4: disposed meanwhile").toEqual([true]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

@@ -173,7 +173,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
   protected renderEmptyIcon(): React.JSX.Element {
     return (
       <svg>
-        <use xlinkHref={this.question.dashSvgIcon}></use>
+        <use xlinkHref={this.question.emptyIndexSvgIcon}></use>
       </svg>
     );
   }

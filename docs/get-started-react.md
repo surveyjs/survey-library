@@ -69,14 +69,13 @@ To add Open Sans using [Fontsource](https://fontsource.org/docs/getting-started/
 npm install @fontsource/open-sans
 ```
 
-The following example imports font weights 400, 600, and 700 alongside the component style sheets. You can also place the font imports in your application's entry file or root layout to load them once for all SurveyJS components.
+The following example imports font weights 400, 600, and 700. Place the font imports in your application's entry file or root layout to load them once for all SurveyJS components.
 
 ```js
-// components/Survey.tsx
+// app/layout.tsx or pages/_app.tsx
 import '@fontsource/open-sans/400.css';
 import '@fontsource/open-sans/600.css';
 import '@fontsource/open-sans/700.css';
-import 'survey-core/survey-core.css';
 ```
 
 ## Create a Model
@@ -103,12 +102,13 @@ To instantiate a model, pass the model schema to the [`Model`](https://surveyjs.
 
 ```js
 // components/Survey.tsx
+import { useMemo } from 'react';
 import { Model } from 'survey-core';
 
 const surveyJson = { /* ... */ }
 
 export default function SurveyComponent() {
-  const survey = new Model(surveyJson);
+  const survey = useMemo(() => new Model(surveyJson), [surveyJson]);
 
   return "...";
 }
@@ -118,11 +118,16 @@ export default function SurveyComponent() {
     <summary>View Full Code</summary>  
 
 ```js
-// components/Survey.tsx
+// app/layout.tsx or pages/_app.tsx
 import '@fontsource/open-sans/400.css';
 import '@fontsource/open-sans/600.css';
 import '@fontsource/open-sans/700.css';
+```
+
+```js
+// components/Survey.tsx
 import 'survey-core/survey-core.css';
+import { useMemo } from 'react';
 import { Model } from 'survey-core';
 
 const surveyJson = {
@@ -138,7 +143,7 @@ const surveyJson = {
 };
 
 export default function SurveyComponent() {
-  const survey = new Model(surveyJson);
+  const survey = useMemo(() => new Model(surveyJson), [surveyJson]);
 
   return "...";
 }
@@ -157,12 +162,13 @@ To render a form, import the `Survey` component, add it to the template, and pas
 // components/Survey.tsx
 'use client'
 // ...
+import { useMemo } from 'react';
 import { Survey } from 'survey-react-ui';
 
 const surveyJson = { /* ... */ }
 
 export default function SurveyComponent() {
-  const survey = new Model(surveyJson);
+  const survey = useMemo(() => new Model(surveyJson), [surveyJson]);
 
   return <Survey model={survey} />;
 }
@@ -189,13 +195,18 @@ If you replicate the code correctly, you should see the following form:
     <summary>View Full Code</summary>  
 
 ```js
-// components/Survey.tsx
-'use client'
-
+// app/layout.tsx or pages/_app.tsx
 import '@fontsource/open-sans/400.css';
 import '@fontsource/open-sans/600.css';
 import '@fontsource/open-sans/700.css';
+```
+
+```js
+// components/Survey.tsx
+'use client'
+
 import 'survey-core/survey-core.css';
+import { useMemo } from 'react';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 
@@ -212,7 +223,7 @@ const surveyJson = {
 };
 
 export default function SurveyComponent() {
-  const survey = new Model(surveyJson);
+  const survey = useMemo(() => new Model(surveyJson), [surveyJson]);
 
   return <Survey model={survey} />;
 }
@@ -240,12 +251,12 @@ After a respondent submits a form, the results are available within the [`onComp
 ```js
 // components/Survey.tsx
 // ...
-import { useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 
 const SURVEY_ID = 1;
 
 export default function SurveyComponent() {
-  const survey = new Model(surveyJson);
+  const survey = useMemo(() => new Model(surveyJson), [surveyJson]);
   const surveyComplete = useCallback((survey: Model) => {
     const userId = /* ... Getting the user ID ... */
     survey.setValue("userId", userId);
@@ -287,10 +298,10 @@ In this tutorial, the results are simply output in an alert dialog:
 ```js
 // components/Survey.tsx
 // ...
-import { useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 
 export default function SurveyComponent() {
-  const survey = new Model(surveyJson);
+  const survey = useMemo(() => new Model(surveyJson), [surveyJson]);
   const alertResults = useCallback((survey: Model) => {
     const results = JSON.stringify(survey.data);
     alert(results);
@@ -312,14 +323,18 @@ To view the application, run `npm run dev` in a command line and open [http://lo
     <summary>View Full Code</summary>  
 
 ```js
-// components/Survey.tsx
-'use client'
-
-import { useCallback } from 'react';
+// app/layout.tsx or pages/_app.tsx
 import '@fontsource/open-sans/400.css';
 import '@fontsource/open-sans/600.css';
 import '@fontsource/open-sans/700.css';
+```
+
+```js
+// components/Survey.tsx
+'use client'
+
 import 'survey-core/survey-core.css';
+import { useMemo, useCallback } from 'react';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 
@@ -336,7 +351,7 @@ const surveyJson = {
 };
 
 export default function SurveyComponent() {
-  const survey = new Model(surveyJson);
+  const survey = useMemo(() => new Model(surveyJson), [surveyJson]);
   const alertResults = useCallback((survey: Model) => {
     const results = JSON.stringify(survey.data);
     alert(results);

@@ -4159,4 +4159,89 @@ describe("custom questions", () => {
 
     ComponentCollection.Instance.remove("fullname_frame");
   });
+  test("inheritBaseProps: true keeps description and requiredErrorText in toJSON, Bug#11973", () => {
+    ComponentCollection.Instance.add({
+      name: "x-file",
+      inheritBaseProps: true,
+      questionJSON: { type: "file", title: "Document" }
+    });
+    const survey = new SurveyModel({ elements: [{ type: "x-file", name: "q" }] });
+    const q = survey.getQuestionByName("q");
+    q.title = "Beep";
+    q.description = "Desc";
+    q.requiredErrorText = "Err";
+    expect(q.toJSON()).toEqual({ name: "q", title: "Beep", description: "Desc", requiredErrorText: "Err" });
+
+    ComponentCollection.Instance.add({
+      name: "x-file-notitle",
+      inheritBaseProps: true,
+      questionJSON: { type: "file" }
+    });
+    const surveyNoTitle = new SurveyModel({ elements: [{ type: "x-file-notitle", name: "q" }] });
+    const qNoTitle = surveyNoTitle.getQuestionByName("q");
+    expect(qNoTitle.toJSON(), "unset localizable props stay omitted").toEqual({ name: "q" });
+    qNoTitle.title = "Beep";
+    qNoTitle.description = "Desc";
+    expect(qNoTitle.toJSON(), "title serializes without questionJSON.title").toEqual({ name: "q", title: "Beep", description: "Desc" });
+
+    ComponentCollection.Instance.add({
+      name: "x-text",
+      inheritBaseProps: true,
+      questionJSON: { type: "text" }
+    });
+    const surveyText = new SurveyModel({ elements: [{ type: "x-text", name: "q" }] });
+    const qText = surveyText.getQuestionByName("q");
+    qText.placeholder = "Type here";
+    expect(qText.toJSON(), "inner-only placeholder stays serialized").toEqual({ name: "q", placeholder: "Type here" });
+
+    ComponentCollection.Instance.add({
+      name: "x-radio",
+      inheritBaseProps: ["commentText"],
+      questionJSON: { type: "radiogroup", choices: [1, 2] }
+    });
+    const surveyRadio = new SurveyModel({ elements: [{ type: "x-radio", name: "q" }] });
+    const qRadio = surveyRadio.getQuestionByName("q");
+    qRadio.commentText = "Leave a comment";
+    expect(qRadio.toJSON().commentText, "array inherit writes commentText on the inner question").toBe("Leave a comment");
+
+    ComponentCollection.Instance.add({
+      name: "x-file-plain",
+      questionJSON: { type: "file", description: "From component" }
+    });
+    const surveyPlain = new SurveyModel({ elements: [{ type: "x-file-plain", name: "q" }] });
+    const qPlain = surveyPlain.getQuestionByName("q");
+    expect(qPlain.toJSON(), "questionJSON description is not copied into the instance").toEqual({ name: "q" });
+    qPlain.description = "Desc";
+    expect(qPlain.toJSON().description, "description without inheritBaseProps").toBe("Desc");
+
+    ComponentCollection.Instance.clear();
+  });
+  test("Single: onCreated reads the panels of an inner dynamic panel with minPanelCount", () => {
+    ComponentCollection.Instance.add({
+      name: "x-rules",
+      questionJSON: { type: "paneldynamic", minPanelCount: 1, templateElements: [{ type: "text", name: "x" }] },
+      onCreated(question: QuestionCustomModel) {
+        (<QuestionPanelDynamicModel>question.contentQuestion).panels.forEach(p => p.questions.forEach(q => q.allowRootStyle = false));
+      }
+    });
+    const survey = new SurveyModel({ elements: [{ type: "x-rules", name: "q" }] });
+    const q = <QuestionCustomModel>survey.getQuestionByName("q");
+    expect((<QuestionPanelDynamicModel>q.contentQuestion).panelCount, "the inner dynamic panel has its minimum panel").toBe(1);
+    ComponentCollection.Instance.clear();
+  });
+  test("Composite: onCreated sets an inner question value", () => {
+    ComponentCollection.Instance.add({
+      name: "x-name",
+      elementsJSON: [{ type: "text", name: "first" }, { type: "text", name: "last" }],
+      onCreated(question: QuestionCompositeModel) {
+        question.contentPanel.getQuestionByName("first").value = "John";
+      }
+    });
+    const survey = new SurveyModel({ elements: [{ type: "x-name", name: "q" }] });
+    const q = <QuestionCompositeModel>survey.getQuestionByName("q");
+    expect(q.contentPanel.getQuestionByName("first").value, "the inner value set in onCreated").toBe("John");
+    q.contentPanel.getQuestionByName("last").value = "Doe";
+    expect(survey.data, "later inner values still reach the survey").toEqual({ q: { first: "John", last: "Doe" } });
+    ComponentCollection.Instance.clear();
+  });
 });

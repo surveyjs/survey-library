@@ -756,8 +756,11 @@ function setDynamicMatrixValue(context: ISurveyTestContext, question: any, value
     setMatrixCellValues(context, question, row, rowValue, rowPath);
   });
 }
-// generatedVisibleRows holds every row the question created, in value order; it is undefined until
-// the rows are generated, and visibleRows generates them on read.
+// generatedVisibleRows holds every row the question created, in the order it created them. That is
+// the value order until a filter or a sort is set on the question data list; from then on it is the
+// list view order and a record the filter excluded has no row at all. Positions stay positions, so
+// the targets below keep addressing the created objects. It is undefined until the rows are
+// generated, and visibleRows generates them on read.
 function getGeneratedMatrixRows(question: any): Array<any> {
   const visible = question.visibleRows;
   const generated = question.generatedVisibleRows;

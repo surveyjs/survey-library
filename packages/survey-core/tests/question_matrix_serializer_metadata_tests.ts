@@ -169,6 +169,12 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "cellType", default: "dropdown", visible: true },
     { name: "columnColCount", default: 0, visible: true },
     { name: "allowAdaptiveActions", default: false, visible: false },
+    { name: "pageSize", default: 0, visible: true },
+    { name: "sortCriteria", visible: false },
+    { name: "filterExpression", default: "", visible: false },
+    { name: "allowSort", default: false, visible: false },
+    { name: "maxSortLevel", default: 1, visible: false },
+    { name: "showSortMenu", default: "auto", visible: false },
     { name: "rows", default: [], visible: true },
     { name: "rowTitleWidth", visible: true },
     { name: "totalText", visible: true },
@@ -241,6 +247,12 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "cellType", default: "dropdown", visible: true },
     { name: "columnColCount", default: 0, visible: true },
     { name: "allowAdaptiveActions", default: false, visible: false },
+    { name: "pageSize", default: 0, visible: true },
+    { name: "sortCriteria", visible: false },
+    { name: "filterExpression", default: "", visible: false },
+    { name: "allowSort", default: false, visible: false },
+    { name: "maxSortLevel", default: 1, visible: false },
+    { name: "showSortMenu", default: "auto", visible: false },
     { name: "allowAddRows", default: true, visible: true },
     { name: "allowRemoveRows", default: true, visible: true },
     { name: "rowCount", default: 2, visible: true },
@@ -259,10 +271,6 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "noRowsText", visible: true },
     { name: "detailPanelShowOnAdding", visible: true },
     { name: "allowRowReorder", visible: true },
-    // { name: "rowsPerPage", default: 0, visible: false },
-    // { name: "allowSortRows", default: false, visible: false },
-    // { name: "sortBy", default: "", visible: false },
-    // { name: "filterExpression", default: "", visible: false },
   ],
   paneldynamic: [
     { name: "name", visible: true },
@@ -335,9 +343,12 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "showQuestionNumbers", default: "off", visible: true },
     { name: "questionStartIndex", visible: true },
     { name: "renderMode", visible: false },
-    // { name: "panelsPerPage", default: 0, visible: false },
-    // { name: "sortBy", default: "", visible: false },
-    // { name: "filterExpression", default: "", visible: false },
+    { name: "pageSize", default: 0, visible: true },
+    { name: "sortCriteria", visible: false },
+    { name: "filterExpression", default: "", visible: false },
+    { name: "allowSort", default: false, visible: false },
+    { name: "maxSortLevel", default: 1, visible: false },
+    { name: "showSortMenu", default: "auto", visible: false },
     { name: "displayMode", default: "list", visible: true },
     { name: "showProgressBar", default: true, visible: true },
     { name: "progressBarLocation", default: "top", visible: true },
@@ -355,7 +366,7 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
 const expectedOwnRegistrations: { [type: string]: { parentName: string, properties: Array<string> } } = {
   matrixdropdown: {
     parentName: "matrixdropdownbase",
-    properties: ["rows", "rowsVisibleIf", "rowTitleWidth", "totalText", "hideIfRowsEmpty", "rowOrder"]
+    properties: ["rows", "rowTitleWidth", "totalText", "hideIfRowsEmpty", "rowOrder"]
   },
   matrixdynamic: {
     parentName: "matrixdropdownbase",
@@ -364,7 +375,6 @@ const expectedOwnRegistrations: { [type: string]: { parentName: string, properti
       "keyName", "defaultRowValue", "copyDefaultValueFromLastEntry", "confirmDelete", "confirmDeleteText",
       "addRowButtonLocation", "addRowText", "removeRowText", "hideColumnsIfEmpty", "noRowsText",
       "detailPanelShowOnAdding", "allowRowReorder"
-      // "rowsPerPage", "allowSortRows", "sortBy", "filterExpression"
     ]
   },
   paneldynamic: {
@@ -376,7 +386,7 @@ const expectedOwnRegistrations: { [type: string]: { parentName: string, properti
       "copyDefaultValueFromLastEntry", "panelsState", "keyName", "keyDuplicationError", "confirmDelete",
       "confirmDeleteText", "addPanelText", "removePanelText", "prevPanelText", "nextPanelText",
       "showQuestionNumbers", "questionStartIndex", "renderMode",
-      // "panelsPerPage", "sortBy", "filterExpression",
+      "pageSize", "sortCriteria", "filterExpression", "allowSort", "maxSortLevel", "showSortMenu",
       "displayMode", "showProgressBar", "progressBarLocation", "tabAlign", "templateQuestionTitleLocation",
       "templateQuestionTitleWidth", "templateErrorLocation", "templateVisibleIf", "removePanelButtonLocation"
     ]
@@ -464,6 +474,24 @@ describe("Matrix and dynamic panel serializer metadata", () => {
     concreteTypes.forEach(type => {
       expect(Serializer.getProperties(type).map(prop => prop.name), type)
         .toEqual(expectedMergedProperties[type].map(entry => entry.name));
+    });
+  });
+});
+
+describe("the paging, sort and filter properties of the matrices with rows", () => {
+  test("Serializer.findProperty and a JSON round-trip are the same for the Dynamic Matrix and the Multi-Select Matrix", () => {
+    ["matrixdynamic", "matrixdropdown"].forEach(type => {
+      ["pageSize", "sortCriteria", "filterExpression", "allowSort", "maxSortLevel", "showSortMenu"].forEach(name => {
+        const prop = Serializer.findProperty(type, name);
+        expect(!!prop, type + "." + name).toBe(true);
+        expect(prop.visible, type + "." + name + " visible").toBe(name === "pageSize");
+      });
+      expect(Serializer.findProperty(type, "pageSize").defaultValue, type + " default").toBe(0);
+      const json: any = { type: type, name: "q", pageSize: 3, sortCriteria: [{ field: "a" }], filterExpression: "{a} > 1", columns: [{ name: "a" }] };
+      if (type === "matrixdropdown") json.rows = ["r1"];
+      const survey = new SurveyModel({ elements: [json] });
+      const res = survey.getQuestionByName("q").toJSON();
+      expect([res.pageSize, res.sortCriteria, res.filterExpression], type + " round-trip").toEqual([3, [{ field: "a" }], "{a} > 1"]);
     });
   });
 });

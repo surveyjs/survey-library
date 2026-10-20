@@ -16,6 +16,18 @@ A base class for multiple-selection question types that can display choice items
 
 ## Properties
 
+### `choiceShortcutsEnabled`
+
+**Type**: `boolean`
+
+Specifies whether to enable letter shortcuts for selecting choices.
+
+Default value: `undefined` (inherits the survey's [`choiceShortcutsEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#choiceShortcutsEnabled) setting)
+
+When enabled, choices display letter codes (`A`, `B`, ..., `Z`, `AA`, ...) that respondents can type while the question has focus. In questions that allow multiple selection, shortcuts toggle choice selection.
+
+Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
+
 ### `colCount`
 
 **Type**: `number`

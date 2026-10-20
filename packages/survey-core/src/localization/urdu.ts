@@ -5,6 +5,14 @@ export var urduSurveyStrings = {
   pagePrevText: "پچھلا",
   // "Next"
   pageNextText: "اگلا",
+  // [Auto-translated] "First"
+  pageFirstText: "پہلا",
+  // [Auto-translated] "Last"
+  pageLastText: "آخری",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "منتخب صفحہ",
   // "Complete"
   completeText: "مکمل",
   // "Preview"

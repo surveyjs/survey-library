@@ -427,6 +427,25 @@ describe("Base", () => {
     expect(counter, "event called 4 times, pop is called two times").toBe(4);
     expect(propertyName, "items has been changed").toBe("items");
   });
+  test("Base array propety value, the onPush index of push and unshift", () => {
+    class IndexTester extends Base {
+      public indexes: Array<number> = [];
+      constructor() {
+        super();
+        this.createNewArray("items", (item: any, index: number): void => { this.indexes.push(index); });
+      }
+      public get items(): Array<any> {
+        return this.getPropertyValue("items");
+      }
+    }
+    const base = new IndexTester();
+    base.items.push({ value: 1 });
+    base.items.push({ value: 2 });
+    expect(base.indexes, "#1: push, the last index").toEqual([0, 1]);
+    base.items.unshift({ value: 0 });
+    expect(base.items[0].value, "#2: unshift adds at the start").toBe(0);
+    expect(base.indexes, "#3: unshift, index 0").toEqual([0, 1, 0]);
+  });
   test("Base array propety value, set value", () => {
     var base = new BaseTester();
     var counter = 0;

@@ -17,7 +17,8 @@ import {
   DynamicDataErrorOperation, DynamicDataFieldType, DynamicDataSourceMethod, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
   ISortCriterion, IDynamicDataSource, SortDirection
 } from "./dynamic-data/dynamic-data-interfaces";
-import { SortCriterion } from "./records/records-sort-criterion";
+// For its side effect: the "sortcriterion" serializer class, which sortCriteria loads its items with.
+import "./records/records-sort-criterion";
 import { findDuplicatePages, groupByDuplicateKey } from "./records/records-duplicates";
 import { RecordsPageValidation, IRecordsPageValidationOwner, RecordsPageValidationFollower } from "./question_records_page_validation";
 import { createIndexes } from "./dynamic-data/dynamic-data-records";
@@ -2465,12 +2466,14 @@ export abstract class QuestionRecordsModel extends Question {
   public nextPage(): boolean { return this.changePageWithoutAnimation(() => this.paging.nextPage()); }
   public prevPage(): boolean { return this.changePageWithoutAnimation(() => this.paging.prevPage()); }
   /* The sort the records are displayed in: criteria applied in array order, an empty array = no sort.
-     It never reorders the question value. A live array, like choices: an assignment, a push or a
-     splice on it, or an edit of an item's field or direction re-applies it. The setter takes plain
-     { field, direction } objects and copies them - the question never holds the caller's objects -,
-     so its type is wider than the getter's. It is the current sort: a sort made at runtime changes
-     what toJSON() emits. */
-  public get sortCriteria(): Array<SortCriterion> { return this.paging.sortCriteria; }
+     It never reorders the question value. A live array, like choices: an assignment, a push, an
+     unshift or a splice on it, or an edit of an item's field or direction re-applies it. The caller
+     reads and writes plain { field, direction } objects, a missing direction being ascending. The
+     question never holds the caller's objects: it converts every item it is given - on an assignment
+     and on the array's own operations alike - into an internal SortCriterion, which is what makes an
+     item edit live and what the serializer reads and writes. It is the current sort: a sort made at
+     runtime changes what toJSON() emits. */
+  public get sortCriteria(): Array<ISortCriterion> { return this.paging.sortCriteria; }
   public set sortCriteria(val: Array<ISortCriterion>) { this.paging.sortCriteria = val; }
   /* sort("price") sorts by one field, ascending unless direction is "desc"; with append the current
      sort stays and the field takes the direction where it already is, or joins at the end.

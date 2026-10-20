@@ -1616,7 +1616,7 @@ export class Base implements IObjectValueContext {
         value
       );
       if (!self.isDisposedValue) {
-        if (onPush) onPush(value, newArray.length - 1);
+        if (onPush) onPush(value, 0);
         const arrayChanges = new ArrayChanges(0, 0, [value], []);
         self.propertyValueChanged(name, newArray, newArray, arrayChanges);
         self.notifyArrayChanged(name, newArray, arrayChanges);

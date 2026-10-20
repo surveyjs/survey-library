@@ -236,7 +236,6 @@ export {
 } from "../../src/question_paneldynamic";
 export { LocalDynamicDataSource, ArrayDynamicDataSource, SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 export type { IArrayDynamicDataSourceOptions } from "../../src/dynamic-data/dynamic-data-sources";
-export { SortCriterion } from "../../src/records/records-sort-criterion";
 export type {
   IDynamicDataSource, IDynamicDataSourceCapabilities, IDynamicDataReadRequest, IDynamicDataReadResult, ISortCriterion, IDynamicDataField,
   SortDirection,

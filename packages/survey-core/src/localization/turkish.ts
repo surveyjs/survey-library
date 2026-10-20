@@ -5,6 +5,14 @@ export var turkishSurveyStrings = {
   pagePrevText: "Önceki",
   // "Next"
   pageNextText: "Sonraki",
+  // [Auto-translated] "First"
+  pageFirstText: "İlk",
+  // [Auto-translated] "Last"
+  pageLastText: "Son",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Sayfa Seç",
   // "Complete"
   completeText: "Tamamla",
   // "Preview"

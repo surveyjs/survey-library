@@ -5,6 +5,14 @@ export var finnishSurveyStrings = {
   pagePrevText: "Edellinen",
   // "Next"
   pageNextText: "Seuraava",
+  // [Auto-translated] "First"
+  pageFirstText: "Ensimmäinen",
+  // [Auto-translated] "Last"
+  pageLastText: "Viimeinen",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Valitse sivu",
   // "Complete"
   completeText: "Valmis",
   // "Preview"

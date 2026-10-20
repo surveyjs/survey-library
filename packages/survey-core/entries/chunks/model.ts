@@ -160,6 +160,7 @@ export {
 } from "../../src/jsonobject";
 export { property, propertyArray } from "../../src/decorators";
 export { QuestionRecordsModel } from "../../src/question_records";
+export { QuestionRecordsBar } from "../../src/question_records_bar";
 export {
   IMatrixDropdownData,
   MatrixDropdownCell,
@@ -207,7 +208,7 @@ export {
   ChoiceItem,
   ISelectQuestion
 } from "../../src/question_baseselect";
-export { QuestionCheckboxModel, CheckboxItem } from "../../src/question_checkbox";
+export { QuestionCheckboxModel, CheckboxItem, getCheckboxItemFields } from "../../src/question_checkbox";
 export { QuestionTagboxModel } from "../../src/question_tagbox";
 export { QuestionRankingModel } from "../../src/question_ranking";
 export { QuestionCommentModel } from "../../src/question_comment";
@@ -226,7 +227,7 @@ export {
   QuestionImagePickerModel,
   ImageItemValue
 } from "../../src/question_imagepicker";
-export { QuestionImageMapModel } from "../../src/question_imagemap";
+export { QuestionImageMapModel, getImageMapItemFields } from "../../src/question_imagemap";
 export { QuestionImageModel } from "../../src/question_image";
 export { QuestionSignaturePadModel } from "../../src/question_signaturepad";
 export {
@@ -239,7 +240,7 @@ export { parseDynamicDataSort, dynamicDataSortToString } from "../../src/dynamic
 export type {
   IDynamicDataSource, IDynamicDataSourceCapabilities, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataField,
   DynamicDataSortDirection,
-  DynamicDataFieldType, DynamicDataOperation
+  DynamicDataFieldType, DynamicDataSourceMethod, DynamicDataErrorOperation, DynamicDataOperation
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 export { SurveyTimer } from "../../src/surveytimer";
 export { SurveyTimerModel } from "../../src/surveyTimerModel";

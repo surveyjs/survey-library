@@ -5,6 +5,14 @@ export var catalanSurveyStrings = {
   pagePrevText: "Anterior",
   // "Next"
   pageNextText: "Següent",
+  // [Auto-translated] "First"
+  pageFirstText: "Primer",
+  // [Auto-translated] "Last"
+  pageLastText: "Últim",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "de {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Selecciona pàgina",
   // "Complete"
   completeText: "Complet",
   // [Auto-translated] "Preview"

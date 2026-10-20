@@ -5,6 +5,14 @@ export var welshSurveyStrings = {
   pagePrevText: "Blaenorol",
   // "Next"
   pageNextText: "Nesaf",
+  // [Auto-translated] "First"
+  pageFirstText: "Cyntaf",
+  // [Auto-translated] "Last"
+  pageLastText: "Olaf",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "o {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Dewis Tudalen",
   // "Complete"
   completeText: "Cwblhau",
   // "Preview"

@@ -28,8 +28,9 @@ import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { IRecordRemoval, IRecordTarget, QuestionRecordItem, QuestionRecordsModel, QuestionRecordsValueGetterContext, IRecordCountNames, getRecordCountNamesOf } from "./question_records";
-import { DynamicDataOperation, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
-import { ArrayDynamicDataSource, isRecordEmpty, IArrayDynamicDataSourceOptions } from "./dynamic-data/dynamic-data-sources";
+import { DynamicDataSourceMethod, IDynamicDataSource } from "./dynamic-data/dynamic-data-interfaces";
+import { ArrayDynamicDataSource, IArrayDynamicDataSourceOptions } from "./dynamic-data/dynamic-data-sources";
+import { isRecordEmpty } from "./dynamic-data/dynamic-data-records";
 
 export class MatrixDynamicValueGetterContext extends QuestionRecordsValueGetterContext {
   // The design row answers any path; isRoot is left as it is.
@@ -164,7 +165,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return res;
   }
   // The write rules are the matrix's: a removal's count-down, and the value shape of each kind of write.
-  protected setListRecords(records: Array<any>, operations: Array<DynamicDataOperation>): void {
+  protected setListRecords(records: Array<any>, operations: Array<DynamicDataSourceMethod>): void {
     // A removal whose count-down waits for the store (removeStoredRecord): the padding stays virtual.
     if ((operations || []).indexOf("remove") > -1) {
       const length = this.takeRowCountDown();
@@ -188,9 +189,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
      value and keeps no empty records; an insert, a move and the records a lower rowCount cuts off are
      stored as they are. operations: the writes the default source made, one or every write of a batch
      (ArrayDynamicDataSource.write and batch, the only callers). */
-  private normalizeRecords(records: Array<any>, operations: Array<DynamicDataOperation>): any {
+  private normalizeRecords(records: Array<any>, operations: Array<DynamicDataSourceMethod>): any {
     const res = Array.isArray(records) ? records : [];
-    const isOnly = (operation: DynamicDataOperation): boolean => operations.every((op: DynamicDataOperation): boolean => op === operation);
+    const isOnly = (operation: DynamicDataSourceMethod): boolean => operations.every((op: DynamicDataSourceMethod): boolean => op === operation);
     if (isOnly("update")) return this.correctValueForMinMaxRows(this.deleteRowValue(res, null));
     if (this.isWritingRecords && isOnly("remove")) return this.deleteRowValue(res, null);
     return res;
@@ -216,6 +217,45 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!this.hasDataListView) return this.rowCount - 1;
     const created = this.dataList.getCreatedIndexes();
     return created.length > 0 ? created[created.length - 1] : -1;
+  }
+  /* Whether an add under in-memory paging is taken in as without paging - one row appended, and the
+     rendered table told -: the added record is the last record of the page shown, and the rows hold
+     every other record of the page in order - before the new row is appended, or with it. In practice
+     an append to the last page while it has room. Not when the record starts a new page or an insert pushes a record onto the next one,
+     and not under a sort or a filter, which place the record by its values: the page is rebuilt then.
+     The value assignment (followRecordAppendedToPage) and addRow (canAppendAddedRow) both ask this. */
+  private isRecordAddedToShownPage(recordIndex: number): boolean {
+    const rows = this.generatedVisibleRows;
+    if (!this.isPagedByList || this.isEditingObjectValue || !rows || recordIndex < 0) return false;
+    const list = this.dataList;
+    if (list.hasView) return false;
+    const records = list.getMaterializedIndexes();
+    return records[records.length - 1] === recordIndex && rows.length >= records.length - 1 && !this.isPageStale(true);
+  }
+  protected canAppendAddedRow(): boolean {
+    return super.canAppendAddedRow() || this.isRecordAddedToShownPage(this.getLastRowRecordIndex());
+  }
+  /* The value side of the paged add (see the isPagedByList branch of onBeforeValueChanged): the page
+     shown got one more record at its end, which gets a row, and the rendered table that row, as the
+     unpaged value assignment adds one. An assignment that inserted the record in front of others is not
+     told from an append: the rows keep their positions and take the records the value has there, as
+     without paging. */
+  protected followRecordAppendedToPage(): boolean {
+    const recordIndex = this.getLastRowRecordIndex();
+    const rows = this.generatedVisibleRows;
+    if (!this.isRecordAddedToShownPage(recordIndex) || rows.length !== this.dataList.getMaterializedIndexes().length - 1) return false;
+    this.onStartRowAddingRemoving();
+    try {
+      this.appendItemForRecord(recordIndex);
+      if (this.data) {
+        this.runCellsCondition(this.getDataFilteredProperties());
+      }
+      this.onRowsChanged();
+    } finally {
+      this.unlockResetRenderedTable();
+    }
+    this.onEndRowAdding();
+    return true;
   }
   /* question.value is shorter than rowCount: the padded records the list reads have not reached the
      storage yet. A write that used to compare whole values (it assigned the padded array and the
@@ -563,6 +603,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected getRecordCountCore(): number {
     return this.rowCountValue;
   }
+  // settings.matrix.maxRowCount limits the total number of rows while they are not split into pages.
+  protected get maxRecordCountWithoutPaging(): number {
+    return settings.matrix.maxRowCount;
+  }
   // The rowCount setter without a source.
   protected setRecordCountCore(val: number): void {
     val = Helpers.getNumber(val);
@@ -573,7 +617,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.rowCountAboveSettings = val;
         return;
       }
-      if (this.isRecordCountLimitedByPageMax) return;
+      if (this.isRecordCountLimitedBySetting) return;
     }
     this.setRowCountCore(val);
   }
@@ -581,7 +625,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   endLoadingFromJson(): void {
     const val = this.rowCountAboveSettings;
     this.rowCountAboveSettings = undefined;
-    if (val > 0 && !this.isRecordCountLimitedByPageMax) {
+    if (val > 0 && !this.isRecordCountLimitedBySetting) {
       this.setRowCountCore(val);
     }
     super.endLoadingFromJson();
@@ -735,17 +779,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /**
    * A maximum number of rows in the matrix. Users cannot add new rows if `rowCount` equals `maxRowCount`.
    *
-   * Default value: 1000 (inherited from [`settings.matrix.maxRowCount`](https://surveyjs.io/form-library/documentation/settings#matrixMaximumRowCount))
+   * Default value: 1000 (inherited from [`settings.matrix.maxRowCount`](/form-library/documentation/api-reference/settings#matrix))
    *
-   * `settings.matrix.maxRowCount` is the maximum number of rows on one page. If rows are not split into pages, it also limits `maxRowCount`. If they are, only `maxRowCount` limits the total number of rows, and only when you set it.
-   *
-   * [View Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
+   * [Demo: Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
    * @see rowCount
    * @see minRowCount
    * @see allowAddRows
    */
   /* Without paging the setting caps it, as it always has: a value above the setting reads as the
-     setting and is therefore not serialized. With paging the setting is the page maximum and the
+     setting and is therefore not serialized. With paging the setting does not take part and the
      value is kept (rowCountLimit). */
   public get maxRowCount(): number {
     return this.getMaxRecordCount("maxRowCount");
@@ -1477,7 +1519,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     // Without rows the flag stays set, as it always has. The exits below reset it, the row rebuild also on a throw.
     if (!this.generatedVisibleRows) return;
     /* Under paging the rows are a page, not the records: the rows stay, and the view places one more
-       record (decideViewAgain), as the rows stay without paging. */
+       record (decideViewAgain), as the rows stay without paging. A record that lands at the end of the
+       page shown gets its row there, and the rendered table that row (followRecordAppendedToPage); any
+       other change of the page rebuilds it. */
     if (this.isPagedByList && isOneRecordAdded) {
       this.setRowCountValueFromData = false;
       return;
@@ -1757,7 +1801,7 @@ Serializer.addClass(
       },
     },
     { name: "allowRowReorder:switch", alternativeName: "allowRowsDragAndDrop" },
-    // Invisible in the property grid until the UI series ships sortable headers (pageSize, sortBy and filterExpression are the base's).
+    // Invisible in the property grid until the UI series ships sortable headers (sortBy and filterExpression are the base's).
     { name: "allowSortRows:boolean", default: false, visible: false },
   ],
   function() {

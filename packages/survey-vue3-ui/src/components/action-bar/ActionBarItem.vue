@@ -29,6 +29,7 @@
     v-bind:aria-expanded="item.ariaExpanded"
     v-bind:aria-controls="item.ariaControls"
     v-bind:aria-labelledby="item.ariaLabelledBy"
+    v-bind:aria-label="item.ariaLabel"
     v-bind:role="item.ariaRole"
     v-key2click="{ processEsc: false, disableTabStop: item.disableTabStop }"
   >

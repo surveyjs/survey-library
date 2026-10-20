@@ -549,6 +549,41 @@ frameworks.forEach((framework) => {
       expect(data.matrix.map((row: any) => row.kind)).toEqual(["b", "a", "c", "a", "a"]);
     });
 
+    test("the pager moves the pages through its buttons and its page dropdown", async ({ page }) => {
+      const defaultValue: Array<any> = [];
+      for (let i = 1; i <= 25; i++) defaultValue.push({ id: "row" + i });
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            pageSize: 2,
+            defaultValue: defaultValue,
+            columns: [{ name: "id", cellType: "text" }],
+          },
+        ],
+      });
+      const pager = page.locator(".sd-matrixdynamic__pager");
+      const firstId = page.locator("td[title='id'] input").first();
+
+      await expect(firstId).toHaveValue("row1");
+      await expect(pager.locator("button[title='First']")).toBeDisabled();
+      await expect(pager.locator("button[title='Previous']")).toBeDisabled();
+      await expect(pager.locator(".sd-pager__total")).toHaveText("of 13");
+      await pager.locator("button[title='Next']").click();
+      await expect(firstId).toHaveValue("row3");
+      await pager.locator("button[title='Last']").click();
+      await expect(firstId).toHaveValue("row25");
+      await expect(pager.locator("button[title='Last']")).toBeDisabled();
+      await pager.locator("button[title='First']").click();
+      await expect(firstId).toHaveValue("row1");
+      await expect(pager.locator("button[title='First']")).toBeDisabled();
+      await pager.getByRole("button", { name: "Page 1 of 13" }).click();
+      await page.getByRole("menuitemradio", { name: "3", exact: true }).click();
+      await expect(firstId).toHaveValue("row5");
+      await expect(pager.getByRole("button", { name: "Page 3 of 13" }).locator(".sd-action__title")).toHaveText("3");
+    });
+
     test("remove row with transposeData", async ({ page }) => {
       const json3 = {
         "elements": [

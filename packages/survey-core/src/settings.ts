@@ -261,8 +261,8 @@ export var settings = {
    * A suffix added to the name of the property that stores total values. The resulting property name consists of the matrix name and the suffix. Default value: `"-total"`.
    *
    * - `maxRowCount`: `number`\
-   * A maximum number of rows on one page of a Dynamic Matrix. Default value: 1000.\
-   * A [`pageSize`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#pageSize) value above this limit is capped. If a Dynamic Matrix does not split rows into pages, all rows are on one page, and this setting limits their total number. You can limit the total number of rows for an individual Dynamic Matrix: [`maxRowCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#maxRowCount).
+   * A maximum number of rows in Dynamic Matrix questions. Ignored if [pagination is enabled](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#pageSize). Default value: 1000.\
+   * You can limit the total number of rows for an individual Dynamic Matrix: [`maxRowCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#maxRowCount).
    *
    * - `maxRowCountInCondition`: `number`\
    * A maximum number of matrix rows included in the Condition drop-down menu in Survey Creator. This menu is used to configure conditional survey logic. Default value: 1.\
@@ -310,8 +310,8 @@ export var settings = {
    * Nested properties:
    *
    * - `maxPanelCount`: `number`\
-   * A maximum number of panels on one page of Dynamic Panel. Default value: 100.\
-   * A [`pageSize`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#pageSize) value above this limit is capped. If Dynamic Panel does not split panels into pages, all panels are on one page, and this setting limits their total number. You can limit the total number of panels for an individual Dynamic Panel: [`maxPanelCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#maxPanelCount).
+   * A maximum number of panels in Dynamic Panel questions. Ignored if [pagination is enabled](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#pageSize). Default value: 100.\
+   * You can limit the total number of panels for an individual Dynamic Panel: [`maxPanelCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#maxPanelCount).
    *
    * - `maxPanelCountInCondition`: `number`\
    * A maximum number of Dynamic Panel panels included in the Condition drop-down menu in Survey Creator. This menu is used to configure conditional survey logic. Default value: 1.\
@@ -445,6 +445,13 @@ export var settings = {
   // MERGE(V3): default is `true` in V3, `false` in master (V2). Keep V3's `true` (and the
   // matching doc lines above) on merge; discard master's `@since 2.5.27` doc variant.
   expressionQuestionTrackDependencies: true,
+  /**
+   * Specifies whether [calculated values](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#calculated-values) recalculate only when their dependencies change.
+   *
+   * - `true` (default) - Recalculate on the initial run, when all expressions are re-evaluated, when the calculated value's expression or owner changes, and on a value change that affects a value or variable the expression references. Expressions with parameterless functions still recalculate on every value change. A custom function with parameters that reads other survey values by itself (for example, `this.survey.getValue(...)`) does not trigger recalculation when only those other values change.
+   * - `false` - Recalculate on every value change in the survey.
+   */
+  calculatedValueTrackDependencies: true,
   get commentPrefix(): string { return settings.commentSuffix; },
   set commentPrefix(val: string) { settings.commentSuffix = val; },
   /**
@@ -468,6 +475,14 @@ export var settings = {
    * Default value: 20
    */
   ratingMaximumRateValueCount: 20,
+  /**
+   * Specifies the maximum number of rows or panels per data page in [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list), [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model), and [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model) questions.
+   *
+   * Default value: 100
+   *
+   * If a question's `pageSize` exceeds this limit, this value is used as the effective page size. Set this property to 0 to remove the limit.
+   */
+  maxPageSize: 100,
   /**
    * Specifies the maximum interval, in milliseconds, between consecutive key presses that SurveyJS treats as a single keyboard input sequence.
    *

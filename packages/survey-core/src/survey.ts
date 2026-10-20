@@ -38,7 +38,8 @@ import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
-import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { HashKeyIndex, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { getBuiltInVariableNames, getBuiltInVariableValue } from "./conditions/builtInVariables";
 import { getLocaleString, surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
@@ -118,42 +119,27 @@ export var DefaultTheme = DefaultLightTheme;
 function createHash(): HashTable<any> {
   return Object.create(null);
 }
-
-// The variables a survey answers by itself. They are declared nowhere in the survey
-// JSON and resolve before any question, calculated value or variable of the same name.
-// This table is the single source of truth for the list: tools read the names from it
-// (getBuiltInVariableNames) instead of keeping their own copy.
-// A Map, not an object literal: the key is an arbitrary name taken from an expression
-// and must not hit Object.prototype ("constructor", ...).
-const builtInVariables = new Map<string, (survey: SurveyModel) => any>([
-  ["pageno", (survey: SurveyModel): any => {
-    const page = survey.currentPage;
-    return page != null ? survey.visiblePages.indexOf(page) + 1 : 0;
-  }],
-  ["pagecount", (survey: SurveyModel): any => survey.visiblePageCount],
-  ["questioncount", (survey: SurveyModel): any => survey.getQuizQuestionCount()],
-  ["correctedanswers", (survey: SurveyModel): any => survey.getCorrectedAnswerCount()],
-  ["correctanswers", (survey: SurveyModel): any => survey.getCorrectedAnswerCount()],
-  ["correctedanswercount", (survey: SurveyModel): any => survey.getCorrectedAnswerCount()],
-  ["incorrectedanswers", (survey: SurveyModel): any => survey.getInCorrectedAnswerCount()],
-  ["incorrectanswers", (survey: SurveyModel): any => survey.getInCorrectedAnswerCount()],
-  ["incorrectedanswercount", (survey: SurveyModel): any => survey.getInCorrectedAnswerCount()],
-  ["locale", (survey: SurveyModel): any => survey.locale || surveyLocalization.defaultLocale],
-]);
-
-export function getBuiltInVariableNames(): Array<string> {
-  return Array.from(builtInVariables.keys());
+// Every key of the variables hash is lower-case (setVariableCore lower-cases the names), so the one
+// key that can answer a name ignoring letter case is the name's lower-case form: no key scan
+function createVariablesContext(variablesHash: HashTable<any>): VariableGetterContext {
+  return new VariableGetterContext(variablesHash, (name: string): any => {
+    const key = name.toLowerCase();
+    return Object.prototype.hasOwnProperty.call(variablesHash, key) ? variablesHash[key] : undefined;
+  });
 }
 
+// The built-in variables live in their own module; the name list stays exported from here
+export { getBuiltInVariableNames };
+
 class SurveyValueGetterContext extends ValueGetterContextCore {
-  constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>) {
+  constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>, private valuesKeyIndex: HashKeyIndex) {
     super();
   }
   public getObj(): Base { return this.survey; }
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
     if (path.length === 1) {
-      const val: any = this.getBuiltInVariableValue(path[0].name);
+      const val: any = getBuiltInVariableValue(this.survey, path[0].name);
       if (val !== undefined) return { value: val, isFound: true };
     }
     if (params.isProperty && path.length > 1) {
@@ -170,11 +156,11 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
         return new PropertyGetterContext(panel).getValue({ path: path.slice(1), isRoot: false, index: -1 });
       }
     }
-    let res = new VariableGetterContext(this.variablesHash).getValue(params);
+    let res = createVariablesContext(this.variablesHash).getValue(params);
     if (!!res && res.isFound) return res;
     res = super.getValue(params);
     if (!!res && res.isFound) return res;
-    return new VariableGetterContext(this.valuesHash).getValue(params);
+    return new VariableGetterContext(this.valuesHash, (name: string): any => this.valuesKeyIndex.getValue(this.valuesHash, name)).getValue(params);
   }
   private getPageByName(name: string): PageModel | undefined {
     if (!name) return undefined;
@@ -210,11 +196,6 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
     }
   }
   protected isSearchNameRevert(): boolean { return true; }
-  private getBuiltInVariableValue(name: string): any {
-    const func = builtInVariables.get(name.toLocaleLowerCase());
-    return !!func ? func(this.survey) : undefined;
-  }
-
 }
 
 // One entry of getRunningAsyncOperations(): which mechanism is still running and on which object.
@@ -292,6 +273,9 @@ export class SurveyModel extends SurveyElementCore
   // names and variable names, and a name like "constructor" or "valueOf" must not read an
   // Object.prototype member back (Bug#11858)
   private valuesHash: HashTable<any> = createHash();
+  // Expressions read the values hash by name ignoring letter case, which used to scan every key of
+  // the hash. Reset whenever the hash gains or loses a key or is replaced.
+  private valuesKeyIndex: HashKeyIndex = new HashKeyIndex();
   private variablesHash: HashTable<any> = createHash();
   private editingObjValue: Base;
 
@@ -2023,7 +2007,20 @@ export class SurveyModel extends SurveyElementCore
    *
    * Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
    */
-  @property({ defaultValue: false }) choiceShortcutsEnabled: boolean;
+  @property({
+    defaultValue: false,
+    onSet: (_newValue, target: SurveyModel) => target.onChoiceShortcutsEnabledChanged()
+  }) choiceShortcutsEnabled: boolean;
+  private onChoiceShortcutsEnabledChanged(): void {
+    // While loading, onSurveyLoad binds what the JSON enables.
+    if (this.isLoadingFromJson) return;
+    // The design-time questions too (a dynamic panel's template, a detail panel, choice panels), which
+    // onSurveyLoad binds as well; matrix columns are listed there and are not questions. Each question
+    // forwards to its nested instances.
+    this.getAllQuestions(false, true).forEach(q => {
+      if (q.isQuestion) q.onSurveyChoiceShortcutsEnabledChanged();
+    });
+  }
   /**
    * Specifies when the survey validates answers.
    *
@@ -2143,7 +2140,7 @@ export class SurveyModel extends SurveyElementCore
     if (hasChanges) {
       /* bypass the data setter: this only filters incorrect keys out of the current state
       and should not mark pages as shown the way an external data assignment does */
-      this.valuesHash = createHash();
+      this.resetValuesHash();
       this.setDataCore(data);
     }
   }
@@ -3385,7 +3382,7 @@ export class SurveyModel extends SurveyElementCore
   // The data setter and setData() both assign through here, so the two can never drift apart.
   private assignData(data: any): void {
     this.dropHeldCompletion();
-    this.valuesHash = createHash();
+    this.resetValuesHash();
     this.setDataCore(data, !data);
     this.markAnsweredPagesAsShown();
     this.checkTriggersOnSettingData();
@@ -3508,7 +3505,7 @@ export class SurveyModel extends SurveyElementCore
   private isSettingDataValue: boolean;
   public setDataCore(data: any, clearData: boolean = false): void {
     if (clearData) {
-      this.valuesHash = createHash();
+      this.resetValuesHash();
     }
     if (data) {
       for (var key in data) {
@@ -3525,6 +3522,10 @@ export class SurveyModel extends SurveyElementCore
     this.updateAllQuestionsValue(clearData);
   }
   public isSettingData(): boolean { return this.isSettingDataValue === true; }
+  private resetValuesHash(): void {
+    this.valuesHash = createHash();
+    this.valuesKeyIndex.reset();
+  }
   public get isSurvey(): boolean { return true; }
   /**
    * Returns an object with survey results.
@@ -3807,17 +3808,32 @@ export class SurveyModel extends SurveyElementCore
     return valuesHash[key];
   }
   private setDataToValueHash(valuesHash: any, key: string, value: any): void {
+    const hadKey = this.isValuesHashKey(valuesHash, key);
     if (!!this.valueHashSetDataCallback) {
       this.valueHashSetDataCallback(valuesHash, key, value);
     } else {
       valuesHash[key] = value;
     }
+    this.updateValuesKeyIndex(valuesHash, key, hadKey);
   }
   private deleteDataFromValueHash(valuesHash: any, key: string): void {
+    const hadKey = this.isValuesHashKey(valuesHash, key);
     if (!!this.valueHashDeleteDataCallback) {
       this.valueHashDeleteDataCallback(valuesHash, key);
     } else {
       delete valuesHash[key];
+    }
+    this.updateValuesKeyIndex(valuesHash, key, hadKey);
+  }
+  // The key index follows the key set of the survey's own values hash, decided from the hash and
+  // not from who wrote it: a callback may write the hash or keep the data in a store of its own.
+  // A new value under an existing key keeps the index.
+  private isValuesHashKey(valuesHash: any, key: string): boolean {
+    return !!valuesHash && valuesHash === this.valuesHash && Object.prototype.hasOwnProperty.call(valuesHash, key);
+  }
+  private updateValuesKeyIndex(valuesHash: any, key: string, hadKey: boolean): void {
+    if (valuesHash === this.valuesHash && hadKey !== this.isValuesHashKey(valuesHash, key)) {
+      this.valuesKeyIndex.reset();
     }
   }
   /**
@@ -7591,7 +7607,7 @@ export class SurveyModel extends SurveyElementCore
     const res = this.variablesHash[name];
     if (!this.isValueEmpty(res)) return res;
     if (name.indexOf(".") > -1 || name.indexOf("[") > -1) {
-      return new ValueGetter().getValue(name, new VariableGetterContext(this.variablesHash));
+      return new ValueGetter().getValue(name, createVariablesContext(this.variablesHash));
     }
     return res;
   }
@@ -7634,9 +7650,11 @@ export class SurveyModel extends SurveyElementCore
   // The only place that writes the variables hash. A variable shadows a data key with the same
   // name, so the data key is deleted under the name exactly as it was passed in, before the
   // variable name itself is lower-cased. Callers skip "__proto__" before calling it (Bug#11858).
+  // createVariablesContext() relies on it: every key of the variables hash is lower-case.
   private setVariableCore(name: string, newValue: any): string {
-    if (!!this.valuesHash) {
+    if (this.isValuesHashKey(this.valuesHash, name)) {
       delete this.valuesHash[name];
+      this.valuesKeyIndex.reset();
     }
     name = name.toLowerCase();
     this.variablesHash[name] = newValue;
@@ -8280,7 +8298,7 @@ export class SurveyModel extends SurveyElementCore
     return this.processText(options.html, true);
   }
   public getValueGetterContext(): IValueGetterContext {
-    return new SurveyValueGetterContext(this, this.valuesHash, this.variablesHash);
+    return new SurveyValueGetterContext(this, this.valuesHash, this.variablesHash, this.valuesKeyIndex);
   }
   processText(text: string, returnDisplayValue: boolean, context?: any): string {
     return this.processTextEx({ text: text, returnDisplayValue: returnDisplayValue, doEncoding: false, context: context }).text;

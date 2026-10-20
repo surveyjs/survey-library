@@ -36,6 +36,7 @@ import { ImagePickerItemComponent } from "./questions/imagepicker-item.component
 import { ImagePickerQuestionComponent } from "./questions/imagepicker.component";
 
 import { ActionBarComponent } from "./components/action-bar/action-bar.component";
+import { RecordsBarComponent } from "./components/records-bar/records-bar.component";
 import { ActionComponent } from "./components/action-bar/action.component";
 import { ActionBarItemComponent } from "./components/action-bar/action-bar-item.component";
 import { ActionBarItemDropdownComponent } from "./components/action-bar/action-bar-item-dropdown.component";
@@ -143,7 +144,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     PopupComponent, PopupBaseContainerComponent, PopupPointerComponent, PopupCloseButtonComponent,
     CharacterCounterComponent, ListComponent, ListItemComponent, ListItemContentComponent, ListItemGroupComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
-    ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
+    ActionBarComponent, RecordsBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentChoiceComponent, ElementHeaderComponent, ElementTitleActionsComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, SliderQuestionComponent, SliderLabelItemComponent, RatingDropdownItemComponent, RatingDropdownComponent, ButtonGroupDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, BooleanSwitchComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
     SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, ProgressTocComponent, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
@@ -167,7 +168,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     PopupComponent, PopupBaseContainerComponent, PopupPointerComponent, PopupCloseButtonComponent,
     CharacterCounterComponent, ListComponent, ListItemComponent, ListItemContentComponent, ListItemGroupComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
-    ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
+    ActionBarComponent, RecordsBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentChoiceComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
     RatingQuestionComponent, SliderQuestionComponent, SliderLabelItemComponent, RatingDropdownItemComponent, RatingDropdownComponent, ButtonGroupDropdownComponent, BooleanQuestionComponent, BooleanCheckboxComponent, BooleanRadioComponent, BooleanRadioItemComponent, BooleanSwitchComponent, ImagePickerItemComponent, ImagePickerQuestionComponent, ImageQuestionComponent,
     SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,

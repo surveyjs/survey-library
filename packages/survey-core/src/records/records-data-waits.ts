@@ -1,7 +1,7 @@
 import type { IQuestion, ISurvey } from "../base-interfaces";
 import type { ValidationContext } from "../question";
 import type { ISurveyDynamicDataWrites } from "../interfaces/survey-callbacks";
-import type { DynamicDataOperation } from "../dynamic-data/dynamic-data-interfaces";
+import type { DynamicDataErrorOperation } from "../dynamic-data/dynamic-data-interfaces";
 
 // What the data waits read from the records question.
 export interface IRecordsDataWaitsOwner {
@@ -90,7 +90,7 @@ export class RecordsDataWaits {
     if (!!error) throw error.error;
   }
   // An error of the source: a write it rejected releases a completion that waits for the writes.
-  public onSourceError(operation: DynamicDataOperation): void {
+  public onSourceError(operation: DynamicDataErrorOperation): void {
     if (operation !== "read" && !!this.reportedWritesSurvey) {
       this.hasRejectedWrite = true;
     }

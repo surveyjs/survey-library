@@ -87,11 +87,15 @@ export interface ScopeFramePanelDynamic {
   kind: "panelDynamic";
   owner: ElementRecord;
   templateNames: CIMultiMap<ElementRecord>;
+  // memoized by record-fields.ts: the template questions by data key
+  dataKeys?: CIMultiMap<ElementRecord>;
 }
 export interface ScopeFrameMatrixRow {
   kind: "matrixRow";
   owner: ElementRecord;
   columns: CIMultiMap<ElementRecord>;
+  // memoized by record-fields.ts: the columns and detail-panel questions by data key
+  dataKeys?: CIMultiMap<ElementRecord>;
 }
 export interface ScopeFrameItemValue {
   kind: "itemValue";
@@ -110,6 +114,20 @@ export interface ScopeFrameComposite {
   fieldNames: CIMap<boolean>;
 }
 export type ScopeFrame = ScopeFramePanelDynamic | ScopeFrameMatrixRow | ScopeFrameItemValue | ScopeFrameComposite | ScopeFrameArrayItem;
+// A frame whose elements write into its own record: a dynamic-panel template or a matrix row.
+export type CapturingScopeFrame = ScopeFramePanelDynamic | ScopeFrameMatrixRow;
+
+// The keys of an object value several questions share (multiple text, matrix, matrixdropdown).
+export interface MergedObjectKeys {
+  // the multiple-text items and matrix rows of every sharing question
+  keys: Array<string>;
+  // the fields of a key holding a matrixdropdown row object: the columns (detail-panel questions
+  // included) of every matrixdropdown on the data key that lists that row
+  rowFields: CIMap<CIMultiMap<ElementRecord>>;
+  // what a row of this matrixdropdown holds ({row.x}), set only when some matrixdropdown on the
+  // data key lists none of its rows
+  ownRowFields?: CIMultiMap<ElementRecord>;
+}
 
 export interface ElementRecord {
   name: string;
@@ -137,12 +155,29 @@ export interface ElementRecord {
   panelDescendantNames?: CIMap<ElementRecord>;
   // memoized synthetic records for the standalone scope variables of this matrix/panel
   scopeValueRecords?: CIMap<ElementRecord>;
+  // the fields one panel/row object of this dynamic panel or matrix holds, under the data key each
+  // is stored by - its own and those of the questions sharing its value (see record-fields.ts);
+  // unset while it would equal templateNames/matrixColumns
+  itemFields?: CIMultiMap<ElementRecord>;
+  // set on an object-valued question that shares its value with another one
+  mergedObject?: MergedObjectKeys;
+  // memoized synthetic records for the fields a checkbox keeps in the object of a selected item
+  itemFieldRecords?: CIMap<ElementRecord>;
 }
 
 // A path into the linted JSON, the way every finding addresses it. The survey itself has the
 // empty path, so a key of it stands on its own.
 export function joinPath(base: string, key: string): string {
   return base ? base + "." + key : key;
+}
+
+// The innermost scope frame that owns element names (dynamic-panel template or matrix row).
+export function getCapturingFrame(scope: Array<ScopeFrame>): CapturingScopeFrame | undefined {
+  for (let i = scope.length - 1; i >= 0; i--) {
+    const frame = scope[i];
+    if (frame.kind === "panelDynamic" || frame.kind === "matrixRow") return frame;
+  }
+  return undefined;
 }
 
 // The type to dispatch question-kind logic on: a matrix column answers as its cell type,
@@ -156,6 +191,9 @@ export function getEffectiveType(record: { type: string, effectiveType?: string 
 // live on ElementRecord.scopeValueRecords, never in the index.
 export const SCOPE_INDEX_VARIABLE_TYPE = "scopeindexvariable";
 export const SCOPE_ROW_VALUE_TYPE = "scoperowvaluevariable";
+// The synthetic record type behind a field a checkbox or an image map keeps in the object of a
+// selected item ({panel.car} for valuePropertyName "car"). Lives on itemFieldRecords, never in the index.
+export const ITEM_FIELD_TYPE = "itemfieldvariable";
 
 export interface ParsedRefSegment {
   name: string;

@@ -5,6 +5,14 @@ export var georgianSurveyStrings = {
   pagePrevText: "უკან",
   // "Next"
   pageNextText: "შემდეგ",
+  // [Auto-translated] "First"
+  pageFirstText: "პირველი",
+  // [Auto-translated] "Last"
+  pageLastText: "ბოლო",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "აირჩიეთ გვერდი",
   // "Complete"
   completeText: "დასრულება",
   // [Auto-translated] "Preview"

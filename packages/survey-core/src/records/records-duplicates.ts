@@ -1,7 +1,5 @@
-// No validation runs here: this file holds the duplicate grouping the records' uniqueness checks share
-// (getDuplicateKey, groupByDuplicateKey, findDuplicatePages) and the page state a paged question hands
-// to the ancestor that rebuilds it (IDynamicDataPageState). The page validation itself is question-side:
-// RecordsPageValidation in question_records_page_validation.ts.
+// The duplicate grouping the records' uniqueness checks share (getDuplicateKey, groupByDuplicateKey,
+// findDuplicatePages).
 import { Helpers } from "../helpers";
 
 /* The group key of a value the duplicate checks compare by, in two namespaces that never meet. A
@@ -73,14 +71,4 @@ export function findDuplicatePages(list: { getVisibleIndexes(): Array<number>, g
     if (pages.indexOf(page) < 0) pages.push(page);
   });
   return pages;
-}
-
-/* What a paged question hands to the ancestor that rebuilds the object holding it, and gets back
-   when that object is created again for the same outer record: the records edited and not validated
-   yet, the page it was on, and - one level down - the same for the paged questions nested in its own
-   records. It belongs to the records and not to the object, so it has to outlive the object. */
-export interface IDynamicDataPageState {
-  pageIndex: number;
-  edited: Array<number>;
-  nested: { [recordIndex: number]: { [valueName: string]: IDynamicDataPageState } };
 }

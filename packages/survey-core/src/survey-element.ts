@@ -1322,10 +1322,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       },
       getAnimatedElement: () => {
         const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
-        if (cssClasses.content) {
-          const selector = classesToSelector(cssClasses.content);
+        if (cssClasses.expandableContent) {
+          const selector = classesToSelector(cssClasses.expandableContent);
           if (selector) {
-            return this.getWrapperElement()?.querySelector(`:scope ${selector}`);
+            return this.rootElement?.querySelector(`:scope ${selector}`);
           }
         }
         return undefined;
@@ -1369,8 +1369,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   public onAfterRenderElement: EventBase<SurveyElement<E>, any> = this.addEvent<SurveyElement<E>, any>();
+  protected rootElement: HTMLElement;
   public afterRenderCore(element: HTMLElement): void {
+    this.rootElement = element;
     this.onAfterRenderElement.fire(this, { htmlElement: element });
+  }
+  public beforeDestroy() {
+    this.rootElement = undefined;
   }
 
   public dispose(): void {

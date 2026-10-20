@@ -2,20 +2,19 @@ import { ConditionRunner } from "../conditions/conditionRunner";
 import { Helpers } from "../helpers";
 import type { ISurvey } from "../interfaces/survey-interfaces";
 import { Scope } from "../utils/scope";
-import { createFilterRunner } from "./dynamic-data-filter";
 import {
-  DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
+  DynamicDataErrorOperation, DynamicDataSourceMethod, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
   IDynamicDataReadRequest, IDynamicDataSort, IDynamicDataSource
 } from "./dynamic-data-interfaces";
-import {
-  DynamicDataSourceChannel, IDynamicDataChannelHost, IDynamicDataPushInfo, IPendingInsert, getChangedFields, getOwnedFields, getUpdatePayload,
-  isRecordValueChanged, mergeInsertAnswer, toReadResult
-} from "./dynamic-data-channel";
+import { DynamicDataSourceChannel, IDynamicDataChannelHost, IDynamicDataPushInfo } from "./dynamic-data-channel";
+import { getChangedFields, isRecordValueChanged, toReadResult } from "./dynamic-data-records";
+import { IPendingInsert, getOwnedFields, getUpdatePayload, mergeInsertAnswer } from "./dynamic-data-pending-insert";
 import { DynamicDataCount } from "./dynamic-data-count";
 import { ArrayDynamicDataSource, hasFixedMembership, isLocalSource, LocalDynamicDataSource } from "./dynamic-data-sources";
 import { DynamicDataMembership } from "./dynamic-data-membership";
 import { DynamicDataReadState } from "./dynamic-data-read-state";
 import { DynamicDataRecordVisibility, IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data-record-visibility";
+import { DynamicDataView } from "./dynamic-data-view";
 import { DynamicDataViewIndexes } from "./dynamic-data-view-indexes";
 
 // Index vocabulary - binding for every method and parameter name in this file:
@@ -44,10 +43,7 @@ export class DynamicDataList {
   // together with the window (see commitRead).
   private storageCount: DynamicDataCount = new DynamicDataCount();
   private _isLoading: boolean = false;
-  private _filter: string = "";
-  private filterRunner: ConditionRunner = undefined;
   private recordVisibility: DynamicDataRecordVisibility;
-  private _sort: Array<IDynamicDataSort> = [];
   private _pageSize: number = 0;
   private _pageIndex: number = 0;
   private isDisposed: boolean = false;
@@ -60,21 +56,24 @@ export class DynamicDataList {
     getRecordCount: (): number => this.recordCount,
     getRecords: (): Array<any> => this.records,
     getFields: (): Array<IDynamicDataField> => this.getFields(),
-    getLocalFilterRunner: (): ConditionRunner => this.isWindowWholeStorage ? this.filterRunner : undefined,
-    getLocalSort: (): Array<IDynamicDataSort> => this.isWindowWholeStorage ? this._sort : [],
+    getLocalFilterRunner: (): ConditionRunner => this.isWindowWholeStorage ? this.view.filterRunner : undefined,
+    getLocalSort: (): Array<IDynamicDataSort> => this.isWindowWholeStorage ? this.view.sort : [],
     isMembershipFrozen: (): boolean => this.isViewFrozenOnEdit && this.hasLocalViews
   });
   // The index arithmetic over the views (dynamic-data-view-indexes.ts); the list delegates to it.
   private viewIndexes: DynamicDataViewIndexes = new DynamicDataViewIndexes(this, this.membership);
+  // The filter, the sort and the filter runner (dynamic-data-view.ts). A filter the list cannot run
+  // is reported as a failed read.
+  private view: DynamicDataView = new DynamicDataView((error: any): void => this.raiseError(error, "read"));
   // What the window in force is and how it was read (dynamic-data-read-state.ts).
-  private readState: DynamicDataReadState = new DynamicDataReadState();
+  private readState: DynamicDataReadState = new DynamicDataReadState(this.view);
   /* Active while the list applies a write of its own. A write-through source assigns the owner's
      storage, and an owner that reports an assignment made meanwhile through invalidateViews() is
      ignored: the membership must not be re-evaluated by the very write that maintains it. */
   private writeScope: Scope = new Scope();
 
   public onChanged: (change: IDynamicDataListChange) => void;
-  public onError: (error: any, operation: DynamicDataOperation) => void;
+  public onError: (error: any, operation: DynamicDataErrorOperation) => void;
 
   constructor(source: IDynamicDataSource, public owner?: IDynamicDataOwner) {
     this._source = source;
@@ -263,7 +262,7 @@ export class DynamicDataList {
        on its own side has no local runner yet, and one the list ran locally is handed to a paging
        source inside the very next read request - otherwise the view the owner is showing would
        disappear with the swap. */
-    this.updateFilterRunner();
+    this.view.updateFilterRunner(this.readState);
     if (wasLoaded) {
       // One read, with the view inside its request: nothing has to be "applied" to the source first.
       this.load();
@@ -329,9 +328,9 @@ export class DynamicDataList {
   private batchScope: Scope = new Scope();
   // What the outermost batch pushed: the operation of its first write, and whether it inserted,
   // removed or moved a record. Recorded by pushToSource.
-  private batchPushes: { operation: DynamicDataOperation, isStructural: boolean };
+  private batchPushes: { operation: DynamicDataSourceMethod, isStructural: boolean };
   // Every write reaches the channel here.
-  private pushToSource(operation: DynamicDataOperation, method: (source: IDynamicDataSource, key: any) => any,
+  private pushToSource(operation: DynamicDataSourceMethod, method: (source: IDynamicDataSource, key: any) => any,
     info?: IDynamicDataPushInfo): void {
     const pushes = this.batchPushes;
     if (!!pushes) {
@@ -367,7 +366,7 @@ export class DynamicDataList {
      method threw and the batch goes on: the window takes the array the batch builds, which the next
      write of the batch addresses. A local source that answered with a promise (isAsyncLocalWrite)
      broke its contract: what it stored is unknown, so the window goes back for any operation. */
-  private onPushFailed(operation: DynamicDataOperation, isAsyncLocalWrite: boolean): void {
+  private onPushFailed(operation: DynamicDataSourceMethod, isAsyncLocalWrite: boolean): void {
     if (!isAsyncLocalWrite && (operation === "update" || !!this.keyField)) return;
     this.restoreWindowToStorage(this._source, this.batchScope.isActive ? undefined : this.windowAtWriteStart || this.windowRecords);
   }
@@ -841,7 +840,7 @@ export class DynamicDataList {
   // A filter or a sort is set: without one the created indexes are the record indexes and the owner
   // keeps one object per record.
   public get hasView(): boolean {
-    return !!this._filter || this._sort.length > 0;
+    return this.view.hasView;
   }
   public getVisibleIndexes(): Array<number> {
     return this.membership.getVisibleIndexes();
@@ -912,9 +911,7 @@ export class DynamicDataList {
     // Clamping needs a known count, so it only applies once something has been loaded.
     const newValue = this.isWindowCommitted ? this.getClampedPageIndex(v) : Math.max(0, v);
     if (this._pageIndex === newValue) return;
-    this._pageIndex = newValue;
-    this.membership.resetPage();
-    this.raiseChanged({ type: "pageChanged" });
+    this.setPageIndexInternal(newValue, true);
     if (this.readsSourceOnViewChange) {
       this.load();
     }
@@ -940,10 +937,10 @@ export class DynamicDataList {
   // A survey expression over the record fields, e.g. "{country} = 'de' and {age} > 18". An empty
   // string is no filter.
   public get filter(): string {
-    return this._filter;
+    return this.view.filter;
   }
   public set filter(v: string) {
-    this.setView(v, this._sort);
+    this.setView(v, this.view.sort);
   }
   /* Assigns the filter and the sort together and reads ONCE: with a paging source the view travels
      inside the read request, so two assignments would be two requests, the second superseding the
@@ -955,15 +952,14 @@ export class DynamicDataList {
     /* The page reset belongs to the filter: a different membership makes the page the respondent is
        on meaningless, while a sort keeps the same records and only reorders them. An assignment of
        the filter it already has changes neither. */
-    const isFilterChanged = this._filter !== newFilter;
-    this._filter = newFilter;
-    this._sort = Array.isArray(sort) ? sort.slice() : [];
-    if (isFilterChanged) {
+    if (this.view.setView(newFilter, sort)) {
+      /* Not setPageIndexInternal: the page cache is dropped by resetMembership() below, after the filter
+         is parsed. updateFilterRunner can raise onError, and a handler that reads the page meanwhile
+         sees the page cached before this call. */
       this._pageIndex = 0;
       // Another filter is another set of records: what the old one reached says nothing about it.
       this.storageCount.forgetReach();
-      this.filterRunner = undefined;
-      this.updateFilterRunner();
+      this.view.updateFilterRunner(this.readState);
     }
     this.membership.resetMembership();
     // The view travels in the request, or the whole storage it needs is not loaded yet: the source
@@ -987,35 +983,11 @@ export class DynamicDataList {
     this.membership.refreezeMembership();
     this.raiseChanged({ type: "reset" });
   }
-  /* The runner exists while the list may be the one filtering. A source that does not page, and a
-     paging source that cannot filter, have it run here, over the whole storage they are read for:
-     parsed as soon as the filter - or the source - is set, so that a filter which cannot be run
-     locally is reported then and not on the first read of a view. A source that pages and filters
-     gets the expression text inside its paged reads, and the list keeps no runner for it: a filter
-     only that source can run (an async function) stays valid. When such a source cannot sort, a sort
-     makes the list read it whole and run the filter itself, so the runner is built then - by the read
-     that needs it (createReadRequest), or here while the whole storage is in force: the list runs the
-     new view over it, also while a page read is pending or after one failed. A filter the list cannot
-     run is dropped only when no read follows; a page read that follows carries it to the source. */
-  private updateFilterRunner(): void {
-    this.filterRunner = undefined;
-    if (!this._filter) return;
-    if (!this.mayFilterLocally && !this.isWholeStorageInForce) return;
-    try {
-      this.filterRunner = createFilterRunner(this._filter);
-    } catch(e) {
-      if (!this.mayFilterLocally && this.readsSourceOnViewChange) return;
-      // The list stays unfiltered: showing every record beats showing none. The operation is "read":
-      // it is the read of the view that the filter made impossible.
-      this._filter = "";
-      this.raiseError(e, "read");
-    }
-  }
   public get sort(): Array<IDynamicDataSort> {
-    return this._sort.slice();
+    return this.view.sort.slice();
   }
   public set sort(v: Array<IDynamicDataSort>) {
-    this.setView(this._filter, v);
+    this.setView(this.view.filter, v);
   }
   public dispose(): void {
     this.isDisposed = true;
@@ -1031,7 +1003,7 @@ export class DynamicDataList {
     this.records = [];
     this.channel.clearPendingInserts();
     this.storageCount.cancelRetry();
-    this.filterRunner = undefined;
+    this.view.clear();
     this.recordVisibility = undefined;
     this.membership.clear();
   }
@@ -1040,7 +1012,7 @@ export class DynamicDataList {
      record must not slice those objects by pageIndex again - they are the page - and "bring this
      object onto its page" is always already satisfied (see DynamicDataReadState.isPagedBySource). */
   public get isPagedBySource(): boolean {
-    return this.readState.isPagedBySource(this._filter, this._sort);
+    return this.readState.isPagedBySource;
   }
   // A read of the source in use has committed a window.
   public get isWindowCommitted(): boolean {
@@ -1048,20 +1020,16 @@ export class DynamicDataList {
   }
   // The next read asks the source for a page.
   private get isReadPagedBySource(): boolean {
-    return this.readState.isReadPagedBySource(this._filter, this._sort);
+    return this.readState.isReadPagedBySource;
   }
   // A change of the view or of the page is answered by a read of the source.
   public get readsSourceOnViewChange(): boolean {
-    return this.readState.readsSourceOnViewChange(this._filter, this._sort);
+    return this.readState.readsSourceOnViewChange;
   }
   /* The window holds every record of the source: the list filters and sorts it, and a write to it is
      a write to the whole storage. */
   private get isWindowWholeStorage(): boolean {
-    return this.readState.isWindowWholeStorage(this._filter, this._sort);
-  }
-  // The list runs any filter it is given: every source except one that pages and filters itself.
-  private get mayFilterLocally(): boolean {
-    return this.readState.mayFilterLocally;
+    return this.readState.isWindowWholeStorage;
   }
   /* A capability is declared by the presence of the matching method: the operation names are the
      source method names. A write names its record by key; only a local source is written by
@@ -1071,7 +1039,7 @@ export class DynamicDataList {
      would name another record. A move is not part of the source contract: only a local source with
      a move method that is not assigned, written by storage index, takes one. An assigned source -
      local ones included - and a standalone list's keyed source never do, whatever methods they have. */
-  public hasCapability(operation: DynamicDataOperation): boolean {
+  public hasCapability(operation: DynamicDataSourceMethod): boolean {
     if (this.isMembershipFixed && (operation === "insert" || operation === "remove" || operation === "move")) return false;
     const source: any = this._source;
     if (!source || typeof source[operation] !== "function") return false;
@@ -1148,8 +1116,7 @@ export class DynamicDataList {
   private clampPageIndex(): void {
     const newValue = this.getClampedPageIndex(this._pageIndex);
     if (newValue !== this._pageIndex) {
-      this._pageIndex = newValue;
-      this.membership.resetPage();
+      this.setPageIndexInternal(newValue, false);
     }
   }
   /* Every change that can shrink the visible count ends here: a page index left past the last page
@@ -1159,9 +1126,7 @@ export class DynamicDataList {
     if (!this.isWindowCommitted) return false;
     const newValue = this.getClampedPageIndex(this._pageIndex);
     if (newValue === this._pageIndex) return false;
-    this._pageIndex = newValue;
-    this.membership.resetPage();
-    this.raiseChanged({ type: "pageChanged" });
+    this.setPageIndexInternal(newValue, true);
     if (!this.readsSourceOnViewChange) return false;
     // The records of the previous page are not in the window: they have to be fetched.
     this.load();
@@ -1180,7 +1145,7 @@ export class DynamicDataList {
     if (!!this.owner && !!this.owner.onDataListChanged)this.owner.onDataListChanged(change);
     if (!!this.onChanged)this.onChanged(change);
   }
-  private raiseError(error: any, operation: DynamicDataOperation): void {
+  private raiseError(error: any, operation: DynamicDataErrorOperation): void {
     this.owner?.onDataError?.(error, operation);
     if (!!this.onError)this.onError(error, operation);
   }
@@ -1197,7 +1162,7 @@ export class DynamicDataList {
       getSource: (): IDynamicDataSource => this._source,
       isDisposed: (): boolean => this.isDisposed,
       getKeyField: (): string => this.keyField,
-      hasCapability: (operation: DynamicDataOperation): boolean => this.hasCapability(operation),
+      hasCapability: (operation: DynamicDataSourceMethod): boolean => this.hasCapability(operation),
       isReadPagedBySource: (): boolean => this.isReadPagedBySource,
       getReadRange: (useWindowOffset: boolean): { skip: number, take: number } => this.getReadRange(useWindowOffset),
       createReadRequest: (skip: number, take: number): IDynamicDataReadRequest => this.createReadRequest(skip, take),
@@ -1205,12 +1170,12 @@ export class DynamicDataList {
         this.commitRead(data, skip, take, isPagedRead),
       onReadFailed: (error: any): void => this.onReadFailed(error),
       setIsLoading: (val: boolean): void => this.setIsLoading(val),
-      raiseError: (error: any, operation: DynamicDataOperation): void => this.raiseError(error, operation),
+      raiseError: (error: any, operation: DynamicDataErrorOperation): void => this.raiseError(error, operation),
       applyInsertAnswer: (entry: IPendingInsert): void => this.applyInsertAnswer(entry),
       syncWindowAfterSyncPush: (): void => this.syncWindowAfterSyncPush(),
       isOwnStorage: (source: IDynamicDataSource): boolean => this.isOwnStorage(source),
       isLocalSource: (source: IDynamicDataSource): boolean => isLocalSource(source),
-      onPushFailed: (operation: DynamicDataOperation, isAsyncLocalWrite: boolean): void => this.onPushFailed(operation, isAsyncLocalWrite),
+      onPushFailed: (operation: DynamicDataSourceMethod, isAsyncLocalWrite: boolean): void => this.onPushFailed(operation, isAsyncLocalWrite),
       getSurvey: (): ISurvey => !!this.owner && !!this.owner.getSurvey ? this.owner.getSurvey() : undefined,
       onSettled: (): void => { if (!!this.owner && !!this.owner.onDataSettled)this.owner.onDataSettled(); },
       onWritesStarted: (): void => { if (!!this.owner && !!this.owner.onWritesStarted)this.owner.onWritesStarted(); }
@@ -1218,8 +1183,7 @@ export class DynamicDataList {
   }
   // The range of the next read (see DynamicDataReadState.getReadRange).
   private getReadRange(useWindowOffset: boolean): { skip: number, take: number } {
-    return this.readState.getReadRange(useWindowOffset, this._pageIndex, this._pageSize, this.storageCount.retryPageIndex,
-      this._filter, this._sort);
+    return this.readState.getReadRange(useWindowOffset, this._pageIndex, this._pageSize, this.storageCount.retryPageIndex);
   }
   /* One read = one request: the range and the view the list wants. The source keeps no state between
      the calls, so nothing has to be pushed to it before a read and two questions may share it. A
@@ -1229,25 +1193,10 @@ export class DynamicDataList {
      view as it is. */
   private createReadRequest(skip: number, take: number): IDynamicDataReadRequest {
     if (!this.isReadPagedBySource) {
-      this.ensureWholeStorageFilterRunner();
+      this.view.ensureWholeStorageFilterRunner(this.readState);
       return { skip: 0, take: 0, filter: "", sort: [] };
     }
-    return { skip: skip, take: take, filter: this._filter, sort: this._sort.slice() };
-  }
-  /* A source that pages and filters but cannot sort is read whole for a sort, and the list runs the
-     filter over that answer: the filter it never had to parse is parsed now (see
-     updateFilterRunner). One the list cannot run refuses the read - the filter is the source's to run
-     and stays, the window in force stays, and clearing the sort reads the filtered page again. The
-     throw takes the read down the path of a source that throws (onReadFailed). */
-  private ensureWholeStorageFilterRunner(): void {
-    if (!this._filter || !!this.filterRunner || this.mayFilterLocally) return;
-    try {
-      this.filterRunner = createFilterRunner(this._filter);
-    } catch(e) {
-      throw new Error("DynamicDataList: the source pages but does not declare the \"sorting\" capability, " +
-        "so the sorted records are read whole and filtered here, and the filter cannot be run here (" +
-        String(e && e.message) + "). The window in force is kept.");
-    }
+    return { skip: skip, take: take, filter: this.view.filter, sort: this.view.sort.slice() };
   }
   // The previous window stays in force, and so does the page it was read for: a retry that failed
   // has changed nothing. The failed read owns the loading state it inherited.
@@ -1262,9 +1211,14 @@ export class DynamicDataList {
   private restoreCommittedPageIndex(): void {
     const pageIndex = this.readState.getPageIndexToRestore(this._pageIndex);
     if (pageIndex === undefined) return;
-    this._pageIndex = pageIndex;
+    this.setPageIndexInternal(pageIndex, true);
+  }
+  /* Every write of the page index but the one in setView: the page cache of the membership belongs to
+     the page index, and notify raises pageChanged. */
+  private setPageIndexInternal(value: number, notify: boolean): void {
+    this._pageIndex = value;
     this.membership.resetPage();
-    this.raiseChanged({ type: "pageChanged" });
+    if (notify)this.raiseChanged({ type: "pageChanged" });
   }
   /* The window, its offset, the total and what is known about it are committed together: while a
      read is pending or after it was rejected, the previous window and its own offset stay in force.
@@ -1277,11 +1231,10 @@ export class DynamicDataList {
       /* A page past the end is not committed: the count records the retry and the list reads that
          page instead (getReadRange takes its skip from it). No pageChanged here: until the retry commits,
          the question shows the window in force together with the page it was read for. */
-      if (this.storageCount.stepBackPastEnd(result, skip, take, records.length, this._pageIndex, this._pageSize, this._filter)) return false;
-      const retryPageIndex = this.storageCount.commitWindow(result, skip, take, records.length, this._filter);
+      if (this.storageCount.stepBackPastEnd(result, skip, take, records.length, this._pageIndex, this._pageSize, this.view.filter)) return false;
+      const retryPageIndex = this.storageCount.commitWindow(result, skip, take, records.length, this.view.filter);
       if (retryPageIndex !== undefined) {
-        this._pageIndex = retryPageIndex;
-        this.membership.resetPage();
+        this.setPageIndexInternal(retryPageIndex, false);
       }
       if (isRefill) {
         records = this.keepTouchedRecords(records);

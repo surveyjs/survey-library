@@ -5,6 +5,14 @@ export var kazakhStrings = {
   pagePrevText: "Артқа",
   // "Next"
   pageNextText: "Келесі",
+  // [Auto-translated] "First"
+  pageFirstText: "Бірінші",
+  // [Auto-translated] "Last"
+  pageLastText: "Соңғысы",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Таңдау беті",
   // "Complete"
   completeText: "Дайын",
   // "Preview"

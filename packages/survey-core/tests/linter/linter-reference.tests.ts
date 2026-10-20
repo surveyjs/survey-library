@@ -731,6 +731,27 @@ describe("reference/unknown - text piping", () => {
     expect(findings[0].suggestion).toBe("panel.q1");
     expect(findings[0].hint.reason).toBe("panelQuestion");
   });
+  // a field a question sharing the value adds is no column or template question of the container
+  test("a field a sharing question adds, named without its prefix, is hinted as such", () => {
+    const checkbox = { type: "checkbox", name: "cb", valueName: "cars", valuePropertyName: "car", choices: ["Ford"] };
+    const inPanel = unknownRefs({ elements: [checkbox, { type: "paneldynamic", name: "info", valueName: "cars",
+      templateElements: [{ type: "text", name: "tq", visibleIf: "{car} = 'Ford'" }] }] });
+    expect(inPanel).toHaveLength(1);
+    expect(inPanel[0].suggestion).toBe("panel.car");
+    expect(inPanel[0].hint).toEqual({ reason: "panelQuestion", name: "car" });
+    expect(inPanel[0].message).toContain("\"car\" is a field of this dynamic panel, written by a question sharing the panel value");
+    const inMatrix = unknownRefs({ elements: [checkbox, { type: "matrixdynamic", name: "m", valueName: "cars",
+      columns: [{ name: "c", cellType: "text", visibleIf: "{car} = 'Ford'" }] }] });
+    expect(inMatrix).toHaveLength(1);
+    expect(inMatrix[0].suggestion).toBe("row.car");
+    expect(inMatrix[0].hint).toEqual({ reason: "matrixColumn", name: "car" });
+    expect(inMatrix[0].message).toContain("\"car\" is a field of this matrix row, written by a question sharing the matrix value");
+  });
+  test("an own template question named without its prefix keeps its hint text", () => {
+    const findings = unknownRefs({ elements: [{ type: "paneldynamic", name: "p1", templateTitle: "{q1}",
+      templateElements: [{ type: "text", name: "q1" }] }] });
+    expect(findings[0].message).toContain("\"q1\" is a question of this dynamic panel");
+  });
   test("a matrix single input title resolves the row scope", () => {
     expect(unknownRefs({
       elements: [{

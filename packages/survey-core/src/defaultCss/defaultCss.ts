@@ -144,6 +144,7 @@ export var defaultCss = {
     }
   },
   progress: "sd-progress sd-body__progress",
+  progressLinear: "sd-progress--linear",
   progressTop: "sd-body__progress--top",
   progressBottom: "sd-body__progress--bottom",
   progressBar: "sd-progress__bar",

@@ -146,6 +146,23 @@ frameworks.forEach(framework => {
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-bottom.png");
     });
 
+    test("Check survey with questions progress top and bottom", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        showProgressBar: true,
+        progressBarLocation: "topbottom",
+        progressBarType: "questions",
+        pages: [{
+          name: "page1",
+          elements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" }
+          ]
+        }]
+      });
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-questions-topbottom.png");
+    });
+
     test("Check survey with progress bottom with brand info and fit to container", async ({ page }) => {
       await page.setViewportSize({ width: 1800, height: 1000 });
       const newJSON = { ...json };

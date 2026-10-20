@@ -3263,6 +3263,7 @@ export class SurveyModel extends SurveyElementCore
   public getProgressCssClasses(container: string = ""): string {
     return toCssClasses(
       this.css.progress,
+      !isStrCiEqual(this.getEffectiveProgressBarType(), "pages") && this.css.progressLinear,
       this.isShowProgressBarOnTop && (!container || container == "header") && this.css.progressTop,
       this.isShowProgressBarOnBottom && (!container || container == "footer") && this.css.progressBottom
     );

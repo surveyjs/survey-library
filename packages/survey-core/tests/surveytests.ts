@@ -16730,6 +16730,7 @@ describe("Survey", () => {
     const survey = new SurveyModel({
       "showProgressBar": true,
       "progressBarLocation": "top",
+      "progressBarType": "questions",
       elements: [
         { type: "text", name: "q1", state: "collapsed", isRequired: true },
         { type: "text", name: "q2" }
@@ -16737,12 +16738,48 @@ describe("Survey", () => {
     });
     survey.css = {
       progress: "test_progress",
+      progressLinear: "test_progress_linear",
       progressTop: "test_progress_top",
       progressBottom: "test_progress_bottom"
     };
-    expect(survey.getProgressCssClasses()).toBe("test_progress test_progress_top");
+    expect(survey.getProgressCssClasses()).toBe("test_progress test_progress_linear test_progress_top");
     survey.showProgressBar = "bottom";
-    expect(survey.getProgressCssClasses()).toBe("test_progress test_progress_bottom");
+    expect(survey.getProgressCssClasses()).toBe("test_progress test_progress_linear test_progress_bottom");
+  });
+  test("getProgressCssClasses includes sd-progress--linear by default", () => {
+    const survey = new SurveyModel({
+      showProgressBar: true,
+      progressBarLocation: "topbottom",
+      progressBarType: "questions",
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" }
+      ]
+    });
+    expect(survey.getProgressCssClasses()).toContain("sd-progress--linear");
+    expect(survey.getProgressCssClasses("header")).toContain("sd-progress--linear");
+    expect(survey.getProgressCssClasses("header")).toContain("sd-body__progress--top");
+    expect(survey.getProgressCssClasses("header")).not.toContain("sd-body__progress--bottom");
+    expect(survey.getProgressCssClasses("footer")).toContain("sd-progress--linear");
+    expect(survey.getProgressCssClasses("footer")).toContain("sd-body__progress--bottom");
+    expect(survey.getProgressCssClasses("footer")).not.toContain("sd-body__progress--top");
+    survey.progressBarType = "pages";
+    expect(survey.getProgressCssClasses()).not.toContain("sd-progress--linear");
+    survey.progressBarType = "requiredQuestions";
+    expect(survey.getProgressCssClasses()).toContain("sd-progress--linear");
+    survey.progressBarType = "correctQuestions";
+    expect(survey.getProgressCssClasses()).toContain("sd-progress--linear");
+  });
+  test("dynamic panel progress class stays sd-progress", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "paneldynamic",
+        name: "panel1",
+        templateElements: [{ type: "text", name: "q1" }]
+      }]
+    });
+    const panel = survey.getQuestionByName("panel1");
+    expect(panel.cssClasses.progress).toBe("sd-progress");
   });
   test("getContainerContent - navigation", () => {
     const json = {

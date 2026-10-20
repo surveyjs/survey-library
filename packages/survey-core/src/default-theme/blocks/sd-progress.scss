@@ -57,6 +57,32 @@
   padding-bottom: 0;
 }
 
+.sd-progress--linear {
+  height: auto;
+  box-sizing: border-box;
+  padding: var(--sjs2-spacing-x075);
+  background-clip: content-box;
+
+  .sd-progress__bar {
+    height: var(--sjs2-size-x050);
+  }
+
+  .sd-progress__text {
+    top: calc(100% + var(--sjs2-spacing-x050));
+    right: var(--sjs2-spacing-x300);
+    margin-top: 0;
+    margin-left: 0;
+    padding: var(--sjs2-spacing-x075) var(--sjs2-spacing-x150);
+  }
+}
+
+.sd-progress--linear.sd-body__progress--bottom .sd-progress__text {
+  top: auto;
+  bottom: calc(100% + var(--sjs2-spacing-x050));
+  margin-top: 0;
+  padding-bottom: var(--sjs2-spacing-x075);
+}
+
 .sv-root--sticky-top {
   .sd-progress__text {
     border-radius: var(--sjs2-radius-x050);

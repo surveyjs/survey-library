@@ -655,7 +655,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return "paneldynamic";
   }
   // Records can belong to dataSource, and each panel already has remove. A title Clear does not fit.
-  protected get supportClearTitleAction(): boolean {
+  public get supportClearTitleAction(): boolean {
     return false;
   }
   public getValueType(): QuestionValueType {

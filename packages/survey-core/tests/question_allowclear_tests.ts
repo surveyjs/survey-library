@@ -170,7 +170,6 @@ describe("allowClear, Bug#11936", () => {
   test("questions that already clear a value, or have no value, do not add a title button", () => {
     const survey = new SurveyModel({
       elements: [
-        { type: "boolean", name: "check", displayMode: "checkbox", allowClear: true },
         { type: "dropdown", name: "drop", choices: ["a"], allowClear: true },
         { type: "tagbox", name: "tags", choices: ["a"], allowClear: true },
         { type: "file", name: "file" },

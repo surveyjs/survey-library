@@ -173,7 +173,7 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
    */
   @property() allowClear: boolean;
   // The clear button lives in the input, not in the question title.
-  protected get supportClearTitleAction(): boolean {
+  public get supportClearTitleAction(): boolean {
     return false;
   }
   /**

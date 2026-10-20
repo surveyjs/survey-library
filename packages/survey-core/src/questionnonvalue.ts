@@ -11,7 +11,7 @@ export class QuestionNonValue extends Question {
   constructor(name: string) {
     super(name);
   }
-  protected get supportClearTitleAction(): boolean {
+  public get supportClearTitleAction(): boolean {
     return false;
   }
   public getType(): string {

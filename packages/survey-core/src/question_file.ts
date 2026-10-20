@@ -33,7 +33,7 @@ const customCategory = settings.customFileCategoryName;
  */
 export class QuestionFileModelBase extends Question {
   // File Upload and Signature Pad already draw their own clear control.
-  protected get supportClearTitleAction(): boolean {
+  public get supportClearTitleAction(): boolean {
     return false;
   }
   // The value is a file a respondent picks from a device or draws on a canvas: a consumer that

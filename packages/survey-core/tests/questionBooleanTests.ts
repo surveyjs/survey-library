@@ -753,7 +753,7 @@ describe("boolean", () => {
     const q1 = <QuestionBooleanModel>survey.getQuestionByName("q1");
     expect(q1.getTitleActions().length, "no title actions in design mode").toBe(0);
   });
-  test("allowClear is unavailable for checkbox and switch, Bug#11936", () => {
+  test("allowClear stays available when the Boolean title is hidden, Bug#11936", () => {
     const survey = new SurveyModel({
       elements: [
         { type: "boolean", name: "check", allowClear: true, displayMode: "checkbox", title: "Checkbox" },
@@ -769,26 +769,21 @@ describe("boolean", () => {
     const radio = <QuestionBooleanModel>survey.getQuestionByName("radio");
     const segmented = <QuestionBooleanModel>survey.getQuestionByName("segmented");
 
-    expect(check.getTitleActions().length, "checkbox label has no Clear action").toBe(0);
-    expect(check.hasTitleActions, "checkbox keeps the label markup").toBe(false);
-    check.useTitleAsLabel = false;
-    expect(check.hasTitle, "a checkbox shows its title").toBe(true);
-    expect(check.getTitleActions().length, "checkbox title gets Clear").toBe(1);
-    expect(sw.getTitleActions().length, "switch label has no Clear action").toBe(0);
-    expect(sw.hasTitleActions, "switch keeps the label markup").toBe(false);
-    sw.useTitleAsLabel = false;
-    expect(sw.getTitleActions().length, "switch title gets Clear").toBe(1);
+    expect(check.hasTitle, "a checkbox label has no header").toBe(false);
+    expect(check.getTitleActions().length, "checkbox still has Clear").toBe(1);
+    expect(sw.hasTitle, "a switch label has no header").toBe(false);
+    expect(sw.getTitleActions().length, "switch still has Clear").toBe(1);
     sw.titleLocation = "hidden";
-    expect(sw.getTitleActions().length, "a hidden switch title drops Clear").toBe(0);
+    expect(sw.getTitleActions().length, "a hidden title keeps Clear").toBe(1);
     expect(asCheckbox.displayMode, "renderAs checkbox becomes displayMode").toBe("checkbox");
-    expect(asCheckbox.getTitleActions().length, "renderAs checkbox has no Clear action").toBe(0);
+    expect(asCheckbox.getTitleActions().length, "renderAs checkbox keeps Clear").toBe(1);
     expect(radio.getTitleActions().length, "radio keeps Clear").toBe(1);
     expect(radio.canShowClearButton, "radio Clear is visible").toBe(true);
     expect(segmented.getTitleActions().length, "segmented keeps Clear").toBe(1);
 
     const prop = Serializer.findProperty("boolean", "allowClear");
-    expect(prop.isVisible("", check), "property is visible when the checkbox title is shown").toBe(true);
-    expect(prop.isVisible("", sw), "property is hidden when the switch title is hidden").toBe(false);
+    expect(prop.isVisible("", check), "property stays visible without a checkbox header").toBe(true);
+    expect(prop.isVisible("", sw), "property stays visible for a hidden switch title").toBe(true);
     expect(prop.isVisible("", radio), "property is visible for radio").toBe(true);
     expect(prop.isVisible("", segmented), "property is visible for segmented").toBe(true);
   });
@@ -809,15 +804,14 @@ describe("boolean", () => {
 
     q1.titleLocation = "top";
     q1.displayMode = "checkbox";
-    expect(q1.getTitleActions().length, "checkbox removes Clear").toBe(0);
-    expect(toolbar.actions.length, "the toolbar drops Clear").toBe(0);
-    expect(q1.hasTitleActions, "checkbox has no title actions").toBe(false);
+    expect(q1.getTitleActions().length, "checkbox keeps Clear").toBe(1);
+    expect(toolbar.actions.length, "the toolbar keeps Clear").toBe(1);
 
     q1.displayMode = "switch";
-    expect(q1.getTitleActions().length, "switch has no Clear").toBe(0);
+    expect(q1.getTitleActions().length, "switch keeps Clear").toBe(1);
 
     q1.displayMode = "radio";
-    expect(q1.getTitleActions().length, "radio restores Clear").toBe(1);
+    expect(q1.getTitleActions().length, "radio keeps Clear").toBe(1);
     expect((<IAction>q1.getTitleActions()[0]).visible, "radio Clear is visible").toBe(true);
   });
 

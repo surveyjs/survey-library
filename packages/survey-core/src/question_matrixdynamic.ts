@@ -268,7 +268,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return "matrixdynamic";
   }
   // Records can belong to dataSource, and each row already has remove. A title Clear does not fit.
-  protected get supportClearTitleAction(): boolean {
+  public get supportClearTitleAction(): boolean {
     return false;
   }
   public getValueType(): QuestionValueType {

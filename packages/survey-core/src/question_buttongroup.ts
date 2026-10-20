@@ -67,7 +67,7 @@ export class QuestionButtonGroupModel extends dropdownQuestionMixin(QuestionChec
   }
   @property({ localizable: { defaultStr: "buttongroupOptionsCaption" } }) placeholder: string;
   // allowClear stays the dropdown input button. The title does not get a second Clear button.
-  protected get supportClearTitleAction(): boolean {
+  public get supportClearTitleAction(): boolean {
     return false;
   }
   get searchEnabled(): boolean {

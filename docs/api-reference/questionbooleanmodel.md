@@ -24,11 +24,9 @@ A class that describes the Yes/No (Boolean) question type.
 
 Specifies whether to display a button that clears the question value.
 
-The button appears in the question title. Segmented and radio [display modes](#displayMode) show it when the title is visible. Checkbox and switch show it when [`useTitleAsLabel`](#useTitleAsLabel) is `false` and the title is visible.
+The button appears in the question title and stays hidden when the [title is hidden](#titleLocation).
 
 Default value: `false`
-
-**Related APIs:** [`displayMode`](#displayMode), [`useTitleAsLabel`](#useTitleAsLabel)
 
 ### `booleanValue`
 

@@ -1,8 +1,8 @@
 <ng-template #template>
-  <ng-container *ngIf="!element.hasTitleActions">
+  <ng-container *ngIf="!element.hasTitleActions || !renderActions">
     <ng-container *ngTemplateOutlet="elementTitleContent"></ng-container>
   </ng-container>
-  <ng-container *ngIf="element.hasTitleActions">
+  <ng-container *ngIf="element.hasTitleActions && renderActions">
     <div class="sv-title-actions">
       <span class="sv-title-actions__title">
         <ng-container *ngTemplateOutlet="elementTitleContent"></ng-container>

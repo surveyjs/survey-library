@@ -30,7 +30,7 @@ export class QuestionExpressionModel extends Question {
     return "expression";
   }
   // The value comes from the expression. A respondent has nothing to clear.
-  protected get supportClearTitleAction(): boolean {
+  public get supportClearTitleAction(): boolean {
     return false;
   }
   public get hasInput(): boolean {

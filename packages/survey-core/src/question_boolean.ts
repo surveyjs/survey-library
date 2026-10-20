@@ -160,20 +160,6 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
    * By default, the order is [ "No", "Yes"]. Enable this property to reorder the answers as follows: [ "Yes", "No" ].
    */
   @property({ defaultValue: false }) swapOrder: boolean;
-  /**
-   * Specifies whether to display a button that clears the question value.
-   *
-   * The button appears in the question title. Segmented and radio [display modes](#displayMode) show it when the title is visible. Checkbox and switch show it when [`useTitleAsLabel`](#useTitleAsLabel) is `false` and the title is visible.
-   *
-   * Default value: `false`
-   */
-  @property() allowClear: boolean;
-  // Checkbox and switch have no question header while the title is the control label.
-  protected get supportClearTitleAction(): boolean {
-    const renderAs = this.getRenderAsValue();
-    if (renderAs !== "checkbox" && renderAs !== "switch") return true;
-    return this.hasTitle;
-  }
   get locLabelLeft(): LocalizableString {
     return this.swapOrder ? this.locLabelTrue : this.locLabelFalse;
   }
@@ -474,9 +460,6 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
     if (name === "renderAs" && this.displayMode === "custom") {
       this.saveCustomRenderAs(newValue);
     }
-    if (name === "displayMode" || name === "renderAs" || name === "useTitleAsLabel" || name === "titleLocation") {
-      this.resetTitleActions();
-    }
   }
   private updateRenderAsOnDisplayModeChanged(oldValue: string, newValue: string): void {
     if (newValue === "custom") {
@@ -535,14 +518,7 @@ Serializer.addClass(
     "valueTrue",
     "valueFalse",
     { name: "swapOrder:boolean" },
-    {
-      name: "allowClear:boolean",
-      category: "general",
-      visibleIf: (obj: QuestionBooleanModel) => {
-        if (obj.displayMode !== "checkbox" && obj.displayMode !== "switch") return true;
-        return obj.hasTitle;
-      }
-    },
+    { name: "allowClear:boolean", category: "general" },
     {
       name: "displayMode",
       default: "segmented",

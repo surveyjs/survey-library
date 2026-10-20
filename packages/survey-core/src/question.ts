@@ -2268,7 +2268,7 @@ export class Question extends SurveyElement<Question>
   }
   // False for a question whose clear control lives somewhere other than the title,
   // or for a render mode that has no title-action slot.
-  protected get supportClearTitleAction(): boolean {
+  public get supportClearTitleAction(): boolean {
     return true;
   }
   protected getDefaultTitleActions(): Array<Action> {

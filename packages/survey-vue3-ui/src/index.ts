@@ -107,6 +107,7 @@ import CustomWidget from "./CustomWidget.vue";
 import PopupModal from "./components/popup/PopupModal.vue";
 import TextAreaComponent from "./components/TextArea.vue";
 import CharacterCounterComponent from "./components/CharacterCounter.vue";
+import QuestionHint from "./components/QuestionHint.vue";
 import Composite from "./Composite.vue";
 import Custom from "./Custom.vue";
 import TimerPanel from "./TimerPanel.vue";
@@ -289,6 +290,7 @@ function registerComponents(
   registerComponent("sv-header-mobile", HeaderMobile);
   registerComponent("sv-template-renderer", TemplateRenderer);
   registerComponent("sv-character-counter", CharacterCounterComponent);
+  registerComponent("sv-question-hint", QuestionHint);
   registerComponent("sv-text-area", TextAreaComponent);
   registerComponent("survey-element", Element);
 

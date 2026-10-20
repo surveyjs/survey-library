@@ -18,6 +18,7 @@
       :readonly="question.isReadOnlyAttr"
       @click="(e) => question.setValueFromClick(((e.target as any).value))"
       :aria-label="question.ariaLabel"
+      :aria-keyshortcuts="question.ariaKeyShortcuts"
     />
     <SvComponent
       :is="'sv-svg-icon'"

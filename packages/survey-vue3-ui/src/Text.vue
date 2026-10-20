@@ -34,6 +34,7 @@
         :aria-describedby="question.a11y_input_ariaDescribedBy"
         :aria-invalid="question.a11y_input_ariaInvalid"
         :aria-errormessage="question.a11y_input_ariaErrormessage"
+        :aria-keyshortcuts="question.ariaKeyShortcuts"
       />
       <datalist v-if="question.dataListId" :id="question.dataListId">
         <option v-for="(item, index) in question.dataList" :key="index" :value="item"></option>

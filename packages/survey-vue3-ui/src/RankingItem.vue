@@ -4,6 +4,7 @@
     :tabindex="question.getItemTabIndex(item)"
     :data-sv-drop-target-ranking-item="index"
     :class="question.getItemClass(item)"
+    :aria-keyshortcuts="question.ariaKeyShortcuts"
     v-on:keydown="
       (event) => {
         question.handleKeydown.call(question, event, item);

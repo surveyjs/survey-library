@@ -14,6 +14,7 @@
       :readonly="question.isReadOnlyAttr"
       @click="(e) => question.setValueFromClick((e.target as any).value)"
       :aria-label="question.ariaLabel"
+      :aria-keyshortcuts="question.ariaKeyShortcuts"
     />
     <span :class="question.cssClasses.itemText" :data-text="item.text">
       <SvComponent :is="'survey-string'" :locString="item.locText" />

@@ -7,6 +7,7 @@
     <div
       :class="question.getSwitchButtonCss()"
       role="checkbox"
+      :aria-keyshortcuts="question.ariaKeyShortcuts"
       tabindex="0"
       :aria-checked="question.booleanValue || false"
       :aria-required="question.a11y_input_ariaRequired"

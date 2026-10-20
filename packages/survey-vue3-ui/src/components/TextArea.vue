@@ -42,6 +42,7 @@
       :aria-describedby="model.ariaDescribedBy"
       :aria-invalid="model.ariaInvalid"
       :aria-errormessage="model.ariaErrormessage"
+      :aria-keyshortcuts="model.ariaKeyShortcuts"
       :style="{ resize: 'none' }"
     ></textarea>
     <SvComponent v-if="model.hasVisibleInputActions" :is="'sv-action-bar'" :model="model.inputActionsContainer"></SvComponent>

@@ -13,6 +13,7 @@
         :disabled="question.isDisabledAttr"
         :readonly="question.isReadOnlyAttr"
         :class="question.cssClasses.itemRadioControl"
+        :aria-keyshortcuts="question.ariaKeyShortcuts"
         @change="handleChange"
       />
       <span

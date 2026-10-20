@@ -32,6 +32,7 @@
         :aria-describedby="renderState.ariaInputDescribedby"
         :aria-controls="renderState.ariaInputControls"
         :aria-activedescendant="renderState.ariaInputActivedescendant"
+        :aria-keyshortcuts="question.ariaKeyShortcuts"
         :id="question.getInputId()"
         :readonly="renderState.filterReadOnly ? true : undefined"
         :size="!renderState.inputStringRendered ? 1 : undefined"

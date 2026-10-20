@@ -2808,7 +2808,7 @@ export class SurveyModel extends SurveyElementCore
   // The bar read has to be part of the returned value. Production builds treat getters as pure and drop
   // an unused `void this.navigationBar`, which leaves the flag at its default and hides the buttons.
   public get hasVisibleNavigationActions(): boolean {
-    return !this.navigationBar.isEmpty;
+    return this.navigationBar.hasVisibleActions;
   }
   private updateHasVisibleNavigationActions(): void {
     this.setPropertyValue("hasVisibleNavigationActions", this.navigationBarValue.hasVisibleActions);

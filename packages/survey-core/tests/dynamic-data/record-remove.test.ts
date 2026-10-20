@@ -1,8 +1,7 @@
-import { describe, test, expect, vi, afterEach, beforeEach } from "vitest";
+import { describe, test, expect, afterEach, beforeEach } from "vitest";
 import { SurveyModel } from "../../src/survey";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
-import { PanelModel } from "../../src/panel";
 import { settings } from "../../src/settings";
 
 /* Removing a record by number or by object, the confirmation asked for it and the target found again

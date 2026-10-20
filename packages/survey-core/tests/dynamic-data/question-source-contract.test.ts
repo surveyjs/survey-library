@@ -611,7 +611,6 @@ describe.each(namedAdapters)("Question source contract, keyed insert: %s", (_nam
     survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation + ":" + options.error.message); });
     return { survey: survey, question: question, source: source, errors: errors };
   }
-  const noKeyYet = (operation: string): string => operation + ":DynamicDataList: the record has no key yet";
   test("copyDefaultValueFromLastEntry does not copy the key", () => {
     const { question, source } = create({ copyDefaultValueFromLastEntry: true });
     adapter.add(question);

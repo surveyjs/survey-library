@@ -2070,8 +2070,30 @@ export class Question extends SurveyElement<Question>
     properties["question"] = this;
     this.runConditionCore(properties);
     if (this.canApplyDefaultValue() && (!this.isClearValueOnHidden || this.isVisibleInSurvey)) {
-      this.runDefaultValueExpression(properties);
+      if (!this.canSkipDefaultValueExpression()) {
+        this.runDefaultValueExpression(properties);
+      }
     }
+  }
+  // The inputs and the result of the last completed default value run of the conditions pass.
+  // Copies, not references: a defaultValue or a value changed in place must count as changed.
+  private lastDefaultValueRun: { expression: string, defaultValue: any, value: any };
+  // A run in the survey's conditions pass is skipped, the way a strict-dependency visibleIf is,
+  // when no value the expression uses changed. The inputs and the question's value must also be
+  // what the last run left: a value cleared or changed by code gets the default value back.
+  private canSkipDefaultValueExpression(): boolean {
+    const lastRun = this.lastDefaultValueRun;
+    if (!lastRun || !settings.expressionQuestionTrackDependencies) return false;
+    const survey: any = this.getSurvey();
+    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    if (!keys) return false;
+    if (lastRun.expression !== this.defaultValueExpression) return false;
+    const runner = this.getExpressionByProperty("defaultValueExpression");
+    if (!runner || runner.isAsync) return false;
+    if (!Helpers.isTwoValueEquals(lastRun.defaultValue, this.defaultValue, false, true, false)) return false;
+    if (!this.isTwoValueEquals(lastRun.value, this.value)) return false;
+    // A path under a cleared value ({a.x} once a is cleared) counts as changed
+    return this.canSkipExpressionByKeys(runner, keys, undefined, true);
   }
   public get isInDesignMode(): boolean {
     return !this.isContentElement && this.isDesignMode;
@@ -2657,6 +2679,8 @@ export class Question extends SurveyElement<Question>
   }
   private runDefaultValueExpression(properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
     if (!this.data) return false;
+    // Only a run of the conditions pass (no setFunc) is recorded for canSkipDefaultValueExpression
+    const isConditionsPass = !setFunc;
     if (!setFunc) {
       setFunc = (val: any): void => {
         this.runExpressionSetValue(val);
@@ -2671,6 +2695,13 @@ export class Question extends SurveyElement<Question>
       this.isChangingViaDefaultValue = true;
       setFunc(res);
       this.isChangingViaDefaultValue = false;
+      if (isConditionsPass) {
+        this.lastDefaultValueRun = {
+          expression: this.defaultValueExpression,
+          defaultValue: Helpers.getUnbindValue(this.defaultValue),
+          value: Helpers.getUnbindValue(this.value)
+        };
+      }
     });
   }
   /**

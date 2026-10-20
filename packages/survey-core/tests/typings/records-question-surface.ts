@@ -13,7 +13,7 @@ import { QuestionMatrixDropdownModel } from "../../src/question_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionRecordsBar } from "../../src/question_records_bar";
-import { SortCriterion } from "../../src/records/records-sort-criterion";
+import { ISortCriterion } from "../../src/dynamic-data/dynamic-data-interfaces";
 import { settings } from "../../src/settings";
 
 // The released override surface of the matrix base.
@@ -144,10 +144,14 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
     "clearSort", "filterExpression", "refreshView", "isDataLoading", "isPageMovePending", "getRecordNumberOffset",
     "refreshDataSource"];
   res.push(mdApi, pdApi);
-  // sortCriteria reads SortCriterion items and takes plain { field, direction } objects.
+  // sortCriteria reads and takes plain { field, direction } objects; a direction is optional.
   md.sortCriteria = [{ field: "price", direction: "desc" }];
   pd.sortCriteria = [{ field: "price", direction: "desc" }];
-  const criterion: SortCriterion = md.sortCriteria[0];
+  pd.sortCriteria = [{ field: "price" }];
+  md.sortCriteria.push({ field: "price" });
+  // @ts-expect-error the property is field
+  md.sortCriteria.push({ fieldName: "price" });
+  const criterion: ISortCriterion = md.sortCriteria[0];
   md.sort("price", "desc", true);
   md.sort([{ field: "price", direction: "asc" }]);
   // @ts-expect-error a direction is "asc" or "desc"

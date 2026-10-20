@@ -15,6 +15,12 @@ import { BaseAction } from "./actions/action";
 import { Question } from "./question";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
 
+interface IItemConditionRun {
+  expression: string;
+  value: any;
+  result: boolean;
+}
+
 export class ItemValueGetterContext implements IValueGetterContext {
   constructor (protected item: ItemValue) {}
   public getObj(): Base { return this.item; }
@@ -174,7 +180,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
       }
       var newValue = true;
       if (itemRunner) {
-        newValue = itemRunner.runContext(item.getValueGetterContext(), properties);
+        newValue = ItemValue.runItemCondition(item, itemRunner, isVisible, properties);
+      } else {
+        ItemValue.setLastConditionRun(item, isVisible, undefined);
       }
       if (!!onItemCallBack) {
         newValue = onItemCallBack(item, newValue);
@@ -194,6 +202,30 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     }
     return hasChanded;
   }
+  // The runner's own result, before onItemCallBack, is kept per item and per kind: a question-level
+  // runner (choicesVisibleIf) serves every item. A value-change run reuses it while the expression,
+  // the item's value ({item} reads it, and it is never a changed key) and every value the condition
+  // reads are the same; the owner question decides the last part.
+  private static runItemCondition(item: ItemValue, runner: ConditionRunner, isVisible: boolean, properties: any): boolean {
+    const lastRun = isVisible ? item.lastVisibleConditionRun : item.lastEnableConditionRun;
+    if (!!lastRun && lastRun.expression === runner.expression && !runner.isAsync &&
+      Helpers.isTwoValueEquals(lastRun.value, item.value, false, true, false)) {
+      const owner = item.locOwner;
+      if (owner instanceof Question && owner.canSkipItemCondition(runner)) return lastRun.result;
+    }
+    const result = runner.runContext(item.getValueGetterContext(), properties);
+    ItemValue.setLastConditionRun(item, isVisible, { expression: runner.expression, value: item.value, result: result });
+    return result;
+  }
+  private static setLastConditionRun(item: ItemValue, isVisible: boolean, run: IItemConditionRun): void {
+    if (isVisible) {
+      item.lastVisibleConditionRun = run;
+    } else {
+      item.lastEnableConditionRun = run;
+    }
+  }
+  private lastVisibleConditionRun: IItemConditionRun;
+  private lastEnableConditionRun: IItemConditionRun;
   public ownerPropertyName: string = "";
   private locTextValue: LocalizableString;
   private visibleConditionRunner: ConditionRunner;

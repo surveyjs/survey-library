@@ -8,7 +8,7 @@ import { SurveyElement } from "./survey-element";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner, AsyncElementsRunner } from "./validator";
 import { LocalizableString } from "./localizablestring";
-import { ExpressionRunner } from "./expressions/expressionRunner";
+import { ExpressionRunner, ExpressionRunnerBase } from "./expressions/expressionRunner";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
 import { settings } from "./settings";
@@ -1111,6 +1111,37 @@ export class Question extends SurveyElement<Question>
     const vars = runner.getVariables();
     if ((!Array.isArray(vars) || vars.length === 0)) return "const";
     return new ValueGetter().isAnyKeyChanged(keys, vars) ? "var" : "";
+  }
+  // Whether an item condition of this question (a choice, row or column visibleIf / enableIf) may keep
+  // its last result in the current value-change run. It follows the element rule, with one difference:
+  // a path under a cleared value ({m.r1} once m is cleared) counts as changed, since an item condition
+  // writes no value back. The item names resolve inside this question's value first ({r1} in a matrix
+  // row reads row r1), so a change of the value, or of any container that holds it, runs them all.
+  public canSkipItemCondition(runner: ExpressionRunnerBase): boolean {
+    const survey: any = this.getSurvey();
+    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    if (!keys || this.isOwnOrContainerValueChanged(keys, survey)) return false;
+    return this.canSkipExpressionByKeys(runner, keys, undefined, true);
+  }
+  // A change inside a dynamic panel or a composite question reports the container's name only
+  private isOwnOrContainerValueChanged(keys: any, survey: any): boolean {
+    const lowerKeys: HashTable<boolean> = Object.create(null);
+    for (const key in keys) {
+      lowerKeys[key.toLowerCase()] = true;
+    }
+    let question: Question = this;
+    while(!!question) {
+      const valueName = question.getValueName();
+      if (!!valueName && lowerKeys[valueName.toLowerCase()]) return true;
+      let data: any = question.data;
+      // A dynamic panel item or a matrix row hands over to the question that holds it. The walk stops
+      // at the survey: its data getter builds the whole result object.
+      if (!!data && data !== survey && !(data instanceof Question) && data.data instanceof Question) {
+        data = data.data;
+      }
+      question = data instanceof Question && data !== question ? data : undefined;
+    }
+    return false;
   }
   public getValueGetterContext(): IValueGetterContext {
     return new QuestionValueGetterContext(this);

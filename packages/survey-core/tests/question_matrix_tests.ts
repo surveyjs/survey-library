@@ -1201,3 +1201,35 @@ describe("Single-select matrix: row lookup by name", () => {
     expect(runInRow(reloaded.m, "{z}"), "#11").toBe("c2");
   });
 });
+describe("Matrix row conditions run only when a variable they use changed", () => {
+  const visibleRowNames = (m: QuestionMatrixModel): Array<string> => m.visibleRows.map(r => r.name);
+  test("A shared rowsVisibleIf gives each row its own result", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "x" },
+        { type: "text", name: "y" },
+        { type: "matrix", name: "m", rows: ["r1", "r2", "r3"], columns: ["c1", "c2"], rowsVisibleIf: "{item} != {x}" }
+      ]
+    });
+    const m = <QuestionMatrixModel>survey.getQuestionByName("m");
+    survey.setValue("x", "r2");
+    expect(visibleRowNames(m), "x = r2").toEqual(["r1", "r3"]);
+    survey.setValue("y", 1);
+    expect(visibleRowNames(m), "y = 1 changes nothing").toEqual(["r1", "r3"]);
+  });
+  test("A row that reads a row of its own matrix follows the matrix value", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "y" },
+        { type: "matrix", name: "m", rows: ["r1", { value: "r2", visibleIf: "{r1} = 'c1'" }], columns: ["c1", "c2"] }
+      ]
+    });
+    const m = <QuestionMatrixModel>survey.getQuestionByName("m");
+    m.value = { r1: "c1" };
+    expect(visibleRowNames(m), "r1 = c1").toEqual(["r1", "r2"]);
+    survey.setValue("y", 1);
+    expect(visibleRowNames(m), "y = 1 changes nothing").toEqual(["r1", "r2"]);
+    m.value = { r1: "c2" };
+    expect(visibleRowNames(m), "r1 = c2").toEqual(["r1"]);
+  });
+});

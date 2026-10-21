@@ -11,9 +11,7 @@
 .sd-comment__input--auto-grow {
   field-sizing: content;
   // 2 matches the HTML default when the rows attribute is omitted
-  min-height: calc(
-    var(--sd-comment-rows, 2) * 1lh + var(--sjs2-layout-component-input-medium-content-padding-vertical) * 2
-  );
+  min-height: calc(var(--sd-comment-rows, 2) * 1lh);
 }
 // content sizing changes the intrinsic width and resizes auto-layout table columns
 .sd-table .sd-comment__input--auto-grow {

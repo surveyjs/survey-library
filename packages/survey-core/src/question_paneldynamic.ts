@@ -3930,6 +3930,9 @@ export class PanelDynamicSingleInputBehavior extends QuestionRecordsSingleInputB
   private getSingleInputTitleTemplate(): string {
     return this.panelDynamic.getLocalizationString("panelDynamicTabTextFormat");
   }
+  protected canCreateSingleInputSummary(): boolean {
+    return true;
+  }
   protected createSingleInputSummary(): QuestionSingleInputSummary {
     const pd = this.panelDynamic;
     return this.createRecordsSummary({

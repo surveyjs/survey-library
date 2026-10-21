@@ -1215,9 +1215,11 @@ export class Question extends SurveyElement<Question>
   }
   public get singleInputQuestion(): Question {
     const res = this.singleInputBehavior.singleInputQuestion;
-    // A stored "self" without a summary is a question at its own step (a select question with
+    // A stored "self" that cannot be a summary step is a question at its own step (a select question with
     // nested choice elements before its nested inputs): render the question's own content.
-    if (res === this && !this.singleInputSummary) return undefined;
+    // canShowSelfAsSummary() is private to the behavior, not public API. It answers without building
+    // singleInputSummary, which would re-enter this getter for a dynamic container nested in another one.
+    if (res === this && !(<any>this.singleInputBehavior).canShowSelfAsSummary()) return undefined;
     return res;
   }
   public get singleInputSummary(): QuestionSingleInputSummary {

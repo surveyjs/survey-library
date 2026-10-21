@@ -1,5 +1,5 @@
 import { Page, test, Locator } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, getButtonByText } from "../e2e/helper";
 
 const title = "Survey Progress Screenshot";
 
@@ -152,15 +152,13 @@ frameworks.forEach(framework => {
         showProgressBar: true,
         progressBarLocation: "topbottom",
         progressBarType: "questions",
-        pages: [{
-          name: "page1",
-          elements: [
-            { type: "text", name: "q1" },
-            { type: "text", name: "q2" }
-          ]
-        }]
+        pages: [{ name: "page1", elements: [{ type: "text", name: "q1" }] }, { name: "page2", elements: [{ type: "text", name: "q2" }] }]
       });
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-questions-topbottom.png");
+
+      await page.getByRole("textbox", { name: "q1" }).fill("test");
+      await getButtonByText(page, "Next").click();
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-questions-topbottom-filled.png");
     });
 
     test("Check survey with progress bottom with brand info and fit to container", async ({ page }) => {

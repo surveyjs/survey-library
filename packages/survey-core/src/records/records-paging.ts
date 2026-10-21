@@ -1,8 +1,9 @@
 import { Helpers } from "../helpers";
-import { SortDirection, ISortCriterion } from "../dynamic-data/dynamic-data-interfaces";
+import { SortDirection, ISortCriterion, DynamicDataFieldType } from "../dynamic-data/dynamic-data-interfaces";
 import { DynamicDataList } from "../dynamic-data/dynamic-data-list";
 import { normalizeSort } from "../dynamic-data/dynamic-data-view";
 import { ISortCriterionOwner, SortCriterion } from "./records-sort-criterion";
+import { getFirstSortDirection } from "./records-sort-directions";
 import { Scope } from "../utils/scope";
 
 /* The question side of the list's paging, sorting and filtering. The behaviour lives here and the
@@ -43,6 +44,9 @@ export interface IRecordsPagingOwner {
   /* The most criteria a respondent's toggleSort(field, true) leaves in the sort: maxSortLevel.
      Absent or 0 -> no limit. sort(), sortCriteria and JSON are never limited. */
   maxSortLevel?: number;
+  /* The data type the list registered for a record field: the direction toggleSort starts with
+     follows it (getFirstSortDirection). Absent, or "any" -> ascending first. */
+  getFieldDataType?(field: string): DynamicDataFieldType;
   // What the question reports: 1 page and page 0 while it does not page.
   pageIndex: number;
   pageCount: number;
@@ -423,7 +427,8 @@ export class RecordsPagingController implements ISortCriterionOwner {
     this.setSortCore(isInSort ? sort.map((s: ISortCriterion): ISortCriterion => s.field === field ? criterion : s) :
       sort.concat([criterion]), true);
   }
-  /* One field, the way a header click sorts: ascending, then descending, then not sorted. Sorting
+  /* One field, the way a header click sorts: the field's first direction (descending for a number
+     or a date, ascending otherwise - getFirstSortDirection), then the other one, then not sorted. Sorting
      by a field in a given direction is sort() and does not need a third spelling; what is unique here
      is the cycle, which every renderer needs in one place. append runs the same cycle over one entry
      of the sort instead of over the whole of it - what a modified header click does in a grid - and
@@ -443,11 +448,12 @@ export class RecordsPagingController implements ISortCriterionOwner {
   private getToggledSort(field: string, append: boolean): Array<ISortCriterion> {
     const sort = this.currentSort;
     const current = sort.filter((s: ISortCriterion): boolean => s.field === field)[0];
+    const first = getFirstSortDirection(!!this.owner.getFieldDataType ? this.owner.getFieldDataType(field) : "any");
     let dir: SortDirection = undefined;
     if (!current) {
-      dir = "asc";
-    } else if (current.direction === "asc") {
-      dir = "desc";
+      dir = first;
+    } else if (current.direction === first) {
+      dir = first === "asc" ? "desc" : "asc";
     }
     if (!append) {
       return !dir ? [] : [{ field: field, direction: dir }];

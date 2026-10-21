@@ -12,18 +12,34 @@
               :key="'header_' + cell.id"
               :class="cell.className"
               :style="{ minWidth: cell.minWidth, width: cell.width }"
+              :aria-sort="cell.ariaSort"
             >
               <SvComponent
                 :is="question.getColumnHeaderWrapperComponentName(cell as any)"
                 :componentData="question.getColumnHeaderWrapperComponentData(cell as any)"
               >
-                <SvComponent :is="'survey-string'" :locString="cell.locTitle" />
                 <SvComponent
-                  :is="'survey-matrixheaderrequired'"
-                  v-if="!!cell.column"
-                  :column="cell.column"
+                  v-if="cell.isSortable"
+                  :is="'survey-matrixheadersortbutton'"
+                  :cell="cell"
                   :question="question"
-                ></SvComponent>
+                >
+                  <SvComponent :is="'survey-string'" :locString="cell.locTitle" />
+                  <SvComponent
+                    :is="'survey-matrixheaderrequired'"
+                    :column="cell.column"
+                    :question="question"
+                  ></SvComponent>
+                </SvComponent>
+                <template v-else>
+                  <SvComponent :is="'survey-string'" :locString="cell.locTitle" />
+                  <SvComponent
+                    :is="'survey-matrixheaderrequired'"
+                    v-if="!!cell.column"
+                    :column="cell.column"
+                    :question="question"
+                  ></SvComponent>
+                </template>
               </SvComponent>
             </th>
             <td

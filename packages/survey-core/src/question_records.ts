@@ -181,6 +181,7 @@ export abstract class QuestionRecordsModel extends Question {
       get pageSize(): number { return question.pageSize; },
       get listPageSize(): number { return question.listPageSize; },
       get maxSortLevel(): number { return question.maxSortLevel; },
+      getFieldDataType: (field: string): DynamicDataFieldType => question.getSortFieldDataType(field),
       get pageIndex(): number { return question.reportedPageIndex; },
       get pageCount(): number { return question.reportedPageCount; },
       get isDesignMode(): boolean { return question.isDesignMode; },
@@ -2147,12 +2148,19 @@ export abstract class QuestionRecordsModel extends Question {
     this.paging.sort(fieldOrCriteria, direction, append);
   }
   public clearSort(): void { this.paging.clearSort(); }
-  /* What a click on a sortable header does: ascending, then descending, then not sorted. With
+  /* What a click on a sortable header does: the field's first direction - descending for a number
+     or a date field, ascending otherwise (getSortFieldDataType) - then the other one, then not sorted. With
      append the field is cycled inside the current sort instead of replacing it, which is the
      multi-field sort a modified header click makes; a new field that would go past maxSortLevel
      replaces the last level. It validates the page it replaces. For the renderers: code sorts with
      sort(). */
   public toggleSort(field: string, append?: boolean): boolean { return this.paging.toggleSort(field, append); }
+  /* The data type the list knows a record field by (getFields): it decides the direction a field is
+     sorted in first and how a direction is labelled. A field the list does not know is "any". */
+  public getSortFieldDataType(field: string): DynamicDataFieldType {
+    const found = this.getFields().filter((item: IDynamicDataField): boolean => item.name === field)[0];
+    return !!found && !!found.dataType ? found.dataType : "any";
+  }
   /* The sort a respondent can make: by a header click a renderer may offer (a column opts out with
      column.allowSort = false) or from the Sort by menu. It does not gate the code API - sort(),
      sortCriteria, clearSort() and toggleSort() work whatever its value: the renderers gate on
@@ -2180,7 +2188,7 @@ export abstract class QuestionRecordsModel extends Question {
     return this.allowSort === true && (show === true || show === "auto" && !this.canSortByHeaders);
   }
   // Whether the rendered column headers sort: paneldynamic has no headers.
-  protected get canSortByHeaders(): boolean { return false; }
+  public get canSortByHeaders(): boolean { return false; }
   /* A survey expression over the record values - the same language as visibleIf, with the record
      fields as its variables. A record that does not satisfy it has no object; the question value
      keeps every record. An empty string = no filter. It is not rowsVisibleIf / templateVisibleIf:

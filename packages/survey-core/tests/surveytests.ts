@@ -13208,6 +13208,42 @@ describe("Survey", () => {
     var question = <Question>survey.getQuestionByName("text1");
     expect([...(question.getTitleActions())]).toEqual(testActions);
   });
+  test("hasVisibleTitleActions: no title actions", () => {
+    const survey = new SurveyModel({ elements: [{ type: "expression", name: "q1" }] });
+    const question = <Question>survey.getQuestionByName("q1");
+    expect(question.hasTitleActions).toBe(false);
+    expect(question.hasVisibleTitleActions).toBe(false);
+  });
+  test("hasVisibleTitleActions: is updated on changing actions visibility", () => {
+    const survey = new SurveyModel({ elements: [{ type: "expression", name: "q1" }] });
+    survey.onGetQuestionTitleActions.add((_, options) => {
+      options.actions = [{ id: "a1", title: "A1" }, { id: "a2", title: "A2", visible: false }];
+    });
+    const question = <Question>survey.getQuestionByName("q1");
+    expect(question.hasTitleActions).toBe(true);
+    expect(question.hasVisibleTitleActions).toBe(true);
+
+    const toolbar = question.getTitleToolbar();
+    const a1 = toolbar.getActionById("a1");
+    const a2 = toolbar.getActionById("a2");
+    a1.visible = false;
+    expect(question.hasVisibleTitleActions).toBe(false);
+    a2.visible = true;
+    expect(question.hasVisibleTitleActions).toBe(true);
+    a2.visible = false;
+    expect(question.hasVisibleTitleActions).toBe(false);
+  });
+  test("hasVisibleTitleActions: all actions are invisible initially", () => {
+    const survey = new SurveyModel({ elements: [{ type: "expression", name: "q1" }] });
+    survey.onGetQuestionTitleActions.add((_, options) => {
+      options.actions = [{ id: "a1", title: "A1", visible: false }];
+    });
+    const question = <Question>survey.getQuestionByName("q1");
+    expect(question.hasTitleActions).toBe(true);
+    expect(question.hasVisibleTitleActions).toBe(false);
+    question.getTitleToolbar().getActionById("a1").visible = true;
+    expect(question.hasVisibleTitleActions).toBe(true);
+  });
 
   test("Check onGetPageTitleActions event", () => {
     var survey = new SurveyModel({

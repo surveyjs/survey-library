@@ -432,6 +432,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.titleToolbarValue.containerCss = (this.isPanel ? this.cssClasses.panel.titleBar : this.cssClasses.titleBar) || "sv-action-title-bar";
       this.titleToolbarValue.setItems(this.getTitleActions());
       this.titleToolbarValue.flushUpdates();
+      this.titleToolbarValue.registerFunctionOnPropertyValueChanged("isEmpty", () => {
+        this.resetHasVisibleTitleActions();
+      });
     }
     return this.titleToolbarValue;
   }
@@ -482,6 +485,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public get hasTitleActions(): boolean {
     return this.getTitleActions().length > 0;
+  }
+  public get hasVisibleTitleActions() {
+    return this.getPropertyValue("hasVisibleTitleActions", undefined, () => {
+      return this.hasTitleActions && this.getTitleToolbar().hasVisibleActions;
+    });
+  }
+  private resetHasVisibleTitleActions() {
+    this.resetPropertyValue("hasVisibleTitleActions");
   }
   public get hasTitleEvents(): boolean {
     return this.state !== undefined && this.state !== "default";

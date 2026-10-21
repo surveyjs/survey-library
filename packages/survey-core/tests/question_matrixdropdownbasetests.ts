@@ -1236,6 +1236,39 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     row.hideDetailPanel();
     expect(actions, "check actions").toEqual(["show:0", "hide:0"]);
   });
+  test("row.ensureDetailPanel creates the panel without expanding the row or firing onMatrixDetailPanelVisibleChanged", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 1,
+          columns: [{ name: "col1", cellType: "text" }],
+          detailPanelMode: "underRow",
+          detailElements: [{ type: "text", name: "q1" }],
+        },
+      ],
+    });
+    survey.data = { matrix: [{ col1: "a", q1: "b" }] };
+    const actions = new Array<string>();
+    survey.onMatrixDetailPanelVisibleChanged.add((_, options) => {
+      actions.push((options.visible ? "show" : "hide") + ":" + options.rowIndex);
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const row = matrix.visibleRows[0];
+    row.ensureDetailPanel();
+    const panel = row.detailPanel;
+    expect(!!panel, "the panel is created, #1").toBe(true);
+    expect(panel.getQuestionByName("q1").value, "the panel holds the row value, #1").toBe("b");
+    expect(row.isDetailPanelShowing, "the row is not expanded, #1").toBe(false);
+    expect(actions, "no event, #1").toEqual([]);
+    row.ensureDetailPanel();
+    expect(row.detailPanel === panel, "a second call keeps the panel, #2").toBe(true);
+    row.showDetailPanel();
+    expect(row.detailPanel === panel, "showing the row reuses the panel, #3").toBe(true);
+    expect(row.isDetailPanelShowing, "the row is expanded, #3").toBe(true);
+    expect(actions, "the event fires on show only, #3").toEqual(["show:0"]);
+  });
   test("column.visibleIf", () => {
     const survey = new SurveyModel({
       "elements": [

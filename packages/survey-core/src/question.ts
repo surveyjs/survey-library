@@ -518,6 +518,12 @@ export class Question extends SurveyElement<Question>
   public onSurveyChoiceShortcutsEnabledChanged(): void {
     this.forEachNestedElement(info => getNestedElementQuestions(info).forEach(q => q.onSurveyChoiceShortcutsEnabledChanged()), { build: "none", visibleOnly: false });
   }
+  // The survey calls it on its questions when its single-input mode or its preview starts or ends; a
+  // container forwards it to the nested questions that exist. Not public API: the survey calls it
+  // through a cast.
+  protected onSurveySingleInputModeChanged(): void {
+    this.forEachNestedElement(info => getNestedElementQuestions(info).forEach(q => q.onSurveySingleInputModeChanged()), { build: "none", visibleOnly: false });
+  }
   protected getIsMobile(): boolean {
     return this._isMobile;
   }

@@ -651,7 +651,8 @@ export abstract class QuestionRecordsModel extends Question {
   /* Whether the question pages is decided by three facts, each in one place:
      - pageSize: the authored page size, 0 for none;
      - listPageSize: the size the list is to page by - 0 in single-input mode, which is its own
-       paging, and capped by maxRecordsPerPage;
+       paging, for every question of the survey and not only the current one, except in the preview;
+       capped by maxRecordsPerPage;
      - list.pageSize: the size the list pages by now; the paging helper sets it from listPageSize at
        every sync, 0 in design mode;
      and by two facts of the list: isRemoteData (a source is assigned) and isPagedBySource (the source
@@ -669,6 +670,7 @@ export abstract class QuestionRecordsModel extends Question {
        a source the list pages          >0        >0           yes          yes         yes         yes         no
        design mode                      >0        >0           no           no          no          no          no
        single-input mode                >0        0            no           no          no          no          no
+       single-input mode, preview       >0        >0           yes          yes         yes         no          no
        a filter or a sort, no paging    0         0            no           no          yes         no          no
      getMaxRecordCount lifts the page maximum whenever pageSize is set, and getRecordCountLimit only
      while the question pages: in design and single-input mode with a pageSize, maxRowCount /
@@ -1151,10 +1153,12 @@ export abstract class QuestionRecordsModel extends Question {
   /* The page size the list gets: the authored one, capped by settings.maxPageSize - read on each call;
      a value that is not a positive number is no cap. Single-input mode walks every object and lists
      them in its own summary - it is its own paging - so it builds every object and the list does not
-     page. A carousel without pageSize builds every panel, as it always has; with it, it pages like
-     list and tab mode and shows one panel of the page. */
+     page. That holds for the whole mode, not only while the question is the current one: the mode
+     renders the current question only, and code that reads a question that is not current sees every
+     object. The preview renders every question and pages. A carousel without pageSize builds every
+     panel, as it always has; with it, it pages like list and tab mode and shows one panel of the page. */
   protected get listPageSize(): number {
-    if (this.isSingleInputActive) return 0;
+    if (this.isSingleInputPagingOff) return 0;
     const maxPageSize = settings.maxPageSize;
     if (typeof maxPageSize !== "number" || !(maxPageSize > 0)) return this.pageSize;
     return Math.min(this.pageSize, maxPageSize);
@@ -2072,9 +2076,17 @@ export abstract class QuestionRecordsModel extends Question {
     if (!list || !list.isRemote) return;
     return list.refresh();
   }
+  private get isSingleInputPagingOff(): boolean {
+    return !!this.singleInput?.isSingleVisibleInput && this.survey.state !== "preview";
+  }
   // Single-input mode reads every object, and nothing tells the list that it became active.
   protected syncPageSizeWithMode(): void {
     this.syncListPageSize();
+  }
+  // The survey's single-input mode or its preview started or ended: the list pages by another size.
+  protected onSurveySingleInputModeChanged(): void {
+    this.syncPageSizeWithMode();
+    super.onSurveySingleInputModeChanged();
   }
   /**
    * Gets or sets the zero-based index of the current data page containing rows or panels. Set this property to switch between data pages.

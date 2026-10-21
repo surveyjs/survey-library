@@ -108,8 +108,9 @@ function getRecordNumberOf(item: QuestionRecordItem): number {
 
 /**
  * A base class for questions whose answers contain collections of records. Manages shared data, paging, and validation behavior.
+ * @since 3.2.2
  */
-export abstract class    extends Question {
+export abstract class QuestionRecordsModel extends Question {
   private _dataList: DynamicDataList;
   private _paging: RecordsPagingController;
   private _pageValidation: RecordsPageValidation;
@@ -2052,6 +2053,7 @@ export abstract class    extends Question {
    * The effective page size is limited by the [`settings.maxPageSize`](https://surveyjs.io/form-library/documentation/api-reference/settings#maxPageSize) property.
    * @see pageIndex
    * @see pageCount
+   * @since 3.2.2
    */
   public get pageSize(): number {
     return this.getPropertyValue(pagingStateKeys.pageSize);
@@ -2078,6 +2080,7 @@ export abstract class    extends Question {
    * Gets or sets the zero-based index of the current data page containing rows or panels. Set this property to switch between data pages.
    * @see pageSize
    * @see pageCount
+   * @since 3.2.2
    */
   public get pageIndex(): number { return this.reportedPageIndex; }
   public set pageIndex(val: number) { this.paging.pageIndex = val; }
@@ -2085,6 +2088,7 @@ export abstract class    extends Question {
    * Gets the number of data pages used to display rows or panels. Returns 1 when the question is empty or pagination is disabled.
    * @see pageSize
    * @see pageIndex
+   * @since 3.2.2
    */
   public get pageCount(): number { return this.reportedPageCount; }
   /* False while the data source answers a read without a total: the record count (rowCount,

@@ -106,6 +106,7 @@ export class InputMaskNumeric extends InputMaskBase {
    * When this property is `true`, trailing zeros appear immediately as respondents enter a value, without waiting for the input field to lose focus. For example, with `precision` set to 2, entering 1 displays "1.00", and entering 1.5 displays "1.50".
    *
    * Default value: `false`
+   * @since 3.1.2
    */
   @property() showTrailingZeros: boolean;
   /**

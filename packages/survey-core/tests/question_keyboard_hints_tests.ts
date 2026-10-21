@@ -203,29 +203,19 @@ test("boolean checkbox uses space and enter", () => {
 });
 
 const down = { label: "↓", shortcut: "ArrowDown", visible: true }; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-const spaceShown = { label: "Space", shortcut: "Space", visible: true };
+const upDown = { label: "↑↓", shortcut: "ArrowUp ArrowDown", visible: true }; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
 const esc = { label: "Esc", shortcut: "Escape", visible: true };
 const dropdownSet = [
   { text: "to open", keys: [down] },
-  { text: "to select", keys: [spaceShown, enterShown] },
+  { text: "to select", keys: [upDown] },
   { text: "to close", keys: [esc] }
 ];
 
 test("dropdown hints stay one set for both popup states", () => {
   expect(hints({ type: "dropdown", choices: ["a", "b"] })).toEqual(dropdownSet);
-  const empty = [
-    { text: "to open", keys: [down] },
-    { text: "to submit", keys: [enterHidden] },
-    { text: "to select", keys: [spaceShown, enterShown] },
-    { text: "to close", keys: [esc] }
-  ];
+  const empty = dropdownSet.concat([{ text: "to submit", keys: [enterHidden] }]);
   expect(hints({ type: "dropdown", choices: ["a", "b"] }, { autoAdvanceEnabled: true })).toEqual(empty);
-  const filled = [
-    { text: "to open", keys: [down] },
-    { text: "to submit", keys: [enterShown] },
-    { text: "to select", keys: [spaceShown, enterShown] },
-    { text: "to close", keys: [esc] }
-  ];
+  const filled = dropdownSet.concat([{ text: "to submit", keys: [enterShown] }]);
   const survey = new SurveyModel({
     keyboardHintsEnabled: true,
     autoAdvanceEnabled: true,
@@ -233,7 +223,7 @@ test("dropdown hints stay one set for both popup states", () => {
   });
   const q = survey.getQuestionByName("q") as any;
   expect(q.getKeyboardHints()).toEqual(filled);
-  expect(q.ariaKeyShortcuts).toBe("ArrowDown Enter Space Enter Escape");
+  expect(q.ariaKeyShortcuts).toBe("ArrowDown ArrowUp ArrowDown Escape Enter");
   q.dropdownListModel.popupModel.show();
   q.dropdownListModel.inputString = "x";
   expect(q.getKeyboardHints()).toEqual(filled);
@@ -245,11 +235,12 @@ test("tagbox adds a submit chip and does not swap the set when the popup opens",
   expect(hints({ type: "tagbox", choices: choices }).map(row => row.text)).toEqual([
     "to open", "to select", "to close"
   ]);
+  expect(hints({ type: "tagbox", choices: choices })[1].keys).toEqual([upDown, space, enterShown]);
   const empty = hints({ type: "tagbox", choices: choices }, { autoAdvanceEnabled: true });
-  expect(empty.map(row => row.text)).toEqual(["to open", "to submit", "to select", "to close"]);
-  expect(empty[1].keys).toEqual([{ label: "Enter ↵", shortcut: "Enter", visible: false }]); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  expect(empty.map(row => row.text)).toEqual(["to open", "to select", "to close", "to submit"]);
+  expect(empty[3].keys).toEqual([{ label: "Enter ↵", shortcut: "Enter", visible: false }]); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
   const filled = hints({ type: "tagbox", choices: choices, defaultValue: ["a"] }, { autoAdvanceEnabled: true });
-  expect(filled[1].keys[0].visible).toBe(true);
+  expect(filled[3].keys[0].visible).toBe(true);
   const survey = new SurveyModel({
     keyboardHintsEnabled: true,
     autoAdvanceEnabled: true,
@@ -260,10 +251,8 @@ test("tagbox adds a submit chip and does not swap the set when the popup opens",
   q.dropdownListModel.popupModel.show();
   q.dropdownListModel.inputString = "";
   expect(q.getKeyboardHints()).toEqual(before);
-  expect(q.getKeyboardHints()[2].keys.every((key: { visible: boolean }) => key.visible)).toBe(true);
+  expect(q.getKeyboardHints()[1].keys.every((key: { visible: boolean }) => key.visible)).toBe(true);
 });
-
-const upDown = { label: "↑↓", shortcut: "ArrowUp ArrowDown", visible: true }; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
 
 test("rating hints are only enter, and only when auto-advance is on", () => {
   expect(hints({ type: "rating" })).toEqual([]);

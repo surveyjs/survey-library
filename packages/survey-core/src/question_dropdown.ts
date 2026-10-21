@@ -72,16 +72,13 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
   protected getKeyboardHintsCore(): IKeyboardHint[] {
     const survey = this.survey as SurveyModel;
     const rows = [
-      keyboardHint(this, "keyboardHintOpenText", [keyboardHintKey("arrowDown", true)])
+      keyboardHint(this, "keyboardHintOpenText", [keyboardHintKey("arrowDown", true)]),
+      keyboardHint(this, "keyboardHintSelectText", [keyboardHintKey("arrowsVertical", true)]),
+      keyboardHint(this, "keyboardHintCloseText", [keyboardHintKey("esc", true)])
     ];
     if (survey.autoAdvanceEnabled === true) {
       rows.push(keyboardHint(this, "keyboardHintSubmitText", [keyboardHintKey("enter", !this.isEmpty())]));
     }
-    rows.push(keyboardHint(this, "keyboardHintSelectText", [
-      keyboardHintKey("space", true),
-      keyboardHintKey("enter", true)
-    ]));
-    rows.push(keyboardHint(this, "keyboardHintCloseText", [keyboardHintKey("esc", true)]));
     return rows;
   }
   // Design mode draws dropdown choices with the radio item component and passes this question

@@ -163,16 +163,17 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
   protected getKeyboardHintsCore(): IKeyboardHint[] {
     const survey = this.survey as SurveyModel;
     const rows = [
-      keyboardHint(this, "keyboardHintOpenText", [keyboardHintKey("arrowDown", true)])
+      keyboardHint(this, "keyboardHintOpenText", [keyboardHintKey("arrowDown", true)]),
+      keyboardHint(this, "keyboardHintSelectText", [
+        keyboardHintKey("arrowsVertical", true),
+        keyboardHintKey("space", true),
+        keyboardHintKey("enter", true)
+      ]),
+      keyboardHint(this, "keyboardHintCloseText", [keyboardHintKey("esc", true)])
     ];
     if (survey.autoAdvanceEnabled === true) {
       rows.push(keyboardHint(this, "keyboardHintSubmitText", [keyboardHintKey("enter", !this.isEmpty())]));
     }
-    rows.push(keyboardHint(this, "keyboardHintSelectText", [
-      keyboardHintKey("space", true),
-      keyboardHintKey("enter", true)
-    ]));
-    rows.push(keyboardHint(this, "keyboardHintCloseText", [keyboardHintKey("esc", true)]));
     return rows;
   }
   public supportMultipleComment(item: ItemValue): boolean { return this.isOtherValue(item.value); }

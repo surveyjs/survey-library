@@ -36,7 +36,10 @@ export function keyboardHint(owner: { getLocalizationString(name: string): strin
 
 export function singleChoiceKeyboardHints(question: Question, submitVisible: boolean): IKeyboardHint[] {
   const survey = question.survey as SurveyModel;
-  const rows = [keyboardHint(question, "keyboardHintSelectText", [keyboardHintKey("arrowsAll", true)])];
+  const rows: IKeyboardHint[] = [];
+  if (!question.isChoiceKeyboardSelectionEnabled) {
+    rows.push(keyboardHint(question, "keyboardHintSelectText", [keyboardHintKey("arrowsAll", true)]));
+  }
   if (survey.autoAdvanceEnabled === true) {
     rows.push(keyboardHint(question, "keyboardHintSubmitText", [keyboardHintKey("enter", submitVisible)]));
   }
@@ -45,10 +48,13 @@ export function singleChoiceKeyboardHints(question: Question, submitVisible: boo
 
 export function multiChoiceKeyboardHints(question: Question, submitVisible: boolean): IKeyboardHint[] {
   const survey = question.survey as SurveyModel;
-  const rows = [
-    keyboardHint(question, "keyboardHintNextItemText", [keyboardHintKey("tab", true)]),
-    keyboardHint(question, "keyboardHintSelectText", [keyboardHintKey("space", true)])
-  ];
+  const rows: IKeyboardHint[] = [];
+  if (!question.isChoiceKeyboardSelectionEnabled) {
+    rows.push(
+      keyboardHint(question, "keyboardHintNextItemText", [keyboardHintKey("tab", true)]),
+      keyboardHint(question, "keyboardHintSelectText", [keyboardHintKey("space", true)])
+    );
+  }
   if (survey.autoAdvanceEnabled === true) {
     rows.push(keyboardHint(question, "keyboardHintSubmitText", [keyboardHintKey("enter", submitVisible)]));
   }

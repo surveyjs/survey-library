@@ -636,5 +636,20 @@ frameworks.forEach(framework => {
         await compareScreenshot(page, undefined, `paneldynamic-sort-bar-${size.name}.png`);
       });
     }
+    // Two levels on a phone: the row runs past the panel's edge and scrolls sideways; shown scrolled to its start.
+    test("Paneldynamic sort bar with two levels, mobile", async ({ page }) => {
+      await page.setViewportSize({ width: 420, height: 900 });
+      const json = JSON.parse(JSON.stringify(sortBarJson));
+      json.elements[0].maxSortLevel = 3;
+      json.elements[0].templateElements.push({ type: "text", name: "category", title: "Category" });
+      await initSurvey(page, framework, json);
+      // Sorted after loading: a sortCriteria in the JSON together with defaultValue shows no panels (a separate bug).
+      await page.evaluate(() => { (window as any).survey.getQuestionByName("products").sort([{ field: "product", direction: "asc" }, { field: "added", direction: "desc" }]); });
+      const bar = page.locator(".sd-question__header .sd-paneldynamic__sort-bar");
+      await expect(bar).toBeVisible();
+      expect(await bar.evaluate((el: HTMLElement) => el.scrollLeft)).toBe(0);
+      await page.mouse.move(0, 0);
+      await compareScreenshot(page, undefined, "paneldynamic-sort-bar-levels-mobile.png");
+    });
   });
 });

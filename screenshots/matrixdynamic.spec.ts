@@ -590,5 +590,15 @@ frameworks.forEach(framework => {
         await compareScreenshot(page, undefined, `matrixdynamic-sort-bar-${size.name}.png`);
       });
     }
+    // Two levels at the end of the title row: Sort by, two groups, the remove button of the second one and "+".
+    test("Matrixdynamic sort bar with two levels, desktop", async ({ page }) => {
+      await page.setViewportSize({ width: 1000, height: 600 });
+      const json = JSON.parse(JSON.stringify(sortBarJson));
+      Object.assign(json.elements[0], { maxSortLevel: 3, sortCriteria: [{ field: "product", direction: "asc" }, { field: "category", direction: "desc" }] });
+      await initSurvey(page, framework, json);
+      await expect(page.getByRole("button", { name: "Remove sort level 2", exact: true })).toBeVisible();
+      await page.mouse.move(0, 0);
+      await compareScreenshot(page, undefined, "matrixdynamic-sort-bar-levels-desktop.png");
+    });
   });
 });

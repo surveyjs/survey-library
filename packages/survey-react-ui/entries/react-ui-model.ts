@@ -97,6 +97,7 @@ export { SurveyActionBar } from "../src/components/action-bar/action-bar";
 export { SurveyActionBarItemDropdown } from "../src/components/action-bar/action-bar-item-dropdown";
 export { SurveyActionBarSeparator } from "../src/components/action-bar/action-bar-separator";
 export { SurveyRecordsBar } from "../src/components/records-bar";
+export { SurveySortBarLevel } from "../src/components/sort-bar-level";
 export { LogoImage } from "../src/components/survey-header/logo-image";
 export { SurveyHeader } from "../src/components/survey-header/survey-header";
 export { SvgIcon } from "../src/components/svg-icon/svg-icon";

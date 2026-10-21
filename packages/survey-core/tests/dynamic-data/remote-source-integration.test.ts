@@ -17,6 +17,7 @@ import {
 import { ArrayDynamicDataSource, SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 import { ActionContainer } from "../../src/actions/container";
 import { ListModel } from "../../src/list";
+import { Action } from "../../src/actions/action";
 
 // The edited set and the page the page validation keeps for a records question have no public face.
 const getPageState = (q: Question): IRecordsPageState => (<any>q).getPageState();
@@ -7217,9 +7218,15 @@ describe("Remote data source: the pager while a page is read or a move waits", (
 });
 
 describe("Remote data source: the sort bar while a page is read or a move waits", () => {
+  // An item of the sort bar: "Sort by", a level or "+", or a dropdown or a remove button inside a level.
+  const getSortItem = (question: QuestionMatrixDynamicModel, id: string): Action => {
+    const bar = question.recordsBar.sortActions;
+    const levels = bar.actions.filter(item => item.component === "sv-sort-bar-level").map(item => <ActionContainer>item.data);
+    return bar.getActionById(id) || levels.map(level => level.getActionById(id)).filter(item => !!item)[0];
+  };
   const sortItemIds = ["sv-sort-field", "sv-sort-direction"];
   const enabledItems = (question: QuestionMatrixDynamicModel): Array<boolean> =>
-    sortItemIds.map(id => question.recordsBar.sortActions.getActionById(id).enabled);
+    sortItemIds.map(id => getSortItem(question, id).enabled);
   const asyncColumns = [{ name: "col1", validators: [{ type: "expression", expression: "sortBarRemoteAsyncFunc({row.col1}) = 1" }] }, { name: "col2" }];
   let validatorResults: Array<(res: any) => void> = [];
   beforeEach(() => {
@@ -7246,6 +7253,23 @@ describe("Remote data source: the sort bar while a page is read or a move waits"
     await flush();
     expect(enabledItems(question), "#4").toEqual([true, true]);
   });
+  test("with two levels, every dropdown, the remove button and \"+\" are disabled while a page is read", async () => {
+    const source = new FakeServerSource(serverRecords(120));
+    const { question } = await createMatrix(source, { pageSize: 10, allowSort: true, maxSortLevel: 3,
+      columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }] });
+    question.sort(<any>[{ field: "col1", direction: "asc" }, { field: "col2", direction: "desc" }]);
+    await flush();
+    const ids = ["sv-sort-field", "sv-sort-direction", "sv-sort-field-2", "sv-sort-direction-2", "sv-sort-remove-2", "sv-sort-add"];
+    const enabled = (): Array<boolean> => ids.map(id => getSortItem(question, id).enabled);
+    expect(enabled(), "#1").toEqual(ids.map(() => true));
+    source.auto = false;
+    question.nextPage();
+    expect(question.isDataLoading, "#2: the read is in flight").toBe(true);
+    expect(enabled(), "#3").toEqual(ids.map(() => false));
+    source.settleAll();
+    await flush();
+    expect(enabled(), "#4").toEqual(ids.map(() => true));
+  });
   test("a sort bar created while a move waits for a validator still follows a later page read", async () => {
     const source = new FakeServerSource(serverRecords(120));
     const { question } = await createMatrix(source, { pageSize: 10, allowSort: true, columns: asyncColumns });
@@ -7271,11 +7295,11 @@ describe("Remote data source: the sort bar while a page is read or a move waits"
   test("a pick sorts through the source and the bar shows the sort once the page is read", async () => {
     const source = new FakeServerSource(serverRecords(30));
     const { question } = await createMatrix(source, { pageSize: 10, allowSort: true });
-    const field = question.recordsBar.sortActions.getActionById("sv-sort-field");
+    const field = getSortItem(question, "sv-sort-field");
     const list = <ListModel>field.data;
     list.onItemClick(list.actions.filter(item => item.title === "col2")[0]);
     await flush();
     expect(question.sortCriteria.map(item => ({ field: item.field, direction: item.direction })), "#1").toEqual([{ field: "col2", direction: "asc" }]);
-    expect([field.title, question.recordsBar.sortActions.getActionById("sv-sort-direction").title], "#2").toEqual(["col2", "Alphabet, A - Z"]);
+    expect([field.title, getSortItem(question, "sv-sort-direction").title], "#2").toEqual(["col2", "Alphabet, A - Z"]);
   });
 });

@@ -1,12 +1,31 @@
 @use "../variables.scss" as *;
 
-// The sort bar of a dynamic panel and of a matrix: [field v]  Sort by  [direction v].
+/* The sort bar of a dynamic panel and of a matrix:
+   Sort by  [field v] [direction v]  |  [field v] [direction v] [remove]  |  [+]
+   Each level is one item of the bar, so a wrapped or scrolled row breaks between whole levels. */
 .sd-paneldynamic__sort-bar,
 .sd-matrixdynamic__sort-bar,
 .sd-matrixdropdown__sort-bar {
-  // The design's 6px between the three items.
-  --sd-action-bar-gap: var(--sjs2-spacing-x075);
+  // The design's 12px between "Sort by", the levels, the separators and "+".
+  --sd-action-bar-gap: var(--sjs2-layout-component-panel-header-action-group-gap);
   flex-wrap: wrap;
+  justify-content: flex-end;
+
+  /* The separator a later level and "+" draw before their content: the full height of the row, and the
+     bar's gap after it, as between any two items. */
+  .sd-action-bar__item-content > .sd-action-bar__separator {
+    align-self: stretch;
+    height: auto;
+    margin-right: 0;
+    margin-inline-end: var(--sjs2-layout-component-panel-header-action-group-gap);
+    background-color: var(--sjs2-color-border-basic-secondary);
+  }
+}
+
+// The items of one level: the design's 8px between them, and never on two lines.
+.sd-sort-bar__level {
+  --sd-action-bar-gap: var(--sjs2-spacing-x100);
+  flex-wrap: nowrap;
 }
 
 // A dropdown of the bar: the chevron follows the label, as on the pager's page dropdown.
@@ -18,16 +37,21 @@
 // "Sort by": a disabled item without a tab stop that reads as a label, not as a disabled button.
 .sd-action.sd-sort-bar__label {
   box-sizing: border-box;
+  // Text, not a button: the vertical padding of the other items, so it sits on their line, and none at the sides.
+  --sd-action-padding: var(--sjs2-layout-component-action-x-small-box-padding-vertical) var(--sjs2-spacing-x000);
+  --sd-action-title-padding: var(--sjs2-layout-component-action-x-small-label-padding-vertical) var(--sjs2-spacing-x000);
   --sd-action-disabled-background: var(--sd-action-background);
   --sd-action-disabled-title-color: var(--sd-action-title-color);
 }
 
 /* A question header that holds the sort bar. With the title on top, the title (and the description
-   under it) takes the row and the bar sits at its end, centred on the title line. The bar is the
-   header's last child in every renderer. Logical placement, so a right-to-left survey mirrors it. */
+   under it) takes the width of its line, up to half of the row, and the bar takes the rest, at its
+   end and centred on the title line. A bar that does not fit wraps onto more lines, end-aligned.
+   The bar is the header's last child in every renderer. Logical placement, so a right-to-left
+   survey mirrors it. */
 .sd-question__header--sort-bar.sd-question__header--location-top {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: fit-content(50%) minmax(0, 1fr);
   align-items: center;
   column-gap: var(--sjs2-layout-component-question-header-action-group-gap);
 
@@ -41,7 +65,7 @@
   }
 }
 
-// On a phone and with the title on the left the bar wraps under the title and the description, start-aligned.
+// On a phone and with the title on the left the bar goes under the title and the description, start-aligned.
 .sd-question--mobile .sd-question__header--sort-bar,
 .sd-question__header--sort-bar.sd-question__header--location--left {
   display: flex;
@@ -51,7 +75,29 @@
 
   & > :last-child {
     align-self: flex-start;
+    justify-content: flex-start;
     margin-block-start: calc(var(--sjs2-layout-component-question-header-action-group-gap) - var(--sd-question-header-row-gap));
+  }
+}
+
+/* On a phone the row of levels scrolls sideways instead of wrapping. The scroll box would clip the
+   focus ring of an item at its edge: it gets the ring's width as padding, and gives it back with a
+   negative margin, so the items stay where they were. */
+.sd-question--mobile {
+  .sd-paneldynamic__sort-bar,
+  .sd-matrixdynamic__sort-bar,
+  .sd-matrixdropdown__sort-bar {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: var(--sjs2-border-width-a11y);
+    margin: calc(-1 * var(--sjs2-border-width-a11y));
+  }
+  .sd-question__header--sort-bar > :last-child {
+    max-width: calc(100% + 2 * var(--sjs2-border-width-a11y));
+    margin-block-start: calc(var(--sjs2-layout-component-question-header-action-group-gap) - var(--sd-question-header-row-gap) - var(--sjs2-border-width-a11y));
   }
 }
 

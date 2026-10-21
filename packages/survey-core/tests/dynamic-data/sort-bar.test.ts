@@ -1,4 +1,4 @@
-import { describe, test, expect, afterEach } from "vitest";
+import { describe, test, expect, afterEach, vi } from "vitest";
 import { SurveyModel } from "../../src/survey";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionMatrixDropdownModel } from "../../src/question_matrixdropdown";
@@ -10,6 +10,7 @@ import { FunctionFactory } from "../../src/functionsfactory";
 import { surveyLocalization } from "../../src/surveyStrings";
 import { Action } from "../../src/actions/action";
 import { ListModel } from "../../src/list";
+import { ActionContainer } from "../../src/actions/container";
 
 const productColumns = [
   { name: "product", title: "Product", cellType: "text" },
@@ -44,8 +45,16 @@ function createPanel(json?: any): QuestionPanelDynamicModel {
   survey.data = { panel: copyRows() };
   return <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
 }
+// The containers of the levels, in the bar's order.
+function levelsOf(q: QuestionRecordsModel): Array<ActionContainer> {
+  return q.recordsBar.sortActions.actions.filter((item: Action): boolean => item.component === "sv-sort-bar-level")
+    .map((item: Action): ActionContainer => <ActionContainer>item.data);
+}
+// An item of the bar ("Sort by", a level, "+"), or a dropdown or a remove button inside a level.
 function getAction(q: QuestionRecordsModel, id: string): Action {
-  return <Action>q.recordsBar.sortActions.getActionById(id);
+  const own = <Action>q.recordsBar.sortActions.getActionById(id);
+  if (!!own) return own;
+  return levelsOf(q).map((level: ActionContainer): Action => level.getActionById(id)).filter((item: Action): boolean => !!item)[0];
 }
 function getList(q: QuestionRecordsModel, id: string): ListModel {
   return <ListModel>getAction(q, id).data;
@@ -241,7 +250,7 @@ describe("Sort bar: a sort the bar did not make", () => {
     matrix.clearSort();
     expect(titlesOf(fieldList(matrix)), "#7: the fallback goes").toEqual(["Product", "Category", "Price", "Discontinued"]);
   });
-  test("a sort of several levels shows its first one; a pick of what shows keeps every level", () => {
+  test("a sort of several levels shows every level; a pick in the first level keeps the others", () => {
     const twoLevels = [{ field: "price", direction: "desc" }, { field: "product", direction: "asc" }];
     const matrix = createMatrix();
     let validations = 0;
@@ -254,10 +263,10 @@ describe("Sort bar: a sort the bar did not make", () => {
     expect(sortOf(matrix), "#3: the direction").toEqual(twoLevels);
     expect(validations, "#4: nothing validated").toBe(0);
     pickDirection(matrix, "Low - High");
-    expect(sortOf(matrix), "#5").toEqual([{ field: "price", direction: "asc" }]);
+    expect(sortOf(matrix), "#5: the second level stays").toEqual([{ field: "price", direction: "asc" }, { field: "product", direction: "asc" }]);
     matrix.sort(<any>twoLevels);
-    pickField(matrix, "Product");
-    expect(sortOf(matrix), "#6").toEqual([{ field: "product", direction: "asc" }]);
+    pickField(matrix, "Category");
+    expect(sortOf(matrix), "#6: the second level stays").toEqual([{ field: "category", direction: "asc" }, { field: "product", direction: "asc" }]);
     matrix.sort(<any>twoLevels);
     pickDirection(matrix, "Default");
     expect(sortOf(matrix), "#7").toEqual([]);
@@ -491,5 +500,209 @@ describe("Sort bar: the object", () => {
     expect(directionList(matrix).actions[1], "#2: the same type").toBe(direction);
     matrix.sort("product", "asc");
     expect(directionList(matrix).actions[1] === direction, "#3: another type").toBe(false);
+  });
+});
+// The suffix of a level's item ids: the first level keeps the ids of a bar with one level.
+const levelId = (name: string, level: number): string => level === 1 ? name : name + "-" + level;
+const levelFieldList = (q: QuestionRecordsModel, level: number): ListModel => getList(q, levelId("sv-sort-field", level));
+const levelDirectionList = (q: QuestionRecordsModel, level: number): ListModel => getList(q, levelId("sv-sort-direction", level));
+// What a level shows: the titles of its two buttons and whether it has a remove button.
+function levelShown(q: QuestionRecordsModel, level: number): Array<any> {
+  return [getAction(q, levelId("sv-sort-field", level)).title, getAction(q, levelId("sv-sort-direction", level)).title,
+    !!getAction(q, "sv-sort-remove-" + level)];
+}
+const barIds = (q: QuestionRecordsModel): Array<string> => q.recordsBar.sortActions.visibleActions.map((item: Action): string => item.id);
+const addAction = (q: QuestionRecordsModel): Action => getAction(q, "sv-sort-add");
+const addLevel = (q: QuestionRecordsModel): void => { addAction(q).action(); };
+const removeLevel = (q: QuestionRecordsModel, level: number): void => { getAction(q, "sv-sort-remove-" + level).action(); };
+
+describe("Sort bar: several levels", () => {
+  test("\"Sort by\" comes first, then the group of the first level with its field and its direction", () => {
+    const matrix = createMatrix();
+    expect(barIds(matrix), "#1").toEqual(["sv-sort-by", "sv-sort-level"]);
+    expect(levelsOf(matrix)[0].visibleActions.map((item: Action): string => item.id), "#2").toEqual(["sv-sort-field", "sv-sort-direction"]);
+    expect(getAction(matrix, "sv-sort-level").component, "#3").toBe("sv-sort-bar-level");
+    expect(levelsOf(matrix)[0].containerCss, "#4").toBe("sd-sort-bar__level");
+  });
+  test("\"+\" shows while more than one level is allowed, and is disabled while nothing is sorted", () => {
+    const matrix = createMatrix();
+    expect([addAction(matrix).visible, getAction(matrix, "sv-sort-remove")], "#1: one level allowed").toEqual([false, undefined]);
+    const multi = createMatrix({ maxSortLevel: 2 });
+    expect(barIds(multi), "#2").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-add"]);
+    expect([addAction(multi).visible, addAction(multi).enabled], "#3: nothing sorted").toEqual([true, false]);
+    expect([addAction(multi).needSeparator, addAction(multi).title, addAction(multi).ariaLabel, addAction(multi).iconName], "#4")
+      .toEqual([true, "Add sort level", "Add sort level", "icon-plus-16x16"]);
+    pickField(multi, "Price");
+    expect([addAction(multi).visible, addAction(multi).enabled], "#5").toEqual([true, true]);
+  });
+  test("\"+\" appends the first field no level has, in its type's first direction, until the limit or the fields run out", () => {
+    const matrix = createMatrix({ maxSortLevel: 2 });
+    pickField(matrix, "Product");
+    addLevel(matrix);
+    expect(sortOf(matrix), "#1").toEqual([{ field: "product", direction: "asc" }, { field: "category", direction: "asc" }]);
+    expect([levelShown(matrix, 1), levelShown(matrix, 2)], "#2").toEqual([["Product", "Alphabet, A - Z", false], ["Category", "Alphabet, A - Z", true]]);
+    expect(barIds(matrix), "#3: the limit is reached").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2"]);
+    expect([getAction(matrix, "sv-sort-level-2").needSeparator, getAction(matrix, "sv-sort-level").needSeparator], "#4").toEqual([true, false]);
+    const three = createMatrix({ maxSortLevel: 3 });
+    pickField(three, "Product");
+    addLevel(three);
+    expect(addAction(three).visible, "#5").toBe(true);
+    addLevel(three);
+    expect(sortOf(three), "#6").toEqual([{ field: "product", direction: "asc" }, { field: "category", direction: "asc" }, { field: "price", direction: "desc" }]);
+    expect([levelShown(three, 3), addAction(three).visible], "#7").toEqual([["Price", "High - Low", true], false]);
+    const twoFields = createMatrix({ maxSortLevel: 3, columns: productColumns.map((column: any): any =>
+      column.name === "product" || column.name === "category" ? column : Object.assign({ allowSort: false }, column)) });
+    pickField(twoFields, "Product");
+    addLevel(twoFields);
+    expect([sortOf(twoFields).length, addAction(twoFields).visible], "#8: no field is left").toEqual([2, false]);
+  });
+  test("a field pick in a later level replaces only that level; a level's list leaves out the fields of the other levels", () => {
+    const matrix = createMatrix({ maxSortLevel: 2 });
+    matrix.sort(<any>[{ field: "product", direction: "desc" }, { field: "category", direction: "asc" }]);
+    expect(titlesOf(levelFieldList(matrix, 1)), "#1").toEqual(["Product", "Price", "Discontinued"]);
+    expect(titlesOf(levelFieldList(matrix, 2)), "#2").toEqual(["Category", "Price", "Discontinued"]);
+    pick(levelFieldList(matrix, 2), "Price");
+    expect(sortOf(matrix), "#3").toEqual([{ field: "product", direction: "desc" }, { field: "price", direction: "desc" }]);
+    expect(levelShown(matrix, 2), "#4").toEqual(["Price", "High - Low", true]);
+    expect(titlesOf(levelFieldList(matrix, 1)), "#5").toEqual(["Product", "Category", "Discontinued"]);
+    expect(levelFieldList(matrix, 2).selectedItem.title, "#6").toBe("Price");
+    let validations = 0;
+    matrix.survey.onValidateQuestion.add(() => { validations++; });
+    pick(levelFieldList(matrix, 2), "Price");
+    expect([sortOf(matrix)[1], validations], "#7: the field it has changes nothing").toEqual([{ field: "price", direction: "desc" }, 0]);
+  });
+  test("a direction pick in a later level changes only that level; Default in the first level clears the whole sort", () => {
+    const matrix = createMatrix({ maxSortLevel: 2 });
+    matrix.sort(<any>[{ field: "product", direction: "desc" }, { field: "price", direction: "desc" }]);
+    expect(titlesOf(levelDirectionList(matrix, 2)), "#1: no Default").toEqual(["High - Low", "Low - High"]);
+    pick(levelDirectionList(matrix, 2), "Low - High");
+    expect(sortOf(matrix), "#2").toEqual([{ field: "product", direction: "desc" }, { field: "price", direction: "asc" }]);
+    expect([levelShown(matrix, 2), levelDirectionList(matrix, 2).selectedItem.title], "#3").toEqual([["Price", "Low - High", true], "Low - High"]);
+    pick(levelDirectionList(matrix, 1), "Alphabet, A - Z");
+    expect(sortOf(matrix), "#4: the first level").toEqual([{ field: "product", direction: "asc" }, { field: "price", direction: "asc" }]);
+    pick(levelDirectionList(matrix, 1), "Default");
+    expect(sortOf(matrix), "#5").toEqual([]);
+    expect([barIds(matrix), levelShown(matrix, 1)], "#6: one group again").toEqual([["sv-sort-by", "sv-sort-level", "sv-sort-add"], ["Product", "Default", false]]);
+  });
+  test("the remove button takes its level out; the other levels keep their order", () => {
+    const matrix = createMatrix({ maxSortLevel: 3 });
+    matrix.sort(<any>[{ field: "product", direction: "asc" }, { field: "category", direction: "desc" }, { field: "price", direction: "asc" }]);
+    expect([getAction(matrix, "sv-sort-remove-2").title, getAction(matrix, "sv-sort-remove-2").ariaLabel, getAction(matrix, "sv-sort-remove-3").title], "#1")
+      .toEqual(["Remove sort level 2", "Remove sort level 2", "Remove sort level 3"]);
+    removeLevel(matrix, 2);
+    expect(sortOf(matrix), "#2").toEqual([{ field: "product", direction: "asc" }, { field: "price", direction: "asc" }]);
+    expect(barIds(matrix), "#3").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2", "sv-sort-add"]);
+    expect([levelShown(matrix, 1), levelShown(matrix, 2)], "#4").toEqual([["Product", "Alphabet, A - Z", false], ["Price", "Low - High", true]]);
+    expect(getAction(matrix, "sv-sort-remove-3"), "#5").toBeUndefined();
+  });
+  test("a sort of three levels from code shows three groups while one level is allowed, with no \"+\"", () => {
+    const matrix = createMatrix();
+    matrix.sort(<any>[{ field: "product", direction: "asc" }, { field: "category", direction: "desc" }, { field: "price", direction: "asc" }]);
+    expect(barIds(matrix), "#1").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2", "sv-sort-level-3"]);
+    expect([levelShown(matrix, 1), levelShown(matrix, 2), levelShown(matrix, 3)], "#2").toEqual(
+      [["Product", "Alphabet, A - Z", false], ["Category", "Alphabet, Z - A", true], ["Price", "Low - High", true]]);
+    expect(addAction(matrix).visible, "#3").toBe(false);
+    removeLevel(matrix, 3);
+    expect(barIds(matrix), "#4: still no \"+\" at the limit of one level").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2"]);
+  });
+  test("a modified header click adds a group, and a remove button clears that header's arrow", () => {
+    const matrix = createMatrix({ maxSortLevel: 2 });
+    header(matrix, "product").toggleSort(false);
+    header(matrix, "price").toggleSort(true);
+    expect(barIds(matrix), "#1").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2"]);
+    expect(levelShown(matrix, 2), "#2").toEqual(["Price", "High - Low", true]);
+    expect(header(matrix, "price").sortDirection, "#3").toBe("desc");
+    removeLevel(matrix, 2);
+    expect([header(matrix, "price").sortDirection, header(matrix, "product").sortDirection], "#4").toEqual([undefined, "asc"]);
+    expect(barIds(matrix), "#5").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-add"]);
+  });
+  test("a level pick, \"+\" and a remove button that would leave an empty required cell are refused, and every group keeps the old sort", () => {
+    const matrix = createMatrix({ pageSize: 2, maxSortLevel: 3, columns: productColumns.map((column: any): any =>
+      column.name === "product" ? Object.assign({ isRequired: true }, column) : column) });
+    matrix.value = [{ price: 1, category: "toys" }, { product: "x", price: 2, category: "tools" }, { product: "y", price: 3, category: "toys" }];
+    const twoLevels = [{ field: "price", direction: "asc" }, { field: "category", direction: "asc" }];
+    matrix.sort(<any>twoLevels);
+    matrix.visibleRows;
+    const old = [levelShown(matrix, 1), levelShown(matrix, 2)];
+    pick(levelFieldList(matrix, 2), "Discontinued");
+    expect([sortOf(matrix), levelShown(matrix, 1), levelShown(matrix, 2)], "#1: a field pick").toEqual([twoLevels].concat(old));
+    pick(levelDirectionList(matrix, 2), "Alphabet, Z - A");
+    expect([sortOf(matrix), levelShown(matrix, 2), levelDirectionList(matrix, 2).selectedItem.title], "#2: a direction pick")
+      .toEqual([twoLevels, old[1], "Alphabet, A - Z"]);
+    addLevel(matrix);
+    expect([sortOf(matrix), barIds(matrix)], "#3: \"+\"").toEqual([twoLevels, ["sv-sort-by", "sv-sort-level", "sv-sort-level-2", "sv-sort-add"]]);
+    removeLevel(matrix, 2);
+    expect([sortOf(matrix), barIds(matrix), levelShown(matrix, 2)], "#4: remove").toEqual([twoLevels,
+      ["sv-sort-by", "sv-sort-level", "sv-sort-level-2", "sv-sort-add"], old[1]]);
+  });
+  const testLocale = "sort-levels-test";
+  test("a locale change updates the titles of every group and the accessible names with level numbers", () => {
+    surveyLocalization.locales[testLocale] = { sortHighLowText: "Big first", sortAZText: "A first", sortFieldAriaLabel: "Field",
+      sortLevelFieldAriaLabel: "Field {0}", sortLevelDirectionAriaLabel: "Order {0}", sortRemoveLevelText: "Drop level {0}", sortAddLevelText: "More levels" };
+    try {
+      const matrix = createMatrix({ maxSortLevel: 3 });
+      matrix.sort(<any>[{ field: "product", direction: "asc" }, { field: "price", direction: "desc" }]);
+      const labels = (): Array<string> => [getAction(matrix, "sv-sort-field").ariaLabel, getAction(matrix, "sv-sort-field-2").ariaLabel,
+        getAction(matrix, "sv-sort-direction-2").ariaLabel, getAction(matrix, "sv-sort-remove-2").title, addAction(matrix).title];
+      expect(labels(), "#1").toEqual(["Sort field Product", "Sort field 2 Price", "Sort order 2 High - Low", "Remove sort level 2", "Add sort level"]);
+      matrix.survey.locale = testLocale;
+      expect([levelShown(matrix, 1), levelShown(matrix, 2)], "#2").toEqual([["Product", "A first", false], ["Price", "Big first", true]]);
+      expect(labels(), "#3").toEqual(["Field Product", "Field 2 Price", "Order 2 Big first", "Drop level 2", "More levels"]);
+      matrix.survey.locale = "";
+      expect(labels(), "#4").toEqual(["Sort field Product", "Sort field 2 Price", "Sort order 2 High - Low", "Remove sort level 2", "Add sort level"]);
+    } finally {
+      delete surveyLocalization.locales[testLocale];
+    }
+  });
+  test("a change in the number of levels keeps every surviving item and disposes only the removed group", () => {
+    const matrix = createMatrix({ maxSortLevel: 3 });
+    const bar = matrix.recordsBar.sortActions;
+    matrix.sort(<any>[{ field: "product", direction: "asc" }, { field: "category", direction: "desc" }, { field: "price", direction: "asc" }]);
+    const before = bar.actions.slice();
+    expect(before.map((item: Action): string => item.id), "#1").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2", "sv-sort-level-3", "sv-sort-add"]);
+    const levels = levelsOf(matrix);
+    const field3 = getAction(matrix, "sv-sort-field-3");
+    const list3 = <ListModel>field3.data;
+    const kept: Array<any> = [before[0], before[1], before[2], before[4], levels[0], levels[1], getAction(matrix, "sv-sort-field-2"),
+      getList(matrix, "sv-sort-field-2"), getAction(matrix, "sv-sort-field").popupModel];
+    const setItems = vi.spyOn(bar, "setItems");
+    removeLevel(matrix, 2);
+    expect(setItems, "#2: one new items array").toHaveBeenCalledTimes(1);
+    const items = setItems.mock.calls[0][0];
+    expect([items[0] === before[0], items[1] === before[1], items[2] === before[2], items[3] === before[4], items.length], "#3").toEqual([true, true, true, true, 4]);
+    expect(bar.actions.every((item: Action, index: number): boolean => item === items[index]), "#4").toBe(true);
+    expect([before[3].isDisposed, levels[2].isDisposed, field3.isDisposed, field3.popupModel.isDisposed, list3.isDisposed], "#5: the third group").toEqual([true, true, true, true, true]);
+    expect(kept.map((item: any): boolean => item.isDisposed), "#6: nothing else").toEqual(kept.map((): boolean => false));
+    expect(levelShown(matrix, 2), "#7: re-synced").toEqual(["Price", "Low - High", true]);
+    setItems.mockClear();
+    const levelItems = levelsOf(matrix).map((level: ActionContainer): Array<Action> => level.actions.slice());
+    pick(levelDirectionList(matrix, 2), "High - Low");
+    pick(levelFieldList(matrix, 1), "Discontinued");
+    expect(setItems, "#8: a pick inside a level").not.toHaveBeenCalled();
+    expect(levelsOf(matrix).map((level: ActionContainer): Array<Action> => level.actions.slice()), "#9").toEqual(levelItems);
+    expect(levelsOf(matrix)[1].actions[0], "#10").toBe(levelItems[1][0]);
+    addLevel(matrix);
+    const added = setItems.mock.calls[0][0];
+    expect([added.length, added[3] === before[4], added[2] === before[2], kept.indexOf(added[3]) > -1], "#11: a new group, then the same \"+\"")
+      .toEqual([5, false, true, false]);
+    expect(added[4], "#12").toBe(before[4]);
+    setItems.mockRestore();
+  });
+  test("a runtime maxSortLevel change shows \"+\" with nothing else reading it", () => {
+    const matrix = createMatrix();
+    expect(addAction(matrix).visible, "#1").toBe(false);
+    matrix.maxSortLevel = 2;
+    expect(addAction(matrix).visible, "#2").toBe(true);
+    matrix.maxSortLevel = 1;
+    expect(addAction(matrix).visible, "#3").toBe(false);
+  });
+  test("the remove button and \"+\" are icon buttons in the design's appearance", () => {
+    const matrix = createMatrix({ maxSortLevel: 3 });
+    matrix.sort(<any>[{ field: "product", direction: "asc" }, { field: "price", direction: "asc" }]);
+    const remove = getAction(matrix, "sv-sort-remove-2");
+    expect([remove.iconName, remove.hasTitle, remove.getActionBarItemCss().split(" ").filter((name: string): boolean => name.indexOf("sd-action--") === 0)], "#1")
+      .toEqual(["icon-delete-16x16", false, ["sd-action--neutral", "sd-action--quaternary", "sd-action--x-small", "sd-action--border"]]);
+    expect([addAction(matrix).hasTitle, addAction(matrix).getActionBarItemCss().split(" ").filter((name: string): boolean => name.indexOf("sd-action--") === 0)], "#2")
+      .toEqual([false, ["sd-action--neutral", "sd-action--tertiary", "sd-action--x-small", "sd-action--border"]]);
   });
 });

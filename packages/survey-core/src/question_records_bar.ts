@@ -79,7 +79,7 @@ export class QuestionRecordsBar extends Base {
       this.pagerActionsValue = undefined;
     }
     if (!!this.sortActionsValue) {
-      this.sortActionsValue.container.dispose();
+      this.sortActionsValue.dispose();
       this.sortActionsValue = undefined;
     }
     super.dispose();

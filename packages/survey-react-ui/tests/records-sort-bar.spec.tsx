@@ -1,4 +1,4 @@
-import { SurveyModel, QuestionMatrixDynamicModel } from "survey-core";
+import { SurveyModel, QuestionMatrixDynamicModel, ActionContainer } from "survey-core";
 import React from "react";
 import ReactDOM from "react-dom";
 import { act } from "react-dom/test-utils";
@@ -51,7 +51,7 @@ describe("Records sort bar: where the renderer mounts it", () => {
     expect(headerBar(), "#2: in the header").not.toBeNull();
     expect(root().querySelector(".sd-question__header")!.classList.contains("sd-question__header--sort-bar"), "#3: the modifier").toBe(true);
     const titles = Array.prototype.map.call(headerBar()!.querySelectorAll(":scope > * .sd-action__title"), (el: Element): string => el.textContent);
-    expect(titles.slice(0, 3), "#4: field, label and direction, in order").toEqual(["product", "Sort by", "Default"]);
+    expect(titles.slice(0, 3), "#4: label, field and direction, in order").toEqual(["Sort by", "product", "Default"]);
     act(() => { matrix.allowSort = false; });
     expect(headerBar(), "#5: gone").toBeNull();
   });
@@ -63,11 +63,29 @@ describe("Records sort bar: where the renderer mounts it", () => {
   });
   it("a click on a dropdown in the header of a collapsible question does not collapse it", () => {
     const matrix = render({ allowSort: true, state: "expanded" });
-    const button = headerBar()!.querySelector("button") as HTMLButtonElement;
+    const button = headerBar()!.querySelector("button.sd-sort-bar__dropdown") as HTMLButtonElement;
     act(() => {
       button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
     expect(matrix.state, "#1").toBe("expanded");
-    expect(matrix.recordsBar.sortActions.getActionById("sv-sort-field").popupModel.isVisible, "#2: the list opens").toBe(true);
+    const level = matrix.recordsBar.sortActions.getActionById("sv-sort-level").data as ActionContainer;
+    expect(level.getActionById("sv-sort-field").popupModel.isVisible, "#2: the list opens").toBe(true);
+  });
+});
+
+describe("Records sort bar: several levels", () => {
+  it("each level is one element of the bar with its own action bar, separated from the next level and from \"+\"", () => {
+    render({ allowSort: true, maxSortLevel: 3, sortCriteria: [{ field: "product", direction: "asc" }, { field: "price", direction: "desc" }],
+      columns: [{ name: "product", cellType: "text" }, { name: "price", cellType: "text", inputType: "number" }, { name: "category", cellType: "text" }] });
+    const items = headerBar()!.children;
+    expect(items.length, "#1: Sort by, two levels and +").toBe(4);
+    const levels = Array.prototype.map.call(items, (item: Element): Element => item.querySelector(".sd-sort-bar__level")) as Array<Element>;
+    expect(levels.map((level: Element): boolean => !!level && level.classList.contains("sd-action-bar")), "#2").toEqual([false, true, true, false]);
+    const separators = Array.prototype.map.call(items, (item: Element): number => item.querySelectorAll(".sd-action-bar__separator").length);
+    expect(separators, "#3: one before the second level, one before +").toEqual([0, 0, 1, 1]);
+    const labels = (level: Element): Array<string> => Array.prototype.map.call(level.querySelectorAll("button"), (b: Element): string => b.getAttribute("aria-label")) as Array<string>;
+    expect(labels(levels[1]), "#4: no remove button on the first level").toEqual(["Sort field product", "Sort order Alphabet, A - Z"]);
+    expect(labels(levels[2]), "#5").toEqual(["Sort field 2 price", "Sort order 2 High - Low", "Remove sort level 2"]);
+    expect(items[3].querySelector("button")!.getAttribute("aria-label"), "#6").toBe("Add sort level");
   });
 });

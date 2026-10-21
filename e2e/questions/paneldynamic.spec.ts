@@ -867,5 +867,44 @@ frameworks.forEach((framework) => {
       await pager.locator("button[title='Previous']").click();
       await expect(priceInput).toHaveValue("30");
     });
+    test("a sort of two levels sorts the panels and the pager still pages them", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel",
+            title: "Products",
+            allowSort: true,
+            maxSortLevel: 2,
+            pageSize: 2,
+            defaultValue: [
+              { product: "c", category: "toys" },
+              { product: "a", category: "tools" },
+              { product: "b", category: "toys" },
+              { product: "d", category: "toys" },
+            ],
+            templateElements: [
+              { type: "text", name: "product", title: "Product" },
+              { type: "text", name: "category", title: "Category" },
+            ],
+          },
+        ],
+      });
+      const productInputs = page.locator(".sd-paneldynamic__panel-wrapper input[type=text]").filter({ visible: true });
+      const shownProducts = async (): Promise<Array<string>> =>
+        productInputs.evaluateAll((inputs: Array<HTMLInputElement>) => inputs.filter((_, index) => index % 2 === 0).map((input) => input.value));
+      await expect.poll(shownProducts).toEqual(["c", "a"]);
+      await page.getByRole("button", { name: /^Sort field (?!\d)/ }).click();
+      await page.locator(".sv-popup__container").filter({ visible: true }).getByRole("menuitemradio", { name: "Category", exact: true }).click();
+      await expect.poll(shownProducts).toEqual(["a", "c"]);
+      await page.getByRole("button", { name: "Add sort level", exact: true }).click();
+      await expect(page.getByRole("button", { name: /^Sort field 2 / }).locator(".sd-action__title")).toHaveText("Product");
+      await expect.poll(shownProducts).toEqual(["a", "b"]);
+      const pager = page.locator(".sd-paneldynamic__pager");
+      await pager.locator("button[title='Next']").click();
+      await expect.poll(shownProducts).toEqual(["c", "d"]);
+      await pager.locator("button[title='Previous']").click();
+      await expect.poll(shownProducts).toEqual(["a", "b"]);
+    });
   });
 });

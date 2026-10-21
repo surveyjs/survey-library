@@ -2346,6 +2346,7 @@ export abstract class QuestionRecordsModel extends Question {
       get isSortMenuVisible(): boolean { return question.isSortMenuVisible; },
       get isDesignMode(): boolean { return question.isDesignMode; },
       get isCollapsed(): boolean { return question.isCollapsed; },
+      get maxSortLevel(): number { return question.maxSortLevel; },
       sortByUser: (criteria: Array<ISortCriterion>): boolean => question.paging.sortByUser(criteria),
       getSortFieldDataType: (field: string): DynamicDataFieldType => question.getSortFieldDataType(field),
       getLocalizationString: (strName: string): string => question.getLocalizationString(strName),
@@ -2354,9 +2355,10 @@ export abstract class QuestionRecordsModel extends Question {
       getCssClasses: (): IRecordsBarCssClasses => {
         const css = question.cssClasses;
         return { root: css.recordsBar, pager: css.pager, pagerPage: css.pagerPage, pagerTotal: css.pagerTotal,
-          sortBar: css.sortBar, sortDropdown: css.sortDropdown, sortLabel: css.sortLabel };
+          sortBar: css.sortBar, sortDropdown: css.sortDropdown, sortLabel: css.sortLabel, sortLevel: css.sortLevel };
       },
-      createActionContainer: (): ActionContainer => question.createActionContainer()
+      createActionContainer: (): ActionContainer => question.createActionContainer(),
+      getRootElement: (): HTMLElement => question.survey?.rootElement
     };
   }
   /* The type's pager rule: the renderers draw the pager under the records while it is true. The bar
@@ -4160,9 +4162,9 @@ export function getRecordViewProperties(): Array<any> {
     { name: "showSortMenu:boolean", default: true, visible: false }];
 }
 /* The question properties the records bar shows (updateRecordsBar): the page count of the pager; the
-   sort, the opt-ins, the collapse, the mobile mode and the states that disable the sort bar; and the
+   sort, the opt-ins, the level limit of "+", the collapse, the mobile mode and the states that disable the sort bar; and the
    question's own title location and title, which decide where the sort bar goes (sortBarLocation). */
-const recordsBarInputs = [pagingStateKeys.pageCount, pagingStateKeys.sortCriteria, "allowSort", "showSortMenu", "state",
+const recordsBarInputs = [pagingStateKeys.pageCount, pagingStateKeys.sortCriteria, "allowSort", "maxSortLevel", "showSortMenu", "state",
   "_isMobile", "isDataLoading", pagingStateKeys.isPageMovePending, "titleLocation", "title"];
 function isVisibleInTemplate(q: Question, template: PanelModelBase): boolean {
   let el: any = q;

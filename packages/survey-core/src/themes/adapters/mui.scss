@@ -1145,3 +1145,45 @@ input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
 .svc-question__adorner:not(.svc-question__adorner--collapsed) > .svc-element__header--hidden {
   display: none;
 }
+
+// Collapsed designer card. The label is absolutely positioned inside the input, and the
+// card removes that input, so the label would sit outside the plaque.
+// titleLocation "left" hides this header and fades in .svc-element__header--hidden instead.
+// A top title has no overlay, so keep this header and drop the floating placement:
+// it then occupies the plaque the same way the overlay title does.
+// While the input is still collapsing, hide the label — it is still pinned to the field.
+.sd-question:not(.sd-question--complex):has(
+    > .sd-question__container
+      > .sd-question__header-and-content-container
+      > .sd-question__content.svc-question--leave
+  )
+  > .sd-question__container
+  > .sd-question__header-and-content-container
+  > .sd-question__header:not(.sd-question__header--location--left) {
+  opacity: 0;
+  transition: opacity 150ms;
+}
+
+.svc-question__content--collapsed
+  .sd-question:not(.sd-question--complex):has(
+    .sd-question__content--text,
+    .sd-question__content--comment,
+    .sd-question__content--dropdown
+  )
+  > .sd-question__container
+  > .sd-question__header-and-content-container
+  > .sd-question__header:not(.sd-question__header--location--left) {
+  position: static;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: auto !important;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  z-index: auto;
+  opacity: 1;
+  transition: opacity 150ms;
+  --sjs2-color-component-question-default-title: var(--mui-palette-text-secondary);
+}

@@ -586,11 +586,15 @@ function addInArrayConditionSites(state: WalkState): void {
   const queue = state.index.expressionSites.slice();
   for (let k = 0; k < queue.length; k++) {
     const site = queue[k];
-    takeInArrayConditions(site, state.index).forEach((condition, i) => {
+    takeInArrayConditions(site, state.index, state.options).forEach((condition, i) => {
       const itemFrame: ScopeFrame = { kind: "arrayItem", owner: condition.container, names: condition.map };
       const filterSite = addSite(state, condition.text, "condition", site.path + ".inArray[" + i + "]",
         site.prop, site.owner, [itemFrame], true);
       filterSite.inArrayOf = site;
+      if (condition.fromOperand) {
+        if (!site.operandFilterSites) site.operandFilterSites = [];
+        site.operandFilterSites.push(filterSite);
+      }
       queue.push(filterSite);
     });
   }
@@ -693,6 +697,8 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
 
   walkComponentDefs(state);
   annotateSharedValues(index);
+  // marks the inArray filters, which every later collectOperands call skips: nothing before this
+  // pass may memoize the operands of a site (see itemFilterOperands)
   addInArrayConditionSites(state);
 
   return index;

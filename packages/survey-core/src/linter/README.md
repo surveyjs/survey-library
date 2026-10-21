@@ -312,8 +312,9 @@ another one, and no property holds it.
   special choice items (`none`, `other`, `refuse`, `dontknow`) are all resolved.
 * **The condition of an inArray call.** `sumInArray({m1}, 'col1', '{col1} > 5')` runs its
   third (or fourth, after a return column) argument as a condition over every row of `m1`, so
-  that condition becomes a site of its own, under the path `<property>.inArray[<n>]`. It gets
-  every check a condition gets (syntax, references, choices, types, contradictions); its
+  that condition becomes a site of its own, under the path `<property>.inArray[<n>]`, where `n`
+  counts the filters of the expression in order - one per call, or one per checked branch of an
+  `iif(...)` that picks the filter (see below). It gets every check a condition gets (syntax, references, choices, types, contradictions); its
   findings carry no fix, because the document has no property of its own for it. A filter that
   never holds excludes items without making the enclosing question or page unreachable.
   * **Both forms.** The filter may be a string (`'{col1} > 5'`) or an operand
@@ -326,17 +327,28 @@ another one, and no property holds it.
     has no such field, against the survey - never against the scope of the expression that holds
     the call. A column or template question wins over a survey question of the same name, and
     its choices and type are the ones checked. `{row.col}` / `{panel.q}` name nothing in a
-    filter, wherever the call sits, and are reported. The runtime falls back per item: an item
-    that lacks the key (an empty cell) reads the survey's value. A survey name read inside a
-    string filter is no dependency of the expression, so changing that question alone does not
-    re-run it; the operand form re-runs.
-  * **An operand that may give a string.** The runtime takes a filter that evaluates to a string
-    as the filter's text, so only an operand that always gives a boolean is checked as a filter:
-    a comparison, `!`, `empty`/`notempty`, `and`/`or` of such operands, and a function registered
-    with `returnType: "boolean"`. Anything else stays a part of the enclosing expression and is
-    checked there: a bare `{filterText}`, a string function, and `iif(...)`, whose condition runs
-    in the enclosing scope. Each branch of that `iif(...)` written as a string is checked as a
-    filter of its own; any other branch is not analysed.
+    filter, wherever the call sits, and are reported with a hint to drop the prefix. The runtime
+    falls back per item: an item that lacks the key (an empty cell) reads the survey's value. A
+    survey name read inside a string filter is no dependency of the expression, so changing that
+    question alone does not re-run it; the operand form re-runs, and `cycle/calculated-value`
+    counts the names it reads as the expression's own.
+  * **An operand that may give a string.** The runtime first evaluates the operand in the scope
+    of the enclosing expression. A string result is taken as the filter's text; anything else
+    makes it run the operand's source text per item. So an operand is checked as a filter only
+    when it cannot give a string there:
+    * a comparison, `!`, `empty`/`notempty`, a function registered with `returnType: "boolean"`;
+    * a name that resolves nowhere in the enclosing scope (`{approved}`, an item field), or a
+      constant that is no string;
+    * `and`/`or`, arithmetic and `iif(...)` built of such operands (the `iif` condition aside).
+
+    An operand that may give a string - it reads a name of the enclosing scope, holds a string
+    constant, or calls another function - runs as the data decides. When it reads an item field
+    too (`{label} or {approved}`), it is not analysed at all; otherwise it stays a part of the
+    enclosing expression and is checked there (a bare `{filterText}`). In an `iif(...)` that
+    has a string branch, the condition stays in the enclosing expression and each branch is
+    taken apart on its own: a string branch, or one that cannot give a string, is a filter of
+    its own; any other branch follows the rule above. The runtime counts an item only when the
+    filter gives `true`, so arithmetic as a filter is reported as not a boolean.
   * **Items the linter does not know.** When the first argument names no matrix or dynamic
     panel - a host variable from `knownVariables`, or a name that does not resolve - the item
     fields are unknown. The filter's names, choice values, types and contradictions are then

@@ -1588,6 +1588,9 @@ describe("linter vs runtime: the scope of an inArray filter", () => {
         const refs = findingsOf(json, "reference/unknown");
         expect(refs, filter).toHaveLength(1);
         expect(refs[0], filter).toContain(" @ elements[1].expression.inArray[0]");
+        // the hint says to drop the prefix, not to move the call into a matrix cell or a panel
+        const hint = lintSurvey(json).findings.filter(f => f.ruleId === "reference/unknown")[0].hint;
+        expect(hint && hint.reason, filter).toBe("inArrayFilterScope");
       });
     });
   });

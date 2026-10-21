@@ -1,4 +1,5 @@
 import { describe, test, expect } from "vitest";
+import { Model } from "survey-core";
 import { lintSurvey, ILintFinding } from "../../src/linter/index";
 import { withSettings } from "./lint-test-helpers";
 
@@ -995,10 +996,21 @@ describe("nested conditions of inArray functions", () => {
   // the condition runs against the row's data and then the survey, where "row." names nothing
   // (pinned against the runtime in linter-runtime-parity.tests.ts)
   test("a row. reference inside the condition is reported", () => {
+    const run = (expression: string): any => {
+      const survey = new Model({ elements: [
+        { type: "matrixdynamic", name: "m1", columns: [{ name: "col1", cellType: "text", inputType: "number" }] },
+        { type: "expression", name: "e1", expression: expression },
+      ] });
+      survey.data = { m1: [{ col1: 10 }, { col1: 1 }] };
+      return survey.getValue("e1");
+    };
+    expect(run("sumInArray({m1}, 'col1', '{col1} > 5')")).toBe(10);
+    expect(run("sumInArray({m1}, 'col1', '{row.col1} > 5')")).toBe(0);
     const findings = lint("sumInArray({m1}, 'col1', '{row.col1} > 5')");
     expect(findings).toHaveLength(1);
     expect(findings[0].ruleId).toBe("reference/unknown");
-    expect(findings[0].hint.reason).toBe("rowScopePrefix");
+    expect(findings[0].hint).toEqual({ reason: "inArrayFilterScope", name: "row" });
+    expect(findings[0].message).toContain("without \"row.\"");
     expect(findings[0].path).toBe("elements[2].expression.inArray[0]");
   });
   test("an unknown survey name inside the condition is reported", () => {
@@ -1023,11 +1035,19 @@ describe("nested conditions of inArray functions", () => {
         { type: "expression", name: "e1", expression: "sumInArray({p1}, 'tq1', '{tq1} > 1')" },
       ],
     };
+    const run = (): any => {
+      const survey = new Model(json);
+      survey.data = { p1: [{ tq1: 3 }, { tq1: 1 }] };
+      return survey.getValue("e1");
+    };
+    expect(run()).toBe(3);
     expect(lintSurvey(json).findings).toHaveLength(0);
     // "panel." names nothing in the panel's data, as "row." names nothing in a row's
     json.elements[1].expression = "sumInArray({p1}, 'tq1', '{panel.tq1} > 1')";
+    expect(run()).toBe(0);
     const findings = lintSurvey(json).findings;
     expect(findings).toHaveLength(1);
-    expect(findings[0].hint.reason).toBe("panelScopePrefix");
+    expect(findings[0].hint).toEqual({ reason: "inArrayFilterScope", name: "panel" });
+    expect(findings[0].message).toContain("without \"panel.\"");
   });
 });

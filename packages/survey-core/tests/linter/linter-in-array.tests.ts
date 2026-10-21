@@ -1,6 +1,7 @@
 import { describe, test, expect } from "vitest";
 import { Model } from "survey-core";
 import { lintSurvey } from "../../src/linter/index";
+import { withFunction } from "./lint-test-helpers";
 
 describe("inArray conditions match runtime item lookup", () => {
   ["matrixdynamic", "paneldynamic"].forEach(type => {
@@ -168,9 +169,82 @@ describe("unquoted inArray filters", () => {
       [{ type: "text", name: "filterText" }]);
     expect(runTotal(json, { items: ITEM_ROWS, filterText: "{amount} > 2" })).toBe(8);
     expect(summary(json)).toEqual([]);
-    // an item field is not looked up at the parent's scope
-    json.elements[2].expression = "sumInArray({items}, 'amount', {amount})";
-    expect(summary(json)).toEqual(["reference/unknown/notFound @ elements[2].expression"]);
+  });
+
+  // An operand that cannot give a string in the parent's scope - it reads no name that resolves
+  // there and holds no string constant - always runs per item as it is written
+  // (getInArrayParams: originalParams[i].toString()), so it is a filter of its own.
+  test("an operand that never gives a string is a filter of its own", () => {
+    const cases: Array<{ filter: string, value: number }> = [
+      { filter: "{approved}", value: 2 },
+      { filter: "{price} > 4 and {approved}", value: 2 },
+      { filter: "{product} notempty and {approved}", value: 2 },
+      { filter: "iif({price} > 6, {approved} = false, {approved})", value: 10 },
+    ];
+    cases.forEach(item => {
+      const json = surveyWith("matrixdynamic", "sumInArray({items}, 'amount', " + item.filter + ")");
+      expect(runTotal(json, { items: ITEM_ROWS }), item.filter).toBe(item.value);
+      expect(summary(json), item.filter).toEqual([]);
+    });
+    // a name neither the item nor the survey holds is reported at the filter, not at the parent
+    const json = surveyWith("matrixdynamic", "sumInArray({items}, 'amount', {price} > 4 and {aproved})");
+    expect(runTotal(json, { items: ITEM_ROWS })).toBe(0);
+    expect(summary(json)).toEqual(["reference/unknown/notFound @ elements[1].expression.inArray[0]"]);
+    // the runtime counts an item only when the filter gives true, so arithmetic counts none
+    json.elements[1].expression = "sumInArray({items}, 'amount', {quantity} - 3)";
+    expect(runTotal(json, { items: ITEM_ROWS })).toBe(0);
+    expect(summary(json)).toEqual(["expression/meaningless-condition/notABoolean @ elements[1].expression.inArray[0]"]);
+  });
+
+  test("an operand that never gives a string: the call sits in a dynamic panel template", () => {
+    const json: any = {
+      elements: [itemsContainer("matrixdynamic"), {
+        type: "paneldynamic", name: "orders", panelCount: 1,
+        templateElements: [{ type: "expression", name: "subtotal", expression: "sumInArray({items}, 'amount', {approved})" }],
+      }],
+    };
+    const run = (): any => {
+      const survey = new Model(json);
+      survey.data = { items: ITEM_ROWS, orders: [{}] };
+      return (<any>survey.getQuestionByName("orders")).panels[0].getQuestionByName("subtotal").value;
+    };
+    expect(run()).toBe(2);
+    expect(summary(json)).toEqual([]);
+    json.elements[1].templateElements[0].expression = "sumInArray({items}, 'amount', {aproved})";
+    expect(run()).toBe(0);
+    expect(summary(json)).toEqual(["reference/unknown/notFound @ elements[1].templateElements[0].expression.inArray[0]"]);
+  });
+
+  // An operand that reads a survey name may give a string - which text runs then depends on the
+  // data. When it reads an item field too, it is not analysed: the item field is no survey name.
+  test("an operand that may give a string and reads an item field is not analysed", () => {
+    const json = surveyWith("matrixdynamic", "sumInArray({items}, 'amount', {label} or {approved})",
+      [{ type: "text", name: "label" }]);
+    // the survey value is a string, so it is the filter's text
+    expect(runTotal(json, { items: ITEM_ROWS, label: "{amount} > 2" })).toBe(8);
+    // the survey value is empty, so the operand's own text runs per item
+    expect(runTotal(json, { items: ITEM_ROWS })).toBe(2);
+    expect(summary(json)).toEqual([]);
+  });
+
+  test("a function without a boolean returnType that reads an item field is not analysed", () => {
+    withFunction("firstOf", (params: Array<any>) => params[0] || params[1], () => {
+      const json = surveyWith("matrixdynamic", "sumInArray({items}, 'amount', firstOf({rule}, {approved}))",
+        [{ type: "text", name: "rule" }]);
+      expect(runTotal(json, { items: ITEM_ROWS, rule: "{amount} > 2" })).toBe(8);
+      expect(runTotal(json, { items: ITEM_ROWS })).toBe(2);
+      expect(summary(json)).toEqual([]);
+    });
+  });
+
+  test("a null literal in an unquoted filter is reported at the filter", () => {
+    const json = surveyWith("matrixdynamic", "sumInArray({items}, 'amount', '{product} != null')");
+    expect(runTotal(json, { items: ITEM_ROWS })).toBe(10);
+    expect(summary(json)).toEqual([]);
+    // the operand's source text drops the null ("({product} != )"), which the runtime cannot run
+    json.elements[1].expression = "sumInArray({items}, 'amount', {product} != null)";
+    expect(runTotal(json, { items: ITEM_ROWS })).toBe(0);
+    expect(summary(json)).toEqual(["expression/syntax/unparsable @ elements[1].expression.inArray[0]"]);
   });
 
   test("a filter operand that may be a string gets no item site: iif() with string branches", () => {
@@ -188,9 +262,25 @@ describe("unquoted inArray filters", () => {
     // the iif() condition runs in the parent's scope, where an item field is unknown
     json.elements[2].expression = "sumInArray({items}, 'amount', iif({amount} = 'high', '{amount} > 2', '{amount} > 0'))";
     expect(summary(json)).toEqual(["reference/unknown/notFound @ elements[2].expression"]);
-    // a branch that is not a constant string is not analysed
+    // a branch that reads a survey name may give a string: it stays a part of the parent
     json.elements[2].expression = "sumInArray({items}, 'amount', iif({mode} = 'high', {mode}, '{amount} > 0'))";
     expect(summary(json)).toEqual([]);
+  });
+
+  test("an iif() with a string branch: a branch that never gives a string is a filter of its own", () => {
+    const expression = "sumInArray({items}, 'amount', iif({mode} = 'high', {amount} > 2, '{amount} > 0'))";
+    const json = surveyWith("matrixdynamic", expression, [{ type: "text", name: "mode" }]);
+    // the operand branch gives false in the parent's scope, so the whole iif() runs per item
+    expect(runTotal(json, { items: ITEM_ROWS, mode: "high" })).toBe(8);
+    expect(runTotal(json, { items: ITEM_ROWS, mode: "low" })).toBe(10);
+    expect(summary(json)).toEqual([]);
+    json.elements[2].expression = "sumInArray({items}, 'amount', iif({mode} = 'high', {missing} > 2, '{amount} > {other}'))";
+    expect(runTotal(json, { items: ITEM_ROWS, mode: "high" })).toBe(0);
+    expect(runTotal(json, { items: ITEM_ROWS, mode: "low" })).toBe(0);
+    expect(summary(json)).toEqual([
+      "reference/unknown/notFound @ elements[2].expression.inArray[0]",
+      "reference/unknown/notFound @ elements[2].expression.inArray[1]",
+    ]);
   });
 
   test("an array whose items are unknown: the filter's names are not reported", () => {
@@ -206,5 +296,55 @@ describe("unquoted inArray filters", () => {
     // what does not depend on the items is still checked
     json.elements[0].expression = "sumInArray({hostArray}, 'x', missingFn({y}) > 0)";
     expect(summary(json, options)).toEqual(["expression/unknown-function/notRegistered @ elements[0].expression"]);
+  });
+
+  test("an array whose items are unknown: a call nested in its filter is not analysed either", () => {
+    const options = { knownVariables: ["hostArray"] };
+    const json = surveyWith("matrixdynamic",
+      "sumInArray({hostArray}, 'x', countInArray({items}, 'amount', {amount} > 2) > 0)");
+    const run = (): any => {
+      const survey = new Model(json);
+      survey.setVariable("hostArray", [{ x: 1 }, { x: 5 }]);
+      survey.data = { items: ITEM_ROWS };
+      return survey.getValue("total");
+    };
+    expect(run()).toBe(6);
+    expect(summary(json, options)).toEqual([]);
+    // the nested filter is left alone with the filter that holds it: a misspelt field goes unreported
+    json.elements[1].expression = "sumInArray({hostArray}, 'x', countInArray({items}, 'amount', {amout} > 2) > 0)";
+    expect(run()).toBe(0);
+    expect(summary(json, options)).toEqual([]);
+  });
+});
+
+// The runtime evaluates an unquoted filter in the scope of the expression first, so the survey
+// names it reads are dependencies of the expression; the names inside a string filter are not.
+describe("inArray filters as dependencies", () => {
+  const calcSurvey = (filter: string): any => ({
+    elements: [itemsContainer("matrixdynamic"), { type: "text", name: "limit", inputType: "number" }],
+    calculatedValues: [{ name: "c1", expression: "sumInArray({items}, 'amount', " + filter + ")" }],
+  });
+
+  test("a survey name read by an unquoted filter re-runs the calculated value", () => {
+    const run = (filter: string): Array<any> => {
+      const survey = new Model(calcSurvey(filter));
+      survey.data = { items: ITEM_ROWS, limit: 0 };
+      const before = survey.getVariable("c1");
+      survey.setValue("limit", 5);
+      return [before, survey.getVariable("c1")];
+    };
+    expect(run("{amount} > {limit}")).toEqual([10, 8]);
+    expect(run("'{amount} > {limit}'")).toEqual([10, 10]);
+  });
+
+  test("a calculated value read by its own unquoted filter is a cycle", () => {
+    const json = calcSurvey("{amount} > {c1}");
+    const survey = new Model(json);
+    survey.data = { items: ITEM_ROWS };
+    expect(survey.getVariable("c1")).toBe(10);
+    expect(summary(json)).toEqual(["cycle/calculated-value/self @ calculatedValues[0].expression"]);
+    // the string form does not depend on what it reads
+    json.calculatedValues[0].expression = "sumInArray({items}, 'amount', '{amount} > {c1}')";
+    expect(summary(json)).toEqual([]);
   });
 });

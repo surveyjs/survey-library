@@ -251,6 +251,8 @@ export const SurveyLintHintReasons = Object.freeze({
   panelStandalone: "panelStandalone",
   itemScope: "itemScope",
   compositeScopePrefix: "compositeScopePrefix",
+  // a row or panel variable inside an inArray filter, which runs against the item and the survey
+  inArrayFilterScope: "inArrayFilterScope",
   // the name exists in the surrounding container and only needs its prefix
   matrixColumn: "matrixColumn",
   panelQuestion: "panelQuestion",

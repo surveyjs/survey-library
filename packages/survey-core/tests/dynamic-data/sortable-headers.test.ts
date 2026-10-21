@@ -232,6 +232,23 @@ describe("Sortable headers: unique header ids", () => {
     expect(ids.length, "#1").toBe(3);
     expect(new Set(ids).size, "#2").toBe(3);
   });
+  /* A header cell without the survey takes its id from the default generator, which can repeat the
+     "scell_0" the corner cell takes from the survey's: React keys the header cells by id. */
+  const checkHeaderIds = (json: any, count: number): void => {
+    const survey = new SurveyModel({ elements: [Object.assign({ type: "matrixdropdown", name: "matrix" }, json)] });
+    const cells = headerCells(<QuestionMatrixDropdownModel>survey.getQuestionByName("matrix"));
+    expect(cells.length, "#1").toBe(count);
+    expect(cells.filter((cell: QuestionMatrixDropdownRenderedCell): boolean => cell.getSurvey() !== survey).length, "#2: every cell has the survey").toBe(0);
+    expect(new Set(cells.map((cell: QuestionMatrixDropdownRenderedCell): string => cell.id)).size, "#3: unique").toBe(count);
+  };
+  test("a column shown in multiple columns: the corner cell and the choice headers have different ids", () => {
+    checkHeaderIds({ rows: ["r1", "r2"], columns: [
+      { name: "rating", cellType: "radiogroup", choices: [1, 2, 3], showInMultipleColumns: true },
+      { name: "comment", cellType: "comment" }] }, 5);
+  });
+  test("a transposed matrix with totals: the corner cell and the footer title have different ids", () => {
+    checkHeaderIds({ transposeData: true, rows: ["r1", "r2"], columns: [{ name: "a", cellType: "text", totalType: "sum" }] }, 4);
+  });
 });
 
 describe("Sortable headers: where a header does not sort", () => {

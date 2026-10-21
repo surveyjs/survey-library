@@ -11675,7 +11675,8 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.allRows.map(r => r.getQuestionByName("c1").value + r.getQuestionByName("c2").value), "#4")
       .toEqual(["a1", "b2", "b1"]);
     matrix.toggleSort("c1");
-    expect(getSort(matrix), "#5: a click without the modifier starts over").toEqual([{ field: "c1", direction: "desc" }]);
+    expect(getSort(matrix), "#5: a click without the modifier turns a sorted field around in its own level")
+      .toEqual([{ field: "c1", direction: "desc" }, { field: "c2", direction: "desc" }]);
   });
   test("removing a row on an earlier page fills the vacated slot from the next one", () => {
     const matrix = createMatrix({ rowCount: 5, pageSize: 2, allowRemoveRows: true }, abcde);

@@ -42,7 +42,9 @@ export interface IRecordsPagingOwner {
      its own paging and builds every object. Absent -> pageSize. */
   listPageSize?: number;
   /* The most criteria a respondent's toggleSort(field, true) leaves in the sort: maxSortLevel.
-     Absent or 0 -> no limit. sort(), sortCriteria and JSON are never limited. */
+     Absent or 0 -> no limit. sort(), sortCriteria and JSON are never limited. Above 1, a toggleSort
+     without append on a field already in the sort cycles that level in place; absent, 0 or 1 -> it
+     replaces the sort. */
   maxSortLevel?: number;
   /* The data type the list registered for a record field: the direction toggleSort starts with
      follows it (getFirstSortDirection). Absent, or "any" -> ascending first. */
@@ -432,7 +434,9 @@ export class RecordsPagingController implements ISortCriterionOwner {
      by a field in a given direction is sort() and does not need a third spelling; what is unique here
      is the cycle, which every renderer needs in one place. append runs the same cycle over one entry
      of the sort instead of over the whole of it - what a modified header click does in a grid - and
-     leaves the other fields where they are. */
+     leaves the other fields where they are. While maxSortLevel is above 1, a field that is already in
+     the sort is cycled the same way without append, so a plain click changes only its own level; a
+     plain click on a field that is not sorted still makes a sort by that field alone. */
   /* A header click is a move the respondent makes: it replaces the page, so the page it replaces is
      validated first (layer 1). Returns false only for an error found synchronously. Every list can
      sort: a paging source that cannot sort is read whole while a sort is set (DynamicDataList). */
@@ -455,7 +459,10 @@ export class RecordsPagingController implements ISortCriterionOwner {
     } else if (current.direction === first) {
       dir = first === "asc" ? "desc" : "asc";
     }
-    if (!append) {
+    // While a respondent can sort by more than one field, every level of the sort is cycled in place:
+    // a plain click on a field that is already sorted changes only its own level.
+    const inPlace = append || !!current && this.owner.maxSortLevel > 1;
+    if (!inPlace) {
       return !dir ? [] : [{ field: field, direction: dir }];
     }
     // Every branch below builds a NEW array: the setter compares the incoming value with the sort

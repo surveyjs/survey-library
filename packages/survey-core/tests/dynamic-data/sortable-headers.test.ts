@@ -195,6 +195,69 @@ describe("Sortable headers: a sort by more than one column", () => {
   });
 });
 
+describe("Sortable headers: a plain click on a column that is already sorted, while the sort can have more than one level", () => {
+  const twoLevels = [{ field: "price", direction: "desc" }, { field: "product", direction: "asc" }];
+  test("the second level turns around in place, and then leaves the sort", () => {
+    const matrix = createMatrix({ maxSortLevel: 2 });
+    matrix.sort(<any>twoLevels);
+    matrix.toggleSort("product");
+    expect(sortOf(matrix), "#1").toEqual([{ field: "price", direction: "desc" }, { field: "product", direction: "desc" }]);
+    matrix.toggleSort("product");
+    expect(sortOf(matrix), "#2").toEqual([{ field: "price", direction: "desc" }]);
+  });
+  test("the first level turns around in place, and then the next level becomes the first one", () => {
+    const matrix = createMatrix({ maxSortLevel: 2 });
+    matrix.sort(<any>twoLevels);
+    matrix.toggleSort("price");
+    expect(sortOf(matrix), "#1: a number starts descending, so the next direction is ascending").toEqual(
+      [{ field: "price", direction: "asc" }, { field: "product", direction: "asc" }]);
+    matrix.toggleSort("price");
+    expect(sortOf(matrix), "#2").toEqual([{ field: "product", direction: "asc" }]);
+    expect([header(matrix, "price").ariaSort, header(matrix, "product").ariaSort], "#3: aria-sort moves to the new first level")
+      .toEqual([undefined, "ascending"]);
+    expect(columnValues(matrix, "product"), "#4").toEqual(["a", "b", "c"]);
+  });
+  test("a column that is not sorted still makes a sort by that column alone", () => {
+    const matrix = createMatrix({ maxSortLevel: 2 });
+    matrix.sort(<any>twoLevels);
+    matrix.toggleSort("added");
+    expect(sortOf(matrix), "#1").toEqual([{ field: "added", direction: "desc" }]);
+    matrix.sort(<any>twoLevels);
+    matrix.toggleSort("discontinued");
+    expect(sortOf(matrix), "#2: alphabetical first").toEqual([{ field: "discontinued", direction: "asc" }]);
+  });
+  test("with the default level limit, a plain click on a sorted column replaces a sort from code", () => {
+    const matrix = createMatrix();
+    matrix.sort(<any>twoLevels);
+    matrix.toggleSort("product");
+    expect(sortOf(matrix), "#1").toEqual([{ field: "product", direction: "desc" }]);
+  });
+  test("through the header cells: each level keeps its arrow, and the other levels stay", () => {
+    const matrix = createMatrix({ maxSortLevel: 2 });
+    matrix.sort(<any>twoLevels);
+    expect(header(matrix, "product").toggleSort(false), "#1").toBe(true);
+    expect(sortOf(matrix), "#2").toEqual([{ field: "price", direction: "desc" }, { field: "product", direction: "desc" }]);
+    expect([header(matrix, "price").sortIconName, header(matrix, "product").sortIconName], "#3: both show their arrows")
+      .toEqual(["icon-arrowdown-16x16", "icon-arrowdown-16x16"]);
+    expect([header(matrix, "price").ariaSort, header(matrix, "product").ariaSort], "#4").toEqual(["descending", undefined]);
+    expect(header(matrix, "product").sortTooltip, "#5").toBe("Alphabet, Z - A");
+    expect(header(matrix, "price").toggleSort(false), "#6").toBe(true);
+    expect(sortOf(matrix), "#7").toEqual([{ field: "price", direction: "asc" }, { field: "product", direction: "desc" }]);
+    expect(header(matrix, "added").toggleSort(false), "#8").toBe(true);
+    expect(sortOf(matrix), "#9: a column that is not sorted replaces the sort").toEqual([{ field: "added", direction: "desc" }]);
+  });
+  test("a refused click keeps both levels", () => {
+    const matrix = createMatrix({ maxSortLevel: 2, pageSize: 2, columns: productColumns.map((column: any): any =>
+      column.name === "product" ? Object.assign({ isRequired: true }, column) : column) });
+    matrix.value = [{ price: 9 }, { product: "x", price: 2 }, { product: "y", price: 3 }];
+    matrix.sort(<any>twoLevels);
+    matrix.visibleRows;
+    expect(header(matrix, "product").toggleSort(false), "#1: the empty required cell is on this page").toBe(false);
+    expect(sortOf(matrix), "#2").toEqual(twoLevels);
+    expect([header(matrix, "price").sortDirection, header(matrix, "product").sortDirection], "#3").toEqual(["desc", "asc"]);
+  });
+});
+
 describe("Sortable headers: the cell identity", () => {
   test("a column header keeps its id across a sort, even when the drag cell leaves the header row", () => {
     const matrix = createMatrix({ allowRowReorder: true });

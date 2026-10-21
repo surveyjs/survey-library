@@ -169,7 +169,8 @@ export class QuestionMatrixDropdownRenderedCell {
     const matrix = this.matrix;
     return !!matrix && !matrix.isDataLoading && !matrix.isPageMovePending;
   }
-  /* append: Shift, Ctrl or Cmd was held - the column joins the sort instead of replacing it. false: the
+  /* append: Shift, Ctrl or Cmd was held - the column joins the sort instead of replacing it (a sorted
+     column under maxSortLevel above 1 keeps its level either way: matrix.toggleSort). false: the
      sort did not change - the page it would replace has an error, or the click was not allowed now. */
   public toggleSort(append?: boolean): boolean {
     if (!this.isSortable || !this.canToggleSort) return false;

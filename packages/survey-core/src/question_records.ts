@@ -2152,8 +2152,9 @@ export abstract class QuestionRecordsModel extends Question {
      or a date field, ascending otherwise (getSortFieldDataType) - then the other one, then not sorted. With
      append the field is cycled inside the current sort instead of replacing it, which is the
      multi-field sort a modified header click makes; a new field that would go past maxSortLevel
-     replaces the last level. It validates the page it replaces. For the renderers: code sorts with
-     sort(). */
+     replaces the last level. While maxSortLevel is above 1, a field already in the sort is cycled in
+     place without append too, and the other levels stay; a field that is not sorted still replaces
+     the sort. It validates the page it replaces. For the renderers: code sorts with sort(). */
   public toggleSort(field: string, append?: boolean): boolean { return this.paging.toggleSort(field, append); }
   /* The data type the list knows a record field by (getFields): it decides the direction a field is
      sorted in first and how a direction is labelled. A field the list does not know is "any". */

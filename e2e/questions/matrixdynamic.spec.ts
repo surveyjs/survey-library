@@ -1045,5 +1045,36 @@ frameworks.forEach((framework) => {
       const describedBy = await productHeader.locator("button").getAttribute("aria-describedby");
       expect(await page.locator(`[id="${describedBy}"]`).textContent()).toBe("Sorted by price (High - Low), then by product (Alphabet, A - Z)");
     });
+
+    test("a click without Shift on the second sorted column turns it around in place, then removes it", async ({ page }) => {
+      await initSurvey(page, framework, sortJson({ maxSortLevel: 2, defaultValue: [
+        { product: "b", price: 20 },
+        { product: "c", price: 20 },
+        { product: "a", price: 20 },
+        { product: "d", price: 10 },
+      ] }));
+      const priceHeader = page.locator("thead th").nth(1);
+      const productHeader = page.locator("thead th").nth(0);
+      const products = async (): Promise<Array<string>> =>
+        page.locator(".sd-table__row input[type=text]").evaluateAll((inputs: Array<HTMLInputElement>) => inputs.map((input) => input.value));
+
+      await priceHeader.locator("button").click();
+      expect(await products()).toEqual(["b", "c", "a", "d"]);
+
+      await productHeader.locator("button").click({ modifiers: ["Shift"] });
+      expect(await products()).toEqual(["a", "b", "c", "d"]);
+
+      await productHeader.locator("button").click();
+      expect(await products()).toEqual(["c", "b", "a", "d"]);
+      await expect(priceHeader.locator(".sd-table__header-sort--desc")).toHaveCount(1);
+      await expect(productHeader.locator(".sd-table__header-sort--desc")).toHaveCount(1);
+      await expect(priceHeader).toHaveAttribute("aria-sort", "descending");
+      await expect(productHeader).not.toHaveAttribute("aria-sort");
+
+      await productHeader.locator("button").click();
+      expect(await products()).toEqual(["b", "c", "a", "d"]);
+      await expect(productHeader.locator(".sd-table__header-sort--none")).toHaveCount(1);
+      await expect(priceHeader).toHaveAttribute("aria-sort", "descending");
+    });
   });
 });

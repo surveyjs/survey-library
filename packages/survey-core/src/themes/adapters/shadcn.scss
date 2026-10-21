@@ -857,3 +857,10 @@
 input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   height: calc(var(--spacing) * 1.5);
 }
+
+// Creator collapsed plaque: padding-top is spacing-x400, padding-bottom is spacing-x200
+// plus the question gap. This adapter's gap is smaller, so the title sits on the bottom edge.
+.svc-creator:not(.svc-creator--mobile) .svc-question__adorner .svc-question__content--collapsed {
+  padding-top: var(--sjs2-spacing-x400, 32px);
+  padding-bottom: var(--sjs2-spacing-x400, 32px);
+}

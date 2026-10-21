@@ -1146,13 +1146,15 @@ input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   display: none;
 }
 
-// Collapsed designer card. The label is absolutely positioned inside the input, and the
-// card removes that input, so the label would sit outside the plaque.
-// titleLocation "left" hides this header and fades in .svc-element__header--hidden instead.
-// A top title has no overlay, so keep this header and drop the floating placement:
-// it then occupies the plaque the same way the overlay title does.
-// While the input is still collapsing, hide the label — it is still pinned to the field.
+// Floating labels only (text, comment, dropdown). Hide the label for the whole
+// expand and collapse animation so it does not travel between the plaque and the input.
+// Collapse fades it out in place. Expand removes it immediately — the position
+// switches from the plaque to the field in the same frame.
 .sd-question:not(.sd-question--complex):has(
+    .sd-question__content--text,
+    .sd-question__content--comment,
+    .sd-question__content--dropdown
+  ):has(
     > .sd-question__container
       > .sd-question__header-and-content-container
       > .sd-question__content.svc-question--leave
@@ -1164,19 +1166,43 @@ input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   transition: opacity 150ms;
 }
 
+.sd-question:not(.sd-question--complex):has(
+    .sd-question__content--text,
+    .sd-question__content--comment,
+    .sd-question__content--dropdown
+  ):has(
+    > .sd-question__container
+      > .sd-question__header-and-content-container
+      > .sd-question__content.svc-question--enter
+  )
+  > .sd-question__container
+  > .sd-question__header-and-content-container
+  > .sd-question__header:not(.sd-question__header--location--left) {
+  opacity: 0;
+  transition: none;
+}
+
+// Creator collapsed plaque: padding-top is spacing-x400, padding-bottom is spacing-x200
+// plus the question gap. This adapter's gap is 0, so the title sits on the bottom edge.
+.svc-creator:not(.svc-creator--mobile) .svc-question__adorner .svc-question__content--collapsed {
+  padding-top: var(--sjs2-spacing-x400, 32px);
+  padding-bottom: var(--sjs2-spacing-x400, 32px);
+}
+
 .svc-question__content--collapsed
   .sd-question:not(.sd-question--complex):has(
     .sd-question__content--text,
     .sd-question__content--comment,
     .sd-question__content--dropdown
   )
-  > .sd-question__container
-  > .sd-question__header-and-content-container
-  > .sd-question__header:not(.sd-question__header--location--left) {
-  position: static;
+  .sd-question__header:not(.sd-question__header--location--left) {
+  // The empty-field label is translate(8px, 16px) on an absolute header. That shift
+  // stays in effect after the input is gone and drops the title onto the bottom edge.
+  position: static !important;
   top: auto;
   left: auto;
-  transform: none;
+  inset: auto;
+  transform: none !important;
   width: auto !important;
   max-width: 100%;
   margin: 0;

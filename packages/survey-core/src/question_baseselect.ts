@@ -2928,6 +2928,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase implements IChoiceS
    *
    * Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
    * @hidefor QuestionRankingModel
+   * @since 3.2.2
    */
   public get choiceShortcutsEnabled(): boolean | undefined {
     const own = this.getPropertyValueWithoutDefault("choiceShortcutsEnabled");

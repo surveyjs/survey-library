@@ -111,9 +111,10 @@ export type DynamicDataErrorOperation = DynamicDataSourceMethod | "count";
 // The name of DynamicDataErrorOperation released in v3.2.1, kept so that code importing it compiles.
 export type DynamicDataOperation = DynamicDataErrorOperation;
 
+// A missing direction is ascending.
 export interface ISortCriterion {
   field: string;
-  direction: SortDirection;
+  direction?: SortDirection;
 }
 // One read = one request: the range and the view the list wants, so that the source keeps no state
 // of its own and two questions can share it.
@@ -124,7 +125,9 @@ export interface IDynamicDataReadRequest {
   take: number;
   // The expression text of the filter, "" for no filter. The list never parses it.
   filter: string;
-  // The sort descriptors, applied in array order; [] for the source order.
+  /* The sort descriptors, applied in array order; [] for the source order. Every criterion the list
+     sends has a direction, "asc" or "desc", although the type says it is optional: the source shares
+     ISortCriterion with the question's sortCriteria, where a missing direction is ascending. */
   sort: Array<ISortCriterion>;
 }
 export interface IDynamicDataReadResult {

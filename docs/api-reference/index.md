@@ -49,13 +49,13 @@ product: Form Library
 - [`AnswerCountValidator`](https://surveyjs.io/form-library/documentation/api-reference/answercountvalidator.md) — A class that implements answer count validation in the question types that can have multiple values (for instance, Checkboxes).
 - [`InputMaskDateTime`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskdatetime.md) — A class that describes an input mask of the `"datetime"` `maskType`.
 - [`NumericValidator`](https://surveyjs.io/form-library/documentation/api-reference/numericvalidator.md) — A class that implements a validator for numeric values.
+- [`QuestionCheckboxBase`](https://surveyjs.io/form-library/documentation/api-reference/questioncheckboxbase.md) — A base class for multiple-selection question types that can display choice items in multiple columns (Checkbox, Radiogroup, Image Picker).
 - [`QuestionRadiogroupModel`](https://surveyjs.io/form-library/documentation/api-reference/questionradiogroupmodel.md) — A class that describes the Radio Button Group question type.
 - [`RegexValidator`](https://surveyjs.io/form-library/documentation/api-reference/regexvalidator.md) — A class that implements validation using regular expressions.
 - [`SurveyValidator`](https://surveyjs.io/form-library/documentation/api-reference/surveyvalidator.md) — A base class for all classes that implement validators.
 - [`ExpressionValidator`](https://surveyjs.io/form-library/documentation/api-reference/expressionvalidator.md) — A class that implements validation using expressions.
 - [`InputMaskBase`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskbase.md) — A base class for classes that implement input masks: - `InputMaskNumeric` - `InputMaskCurrency` - `InputMaskDateTime` - `InputMaskPattern` Date-time, numeric, and currency masks inherit format settings from the survey's `regionalFormat` object.
 - [`InputMaskPattern`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskpattern.md) — A class that describes an input mask of the `"pattern"` `maskType`.
-- [`QuestionCheckboxBase`](https://surveyjs.io/form-library/documentation/api-reference/questioncheckboxbase.md) — A base class for multiple-selection question types that can display choice items in multiple columns (Checkbox, Radiogroup, Image Picker).
 - [`QuestionHtmlModel`](https://surveyjs.io/form-library/documentation/api-reference/questionhtmlmodel.md) — A class that describes the HTML question type.
 - [`EmailValidator`](https://surveyjs.io/form-library/documentation/api-reference/emailvalidator.md) — A class that implements a validator for e-mail addresses.
 - [`QuestionNonValue`](https://surveyjs.io/form-library/documentation/api-reference/questionnonvalue.md) — A base class for question types that cannot have a value (Html, Image).

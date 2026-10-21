@@ -66,11 +66,12 @@ export interface IRecordsPageState {
   nested: { [recordIndex: number]: { [valueName: string]: IRecordsPageState } };
 }
 
-// The sort as plain { field, direction } objects, in the order given: never the caller's own objects.
+/* The sort as plain { field, direction } objects, in the order given: never the caller's own objects.
+   A missing direction is "asc", so that { field: "a" } and the item it becomes are the same sort. */
 function toPlainSort(sort: Array<ISortCriterion>): Array<ISortCriterion> {
   if (!Array.isArray(sort)) return [];
   return sort.filter((item: ISortCriterion): boolean => !!item)
-    .map((item: ISortCriterion): ISortCriterion => ({ field: item.field, direction: item.direction }));
+    .map((item: ISortCriterion): ISortCriterion => ({ field: item.field, direction: item.direction || "asc" }));
 }
 /* Compared as { field, direction } projections and in order: Helpers.isTwoValueEquals never finds a
    SortCriterion equal to a plain object. */
@@ -289,13 +290,15 @@ export class RecordsPagingController implements ISortCriterionOwner {
   private runViewPush(func: () => void): void {
     this.viewPushScope.run(func);
   }
-  /* The sort is a live array of SortCriterion items, the way choices is: an assignment, a push or a
-     splice on it, and an edit of an item, all re-apply it. Every one of them goes through setSortCore,
-     so design mode, the load, a pending view and the "same sort, no reset" check treat them alike.
-     It is the CURRENT sort and not only the declared one - a header click through toggleSort()
-     changes what toJSON() emits, which is what the Creator wants and what a running survey never
-     asks for. */
-  public get sortCriteria(): Array<SortCriterion> {
+  /* The sort is a live array, the way choices is: an assignment, a push, an unshift or a splice on it,
+     and an edit of an item, all re-apply it. Every one of them goes through setSortCore, so design
+     mode, the load, a pending view and the "same sort, no reset" check treat them alike. The caller
+     works with plain { field, direction } objects; every element of the array is a SortCriterion
+     all the same, because the question converts what it is given on every path - the assignment and
+     the array's own operations (onSortCriterionAdded). It is the CURRENT sort and not only the
+     declared one - a header click through toggleSort() changes what toJSON() emits, which is what the
+     Creator wants and what a running survey never asks for. */
+  public get sortCriteria(): Array<ISortCriterion> {
     return this.owner.getArrayPropertyValue(pagingStateKeys.sortCriteria, (item: any): void => { this.onSortCriterionAdded(item); });
   }
   public set sortCriteria(val: Array<ISortCriterion>) {
@@ -309,8 +312,9 @@ export class RecordsPagingController implements ISortCriterionOwner {
      list ended up with: the array and item hooks it raises are not changes to re-apply. A Scope and
      not a flag: a throw would leave a flag set and every later change would be dropped. */
   private sortWriteScope = new Scope();
-  /* The question never holds the caller's objects: every write creates its own items. The array is
-     read first, so that setArrayPropertyValue finds it created. */
+  /* The question never holds the caller's objects: an assignment and the mirror create their own
+     items here, and a push, an unshift or a splice converts what it adds in onSortCriterionAdded.
+     The array is read first, so that setArrayPropertyValue finds it created. */
   private writeSortCriteria(val: Array<ISortCriterion>): void {
     const items = val.map((item: ISortCriterion): SortCriterion => new SortCriterion(item.field, item.direction));
     this.sortWriteScope.run((): void => {
@@ -318,15 +322,35 @@ export class RecordsPagingController implements ISortCriterionOwner {
       this.owner.setArrayPropertyValue(pagingStateKeys.sortCriteria, items);
     });
   }
+  /* The onPush callback of the live array, for every item an assignment, a push, an unshift or a
+     splice adds. It runs after the native operation and before any change hook, so an item it
+     replaces is in the array by the time the sort is re-applied. */
   private onSortCriterionAdded(item: any): void {
-    if (!!item && typeof item.setOwner === "function") {
-      item.setOwner(this);
+    if (!!item) {
+      this.toOwnSortCriterion(item).setOwner(this);
     }
     // The serializer pushes the authored items while the question loads, and the question raises no
     // change then: the push itself marks the view pending, so that no sync mirrors it away.
     if (!this.sortWriteScope.isActive && this.owner.isLoadingFromJson) {
       this.isViewPending = true;
     }
+  }
+  /* A SortCriterion without an owner is kept: the serializer creates it while it loads, and
+     writeSortCriteria creates it. Anything else - a plain object, or an item that already has an
+     owner (another question's, or one added to this array a second time) - is replaced in place by a
+     new SortCriterion. The plain index assignment is not wrapped, so it raises no second change.
+     The item is found by identity and not by the index Base passes: that index is wrong for a
+     negative splice start and missing for an assignment. When one call adds the same object twice,
+     the first slot already holds its converted item by the time the second one is looked for. */
+  private toOwnSortCriterion(item: any): SortCriterion {
+    if (item instanceof SortCriterion && !item.hasOwner) return item;
+    const res = new SortCriterion(item.field, item.direction);
+    const items = this.owner.getPropertyValue(pagingStateKeys.sortCriteria);
+    const index = Array.isArray(items) ? items.indexOf(item) : -1;
+    if (index > -1) {
+      items[index] = res;
+    }
+    return res;
   }
   // A push, a splice, or any other change made on the array in place (the owner's property hook).
   public onSortCriteriaChanged(): void {

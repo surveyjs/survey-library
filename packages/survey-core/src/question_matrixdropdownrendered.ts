@@ -40,6 +40,9 @@ export class QuestionMatrixDropdownRenderedCell {
   public choiceIndex: number;
   public isOtherChoice: boolean;
   public matrix: QuestionMatrixDropdownModelBase;
+  /* Gives a cell without a matrix and a row - the empty corner cell, a choice header, the footer title -
+     the survey, and with it the id generator, but not the matrix: a cell with the matrix gets a tooltip. */
+  public surveyOwner: QuestionMatrixDropdownModelBase;
   public isEmpty: boolean;
   public colSpans: number = 1;
   public panel: PanelModel;
@@ -51,7 +54,7 @@ export class QuestionMatrixDropdownRenderedCell {
   public constructor() {
   }
   public getSurvey(): ISurvey {
-    return this.matrix?.getSurvey() || this.row?.getSurvey() || null;
+    return this.matrix?.getSurvey() || this.row?.getSurvey() || this.surveyOwner?.getSurvey() || null;
   }
   private getGeneratedId(): string {
     if (this.idValue === undefined) {
@@ -1208,6 +1211,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   ): QuestionMatrixDropdownRenderedCell {
     let cell = !!column ? this.createTextCell(column.locTitle) : this.createEmptyCell();
     cell.column = column;
+    cell.matrix = this.matrix;
     cell.isColumnHeader = !!column;
     this.setHeaderCell(column, cell);
     if (!cellType) cellType = (!!column && column.cellType !== "default") ? column.cellType : this.matrix.cellType;
@@ -1231,11 +1235,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     locTitle: LocalizableString
   ): QuestionMatrixDropdownRenderedCell {
     var cell = new QuestionMatrixDropdownRenderedCell();
-    /* The matrix gives the cell its survey, and with it the id generator the other cells of the row use:
-       a cell without it - the empty corner cell, a choice header, the footer title - would take "scell_0"
-       from the default generator while a cell next to it takes "scell_0" from the survey's, and the
-       renderers key the header cells by id. */
-    cell.matrix = this.matrix;
+    /* The survey's id generator, the one the other cells of the row use: a cell without it would take
+       "scell_0" from the default generator while a cell next to it takes "scell_0" from the survey's,
+       and the renderers key the header cells by id. */
+    cell.surveyOwner = this.matrix;
     cell.locTitle = locTitle;
     if (!!this.cssClasses.cell) {
       cell.className = this.cssClasses.cell;

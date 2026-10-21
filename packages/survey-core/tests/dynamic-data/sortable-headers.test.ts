@@ -249,6 +249,20 @@ describe("Sortable headers: unique header ids", () => {
   test("a transposed matrix with totals: the corner cell and the footer title have different ids", () => {
     checkHeaderIds({ transposeData: true, rows: ["r1", "r2"], columns: [{ name: "a", cellType: "text", totalType: "sum" }] }, 4);
   });
+  // Reaching the survey for the id does not give a row title, a choice header or the footer title a tooltip.
+  test("a row title, a choice header and the footer title keep an empty title", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "matrix", rows: ["r1"], columns: [
+      { name: "rating", cellType: "radiogroup", choices: [1, 2], showInMultipleColumns: true, totalType: "count" }] }] });
+    const table = (<QuestionMatrixDropdownModel>survey.getQuestionByName("matrix")).renderedTable;
+    const choiceHeader = table.headerRow.cells[1];
+    expect(choiceHeader.locTitle.renderedHtml, "#0").toBe("1");
+    const rowTitle = table.rows.filter((row: any): boolean => !!row.row)[0].cells[0];
+    expect(choiceHeader.getSurvey(), "#1").toBe(survey);
+    expect(choiceHeader.getTitle(), "#2").toBe("");
+    expect(rowTitle.getTitle(), "#3").toBe("");
+    expect(table.footerRow.cells[0].getSurvey(), "#4").toBe(survey);
+    expect(table.footerRow.cells[0].getTitle(), "#5").toBe("");
+  });
 });
 
 describe("Sortable headers: where a header does not sort", () => {

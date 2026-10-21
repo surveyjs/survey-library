@@ -36,17 +36,17 @@ frameworks.forEach((framework) => {
       await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, json);
 
-      await expect(page.locator(".sv-title-actions__title", { hasText: "q1" })).toBeVisible();
-      await expect(page.locator(".sv-title-actions__title", { hasText: "q2" })).not.toBeVisible();
+      await expect(page.locator(".sd-question__title", { hasText: "q1" })).toBeVisible();
+      await expect(page.locator(".sd-question__title", { hasText: "q2" })).not.toBeVisible();
 
       await page.locator(".sd-item__control-label", { hasText: "item 1" }).click();
 
-      await expect(page.locator("div[id$=ariaTitle][id^=sq].sd-question__title--answer .sv-title-actions__title", { hasText: "q1" })).toBeVisible();
-      await expect(page.locator(".sv-title-actions__title", { hasText: "q2" })).toBeVisible();
+      await expect(page.locator("div[id$=ariaTitle][id^=sq].sd-question__title--answer", { hasText: "q1" })).toBeVisible();
+      await expect(page.locator(".sd-question__title", { hasText: "q2" })).toBeVisible();
 
       await page.locator(".sd-item__control-label", { hasText: "item 4" }).click();
 
-      await expect(page.locator("div[id$=ariaTitle][id^=sq].sd-question__title--answer .sv-title-actions__title", { hasText: "q2" })).toBeVisible();
+      await expect(page.locator("div[id$=ariaTitle][id^=sq].sd-question__title--answer", { hasText: "q2" })).toBeVisible();
     });
   });
 });

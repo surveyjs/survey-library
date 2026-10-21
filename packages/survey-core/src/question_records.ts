@@ -109,7 +109,7 @@ function getRecordNumberOf(item: QuestionRecordItem): number {
 /**
  * A base class for questions whose answers contain collections of records. Manages shared data, paging, and validation behavior.
  */
-export abstract class    extends Question {
+export abstract class QuestionRecordsModel extends Question {
   private _dataList: DynamicDataList;
   private _paging: RecordsPagingController;
   private _pageValidation: RecordsPageValidation;

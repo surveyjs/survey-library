@@ -106,34 +106,10 @@ function getRecordNumberOf(item: QuestionRecordItem): number {
   return item.getIndex() + (!!item.data ? item.data.getRecordNumberOffset() : 0);
 }
 
-/* The question side shared by every question whose answer is a collection of records, and the
-   coordination between such a question and its record list. The list computes
-   (dynamic-data-list.ts), the question builds and renders its own rows or panels - its objects - and
-   this class is what sits between the two: it creates and disposes the list and the question-side
-   helpers, answers the changes of the list, and holds the question side of a caller-provided data
-   source - the survey-data side of a source swap, the running state and the focus kept across a
-   refill. The source itself, its capabilities and the loaded window belong to the list. It also
-   coordinates the value assignment, the loading state and the disposal with the list.
-   What the questions do with the helpers - a page leave, the validation of the records off the
-   page, the record visibility of a question that pages, the page states kept for nested questions -
-   runs here with the subclass's rules (the specialization hooks at the end): a subclass never sees
-   the page validation. Rows, panels, columns and templates are the subclasses' terms. The matrix
-   with fixed rows is one too: it defines its records itself and answers the hooks over its keyed
-   answer.
-   The list and the helpers are created on first use; dataListValue and _pageValidation never create.
-   They talk to one private owner object (helperOwner) and not to the question, so the members they
-   call never have to be public on a question.
-
-   What a source does NOT change is where the records are kept while they are being edited:
-   question.value is the loaded window, so the nested questions, the {row.x} / {panel.x} contexts,
-   validation and getFilteredData keep working on exactly the records the respondent can see. What
-   it does change is who owns them - see canSetValueToSurvey.
-   Its objects - rows or panels -, their contexts and the single-input behavior call its protected
-   members by element access (question["getItemRecordIndex"](item)). The compiler checks the
-   signature; tests/dynamic-data/internal-access.test.ts checks that the member exists. A member
-   reached this way is added to, or renamed in, that test's list. The rows and the panel items of the
-   other modules ask the protected helpers of QuestionRecordItem. */
-export abstract class QuestionRecordsModel extends Question {
+/**
+ * A base class for questions whose answers contain collections of records. Manages shared data, paging, and validation behavior.
+ */
+export abstract class    extends Question {
   private _dataList: DynamicDataList;
   private _paging: RecordsPagingController;
   private _pageValidation: RecordsPageValidation;

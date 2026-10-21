@@ -5,6 +5,14 @@ export var traditionalChineseSurveyStrings = {
   pagePrevText: "上一頁",
   // "Next"
   pageNextText: "下一頁",
+  // [Auto-translated] "First"
+  pageFirstText: "第一",
+  // [Auto-translated] "Last"
+  pageLastText: "最後",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "以及{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "選擇頁面",
   // "Complete"
   completeText: "提交問卷",
   // [Auto-translated] "Preview"

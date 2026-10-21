@@ -5,6 +5,14 @@ export var norwegianSurveyStrings = {
   pagePrevText: "Forrige",
   // "Next"
   pageNextText: "Neste",
+  // [Auto-translated] "First"
+  pageFirstText: "Først",
+  // [Auto-translated] "Last"
+  pageLastText: "Siste",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "av {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Velg side",
   // "Complete"
   completeText: "Fullfør",
   // "Preview"

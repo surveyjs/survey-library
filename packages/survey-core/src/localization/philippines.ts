@@ -5,6 +5,14 @@ export var philippinesStrings = {
   pagePrevText: "Nakaraang",
   // "Next"
   pageNextText: "Susunod",
+  // [Auto-translated] "First"
+  pageFirstText: "Una",
+  // [Auto-translated] "Last"
+  pageLastText: "Huli",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "ng {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Piliin ang Pahina",
   // "Complete"
   completeText: "Kumpleto",
   // "Preview"

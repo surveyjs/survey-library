@@ -506,4 +506,24 @@ describe("Helpers", () => {
     result = Helpers.randomizeArray(result, 123456);
     expect(result.map(item => item.uniqueId), "Randomize already randomized array with a different seed gives a different result").not.toEqual([1, 3, 4, 2, 5]);
   });
+  test("getCommentKey and getNameOfCommentKey", () => {
+    expect(Helpers.getCommentKey("q1"), "comment key of q1").toBe("q1-Comment");
+    expect(Helpers.getNameOfCommentKey("q1-Comment"), "name of q1-Comment").toBe("q1");
+    expect(Helpers.getNameOfCommentKey("q1"), "no suffix").toBeUndefined();
+    expect(Helpers.getNameOfCommentKey("-Comment"), "only the suffix").toBeUndefined();
+    expect(Helpers.getNameOfCommentKey(""), "empty string").toBeUndefined();
+    expect(Helpers.getNameOfCommentKey(undefined as any), "undefined").toBeUndefined();
+    expect(Helpers.getNameOfCommentKey("q1-Commentary"), "suffix not at the end").toBeUndefined();
+  });
+  test("getCommentKey and getNameOfCommentKey use a custom commentSuffix", () => {
+    const oldSuffix = settings.commentSuffix;
+    try {
+      settings.commentSuffix = "_c";
+      expect(Helpers.getCommentKey("q1"), "comment key with _c").toBe("q1_c");
+      expect(Helpers.getNameOfCommentKey("q1_c"), "name of q1_c").toBe("q1");
+      expect(Helpers.getNameOfCommentKey("q1-Comment"), "the default suffix is not used").toBeUndefined();
+    } finally {
+      settings.commentSuffix = oldSuffix;
+    }
+  });
 });

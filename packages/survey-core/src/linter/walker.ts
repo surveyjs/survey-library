@@ -8,10 +8,11 @@ import { getInArrayConditions, parseExpressionText, splitRefSegments } from "./e
 import { resolveLintSettings } from "./lint-settings";
 import {
   CalculatedValueRecord, NameRefKind, CIMap, CIMultiMap, ContainerRecord, ElementRecord, ExpressionSite,
-  ExpressionSiteKind, joinPath, ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue,
+  ExpressionSiteKind, getCapturingFrame, joinPath, ScopeFrame, ScopeFrameComposite, ScopeFrameItemValue,
   ScopeFrameMatrixRow, ScopeFramePanelDynamic, SurveyIndex, TriggerRecord, TriggerTargetRef,
 } from "./symbols";
 import { getChoicesInfo, getStaticChoiceValues, getValueTypeInfo } from "./value-types";
+import { annotateSharedValues, getFrameNames } from "./record-fields";
 
 const MAX_DEPTH = 128;
 
@@ -109,23 +110,13 @@ function addItemValueSites(state: WalkState, json: any, propName: string, ownerT
   });
 }
 
-// The innermost scope frame that owns element names (dynamic-panel template or matrix row).
-function getCapturingFrame(scope: Array<ScopeFrame>): ScopeFramePanelDynamic | ScopeFrameMatrixRow | undefined {
-  for (let i = scope.length - 1; i >= 0; i--) {
-    const frame = scope[i];
-    if (frame.kind === "panelDynamic" || frame.kind === "matrixRow") return frame;
-  }
-  return undefined;
-}
-
 function registerRecord(state: WalkState, record: ElementRecord, ancestorPanels: Array<ElementRecord>): void {
   state.index.allElements.push(record);
   const frame = getCapturingFrame(record.scope);
   if (record.name) {
     state.index.elementNames.add(record.name, record);
     if (frame) {
-      const map = frame.kind === "panelDynamic" ? frame.templateNames : frame.columns;
-      map.add(record.name, record);
+      getFrameNames(frame).add(record.name, record);
     } else {
       state.index.byName.add(record.name, record);
       if (record.valueName) state.index.byValueName.add(record.valueName, record);
@@ -695,6 +686,7 @@ export function buildIndex(json: any, options: ISurveyLintOptions, metadata: Lin
   });
 
   walkComponentDefs(state);
+  annotateSharedValues(index);
   addInArrayConditionSites(state);
 
   return index;

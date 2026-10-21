@@ -58,6 +58,8 @@ export interface ISurveyElementLifecycle {
     oldName: string,
     oldValueName: string
   ): any;
+  // A trigger property of a question changed, or the question order changed without an add or a remove
+  questionTriggersChanged(): void;
   pageVisibilityChanged(page: IPage, newValue: boolean): any;
   panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
   questionVisibilityChanged(question: IQuestion, newValue: boolean, resetIndexes: boolean): any;
@@ -116,7 +118,7 @@ export interface ISurveyDynamicPanelCallbacks {
 }
 // A dynamic question whose records come from a caller-provided data source reports every failure of
 // that source here - a page that could not be read, an edit the server rejected. The operation names
-// are the source method names (DynamicDataOperation).
+// are the source method names, and "count" for the record count (DynamicDataErrorOperation).
 export interface ISurveyDynamicDataCallbacks {
   dynamicDataError(question: IQuestion, operation: string, error: any): void;
 }

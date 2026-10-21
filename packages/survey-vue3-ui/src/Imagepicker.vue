@@ -3,6 +3,7 @@
     :class="question.getSelectBaseRootCss()"
     :style="question.getContainerStyle()"
     ref="root"
+    @keydown="question.onKeyDown?.($event)"
   >
     <legend class="sv-hidden">{{ question.locTitle.renderedHtml }}</legend>
     <template v-if="!question.hasColumns">

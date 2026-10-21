@@ -2802,6 +2802,156 @@ describe("Tagbox question", () => {
     expect(dropdownListModel.customItemValue.text, "customItemValue is set correctly").toBe("Add \"new Item\" as a new");
 
   });
+  test("Tagbox Question: selecting a value does not auto-advance", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "tagbox", name: "q1", choices: ["item1", "item2", "item3"] }] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      const question = <QuestionTagboxModel>survey.getQuestionByName("q1");
+      question.value = ["item1"];
+      expect(survey.currentPageNo, "Selecting a value does not auto-advance").toBe(0);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+
+  test("Tagbox Question: Enter auto-advances when the popup is closed", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "tagbox", name: "q1", choices: ["item1", "item2", "item3"] }] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      survey.enterKeyAction = "loseFocus";
+      const question = <QuestionTagboxModel>survey.getQuestionByName("q1");
+      question.value = ["item1"];
+      let blurred = false;
+      question.dropdownListModel.keyHandler({
+        key: "Enter",
+        keyCode: 13,
+        target: { blur: () => { blurred = true; } },
+        preventDefault: () => { },
+        stopPropagation: () => { }
+      });
+      expect(blurred, "enterKeyAction is skipped when auto-advancing").toBe(false);
+      expect(survey.currentPageNo, "Enter confirms the value and auto-advances").toBe(1);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+
+  test("Tagbox Question: Enter selects an item and does not auto-advance when the popup is open", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "tagbox", name: "q1", choices: ["item1", "item2", "item3"] }] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      const question = <QuestionTagboxModel>survey.getQuestionByName("q1");
+      const dropdownListModel = question.dropdownListModel;
+      dropdownListModel.popupModel.show();
+      dropdownListModel.keyHandler({ keyCode: 40, preventDefault: () => { }, stopPropagation: () => { } });
+      dropdownListModel.keyHandler({
+        key: "Enter",
+        keyCode: 13,
+        preventDefault: () => { },
+        stopPropagation: () => { }
+      });
+      expect([...(question.value)], "Enter selects the focused item").toEqual(["item1"]);
+      expect(survey.currentPageNo, "Open popup does not auto-advance").toBe(0);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+
+  test("Tagbox Question: Enter keeps enterKeyAction when the value is empty or autoAdvanceEnabled is false", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const createSurvey = (autoAdvanceEnabled?: boolean) => {
+        const survey = new SurveyModel({
+          autoAdvanceEnabled,
+          pages: [
+            { elements: [{ type: "tagbox", name: "q1", choices: ["item1", "item2", "item3"] }] },
+            { elements: [{ type: "text", name: "q2" }] },
+          ],
+        });
+        survey.enterKeyAction = "loseFocus";
+        return survey;
+      };
+      const pressEnter = (question: QuestionTagboxModel) => {
+        let blurred = false;
+        question.dropdownListModel.keyHandler({
+          key: "Enter",
+          keyCode: 13,
+          target: { blur: () => { blurred = true; } },
+          preventDefault: () => { },
+          stopPropagation: () => { }
+        });
+        return blurred;
+      };
+
+      const emptySurvey = createSurvey(true);
+      const emptyQuestion = <QuestionTagboxModel>emptySurvey.getQuestionByName("q1");
+      expect(pressEnter(emptyQuestion), "Empty value blurs the input").toBe(true);
+      expect(emptySurvey.currentPageNo, "Empty value stays on the page").toBe(0);
+
+      const disabledSurvey = createSurvey(false);
+      const disabledQuestion = <QuestionTagboxModel>disabledSurvey.getQuestionByName("q1");
+      disabledQuestion.value = ["item1"];
+      expect(pressEnter(disabledQuestion), "autoAdvanceEnabled false blurs the input").toBe(true);
+      expect(disabledSurvey.currentPageNo, "autoAdvanceEnabled false stays on the page").toBe(0);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+
+  test("Tagbox Question: Enter keeps enterKeyAction when another question is empty", () => {
+    const prevDelay = settings.autoAdvanceDelay;
+    settings.autoAdvanceDelay = 0;
+    try {
+      const survey = new SurveyModel({
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [
+            { type: "tagbox", name: "q1", choices: ["item1", "item2", "item3"] },
+            { type: "text", name: "q2" }
+          ] },
+          { elements: [{ type: "text", name: "q3" }] },
+        ],
+      });
+      survey.enterKeyAction = "loseFocus";
+      const question = <QuestionTagboxModel>survey.getQuestionByName("q1");
+      question.value = ["item1"];
+      let blurred = false;
+      question.dropdownListModel.keyHandler({
+        key: "Enter",
+        keyCode: 13,
+        target: { blur: () => { blurred = true; } },
+        preventDefault: () => { },
+        stopPropagation: () => { }
+      });
+      expect(blurred, "enterKeyAction blurs the input").toBe(true);
+      expect(survey.currentPageNo, "Stay on the first page").toBe(0);
+    } finally {
+      settings.autoAdvanceDelay = prevDelay;
+    }
+  });
+
   test("dropdownListModel is a lazy property, Issue#9014", () => {
     const json = { elements: [{ type: "tagbox", name: "q1", choices: ["item1", "item2"], defaultValue: ["item1"] }] };
     for (const isDesign of [false, true]) {

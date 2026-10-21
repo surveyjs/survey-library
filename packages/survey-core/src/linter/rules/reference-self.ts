@@ -22,6 +22,10 @@ function isSelfRef(ref: ParsedRef, owner: ElementRecord, site: ExpressionSite,
   // reference the owning question to filter items by its current value - only the item
   // hides, the question value stays, so evaluation converges (the exclusive-"none" idiom)
   if (hasItemValueFrame(site)) return false;
+  // only {row.x} / {panel.x} address the owner's own row/panel; {prevRow.x}, {nextRow.x},
+  // {totalRow.x}, {prevPanel.x} and {nextPanel.x} read the same field of another record
+  if (!!ref.scopePrefix && !equalsCI(ref.scopePrefix, vars.row) &&
+    !equalsCI(ref.scopePrefix, vars.panel)) return false;
   // identity, not name equality: a matrix column or a template question may share its
   // name with a top-level question, and then {name} resolves to that other element.
   // classifyRef already resolved the root (byName/byValueName) and the {row.x}/{panel.x}

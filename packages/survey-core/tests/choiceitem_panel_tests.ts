@@ -22,3 +22,43 @@ test("ChoiceItem panel re-links to the survey when the owner is attached after t
   expect(item.panel.elements).toHaveLength(1);
   expect(item.panel.elements[0].name).toEqual("nested1");
 });
+
+test("ChoiceItem panel gets the owner's parent when the owner built from JSON is added to a page", () => {
+  // The survey is set on the added question before its parent, and walking the question's nested
+  // elements at that moment must not link the choice panel with no parent.
+  const q = new QuestionRadiogroupModel("q1");
+  q.fromJSON({
+    type: "radiogroup", name: "q1",
+    choices: ["item1", { value: "item2", elements: [{ type: "text", name: "nested1" }] }]
+  });
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("p1");
+  page.addElement(q);
+
+  const item: any = q.choices[1];
+  expect(item.panel.survey === survey, "the panel is linked to the survey").toBe(true);
+  expect(item.panel.parent === page, "the panel has the question's parent").toBe(true);
+});
+
+test("The questions of a choice panel that is not showing hold their values, and lose them on complete as typed ones do", () => {
+  const json = { elements: [{ type: "checkbox", name: "q", choices: [{ value: "a", elements: [{ type: "text", name: "inner" }] }, "b"] }] };
+  const loaded = new SurveyModel(json);
+  loaded.data = { q: ["b"], inner: "z" };
+  const inner = (<any>loaded.getQuestionByName("q")).choices[0].panel.getQuestionByName("inner");
+  expect(inner.value, "loaded from the data").toBe("z");
+  loaded.doComplete();
+  expect(loaded.data, "cleared on complete").toEqual({ q: ["b"] });
+
+  const typed = new SurveyModel(json);
+  typed.setValue("q", ["a"]);
+  (<any>typed.getQuestionByName("q")).choices[0].panel.getQuestionByName("inner").value = "z";
+  typed.setValue("q", ["b"]);
+  typed.doComplete();
+  expect(typed.data, "a typed value is cleared on complete").toEqual({ q: ["b"] });
+
+  const kept = new SurveyModel(json);
+  kept.clearInvisibleValues = "none";
+  kept.data = { q: ["b"], inner: "z" };
+  kept.doComplete();
+  expect(kept.data, "clearInvisibleValues: none keeps it").toEqual({ q: ["b"], inner: "z" });
+});

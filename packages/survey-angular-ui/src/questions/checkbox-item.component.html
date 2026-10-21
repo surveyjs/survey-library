@@ -1,3 +1,4 @@
+<span *ngIf="question.getChoiceKeyBadge(model)" [class]="question.getItemShortcutKeyClass(model)" aria-hidden="true">{{ question.getChoiceKeyBadge(model) }}</span>
 <input type="checkbox" [name]="question.name+model.id" [id]="question.getItemId(model)" [class]="question.cssClasses.itemControl" [required]="question.hasRequiredError()"
-  [disabled]="!question.getItemEnabled(model)" [readonly]="question.isReadOnlyAttr" [checked]="question.isItemSelected(model)" [value]="model.value" (change)="onChange($event)" [attr.aria-label]="ariaLabel" [attr.aria-labelledby]="!ariaLabel && !model.hideCaption ? question.getItemLabelId(model) : null"/>
+  [disabled]="!question.getItemEnabled(model)" [readonly]="question.isReadOnlyAttr" [checked]="question.isItemSelected(model)" [value]="model.value" (change)="onChange($event)" (keydown)="question.onChoiceKeyDown($event)" (focusout)="question.onChoiceFocusOut($event)" [attr.aria-label]="ariaLabel" [attr.aria-labelledby]="!ariaLabel && !model.hideCaption ? question.getItemLabelId(model) : null" [attr.aria-keyshortcuts]="question.getItemAriaKeyShortcuts(model)"/>
 <ng-content></ng-content>

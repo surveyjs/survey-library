@@ -5,6 +5,14 @@ export var slovenianStrings = {
   pagePrevText: "Prejšnja",
   // "Next"
   pageNextText: "Naslednja",
+  // [Auto-translated] "First"
+  pageFirstText: "Prvi",
+  // [Auto-translated] "Last"
+  pageLastText: "Zadnji",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Izberi stran",
   // "Complete"
   completeText: "Zaključi",
   // "Preview"

@@ -1,5 +1,8 @@
 import { SurveyModel } from "../src/survey";
 import { CalculatedValue } from "../src/calculatedValue";
+import { FunctionFactory } from "../src/functionsfactory";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
+import { settings } from "../src/settings";
 
 import { describe, test, expect } from "vitest";
 describe("CalculatedValues", () => {
@@ -421,5 +424,284 @@ describe("CalculatedValues", () => {
     q1.value = "//www.one.com";
     expect(calcValue.value, "Calculated value is false, q1 has invalid URL").toBe(false);
     expect(q3.isVisible, "q3 is invisible, q1 contains errors").toBe(false);
+  });
+});
+// A calculated value skips its run in the survey's conditions pass when no value or variable its
+// expression uses changed, the same rule as a visibleIf with strict dependencies
+describe("CalculatedValues: recalculate when a value they use changes", () => {
+  const registerCounter = (name: string, counter: { count: number }) => {
+    FunctionFactory.Instance.register(name, (params: any[]) => {
+      counter.count++;
+      return params.length > 0 ? params[0] : counter.count;
+    });
+  };
+  test("a calculated value with {correctanswers} and {incorrectanswers} follows the quiz answers", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", correctAnswer: "a" },
+        { type: "text", name: "q2", correctAnswer: "b" }
+      ],
+      calculatedValues: [
+        { name: "correct", expression: "{correctanswers}" },
+        { name: "incorrect", expression: "{incorrectanswers}" }
+      ]
+    });
+    expect(survey.getVariable("correct"), "nothing answered: correct").toBe(0);
+    expect(survey.getVariable("incorrect"), "nothing answered: incorrect").toBe(2);
+    survey.setValue("q1", "a");
+    expect(survey.getVariable("correct"), "q1 is correct: correct").toBe(1);
+    expect(survey.getVariable("incorrect"), "q1 is correct: incorrect").toBe(1);
+    survey.setValue("q2", "b");
+    expect(survey.getVariable("correct"), "both are correct: correct").toBe(2);
+    expect(survey.getVariable("incorrect"), "both are correct: incorrect").toBe(0);
+    survey.setValue("q1", "x");
+    expect(survey.getVariable("correct"), "q1 is wrong: correct").toBe(1);
+    expect(survey.getVariable("incorrect"), "q1 is wrong: incorrect").toBe(1);
+  });
+  test("a calculated value does not run when an answer it does not use changes", () => {
+    const counter = { count: 0 };
+    registerCounter("countCalls", counter);
+    try {
+      const survey = new SurveyModel({
+        elements: [{ type: "text", name: "a" }, { type: "text", name: "b" }],
+        calculatedValues: [{ name: "cv", expression: "countCalls({a})" }]
+      });
+      counter.count = 0;
+      survey.setValue("b", 1);
+      expect(counter.count, "b is not used").toBe(0);
+      survey.setValue("a", 2);
+      expect(survey.getVariable("cv"), "cv follows a").toBe(2);
+      // two passes: the first one changes cv, and that change starts the second one
+      expect(counter.count, "a is used: one run per pass").toBe(2);
+      counter.count = 0;
+      survey.setValue("b", 3);
+      expect(counter.count, "b is not used, again").toBe(0);
+      expect(survey.getVariable("cv"), "cv keeps its value").toBe(2);
+    } finally {
+      FunctionFactory.Instance.unregister("countCalls");
+    }
+  });
+  test("a chain of calculated values updates in one setValue, in both declaration orders", () => {
+    const check = (calculatedValues: Array<any>, order: string) => {
+      const survey = new SurveyModel({
+        elements: [{ type: "text", name: "q" }, { type: "text", name: "other" }],
+        calculatedValues: calculatedValues
+      });
+      survey.setValue("q", 1);
+      expect(survey.getVariable("cv1"), order + ": cv1 after q = 1").toBe(2);
+      expect(survey.getVariable("cv2"), order + ": cv2 after q = 1").toBe(4);
+      survey.setValue("other", 1);
+      expect(survey.getVariable("cv2"), order + ": cv2 after an unrelated answer").toBe(4);
+      survey.setValue("q", 5);
+      expect(survey.getVariable("cv1"), order + ": cv1 after q = 5").toBe(6);
+      expect(survey.getVariable("cv2"), order + ": cv2 after q = 5").toBe(12);
+    };
+    const cv1 = { name: "cv1", expression: "{q} + 1" };
+    const cv2 = { name: "cv2", expression: "{cv1} * 2" };
+    check([cv1, cv2], "cv1 first");
+    check([cv2, cv1], "cv2 first");
+  });
+  test("a cycle of calculated values no longer runs again on an answer it does not use (it grew on every answer before)", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "x" }, { type: "text", name: "y" }],
+      calculatedValues: [
+        { name: "a", expression: "{b} + {x}" },
+        { name: "b", expression: "{a} + 1" }
+      ]
+    });
+    expect(survey.getVariable("a"), "a after load").toBe(11);
+    expect(survey.getVariable("b"), "b after load").toBe(11);
+    survey.setValue("y", 1);
+    expect(survey.getVariable("a"), "a after an unrelated answer").toBe(11);
+    expect(survey.getVariable("b"), "b after an unrelated answer").toBe(11);
+    survey.setValue("x", 1);
+    expect(survey.getVariable("a"), "a after x = 1: the cycle ran").toBe(32);
+    expect(survey.getVariable("b"), "b after x = 1: the cycle ran").toBe(31);
+  });
+  test("a parameterless function runs on every value change", () => {
+    const counter = { count: 0 };
+    registerCounter("countCallsNoParams", counter);
+    try {
+      const survey = new SurveyModel({
+        elements: [{ type: "text", name: "a" }, { type: "text", name: "b" }],
+        calculatedValues: [{ name: "cv", expression: "countCallsNoParams() + {a}" }]
+      });
+      counter.count = 0;
+      survey.setValue("b", 1);
+      expect(counter.count > 0, "runs although only b changed").toBe(true);
+    } finally {
+      FunctionFactory.Instance.unregister("countCallsNoParams");
+    }
+  });
+  test("a property reference {$q1.isVisible} runs on every value change", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q1" }, { type: "text", name: "other" }],
+      calculatedValues: [{ name: "cv", expression: "{$q1.isVisible}" }]
+    });
+    expect(survey.getVariable("cv"), "q1 is visible").toBe(true);
+    survey.getQuestionByName("q1").visible = false;
+    survey.setValue("other", 1);
+    expect(survey.getVariable("cv"), "q1 is hidden, read on the next answer").toBe(false);
+  });
+  test("a calculated value runs on every value change while onExpressionRunning has a handler", () => {
+    const counter = { count: 0 };
+    registerCounter("countCalls", counter);
+    try {
+      const survey = new SurveyModel({
+        elements: [{ type: "text", name: "a" }, { type: "text", name: "b" }],
+        calculatedValues: [{ name: "cv", expression: "countCalls({a})" }]
+      });
+      survey.onExpressionRunning.add(() => { });
+      counter.count = 0;
+      survey.setValue("b", 1);
+      expect(counter.count > 0, "runs although only b changed").toBe(true);
+    } finally {
+      FunctionFactory.Instance.unregister("countCalls");
+    }
+  });
+  test("survey.runExpressions(), survey.data and setVariable run a calculated value", () => {
+    const counter = { count: 0 };
+    registerCounter("countCalls", counter);
+    try {
+      const survey = new SurveyModel({
+        elements: [{ type: "text", name: "a" }, { type: "text", name: "b" }],
+        calculatedValues: [
+          { name: "cv", expression: "countCalls({a})" },
+          { name: "cvVar", expression: "{v} + 1" }
+        ]
+      });
+      survey.setValue("a", 1);
+      counter.count = 0;
+      survey.runExpressions();
+      expect(counter.count > 0, "runExpressions()").toBe(true);
+      counter.count = 0;
+      survey.data = { a: 1, b: 2 };
+      expect(counter.count > 0, "survey.data").toBe(true);
+      expect(survey.getVariable("cv"), "cv after survey.data").toBe(1);
+      survey.setVariable("v", 5);
+      expect(survey.getVariable("cvVar"), "setVariable of a variable it uses").toBe(6);
+    } finally {
+      FunctionFactory.Instance.unregister("countCalls");
+    }
+  });
+  test("paths into a matrix {m.row1} and a dynamic panel {panel[0].q1}", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrix", name: "m", columns: ["a", "b"], rows: ["row1", "row2"] },
+        { type: "paneldynamic", name: "panel", panelCount: 2, templateElements: [{ type: "text", name: "q1" }] }
+      ],
+      calculatedValues: [
+        { name: "cvRow", expression: "{m.row1}" },
+        { name: "cvPanel", expression: "{panel[0].q1}" }
+      ]
+    });
+    survey.setValue("m", { row2: "a" });
+    expect(survey.getVariable("cvRow"), "another row changed").toBeFalsy();
+    survey.setValue("m", { row2: "a", row1: "b" });
+    expect(survey.getVariable("cvRow"), "row1 changed").toBe("b");
+    survey.clearValue("m");
+    expect(survey.getVariable("cvRow"), "the matrix is cleared").toBeFalsy();
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    panel.panels[1].getQuestionByName("q1").value = "second";
+    expect(survey.getVariable("cvPanel"), "the second panel changed").toBeFalsy();
+    panel.panels[0].getQuestionByName("q1").value = "first";
+    expect(survey.getVariable("cvPanel"), "the first panel changed").toBe("first");
+    panel.panels[0].getQuestionByName("q1").value = "first-2";
+    expect(survey.getVariable("cvPanel"), "the first panel changed again").toBe("first-2");
+  });
+  test("a value cleared because its question is hidden updates the calculated value (clearInvisibleValues: onHidden)", () => {
+    const survey = new SurveyModel({
+      clearInvisibleValues: "onHidden",
+      elements: [
+        { type: "text", name: "b" },
+        { type: "text", name: "q1", visibleIf: "{b} empty" }
+      ],
+      calculatedValues: [{ name: "cv", expression: "iif({q1} notempty, {q1}, 'none')" }]
+    });
+    survey.setValue("q1", "value");
+    expect(survey.getVariable("cv"), "q1 has a value").toBe("value");
+    survey.setValue("b", 1);
+    expect(survey.getValue("q1"), "q1 is hidden and cleared").toBeUndefined();
+    expect(survey.getVariable("cv"), "cv follows the cleared q1").toBe("none");
+  });
+  test("a custom function that reads another survey value by itself is stale while settings.calculatedValueTrackDependencies is true", () => {
+    FunctionFactory.Instance.register("readOther", function (this: any) {
+      return this.survey.getValue("other");
+    });
+    const prevTrackDependencies = settings.calculatedValueTrackDependencies;
+    try {
+      const createSurvey = () => new SurveyModel({
+        elements: [{ type: "text", name: "a" }, { type: "text", name: "other" }],
+        calculatedValues: [{ name: "cv", expression: "readOther({a})" }]
+      });
+      settings.calculatedValueTrackDependencies = true;
+      let survey = createSurvey();
+      survey.setValue("a", 1);
+      survey.setValue("other", 5);
+      expect(survey.getVariable("cv"), "true: other is not a parameter, cv is stale").toBeUndefined();
+      survey.setValue("a", 2);
+      expect(survey.getVariable("cv"), "true: a changed, cv reads other").toBe(5);
+
+      settings.calculatedValueTrackDependencies = false;
+      survey = createSurvey();
+      survey.setValue("a", 1);
+      survey.setValue("other", 5);
+      expect(survey.getVariable("cv"), "false: runs on every value change").toBe(5);
+    } finally {
+      settings.calculatedValueTrackDependencies = prevTrackDependencies;
+      FunctionFactory.Instance.unregister("readOther");
+    }
+  });
+  test("names and changed keys are compared case-insensitively", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "Age" },
+        { type: "text", name: "age2" },
+        { type: "matrix", name: "m", columns: ["a", "b"], rows: ["row1", "row2"] },
+        { type: "checkbox", name: "Fruits", choices: ["apple", "banana"], valuePropertyName: "fruit" }
+      ],
+      calculatedValues: [
+        { name: "cv", expression: "{age} + 1" },
+        { name: "cv2", expression: "{AGE2} + 1" },
+        { name: "cvRow", expression: "{M.row1}" },
+        { name: "cvFruits", expression: "{fruits-unwrapped} contains 'apple'" }
+      ]
+    });
+    survey.setValue("Age", 30);
+    expect(survey.getVariable("cv"), "key Age, name {age}").toBe(31);
+    survey.setValue("age2", 40);
+    expect(survey.getVariable("cv2"), "key age2, name {AGE2}").toBe(41);
+    survey.setValue("m", { row2: "a" });
+    survey.setValue("m", { row2: "a", row1: "b" });
+    expect(survey.getVariable("cvRow"), "key m, name {M.row1}").toBe("b");
+    survey.getQuestionByName("Fruits").renderedValue = ["apple"];
+    expect(survey.getVariable("cvFruits"), "key Fruits, name {fruits-unwrapped}").toBe(true);
+  });
+  test("a stored value cleared or overwritten from outside is calculated again", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q" }, { type: "text", name: "other" }],
+      calculatedValues: [{ name: "cv", expression: "{q} + 1", includeIntoResult: true }]
+    });
+    survey.setValue("q", 2);
+    expect(survey.getVariable("cv"), "after q = 2").toBe(3);
+    survey.setVariables({}, true);
+    expect(survey.getVariable("cv"), "after the variables are cleared").toBe(3);
+    expect(survey.data, "data after the variables are cleared").toEqual({ q: 2, cv: 3 });
+    survey.setVariable("cv", 100);
+    expect(survey.getVariable("cv"), "after the variable is overwritten").toBe(3);
+    expect(survey.data, "data after the variable is overwritten").toEqual({ q: 2, cv: 3 });
+  });
+  test("a renamed calculated value is calculated under the new name on the next answer", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q" }, { type: "text", name: "other" }],
+      calculatedValues: [{ name: "cv", expression: "{q} + 1", includeIntoResult: true }]
+    });
+    survey.setValue("q", 2);
+    expect(survey.getVariable("cv"), "before the rename").toBe(3);
+    survey.calculatedValues[0].name = "renamed";
+    expect(survey.getVariable("renamed"), "right after the rename").toBeUndefined();
+    survey.setValue("other", 5);
+    expect(survey.getVariable("renamed"), "after an answer it does not use").toBe(3);
+    expect(survey.data.renamed, "survey.data has the new name").toBe(3);
   });
 });

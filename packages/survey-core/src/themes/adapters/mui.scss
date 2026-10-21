@@ -20,6 +20,7 @@
   --sjs2-color-utility-body: var(--mui-palette-background-default);
   --sjs2-color-utility-sheet: var(--mui-palette-background-paper);
   --sjs2-border-effect-a11y: 0 0 0 2px var(--mui-palette-primary-main);
+  --sjs2-border-width-a11y: 12px;
   --sjs2-color-utility-toolbox: var(--mui-palette-background-default);
   --sjs2-color-utility-property-grid: var(--mui-palette-background-default);
   --sjs2-color-utility-tabs: var(--mui-palette-background-default);
@@ -255,6 +256,10 @@
 
   --sjs2-color-border-basic-primary: var(--mui-palette-text-primary);
   --sjs2-color-border-basic-secondary: var(--mui-palette-divider);
+  --sjs2-color-component-shortcut-key-bg: var(--mui-palette-background-paper);
+  --sjs2-color-component-shortcut-key-border: var(--mui-palette-divider);
+  --sjs2-color-component-shortcut-key-text: var(--mui-palette-text-primary);
+  --sjs2-radius-component-shortcut-key: var(--mui-shape-borderRadius, 4px);
 
   --sjs2-color-component-slider-default-thumb: var(--mui-palette-primary-main);
   --sjs2-color-component-slider-default-dot: var(--mui-palette-primary-main);
@@ -540,6 +545,9 @@
     background-color: transparent;
 
     max-width: calc(100% - 12px);
+    &>.sd-question__description {
+      display: none;
+    }
   }
 
   .sd-question__title:not(:has(.svc-string-editor)) {
@@ -601,6 +609,10 @@
       --sjs2-color-component-question-default-title: var(--mui-palette-error-main);
       color: var(--mui-palette-error-main);
     }
+  }
+  .sd-question__erbox {
+    order: 1;
+    margin-top: 3px;
   }
 }
 
@@ -1103,4 +1115,33 @@
 .sd-slider__track:after,
 input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   height: 4px;
+}
+
+.svc-question__content--title-bottom {
+  &>.sd-question:not(.sd-question--complex):has(
+    .sd-question__content--text,
+    .sd-question__content--comment,
+    .sd-question__content--dropdown
+  ) .sd-question__container > .sd-question__header-and-content-container {
+    &>.sd-question__content {
+      margin-top: 12px;
+    }
+    &>.sd-question__header {
+      top: 12px;
+    }
+  }
+}
+
+.svc-question__content--title-hidden {
+  padding-top: 32px;
+
+  .sd-question__header {
+    display: none;
+  }
+}
+
+// The designer keeps a hidden-title placeholder (question name) above the input.
+// MUI uses the question title as the floating label, so that placeholder must not stay on screen.
+.svc-question__adorner:not(.svc-question__adorner--collapsed) > .svc-element__header--hidden {
+  display: none;
 }

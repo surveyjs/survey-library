@@ -399,7 +399,7 @@ export default {
     "--sjs2-layout-component-panel-dynamic-footer-padding-right": "var(--sjs2-spacing-large-horizontal)",
     "--sjs2-layout-component-panel-dynamic-footer-padding-top": "var(--sjs2-spacing-medium-vertical)",
     "--sjs2-layout-component-panel-dynamic-footer-padding-bottom": "var(--sjs2-spacing-medium-vertical)",
-    "--sjs2-layout-component-panel-dynamic-footer-gap": "var(--sjs2-spacing-x150)",
+    "--sjs2-layout-component-panel-dynamic-footer-gap": "var(--sjs2-spacing-x300)",
     "--sjs2-layout-component-panel-dynamic-footer-action-group-gap": "var(--sjs2-spacing-x150)",
     "--sjs2-layout-component-panel-dynamic-header-action-group-gap": "var(--sjs2-spacing-x150)",
     "--sjs2-layout-component-labeled-group-box-padding-vertical": "var(--sjs2-spacing-x150)",
@@ -1692,6 +1692,11 @@ export default {
     "--sjs2-border-effect-surface-focused": "var(--sjs2-border-offset-x-surface-focused) var(--sjs2-border-offset-y-surface-focused) var(--sjs2-border-blur-surface-focused) var(--sjs2-border-spread-surface-focused) var(--sjs2-color-utility-shadow-surface-focused)",
     "--sjs2-border-effect-surface-disabled": "var(--sjs2-border-offset-x-surface-disabled) var(--sjs2-border-offset-y-surface-disabled) var(--sjs2-border-blur-surface-disabled) var(--sjs2-border-spread-surface-disabled) var(--sjs2-color-utility-shadow-surface-disabled)",
     "--sjs2-border-effect-surface-dragging": "var(--sjs2-border-offset-x-surface-dragging) var(--sjs2-border-offset-y-surface-dragging) var(--sjs2-border-blur-surface-dragging) var(--sjs2-border-spread-surface-dragging) var(--sjs2-color-utility-shadow-surface-dragging)",
-    "--sjs2-border-effect-floating-default": "var(--sjs2-border-offset-x-floating-default) var(--sjs2-border-offset-y-floating-default) var(--sjs2-border-blur-floating-default) var(--sjs2-border-spread-floating-default) var(--sjs2-color-utility-shadow-floating-default)"
+    "--sjs2-border-effect-floating-default": "var(--sjs2-border-offset-x-floating-default) var(--sjs2-border-offset-y-floating-default) var(--sjs2-border-blur-floating-default) var(--sjs2-border-spread-floating-default) var(--sjs2-color-utility-shadow-floating-default)",
+    "--sjs2-color-component-shortcut-key-bg": "var(--sjs2-color-bg-basic-primary)",
+    "--sjs2-color-component-shortcut-key-border": "var(--sjs2-color-border-basic-secondary)",
+    "--sjs2-color-component-shortcut-key-text": "var(--sjs2-color-fg-basic-primary)",
+    "--sjs2-radius-component-shortcut-key": "var(--sjs2-radius-x050)",
+    "--sjs2-opacity-component-shortcut-key-disabled": "var(--sjs2-opacity-disabled)"
   }
 };

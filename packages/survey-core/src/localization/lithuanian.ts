@@ -5,6 +5,14 @@ export var lithuaniaSurveyStrings = {
   pagePrevText: "Atgal",
   // "Next"
   pageNextText: "Toliau",
+  // [Auto-translated] "First"
+  pageFirstText: "Pirmiausia",
+  // [Auto-translated] "Last"
+  pageLastText: "Paskutinis",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Pasirinkti puslapį",
   // "Complete"
   completeText: "Baigti",
   // "Preview"

@@ -62,18 +62,6 @@
     .sd-progress ~ .sd-paneldynamic__panels-container {
         padding-top: 1px;
     }
-
-    & .sd-paneldynamic__panel-wrapper > .sd-panel {
-        & > .sd-panel__header {
-            padding-top: var(--sd-base-vertical-padding);
-            padding-bottom: 0;
-            border-bottom: none;
-
-            & > .sd-panel__title {
-                color: $foreground-light;
-            }
-        }
-    }
 }
 
 .sd-paneldynamic ~ .sd-question__comment-area {
@@ -118,6 +106,40 @@
     .sd-paneldynamic__progress-text,
     .sd-paneldynamic__progress--bottom {
         display: initial;
+    }
+}
+
+/* The footer with the pager is one row: the toolbar buttons on the left and the pager on the right, or
+   the pager alone at the start. On a phone the buttons, full-width, stack above the pager. */
+.sd-paneldynamic__footer--pager {
+    display: flex;
+    align-items: center;
+
+    .sd-paneldynamic__buttons-container {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+    .sd-paneldynamic__buttons-container .sd-action-bar {
+        width: 100%;
+    }
+}
+.sd-paneldynamic__records-bar {
+    display: flex;
+    flex: 0 0 auto;
+}
+.sd-question--mobile .sd-paneldynamic__footer--pager {
+    flex-direction: column;
+    align-items: stretch;
+
+    .sd-paneldynamic__buttons-container .sd-action-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    // border-box: .sd-action is content-box, so its padding would push it past the footer's padding.
+    .sd-paneldynamic__buttons-container .sd-action {
+        box-sizing: border-box;
+        width: 100%;
+        justify-content: center;
     }
 }
 

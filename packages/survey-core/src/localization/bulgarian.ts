@@ -5,6 +5,14 @@ export var bulgarianStrings = {
   pagePrevText: "Назад",
   // "Next"
   pageNextText: "Напред",
+  // [Auto-translated] "First"
+  pageFirstText: "Първо",
+  // [Auto-translated] "Last"
+  pageLastText: "Последен",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "от {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Изберете страница",
   // "Complete"
   completeText: "Край",
   // "Preview"

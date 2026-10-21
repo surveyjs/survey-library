@@ -1,9 +1,10 @@
 import { CIMultiMap, ElementRecord, getEffectiveType } from "./symbols";
-import { equalsCI, stripCommentSuffix } from "./expression-utils";
+import { equalsCI, isCommentKeyOf } from "./expression-utils";
 import { ValueDomain, ValueSetDomain } from "./value-domain";
 import { getStaticChoiceValues } from "./value-types";
 import { ILintResolvedSettings } from "./lint-settings";
 import { userKeys } from "./property-walk";
+import { getItemFields, getRowFields } from "./record-fields";
 
 // One defect found inside a composite value: either a key naming nothing the question holds,
 // or a cell value the addressed sub-element can never hold.
@@ -47,26 +48,9 @@ function findByKey(map: CIMultiMap<ElementRecord>, key: string,
   settings: ILintResolvedSettings): { record?: ElementRecord, known: boolean } {
   const direct = map.first(key);
   if (!!direct) return { record: direct, known: true };
-  const commentBase = stripCommentSuffix(key, settings);
-  if (commentBase !== undefined && map.has(commentBase)) {
-    // a comment is a plain string next to the value - known, but nothing types it
-    return { known: true };
-  }
+  // a comment is a plain string next to the value - known, but nothing types it
+  if (isCommentKeyOf(key, map, settings)) return { known: true };
   return { known: false };
-}
-
-// The names a row/panel object may key its cells by: sub-element names plus their valueNames.
-function buildKeyMap(map: CIMultiMap<ElementRecord>): CIMultiMap<ElementRecord> {
-  let extended: CIMultiMap<ElementRecord> | undefined;
-  map.forEach(records => records.forEach(record => {
-    if (!record.valueName || map.has(record.valueName)) return;
-    if (!extended) {
-      extended = new CIMultiMap<ElementRecord>();
-      map.forEach((values, name) => values.forEach(value => extended.add(name, value)));
-    }
-    extended.add(record.valueName, record);
-  }));
-  return extended || map;
 }
 
 function checkRowObject(row: any, keys: CIMultiMap<ElementRecord>,
@@ -84,34 +68,48 @@ function checkRowObject(row: any, keys: CIMultiMap<ElementRecord>,
   });
 }
 
+// The keys of an object value: the question's rows, or every key the questions sharing the value
+// add (record-fields.ts).
+function getObjectKeys(record: ElementRecord): Array<any> {
+  return record.mergedObject ? record.mergedObject.keys : record.matrixRowValues || [];
+}
+
+function hasKey(keys: Array<any>, key: string): boolean {
+  return keys.some(row => equalsCI(String(row), key));
+}
+
+// The value under a key another question on the data key adds is that question's to check, as the
+// runtime does it (QuestionMatrixModel.verifyValueCore: a row of another matrix that shares the
+// value is checked by that matrix); only the record's own rows are checked here.
+function forEachOwnKey(record: ElementRecord, value: any, ctx: CompositeContext, check: (key: string) => void): void {
+  const keys = getObjectKeys(record);
+  const ownRows = record.matrixRowValues || [];
+  userKeys(value).forEach(key => {
+    if (!hasKey(keys, key)) {
+      ctx.issues.push({ kind: "unknownRowKey", key: key, candidates: keys.map(row => String(row)) });
+      return;
+    }
+    if (hasKey(ownRows, key)) check(key);
+  });
+}
+
 // The {rowValue: columnValue} object of a single-choice matrix: the matrix itself owns the
 // one shared set of columns every row answers with.
 function checkMatrixObject(record: ElementRecord, value: any, ctx: CompositeContext): void {
   if (!isPlainObject(value)) return;
-  const rows = record.matrixRowValues || [];
   const columnValues = getStaticChoiceValues(record.json ? record.json.columns : undefined);
   const domain: ValueSetDomain | undefined = columnValues.length > 0
     ? { kind: "set", record: record, values: columnValues, listed: columnValues }
     : undefined;
-  userKeys(value).forEach(key => {
-    if (!rows.some(row => equalsCI(String(row), key))) {
-      ctx.issues.push({ kind: "unknownRowKey", key: key, candidates: rows.map(row => String(row)) });
-      return;
-    }
-    checkCellValue(value[key], domain, ctx);
-  });
+  forEachOwnKey(record, value, ctx, key => checkCellValue(value[key], domain, ctx));
 }
 
 function checkMatrixDropdownObject(record: ElementRecord, value: any, ctx: CompositeContext): void {
   if (!isPlainObject(value) || !record.matrixColumns) return;
-  const rows = record.matrixRowValues || [];
-  const keys = buildKeyMap(record.matrixColumns);
-  userKeys(value).forEach(key => {
-    if (!rows.some(row => equalsCI(String(row), key))) {
-      ctx.issues.push({ kind: "unknownRowKey", key: key, candidates: rows.map(row => String(row)) });
-      return;
-    }
-    checkRowObject(value[key], keys, "unknownColumnKey", ctx);
+  // a row holds the columns of every matrixdropdown on the data key that lists it
+  forEachOwnKey(record, value, ctx, key => {
+    const fields = getRowFields(record, key);
+    if (!!fields) checkRowObject(value[key], fields, "unknownColumnKey", ctx);
   });
 }
 
@@ -148,9 +146,9 @@ export function findCompositeValueIssues(record: ElementRecord, value: any,
     if (shape === "row") return undefined;
     checkMatrixDropdownObject(record, value, ctx);
   } else if (type === "matrixdynamic" && record.matrixColumns) {
-    checkRowArray(value, buildKeyMap(record.matrixColumns), "unknownColumnKey", ctx);
+    checkRowArray(value, getItemFields(record), "unknownColumnKey", ctx);
   } else if (type === "paneldynamic" && record.templateNames) {
-    checkRowArray(value, buildKeyMap(record.templateNames), "unknownQuestionKey", ctx);
+    checkRowArray(value, getItemFields(record), "unknownQuestionKey", ctx);
   } else {
     return undefined;
   }

@@ -141,7 +141,7 @@ describe("copyDefaultValueFromLastEntry: the record a panel copies", () => {
     expect(matrix.value[3], "#2: the matrix copies the same record").toEqual({ a: 2 });
   });
   test("under a sort, addPanel() copies the last stored record", () => {
-    const panel = createPanel(Object.assign({ sortBy: "a" }, copy), [{ a: 1 }, { a: 5 }, { a: 2 }]);
+    const panel = createPanel(Object.assign({ sortCriteria: [{ field: "a" }] }, copy), [{ a: 1 }, { a: 5 }, { a: 2 }]);
     panel.panels;
     panel.addPanel();
     expect(panel.value[3], "#1").toEqual({ a: 2 });

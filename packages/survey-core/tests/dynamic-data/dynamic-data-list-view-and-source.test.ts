@@ -1,7 +1,7 @@
 import { describe, test, expect } from "vitest";
 import { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
 import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
-import { IDynamicDataField, IDynamicDataOwner, IDynamicDataSort } from "../../src/dynamic-data/dynamic-data-interfaces";
+import { IDynamicDataField, IDynamicDataOwner, ISortCriterion } from "../../src/dynamic-data/dynamic-data-interfaces";
 
 function createRecords(count: number): Array<any> {
   const res: Array<any> = [];
@@ -31,8 +31,8 @@ describe("DynamicDataList: the page index assigned before the first load", () =>
 });
 
 describe("DynamicDataList: the sort array is the list's own", () => {
-  const byName: IDynamicDataSort = { field: "name", direction: "desc" };
-  const byId: IDynamicDataSort = { field: "id", direction: "asc" };
+  const byName: ISortCriterion = { field: "name", direction: "desc" };
+  const byId: ISortCriterion = { field: "id", direction: "asc" };
   test("changing the array passed to setView does not change the sort of the list", () => {
     const list = new DynamicDataList(ArrayDynamicDataSource.fromArray(createRecords(3)));
     list.load();

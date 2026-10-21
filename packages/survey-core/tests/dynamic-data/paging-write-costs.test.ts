@@ -604,7 +604,7 @@ describe("Fixed matrix: the records are composed once per answer", () => {
     expect(generations.mock.calls.length, "#3: one build per page visit").toBe(6);
     expect(maxRows, "#4: no more than one page of rows at a time").toBe(5);
   });
-  [{ name: "a sort", apply: (m: any): void => { m.sortBy = "rowTitle-"; } }, { name: "a filter", apply: (m: any): void => { m.filterExpression = "{rowTitle} contains '1'"; } }].forEach(view => {
+  [{ name: "a sort", apply: (m: any): void => { m.sort([{ field: "rowTitle", direction: "desc" }]); } }, { name: "a filter", apply: (m: any): void => { m.filterExpression = "{rowTitle} contains '1'"; } }].forEach(view => {
     [0, 10].forEach(pageSize => {
       test("assigning " + view.name + " composes the records once and builds no more rows than the view, pageSize " + pageSize, () => {
         const survey = new SurveyModel({
@@ -1024,7 +1024,7 @@ describe("the work an assignment of the value costs", () => {
   };
   test("paneldynamic: the list receives the authored sort once per load", () => {
     const count = countSortAssignments(() => {
-      const survey = loadSurvey({ type: "paneldynamic", name: "q", sortBy: "q1-", pageSize: 2, panelCount: 3,
+      const survey = loadSurvey({ type: "paneldynamic", name: "q", sortCriteria: [{ field: "q1", direction: "desc" }], pageSize: 2, panelCount: 3,
         templateElements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] }, [{ q1: "c" }, { q1: "a" }, { q1: "b" }]);
       (<QuestionPanelDynamicModel>survey.getQuestionByName("q")).visiblePanels;
     });
@@ -1032,7 +1032,7 @@ describe("the work an assignment of the value costs", () => {
   });
   test("matrixdynamic: the list receives the authored sort once per load", () => {
     const count = countSortAssignments(() => {
-      const survey = loadSurvey({ type: "matrixdynamic", name: "q", sortBy: "c1-", pageSize: 2, rowCount: 3,
+      const survey = loadSurvey({ type: "matrixdynamic", name: "q", sortCriteria: [{ field: "c1", direction: "desc" }], pageSize: 2, rowCount: 3,
         columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }] }, [{ c1: "c" }, { c1: "a" }, { c1: "b" }]);
       (<QuestionMatrixDynamicModel>survey.getQuestionByName("q")).visibleRows;
     });

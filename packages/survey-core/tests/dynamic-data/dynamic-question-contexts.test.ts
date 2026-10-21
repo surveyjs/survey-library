@@ -117,7 +117,7 @@ describe("Dynamic questions: {q[i]} names a record for both questions", () => {
         expect(value.map((record: any): any => record.d), "#1: record 0's x for every item built").toEqual([undefined, "a", "a"]);
       });
       test("a descending sort: the index still counts records", () => {
-        const survey = createSurvey(kind, records("a", "b", "c"), { sortBy: "x-" });
+        const survey = createSurvey(kind, records("a", "b", "c"), { sortCriteria: [{ field: "x", direction: "desc" }] });
         const question = getQuestion(survey);
         expect(readItem(question, 0, "x").value, "#1: record 0, not the first one shown").toBe("a");
         expect(readItem(question, 2, "x").value, "#2").toBe("c");

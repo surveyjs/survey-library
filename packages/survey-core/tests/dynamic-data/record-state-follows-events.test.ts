@@ -285,7 +285,7 @@ describe("the records the objects were built for", () => {
     test(kind.name + ": a sort change", () => {
       const q = kind.create({ pageSize: 10 }, records(3));
       const items = kind.items(q).slice();
-      q["sortBy"] = "id-";
+      q.sort([{ field: "id", direction: "desc" }]);
       expect(items.map(item => builtIndex(q, item)), "#1: the old objects keep their records").toEqual([0, 1, 2]);
       expect(kind.items(q).map(item => builtIndex(q, item)), "#2").toEqual([2, 1, 0]);
     });
@@ -369,7 +369,7 @@ describe("the current and the announced record", () => {
   test("a sort change", () => {
     const q = createCarousel({ pageSize: 10 }, records(4));
     q.currentIndex = 1;
-    q.sortBy = "id-";
+    q.sort([{ field: "id", direction: "desc" }]);
     expect([current(q), announced(q)], "#1: the record stays current").toEqual([1, 1]);
     expect(q.currentIndex, "#2: at its new position").toBe(2);
   });
@@ -434,7 +434,7 @@ describe("the position a move is going to", () => {
   });
   test("a sort change", async () => {
     const { q } = await createMoving();
-    q.sortBy = "id-";
+    q.sort([{ field: "id", direction: "desc" }]);
     expect(pending(q), "#1").toBe(3);
   });
   test("a filter change", async () => {
@@ -511,7 +511,7 @@ describe("the window offset and the old-source flag of the current record", () =
   });
   test("a sort change", async () => {
     const { q } = await createOnPage();
-    q.sortBy = "id-";
+    q.sort([{ field: "id", direction: "desc" }]);
     await flush();
     // The source cannot sort: the list reads it whole, and the record keeps its key across the reload.
     expect([current(q), windowOffset(q), isOfOldSource(q)], "#1").toEqual([3, 0, false]);
@@ -591,7 +591,7 @@ describe("the held remove targets", () => {
     });
     test(kind.name + ": a sort change", () => {
       const q = createHolding(kind);
-      q["sortBy"] = "id-";
+      q.sort([{ field: "id", direction: "desc" }]);
       expect(held(q), "#1").toEqual([4]);
     });
     test(kind.name + ": a filter change", () => {
@@ -690,7 +690,7 @@ describe("the hidden-answer states", () => {
     test(kind.name + ": a sort change", () => {
       const q = createWithStates(kind);
       freeze(q);
-      q["sortBy"] = "id-";
+      q.sort([{ field: "id", direction: "desc" }]);
       expect(hiddenStates(q), "#1").toEqual(kept);
     });
     test(kind.name + ": a filter change", () => {
@@ -771,7 +771,7 @@ describe("the focus kept for a read", () => {
     });
     test(kind.name + ": a sort change", async () => {
       const { q } = await createFocusing(kind);
-      q["sortBy"] = "id-";
+      q.sort([{ field: "id", direction: "desc" }]);
       expect(focusIndex(q), "#1").toBe(1);
     });
     test(kind.name + ": a filter change", async () => {
@@ -870,11 +870,11 @@ describe("the page validation", () => {
       const q = kind.create({ pageSize: 2 });
       q.dataSource = source;
       await flush();
-      q["sortBy"] = "id";
+      q.sort([{ field: "id", direction: "asc" }]);
       await flush();
       q["dataList"].setValue(1, "name", "edited");
       expect(edited(q), "#1").toEqual([1]);
-      q["sortBy"] = "";
+      q.sort([]);
       await flush();
       expect(edited(q), "#2: a page of the source names other records").toEqual([]);
     });
@@ -928,10 +928,10 @@ describe("the page validation", () => {
     });
     test(kind.name + ": a sort change", () => {
       const q = createEdited(kind);
-      q["sortBy"] = "id-";
+      q.sort([{ field: "id", direction: "desc" }]);
       expect(edited(q), "#1").toEqual([1]);
       const n = createNested(kind);
-      n["sortBy"] = "id-";
+      n.sort([{ field: "id", direction: "desc" }]);
       expect(movedNestedKeys(n), "#2").toEqual(["0"]);
     });
     test(kind.name + ": a filter change", () => {

@@ -3910,6 +3910,332 @@ describe("Survey_Questions", () => {
     expect(q1.value, "q1.value #4").toBe(6);
     expect(counter, "counter #4").toBe(5);
   });
+  test("defaultValueExpression does not run on a value change that it does not use", () => {
+    let callCount = 0;
+    FunctionFactory.Instance.register("countCalls", (params: any[]) => { callCount++; return params[0]; });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "a" },
+          { type: "text", name: "b" },
+          { type: "text", name: "q", defaultValueExpression: "countCalls({a})" }
+        ]
+      });
+      const q = survey.getQuestionByName("q");
+      callCount = 0;
+      survey.setValue("b", 1);
+      expect(callCount, "b is not used").toBe(0);
+      survey.setValue("a", 4);
+      expect(callCount, "a is used").toBe(2);
+      expect(q.value, "q follows a").toBe(4);
+    } finally {
+      FunctionFactory.Instance.unregister("countCalls");
+    }
+  });
+  test("defaultValueExpression restores a value cleared by code on the next answer", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "text", name: "q", defaultValueExpression: "{a} + 1" }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    survey.setValue("a", 1);
+    expect(q.value, "after a = 1").toBe(2);
+    q.clearValue();
+    expect(q.isEmpty(), "cleared by code").toBe(true);
+    survey.setValue("b", 1);
+    expect(q.value, "restored on an unrelated answer").toBe(2);
+  });
+  test("defaultValueExpression applies a defaultValue changed at runtime on the next answer", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "text", name: "q", defaultValueExpression: "{a}", defaultValue: 7 }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    expect(q.value, "a is empty, the default value is used").toBe(7);
+    q.defaultValue = 8;
+    expect(q.value, "nothing changes at once").toBe(7);
+    survey.setValue("b", 1);
+    expect(q.value, "the new default value on an unrelated answer").toBe(8);
+  });
+  test("defaultValueExpression changed at runtime applies on the next answer", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "text", name: "q", defaultValueExpression: "{a} + 1" }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    survey.setValue("a", 1);
+    expect(q.value, "after a = 1").toBe(2);
+    q.defaultValueExpression = "{a} + 10";
+    expect(q.value, "nothing changes at once").toBe(2);
+    survey.setValue("b", 1);
+    expect(q.value, "the new expression on an unrelated answer").toBe(11);
+  });
+  test("defaultValueExpression does not restore a value set from outside", () => {
+    const json = {
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "text", name: "q", defaultValueExpression: "{a} + 1" }
+      ]
+    };
+    let survey = new SurveyModel(json);
+    survey.setValue("a", 1);
+    survey.setValue("q", 50);
+    survey.setValue("b", 1);
+    expect(survey.getValue("q"), "survey.setValue, then an unrelated answer").toBe(50);
+    survey.setValue("a", 2);
+    expect(survey.getValue("q"), "survey.setValue, then a used value changes").toBe(50);
+
+    survey = new SurveyModel(json);
+    survey.setValue("a", 1);
+    survey.mergeData({ q: 50 });
+    survey.setValue("b", 1);
+    expect(survey.getValue("q"), "survey.mergeData, then an unrelated answer").toBe(50);
+    survey.setValue("a", 2);
+    expect(survey.getValue("q"), "survey.mergeData, then a used value changes").toBe(50);
+  });
+  test("defaultValueExpression of a question hidden and shown again (clearInvisibleValues: onHidden)", () => {
+    const survey = new SurveyModel({
+      clearInvisibleValues: "onHidden",
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "text", name: "q", defaultValueExpression: "{a} + 1", visibleIf: "{b} != 1" }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    survey.setValue("a", 1);
+    expect(q.value, "after a = 1").toBe(2);
+    survey.setValue("b", 1);
+    expect(q.isEmpty(), "hidden and cleared").toBe(true);
+    survey.setValue("b", 2);
+    expect(q.value, "shown again").toBe(2);
+  });
+  test("defaultValueExpression with a custom function that reads another survey value by itself is stale while settings.expressionQuestionTrackDependencies is true (a change from the earlier behaviour)", () => {
+    FunctionFactory.Instance.register("readOther", function (this: any) {
+      return this.survey.getValue("other");
+    });
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    try {
+      const createSurvey = () => new SurveyModel({
+        elements: [
+          { type: "text", name: "a" },
+          { type: "text", name: "other" },
+          { type: "text", name: "q", defaultValueExpression: "readOther({a})" }
+        ]
+      });
+      settings.expressionQuestionTrackDependencies = true;
+      let survey = createSurvey();
+      survey.setValue("other", 5);
+      expect(survey.getValue("q"), "true: other is not a parameter, q is stale").toBeUndefined();
+      survey.setValue("a", 1);
+      expect(survey.getValue("q"), "true: a changed, q reads other").toBe(5);
+
+      settings.expressionQuestionTrackDependencies = false;
+      survey = createSurvey();
+      survey.setValue("other", 5);
+      expect(survey.getValue("q"), "false: runs on every value change").toBe(5);
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+      FunctionFactory.Instance.unregister("readOther");
+    }
+  });
+  test("defaultValueExpression inside a dynamic panel follows the panel's value", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "b" },
+        {
+          type: "paneldynamic", name: "pd", panelCount: 1,
+          templateElements: [
+            { type: "text", name: "a" },
+            { type: "text", name: "t", defaultValueExpression: "{panel.a} + 1" }
+          ]
+        }
+      ]
+    });
+    const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("pd")).panels[0];
+    const t = panel.getQuestionByName("t");
+    panel.getQuestionByName("a").value = 1;
+    expect(t.value, "panel a = 1").toBe(2);
+    panel.getQuestionByName("a").value = 5;
+    expect(t.value, "panel a = 5").toBe(6);
+    survey.setValue("b", 1);
+    expect(t.value, "an answer outside the panel").toBe(6);
+  });
+  test("defaultValueExpression with a parameterless function runs on every value change", () => {
+    let callCount = 0;
+    FunctionFactory.Instance.register("countNoParams", () => { callCount++; return 1; });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "b" },
+          { type: "text", name: "q", defaultValueExpression: "countNoParams()" }
+        ]
+      });
+      callCount = 0;
+      survey.setValue("b", 1);
+      expect(callCount, "b = 1").toBe(1);
+      survey.setValue("b", 2);
+      expect(callCount, "b = 2").toBe(2);
+      expect(survey.getValue("q"), "q").toBe(1);
+    } finally {
+      FunctionFactory.Instance.unregister("countNoParams");
+    }
+  });
+  test("defaultValueExpression with an element property runs on every value change", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a", visibleIf: "{b} != 1" },
+        { type: "text", name: "b" },
+        { type: "text", name: "q", defaultValueExpression: "{$a.isVisible}" }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    expect(q.value, "a is visible").toBe(true);
+    survey.setValue("b", 1);
+    expect(q.value, "a is hidden").toBe(false);
+    survey.setValue("b", 2);
+    expect(q.value, "a is visible again").toBe(true);
+  });
+  test("defaultValueExpression with a built-in variable runs on every value change", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "text", name: "b" }, { type: "text", name: "q", defaultValueExpression: "{pageno}" }] },
+        { elements: [{ type: "text", name: "c" }] }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    expect(q.value, "the first run at load does not have the page number yet").toBe(0);
+    survey.setValue("b", 1);
+    expect(q.value, "an answer on the first page").toBe(1);
+    survey.nextPage();
+    survey.setValue("c", 1);
+    expect(q.value, "an answer on the second page").toBe(2);
+  });
+  test("defaultValueExpression runs on every value change while onExpressionRunning has a subscriber", () => {
+    let callCount = 0;
+    FunctionFactory.Instance.register("countCalls", (params: any[]) => { callCount++; return params[0]; });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "a" },
+          { type: "text", name: "b" },
+          { type: "text", name: "q", defaultValueExpression: "countCalls({a})" }
+        ]
+      });
+      survey.onExpressionRunning.add(() => { });
+      callCount = 0;
+      survey.setValue("b", 1);
+      expect(callCount, "an unrelated answer").toBe(1);
+    } finally {
+      FunctionFactory.Instance.unregister("countCalls");
+    }
+  });
+  test("defaultValueExpression runs on survey.runExpressions() and on survey.data", () => {
+    let callCount = 0;
+    FunctionFactory.Instance.register("countCalls", (params: any[]) => { callCount++; return params[0]; });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "a" },
+          { type: "text", name: "b" },
+          { type: "text", name: "q", defaultValueExpression: "countCalls({a})" }
+        ]
+      });
+      callCount = 0;
+      survey.data = { a: 3, b: 1 };
+      expect(callCount, "survey.data").toBe(3);
+      expect(survey.getValue("q"), "q after survey.data").toBe(3);
+      callCount = 0;
+      survey.runExpressions();
+      expect(callCount, "survey.runExpressions()").toBe(1);
+    } finally {
+      FunctionFactory.Instance.unregister("countCalls");
+    }
+  });
+  test("defaultValueExpression that reads a path under a cleared value", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "multipletext", name: "a", items: [{ name: "x" }] },
+        { type: "text", name: "q", defaultValueExpression: "{a.x}", defaultValue: 7 },
+        {
+          type: "paneldynamic", name: "pd", panelCount: 1,
+          templateElements: [
+            { type: "multipletext", name: "a", items: [{ name: "x" }] },
+            { type: "text", name: "t", defaultValueExpression: "{panel.a.x}", defaultValue: 7 }
+          ]
+        },
+        {
+          type: "paneldynamic", name: "pd2", panelCount: 1,
+          templateElements: [
+            { type: "text", name: "s", defaultValueExpression: "{a.x}", defaultValue: 7 }
+          ]
+        }
+      ]
+    });
+    const s = (<QuestionPanelDynamicModel>survey.getQuestionByName("pd2")).panels[0].getQuestionByName("s");
+    const q = survey.getQuestionByName("q");
+    expect(q.value, "a is empty").toBe(7);
+    expect(s.value, "a is empty, in a panel").toBe(7);
+    survey.setValue("a", { x: 2 });
+    expect(q.value, "a.x = 2").toBe(2);
+    expect(s.value, "a.x = 2, in a panel").toBe(2);
+    survey.clearValue("a");
+    expect(q.value, "a is cleared").toBe(7);
+    expect(s.value, "a is cleared, in a panel").toBe(7);
+    survey.setValue("a", { x: 3 });
+    expect(q.value, "a.x = 3").toBe(3);
+    expect(s.value, "a.x = 3, in a panel").toBe(3);
+
+    const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("pd")).panels[0];
+    const panelA = panel.getQuestionByName("a");
+    const t = panel.getQuestionByName("t");
+    expect(t.value, "panel a is empty").toBe(7);
+    panelA.value = { x: 2 };
+    expect(t.value, "panel a.x = 2").toBe(2);
+    panelA.clearValue();
+    expect(t.value, "panel a is cleared").toBe(7);
+    panelA.value = { x: 3 };
+    expect(t.value, "panel a.x = 3").toBe(3);
+  });
+  test("defaultValueExpression applies a defaultValue changed in place on the next answer", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "checkbox", name: "q", choices: ["x", "y"], defaultValue: ["x"], defaultValueExpression: "{a}" }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    expect(q.value, "a is empty, the default value is used").toEqual(["x"]);
+    q.defaultValue.push("y");
+    survey.setValue("b", 1);
+    expect(q.value, "the changed default value on an unrelated answer").toEqual(["x", "y"]);
+  });
+  test("defaultValueExpression after the question value is changed in place", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "checkbox", name: "q", choices: ["x", "y"], defaultValue: ["x"], defaultValueExpression: "{a}" }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    expect(q.value, "a is empty, the default value is used").toEqual(["x"]);
+    q.value.push("y");
+    expect(q.value, "changed in place").toEqual(["x", "y"]);
+    survey.setValue("b", 1);
+    expect(q.value, "after an unrelated answer").toEqual(["x"]);
+  });
   test("Question minValueExpression && onExpressionRunning #10258", () => {
     const survey = new SurveyModel({
       elements: [

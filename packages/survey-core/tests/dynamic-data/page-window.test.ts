@@ -21,6 +21,8 @@ import {
 
 // The edited set and the page the page validation keeps for a records question have no public face.
 const getPageState = (q: Question): IRecordsPageState => (<any>q).getPageState();
+// The current sort of a records question, as plain { field, direction } criteria.
+const getSort = (q: any): Array<any> => q.sortCriteria.map((c: any) => ({ field: c.field, direction: c.direction }));
 const setPageState = (q: Question, state: IRecordsPageState): void => { (<any>q).setPageState(state); };
 
 /* With paging on, the panels and rows that exist are the current page, for an in-memory list as for
@@ -290,7 +292,7 @@ describe("Page window: validation", () => {
     expect(question.panels[2].getQuestionByName("name").errors.length, "#3: the error is shown").toBe(1);
     expect(question.goToPage(3), "#4: goToPage forward validates too").toBe(false);
     expect(question.toggleSort("id"), "#5: a header click validates too").toBe(false);
-    expect(question.sortOrder, "#6: and does not sort").toEqual([]);
+    expect(getSort(question), "#6: and does not sort").toEqual([]);
     expect(question.addPanelUI(), "#7: add lands on the last page and validates").toBeNull();
     expect(question.panelCount, "#8").toBe(100);
     question.panels[2].getQuestionByName("name").value = "filled";
@@ -338,7 +340,7 @@ describe("Page window: validation", () => {
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
     question.pageIndex = 1;
     editRecordFive(question);
-    question.sortOrder = [{ field: "id", direction: "desc" }];
+    question.sort([{ field: "id", direction: "desc" }]);
     expect(panelIds(question).indexOf(5), "#1: record 5 left the page").toBe(-1);
     expectRecordFiveShown(survey, question, "#2");
   });
@@ -558,7 +560,7 @@ describe("Paged question in a matrix detail panel keeps its page state across ro
   test("a rebuild keeps no page state without a nested paged question", () => {
     const unpaged = createOuter([{ type: "text", name: "note" }], 0);
     unpaged.matrix.visibleRows.forEach(row => row.showDetailPanel());
-    unpaged.matrix.sortOrder = [{ field: "id", direction: "desc" }];
+    unpaged.matrix.sort([{ field: "id", direction: "desc" }]);
     expect(unpaged.matrix.visibleRows.map(row => row.getQuestionByName("id").value), "#1: the rows were rebuilt").toEqual([3, 2, 1, 0]);
     expect((<any>unpaged.matrix)._pageValidation, "#2: no page validation was created").toBeUndefined();
     const plain = createOuter([{ type: "text", name: "note" }]);
@@ -631,7 +633,7 @@ describe("Page window: asynchronous validators and the survey's settings", () =>
     expect(question.panels.every(p => p.getQuestionByName("name").errors.length === 0), "#4: nor showed on this page").toBe(true);
     results.length = 0;
     question.nextPage();
-    question.sortOrder = [{ field: "id", direction: "desc" }];
+    question.sort([{ field: "id", direction: "desc" }]);
     expect(question.isPageMovePending, "#5: a sort drops it").toBe(false);
     results.forEach(setResult => setResult(1));
     expect(question.pageIndex, "#6: a sort keeps the page, the dropped move did not happen").toBe(3);
@@ -976,7 +978,7 @@ describe("Page window: three indexes", () => {
   const visibleIds = range(0, 99).reverse().filter(i => i % 5 !== 0);
   test("the record index, the visibleIndex and the pageVisibleIndex of the first panel and row of page 2", () => {
     const question = createPanel({
-      pageSize: 20, sortBy: "id-", templateVisibleIf: "{panel.id} % 5 != 0",
+      pageSize: 20, sortCriteria: [{ field: "id", direction: "desc" }], templateVisibleIf: "{panel.id} % 5 != 0",
       templateElements: [{ type: "text", name: "id" }, { type: "expression", name: "rec", expression: "{panelIndex}" },
         { type: "expression", name: "vis", expression: "{visiblePanelIndex}" }]
     }, records(100));
@@ -988,7 +990,7 @@ describe("Page window: three indexes", () => {
     expect((<any>panel.data).visibleIndex, "#4").toBe(20);
     expect((<any>panel.data).pageVisibleIndex, "#5: the pageVisibleIndex").toBe(0);
     const matrix = createMatrix({
-      pageSize: 20, sortBy: "id-", rowsVisibleIf: "{row.id} % 5 != 0",
+      pageSize: 20, sortCriteria: [{ field: "id", direction: "desc" }], rowsVisibleIf: "{row.id} % 5 != 0",
       columns: [{ name: "id", cellType: "text" }, { name: "rec", cellType: "expression", expression: "{rowIndex}" }]
     }, records(100));
     matrix.pageIndex = 1;
@@ -999,7 +1001,7 @@ describe("Page window: three indexes", () => {
     expect(row.pageVisibleIndex, "#9").toBe(0);
   });
   test("currentIndex is a visibleIndex: 45 moves to page 2 and selects pageVisibleIndex 5", () => {
-    const question = createPanel({ displayMode: "tab", pageSize: 20, sortBy: "id-", templateVisibleIf: "{panel.id} % 5 != 0" }, records(100));
+    const question = createPanel({ displayMode: "tab", pageSize: 20, sortCriteria: [{ field: "id", direction: "desc" }], templateVisibleIf: "{panel.id} % 5 != 0" }, records(100));
     question.currentIndex = 45;
     expect(question.pageIndex, "#1").toBe(2);
     expect((<any>question.currentPanel.data).pageVisibleIndex, "#2").toBe(5);
@@ -1242,7 +1244,7 @@ describe("Page window: carousel, tab and design mode", () => {
     check("#3 remove");
     question.panels[1].getQuestionByName("hide").value = true;
     check("#4 hide");
-    question.sortOrder = [{ field: "id", direction: "desc" }];
+    question.sort([{ field: "id", direction: "desc" }]);
     check("#5 sort");
     // The current record - the one added without an id - sorts last, and the tabs follow it there.
     expect(question.tabbedMenu.actions.length, "#6: one tab per panel, not the square of the page").toBe(question.visiblePanels.length);
@@ -1314,7 +1316,7 @@ describe("Page window: the current panel stays on its record", () => {
       const question = createPanel({ displayMode: "tab" }, records(5));
       question.currentIndex = current;
       question.removePanel(removed);
-      question.sortOrder = [{ field: "id", direction: "desc" }];
+      question.sort([{ field: "id", direction: "desc" }]);
       return question;
     };
     let question = removeAndSort(2, 2);
@@ -1918,7 +1920,7 @@ describe("Page window: the nested page states a rebuilt panel keeps", () => {
   test("a rebuild without a nested paged question keeps no state at all", () => {
     const question = createPanel({}, records(5));
     expect(panelIds(question), "#1").toEqual(range(0, 4));
-    question.sortOrder = [{ field: "id", direction: "desc" }];
+    question.sort([{ field: "id", direction: "desc" }]);
     expect(panelIds(question), "#2: the panels were rebuilt").toEqual([4, 3, 2, 1, 0]);
     expect((<any>question)._pageValidation, "#3: no page validation was created").toBeUndefined();
   });
@@ -2455,7 +2457,7 @@ describe("Fixed matrix pages its rows under a sort and a filter", () => {
     return { survey: survey, matrix: <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix") };
   };
   test("an edit writes the row's own key: record index, visible position and page-local position all differ", () => {
-    const { matrix } = createFixed({ sortBy: "rowTitle", filterExpression: "{rowName} != 'r3'" }, {});
+    const { matrix } = createFixed({ sortCriteria: [{ field: "rowTitle" }], filterExpression: "{rowName} != 'r3'" }, {});
     // In the view: Bravo r5, Charlie r7, Delta r6, Echo r2, Foxtrot r4, Golf r1.
     matrix.nextPage();
     const row = matrix.visibleRows[1];
@@ -2517,7 +2519,7 @@ describe("Page window: numbers, confirmations and new records name records acros
     expect(ids(matrix.value).indexOf(11), "#5: record 11 was that row's - record 12 is gone").toBe(-1);
   });
   test("a sorted, paged question: the numbers and the event indexes are positions in the sorted view", () => {
-    const question = createPanel({ pageSize: 5, sortBy: "id-" }, records(20));
+    const question = createPanel({ pageSize: 5, sortCriteria: [{ field: "id", direction: "desc" }] }, records(20));
     const removed: Array<number> = [];
     question.survey.onDynamicPanelRemoved.add((_, options) => { removed.push(options.panelIndex); });
     expect(panelIds(question), "#1").toEqual([19, 18, 17, 16, 15]);
@@ -2626,7 +2628,7 @@ describe("Page window: numbers, confirmations and new records name records acros
       confirmations.answer(0, true);
       expect(ids(question.value), "#2: record 3 is removed").toEqual([0, 1, 2]);
       question.removePanelUI(question.panels[0]);
-      question.sortBy = "id-";
+      question.sort([{ field: "id", direction: "desc" }]);
       confirmations.answer(1, true);
       expect(ids(question.value), "#3: the panel it asked about was replaced: nothing is removed").toEqual([0, 1, 2]);
     } finally {
@@ -2649,7 +2651,7 @@ describe("Page window: numbers, confirmations and new records name records acros
     expect(question.currentPanel.getQuestionByName("id").value, "#7").toBe(1);
   });
   test("a sorted and filtered local array is edited and removed by storage index", () => {
-    const matrix = createMatrix({ sortBy: "id-", filterExpression: "{id} > 1", pageSize: 2 }, [{ id: 1 }, { id: 3 }, { id: 2 }, { id: 4 }]);
+    const matrix = createMatrix({ sortCriteria: [{ field: "id", direction: "desc" }], filterExpression: "{id} > 1", pageSize: 2 }, [{ id: 1 }, { id: 3 }, { id: 2 }, { id: 4 }]);
     expect(rowIds(matrix), "#1: the sorted, filtered page").toEqual([4, 3]);
     matrix.visibleRows[1].getQuestionByName("name").value = "edited";
     expect(matrix.value, "#2: the record of the row").toEqual([{ id: 1 }, { id: 3, name: "edited" }, { id: 2 }, { id: 4 }]);
@@ -2657,7 +2659,7 @@ describe("Page window: numbers, confirmations and new records name records acros
     matrix.removeRowUI(matrix.visibleRows[0]);
     expect(matrix.value, "#3").toEqual([{ id: 1 }, { id: 3, name: "edited" }, { id: 4 }]);
     const stored = [{ id: 1 }, { id: 3 }, { id: 2 }, { id: 4 }];
-    const question = createPanel({ sortBy: "id-", filterExpression: "{id} > 1", pageSize: 2, panelCount: 0 });
+    const question = createPanel({ sortCriteria: [{ field: "id", direction: "desc" }], filterExpression: "{id} > 1", pageSize: 2, panelCount: 0 });
     question.panels;
     question.dataSource = ArrayDynamicDataSource.fromArray(stored);
     const source = <ArrayDynamicDataSource>question.dataSource;
@@ -2684,7 +2686,7 @@ describe("Page window: numbers, confirmations and new records name records acros
       dd.doDrop();
       return { from: ids(survey.data.m1), to: survey.data.m2 };
     };
-    expect(transfer({ sortBy: "id-" }, 0, 0), "#1: a sort").toEqual({ from: [0, 1, 2, 3, 4], to: [{ id: 5, name: "n5" }] });
+    expect(transfer({ sortCriteria: [{ field: "id", direction: "desc" }] }, 0, 0), "#1: a sort").toEqual({ from: [0, 1, 2, 3, 4], to: [{ id: 5, name: "n5" }] });
     expect(transfer({ filterExpression: "{id} > 2" }, 0, 0), "#2: a filter").toEqual({ from: [0, 1, 2, 4, 5], to: [{ id: 3, name: "n3" }] });
     expect(transfer({ pageSize: 2 }, 1, 1), "#3: a page").toEqual({ from: [0, 1, 2, 4, 5], to: [{ id: 3, name: "n3" }] });
   });
@@ -2740,7 +2742,7 @@ describe("Page window: the question's own writes keep the view", () => {
     expect(rowAs(q), "#5: refreshView applies the filter to it").toEqual([4]);
   });
   test("panel: an add under a sort shows the new record on the page that holds it", () => {
-    const q = createStablePanel({ pageSize: 2, sortBy: "a-" }, 5, "1");
+    const q = createStablePanel({ pageSize: 2, sortCriteria: [{ field: "a", direction: "desc" }] }, 5, "1");
     q.nextPage();
     expect(panelAs(q), "#1").toEqual([2, 1]);
     q.addPanel(1);
@@ -2750,7 +2752,7 @@ describe("Page window: the question's own writes keep the view", () => {
     expect(panelAs(q), "#4: a filter change applies the view to it").toEqual([4, 3]);
   });
   test("matrix: an add under a sort shows the new record where it was added", () => {
-    const q = createStableMatrix({ pageSize: 2, sortBy: "a-" }, 5, "1");
+    const q = createStableMatrix({ pageSize: 2, sortCriteria: [{ field: "a", direction: "desc" }] }, 5, "1");
     q.visibleRows;
     q.nextPage();
     expect(rowAs(q), "#1").toEqual([2, 1]);
@@ -2760,7 +2762,7 @@ describe("Page window: the question's own writes keep the view", () => {
     expect(rowAs(q), "#3: not sorted away").toEqual([2, 7]);
     q.refreshView();
     expect(rowAs(q), "#4: refreshView sorts it").toEqual([3, 2]);
-    const appended = createStableMatrix({ pageSize: 2, sortBy: "a-" }, 5, "1");
+    const appended = createStableMatrix({ pageSize: 2, sortCriteria: [{ field: "a", direction: "desc" }] }, 5, "1");
     appended.visibleRows;
     appended.nextPage();
     appended.addRow();
@@ -2797,11 +2799,11 @@ describe("Page window: the question's own writes keep the view", () => {
       expect(panelAs(filtered), "#1").toEqual([-5, 3]);
       filtered.filterExpression = "{a} >= 1";
       expect(panelAs(filtered), "#2: a filter change applies the view to it").toEqual([1, 3]);
-      const sorted = createStablePanel({ pageSize: 2, sortBy: "a" }, 6, expression);
+      const sorted = createStablePanel({ pageSize: 2, sortCriteria: [{ field: "a" }] }, 6, expression);
       sorted.nextPage();
       sorted.panels[0].getQuestionByName("a").value = 100;
       expect(panelAs(sorted), "#3").toEqual([100, 3]);
-      sorted.sortBy = "a-";
+      sorted.sort([{ field: "a", direction: "desc" }]);
       expect(panelAs(sorted), "#4: a sort change applies the view to it").toEqual([4, 3]);
     });
   });
@@ -2814,12 +2816,12 @@ describe("Page window: the question's own writes keep the view", () => {
       expect(rowAs(filtered), "#1").toEqual([-5, 3]);
       filtered.filterExpression = "{a} >= 1";
       expect(rowAs(filtered), "#2: a filter change applies the view to it").toEqual([1, 3]);
-      const sorted = createStableMatrix({ pageSize: 2, sortBy: "a" }, 6, expression);
+      const sorted = createStableMatrix({ pageSize: 2, sortCriteria: [{ field: "a" }] }, 6, expression);
       sorted.visibleRows;
       sorted.nextPage();
       sorted.visibleRows[0].getQuestionByColumnName("a").value = 100;
       expect(rowAs(sorted), "#3").toEqual([100, 3]);
-      sorted.sortBy = "a-";
+      sorted.sort([{ field: "a", direction: "desc" }]);
       expect(rowAs(sorted), "#4: a sort change applies the view to it").toEqual([4, 3]);
     });
   });
@@ -2945,11 +2947,11 @@ describe("Page window: an assignment from outside made during the question's own
     expect(calls > 0, "#1: the handler ran before an own store").toBe(true);
     expect(rowAs(matrix), "#2").toEqual([4, undefined]);
   });
-  [{ sortBy: undefined, page1: [3, 4] }, { sortBy: "a-", page1: [3, 1] }].forEach(view => {
+  [{ sortCriteria: undefined, page1: [3, 4] }, { sortCriteria: [{ field: "a", direction: "desc" }], page1: [3, 1] }].forEach(view => {
     [{ name: "survey.setValue", assign: (q: any, v: any) => { q.survey.setValue(q.name, v); } },
       { name: "question.value", assign: (q: any, v: any) => { q.value = v; } }].forEach(way => {
-      test("an assignment through " + way.name + " inside an edit's list write is followed after it, sortBy: " + view.sortBy, () => {
-        const json = { filterExpression: "{a} >= 0", sortBy: view.sortBy };
+      test("an assignment through " + way.name + " inside an edit's list write is followed after it, " + (view.sortCriteria ? "sorted by a desc" : "not sorted"), () => {
+        const json = { filterExpression: "{a} >= 0", sortCriteria: view.sortCriteria };
         const panel = createStablePanel(Object.assign({ pageSize: 2 }, json), 6);
         const matrix = createStableMatrix(Object.assign({ pageSize: 2 }, json), 6);
         [panel, matrix].forEach((q: any) => {
@@ -3136,7 +3138,7 @@ describe("Page window: the records the respondent touched stay shown", () => {
     [0, 2].forEach(pageSize => {
       const paging = pageSize > 0 ? { pageSize: pageSize } : {};
       test(kind.name + ": an assignment from outside sorts the other records and keeps the edited one, page size " + pageSize, () => {
-        const q = kind.create(Object.assign({ sortBy: "a" }, paging), 6);
+        const q = kind.create(Object.assign({ sortCriteria: [{ field: "a" }] }, paging), 6);
         kind.edit(q, 0, 100);
         assignRecord(q, 5, { a: -1 });
         expect(kind.shown(q), "#1").toEqual(pageSize > 0 ? [100, -1] : [100, -1, 1, 2, 3, 4]);
@@ -3223,7 +3225,7 @@ describe("Page window: the records the respondent touched stay shown", () => {
     });
     [{ name: "refreshView()", change: (q: any) => { q.refreshView(); } },
       { name: "a filter change", change: (q: any) => { q.filterExpression = "{a} >= -100"; } },
-      { name: "a sort change", change: (q: any) => { q.sortBy = "a"; } }].forEach(way => {
+      { name: "a sort change", change: (q: any) => { q.sort([{ field: "a", direction: "asc" }]); } }].forEach(way => {
       test(kind.name + ": " + way.name + " drops the touched records", () => {
         const q = kind.create({ filterExpression: "{a} >= 0" }, 6);
         kind.edit(q, 0, 7);
@@ -3276,12 +3278,12 @@ describe("Page window: the records the respondent touched stay shown", () => {
     expect(panelAs(q), "#1").toEqual([0, 1, 3, 4, 5]);
   });
   test("a touched record that an assignment moves from one end of the records to the other keeps its place", () => {
-    const first = createStableMatrix({ sortBy: "a" }, 6);
+    const first = createStableMatrix({ sortCriteria: [{ field: "a" }] }, 6);
     first.visibleRows[0].getQuestionByColumnName("a").value = 100;
     expect(rowAs(first), "#1: the edit keeps its place").toEqual([100, 1, 2, 3, 4, 5]);
     first.survey.setValue("m", [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }, { a: 5 }, { a: 100 }]);
     expect(rowAs(first), "#2: moved from the first record to the last, it stays first").toEqual([100, 1, 2, 3, 4, 5]);
-    const last = createStableMatrix({ sortBy: "a" }, 6);
+    const last = createStableMatrix({ sortCriteria: [{ field: "a" }] }, 6);
     last.visibleRows[5].getQuestionByColumnName("a").value = -100;
     expect(rowAs(last), "#3").toEqual([0, 1, 2, 3, 4, -100]);
     last.survey.setValue("m", [{ a: -100 }, { a: 0 }, { a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }]);
@@ -3330,7 +3332,7 @@ describe("Page window: an edit through a question with a valueName touches its r
 
 describe("Fixed matrix: the rows the respondent edited stay shown", () => {
   const createSorted = (): { survey: SurveyModel, matrix: QuestionMatrixDropdownModel } => {
-    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", sortBy: "a-",
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "m", sortCriteria: [{ field: "a", direction: "desc" }],
       rows: ["r1", "r2", "r3", "r4"], columns: [{ name: "a", cellType: "text" }] }] });
     survey.data = { m: { r1: { a: "b" }, r2: { a: "c" }, r3: { a: "d" }, r4: { a: "e" } } };
     return { survey: survey, matrix: <QuestionMatrixDropdownModel>survey.getQuestionByName("m") };
@@ -3438,7 +3440,7 @@ describe("Page window: record semantics without an object", () => {
     matrix.value = [{ c: 1 }, { c: 2 }];
     expect(matrix.displayValue, "#1").toEqual([{ c: "One" }, { c: "Two" }]);
     expect(matrix.value, "#2: the answer is not changed").toEqual([{ c: 1 }, { c: 2 }]);
-    matrix.sortBy = "c-";
+    matrix.sort([{ field: "c", direction: "desc" }]);
     expect(matrix.displayValue, "#3: in record order under a sort").toEqual([{ c: "One" }, { c: "Two" }]);
   });
   test("with paging, expressions and totals cover the current page and the pages visited, and a visited record keeps its values", () => {
@@ -3732,7 +3734,7 @@ describe("Paged dynamic panel: clearing invisible values gives the unpaged answe
     test("a sort: an outside assignment that moves a record keeps its hidden answer", () => {
       const data = [{ k: 3, t: "c" }, { k: 1, t: "a" }];
       const newValue = [{ k: 3, t: "c" }, { k: 1, t: "a" }, { k: 0, t: "z" }];
-      expect(expectPanelSameAsPlain({ sortBy: "k" }, data, (survey: SurveyModel): void => {
+      expect(expectPanelSameAsPlain({ sortCriteria: [{ field: "k" }] }, data, (survey: SurveyModel): void => {
         survey.setValue("p", Helpers.getUnbindValue(newValue));
       })).toEqual(newValue);
     });
@@ -3884,7 +3886,7 @@ describe("Paging: a number names the same record in every method", () => {
   const setups: Array<{ name: string, json: any, unpaged: any }> = [
     { name: "plain", json: {}, unpaged: { get: "r3", set: r(0, 1, 2, "X", 4, 5), question: "r3",
       move: r(1, 2, 3, 0, 4, 5), add: r(0, 1, 2, "N", 3, 4, 5), remove: r(0, 1, 2, 4, 5) } },
-    { name: "a sort", json: { sortBy: "a-" }, unpaged: { get: "r2", set: r(0, 1, "X", 3, 4, 5), question: "r2",
+    { name: "a sort", json: { sortCriteria: [{ field: "a", direction: "desc" }] }, unpaged: { get: "r2", set: r(0, 1, "X", 3, 4, 5), question: "r2",
       move: r(0, 1, 5, 2, 3, 4), add: r(0, 1, "N", 2, 3, 4, 5), remove: r(0, 1, 3, 4, 5) } },
     { name: "a filter", json: { filterExpression: "{a} != 'r0'" }, unpaged: { get: "r4", set: r(0, 1, 2, 3, "X", 5), question: "r4",
       move: r(0, 2, 3, 4, 1, 5), add: r(0, 1, 2, 3, "N", 4, 5), remove: r(0, 1, 2, 3, 5) } },
@@ -3974,7 +3976,7 @@ describe("Paging: a number names the same record in every method", () => {
       const after = as(m.value);
       return before.filter(a => after.indexOf(a) < 0)[0];
     };
-    [{ pageSize: 2 }, { pageSize: 2, sortBy: "a-" }, { pageSize: 2, filterExpression: "{a} != 'r2'" },
+    [{ pageSize: 2 }, { pageSize: 2, sortCriteria: [{ field: "a", direction: "desc" }] }, { pageSize: 2, filterExpression: "{a} != 'r2'" },
       { pageSize: 2, rowsVisibleIf: "{row.a} != 'r1' and {row.a} != 'r4'" }].forEach((json: any, i: number): void => {
       for (let n = 0; n < 6; n++) {
         const read = createNumberedMatrix(json);
@@ -4335,7 +4337,7 @@ describe("Paged dynamic panel: the record the removal rule names becomes current
       expect(removeCurrentAt({ displayMode: mode }, 0, 1), "#1").toEqual({ a: undefined, index: -1, events: [] });
     });
     test(mode + ": under a sort and a filter", () => {
-      const view = { displayMode: mode, sortBy: "a-", filterExpression: "{a} != 1" };
+      const view = { displayMode: mode, sortCriteria: [{ field: "a", direction: "desc" }], filterExpression: "{a} != 1" };
       expect(removeCurrentAt(view, 3), "#1: a = 0, last of the last page").toEqual({ a: 2, index: 2, events: [2] });
       expect(removeCurrentAt(view, 2), "#2: a = 2, first of page 1").toEqual({ a: 0, index: 2, events: [2] });
     });
@@ -4362,7 +4364,7 @@ describe("Paged dynamic panel: the record the removal rule names becomes current
     });
   });
   test("tab, sorted: a rebuild of the same record at the same index raises nothing; a remove in front of it and of it one each", () => {
-    const { question, events } = createCurrent({ displayMode: "tab", sortBy: "a" });
+    const { question, events } = createCurrent({ displayMode: "tab", sortCriteria: [{ field: "a" }] });
     question.currentIndex = 3;
     events.splice(0);
     question.refreshView();
@@ -4680,7 +4682,7 @@ describe("Page window: clearIncorrectValues clears incorrect answers on every pa
 
 describe("Page window: the remove events under a sort", () => {
   test("matrix: the events report the removed row's view position and name the removed row", () => {
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, sortBy: "a-", columns: [{ name: "a", cellType: "text" }] }] });
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, sortCriteria: [{ field: "a", direction: "desc" }], columns: [{ name: "a", cellType: "text" }] }] });
     survey.data = { m: [{ a: 1 }, { a: 3 }, { a: 2 }] };
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     expect(matrix.visibleRows.map(row => row.getQuestionByColumnName("a").value), "#1").toEqual([3, 2, 1]);
@@ -4692,7 +4694,7 @@ describe("Page window: the remove events under a sort", () => {
     expect(matrix.value, "#3").toEqual([{ a: 3 }, { a: 2 }]);
   });
   test("panel: the events report the removed panel's view position and name the removed panel", () => {
-    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", sortBy: "a-", templateElements: [{ type: "text", name: "a" }] }] });
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", sortCriteria: [{ field: "a", direction: "desc" }], templateElements: [{ type: "text", name: "a" }] }] });
     survey.data = { p: [{ a: 1 }, { a: 3 }, { a: 2 }] };
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
     expect(panel.panels.map(p => p.getQuestionByName("a").value), "#1").toEqual([3, 2, 1]);
@@ -4802,7 +4804,7 @@ describe("Dynamic panel with a view: template default values of loaded and new r
     expect(run({ pageSize: 2 }, (question: QuestionPanelDynamicModel): void => { question.pageIndex = 1; })).toEqual(run({}));
   });
   test("sorted: no record gets the static default, every record gets the expression", () => {
-    const res = run({ sortBy: "k" });
+    const res = run({ sortCriteria: [{ field: "k" }] });
     expect(res.map((record: any): any => record.t), "#1").toEqual([undefined, undefined, undefined]);
     expect(res.map((record: any): boolean => !!record.x), "#2").toEqual([true, true, true]);
   });
@@ -4812,7 +4814,7 @@ describe("Dynamic panel with a view: template default values of loaded and new r
     expect(res.map((record: any): boolean => !!record.x), "#2").toEqual([true, true, false]);
   });
   test("paged and sorted: no record gets the static default", () => {
-    const res = run({ pageSize: 2, sortBy: "k" }, (question: QuestionPanelDynamicModel): void => { question.pageIndex = 1; });
+    const res = run({ pageSize: 2, sortCriteria: [{ field: "k" }] }, (question: QuestionPanelDynamicModel): void => { question.pageIndex = 1; });
     expect(res.map((record: any): any => record.t)).toEqual([undefined, undefined, undefined]);
   });
   test("a new record gets both kinds of default, paged as without paging", () => {
@@ -4820,7 +4822,7 @@ describe("Dynamic panel with a view: template default values of loaded and new r
     const plain = run({}, addPanel);
     expect(plain[3], "#1").toEqual({ t: "dt", x: "e3" });
     expect(run({ pageSize: 2 }, addPanel)[3], "#2: paged").toEqual(plain[3]);
-    expect(run({ sortBy: "k" }, addPanel)[3].t, "#3: sorted").toBe("dt");
+    expect(run({ sortCriteria: [{ field: "k" }] }, addPanel)[3].t, "#3: sorted").toBe("dt");
   });
   test("a new record from a raised panelCount gets both kinds of default, paged as without paging", () => {
     const raise = (question: QuestionPanelDynamicModel): void => { question.panelCount = 4; };
@@ -4947,10 +4949,10 @@ describe("clearInvisibleValues and a column or template question hidden on other
     expect(res.paged[1], "#2").toEqual([{ a: 1, b: "x" }, { a: 2 }, { a: 1, b: "y" }]);
   });
   test("a sort or a filter keeps the hidden state of every record", () => {
-    const json = Object.assign(matrixJson("{row.a} = 1"), { sortBy: "c" });
+    const json = Object.assign(matrixJson("{row.a} = 1"), { sortCriteria: [{ field: "c" }] });
     json.columns.push({ name: "c", cellType: "text" });
     const data = [{ a: 1, b: "x", c: 3 }, { a: 1, b: "y", c: 1 }, { a: 1, b: "z", c: 2 }];
-    const res = run("onHidden", json, data, {}, [(survey: SurveyModel, question: any) => { question.sortBy = "-c"; }, hideRecord(2)]);
+    const res = run("onHidden", json, data, {}, [(survey: SurveyModel, question: any) => { question.sort([{ field: "-c", direction: "asc" }]); }, hideRecord(2)]);
     expect(res.paged, "#1").toEqual(res.unpaged);
     expect(res.paged[1][2], "#2").toEqual({ a: 2, c: 2 });
   });
@@ -4958,7 +4960,7 @@ describe("clearInvisibleValues and a column or template question hidden on other
   const sortedTypes = (): Array<[string, any, any, any]> => {
     const sorted = (json: any): any => {
       if (json.type === "paneldynamic") json.templateElements.push({ type: "text", name: "c" }); else json.columns.push({ name: "c", cellType: "text" });
-      json.sortBy = "c";
+      json.sortCriteria = [{ field: "c" }];
       return json;
     };
     const records = (): Array<any> => [{ a: 1, b: "x", c: 1 }, { a: 1, b: "x", c: 2 }, { a: 1, b: "x", c: 3 }];

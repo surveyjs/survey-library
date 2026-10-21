@@ -1197,7 +1197,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     }
   }
   protected getChoiceValue(choice: ItemValue, val: any, objOnComment: boolean): any {
-    const isObj = typeof val === "object";
+    const isObj = !!val && typeof val === "object";
     const comment = isObj ? val[this.commentPropertyValue] : "";
     const hasComment = !Helpers.isValueEmpty(comment);
     if (isObj && choice.showCommentArea && (objOnComment || hasComment)) {
@@ -2928,6 +2928,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase implements IChoiceS
    *
    * Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
    * @hidefor QuestionRankingModel
+   * @since 3.2.2
    */
   public get choiceShortcutsEnabled(): boolean | undefined {
     const own = this.getPropertyValueWithoutDefault("choiceShortcutsEnabled");

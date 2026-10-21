@@ -46,14 +46,68 @@ describe("name/shadowing - built-in variables", () => {
 });
 
 describe("name/shadowing - valueName over an element name", () => {
-  test("a valueName equal to another question's name is flagged", () => {
+  test("a valueName landing on a dynamic panel without one of its own is flagged", () => {
     const findings = byRule({
-      elements: [{ type: "text", name: "q1", valueName: "q2" }, { type: "comment", name: "q2" }],
+      elements: [
+        { type: "matrixdynamic", name: "q1", valueName: "q2", columns: [{ name: "c1", cellType: "text" }] },
+        { type: "paneldynamic", name: "q2", templateElements: [{ type: "text", name: "t1" }] },
+      ],
     });
     expect(findings).toHaveLength(1);
     expect(findings[0].reason).toBe("valueNameShadowsElement");
     expect(findings[0].messageData.otherName).toBe("q2");
     expect(findings[0].related.map(r => r.path).sort()).toEqual(["elements[0]", "elements[1]"]);
+    expect(findings[0].message).toBe("The valueName \"q2\" of \"q1\" shares the value of paneldynamic \"q2\"," +
+      " which has no valueName of its own - \"q2\" treats the fields \"q1\" adds as unknown," +
+      " and clearIncorrectValues() deletes them. Set its valueName to \"q2\" too.");
+  });
+  test("the records questions and checkboxes that add fields are flagged, the rest is a plain share", () => {
+    const flagged = (shadowed: any, sharing: any): number => byRule({
+      elements: [Object.assign({ name: "q2" }, shadowed), Object.assign({ name: "q1", valueName: "q2" }, sharing)],
+    }).filter(f => f.reason === "valueNameShadowsElement").length;
+    const panel = { type: "paneldynamic", templateElements: [{ type: "text", name: "t1" }] };
+    const matrix = { type: "matrixdynamic", columns: [{ name: "c1", cellType: "text" }] };
+    const dropdownMatrix = (column: string) => ({ type: "matrixdropdown", rows: ["r1"], columns: [{ name: column, cellType: "text" }] });
+    expect(flagged(matrix, panel), "matrix + panel").toBe(1);
+    expect(flagged(panel, matrix), "panel + matrix").toBe(1);
+    expect(flagged(panel, { type: "checkbox", choices: ["a"], valuePropertyName: "car" }), "checkbox with valuePropertyName").toBe(1);
+    expect(flagged(panel, { type: "tagbox", choices: ["a"], valuePropertyName: "car" }), "tagbox with valuePropertyName").toBe(1);
+    expect(flagged(panel, { type: "checkbox", choices: [{ value: "a", showCommentArea: true }] }), "checkbox with a choice comment").toBe(1);
+    expect(flagged(dropdownMatrix("c1"), dropdownMatrix("c2")), "matrixdropdown + matrixdropdown").toBe(1);
+    expect(flagged(panel, { type: "checkbox", choices: ["a"] }), "a plain checkbox adds no field").toBe(0);
+    expect(flagged(panel, { type: "imagemap", valuePropertyName: "car", imageLink: "x", areas: [] }), "an image map with valuePropertyName").toBe(1);
+    expect(flagged(panel, { type: "imagemap", multiSelect: false, valuePropertyName: "car", imageLink: "x", areas: [] }), "a single-select image map keeps plain values").toBe(0);
+    expect(flagged(panel, { type: "text" }), "a scalar is a type conflict, not this").toBe(0);
+    expect(flagged({ type: "text" }, { type: "text" }), "two scalars share a value").toBe(0);
+    expect(flagged({ type: "multipletext", items: [{ name: "a" }] }, { type: "multipletext", items: [{ name: "b" }] }),
+      "multiple texts merge their keys").toBe(0);
+  });
+  // keyed by its name alone, a dynamic panel or matrix still knows the keys its own questions store
+  // (isRecordKeyOfType), and a matrixdropdown keeps a row it does not list (isValueKeyKnown)
+  test("a question adding no field the dynamic panel or matrix lacks is a plain share", () => {
+    const flagged = (shadowed: any, sharing: any): number => byRule({
+      elements: [Object.assign({ name: "q2" }, shadowed), Object.assign({ name: "q1", valueName: "q2" }, sharing)],
+    }).length;
+    const matrix = (columns: Array<string>) => ({ type: "matrixdynamic", columns: columns.map(name => ({ name: name, cellType: "text" })) });
+    const dropdown = (rows: Array<string> | undefined, column: string): any =>
+      Object.assign({ type: "matrixdropdown", columns: [{ name: column, cellType: "text" }] }, rows ? { rows: rows } : {});
+    expect(flagged(matrix(["first", "last"]), matrix(["first", "last"])), "a copy of the matrix").toBe(0);
+    expect(flagged(matrix(["first", "last"]), matrix(["first"])), "a part of its columns").toBe(0);
+    expect(flagged(matrix(["first"]), matrix(["first", "last"])), "a column it lacks").toBe(1);
+    expect(flagged({ type: "paneldynamic", templateElements: [{ type: "text", name: "carName", valueName: "car" }] },
+      { type: "checkbox", choices: ["a"], valuePropertyName: "car" }), "a field its template writes").toBe(0);
+    expect(flagged(dropdown(["r2"], "c1"), dropdown(["r1"], "c2")), "no row in common").toBe(0);
+    expect(flagged(dropdown(["r1", "r2"], "c1"), dropdown(["r1"], "c2")), "a row in common").toBe(1);
+    expect(flagged(dropdown(["r1"], "c1"), dropdown(undefined, "c2")), "rows not listed may be any row").toBe(1);
+  });
+  test("the merge example of the documentation is clean - the checkbox keeps no records", () => {
+    expect(byRule({
+      elements: [
+        { type: "checkbox", name: "cars", valuePropertyName: "car", choices: ["Ford", "Vauxhall"] },
+        { type: "paneldynamic", name: "cars-info", valueName: "cars", templateTitle: "Car: {panel.car}",
+          templateElements: [{ type: "rating", name: "rating" }] },
+      ],
+    })).toHaveLength(0);
   });
   test("two questions deliberately sharing a valueName stay clean", () => {
     expect(byRule({
@@ -73,6 +127,55 @@ describe("name/shadowing - valueName over an element name", () => {
         { type: "text", name: "q2", valueName: "elsewhere" },
       ],
     })).toHaveLength(0);
+  });
+});
+
+describe("name/shadowing - values of different shapes on one data key", () => {
+  function shapes(owner: any, partner: any): Array<string> {
+    return byRule({ elements: [Object.assign({ name: "k" }, owner), Object.assign({ name: "p", valueName: "k" }, partner)] })
+      .filter(f => f.reason === "valueShapeConflict").map(f => f.path);
+  }
+  const panel = { type: "paneldynamic", templateElements: [{ type: "text", name: "t1" }] };
+  const matrix = { type: "matrixdynamic", columns: [{ name: "c1", cellType: "text" }] };
+  const multipleText = { type: "multipletext", items: [{ name: "a" }] };
+  const area = { value: "a", coords: "1,1,2,2", shape: "rect" };
+  test("a records question and a question keeping no objects are flagged", () => {
+    const findings = byRule({ elements: [Object.assign({ name: "k" }, matrix), { type: "text", name: "p", valueName: "k" }] });
+    expect(findings.map(f => f.reason)).toEqual(["valueShapeConflict"]);
+    expect(findings[0].path).toBe("elements[1]");
+    expect(findings[0].messageData).toMatchObject({
+      name: "p", otherName: "k", otherType: "matrixdynamic", dataKey: "k", shape: "plain", otherShape: "records",
+    });
+    expect(findings[0].related.map(r => r.path)).toEqual(["elements[0]", "elements[1]"]);
+    expect(findings[0].message).toBe("\"p\" shares the data key \"k\" with matrixdynamic \"k\", which keeps an array of objects" +
+      " there, while text \"p\" keeps a plain value - one cannot hold the other's value; setData() reports it" +
+      " and clearIncorrectValues() deletes it.");
+    expect(shapes(panel, { type: "text" }), "text").toEqual(["elements[1]"]);
+    expect(shapes(panel, { type: "checkbox", choices: ["a"] }), "a plain checkbox").toEqual(["elements[1]"]);
+    expect(shapes(panel, { type: "imagemap", imageLink: "x", areas: [area] }), "an image map without valuePropertyName").toEqual(["elements[1]"]);
+    expect(shapes(panel, { type: "imagemap", multiSelect: false, valuePropertyName: "car", imageLink: "x", areas: [area] }),
+      "a single-select image map").toEqual(["elements[1]"]);
+    expect(shapes(panel, { type: "file" }), "a file").toEqual(["elements[1]"]);
+    expect(shapes(panel, multipleText), "an object").toEqual(["elements[1]"]);
+    expect(shapes(multipleText, panel), "the simpler side is reported").toEqual(["elements[0]"]);
+    expect(shapes({ type: "matrix", rows: ["r1"], columns: ["x"] }, { type: "dropdown", choices: ["a"] }), "an object and a plain value")
+      .toEqual(["elements[1]"]);
+  });
+  test("questions keeping one shape, or a shape the JSON does not tell, share a value", () => {
+    expect(shapes(panel, matrix), "two records questions").toEqual([]);
+    expect(shapes(panel, { type: "checkbox", choices: ["a"], valuePropertyName: "car" }), "the merge pattern").toEqual([]);
+    expect(shapes(panel, { type: "checkbox", choices: [{ value: "a", showCommentArea: true }] }), "a checkbox with a choice comment").toEqual([]);
+    expect(shapes(panel, { type: "imagemap", valuePropertyName: "car", imageLink: "x", areas: [area] }), "an image map with object items").toEqual([]);
+    expect(shapes(multipleText, { type: "matrix", rows: ["r1"], columns: ["x"] }), "two objects").toEqual([]);
+    expect(shapes({ type: "text" }, { type: "dropdown", choices: ["a"] }), "two plain values").toEqual([]);
+    expect(shapes(panel, { type: "expression", expression: "1" }), "an expression").toEqual([]);
+    expect(shapes(panel, { type: "html", html: "x" }), "a question writing nothing").toEqual([]);
+    expect(shapes(panel, { type: "boolean", valueTrue: "y" }), "a boolean with custom values").toEqual([]);
+  });
+  test("a share inside a dynamic-panel template is not compared", () => {
+    expect(byRule({ elements: [{ type: "paneldynamic", name: "outer", templateElements: [
+      Object.assign({ name: "k" }, panel), { type: "text", name: "p", valueName: "k" },
+    ] }] }).filter(f => f.reason === "valueShapeConflict")).toEqual([]);
   });
 });
 
@@ -143,6 +246,141 @@ describe("name/shadowing - derived data keys", () => {
   });
 });
 
+describe("name/shadowing - data scopes", () => {
+  test("a template valueName is no collision with a top-level question (#12014)", () => {
+    expect(byRule({
+      elements: [
+        { type: "text", name: "phone_number" },
+        {
+          type: "paneldynamic", name: "emergency_contacts",
+          templateElements: [{ type: "text", name: "contact_phone_number", valueName: "phone_number" }],
+        },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a template question spelling a top-level comment key is no collision", () => {
+    expect(byRule({
+      elements: [
+        { type: "text", name: "q1", showCommentArea: true },
+        { type: "paneldynamic", name: "p1", templateElements: [{ type: "text", name: "q1-Comment" }] },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a template question spelling a top-level totals key is no collision", () => {
+    expect(byRule({
+      elements: [
+        {
+          type: "matrixdynamic", name: "m1",
+          columns: [{ name: "c1", cellType: "text", inputType: "number", totalType: "sum" }],
+        },
+        { type: "paneldynamic", name: "p1", templateElements: [{ type: "text", name: "m1-total" }] },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a valueName landing on another question of the same template is a share, not reported", () => {
+    expect(byRule({
+      elements: [{
+        type: "paneldynamic", name: "p1", templateElements: [
+          { type: "text", name: "x" },
+          { type: "text", name: "y", valueName: "x" },
+        ],
+      }],
+    })).toHaveLength(0);
+  });
+  test("questions of two different templates do not meet", () => {
+    expect(byRule({
+      elements: [
+        { type: "paneldynamic", name: "p1", templateElements: [{ type: "text", name: "x" }] },
+        { type: "paneldynamic", name: "p2", templateElements: [{ type: "text", name: "y", valueName: "x" }] },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a top-level valueName does not meet a template question", () => {
+    expect(byRule({
+      elements: [
+        { type: "text", name: "q1", valueName: "x" },
+        { type: "paneldynamic", name: "p1", templateElements: [{ type: "text", name: "x" }] },
+      ],
+    })).toHaveLength(0);
+  });
+  test("a detail-panel valueName landing on a column is a share, not reported", () => {
+    expect(byRule({
+      elements: [{
+        type: "matrixdynamic", name: "m1", detailPanelMode: "underRow",
+        columns: [{ name: "c1", cellType: "text" }],
+        detailElements: [{ type: "text", name: "d1", valueName: "c1" }],
+      }],
+    })).toHaveLength(0);
+  });
+  test("a comment key inside one template is flagged", () => {
+    const findings = byRule({
+      elements: [{
+        type: "paneldynamic", name: "p1", templateElements: [
+          { type: "text", name: "q1", showCommentArea: true },
+          { type: "text", name: "q1-Comment" },
+        ],
+      }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("commentKeyCollision");
+    expect(findings[0].messageData.base).toBe("q1");
+  });
+  test("a comment key inside one template is found through a valueName too", () => {
+    expect(byRule({
+      elements: [{
+        type: "paneldynamic", name: "p1", templateElements: [
+          { type: "text", name: "q1", valueName: "shared", showCommentArea: true },
+          { type: "text", name: "q2", valueName: "shared-Comment" },
+        ],
+      }],
+    })).toHaveLength(1);
+  });
+  test("a detail-panel question spelling a column comment key is flagged", () => {
+    const findings = byRule({
+      elements: [{
+        type: "matrixdynamic", name: "m1", detailPanelMode: "underRow",
+        columns: [{ name: "c1", cellType: "text", showCommentArea: true }],
+        detailElements: [{ type: "text", name: "c1-Comment" }],
+      }],
+    });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("commentKeyCollision");
+  });
+});
+
+// The derived key a question writes - "<data key>-Comment" - and the owner it collides with are
+// both found by data key: the valueName when there is one, else the name.
+describe("name/shadowing - derived keys by data key", () => {
+  const COMMENT_OF_VALUE_NAME = [
+    { type: "text", name: "q1", valueName: "v1", showCommentArea: true },
+    { type: "text", name: "q1-Comment" },
+  ];
+  const COMMENT_OF_OTHER_DATA_KEY = [
+    { type: "text", name: "x", valueName: "q1", showCommentArea: true },
+    { type: "text", name: "q1", valueName: "other" },
+    { type: "text", name: "q1-Comment" },
+  ];
+  test("a question with a valueName writes no comment under its name", () => {
+    expect(byRule({ elements: COMMENT_OF_VALUE_NAME })).toHaveLength(0);
+  });
+  test("the comment key of a valueName collides, whatever question carries the name", () => {
+    const findings = byRule({ elements: COMMENT_OF_OTHER_DATA_KEY });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("commentKeyCollision");
+    expect(findings[0].path).toBe("elements[2]");
+    expect(findings[0].elementName).toBe("q1-Comment");
+  });
+  test("inside a template, a question with a valueName writes no comment under its name", () => {
+    expect(byRule({ elements: [{ type: "paneldynamic", name: "p1", templateElements: COMMENT_OF_VALUE_NAME }] })).toHaveLength(0);
+  });
+  test("inside a template, the comment key of a valueName collides, whatever question carries the name", () => {
+    const findings = byRule({ elements: [{ type: "paneldynamic", name: "p1", templateElements: COMMENT_OF_OTHER_DATA_KEY }] });
+    expect(findings).toHaveLength(1);
+    expect(findings[0].reason).toBe("commentKeyCollision");
+    expect(findings[0].path).toBe("elements[0].templateElements[2]");
+  });
+});
+
 describe("name/shadowing - a variable over a question", () => {
   test("a setvalue trigger writing a variable named after a question is flagged", () => {
     const findings = byRule({
@@ -185,5 +423,40 @@ describe("name/shadowing - configuration", () => {
       { elements: [{ type: "text", name: "locale" }] },
       { rules: { "name/shadowing": "off" } });
     expect(result.findings.filter(f => f.ruleId === "name/shadowing")).toHaveLength(0);
+  });
+});
+
+// A matrixdropdown keeps an object of cells under a row key; a single-choice matrix keeps the column
+// value there and a multiple text the item text. One key holds one of them, and the runtime deletes
+// the other side.
+describe("name/shadowing - a matrixdropdown row a single value takes", () => {
+  const md = (rows?: Array<string>): any => Object.assign({ type: "matrixdropdown", name: "md",
+    columns: [{ name: "c", cellType: "text" }] }, rows ? { rows: rows } : {});
+  const matrix = (rows: Array<string>): any => ({ type: "matrix", name: "m", valueName: "md", rows: rows, columns: ["x", "y"] });
+  const conflicts = (json: any): Array<string> => byRule(json).filter(f => f.reason === "dropdownRowConflict")
+    .map(f => f.path + " " + f.messageData.key + " " + f.messageData.name + "/" + f.messageData.otherName);
+  test("a row of a single-choice matrix on the same data key", () => {
+    const findings = byRule({ elements: [md(["r1"]), matrix(["r1"])] });
+    expect(findings.map(f => f.reason + " @ " + f.path)).toEqual(["dropdownRowConflict @ elements[1]"]);
+    expect(findings[0].messageData).toEqual({ reason: "dropdownRowConflict", key: "r1", name: "m", otherName: "md" });
+    expect(findings[0].related.map(r => r.path).sort()).toEqual(["elements[0]", "elements[1]"]);
+  });
+  test("an item of a multiple text on the same data key", () => {
+    expect(conflicts({ elements: [md(["r1"]), { type: "multipletext", name: "mt", valueName: "md", items: [{ name: "r1" }] }] }))
+      .toEqual(["elements[1] r1 mt/md"]);
+  });
+  test("distinct keys, rows not listed and two matrixdropdowns are fine", () => {
+    expect(conflicts({ elements: [md(["r1"]), matrix(["r2"])] })).toEqual([]);
+    expect(conflicts({ elements: [md(), matrix(["r1"])] })).toEqual([]);
+    expect(conflicts({ elements: [md(["r1"]), Object.assign(md(["r1"]), { name: "md2", valueName: "md" })] })).toEqual([]);
+  });
+  // the runtime compares the keys exactly (hasValueKey: row.value + "" === key)
+  test("keys that differ in case are two keys", () => {
+    expect(conflicts({ elements: [md(["R1"]), matrix(["r1"])] })).toEqual([]);
+    expect(conflicts({ elements: [md(["R1"]), { type: "multipletext", name: "mt", valueName: "md", items: [{ name: "r1" }] }] })).toEqual([]);
+  });
+  test("inside one template", () => {
+    expect(conflicts({ elements: [{ type: "paneldynamic", name: "p", templateElements: [md(["r1"]), matrix(["r1"])] }] }))
+      .toEqual(["elements[0].templateElements[1] r1 m/md"]);
   });
 });

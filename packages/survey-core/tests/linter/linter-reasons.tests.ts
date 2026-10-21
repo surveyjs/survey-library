@@ -79,7 +79,10 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
   },
   {
     ruleId: "name/shadowing", reason: "valueNameShadowsElement",
-    json: { elements: [{ type: "text", name: "q1", valueName: "q2" }, { type: "text", name: "q2" }] },
+    json: { elements: [
+      { type: "matrixdynamic", name: "q1", valueName: "q2", columns: [{ name: "c1", cellType: "text" }] },
+      { type: "paneldynamic", name: "q2", templateElements: [{ type: "text", name: "t1" }] },
+    ] },
   },
   {
     ruleId: "name/shadowing", reason: "commentKeyCollision",
@@ -101,6 +104,20 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
         { type: "text", name: "m1-total" },
       ],
     },
+  },
+  {
+    ruleId: "name/shadowing", reason: "dropdownRowConflict",
+    json: { elements: [
+      { type: "matrixdropdown", name: "md", rows: ["r1"], columns: [{ name: "c", cellType: "text" }] },
+      { type: "matrix", name: "m", valueName: "md", rows: ["r1"], columns: ["x", "y"] },
+    ] },
+  },
+  {
+    ruleId: "name/shadowing", reason: "valueShapeConflict",
+    json: { elements: [
+      { type: "matrixdynamic", name: "m", columns: [{ name: "c", cellType: "text" }] },
+      { type: "text", name: "t", valueName: "m" },
+    ] },
   },
   {
     ruleId: "name/shadowing", reason: "variableShadowsQuestion",

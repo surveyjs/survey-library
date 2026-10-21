@@ -1,7 +1,7 @@
 import { ConditionRunner } from "../conditions/conditionRunner";
 import { Helpers, createDate } from "../helpers";
 import { settings } from "../settings";
-import { IDynamicDataField, IDynamicDataSort, DynamicDataSortDirection } from "./dynamic-data-interfaces";
+import { IDynamicDataField, ISortCriterion, SortDirection } from "./dynamic-data-interfaces";
 import { createIndexes } from "./dynamic-data-records";
 
 // Local filtering/sorting for DynamicDataList: pure functions over an array of records, so they can
@@ -75,7 +75,7 @@ function compareByType(a: any, b: any, dataType: string): number {
   if (Helpers.isNumber(a) && Helpers.isNumber(b)) return compareNumbers(a, b);
   return compareStrings(a, b);
 }
-function compareFieldValues(a: any, b: any, field: IDynamicDataField, direction: DynamicDataSortDirection): number {
+function compareFieldValues(a: any, b: any, field: IDynamicDataField, direction: SortDirection): number {
   // A custom comparer owns the whole comparison, the empty rule included.
   if (!!field && !!field.compare) {
     const custom = field.compare(a, b);
@@ -134,16 +134,16 @@ export function applyFilter(records: Array<any>, filter: string | ConditionRunne
 }
 // Returns the record indexes in sort order. "indexes" limits the sort to a subset (the filtered and
 // owner-visible records); when it is omitted every record takes part. The input is never modified.
-export function applySort(records: Array<any>, sort: Array<IDynamicDataSort>,
+export function applySort(records: Array<any>, sort: Array<ISortCriterion>,
   fields?: Array<IDynamicDataField>, indexes?: Array<number>): Array<number> {
   const source = !!indexes ? indexes : createIndexes(records.length);
   if (!Array.isArray(sort) || sort.length === 0) return source;
-  const sortFields = sort.map((item: IDynamicDataSort): IDynamicDataField => findField(fields, item.field));
+  const sortFields = sort.map((item: ISortCriterion): IDynamicDataField => findField(fields, item.field));
   // Every sort key of a record is read once, before the comparisons: a field that is read and never
   // stored may cost more than a key lookup.
   const order = source.map((recordIndex: number, position: number) => ({
     recordIndex: recordIndex, position: position,
-    values: sort.map((item: IDynamicDataSort, i: number): any => {
+    values: sort.map((item: ISortCriterion, i: number): any => {
       const field = sortFields[i];
       return !!field && !!field.getValue ? field.getValue(records[recordIndex], recordIndex) : getFieldValue(records[recordIndex], item.field);
     })

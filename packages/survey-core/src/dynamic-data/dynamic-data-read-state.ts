@@ -1,9 +1,9 @@
-import { IDynamicDataSort, IDynamicDataSource, IDynamicDataSourceCapabilities } from "./dynamic-data-interfaces";
+import { ISortCriterion, IDynamicDataSource, IDynamicDataSourceCapabilities } from "./dynamic-data-interfaces";
 
 // The parts of the view the read state decides by (DynamicDataView). It only reads them.
 export interface IDynamicDataReadStateView {
   readonly filter: string;
-  readonly sort: Array<IDynamicDataSort>;
+  readonly sort: Array<ISortCriterion>;
 }
 
 /* What the window of DynamicDataList in force is and how it was read: its offset, whether a read has

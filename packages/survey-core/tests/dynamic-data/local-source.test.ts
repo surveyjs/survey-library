@@ -5,8 +5,6 @@ import { IDynamicDataSource } from "../../src/dynamic-data/dynamic-data-interfac
 import { SurveyModel } from "../../src/survey";
 import { QuestionMatrixDropdownModelBase } from "../../src/question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
-import { QuestionMatrixDropdownModel } from "../../src/question_matrixdropdown";
-import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 
 /* The local sources share one base: the array source has insert, remove and move, the rows source has
    none, and a list over a question's own source has a fixed membership exactly when that source has no

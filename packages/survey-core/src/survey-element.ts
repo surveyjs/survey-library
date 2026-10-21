@@ -432,6 +432,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.titleToolbarValue.containerCss = (this.isPanel ? this.cssClasses.panel.titleBar : this.cssClasses.titleBar) || "sv-action-title-bar";
       this.titleToolbarValue.setItems(this.getTitleActions());
       this.titleToolbarValue.flushUpdates();
+      this.titleToolbarValue.registerFunctionOnPropertyValueChanged("isEmpty", () => {
+        this.resetHasVisibleTitleActions();
+      });
     }
     return this.titleToolbarValue;
   }
@@ -483,6 +486,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get hasTitleActions(): boolean {
     return this.getTitleActions().length > 0;
   }
+  public get hasVisibleTitleActions() {
+    return this.getPropertyValue("hasVisibleTitleActions", undefined, () => {
+      return this.hasTitleActions && this.getTitleToolbar().hasVisibleActions;
+    });
+  }
+  private resetHasVisibleTitleActions() {
+    this.resetPropertyValue("hasVisibleTitleActions");
+  }
   public get hasTitleEvents(): boolean {
     return this.state !== undefined && this.state !== "default";
   }
@@ -523,16 +534,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const data = <IObjectValueContext><any>this.data;
     return !!data ? data.getValueGetterContext() : super.getValueGetterContext();
   }
-  protected canSkipExpressionByKeys(runner: any, keys: any, vars?: string[]): boolean {
+  protected canSkipExpressionByKeys(runner: any, keys: any, vars?: string[], isClearedKeyChanged?: boolean): boolean {
     if (!keys) return false;
     const data = <IObjectValueContext><any>this.data;
     if (!!data && typeof data.getValueGetterContext === "function") {
       const dataContext = data.getValueGetterContext();
       if (typeof dataContext?.getContextKeys === "function") {
-        return super.canSkipExpressionByKeys(runner, Object.assign({}, keys, dataContext.getContextKeys(keys)), vars);
+        return super.canSkipExpressionByKeys(runner, Object.assign({}, keys, dataContext.getContextKeys(keys)), vars, isClearedKeyChanged);
       }
     }
-    return super.canSkipExpressionByKeys(runner, keys, vars);
+    return super.canSkipExpressionByKeys(runner, keys, vars, isClearedKeyChanged);
   }
   protected get shouldHandleFocusScroll(): boolean {
     return !!(this.survey as SurveyModel)?.autoCenterFocusedQuestion;

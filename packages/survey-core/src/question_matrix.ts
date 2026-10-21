@@ -13,6 +13,7 @@ import { IConditionObject, IQuestionPlainData } from "./question";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { toCssClasses } from "./utils/cssClassBuilder";
+import { ItemsByNameIndex } from "./utils/items-by-name-index";
 import { getMatrixCellAriaLabel, getMatrixTableBodyCss, getMatrixTableCss, getMatrixTableWrapperCss, isMatrixColumnsAutoWidth } from "./utils/matrix-table";
 import { IPlainDataOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ConditionRunner } from "./conditions/conditionRunner";
@@ -317,7 +318,8 @@ export class MatrixCells extends Base {
 }
 
 export class MatrixValueGetterContext extends ValueGetterContextCore {
-  constructor (protected question: QuestionMatrixModel) {
+  // findRow: the question's row lookup by name, which it keeps private.
+  constructor (protected question: QuestionMatrixModel, private findRow: (name: string) => MatrixRowModel) {
     super();
   }
   public getObj(): Base { return this.question; }
@@ -330,17 +332,11 @@ export class MatrixValueGetterContext extends ValueGetterContextCore {
   }
   getRootObj(): IObjectValueContext { return <any>this.question.data; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
-    const rows = this.question.getMatrixRows();
-    name = name.toLocaleLowerCase();
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      const itemName = row.name?.toString() || "";
-      if (itemName.toLocaleLowerCase() === name) {
-        res.isFound = true;
-        res.obj = row;
-        res.context = row.getValueGetterContext();
-        return;
-      }
+    const row = this.findRow(name);
+    if (!!row) {
+      res.isFound = true;
+      res.obj = row;
+      res.context = row.getValueGetterContext();
     }
   }
 }
@@ -798,6 +794,20 @@ export class QuestionMatrixModel
     this.generatedVisibleRows = result;
     return result;
   }
+  /* The rows by name, built from one getMatrixRows() array: it is rebuilt when that array changes or a row
+     is renamed in place (itemValuePropertyChanged). A row whose item lost its value after the rows were
+     built has a null name and answers "", as the lookup always did. */
+  private rowsByNameIndex = new ItemsByNameIndex<MatrixRowModel>(row => row.name?.toString() || "");
+  private getMatrixRowByName(name: string): MatrixRowModel {
+    return this.rowsByNameIndex.find(this.getMatrixRows(), name);
+  }
+  public itemValuePropertyChanged(item: ItemValue, name: string, oldValue: any, newValue: any): void {
+    // Reset before super: it fires onItemValuePropertyChanged, and a listener may look up the renamed row.
+    if (name === "value" && item.ownerPropertyName === "rows") {
+      this.rowsByNameIndex.reset();
+    }
+    super.itemValuePropertyChanged(item, name, oldValue, newValue);
+  }
   protected getVisibleRows(): Array<MatrixRowModel> {
     const rows = [];
     this.getMatrixRows().forEach(row => {
@@ -1068,7 +1078,7 @@ export class QuestionMatrixModel
     this.isRowChanging = false;
   }
   public getValueGetterContext(): IValueGetterContext {
-    return new MatrixValueGetterContext(this);
+    return new MatrixValueGetterContext(this, name => this.getMatrixRowByName(name));
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var res: { [index: string]: any } = {};

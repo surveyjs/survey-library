@@ -437,14 +437,27 @@ export var settings = {
    */
   expressionElementPropertyPrefix: "$",
   /**
-   * Specifies whether [Expression](https://surveyjs.io/form-library/documentation/api-reference/expression-model) questions recalculate only when their dependencies change.
+   * Specifies whether [Expression](https://surveyjs.io/form-library/documentation/api-reference/expression-model) questions and the [`defaultValueExpression`](https://surveyjs.io/form-library/documentation/api-reference/question#defaultValueExpression) of questions recalculate only when their dependencies change.
    *
-   * - `true` (default) - Recalculate only on the initial run, when all expressions are re-evaluated, and when a dependent value or property changes. Expressions with parameterless functions or functions whose parameters do not reference survey values still recalculate on every value change.
-   * - `false` - Recalculate on every value change in the survey.
+   * - `true` (default)\
+   * Recalculate only on the initial run, when all expressions are re-evaluated, and when a dependent value or property changes. Expressions with parameterless functions or functions whose parameters do not reference survey values still recalculate on every value change.
+   *
+   * - `false`\
+   * Recalculate on every value change in the survey.
+   * @since 2.5.27
    */
-  // MERGE(V3): default is `true` in V3, `false` in master (V2). Keep V3's `true` (and the
-  // matching doc lines above) on merge; discard master's `@since 2.5.27` doc variant.
   expressionQuestionTrackDependencies: true,
+  /**
+   * Specifies whether [calculated values](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#calculated-values) recalculate only when their dependencies change.
+   *
+   * - `true` (default)\
+   * Recalculate on the initial run, when all expressions are re-evaluated, when the calculated value's expression or owner changes, and on a value change that affects a value or variable the expression references. Expressions with parameterless functions still recalculate on every value change.
+   *
+   * - `false`\
+   * Recalculate on every value change in the survey.
+   * @since 3.2.2
+   */
+  calculatedValueTrackDependencies: true,
   get commentPrefix(): string { return settings.commentSuffix; },
   set commentPrefix(val: string) { settings.commentSuffix = val; },
   /**
@@ -474,12 +487,14 @@ export var settings = {
    * Default value: 100
    *
    * If a question's `pageSize` exceeds this limit, this value is used as the effective page size. Set this property to 0 to remove the limit.
+   * @since 3.2.2
    */
   maxPageSize: 100,
   /**
    * Specifies the maximum interval, in milliseconds, between consecutive key presses that SurveyJS treats as a single keyboard input sequence.
    *
    * Default value: 400
+   * @since 3.2.2
    */
   keyboardInputTimeout: 400,
   /**
@@ -967,6 +982,7 @@ export var settings = {
    * Default value: `false` (the `e`, `E`, and `+` keys are blocked during keyboard input)
    *
    * This setting controls keyboard input only and does not change number parsing or numeric input mask behavior.
+   * @since 3.2.0
    */
   allowExponentialNotation: false,
   /**

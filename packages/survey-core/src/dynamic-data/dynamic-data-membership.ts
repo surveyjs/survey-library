@@ -1,7 +1,7 @@
 import { ConditionRunner } from "../conditions/conditionRunner";
 import { applyFilter, applySort } from "./dynamic-data-filter";
 import { createIndexes } from "./dynamic-data-records";
-import { IDynamicDataField, IDynamicDataSort } from "./dynamic-data-interfaces";
+import { IDynamicDataField, ISortCriterion } from "./dynamic-data-interfaces";
 import { insertRemap, moveRemap, removeRemap } from "./dynamic-data-record-remap";
 import { Scope } from "../utils/scope";
 
@@ -16,7 +16,7 @@ export interface IDynamicDataMembershipHost {
   // The filter and the sort the list runs over the records it holds: undefined / empty when there is
   // none, or when the source runs it.
   getLocalFilterRunner(): ConditionRunner;
-  getLocalSort(): Array<IDynamicDataSort>;
+  getLocalSort(): Array<ISortCriterion>;
   // The owner materializes an object per record (isViewFrozenOnEdit) and the list has a local view.
   isMembershipFrozen(): boolean;
 }

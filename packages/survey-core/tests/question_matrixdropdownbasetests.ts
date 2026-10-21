@@ -11,9 +11,8 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { ItemValue } from "../src/itemvalue";
 import { settings } from "../src/settings";
 import { setOldTheme } from "./oldTheme";
-import { Question } from "../src/question";
 import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 import { FunctionFactory } from "../src/functionsfactory";
 import { germanSurveyStrings } from "../src/localization/german";
 export * from "../src/localization/german";
@@ -1236,6 +1235,39 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     expect(qDetail.title, "set title").toBe("Question 1");
     row.hideDetailPanel();
     expect(actions, "check actions").toEqual(["show:0", "hide:0"]);
+  });
+  test("row.ensureDetailPanel creates the panel without expanding the row or firing onMatrixDetailPanelVisibleChanged", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 1,
+          columns: [{ name: "col1", cellType: "text" }],
+          detailPanelMode: "underRow",
+          detailElements: [{ type: "text", name: "q1" }],
+        },
+      ],
+    });
+    survey.data = { matrix: [{ col1: "a", q1: "b" }] };
+    const actions = new Array<string>();
+    survey.onMatrixDetailPanelVisibleChanged.add((_, options) => {
+      actions.push((options.visible ? "show" : "hide") + ":" + options.rowIndex);
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const row = matrix.visibleRows[0];
+    row.ensureDetailPanel();
+    const panel = row.detailPanel;
+    expect(!!panel, "the panel is created, #1").toBe(true);
+    expect(panel.getQuestionByName("q1").value, "the panel holds the row value, #1").toBe("b");
+    expect(row.isDetailPanelShowing, "the row is not expanded, #1").toBe(false);
+    expect(actions, "no event, #1").toEqual([]);
+    row.ensureDetailPanel();
+    expect(row.detailPanel === panel, "a second call keeps the panel, #2").toBe(true);
+    row.showDetailPanel();
+    expect(row.detailPanel === panel, "showing the row reuses the panel, #3").toBe(true);
+    expect(row.isDetailPanelShowing, "the row is expanded, #3").toBe(true);
+    expect(actions, "the event fires on show only, #3").toEqual(["show:0"]);
   });
   test("column.visibleIf", () => {
     const survey = new SurveyModel({
@@ -3342,15 +3374,17 @@ describe("Fixed matrix sorts and filters its rows", () => {
     return { survey: survey, matrix: <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix") };
   };
   const names = (matrix: QuestionMatrixDropdownModel): Array<string> => matrix.visibleRows.map(row => row.rowName);
-  test("sortBy the row title, descending, and by a column; the answer does not change", () => {
+  // The current sort, as plain { field, direction } criteria.
+  const getSort = (matrix: QuestionMatrixDropdownModel): Array<any> => matrix.sortCriteria.map(c => ({ field: c.field, direction: c.direction }));
+  test("sort by the row title, descending, and by a column; the answer does not change", () => {
     const { matrix } = createFixed();
     const before = JSON.stringify(matrix.value);
-    matrix.sortBy = "rowTitle";
+    matrix.sort([{ field: "rowTitle", direction: "asc" }]);
     expect(names(matrix), "#1: Alpha, Bravo, Charlie, Delta, Echo, Foxtrot").toEqual(["r2", "r4", "r6", "r1", "r5", "r3"]);
-    expect(matrix.toJSON().sortBy, "#1: written back").toBe("rowTitle");
-    matrix.sortBy = "rowTitle-";
+    expect(matrix.toJSON().sortCriteria, "#1: written back").toEqual([{ field: "rowTitle" }]);
+    matrix.sort([{ field: "rowTitle", direction: "desc" }]);
     expect(names(matrix), "#2").toEqual(["r3", "r5", "r1", "r6", "r4", "r2"]);
-    matrix.sortBy = "a-";
+    matrix.sort([{ field: "a", direction: "desc" }]);
     expect(names(matrix), "#3: ties keep the record order").toEqual(["r4", "r6", "r1", "r3", "r2", "r5"]);
     expect(JSON.stringify(matrix.value), "#4: not a byte of the answer").toBe(before);
   });
@@ -3364,16 +3398,16 @@ describe("Fixed matrix sorts and filters its rows", () => {
     matrix.filterExpression = "{rowTitle} contains 'ha'";
     expect(names(matrix), "#4: Alpha, Charlie").toEqual(["r2", "r6"]);
   });
-  test("an authored sortBy and filterExpression load, apply once, and are saved back unchanged", () => {
-    const json = { type: "matrixdropdown", name: "matrix", rows: sixRows, columns: numberColumn, sortBy: "rowTitle-", filterExpression: "{a} > 1" };
+  test("an authored sortCriteria and filterExpression load, apply once, and are saved back unchanged", () => {
+    const json = { type: "matrixdropdown", name: "matrix", rows: sixRows, columns: numberColumn, sortCriteria: [{ field: "rowTitle", direction: "desc" }], filterExpression: "{a} > 1" };
     const survey = new SurveyModel({ elements: [json] });
     survey.data = { matrix: data() };
     const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
     expect(names(matrix), "#1").toEqual(["r3", "r1", "r6", "r4"]);
     const saved = matrix.toJSON();
-    expect([saved.sortBy, saved.filterExpression], "#2").toEqual(["rowTitle-", "{a} > 1"]);
-    matrix.sortBy = "a";
-    expect(matrix.toJSON().sortBy, "#3: a sort set at runtime is serialized").toBe("a");
+    expect([saved.sortCriteria, saved.filterExpression], "#2").toEqual([[{ field: "rowTitle", direction: "desc" }], "{a} > 1"]);
+    matrix.sort([{ field: "a", direction: "asc" }]);
+    expect(matrix.toJSON().sortCriteria, "#3: a sort set at runtime is serialized").toEqual([{ field: "a" }]);
   });
   test("an edit that makes a row fail the filter keeps the row until refreshView", () => {
     const { matrix } = createFixed();
@@ -3388,7 +3422,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
   test("a column named rowTitle: the virtual field wins", () => {
     const { matrix } = createFixed({ columns: [{ name: "rowTitle", cellType: "text" }] },
       { r1: { rowTitle: "z" }, r2: { rowTitle: "y" }, r3: { rowTitle: "x" } });
-    matrix.sortBy = "rowTitle";
+    matrix.sort([{ field: "rowTitle", direction: "asc" }]);
     expect(names(matrix), "#1: by the row titles, not the column").toEqual(["r2", "r4", "r6", "r1", "r5", "r3"]);
     matrix.filterExpression = "{rowTitle} = 'x'";
     expect(names(matrix), "#2: the column is not a filter variable either").toEqual([]);
@@ -3397,7 +3431,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
     const { survey, matrix } = createFixed({ rowOrder: "random", columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text" }] });
     survey.randomSeed = 12345;
     const randomized = names(matrix);
-    matrix.sortBy = "b";
+    matrix.sort([{ field: "b", direction: "asc" }]);
     expect(names(matrix), "#1: every b is empty, the order is the randomized one").toEqual(randomized);
     matrix.visibleRows[2].cells[1].question.value = "first";
     matrix.refreshView();
@@ -3408,31 +3442,34 @@ describe("Fixed matrix sorts and filters its rows", () => {
       columnsVisibleIf: "{item} != 'hiddenByCondition'",
       columns: [{ name: "a", cellType: "text" }, { name: "invisible", cellType: "text", visible: false }, { name: "hiddenByCondition", cellType: "text" }]
     }, { r1: { invisible: 2, hiddenByCondition: 6, extra: "b" }, r2: { invisible: 1, hiddenByCondition: 5, extra: "a" }, r3: { invisible: 3, hiddenByCondition: 4 } });
-    matrix.sortBy = "invisible";
+    matrix.sort([{ field: "invisible", direction: "asc" }]);
     expect(names(matrix).slice(0, 3), "#1: an invisible column").toEqual(["r2", "r1", "r3"]);
-    matrix.sortBy = "hiddenByCondition";
+    matrix.sort([{ field: "hiddenByCondition", direction: "asc" }]);
     expect(names(matrix).slice(0, 3), "#2: a column hidden by columnsVisibleIf").toEqual(["r3", "r2", "r1"]);
-    matrix.sortBy = "extra";
+    matrix.sort([{ field: "extra", direction: "asc" }]);
     expect(names(matrix).slice(0, 2), "#3: a key no column registers").toEqual(["r2", "r1"]);
-    matrix.sortBy = "nothing";
+    matrix.sort([{ field: "nothing", direction: "asc" }]);
     expect(names(matrix), "#4: a field no record holds keeps the record order").toEqual(["r1", "r2", "r3", "r4", "r5", "r6"]);
-    matrix.sortBy = "";
+    matrix.sort([]);
     matrix.filterExpression = "{invisible} > 1";
     expect(names(matrix), "#5: a filter on an invisible column's key").toEqual(["r1", "r3"]);
   });
   test("toggleSort cycles ascending, descending and none", () => {
     const { matrix } = createFixed();
     matrix.toggleSort("rowTitle");
-    expect([matrix.sortBy, names(matrix)[0]], "#1").toEqual(["rowTitle", "r2"]);
+    expect([getSort(matrix), names(matrix)[0]], "#1").toEqual([[{ field: "rowTitle", direction: "asc" }], "r2"]);
     matrix.toggleSort("rowTitle");
-    expect([matrix.sortBy, names(matrix)[0]], "#2").toEqual(["rowTitle-", "r3"]);
+    expect([getSort(matrix), names(matrix)[0]], "#2").toEqual([[{ field: "rowTitle", direction: "desc" }], "r3"]);
     matrix.toggleSort("rowTitle");
-    expect([matrix.sortBy, names(matrix)[0]], "#3").toEqual(["", "r1"]);
+    expect([getSort(matrix), names(matrix)[0]], "#3").toEqual([[], "r1"]);
   });
-  test("no UI: the fixed matrix has no allowSortRows and no sortable column", () => {
-    const { matrix } = createFixed({ columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text" }] });
-    expect(Serializer.findProperty("matrixdropdown", "allowSortRows"), "#1").toBeFalsy();
-    expect(matrix.columns.map(column => column.isSortable), "#2").toEqual([false, false]);
+  test("the fixed matrix sorts by its headers once a developer sets allowSort, which the property grid hides", () => {
+    const { matrix } = createFixed({ columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", allowSort: false }] });
+    expect(Serializer.findProperty("matrixdropdown", "allowSort").visible, "#1: hidden in the property grid").toBe(false);
+    expect(matrix.columns.map(column => column.isSortable), "#2: not allowed by default").toEqual([false, false]);
+    matrix.allowSort = true;
+    expect(matrix.columns.map(column => column.isSortable), "#3: the column that opted out stays unsortable").toEqual([true, false]);
+    expect(matrix.isSortMenuVisible, "#4: \"auto\" and sortable headers: no menu").toBe(false);
   });
   describe("filtered-out rows", () => {
     test("their answers are kept by clearIncorrectValues", () => {
@@ -3502,7 +3539,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
   test("duplicate row keys apart under a sort: both edit orders, the answer holds the last edit and both rows show it", () => {
     const rows = [{ value: "a", text: "Alpha" }, { value: "b", text: "Bravo" }, { value: "a", text: "Charlie" }];
     [0, 2].forEach(first => {
-      const { matrix } = createFixed({ rows: rows, sortBy: "rowTitle-", columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }] }, null);
+      const { matrix } = createFixed({ rows: rows, sortCriteria: [{ field: "rowTitle", direction: "desc" }], columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }] }, null);
       expect(matrix.visibleRows.map(row => row.rowName), "#0: the two a rows are apart").toEqual(["a", "b", "a"]);
       const second = 2 - first;
       matrix.visibleRows[first].cells[0].question.value = "1";
@@ -3512,7 +3549,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
       expect(matrix.visibleRows[first].cells[1].question.value, "#3 from " + first).toBe("2");
     });
   });
-  [{ sortBy: "rowTitle" }, { filterExpression: "{a} > 1" }].forEach(view => {
+  [{ sortCriteria: [{ field: "rowTitle" }] }, { filterExpression: "{a} > 1" }].forEach(view => {
     test("insert, remove and move are refused under a view, leave no trace, and the source has no insert, " + Object.keys(view)[0], () => {
       const { survey, matrix } = createFixed(view);
       const rowsBefore = names(matrix);
@@ -3531,7 +3568,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
     });
   });
   test("the fixed matrix has no data source", () => {
-    const { matrix } = createFixed({ sortBy: "a" });
+    const { matrix } = createFixed({ sortCriteria: [{ field: "a" }] });
     expect((<any>matrix).getDataSource(), "#1").toBeUndefined();
     expect((<any>matrix).dataSource, "#2").toBeUndefined();
   });
@@ -3545,7 +3582,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
   });
   describe("a change of the row metadata re-decides the view", () => {
     test("a renamed row title moves its row under a sort", () => {
-      const { survey, matrix } = createFixed({ sortBy: "rowTitle" });
+      const { survey, matrix } = createFixed({ sortCriteria: [{ field: "rowTitle" }] });
       let changes = 0;
       survey.onValueChanged.add(() => changes++);
       matrix.rows[2].text = "Aardvark";
@@ -3563,7 +3600,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
     });
     test("switching the survey locale re-sorts by the localized titles", () => {
       const { survey, matrix } = createFixed({
-        sortBy: "rowTitle",
+        sortCriteria: [{ field: "rowTitle" }],
         rows: [{ value: "r1", text: { default: "Apple", de: "Zebra" } }, { value: "r2", text: { default: "Banana", de: "Affe" } }]
       }, {});
       expect(names(matrix), "#1").toEqual(["r1", "r2"]);
@@ -3573,7 +3610,7 @@ describe("Fixed matrix sorts and filters its rows", () => {
       expect(names(matrix), "#3").toEqual(["r1", "r2"]);
     });
     test("a piped title is not followed until refreshView", () => {
-      const { survey, matrix } = createFixed({ sortBy: "rowTitle", rows: [{ value: "r1", text: "M {name}" }, { value: "r2", text: "N" }] }, {});
+      const { survey, matrix } = createFixed({ sortCriteria: [{ field: "rowTitle" }], rows: [{ value: "r1", text: "M {name}" }, { value: "r2", text: "N" }] }, {});
       survey.setValue("name", "z");
       expect(names(matrix), "#1: M z, N").toEqual(["r1", "r2"]);
       survey.setValue("name", "");
@@ -3918,5 +3955,192 @@ describe("Multi-Select Matrix: the plain data of an other answer is the stored a
   });
   test("without the expression the plain value is the same", () => {
     expect(create(false).matrix.getPlainData().value).toEqual(create(true).matrix.getPlainData().value);
+  });
+});
+describe("Matrix dropdown: row lookup by name", () => {
+  const columns = [{ name: "c1", cellType: "text" }];
+  const createSurvey = (matrixJson: any, elements: Array<any> = []): { survey: SurveyModel, m: QuestionMatrixDropdownModel } => {
+    const survey = new SurveyModel({ elements: [...elements, { type: "matrixdropdown", name: "m", columns: columns, ...matrixJson }] });
+    return { survey, m: <QuestionMatrixDropdownModel>survey.getQuestionByName("m") };
+  };
+  // {m.<row>.rowIndex} and {m.<row>.rowName} are answered by a row only: the matrix value has no such keys.
+  const rowIndexOf = (survey: SurveyModel, name: string): any => survey.runExpression("{m." + name + ".rowIndex}");
+  const rowNameOf = (survey: SurveyModel, name: string): any => survey.runExpression("{m." + name + ".rowName}");
+
+  test("a row is found from outside in any letter case", () => {
+    const { survey } = createSurvey({ rows: ["Row1", "row2"] });
+    survey.setValue("m", { Row1: { c1: 1 }, row2: { c1: 2 } });
+    expect(survey.runExpression("{m.row1.c1}"), "#1").toBe(1);
+    expect(survey.runExpression("{m.ROW2.c1}"), "#2").toBe(2);
+    expect(rowIndexOf(survey, "ROW1"), "#3").toBe(1);
+    expect(rowNameOf(survey, "row2"), "#4").toBe("row2");
+  });
+  test("a name that is no row does not build the rows", () => {
+    const { survey, m } = createSurvey({ rows: ["row1", "row2"] });
+    const generateRows = vi.spyOn(<any>m, "generateRows");
+    try {
+      expect(m["generatedVisibleRows"], "#1: not built after the survey is created").toBeNull();
+      expect(survey.runExpression("{m.zzz}"), "#2").toBeNull();
+      expect(survey.runExpression("{m.zzz.c1}"), "#3").toBeNull();
+      expect(m["generatedVisibleRows"], "#4: still not built").toBeNull();
+      expect(generateRows.mock.calls.length, "#5").toBe(0);
+      expect(rowIndexOf(survey, "row1"), "#6").toBe(1);
+      expect(survey.runExpression("{m.row1.c1}"), "#7: the row, no value").toBeUndefined();
+      expect(survey.runExpression("{m.zzz}"), "#8").toBeNull();
+      expect(generateRows.mock.calls.length, "#9: built once").toBe(1);
+    } finally {
+      generateRows.mockRestore();
+    }
+  });
+  test("the lookup follows rows pushed, spliced, replaced, renamed in place and reloaded", () => {
+    const { survey, m } = createSurvey({ rows: ["a", "b"] });
+    m.value = { a: { c1: 1 }, b: { c1: 2 }, z: { c1: 5 }, y: { c1: 6 } };
+    expect(rowIndexOf(survey, "a"), "#1").toBe(1);
+    expect(rowIndexOf(survey, "z"), "#2: no row z").toBeNull();
+    expect(survey.runExpression("{m.z.c1}"), "#3: the value key").toBe(5);
+
+    m.rows.push(new ItemValue("z"));
+    expect(rowIndexOf(survey, "Z"), "#4: pushed").toBe(3);
+    expect(rowNameOf(survey, "z"), "#5").toBe("z");
+    expect(survey.runExpression("{m.z.c1}"), "#6").toBe(5);
+
+    m.rows.splice(0, 1);
+    expect(rowIndexOf(survey, "a"), "#7: spliced").toBeNull();
+    expect(rowIndexOf(survey, "z"), "#8").toBe(2);
+
+    m.rows = ["y", "b"];
+    expect(rowIndexOf(survey, "y"), "#9: replaced").toBe(1);
+    expect(rowIndexOf(survey, "z"), "#10").toBeNull();
+
+    m.rows[0].value = "x";
+    expect(rowIndexOf(survey, "X"), "#11: renamed in place").toBe(1);
+    expect(rowNameOf(survey, "x"), "#12").toBe("x");
+    expect(rowIndexOf(survey, "y"), "#13").toBeNull();
+
+    m.rows[1].value = "w|W text";
+    expect(rowIndexOf(survey, "w"), "#14: renamed in place, value|text").toBe(2);
+    expect(rowIndexOf(survey, "b"), "#15").toBeNull();
+
+    m.fromJSON({ name: "m", rows: ["z"], columns: columns });
+    m.value = { z: { c1: 7 } };
+    expect(rowIndexOf(survey, "z"), "#16: reloaded").toBe(1);
+    expect(survey.runExpression("{m.z.c1}"), "#17").toBe(7);
+    expect(rowIndexOf(survey, "x"), "#18: a row of the old JSON").toBeNull();
+    expect(rowIndexOf(survey, "w"), "#19").toBeNull();
+  });
+  test("an item listener looks up a row renamed in place", () => {
+    const { survey, m } = createSurvey({ rows: ["a", "b"] });
+    m.value = { a: { c1: 1 }, b: { c1: 2 } };
+    expect(rowIndexOf(survey, "a"), "#1: a lookup before the rename").toBe(1);
+    const seen: Array<any> = [];
+    m.onItemValuePropertyChanged.add((_, options) => {
+      if (options.propertyName === "rows" && options.name === "value") {
+        seen.push([rowIndexOf(survey, "renamed"), survey.runExpression("{m.renamed.c1}"),
+          rowIndexOf(survey, "a"), survey.runExpression("{m.a.c1}")]);
+      }
+    });
+    m.rows[0].value = "renamed";
+    expect(seen, "#2: the old rows are still built inside the listener").toEqual([[null, null, null, 1]]);
+    expect(rowIndexOf(survey, "renamed"), "#3: after the rename").toBe(1);
+    expect(rowIndexOf(survey, "a"), "#4").toBeNull();
+  });
+  test("random row order: every row is found, the first of the same name in visibleRows order answers", () => {
+    const { survey, m } = createSurvey({ rows: ["a", "b", "A", "c"], rowOrder: "random" });
+    m.value = { a: { c1: 1 }, A: { c1: 2 } };
+    const firstNames = new Set<string>();
+    for (let seed = 1; seed <= 20; seed++) {
+      survey.randomSeed = seed;
+      ["a", "b", "c"].forEach(name => expect(rowIndexOf(survey, name) > 0, "#1: seed " + seed + ", " + name).toBe(true));
+      const first = m.visibleRows.filter(row => row.rowName.toLowerCase() === "a")[0];
+      firstNames.add(first.rowName);
+      expect(rowNameOf(survey, "A"), "#2: seed " + seed).toBe(first.rowName);
+      expect(survey.runExpression("{m.a.c1}"), "#3: seed " + seed).toBe(first.rowName === "a" ? 1 : 2);
+    }
+    expect(Array.from(firstNames).sort(), "#4: both orders were seen").toEqual(["A", "a"]);
+  });
+  test("two rows that differ only in letter case answer with the first one", () => {
+    const { survey } = createSurvey({ rows: ["a", "A"] });
+    survey.setValue("m", { a: { c1: 1 }, A: { c1: 2 } });
+    expect(survey.runExpression("{m.a.c1}"), "#1").toBe(1);
+    expect(survey.runExpression("{m.A.c1}"), "#2").toBe(1);
+    expect(rowNameOf(survey, "A"), "#3").toBe("a");
+  });
+  test("a lookup reads the row names only when an index is rebuilt", () => {
+    const rows: Array<string> = [];
+    for (let i = 1; i <= 100; i++) rows.push("r" + i);
+    const { survey, m } = createSurvey({ rows: rows });
+    m.value = { r50: { c1: 1 } };
+    expect(survey.runExpression("{m.r50.c1}"), "#1").toBe(1);
+    const itemValueGetter = vi.spyOn(ItemValue.prototype, "value", "get");
+    const rowNameGetter = vi.spyOn(MatrixDropdownRowModel.prototype, "rowName", "get");
+    const reads = (): string => "item values: " + itemValueGetter.mock.calls.length + ", row names: " + rowNameGetter.mock.calls.length;
+    const clearReads = (): void => { itemValueGetter.mockClear(); rowNameGetter.mockClear(); };
+    const lookUpMany = (count: number, present: string): void => {
+      for (let i = 0; i < count; i++) {
+        expect(survey.runExpression("{m." + present + ".c1}")).toBe(1);
+        expect(survey.runExpression("{m.zzz.c1}")).toBeNull();
+      }
+    };
+    // After a change the rows are built before the first lookup, so the counts are the lookup's own.
+    const expectRebuildOnce = (present: string, count: number, label: string): void => {
+      m.visibleRows;
+      clearReads();
+      expect(survey.runExpression("{m." + present + ".c1}"), label).toBe(1);
+      expect(itemValueGetter.mock.calls.length, label + ": rows items, each once; " + reads()).toBe(count);
+      expect(rowNameGetter.mock.calls.length, label + ": rows, each once; " + reads()).toBe(count);
+      clearReads();
+      lookUpMany(50, present);
+      expect(itemValueGetter.mock.calls.length + rowNameGetter.mock.calls.length, label + ": no reads after; " + reads()).toBe(0);
+    };
+    try {
+      clearReads();
+      lookUpMany(500, "R50");
+      expect(itemValueGetter.mock.calls.length + rowNameGetter.mock.calls.length <= 100, "#2: 1,000 lookups; " + reads()).toBe(true);
+
+      m.rows.push(new ItemValue("r101"));
+      m.value = { r50: { c1: 1 }, r101: { c1: 1 } };
+      expectRebuildOnce("r101", 101, "#3: pushed");
+
+      m.rows[49].value = "renamed";
+      m.value = { renamed: { c1: 1 } };
+      expectRebuildOnce("renamed", 101, "#4: renamed in place");
+
+      m.rows = rows.map(name => name + "x");
+      m.value = { r7x: { c1: 1 } };
+      expectRebuildOnce("r7x", 100, "#5: replaced");
+    } finally {
+      itemValueGetter.mockRestore();
+      rowNameGetter.mockRestore();
+    }
+  });
+  test("an answer change changes no row name", () => {
+    const rows: Array<string> = [];
+    for (let i = 1; i <= 100; i++) rows.push("r" + i);
+    const { survey, m } = createSurvey({ rows: rows });
+    m.value = { r50: { c1: 1 } };
+    expect(survey.runExpression("{m.r50.c1}"), "#1").toBe(1);
+    const visibleRows = m.visibleRows;
+    const itemValueGetter = vi.spyOn(ItemValue.prototype, "value", "get");
+    const rowNameGetter = vi.spyOn(MatrixDropdownRowModel.prototype, "rowName", "get");
+    try {
+      m.value = { r50: { c1: 2 }, r7: { c1: 3 } };
+      const visibleRowsAfterValue = m.visibleRows;
+      m.visibleRows[9].getQuestionByColumnName("c1").value = 4;
+      const visibleRowsAfterCell = m.visibleRows;
+      itemValueGetter.mockClear();
+      rowNameGetter.mockClear();
+      expect(survey.runExpression("{m.R50.c1}"), "#2").toBe(2);
+      expect(survey.runExpression("{m.r7.c1}"), "#3").toBe(3);
+      expect(survey.runExpression("{m.r10.c1}"), "#4: the cell").toBe(4);
+      expect(rowIndexOf(survey, "r10"), "#5").toBe(10);
+      expect(survey.runExpression("{m.zzz.c1}"), "#6").toBeNull();
+      expect(visibleRowsAfterValue === visibleRows, "#8: m.value keeps the visibleRows array").toBe(true);
+      expect(visibleRowsAfterCell === visibleRows, "#9: a cell keeps the visibleRows array").toBe(true);
+      expect(itemValueGetter.mock.calls.length, "#7: the rows items index is not rebuilt").toBe(0);
+      expect(rowNameGetter.mock.calls.length, "#10: the rows index is not rebuilt").toBe(0);
+    } finally {
+      itemValueGetter.mockRestore();
+      rowNameGetter.mockRestore();
+    }
   });
 });

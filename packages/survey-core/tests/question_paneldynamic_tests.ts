@@ -16,6 +16,7 @@ import { defaultCss } from "../src/defaultCss/defaultCss";
 import { ItemValue } from "../src/itemvalue";
 import { settings } from "../src/settings";
 import { QuestionMatrixModel } from "../src/question_matrix";
+import { ComponentCollection, QuestionCompositeModel } from "../src/question_custom";
 import { AnimationGroup, AnimationTab } from "../src/utils/animation";
 import { SurveyElement } from "../src/survey-element";
 import { setOldTheme } from "./oldTheme";
@@ -11741,5 +11742,41 @@ describe("the shared record rules of the dynamic panel, on the released path", (
     const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [{ type: "dropdown", name: "a", choices: [{ value: 1, text: "one" }] }] }] });
     survey.data = { p: [{ a: 1 }] };
     expect(survey.getQuestionByName("p").getDisplayValue(true)).toEqual([{ a: "one" }]);
+  });
+});
+describe("Question Panel Dynamic: item conditions of nested questions", () => {
+  test("A matrix row inside a dynamic panel or a composite question follows a row of its own matrix", () => {
+    const matrixJSON = { type: "matrix", name: "m", rows: ["r1", { value: "r2", visibleIf: "{r1} = 'c1'" }], columns: ["c1", "c2"] };
+    const visibleRowNames = (m: QuestionMatrixModel): Array<string> => m.visibleRows.map(r => r.name);
+    const checkMatrix = (survey: SurveyModel, m: QuestionMatrixModel, container: string): void => {
+      m.value = { r1: "c1" };
+      expect(visibleRowNames(m), container + ", r1 = c1").toEqual(["r1", "r2"]);
+      survey.setValue("y", 1);
+      expect(visibleRowNames(m), container + ", y = 1 changes nothing").toEqual(["r1", "r2"]);
+      m.value = { r1: "c2" };
+      expect(visibleRowNames(m), container + ", r1 = c2").toEqual(["r1"]);
+    };
+    let survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "y" },
+        { type: "paneldynamic", name: "pd", panelCount: 1, templateElements: [matrixJSON] }
+      ]
+    });
+    const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("pd")).panels[0];
+    checkMatrix(survey, <QuestionMatrixModel>panel.getQuestionByName("m"), "dynamic panel");
+
+    ComponentCollection.Instance.add({ name: "matrixcomposite", elementsJSON: [matrixJSON] });
+    try {
+      survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "y" },
+          { type: "matrixcomposite", name: "comp" }
+        ]
+      });
+      const comp = <QuestionCompositeModel>survey.getQuestionByName("comp");
+      checkMatrix(survey, <QuestionMatrixModel>comp.contentPanel.getQuestionByName("m"), "composite");
+    } finally {
+      ComponentCollection.Instance.remove("matrixcomposite");
+    }
   });
 });

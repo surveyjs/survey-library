@@ -15,6 +15,7 @@ import { Base } from "../src/base";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { ItemValue } from "../src/itemvalue";
 import { SurveyElement } from "../src/survey-element";
+import { FunctionFactory } from "../src/functionsfactory";
 
 import { describe, test, expect } from "vitest";
 import { PanelModel } from "../src/panel";
@@ -5197,5 +5198,285 @@ describe("baseselect", () => {
     q1.choices.splice(0, 1);
     expect(q1.defaultValue, "defaultValue references a removed choice and is cleared").toBeUndefined();
     expect(q1.defaultValueExpression, "defaultValueExpression is kept").toBe("'item2'");
+  });
+});
+describe("Item conditions run only when a variable they use changed", () => {
+  const visibleValues = (q: QuestionSelectBase): Array<any> => q.visibleChoices.map(c => c.value);
+  test("A shared choicesVisibleIf gives each choice its own result", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "x" },
+        { type: "text", name: "y" },
+        { type: "radiogroup", name: "q", choices: [1, 2, 3], choicesVisibleIf: "{item} != {x}" }
+      ]
+    });
+    const q = <QuestionSelectBase>survey.getQuestionByName("q");
+    survey.setValue("x", 2);
+    expect(visibleValues(q), "x = 2").toEqual([1, 3]);
+    survey.setValue("y", 1);
+    expect(visibleValues(q), "y = 1 changes nothing").toEqual([1, 3]);
+    survey.setValue("x", 3);
+    expect(visibleValues(q), "x = 3").toEqual([1, 2]);
+  });
+  test("onShowingChoiceItem gets the condition result when the choice does not run again", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "radiogroup", name: "q", choices: [1, 2, { value: 3, visibleIf: "{a} = 1" }] }
+      ]
+    });
+    survey.onShowingChoiceItem.add((sender, options) => {
+      if (options.item.value === 3 && sender.getValue("b") === 1) {
+        options.visible = false;
+      }
+    });
+    const q = <QuestionSelectBase>survey.getQuestionByName("q");
+    survey.setValue("a", 1);
+    expect(visibleValues(q), "a = 1").toEqual([1, 2, 3]);
+    survey.setValue("b", 1);
+    expect(visibleValues(q), "b = 1, the event hides 3").toEqual([1, 2]);
+    survey.setValue("b", 2);
+    expect(visibleValues(q), "b = 2, the event shows 3 again").toEqual([1, 2, 3]);
+  });
+  test("A choice inside a dynamic panel follows {panel.a}", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "pd", panelCount: 1, templateElements: [
+          { type: "text", name: "a" },
+          { type: "radiogroup", name: "q", choices: [1, { value: 2, visibleIf: "{panel.a} = 1" }] }
+        ] }
+      ]
+    });
+    const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("pd")).panels[0];
+    const q = <QuestionSelectBase>panel.getQuestionByName("q");
+    expect(visibleValues(q), "start").toEqual([1]);
+    panel.getQuestionByName("a").value = 1;
+    expect(visibleValues(q), "panel a = 1").toEqual([1, 2]);
+    panel.getQuestionByName("a").value = 2;
+    expect(visibleValues(q), "panel a = 2").toEqual([1]);
+  });
+  test("A choice whose visibleIf changed runs the new expression on the next answer", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "radiogroup", name: "q", choices: [1, { value: 2, visibleIf: "{a} = 1" }] }
+      ]
+    });
+    const q = <QuestionSelectBase>survey.getQuestionByName("q");
+    survey.setValue("a", 2);
+    expect(visibleValues(q), "a = 2").toEqual([1]);
+    q.choices[1].visibleIf = "{a} = 2";
+    expect(visibleValues(q), "the new expression has not run yet").toEqual([1]);
+    survey.setValue("b", 1);
+    expect(visibleValues(q), "b = 1 runs the new expression").toEqual([1, 2]);
+  });
+  test("A choice enableIf follows {a} and keeps its result on an unrelated answer", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "radiogroup", name: "q", choices: [1, { value: 2, enableIf: "{a} = 1" }] }
+      ]
+    });
+    const q = <QuestionSelectBase>survey.getQuestionByName("q");
+    expect(q.choices[1].isEnabled, "start").toBe(false);
+    survey.setValue("a", 1);
+    expect(q.choices[1].isEnabled, "a = 1").toBe(true);
+    survey.setValue("b", 1);
+    expect(q.choices[1].isEnabled, "b = 1").toBe(true);
+  });
+  test("A choice visibleIf does not run when no value it uses changed", () => {
+    let callCount = 0;
+    FunctionFactory.Instance.register("countCalls", (params: any[]): boolean => {
+      callCount++;
+      return params[0] === 1;
+    });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "a" },
+          { type: "text", name: "b" },
+          { type: "radiogroup", name: "q", choices: [1, { value: 2, visibleIf: "countCalls({a})" }] }
+        ]
+      });
+      const q = <QuestionSelectBase>survey.getQuestionByName("q");
+      expect(visibleValues(q), "start").toEqual([1]);
+      callCount = 0;
+      survey.setValue("b", 1);
+      expect(callCount, "b = 1 does not run it").toBe(0);
+      survey.setValue("a", 1);
+      expect(callCount, "a = 1 runs it once").toBe(1);
+      expect(visibleValues(q), "a = 1 shows the choice").toEqual([1, 2]);
+    } finally {
+      FunctionFactory.Instance.unregister("countCalls");
+    }
+  });
+  test("A function that reads another value itself keeps the choice's old result when only that value changed (it ran on every answer before)", () => {
+    FunctionFactory.Instance.register("readOther", function (this: any, params: any[]): boolean {
+      return this.survey.getValue("other") === 1;
+    });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "a" },
+          { type: "text", name: "other" },
+          { type: "radiogroup", name: "q", choices: [1, { value: 2, visibleIf: "readOther({a})" }] }
+        ]
+      });
+      const q = <QuestionSelectBase>survey.getQuestionByName("q");
+      expect(visibleValues(q), "start").toEqual([1]);
+      survey.setValue("other", 1);
+      expect(visibleValues(q), "other = 1: the function's parameter did not change").toEqual([1]);
+      survey.setValue("a", 5);
+      expect(visibleValues(q), "a = 5 runs it").toEqual([1, 2]);
+    } finally {
+      FunctionFactory.Instance.unregister("readOther");
+    }
+  });
+  test("A choice renamed in place runs {item} with its new value", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "x" },
+        { type: "text", name: "y" },
+        { type: "radiogroup", name: "q", choices: [1, 2, 3], choicesVisibleIf: "{item} != {x}" }
+      ]
+    });
+    const q = <QuestionSelectBase>survey.getQuestionByName("q");
+    survey.setValue("x", 2);
+    expect(visibleValues(q), "x = 2").toEqual([1, 3]);
+    q.choices[1].value = 5;
+    survey.setValue("y", 1);
+    expect(visibleValues(q), "y = 1 runs the renamed choice").toEqual([1, 5, 3]);
+  });
+  test("A choice visibleIf with a parameterless function runs on every answer", () => {
+    let flag = false;
+    FunctionFactory.Instance.register("readFlag", (): boolean => flag);
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "b" },
+          { type: "radiogroup", name: "q", choices: [1, { value: 2, visibleIf: "readFlag()" }] }
+        ]
+      });
+      const q = <QuestionSelectBase>survey.getQuestionByName("q");
+      expect(visibleValues(q), "start").toEqual([1]);
+      flag = true;
+      survey.setValue("b", 1);
+      expect(visibleValues(q), "b = 1").toEqual([1, 2]);
+    } finally {
+      FunctionFactory.Instance.unregister("readFlag");
+    }
+  });
+  test("A choice visibleIf with an element property runs on every answer", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "c" },
+        { type: "text", name: "a", visibleIf: "{c} = 1" },
+        { type: "radiogroup", name: "q", choices: [1, { value: 2, visibleIf: "{$a.isVisible} = true" }] }
+      ]
+    });
+    const q = <QuestionSelectBase>survey.getQuestionByName("q");
+    expect(visibleValues(q), "start").toEqual([1]);
+    survey.setValue("c", 1);
+    expect(visibleValues(q), "c = 1 shows a").toEqual([1, 2]);
+  });
+  test("A choice visibleIf with {correctanswers} follows the quiz answer", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "quiz", correctAnswer: 1 },
+        { type: "radiogroup", name: "q", choices: [1, { value: 2, visibleIf: "{correctanswers} = 1" }] }
+      ]
+    });
+    const q = <QuestionSelectBase>survey.getQuestionByName("q");
+    expect(visibleValues(q), "start").toEqual([1]);
+    survey.setValue("quiz", 1);
+    expect(visibleValues(q), "a correct answer").toEqual([1, 2]);
+  });
+  test("A choice visibleIf runs again with an onExpressionRunning subscriber, runExpressions() and survey.data", () => {
+    FunctionFactory.Instance.register("readOther", function (this: any, params: any[]): boolean {
+      return this.survey.getValue("other") === 1;
+    });
+    try {
+      const json = {
+        elements: [
+          { type: "text", name: "a" },
+          { type: "text", name: "other" },
+          { type: "radiogroup", name: "q", choices: [1, { value: 2, visibleIf: "readOther({a})" }] }
+        ]
+      };
+      let survey = new SurveyModel(json);
+      let q = <QuestionSelectBase>survey.getQuestionByName("q");
+      survey.onExpressionRunning.add(() => {});
+      survey.setValue("other", 1);
+      expect(visibleValues(q), "an onExpressionRunning subscriber").toEqual([1, 2]);
+
+      survey = new SurveyModel(json);
+      q = <QuestionSelectBase>survey.getQuestionByName("q");
+      survey.setValue("other", 1);
+      survey.runExpressions();
+      expect(visibleValues(q), "runExpressions()").toEqual([1, 2]);
+
+      survey = new SurveyModel(json);
+      q = <QuestionSelectBase>survey.getQuestionByName("q");
+      survey.data = { other: 1 };
+      expect(visibleValues(q), "survey.data").toEqual([1, 2]);
+    } finally {
+      FunctionFactory.Instance.unregister("readOther");
+    }
+  });
+  test("Rating values and image map areas follow {a} and do not run on an unrelated answer", () => {
+    let callCount = 0;
+    FunctionFactory.Instance.register("countCalls", (params: any[]): boolean => {
+      callCount++;
+      return params[0] === 1;
+    });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "a" },
+          { type: "text", name: "b" },
+          { type: "rating", name: "r", rateValues: [1, 2, { value: 3, visibleIf: "countCalls({a})" }] },
+          { type: "imagemap", name: "im", areas: [{ value: "v1" }, { value: "v2", visibleIf: "countCalls({a})" }] }
+        ]
+      });
+      const r = <any>survey.getQuestionByName("r");
+      const im = <any>survey.getQuestionByName("im");
+      expect(r.rateValues[2].isVisible, "rating, start").toBe(false);
+      expect(im.areas[1].isVisible, "image map, start").toBe(false);
+      callCount = 0;
+      survey.setValue("b", 1);
+      expect(callCount, "b = 1 runs neither").toBe(0);
+      survey.setValue("a", 1);
+      expect(callCount, "a = 1 runs both").toBe(2);
+      expect(r.rateValues[2].isVisible, "rating, a = 1").toBe(true);
+      expect(im.areas[1].isVisible, "image map, a = 1").toBe(true);
+      survey.setValue("a", 2);
+      expect(r.rateValues[2].isVisible, "rating, a = 2").toBe(false);
+      expect(im.areas[1].isVisible, "image map, a = 2").toBe(false);
+    } finally {
+      FunctionFactory.Instance.unregister("countCalls");
+    }
+  });
+  test("A choice that reads a path under a cleared value runs again", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrix", name: "m", rows: ["r1"], columns: ["c1", "c2"] },
+        { type: "checkbox", name: "q", choices: [1, { value: 2, visibleIf: "{m.r1} = 'c1'" }] },
+        { type: "text", name: "e", visibleIf: "{m.r1} = 'c1'" }
+      ]
+    });
+    const q = <QuestionSelectBase>survey.getQuestionByName("q");
+    const m = survey.getQuestionByName("m");
+    const e = survey.getQuestionByName("e");
+    m.value = { r1: "c1" };
+    expect(visibleValues(q), "m.r1 = c1").toEqual([1, 2]);
+    expect(e.isVisible, "the question, m.r1 = c1").toBe(true);
+    m.clearValue();
+    expect(visibleValues(q), "m cleared").toEqual([1]);
+    expect(e.isVisible, "the question keeps its result after the clear (the element rule)").toBe(true);
+    m.value = { r1: "c1" };
+    expect(visibleValues(q), "m.r1 = c1 again").toEqual([1, 2]);
   });
 });

@@ -815,6 +815,7 @@ export class Question extends SurveyElement<Question>
    * | Single-Select Matrix | `"object"` |
    * | Yes/No (Boolean) | `"boolean"` \| `"string"` \| `"number"` |
    * @hidefor QuestionImageModel, QuestionHtmlModel
+   * @since 3.1.1
    */
   public getValueType(): QuestionValueType {
     return "string";
@@ -834,6 +835,7 @@ export class Question extends SurveyElement<Question>
    * - Yes/No (Boolean)
    *
    * [Specialized questions](/form-library/documentation/customize-question-types/create-specialized-question-types) based on any of these question types also return `true`.
+   * @since 3.1.1
    */
   public isSelectQuestion(): boolean {
     return false;

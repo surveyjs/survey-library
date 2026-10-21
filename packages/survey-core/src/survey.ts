@@ -2010,6 +2010,7 @@ export class SurveyModel extends SurveyElementCore
    * You can override this setting for individual questions using their `choiceShortcutsEnabled` property.
    *
    * Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
+   * @since 3.2.2
    */
   @property({
     defaultValue: false,

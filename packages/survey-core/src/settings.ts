@@ -437,9 +437,9 @@ export var settings = {
    */
   expressionElementPropertyPrefix: "$",
   /**
-   * Specifies whether [Expression](https://surveyjs.io/form-library/documentation/api-reference/expression-model) questions recalculate only when their dependencies change.
+   * Specifies whether [Expression](https://surveyjs.io/form-library/documentation/api-reference/expression-model) questions and the [`defaultValueExpression`](https://surveyjs.io/form-library/documentation/api-reference/question#defaultValueExpression) of questions recalculate only when their dependencies change.
    *
-   * - `true` (default) - Recalculate only on the initial run, when all expressions are re-evaluated, and when a dependent value or property changes. Expressions with parameterless functions or functions whose parameters do not reference survey values still recalculate on every value change.
+   * - `true` (default) - Recalculate only on the initial run, when all expressions are re-evaluated, and when a dependent value or property changes. Expressions with parameterless functions or functions whose parameters do not reference survey values still recalculate on every value change. A `defaultValueExpression` also recalculates when the question's `defaultValueExpression`, `defaultValue`, or value changes. A custom function with parameters that reads other survey values by itself (for example, `this.survey.getValue(...)`) does not trigger recalculation when only those other values change.
    * - `false` - Recalculate on every value change in the survey.
    */
   // MERGE(V3): default is `true` in V3, `false` in master (V2). Keep V3's `true` (and the

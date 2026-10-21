@@ -6,10 +6,9 @@
     <table :class="question.getTableCss()">
       <thead v-if="table.showHeader">
         <tr>
-          <template v-for="cell in table.headerRow.cells">
+          <template v-for="cell in table.headerRow.cells" :key="'header_' + cell.id">
             <th
               v-if="cell.hasTitle"
-              :key="'header_' + cell.id"
               :class="cell.className"
               :style="{ minWidth: cell.minWidth, width: cell.width }"
               :aria-sort="cell.ariaSort"
@@ -45,7 +44,6 @@
             <td
               v-if="!cell.hasTitle"
               :class="cell.className"
-              :key="'header_' + cell.id"
               :style="{ minWidth: cell.minWidth, width: cell.width }"
             ></td>
           </template>

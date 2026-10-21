@@ -5,6 +5,14 @@ export var swedishSurveyStrings = {
   pagePrevText: "Föregående",
   // "Next"
   pageNextText: "Nästa",
+  // [Auto-translated] "First"
+  pageFirstText: "Först",
+  // [Auto-translated] "Last"
+  pageLastText: "Sista",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "av {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Välj sida",
   // "Complete"
   completeText: "Slutför",
   // "Preview"

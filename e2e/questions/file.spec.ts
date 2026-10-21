@@ -244,7 +244,7 @@ frameworks.forEach((framework) => {
     test("check file question has correct root element", async ({ page }) => {
       await page.waitForTimeout(500);
       const testRootElement = await page.evaluate(() => {
-        const rootElement = survey.getAllQuestions()[0].rootElement;
+        const rootElement = survey.getAllQuestions()[0].contentElement;
         return rootElement && rootElement.tagName == "DIV" && rootElement.classList.contains("sd-file");
       });
       expect(testRootElement).toBe(true);

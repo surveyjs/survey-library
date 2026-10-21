@@ -1334,6 +1334,21 @@ describe("TOC", () => {
       survey.dispose();
       expect(scrollListeners.size, "released on dispose").toBe(0);
     });
+
+    test("a disposed TOC model leaves no survey event listeners and does not update its list", () => {
+      const survey = new SurveyModel({ pages: [{ name: "p1", elements: [{ type: "text", name: "q1" }] }, { name: "p2", elements: [{ type: "text", name: "q2" }] }] });
+      const listenerCounts = () => [survey.onEndLoadingFromJson.length, survey.onCurrentPageChanged.length, survey.onFocusInQuestion.length];
+      const before = listenerCounts();
+      const tocModel = new TOCModel(survey);
+      const list = tocModel.listModel;
+      tocModel.dispose();
+      expect(listenerCounts(), "#1").toEqual(before);
+      survey.currentPageNo = 1;
+      expect(list.selectedItem.id, "#2: the page change is not tracked").toBe("p1");
+      const itemIds = list.actions.map(action => action.id);
+      survey.fromJSON({ pages: [{ name: "p3", elements: [{ type: "text", name: "q3" }] }] });
+      expect(list.actions.map(action => action.id), "#3: loading JSON does not rebuild the items").toEqual(itemIds);
+    });
   });
 });
 

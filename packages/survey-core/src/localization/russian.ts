@@ -5,6 +5,14 @@ export var russianSurveyStrings = {
   pagePrevText: "Назад",
   // "Next"
   pageNextText: "Далее",
+  // [Auto-translated] "First"
+  pageFirstText: "Первый",
+  // [Auto-translated] "Last"
+  pageLastText: "Последний",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Выбрать страницу",
   // "Complete"
   completeText: "Готово",
   // "Preview"

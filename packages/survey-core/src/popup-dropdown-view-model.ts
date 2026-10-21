@@ -251,11 +251,12 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       .append("sv-popup--show-pointer", displayMode === "menu-popup" && this.showHeader)
       .append(`sv-popup--${this.popupDirection}`, displayMode === "menu-popup" && (this.showHeader || this.popupDirection == "top" || this.popupDirection == "bottom"));
   }
+  // An overlay has no pointer: its header is the close button, when the popup asks for one.
   protected getShowHeader(): boolean {
-    return this.model.showPointer && !this.isOverlay;
+    return this.isOverlay ? this.getShowCloseButton() : this.model.showPointer;
   }
   protected getPopupHeaderTemplate(): string {
-    return "popup-pointer";
+    return this.isOverlay ? "popup-close-button" : "popup-pointer";
   }
 
   @property({ defaultValue: "left" }) popupDirection: string;

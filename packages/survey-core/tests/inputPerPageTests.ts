@@ -3243,4 +3243,75 @@ describe("Input Per Page Tests", () => {
     expect(panel.singleInputSummary.isEmpty(), "the panel summary is empty, #2").toBe(true);
     expect(panel.getShowPlaceholderToolbar(), "the panel placeholder has no toolbar, #2").toBe(false);
   });
+  function getNestedSummaryJson(): any {
+    return {
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "paneldynamic", name: "outer", panelCount: 1, templateElements: [
+          { type: "text", name: "q1" },
+          { type: "matrixdynamic", name: "matrix", rowCount: 0, columns: [{ name: "col1", cellType: "text" }] },
+          { type: "paneldynamic", name: "panel", panelCount: 0, templateElements: [{ type: "text", name: "q2" }] }
+        ] }
+      ]
+    };
+  }
+  test("Nested dynamic matrix and panel: the summary step is reached while the outer css is not calculated, Issue#11818", () => {
+    const survey = new SurveyModel(getNestedSummaryJson());
+    survey.data = { outer: [{ q1: "a", matrix: [{ col1: "A-1" }, { col1: "A-2" }], panel: [{ q2: "b" }] }] };
+    const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const matrix = <QuestionMatrixDynamicModel>outer.panels[0].getQuestionByName("matrix");
+    const panel = <QuestionPanelDynamicModel>outer.panels[0].getQuestionByName("panel");
+    survey.currentSingleQuestion = outer;
+    [{ q: <Question>matrix, count: 2 }, { q: <Question>panel, count: 1 }].forEach(({ q, count }) => {
+      outer.singleInputBehavior.setSingleInputQuestion(q);
+      q.singleInputBehavior.setSingleInputQuestion(q);
+      // The step is reached before anything is rendered: no summary and no outer css yet.
+      q.singleInputBehavior.resetSingleInputSummary();
+      outer["clearCssClasses"]();
+      expect(!!outer.getPropertyValue("cssClassesValue"), q.name + ": the outer css is not calculated").toBe(false);
+      expect(q.singleInputSummary.items.length, q.name + ": the summary lists the entries").toBe(count);
+      expect(q.singleInputQuestion?.name, q.name + ": the container stands on its summary step").toBe(q.name);
+    });
+  });
+  test("A stored self that cannot show a summary renders the question itself, Issue#11818", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "text", name: "q0" },
+        { type: "paneldynamic", name: "panel", panelCount: 1, templateElements: [{ type: "text", name: "q1" }] },
+        { type: "matrixdropdown", name: "matrix", rows: ["r1"], columns: [{ name: "col1", cellType: "text" }] }
+      ]
+    });
+    // The host turns the mode off for the panel, so it has no summary step to show.
+    survey.onCheckSingleInputPerPageMode.add((_, options) => {
+      if (options.question.name === "panel") options.enabled = false;
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+    [<Question>panel, <Question>matrix].forEach(q => {
+      survey.currentSingleQuestion = q;
+      q.singleInputBehavior.setSingleInputQuestion(q);
+      expect(q.singleInputQuestion === undefined, q.name + ": singleInputQuestion is undefined").toBe(true);
+      expect(q.getRootCss().indexOf(q.cssRoot) > -1, q.name + ": css root is cssRoot").toBe(true);
+      expect(q.getRootCss().indexOf(q.cssClasses.rootSingleInput) < 0, q.name + ": no rootSingleInput").toBe(true);
+    });
+  });
+  test("A nested dynamic panel and matrix keep their summary step before the summary is built, Issue#11818", () => {
+    const survey = new SurveyModel(getNestedSummaryJson());
+    survey.data = { outer: [{ q1: "a", matrix: [{ col1: "A-1" }], panel: [{ q2: "b" }] }] };
+    const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const matrix = <QuestionMatrixDynamicModel>outer.panels[0].getQuestionByName("matrix");
+    const panel = <QuestionPanelDynamicModel>outer.panels[0].getQuestionByName("panel");
+    outer.cssClasses;
+    survey.currentSingleQuestion = outer;
+    [<Question>matrix, <Question>panel].forEach(q => {
+      outer.singleInputBehavior.setSingleInputQuestion(q);
+      q.singleInputBehavior.setSingleInputQuestion(q);
+      q.singleInputBehavior.resetSingleInputSummary();
+      expect(!!q.getPropertyValue("singleInputSummary"), q.name + ": the summary is not built yet").toBe(false);
+      expect(q.singleInputQuestion?.name, q.name + ": singleInputQuestion is the container").toBe(q.name);
+      expect(q.getRootCss().indexOf(q.cssClasses.rootSingleInput) > -1, q.name + ": css root is rootSingleInput").toBe(true);
+      expect(q.singleInputSummary.items.length, q.name + ": the summary is then built").toBe(1);
+    });
+  });
 });

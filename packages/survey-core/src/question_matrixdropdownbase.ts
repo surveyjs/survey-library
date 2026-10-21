@@ -30,8 +30,8 @@ import {
   QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties
 } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
-import { isRecordEmpty, LocalDynamicDataSource, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
-import { createIndexes } from "./dynamic-data/dynamic-data-filter";
+import { LocalDynamicDataSource, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
+import { createIndexes, isRecordEmpty } from "./dynamic-data/dynamic-data-records";
 import type { QuestionExpressionModel } from "./question_expression";
 
 /* The matrix as its cells see it. The first group is what the interface has always declared for the
@@ -1059,6 +1059,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.isRowChangingValue = val;
   }
   onRenderedTableResetCallback: () => void;
+  /* Fires once per rendered table, when the first read of renderedTable (the renderer's or code's) has
+     built and stored it: only the table that is shown is built, so a page that is never shown fires
+     nothing. It exists for owners that decorate rendered rows (the creator's Logic tab marks rules
+     not saved yet): they mark every table they are given and need not build one themselves. A read
+     of renderedTable inside the callback returns the same table. */
+  onRenderedTableCreatedCallback: (table: QuestionMatrixDropdownRenderedTable) => void;
   onCellCreatedCallback: (options: any) => void;
   onHasDetailPanelCallback: (row: MatrixDropdownRowModelBase) => boolean;
   onCreateDetailPanelCallback: (
@@ -1389,6 +1395,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   public get isColumnLayoutHorizontal(): boolean {
     return this.isMobile ? true : !this.transposeData;
   }
+  // The table renders a header row with one column per header.
+  protected get canSortByHeaders(): boolean {
+    return !this.isMobile && !!this.showHeader && !this.transposeData;
+  }
   /**
    * Enables case-sensitive comparison in columns with the `isUnique` property set to `true`.
    *
@@ -1528,26 +1538,41 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         getTable: (): QuestionMatrixDropdownRenderedTable => this.getPropertyValue("renderedTable", undefined, () => this.createRenderedTable()),
         removeStoredTable: (): void => this.resetPropertyValue("renderedTable"),
         disposeTable: (table: QuestionMatrixDropdownRenderedTable): void => this.disposeLeftObject(table),
+        onTableCreated: (table: QuestionMatrixDropdownRenderedTable): void => {
+          if (!!this.onRenderedTableCreatedCallback)this.onRenderedTableCreatedCallback(table);
+        },
         onTableReset: (): void => this.fireCallback(this.onRenderedTableResetCallback),
         clearRows: (): void => this.clearGeneratedRows(),
         isUpdateLocked: (): boolean => this.isUpdateLocked,
         isPagingActive: (): boolean => this.isPagingActive,
+        canAppendAddedRow: (): boolean => this.canAppendAddedRow(),
         getVisibleRows: (): Array<MatrixDropdownRowModelBase> => this.visibleRows
       });
     }
     return this.renderedTableHostValue;
   }
-  // Survey Creator sets it directly around an add (logic-ui.ts): it stays readable and writable here.
+  // The rows of a matrix that pages are a page: the base cannot tell that the added row is its last one.
+  protected canAppendAddedRow(): boolean {
+    return !this.isPagingActive;
+  }
+  /* Survey Creator sets it directly around an add (logic-ui.ts): it stays readable and writable here.
+     Released, it resets a table whose rows were disposed while it was locked: a paged value assignment
+     that rebuilt the page ends with no add or remove that would. */
   private get lockResetRenderedTable(): boolean {
     return this.renderedTableHost.isResetLocked;
   }
   private set lockResetRenderedTable(val: boolean) {
-    this.renderedTableHost.isResetLocked = val;
+    if (val) {
+      this.renderedTableHost.isResetLocked = true;
+    } else {
+      this.renderedTableHost.releaseResetLock();
+    }
   }
-  // The callers end an add or a remove with this in a finally: a handler that throws between
-  // onStartRowAddingRemoving and its end does not leave the rendered table locked.
+  /* The callers end an add or a remove with this in a finally: a handler that throws between
+     onStartRowAddingRemoving and its end does not leave the rendered table locked. It only clears the
+     lock: onEndRowAdding / onEndRowRemoving, called right after it, check the table themselves. */
   protected unlockResetRenderedTable(): void {
-    this.lockResetRenderedTable = false;
+    this.renderedTableHost.isResetLocked = false;
   }
   protected onStartRowAddingRemoving() {
     this.renderedTableHost.onStartRowAddingRemoving();
@@ -1570,6 +1595,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.clearVisibleRows();
     this.clearDesignRow();
     if (!this.generatedVisibleRows) return;
+    this.renderedTableHost.onRowsDisposed();
     this.keepDetailPanelPageStates(this.generatedVisibleRows);
     this.generatedVisibleRows.forEach((row: MatrixDropdownRowModelBase): void => { this.disposeRow(row); });
     this.generatedVisibleRows = null;
@@ -1647,7 +1673,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    * - [`"rating"`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model)
    * - [`"slider"`](https://surveyjs.io/form-library/documentation/api-reference/questionslidermodel)
    *
-   * Default value: `"dropdown"` (inherited from [`settings.matrix.defaultCellType`](https://surveyjs.io/form-library/documentation/settings#matrixDefaultCellType))
+   * Default value: `"dropdown"` (inherited from [`settings.matrix.defaultCellType`](/form-library/documentation/api-reference/settings#matrix))
    *
    * [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
    *
@@ -2713,9 +2739,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (hasRows) {
       this.decideRecordsVisibility();
     }
+    /* One reset, in onRowsChanged, once the new rows exist: a reset before getVisibleRows too would let
+       an onRenderedTableResetCallback that reads renderedTable build a table the second reset drops. */
     if (hasRows) {
       this.clearGeneratedRows();
-      this.resetRenderedTable();
       this.getVisibleRows();
       this.onRowsChanged();
     }
@@ -2727,10 +2754,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       }
       this.runTotalsCondition(this.getDataFilteredProperties());
     }
-  }
-  // settings.matrix.maxRowCount is the number of rows one page may hold.
-  protected get maxRecordsPerPage(): number {
-    return settings.matrix.maxRowCount;
   }
   /* The renderers show a pager under the table while the matrix has more than one page: never in design
      mode or in single-input mode, which do not page. pageCount is the synced property, so a change of it
@@ -3465,22 +3488,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   public getRootCss(): string {
     return toCssClasses(super.getRootCss(), this.horizontalScroll && this.cssClasses.rootScroll);
-  }
-  public afterRenderQuestionElement(el: HTMLElement): void {
-    super.afterRenderQuestionElement(el);
-    this.setRootElement(el?.parentElement);
-  }
-  public beforeDestroyQuestionElement(el: HTMLElement): void {
-    super.beforeDestroyQuestionElement(el);
-    this.setRootElement(undefined);
-  }
-
-  private rootElement: HTMLElement;
-  public setRootElement(val: HTMLElement): void {
-    this.rootElement = val;
-  }
-  public getRootElement(): HTMLElement {
-    return this.rootElement;
   }
   public get dragDropMatrixAttribute(): string {
     return this.renderedTable.wrapperDropTargetId;

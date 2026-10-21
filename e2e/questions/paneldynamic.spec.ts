@@ -438,6 +438,91 @@ frameworks.forEach((framework) => {
       await expect(page.locator("textarea").first()).toHaveValue("newCountry");
     });
 
+    test("the pager moves the panel pages through its page dropdown", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel",
+            pageSize: 2,
+            defaultValue: [1, 2, 3, 4, 5].map(i => ({ name: "panel" + i })),
+            templateElements: [{ type: "text", name: "name" }],
+          },
+        ],
+      });
+      const pager = page.locator(".sd-paneldynamic__pager");
+      const nameInput = page.locator(".sd-paneldynamic__panel-wrapper input").first();
+
+      await expect(nameInput).toHaveValue("panel1");
+      await expect(pager.locator("button[title='First']"), "no first and last below ten pages").toHaveCount(0);
+      await expect(pager.locator("button[title='Last']")).toHaveCount(0);
+      await expect(pager.locator(".sd-pager__total")).toHaveText("of 3");
+      await pager.getByRole("button", { name: "Page 1 of 3" }).click();
+      await page.getByRole("menuitemradio", { name: "3", exact: true }).click();
+      await expect(nameInput).toHaveValue("panel5");
+      await expect(pager.locator("button[title='Next']")).toBeDisabled();
+      await pager.locator("button[title='Previous']").click();
+      await expect(nameInput).toHaveValue("panel3");
+    });
+
+    test("the page list opens inside the window on its first open, near the window's bottom", async ({ page }) => {
+      await page.setViewportSize({ width: 1000, height: 600 });
+      await initSurvey(page, framework, {
+        elements: [
+          { type: "html", name: "spacer", html: "<div style='height: 900px'></div>" },
+          {
+            type: "paneldynamic",
+            name: "panel",
+            pageSize: 1,
+            defaultValue: [1, 2, 3, 4, 5].map(i => ({ name: "panel" + i })),
+            templateElements: [{ type: "text", name: "name" }],
+          },
+          { type: "html", name: "spacer2", html: "<div style='height: 900px'></div>" },
+        ],
+      });
+      const pageButton = page.locator(".sd-paneldynamic__pager").getByRole("button", { name: "Page 1 of 5" });
+      // The dropdown 120px above the window's bottom: the five pages do not fit below it.
+      await pageButton.evaluate(el => { window.scrollBy(0, el.getBoundingClientRect().top - 480); });
+      await pageButton.click();
+      for (const pageNumber of ["1", "5"]) {
+        await expect(page.getByRole("menuitemradio", { name: pageNumber, exact: true }), "page " + pageNumber).toBeInViewport({ ratio: 1 });
+      }
+    });
+
+    test("the pager's page list on a phone: a pick waits for Apply, closing the sheet drops it", async ({ page }) => {
+      await page.setViewportSize({ width: 375, height: 812 });
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel",
+            pageSize: 2,
+            defaultValue: [1, 2, 3, 4, 5].map(i => ({ name: "panel" + i })),
+            templateElements: [{ type: "text", name: "name" }],
+          },
+        ],
+      });
+      const pager = page.locator(".sd-paneldynamic__pager");
+      const sheet = page.locator(".sv-popup--sheet");
+      const nameInput = page.locator(".sd-paneldynamic__panel-wrapper input").first();
+
+      await pager.getByRole("button", { name: "Page 1 of 3" }).click();
+      await expect(sheet.locator(".sv-popup__body-header")).toHaveText("Select Page");
+      await sheet.getByRole("menuitemradio", { name: "3", exact: true }).click();
+      await expect(sheet).toBeVisible();
+      await expect(nameInput).toHaveValue("panel1");
+      await sheet.locator(".sv-popup__close-button").click();
+      await expect(sheet).toBeHidden();
+      await expect(nameInput).toHaveValue("panel1");
+
+      await pager.getByRole("button", { name: "Page 1 of 3" }).click();
+      await expect(sheet.getByRole("menuitemradio", { name: "1", exact: true }), "the dropped pick is gone").toHaveAttribute("aria-checked", "true");
+      await sheet.getByRole("menuitemradio", { name: "3", exact: true }).click();
+      await sheet.getByRole("button", { name: "Apply" }).click();
+      await expect(sheet).toBeHidden();
+      await expect(nameInput).toHaveValue("panel5");
+    });
+
     test("Check valueName for two paneldynamics - #6584", async ({ page }) => {
       await initSurvey(page, framework, {
         logoPosition: "right",

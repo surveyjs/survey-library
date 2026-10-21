@@ -396,6 +396,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   public requireReset(): void {
     this.isRequireResetValue = true;
   }
+  // requireReset() was called: unlike isRequireReset(), not what the table's layout or its remove column says.
+  public isResetRequested(): boolean {
+    return !!this.isRequireResetValue;
+  }
 
   public get headerRow(): QuestionMatrixDropdownRenderedRow {
     return this.headerRowValue;

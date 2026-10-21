@@ -11,8 +11,9 @@ import { Base, ComputedUpdater } from "../../src/base";
 import { SurveyModel } from "../../src/survey";
 import { surveyLocalization } from "../../src/surveyStrings";
 import { ResponsivityManager } from "../../src/utils/responsivity-manager";
+import { createIActionArray } from "../test-helpers";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 test("Check that items are wrapped after set", () => {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   model.setItems([{ id: "first" }, { id: "second" }]);
@@ -614,4 +615,121 @@ test("Check active appearance", () => {
   action.active = true;
   expect(action.active).toBeTruthy();
   expect(action.getActionBarItemCss()).toBe("sd-action sd-action--active sd-action--alert sd-action--secondary sd-action--small");
+});
+
+describe("Bulk assignment of actions", () => {
+  // Every tenth action is hidden.
+  function createActions(count: number, prefix: string = "a"): Array<Action> {
+    const res: Array<Action> = [];
+    for (let i = 0; i < count; i++) {
+      res.push(new Action({ id: prefix + i, title: prefix + i, visible: i % 10 !== 9 }));
+    }
+    return res;
+  }
+  function spyUpdates(container: ActionContainer<any>) {
+    return {
+      update: vi.spyOn(container as any, "update"),
+      getVisibleActions: vi.spyOn(container, "getVisibleActions")
+    };
+  }
+  test("assigning 1,000 actions to an unmounted container updates once, synchronously", () => {
+    const container = new ActionContainer();
+    const spies = spyUpdates(container);
+    container.actions = createActions(1000);
+    expect(spies.update).toHaveBeenCalledTimes(1);
+    expect(spies.getVisibleActions).toHaveBeenCalledTimes(1);
+    expect(container.visibleActions.length).toBe(900);
+    expect(container.visibleActions[0].id).toBe("a0");
+    expect(container.isEmpty).toBe(false);
+  });
+  test("replacing 1,000 actions with 1,000 others updates once", () => {
+    const container = new ActionContainer();
+    const oldActions = createActions(1000);
+    container.actions = oldActions;
+    const spies = spyUpdates(container);
+    container.actions = createActions(1000, "b");
+    expect(spies.update).toHaveBeenCalledTimes(1);
+    expect(spies.getVisibleActions).toHaveBeenCalledTimes(1);
+    expect(container.visibleActions.length).toBe(900);
+    expect(container.visibleActions[0].id).toBe("b0");
+    expect(oldActions[0].owner).toBeNull();
+    expect(container.actions[0].owner).toBe(container);
+  });
+  test("setItems with 1,000 items updates once", () => {
+    const container = new ActionContainer();
+    const spies = spyUpdates(container);
+    container.setItems(createIActionArray(1000));
+    expect(spies.update).toHaveBeenCalledTimes(1);
+    expect(spies.getVisibleActions).toHaveBeenCalledTimes(1);
+    expect(container.visibleActions.length).toBe(1000);
+  });
+  test("assigning an empty array to an empty container raises no update", () => {
+    const container = new ActionContainer();
+    const spies = spyUpdates(container);
+    container.actions = [];
+    expect(spies.update).toHaveBeenCalledTimes(0);
+    expect(container.isEmpty).toBe(true);
+  });
+  test("a single push or splice on an unmounted container updates synchronously, once", () => {
+    const container = new ActionContainer();
+    container.actions = createActions(5);
+    const spies = spyUpdates(container);
+    container.actions.push(new Action({ id: "pushed" }));
+    expect(spies.update).toHaveBeenCalledTimes(1);
+    expect(container.visibleActions[container.visibleActions.length - 1].id).toBe("pushed");
+    container.actions.splice(0, 1);
+    expect(spies.update).toHaveBeenCalledTimes(2);
+    expect(container.visibleActions[0].id).toBe("a1");
+  });
+  test("a getter that throws in setItems leaves the container updating synchronously, once per assignment", () => {
+    const container = new ActionContainer();
+    const badItem: any = { id: "bad" };
+    Object.defineProperty(badItem, "tooltip", { enumerable: true, get: () => { throw new Error("getter"); } });
+    expect(() => container.setItems([{ id: "good" }, badItem])).toThrow("getter");
+    expect(container.actions.length).toBe(0);
+    const spies = spyUpdates(container);
+    container.setItems(createIActionArray(3));
+    expect(spies.update).toHaveBeenCalledTimes(1);
+    expect(container.visibleActions.length).toBe(3);
+    expect(container.isEmpty).toBe(false);
+  });
+  test("a listener that throws during a direct assignment leaves the container updating synchronously, once per assignment", () => {
+    const container = new ActionContainer();
+    let throwOnce = true;
+    container.onPropertyChanged.add((_, options) => {
+      if (options.name === "actions" && throwOnce) {
+        throwOnce = false;
+        throw new Error("listener");
+      }
+    });
+    expect(() => { container.actions = createActions(3); }).toThrow("listener");
+    expect(container.actions.length).toBe(3);
+    expect(container.visibleActions.map(a => a.id)).toEqual(["a0", "a1", "a2"]);
+    expect(container.isEmpty).toBe(false);
+    const spies = spyUpdates(container);
+    container.actions = createActions(3, "b");
+    expect(spies.update).toHaveBeenCalledTimes(1);
+    expect(container.visibleActions.map(a => a.id)).toEqual(["b0", "b1", "b2"]);
+    container.actions = [];
+    expect(spies.update).toHaveBeenCalledTimes(2);
+    expect(container.isEmpty).toBe(true);
+  });
+  test("an adaptive container keeps its responsiveness request in the single update", () => {
+    const container = new AdaptiveActionContainer();
+    const spies = spyUpdates(container);
+    container.actions = createActions(1000);
+    expect(spies.update).toHaveBeenCalledTimes(1);
+    expect(spies.update.mock.calls[0][0]).toEqual({ needUpdateActions: true, needUpdateIsEmpty: true, updateResponsivenessMode: UpdateResponsivenessMode.Hard });
+    expect(spies.getVisibleActions).toHaveBeenCalledTimes(1);
+    expect(container.visibleActions.length).toBe(900);
+  });
+  test("each assigned action is patched once: hiding one raises one update", () => {
+    const container = new ActionContainer();
+    container.actions = createActions(10);
+    expect(container.visibleActions.length).toBe(9);
+    const spies = spyUpdates(container);
+    container.actions[3].visible = false;
+    expect(spies.update).toHaveBeenCalledTimes(1);
+    expect(container.visibleActions.length).toBe(8);
+  });
 });

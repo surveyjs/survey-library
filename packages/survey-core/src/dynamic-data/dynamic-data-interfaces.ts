@@ -101,13 +101,20 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 // they are. While a source is attached the question is excluded from survey.data - the records are
 // the source's, not an answer - and question.isReady is false while a page is being read.
 
-export type DynamicDataSortDirection = "asc" | "desc";
+export type SortDirection = "asc" | "desc";
 export type DynamicDataFieldType = "string" | "number" | "date" | "boolean" | "any";
-export type DynamicDataOperation = "read" | "insert" | "update" | "remove" | "move" | "count";
+// The source methods the list calls; a capability is declared by the presence of the method.
+export type DynamicDataSourceMethod = "read" | "insert" | "update" | "remove" | "move";
+/* The operation survey.onDynamicDataError names: a source method that failed or was refused, or
+   "count" - the record count, which the question refuses to set while the source owns it. */
+export type DynamicDataErrorOperation = DynamicDataSourceMethod | "count";
+// The name of DynamicDataErrorOperation released in v3.2.1, kept so that code importing it compiles.
+export type DynamicDataOperation = DynamicDataErrorOperation;
 
-export interface IDynamicDataSort {
+// A missing direction is ascending.
+export interface ISortCriterion {
   field: string;
-  direction: DynamicDataSortDirection;
+  direction?: SortDirection;
 }
 // One read = one request: the range and the view the list wants, so that the source keeps no state
 // of its own and two questions can share it.
@@ -118,8 +125,10 @@ export interface IDynamicDataReadRequest {
   take: number;
   // The expression text of the filter, "" for no filter. The list never parses it.
   filter: string;
-  // The sort descriptors, applied in array order; [] for the source order.
-  sort: Array<IDynamicDataSort>;
+  /* The sort descriptors, applied in array order; [] for the source order. Every criterion the list
+     sends has a direction, "asc" or "desc", although the type says it is optional: the source shares
+     ISortCriterion with the question's sortCriteria, where a missing direction is ascending. */
+  sort: Array<ISortCriterion>;
 }
 export interface IDynamicDataReadResult {
   records: Array<any>;
@@ -209,7 +218,7 @@ export interface IDynamicDataOwner {
   onSourceWriterChanged?(): void;
   /* A read or a write of the source failed. The owner hears it from the list's construction on: the
      first load of a read-through list runs before anyone could assign the list's onError. */
-  onDataError?(error: any, operation: DynamicDataOperation): void;
+  onDataError?(error: any, operation: DynamicDataErrorOperation): void;
   /* The survey of the question the list belongs to: the asynchronous writes of the lists in one
      survey that share a source object are ordered (DynamicDataSourceChannel.getForeignWrites). */
   getSurvey?(): ISurvey;

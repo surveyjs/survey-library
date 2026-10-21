@@ -5,6 +5,14 @@ export var portugueseSurveyStrings = {
   pagePrevText: "Anterior",
   // "Next"
   pageNextText: "Próximo",
+  // [Auto-translated] "First"
+  pageFirstText: "Primeiro",
+  // [Auto-translated] "Last"
+  pageLastText: "Última",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "de {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Selecionar Página",
   // "Complete"
   completeText: "Finalizar",
   // "Preview"

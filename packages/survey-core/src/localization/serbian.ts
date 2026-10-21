@@ -5,6 +5,14 @@ export var serbianStrings = {
   pagePrevText: "Nazad",
   // "Next"
   pageNextText: "Dalje",
+  // [Auto-translated] "First"
+  pageFirstText: "Prvo",
+  // [Auto-translated] "Last"
+  pageLastText: "Poslednji",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "od {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Mapa sajta",
   // "Complete"
   completeText: "Završi",
   // "Preview"

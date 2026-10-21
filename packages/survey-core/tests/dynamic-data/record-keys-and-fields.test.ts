@@ -3,7 +3,7 @@ import { SurveyModel } from "../../src/survey";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { Question } from "../../src/question";
-import { getDuplicateKey, groupByDuplicateKey } from "../../src/dynamic-data/dynamic-data-page-validation";
+import { getDuplicateKey, groupByDuplicateKey } from "../../src/records/records-duplicates";
 
 /* The record keys a records question compares for keyName duplicates, and the record fields it gives
    its sort and filter. Both questions compare keys as text, and both declare the field the other text
@@ -185,14 +185,14 @@ describe("record fields: the other text of a hasOther question", () => {
     ]);
   });
   test("panel: a sort by the other text compares strings", () => {
-    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", sortBy: "q-Comment",
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", sortCriteria: [{ field: "q-Comment" }],
       templateElements: [{ type: "dropdown", name: "q", choices: [1, 2], showOtherItem: true }] }] });
     survey.data = { p: [other("9"), other("10")] };
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
     expect(panel.panels.map((p): string => (<Question>p.getQuestionByName("q")).comment), "#1").toEqual(["10", "9"]);
   });
   test("matrix: a sort by the other text compares strings", () => {
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, sortBy: "q-Comment",
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, sortCriteria: [{ field: "q-Comment" }],
       columns: [{ name: "q", cellType: "dropdown", choices: [1, 2], showOtherItem: true }] }] });
     survey.data = { m: [other("9"), other("10")] };
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");

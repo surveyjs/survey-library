@@ -438,6 +438,25 @@ describe("question text tests", () => {
     expect(q.isTextInput, "isTextInput - password").toBe(true);
     expect(q.getMaxLength(), "getMaxLength() - password").toBe(10);
   });
+  test("Input actions are visible as soon as the container is created", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", maxLength: 10 },
+        { type: "text", name: "q2" }
+      ]
+    });
+    const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+    expect(q1.inputActionsContainer.visibleActions.length, "q1 visibleActions").toBe(1);
+    expect(q1.inputActionsContainer.visibleActions[0].component, "q1 character counter").toBe("sv-character-counter");
+    expect(q1.hasVisibleInputActions, "q1 hasVisibleInputActions").toBe(true);
+    expect(q2.inputActionsContainer.actions.length, "q2 actions").toBe(1);
+    expect(q2.inputActionsContainer.visibleActions.length, "q2 visibleActions").toBe(0);
+    expect(q2.hasVisibleInputActions, "q2 hasVisibleInputActions").toBeFalsy();
+    q2.maxLength = 5;
+    expect(q2.inputActionsContainer.visibleActions.length, "q2 visibleActions after maxLength").toBe(1);
+    expect(q2.hasVisibleInputActions, "q2 hasVisibleInputActions after maxLength").toBe(true);
+  });
   test("settings.storeUtcDates = true, #8542", () => {
     const survey = new SurveyModel({
       "elements": [

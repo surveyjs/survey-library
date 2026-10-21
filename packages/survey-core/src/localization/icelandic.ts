@@ -5,6 +5,14 @@ export var icelandicSurveyStrings = {
   pagePrevText: "Tilbaka",
   // "Next"
   pageNextText: "Áfram",
+  // [Auto-translated] "First"
+  pageFirstText: "Fyrst",
+  // [Auto-translated] "Last"
+  pageLastText: "Síðasta",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Veldu síðu",
   // "Complete"
   completeText: "Lokið",
   // "Preview"

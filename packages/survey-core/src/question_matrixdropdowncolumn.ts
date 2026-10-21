@@ -35,8 +35,8 @@ export interface IMatrixColumnOwner extends ILocalizableOwner {
   // Not the survey property: Survey Creator reads colOwner["survey"] as SurveyModel.
   getSurvey(): ISurvey;
   readonly isQuestion: boolean;
-  // The dynamic matrix only: its rows sort by a header click.
-  readonly allowSortRows?: boolean;
+  // The respondent sorts the rows, by a header click among others.
+  readonly allowSort?: boolean;
 }
 export class MatrixColumnGetterContext implements IValueGetterContext {
   constructor(private column: MatrixDropdownColumn) {
@@ -551,7 +551,7 @@ export class MatrixDropdownColumn extends Base
   @property({ defaultValue: true }) allowSort: boolean;
   public get isSortable(): boolean {
     const matrix = this.colOwner;
-    return !!matrix && matrix.allowSortRows === true && this.allowSort;
+    return !!matrix && matrix.allowSort === true && this.allowSort;
   }
   /* The record key this column sorts by, which is the key the cell writes and not the column name:
      a column with a valueName shares the key with the question it is bound to. It is the same name
@@ -1033,7 +1033,7 @@ Serializer.addClass(
     { name: "totalMaximumFractionDigits:number", default: -1, visibleIf: (obj: any): boolean => obj.hasTotal },
     { name: "totalMinimumFractionDigits:number", default: -1, visibleIf: (obj: any): boolean => obj.hasTotal },
     { name: "renderAs", default: "default", visible: false },
-    // Invisible until the UI series renders sortable headers, see matrixdynamic.allowSortRows.
+    // Invisible until the UI series renders sortable headers, see the matrix allowSort.
     { name: "allowSort:boolean", default: true, visible: false },
     { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
   ],

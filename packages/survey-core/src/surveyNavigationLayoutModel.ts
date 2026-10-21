@@ -4,6 +4,7 @@ import type { SurveyModel } from "./survey";
 
 interface ISurveyNavigationLayout {
   navigationBar: ActionContainer;
+  hasVisibleNavigationActions: boolean;
   isNavigationButtonsShowingOnTop: boolean;
   isNavigationButtonsShowingOnBottom: boolean;
 }
@@ -29,10 +30,10 @@ export class SurveyNavigationLayoutModel implements ILayoutElementModel {
   }
 
   private isTopNavigationButtonsInContainer(container: LayoutElementContainer): boolean {
-    return container === "contentTop" && this.survey.isNavigationButtonsShowingOnTop;
+    return container === "contentTop" && this.survey.isNavigationButtonsShowingOnTop && this.survey.hasVisibleNavigationActions;
   }
 
   private isBottomNavigationButtonsInContainer(container: LayoutElementContainer): boolean {
-    return container === "contentBottom" && this.survey.isNavigationButtonsShowingOnBottom;
+    return container === "contentBottom" && this.survey.isNavigationButtonsShowingOnBottom && this.survey.hasVisibleNavigationActions;
   }
 }

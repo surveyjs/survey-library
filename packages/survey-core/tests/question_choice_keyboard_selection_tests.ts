@@ -11,7 +11,8 @@ import { JsonObject, Serializer } from "../src/jsonobject";
 import { settings } from "../src/settings";
 import { SurveyElement } from "../src/survey-element";
 import { ItemValue } from "../src/itemvalue";
-import { afterEach, expect, test, vi } from "vitest";
+import { ComponentCollection } from "../src/question_custom";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
 const mounted: HTMLElement[] = [];
 
@@ -710,4 +711,299 @@ test("dispose drops a pending choice code", () => {
   q.dispose();
   vi.advanceTimersByTime(settings.keyboardInputTimeout);
   expect(q.isEmpty()).toBe(true);
+});
+
+describe("choice badges bind only the questions that can show them", () => {
+  function handlerCount(obj: any): number {
+    return (obj["onPropChangeFunctions"] || []).length;
+  }
+  // A panel with checkboxes, a dynamic panel with a checkbox in each panel and a dropdown matrix with a
+  // checkbox column; the sizes vary, the structure does not.
+  function containersJson(panelQuestions: number, panelCount: number, rowCount: number, surveyExtra: any = {}): any {
+    const panelElements = new Array<any>();
+    for (let i = 1; i <= panelQuestions; i++) panelElements.push({ type: "checkbox", name: "pq" + i, choices: ["a", "b"] });
+    const rows = new Array<string>();
+    for (let i = 1; i <= rowCount; i++) rows.push("r" + i);
+    return Object.assign({
+      elements: [
+        { type: "radiogroup", name: "rg", choices: ["a", "b", "c"] },
+        { type: "panel", name: "panel", elements: panelElements },
+        { type: "paneldynamic", name: "pd", panelCount: panelCount, templateElements: [{ type: "checkbox", name: "pdq", choices: ["a", "b"] }] },
+        { type: "matrixdropdown", name: "mx", rows: rows, columns: [{ name: "col", cellType: "checkbox", choices: ["a", "b"] }] }
+      ]
+    }, surveyExtra);
+  }
+  // Builds the dynamic panel's panels and the matrix rows, as rendering does.
+  function createContainersSurvey(panelQuestions: number, panelCount: number, rowCount: number, surveyExtra: any = {}): SurveyModel {
+    const survey = new SurveyModel(containersJson(panelQuestions, panelCount, rowCount, surveyExtra));
+    buildContainers(survey);
+    return survey;
+  }
+  function buildContainers(survey: SurveyModel): void {
+    (<any>survey.getQuestionByName("pd")).panels;
+    (<any>survey.getQuestionByName("mx")).visibleRows;
+  }
+  function containerQuestions(survey: SurveyModel): { [name: string]: QuestionCheckboxBase[] } {
+    const pd: any = survey.getQuestionByName("pd");
+    const mx: any = survey.getQuestionByName("mx");
+    return {
+      top: [<QuestionCheckboxBase>survey.getQuestionByName("rg")],
+      panel: <QuestionCheckboxBase[]>(<any>survey.getPanelByName("panel")).questions,
+      pd: pd.panels.map((p: any) => p.getQuestionByName("pdq")),
+      mx: mx.visibleRows.map((row: any) => row.cells[0].question)
+    };
+  }
+  function allContainerQuestions(survey: SurveyModel): QuestionCheckboxBase[] {
+    const groups = containerQuestions(survey);
+    return [...groups.top, ...groups.panel, ...groups.pd, ...groups.mx];
+  }
+  function containerCounts(survey: SurveyModel): { [name: string]: number } {
+    return {
+      survey: handlerCount(survey),
+      page: handlerCount(survey.pages[0]),
+      panel: handlerCount(survey.getPanelByName("panel")),
+      pd: handlerCount(survey.getQuestionByName("pd")),
+      mx: handlerCount(survey.getQuestionByName("mx"))
+    };
+  }
+  // Both the badge a renderer reads and the badge stored on the item: getChoiceKeyBadge() checks the
+  // gate live and hides a stale stored badge.
+  function expectBadges(q: QuestionCheckboxBase, shown: boolean, label: string): void {
+    const keyed = q.getChoiceKeyItems();
+    const expected = keyed.map((_, i) => shown ? indexToChoiceKeyCode(i + 1) : "");
+    expect(keyed.length > 0, label + ": " + q.name + " has choices").toBe(true);
+    expect(keyed.map(item => q.getChoiceKeyBadge(item)), label + ": " + q.name + " shown").toEqual(expected);
+    expect(keyed.map(item => item.getPropertyValue("choiceKey") || ""), label + ": " + q.name + " stored").toEqual(expected);
+  }
+  function expectAllBadges(questions: QuestionCheckboxBase[], shown: boolean, label: string): void {
+    expect(questions.length > 0, label + ": there are questions").toBe(true);
+    questions.forEach(q => expectBadges(q, shown, label));
+  }
+  function isBound(q: QuestionCheckboxBase): boolean {
+    return !!q.dependencies["choiceKeyState"];
+  }
+
+  test("with shortcuts off the survey and the page hold the same handlers for 1 or 110 select questions", () => {
+    const small = new SurveyModel({ elements: [{ type: "radiogroup", name: "q1", choices: ["a", "b"] }] });
+    const elements = new Array<any>();
+    for (let i = 1; i <= 50; i++) elements.push({ type: "radiogroup", name: "r" + i, choices: ["a", "b"] });
+    for (let i = 1; i <= 50; i++) elements.push({ type: "checkbox", name: "c" + i, choices: ["a", "b"] });
+    for (let i = 1; i <= 10; i++) elements.push({ type: "imagepicker", name: "i" + i, choices: imageChoices(2) });
+    const large = new SurveyModel({ elements: elements });
+    expect(handlerCount(large), "survey").toBe(handlerCount(small));
+    expect(handlerCount(large.pages[0]), "page").toBe(handlerCount(small.pages[0]));
+  });
+  test("with shortcuts off the handlers of the survey and of the containers do not grow with questions, panels or rows", () => {
+    const small = createContainersSurvey(1, 1, 1);
+    const large = createContainersSurvey(20, 5, 10);
+    expect(allContainerQuestions(large).length).toBe(1 + 20 + 5 + 10);
+    expect(containerCounts(large)).toEqual(containerCounts(small));
+  });
+  test("enabling the survey flag at runtime shows the badges of every question, nested ones included", () => {
+    const survey = createContainersSurvey(20, 5, 10);
+    expectAllBadges(allContainerQuestions(survey), false, "off");
+    survey.choiceShortcutsEnabled = true;
+    expectAllBadges(allContainerQuestions(survey), true, "on");
+  });
+  test("each gate hides the badges and gives them back after the flag is enabled at runtime", () => {
+    const survey = createContainersSurvey(20, 5, 10);
+    survey.choiceShortcutsEnabled = true;
+    const groups = containerQuestions(survey);
+    const all = allContainerQuestions(survey);
+    const others = (exclude: QuestionCheckboxBase[]) => all.filter(q => exclude.indexOf(q) < 0);
+    survey.readOnly = true;
+    expectAllBadges(all, false, "survey read-only");
+    survey.readOnly = false;
+    expectAllBadges(all, true, "survey editable");
+    survey.mode = "display";
+    expectAllBadges(all, false, "display mode");
+    survey.mode = "edit";
+    expectAllBadges(all, true, "edit mode");
+    const one = groups.panel[0];
+    one.readOnly = true;
+    expectBadges(one, false, "question read-only");
+    expectAllBadges(others([one]), true, "the other questions");
+    one.readOnly = false;
+    expectAllBadges(all, true, "question editable");
+    const panel = survey.getPanelByName("panel");
+    panel.readOnly = true;
+    expectAllBadges(groups.panel, false, "panel read-only");
+    expectAllBadges(others(groups.panel), true, "outside the panel");
+    panel.readOnly = false;
+    expectAllBadges(all, true, "panel editable");
+    survey.setIsMobile(true);
+    expectAllBadges(all, false, "mobile");
+    survey.setIsMobile(false);
+    expectAllBadges(all, true, "desktop");
+  });
+  // Opens the gate that was closed while the badges were bound or enabled, then closes the other one.
+  function checkBoundWhileClosed(survey: SurveyModel, open: () => void, closeOther: () => void): void {
+    const all = allContainerQuestions(survey);
+    expectAllBadges(all, false, "loaded");
+    survey.choiceShortcutsEnabled = true;
+    expectAllBadges(all, false, "enabled while closed");
+    open();
+    expectAllBadges(all, true, "open");
+    closeOther();
+    expectAllBadges(all, false, "the other gate closed");
+  }
+  test("questions loaded while mobile follow read-only after the flag is enabled and the survey returns to desktop", () => {
+    const survey = new SurveyModel();
+    survey.setIsMobile(true);
+    survey.fromJSON(containersJson(2, 2, 2));
+    buildContainers(survey);
+    checkBoundWhileClosed(survey, () => survey.setIsMobile(false), () => { survey.readOnly = true; });
+  });
+  test("questions whose flag is enabled while mobile follow read-only after the survey returns to desktop", () => {
+    const survey = createContainersSurvey(2, 2, 2);
+    survey.setIsMobile(true);
+    checkBoundWhileClosed(survey, () => survey.setIsMobile(false), () => { survey.readOnly = true; });
+  });
+  test("questions loaded while read-only follow mobile after the flag is enabled and the survey becomes editable", () => {
+    const survey = new SurveyModel();
+    survey.readOnly = true;
+    survey.fromJSON(containersJson(2, 2, 2));
+    expect(survey.readOnly, "still read-only after loading").toBe(true);
+    buildContainers(survey);
+    checkBoundWhileClosed(survey, () => { survey.readOnly = false; }, () => survey.setIsMobile(true));
+  });
+  test("questions whose flag is enabled while read-only follow mobile after the survey becomes editable", () => {
+    const survey = createContainersSurvey(2, 2, 2);
+    survey.readOnly = true;
+    checkBoundWhileClosed(survey, () => { survey.readOnly = false; }, () => survey.setIsMobile(true));
+  });
+  test("the question's own flag binds, unbinds and gives the survey flag back", () => {
+    const own = new SurveyModel({ elements: [{ type: "radiogroup", name: "q", choices: ["a", "b"] }] });
+    const ownQ = <QuestionRadiogroupModel>own.getQuestionByName("q");
+    ownQ.choiceShortcutsEnabled = true;
+    expect(isBound(ownQ), "own true: bound").toBe(true);
+    expectBadges(ownQ, true, "own true, survey off");
+
+    const offJson = { elements: [{ type: "radiogroup", name: "q", choices: ["a", "b"] }] };
+    const reference = new SurveyModel(offJson);
+    const survey = new SurveyModel({ choiceShortcutsEnabled: true, elements: [{ type: "radiogroup", name: "q", choices: ["a", "b"], choiceShortcutsEnabled: false }] });
+    const q = <QuestionRadiogroupModel>survey.getQuestionByName("q");
+    expectBadges(q, false, "own false, survey on");
+    expect(isBound(q), "own false: not bound").toBe(false);
+    expect(handlerCount(survey), "own false: survey handlers").toBe(handlerCount(reference));
+    expect(handlerCount(survey.pages[0]), "own false: page handlers").toBe(handlerCount(reference.pages[0]));
+    expect(handlerCount(q), "own false: question handlers").toBe(handlerCount(reference.getQuestionByName("q")));
+    q.choiceShortcutsEnabled = undefined;
+    expectBadges(q, true, "own undefined, survey on");
+    survey.choiceShortcutsEnabled = false;
+    expectBadges(q, false, "own undefined, survey off");
+    expect(isBound(q), "own undefined, survey off: not bound").toBe(false);
+  });
+  test("the survey flag reaches custom and composite content, detail panels, choice panels and nested dynamic panels", () => {
+    ComponentCollection.Instance.add({ name: "cskcustom", questionJSON: { type: "radiogroup", choices: ["a", "b"] } });
+    ComponentCollection.Instance.add({ name: "cskcomposite", elementsJSON: [{ type: "checkbox", name: "inner", choices: ["a", "b"] }] });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "cskcustom", name: "cu" },
+          { type: "cskcomposite", name: "cp" },
+          {
+            type: "matrixdynamic", name: "md", rowCount: 1, detailPanelMode: "underRow",
+            columns: [{ name: "col", cellType: "text" }],
+            detailElements: [{ type: "checkbox", name: "detailQ", choices: ["a", "b"] }]
+          },
+          { type: "radiogroup", name: "withPanel", defaultValue: "a", choices: [{ value: "a", elements: [{ type: "checkbox", name: "choicePanelQ", choices: ["a", "b"] }] }, "b"] },
+          {
+            type: "paneldynamic", name: "outer", panelCount: 1,
+            templateElements: [{ type: "paneldynamic", name: "inner", panelCount: 2, templateElements: [{ type: "radiogroup", name: "deepQ", choices: ["a", "b"] }] }]
+          }
+        ]
+      });
+      const row = (<any>survey.getQuestionByName("md")).visibleRows[0];
+      row.showDetailPanel();
+      const outer: any = survey.getQuestionByName("outer");
+      const inner: any = outer.panels[0].getQuestionByName("inner");
+      const nested: { [kind: string]: QuestionCheckboxBase } = {
+        "custom content": (<any>survey.getQuestionByName("cu")).contentQuestion,
+        "composite content": (<any>survey.getQuestionByName("cp")).contentPanel.getQuestionByName("inner"),
+        "detail panel": row.detailPanel.getQuestionByName("detailQ"),
+        "choice panel": (<any>survey.getQuestionByName("withPanel")).choices[0].panel.getQuestionByName("choicePanelQ"),
+        "nested dynamic panel, item 1": inner.panels[0].getQuestionByName("deepQ"),
+        "nested dynamic panel, item 2": inner.panels[1].getQuestionByName("deepQ")
+      };
+      const kinds = Object.keys(nested);
+      kinds.forEach(kind => expect(isBound(nested[kind]), kind + ": not bound while off").toBe(false));
+      survey.choiceShortcutsEnabled = true;
+      kinds.forEach(kind => expectBadges(nested[kind], true, kind));
+      survey.choiceShortcutsEnabled = false;
+      kinds.forEach(kind => {
+        expectBadges(nested[kind], false, kind + ", off again");
+        expect(isBound(nested[kind]), kind + ": unbound").toBe(false);
+      });
+    } finally {
+      ComponentCollection.Instance.clear();
+    }
+  });
+  test("disabling the survey flag at runtime removes the badges and the handlers", () => {
+    const survey = createContainersSurvey(20, 5, 10);
+    survey.choiceShortcutsEnabled = true;
+    expectAllBadges(allContainerQuestions(survey), true, "on");
+    survey.choiceShortcutsEnabled = false;
+    expectAllBadges(allContainerQuestions(survey), false, "off");
+    expect(containerCounts(survey)).toEqual(containerCounts(createContainersSurvey(1, 1, 1)));
+    allContainerQuestions(survey).forEach(q => expect(isBound(q), q.name + " bound").toBe(false));
+  });
+  test("a question added after load binds only with the flag on", () => {
+    const on = new SurveyModel({ choiceShortcutsEnabled: true, elements: [{ type: "text", name: "t" }] });
+    const added = <QuestionRadiogroupModel>on.pages[0].addNewQuestion("radiogroup", "q");
+    added.choices = ["a", "b"];
+    expectBadges(added, true, "added, flag on");
+
+    const off = new SurveyModel({ elements: [{ type: "text", name: "t" }] });
+    const surveyCount = handlerCount(off);
+    const addedOff = <QuestionRadiogroupModel>off.pages[0].addNewQuestion("radiogroup", "q");
+    addedOff.choices = ["a", "b"];
+    expectBadges(addedOff, false, "added, flag off");
+    expect(isBound(addedOff), "added, flag off: not bound").toBe(false);
+    expect(handlerCount(off), "added, flag off: survey handlers").toBe(surveyCount);
+  });
+  test("a standalone question with its own flag on rebinds when it joins a survey and follows its display mode", () => {
+    const standalone = new QuestionRadiogroupModel("s");
+    standalone.choices = ["a", "b"];
+    standalone.choiceShortcutsEnabled = true;
+    const target = new SurveyModel({ elements: [{ type: "text", name: "t" }] });
+    target.pages[0].addElement(standalone);
+    expectBadges(standalone, true, "joined the survey");
+    target.mode = "display";
+    expectBadges(standalone, false, "display mode");
+    target.mode = "edit";
+    expectBadges(standalone, true, "edit mode");
+  });
+  test("disposing the survey leaves no handler of the badges on any object", () => {
+    const survey = createContainersSurvey(2, 2, 2);
+    survey.choiceShortcutsEnabled = true;
+    const registrations = new Array<{ obj: any, prop: string, id: string }>();
+    allContainerQuestions(survey).forEach(q => {
+      const updater: any = q.dependencies["choiceKeyState"];
+      expect(!!updater, q.name + " bound").toBe(true);
+      registrations.push(...updater.getDependencies().dependencies);
+    });
+    expect(registrations.length > 0).toBe(true);
+    survey.dispose();
+    registrations.forEach(reg => {
+      const left = (reg.obj["onPropChangeFunctions"] || []).filter((item: any) => item.key === reg.id);
+      expect(left.length, reg.prop + " on " + (reg.obj.name || reg.obj.getType())).toBe(0);
+    });
+  });
+  test("the survey and question flags round-trip through JSON and show badges after load", () => {
+    const json = {
+      choiceShortcutsEnabled: true,
+      pages: [{
+        name: "page1",
+        elements: [
+          { type: "radiogroup", name: "q1", choices: ["a", "b"], choiceShortcutsEnabled: true },
+          { type: "checkbox", name: "q2", choices: ["a", "b"] }
+        ]
+      }]
+    };
+    const survey = new SurveyModel(json);
+    expect(survey.toJSON()).toEqual(json);
+    expectBadges(<QuestionCheckboxBase>survey.getQuestionByName("q1"), true, "q1");
+    expectBadges(<QuestionCheckboxBase>survey.getQuestionByName("q2"), true, "q2");
+  });
 });

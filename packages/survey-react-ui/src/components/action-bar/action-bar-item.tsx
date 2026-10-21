@@ -127,6 +127,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
         aria-expanded={this.item.ariaExpanded}
         aria-controls={this.item.ariaControls}
         aria-labelledby={this.item.ariaLabelledBy}
+        aria-label={this.item.ariaLabel}
         role={this.item.ariaRole}
       >
         {buttonContent}

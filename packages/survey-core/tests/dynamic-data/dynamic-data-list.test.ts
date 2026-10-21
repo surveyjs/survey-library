@@ -1966,7 +1966,7 @@ describe("DynamicDataList: one request per read", () => {
     const { list, source } = createViewList(30, 10);
     list.pageIndex = 2;
     source.requests = [];
-    const sort: Array<IDynamicDataSort> = [{ field: "id", direction: "desc" }];
+    const sort: Array<ISortCriterion> = [{ field: "id", direction: "desc" }];
     list.sort = sort;
     expect(source.requests.length, "#1").toBe(1);
     expect(source.requests[0], "#2").toEqual({ skip: 20, take: 10, filter: "", sort: sort });
@@ -1976,7 +1976,7 @@ describe("DynamicDataList: one request per read", () => {
     const { list, source } = createViewList(30, 10);
     list.pageIndex = 2;
     source.requests = [];
-    const sort: Array<IDynamicDataSort> = [{ field: "id", direction: "desc" }];
+    const sort: Array<ISortCriterion> = [{ field: "id", direction: "desc" }];
     list.setView("{id} > 1", sort);
     expect(source.requests.length, "#1: one request for both").toBe(1);
     expect(source.requests[0], "#2").toEqual({ skip: 0, take: 10, filter: "{id} > 1", sort: sort });

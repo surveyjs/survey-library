@@ -534,9 +534,9 @@ const expectedReach: { [walk: string]: { reached: Array<string>, builds?: Array<
   "updateElementCss": {
     reached: ["pd.item", "pd.hiddenItem", "pd.static", "cu.content", "cp.content", "cp.nested"]
   },
-  // matrices, multiple text, select: they do not forward setIsMobile().
+  // every slot: forwarded through the nested walk; nothing is built.
   "setIsMobile": {
-    reached: ["pd.item", "pd.hiddenItem", "pd.static", "pd.choicePanel", "cu.content", "cp.content", "cp.nested"]
+    reached: ["md.cell", "md.hiddenRowCell", "md.detail", "md.detail.pd.item", "md.total", "mx.cell", "mx.hiddenRowCell", "pd.item", "pd.hiddenItem", "pd.static", "pd.choicePanel", "mt.editor", "cu.content", "cp.content", "cp.nested", "cb.shownPanel", "cb.hiddenPanel", "rg.panel"]
   },
   // only the dynamic panel forwards themeChanged().
   "themeChanged": {
@@ -812,5 +812,128 @@ describe("A matrix takes a read-only change into the rows that exist", () => {
       expect(row.cells[0].question.getPropertyValue("isReadOnly"), "row " + index + ": its cell, editable again").toBe(false);
       expect(row.detailPanel.readOnly, "row " + index + ": its detail panel, editable again").toBe(false);
     });
+  });
+});
+
+describe("setIsMobile reaches every nested question that exists", () => {
+  function cellQuestions(matrix: any): Array<Question> {
+    const res: Array<Question> = [];
+    matrix.visibleRows.forEach((row: any) => row.cells.forEach((cell: any) => res.push(cell.question)));
+    return res;
+  }
+  function expectMobile(questions: Array<Question>, val: boolean, label: string): void {
+    expect(questions.length > 0, label + ": there are questions to check").toBe(true);
+    questions.forEach(q => expect(q.isMobile, label + ": " + q.getType() + " " + q.name).toBe(val));
+  }
+  test("the cells of a dropdown matrix and of a dynamic matrix follow both switches", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdropdown", name: "mx", rows: ["r1", "r2"], columns: [{ name: "c1", cellType: "checkbox", choices: [1, 2] }, { name: "c2", cellType: "text" }] },
+        { type: "matrixdynamic", name: "md", rowCount: 3, columns: [{ name: "c1", cellType: "checkbox", choices: [1, 2] }, { name: "c2", cellType: "text" }] }
+      ]
+    });
+    const cells = [...cellQuestions(survey.getQuestionByName("mx")), ...cellQuestions(survey.getQuestionByName("md"))];
+    expect(cells.length).toBe(10);
+    survey.setIsMobile(true);
+    expectMobile(cells, true, "mobile");
+    survey.setIsMobile(false);
+    expectMobile(cells, false, "desktop");
+  });
+  test("the question of a shown detail panel and the cells of the total row follow both switches", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdynamic", name: "md", rowCount: 2, detailPanelMode: "underRow",
+        columns: [{ name: "c1", cellType: "text", totalType: "count" }],
+        detailElements: [{ type: "text", name: "detailQ" }]
+      }]
+    });
+    const md: any = survey.getQuestionByName("md");
+    const row = md.visibleRows[0];
+    row.showDetailPanel();
+    const detailQ: Question = row.detailPanel.getQuestionByName("detailQ");
+    const totalCells: Array<Question> = md.visibleTotalRow.cells.map((cell: any) => cell.question).filter((q: any) => !!q);
+    survey.setIsMobile(true);
+    expectMobile([detailQ], true, "detail, mobile");
+    expectMobile(totalCells, true, "total, mobile");
+    survey.setIsMobile(false);
+    expectMobile([detailQ], false, "detail, desktop");
+    expectMobile(totalCells, false, "total, desktop");
+  });
+  test("a row added after the switch has mobile cells", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "md", rowCount: 1, columns: [{ name: "c1", cellType: "checkbox", choices: [1, 2] }, { name: "c2", cellType: "text" }] }]
+    });
+    const md: any = survey.getQuestionByName("md");
+    md.visibleRows;
+    survey.setIsMobile(true);
+    md.addRow();
+    expectMobile(md.visibleRows[1].cells.map((cell: any) => cell.question), true, "added row");
+  });
+  test("the editors of a multiple text and the questions of shown and hidden choice panels follow both switches", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "multipletext", name: "mt", items: [{ name: "e1" }, { name: "e2" }] },
+        {
+          type: "checkbox", name: "cb", defaultValue: ["a"],
+          choices: [{ value: "a", elements: [{ type: "text", name: "shownQ" }] }, { value: "b", elements: [{ type: "text", name: "hiddenQ" }] }]
+        }
+      ]
+    });
+    const editors: Array<Question> = (<any>survey.getQuestionByName("mt")).items.map((item: any) => item.editor);
+    const cb: any = survey.getQuestionByName("cb");
+    expect(cb.choices[0].isPanelShowing, "the first choice panel shows").toBe(true);
+    expect(cb.choices[1].isPanelShowing, "the second choice panel is hidden").toBe(false);
+    const panelQuestions = [...cb.choices[0].panel.questions, ...cb.choices[1].panel.questions];
+    survey.setIsMobile(true);
+    expectMobile(editors, true, "editors, mobile");
+    expectMobile(panelQuestions, true, "choice panels, mobile");
+    survey.setIsMobile(false);
+    expectMobile(editors, false, "editors, desktop");
+    expectMobile(panelQuestions, false, "choice panels, desktop");
+  });
+  test("the switch builds no rows and no detail panels", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdropdown", name: "mx", rows: ["r1", "r2"], columns: [{ name: "c1", cellType: "text" }] },
+        { type: "matrixdynamic", name: "md", rowCount: 2, detailPanelMode: "underRow", columns: [{ name: "c1", cellType: "text" }], detailElements: [{ type: "text", name: "detailQ" }] }
+      ]
+    });
+    const mx: any = survey.getQuestionByName("mx");
+    const md: any = survey.getQuestionByName("md");
+    survey.setIsMobile(true);
+    expect(mx.generatedVisibleRows, "dropdown matrix rows").toBeNull();
+    expect(md.generatedVisibleRows, "dynamic matrix rows").toBeNull();
+    md.visibleRows.forEach((row: any, index: number) => expect(!!row.detailPanel, "row " + index + ": no detail panel").toBe(false));
+  });
+  test("in design mode the matrix stays non-mobile, and a row built before the switch matches a row added after it", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [{ type: "matrixdynamic", name: "md", rowCount: 1, columns: [{ name: "c1", cellType: "checkbox", choices: [1, 2] }, { name: "c2", cellType: "text" }] }]
+    });
+    const md: any = survey.getQuestionByName("md");
+    md.visibleRows;
+    survey.setIsMobile(true);
+    md.addRow();
+    expect(md.isMobile, "the matrix").toBe(false);
+    md.visibleRows.forEach((row: any, index: number) => {
+      expect(row.cells.map((cell: any) => cell.question.isMobile), "row " + index + ": checkbox, text").toEqual([true, false]);
+    });
+  });
+  test("the cells of a matrix in a dynamic panel's panel follow both switches", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "paneldynamic", name: "pd", panelCount: 2,
+        templateElements: [{ type: "matrixdynamic", name: "md", rowCount: 2, columns: [{ name: "c1", cellType: "checkbox", choices: [1, 2] }] }]
+      }]
+    });
+    const pd: any = survey.getQuestionByName("pd");
+    const cells: Array<Question> = [];
+    pd.panels.forEach((panel: PanelModel) => cells.push(...cellQuestions(panel.getQuestionByName("md"))));
+    expect(cells.length).toBe(4);
+    survey.setIsMobile(true);
+    expectMobile(cells, true, "mobile");
+    survey.setIsMobile(false);
+    expectMobile(cells, false, "desktop");
   });
 });

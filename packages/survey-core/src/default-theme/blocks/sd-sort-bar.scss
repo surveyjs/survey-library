@@ -1,0 +1,64 @@
+@use "../variables.scss" as *;
+
+// The sort bar of a dynamic panel and of a matrix: [field v]  Sort by  [direction v].
+.sd-paneldynamic__sort-bar,
+.sd-matrixdynamic__sort-bar,
+.sd-matrixdropdown__sort-bar {
+  // The design's 6px between the three items.
+  --sd-action-bar-gap: var(--sjs2-spacing-x075);
+  flex-wrap: wrap;
+}
+
+// A dropdown of the bar: the chevron follows the label, as on the pager's page dropdown.
+.sd-action.sd-sort-bar__dropdown {
+  flex-direction: row-reverse;
+  box-sizing: border-box;
+}
+
+// "Sort by": a disabled item without a tab stop that reads as a label, not as a disabled button.
+.sd-action.sd-sort-bar__label {
+  box-sizing: border-box;
+  --sd-action-disabled-background: var(--sd-action-background);
+  --sd-action-disabled-title-color: var(--sd-action-title-color);
+}
+
+/* A question header that holds the sort bar. With the title on top, the title (and the description
+   under it) takes the row and the bar sits at its end, centred on the title line. The bar is the
+   header's last child in every renderer. Logical placement, so a right-to-left survey mirrors it. */
+.sd-question__header--sort-bar.sd-question__header--location-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--sjs2-layout-component-question-header-action-group-gap);
+
+  & > * {
+    grid-column: 1;
+  }
+  & > :last-child {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+}
+
+// On a phone and with the title on the left the bar wraps under the title and the description, start-aligned.
+.sd-question--mobile .sd-question__header--sort-bar,
+.sd-question__header--sort-bar.sd-question__header--location--left {
+  display: flex;
+  flex-direction: column;
+  // The desktop rule centres the grid items on the title line; in a column that would centre the title.
+  align-items: stretch;
+
+  & > :last-child {
+    align-self: flex-start;
+    margin-block-start: calc(var(--sjs2-layout-component-question-header-action-group-gap) - var(--sd-question-header-row-gap));
+  }
+}
+
+// Above the records, while the question header is not on top or on the left.
+.sd-paneldynamic__sort-bar-top,
+.sd-matrixdynamic__sort-bar-top,
+.sd-matrixdropdown__sort-bar-top {
+  display: flex;
+  margin-block-end: var(--sjs2-layout-component-question-header-action-group-gap);
+}

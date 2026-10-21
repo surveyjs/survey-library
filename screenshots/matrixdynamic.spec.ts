@@ -552,3 +552,43 @@ frameworks.forEach(framework => {
     });
   });
 });
+frameworks.forEach(framework => {
+  test.describe(`${framework} ${title} sort bar`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+    });
+    const sortBarJson = {
+      showQuestionNumbers: false,
+      elements: [{
+        type: "matrixdynamic",
+        name: "matrix",
+        title: "Products",
+        allowSort: true,
+        rowCount: 0,
+        defaultValue: [
+          { product: "Lamp", category: "Home", price: 30 },
+          { product: "Chair", category: "Home", price: 120 },
+          { product: "Pen", category: "Office", price: 2 }
+        ],
+        columns: [
+          { name: "product", title: "Product", cellType: "text" },
+          { name: "category", title: "Category", cellType: "text" },
+          { name: "price", title: "Price", cellType: "text", inputType: "number" }
+        ]
+      }]
+    };
+    // The bar at the end of the title row on a desktop and under the title on a phone, each with the direction list open.
+    for (const size of [{ name: "desktop", width: 1000, height: 600 }, { name: "mobile", width: 420, height: 700 }]) {
+      test(`Matrixdynamic sort bar, ${size.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: size.width, height: size.height });
+        await initSurvey(page, framework, sortBarJson);
+        await page.getByRole("button", { name: /^Sort field/ }).click();
+        await page.locator(".sv-popup__container").filter({ visible: true }).getByRole("menuitemradio", { name: "Price", exact: true }).click();
+        await page.getByRole("button", { name: /^Sort order/ }).click();
+        await expect(page.locator(".sv-popup__container").filter({ visible: true }).getByRole("menuitemradio", { name: "Low - High", exact: true })).toBeVisible();
+        await page.mouse.move(0, 0);
+        await compareScreenshot(page, undefined, `matrixdynamic-sort-bar-${size.name}.png`);
+      });
+    }
+  });
+});

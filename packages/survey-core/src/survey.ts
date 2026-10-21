@@ -4479,6 +4479,7 @@ export class SurveyModel extends SurveyElementCore
     if (!!this._isDesignMode != !!value) {
       this._isDesignMode = !!value;
       this.onQuestionsOnPageModeChanged("standard");
+      this.getAllQuestions(false, false, true).forEach((q: Question): void => { q.onDesignModeChanged(); });
     }
   }
   /**

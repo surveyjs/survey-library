@@ -3,6 +3,9 @@
     <div v-if="question.getShowToolbar('top')" :class="question.getToolbarCssClass('top')">
       <SvComponent :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
     </div>
+    <div v-if="question.sortBarLocation === 'top'" :class="question.cssClasses.sortBarTop">
+      <SvComponent :is="'sv-action-bar'" :model="question.recordsBar.sortActions"></SvComponent>
+    </div>
     <SvComponent
       :is="'survey-matrixtable'"
       v-if="question.renderedTable.showTable"

@@ -599,3 +599,42 @@ frameworks.forEach(framework => {
     });
   });
 });
+frameworks.forEach(framework => {
+  test.describe(`${framework} ${title} sort bar`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+    });
+    const sortBarJson = {
+      showQuestionNumbers: false,
+      elements: [{
+        type: "paneldynamic",
+        name: "products",
+        title: "Products",
+        allowSort: true,
+        allowAddPanel: false,
+        allowRemovePanel: false,
+        defaultValue: [
+          { product: "Lamp", added: "2024-03-01" },
+          { product: "Chair", added: "2024-01-15" }
+        ],
+        templateElements: [
+          { type: "text", name: "product", title: "Product" },
+          { type: "text", name: "added", title: "Added", inputType: "date" }
+        ]
+      }]
+    };
+    // The bar at the end of the title row on a desktop and under the title on a phone, each with the direction list open.
+    for (const size of [{ name: "desktop", width: 1000, height: 700 }, { name: "mobile", width: 420, height: 900 }]) {
+      test(`Paneldynamic sort bar, ${size.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: size.width, height: size.height });
+        await initSurvey(page, framework, sortBarJson);
+        await page.getByRole("button", { name: /^Sort field/ }).click();
+        await page.locator(".sv-popup__container").filter({ visible: true }).getByRole("menuitemradio", { name: "Added", exact: true }).click();
+        await page.getByRole("button", { name: /^Sort order/ }).click();
+        await expect(page.locator(".sv-popup__container").filter({ visible: true }).getByRole("menuitemradio", { name: "Oldest first", exact: true })).toBeVisible();
+        await page.mouse.move(0, 0);
+        await compareScreenshot(page, undefined, `paneldynamic-sort-bar-${size.name}.png`);
+      });
+    }
+  });
+});

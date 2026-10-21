@@ -7215,3 +7215,67 @@ describe("Remote data source: the pager while a page is read or a move waits", (
     expect(enabledItems(question), "#8").toEqual(allEnabled);
   });
 });
+
+describe("Remote data source: the sort bar while a page is read or a move waits", () => {
+  const sortItemIds = ["sv-sort-field", "sv-sort-direction"];
+  const enabledItems = (question: QuestionMatrixDynamicModel): Array<boolean> =>
+    sortItemIds.map(id => question.recordsBar.sortActions.getActionById(id).enabled);
+  const asyncColumns = [{ name: "col1", validators: [{ type: "expression", expression: "sortBarRemoteAsyncFunc({row.col1}) = 1" }] }, { name: "col2" }];
+  let validatorResults: Array<(res: any) => void> = [];
+  beforeEach(() => {
+    validatorResults = [];
+    FunctionFactory.Instance.register("sortBarRemoteAsyncFunc", function (this: any) { validatorResults.push(this.returnResult); return false; }, true);
+  });
+  afterEach(() => {
+    FunctionFactory.Instance.unregister("sortBarRemoteAsyncFunc");
+  });
+  const settleValidators = (): void => {
+    const results = validatorResults;
+    validatorResults = [];
+    results.forEach(setResult => setResult(1));
+  };
+  test("both dropdowns are disabled while a page is read, and enabled after the read", async () => {
+    const source = new FakeServerSource(serverRecords(120));
+    const { question } = await createMatrix(source, { pageSize: 10, allowSort: true });
+    expect(enabledItems(question), "#1").toEqual([true, true]);
+    source.auto = false;
+    question.nextPage();
+    expect(question.isDataLoading, "#2: the read is in flight").toBe(true);
+    expect(enabledItems(question), "#3").toEqual([false, false]);
+    source.settleAll();
+    await flush();
+    expect(enabledItems(question), "#4").toEqual([true, true]);
+  });
+  test("a sort bar created while a move waits for a validator still follows a later page read", async () => {
+    const source = new FakeServerSource(serverRecords(120));
+    const { question } = await createMatrix(source, { pageSize: 10, allowSort: true, columns: asyncColumns });
+    question.pageIndex = 4;
+    await flush();
+    expect(question.visibleRows.length, "#0: the page is shown").toBe(10);
+    question.nextPage();
+    expect(question.isPageMovePending, "#1: the move waits").toBe(true);
+    // The first run of every updater sees isPageMovePending true.
+    expect(enabledItems(question), "#2").toEqual([false, false]);
+    settleValidators();
+    await flush();
+    expect(question.pageIndex, "#3: moved").toBe(5);
+    expect(enabledItems(question), "#4").toEqual([true, true]);
+    source.auto = false;
+    question.prevPage();
+    expect(question.isDataLoading, "#5: a move back reads without validating").toBe(true);
+    expect(enabledItems(question), "#6: the read is observed").toEqual([false, false]);
+    source.settleAll();
+    await flush();
+    expect(enabledItems(question), "#7").toEqual([true, true]);
+  });
+  test("a pick sorts through the source and the bar shows the sort once the page is read", async () => {
+    const source = new FakeServerSource(serverRecords(30));
+    const { question } = await createMatrix(source, { pageSize: 10, allowSort: true });
+    const field = question.recordsBar.sortActions.getActionById("sv-sort-field");
+    const list = <ListModel>field.data;
+    list.onItemClick(list.actions.filter(item => item.title === "col2")[0]);
+    await flush();
+    expect(question.sortCriteria.map(item => ({ field: item.field, direction: item.direction })), "#1").toEqual([{ field: "col2", direction: "asc" }]);
+    expect([field.title, question.recordsBar.sortActions.getActionById("sv-sort-direction").title], "#2").toEqual(["col2", "Alphabet, A - Z"]);
+  });
+});

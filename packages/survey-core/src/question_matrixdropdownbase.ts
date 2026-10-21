@@ -1113,6 +1113,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     if (name === "columns" || name === "cellType") {
       this.updateColumnsAndRows();
+      this.updateRecordsBar();
     }
     const clearRowsProps = ["placeholder", "columnColCount", "rowTitleWidth", "choices"];
     const resetRenderTableProps = [
@@ -1192,6 +1193,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    */
   @property() columnsVisibleIf: string;
   protected onColumnsChanged(): void { }
+  /* The columns the sort bar offers: the visible columns a header click sorts by (column.isSortable),
+     in column order, under the key the cell writes. A column hidden on the current page is offered:
+     the sort covers every record. The questions of the detail panel are not offered. */
+  protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
+    return this.columns.filter((column: MatrixDropdownColumn): boolean => column.visible && column.isSortable)
+      .map((column: MatrixDropdownColumn): { field: string, title: string } => ({ field: column.sortField, title: column.title }));
+  }
   // The points where the visible rows may have changed; the fixed matrix hides itself without rows
   // (hideIfRowsEmpty).
   protected updateVisibilityBasedOnRows(): void { }
@@ -1715,6 +1723,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   onColumnPropertyChanged(column: MatrixDropdownColumn, name: string, newValue: any): void {
     this.updateHasFooter();
+    // Before the return below: the sort bar offers the columns without any row too.
+    this.updateRecordsBar();
     if (!this.generatedVisibleRows) return;
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       this.generatedVisibleRows[i].updateCellQuestionOnColumnChanged(
@@ -1765,6 +1775,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   onColumnVisibilityChanged(column: MatrixDropdownColumn): void {
     this.renderedTableHost.clearRowsAndReset();
+    this.updateRecordsBar();
   }
   onColumnCellVisibilityChanged(column: MatrixDropdownColumn): void {
     if (this.isRunningCellsCondition) return;
@@ -1774,6 +1785,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void {
     this.renderedTableHost.clearRowsAndReset();
+    this.updateRecordsBar();
   }
   getDesignRowContext(): IValueGetterContext {
     if (this.visibleRows && this.visibleRows.length > 0) return this.visibleRows[0].getValueGetterContext();

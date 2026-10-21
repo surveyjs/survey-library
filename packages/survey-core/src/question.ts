@@ -1209,6 +1209,8 @@ export class Question extends SurveyElement<Question>
     this.onParentChanged();
   }
   protected onParentChanged(): void { }
+  // The survey switched design mode at runtime (SurveyModel.setDesignMode).
+  public onDesignModeChanged(): void { }
   //#region singleInput - delegated to singleInputBehavior
   private _singleInputBehavior: QuestionSingleInputBehavior;
   public get singleInputBehavior(): QuestionSingleInputBehavior {

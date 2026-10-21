@@ -6,6 +6,9 @@
         :model="question.tabbedMenu"
       ></SvComponent>
     </div>
+    <div v-if="question.sortBarLocation === 'top'" :class="question.cssClasses.sortBarTop">
+      <SvComponent :is="'sv-action-bar'" :model="question.recordsBar.sortActions"></SvComponent>
+    </div>
     <SvComponent
       v-if="question.getShowNoEntriesPlaceholder()"
       

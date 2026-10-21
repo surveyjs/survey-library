@@ -1078,3 +1078,102 @@ frameworks.forEach((framework) => {
     });
   });
 });
+
+frameworks.forEach((framework) => {
+  test.describe(`${framework} ${title} sort bar`, () => {
+    const barJson = (extra?: any): any => ({
+      elements: [Object.assign({
+        type: "matrixdynamic",
+        name: "matrix",
+        title: "Products",
+        allowSort: true,
+        rowCount: 0,
+        columns: [
+          { name: "product", title: "Product", cellType: "text" },
+          { name: "category", title: "Category", cellType: "dropdown", choices: ["tools", "toys"] },
+          { name: "price", title: "Price", cellType: "text", inputType: "number" },
+          { name: "discontinued", title: "Discontinued", cellType: "boolean" },
+        ],
+        defaultValue: [
+          { product: "b", category: "toys", price: 20, discontinued: false },
+          { product: "a", category: "tools", price: 30, discontinued: true },
+          { product: "c", category: "toys", price: 10, discontinued: false },
+        ],
+      }, extra)],
+    });
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await page.setViewportSize({ width: 1920, height: 1080 });
+    });
+    const prices = async (page): Promise<Array<string>> =>
+      page.locator(".sd-table__row input[type=number]").evaluateAll((inputs: Array<HTMLInputElement>) => inputs.map((input) => input.value));
+    const headerBar = (page) => page.locator(".sd-question__header .sd-matrixdynamic__sort-bar");
+    const fieldButton = (page) => page.getByRole("button", { name: /^Sort field/ });
+    const directionButton = (page) => page.getByRole("button", { name: /^Sort order/ });
+    const listItem = (page, text: string) =>
+      page.locator(".sv-popup__container").filter({ visible: true }).getByRole("menuitemradio", { name: text, exact: true });
+
+    test("a field pick sorts by it, a direction pick flips it and Default restores the stored order", async ({ page }) => {
+      await initSurvey(page, framework, barJson());
+      await expect(headerBar(page)).toBeVisible();
+      await expect(fieldButton(page).locator(".sd-action__title")).toHaveText("Product");
+      await expect(directionButton(page).locator(".sd-action__title")).toHaveText("Default");
+      expect(await prices(page)).toEqual(["20", "30", "10"]);
+
+      await fieldButton(page).click();
+      await listItem(page, "Price").click();
+      expect(await prices(page)).toEqual(["30", "20", "10"]);
+      await expect(fieldButton(page).locator(".sd-action__title")).toHaveText("Price");
+      await expect(directionButton(page).locator(".sd-action__title")).toHaveText("High - Low");
+      await expect(page.locator("thead th").nth(2)).toHaveAttribute("aria-sort", "descending");
+
+      await directionButton(page).click();
+      await listItem(page, "Low - High").click();
+      expect(await prices(page)).toEqual(["10", "20", "30"]);
+
+      await directionButton(page).click();
+      await listItem(page, "Default").click();
+      expect(await prices(page)).toEqual(["20", "30", "10"]);
+      await expect(fieldButton(page).locator(".sd-action__title")).toHaveText("Price");
+      await expect(directionButton(page).locator(".sd-action__title")).toHaveText("Default");
+    });
+
+    test("the field list opens and picks with the keyboard", async ({ page }) => {
+      await initSurvey(page, framework, barJson());
+      await fieldButton(page).focus();
+      await page.keyboard.press("Enter");
+      // The list takes the focus on the selected item.
+      await expect(listItem(page, "Product")).toBeFocused();
+      await page.keyboard.press("ArrowDown");
+      await page.keyboard.press("ArrowDown");
+      await expect(listItem(page, "Price")).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(fieldButton(page).locator(".sd-action__title")).toHaveText("Price");
+      await expect(fieldButton(page)).toBeFocused();
+      expect(await prices(page)).toEqual(["30", "20", "10"]);
+    });
+
+    test("a click on a dropdown opens its list and does not collapse the question", async ({ page }) => {
+      await initSurvey(page, framework, barJson({ state: "expanded" }));
+      await fieldButton(page).click();
+      await expect(listItem(page, "Price")).toBeVisible();
+      await expect(page.locator(".sd-table")).toBeVisible();
+      await listItem(page, "Price").click();
+      await expect(page.locator(".sd-table")).toBeVisible();
+      await directionButton(page).click();
+      await expect(listItem(page, "Low - High")).toBeVisible();
+      await listItem(page, "Low - High").click();
+      await expect(page.locator(".sd-table")).toBeVisible();
+      expect(await prices(page)).toEqual(["10", "20", "30"]);
+    });
+
+    test("with a hidden title the bar shows above the records", async ({ page }) => {
+      await initSurvey(page, framework, barJson({ titleLocation: "hidden" }));
+      await expect(headerBar(page)).toHaveCount(0);
+      await expect(page.locator(".sd-matrixdynamic__sort-bar-top .sd-matrixdynamic__sort-bar")).toBeVisible();
+      await fieldButton(page).click();
+      await listItem(page, "Price").click();
+      expect(await prices(page)).toEqual(["30", "20", "10"]);
+    });
+  });
+});

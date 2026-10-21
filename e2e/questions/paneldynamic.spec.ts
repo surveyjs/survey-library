@@ -831,3 +831,41 @@ frameworks.forEach((framework) => {
   });
 });
 
+frameworks.forEach((framework) => {
+  test.describe(`${framework} ${title} sort bar`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await page.setViewportSize({ width: 1920, height: 1080 });
+    });
+    test("a field pick sorts the panels and the pager still pages them", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel",
+            title: "Products",
+            allowSort: true,
+            pageSize: 2,
+            defaultValue: [{ product: "b", price: 20 }, { product: "a", price: 30 }, { product: "c", price: 10 }],
+            templateElements: [
+              { type: "text", name: "product", title: "Product" },
+              { type: "text", name: "price", title: "Price", inputType: "number" },
+            ],
+          },
+        ],
+      });
+      const priceInput = page.locator(".sd-paneldynamic__panel-wrapper input[type=number]").first();
+      await expect(priceInput).toHaveValue("20");
+      await expect(page.locator(".sd-question__header .sd-paneldynamic__sort-bar")).toBeVisible();
+      await page.getByRole("button", { name: /^Sort field/ }).click();
+      await page.locator(".sv-popup__container").filter({ visible: true }).getByRole("menuitemradio", { name: "Price", exact: true }).click();
+      await expect(priceInput).toHaveValue("30");
+      await expect(page.getByRole("button", { name: /^Sort order/ }).locator(".sd-action__title")).toHaveText("High - Low");
+      const pager = page.locator(".sd-paneldynamic__pager");
+      await pager.locator("button[title='Next']").click();
+      await expect(priceInput).toHaveValue("10");
+      await pager.locator("button[title='Previous']").click();
+      await expect(priceInput).toHaveValue("30");
+    });
+  });
+});

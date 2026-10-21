@@ -5,6 +5,14 @@ export var indonesianStrings = {
   pagePrevText: "Sebelumnya",
   // "Next"
   pageNextText: "Selanjutnya",
+  // [Auto-translated] "First"
+  pageFirstText: "Pertama",
+  // [Auto-translated] "Last"
+  pageLastText: "Terakhir",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "dari {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Pilih Halaman",
   // "Complete"
   completeText: "Selesai",
   // "Preview"

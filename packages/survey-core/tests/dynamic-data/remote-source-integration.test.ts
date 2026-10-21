@@ -6,18 +6,20 @@ import { Question } from "../../src/question";
 import { QuestionMatrixDropdownRenderedTable } from "../../src/question_matrixdropdownrendered";
 import { SurveyElement } from "../../src/survey-element";
 import { settings } from "../../src/settings";
-import { IDynamicDataPageState } from "../../src/dynamic-data/dynamic-data-page-validation";
+import { IRecordsPageState } from "../../src/records/records-paging";
 import { ConditionsParser } from "../../src/conditions/conditionsParser";
 import { Operand } from "../../src/expressions/expressions";
 import { FunctionFactory } from "../../src/functionsfactory";
 import { ConsoleWarnings } from "../../src/console-warnings";
 import {
-  IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataSource, IDynamicDataSourceCapabilities
+  IDynamicDataReadRequest, IDynamicDataReadResult, ISortCriterion, IDynamicDataSource, IDynamicDataSourceCapabilities
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 import { ArrayDynamicDataSource, SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
+import { ActionContainer } from "../../src/actions/container";
+import { ListModel } from "../../src/list";
 
 // The edited set and the page the page validation keeps for a records question have no public face.
-const getPageState = (q: Question): IDynamicDataPageState => (<any>q).getPageState();
+const getPageState = (q: Question): IRecordsPageState => (<any>q).getPageState();
 
 class Deferred {
   public promise: Promise<any>;
@@ -183,7 +185,7 @@ class FakeServerSource implements IDynamicDataSource {
       res = res.filter(dialectToPredicate(translateFilterToDialect(request.filter)));
     }
     // Applied back to front, so that the first descriptor wins.
-    (request.sort || []).slice().reverse().forEach((s: IDynamicDataSort): void => {
+    (request.sort || []).slice().reverse().forEach((s: ISortCriterion): void => {
       const sign = s.direction === "desc" ? -1 : 1;
       res.sort((a: any, b: any): number => {
         const x = a[s.field];
@@ -369,6 +371,22 @@ describe("Remote data source: first load", () => {
 });
 
 describe("Remote data source: paging", () => {
+  test("pageSize above settings.maxPageSize: the source is asked for pages of settings.maxPageSize records", async () => {
+    const prev = settings.maxPageSize;
+    settings.maxPageSize = 3;
+    try {
+      const source = new FakeServerSource(serverRecords(12));
+      const { question } = await createMatrix(source, { pageSize: 5 });
+      expect(source.ranges, "#1: the first page").toEqual([[0, 3]]);
+      expect(rowValues(question), "#2").toEqual(["v0", "v1", "v2"]);
+      expect(question.pageCount, "#3").toBe(4);
+      question.nextPage();
+      await flush();
+      expect(source.ranges, "#4: the next page").toEqual([[0, 3], [3, 3]]);
+    } finally {
+      settings.maxPageSize = prev;
+    }
+  });
   test("matrix: a page change rebuilds the rows with no filter and no sort set", async () => {
     const source = new FakeServerSource(serverRecords(12));
     const { question } = await createMatrix(source);
@@ -657,13 +675,13 @@ describe("Remote data source: adding and removing", () => {
 });
 
 describe("Remote data source: sorting and filtering", () => {
-  test("sortOrder is pushed to the source and keeps the page", async () => {
+  test("sort() is pushed to the source and keeps the page", async () => {
     const source = new FakeServerSource(serverRecords(20));
     const { question } = await createMatrix(source);
     question.goToPage(1);
     await flush();
     source.reset();
-    question.sortOrder = [{ field: "col2", direction: "desc" }];
+    question.sort([{ field: "col2", direction: "desc" }]);
     await flush();
     expect(source.requests[0].sort, "#1: the descriptors reach the source").toEqual([{ field: "col2", direction: "desc" }]);
     expect(question.pageIndex, "#2: a sort keeps the page").toBe(1);
@@ -706,7 +724,7 @@ describe("Remote data source: sorting and filtering", () => {
     const source = new FakeServerSource(serverRecords(6), ["paging", "update"]);
     const { question } = await createMatrix(source, { pageSize: 0 });
     source.reset();
-    question.sortOrder = [{ field: "col2", direction: "desc" }];
+    question.sort([{ field: "col2", direction: "desc" }]);
     await flush();
     expect(source.requests.length, "#1: exactly one read").toBe(1);
     expect(source.requests[0].sort, "#2: with the sort inside it").toEqual([{ field: "col2", direction: "desc" }]);
@@ -2076,7 +2094,7 @@ describe("Remote data source: replacing a source", () => {
       elements: [{ type: "matrixdynamic", name: "matrix", rowCount: 0, columns: [{ name: "col1" }, { name: "col2" }] }]
     });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
-    question.sortOrder = [{ field: "col2", direction: "desc" }];
+    question.sort([{ field: "col2", direction: "desc" }]);
     const source = new FakeServerSource(serverRecords(4));
     question.dataSource = source;
     await flush();
@@ -2336,11 +2354,11 @@ describe("Remote data source: the authored view costs one read", () => {
      both, so the whole authored view is one round trip. */
   const matrixJson = {
     type: "matrixdynamic", name: "matrix", rowCount: 0, pageSize: 5,
-    sortBy: "col2-", filterExpression: "{col1} = 'v7'", columns: [{ name: "col1" }, { name: "col2" }]
+    sortCriteria: [{ field: "col2", direction: "desc" }], filterExpression: "{col1} = 'v7'", columns: [{ name: "col1" }, { name: "col2" }]
   };
   const panelJson = {
     type: "paneldynamic", name: "panel", panelCount: 0, pageSize: 5,
-    sortBy: "col2-", filterExpression: "{col1} = 'v7'",
+    sortCriteria: [{ field: "col2", direction: "desc" }], filterExpression: "{col1} = 'v7'",
     templateElements: [{ type: "text", name: "col1" }, { type: "text", name: "col2" }]
   };
   const authoredSort = [{ field: "col2", direction: "desc" }];
@@ -2414,34 +2432,69 @@ describe("Remote data source: a total the source does not know", () => {
     expect(question.pageCount, "#9").toBe(3);
     expect(question.canGoNextPage, "#10: nothing behind it").toBe(false);
   });
-  test("matrix: the pager shows the page number alone while the count is unknown", async () => {
+  // The pager is created in the unknown state, so that the first run of its updaters sees isCountKnown false.
+  const pagerOf = (question: QuestionMatrixDynamicModel): ActionContainer => question.recordsBar.pagerActions;
+  const visiblePagerIds = (question: QuestionMatrixDynamicModel): Array<string> =>
+    pagerOf(question).actions.filter(action => action.visible).map(action => action.id);
+  function openPageList(question: QuestionMatrixDynamicModel): ListModel {
+    const page = pagerOf(question).getActionById("sv-pager-page");
+    page.popupModel.onShow();
+    return <ListModel>page.data;
+  }
+  test("matrix: the pager while the count is unknown: no total, no first and last; the list reaches as far as next", async () => {
     const source = createNoTotalSource(25);
     const { question } = await createMatrix(source, { pageSize: 10 });
-    const info = question.pagerActions.getActionById("sv-pager-info");
-    expect(info.title, "#1: no total to show").toBe("1");
-    question.nextPage();
+    expect(question.isCountKnown, "#0").toBe(false);
+    expect(visiblePagerIds(question), "#1: no total to show and no last page to go to").toEqual(["sv-pager-prev", "sv-pager-page", "sv-pager-next"]);
+    expect(pagerOf(question).getActionById("sv-pager-page").ariaLabel, "#2: the accessible name has no total").toBe("Page 1");
+    expect(openPageList(question).actions.map(item => item.title), "#3: the pages read and the one next would read").toEqual(["1", "2"]);
+    const list = openPageList(question);
+    list.onItemClick(list.actions[1]);
     await flush();
-    expect(info.title, "#2: still walking").toBe("2");
-    question.nextPage();
+    expect(question.pageIndex, "#4: the pick read the page as next would").toBe(1);
+    expect(source.ranges.slice(-1), "#5").toEqual([[10, 10]]);
+    expect(openPageList(question).actions.map(item => item.title), "#6").toEqual(["1", "2", "3"]);
+    expect(question.isCountKnown, "#7").toBe(false);
+    pagerOf(question).getActionById("sv-pager-next").action();
     await flush();
     // The last page settles the count, so the total can be shown from here on.
-    expect(info.title, "#3: the end was reached").toBe("3 of 3");
+    expect(question.isCountKnown, "#8: the end was reached").toBe(true);
+    expect(visiblePagerIds(question), "#9: three pages: no first and last").toEqual(["sv-pager-prev", "sv-pager-page", "sv-pager-total", "sv-pager-next"]);
+    expect(pagerOf(question).getActionById("sv-pager-total").title, "#10").toBe("of 3");
+    expect(pagerOf(question).getActionById("sv-pager-page").ariaLabel, "#11").toBe("Page 3 of 3");
     question.prevPage();
     await flush();
-    expect(info.title, "#4: and it is not forgotten on the way back").toBe("2 of 3");
+    expect(pagerOf(question).getActionById("sv-pager-total").title, "#12: and it is not forgotten on the way back").toBe("of 3");
+  });
+  test("matrix: first and last appear together once an unknown count settles at 12 pages", async () => {
+    const source = createNoTotalSource(120);
+    const { question } = await createMatrix(source, { pageSize: 10 });
+    const edges = (): Array<boolean> => ["sv-pager-first", "sv-pager-last"].map(id => pagerOf(question).getActionById(id).visible);
+    expect(edges(), "#1").toEqual([false, false]);
+    let hiddenFromTenPages = true;
+    for (let i = 0; i < 20 && !question.isCountKnown; i++) {
+      if (question.pageCount >= 10 && edges().some(isVisible => isVisible)) hiddenFromTenPages = false;
+      question.nextPage();
+      await flush();
+    }
+    expect(hiddenFromTenPages, "#2: not while the count is unknown, ten pages found or not").toBe(true);
+    expect(question.isCountKnown, "#3").toBe(true);
+    expect(question.pageCount, "#4").toBe(12);
+    expect(edges(), "#5: both at once").toEqual([true, true]);
+    expect(pagerOf(question).getActionById("sv-pager-total").title, "#6").toBe("of 12");
   });
   test("matrix: the pager follows the locale once an unknown count becomes known", async () => {
     const source = createNoTotalSource(25);
     const { question } = await createMatrix(source, { pageSize: 10 });
-    const info = question.pagerActions.getActionById("sv-pager-info");
-    expect(info.title, "#1: no total to show").toBe("1");
+    const page = pagerOf(question).getActionById("sv-pager-page");
+    expect(page.ariaLabel, "#1: no total to show").toBe("Page 1");
     question.nextPage();
     await flush();
     question.nextPage();
     await flush();
-    expect(info.title, "#2: the end was reached").toBe("3 of 3");
+    expect(page.ariaLabel, "#2: the end was reached").toBe("Page 3 of 3");
     (<SurveyModel>question.survey).locale = "de";
-    expect(info.title, "#3: the locale is observed").toBe("3 von 3");
+    expect(page.ariaLabel, "#3: the locale is observed").toBe("Seite 3 von 3");
   });
   test("panel: the panel count is a lower bound and isCountKnown says so", async () => {
     const source = createNoTotalSource(25);
@@ -3706,7 +3759,7 @@ describe("Remote data source: an added panel lands in front of the record a numb
   test("a sorted source without paging: Add in tab mode inserts after the current panel", async () => {
     const source = new FakeServerSource(serverRecords(5), ["insert", "update", "remove", "move"]);
     const { survey, question } = await createPanel(source, { pageSize: 0, displayMode: "tab", defaultPanelValue: { col1: "new" } });
-    question.sortOrder = [{ field: "col2", direction: "desc" }];
+    question.sort([{ field: "col2", direction: "desc" }]);
     expect(panelValues(question), "#1").toEqual(["v4", "v3", "v2", "v1", "v0"]);
     question.currentIndex = 1;
     const added: Array<any> = [];
@@ -4606,7 +4659,7 @@ describe("Remote data source: the refill after a remove keeps the touched record
     });
     test(kind.name + ": under a server sort an edited record stays at its place through the refill", async () => {
       const source = flagSource(12);
-      const { question } = await kind.create(source, { sortBy: "col2" });
+      const { question } = await kind.create(source, { sortCriteria: [{ field: "col2" }] });
       kind.set(question, 1, "col2", 100);
       await flush(REFILL_TURNS);
       kind.remove(question, 0);
@@ -4618,7 +4671,7 @@ describe("Remote data source: the refill after a remove keeps the touched record
       { name: "refreshView()", read: (q: any) => { q.refreshView(); } },
       { name: "refreshDataSource()", read: (q: any) => { q.refreshDataSource(); } },
       { name: "a filter change", read: (q: any) => { q.filterExpression = "{flag} = 'y' "; } },
-      { name: "a sort change", read: (q: any) => { q.sortBy = "col1"; } }].forEach(way => {
+      { name: "a sort change", read: (q: any) => { q.sort([{ field: "col1", direction: "asc" }]); } }].forEach(way => {
       test(kind.name + ": " + way.name + " is the server's alone", async () => {
         const source = flagSource(12);
         const { question } = await kind.create(source, filter);
@@ -5164,7 +5217,7 @@ describe("Remote data source: a refresh during a page move reads the page of the
   });
   test("a new sort on page 3, then a refresh: page 3 in the new order, one read each, none of page 0", async () => {
     const { question, source } = await setUp(40, 3);
-    question.sortOrder = [{ field: "col2", direction: "desc" }];
+    question.sort([{ field: "col2", direction: "desc" }]);
     question.refreshDataSource();
     expect(source.ranges, "#1").toEqual([[15, 5], [15, 5]]);
     source.settleAll();
@@ -5497,7 +5550,7 @@ describe("Remote data source: showing records sends nothing", () => {
       read: () => Promise.resolve(records.map(record => Object.assign({}, record))),
       update: (key: any, record: any, fields: Array<string>) => { updates.push([key, fields]); return Promise.resolve(); }
     };
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", pageSize: 2, sortBy: "n-", rowCount: 0,
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", pageSize: 2, sortCriteria: [{ field: "n", direction: "desc" }], rowCount: 0,
       columns: [{ name: "n", cellType: "text" }, { name: "e", cellType: "expression", expression: "{rowIndex}" }] }] });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     question.dataSource = source;
@@ -7080,5 +7133,85 @@ describe("Remote data source: rows are not reordered while a data source is assi
       question.moveRowByIndex(0, 1);
       expect(question.value, "#2").toEqual([{ col1: "y" }, { col1: "x" }]);
     });
+  });
+});
+
+describe("Remote data source: the pager while a page is read or a move waits", () => {
+  const pagerItemIds = ["sv-pager-first", "sv-pager-prev", "sv-pager-page", "sv-pager-next", "sv-pager-last"];
+  const enabledItems = (question: QuestionMatrixDynamicModel): Array<boolean> =>
+    pagerItemIds.map(id => question.recordsBar.pagerActions.getActionById(id).enabled);
+  const allEnabled = [true, true, true, true, true];
+  const noneEnabled = [false, false, false, false, false];
+  const asyncColumns = [{ name: "col1", validators: [{ type: "expression", expression: "pagerRemoteAsyncFunc({row.col1}) = 1" }] }, { name: "col2" }];
+  let validatorResults: Array<(res: any) => void> = [];
+  beforeEach(() => {
+    validatorResults = [];
+    FunctionFactory.Instance.register("pagerRemoteAsyncFunc", function (this: any) { validatorResults.push(this.returnResult); return false; }, true);
+  });
+  afterEach(() => {
+    FunctionFactory.Instance.unregister("pagerRemoteAsyncFunc");
+  });
+  const settleValidators = (): void => {
+    const results = validatorResults;
+    validatorResults = [];
+    results.forEach(setResult => setResult(1));
+  };
+  test("every move item and the dropdown are disabled while a page is read, and enabled after the read", async () => {
+    const source = new FakeServerSource(serverRecords(120));
+    const { question } = await createMatrix(source, { pageSize: 10 });
+    question.pageIndex = 4;
+    await flush();
+    expect(enabledItems(question), "#1: page 5 of 12").toEqual(allEnabled);
+    source.auto = false;
+    question.recordsBar.pagerActions.getActionById("sv-pager-next").action();
+    expect(question.isDataLoading, "#2: the read is in flight").toBe(true);
+    expect(enabledItems(question), "#3").toEqual(noneEnabled);
+    source.settleAll();
+    await flush();
+    expect(question.pageIndex, "#4").toBe(5);
+    expect(enabledItems(question), "#5").toEqual(allEnabled);
+  });
+  test("a pager created while a move waits for a validator still follows a later page read", async () => {
+    const source = new FakeServerSource(serverRecords(120));
+    const { question } = await createMatrix(source, { pageSize: 10, columns: asyncColumns });
+    question.pageIndex = 4;
+    await flush();
+    expect(question.visibleRows.length, "#0: the page is shown").toBe(10);
+    question.nextPage();
+    expect(question.isPageMovePending, "#1: the move waits").toBe(true);
+    // The first run of every updater sees isPageMovePending true.
+    expect(enabledItems(question), "#2").toEqual(noneEnabled);
+    settleValidators();
+    await flush();
+    expect(question.pageIndex, "#3: moved").toBe(5);
+    expect(enabledItems(question), "#4").toEqual(allEnabled);
+    source.auto = false;
+    question.prevPage();
+    expect(question.isDataLoading, "#5: a move back reads without validating").toBe(true);
+    expect(enabledItems(question), "#6: the read is observed").toEqual(noneEnabled);
+    source.settleAll();
+    await flush();
+    expect(enabledItems(question), "#7").toEqual(allEnabled);
+  });
+  test("a pager created while a page is read still follows a later pending validation", async () => {
+    const source = new FakeServerSource(serverRecords(120));
+    const { question } = await createMatrix(source, { pageSize: 10, columns: asyncColumns });
+    source.auto = false;
+    question.pageIndex = 4;
+    expect(question.isDataLoading, "#1: the read is in flight").toBe(true);
+    // The first run of every updater sees isDataLoading true.
+    expect(enabledItems(question), "#2").toEqual(noneEnabled);
+    source.settleAll();
+    await flush();
+    expect(enabledItems(question), "#3").toEqual(allEnabled);
+    source.auto = true;
+    expect(question.visibleRows.length, "#4: the page is shown").toBe(10);
+    question.nextPage();
+    expect(question.isPageMovePending, "#5: the move waits").toBe(true);
+    expect(enabledItems(question), "#6: the pending validation is observed").toEqual(noneEnabled);
+    settleValidators();
+    await flush();
+    expect(question.pageIndex, "#7").toBe(5);
+    expect(enabledItems(question), "#8").toEqual(allEnabled);
   });
 });

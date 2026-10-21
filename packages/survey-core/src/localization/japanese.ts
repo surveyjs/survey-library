@@ -5,6 +5,14 @@ export var japaneseSurveyStrings = {
   pagePrevText: "前へ",
   // "Next"
   pageNextText: "次へ",
+  // [Auto-translated] "First"
+  pageFirstText: "まず",
+  // [Auto-translated] "Last"
+  pageLastText: "ラスト",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "セレクトページ",
   // "Complete"
   completeText: "完了",
   // "Preview"

@@ -120,7 +120,9 @@ const props = defineProps<{
   css?: any;
 }>();
 const root = ref<HTMLElement>(null as any);
-useBase(() => props.element);
+useBase(() => props.element, undefined, (element) => {
+  element.beforeDestroy();
+});
 const getContentClass = (element: Question) => {
   return element.cssContent;
 };

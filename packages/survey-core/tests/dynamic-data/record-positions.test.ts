@@ -79,7 +79,7 @@ describe("the drag answer under a sort, a data source and design mode", () => {
   test("a sort turns the drag off and clearing it turns it on again", () => {
     const matrix = createMatrix({ allowRowReorder: true }, records(3));
     expect(matrix.isRowsDragAndDrop, "#1").toBe(true);
-    matrix.sortOrder = [{ field: "a", direction: "desc" }];
+    matrix.sort([{ field: "a", direction: "desc" }]);
     expect(matrix.isRowsDragAndDrop, "#2: sorted").toBe(false);
     matrix.clearSort();
     expect(matrix.isRowsDragAndDrop, "#3").toBe(true);
@@ -88,7 +88,7 @@ describe("the drag answer under a sort, a data source and design mode", () => {
     const survey = new SurveyModel();
     survey.setDesignMode(true);
     survey.fromJSON({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 2, allowRowReorder: true,
-      sortBy: "a-", columns: [{ name: "a", cellType: "text" }] }] });
+      sortCriteria: [{ field: "a", direction: "desc" }], columns: [{ name: "a", cellType: "text" }] }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     expect(matrix.isRowsDragAndDrop, "#1").toBe(true);
   });

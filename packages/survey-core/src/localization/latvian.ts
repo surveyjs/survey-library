@@ -5,6 +5,14 @@ export var latvianSurveyStrings = {
   pagePrevText: "Iepriekšēja lapa",
   // "Next"
   pageNextText: "Nākamā lapa",
+  // [Auto-translated] "First"
+  pageFirstText: "Pirmkārt",
+  // [Auto-translated] "Last"
+  pageLastText: "Last",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Izvēlēties lapu",
   // "Complete"
   completeText: "Iesniegt",
   // "Preview"

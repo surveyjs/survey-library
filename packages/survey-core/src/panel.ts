@@ -629,6 +629,9 @@ export class PanelModelBase extends SurveyElement<Question>
       }
       const newElements = Helpers.randomizeArray<IElement>(oldElements, this.randomSeed);
       this.setArrayPropertyDirectly("elements", newElements, false);
+      if (!!this.survey) {
+        this.lifecycleCallbacks.questionTriggersChanged();
+      }
       this.updateRows();
       this.updateVisibleIndexes();
     });

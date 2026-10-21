@@ -5,6 +5,14 @@ export var swahiliStrings = {
   pagePrevText: "Iliyotangulia",
   // "Next"
   pageNextText: "Ifuatayo",
+  // [Auto-translated] "First"
+  pageFirstText: "Kwanza",
+  // [Auto-translated] "Last"
+  pageLastText: "Mwisho",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "ya {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Chagua Ukurasa",
   // "Complete"
   completeText: "Kamili",
   // "Preview"

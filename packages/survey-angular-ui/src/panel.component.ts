@@ -19,6 +19,10 @@ export class PanelComponent extends BaseAngular<PanelModel> implements AfterView
       this.model.afterRender(this.panelContainerRef.nativeElement);
     }
   }
+  override ngOnDestroy() {
+    super.ngOnDestroy();
+    this.model.beforeDestroy();
+  }
   trackRowBy = (_: any, row: any) => {
     return row.id;
   };

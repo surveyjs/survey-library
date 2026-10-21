@@ -126,7 +126,7 @@ describe("unknown keys: every loaded record is checked, whatever hides it", () =
       .toEqual(["p[1].zzz"]);
   });
   test("a sorted and a filtered matrix report a record by its index in the value", () => {
-    const sorted = Object.assign({ sortBy: "a-" }, matrixJson);
+    const sorted = Object.assign({ sortCriteria: [{ field: "a", direction: "desc" }] }, matrixJson);
     expect(getPaths(getIssues(sorted, { m: [{ a: 1 }, { a: 2 }, { a: 3, zzz: 1 }] })), "#1: sorted").toEqual(["m[2].zzz"]);
     const filtered = Object.assign({ filterExpression: "{a} > 1" }, matrixJson);
     expect(getPaths(getIssues(filtered, { m: [{ a: 1 }, { a: 2 }, { a: 3, zzz: 1 }] })), "#2: filtered").toEqual(["m[2].zzz"]);
@@ -252,7 +252,7 @@ describe("getFilteredData: the visible rows that hold an answer, in the answer's
     expect(matrix.getFilteredData(), "#6").toEqual({});
   });
   test("dynamic matrix: in row order under a sort, a hidden and an empty row left out", () => {
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, sortBy: "a-", rowsVisibleIf: "{row.h} <> true",
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, sortCriteria: [{ field: "a", direction: "desc" }], rowsVisibleIf: "{row.h} <> true",
       columns: [{ name: "a", cellType: "text", inputType: "number" }, { name: "h", cellType: "boolean" }] }] });
     survey.data = { m: [{ a: 1 }, { a: 3, h: true }, {}, { a: 2 }] };
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");

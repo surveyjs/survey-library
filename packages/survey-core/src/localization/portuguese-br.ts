@@ -7,6 +7,14 @@ export var portugueseBrSurveyStrings = {
   pagePrevText: "Anterior",
   // [Auto-translated] "Next"
   pageNextText: "Próximo",
+  // [Auto-translated] "First"
+  pageFirstText: "Primeiro",
+  // [Auto-translated] "Last"
+  pageLastText: "Última",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "de {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Selecionar Página",
   // [Auto-translated] "Complete"
   completeText: "Completar",
   // [Auto-translated] "Preview"

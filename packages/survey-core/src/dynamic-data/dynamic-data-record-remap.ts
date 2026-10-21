@@ -1,5 +1,5 @@
 import { IDynamicDataListChange } from "./dynamic-data-interfaces";
-import { isRecordValueChanged } from "./dynamic-data-channel";
+import { isRecordValueChanged } from "./dynamic-data-records";
 
 /* A record index names a record only as long as nothing is inserted, removed or moved in front of
    it. Everything that keeps record indexes across the list's own writes - the frozen membership of
@@ -27,21 +27,6 @@ export function getRecordRemap(change: IDynamicDataListChange): (index: number) 
   if (change.type === "recordRemoved") return removeRemap(change.index);
   if (change.type === "recordMoved") return moveRemap(change.from, change.to);
   return undefined;
-}
-/* The part of a list change a question follows by record index: an edit marks the record edited, an
-   insert, remove or move renumbers the question's own objects (remapObjects) and then the edited set.
-   validation is the edited set of layer 2, when the question has one. */
-export function applyRecordChange(change: IDynamicDataListChange,
-  validation: { markEdited(index: number): void, onRecordRemap(remap: (index: number) => number): void },
-  remapObjects: (remap: (index: number) => number) => void): void {
-  if (change.type === "recordChanged") {
-    if (!!validation) validation.markEdited(change.index);
-    return;
-  }
-  const remap = getRecordRemap(change);
-  if (!remap) return;
-  remapObjects(remap);
-  if (!!validation) validation.onRecordRemap(remap);
 }
 /* Where each old record is among the new ones, by key: getKey reads a record's key and normalizes it
    (the Multi-Select Matrix compares its row values as strings, a data source compares typed keys).

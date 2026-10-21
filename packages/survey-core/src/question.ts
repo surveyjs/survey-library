@@ -8,7 +8,7 @@ import { SurveyElement } from "./survey-element";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner, AsyncElementsRunner } from "./validator";
 import { LocalizableString } from "./localizablestring";
-import { ExpressionRunner } from "./expressions/expressionRunner";
+import { ExpressionRunner, ExpressionRunnerBase } from "./expressions/expressionRunner";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
 import { settings } from "./settings";
@@ -511,6 +511,13 @@ export class Question extends SurveyElement<Question>
   public setIsMobile(val: boolean): void {
     const newVal = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
     this.isMobile = newVal;
+    // Forwards the received value, not newVal: each nested question applies its own design-mode rule.
+    this.forEachNestedElement(info => getNestedElementQuestions(info).forEach(q => q.setIsMobile(val)), { build: "none", visibleOnly: false });
+  }
+  // The survey calls it on its questions when its choiceShortcutsEnabled changes; a container forwards
+  // it to the nested questions that exist, a select question updates its badge binding.
+  public onSurveyChoiceShortcutsEnabledChanged(): void {
+    this.forEachNestedElement(info => getNestedElementQuestions(info).forEach(q => q.onSurveyChoiceShortcutsEnabledChanged()), { build: "none", visibleOnly: false });
   }
   protected getIsMobile(): boolean {
     return this._isMobile;
@@ -544,6 +551,9 @@ export class Question extends SurveyElement<Question>
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
+    if (this.isTriggerPropertyName(name)) {
+      this.notifySurveyOnTriggersChanged();
+    }
     if (name === "validators") {
       this.resetValidationDependencies();
     }
@@ -806,6 +816,7 @@ export class Question extends SurveyElement<Question>
    * | Single-Select Matrix | `"object"` |
    * | Yes/No (Boolean) | `"boolean"` \| `"string"` \| `"number"` |
    * @hidefor QuestionImageModel, QuestionHtmlModel
+   * @since 3.1.1
    */
   public getValueType(): QuestionValueType {
     return "string";
@@ -825,6 +836,7 @@ export class Question extends SurveyElement<Question>
    * - Yes/No (Boolean)
    *
    * [Specialized questions](/form-library/documentation/customize-question-types/create-specialized-question-types) based on any of these question types also return `true`.
+   * @since 3.1.1
    */
   public isSelectQuestion(): boolean {
     return false;
@@ -1106,6 +1118,37 @@ export class Question extends SurveyElement<Question>
     if ((!Array.isArray(vars) || vars.length === 0)) return "const";
     return new ValueGetter().isAnyKeyChanged(keys, vars) ? "var" : "";
   }
+  // Whether an item condition of this question (a choice, row or column visibleIf / enableIf) may keep
+  // its last result in the current value-change run. It follows the element rule, with one difference:
+  // a path under a cleared value ({m.r1} once m is cleared) counts as changed, since an item condition
+  // writes no value back. The item names resolve inside this question's value first ({r1} in a matrix
+  // row reads row r1), so a change of the value, or of any container that holds it, runs them all.
+  public canSkipItemCondition(runner: ExpressionRunnerBase): boolean {
+    const survey: any = this.getSurvey();
+    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    if (!keys || this.isOwnOrContainerValueChanged(keys, survey)) return false;
+    return this.canSkipExpressionByKeys(runner, keys, undefined, true);
+  }
+  // A change inside a dynamic panel or a composite question reports the container's name only
+  private isOwnOrContainerValueChanged(keys: any, survey: any): boolean {
+    const lowerKeys: HashTable<boolean> = Object.create(null);
+    for (const key in keys) {
+      lowerKeys[key.toLowerCase()] = true;
+    }
+    let question: Question = this;
+    while(!!question) {
+      const valueName = question.getValueName();
+      if (!!valueName && lowerKeys[valueName.toLowerCase()]) return true;
+      let data: any = question.data;
+      // A dynamic panel item or a matrix row hands over to the question that holds it. The walk stops
+      // at the survey: its data getter builds the whole result object.
+      if (!!data && data !== survey && !(data instanceof Question) && data.data instanceof Question) {
+        data = data.data;
+      }
+      question = data instanceof Question && data !== question ? data : undefined;
+    }
+    return false;
+  }
   public getValueGetterContext(): IValueGetterContext {
     return new QuestionValueGetterContext(this);
   }
@@ -1148,6 +1191,30 @@ export class Question extends SurveyElement<Question>
   }
   protected addTriggerInfo(info: ITriggerExpressionInfo): void {
     this.triggersInfo.push(info);
+    this.notifySurveyOnTriggersChanged();
+  }
+  // The survey walks only the questions that answer true (SurveyModel.runQuestionsTriggers): a trigger
+  // whose property is empty runs nothing. A question that forwards triggers to nested questions overrides it.
+  public canRunTriggers(): boolean {
+    for (let i = 0; i < this.triggersInfo.length; i++) {
+      const info = this.triggersInfo[i];
+      if (!!this[info.name] || !!info.secondName && !!this[info.secondName]) return true;
+    }
+    return false;
+  }
+  private isTriggerPropertyName(name: string): boolean {
+    // Properties change in the base constructors, before the trigger infos exist
+    if (!this.triggersInfo) return false;
+    for (let i = 0; i < this.triggersInfo.length; i++) {
+      const info = this.triggersInfo[i];
+      if (info.name === name || info.secondName === name) return true;
+    }
+    return false;
+  }
+  private notifySurveyOnTriggersChanged(): void {
+    if (!!this.survey && !this.parentQuestion) {
+      this.lifecycleCallbacks.questionTriggersChanged();
+    }
   }
   public runTriggers(name: string, value: any, keys?: any): void {
     if (this.isSettingQuestionValue || (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
@@ -1209,9 +1276,11 @@ export class Question extends SurveyElement<Question>
   }
   public get singleInputQuestion(): Question {
     const res = this.singleInputBehavior.singleInputQuestion;
-    // A stored "self" without a summary is a question at its own step (a select question with
+    // A stored "self" that cannot be a summary step is a question at its own step (a select question with
     // nested choice elements before its nested inputs): render the question's own content.
-    if (res === this && !this.singleInputSummary) return undefined;
+    // canShowSelfAsSummary() is private to the behavior, not public API. It answers without building
+    // singleInputSummary, which would re-enter this getter for a dynamic container nested in another one.
+    if (res === this && !(<any>this.singleInputBehavior).canShowSelfAsSummary()) return undefined;
     return res;
   }
   public get singleInputSummary(): QuestionSingleInputSummary {
@@ -1563,7 +1632,10 @@ export class Question extends SurveyElement<Question>
       event.target.value = this.comment;
     }
   }
+
+  protected contentElement: HTMLElement;
   public afterRenderQuestionElement(el: HTMLElement): void {
+    this.contentElement = el;
     if (!this.survey || !this.hasSingleInput) return;
     this.afterRenderCallbacks.afterRenderQuestionInput(this, el);
   }
@@ -1584,6 +1656,10 @@ export class Question extends SurveyElement<Question>
     }
     this.checkForResponsiveness(el);
   }
+  public beforeDestroy(): void {
+    super.beforeDestroy();
+    this.destroyResizeObserver();
+  }
   public afterRenderCore(element: HTMLElement): void {
     super.afterRenderCore(element);
   }
@@ -1591,6 +1667,7 @@ export class Question extends SurveyElement<Question>
     return [this.commentId];
   }
   public beforeDestroyQuestionElement(el: HTMLElement): void {
+    this.contentElement = undefined;
     this.commentElements = undefined;
   }
   public get processedTitle(): string {
@@ -1686,6 +1763,7 @@ export class Question extends SurveyElement<Question>
   protected getCssContent(cssClasses: any): string {
     return toCssClasses(
       cssClasses.content,
+      (this.state !== "default") && cssClasses.expandableContent,
       this.supportContainerQueries() && cssClasses.contentSupportContainerQueries,
       this.hasTitleOnLeft && cssClasses.contentLeft
     );
@@ -2055,8 +2133,30 @@ export class Question extends SurveyElement<Question>
     properties["question"] = this;
     this.runConditionCore(properties);
     if (this.canApplyDefaultValue() && (!this.isClearValueOnHidden || this.isVisibleInSurvey)) {
-      this.runDefaultValueExpression(properties);
+      if (!this.canSkipDefaultValueExpression()) {
+        this.runDefaultValueExpression(properties);
+      }
     }
+  }
+  // The inputs and the result of the last completed default value run of the conditions pass.
+  // Copies, not references: a defaultValue or a value changed in place must count as changed.
+  private lastDefaultValueRun: { expression: string, defaultValue: any, value: any };
+  // A run in the survey's conditions pass is skipped, the way a strict-dependency visibleIf is,
+  // when no value the expression uses changed. The inputs and the question's value must also be
+  // what the last run left: a value cleared or changed by code gets the default value back.
+  private canSkipDefaultValueExpression(): boolean {
+    const lastRun = this.lastDefaultValueRun;
+    if (!lastRun || !settings.expressionQuestionTrackDependencies) return false;
+    const survey: any = this.getSurvey();
+    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    if (!keys) return false;
+    if (lastRun.expression !== this.defaultValueExpression) return false;
+    const runner = this.getExpressionByProperty("defaultValueExpression");
+    if (!runner || runner.isAsync) return false;
+    if (!Helpers.isTwoValueEquals(lastRun.defaultValue, this.defaultValue, false, true, false)) return false;
+    if (!this.isTwoValueEquals(lastRun.value, this.value)) return false;
+    // A path under a cleared value ({a.x} once a is cleared) counts as changed
+    return this.canSkipExpressionByKeys(runner, keys, undefined, true);
   }
   public get isInDesignMode(): boolean {
     return !this.isContentElement && this.isDesignMode;
@@ -2094,6 +2194,11 @@ export class Question extends SurveyElement<Question>
   }
   protected getHasTitleOnCalcNo(): boolean {
     return this.hasTitle;
+  }
+  endLoadingFromJson(): void {
+    super.endLoadingFromJson();
+    // Property changes are not reported while the JSON loads
+    this.notifySurveyOnTriggersChanged();
   }
   public onSurveyLoad(): void {
     this.isCustomWidgetRequested = false;
@@ -2642,6 +2747,8 @@ export class Question extends SurveyElement<Question>
   }
   private runDefaultValueExpression(properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
     if (!this.data) return false;
+    // Only a run of the conditions pass (no setFunc) is recorded for canSkipDefaultValueExpression
+    const isConditionsPass = !setFunc;
     if (!setFunc) {
       setFunc = (val: any): void => {
         this.runExpressionSetValue(val);
@@ -2656,6 +2763,13 @@ export class Question extends SurveyElement<Question>
       this.isChangingViaDefaultValue = true;
       setFunc(res);
       this.isChangingViaDefaultValue = false;
+      if (isConditionsPass) {
+        this.lastDefaultValueRun = {
+          expression: this.defaultValueExpression,
+          defaultValue: Helpers.getUnbindValue(this.defaultValue),
+          value: Helpers.getUnbindValue(this.value)
+        };
+      }
     });
   }
   /**
@@ -3136,6 +3250,11 @@ export class Question extends SurveyElement<Question>
   }
   // Tells whether a key of an object value belongs to this question: it is its row or its item.
   protected hasValueKey(key: string): boolean {
+    return false;
+  }
+  // Tells whether a key of one item of an array value belongs to this question: a field it keeps in
+  // the object of a selected item. A dynamic panel or matrix sharing the value knows the key then.
+  public hasValueItemKey(key: string): boolean {
     return false;
   }
   // Several questions may share the same valueName and keep their rows or items in one object.

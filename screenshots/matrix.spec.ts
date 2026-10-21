@@ -1131,5 +1131,25 @@ frameworks.forEach(framework => {
       const questionRoot = page.locator(".sd-row");
       await compareScreenshot(page, questionRoot, "matrix-focus-frame-in-one-line.png");
     });
+
+    // No buttons under the table: the pager starts the row.
+    [{ name: "desktop", width: 1920 }, { name: "mobile", width: 420 }].forEach(viewport => {
+      test(`Matrixdropdown pager, ${viewport.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: viewport.width, height: 1080 });
+        await initSurvey(page, framework, {
+          showQuestionNumbers: false,
+          elements: [{
+            type: "matrixdropdown",
+            name: "matrix",
+            title: "Question title",
+            pageSize: 1,
+            rows: Array.from({ length: 12 }, (_, i) => "Row " + (i + 1)),
+            columns: [{ name: "name", cellType: "text" }]
+          }]
+        });
+        await resetFocusToBody(page);
+        await compareScreenshot(page, page.locator(".sd-question--table"), `matrixdropdown-pager-12-pages-${viewport.name}.png`);
+      });
+    });
   });
 });

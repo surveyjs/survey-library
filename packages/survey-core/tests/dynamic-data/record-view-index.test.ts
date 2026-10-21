@@ -19,7 +19,7 @@ describe("The index an event reports counts the owner-hidden records", () => {
   // Sorted by id descending: the records are 3, 2, 1, 0 in the view, and record 2 is hidden by the
   // owner. Record 1 is the second visible record and the third created one.
   test("paneldynamic: panelIndex of a panel behind a hidden one", () => {
-    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "pd", pageSize: 2, sortBy: "id-",
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "pd", pageSize: 2, sortCriteria: [{ field: "id", direction: "desc" }],
       templateVisibleIf: "{panel.id} != 2", templateElements: [{ type: "text", name: "id" }, { type: "text", name: "name" }] }] });
     survey.data = { pd: records(4) };
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
@@ -31,7 +31,7 @@ describe("The index an event reports counts the owner-hidden records", () => {
     expect(indexes, "#2: record 1 is reported at its created position").toEqual([2, 0]);
   });
   test("matrixdynamic: rowIndex of a row behind a hidden one", () => {
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "md", rowCount: 0, pageSize: 2, sortBy: "id-",
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "md", rowCount: 0, pageSize: 2, sortCriteria: [{ field: "id", direction: "desc" }],
       rowsVisibleIf: "{row.id} != 2", detailPanelMode: "underRow", detailElements: [{ type: "text", name: "note" }],
       columns: [{ name: "id", cellType: "text" }] }] });
     survey.data = { md: records(4) };

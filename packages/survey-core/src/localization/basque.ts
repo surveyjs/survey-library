@@ -5,6 +5,14 @@ export var basqueSurveyStrings = {
   pagePrevText: "Aurrekoa",
   // "Next"
   pageNextText: "Hurrengoa",
+  // [Auto-translated] "First"
+  pageFirstText: "Lehenengoa",
+  // [Auto-translated] "Last"
+  pageLastText: "Azkena",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Hautatu Orria",
   // "Complete"
   completeText: "Bukatu",
   // "Preview"

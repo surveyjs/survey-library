@@ -263,10 +263,7 @@ export class DropdownListModel extends Base {
   }
 
   protected popupRecalculatePosition(isResetHeight: boolean): void {
-    setTimeout(() => {
-      if (!this.popupModel.isVisible) return;
-      this.popupModel.recalculatePosition(isResetHeight);
-    }, 1);
+    this.popupModel.recalculatePositionAfterRender(isResetHeight);
   }
 
   protected onHidePopup(): void {

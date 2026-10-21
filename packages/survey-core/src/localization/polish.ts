@@ -5,6 +5,14 @@ export var polishSurveyStrings = {
   pagePrevText: "Wstecz",
   // "Next"
   pageNextText: "Dalej",
+  // [Auto-translated] "First"
+  pageFirstText: "Pierwszy",
+  // [Auto-translated] "Last"
+  pageLastText: "Ostatni",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Wybierz stronę",
   // "Complete"
   completeText: "Gotowe",
   // "Preview"

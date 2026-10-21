@@ -550,6 +550,9 @@ export class Question extends SurveyElement<Question>
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
+    if (this.isTriggerPropertyName(name)) {
+      this.notifySurveyOnTriggersChanged();
+    }
     if (name === "validators") {
       this.resetValidationDependencies();
     }
@@ -1154,6 +1157,30 @@ export class Question extends SurveyElement<Question>
   }
   protected addTriggerInfo(info: ITriggerExpressionInfo): void {
     this.triggersInfo.push(info);
+    this.notifySurveyOnTriggersChanged();
+  }
+  // The survey walks only the questions that answer true (SurveyModel.runQuestionsTriggers): a trigger
+  // whose property is empty runs nothing. A question that forwards triggers to nested questions overrides it.
+  public canRunTriggers(): boolean {
+    for (let i = 0; i < this.triggersInfo.length; i++) {
+      const info = this.triggersInfo[i];
+      if (!!this[info.name] || !!info.secondName && !!this[info.secondName]) return true;
+    }
+    return false;
+  }
+  private isTriggerPropertyName(name: string): boolean {
+    // Properties change in the base constructors, before the trigger infos exist
+    if (!this.triggersInfo) return false;
+    for (let i = 0; i < this.triggersInfo.length; i++) {
+      const info = this.triggersInfo[i];
+      if (info.name === name || info.secondName === name) return true;
+    }
+    return false;
+  }
+  private notifySurveyOnTriggersChanged(): void {
+    if (!!this.survey && !this.parentQuestion) {
+      this.lifecycleCallbacks.questionTriggersChanged();
+    }
   }
   public runTriggers(name: string, value: any, keys?: any): void {
     if (this.isSettingQuestionValue || (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
@@ -2109,6 +2136,11 @@ export class Question extends SurveyElement<Question>
   }
   protected getHasTitleOnCalcNo(): boolean {
     return this.hasTitle;
+  }
+  endLoadingFromJson(): void {
+    super.endLoadingFromJson();
+    // Property changes are not reported while the JSON loads
+    this.notifySurveyOnTriggersChanged();
   }
   public onSurveyLoad(): void {
     this.isCustomWidgetRequested = false;

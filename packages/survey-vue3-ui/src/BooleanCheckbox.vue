@@ -18,7 +18,6 @@
           :aria-describedby="question.a11y_input_ariaDescribedBy"
           :aria-invalid="question.a11y_input_ariaInvalid"
           :aria-errormessage="question.a11y_input_ariaErrormessage"
-          :aria-keyshortcuts="question.ariaKeyShortcuts"
         />
         <span :class="question.cssClasses.checkboxMaterialDecorator" aria-hidden="true">
           <svg

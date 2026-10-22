@@ -26,7 +26,6 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
             disabled={this.question.isDisabledAttr}
             readOnly={this.question.isReadOnlyAttr}
             className={cssClasses.itemRadioControl}
-            aria-keyshortcuts={this.question.ariaKeyShortcuts}
             onChange={handleOnChange}
           />
           {this.question.cssClasses.materialRadioDecorator ?

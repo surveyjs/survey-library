@@ -1,7 +1,6 @@
 import { afterEach, expect, test } from "vitest";
 import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
-import { QuestionCommentModel } from "../src/question_comment";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { Serializer } from "../src/jsonobject";
 import { IKeyboardHint } from "../src/keyboard-hints";
@@ -153,7 +152,6 @@ test("keyboard hints and letter badges stay independent", () => {
   expect(badged.getItemAriaKeyShortcuts(badged.visibleChoices[0])).toBe("A");
   hintsOnly.choiceShortcutsEnabled = true;
   expect(hinted.getItemAriaKeyShortcuts(hinted.visibleChoices[0])).toBe("A");
-  expect(hinted.ariaKeyShortcuts).toBeUndefined();
 });
 
 test("choice shortcuts leave only the enter hint", () => {
@@ -234,7 +232,6 @@ test("dropdown hints stay one set for both popup states", () => {
   });
   const q = survey.getQuestionByName("q") as any;
   expect(q.getKeyboardHints()).toEqual(filled);
-  expect(q.ariaKeyShortcuts).toBe("ArrowDown ArrowUp ArrowDown Escape Enter");
   q.dropdownListModel.popupModel.show();
   q.dropdownListModel.inputString = "x";
   expect(q.getKeyboardHints()).toEqual(filled);
@@ -324,24 +321,4 @@ test("long text hints shift+enter and enter", () => {
   _setIsTouch(true);
   expect(hints({ type: "comment", defaultValue: "a" }, { autoAdvanceEnabled: true })).toEqual([]);
   _setIsTouch(false);
-});
-
-test("textarea shortcuts belong only to a comment question", () => {
-  const comment = new SurveyModel({
-    keyboardHintsEnabled: true,
-    autoAdvanceEnabled: true,
-    elements: [{ type: "comment", name: "q", defaultValue: "a" }]
-  });
-  expect((comment.getQuestionByName("q") as QuestionCommentModel).textAreaModel.ariaKeyShortcuts).toBe("Shift+Enter Enter");
-  const radio = new SurveyModel({
-    keyboardHintsEnabled: true,
-    elements: [{
-      type: "radiogroup",
-      name: "q",
-      defaultValue: "a",
-      choices: [{ value: "a", showCommentArea: true }]
-    }]
-  });
-  const question = radio.getQuestionByName("q") as QuestionRadiogroupModel;
-  expect(question.getCommentTextAreaModel(question.visibleChoices[0]).ariaKeyShortcuts).toBeUndefined();
 });

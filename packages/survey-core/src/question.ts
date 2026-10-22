@@ -3508,13 +3508,6 @@ export class Question extends SurveyElement<Question>
   protected getKeyboardHintsCore(): IKeyboardHint[] {
     return [];
   }
-  public get ariaKeyShortcuts(): string | undefined {
-    const parts: string[] = [];
-    this.getKeyboardHints().forEach(hint => {
-      hint.keys.filter(key => key.visible && key.shortcut).forEach(key => parts.push(key.shortcut));
-    });
-    return parts.length > 0 ? parts.join(" ") : undefined;
-  }
   // Set only while Enter commits the current value. tryGoNextPageAutomatic runs on every
   // value change, so multi-value questions stay opted out until this flag is raised.
   private autoAdvanceRequestScope = new Scope();

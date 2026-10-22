@@ -52,7 +52,6 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         aria-describedby={this.question.a11y_input_ariaDescribedBy}
         aria-invalid={this.question.a11y_input_ariaInvalid}
         aria-errormessage={this.question.a11y_input_ariaErrormessage}
-        aria-keyshortcuts={this.question.ariaKeyShortcuts}
       />
     );
   }

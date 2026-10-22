@@ -59,7 +59,6 @@ export interface ITextArea {
   ariaLabelledBy?: () => string;
   ariaDescribedBy?: () => string;
   ariaErrormessage?: () => string;
-  ariaKeyShortcuts?: () => string | undefined;
   hasVisibleInputActions?: () => boolean;
   inputActionsContainer?: () => ActionContainer;
 }
@@ -189,10 +188,6 @@ export class TextAreaModel {
   get ariaErrormessage(): string {
     if (this.options.ariaErrormessage)
       return this.options.ariaErrormessage();
-  }
-  get ariaKeyShortcuts(): string | undefined {
-    if (this.options.ariaKeyShortcuts)
-      return this.options.ariaKeyShortcuts();
   }
   get hasVisibleInputActions(): boolean {
     if (this.options.hasVisibleInputActions) {

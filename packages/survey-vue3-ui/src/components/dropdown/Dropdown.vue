@@ -68,7 +68,6 @@
             :aria-labelledby="renderState.ariaInputLabelledby"
             :aria-describedby="renderState.ariaInputDescribedby"
             :aria-activedescendant="renderState.ariaInputActivedescendant"
-            :aria-keyshortcuts="question.ariaKeyShortcuts"
             :placeholder="renderState.placeholderRendered"
             @input="inputChange"
             @blur="blur"

@@ -91,7 +91,6 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
             aria-describedby={this.renderState.ariaInputDescribedby}
             aria-controls={this.renderState.ariaInputControls}
             aria-activedescendant={this.renderState.ariaInputActivedescendant}
-            aria-keyshortcuts={this.question.ariaKeyShortcuts}
             placeholder={this.renderState.filterStringPlaceholder}
             onKeyDown={(e) => { this.keyhandler(e); }}
             onChange={(e) => { this.onChange(e); }}

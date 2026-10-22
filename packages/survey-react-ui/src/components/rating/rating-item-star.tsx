@@ -28,7 +28,6 @@ export class RatingItemStar extends RatingItemBase {
           onClick={this.props.handleOnClick}
           onChange={() => { }}
           aria-label={this.question.ariaLabel}
-          aria-keyshortcuts={this.question.ariaKeyShortcuts}
         />
         <SvgIcon
           className={"sv-star"}

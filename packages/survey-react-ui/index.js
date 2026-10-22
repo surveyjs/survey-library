@@ -1171,6 +1171,22 @@ json = {
       defaultValue: false
     },
     {
+      type: "boolean",
+      name: "boolean-checkbox",
+      title: "Yes/No as checkbox",
+      displayMode: "checkbox",
+      allowClear: true,
+      defaultValue: true
+    },
+    {
+      type: "boolean",
+      name: "boolean-switch",
+      title: "Yes/No as switch",
+      displayMode: "switch",
+      allowClear: true,
+      defaultValue: true
+    },
+    {
       type: "imagepicker",
       name: "image",
       title: "Image Picker",

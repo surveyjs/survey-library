@@ -2,7 +2,7 @@ import * as React from "react";
 import { RendererFactory } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionBoolean } from "./boolean";
-import { TitleContent } from "./components/title/title-content";
+import { TitleActions } from "./components/title/title-actions";
 import { SurveyElementBase } from "./reactquestion_element";
 
 export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
@@ -52,7 +52,7 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
             </span>
             {this.question.isLabelRendered && (
               <span className={cssClasses.checkboxControlLabel} id={this.question.labelRenderedAriaID}>
-                <TitleContent element={this.question} cssClasses={this.question.cssClasses}></TitleContent>
+                <TitleActions element={this.question} cssClasses={this.question.cssClasses}></TitleActions>
               </span>
             )}
           </label>

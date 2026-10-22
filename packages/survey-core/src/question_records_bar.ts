@@ -1,6 +1,6 @@
 import { Base } from "./base";
 import { createRecordsPagerActions, IRecordsPagerCssClasses, IRecordsPagerOwner } from "./records/records-pager";
-import { createRecordsSortActions, getShowSort, IRecordsSortActions, IRecordsSortBarCssClasses, IRecordsSortBarOwner } from "./records/records-sort-bar";
+import { createRecordsSortActions, getShowSort, IRecordsSortActions, IRecordsSortBarCssClasses, IRecordsSortBarOwner, RecordsSortBarContainer } from "./records/records-sort-bar";
 import type { ActionContainer } from "./actions/container";
 
 // The class names of the bar, of its pager block and of the sort bar, from the question's css, and the items' classes.
@@ -14,7 +14,7 @@ export interface IQuestionRecordsBarOwner extends IRecordsPagerOwner, IRecordsSo
   // The type's rule for the pager (more than one page; the dynamic panel in list mode).
   readonly showPager: boolean;
   getCssClasses(): IRecordsBarCssClasses;
-  createActionContainer(): ActionContainer;
+  createActionContainer<T extends ActionContainer>(container?: T): T;
 }
 
 /* The records bar of a dynamic panel and of a matrix: the pager under the records and the sort bar
@@ -67,7 +67,8 @@ export class QuestionRecordsBar extends Base {
   private sortActionsValue: IRecordsSortActions;
   public get sortActions(): ActionContainer {
     if (!this.sortActionsValue) {
-      const container = this.owner.createActionContainer();
+      // It fits the bar to its width by whole levels, and shows "More..." while a level is out.
+      const container = this.owner.createActionContainer(new RecordsSortBarContainer());
       container.containerCss = this.owner.getCssClasses().sortBar;
       this.sortActionsValue = createRecordsSortActions(container, this.owner, this);
     }

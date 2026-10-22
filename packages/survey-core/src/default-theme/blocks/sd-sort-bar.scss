@@ -1,15 +1,17 @@
 @use "../variables.scss" as *;
 
 /* The sort bar of a dynamic panel and of a matrix:
-   Sort by  [field v] [direction v]  |  [field v] [direction v] [remove]  |  [+]
-   Each level is one item of the bar, so a wrapped or scrolled row breaks between whole levels. */
+   Sort by  [field v] [direction v]  |  [field v] [direction v] [remove]  |  More...  |  [+]
+   Each level is one item of the bar. On a desktop the bar is one line: the levels that do not fit leave
+   it whole, from the last one, and "More..." shows (RecordsSortBarContainer); on a phone the row scrolls. */
 .sd-paneldynamic__sort-bar,
 .sd-matrixdynamic__sort-bar,
 .sd-matrixdropdown__sort-bar {
-  // The design's 12px between "Sort by", the levels, the separators and "+".
+  // The design's 12px between "Sort by", the levels, the separators, "More..." and "+".
   --sd-action-bar-gap: var(--sjs2-layout-component-panel-header-action-group-gap);
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
+  min-width: 0;
 
   /* The separator a later level and "+" draw before their content: the full height of the row, and the
      bar's gap after it, as between any two items. */
@@ -45,9 +47,9 @@
 }
 
 /* A question header that holds the sort bar. With the title on top, the title (and the description
-   under it) takes the width of its line, up to half of the row, and the bar takes the rest, at its
-   end and centred on the title line. A bar that does not fit wraps onto more lines, end-aligned.
-   The bar is the header's last child in every renderer. Logical placement, so a right-to-left
+   under it) takes the width of its line, up to half of the row, and the bar fills the rest, its items
+   at its end and centred on the title line. The bar is as wide as its column, which is the width it is
+   fitted to. The bar is the header's last child in every renderer. Logical placement, so a right-to-left
    survey mirrors it. */
 .sd-question__header--sort-bar.sd-question__header--location-top {
   display: grid;
@@ -61,11 +63,12 @@
   & > :last-child {
     grid-column: 2;
     grid-row: 1;
-    justify-self: end;
+    justify-self: stretch;
   }
 }
 
-// On a phone and with the title on the left the bar goes under the title and the description, start-aligned.
+/* On a phone and with the title on the left the bar goes under the title and the description, its items
+   start-aligned. The bar takes the header's width, the width it is fitted to or scrolls in. */
 .sd-question--mobile .sd-question__header--sort-bar,
 .sd-question__header--sort-bar.sd-question__header--location--left {
   display: flex;
@@ -74,7 +77,7 @@
   align-items: stretch;
 
   & > :last-child {
-    align-self: flex-start;
+    align-self: stretch;
     justify-content: flex-start;
     margin-block-start: calc(var(--sjs2-layout-component-question-header-action-group-gap) - var(--sd-question-header-row-gap));
   }
@@ -101,10 +104,15 @@
   }
 }
 
-// Above the records, while the question header is not on top or on the left.
+// Above the records, while the question header is not on top or on the left: the full width, the items at its start.
 .sd-paneldynamic__sort-bar-top,
 .sd-matrixdynamic__sort-bar-top,
 .sd-matrixdropdown__sort-bar-top {
   display: flex;
   margin-block-end: var(--sjs2-layout-component-question-header-action-group-gap);
+
+  & > .sd-action-bar {
+    flex: 1 1 auto;
+    justify-content: flex-start;
+  }
 }

@@ -898,7 +898,8 @@ frameworks.forEach((framework) => {
       await page.locator(".sv-popup__container").filter({ visible: true }).getByRole("menuitemradio", { name: "Category", exact: true }).click();
       await expect.poll(shownProducts).toEqual(["a", "c"]);
       await page.getByRole("button", { name: "Add sort level", exact: true }).click();
-      await expect(page.getByRole("button", { name: /^Sort field 2 / }).locator(".sd-action__title")).toHaveText("Product");
+      // The panel's header leaves the bar too little room for the second level: it is behind "More...".
+      await expect(page.getByRole("button", { name: "Show all sort levels", exact: true })).toBeVisible();
       await expect.poll(shownProducts).toEqual(["a", "b"]);
       const pager = page.locator(".sd-paneldynamic__pager");
       await pager.locator("button[title='Next']").click();

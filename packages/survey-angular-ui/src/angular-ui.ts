@@ -40,6 +40,7 @@ export * from "./components-container.component";
 export * from "./components/action-bar/action-bar.component";
 export * from "./components/records-bar/records-bar.component";
 export * from "./components/records-bar/sort-bar-level.component";
+export * from "./components/records-bar/records-sort-dialog.component";
 export * from "./components/action-bar/action.component";
 export * from "./components/action-bar/action-bar-item.component";
 export * from "./components/action-bar/action-bar-item-dropdown.component";

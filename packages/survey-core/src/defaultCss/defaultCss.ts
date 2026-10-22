@@ -128,6 +128,8 @@ export var defaultCss = {
     sortDropdown: "sd-sort-bar__dropdown",
     sortLabel: "sd-sort-bar__label",
     sortLevel: "sd-sort-bar__level",
+    sortDialog: "sd-sort-dialog",
+    sortDialogRow: "sd-sort-dialog__row",
     panelWrapperInRow: "sd-paneldynamic__panel-wrapper--in-row",
     panelWrapperEnter: "sd-paneldynamic__panel-wrapper--enter",
     panelWrapperLeave: "sd-paneldynamic__panel-wrapper--leave",
@@ -646,7 +648,9 @@ export var defaultCss = {
     sortBarTop: "sd-matrixdropdown__sort-bar-top",
     sortDropdown: "sd-sort-bar__dropdown",
     sortLabel: "sd-sort-bar__label",
-    sortLevel: "sd-sort-bar__level"
+    sortLevel: "sd-sort-bar__level",
+    sortDialog: "sd-sort-dialog",
+    sortDialogRow: "sd-sort-dialog__row"
   },
   matrixdynamic: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table sd-question--matrixdynamic",
@@ -716,6 +720,8 @@ export var defaultCss = {
     sortDropdown: "sd-sort-bar__dropdown",
     sortLabel: "sd-sort-bar__label",
     sortLevel: "sd-sort-bar__level",
+    sortDialog: "sd-sort-dialog",
+    sortDialogRow: "sd-sort-dialog__row",
     footerTotalCell: "sd-table__cell sd-table__cell--footer-total",
     noRowsSection: "sd-matrixdynamic__placeholder sd-question__placeholder",
     iconDrag: "sv-matrixdynamic__drag-icon",

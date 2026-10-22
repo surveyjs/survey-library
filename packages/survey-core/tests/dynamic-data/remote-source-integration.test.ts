@@ -18,6 +18,8 @@ import { ArrayDynamicDataSource, SurveyDataDynamicDataSource } from "../../src/d
 import { ActionContainer } from "../../src/actions/container";
 import { ListModel } from "../../src/list";
 import { Action } from "../../src/actions/action";
+import { PopupModalManager } from "../../src/popup-modal-manager";
+import { IDialogOptions } from "../../src/popup";
 
 // The edited set and the page the page validation keeps for a records question have no public face.
 const getPageState = (q: Question): IRecordsPageState => (<any>q).getPageState();
@@ -7269,6 +7271,32 @@ describe("Remote data source: the sort bar while a page is read or a move waits"
     source.settleAll();
     await flush();
     expect(enabled(), "#4").toEqual(ids.map(() => true));
+  });
+  test("the sort dialog's Apply is disabled while a page is read", async () => {
+    const savedShowDialog = settings.showDialog;
+    const manager = new PopupModalManager();
+    settings.showDialog = (options: IDialogOptions, rootElement?: HTMLElement): any => manager.addDialog(options, rootElement);
+    try {
+      const source = new FakeServerSource(serverRecords(120));
+      const { question } = await createMatrix(source, { pageSize: 10, allowSort: true, maxSortLevel: 3,
+        columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }] });
+      question.sort(<any>[{ field: "col1", direction: "asc" }, { field: "col2", direction: "desc" }]);
+      await flush();
+      getSortItem(question, "sv-sort-more").action();
+      const popup = manager.getModals()[0];
+      const applyAction = popup.footerToolbar.getActionById("apply");
+      expect(applyAction.enabled, "#1").toBe(true);
+      source.auto = false;
+      question.nextPage();
+      expect(question.isDataLoading, "#2: the read is in flight").toBe(true);
+      expect(applyAction.enabled, "#3").toBe(false);
+      source.settleAll();
+      await flush();
+      expect(applyAction.enabled, "#4").toBe(true);
+    } finally {
+      manager.clear();
+      settings.showDialog = savedShowDialog;
+    }
   });
   test("a sort bar created while a move waits for a validator still follows a later page read", async () => {
     const source = new FakeServerSource(serverRecords(120));

@@ -511,7 +511,8 @@ function levelShown(q: QuestionRecordsModel, level: number): Array<any> {
   return [getAction(q, levelId("sv-sort-field", level)).title, getAction(q, levelId("sv-sort-direction", level)).title,
     !!getAction(q, "sv-sort-remove-" + level)];
 }
-const barIds = (q: QuestionRecordsModel): Array<string> => q.recordsBar.sortActions.visibleActions.map((item: Action): string => item.id);
+// The items the bar shows: "More..." is in the bar out of sight (mode "removed") until the bar is fitted.
+const barIds = (q: QuestionRecordsModel): Array<string> => q.recordsBar.sortActions.visibleActions.filter((item: Action): boolean => item.isVisible).map((item: Action): string => item.id);
 const addAction = (q: QuestionRecordsModel): Action => getAction(q, "sv-sort-add");
 const addLevel = (q: QuestionRecordsModel): void => { addAction(q).action(); };
 const removeLevel = (q: QuestionRecordsModel, level: number): void => { getAction(q, "sv-sort-remove-" + level).action(); };
@@ -659,17 +660,18 @@ describe("Sort bar: several levels", () => {
     const bar = matrix.recordsBar.sortActions;
     matrix.sort(<any>[{ field: "product", direction: "asc" }, { field: "category", direction: "desc" }, { field: "price", direction: "asc" }]);
     const before = bar.actions.slice();
-    expect(before.map((item: Action): string => item.id), "#1").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2", "sv-sort-level-3", "sv-sort-add"]);
+    expect(before.map((item: Action): string => item.id), "#1").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2", "sv-sort-level-3", "sv-sort-more", "sv-sort-add"]);
     const levels = levelsOf(matrix);
     const field3 = getAction(matrix, "sv-sort-field-3");
     const list3 = <ListModel>field3.data;
-    const kept: Array<any> = [before[0], before[1], before[2], before[4], levels[0], levels[1], getAction(matrix, "sv-sort-field-2"),
+    const kept: Array<any> = [before[0], before[1], before[2], before[4], before[5], levels[0], levels[1], getAction(matrix, "sv-sort-field-2"),
       getList(matrix, "sv-sort-field-2"), getAction(matrix, "sv-sort-field").popupModel];
     const setItems = vi.spyOn(bar, "setItems");
     removeLevel(matrix, 2);
     expect(setItems, "#2: one new items array").toHaveBeenCalledTimes(1);
     const items = setItems.mock.calls[0][0];
-    expect([items[0] === before[0], items[1] === before[1], items[2] === before[2], items[3] === before[4], items.length], "#3").toEqual([true, true, true, true, 4]);
+    expect([items[0] === before[0], items[1] === before[1], items[2] === before[2], items[3] === before[4], items[4] === before[5], items.length], "#3")
+      .toEqual([true, true, true, true, true, 5]);
     expect(bar.actions.every((item: Action, index: number): boolean => item === items[index]), "#4").toBe(true);
     expect([before[3].isDisposed, levels[2].isDisposed, field3.isDisposed, field3.popupModel.isDisposed, list3.isDisposed], "#5: the third group").toEqual([true, true, true, true, true]);
     expect(kept.map((item: any): boolean => item.isDisposed), "#6: nothing else").toEqual(kept.map((): boolean => false));
@@ -683,9 +685,9 @@ describe("Sort bar: several levels", () => {
     expect(levelsOf(matrix)[1].actions[0], "#10").toBe(levelItems[1][0]);
     addLevel(matrix);
     const added = setItems.mock.calls[0][0];
-    expect([added.length, added[3] === before[4], added[2] === before[2], kept.indexOf(added[3]) > -1], "#11: a new group, then the same \"+\"")
-      .toEqual([5, false, true, false]);
-    expect(added[4], "#12").toBe(before[4]);
+    expect([added.length, added[3] === before[4], added[2] === before[2], kept.indexOf(added[3]) > -1], "#11: a new group, then the same \"More...\" and \"+\"")
+      .toEqual([6, false, true, false]);
+    expect([added[4] === before[4], added[5] === before[5]], "#12").toEqual([true, true]);
     setItems.mockRestore();
   });
   test("a runtime maxSortLevel change shows \"+\" with nothing else reading it", () => {

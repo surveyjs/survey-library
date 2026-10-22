@@ -58,9 +58,17 @@ export class PopupModalViewModel extends PopupBaseViewModel {
   }
   public onKeyDown(event: any): void {
     if (event.key === "Escape" || event.keyCode === 27) {
+      // A popup opened inside the modal - the list of a dropdown - closes on its own Escape: the modal stays.
+      if (this.isInNestedPopup(event.target)) return;
       this.model.onCancel();
     }
     super.onKeyDown(event);
+  }
+  private isInNestedPopup(target: any): boolean {
+    if (!target || typeof target.closest !== "function" || !this.container) return false;
+    const popup = target.closest(this.popupSelector);
+    const ownPopup = this.container.querySelector(this.popupSelector);
+    return !!popup && !!ownPopup && popup !== ownPopup;
   }
 
   private onScrollOutsideCallback = (event: WheelEvent) => {

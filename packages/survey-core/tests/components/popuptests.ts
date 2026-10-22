@@ -534,6 +534,24 @@ describe("Popup", () => {
     areaElement.remove();
   });
 
+  test("Escape in a popup opened inside a modal closes that popup only", () => {
+    const model: PopupModel = new PopupModel("sv-list", {});
+    model.isModal = true;
+    let cancelCount = 0;
+    model.onCancel = () => { cancelCount++; };
+    const viewModel: PopupModalViewModel = createPopupViewModel(model) as PopupModalViewModel;
+    const container = document.createElement("div");
+    container.innerHTML = "<div class=\"sv-popup\"><button id=\"own\"></button><div class=\"sv-popup\"><ul><li id=\"nested\"></li></ul></div></div>";
+    document.body.appendChild(container);
+    viewModel.setComponentElement(container);
+    model.isVisible = true;
+    viewModel.onKeyDown({ key: "Escape", target: container.querySelector("#nested"), preventDefault: () => { } });
+    expect([model.isVisible, cancelCount], "#1: the nested list's Escape").toEqual([true, 0]);
+    viewModel.onKeyDown({ key: "Escape", target: container.querySelector("#own"), preventDefault: () => { } });
+    expect([model.isVisible, cancelCount], "#2: the modal's own Escape").toEqual([false, 1]);
+    container.remove();
+    viewModel.dispose();
+  });
   test("PopupModel PopupModalViewModel clickOutside", () => {
     const model: PopupModel = new PopupModel("sv-list", {});
     const targetElement: HTMLElement = document.createElement("div");

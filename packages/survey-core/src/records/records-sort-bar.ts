@@ -1,19 +1,20 @@
 import { ComputedUpdater } from "../base";
 import { Action, IAction } from "../actions/action";
-import { createDropdownActionModel } from "../actions/dropdown-action";
+import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../actions/adaptive-container";
 import type { ActionContainer } from "../actions/container";
-import type { ListModel } from "../list";
 import type { ILocalizableOwner } from "../localizablestring";
 import { settings } from "../settings";
-import { focusElement } from "../utils/focus-utils";
-import { getActiveElement } from "../utils/dom-utils";
 import { DynamicDataFieldType, ISortCriterion, SortDirection } from "../dynamic-data/dynamic-data-interfaces";
-import { getFirstSortDirection, getSortDirectionItems, getSortDirectionLocStringName, ISortDirectionItem } from "./records-sort-directions";
+import { getFirstSortDirection, getSortDirectionLocStringName } from "./records-sort-directions";
+import { copySort, createSortDropdownAction, findSortField, focusSortAction, isFocusInsideOrIdle, getShownSortField, getSortDirection, getSortDirectionListItems,
+  getSortFieldItems, IShownSortField, ISortListKeys, setSortListItems } from "./records-sort-items";
+import { RecordsSortDialogModel, showRecordsSortDialog } from "./records-sort-dialog";
 
 // A field the sort bar offers: the record key the list sorts by, the text the bar shows and the data type the list registered.
 export interface IRecordsSortField { field: string, title: string, dataType: DynamicDataFieldType }
-// The class names the sort bar gives its dropdowns, its "Sort by" text and the container of a sort level.
-export interface IRecordsSortBarCssClasses { sortDropdown: string, sortLabel: string, sortLevel: string }
+/* The class names the sort bar gives its dropdowns, its "Sort by" text and the container of a sort level, and
+   the ones of the sort dialog: its list of rows and each row. */
+export interface IRecordsSortBarCssClasses { sortDropdown: string, sortLabel: string, sortLevel: string, sortDialog: string, sortDialogRow: string }
 
 // What the sort bar reads from its records question and the move it makes.
 export interface IRecordsSortBarOwner {
@@ -42,7 +43,8 @@ export interface IRecordsSortBarOwner {
   getLocOwner(): ILocalizableOwner;
   // Read inside the items' updaters, as the pager's: a css update resets the question's classes.
   getCssClasses(): IRecordsSortBarCssClasses;
-  createActionContainer(): ActionContainer;
+  // Gives the container the survey's action bar classes; a new plain container when none is passed.
+  createActionContainer<T extends ActionContainer>(container?: T): T;
   // The survey's rendered root, where the bar finds its buttons to move the focus; a shadow root holds it too.
   getRootElement(): HTMLElement;
 }
@@ -72,70 +74,132 @@ interface ISortBarState {
 /* Every updater of the sort bar reads its inputs through here. A ComputedUpdater collects its
    dependencies on its first run only, so an input that a && or || skips on that run is never
    observed afterwards: every input is read into its own local before any of them is combined. */
-function getSortBarState(owner: IRecordsSortBarOwner, view: IRecordsSortBarView): ISortBarState {
+export function getSortBarState(owner: IRecordsSortBarOwner, view: IRecordsSortBarView): ISortBarState {
   const showSort = view.showSort;
   const isDataLoading = owner.isDataLoading;
   const isPageMovePending = owner.isPageMovePending;
   return { showSort: showSort, canSort: !isDataLoading && !isPageMovePending };
 }
 
-// The field a level shows, and whether it is the fallback of a sort field the bar does not offer.
-interface IShownSortField extends IRecordsSortField { isFallback: boolean }
 /* One level of the bar: the item of the bar (component sv-sort-bar-level), whose data is the level's
    own container - [field v] [direction v], plus a remove button from the second level on. A group
-   belongs to its position: the k-th group shows the k-th level of the sort. The keys rebuild a list
-   only when what it shows changed, so an open popup keeps its items. */
+   belongs to its position: the k-th group shows the k-th level of the sort. sizeKey holds what decides
+   the group's width (its titles and its remove button), which the bar's container does not see. */
 interface ISortLevelGroup {
   action: Action;
   container: ActionContainer;
   field: Action;
   direction: Action;
   remove: Action;
-  fieldListKey: string;
-  directionListKey: string;
+  keys: ISortListKeys;
+  sizeKey: string;
 }
 
-function findField(fields: Array<IRecordsSortField>, field: string): IRecordsSortField {
-  return fields.filter((item: IRecordsSortField): boolean => item.field === field)[0];
-}
-function getDirection(criterion: ISortCriterion): SortDirection {
-  return criterion.direction === "desc" ? "desc" : "asc";
-}
-function copySort(sort: Array<ISortCriterion>): Array<ISortCriterion> {
-  return sort.map((item: ISortCriterion): ISortCriterion => ({ field: item.field, direction: getDirection(item) }));
-}
-function setListItems(group: ISortLevelGroup, action: Action, items: Array<IAction>, keyName: "fieldListKey" | "directionListKey"): ListModel {
-  const list = <ListModel>action.data;
-  const key = JSON.stringify(items);
-  if (group[keyName] !== key) {
-    group[keyName] = key;
-    list.setItems(items);
+/* The container of the sort bar. On a desktop it fits the bar to its width by whole levels (SD02, SD08):
+   "Sort by", the first level, "More..." and "+" stay, and the levels leave the bar from the last one, with
+   mode "removed", until the rest fits; "More..." shows while a level is out. A level is one item of the
+   bar, so a level is never split. The dotsItem menu is not used: it would list single actions and open a
+   list, not the dialog. On a phone nothing is fitted: every level shows and the row scrolls. */
+export class RecordsSortBarContainer extends AdaptiveActionContainer {
+  // The items fit() may take out of the bar - the levels from the second one on - and "More...". Set by the bar.
+  public hideableActions: Array<Action> = [];
+  public moreAction: Action;
+  private afterFitCallback: () => void;
+  private afterFitTime: number;
+
+  protected getRenderedActions(): Array<Action> {
+    return this.visibleActions;
   }
-  return list;
-}
-/* The rendered element of an action: every renderer gives the action's root element its renderedId. It is
-   looked up under the survey's root element, which may be inside a shadow root that the document cannot see into. */
-function getActionElement(owner: IRecordsSortBarOwner, action: Action): HTMLElement {
-  const container = owner.getRootElement();
-  if (!!container) return container.querySelector("#" + CSS.escape(action.renderedId));
-  const root: any = settings.environment.root;
-  return !!root && typeof root.getElementById === "function" ? root.getElementById(action.renderedId) : null;
-}
-/* Is the keyboard focus inside the action's element, or on nothing (<body>)? The active element is read
-   through a shadow root. */
-function isFocusInsideOrIdle(owner: IRecordsSortBarOwner, action: Action): boolean {
-  const active = getActiveElement();
-  if (!active || active === active.ownerDocument.body) return true;
-  const el = getActionElement(owner, action);
-  return !!el && el.contains(active);
+  /* The sizes are the ones the manager measured, a hidden item's included (it is rendered and measured
+     without its hidden class). A level is measured in its large mode only: it has no small one. */
+  public fit(options: { availableSpace: number, gap?: number }): void {
+    if (this.isResponsivenessDisabled) {
+      this.showAllLevels();
+    } else if (options.availableSpace > 0) {
+      this.fitLevels(options.availableSpace, options.gap || 0);
+    }
+    this.runAfterFitCallback();
+  }
+  private fitLevels(availableSpace: number, gap: number): void {
+    const more = this.moreAction;
+    const visible = this.visibleActions;
+    const levels = this.hideableActions.filter((item: Action): boolean => visible.indexOf(item) > -1);
+    const fixed = visible.filter((item: Action): boolean => item !== more && levels.indexOf(item) < 0);
+    const getWidth = (count: number, withMore: boolean): number => {
+      const items = fixed.concat(levels.slice(0, count), withMore && !!more ? [more] : []);
+      let res = -gap;
+      items.forEach((item: Action): void => { res += (item.maxDimension || 0) + gap; });
+      return res;
+    };
+    let count = levels.length;
+    if (getWidth(count, false) > availableSpace) {
+      count--;
+      while(count > 0 && getWidth(count, true) > availableSpace) {
+        count--;
+      }
+    }
+    fixed.forEach((item: Action): void => { item.mode = "large"; });
+    levels.forEach((item: Action, index: number): void => { item.mode = index < count ? "large" : "removed"; });
+    if (!!more) {
+      more.mode = count < levels.length ? "large" : "removed";
+    }
+  }
+  private showAllLevels(): void {
+    this.actions.forEach((item: Action): void => { item.mode = item === this.moreAction ? "removed" : "large"; });
+  }
+  // On a phone the bar is not fitted: every level shows. Back on a desktop, every item is measured again.
+  public setResponsive(isResponsive: boolean): void {
+    if (this.isResponsivenessDisabled === !isResponsive) return;
+    this.isResponsivenessDisabled = !isResponsive;
+    if (!isResponsive) {
+      this.showAllLevels();
+    } else {
+      this.raiseUpdate({ updateResponsivenessMode: UpdateResponsivenessMode.Hard });
+    }
+  }
+  /* The width of an item changed where the container cannot see it - a title of an action inside a level.
+     A rendered item is measured again by a light update; one out of the bar ("removed") through a hard
+     update, which renders and measures every item. */
+  public refitAction(action: Action): void {
+    action.needUpdateMaxDimension = true;
+    action.needUpdateMinDimension = true;
+    const mode = action.mode === "removed" ? UpdateResponsivenessMode.Hard : UpdateResponsivenessMode.Light;
+    this.raiseUpdate({ updateResponsivenessMode: mode });
+  }
+  /* Runs the callback once the bar has been fitted again, so that it reads what the respondent sees. It
+     refits the bar to have one. With no fitting (a phone, no renderer) it runs at once. A callback that no
+     fit runs within a second - the bar is not visible - is dropped, so a later fit cannot move the focus. */
+  public runAfterFit(callback: () => void): void {
+    if (this.isResponsivenessDisabled || !this.responsivityManager) {
+      callback();
+      return;
+    }
+    this.afterFitCallback = callback;
+    this.afterFitTime = Date.now();
+    this.raiseUpdate({ updateResponsivenessMode: UpdateResponsivenessMode.Light });
+  }
+  private runAfterFitCallback(): void {
+    const callback = this.afterFitCallback;
+    this.afterFitCallback = undefined;
+    if (!!callback && Date.now() - this.afterFitTime <= 1000) {
+      callback();
+    }
+  }
+  public dispose(): void {
+    this.afterFitCallback = undefined;
+    this.hideableActions = [];
+    this.moreAction = undefined;
+    super.dispose();
+  }
 }
 
 /* The sort bar the renderers show through their action bar, in the design's order:
-   Sort by  [field v] [direction v]  |  [field v] [direction v] [remove]  |  [+]
+   Sort by  [field v] [direction v]  |  [field v] [direction v] [remove]  |  More...  |  [+]
    It shows every level of the sort, with at least one group: a sort from code may have more levels
    than maxSortLevel, which limits only "+". "Sort by" is a disabled item without a tab stop, text the
-   keyboard passes over. The bar computes no sort of its own: it shows the question's sortCriteria and
-   passes the respondent's picks back through sortByUser, each one with the complete new sort. */
+   keyboard passes over. "More..." shows while the container has taken levels out of the bar, and opens
+   the sort dialog with every level. The bar computes no sort of its own: it shows the question's
+   sortCriteria and passes the respondent's picks back through sortByUser, each one with the complete new sort. */
 class RecordsSortBar implements IRecordsSortActions {
   /* lastField: the field the respondent last sorted the first level by through the bar, shown while
      nothing is sorted. pickedField: the first field of the last pick, which becomes lastField once
@@ -145,9 +209,11 @@ class RecordsSortBar implements IRecordsSortActions {
   private pickedField: string;
   private groups: Array<ISortLevelGroup> = [];
   private labelAction: Action;
+  private moreAction: Action;
   private addAction: Action;
+  private dialog: RecordsSortDialogModel;
 
-  constructor(public container: ActionContainer, private owner: IRecordsSortBarOwner, private view: IRecordsSortBarView) {
+  constructor(public container: RecordsSortBarContainer, private owner: IRecordsSortBarOwner, private view: IRecordsSortBarView) {
     this.labelAction = new Action({
       id: "sv-sort-by",
       title: "",
@@ -155,6 +221,20 @@ class RecordsSortBar implements IRecordsSortActions {
       disableTabStop: true,
       innerCss: <any>new ComputedUpdater(() => owner.getCssClasses().sortLabel),
       visible: <any>new ComputedUpdater(() => getSortBarState(owner, view).showSort)
+    });
+    // Shown by the container's fit only: out of the bar ("removed") until a level is.
+    this.moreAction = new Action({
+      id: "sv-sort-more",
+      title: "",
+      showTitle: true,
+      needSeparator: true,
+      mode: "removed",
+      visible: <any>new ComputedUpdater(() => {
+        const showSort = getSortBarState(owner, view).showSort;
+        const isMobile = owner.isMobile;
+        return showSort && !isMobile;
+      }),
+      action: (): void => { this.showDialog(); }
     });
     // Its visibility and state are set in update(): they depend on the sort's levels and the offered fields.
     this.addAction = new Action({
@@ -168,16 +248,17 @@ class RecordsSortBar implements IRecordsSortActions {
       visible: false,
       action: (): void => { this.onAddLevel(); }
     });
+    container.moreAction = this.moreAction;
     container.setActionsAppearance({ style: "neutral", mode: "tertiary", size: "x-small" });
     this.update();
   }
 
   /* Sets what every item shows from the sort: the number of groups, then the titles, accessible
-     names, lists and selected items of each group, and "+". It runs after every pick too. ListModel
-     selects the picked item before the pick is validated, and the dropdown copies its title onto the
-     button: a pick refused by a required cell, or waiting for an asynchronous validator, has not
-     sorted, and the bar shows the sort the question has. An accepted asynchronous pick arrives
-     through the sortCriteria change. */
+     names, lists and selected items of each group, "More..." and "+". It runs after every pick too.
+     ListModel selects the picked item before the pick is validated, and the dropdown copies its title
+     onto the button: a pick refused by a required cell, or waiting for an asynchronous validator, has
+     not sorted, and the bar shows the sort the question has. An accepted asynchronous pick arrives
+     through the sortCriteria change. An open dialog follows the locale and the loading states. */
   public update(): void {
     const owner = this.owner;
     const sort = owner.sortCriteria;
@@ -185,14 +266,21 @@ class RecordsSortBar implements IRecordsSortActions {
     if (sort.length > 0 && sort[0].field === this.pickedField) {
       this.lastField = sort[0].field;
     }
+    this.container.setResponsive(!owner.isMobile);
     this.updateGroupCount(Math.max(1, sort.length));
     this.groups.forEach((group: ISortLevelGroup, index: number): void => {
       this.updateGroup(group, index, sort, fields);
     });
     this.labelAction.title = owner.getLocalizationString("sortByText");
+    this.moreAction.title = owner.getLocalizationString("sortMoreText");
+    this.moreAction.ariaLabel = owner.getLocalizationString("sortMoreAriaLabel");
     this.updateAddAction(sort, fields);
+    if (!!this.dialog) {
+      this.dialog.update();
+    }
   }
   public dispose(): void {
+    this.closeDialog();
     this.groups.forEach((group: ISortLevelGroup): void => { group.container.dispose(); });
     this.groups = [];
     this.container.dispose();
@@ -202,7 +290,7 @@ class RecordsSortBar implements IRecordsSortActions {
      passes the surviving actions themselves: setItems keeps an action it is given, and the renderers
      key the items by uniqueId, so a surviving item stays mounted and keeps the focus. setItems
      disposes nothing: a removed group is disposed here, with its container, its actions and their
-     list and popup models. */
+     list and popup models. setItems makes the container measure and fit every item again. */
   private updateGroupCount(count: number): void {
     if (this.groups.length === count) return;
     const removed: Array<ISortLevelGroup> = [];
@@ -214,7 +302,9 @@ class RecordsSortBar implements IRecordsSortActions {
     }
     const items: Array<Action> = [this.labelAction];
     this.groups.forEach((group: ISortLevelGroup): void => { items.push(group.action); });
+    items.push(this.moreAction);
     items.push(this.addAction);
+    this.container.hideableActions = this.groups.slice(1).map((group: ISortLevelGroup): Action => group.action);
     this.container.setItems(items);
     removed.forEach((group: ISortLevelGroup): void => {
       group.container.dispose();
@@ -254,37 +344,23 @@ class RecordsSortBar implements IRecordsSortActions {
       needSeparator: index > 0,
       visible: <any>new ComputedUpdater(() => getSortBarState(owner, view).showSort)
     });
-    return { action: action, container: container, field: field, direction: direction, remove: remove,
-      fieldListKey: undefined, directionListKey: undefined };
+    return { action: action, container: container, field: field, direction: direction, remove: remove, keys: {}, sizeKey: undefined };
   }
-  // A dropdown of a level: its title, then a chevron (the css puts the chevron after the label).
   private createSortDropdownAction(id: string, onPicked: (item: IAction) => void): Action {
     const owner = this.owner;
     const view = this.view;
-    const action = createDropdownActionModel({
+    return createSortDropdownAction(owner, {
       id: id,
-      title: "",
-      showTitle: true,
       iconName: "icon-chevrondown-16x16",
-      iconSize: "auto",
-      appearance: { showBorder: true },
-      innerCss: <any>new ComputedUpdater(() => owner.getCssClasses().sortDropdown),
-      visible: <any>new ComputedUpdater(() => getSortBarState(owner, view).showSort),
-      enabled: <any>new ComputedUpdater(() => getSortBarState(owner, view).canSort)
-    }, {
-      items: [],
-      allowSelection: true,
-      // Under the button: the default opens to its left, over the bar's other dropdown.
-      verticalPosition: "bottom",
-      horizontalPosition: "center",
-      onSelectionChanged: (item: IAction): void => {
+      showBorder: true,
+      innerCss: (): string => owner.getCssClasses().sortDropdown,
+      visible: (): boolean => getSortBarState(owner, view).showSort,
+      enabled: (): boolean => getSortBarState(owner, view).canSort,
+      onPicked: (item: IAction): void => {
         onPicked(item);
         this.update();
       }
-    }, owner.getLocOwner());
-    // The list takes the focus as it opens, as the pager's page list does: the arrows and Enter pick from it.
-    action.popupModel.isFocusedContent = true;
-    return action;
+    });
   }
 
   /* The field a level shows: the field of its sort level - a fallback item when the bar does not offer
@@ -292,12 +368,8 @@ class RecordsSortBar implements IRecordsSortActions {
      otherwise the first offered field. */
   private getShownField(index: number, sort: Array<ISortCriterion>, fields: Array<IRecordsSortField>): IShownSortField {
     const criterion = sort[index];
-    if (!!criterion) {
-      const offered = findField(fields, criterion.field);
-      if (!!offered) return Object.assign({ isFallback: false }, offered);
-      return { field: criterion.field, title: criterion.field, dataType: this.owner.getSortFieldDataType(criterion.field) || "any", isFallback: true };
-    }
-    const shown = findField(fields, this.lastField) || fields[0];
+    if (!!criterion) return getShownSortField(this.owner, fields, criterion.field);
+    const shown = findSortField(fields, this.lastField) || fields[0];
     return !!shown ? Object.assign({ isFallback: false }, shown) : undefined;
   }
   private updateGroup(group: ISortLevelGroup, index: number, sort: Array<ISortCriterion>, fields: Array<IRecordsSortField>): void {
@@ -306,12 +378,7 @@ class RecordsSortBar implements IRecordsSortActions {
     const shown = this.getShownField(index, sort, fields);
     // A field is in one level at most: the list leaves out the fields of the other levels.
     const otherFields = sort.filter((_: ISortCriterion, i: number): boolean => i !== index).map((item: ISortCriterion): string => item.field);
-    const fieldItems: Array<IAction> = fields.filter((item: IRecordsSortField): boolean => otherFields.indexOf(item.field) < 0)
-      .map((item: IRecordsSortField): IAction => ({ id: "sv-sort-field-" + item.field, title: item.title, data: item.field }));
-    if (!!shown && shown.isFallback) {
-      fieldItems.push({ id: "sv-sort-field-" + shown.field, title: shown.title, data: shown.field });
-    }
-    const fieldList = setListItems(group, group.field, fieldItems, "fieldListKey");
+    const fieldList = setSortListItems(group.keys, "field", group.field, getSortFieldItems(fields, otherFields, shown));
     fieldList.selectedItem = !!shown ? fieldList.actions.filter((item: Action): boolean => item.data === shown.field)[0] : undefined;
     const fieldTitle = !!shown ? shown.title : "";
     group.field.title = fieldTitle;
@@ -320,14 +387,11 @@ class RecordsSortBar implements IRecordsSortActions {
 
     // The first level offers Default, which clears the whole sort; a later level is taken out with its remove button.
     const defaultTitle = owner.getLocalizationString("sortDefaultText");
-    const directionItems: Array<IAction> = index === 0 ? [{ id: "sv-sort-direction-default", title: defaultTitle }] : [];
     const dataType = !!shown ? shown.dataType : "any";
-    getSortDirectionItems(dataType).forEach((item: ISortDirectionItem): void => {
-      directionItems.push({ id: "sv-sort-direction-" + item.direction, title: owner.getLocalizationString(item.locStringName), data: item.direction });
-    });
-    const directionList = setListItems(group, group.direction, directionItems, "directionListKey");
+    const noSortItem: IAction = index === 0 ? { id: "sv-sort-direction-default", title: defaultTitle } : undefined;
+    const directionList = setSortListItems(group.keys, "direction", group.direction, getSortDirectionListItems(owner, dataType, noSortItem));
     const criterion = sort[index];
-    const direction = !!criterion ? getDirection(criterion) : undefined;
+    const direction = !!criterion ? getSortDirection(criterion) : undefined;
     directionList.selectedItem = directionList.actions.filter((item: Action): boolean => item.data === direction)[0];
     const directionTitle = !!direction ? owner.getLocalizationString(getSortDirectionLocStringName(dataType, direction)) : defaultTitle;
     group.direction.title = directionTitle;
@@ -338,6 +402,18 @@ class RecordsSortBar implements IRecordsSortActions {
       const removeTitle = owner.getLocalizationFormatString("sortRemoveLevelText", level);
       group.remove.title = removeTitle;
       group.remove.ariaLabel = removeTitle;
+    }
+    this.updateGroupSize(group);
+  }
+  /* The container watches the titles of its own items only: a new title of a level's field or direction,
+     or its remove button shown or hidden, makes the level wider or narrower, and the bar fits again. */
+  private updateGroupSize(group: ISortLevelGroup): void {
+    const sizeKey = JSON.stringify([group.field.title, group.direction.title, !!group.remove && group.remove.visible]);
+    if (group.sizeKey === sizeKey) return;
+    const isNew = group.sizeKey === undefined;
+    group.sizeKey = sizeKey;
+    if (!isNew) {
+      this.container.refitAction(group.action);
     }
   }
   // The first offered field that no level has, for "+"; undefined when every offered field is in the sort.
@@ -366,7 +442,7 @@ class RecordsSortBar implements IRecordsSortActions {
     const sort = copySort(this.owner.sortCriteria);
     const current = sort[index];
     if (!field || !!current && current.field === field || index > sort.length) return;
-    const offered = findField(this.owner.sortFields, field);
+    const offered = findSortField(this.owner.sortFields, field);
     const dataType = !!offered ? offered.dataType : this.owner.getSortFieldDataType(field);
     sort[index] = { field: field, direction: getFirstSortDirection(dataType) };
     this.sortByUser(sort);
@@ -409,8 +485,8 @@ class RecordsSortBar implements IRecordsSortActions {
     }
   }
   /* "+" appends the first offered field that no level has, in its type's first direction, and sorts at
-     once, like a field pick. The focus stays on "+"; when the new level hides it, the focus moves to
-     the new level's field dropdown. */
+     once, like a field pick. The focus stays on "+". When the new level hides "+", the focus moves to
+     the new level's field dropdown - or to "More..." when the bar, fitted again, has taken the new level out. */
   private onAddLevel(): void {
     const owner = this.owner;
     const sort = copySort(owner.sortCriteria);
@@ -421,10 +497,17 @@ class RecordsSortBar implements IRecordsSortActions {
     const isAdded = this.sortByUser(sort) && owner.sortCriteria.length === sort.length;
     this.update();
     if (isAdded && hadFocus && !this.addAction.visible) {
-      this.focusField(sort.length - 1, true);
+      const group = this.groups[sort.length - 1];
+      this.container.runAfterFit((): void => {
+        if (!!group && group.action.mode === "removed") {
+          focusSortAction(owner, this.moreAction, true);
+        } else {
+          this.focusField(sort.length - 1, true);
+        }
+      });
     }
   }
-  private sortByUser(criteria: Array<ISortCriterion>): boolean {
+  public sortByUser(criteria: Array<ISortCriterion>): boolean {
     this.pickedField = criteria.length > 0 ? criteria[0].field : undefined;
     const res = this.owner.sortByUser(criteria);
     if (!res) {
@@ -436,15 +519,47 @@ class RecordsSortBar implements IRecordsSortActions {
   private focusField(index: number, isTimeOut: boolean): void {
     const group = this.groups[index];
     if (!group) return;
-    const owner = this.owner;
-    const field = group.field;
-    focusElement(() => {
-      const el = getActionElement(owner, field);
-      return !!el ? el.querySelector("button") : null;
-    }, isTimeOut);
+    focusSortAction(this.owner, group.field, isTimeOut);
+  }
+
+  /* "More..." opens the dialog with every level of the sort (SD03) as a draft: nothing sorts until Apply
+     (SD04). The first row shows the field the first level shows. When the dialog closes, the focus goes
+     back to "More..." while the bar, fitted again, still shows it; otherwise to the first level's field,
+     which never leaves the bar. */
+  private showDialog(): void {
+    if (!!this.dialog || !settings.showDialog) return;
+    const sort = this.owner.sortCriteria;
+    const shown = this.getShownField(0, sort, this.owner.sortFields);
+    const dialog = new RecordsSortDialogModel(this.owner, {
+      shownField: !!shown ? shown.field : undefined,
+      sortByUser: (criteria: Array<ISortCriterion>): boolean => this.sortByUser(criteria),
+      onApplied: (): void => { this.update(); }
+    });
+    this.dialog = dialog;
+    showRecordsSortDialog(dialog, this.owner, (): void => { this.onDialogClosed(dialog); });
+  }
+  private onDialogClosed(dialog: RecordsSortDialogModel): void {
+    if (this.dialog !== dialog) return;
+    this.dialog = undefined;
+    dialog.dispose();
+    if (this.container.isDisposed) return;
+    this.container.runAfterFit((): void => {
+      if (this.moreAction.isVisible) {
+        focusSortAction(this.owner, this.moreAction, true);
+      } else {
+        this.focusField(0, true);
+      }
+    });
+  }
+  private closeDialog(): void {
+    const dialog = this.dialog;
+    if (!dialog) return;
+    this.dialog = undefined;
+    dialog.close();
+    dialog.dispose();
   }
 }
 
-export function createRecordsSortActions(container: ActionContainer, owner: IRecordsSortBarOwner, view: IRecordsSortBarView): IRecordsSortActions {
+export function createRecordsSortActions(container: RecordsSortBarContainer, owner: IRecordsSortBarOwner, view: IRecordsSortBarView): IRecordsSortActions {
   return new RecordsSortBar(container, owner, view);
 }

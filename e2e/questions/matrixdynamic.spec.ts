@@ -1285,3 +1285,238 @@ frameworks.forEach((framework) => {
     });
   });
 });
+
+frameworks.forEach((framework) => {
+  test.describe(`${framework} ${title} sort bar: More... and the sort dialog`, () => {
+    // The design's frame: a long title and five sortable columns.
+    const moreJson = (extra?: any): any => ({
+      elements: [Object.assign({
+        type: "matrixdynamic",
+        name: "matrix",
+        title: "Health Product - Long Title for Example",
+        allowSort: true,
+        maxSortLevel: 4,
+        rowCount: 0,
+        columns: [
+          { name: "product", title: "Product", cellType: "text" },
+          { name: "category", title: "Category", cellType: "text" },
+          { name: "price", title: "Price, USD", cellType: "text", inputType: "number" },
+          { name: "quantity", title: "Quantity per Unit", cellType: "text" },
+          { name: "stock", title: "In Stock", cellType: "text", inputType: "number" },
+        ],
+        sortCriteria: [{ field: "category", direction: "asc" }, { field: "product", direction: "desc" }, { field: "price", direction: "asc" }],
+        defaultValue: [
+          { product: "c", category: "toys", price: 10, quantity: "1 box", stock: 3 },
+          { product: "a", category: "tools", price: 30, quantity: "2 boxes", stock: 1 },
+          { product: "b", category: "toys", price: 20, quantity: "3 boxes", stock: 2 },
+          { product: "d", category: "toys", price: 5, quantity: "4 boxes", stock: 4 },
+        ],
+      }, extra)],
+    });
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await page.setViewportSize({ width: 1024, height: 900 });
+    });
+    const products = async (page): Promise<Array<string>> =>
+      page.locator(".sd-table__row").evaluateAll((rows: Array<HTMLElement>) => rows.map((row) => (row.querySelector("input[type=text]") as HTMLInputElement).value));
+    const headerBar = (page) => page.locator(".sd-question__header .sd-matrixdynamic__sort-bar");
+    const levelButton = (page, label: string, level: number) =>
+      headerBar(page).getByRole("button", { name: level === 1 ? new RegExp("^" + label + " (?!\\d)") : new RegExp("^" + label + " " + level + " ") });
+    const levelField = (page, level: number) => levelButton(page, "Sort field", level);
+    const levelDirection = (page, level: number) => levelButton(page, "Sort order", level);
+    const moreButton = (page) => headerBar(page).getByRole("button", { name: "Show all sort levels", exact: true });
+    const addButton = (page) => page.getByRole("button", { name: "Add sort level", exact: true });
+    const dialog = (page) => page.locator(".sv-popup--records-sort");
+    const dialogRows = (page) => dialog(page).locator(".sd-sort-dialog__row");
+    const rowField = (page, row: number) => dialogRows(page).nth(row - 1).locator("button").nth(0);
+    const rowDirection = (page, row: number) => dialogRows(page).nth(row - 1).locator("button").nth(1);
+    const dialogButton = (page, text: string) => dialog(page).locator(".sv-popup__body-footer").getByRole("button", { name: text, exact: true });
+    const listItem = (page, text: string) =>
+      page.locator(".sv-popup--menu-popup .sv-popup__container").filter({ visible: true }).getByRole("menuitemradio", { name: text, exact: true });
+    const rowsShown = async (page): Promise<Array<Array<string>>> =>
+      dialogRows(page).evaluateAll((rows: Array<HTMLElement>) => rows.map((row) =>
+        Array.prototype.map.call(row.querySelectorAll(".sd-action__title"), (el: Element): string => el.textContent) as Array<string>));
+    const sortOf = async (page): Promise<any> => page.evaluate(() => (window as any).survey.getQuestionByName("matrix").sortCriteria
+      .map((item: any) => ({ field: item.field, direction: item.direction })));
+    // The bar is transparent until its first fit.
+    const waitForFit = async (page): Promise<void> => {
+      await expect(headerBar(page)).toBeVisible();
+      await expect(headerBar(page)).not.toHaveAttribute("style", /opacity/);
+    };
+    // The aria-label (or the text) of the focused element, read through a shadow root.
+    const focusedName = async (page): Promise<string> => page.evaluate(() => {
+      let el: any = document.activeElement;
+      while(!!el && !!el.shadowRoot && !!el.shadowRoot.activeElement) el = el.shadowRoot.activeElement;
+      return !!el ? el.getAttribute("aria-label") || el.textContent : "";
+    });
+
+    test("a level that does not fit is behind More... and comes back on a wider window; the dialog sorts on Apply", async ({ page }) => {
+      await initSurvey(page, framework, moreJson());
+      await waitForFit(page);
+      await expect(moreButton(page)).toBeVisible();
+      await expect(levelField(page, 3)).toHaveCount(0);
+      await expect(levelField(page, 1)).toBeVisible();
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await expect(levelField(page, 3)).toBeVisible();
+      await expect(moreButton(page)).toHaveCount(0);
+      await page.setViewportSize({ width: 1024, height: 900 });
+      await expect(moreButton(page)).toBeVisible();
+
+      await moreButton(page).click();
+      await expect(dialog(page).locator(".sv-popup__body-header")).toHaveText("Sort by");
+      expect(await rowsShown(page)).toEqual([["Category", "Alphabet, A - Z"], ["Product", "Alphabet, Z - A"], ["Price, USD", "Low - High"]]);
+      await rowDirection(page, 2).click();
+      await listItem(page, "Alphabet, A - Z").click();
+      await expect(dialog(page)).toBeVisible();
+      await dialogButton(page, "Add New").click();
+      expect(await rowsShown(page)).toEqual([["Category", "Alphabet, A - Z"], ["Product", "Alphabet, A - Z"], ["Price, USD", "Low - High"], ["Quantity per Unit", "\u2014"]]);
+      await expect(dialogButton(page, "Add New")).toHaveCount(0);
+      await rowDirection(page, 4).click();
+      await listItem(page, "Alphabet, Z - A").click();
+      expect(await sortOf(page), "a draft sorts nothing").toEqual([{ field: "category", direction: "asc" }, { field: "product", direction: "desc" }, { field: "price", direction: "asc" }]);
+      await dialogButton(page, "Apply").click();
+      await expect(dialog(page)).toHaveCount(0);
+      expect(await sortOf(page)).toEqual([{ field: "category", direction: "asc" }, { field: "product", direction: "asc" },
+        { field: "price", direction: "asc" }, { field: "quantity", direction: "desc" }]);
+      expect(await products(page)).toEqual(["a", "b", "c", "d"]);
+      await expect(levelDirection(page, 1).locator(".sd-action__title")).toHaveText("Alphabet, A - Z");
+      await expect(moreButton(page)).toBeVisible();
+
+      await moreButton(page).click();
+      await rowDirection(page, 1).click();
+      await listItem(page, "Default").click();
+      await page.keyboard.press("Escape");
+      await expect(dialog(page)).toHaveCount(0);
+      expect((await sortOf(page)).length).toBe(4);
+      expect(await products(page)).toEqual(["a", "b", "c", "d"]);
+    });
+
+    test("the keyboard: Enter on More... opens the dialog on row 1, Esc closes an open list and then the dialog", async ({ page }) => {
+      await initSurvey(page, framework, moreJson());
+      await waitForFit(page);
+      await addButton(page).focus();
+      await page.keyboard.press("Shift+Tab");
+      await expect(moreButton(page)).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(rowField(page, 1)).toBeFocused();
+      const tabOrder: Array<string> = [];
+      for (let i = 0; i < 10; i++) {
+        await page.keyboard.press("Tab");
+        tabOrder.push(await focusedName(page));
+      }
+      expect(tabOrder).toEqual(["Sort order Alphabet, A - Z", "Sort field 2 Product", "Sort order 2 Alphabet, Z - A", "Remove sort level 2",
+        "Sort field 3 Price, USD", "Sort order 3 Low - High", "Remove sort level 3", "Add New", "Apply", "Sort field Category"]);
+      await rowDirection(page, 1).focus();
+      await page.keyboard.press("Enter");
+      // The list takes the focus on its first item, as in the bar.
+      await expect(listItem(page, "Default")).toBeFocused();
+      await page.keyboard.press("Escape");
+      await expect(listItem(page, "Default")).toHaveCount(0);
+      await expect(dialog(page)).toBeVisible();
+      await page.keyboard.press("Escape");
+      await expect(dialog(page)).toHaveCount(0);
+      await expect(moreButton(page)).toBeFocused();
+    });
+
+    test("a dropdown of a row opens over the dialog, and a pick in its list keeps the dialog open", async ({ page }) => {
+      await initSurvey(page, framework, moreJson());
+      await waitForFit(page);
+      await moreButton(page).click();
+      await rowField(page, 3).click();
+      const item = listItem(page, "In Stock");
+      await expect(item).toBeVisible();
+      const box = await item.boundingBox();
+      const isOnTop = await page.evaluate(({ x, y }) => {
+        let el: any = document.elementFromPoint(x, y);
+        while(!!el && !!el.shadowRoot && !!el.shadowRoot.elementFromPoint(x, y) && el.shadowRoot.elementFromPoint(x, y) !== el) el = el.shadowRoot.elementFromPoint(x, y);
+        return !!el && !!el.closest("[role=menuitemradio]");
+      }, { x: box!.x + box!.width / 2, y: box!.y + box!.height / 2 });
+      expect(isOnTop, "the list is above the overlay").toBe(true);
+      await item.click();
+      await expect(dialog(page)).toBeVisible();
+      await expect(rowField(page, 3).locator(".sd-action__title")).toHaveText("In Stock");
+      await dialog(page).locator(".sv-popup__close-button").click();
+      await expect(dialog(page)).toHaveCount(0);
+      expect((await sortOf(page))[2]).toEqual({ field: "price", direction: "asc" });
+    });
+
+    test("\"+\" adds a level that does not fit: More... shows, the level is in the dialog, and the focus goes to More...", async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await initSurvey(page, framework, moreJson());
+      await waitForFit(page);
+      await expect(moreButton(page)).toHaveCount(0);
+      await addButton(page).focus();
+      await page.keyboard.press("Enter");
+      await expect(addButton(page)).toHaveCount(0);
+      await expect(moreButton(page)).toBeVisible();
+      await expect(moreButton(page)).toBeFocused();
+      await page.keyboard.press("Enter");
+      expect((await rowsShown(page))[3]).toEqual(["Quantity per Unit", "Alphabet, A - Z"]);
+    });
+
+    test("\"+\" adds a level that fits: the focus goes to the new level's field", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 900 });
+      await initSurvey(page, framework, moreJson({ title: "Products" }));
+      await waitForFit(page);
+      await addButton(page).focus();
+      await page.keyboard.press("Enter");
+      await expect(addButton(page)).toHaveCount(0);
+      await expect(moreButton(page)).toHaveCount(0);
+      await expect(levelField(page, 4)).toBeFocused();
+    });
+
+    test("a longer label pushes a level behind More..., a shorter one brings it back", async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      const json = moreJson();
+      json.elements[0].columns[3].title = "Quantity per Unit, in Boxes";
+      await initSurvey(page, framework, json);
+      await waitForFit(page);
+      await expect(levelField(page, 3)).toBeVisible();
+      await expect(moreButton(page)).toHaveCount(0);
+      await levelField(page, 2).click();
+      await listItem(page, "Quantity per Unit, in Boxes").click();
+      await expect(levelField(page, 2).locator(".sd-action__title")).toHaveText("Quantity per Unit, in Boxes");
+      await expect(moreButton(page)).toBeVisible();
+      await expect(levelField(page, 3)).toHaveCount(0);
+      expect(await headerBar(page).evaluate((el: HTMLElement) => el.scrollWidth - el.clientWidth), "the bar does not overflow").toBeLessThanOrEqual(0);
+      await levelField(page, 2).click();
+      await listItem(page, "Product").click();
+      await expect(levelField(page, 3)).toBeVisible();
+      await expect(moreButton(page)).toHaveCount(0);
+    });
+
+    test("the focus after the dialog: level 1's field when an Apply leaves no More...", async ({ page }) => {
+      await initSurvey(page, framework, moreJson());
+      await waitForFit(page);
+      await moreButton(page).click();
+      await dialogRows(page).nth(2).getByRole("button", { name: /^Remove sort level/ }).click();
+      await dialogRows(page).nth(1).getByRole("button", { name: /^Remove sort level/ }).click();
+      await dialogButton(page, "Apply").click();
+      await expect(dialog(page)).toHaveCount(0);
+      await expect(moreButton(page)).toHaveCount(0);
+      await expect(levelField(page, 1)).toBeFocused();
+    });
+
+    test("the focus after the dialog: level 1's field when the window grows while it is open", async ({ page }) => {
+      await initSurvey(page, framework, moreJson());
+      await waitForFit(page);
+      await moreButton(page).click();
+      await expect(rowField(page, 1)).toBeFocused();
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.keyboard.press("Escape");
+      await expect(dialog(page)).toHaveCount(0);
+      await expect(moreButton(page)).toHaveCount(0);
+      await expect(levelField(page, 1)).toBeFocused();
+    });
+
+    test("on a phone there is no More...: every level shows and the row scrolls", async ({ page }) => {
+      await page.setViewportSize({ width: 420, height: 900 });
+      await initSurvey(page, framework, moreJson());
+      await expect(headerBar(page)).toBeVisible();
+      await expect(levelField(page, 3)).toHaveCount(1);
+      await expect(moreButton(page)).toHaveCount(0);
+      const layout = await headerBar(page).evaluate((el: HTMLElement) => [el.scrollWidth > el.clientWidth, getComputedStyle(el).overflowX]);
+      expect(layout).toEqual([true, "auto"]);
+    });
+  });
+});

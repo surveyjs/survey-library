@@ -2355,9 +2355,11 @@ export abstract class QuestionRecordsModel extends Question {
       getCssClasses: (): IRecordsBarCssClasses => {
         const css = question.cssClasses;
         return { root: css.recordsBar, pager: css.pager, pagerPage: css.pagerPage, pagerTotal: css.pagerTotal,
-          sortBar: css.sortBar, sortDropdown: css.sortDropdown, sortLabel: css.sortLabel, sortLevel: css.sortLevel };
+          sortBar: css.sortBar, sortDropdown: css.sortDropdown, sortLabel: css.sortLabel, sortLevel: css.sortLevel,
+          sortDialog: css.sortDialog, sortDialogRow: css.sortDialogRow };
       },
-      createActionContainer: (): ActionContainer => question.createActionContainer(),
+      createActionContainer: <T extends ActionContainer>(container?: T): T =>
+        !!container ? question.initActionContainer(container) : <T>question.createActionContainer(),
       getRootElement: (): HTMLElement => question.survey?.rootElement
     };
   }

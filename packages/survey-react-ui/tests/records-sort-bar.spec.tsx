@@ -77,7 +77,10 @@ describe("Records sort bar: several levels", () => {
   it("each level is one element of the bar with its own action bar, separated from the next level and from \"+\"", () => {
     render({ allowSort: true, maxSortLevel: 3, sortCriteria: [{ field: "product", direction: "asc" }, { field: "price", direction: "desc" }],
       columns: [{ name: "product", cellType: "text" }, { name: "price", cellType: "text", inputType: "number" }, { name: "category", cellType: "text" }] });
-    const items = headerBar()!.children;
+    // "More..." is rendered out of sight until the bar is fitted.
+    const hidden = Array.prototype.filter.call(headerBar()!.children, (item: Element): boolean => item.classList.contains("sd-action-bar__item--hidden")) as Array<Element>;
+    expect(hidden.map((item: Element): string => item.querySelector(".sd-action__title")!.textContent), "#0").toEqual(["More..."]);
+    const items = Array.prototype.filter.call(headerBar()!.children, (item: Element): boolean => hidden.indexOf(item) < 0) as Array<Element>;
     expect(items.length, "#1: Sort by, two levels and +").toBe(4);
     const levels = Array.prototype.map.call(items, (item: Element): Element => item.querySelector(".sd-sort-bar__level")) as Array<Element>;
     expect(levels.map((level: Element): boolean => !!level && level.classList.contains("sd-action-bar")), "#2").toEqual([false, true, true, false]);

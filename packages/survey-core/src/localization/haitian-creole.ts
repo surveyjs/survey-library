@@ -15,6 +15,26 @@ export var haitianCreoleStrings = {
   pagerTotalText: "nan {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Chwazi paj",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Triye pa {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Segondè - Low",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Ba - Segondè",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabè, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabè, Z - Yon",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Dernye premye",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Pi ansyen premye",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Triye pa {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, Lè sa a, pa {1}",
   // "Complete"
   completeText: "Ranpli",
   // [Auto-translated] "Preview"

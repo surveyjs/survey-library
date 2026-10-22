@@ -13,6 +13,26 @@ export var indonesianStrings = {
   pagerTotalText: "dari {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Pilih Halaman",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Urutkan berdasarkan {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Tinggi - Rendah",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Rendah - Tinggi",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabet, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Pertama yang terbaru",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Pertama kali tertua",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Diurutkan berdasarkan {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, lalu {1}",
   // "Complete"
   completeText: "Selesai",
   // "Preview"

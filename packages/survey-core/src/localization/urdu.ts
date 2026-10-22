@@ -13,6 +13,26 @@ export var urduSurveyStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "منتخب صفحہ",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "{0} کے حساب سے ترتیب دیں",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "ہائی - لو",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "لو - ہائی",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "الفابیٹ، A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "الفابیٹ، Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "نیا پہلا",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "سب سے پرانا پہلا",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "ترتیب دی گئی {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}، پھر {1}",
   // "Complete"
   completeText: "مکمل",
   // "Preview"

@@ -13,6 +13,26 @@ export var icelandicSurveyStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Veldu síðu",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Raðaðu eftir {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Hátt - Lágt",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Lágt - Hátt",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Stafróf, A - Ö",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Stafróf, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Nýjasta fyrsta",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Elsti fyrsti",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Raðað eftir {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, þá um {1}",
   // "Complete"
   completeText: "Lokið",
   // "Preview"

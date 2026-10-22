@@ -13,6 +13,26 @@ export var latvianSurveyStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Izvēlēties lapu",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Kārtot pēc {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Augsts - Zems",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Zems - Augsts",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabēts, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabēts, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Jaunākais pirmais",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Vecākais pirmais",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sakārtots pēc {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, tad līdz {1}",
   // "Complete"
   completeText: "Iesniegt",
   // "Preview"

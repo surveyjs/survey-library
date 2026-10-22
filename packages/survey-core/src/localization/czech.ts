@@ -13,6 +13,26 @@ export var czechSurveyStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Vybrat stránku",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Seřadit podle {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Vysoké - Nízké",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Nízké - Vysoké",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Abeceda, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Abeceda, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Nejnovější poprvé",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Nejstarší první",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Seřazeno podle {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, pak do {1}",
   // "Complete"
   completeText: "Dokončit",
   // "Preview"

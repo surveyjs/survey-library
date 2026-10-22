@@ -262,6 +262,43 @@ describe("SurveyTestTargets.nameOf: every target kind round-trips", () => {
   });
 });
 
+describe("SurveyTestTargets.nameOf: questions inside a choice item", () => {
+  function createChoiceSurvey(): SurveyModel {
+    return new SurveyModel({
+      elements: [
+        { type: "radiogroup", name: "color", choices: ["red", { value: "other", elements: [
+          { type: "text", name: "otherColor" },
+          { type: "paneldynamic", name: "pdIn", panelCount: 1, templateElements: [{ type: "text", name: "inPd" }] }
+        ] }] },
+        { type: "paneldynamic", name: "orders", panelCount: 1, templateElements: [
+          { type: "checkbox", name: "size", choices: ["s", { value: "custom", elements: [{ type: "text", name: "customSize" }] }] }
+        ] }
+      ]
+    });
+  }
+  test("A question in a choice of a top-level select is addressed by its bare name, Issue#11818", () => {
+    const survey = createChoiceSurvey();
+    const otherColor = survey.getQuestionByName("otherColor");
+    expect(otherColor.parentQuestion?.name, "the model links the question to the select question").toBe("color");
+    expectRoundTrip(survey, otherColor, "otherColor", "a question in a choice");
+  });
+  test("A dynamic panel in a choice and the questions of its panels, Issue#11818", () => {
+    const survey = createChoiceSurvey();
+    const pdIn: any = survey.getQuestionByName("pdIn");
+    expectRoundTrip(survey, pdIn, "pdIn", "a dynamic panel in a choice");
+    expectRoundTrip(survey, pdIn.panels[0].getQuestionByName("inPd"), "pdIn[0].inPd", "a question of its panel");
+  });
+  test("A question in a choice of a select inside a dynamic panel has no target name, Issue#11818", () => {
+    const survey = createChoiceSurvey();
+    const orders: any = survey.getQuestionByName("orders");
+    const size: any = orders.panels[0].getQuestionByName("size");
+    const customSize = size.choices[1].elements[0];
+    expect(customSize.name, "the question exists in the model").toBe("customSize");
+    expect(customSize.parentQuestion === size, "the model links it to the select question").toBe(true);
+    expect(SurveyTestTargets.nameOf(survey, customSize), "the grammar cannot address it").toEqual(undefined);
+  });
+});
+
 describe("SurveyTestTargets.nameOf: what it refuses to name", () => {
   test("Nothing, a plain object and a foreign model", () => {
     const survey = createTargetSurvey();

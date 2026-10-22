@@ -13,6 +13,26 @@ export var swedishSurveyStrings = {
   pagerTotalText: "av {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Välj sida",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sortera efter {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Högt - Lågt",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Låg - Hög",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabetet, A - Ö",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Nyaste första gången",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Äldsta första",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sorterat efter {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, sedan av {1}",
   // "Complete"
   completeText: "Slutför",
   // "Preview"

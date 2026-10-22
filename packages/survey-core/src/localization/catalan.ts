@@ -13,6 +13,26 @@ export var catalanSurveyStrings = {
   pagerTotalText: "de {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Selecciona pàgina",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Ordena per {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Alt - Baix",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Baix - Alt",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabet, de la A a la Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Les novetats primeres",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "El més antic primer",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Ordenat per {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, després per {1}",
   // "Complete"
   completeText: "Complet",
   // [Auto-translated] "Preview"

@@ -13,6 +13,26 @@ export var welshSurveyStrings = {
   pagerTotalText: "o {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Dewis Tudalen",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Trefnu yn ôl {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Uchel - Isel",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Isel - Uchel",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Wyddor, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Wyddor, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Y mwyaf newydd yn gyntaf",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Yr hynaf yn gyntaf",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Trefnwyd yn ôl {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, yna erbyn {1}",
   // "Complete"
   completeText: "Cwblhau",
   // "Preview"

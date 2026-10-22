@@ -13,6 +13,26 @@ export var ukrainianSurveyStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Вибрати сторінку",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Сортуйте за {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Високий - Низький",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Низький - Високий",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Алфавіт, А - Я",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Алфавіт, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Найновіший перший",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Спочатку найстарші",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Відсортовано за {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, потім {1}",
   // "Complete"
   completeText: "Завершити",
   // "Preview"

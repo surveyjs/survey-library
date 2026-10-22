@@ -13,6 +13,26 @@ export var swahiliStrings = {
   pagerTotalText: "ya {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Chagua Ukurasa",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Panga kwa {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Juu - Chini",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Chini - Juu",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabeti, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabeti, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Mpya kwanza",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Mzee kwanza",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Imepangwa na {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, kisha kwa {1}",
   // "Complete"
   completeText: "Kamili",
   // "Preview"

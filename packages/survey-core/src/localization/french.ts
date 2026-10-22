@@ -13,6 +13,26 @@ export var frenchSurveyStrings = {
   pagerTotalText: "de {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Sélectionner la page",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Triez par {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Haut - Très bas",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Grave - Haut",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alphabet, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alphabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Les dernières premières",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Les plus anciens d’abord",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Trié par {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, puis par {1}",
   // "Complete"
   completeText: "Terminer",
   // "Preview"

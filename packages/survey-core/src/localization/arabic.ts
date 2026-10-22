@@ -13,6 +13,26 @@ export var arabicSurveyStrings = {
   pagerTotalText: "من {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "اختر الصفحة",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "الترتيب حسب {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "عالي - منخفض",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "منخفض - عالي",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "الأبجدية، A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "الأبجدية، Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "الأحدث أولا",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "الأقدم أولا",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "تم الترتيب حسب {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}، ثم بحلول {1}",
   // "Complete"
   completeText: "إرسال البيانات",
   // "Preview"

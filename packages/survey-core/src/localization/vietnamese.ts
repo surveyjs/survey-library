@@ -13,6 +13,26 @@ export var vietnameseSurveyStrings = {
   pagerTotalText: "của {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Chọn trang",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sắp xếp theo {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Cao - Thấp",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Thấp - Cao",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Bảng chữ cái, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Bảng chữ cái, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Mới nhất là đầu tiên",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Người đầu tiên lâu đời nhất",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sắp xếp theo {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, rồi đến {1}",
   // "Complete"
   completeText: "Hoàn thành",
   // "Preview"

@@ -13,6 +13,26 @@ export var teluguStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "పేజీని ఎంచుకోండి",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "ద్వారా క్రమబద్ధీకరించు {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "అధిక - తక్కువ",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "తక్కువ - అధిక",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "అక్షరమాలు, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "అక్షరం, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "సరికొత్త మొదటిది",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "పురాతనమైనది మొదటిది",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "ద్వారా క్రమబద్ధీకరించబడింది {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, తరువాత {1}",
   // "Complete"
   completeText: "పూర్తి చేయండి",
   // "Preview"

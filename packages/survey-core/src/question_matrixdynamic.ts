@@ -1729,6 +1729,9 @@ export class MatrixDynamicSingleInputBehavior extends MatrixDropdownBaseSingleIn
   protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
     return this.getDynamicSingleInputQuestions(question, checkDynamic);
   }
+  protected canCreateSingleInputSummary(): boolean {
+    return true;
+  }
   protected createSingleInputSummary(): QuestionSingleInputSummary {
     const md = this.matrixDynamic;
     // Read once per summary; the page-size sync that the summary starts with does not change it.

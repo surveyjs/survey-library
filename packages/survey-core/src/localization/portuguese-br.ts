@@ -15,6 +15,26 @@ export var portugueseBrSurveyStrings = {
   pagerTotalText: "de {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Selecionar Página",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Ordene por {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Alto - Baixo",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Baixo - Alto",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabeto, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabeto, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "O mais novo primeiro",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "O mais velho primeiro",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Organizado por {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, depois por {1}",
   // [Auto-translated] "Complete"
   completeText: "Completar",
   // [Auto-translated] "Preview"

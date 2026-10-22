@@ -13,6 +13,26 @@ export var slovenianStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Izberi stran",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Razvrstite po {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Visoko - Nizko",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Nizko - Visoko",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Abeceda, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Abeceda, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Najnovejši prvi",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Najstarejši prvi",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Razvrščeno po {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, potem do {1}",
   // "Complete"
   completeText: "Zaključi",
   // "Preview"

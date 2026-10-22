@@ -12,6 +12,10 @@ export class CalculatedValue extends Base {
   private expressionRunner: ExpressionRunner;
   // The name and the result of the last completed run, whatever started it
   private lastRun: { name: string, value: any };
+  // The runner's variables as a set, to find the calculated values this one uses
+  private dependentNames: Set<string>;
+  private dependentNamesSource: Array<string>;
+  private dependentNamesLength: number;
   constructor(name: string = null, expression: string = null) {
     super();
     if (!!name) {
@@ -131,9 +135,17 @@ export class CalculatedValue extends Base {
   private runDependentExpressions(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>) {
     var variables = this.expressionRunner.getVariables();
     if (!variables) return;
+    // The runner keeps its variables array until the expression changes, then returns a new one.
+    // The array is shared and may grow in place (CopyValueTrigger pushes into its runner's array),
+    // so the set is rebuilt when the array or its length changes
+    if (this.dependentNamesSource !== variables || this.dependentNamesLength !== variables.length) {
+      this.dependentNames = new Set(variables);
+      this.dependentNamesSource = variables;
+      this.dependentNamesLength = variables.length;
+    }
     for (var i = 0; i < calculatedValues.length; i++) {
       var calcItem = calculatedValues[i];
-      if (calcItem === this || variables.indexOf(calcItem.name) < 0) continue;
+      if (calcItem === this || !this.dependentNames.has(calcItem.name)) continue;
       calcItem.doCalculation(calculatedValues, properties);
     }
   }

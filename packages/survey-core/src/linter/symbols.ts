@@ -244,6 +244,9 @@ export interface ExpressionSite {
   synthesized?: boolean;
   // An inArray filter is evaluated per data item, not as its owner's property.
   inArrayOf?: ExpressionSite;
+  // the filter sites of the site's inArray calls written as operands, whose names the runtime
+  // reads as the site's own dependencies (getDependencyRefs)
+  operandFilterSites?: Array<ExpressionSite>;
   ast?: Operand;
   parseError?: { at?: number, message?: string };
   refs?: Array<ParsedRef>;

@@ -613,6 +613,19 @@ describe("DynamicDataList: local filter, sort and paging", () => {
     expect(list.filter).toBe("");
     expect(list.visibleCount).toBe(3);
   });
+  test("onError of a filter that cannot be parsed reads the first page together with page index 0", () => {
+    const list = createList(createRecords(6));
+    list.pageSize = 2;
+    list.pageIndex = 2;
+    // The page cache is filled on the first read: without it there is no stale page to see.
+    expect(list.getPageIndexes()).toEqual([4, 5]);
+    const seen: Array<any> = [];
+    list.onError = (): void => { seen.push({ pageIndex: list.pageIndex, page: list.getPageIndexes() }); };
+    list.filter = "{id} >";
+    expect(seen).toEqual([{ pageIndex: 0, page: [0, 1] }]);
+    expect(list.pageIndex).toBe(0);
+    expect(list.getPageIndexes()).toEqual([0, 1]);
+  });
   test("setting the filter twice re-parses it", () => {
     const list = createList(createRecords(4));
     list.filter = "{id} > 2";

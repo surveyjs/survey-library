@@ -59,6 +59,7 @@ import MatrixCell from "./MatrixCell.vue";
 import MatrixDropdown from "./MatrixDropdown.vue";
 import MatrixTable from "./MatrixTable.vue";
 import MatrixHeaderRequired from "./MatrixHeaderRequired.vue";
+import MatrixHeaderSortButton from "./MatrixHeaderSortButton.vue";
 import MatrixDropdownCellComp from "./MatrixDropdownCellComp.vue";
 import MatrixDynamic from "./MatrixDynamic.vue";
 import MatrixDynamicPlaceholder from "./MatrixDynamicPlaceholder.vue";
@@ -234,6 +235,7 @@ function registerComponents(
   registerComponent("survey-matrixdropdown", MatrixDropdown);
   registerComponent("survey-matrixtable", MatrixTable);
   registerComponent("survey-matrixheaderrequired", MatrixHeaderRequired);
+  registerComponent("survey-matrixheadersortbutton", MatrixHeaderSortButton);
   registerComponent("survey-matrixdropdown-cell", MatrixDropdownCellComp);
   registerComponent("survey-matrixdynamic", MatrixDynamic);
   registerComponent("survey-placeholder-matrixdynamic", MatrixDynamicPlaceholder);

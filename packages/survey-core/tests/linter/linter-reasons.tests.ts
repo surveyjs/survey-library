@@ -1,4 +1,5 @@
 import { describe, test, expect } from "vitest";
+import { Model } from "survey-core";
 import {
   getRules, lintSurvey, ILintFinding, ISurveyLintOptions, SurveyLintHintReasons, SurveyLintReasons,
   SurveyLintReproductionReasons,
@@ -395,6 +396,12 @@ const CASES: Array<{ ruleId: string, reason: string, json: any, options?: ISurve
         { type: "text", name: "q2", visibleIf: "{q1} = 1 or 2 = 2" },
       ],
     },
+  },
+  {
+    // off by default
+    ruleId: "expression/no-reference", reason: "noReference",
+    json: { elements: [{ type: "text", name: "q1", visibleIf: "false" }] },
+    options: { rules: { "expression/no-reference": "warning" } },
   },
   {
     ruleId: "choices/dead-source", reason: "missing",
@@ -869,6 +876,29 @@ describe("linter reasons - the scope hint", () => {
     expect(findings).toHaveLength(1);
     expect(findings[0].hint.reason).toBe(SurveyLintHintReasons.panelScopePrefix);
     expect(findings[0].message).toContain("dynamic panel");
+  });
+  test("a row variable inside an inArray filter reports the inArrayFilterScope hint", () => {
+    // the filter runs against the item and then the survey, wherever the call sits
+    const json: any = {
+      elements: [
+        { type: "matrixdynamic", name: "m", columns: [{ name: "c", cellType: "text", inputType: "number" }] },
+        { type: "expression", name: "e" },
+      ],
+    };
+    const cases = [
+      { filter: "'{c} > 1'", value: 5, hint: undefined },
+      { filter: "'{row.c} > 1'", value: 0, hint: { reason: SurveyLintHintReasons.inArrayFilterScope, name: "row" } },
+      { filter: "'{rowIndex} > 0'", value: 0, hint: { reason: SurveyLintHintReasons.inArrayFilterScope, name: "rowIndex" } },
+    ];
+    cases.forEach(item => {
+      json.elements[1].expression = "sumInArray({m}, 'c', " + item.filter + ")";
+      const survey = new Model(json);
+      survey.data = { m: [{ c: 5 }, { c: 1 }] };
+      expect(survey.getValue("e"), item.filter).toBe(item.value);
+      const findings = findingsOf(json, "reference/unknown");
+      expect(findings.map(f => f.hint), item.filter).toEqual(item.hint ? [item.hint] : []);
+      if (item.hint) expect(findings[0].message, item.filter).toContain("inArray filter");
+    });
   });
   test("a name that only needs its row prefix reports the matrixColumn hint", () => {
     const findings = findingsOf({

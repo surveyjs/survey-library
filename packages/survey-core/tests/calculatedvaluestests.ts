@@ -705,3 +705,198 @@ describe("CalculatedValues: recalculate when a value they use changes", () => {
     expect(survey.data.renamed, "survey.data has the new name").toBe(3);
   });
 });
+// The calculated values a calculated value uses run first. They are found by the names its expression
+// uses, matched exactly, and run in the order of the survey's list
+describe("CalculatedValues: find the calculated values they use", () => {
+  const registerTick = () => {
+    const log = { counts: {} as { [name: string]: number }, sequence: [] as Array<string> };
+    FunctionFactory.Instance.register("tick", (params: any[]) => {
+      const name = params[0];
+      log.counts[name] = (log.counts[name] || 0) + 1;
+      log.sequence.push(name);
+      return params[1];
+    });
+    const reset = () => {
+      log.counts = {};
+      log.sequence = [];
+    };
+    return { log, reset };
+  };
+  const createSurvey = (calculatedValues: Array<any>): SurveyModel => {
+    return new SurveyModel({
+      elements: [{ type: "text", name: "a" }, { type: "text", name: "b" }],
+      calculatedValues: calculatedValues
+    });
+  };
+  test("a chain declared in reverse order calculates the values it uses first, and nothing runs on an unrelated answer", () => {
+    const { log, reset } = registerTick();
+    try {
+      const survey = createSurvey([
+        { name: "c1", expression: "tick('c1', {c2} + 1)" },
+        { name: "c2", expression: "tick('c2', {c3} * 2)" },
+        { name: "c3", expression: "tick('c3', {a})" }
+      ]);
+      reset();
+      survey.setValue("a", 1);
+      expect(survey.getVariable("c1"), "c1 after a = 1").toBe(3);
+      expect(survey.getVariable("c2"), "c2 after a = 1").toBe(2);
+      expect(survey.getVariable("c3"), "c3 after a = 1").toBe(1);
+      expect(log.counts, "calls after a = 1").toEqual({ c3: 2, c2: 2, c1: 2 });
+      reset();
+      survey.setValue("b", 1);
+      expect(survey.getVariable("c1"), "c1 after b = 1").toBe(3);
+      expect(survey.getVariable("c2"), "c2 after b = 1").toBe(2);
+      expect(survey.getVariable("c3"), "c3 after b = 1").toBe(1);
+      expect(log.counts, "calls after b = 1").toEqual({});
+    } finally {
+      FunctionFactory.Instance.unregister("tick");
+    }
+  });
+  test("a reference in another letter case is not a dependent: the next pass corrects the value", () => {
+    const { log, reset } = registerTick();
+    try {
+      const survey = createSurvey([
+        { name: "c1", expression: "tick('c1', {C2} + 1)" },
+        { name: "c2", expression: "tick('c2', {a})" }
+      ]);
+      reset();
+      survey.setValue("a", 1);
+      expect(survey.getVariable("c1"), "c1 after a = 1").toBe(2);
+      expect(survey.getVariable("c2"), "c2 after a = 1").toBe(1);
+      expect(log.counts, "calls after a = 1").toEqual({ c2: 3, c1: 2 });
+    } finally {
+      FunctionFactory.Instance.unregister("tick");
+    }
+  });
+  test("a calculated value renamed at runtime is found under its new name", () => {
+    const { log, reset } = registerTick();
+    try {
+      const survey = createSurvey([
+        { name: "c1", expression: "tick('c1', {c9} + 1)" },
+        { name: "c2", expression: "tick('c2', {a})" }
+      ]);
+      survey.setValue("a", 1);
+      survey.calculatedValues[1].name = "c9";
+      reset();
+      survey.setValue("a", 2);
+      expect(survey.getVariable("c1"), "c1 after a = 2").toBe(3);
+      expect(survey.getVariable("c9"), "c9 after a = 2").toBe(2);
+      expect(log.counts, "calls after a = 2").toEqual({ c2: 2, c1: 2 });
+    } finally {
+      FunctionFactory.Instance.unregister("tick");
+    }
+  });
+  test("a calculated value added at the start of the list, then one removed", () => {
+    const { log, reset } = registerTick();
+    try {
+      const survey = createSurvey([
+        { name: "c2", expression: "tick('c2', {a})" }
+      ]);
+      survey.setValue("a", 1);
+      survey.calculatedValues.unshift(new CalculatedValue("c1", "tick('c1', {c2} * 10)"));
+      reset();
+      survey.setValue("a", 2);
+      expect(survey.getVariable("c1"), "c1 after a = 2").toBe(20);
+      expect(survey.getVariable("c2"), "c2 after a = 2").toBe(2);
+      expect(log.counts, "calls after a = 2").toEqual({ c2: 2, c1: 2 });
+      survey.calculatedValues.splice(1, 1);
+      reset();
+      survey.setValue("a", 3);
+      expect(survey.getVariable("c1"), "c1 after a = 3").toBe(20);
+      expect(survey.getVariable("c2"), "c2 after a = 3: the variable stays").toBe(2);
+      expect(log.counts, "calls after a = 3").toEqual({});
+    } finally {
+      FunctionFactory.Instance.unregister("tick");
+    }
+  });
+  test("an expression replaced in place uses its new variables", () => {
+    const { log, reset } = registerTick();
+    try {
+      const survey = createSurvey([
+        { name: "c1", expression: "tick('c1', {c2} + 1)" },
+        { name: "c2", expression: "tick('c2', {a})" },
+        { name: "c3", expression: "tick('c3', {b})" }
+      ]);
+      const c1: any = survey.calculatedValues[0];
+      survey.setValue("a", 1);
+      survey.setValue("b", 5);
+      const runner = c1.expressionRunner;
+      c1.expression = "tick('c1', {c3} + 100)";
+      reset();
+      survey.setValue("b", 6);
+      expect(c1.expressionRunner, "the runner object stays the same").toBe(runner);
+      expect(survey.getVariable("c1"), "c1 after b = 6").toBe(106);
+      expect(survey.getVariable("c2"), "c2 after b = 6").toBe(1);
+      expect(survey.getVariable("c3"), "c3 after b = 6").toBe(6);
+      expect(log.counts, "calls after b = 6").toEqual({ c3: 2, c1: 2 });
+    } finally {
+      FunctionFactory.Instance.unregister("tick");
+    }
+  });
+  test("a dotted reference to a calculated value is not a dependent", () => {
+    const { log, reset } = registerTick();
+    try {
+      const survey = createSurvey([
+        { name: "c1", expression: "tick('c1', {c2.x})" },
+        { name: "c2", expression: "tick('c2', {a})" }
+      ]);
+      reset();
+      survey.setValue("a", { x: 7 });
+      expect(survey.getVariable("c1"), "c1 after a = { x: 7 }").toBe(7);
+      expect(survey.getVariable("c2"), "c2 after a = { x: 7 }").toEqual({ x: 7 });
+      expect(log.counts, "calls after a = { x: 7 }").toEqual({ c2: 3, c1: 2 });
+    } finally {
+      FunctionFactory.Instance.unregister("tick");
+    }
+  });
+  test("dependents run in list order, not in the order the expression names them", () => {
+    const { log, reset } = registerTick();
+    try {
+      const survey = createSurvey([
+        { name: "c1", expression: "tick('c1', {c3} + {c2})" },
+        { name: "c2", expression: "tick('c2', {a})" },
+        { name: "c3", expression: "tick('c3', {a} * 10)" }
+      ]);
+      reset();
+      survey.setValue("a", 1);
+      expect(survey.getVariable("c1"), "c1 after a = 1").toBe(11);
+      expect(survey.getVariable("c2"), "c2 after a = 1").toBe(1);
+      expect(survey.getVariable("c3"), "c3 after a = 1").toBe(10);
+      expect(log.counts, "calls after a = 1").toEqual({ c2: 2, c3: 2, c1: 2 });
+      expect(log.sequence, "sequence after a = 1").toEqual(["c2", "c3", "c1", "c2", "c3", "c1"]);
+      reset();
+      survey.setValue("b", 1);
+      expect(survey.getVariable("c1"), "c1 after b = 1").toBe(11);
+      expect(survey.getVariable("c2"), "c2 after b = 1").toBe(1);
+      expect(survey.getVariable("c3"), "c3 after b = 1").toBe(10);
+      expect(log.counts, "calls after b = 1").toEqual({});
+    } finally {
+      FunctionFactory.Instance.unregister("tick");
+    }
+  });
+  test("the runner's variables array grows in place after the dependents were found", () => {
+    const { log, reset } = registerTick();
+    try {
+      const survey = createSurvey([
+        { name: "c1", expression: "tick('c1', {a})" },
+        { name: "c2", expression: "tick('c2', {a} * 10)" }
+      ]);
+      const c1: any = survey.calculatedValues[0];
+      survey.setValue("a", 1);
+      reset();
+      survey.setValue("a", 2);
+      expect(log.sequence, "sequence after a = 2: c2 is not a dependent yet").toEqual(["c1", "c2", "c1", "c2"]);
+      const variables = c1.expressionRunner.getVariables();
+      variables.push("c2");
+      reset();
+      survey.setValue("a", 3);
+      expect(c1.expressionRunner.getVariables(), "the array stays the same object").toBe(variables);
+      expect(survey.getVariable("c1"), "c1 after a = 3").toBe(3);
+      expect(survey.getVariable("c2"), "c2 after a = 3").toBe(30);
+      expect(log.counts, "calls after a = 3").toEqual({ c2: 2, c1: 2 });
+      expect(log.sequence, "sequence after a = 3").toEqual(["c2", "c1", "c2", "c1"]);
+    } finally {
+      FunctionFactory.Instance.unregister("tick");
+    }
+  });
+});

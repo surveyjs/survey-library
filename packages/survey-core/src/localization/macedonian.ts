@@ -13,6 +13,26 @@ export var macedonianSurveyStrings = {
   pagerTotalText: "од {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Изберете страница",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Сортирај по {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Високо - Ниско",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Низок - Висок",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Азбука, А - Ш",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Азбука, З - А",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Најновото прво",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Најстар прв",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Сортирано по {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, потоа од {1}",
   // "Complete"
   completeText: "Заврши",
   // "Preview"

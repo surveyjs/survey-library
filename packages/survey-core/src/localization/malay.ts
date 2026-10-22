@@ -13,6 +13,26 @@ export var malaySurveyStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Pilih Halaman",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Susun mengikut {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Tinggi - Rendah",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Rendah - Tinggi",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Abjad, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Abjad, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Yang terbaru pertama",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Yang paling tua dahulu",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Disusun mengikut {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, kemudian oleh {1}",
   // "Complete"
   completeText: "Selesai",
   // "Preview"

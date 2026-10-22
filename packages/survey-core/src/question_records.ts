@@ -158,6 +158,7 @@ export abstract class QuestionRecordsModel extends Question {
       get pageSize(): number { return question.pageSize; },
       get listPageSize(): number { return question.listPageSize; },
       get maxSortLevel(): number { return question.maxSortLevel; },
+      getFieldDataType: (field: string): DynamicDataFieldType => question.getSortFieldDataType(field),
       get pageIndex(): number { return question.reportedPageIndex; },
       get pageCount(): number { return question.reportedPageCount; },
       get isDesignMode(): boolean { return question.isDesignMode; },
@@ -651,7 +652,8 @@ export abstract class QuestionRecordsModel extends Question {
   /* Whether the question pages is decided by three facts, each in one place:
      - pageSize: the authored page size, 0 for none;
      - listPageSize: the size the list is to page by - 0 in single-input mode, which is its own
-       paging, and capped by maxRecordsPerPage;
+       paging, for every question of the survey and not only the current one, except in the preview;
+       capped by maxRecordsPerPage;
      - list.pageSize: the size the list pages by now; the paging helper sets it from listPageSize at
        every sync, 0 in design mode;
      and by two facts of the list: isRemoteData (a source is assigned) and isPagedBySource (the source
@@ -669,6 +671,7 @@ export abstract class QuestionRecordsModel extends Question {
        a source the list pages          >0        >0           yes          yes         yes         yes         no
        design mode                      >0        >0           no           no          no          no          no
        single-input mode                >0        0            no           no          no          no          no
+       single-input mode, preview       >0        >0           yes          yes         yes         no          no
        a filter or a sort, no paging    0         0            no           no          yes         no          no
      getMaxRecordCount lifts the page maximum whenever pageSize is set, and getRecordCountLimit only
      while the question pages: in design and single-input mode with a pageSize, maxRowCount /
@@ -1151,10 +1154,12 @@ export abstract class QuestionRecordsModel extends Question {
   /* The page size the list gets: the authored one, capped by settings.maxPageSize - read on each call;
      a value that is not a positive number is no cap. Single-input mode walks every object and lists
      them in its own summary - it is its own paging - so it builds every object and the list does not
-     page. A carousel without pageSize builds every panel, as it always has; with it, it pages like
-     list and tab mode and shows one panel of the page. */
+     page. That holds for the whole mode, not only while the question is the current one: the mode
+     renders the current question only, and code that reads a question that is not current sees every
+     object. The preview renders every question and pages. A carousel without pageSize builds every
+     panel, as it always has; with it, it pages like list and tab mode and shows one panel of the page. */
   protected get listPageSize(): number {
-    if (this.isSingleInputActive) return 0;
+    if (this.isSingleInputPagingOff) return 0;
     const maxPageSize = settings.maxPageSize;
     if (typeof maxPageSize !== "number" || !(maxPageSize > 0)) return this.pageSize;
     return Math.min(this.pageSize, maxPageSize);
@@ -2072,9 +2077,17 @@ export abstract class QuestionRecordsModel extends Question {
     if (!list || !list.isRemote) return;
     return list.refresh();
   }
+  private get isSingleInputPagingOff(): boolean {
+    return !!this.singleInput?.isSingleVisibleInput && this.survey.state !== "preview";
+  }
   // Single-input mode reads every object, and nothing tells the list that it became active.
   protected syncPageSizeWithMode(): void {
     this.syncListPageSize();
+  }
+  // The survey's single-input mode or its preview started or ended: the list pages by another size.
+  protected onSurveySingleInputModeChanged(): void {
+    this.syncPageSizeWithMode();
+    super.onSurveySingleInputModeChanged();
   }
   /**
    * Gets or sets the zero-based index of the current data page containing rows or panels. Set this property to switch between data pages.
@@ -2127,12 +2140,20 @@ export abstract class QuestionRecordsModel extends Question {
     this.paging.sort(fieldOrCriteria, direction, append);
   }
   public clearSort(): void { this.paging.clearSort(); }
-  /* What a click on a sortable header does: ascending, then descending, then not sorted. With
+  /* What a click on a sortable header does: the field's first direction - descending for a number
+     or a date field, ascending otherwise (getSortFieldDataType) - then the other one, then not sorted. With
      append the field is cycled inside the current sort instead of replacing it, which is the
      multi-field sort a modified header click makes; a new field that would go past maxSortLevel
-     replaces the last level. It validates the page it replaces. For the renderers: code sorts with
-     sort(). */
+     replaces the last level. While maxSortLevel is above 1, a field already in the sort is cycled in
+     place without append too, and the other levels stay; a field that is not sorted still replaces
+     the sort. It validates the page it replaces. For the renderers: code sorts with sort(). */
   public toggleSort(field: string, append?: boolean): boolean { return this.paging.toggleSort(field, append); }
+  /* The data type the list knows a record field by (getFields): it decides the direction a field is
+     sorted in first and how a direction is labelled. A field the list does not know is "any". */
+  public getSortFieldDataType(field: string): DynamicDataFieldType {
+    const found = this.getFields().filter((item: IDynamicDataField): boolean => item.name === field)[0];
+    return !!found && !!found.dataType ? found.dataType : "any";
+  }
   /* The sort a respondent can make: by a header click a renderer may offer (a column opts out with
      column.allowSort = false) or from the Sort by menu. It does not gate the code API - sort(),
      sortCriteria, clearSort() and toggleSort() work whatever its value: the renderers gate on
@@ -2160,7 +2181,7 @@ export abstract class QuestionRecordsModel extends Question {
     return this.allowSort === true && (show === true || show === "auto" && !this.canSortByHeaders);
   }
   // Whether the rendered column headers sort: paneldynamic has no headers.
-  protected get canSortByHeaders(): boolean { return false; }
+  public get canSortByHeaders(): boolean { return false; }
   /* A survey expression over the record values - the same language as visibleIf, with the record
      fields as its variables. A record that does not satisfy it has no object; the question value
      keeps every record. An empty string = no filter. It is not rowsVisibleIf / templateVisibleIf:

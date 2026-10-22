@@ -519,6 +519,12 @@ export class Question extends SurveyElement<Question>
   public onSurveyChoiceShortcutsEnabledChanged(): void {
     this.forEachNestedElement(info => getNestedElementQuestions(info).forEach(q => q.onSurveyChoiceShortcutsEnabledChanged()), { build: "none", visibleOnly: false });
   }
+  // The survey calls it on its questions when its single-input mode or its preview starts or ends; a
+  // container forwards it to the nested questions that exist. Not public API: the survey calls it
+  // through a cast.
+  protected onSurveySingleInputModeChanged(): void {
+    this.forEachNestedElement(info => getNestedElementQuestions(info).forEach(q => q.onSurveySingleInputModeChanged()), { build: "none", visibleOnly: false });
+  }
   protected getIsMobile(): boolean {
     return this._isMobile;
   }
@@ -846,6 +852,13 @@ export class Question extends SurveyElement<Question>
   // a voice front end, an AI agent) cannot answer such a question at all.
   public get hasPlainInput(): boolean {
     return this.hasInput;
+  }
+  /* Whether records can be ordered by this question's value: a scalar value only. It reads
+     getValueType() on every call, so it follows a type switch (multiSelect) as it happens. Not
+     hasInput: an expression has a value to sort by although nobody types it. */
+  public get isValueSortable(): boolean {
+    const type = this.getValueType();
+    return type !== "array" && type !== "object";
   }
   /**
    * Returns a page to which the question belongs and allows you to move this question to a different page.

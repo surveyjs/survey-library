@@ -36,13 +36,13 @@
         >
           <SvComponent
             :is="'survey-element-title-content'"
-            v-if="!question.hasTitleActions"
+            v-if="!question.hasVisibleTitleActions"
             :element="question"
             :css="css"
           ></SvComponent>
           <SvComponent
             :is="'sv-title-actions'"
-            v-if="question.hasTitleActions"
+            v-if="question.hasVisibleTitleActions"
             :element="question"
             :css="css"
           ></SvComponent>

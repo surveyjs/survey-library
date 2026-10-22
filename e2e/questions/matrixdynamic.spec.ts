@@ -923,3 +923,158 @@ frameworks.forEach((framework) => {
     });
   });
 });
+
+frameworks.forEach((framework) => {
+  test.describe(`${framework} ${title} sortable headers`, () => {
+    const sortJson = (extra?: any): any => ({
+      elements: [Object.assign({
+        type: "matrixdynamic",
+        name: "matrix",
+        allowSort: true,
+        allowRowReorder: true,
+        rowCount: 0,
+        columns: [
+          { name: "product", cellType: "text" },
+          { name: "price", cellType: "text", inputType: "number" },
+        ],
+        defaultValue: [
+          { product: "b", price: 20 },
+          { product: "a", price: 30 },
+          { product: "c", price: 10 },
+        ],
+      }, extra)],
+    });
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await page.setViewportSize({ width: 1920, height: 1080 });
+    });
+    const prices = async (page): Promise<Array<string>> =>
+      page.locator(".sd-table__row input[type=number]").evaluateAll((inputs: Array<HTMLInputElement>) => inputs.map((input) => input.value));
+    const ariaSorts = async (page): Promise<Array<string | null>> =>
+      page.locator("thead th").evaluateAll((cells: Array<HTMLElement>) => cells.map((cell) => cell.getAttribute("aria-sort")));
+
+    test("a click on a header sorts by its column: highest first, lowest first, then the original order", async ({ page }) => {
+      await initSurvey(page, framework, sortJson());
+      const priceHeader = page.locator("thead th").nth(1);
+      const priceButton = priceHeader.locator("button");
+      const dragHandles = page.locator(".sd-table__row .sd-drag-element__svg");
+      expect(await dragHandles.count()).toBe(3);
+      expect(await prices(page)).toEqual(["20", "30", "10"]);
+
+      await priceButton.click();
+      expect(await prices(page)).toEqual(["30", "20", "10"]);
+      await expect(priceHeader).toHaveAttribute("aria-sort", "descending");
+      expect(await dragHandles.count()).toBe(0);
+
+      await priceButton.click();
+      expect(await prices(page)).toEqual(["10", "20", "30"]);
+      await expect(priceHeader).toHaveAttribute("aria-sort", "ascending");
+
+      await priceButton.click();
+      expect(await prices(page)).toEqual(["20", "30", "10"]);
+      expect((await ariaSorts(page)).filter((value) => value !== null)).toEqual([]);
+      expect(await dragHandles.count()).toBe(3);
+    });
+
+    for (const key of ["Enter", "Space"]) {
+      test(`${key} on a focused header sorts and keeps the focus on its button`, async ({ page }) => {
+        await initSurvey(page, framework, sortJson());
+        const priceHeader = page.locator("thead th").nth(1);
+        const priceButton = priceHeader.locator("button");
+        const dragHandles = page.locator(".sd-table__row .sd-drag-element__svg");
+        await page.locator("thead th").nth(0).locator("button").focus();
+        await page.keyboard.press("Tab");
+        await expect(priceButton).toBeFocused();
+
+        await page.keyboard.press(key);
+        expect(await prices(page)).toEqual(["30", "20", "10"]);
+        await expect(priceHeader).toHaveAttribute("aria-sort", "descending");
+        await expect(priceButton).toBeFocused();
+        expect(await dragHandles.count()).toBe(0);
+
+        await page.keyboard.press(key);
+        expect(await prices(page)).toEqual(["10", "20", "30"]);
+        await expect(priceHeader).toHaveAttribute("aria-sort", "ascending");
+        await expect(priceButton).toBeFocused();
+
+        await page.keyboard.press(key);
+        expect(await prices(page)).toEqual(["20", "30", "10"]);
+        expect((await ariaSorts(page)).filter((value) => value !== null)).toEqual([]);
+        await expect(priceButton).toBeFocused();
+        expect(await dragHandles.count()).toBe(3);
+      });
+    }
+
+    test("the whole header cell is the click target", async ({ page }) => {
+      await initSurvey(page, framework, sortJson({
+        allowRowReorder: false,
+        columns: [
+          { name: "product", cellType: "text", title: "A product title long enough to wrap to a second line", width: "160px" },
+          { name: "price", cellType: "text", inputType: "number" },
+        ],
+      }));
+      const priceHeader = page.locator("thead th").nth(1);
+      const productHeader = page.locator("thead th").nth(0);
+      const priceBox = await priceHeader.boundingBox();
+      const productBox = await productHeader.boundingBox();
+      expect(productBox.height > 60, "the product title wraps").toBeTruthy();
+      expect(Math.abs(priceBox.height - productBox.height) < 1, "the row decides the height").toBeTruthy();
+
+      // Inside what was the cell's padding, near the top-left corner.
+      await page.mouse.click(priceBox.x + 3, priceBox.y + 3);
+      expect(await prices(page)).toEqual(["30", "20", "10"]);
+      // Near the bottom edge of the short header, below its title.
+      await page.mouse.click(priceBox.x + priceBox.width / 2, priceBox.y + priceBox.height - 3);
+      expect(await prices(page)).toEqual(["10", "20", "30"]);
+    });
+
+    test("Shift-click sorts by a second column; only the first one has aria-sort", async ({ page }) => {
+      await initSurvey(page, framework, sortJson({ maxSortLevel: 2, defaultValue: [
+        { product: "b", price: 20 },
+        { product: "a", price: 20 },
+        { product: "c", price: 10 },
+      ] }));
+      const priceHeader = page.locator("thead th").nth(1);
+      const productHeader = page.locator("thead th").nth(0);
+      await priceHeader.locator("button").click();
+      await productHeader.locator("button").click({ modifiers: ["Shift"] });
+      const products = await page.locator(".sd-table__row input[type=text]").evaluateAll((inputs: Array<HTMLInputElement>) => inputs.map((input) => input.value));
+      expect(products).toEqual(["a", "b", "c"]);
+      await expect(priceHeader).toHaveAttribute("aria-sort", "descending");
+      await expect(productHeader).not.toHaveAttribute("aria-sort");
+      const describedBy = await productHeader.locator("button").getAttribute("aria-describedby");
+      expect(await page.locator(`[id="${describedBy}"]`).textContent()).toBe("Sorted by price (High - Low), then by product (Alphabet, A - Z)");
+    });
+
+    test("a click without Shift on the second sorted column turns it around in place, then removes it", async ({ page }) => {
+      await initSurvey(page, framework, sortJson({ maxSortLevel: 2, defaultValue: [
+        { product: "b", price: 20 },
+        { product: "c", price: 20 },
+        { product: "a", price: 20 },
+        { product: "d", price: 10 },
+      ] }));
+      const priceHeader = page.locator("thead th").nth(1);
+      const productHeader = page.locator("thead th").nth(0);
+      const products = async (): Promise<Array<string>> =>
+        page.locator(".sd-table__row input[type=text]").evaluateAll((inputs: Array<HTMLInputElement>) => inputs.map((input) => input.value));
+
+      await priceHeader.locator("button").click();
+      expect(await products()).toEqual(["b", "c", "a", "d"]);
+
+      await productHeader.locator("button").click({ modifiers: ["Shift"] });
+      expect(await products()).toEqual(["a", "b", "c", "d"]);
+
+      await productHeader.locator("button").click();
+      expect(await products()).toEqual(["c", "b", "a", "d"]);
+      await expect(priceHeader.locator(".sd-table__header-sort--desc")).toHaveCount(1);
+      await expect(productHeader.locator(".sd-table__header-sort--desc")).toHaveCount(1);
+      await expect(priceHeader).toHaveAttribute("aria-sort", "descending");
+      await expect(productHeader).not.toHaveAttribute("aria-sort");
+
+      await productHeader.locator("button").click();
+      expect(await products()).toEqual(["b", "c", "a", "d"]);
+      await expect(productHeader.locator(".sd-table__header-sort--none")).toHaveCount(1);
+      await expect(priceHeader).toHaveAttribute("aria-sort", "descending");
+    });
+  });
+});

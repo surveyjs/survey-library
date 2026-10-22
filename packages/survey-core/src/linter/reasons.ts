@@ -132,6 +132,10 @@ export const SurveyLintReasons = Object.freeze({
     meaninglessFragment: "meaninglessFragment",
     alwaysTrueViaConstants: "alwaysTrueViaConstants",
   }),
+  // a condition that reads no question, calculated value or variable; the rule is off by default
+  "expression/no-reference": Object.freeze({
+    noReference: "noReference",
+  }),
   // these values already shipped inside messageData.reason
   "choices/dead-source": Object.freeze({
     missing: "missing",
@@ -247,6 +251,8 @@ export const SurveyLintHintReasons = Object.freeze({
   panelStandalone: "panelStandalone",
   itemScope: "itemScope",
   compositeScopePrefix: "compositeScopePrefix",
+  // a row or panel variable inside an inArray filter, which runs against the item and the survey
+  inArrayFilterScope: "inArrayFilterScope",
   // the name exists in the surrounding container and only needs its prefix
   matrixColumn: "matrixColumn",
   panelQuestion: "panelQuestion",

@@ -13,6 +13,26 @@ export var polishSurveyStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Wybierz stronę",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sortuj według {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Wysokie - Niskie",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Niskie - Wysokie",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabet, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Najnowsze pierwsze",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Najstarszy pierwszorzędny",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Posortowane według {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, a potem do {1}",
   // "Complete"
   completeText: "Gotowe",
   // "Preview"

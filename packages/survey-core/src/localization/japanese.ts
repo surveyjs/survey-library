@@ -13,6 +13,26 @@ export var japaneseSurveyStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "セレクトページ",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "{0}で並べ替え",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "ハイ - ロー",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "低 - 高",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "アルファベット、A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "アルファベット、Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "最新から",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "最年長の先",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "{0}順に並べ替え",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}、そして{1}",
   // "Complete"
   completeText: "完了",
   // "Preview"

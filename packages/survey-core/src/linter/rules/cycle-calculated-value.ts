@@ -1,5 +1,5 @@
 import { ILintRule, LintContext } from "../rule";
-import { classifySiteRefs } from "../expression-utils";
+import { getDependencyRefs } from "../expression-utils";
 import { reportCycles } from "../cycle-report";
 import { quoteValues } from "../message-utils";
 import { CalculatedValueRecord, ParsedRef } from "../symbols";
@@ -20,7 +20,7 @@ export const cycleCalculatedValueRule: ILintRule = {
       calcNames.push(name);
       records.set(name.toLowerCase(), record);
       refsByName.set(name.toLowerCase(), record.site && record.site.ast
-        ? classifySiteRefs(record.site, ctx.index, ctx.options)
+        ? getDependencyRefs(record.site, ctx.index, ctx.options)
         : []);
     });
     const getRecord = (name: string): CalculatedValueRecord => records.get(name.toLowerCase());

@@ -13,6 +13,26 @@ export var croatianStrings = {
   pagerTotalText: "od {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Odaberi stranicu",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sortirajte po {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Visoko - Nisko",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Nisko - Visoko",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Abeceda, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Abeceda, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Najnoviji prvi",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Najstariji prvi",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sortirano po {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, pa do {1}",
   // "Complete"
   completeText: "Kompletan",
   // "Preview"

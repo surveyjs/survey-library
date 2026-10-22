@@ -2947,14 +2947,12 @@ export class QuestionCheckboxBase extends QuestionSelectBase implements IChoiceS
   // isReadOnly covers readonly and preview. isInputReadOnly also includes design mode,
   // which would hide the badges in Creator.
   public get canShowChoiceKeys(): boolean {
-    const surveyShortcut = !!this.survey && this.survey.choiceShortcutsEnabled === true;
+    const surveyShortcut = this.survey?.choiceShortcutsEnabled === true;
     const supported = this.supportsChoiceKeyboardSelection();
     const isMobile = this.isMobile;
     const isReadOnly = this.isReadOnly;
-    const own = this.getPropertyValueWithoutDefault("choiceShortcutsEnabled");
-    if (!supported || isMobile || isReadOnly) return false;
-    if (own === true || own === false) return own;
-    return surveyShortcut;
+    const own = this.choiceShortcutsEnabled;
+    return supported && !isMobile && !isReadOnly && (own ?? surveyShortcut);
   }
   private choiceShortcuts = new ChoiceShortcuts(this);
   private get canUseChoiceKeys(): boolean {

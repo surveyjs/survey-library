@@ -1396,7 +1396,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return this.isMobile ? true : !this.transposeData;
   }
   // The table renders a header row with one column per header.
-  protected get canSortByHeaders(): boolean {
+  public get canSortByHeaders(): boolean {
     return !this.isMobile && !!this.showHeader && !this.transposeData;
   }
   /**

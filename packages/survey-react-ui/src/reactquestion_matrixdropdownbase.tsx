@@ -22,6 +22,7 @@ import { MatrixRow } from "./components/matrix/row";
 import { SurveyQuestionMatrixDynamicDragDropIcon } from "./components/matrix-actions/drag-drop-icon/drag-drop-icon";
 import { SurveyQuestionCommentValueItem } from "./reactquestion_comment";
 import { ReactElementFactory } from "./element-factory";
+import "./components/matrix/header-sort-button";
 
 class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMatrixDropdownModelBase, wrapCell: (cell: QuestionMatrixDropdownRenderedCell, element: React.JSX.Element, reason: string) => React.JSX.Element, creator: ISurveyCreator }, any> {
   protected get question() {
@@ -46,7 +47,9 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
     const cells = table.headerRow.cells;
     for (var i = 0; i < cells.length; i++) {
       const cell = cells[i];
-      const key = "column" + i;
+      // Keyed by the cell id, which a column header keeps across the rebuild a sort makes: the
+      // focused sort button stays the same DOM node.
+      const key = cell.id;
       const columnStyle: any = {};
       if (!!cell.width) {
         columnStyle.width = cell.width;
@@ -56,7 +59,7 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
       }
       const cellContent = this.renderCellContent(cell, "column-header", {});
       const header = cell.hasTitle ?
-        <th className={cell.className} key={key} style={columnStyle}> {cellContent} </th>
+        <th className={cell.className} key={key} style={columnStyle} aria-sort={cell.ariaSort}> {cellContent} </th>
         : <td className={cell.className} key={key} style={columnStyle}></td>;
       headers.push(header);
     }
@@ -176,6 +179,11 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
       const str = this.renderLocString(cell.locTitle);
       const require = !!cell.column ? <SurveyQuestionMatrixHeaderRequired column={cell.column} question={this.question} /> : null;
       cellContent = (<>{str}{require}</>);
+      if (cell.isSortable) {
+        cellContent = ReactElementFactory.Instance.createElement("sv-matrix-header-sort-button", {
+          cell: cell, question: this.question, content: cellContent
+        });
+      }
     }
     if (cell.isActionsCell) {
       cellContent = (

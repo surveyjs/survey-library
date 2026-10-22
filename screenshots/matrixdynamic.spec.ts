@@ -58,6 +58,37 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-empty.png");
     });
 
+    // The sortable headers: an unsorted column under the pointer (the quiet sort icon), an ascending
+    // and a descending column (arrows in the hovered chip).
+    test("Matrixdynamic sortable headers", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: false,
+        elements: [{
+          type: "matrixdynamic",
+          name: "matrix",
+          title: "Question title",
+          allowSort: true,
+          maxSortLevel: 2,
+          sortCriteria: [{ field: "price", direction: "desc" }, { field: "category", direction: "asc" }],
+          rowCount: 0,
+          defaultValue: [
+            { product: "Lamp", category: "Home", price: 30 },
+            { product: "Chair", category: "Home", price: 120 },
+            { product: "Pen", category: "Office", price: 2 }
+          ],
+          columns: [
+            { name: "product", title: "Product", cellType: "text" },
+            { name: "category", title: "Category", cellType: "text" },
+            { name: "price", title: "Price", cellType: "text", inputType: "number" }
+          ]
+        }]
+      });
+      await resetFocusToBody(page);
+      await page.locator("thead th").nth(0).hover();
+      await compareScreenshot(page, page.locator(".sd-question--matrixdynamic thead"), "matrixdynamic-sortable-headers.png");
+    });
+
     test("Check Matrixdynamic", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {

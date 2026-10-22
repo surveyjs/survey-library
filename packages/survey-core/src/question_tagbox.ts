@@ -1,5 +1,5 @@
 import { Serializer } from "./jsonobject";
-import { keyboardHint, keyboardHintKey, IKeyboardHint } from "./keyboard-hints";
+import { keyboardHint, keyboardHintAdvanceText, keyboardHintKey, IKeyboardHint } from "./keyboard-hints";
 import { SurveyModel } from "./survey";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
@@ -164,15 +164,16 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
     const survey = this.survey as SurveyModel;
     const rows = [
       keyboardHint(this, "keyboardHintOpenText", [keyboardHintKey("arrowDown", true)]),
-      keyboardHint(this, "keyboardHintSelectText", [
-        keyboardHintKey("arrowsVertical", true),
-        keyboardHintKey("space", true),
-        keyboardHintKey("enter", true)
-      ]),
+      keyboardHint(this, "keyboardHintNavigateText", [keyboardHintKey("arrowsVertical", true)]),
       keyboardHint(this, "keyboardHintCloseText", [keyboardHintKey("esc", true)])
     ];
-    if (survey.autoAdvanceEnabled === true) {
-      rows.push(keyboardHint(this, "keyboardHintSubmitText", [keyboardHintKey("enter", !this.isEmpty())]));
+    if (this.dropdownListModelValue?.popupModel?.isVisible === true) {
+      rows.push(keyboardHint(this, "keyboardHintSelectText", [
+        keyboardHintKey("space", true),
+        keyboardHintKey("enter", true)
+      ]));
+    } else if (survey.autoAdvanceEnabled === true) {
+      rows.push(keyboardHint(this, keyboardHintAdvanceText(this), [keyboardHintKey("enter", !this.isEmpty())]));
     }
     return rows;
   }

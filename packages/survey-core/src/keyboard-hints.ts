@@ -13,7 +13,7 @@ export interface IKeyboardHint {
 }
 
 const keyboardHintFaces = {
-  enter: { label: "Enter ↵", shortcut: "Enter" }, // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  enter: { label: "Enter", shortcut: "Enter" },
   space: { label: "Space", shortcut: "Space" },
   shiftEnter: { label: "Shift+Enter", shortcut: "Shift+Enter" },
   tab: { label: "Tab", shortcut: "Tab" },
@@ -34,29 +34,32 @@ export function keyboardHint(owner: { getLocalizationString(name: string): strin
   return { text: owner.getLocalizationString(textKey), keys: keys };
 }
 
+export function keyboardHintAdvanceText(question: Question): string {
+  const survey = question.survey as SurveyModel;
+  if (!survey) return "keyboardHintSubmitText";
+  const questions = survey.getAllQuestions(true);
+  const index = questions.indexOf(question);
+  if (index >= 0 && index < questions.length - 1) return "keyboardHintContinueText";
+  return "keyboardHintSubmitText";
+}
+
 export function singleChoiceKeyboardHints(question: Question, submitVisible: boolean): IKeyboardHint[] {
   const survey = question.survey as SurveyModel;
-  const rows: IKeyboardHint[] = [];
-  if (!question.isChoiceKeyboardSelectionEnabled) {
-    rows.push(keyboardHint(question, "keyboardHintSelectText", [keyboardHintKey("arrowsAll", true)]));
-  }
+  const rows = [keyboardHint(question, "keyboardHintSelectText", [keyboardHintKey("arrowsAll", true)])];
   if (survey.autoAdvanceEnabled === true) {
-    rows.push(keyboardHint(question, "keyboardHintSubmitText", [keyboardHintKey("enter", submitVisible)]));
+    rows.push(keyboardHint(question, keyboardHintAdvanceText(question), [keyboardHintKey("enter", submitVisible)]));
   }
   return rows;
 }
 
 export function multiChoiceKeyboardHints(question: Question, submitVisible: boolean): IKeyboardHint[] {
   const survey = question.survey as SurveyModel;
-  const rows: IKeyboardHint[] = [];
-  if (!question.isChoiceKeyboardSelectionEnabled) {
-    rows.push(
-      keyboardHint(question, "keyboardHintNextItemText", [keyboardHintKey("tab", true)]),
-      keyboardHint(question, "keyboardHintSelectText", [keyboardHintKey("space", true)])
-    );
-  }
+  const rows = [
+    keyboardHint(question, "keyboardHintNextItemText", [keyboardHintKey("tab", true)]),
+    keyboardHint(question, "keyboardHintToggleText", [keyboardHintKey("space", true)])
+  ];
   if (survey.autoAdvanceEnabled === true) {
-    rows.push(keyboardHint(question, "keyboardHintSubmitText", [keyboardHintKey("enter", submitVisible)]));
+    rows.push(keyboardHint(question, keyboardHintAdvanceText(question), [keyboardHintKey("enter", submitVisible)]));
   }
   return rows;
 }

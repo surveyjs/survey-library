@@ -301,14 +301,20 @@ export var germanSurveyStrings = {
   maskPlaceholderTimeMarkerUpper: "V",
   // "to select"
   keyboardHintSelectText: "zum Auswählen",
+  // "to toggle"
+  keyboardHintToggleText: "zum Umschalten",
+  // "to navigate"
+  keyboardHintNavigateText: "zum Navigieren",
+  // "to continue"
+  keyboardHintContinueText: "zum Fortfahren",
   // "to submit"
   keyboardHintSubmitText: "zum Absenden",
   // "or"
   keyboardHintOrText: "oder",
-  // "to add a line"
-  keyboardHintNewLineText: "zum Hinzufügen einer Zeile",
-  // "to the next item"
-  keyboardHintNextItemText: "zum nächsten Element",
+  // "for a new line"
+  keyboardHintNewLineText: "für eine neue Zeile",
+  // "to next option"
+  keyboardHintNextItemText: "zur nächsten Option",
   // "to move"
   keyboardHintMoveText: "zum Verschieben",
   // "to open"

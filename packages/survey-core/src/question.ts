@@ -3495,15 +3495,15 @@ export class Question extends SurveyElement<Question>
   public supportAutoAdvance(): boolean {
     return false;
   }
+  @property() showKeyboardHints: boolean | undefined;
   public getKeyboardHints(): IKeyboardHint[] {
     if (!this.canShowKeyboardHints()) return [];
     return this.getKeyboardHintsCore();
   }
   protected canShowKeyboardHints(): boolean {
     const survey = this.survey as SurveyModel;
-    if (!survey || survey.keyboardHintsEnabled !== true) return false;
-    if (this.isDesignMode || this.isReadOnly || this.inMatrixMode) return false;
-    return true;
+    if (!survey || this.isDesignMode || this.isReadOnly || this.inMatrixMode) return false;
+    return this.showKeyboardHints ?? survey.showKeyboardHints === true;
   }
   protected getKeyboardHintsCore(): IKeyboardHint[] {
     return [];
@@ -3633,6 +3633,10 @@ export class Question extends SurveyElement<Question>
   }
   public processPopupVisiblilityChanged(popupModel: PopupModel, visible: boolean): void {
     this.survey.processPopupVisiblityChanged(this, popupModel, visible);
+    // Dropdown and tagbox swap the Enter hint with the popup. The row is rendered from the question, so it needs this notification.
+    if (this.canShowKeyboardHints()) {
+      this.propertyValueChanged("popupVisible", !visible, visible);
+    }
   }
   public processOpenDropdownMenu(options: IDropdownMenuOptions): void {
     this.survey.processOpenDropdownMenu(this, options);
@@ -4092,5 +4096,6 @@ Serializer.addClass("question", [
   { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
   { name: "randomize:boolean", default: true, visible: false, locationInTable: "detail" },
   { name: "randomizeCategory:string", visible: false, locationInTable: "detail" },
+  { name: "showKeyboardHints:boolean", defaultFunc: () => undefined },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

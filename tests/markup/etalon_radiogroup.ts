@@ -318,7 +318,7 @@ registerMarkupTests(
   {
     name: "Test radiogroup keyboard hints",
     json: {
-      keyboardHintsEnabled: true,
+      showKeyboardHints: true,
       autoAdvanceEnabled: true,
       elements: [
         {

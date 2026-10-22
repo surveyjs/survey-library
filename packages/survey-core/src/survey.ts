@@ -2015,7 +2015,7 @@ export class SurveyModel extends SurveyElementCore
     defaultValue: false,
     onSet: (_newValue, target: SurveyModel) => target.onChoiceShortcutsEnabledChanged()
   }) choiceShortcutsEnabled: boolean;
-  @property({ defaultValue: false }) keyboardHintsEnabled: boolean;
+  @property({ defaultValue: false }) showKeyboardHints: boolean;
   private onChoiceShortcutsEnabledChanged(): void {
     // While loading, onSurveyLoad binds what the JSON enables.
     if (this.isLoadingFromJson) return;
@@ -9568,7 +9568,7 @@ Serializer.addClass("survey", [
     visibleIf: (obj: any): boolean => obj.autoAdvanceEnabled === true
   },
   { name: "choiceShortcutsEnabled:boolean", default: false },
-  { name: "keyboardHintsEnabled:boolean", default: false },
+  { name: "showKeyboardHints:boolean", default: false },
   {
     name: "clearInvisibleValues",
     default: "onComplete",

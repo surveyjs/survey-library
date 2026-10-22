@@ -1,5 +1,5 @@
 import { Serializer } from "./jsonobject";
-import { keyboardHint, keyboardHintKey, IKeyboardHint } from "./keyboard-hints";
+import { keyboardHint, keyboardHintAdvanceText, keyboardHintKey, IKeyboardHint } from "./keyboard-hints";
 import { SurveyModel } from "./survey";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
@@ -119,7 +119,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     if (this.acceptCarriageReturn) {
       rows.push(keyboardHint(this, "keyboardHintNewLineText", [keyboardHintKey("shiftEnter", true)]));
     }
-    rows.push(keyboardHint(this, "keyboardHintSubmitText", [keyboardHintKey("enter", !this.isEmpty())]));
+    rows.push(keyboardHint(this, keyboardHintAdvanceText(this), [keyboardHintKey("enter", !this.isEmpty())]));
     return rows;
   }
   // IsTouch means an on-screen keyboard. question.isMobile follows layout width, so a narrow desktop window must keep Enter.

@@ -13,7 +13,7 @@ const features = [
 
 const checkboxJson = {
   showQuestionNumbers: false,
-  keyboardHintsEnabled: true,
+  showKeyboardHints: true,
   autoAdvanceEnabled: true,
   choiceShortcutsEnabled: true,
   elements: [{
@@ -28,7 +28,7 @@ const checkboxJson = {
 
 const radioJson = {
   showQuestionNumbers: false,
-  keyboardHintsEnabled: true,
+  showKeyboardHints: true,
   autoAdvanceEnabled: true,
   choiceShortcutsEnabled: true,
   elements: [{
@@ -43,7 +43,7 @@ const radioJson = {
 
 const tagboxJson = {
   showQuestionNumbers: false,
-  keyboardHintsEnabled: true,
+  showKeyboardHints: true,
   autoAdvanceEnabled: true,
   elements: [{
     type: "tagbox",
@@ -58,7 +58,7 @@ const tagboxJson = {
 const matrixRows = Array.from({ length: 5 }, (_, index) => ({ value: "row" + (index + 1), text: "Row" + (index + 1) + " title" }));
 const matrixJson = {
   showQuestionNumbers: false,
-  keyboardHintsEnabled: true,
+  showKeyboardHints: true,
   autoAdvanceEnabled: true,
   elements: [{
     type: "panel",

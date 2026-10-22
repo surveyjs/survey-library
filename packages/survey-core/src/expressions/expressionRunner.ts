@@ -16,6 +16,7 @@ export class ExpressionRunnerBase {
   private variables: string[];
   private variablesInfo: Array<IValueGetterNameInfo>;
   private containsFunc: boolean;
+  private containsNoParamsFunc: boolean;
   private runIdCounter = 0;
   public getRunId: () => number;
   public onBeforeAsyncRun: (id: number) => void;
@@ -35,6 +36,7 @@ export class ExpressionRunnerBase {
     this.variables = undefined;
     this.variablesInfo = undefined;
     this.containsFunc = undefined;
+    this.containsNoParamsFunc = undefined;
   }
 
   public getVariables(): Array<string> {
@@ -54,7 +56,14 @@ export class ExpressionRunnerBase {
   }
 
   public hasFunction(noParamsOnly?: boolean): boolean {
-    if (noParamsOnly === true) return !!this.expressionExecutor && this.expressionExecutor.hasFunction(true);
+    if (noParamsOnly === true) {
+      // The skip checks ask this on every value change. The answer depends only on the parsed
+      // expression, and nothing changes a parsed operand tree, so it is kept until the expression changes
+      if (this.containsNoParamsFunc === undefined) {
+        this.containsNoParamsFunc = !!this.expressionExecutor && this.expressionExecutor.hasFunction(true);
+      }
+      return this.containsNoParamsFunc;
+    }
     if (this.containsFunc === undefined) {
       this.containsFunc = this.expressionExecutor.hasFunction();
     }

@@ -13,6 +13,26 @@ export var italianSurveyStrings = {
   pagerTotalText: "di {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Seleziona pagina",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Ordina per {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Alto - Basso",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Basso - Alto",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabeto, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabeto, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Le novità prime",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Il più vecchio prima",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Ordinato per {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, poi per {1}",
   // "Complete"
   completeText: "Salva",
   // "Preview"

@@ -13,6 +13,26 @@ export var simplifiedChineseSurveyStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "选择页面",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "按{0}排序",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "高 - 低",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "低 - 高",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "字母表，A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "字母表，Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "最新优先",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "最年长的先",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "按{0}排序",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}，然后{1}",
   // "Complete"
   completeText: "提交问卷",
   // "Preview"

@@ -13,6 +13,26 @@ export var kazakhStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Таңдау беті",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Сұрыптау {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Жоғары - Төмен",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Төмен - Жоғары",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Алфавит, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Алфавит, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Ең жаңа бірінші",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Ең көне бірінші",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Сұрыпталған {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, сосын {1}",
   // "Complete"
   completeText: "Дайын",
   // "Preview"

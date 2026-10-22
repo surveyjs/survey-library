@@ -13,6 +13,26 @@ export var lithuaniaSurveyStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Pasirinkti puslapį",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Rūšiuokite pagal {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Aukšta - Žema",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Žemas – aukštas",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Abėcėlė, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Abėcėlė, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Naujausias pirmas kartas",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Vyriausiasis pirmas",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Rūšiuota pagal {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, tada iki {1}",
   // "Complete"
   completeText: "Baigti",
   // "Preview"

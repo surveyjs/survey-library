@@ -13,6 +13,26 @@ export var russianSurveyStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Выбрать страницу",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Сортируйте по {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Высокий — Низкий",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Низкий — Высокий",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Алфавит, А - Я",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Алфавит, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Новейший первый",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Сначала Старейшие",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Отсортировано по {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, потом {1}",
   // "Complete"
   completeText: "Готово",
   // "Preview"

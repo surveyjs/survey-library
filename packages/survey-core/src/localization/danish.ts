@@ -13,6 +13,26 @@ export var danishSurveyStrings = {
   pagerTotalText: "af {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Vælg side",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sorter efter {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Høj - Lav",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Lav - Høj",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabet, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Nyeste første",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Ældste første",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sorteret efter {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, så ved {1}",
   // "Complete"
   completeText: "Færdig",
   // "Preview"

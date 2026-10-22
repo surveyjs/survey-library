@@ -13,6 +13,26 @@ export var greekSurveyStrings = {
   pagerTotalText: "της {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Επιλογή Σελίδας",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Ταξινόμηση κατά {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Υψηλή - Χαμηλή",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Χαμηλή - Υψηλή",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Αλφάβητο, Α - Ω",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Αλφάβητο, Ω - Α",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Πρώτα τα νεότερα",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Πρώτα τα παλαιότερα",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Ταξινόμηση κατά {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, μετά από {1}",
   // "Complete"
   completeText: "Ολοκλήρωση",
   // "Preview"

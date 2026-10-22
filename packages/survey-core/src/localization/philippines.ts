@@ -13,6 +13,26 @@ export var philippinesStrings = {
   pagerTotalText: "ng {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Piliin ang Pahina",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Ayusin ayon sa {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Mataas - Mababa",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Mababa - Mataas",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alpabeto, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alpabeto, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Pinakabago muna",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Pinakamatanda muna",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Inayos ayon sa {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, tapos {1}",
   // "Complete"
   completeText: "Kumpleto",
   // "Preview"

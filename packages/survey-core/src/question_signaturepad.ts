@@ -74,6 +74,10 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   public getType(): string {
     return "signaturepad";
   }
+  // A data URL is a string, but no order of signatures means anything.
+  public get isValueSortable(): boolean {
+    return false;
+  }
   protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
     if (!super.verifyValueCore(val, context)) return false;
     if (!context.checks.reportInvalidValueTypes) return true;

@@ -13,6 +13,26 @@ export var hungarianSurveyStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Oldal kiválasztása",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Rendezd {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Magas - Alacsony",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Alacsony - Magas",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Ábécé, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Ábécé, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Legújabb első",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Első a legidősebb",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Rendezve {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, aztán {1}",
   // "Complete"
   completeText: "Kész",
   // "Preview"

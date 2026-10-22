@@ -13,6 +13,9 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     return this.questionBase as QuestionImagePickerModel;
   }
   protected renderElement(): React.JSX.Element {
+    if (this.question.isViewMode) {
+      return this.renderViewMode();
+    }
     var cssClasses = this.question.cssClasses;
     return (
       <fieldset
@@ -26,6 +29,30 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     );
   }
 
+  protected renderViewMode(): React.JSX.Element {
+    const items = this.question.getViewModeItems();
+    if (items.length === 0) {
+      return (
+        <div className={this.question.viewModeCssClass} id={this.question.inputId} ref={(root) => (this.setControl(root))}>
+          {this.question.viewDisplayText}
+        </div>
+      );
+    }
+    const isVideo = this.question.contentMode === "video";
+    return (
+      <div className={this.question.getSelectBaseRootCss()} id={this.question.inputId} ref={(root) => (this.setControl(root))}>
+        {items.map((item) => {
+          const src = item.locImageLink.renderedHtml;
+          const width = this.question.renderedImageWidth;
+          const height = this.question.renderedImageHeight;
+          if (isVideo) {
+            return <video key={item.uniqueId} src={src} width={width} height={height} />;
+          }
+          return <img key={item.uniqueId} src={src} alt={item.locText.renderedHtml} width={width} height={height} />;
+        })}
+      </div>
+    );
+  }
   protected getColumns(cssClasses: any) {
     return this.question.columns.map((column: Array<ItemValue>, ci: number) => {
       var items = column.map((item: any, ii: number) =>

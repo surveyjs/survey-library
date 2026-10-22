@@ -396,6 +396,9 @@ export class QuestionMatrixModel
   public getType(): string {
     return "matrix";
   }
+  protected get supportsQuestionView(): boolean {
+    return false;
+  }
   public get isCompositeQuestion(): boolean {
     return true;
   }

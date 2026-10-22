@@ -1300,6 +1300,11 @@ export class SurveyModel extends SurveyElementCore
     if (name === "readOnly") {
       this.onReadOnlyChanged();
     }
+    if (name === "readOnlyMode") {
+      for (let i = 0; i < this.pages.length; i++) {
+        this.pages[i].notifyReadOnlyModeChanged();
+      }
+    }
     const resetVisibleIndexesProps = ["questionStartIndex", "requiredMark", "questionTitlePattern"];
     if (resetVisibleIndexesProps.indexOf(name) > -1) {
       this.resetVisibleIndexes();
@@ -3351,6 +3356,11 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/prevent-form-editing-with-read-only-mode/ (linkStyle))
    */
   @property() readOnly: boolean;
+  // Visual variant of read-only. "view" shows answers as plain text.
+  @property({ defaultValue: "readonly" }) readOnlyMode: string;
+  public getReadOnlyMode(): "readonly" | "view" {
+    return this.readOnlyMode === "view" ? "view" : "readonly";
+  }
 
   private onReadOnlyChanged() {
     for (var i = 0; i < this.pages.length; i++) {
@@ -9547,6 +9557,7 @@ Serializer.addClass("survey", [
     visible: false
   },
   { name: "readOnly:boolean" },
+  { name: "readOnlyMode", default: "readonly", choices: ["readonly", "view"] },
   { name: "mode", visible: false, isSerializable: false },
   { name: "storeOthersAsComment:boolean", default: true },
   { name: "maxTextLength:number", default: 0, minValue: 0 },

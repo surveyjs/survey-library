@@ -417,6 +417,9 @@ export class PanelModelBase extends SurveyElement<Question>
         this.validateContainerOnly();
       }
     }
+    if (name === "readOnlyMode") {
+      this.notifyReadOnlyModeChanged();
+    }
   }
   public getType(): string {
     return "panelbase";
@@ -1908,6 +1911,17 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     super.onReadOnlyChanged();
   }
+  public notifyReadOnlyModeChanged(): void {
+    const elements = this.elements;
+    for (let i = 0; i < elements.length; i++) {
+      const el = elements[i] as any;
+      if (el.isPanel && typeof el.notifyReadOnlyModeChanged === "function") {
+        el.notifyReadOnlyModeChanged();
+      } else if (typeof el.notifyViewModeChanged === "function") {
+        el.notifyViewModeChanged();
+      }
+    }
+  }
   public updateElementCss(reNew?: boolean): void {
     super.updateElementCss(reNew);
     for (let i = 0; i < this.elements.length; i++) {
@@ -2563,6 +2577,7 @@ Serializer.addClass(
     },
     { name: "visible:switch", default: true, overridingProperty: "visibleIf" },
     { name: "readOnly:boolean", overridingProperty: "enableIf" },
+    { name: "readOnlyMode", default: "default", choices: ["default", "readonly", "view"] },
     "visibleIf:condition",
     "enableIf:condition",
     "requiredIf:condition",

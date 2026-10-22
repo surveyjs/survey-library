@@ -534,6 +534,9 @@ export abstract class QuestionCustomModelBase extends Question
   public getType(): string {
     return !!this.customQuestion ? this.customQuestion.name : "custom";
   }
+  protected get supportsQuestionView(): boolean {
+    return false;
+  }
   public locStrsChanged(): void {
     super.locStrsChanged();
     if (!!this.getElement()) {

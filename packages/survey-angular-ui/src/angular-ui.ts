@@ -116,6 +116,7 @@ export * from "./components/matrix-actions/drag-drop-icon/drag-drop-icon";
 export * from "./questions/matrixrequiredheader.component";
 export * from "./questions/matrixheadersortbutton.component";
 export * from "./questions/expression.component";
+export * from "./questions/question-view.component";
 export * from "./questions/image.component";
 export * from "./components/brand-info/brand-info.component";
 export * from "./components/question-error/question-error.component";

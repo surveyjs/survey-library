@@ -14,6 +14,9 @@ export class QuestionNonValue extends Question {
   public getType(): string {
     return "nonvalue";
   }
+  protected get supportsQuestionView(): boolean {
+    return false;
+  }
   public get hasInput(): boolean {
     return false;
   }

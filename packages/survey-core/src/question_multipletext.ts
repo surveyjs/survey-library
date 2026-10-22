@@ -463,6 +463,9 @@ export class QuestionMultipleTextModel extends Question
   public getType(): string {
     return "multipletext";
   }
+  protected get supportsQuestionView(): boolean {
+    return false;
+  }
   public getValueType(): QuestionValueType {
     return "object";
   }

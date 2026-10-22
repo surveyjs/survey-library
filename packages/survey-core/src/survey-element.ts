@@ -648,6 +648,30 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.setPropertyValue("isReadOnly", this.isReadOnly);
     }
   }
+  // "default" inherits from the parent panel, the parent question, then the survey.
+  public get readOnlyMode(): string {
+    return this.getPropertyValue("readOnlyMode");
+  }
+  public set readOnlyMode(val: string) {
+    this.setPropertyValue("readOnlyMode", val);
+  }
+  public getReadOnlyMode(): "readonly" | "view" {
+    const own = this.readOnlyMode;
+    if (own === "view" || own === "readonly") return own;
+    const parent = this.parent as any;
+    if (parent && parent !== this && typeof parent.getReadOnlyMode === "function") {
+      return parent.getReadOnlyMode();
+    }
+    const parentQuestion = this.parentQuestion as any;
+    if (parentQuestion && parentQuestion !== this && typeof parentQuestion.getReadOnlyMode === "function") {
+      return parentQuestion.getReadOnlyMode();
+    }
+    const survey = this.survey as any;
+    if (survey && survey !== this && typeof survey.getReadOnlyMode === "function") {
+      return survey.getReadOnlyMode();
+    }
+    return "readonly";
+  }
   protected onReadOnlyChanged() {
     if (!!this.readOnlyChangedCallback) {
       this.readOnlyChangedCallback();

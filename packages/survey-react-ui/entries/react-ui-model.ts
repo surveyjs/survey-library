@@ -76,6 +76,7 @@ export { SurveyQuestionRating } from "../src/reactquestion_rating";
 export { SurveyQuestionRatingDropdown } from "../src/rating-dropdown";
 export { SurveyQuestionSlider } from "../src/reactquestion_slider";
 export { SurveyQuestionExpression } from "../src/reactquestion_expression";
+export { SurveyQuestionView } from "../src/reactquestion_view";
 export { PopupSurvey, SurveyWindow } from "../src/react-popup-survey";
 export { ReactQuestionFactory } from "../src/reactquestion_factory";
 export { ReactElementFactory } from "../src/element-factory";

@@ -1,5 +1,5 @@
 import { HashTable } from "../helpers";
-import { IValueGetterContext, VariableGetterContextEx } from "../conditions/conditionProcessValue";
+import { IValueGetterContext, IValueGetterNameInfo, VariableGetterContextEx } from "../conditions/conditionProcessValue";
 import { IExpressionValidationOptions } from "../base";
 import { IExpressionError } from "./expressionError";
 import type { IExpressionExecutorBase } from "./expressionExecutor";
@@ -14,6 +14,7 @@ export function setCreateExpressionExecutor(func: (expression: string) => IExpre
 export class ExpressionRunnerBase {
   private expressionExecutor: IExpressionExecutorBase;
   private variables: string[];
+  private variablesInfo: Array<IValueGetterNameInfo>;
   private containsFunc: boolean;
   private runIdCounter = 0;
   public getRunId: () => number;
@@ -32,6 +33,7 @@ export class ExpressionRunnerBase {
     this.expressionExecutor = createExpressionExecutor(value);
     this.expressionExecutor.onComplete = (res: any, id: number) => { this.doOnComplete(res, id); };
     this.variables = undefined;
+    this.variablesInfo = undefined;
     this.containsFunc = undefined;
   }
 
@@ -40,6 +42,15 @@ export class ExpressionRunnerBase {
       this.variables = this.expressionExecutor.getVariables();
     }
     return this.variables;
+  }
+  // The parsed parts of getVariables() for the value-change skip check, one item per variable.
+  // ValueGetter.isAnyKeyChangedCore fills it as it reaches a variable and rebuilds an item whose name differs.
+  public getVariablesInfo(): Array<IValueGetterNameInfo> {
+    if (this.variablesInfo === undefined) {
+      const vars = this.getVariables();
+      this.variablesInfo = new Array<IValueGetterNameInfo>(Array.isArray(vars) ? vars.length : 0);
+    }
+    return this.variablesInfo;
   }
 
   public hasFunction(noParamsOnly?: boolean): boolean {

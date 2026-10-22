@@ -3,6 +3,9 @@ import { CalculatedValue } from "../src/calculatedValue";
 import { FunctionFactory } from "../src/functionsfactory";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { settings } from "../src/settings";
+import { Base } from "../src/base";
+import { ValueGetter } from "../src/conditions/conditionProcessValue";
+import { ExpressionRunner } from "../src/expressions/expressionRunner";
 
 import { describe, test, expect } from "vitest";
 describe("CalculatedValues", () => {
@@ -703,5 +706,198 @@ describe("CalculatedValues: recalculate when a value they use changes", () => {
     survey.setValue("other", 5);
     expect(survey.getVariable("renamed"), "after an answer it does not use").toBe(3);
     expect(survey.data.renamed, "survey.data has the new name").toBe(3);
+  });
+});
+describe("The skip check reads each name's parsed parts once", () => {
+  test("an element visibleIf replaced in place follows its new variable", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "text", name: "q", visibleIf: "{a} = 1" }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    survey.setValue("a", 2);
+    expect(q.isVisible, "a = 2").toBe(false);
+    q.visibleIf = "{b} = 1";
+    expect(q.isVisible, "visibleIf is {b} = 1").toBe(false);
+    survey.setValue("b", 1);
+    expect(q.isVisible, "b = 1").toBe(true);
+    survey.setValue("b", 2);
+    expect(q.isVisible, "b = 2").toBe(false);
+  });
+  test("a calculated value whose expression is replaced in place follows its new variable", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "a" }, { type: "text", name: "b" }],
+      calculatedValues: [{ name: "cv", expression: "{a}" }]
+    });
+    survey.setValue("a", 1);
+    expect(survey.getVariable("cv"), "a = 1").toBe(1);
+    const runner = (<any>survey.calculatedValues[0]).expressionRunner;
+    survey.calculatedValues[0].expression = "{b}";
+    expect((<any>survey.calculatedValues[0]).expressionRunner, "the runner object is kept").toBe(runner);
+    expect(survey.getVariable("cv"), "expression is {b}").toBeUndefined();
+    survey.setValue("b", 5);
+    expect(survey.getVariable("cv"), "b = 5").toBe(5);
+    survey.setValue("a", 7);
+    expect(survey.getVariable("cv"), "a = 7, not used any more").toBe(5);
+  });
+  test("a copyvalue trigger copies when its source changes", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "a" }, { type: "text", name: "src" }, { type: "text", name: "dst" }],
+      triggers: [{ type: "copyvalue", expression: "{a} = 1", fromName: "src", setToName: "dst" }]
+    });
+    survey.setValue("src", "x");
+    survey.setValue("a", 1);
+    expect(survey.getValue("dst"), "src = x, a = 1").toBe("x");
+    survey.setValue("src", "y");
+    expect(survey.getValue("dst"), "src = y").toBe("y");
+  });
+  test("paths, letter case and the unwrap postfix", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "dropdown", name: "d", choices: [1, 2] },
+        { type: "text", name: "e", visibleIf: "{d-unwrapped} = 2" },
+        { type: "matrix", name: "m", rows: ["r1", "r2"], columns: ["c1", "c2"] },
+        { type: "text", name: "f", visibleIf: "{M.R1} = 'c1'" },
+        { type: "text", name: "g", visibleIf: "{m.r2} = 'c1'" }
+      ]
+    });
+    const e = survey.getQuestionByName("e");
+    const f = survey.getQuestionByName("f");
+    const g = survey.getQuestionByName("g");
+    survey.setValue("d", 2);
+    expect(e.isVisible, "d = 2").toBe(true);
+    survey.setValue("m", { r1: "c1" });
+    expect(f.isVisible, "m.r1 = c1: f").toBe(true);
+    expect(g.isVisible, "m.r1 = c1: g").toBe(false);
+    survey.setValue("m", { r1: "c1", r2: "c1" });
+    expect(g.isVisible, "m.r2 = c1: g").toBe(true);
+  });
+  test("a calculated value runs exactly as often as before", () => {
+    let count = 0;
+    FunctionFactory.Instance.register("countCalls", (params: any[]) => {
+      count++;
+      return params[1];
+    });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "a" },
+          { type: "text", name: "b" },
+          { type: "matrix", name: "m", rows: ["r1", "r2"], columns: ["c1", "c2"] }
+        ],
+        calculatedValues: [{ name: "cv", expression: "countCalls({A}, {M.r1})" }]
+      });
+      const step = (title: string, action: () => void, calls: number, cv: any) => {
+        count = 0;
+        action();
+        expect(count, title + ": calls").toBe(calls);
+        expect(survey.getVariable("cv"), title + ": cv").toBe(cv);
+      };
+      step("b = 1", () => survey.setValue("b", 1), 0, undefined);
+      step("m = { r2: c1 }", () => survey.setValue("m", { r2: "c1" }), 1, undefined);
+      step("m = { r1: c2, r2: c1 }", () => survey.setValue("m", { r1: "c2", r2: "c1" }), 2, "c2");
+      step("b = 2", () => survey.setValue("b", 2), 0, "c2");
+      step("a = 1", () => survey.setValue("a", 1), 1, "c2");
+      step("m is cleared", () => survey.clearValue("m"), 2, null);
+    } finally {
+      FunctionFactory.Instance.unregister("countCalls");
+    }
+  });
+  test("a defaultValueExpression with a path follows its key", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "text", name: "q", defaultValueExpression: "{a.x}", defaultValue: 7 }
+      ]
+    });
+    const q = survey.getQuestionByName("q");
+    survey.setValue("a", { x: 2 });
+    expect(q.value, "a = { x: 2 }").toBe(2);
+    survey.setValue("b", 1);
+    expect(q.value, "b = 1").toBe(2);
+    survey.clearValue("a");
+    expect(q.value, "a is cleared").toBe(7);
+    survey.setValue("a", { x: 3 });
+    expect(q.value, "a = { x: 3 }").toBe(3);
+  });
+  test("the unwrap postfix changed after the information is built", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "dropdown", name: "d", choices: [1, 2] },
+        { type: "text", name: "e", visibleIf: "{d_raw} = 2" },
+        { type: "text", name: "x" }
+      ]
+    });
+    const e = survey.getQuestionByName("e");
+    survey.setValue("x", 1);
+    survey.setValue("x", 2);
+    expect(e.isVisible, "x = 1, x = 2").toBe(false);
+    settings.expressionVariables.unwrapPostfix = "_raw";
+    try {
+      survey.setValue("d", 2);
+      expect(e.isVisible, "postfix _raw, d = 2").toBe(true);
+      survey.setValue("d", 1);
+      expect(e.isVisible, "postfix _raw, d = 1").toBe(false);
+    } finally {
+      settings.expressionVariables.unwrapPostfix = "-unwrapped";
+    }
+  });
+  test("the property prefix changed after the information is built", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b", visibleIf: "{a} = 1" },
+        { type: "text", name: "q", visibleIf: "{@b.isVisible}" }
+      ]
+    });
+    const b = survey.getQuestionByName("b");
+    const q = survey.getQuestionByName("q");
+    survey.setValue("a", 2);
+    survey.setValue("a", 3);
+    expect(b.isVisible, "a = 3: b").toBe(false);
+    expect(q.isVisible, "a = 3: q").toBe(false);
+    settings.expressionElementPropertyPrefix = "@";
+    try {
+      survey.setValue("a", 1);
+      expect(b.isVisible, "prefix @, a = 1: b").toBe(true);
+      expect(q.isVisible, "prefix @, a = 1: q").toBe(true);
+      survey.setValue("a", 4);
+      expect(q.isVisible, "prefix @, a = 4: q").toBe(false);
+    } finally {
+      settings.expressionElementPropertyPrefix = "$";
+    }
+  });
+  test("only the shortest prefix that is a key decides, through both entry paths", () => {
+    const keySets: { [name: string]: any } = {
+      same: { m: { oldValue: { r1: { x: 1 } }, newValue: { r1: { x: 1 }, r2: 5 } }, "m.r1": { x: 2 } },
+      diff: { m: { oldValue: { r1: { x: 1 } }, newValue: { r1: { x: 2 } } }, "m.r1": { x: 2 } },
+      onlyLong: { "m.r1": { x: 2 } }
+    };
+    const getter = new ValueGetter();
+    expect(getter.isAnyKeyChanged(keySets.same, ["m.r1.x"]), "names: same").toBe(false);
+    expect(getter.isAnyKeyChanged(keySets.diff, ["m.r1.x"]), "names: diff").toBe(true);
+    expect(getter.isAnyKeyChanged(keySets.onlyLong, ["m.r1.x"]), "names: onlyLong").toBe(true);
+    expect(getter.isAnyKeyChanged(keySets.same, ["M.R1.X"]), "names: same, upper case").toBe(false);
+    const runner = new ExpressionRunner("{m.r1.x} = 1");
+    const base: any = new Base();
+    const expected: { [name: string]: boolean } = { same: true, diff: false, onlyLong: false };
+    for (const name in expected) {
+      expect(base.canSkipExpressionByKeys(runner, keySets[name]), "runner: " + name).toBe(expected[name]);
+      expect(base.canSkipExpressionByKeys(runner, keySets[name]), "runner, again: " + name).toBe(expected[name]);
+    }
+  });
+  test("a name pushed into the runner's variables after a check is checked too", () => {
+    const runner = new ExpressionRunner("{a} = 1");
+    const base: any = new Base();
+    expect(base.canSkipExpressionByKeys(runner, { src: 1 }), "src is not used").toBe(true);
+    runner.getVariables().push("src");
+    expect(base.canSkipExpressionByKeys(runner, { src: 1 }), "src is pushed").toBe(false);
+    runner.getVariables()[1] = "other";
+    expect(base.canSkipExpressionByKeys(runner, { src: 1 }), "src is replaced").toBe(true);
+    expect(base.canSkipExpressionByKeys(runner, { other: 1 }), "other is used").toBe(false);
   });
 });

@@ -439,11 +439,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return this.titleToolbarValue;
   }
   protected createActionContainer(allowAdaptiveActions?: boolean): ActionContainer {
-    const actionContainer = allowAdaptiveActions ? new AdaptiveActionContainer() : new ActionContainer();
+    return this.initActionContainer(allowAdaptiveActions ? new AdaptiveActionContainer() : new ActionContainer());
+  }
+  // Gives a container the survey's action bar classes.
+  protected initActionContainer<T extends ActionContainer>(actionContainer: T): T {
     if (this.survey && !!this.survey.getCss().actionBar) {
       actionContainer.cssClasses = this.survey.getCss().actionBar;
     }
-
     return actionContainer;
   }
   public get titleActions(): Array<any> {

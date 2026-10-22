@@ -25,6 +25,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
     return (
       <div>
         {this.renderTopToolbar()}
+        {this.renderSortBar()}
         {mainDiv}
         {this.renderRecordsFooter()}
       </div>

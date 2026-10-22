@@ -12,8 +12,11 @@
   padding-inline: var(--sjs2-spacing-x200);
 
   // The container takes an inline width from the popup, so the box sets its own width.
+  // Not min(580px, calc(...)): Sass drops a calc() nested in min(), and older CSS parsers
+  // (postcss-custom-properties in the Angular build) fail on its bare subtraction.
   & > .sv-popup__container > .sv-popup__body-content {
-    width: min(580px, calc(100vw - 2 * var(--sjs2-spacing-x200)));
+    width: 580px;
+    max-width: calc(100vw - 2 * var(--sjs2-spacing-x200));
     min-width: 0;
     padding-top: var(--sjs2-spacing-x300);
     padding-bottom: var(--sjs2-spacing-x300);

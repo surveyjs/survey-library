@@ -33,6 +33,30 @@ export var hindiStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, फिर {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "के अनुसार क्रमबद्ध करें",
+  // [Auto-translated] "Default"
+  sortDefaultText: "डिफ़ॉल्ट",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "सॉर्ट फ़ील्ड",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "क्रम क्रमबद्ध करें",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "सॉर्ट स्तर जोड़ें",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "सॉर्ट स्तर {0} निकालें",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "सॉर्ट फ़ील्ड {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "क्रमबद्ध क्रम {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "अधिक...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "सभी सॉर्ट स्तर दिखाएं",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "नया जोड़ें",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "पूरा",
   // "Preview"

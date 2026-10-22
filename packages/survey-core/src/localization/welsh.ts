@@ -33,6 +33,30 @@ export var welshSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, yna erbyn {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Trefnu yn ôl",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Rhagosodiad",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Maes didoli",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Trefn ddidoli",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Ychwanegu lefel didoli",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Gwaredu {0} lefel didoli",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Trefnu {0} maes",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Trefn ddidoli {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Mwy...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Dangos pob lefel trefnu",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Ychwanegu Newydd",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Cwblhau",
   // "Preview"

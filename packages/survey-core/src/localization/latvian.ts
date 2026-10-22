@@ -33,6 +33,30 @@ export var latvianSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, tad līdz {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Kārtot pēc",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Noklusējums",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Kārtošanas lauks",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Kārtošanas secība",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Pievienot kārtošanas līmeni",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Noņemt sort level {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Kārtošanas lauka {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Kārtot {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Vairāk...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Rādīt visdažādākos līmeņus",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Pievienot jaunu",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Iesniegt",
   // "Preview"

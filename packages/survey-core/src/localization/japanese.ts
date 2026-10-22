@@ -33,6 +33,30 @@ export var japaneseSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}、そして{1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "並べ替え",
+  // [Auto-translated] "Default"
+  sortDefaultText: "デフォルト",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "ソートフィールド",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "ソート順",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "ソートレベルを追加",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "ソートレベル{0}を削除してください",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "ソートフィールド{0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "並べ替え順 {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "もっと...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "あらゆるレベルの表示",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "新しい追加",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "完了",
   // "Preview"

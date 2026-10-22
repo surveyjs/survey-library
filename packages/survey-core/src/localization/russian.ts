@@ -33,6 +33,30 @@ export var russianSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, потом {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Сортировать по",
+  // [Auto-translated] "Default"
+  sortDefaultText: "По умолчанию",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Поле сортировки",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Порядок сортировки",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Добавить уровень сортировки",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Удалить уровень сортировки {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Сортировка поля {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Сортировка {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Ещё...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Показывать все уровни сортировки",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Добавить новое",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Готово",
   // "Preview"

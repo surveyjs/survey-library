@@ -33,6 +33,30 @@ export var georgianSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, შემდეგ {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "დალაგება",
+  // [Auto-translated] "Default"
+  sortDefaultText: "ნაგულისხმევი",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "დალაგების ველი",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "დალაგების მიზნით",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "დალაგების დონის დამატება",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "წაშლა დალაგების დონის {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "ველის დალაგება {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "შეკვეთის დალაგება {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "ვრცლად...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "ყველა დალაგების დონის ჩვენება",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "ახლის დამატება",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "დასრულება",
   // [Auto-translated] "Preview"

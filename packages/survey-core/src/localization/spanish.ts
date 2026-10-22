@@ -33,6 +33,30 @@ export var spanishSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, y luego por {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Ordenar por",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Default",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Campo de ordenación",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Orden de ordenación",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Añadir nivel de ordenación",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Elimina el nivel de ordenación {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Campo de ordenamiento {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Orden de orden{0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Más...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Mostrar todos los niveles de tipo",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Añadir Nuevo",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Completar",
   // "Preview"

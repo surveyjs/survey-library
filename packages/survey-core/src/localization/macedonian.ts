@@ -33,6 +33,30 @@ export var macedonianSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, потоа од {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Сортирај по",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Стандардно",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Поле за сортирање",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Редослед на сортирање",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Додај ниво на сортирање",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Отстрани сортирање ниво {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Сортирај поле {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Сортирај по редослед {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Повеќе...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Прикажи ги сите нивоа на сортирање",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Додај ново",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Заврши",
   // "Preview"

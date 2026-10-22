@@ -33,6 +33,30 @@ export var bulgarianStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, после от {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Сортирайте по",
+  // [Auto-translated] "Default"
+  sortDefaultText: "По подразбиране",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Поле за сортиране",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Ред на сортиране",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Добавете ниво на сортиране",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Премахнете нивото на сортиране {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Сортиране на полето {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Сортирайте {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Още...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Покажи всички нива на сортиране",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Добави ново",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Край",
   // "Preview"

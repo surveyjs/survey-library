@@ -33,6 +33,30 @@ export var persianSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}، بعد تا {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "مرتب سازی بر اساس",
+  // [Auto-translated] "Default"
+  sortDefaultText: "پیش فرض",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "فیلد مرتب سازی",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "ترتیب مرتب سازی",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "افزودن سطح مرتب سازی",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "حذف سطح مرتب سازی {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "فیلد مرتب سازی {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "ترتیب مرتب سازی {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "بیشتر...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "نمایش همه سطوح مرتب سازی",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "افزودن جدید",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "تکمیل",
   // "Preview"

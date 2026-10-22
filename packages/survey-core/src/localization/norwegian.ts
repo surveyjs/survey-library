@@ -33,6 +33,30 @@ export var norwegianSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, så ved {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sorter etter",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Default",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sorteringsfelt",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Sorteringsrekkefølge",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Legg til sorteringsnivå",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Fjern sorteringsnivå {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sorteringsfelt {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Sorteringsrekkefølge {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Mer...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Vis alle sorteringsnivåer",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Legg til nytt",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Fullfør",
   // "Preview"

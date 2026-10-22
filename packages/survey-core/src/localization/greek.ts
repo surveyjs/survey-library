@@ -33,6 +33,30 @@ export var greekSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, μετά από {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Ταξινόμηση ανά",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Προεπιλογή",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Πεδίο ταξινόμησης",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Σειρά ταξινόμησης",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Προσθήκη επιπέδου ταξινόμησης",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Κατάργηση {0} επιπέδου ταξινόμησης",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Ταξινόμηση πεδίου {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Σειρά ταξινόμησης {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Περισσότερα...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Εμφάνιση όλων των επιπέδων ταξινόμησης",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Προσθήκη νέου",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Ολοκλήρωση",
   // "Preview"

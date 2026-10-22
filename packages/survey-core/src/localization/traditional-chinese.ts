@@ -33,6 +33,30 @@ export var traditionalChineseSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}，然後{1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "排序方式",
+  // [Auto-translated] "Default"
+  sortDefaultText: "預設",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "排序欄位",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "排序順序",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "新增排序層級",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "移除排序層級{0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "排序欄位{0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "排序順序{0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "更多......",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "顯示各種等級",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "新增",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "提交問卷",
   // [Auto-translated] "Preview"

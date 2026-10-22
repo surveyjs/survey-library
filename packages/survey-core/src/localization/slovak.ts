@@ -33,6 +33,30 @@ export var slovakSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, potom do {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Zoradiť podľa",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Predvolený stav",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sort pole",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Poradie triedenia",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Pridať úroveň triedenia",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Odstráňte triedenie {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sortovacie pole {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Poradie triedenia {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Viac...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Zobraziť všetky úrovne triedenia",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Pridať nové",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Dokončené",
   // "Preview"

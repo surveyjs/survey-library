@@ -35,6 +35,30 @@ export var haitianCreoleStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, Lè sa a, pa {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Triye pa",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Default",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Triye jaden",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Sòt lòd",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Ajoute triye nivo",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Retire triye {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sòt jaden {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Sòt lòd {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "plis...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Montre tout nivo sòt",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Ajoute nouvo",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Ranpli",
   // [Auto-translated] "Preview"

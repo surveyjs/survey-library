@@ -33,6 +33,30 @@ export var kazakhStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, сосын {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Сұрыптау",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Әдепкі",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Сұрыптау өрісі",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Сұрыптау тәртібі",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Сұрыптау деңгейін қосу",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Сұрыптау деңгейін алып тастау {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Сұрыптау өрісі {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Сұрыптау тәртібі {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Тағы...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Барлық сұрыптау деңгейлерін көрсету",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Жаңа қосу",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Дайын",
   // "Preview"

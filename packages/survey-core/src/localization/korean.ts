@@ -33,6 +33,30 @@ export var koreanStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, 그다음에는 {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "정렬",
+  // [Auto-translated] "Default"
+  sortDefaultText: "기본 설정",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "정렬 필드",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "정렬 순서",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "정렬 단계 추가",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "정렬 수준 {0} 제거",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "정렬 필드 {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "정렬 순서 {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "더...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "모든 종류의 레벨 표시",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "새 항목 추가하기",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "완료",
   // "Preview"

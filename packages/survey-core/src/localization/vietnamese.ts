@@ -33,6 +33,30 @@ export var vietnameseSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, rồi đến {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sắp xếp theo",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Mặc định",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Trường sắp xếp",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Thứ tự sắp xếp",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Thêm mức sắp xếp",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Loại bỏ {0} cấp sắp xếp",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Trường sắp xếp {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Thứ tự sắp xếp {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Xem thêm...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Hiển thị tất cả các cấp độ sắp xếp",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Thêm mới",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Hoàn thành",
   // "Preview"

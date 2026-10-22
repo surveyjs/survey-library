@@ -33,6 +33,30 @@ export var dutchSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, dan door {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sorteer op",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Standaard",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sorteerveld",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Sorteervolgorde",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Voeg sorteerniveau toe",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Verwijder sorteerniveau {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sorteerveld {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Sorteervolgorde {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Meer...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Laat alle sorteerniveaus zien",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Voeg Nieuw toe",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Verzenden",
   // "Preview"

@@ -33,6 +33,30 @@ export var swahiliStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, kisha kwa {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Panga kwa",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Chaguo-msingi",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Panga shamba",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Panga mpangilio",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Ongeza kiwango cha kupanga",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Ondoa kiwango cha {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Panga uwanja {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Panga agizo {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Soma zaidi...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Onyesha viwango vyote vya aina",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Ongeza mpya",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Kamili",
   // "Preview"

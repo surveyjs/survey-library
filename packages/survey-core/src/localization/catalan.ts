@@ -33,6 +33,30 @@ export var catalanSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, després per {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Ordenar per",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Valor per defecte",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Camp d'ordenació",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Ordre d'ordenació",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Afegeix nivell d'ordenació",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Elimina el nivell d'ordenació {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Camp d'ordenació {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Ordre d'ordenació {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Més...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Mostra tots els nivells de tipus",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Afegeix nou",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Complet",
   // [Auto-translated] "Preview"

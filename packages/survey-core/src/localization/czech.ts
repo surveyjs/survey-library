@@ -33,6 +33,30 @@ export var czechSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, pak do {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Seřadit podle",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Výchozí stav",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sort field",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Pořadí třídění",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Přidat úroveň třídění",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Odstraňte úroveň třídění {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sortovací pole {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Pořadí třídění {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Více...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Zobrazit všechny úrovně sortování",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Přidat nové",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Dokončit",
   // "Preview"

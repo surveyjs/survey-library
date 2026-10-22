@@ -33,6 +33,30 @@ export var urduSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}، پھر {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "ترتیب دیں",
+  // [Auto-translated] "Default"
+  sortDefaultText: "ڈیفالٹ",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "ترتیب میدان",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "ترتیب",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "ترتیب کی سطح شامل کریں",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "ترتیب کی سطح کو ہٹا {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "سورت فیلڈ {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "ترتیب {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "مزید...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "تمام سورت لیولز دکھائیں",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "نیا شامل کریں",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "مکمل",
   // "Preview"

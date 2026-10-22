@@ -33,6 +33,30 @@ export var icelandicSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, þá um {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Raðaðu eftir",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Sjálfgefið",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Röðunarsvið",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Röðun",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Bættu við raðunarstigi",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Fjarlægðu flokkunarstig {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Flokkunarreitur {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Raða röð {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Meira...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Sýndu öll flokkunarstig",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Bættu við Nýju",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Lokið",
   // "Preview"

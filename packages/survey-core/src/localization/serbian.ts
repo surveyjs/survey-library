@@ -33,6 +33,30 @@ export var serbianStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, a zatim {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sortiraj po",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Pretraživanje",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Polje za sortiranje",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Redosled sortiranja",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Dodajte nivo sortiranja",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Ukloni {0} nivoa sortiranja",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sortiraj polje {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Redosled sortiranja {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Više...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Pokaži sve nivoe sortiranja",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Dodaj novi",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Završi",
   // "Preview"

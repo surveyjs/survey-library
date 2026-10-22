@@ -33,6 +33,30 @@ export var lithuaniaSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, tada iki {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Rūšiuoti pagal",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Numatytasis",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Rūšiavimo laukas",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Rūšiavimo tvarka",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Pridėti rūšiavimo lygį",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Pašalinkite sort level {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Rūšiuoti lauką {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Rūšiuokite {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Daugiau...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Rodyti įvairius lygius",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Pridėti naują",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Baigti",
   // "Preview"

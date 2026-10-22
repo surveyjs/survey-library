@@ -11019,14 +11019,14 @@ describe("Question Panel Dynamic: the sort and the filter in JSON", () => {
     expect(values(question, "q2"), "#2").toEqual(["3", "1", "2", "1"]);
     expect(question.toJSON().sortCriteria, "#3: normalized").toEqual([{ field: "q1" }, { field: "q2", direction: "desc" }]);
   });
-  test("the defaults are not serialized and the properties stay out of the property grid", () => {
+  test("the defaults are not serialized; sortCriteria is in the property grid and filterExpression is not", () => {
     const question = createQuestion({ panelCount: 2 }, cba);
     const json = question.toJSON();
     expect(json.sortCriteria, "#1").toBe(undefined);
     expect(json.filterExpression, "#2").toBe(undefined);
     expect(getSort(question), "#3").toEqual([]);
     expect(question.filterExpression, "#4").toBe("");
-    expect(Serializer.findProperty("paneldynamic", "sortCriteria").visible, "#5").toBe(false);
+    expect(Serializer.findProperty("paneldynamic", "sortCriteria").visible, "#5").toBe(true);
     expect(Serializer.findProperty("paneldynamic", "filterExpression").visible, "#6").toBe(false);
     const sortProp = Serializer.findProperty("paneldynamic", "sortCriteria");
     expect([sortProp.className, sortProp.isArray], "#7: an array of sortcriterion objects").toEqual(["sortcriterion", true]);

@@ -27,7 +27,7 @@ import { ValidationContext } from "./question";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import {
   QuestionRecordItemGetterContext, QuestionRecordItem, IRecordItemWrite, QuestionRecordsModel, NestedWalkItem,
-  QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties
+  QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties, isSortAllowed
 } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { LocalDynamicDataSource, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
@@ -1115,6 +1115,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       this.updateColumnsAndRows();
       this.updateRecordsBar();
     }
+    // The sort bar's inputs of the matrix: its opt-in and the header row it replaces (isSortBarVisible).
+    if (name === "showSortBar" || name === "showHeader" || name === "transposeData") {
+      this.updateRecordsBar();
+    }
     const clearRowsProps = ["placeholder", "columnColCount", "rowTitleWidth", "choices"];
     const resetRenderTableProps = [
       "transposeData",
@@ -1198,6 +1202,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
      the sort covers every record. The questions of the detail panel are not offered. */
   protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
     return this.columns.filter((column: MatrixDropdownColumn): boolean => column.visible && column.isSortable)
+      .map((column: MatrixDropdownColumn): { field: string, title: string } => ({ field: column.sortField, title: column.title }));
+  }
+  /* The designer's dialog offers every column whose values sort, an invisible one included: the column still
+     holds a value in every row, so a designer can order the rows by a key the respondent does not see. */
+  protected getDesignSortFieldCandidates(): Array<{ field: string, title: string }> {
+    return this.columns.filter((column: MatrixDropdownColumn): boolean => column.isValueSortable)
       .map((column: MatrixDropdownColumn): { field: string, title: string } => ({ field: column.sortField, title: column.title }));
   }
   // The points where the visible rows may have changed; the fixed matrix hides itself without rows
@@ -1403,9 +1413,21 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   public get isColumnLayoutHorizontal(): boolean {
     return this.isMobile ? true : !this.transposeData;
   }
-  // The table renders a header row with one column per header.
+  // The table renders a header row with one column per header: no header row, a phone and the vertical layout have none.
   public get canSortByHeaders(): boolean {
     return !this.isMobile && !!this.showHeader && !this.transposeData;
+  }
+  /* Where the sort bar shows while allowSort is true: "auto" only where the headers cannot sort (canSortByHeaders),
+     "always" next to them too. There is no "never": a matrix without sorting has allowSort false. A released
+     showSortMenu loads here: true (the bar next to the headers) and "always" read "always", anything else "auto". */
+  public get showSortBar(): "auto" | "always" {
+    return this.getPropertyValue("showSortBar", "auto");
+  }
+  public set showSortBar(val: "auto" | "always") {
+    this.setPropertyValue("showSortBar", val === "always" || <any>val === true ? "always" : "auto");
+  }
+  public get isSortBarVisible(): boolean {
+    return this.allowSort === true && (this.showSortBar === "always" || !this.canSortByHeaders);
   }
   /**
    * Enables case-sensitive comparison in columns with the `isUnique` property set to `true`.
@@ -3520,6 +3542,23 @@ export class MatrixDropdownBaseSingleInputBehavior extends QuestionRecordsSingle
   }
 }
 
+/* The released showSortMenu loads under its alternative name; a boolean is an accepted value of it, and the
+   setter maps it. */
+function getShowSortBarProperty(): any {
+  return {
+    name: "showSortBar", alternativeName: "showSortMenu", default: "auto", choices: ["auto", "always"], acceptedValues: [true, false],
+    visibleIf: isSortAllowed, dependsOn: ["allowSort"]
+  };
+}
+const sortPropertyNames = ["sortCriteria", "allowSort", "maxSortLevel", "showSortBar"];
+/* The sort entries of the matrix as they are, but invisible in the property grid: the Multi-Select Matrix
+   redeclares them, because its fixed rows are not sorted from the UI. */
+export function getHiddenSortProperties(): Array<any> {
+  return getRecordViewProperties().concat([getShowSortBarProperty()])
+    .filter((prop: any): boolean => sortPropertyNames.indexOf(prop.name.split(":")[0]) > -1)
+    .map((prop: any): any => Object.assign({}, prop, { visible: false }));
+}
+
 Serializer.addClass(
   "matrixdropdownbase",
   [
@@ -3592,6 +3631,7 @@ Serializer.addClass(
     { name: "allowAdaptiveActions:boolean", default: false, visible: false },
     // The paging, the sort and the filter of every matrix with rows (the Dynamic Matrix and the Multi-Select Matrix inherit them).
     ...getRecordViewProperties(),
+    getShowSortBarProperty(),
   ],
   function () {
     return new QuestionMatrixDropdownModelBase("");

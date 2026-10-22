@@ -564,6 +564,7 @@ frameworks.forEach(framework => {
         name: "matrix",
         title: "Products",
         allowSort: true,
+        showSortBar: "always",
         rowCount: 0,
         defaultValue: [
           { product: "Lamp", category: "Home", price: 30 },
@@ -616,6 +617,7 @@ frameworks.forEach(framework => {
         name: "matrix",
         title: "Health Product - Long Title for Example",
         allowSort: true,
+        showSortBar: "always",
         maxSortLevel: 6,
         rowCount: 0,
         sortCriteria: sortCriteria,

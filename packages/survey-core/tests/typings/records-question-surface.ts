@@ -15,6 +15,7 @@ import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import { QuestionRecordsBar } from "../../src/question_records_bar";
 import { ISortCriterion } from "../../src/dynamic-data/dynamic-data-interfaces";
 import { settings } from "../../src/settings";
+import { PopupBaseViewModel } from "../../src/popup-view-model";
 
 // The released override surface of the matrix base.
 export class MatrixWithOverrides extends QuestionMatrixDropdownModelBase {
@@ -113,14 +114,22 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
     "sortActions", "showSort"];
   const bar: QuestionRecordsBar = md.recordsBar;
   res.push(barApi, pd.recordsBar === bar);
-  // showSortMenu is a boolean: the released "auto" loads as true.
-  const showSortMenu: boolean = md.showSortMenu;
-  pd.showSortMenu = false;
-  // @ts-expect-error "auto" is gone
-  md.showSortMenu = "auto";
+  // showSortBar is the matrices': "auto" or "always". The dynamic panel has none: allowSort decides alone there.
+  const showSortBar: "auto" | "always" = md.showSortBar;
+  dd.showSortBar = "always";
+  const mdShowSortBar: DeclaredKeys<QuestionMatrixDynamicModel> = "showSortBar";
+  // @ts-expect-error the dynamic panel has no showSortBar
+  const pdShowSortBar: DeclaredKeys<QuestionPanelDynamicModel> = "showSortBar";
+  // @ts-expect-error showSortMenu is only the serializer's alternative name
+  const mdShowSortMenu: DeclaredKeys<QuestionMatrixDynamicModel> = "showSortMenu";
+  res.push(mdShowSortBar, pdShowSortBar, mdShowSortMenu);
   // Where the renderers mount the sort bar.
   const sortBarLocation: "header" | "top" | "none" = dd.sortBarLocation;
-  res.push(showSortMenu, sortBarLocation);
+  res.push(showSortBar, sortBarLocation);
+  // Creator's entry to the designer's "Sort by" dialog.
+  const designDialog: PopupBaseViewModel = pd.showSortDialog({ onApply: (criteria: Array<ISortCriterion>): void => { res.push(criteria); },
+    rootElement: undefined, locale: "de" });
+  res.push(designDialog, md.showSortDialog({ onApply: (): void => { } }));
   // @ts-expect-error the sort bar reaches the respondent's sort through the question's owner object
   const mdSortByUser: DeclaredKeys<QuestionMatrixDynamicModel> = "sortByUser";
   // @ts-expect-error the offered fields reach the sort bar through the question's owner object

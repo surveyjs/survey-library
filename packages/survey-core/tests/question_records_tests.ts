@@ -1867,19 +1867,21 @@ describe("Records sort: plain criteria", () => {
   });
 });
 
-/* What a respondent can sort: allowSort, maxSortLevel and showSortMenu are on every records question.
-   A developer sets them in code or JSON; the property grid does not show them. */
+/* What a respondent can sort: allowSort and maxSortLevel are on every records question, showSortBar on the
+   matrices. The property grid shows them on the dynamic types only. */
 describe("Records sort: what a respondent can sort", () => {
   interface ISortUIKind {
     type: string;
     json: any;
     hasHeaders: boolean;
+    inPropertyGrid: boolean;
   }
   const columns = ["a", "b", "c", "d"].map(name => ({ name: name, cellType: "text" }));
   const sortUIKinds: Array<ISortUIKind> = [
-    { type: "matrixdropdown", json: { rows: ["r1", "r2"], columns: columns }, hasHeaders: true },
-    { type: "matrixdynamic", json: { rowCount: 2, columns: columns }, hasHeaders: true },
-    { type: "paneldynamic", json: { panelCount: 2, templateElements: ["a", "b", "c", "d"].map(name => ({ type: "text", name: name })) }, hasHeaders: false }
+    { type: "matrixdropdown", json: { rows: ["r1", "r2"], columns: columns }, hasHeaders: true, inPropertyGrid: false },
+    { type: "matrixdynamic", json: { rowCount: 2, columns: columns }, hasHeaders: true, inPropertyGrid: true },
+    { type: "paneldynamic", json: { panelCount: 2, templateElements: ["a", "b", "c", "d"].map(name => ({ type: "text", name: name })) }, hasHeaders: false,
+      inPropertyGrid: true }
   ];
   const create = (kind: ISortUIKind, extra?: any): any => {
     const survey = new SurveyModel({ elements: [Object.assign({ type: kind.type, name: "q" }, kind.json, extra)] });
@@ -1889,17 +1891,16 @@ describe("Records sort: what a respondent can sort", () => {
   sortUIKinds.forEach(kind => {
     test("the defaults, a JSON round trip, the defaults not written and the property grid, " + kind.type, () => {
       const q = create(kind);
-      expect([q.allowSort, q.maxSortLevel, q.showSortMenu], "#1: the defaults").toEqual([false, 1, true]);
+      expect([q.allowSort, q.maxSortLevel], "#1: the defaults").toEqual([false, 1]);
       const json = q.toJSON();
-      expect(["allowSort" in json, "maxSortLevel" in json, "showSortMenu" in json], "#2: the defaults are not written").toEqual([false, false, false]);
-      const loaded = create(kind, { allowSort: true, maxSortLevel: 3, showSortMenu: false });
-      expect([loaded.allowSort, loaded.maxSortLevel, loaded.showSortMenu], "#3: loaded").toEqual([true, 3, false]);
+      expect(["allowSort" in json, "maxSortLevel" in json, "showSortBar" in json], "#2: the defaults are not written").toEqual([false, false, false]);
+      const loaded = create(kind, { allowSort: true, maxSortLevel: 3 });
+      expect([loaded.allowSort, loaded.maxSortLevel], "#3: loaded").toEqual([true, 3]);
       const saved = loaded.toJSON();
-      expect([saved.allowSort, saved.maxSortLevel, saved.showSortMenu], "#4: saved").toEqual([true, 3, false]);
-      expect("showSortMenu" in create(kind, { showSortMenu: true }).toJSON(), "#5: true is the default and is not written").toBe(false);
-      expect(["allowSort", "maxSortLevel", "showSortMenu"].map(name => Serializer.findProperty(kind.type, name).visible), "#6: hidden in the property grid")
-        .toEqual([false, false, false]);
-      expect(Serializer.findProperty(kind.type, "maxSortLevel").minValue, "#7").toBe(1);
+      expect([saved.allowSort, saved.maxSortLevel], "#4: saved").toEqual([true, 3]);
+      expect(["allowSort", "maxSortLevel"].map(name => Serializer.findProperty(kind.type, name).visible), "#5: the property grid")
+        .toEqual([kind.inPropertyGrid, kind.inPropertyGrid]);
+      expect(Serializer.findProperty(kind.type, "maxSortLevel").minValue, "#6").toBe(1);
     });
     test("maxSortLevel caps the append of toggleSort and replaces the last level, " + kind.type, () => {
       const q = create(kind);
@@ -1951,40 +1952,21 @@ describe("Records sort: what a respondent can sort", () => {
       q.maxSortLevel = 2.7;
       expect(q.maxSortLevel, "#3: a fraction is rounded down").toBe(2);
     });
-    test("showSortMenu reads any value but false as true, a released JSON \"auto\" included, " + kind.type, () => {
-      const q = create(kind, { showSortMenu: "auto" });
-      expect(q.showSortMenu, "#1: from JSON").toBe(true);
-      q.showSortMenu = false;
-      expect(q.showSortMenu, "#2").toBe(false);
-      q.showSortMenu = <any>"auto";
-      expect(q.showSortMenu, "#3").toBe(true);
-      q.showSortMenu = <any>1;
-      expect(q.showSortMenu, "#4").toBe(true);
-    });
-    test("isSortMenuVisible: allowSort and showSortMenu, " + kind.type, () => {
-      const q = create(kind);
-      const table: Array<any> = [];
-      [false, true].forEach(allowSort => {
-        [true, false].forEach(show => {
-          q.allowSort = allowSort;
-          q.showSortMenu = show;
-          table.push([allowSort, show, q.isSortMenuVisible]);
-        });
-      });
-      expect(table).toEqual([
-        [false, true, false], [false, false, false],
-        [true, true, true], [true, false, false]
-      ]);
+    test("isSortBarVisible needs allowSort, " + kind.type, () => {
+      const q = create(kind, { showSortBar: "always" });
+      expect(q.isSortBarVisible, "#1").toBe(false);
+      q.allowSort = true;
+      expect(q.isSortBarVisible, "#2").toBe(true);
     });
   });
   sortUIKinds.filter(kind => kind.hasHeaders).forEach(kind => {
-    test("isSortMenuVisible does not depend on whether the table renders a sortable header row, " + kind.type, () => {
-      const visible = (extra: any): Array<boolean> => [true, false].map(show =>
-        create(kind, Object.assign({ allowSort: true, showSortMenu: show }, extra)).isSortMenuVisible);
-      expect(visible({}), "#1: the headers sort").toEqual([true, false]);
-      expect(visible({ showHeader: false }), "#2: no header row").toEqual([true, false]);
-      expect(visible({ transposeData: true }), "#3: transposed").toEqual([true, false]);
-      expect(visible({ displayMode: "list" }), "#4: mobile").toEqual([true, false]);
+    test("isSortBarVisible with showSortBar \"auto\" follows whether the table renders a sortable header row; \"always\" does not, " + kind.type, () => {
+      const visible = (extra: any): Array<boolean> => ["auto", "always"].map(show =>
+        create(kind, Object.assign({ allowSort: true, showSortBar: show }, extra)).isSortBarVisible);
+      expect(visible({}), "#1: the headers sort").toEqual([false, true]);
+      expect(visible({ showHeader: false }), "#2: no header row").toEqual([true, true]);
+      expect(visible({ transposeData: true }), "#3: transposed").toEqual([true, true]);
+      expect(visible({ displayMode: "list" }), "#4: mobile").toEqual([true, true]);
     });
     test("column.isSortable needs allowSort on the matrix and on the column, " + kind.type, () => {
       const q = create(kind, { columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text", allowSort: false }] });

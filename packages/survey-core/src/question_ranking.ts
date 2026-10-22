@@ -38,6 +38,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public getType(): string {
     return "ranking";
   }
+  public supportsChoiceKeyboardSelection(): boolean {
+    return false;
+  }
   supportElementsInChoice(): boolean { return false; }
   public getItemTabIndex(item: ItemValue) {
     if (this.isDesignMode || item.disabled) return undefined;

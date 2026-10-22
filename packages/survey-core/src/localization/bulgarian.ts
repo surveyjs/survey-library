@@ -5,6 +5,34 @@ export var bulgarianStrings = {
   pagePrevText: "Назад",
   // "Next"
   pageNextText: "Напред",
+  // [Auto-translated] "First"
+  pageFirstText: "Първо",
+  // [Auto-translated] "Last"
+  pageLastText: "Последен",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "от {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Изберете страница",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Сортирайте по {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Високо - Ниско",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Ниско - Високо",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Азбука, А - Я",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Азбука, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Най-новото първо",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Най-старият първи",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Сортирано по {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, после от {1}",
   // "Complete"
   completeText: "Край",
   // "Preview"

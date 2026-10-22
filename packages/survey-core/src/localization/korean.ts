@@ -5,6 +5,34 @@ export var koreanStrings = {
   pagePrevText: "이전",
   // "Next"
   pageNextText: "다음",
+  // [Auto-translated] "First"
+  pageFirstText: "첫째",
+  // [Auto-translated] "Last"
+  pageLastText: "마지막입니다",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "선택 페이지",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "{0}로 정렬하기",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "높은 - 낮은",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "낮은 - 높은",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "알파벳, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "알파벳, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "최신 사태가 먼저",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "가장 오래된 첫 번째",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "{0} 정렬",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, 그다음에는 {1}",
   // "Complete"
   completeText: "완료",
   // "Preview"

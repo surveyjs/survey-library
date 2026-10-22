@@ -5,6 +5,34 @@ export var hindiStrings = {
   pagePrevText: "पिछला",
   // "Next"
   pageNextText: "अगला",
+  // [Auto-translated] "First"
+  pageFirstText: "पहला",
+  // [Auto-translated] "Last"
+  pageLastText: "पिछला",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0} की संख्या",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "पृष्ठ का चयन करें",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "{0} के आधार पर क्रमबद्ध करें",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "उच्च - निम्न",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "कम - उच्च",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "वर्णमाला, ए - जेड",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "वर्णमाला, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "सबसे नया पहला",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "सबसे पुराना पहला",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "{0} के आधार पर क्रमबद्ध",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, फिर {1}",
   // "Complete"
   completeText: "पूरा",
   // "Preview"

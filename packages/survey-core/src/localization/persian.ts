@@ -5,6 +5,34 @@ export var persianSurveyStrings = {
   pagePrevText: "قبلی",
   // "Next"
   pageNextText: "بعدی",
+  // [Auto-translated] "First"
+  pageFirstText: "اول",
+  // [Auto-translated] "Last"
+  pageLastText: "آخرین",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "از {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "صفحه انتخاب",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "مرتب سازی بر اساس {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "بالا - پایین",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "پایین - بالا",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "الفبا، A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "الفبا، Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "جدیدترین اولین",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "قدیمی ترین نفر اول",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "مرتب شده بر اساس {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}، بعد تا {1}",
   // "Complete"
   completeText: "تکمیل",
   // "Preview"

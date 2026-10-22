@@ -81,19 +81,17 @@ BinFunctions
   / ("allof"i)  {return "allof"; }
   / ("noneof"i)  {return "noneof"; }
 
+// Each atom is parsed once: "empty" / "notempty" is an optional suffix of the atom. As a separate alternative
+// before Atom, it parsed the atom, failed when no suffix followed (nearly always), and Atom parsed it again.
 Factor
   = "(" _ expr:Expression _ ")"? { return expr; }
   / FunctionOp
-  / UnaryFunctionOp
-  / Atom
+  / ("!" / "negate"i) _ expr:Factor { return new UnaryOperand(expr, "negate"); }
+  / expr:Atom op:(_ @UnFunctions)? { return op ? new UnaryOperand(expr, op) : expr; }
   / ArrayOp
 
 FunctionOp
   = name:LettersAndDigits "(" params:Sequence ")"? { return new FunctionOperand(name, params); }
-
-UnaryFunctionOp
-  = ("!" / "negate"i) _ expr:Factor  { return new UnaryOperand(expr, "negate"); }
-  / expr:Atom _ op:UnFunctions           { return new UnaryOperand(expr, op); }
 
 UnFunctions
   = ("empty"i)    { return "empty"; }
@@ -113,8 +111,10 @@ ConstValue
   / "'" value:AnyInput "'" { return "'" + value + "'"; }
   / "\"" value:AnyInput "\"" { return "'" + value + "'"; }
 
+// "]" is optional, like ")". When it was required, an unclosed "[" inside an unclosed "(" was parsed twice
+// at each nesting level, so the parse time doubled per level.
 ArrayOp
-  = "[" sequence:Sequence "]" { return sequence; }
+  = "[" sequence:Sequence "]"? { return sequence; }
 
 Sequence
   = expr:Expression? tail:(_ "," _ Expression)* {
@@ -146,7 +146,7 @@ Number
   / "0"                   { return 0; }
 
 ValueInput
-  = chars:ValueCharacters+ { return chars.join(""); }
+  = $[^{}]+
 
 AnyInput
   = chars:AnyCharacters+ { return chars.join(""); }
@@ -155,9 +155,6 @@ AnyCharacters
   = "\\'"       { return "'"; }
   / "\\\""      { return "\""; }
   / [^\"\'] { return text(); }
-
-ValueCharacters
-  = [^\{\}] { return text(); }
 
 LettersAndDigits
   = Letters (Digits Letters*)* { return text(); }

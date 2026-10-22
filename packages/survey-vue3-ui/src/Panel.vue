@@ -23,37 +23,21 @@
       :element="element"
       v-if="!element.showErrorsAbovePanel"
     />
-    <div
-      :id="element.contentId"
-      :style="panelContentStyle"
-      v-if="element.renderedIsExpanded"
-      :class="element.cssClasses.panel.content"
-      :role="element.ariaRole"
-      :aria-labelledby="element.ariaLabelledBy"
-      :aria-label="element.ariaLabel"
-    >
-      <template v-for="row in element.visibleRows" :key="row.id">
-        <SvComponent
-          :is="(element.getSurvey() as SurveyModel).getRowWrapperComponentName(row)"
-          v-bind="{
+    <div :class="element.cssClasses.panel.expandableContent" v-if="element.renderedIsExpanded">
+      <div :id="element.contentId" :style="panelContentStyle" :class="element.cssClasses.panel.content"
+        :role="element.ariaRole" :aria-labelledby="element.ariaLabelledBy" :aria-label="element.ariaLabel">
+        <template v-for="row in element.visibleRows" :key="row.id">
+          <SvComponent :is="(element.getSurvey() as SurveyModel).getRowWrapperComponentName(row)" v-bind="{
             componentData: (element.getSurvey() as SurveyModel).getRowWrapperComponentData(row),
-          }"
-        >
-          <SvComponent
-            :is="'survey-row'"
-            :row="row"
-            :survey="survey"
-            :css="css"
-          >
+          }">
+            <SvComponent :is="'survey-row'" :row="row" :survey="survey" :css="css">
+            </SvComponent>
           </SvComponent>
-        </SvComponent>
-      </template>
+        </template>
+      </div>
+      <SvComponent :is="'sv-action-bar'" v-if="element.renderedIsExpanded && element.getFooterToolbar().hasActions"
+        :model="element.getFooterToolbar()"></SvComponent>
     </div>
-    <SvComponent
-      :is="'sv-action-bar'"
-      v-if="element.renderedIsExpanded && element.getFooterToolbar().hasActions"
-      :model="element.getFooterToolbar()"
-    ></SvComponent>
   </div>
 </template>
 
@@ -87,10 +71,16 @@ const panelContentStyle = computed(() => {
     : {};
 });
 
-useBase(() => props.element);
+useBase(() => props.element, (newValue) => {
+  if(root.value) {
+    newValue.afterRender(root.value);
+  }
+}, (panel) => {
+  panel.beforeDestroy();
+});
 
 onMounted(() => {
-  if (props.element.survey) {
+  if(root.value) {
     props.element.afterRender(root.value);
   }
 });

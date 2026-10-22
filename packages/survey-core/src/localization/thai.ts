@@ -5,6 +5,34 @@ export var thaiStrings = {
   pagePrevText: "ก่อนหน้า",
   // "Next"
   pageNextText: "ถัดไป",
+  // [Auto-translated] "First"
+  pageFirstText: "อันดับแรก",
+  // [Auto-translated] "Last"
+  pageLastText: "สุดท้าย",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "ของ{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "เลือกหน้า",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "เรียงตาม{0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "สูง - ต่ํา",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "ต่ํา - สูง",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "ตัวอักษร, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "ตัวอักษร, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "ใหม่ล่าสุดก่อน",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "คนแรกที่เก่าแก่ที่สุด",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "เรียงตาม{0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0} แล้วก็{1}",
   // "Complete"
   completeText: "สำเร็จ",
   // "Preview"

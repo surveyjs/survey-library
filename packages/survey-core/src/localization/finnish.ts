@@ -5,6 +5,34 @@ export var finnishSurveyStrings = {
   pagePrevText: "Edellinen",
   // "Next"
   pageNextText: "Seuraava",
+  // [Auto-translated] "First"
+  pageFirstText: "Ensimmäinen",
+  // [Auto-translated] "Last"
+  pageLastText: "Viimeinen",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Valitse sivu",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Lajittele {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Korkea - Matala",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Matala - Korkea",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Aakkoset, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Aakkoset, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Uusin ensimmäisenä",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Vanhin ensin",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Lajiteltu {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, sitten {1}",
   // "Complete"
   completeText: "Valmis",
   // "Preview"

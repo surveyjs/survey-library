@@ -5,6 +5,34 @@ export var serbianStrings = {
   pagePrevText: "Nazad",
   // "Next"
   pageNextText: "Dalje",
+  // [Auto-translated] "First"
+  pageFirstText: "Prvo",
+  // [Auto-translated] "Last"
+  pageLastText: "Poslednji",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "od {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Mapa sajta",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sortiraj po {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Visoko - Nisko",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Nisko - Visoko",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Azbuka, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Abeceda, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Najnovije prvo",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Najstariji prvo",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sortirano po {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, a zatim {1}",
   // "Complete"
   completeText: "Završi",
   // "Preview"

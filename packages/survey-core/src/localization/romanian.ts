@@ -5,6 +5,34 @@ export var romanianSurveyStrings = {
   pagePrevText: "Precedent",
   // "Next"
   pageNextText: "Următor",
+  // [Auto-translated] "First"
+  pageFirstText: "Primul",
+  // [Auto-translated] "Last"
+  pageLastText: "Ultimul",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "de {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Selectează pagina",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sortează după {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Sus - Jos",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Jos - Sus",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabet, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Cea mai nouă premieră",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Cea mai veche primă",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sortat după {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, apoi de {1}",
   // "Complete"
   completeText: "Finalizare",
   // "Preview"

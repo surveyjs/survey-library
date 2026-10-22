@@ -5,6 +5,34 @@ export var turkishSurveyStrings = {
   pagePrevText: "Önceki",
   // "Next"
   pageNextText: "Sonraki",
+  // [Auto-translated] "First"
+  pageFirstText: "İlk",
+  // [Auto-translated] "Last"
+  pageLastText: "Son",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Sayfa Seç",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sıralayın {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Yüksek - Düşük",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Düşük - Yüksek",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabe, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabe, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "En yeni ilk",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "İlk en yaşlı",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sıralanmış {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, sonra {1}",
   // "Complete"
   completeText: "Tamamla",
   // "Preview"

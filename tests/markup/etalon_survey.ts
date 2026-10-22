@@ -31,6 +31,28 @@ registerMarkupTests(
         return <HTMLElement>el?.querySelector("form");
       },
       snapshot: "survey-navigation"
+    },
+    {
+      name: "Test Survey do not render empty navigation action bar",
+      json: {
+        navigationButtonsLocation: "topBottom",
+        elements: [
+          {
+            "type": "html",
+            "name": "q1",
+            "html": "<div></div>"
+          }
+        ]
+      },
+      event: "onAfterRenderSurvey",
+      initSurvey: (survey) => {
+        survey.headerView = "basic";
+        survey.showCompleteButton = false;
+      },
+      getElement: (el) => {
+        return <HTMLElement>el?.querySelector("form");
+      },
+      snapshot: "survey-navigation-empty"
     }, {
       name: "Test Survey theme css variables",
       json: {

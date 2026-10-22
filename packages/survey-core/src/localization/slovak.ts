@@ -5,6 +5,34 @@ export var slovakSurveyStrings = {
   pagePrevText: "Predchádzajúca",
   // "Next"
   pageNextText: "Ďalej",
+  // [Auto-translated] "First"
+  pageFirstText: "Prvá",
+  // [Auto-translated] "Last"
+  pageLastText: "Posledný",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Vybrať stránku",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Zoradiť podľa {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Vysoké - Nízke",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Nízke - Vysoké",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Abeceda, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Abeceda, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Najnovšie prvé",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Najstarší prvýkrát",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Zoradené podľa {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, potom do {1}",
   // "Complete"
   completeText: "Dokončené",
   // "Preview"

@@ -5,6 +5,34 @@ export var dutchSurveyStrings = {
   pagePrevText: "Vorige",
   // "Next"
   pageNextText: "Volgende",
+  // [Auto-translated] "First"
+  pageFirstText: "Eerste",
+  // [Auto-translated] "Last"
+  pageLastText: "Laatste",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "van {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Selecteer pagina",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sorteer op {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Hoog - Laag",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Laag - Hoog",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabet, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Nieuwste primeur",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Oudste eerste",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sorteer op {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, dan door {1}",
   // "Complete"
   completeText: "Verzenden",
   // "Preview"

@@ -35,6 +35,9 @@ export const SurveyLintReasons = Object.freeze({
     valueNameShadowsElement: "valueNameShadowsElement",
     commentKeyCollision: "commentKeyCollision",
     totalKeyCollision: "totalKeyCollision",
+    dropdownRowConflict: "dropdownRowConflict",
+    // questions on one data key keeping values of different shapes: an array of objects, an object, a plain value
+    valueShapeConflict: "valueShapeConflict",
     variableShadowsQuestion: "variableShadowsQuestion",
   }),
   // a member of Object.prototype used as a name: the value objects it keys are plain, so the
@@ -128,6 +131,10 @@ export const SurveyLintReasons = Object.freeze({
     // a constant branch, a comparison of two constants, or an operand compared with itself
     meaninglessFragment: "meaninglessFragment",
     alwaysTrueViaConstants: "alwaysTrueViaConstants",
+  }),
+  // a condition that reads no question, calculated value or variable; the rule is off by default
+  "expression/no-reference": Object.freeze({
+    noReference: "noReference",
   }),
   // these values already shipped inside messageData.reason
   "choices/dead-source": Object.freeze({
@@ -244,6 +251,8 @@ export const SurveyLintHintReasons = Object.freeze({
   panelStandalone: "panelStandalone",
   itemScope: "itemScope",
   compositeScopePrefix: "compositeScopePrefix",
+  // a row or panel variable inside an inArray filter, which runs against the item and the survey
+  inArrayFilterScope: "inArrayFilterScope",
   // the name exists in the surrounding container and only needs its prefix
   matrixColumn: "matrixColumn",
   panelQuestion: "panelQuestion",

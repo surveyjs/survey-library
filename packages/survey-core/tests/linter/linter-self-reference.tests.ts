@@ -107,3 +107,60 @@ describe("reference/self and per-item conditions", () => {
     })).toHaveLength(1);
   });
 });
+
+// {prevPanel.x}/{nextPanel.x} and {prevRow.x}/{nextRow.x}/{totalRow.x} name the same template
+// question or column as the owner, but read it in another record - not the owner's own value.
+describe("reference/self and neighbouring rows/panels", () => {
+  const panelSurvey = (enableIf: string) => ({
+    elements: [{
+      type: "paneldynamic", name: "question1",
+      templateElements: [{ type: "boolean", name: "agree", enableIf: enableIf }],
+    }],
+  });
+  const matrixSurvey = (column: any) => ({
+    elements: [{ type: "matrixdynamic", name: "m1", columns: [Object.assign({ name: "col1" }, column)] }],
+  });
+  test("the same field of the previous panel is not a self reference (#12014)", () => {
+    expect(selfRefs({
+      pages: [{
+        name: "page1",
+        elements: [{
+          type: "paneldynamic",
+          name: "question1",
+          title: "Dynamic Panel test",
+          templateElements: [{
+            type: "boolean",
+            name: "agree",
+            title: "Agree?",
+            enableIf: "{panelIndex} = 0 || {prevPanel.agree} = true",
+          }],
+        }],
+      }],
+    })).toHaveLength(0);
+  });
+  test("the same field of the next panel is not a self reference", () => {
+    expect(selfRefs(panelSurvey("{nextPanel.agree} = true"))).toHaveLength(0);
+  });
+  test("both neighbouring panels in one condition are not a self reference", () => {
+    expect(selfRefs(panelSurvey("{prevPanel.agree} = true || {nextPanel.agree} = true"))).toHaveLength(0);
+  });
+  test("the same column of the previous or next row is not a self reference", () => {
+    expect(selfRefs(matrixSurvey({ cellType: "boolean", enableIf: "{prevRow.col1} = true" }))).toHaveLength(0);
+    expect(selfRefs(matrixSurvey({ cellType: "boolean", enableIf: "{nextRow.col1} = true" }))).toHaveLength(0);
+  });
+  test("the same column of the total row is not a self reference", () => {
+    expect(selfRefs(matrixSurvey({
+      cellType: "text", inputType: "number", totalType: "sum", visibleIf: "{totalRow.col1} > 10",
+    }))).toHaveLength(0);
+  });
+  test("the own panel next to a neighbour is still reported", () => {
+    const findings = selfRefs(panelSurvey("{prevPanel.agree} = true || {panel.agree} = true"));
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.reference).toBe("panel.agree");
+  });
+  test("the own row next to a neighbour is still reported", () => {
+    const findings = selfRefs(matrixSurvey({ cellType: "text", visibleIf: "{prevRow.col1} = 1 || {row.col1} = 1" }));
+    expect(findings).toHaveLength(1);
+    expect(findings[0].messageData.reference).toBe("row.col1");
+  });
+});

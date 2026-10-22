@@ -11,13 +11,19 @@ import { toCssClasses } from "./utils/cssClassBuilder";
 import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { ActionContainer } from "./actions/container";
-import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
+import type { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { settings } from "./settings";
 import { AnimationGroup, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
+import { ISortCriterion, SortDirection } from "./dynamic-data/dynamic-data-interfaces";
+import { getSortDirectionLocStringName } from "./records/records-sort-directions";
 
 function getId(id: string, isError: boolean, isDetail: boolean) {
   return id + (isError ? "-error" : "") + (isDetail ? "-detail" : "");
+}
+// The matrix whose rows are added, removed and dragged, read by its flag: question_matrixdynamic imports this file.
+function getDynamicMatrix(matrix: QuestionMatrixDropdownModelBase): QuestionMatrixDynamicModel {
+  return matrix.isRowsDynamic ? <QuestionMatrixDynamicModel>matrix : undefined;
 }
 
 export class QuestionMatrixDropdownRenderedCell {
@@ -34,6 +40,9 @@ export class QuestionMatrixDropdownRenderedCell {
   public choiceIndex: number;
   public isOtherChoice: boolean;
   public matrix: QuestionMatrixDropdownModelBase;
+  /* Gives a cell without a matrix and a row - the empty corner cell, a choice header, the footer title -
+     the survey, and with it the id generator, but not the matrix: a cell with the matrix gets a tooltip. */
+  public surveyOwner: QuestionMatrixDropdownModelBase;
   public isEmpty: boolean;
   public colSpans: number = 1;
   public panel: PanelModel;
@@ -45,7 +54,7 @@ export class QuestionMatrixDropdownRenderedCell {
   public constructor() {
   }
   public getSurvey(): ISurvey {
-    return this.matrix?.getSurvey() || this.row?.getSurvey() || null;
+    return this.matrix?.getSurvey() || this.row?.getSurvey() || this.surveyOwner?.getSurvey() || null;
   }
   private getGeneratedId(): string {
     if (this.idValue === undefined) {
@@ -67,8 +76,10 @@ export class QuestionMatrixDropdownRenderedCell {
   public get hasPanel(): boolean {
     return !!this.panel;
   }
+  /* A column header keeps the column's id: the header row is rebuilt on every sort, and a renderer
+     that keys the header cells by id keeps their DOM nodes - and the keyboard focus in them. */
   public get id(): string {
-    let id = this.question ? this.question.renderedId : this.getGeneratedId();
+    let id = this.question ? this.question.renderedId : (this.isColumnHeader ? this.column.renderedId : this.getGeneratedId());
     if (this.isChoice) {
       id += "-" + (Number.isInteger(this.choiceIndex) ? "index" + this.choiceIndex.toString() : this.item.id);
     }
@@ -85,6 +96,96 @@ export class QuestionMatrixDropdownRenderedCell {
   }
   public get isChoice(): boolean {
     return !!this.item;
+  }
+  // A cell of the header row that titles a column (createHeaderCell), not a choice of a column shown in multiple columns.
+  public isColumnHeader: boolean = false;
+  /* The header-click sort. Everything is read from the matrix and the column when it is asked for: the
+     header row is rebuilt on every sort, but a cell that survives - a locale change, a sort direction
+     flipped from code - still shows the current state. */
+  public get isSortable(): boolean {
+    const matrix = this.matrix;
+    return this.isColumnHeader && !!matrix && this.column.isSortable && matrix.canSortByHeaders && !matrix.isDesignMode;
+  }
+  public get sortDirection(): SortDirection {
+    if (!this.column || !this.matrix) return undefined;
+    const field = this.column.sortField;
+    const criterion = this.getSort().filter((item: ISortCriterion): boolean => item.field === field)[0];
+    if (!criterion) return undefined;
+    return criterion.direction === "desc" ? "desc" : "asc";
+  }
+  public get sortIconName(): string {
+    const dir = this.sortDirection;
+    if (dir === "asc") return "icon-arrowup-16x16";
+    if (dir === "desc") return "icon-arrowdown-16x16";
+    return "icon-sort-16x16";
+  }
+  // aria-sort goes on one header only: the one the rows are sorted by first.
+  public get ariaSort(): "ascending" | "descending" {
+    if (!this.isSortable) return undefined;
+    const first = this.getSort()[0];
+    if (!first || first.field !== this.column.sortField) return undefined;
+    return first.direction === "desc" ? "descending" : "ascending";
+  }
+  /* The whole sort, levels in order: "Sorted by Price (High - Low), then by Product (Alphabet, A - Z)".
+     It is how a screen reader hears the later levels, which have no aria-sort. */
+  public get sortDescription(): string {
+    if (!this.isSortable) return undefined;
+    const sort = this.getSort();
+    if (sort.length === 0) return undefined;
+    const matrix = this.matrix;
+    const levels = sort.map((item: ISortCriterion): string =>
+      matrix.getLocalizationFormatString("sortOrderLevelText", this.getSortFieldTitle(item.field),
+        this.getSortDirectionText(item.field, item.direction === "desc" ? "desc" : "asc")));
+    const order = levels.reduce((res: string, level: string): string => matrix.getLocalizationFormatString("sortOrderNextText", res, level));
+    return matrix.getLocalizationFormatString("sortOrderText", order);
+  }
+  public get sortDescriptionId(): string {
+    return this.id + "_sortDescription";
+  }
+  // The label of the direction the column is sorted in now: "High - Low" for a number column.
+  public get sortTooltip(): string {
+    if (!this.isSortable) return undefined;
+    const dir = this.sortDirection;
+    return !!dir ? this.getSortDirectionText(this.column.sortField, dir) : undefined;
+  }
+  public get sortAriaLabel(): string {
+    if (!this.isSortable) return undefined;
+    return this.matrix.getLocalizationFormatString("sortByColumnText", this.column.title);
+  }
+  public get sortCss(): string {
+    const css = this.matrix.cssClasses;
+    const dir = this.sortDirection;
+    return toCssClasses(css.headerCellSort,
+      dir === "asc" && css.headerCellSortAsc, dir === "desc" && css.headerCellSortDesc, !dir && css.headerCellSortNone);
+  }
+  public get sortButtonCss(): string {
+    return toCssClasses(this.matrix.cssClasses.headerCellSortButton);
+  }
+  public get sortTitleCss(): string {
+    return toCssClasses(this.matrix.cssClasses.headerCellSortTitle);
+  }
+  // As for the pager: no new sort while a page is read or a page move waits for its validators.
+  public get canToggleSort(): boolean {
+    const matrix = this.matrix;
+    return !!matrix && !matrix.isDataLoading && !matrix.isPageMovePending;
+  }
+  /* append: Shift, Ctrl or Cmd was held - the column joins the sort instead of replacing it (a sorted
+     column under maxSortLevel above 1 keeps its level either way: matrix.toggleSort). false: the
+     sort did not change - the page it would replace has an error, or the click was not allowed now. */
+  public toggleSort(append?: boolean): boolean {
+    if (!this.isSortable || !this.canToggleSort) return false;
+    return this.matrix.toggleSort(this.column.sortField, append);
+  }
+  private getSort(): Array<ISortCriterion> {
+    return this.matrix.sortCriteria || [];
+  }
+  private getSortFieldTitle(field: string): string {
+    const column = this.matrix.columns.filter((item: MatrixDropdownColumn): boolean => item.sortField === field)[0];
+    return !!column ? column.title : field;
+  }
+  private getSortDirectionText(field: string, direction: SortDirection): string {
+    const locName = getSortDirectionLocStringName(this.matrix.getSortFieldDataType(field), direction);
+    return this.matrix.getLocalizationString(locName);
   }
   public get isItemChoice(): boolean {
     return this.isChoice && !this.isOtherChoice;
@@ -108,6 +209,7 @@ export class QuestionMatrixDropdownRenderedCell {
     const hasQuestion = this.hasQuestion;
     return toCssClasses(
       this.classNameValue,
+      this.isSortable && this.matrix.cssClasses.headerCellSortable,
       hasQuestion && this.question.errors.length > 0 && this.question.cssClasses.hasError,
       hasQuestion && this.question.isAnswered && this.question.cssClasses.answered
     );
@@ -392,6 +494,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   public requireReset(): void {
     this.isRequireResetValue = true;
   }
+  // requireReset() was called: unlike isRequireReset(), not what the table's layout or its remove column says.
+  public isResetRequested(): boolean {
+    return !!this.isRequireResetValue;
+  }
 
   public get headerRow(): QuestionMatrixDropdownRenderedRow {
     return this.headerRowValue;
@@ -400,7 +506,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     return this.footerRowValue;
   }
   public get isRowsDragAndDrop(): boolean {
-    return this.matrix.isRowsDragAndDrop && this.matrix.isColumnLayoutHorizontal && !this.matrix.isMobile;
+    const matrix = getDynamicMatrix(this.matrix);
+    return matrix?.isRowsDragAndDrop && matrix.isColumnLayoutHorizontal && !matrix.isMobile;
   }
 
   private get showCellErrorsTop() {
@@ -634,15 +741,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     return this.matrix.visibleRows.some(
       (row, index) => !this.isValueEmpty(this.getRowActions(index, location)));
   }
-  private canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
-    return this.matrix.canRemoveRow(row);
-  }
   private buildHorizontalRows(): Array<QuestionMatrixDropdownRenderedRow> {
     var rows = this.matrix.visibleRows;
     var renderedRows: Array<QuestionMatrixDropdownRenderedRow> = [];
-    if (rows.length == 0 && this.matrix.allowRowReorder && this.matrix.allowRowDragIn) {
+    const dynamicMatrix = getDynamicMatrix(this.matrix);
+    if (rows.length == 0 && !!dynamicMatrix && dynamicMatrix.allowRowReorder && dynamicMatrix.allowRowDragIn) {
       const row = this.createEmptyRow();
-      const cell = this.createTextCell(this.matrix.locNoRowsText);
+      const cell = this.createTextCell(dynamicMatrix.locNoRowsText);
       cell.colSpans = this.headerRow && this.headerRow.cells.length || 1;
       row.cells.push(cell);
       renderedRows.push(row);
@@ -743,7 +848,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   /* The table disposes what it built: its rows and the containers of their actions, with the actions
      the table created and the ones a container made from plain objects. An Action instance the
      application supplied stays usable: a handler may cache it and push it into the next table. Under a
-     UI the next table is built before this one is disposed (disposeAfterRerender), so such an action
+     UI the next table is built before this one is disposed (disposeLeftObject), so such an action
      can already belong to the next table's container: taking it out of this container must not take
      it from its owner. */
   public dispose(): void {
@@ -766,52 +871,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.suppliedRowActions = [];
     super.dispose();
   }
-  private get showRemoveButtonAsIcon() {
-    return (
-      settings.matrix.renderRemoveAsIcon && this.matrix.survey && (<any>this.matrix.survey).css.root === "sd-root-modern"
-    );
-  }
+  // The Dynamic Matrix's table adds the drag handle and the remove button before these.
   protected setDefaultRowActions(
     row: MatrixDropdownRowModelBase,
     actions: Array<IAction>
   ) {
-    const matrix = <QuestionMatrixDynamicModel>this.matrix;
-    /* The drag handle is locked by the row's position among the visible rows, as released - under
-       paging among the visible rows of the whole view, not on the page (the row's visibleIndex). The
-       remove lock counts records instead (canRemoveRow), also as released. */
-    const visibleIndex = row.visibleIndex > -1 ? row.visibleIndex : this.matrix.visibleRows.indexOf(row);
-    const lockedRows = (<QuestionMatrixDynamicModel>this.matrix).lockedRowCount;
-    if (this.isRowsDragAndDrop && (lockedRows < 1 || visibleIndex >= lockedRows)) {
-      actions.push(new Action({
-        id: "drag-drop",
-        action: () => {},
-        data: { row, question: this.matrix },
-        iconName: new ComputedUpdater(() => this.matrix.cssClasses.iconDragElement) as unknown as string,
-        component: "sv-matrix-drag-drop-icon"
-      }));
-    }
-    if (this.hasRemoveRows && this.canRemoveRow(row)) {
-      actions.push(
-        new Action({
-          id: "remove-row",
-          css: "sv-action--remove-row",
-          iconSize: "auto",
-          innerCss: toCssClasses(this.matrix.cssClasses.button, this.matrix.cssClasses.buttonRemove),
-          location: "end",
-          iconName: !this.showRemoveButtonAsIcon || matrix.isMobile ? "" : "icon-delete-24x24",
-          showTitle: !this.showRemoveButtonAsIcon || matrix.isMobile,
-          locTitle: matrix.locRemoveRowText,
-          enabled: !matrix.isInputReadOnly,
-          appearance: { style: "alert" },
-          visibleIndex: this.matrix.isMobile ? 20 : undefined,
-          data: { row: row, question: matrix },
-          action: () => {
-            matrix.removeRowUI(row);
-          },
-        })
-      );
-    }
-
     if (row.hasPanel) {
       actions.push(
         new Action({
@@ -1148,6 +1212,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   ): QuestionMatrixDropdownRenderedCell {
     let cell = !!column ? this.createTextCell(column.locTitle) : this.createEmptyCell();
     cell.column = column;
+    cell.matrix = this.matrix;
+    cell.isColumnHeader = !!column;
     this.setHeaderCell(column, cell);
     if (!cellType) cellType = (!!column && column.cellType !== "default") ? column.cellType : this.matrix.cellType;
     this.setHeaderCellCssClasses(cell, cellType, classMod);
@@ -1170,6 +1236,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     locTitle: LocalizableString
   ): QuestionMatrixDropdownRenderedCell {
     var cell = new QuestionMatrixDropdownRenderedCell();
+    /* The survey's id generator, the one the other cells of the row use: a cell without it would take
+       "scell_0" from the default generator while a cell next to it takes "scell_0" from the survey's,
+       and the renderers key the header cells by id. */
+    cell.surveyOwner = this.matrix;
     cell.locTitle = locTitle;
     if (!!this.cssClasses.cell) {
       cell.className = this.cssClasses.cell;

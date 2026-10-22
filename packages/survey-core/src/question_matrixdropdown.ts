@@ -16,13 +16,16 @@ import { ConditionRunner } from "./conditions/conditionRunner";
 import { ArrayChanges, Base } from "./base";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { QuestionRecordItem, IDynamicDataRecordUniqueness } from "./question_records";
-import { IRecordsAnswerShape, IRowsChange, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
+import { IRowsChange, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { IDynamicDataRecordCondition } from "./dynamic-data/dynamic-data-record-visibility";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { settings } from "./settings";
+import { ItemsByNameIndex } from "./utils/items-by-name-index";
 
 export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
-  constructor (protected question: QuestionMatrixDropdownModel) {
+  // hasRowName, findRow: the question's lookups by row name, which it keeps private.
+  constructor (protected question: QuestionMatrixDropdownModel, private hasRowName: (name: string) => boolean,
+    private findRow: (name: string) => MatrixDropdownRowModelBase) {
     super();
   }
   public getObj(): Base { return this.question; }
@@ -36,28 +39,15 @@ export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
     return new VariableGetterContext(this.question.value).getValue(params);
   }
   getRootObj(): IObjectValueContext { return <any>this.question.data; }
+  // A name that is no rows item does not build the rows.
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
-    name = name.toLocaleLowerCase();
     if (!this.hasRowName(name)) return;
-    const rows = this.question.visibleRows;
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      const itemName = row.rowName?.toString() || "";
-      if (itemName.toLocaleLowerCase() === name) {
-        res.isFound = true;
-        res.obj = row;
-        res.context = row.getValueGetterContext();
-        return;
-      }
+    const row = this.findRow(name);
+    if (!!row) {
+      res.isFound = true;
+      res.obj = row;
+      res.context = row.getValueGetterContext();
     }
-  }
-  private hasRowName(name: string): boolean {
-    const rows = this.question.rows;
-    for (let i = 0; i < rows.length; i++) {
-      const val = rows[i].value;
-      if (val !== undefined && val !== null && val.toString().toLocaleLowerCase() === name) return true;
-    }
-    return false;
   }
 }
 
@@ -129,6 +119,10 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
 export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges): void {
+    // push, splice and an assignment of rows: the rows items array is refilled in place.
+    if (name === "rows") {
+      this.rowItemsByNameIndex?.reset();
+    }
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "rows") {
       const change = this.rowsSource.rowsChanged();
@@ -152,6 +146,10 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
   }
   public itemValuePropertyChanged(item: ItemValue, name: string, oldValue: any, newValue: any): void {
+    // Reset before super: it fires onItemValuePropertyChanged, and a listener may look up the renamed row.
+    if (item.ownerPropertyName === "rows" && name === "value") {
+      this.rowItemsByNameIndex?.reset();
+    }
     super.itemValuePropertyChanged(item, name, oldValue, newValue);
     if (item.ownerPropertyName === "rows" && name === "text") {
       this.redecideViewOfRows();
@@ -186,6 +184,30 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   protected createRecordsSource(): RowsDynamicDataSource<ItemValue> {
     return this.rowsSource;
+  }
+  /* The lookups by row name: is a name a rows item (any order), and which visible row answers it (the
+     first in visibleRows order). Neither notices a change by itself. The rows items array is refilled
+     in place, so it is reset when rows change, a rows item is renamed and the matrix is loaded again.
+     visibleRows may be the very same array after a row is added or removed (the built rows changed in
+     place), so that index is reset whenever visibleRows is cleared. A row keeps the name it was built
+     with until the rows are built again. Created on first use, as the rows source. */
+  private rowItemsByNameIndex: ItemsByNameIndex<ItemValue>;
+  private visibleRowsByNameIndex: ItemsByNameIndex<MatrixDropdownRowModelBase>;
+  private hasRowItemByName(name: string): boolean {
+    if (!this.rowItemsByNameIndex) {
+      this.rowItemsByNameIndex = new ItemsByNameIndex<ItemValue>(item => item.value);
+    }
+    return this.rowItemsByNameIndex.has(this.rows, name);
+  }
+  private findVisibleRowByName(name: string): MatrixDropdownRowModelBase {
+    if (!this.visibleRowsByNameIndex) {
+      this.visibleRowsByNameIndex = new ItemsByNameIndex<MatrixDropdownRowModelBase>(row => row.rowName?.toString() || "");
+    }
+    return this.visibleRowsByNameIndex.find(this.visibleRows, name);
+  }
+  protected clearVisibleRows(): void {
+    super.clearVisibleRows();
+    this.visibleRowsByNameIndex?.reset();
   }
   public localeChanged(): void {
     super.localeChanged();
@@ -286,7 +308,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     source.getIndexesOfSameKeys(changed).forEach((index: number): void => {
       const row = <MatrixDropdownRowModelBase>this.getItemByRecordIndex(index);
       if (!!row) {
-        row.value = this.getUnbindValue((<IRecordsAnswerShape><any>source).readRecordInAnswer(value, index));
+        row.value = this.getUnbindValue(source["readRecordInAnswer"](value, index));
       }
     });
   }
@@ -331,13 +353,14 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
     rows.splice(removeIndex, 1);
     this.finishIncrementalRowChange((table) => table.onRemovedRow(removedRow));
+    this.disposeRow(removedRow);
     return true;
   }
   private finishIncrementalRowChange(updateRendered: (table: QuestionMatrixDropdownRenderedTable) => void): void {
     // Without a view every row is built, in record order: a row's position is its record index.
     this.generatedVisibleRows.forEach((row: MatrixDropdownRowModelBase, index: number): void => { this.setBuiltRecordIndex(row, index); });
     this.clearVisibleRows();
-    if (this.isRendredTableCreated) {
+    if (this.isRenderedTableCreated) {
       updateRendered(this.renderedTable);
     }
     this.clearIncorrectValues();
@@ -348,11 +371,11 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   public getValueType(): QuestionValueType {
     return "object";
   }
+  // The base adds the columns and the choices.
   protected getAllChildren(): Base[] {
     return [
       ...super.getAllChildren(),
-      ...this.columns,
-      ...this.rows,
+      ...this.rows
     ];
   }
   /**
@@ -361,6 +384,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
    * @see columns
    */
   @property ({ localizable: { markdown: true } }) totalText: string;
+  declare readonly locTotalText: LocalizableString;
   public getFooterText(): LocalizableString {
     return this.locTotalText;
   }
@@ -388,7 +412,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
 
   public getSingleInputTitleTemplate(): string { return "rowNameTemplateTitle"; }
   public getValueGetterContext(): IValueGetterContext {
-    return new MatrixDropdownValueGetterContext(this);
+    return new MatrixDropdownValueGetterContext(this, name => this.hasRowItemByName(name), name => this.findVisibleRowByName(name));
   }
   /* Without paging the visible rows; under paging every visible record, in view order: a record on the
      page reads its display values from its row's cells, a record without a row through the columns'
@@ -509,6 +533,52 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   protected getRecordAccessibilityTitle(index: number, visibleIndex: number): string {
     return this.getRecordItems()[index].locText.renderedHtml;
   }
+  // The value is keyed by row name.
+  protected createNewValue(nullOnEmpty: boolean = false): any {
+    var res = !this.value ? {} : this.createValueCopy();
+    if (nullOnEmpty && this.isMatrixValueEmpty(res)) return null;
+    return res;
+  }
+  /* A row's record by its row name, read without a walk: a falsy record reads as null, and create puts
+     {} under the name. The Dynamic Matrix reads by record index and keeps a stored 0 or "". */
+  protected getRowValueCore(
+    row: MatrixDropdownRowModelBase,
+    questionValue: any,
+    create: boolean = false
+  ): any {
+    var result =
+      !!questionValue && !!questionValue[row.rowName]
+        ? questionValue[row.rowName]
+        : null;
+    if (!result && create) {
+      result = {};
+      if (!!questionValue) {
+        questionValue[row.rowName] = result;
+      }
+    }
+    return result;
+  }
+  protected deleteRowValue(
+    newValue: any,
+    row: MatrixDropdownRowModelBase
+  ): any {
+    if (!newValue) return newValue;
+    delete newValue[row.rowName];
+    return this.isObject(newValue) && Object.keys(newValue).length == 0
+      ? null
+      : newValue;
+  }
+  private isMatrixValueEmpty(val: any) {
+    if (!val) return;
+    if (Array.isArray(val)) {
+      for (var i = 0; i < val.length; i++) {
+        if (this.isObject(val[i]) && Object.keys(val[i]).length > 0)
+          return false;
+      }
+      return true;
+    }
+    return Object.keys(val).length == 0;
+  }
   private defaultValuesInRows: any = {};
   protected clearGeneratedRows(): void {
     if (!this.generatedVisibleRows) return;
@@ -540,6 +610,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   protected createMatrixRow(item: ItemValue, value: any): MatrixDropdownRowModel {
     return new MatrixDropdownRowModel(item.value, item, this, value);
+  }
+  protected createDesignRow(): MatrixDropdownRowModel {
+    return this.createMatrixRow(new ItemValue(1), {});
   }
   // The temporary row of the records clean-up: the record is the rows item at index.
   protected createRowForRecordCleanup(index: number, record: any): MatrixDropdownRowModelBase {
@@ -578,6 +651,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   // The rows are reordered in place, which an assignment of the same array may not announce: the
   // records follow explicitly.
   endLoadingFromJson(): void {
+    // The rows were refilled while loading, which announces nothing. A lookup that ends the load sees them.
+    this.rowItemsByNameIndex?.reset();
     super.endLoadingFromJson();
     this.rows = this.sortVisibleRows(this.rows);
     this.rowsSource.rowsChanged();
@@ -599,7 +674,6 @@ Serializer.addClass(
     {
       name: "rows:itemvalue[]", uniqueProperty: "value"
     },
-    "rowsVisibleIf:condition",
     "rowTitleWidth",
     { name: "totalText", serializationProperty: "locTotalText" },
     "hideIfRowsEmpty:boolean",

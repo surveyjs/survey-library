@@ -47,6 +47,16 @@ export function normalizeTextForSearch(text: string, reason: string = "filter"):
 }
 
 export class Helpers {
+  public static getCommentKey(name: string): string {
+    return name + settings.commentSuffix;
+  }
+  // The value name a comment key belongs to; undefined when the key is not a comment key.
+  // A key that is only the suffix is not a comment key.
+  public static getNameOfCommentKey(key: string): string {
+    const suffix = settings.commentSuffix;
+    if (!key || key.length <= suffix.length || !key.endsWith(suffix)) return undefined;
+    return key.substring(0, key.length - suffix.length);
+  }
   /**
    * A static methods that returns true if a value undefined, null, empty string or empty array.
    * @param value

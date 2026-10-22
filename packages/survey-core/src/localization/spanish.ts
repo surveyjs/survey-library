@@ -5,6 +5,34 @@ export var spanishSurveyStrings = {
   pagePrevText: "Anterior",
   // "Next"
   pageNextText: "Siguiente",
+  // [Auto-translated] "First"
+  pageFirstText: "Primera",
+  // [Auto-translated] "Last"
+  pageLastText: "Última",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "de {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Seleccionar página",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Ordena por {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Alto - Bajo",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Bajo - Alto",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabeto, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabeto, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Lo más nuevo primero",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Primero el más antiguo",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Ordenado por {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, y luego por {1}",
   // "Complete"
   completeText: "Completar",
   // "Preview"

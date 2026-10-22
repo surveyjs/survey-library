@@ -35,7 +35,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
       await page.setViewportSize({ width: 1600, height: 900 });
 
-      await expect(page.locator('.sv-title-actions__title:has-text("question1")')).toBeVisible();
+      await expect(page.locator('.sd-question__title:has-text("question1")')).toBeVisible();
 
       await page.evaluate(() => {
         window["survey"].data = { question1: "Item 1" };
@@ -57,7 +57,7 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(newJson);
       });
 
-      await expect(page.locator('.sv-title-actions__title:has-text("question1")')).toBeVisible();
+      await expect(page.locator('.sd-question__title:has-text("question1")')).toBeVisible();
     });
 
     test("Change questionsOnPageMode", async ({ page }) => {
@@ -65,22 +65,22 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
       await page.setViewportSize({ width: 1600, height: 900 });
 
-      await expect(page.locator('.sv-title-actions__title:has-text("question1")')).toBeVisible();
+      await expect(page.locator('.sd-question__title:has-text("question1")')).toBeVisible();
 
       await page.evaluate(() => {
         window["survey"].questionsOnPageMode = "singlePage";
       });
-      await expect(page.locator('.sv-title-actions__title:has-text("question1")')).toBeVisible();
+      await expect(page.locator('.sd-question__title:has-text("question1")')).toBeVisible();
 
       await page.evaluate(() => {
         window["survey"].questionsOnPageMode = "questionPerPage";
       });
-      await expect(page.locator('.sv-title-actions__title:has-text("question1")')).toBeVisible();
+      await expect(page.locator('.sd-question__title:has-text("question1")')).toBeVisible();
 
       await page.evaluate(() => {
         window["survey"].questionsOnPageMode = "standard";
       });
-      await expect(page.locator('.sv-title-actions__title:has-text("question1")')).toBeVisible();
+      await expect(page.locator('.sd-question__title:has-text("question1")')).toBeVisible();
     });
 
     test("Check matrix fail when showing preview", async ({ page }) => {

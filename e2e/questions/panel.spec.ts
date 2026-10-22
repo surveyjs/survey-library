@@ -173,6 +173,31 @@ frameworks.forEach((framework) => {
       });
       await expect(titleSelector).toHaveCount(0);
     });
+
+    test("Check question indent inside panel", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [{
+          type: "panel", name: "panel", title: "Panel",
+          elements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2", indent: 1 },
+            { type: "text", name: "q3", indent: 2 }
+          ]
+        }, {
+          type: "paneldynamic", name: "dynamic", indent: 1, panelCount: 1,
+          templateElements: [
+            { type: "text", name: "inner1" },
+            { type: "text", name: "inner2", indent: 1 }
+          ]
+        }]
+      });
+      const getContainer = (name: string) => page.locator(`.sd-question[data-name='${name}'] > .sd-question__container > .sd-question__header-and-content-container`);
+      await expect(getContainer("q1")).toHaveCSS("padding-left", "0px");
+      await expect(getContainer("q2")).toHaveCSS("padding-left", "20px");
+      await expect(getContainer("q3")).toHaveCSS("padding-left", "40px");
+      await expect(getContainer("inner1")).toHaveCSS("padding-left", "0px");
+      await expect(getContainer("inner2")).toHaveCSS("padding-left", "20px");
+    });
   });
 });
 

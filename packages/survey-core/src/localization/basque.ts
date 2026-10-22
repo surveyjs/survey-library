@@ -5,6 +5,34 @@ export var basqueSurveyStrings = {
   pagePrevText: "Aurrekoa",
   // "Next"
   pageNextText: "Hurrengoa",
+  // [Auto-translated] "First"
+  pageFirstText: "Lehenengoa",
+  // [Auto-translated] "Last"
+  pageLastText: "Azkena",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Hautatu Orria",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Ordenatu {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Goi - Baxua",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Baxua - Altua",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabetoa, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabetoa, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Azken berriena lehenik eta behin",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Zaharrena lehenik eta behin",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Ordenatuta {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, orduan {1}",
   // "Complete"
   completeText: "Bukatu",
   // "Preview"

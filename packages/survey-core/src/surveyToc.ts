@@ -47,6 +47,11 @@ function getPage(question: Question): PageModel {
 }
 
 export function createTOCListModel(survey: SurveyModel, onAction?: () => void): ListModel<Action> {
+  return bindTOCListModel(survey, onAction).listModel;
+}
+
+// unbind removes the survey listeners that keep the list up to date; TOCModel calls it on dispose
+function bindTOCListModel(survey: SurveyModel, onAction?: () => void): { listModel: ListModel<Action>, unbind: () => void } {
   var items: Action[] = getTOCItems(survey, onAction);
   const listOptions: IListModel = {
     items: items,
@@ -71,18 +76,28 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void): 
     listModel.selectedItem = !!currentPage && listModel.actions.filter(i => i.id === currentPage.name)[0] || defaultSelection;
   };
   updateSelectedItem(survey.currentPage, items[0]);
-  survey.onCurrentPageChanged.add((s, o) => {
+  const onCurrentPageChanged = () => {
     updateSelectedItem(survey.currentPage);
-  });
-  survey.onFocusInQuestion.add((s, o) => {
+  };
+  const onFocusInQuestion = (s: SurveyModel, o: { question: Question }) => {
     updateSelectedItem(getPage(o.question));
-  });
+  };
+  survey.onCurrentPageChanged.add(onCurrentPageChanged);
+  survey.onFocusInQuestion.add(onFocusInQuestion);
   const updatePagesFunc = () => {
     listModel.setItems(getTOCItems(survey, onAction));
   };
   survey.registerFunctionOnPropertyValueChanged("pages", updatePagesFunc, "toc");
   survey.onEndLoadingFromJson.add(updatePagesFunc);
-  return listModel;
+  const unbind = () => {
+    // The "toc" key is shared: another TOC model of the same survey may have already unregistered it
+    survey.unRegisterFunctionOnPropertyValueChanged("tocItemComponent", "toc");
+    survey.unRegisterFunctionOnPropertyValueChanged("pages", "toc");
+    survey.onCurrentPageChanged.remove(onCurrentPageChanged);
+    survey.onFocusInQuestion.remove(onFocusInQuestion);
+    survey.onEndLoadingFromJson.remove(updatePagesFunc);
+  };
+  return { listModel, unbind };
 }
 
 function getTOCItems(survey: SurveyModel, onAction: () => void) {
@@ -125,7 +140,9 @@ export class TOCModel implements ILayoutElementModel {
   public static RootStyle = "sv_progress-toc";
   public static StickyPosition = true;
   constructor(public survey: SurveyModel) {
-    this.listModel = createTOCListModel(survey, () => { this.popupModel.isVisible = false; });
+    const binding = bindTOCListModel(survey, () => { this.popupModel.isVisible = false; });
+    this.listModel = binding.listModel;
+    this.unbindListModel = binding.unbind;
     this.popupModel = new PopupModel("sv-list", { model: this.listModel });
     this.popupModel.overlayDisplayMode = "tablet-dropdown-overlay";
     this.popupModel.displayMode = <any>new ComputedUpdater(() => this.isMobile ? "overlay" : "popup");
@@ -136,6 +153,7 @@ export class TOCModel implements ILayoutElementModel {
     }
   }
   private isDisposedValue: boolean = false;
+  private unbindListModel: () => void;
   public get isDisposed(): boolean {
     return this.isDisposedValue;
   }
@@ -221,11 +239,7 @@ export class TOCModel implements ILayoutElementModel {
     this.removeStickyTOCSubscriptions();
     this.survey.onAfterRenderSurvey.remove(this.onAfterRenderSurvey);
     this.survey.unRegisterFunctionOnPropertyValueChanged("_isMobile", "toc");
-    this.survey.unRegisterFunctionOnPropertyValueChanged("tocItemComponent", "toc");
-    // Another TOC model of the same survey may have already unregistered the shared "toc" key
-    const [handler] = this.survey.unRegisterFunctionOnPropertyValueChanged("pages", "toc") || [];
-    this.survey.onEndLoadingFromJson.remove(handler);
-    this.survey.onPageAdded.remove(handler);
+    this.unbindListModel();
     this.popupModel.dispose();
     this.listModel.dispose();
   }

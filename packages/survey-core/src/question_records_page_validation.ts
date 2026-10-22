@@ -1,8 +1,9 @@
 import { ValidationContext } from "./question";
 import { DynamicDataList } from "./dynamic-data/dynamic-data-list";
-import { IDynamicDataPageState } from "./dynamic-data/dynamic-data-page-validation";
+import { IRecordsPageState, pagingStateKeys } from "./records/records-paging";
+import { IRecordIndexFollower, RecordIndexEvent, RecordRemap, isRecordListChange } from "./records/records-index-followers";
 
-export interface IDynamicDataPageValidationOwner {
+export interface IRecordsPageValidationOwner {
   getDataList(): DynamicDataList;
   // Layer 1 is on: the question is in a running survey whose settings validate a page before a
   // forward move (see SurveyModel.canLeavePageWithErrors).
@@ -32,17 +33,17 @@ export interface IDynamicDataPageValidationOwner {
       are remembered, and every full validation of the question (Complete, the survey's next page, an
       ancestor leaving its page) visits the pages that hold them. The cost is bounded by the pages the
       respondent edited, never by the record count. */
-export class DynamicDataPageValidation {
+export class RecordsPageValidation {
   // Record indexes, ascending. Kept in step with the list's own inserts, removes and moves.
   private edited: Array<number> = [];
-  private nested: { [recordIndex: number]: { [valueName: string]: IDynamicDataPageState } } = {};
+  private nested: { [recordIndex: number]: { [valueName: string]: IRecordsPageState } } = {};
   private moveToken: number = 0;
   private isPendingValue: boolean = false;
-  constructor(private owner: IDynamicDataPageValidationOwner) { }
+  constructor(private owner: IRecordsPageValidationOwner) { }
 
   private setIsPending(val: boolean): void {
     this.isPendingValue = val;
-    this.owner.setPropertyValue("isPageMovePending", val);
+    this.owner.setPropertyValue(pagingStateKeys.isPageMovePending, val);
   }
   /* A page or a current index set from code, another move, a sort or a filter, records replaced
      from outside, dispose: the move that is waiting for its validators is dropped. A late result
@@ -133,7 +134,7 @@ export class DynamicDataPageValidation {
   }
   /* The states kept under a name that is not a record index (a record's key, or its index in the whole
      source of a source that pages itself): no remap of the window touches them. */
-  private nestedBySourceKey: { [key: string]: { [valueName: string]: IDynamicDataPageState } } = {};
+  private nestedBySourceKey: { [key: string]: { [valueName: string]: IRecordsPageState } } = {};
   // The records are not tracked any more (canTrackEditedRecords): the indexes name nothing.
   public clearEditedRecords(): void {
     this.edited = [];
@@ -143,7 +144,7 @@ export class DynamicDataPageValidation {
      change the remap cannot place marks every record of the changed part as edited. */
   /* remap: where each old record went, built by the caller (getReplacedRecordsRemap), which moves the
      record indexes of its own with it (the records the dynamic panel's panels were built for). */
-  public onRecordsReplaced(oldRecords: Array<any>, newRecords: Array<any>, remap: (index: number) => number): void {
+  public onRecordsReplaced(oldRecords: Array<any>, newRecords: Array<any>, remap: RecordRemap): void {
     if (!this.hasRecords) return;
     const edited: Array<number> = [];
     let isUnplaced = false;
@@ -185,8 +186,8 @@ export class DynamicDataPageValidation {
     this.edited = res.sort((a: number, b: number): number => a - b);
     this.nested = this.remapNested(remap);
   }
-  private remapNested(remap: (i: number) => number): { [recordIndex: number]: { [valueName: string]: IDynamicDataPageState } } {
-    const res: { [recordIndex: number]: { [valueName: string]: IDynamicDataPageState } } = {};
+  private remapNested(remap: (i: number) => number): { [recordIndex: number]: { [valueName: string]: IRecordsPageState } } {
+    const res: { [recordIndex: number]: { [valueName: string]: IRecordsPageState } } = {};
     Object.keys(this.nested).forEach((key: string): void => {
       const to = remap(Number(key));
       if (to > -1) res[to] = this.nested[<any>key];
@@ -219,17 +220,14 @@ export class DynamicDataPageValidation {
   public validateEditedRecordsQuietly(extraPages?: Array<number>): boolean {
     if (!this.owner.canTrackEditedRecords()) return true;
     const list = this.owner.getDataList();
-    const pageSize = list.pageSize;
-    if (pageSize <= 0) return true;
-    const visible = list.getVisibleIndexes();
+    if (list.pageSize <= 0) return true;
     const startPage = list.pageIndex;
     return this.getPagesToValidate(extraPages).every((page: number): boolean => page === startPage ||
-      visible.slice(page * pageSize, (page + 1) * pageSize).every((index: number): boolean => this.owner.isRecordValidQuietly(index)));
+      list.getVisibleIndexesOfPage(page).every((index: number): boolean => this.owner.isRecordValidQuietly(index)));
   }
   // The pages a full validation visits: extraPages and the pages of the edited records, in order.
   private getPagesToValidate(extraPages: Array<number>): Array<number> {
     const list = this.owner.getDataList();
-    const pageSize = list.pageSize;
     const pages: Array<number> = Array.isArray(extraPages) ? extraPages.slice() : [];
     if (this.edited.length > 0) {
       const editedHash: { [index: number]: boolean } = {};
@@ -237,7 +235,7 @@ export class DynamicDataPageValidation {
       const visible = list.getVisibleIndexes();
       for (let i = 0; i < visible.length; i++) {
         if (!editedHash[visible[i]]) continue;
-        const page = Math.floor(i / pageSize);
+        const page = list.getPageOfVisibleIndex(i);
         if (pages.indexOf(page) < 0) pages.push(page);
       }
     }
@@ -275,7 +273,7 @@ export class DynamicDataPageValidation {
         return false;
       }
       if (res === undefined) {
-        const id = "dynamic-data-page-" + (++DynamicDataPageValidation.asyncPageId);
+        const id = "dynamic-data-page-" + (++RecordsPageValidation.asyncPageId);
         context.addElement(id);
         const page = pages[i];
         const pageRecords = this.owner.getDataList().getMaterializedIndexes().slice();
@@ -307,16 +305,17 @@ export class DynamicDataPageValidation {
     return true;
   }
 
-  public getState(pageIndex: number): IDynamicDataPageState {
-    return { pageIndex: pageIndex, edited: this.edited.slice(), nested: this.nested };
+  public getState(pageIndex: number): IRecordsPageState {
+    return { pageIndex: pageIndex, edited: this.edited.slice(), nested: Object.assign({}, this.nested) };
   }
-  public setState(state: IDynamicDataPageState): void {
+  // Copies, as getState makes: a restored question that keeps its nested states never changes the state an ancestor keeps.
+  public setState(state: IRecordsPageState): void {
     if (!state) return;
     this.edited = Array.isArray(state.edited) ? state.edited.slice() : [];
-    this.nested = state.nested || {};
+    this.nested = Object.assign({}, state.nested);
   }
   // The ancestor side: the states of the paged questions nested in one of its records.
-  public keepNestedStates(recordIndex: number | string, states: { [valueName: string]: IDynamicDataPageState }): void {
+  public keepNestedStates(recordIndex: number | string, states: { [valueName: string]: IRecordsPageState }): void {
     const isEmpty = !states || Object.keys(states).length === 0;
     if (typeof recordIndex === "string") {
       if (isEmpty) delete this.nestedBySourceKey[recordIndex];
@@ -330,7 +329,57 @@ export class DynamicDataPageValidation {
       this.nested[recordIndex] = states;
     }
   }
-  public getNestedStates(recordIndex: number | string): { [valueName: string]: IDynamicDataPageState } {
+  public getNestedStates(recordIndex: number | string): { [valueName: string]: IRecordsPageState } {
     return typeof recordIndex === "string" ? this.nestedBySourceKey[recordIndex] : this.nested[recordIndex];
+  }
+}
+
+/* The page validation's side of the record-index events. The validation is created on first use, so
+   it is not a follower itself - registered, it would be created at once or missed: this adapter
+   decides per event which instance follows (getValidation(true) creates it). The edited set names
+   records of the storage the list pages in memory (isPagedByList); a page of a source that pages
+   itself (isPagedBySource) names other records on every read. */
+export class RecordsPageValidationFollower implements IRecordIndexFollower {
+  constructor(private getValidation: (create: boolean) => RecordsPageValidation,
+    private isPagedByList: () => boolean, private isPagedBySource: () => boolean) { }
+  public follow(event: RecordIndexEvent): void {
+    if (isRecordListChange(event)) {
+      // Only a list that pages in memory creates the edited set here.
+      const created = this.getValidation(this.isPagedByList());
+      if (!!created) created.onRecordRemap(event.remap);
+      return;
+    }
+    const validation = this.getValidation(false);
+    if (!validation) return;
+    if (event.kind === "source") {
+      // Another storage: the records it tracks and the states kept for them name records of the old one.
+      validation.cancelPendingMove();
+      validation.clearRecords();
+    } else if (event.kind === "redefined") {
+      validation.cancelPendingMove();
+      if (validation.hasRecords) validation.onRecordRemap(event.getRemap());
+    } else if (event.kind === "assignment") {
+      if (!this.isPagedByList()) return;
+      validation.cancelPendingMove();
+      if (validation.hasRecords) validation.onRecordsReplaced(event.oldRecords, event.newRecords, event.getRemap());
+    } else if (event.kind === "reload") {
+      this.followReload(validation, event.oldRecords, event.newRecords, event.getRemap);
+    }
+  }
+  /* A source without paging holds the whole storage, and a read that commits again may bring the
+     edited records back at other indexes: they follow, by key or by content. A page of a paging source
+     replaced the whole storage the list paged - a paging source is read whole only while the list has a
+     filter or a sort it cannot run. The edited set named records by their index in that storage, which
+     names nothing on a page, and a paging source never validates the records of other pages ahead of
+     their page: they are on the server. Kept, the set would be remapped from the page into the next
+     whole storage and name the wrong records. */
+  private followReload(validation: RecordsPageValidation, oldRecords: Array<any>, newRecords: Array<any>, getRemap: () => RecordRemap): void {
+    if (!this.isPagedByList()) {
+      if (this.isPagedBySource()) validation.clearEditedRecords();
+      return;
+    }
+    if (!validation.hasRecords) return;
+    validation.cancelPendingMove();
+    validation.onRecordsReplaced(oldRecords, newRecords, getRemap());
   }
 }

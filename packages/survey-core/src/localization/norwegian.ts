@@ -5,6 +5,34 @@ export var norwegianSurveyStrings = {
   pagePrevText: "Forrige",
   // "Next"
   pageNextText: "Neste",
+  // [Auto-translated] "First"
+  pageFirstText: "Først",
+  // [Auto-translated] "Last"
+  pageLastText: "Siste",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "av {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Velg side",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sorter etter {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Høyt - Lavt",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Lav - Høy",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabetet, A - Å",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Nyeste første",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Eldste første",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sortert etter {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, så ved {1}",
   // "Complete"
   completeText: "Fullfør",
   // "Preview"

@@ -67,6 +67,14 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
   public getType(): string {
     return "dropdown";
   }
+  // Design mode draws dropdown choices with the radio item component and passes this question
+  // into it. That component always asks for a shortcut badge. Dropdown does not show one.
+  public getChoiceKeyBadge(item: ItemValue): string { return ""; }
+  public getItemShortcutKeyClass(item: ItemValue): string { return ""; }
+  public getItemAriaKeyShortcuts(item: ItemValue): string | undefined { return undefined; }
+  public onChoiceKeyDown(event: any): void { }
+  public onChoiceFocusOut(event: any): void { }
+
   public get isNewA11yStructure() {
     return true;
   }

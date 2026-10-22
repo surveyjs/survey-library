@@ -41,16 +41,14 @@
         </div>
         <hr
           :class="question.cssClasses.separator"
-          v-if="
-            question.isRenderModeList && index < question.visiblePanelCount - 1
-          "
+          v-if="question.showSeparator(index)"
           :key="'separator' + panel.id"
         />
       </template>
     </div>
     <SvComponent
       :is="'survey-paneldynamicprogress'"
-      v-if="question.showNavigation"
+      v-if="question.showFooter"
       :question="question"
     />
   </div>

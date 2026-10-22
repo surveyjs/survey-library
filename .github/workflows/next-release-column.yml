@@ -48,6 +48,8 @@ permissions:
 
 jobs:
   add-column:
+    # Skip when "Create Release" failed or was cancelled.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     env:
       # A PAT with `project` scope is required because the default
@@ -57,9 +59,10 @@ jobs:
       # Owner of the repo running the workflow — used to locate the project.
       ORG: ${{ github.repository_owner }}
 
-      # The released tag. Comes from the release event payload when triggered
-      # automatically, or from the manual input when triggered by hand.
-      RELEASED_TAG: ${{ github.event.release.tag_name || inputs.tag_name }}
+      # The released tag. Comes from the release event payload, the manual
+      # input, or — for workflow_run — the upstream run's head_branch, which
+      # holds the tag name when "Create Release" was triggered by a tag push.
+      RELEASED_TAG: ${{ github.event.release.tag_name || inputs.tag_name || github.event.workflow_run.head_branch }}
 
       # Project and anchor column names, with the requested defaults.
       PROJECT_TITLE: ${{ inputs.project_title || 'Current sprint progress' }}
@@ -71,6 +74,15 @@ jobs:
       # -------------------------------------------------------------------
       - name: Validate inputs
         run: |
+          if [ -z "$RELEASED_TAG" ]; then
+            echo "::error::No release tag available. Provide 'tag_name' when running manually."
+            exit 1
+          fi
+          if ! [[ "${RELEASED_TAG#v}" =~ ^[0-9]+(\.[0-9]+){0,2}$ ]]; then
+            echo "::error::'$RELEASED_TAG' is not a version tag (e.g. a branch-triggered Create Release run)."
+            exit 1
+          fi
+
           # ---- version gate -------------------------------------------------
           # Minimum version (exclusive) required to run this workflow.
           MIN_VERSION="3.0.0"
@@ -92,10 +104,6 @@ jobs:
           fi
           # -------------------------------------------------------------------
 
-          if [ -z "$RELEASED_TAG" ]; then
-            echo "::error::No release tag available. Provide 'tag_name' when running manually."
-            exit 1
-          fi
           if [ -z "$GH_TOKEN" ]; then
             echo "::error::Secret PROJECTS_TOKEN is not configured. It must have 'project' scope."
             exit 1

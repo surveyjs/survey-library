@@ -8,6 +8,15 @@ import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { settings } from "./settings";
 import { Base } from "./base";
+import { IQuestion } from "./base-interfaces";
+
+/* The fields an image map keeps in the object of a selected area: the area value under
+   valuePropertyName while it selects several areas - a single selection stays a plain value.
+   Exported so that a tool reading the JSON (survey-core/linter) finds the very fields the question
+   writes. */
+export function getImageMapItemFields(multiSelect: boolean, valuePropertyName: string): Array<string> {
+  return multiSelect && !!valuePropertyName ? [valuePropertyName] : [];
+}
 
 function createSVGElement(name: string): SVGElement {
   const document = DomDocumentHelper.getDocument();
@@ -178,7 +187,7 @@ export class QuestionImageMapModel extends Question {
     if (!context.checks.reportInvalidChoiceValues) return true;
     const values = Array.isArray(val) ? val : [val];
     values.forEach((v: any, index: number) => {
-      if (!!this.areas.find(i => i.value === v)) return;
+      if (!!this.areas.find(i => i.value === this.getItemAreaValue(v))) return;
       context.addIssue("invalidChoiceValue", Array.isArray(val) ? index : undefined, v, this);
     });
     return true;
@@ -193,7 +202,7 @@ export class QuestionImageMapModel extends Question {
     if (!this.value) return;
     if (this.isMultiSelect) {
       this.value = this.value.filter((val: any) => {
-        const item = this.areas.find(i => i.value === val);
+        const item = this.areas.find(i => i.value === this.getItemAreaValue(val));
         return !!item && item.isVisible;
       });
     } else {
@@ -382,6 +391,11 @@ export class QuestionImageMapModel extends Question {
     }
     return super.convertToCorrectValue(val);
   }
+  // The area value an item of the value stands for: the item itself, or its valuePropertyName field
+  // while several areas are selected (convertToCorrectValue wraps the items into objects then).
+  private getItemAreaValue(val: any): any {
+    return this.isMultiSelect ? new PropertyNameArray([val], this.valuePropertyName).getValue(0) : val;
+  }
 
   public getDisplayValueCore(keysAsText: boolean, value: any): any {
 
@@ -413,6 +427,19 @@ export class QuestionImageMapModel extends Question {
       return;
     }
     this.value = new PropertyNameArray(this.value, this.valuePropertyName).toggle(item.value, this.maxSelectedAreas);
+  }
+
+  // The field a selected area keeps in its object (valuePropertyName): a dynamic panel or matrix
+  // sharing the value knows it through these, as with a checkbox.
+  public hasValueItemKey(key: string): boolean {
+    return !!key && getImageMapItemFields(this.isMultiSelect, this.valuePropertyName).indexOf(key) > -1;
+  }
+  public getQuestionFromArray(name: string, index: number): IQuestion {
+    if (this.hasValueItemKey(name)) {
+      const v = this.value;
+      if (Array.isArray(v) && index < v.length) return this;
+    }
+    return null;
   }
 
   public isItemSelected(item: ImageMapArea): boolean {

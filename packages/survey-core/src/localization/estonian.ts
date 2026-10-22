@@ -5,6 +5,34 @@ export var estonianSurveyStrings = {
   pagePrevText: "Tagasi",
   // "Next"
   pageNextText: "Edasi",
+  // [Auto-translated] "First"
+  pageFirstText: "Esimene",
+  // [Auto-translated] "Last"
+  pageLastText: "Viimane",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Vali lehekülg",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sorteeri {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Kõrge - Madal",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Madal - Kõrge",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Tähestik, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Tähestik, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Uusim esimene",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Vanim esimene",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sorteeritud {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, siis {1}",
   // "Complete"
   completeText: "Lõpeta",
   // "Preview"

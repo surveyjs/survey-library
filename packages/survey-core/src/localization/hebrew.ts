@@ -5,6 +5,34 @@ export var hebrewSurveyStrings = {
   pagePrevText: "אחורה",
   // "Next"
   pageNextText: "קדימה",
+  // [Auto-translated] "First"
+  pageFirstText: "ראשונה",
+  // [Auto-translated] "Last"
+  pageLastText: "אחרון",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "של {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Select Page",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "מיין לפי {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "גבוה-נמוך",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "נמוך - גבוה",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "אלפבית, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "אלפבית, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "החדש הראשון",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "הראשונה הוותיקה ביותר",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "ממויין לפי {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, ואז עד {1}",
   // "Complete"
   completeText: "סיום",
   // "Preview"

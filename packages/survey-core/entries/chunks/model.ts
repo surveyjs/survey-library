@@ -160,6 +160,7 @@ export {
 } from "../../src/jsonobject";
 export { property, propertyArray } from "../../src/decorators";
 export { QuestionRecordsModel } from "../../src/question_records";
+export { QuestionRecordsBar } from "../../src/question_records_bar";
 export {
   IMatrixDropdownData,
   MatrixDropdownCell,
@@ -197,7 +198,8 @@ export { FlowPanelModel } from "../../src/flowpanel";
 export { PageModel } from "../../src/page";
 export * from "../../src/template-renderer";
 export { DefaultTitleModel } from "../../src/defaultTitle";
-export { Question, QuestionValueType } from "../../src/question";
+export { Question, QuestionValueType, ValidationContext } from "../../src/question";
+export type { IValidationContextParams } from "../../src/question";
 export { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "../../src/questionSingleInputSummary";
 export { QuestionNonValue } from "../../src/questionnonvalue";
 export { QuestionEmptyModel } from "../../src/question_empty";
@@ -207,7 +209,7 @@ export {
   ChoiceItem,
   ISelectQuestion
 } from "../../src/question_baseselect";
-export { QuestionCheckboxModel, CheckboxItem } from "../../src/question_checkbox";
+export { QuestionCheckboxModel, CheckboxItem, getCheckboxItemFields } from "../../src/question_checkbox";
 export { QuestionTagboxModel } from "../../src/question_tagbox";
 export { QuestionRankingModel } from "../../src/question_ranking";
 export { QuestionCommentModel } from "../../src/question_comment";
@@ -226,7 +228,7 @@ export {
   QuestionImagePickerModel,
   ImageItemValue
 } from "../../src/question_imagepicker";
-export { QuestionImageMapModel } from "../../src/question_imagemap";
+export { QuestionImageMapModel, getImageMapItemFields } from "../../src/question_imagemap";
 export { QuestionImageModel } from "../../src/question_image";
 export { QuestionSignaturePadModel } from "../../src/question_signaturepad";
 export {
@@ -235,11 +237,10 @@ export {
 } from "../../src/question_paneldynamic";
 export { LocalDynamicDataSource, ArrayDynamicDataSource, SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
 export type { IArrayDynamicDataSourceOptions } from "../../src/dynamic-data/dynamic-data-sources";
-export { parseDynamicDataSort, dynamicDataSortToString } from "../../src/dynamic-data/dynamic-data-sort";
 export type {
-  IDynamicDataSource, IDynamicDataSourceCapabilities, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataField,
-  DynamicDataSortDirection,
-  DynamicDataFieldType, DynamicDataOperation
+  IDynamicDataSource, IDynamicDataSourceCapabilities, IDynamicDataReadRequest, IDynamicDataReadResult, ISortCriterion, IDynamicDataField,
+  SortDirection,
+  DynamicDataFieldType, DynamicDataSourceMethod, DynamicDataErrorOperation, DynamicDataOperation
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 export { SurveyTimer } from "../../src/surveytimer";
 export { SurveyTimerModel } from "../../src/surveyTimerModel";
@@ -300,6 +301,7 @@ export {
   ButtonGroupItemModel,
   ButtonGroupItemValue
 } from "../../src/question_buttongroup";
+export { indexToChoiceKeyCode, choiceKeyCodeToIndex } from "../../src/utils/choice-key-codes";
 export { IsMobile, IsTouch, _setIsTouch, _setIsTablet } from "../../src/utils/devices";
 export * from "../../src/utils/browser";
 export * from "../../src/utils/color";

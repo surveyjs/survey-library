@@ -1,7 +1,7 @@
 import { describe, test, expect } from "vitest";
-import { RowsDynamicDataSource, IDynamicDataRow, hasFixedMembership, IRecordsAnswerShape } from "../../src/dynamic-data/dynamic-data-sources";
+import { RowsDynamicDataSource, IDynamicDataRow, hasFixedMembership } from "../../src/dynamic-data/dynamic-data-sources";
 // The answer-shape members are the owner question's plumbing, reached through a cast as the question does.
-const answerShape = (source: any): IRecordsAnswerShape => <IRecordsAnswerShape><any>source;
+const answerShape = (source: any): any => source;
 import { Helpers } from "../../src/helpers";
 
 interface IStoredValue {

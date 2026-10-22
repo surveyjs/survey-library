@@ -1884,3 +1884,137 @@ describe("Expressions", () => {
     expect(runner.runContext(new VariableGetterContext({})), "#3").toBe(false);
   });
 });
+
+describe("Expression parser: nesting and error offsets", () => {
+  const nestedIif = (depth: number, inner: string): string => {
+    let text = inner;
+    for (let i = 1; i <= depth; i++) text = `iif({a} > ${i}, ${i}, ${text})`;
+    return text;
+  };
+  const nestedAndOr = (depth: number): string => {
+    let text = "{a0}";
+    for (let i = 1; i <= depth; i++) text = `({a${i}} ${i % 2 ? "and" : "or"} ${text})`;
+    return text;
+  };
+  const deepParens = "(".repeat(200) + "1" + ")".repeat(200);
+  const deepIif = nestedIif(60, "{a}");
+  const deepNot = "!".repeat(100) + "{a}";
+  const deepAndOr = nestedAndOr(60);
+  const parseWithError = (text: string): { operand: Operand, at: number } => {
+    const parser = new ConditionsParser();
+    const operand = parser.parseExpression(text);
+    return { operand, at: parser.error ? parser.error.at : undefined };
+  };
+
+  test("Deeply nested expressions parse and round-trip through toString()", () => {
+    const cases = { deepParens, deepIif, deepNot, deepAndOr };
+    Object.keys(cases).forEach(name => {
+      const operand = new ConditionsParser().parseExpression(cases[name]);
+      expect(operand, name + " parses").toBeTruthy();
+      const text = operand.toString();
+      expect(new ConditionsParser().parseExpression(text).toString(), name + " round-trips").toBe(text);
+    });
+    expect(new ConditionsParser().parseExpression(deepParens).toString(), "parentheses collapse").toBe("1");
+  });
+  test("Deeply nested expressions with an error at the end fail at the end", () => {
+    const cases: Array<[string, string, number]> = [
+      ["parentheses, missing operand after the last and", deepParens + " and", 405],
+      ["unclosed parentheses, unclosed string", "(".repeat(200) + "{a} = 'x", 208],
+      ["iif, unclosed string in the innermost argument", nestedIif(60, "'x"), 1124],
+      ["negations, missing operand after the last and", deepNot + " and", 107],
+      ["and/or, missing operand after the last and", deepAndOr + " and", 689],
+    ];
+    cases.forEach(([name, text, at]) => {
+      const res = parseWithError(text);
+      expect(res.operand, name + " does not parse").toBeUndefined();
+      expect(res.at, name + " error offset").toBe(at);
+    });
+  });
+  test("Invalid expressions report the same error offset", () => {
+    const cases: Array<[string, number]> = [
+      ["1)", 1],
+      ["(1))", 3],
+      ["()", 1],
+      ["max(1,,2)", 6],
+      ["max(1, )", 7],
+      ["{a + 1", 6],
+      ["1 + * 2", 4],
+      ["{a} foo 1", 4],
+      ["{a} = 'x", 8],
+      ["{a} anyof [1,", 13],
+      ["1 +", 3],
+      ["and 1", 4],
+      ["{a} = = 1", 6],
+    ];
+    cases.forEach(([text, at]) => {
+      const res = parseWithError(text);
+      expect(res.operand, text + " does not parse").toBeUndefined();
+      expect(res.at, text + " error offset").toBe(at);
+    });
+  });
+  test("A missing closing parenthesis is accepted", () => {
+    const cases: Array<[string, string]> = [
+      ["(1", "1"],
+      ["({a} + 1", "({a} + 1)"],
+      ["max(1, 2", "max(1, 2)"],
+      ["iif(1, 2, 3", "iif(1, 2, 3)"],
+      ["{a} = (1 + 2", "({a} == (1 + 2))"],
+      ["[1, 2", "[1, 2]"],
+    ];
+    cases.forEach(([text, expected]) => {
+      const res = parseWithError(text);
+      expect(res.at, text + " has no error").toBeUndefined();
+      expect(res.operand.toString(), text).toBe(expected);
+    });
+  });
+});
+
+describe("Expression parser: atoms and variable names", () => {
+  const parseResult = (text: string): string | number => {
+    const parser = new ConditionsParser();
+    const operand = parser.parseExpression(text);
+    return operand ? operand.toString() : parser.error.at;
+  };
+  const checkCases = (cases: Array<[string, string | number]>): void => {
+    cases.forEach(([text, expected]) => {
+      expect(parseResult(text), text).toBe(expected);
+    });
+  };
+
+  test("empty / notempty after an atom", () => {
+    checkCases([
+      ["{a} empty", "{a} empty"],
+      ["{a} notempty", "{a} notempty"],
+      ["{a}empty", "{a} empty"],
+      ["'x' empty", "'x' empty"],
+      ["1 notempty", "1 notempty"],
+      ["!{a} empty", "! {a} empty"],
+      ["negate {a} notempty", "! {a} notempty"],
+      ["{a} empty and {b} notempty", "({a} empty and {b} notempty)"],
+      ["{a} emptyx", 9],
+      ["{a} empty = true", "({a} empty == true)"],
+      ["{a.b[0]} notempty", "{a.b[0]} notempty"],
+    ]);
+    const negated = <any>new ConditionsParser().parseExpression("!{a} empty");
+    expect(negated.operator, "! applies to {a} empty").toBe("negate");
+    expect(negated.expression.operator, "empty applies to {a}").toBe("empty");
+  });
+  test("Variable names", () => {
+    checkCases([
+      ["{a}", "{a}"],
+      ["{a b}", "{a b}"],
+      ["{a.b[1].c}", "{a.b[1].c}"],
+      ["{$q.isVisible}", "{$q.isVisible}"],
+      ["{a-unwrapped}", "{a-unwrapped}"],
+      ["{ a }", "{ a }"],
+      ["{}", 1],
+      ["{a{b}", 2],
+      ["{a}}", 3],
+    ]);
+  });
+  test("An unclosed [ inside an unclosed ( is parsed in linear time", () => {
+    const start = performance.now();
+    parseResult("(1 and [".repeat(30));
+    expect(performance.now() - start).toBeLessThan(50);
+  });
+});

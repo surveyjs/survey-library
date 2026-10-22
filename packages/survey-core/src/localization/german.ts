@@ -5,6 +5,34 @@ export var germanSurveyStrings = {
   pagePrevText: "Zurück",
   // "Next"
   pageNextText: "Weiter",
+  // [Auto-translated] "First"
+  pageFirstText: "Erster",
+  // [Auto-translated] "Last"
+  pageLastText: "Letzter",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "von {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Seite auswählen",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Nach {0} sortieren",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Hoch - Niedrig",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Niedrig – Hoch",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alphabet, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alphabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Neueste Erste",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Ältester Erster",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sortiert nach {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, dann bis {1}",
   // "Complete"
   completeText: "Abschließen",
   // "Preview"

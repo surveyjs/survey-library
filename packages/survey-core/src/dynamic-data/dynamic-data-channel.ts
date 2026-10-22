@@ -1,5 +1,7 @@
 import { Helpers } from "../helpers";
-import { DynamicDataOperation, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSource } from "./dynamic-data-interfaces";
+import { DynamicDataErrorOperation, DynamicDataSourceMethod, IDynamicDataReadRequest, IDynamicDataSource } from "./dynamic-data-interfaces";
+import { getChangedFields, toReadResult } from "./dynamic-data-records";
+import { IPendingInsert } from "./dynamic-data-pending-insert";
 import type { ISurvey } from "../interfaces/survey-interfaces";
 
 /* The request channel of DynamicDataList: everything that orders the requests the list sends to its
@@ -33,7 +35,7 @@ export interface IDynamicDataChannelHost {
   isDisposed(): boolean;
   getKeyField(): string;
   // The source may be sent this write (DynamicDataList.hasCapability).
-  hasCapability(operation: DynamicDataOperation): boolean;
+  hasCapability(operation: DynamicDataSourceMethod): boolean;
   // The next read is a paged one: the source pages, and it runs every part of the view the list has.
   isReadPagedBySource(): boolean;
   // The range of the next read. skip and take are 0 for a read of the whole storage.
@@ -47,7 +49,7 @@ export interface IDynamicDataChannelHost {
   // A read failed: the window in force stays, and so does the page it was read for.
   onReadFailed(error: any): void;
   setIsLoading(val: boolean): void;
-  raiseError(error: any, operation: DynamicDataOperation): void;
+  raiseError(error: any, operation: DynamicDataErrorOperation): void;
   // The window half of an insert answer: the record in the window takes the key the source assigned.
   applyInsertAnswer(entry: IPendingInsert): void;
   // A synchronous write to an ArrayDynamicDataSource IS the storage: the window takes its array.
@@ -55,9 +57,12 @@ export interface IDynamicDataChannelHost {
   /* The write goes to the owner's own storage: its synchronous failure is the caller's exception and
      is not reported. A role, decided by the list, never by the class of the source. */
   isOwnStorage(source: IDynamicDataSource): boolean;
+  // An in-memory source, written synchronously by storage index (isLocalSource in dynamic-data-sources).
+  isLocalSource(source: IDynamicDataSource): boolean;
   // A push failed and was reported: the window keeps the local change, unless the list decides
-  // otherwise for this operation.
-  onPushFailed(operation: DynamicDataOperation): void;
+  // otherwise for this operation. isAsyncLocalWrite: a local source answered with a promise, and
+  // the window goes back to what it stores whatever the operation.
+  onPushFailed(operation: DynamicDataSourceMethod, isAsyncLocalWrite: boolean): void;
   // The survey of the list's question: it keeps the writes in flight per source object (getForeignWrites).
   getSurvey(): ISurvey;
   // No read and no push is pending any more (see notifySettled).
@@ -69,39 +74,6 @@ export interface IDynamicDataChannelHost {
    to the channel. */
 type PushResult = Promise<void> | "done" | "failed";
 
-/* The one place an answer is read: a bare array is { records: array }, and an answer that is neither
-   an array nor an object with records holds no records. total and hasMore are passed on as they
-   are - whether they mean anything is the reader's to decide.
-   isCopied: a source may answer with the array it stores and change it later - a remove that splices
-   it -, or the application may: the window takes a copy, so it never shifts under objects already
-   built. The records are not copied: every write of the list copies the record it changes. A local
-   source's array is not copied: it is the storage itself (DynamicDataList.takeStoredArray). */
-export function toReadResult(data: any, isCopied: boolean = false): IDynamicDataReadResult {
-  const records = Array.isArray(data) ? data : !!data && typeof data === "object" && Array.isArray(data.records) ? data.records : [];
-  const res = !Array.isArray(data) && !!data && typeof data === "object" ? data : {};
-  return { records: isCopied ? records.slice() : records, total: res.total, hasMore: res.hasMore };
-}
-function isPromiseLike(value: any): boolean {
-  // Never instanceof Promise: a source may return any thenable.
-  return !!value && typeof value.then === "function";
-}
-/* Keyed source only: an insert that has not answered yet. record is the window object of the new
-   record - what the answer is matched by, re-pointed by every write (see repointPendingInsert).
-   clientFields are the fields the client owns: the ones the insert sent and every one a write
-   changed since, deleted fields included. The answer's other fields are the ones the server filled
-   in.
-   The entry is also the record's identity until the key is known: a write made to the record while
-   the insert is in flight is queued with the entry and reads key when it runs, which the chain
-   orders after the insert has settled (applyInsertAnswer). keyField is the field of the source the
-   insert was sent to - the list's own getter follows whatever source it holds by then. */
-export interface IPendingInsert {
-  record: any;
-  clientFields: Array<string>;
-  keyField: string;
-  key: any;
-  answer: any;
-  isSettled: boolean;
-}
 /* What a write tells pushToSource about the record it addresses, beyond the call itself: the key it
    was enqueued with, for an insert the window object of the new record, which its answer is matched
    by, and for a write to a record whose insert is in flight the pending entry that stands for its
@@ -111,64 +83,15 @@ export interface IDynamicDataPushInfo {
   insertedRecord?: any;
   pendingInsert?: IPendingInsert;
 }
+function isPromiseLike(value: any): boolean {
+  // Never instanceof Promise: a source may return any thenable.
+  return !!value && typeof value.then === "function";
+}
 function createNoKeyError(): Error {
   return new Error("DynamicDataList: the record has no key yet");
 }
-function createStalePositionError(): Error {
-  return new Error("DynamicDataList: a write queued before a failed insert, remove or move was not sent: its storage index is stale");
-}
-/* The one comparison of the records: case-sensitive, strings not trimmed. It decides that a record
-   changed (DynamicDataList.isValueChanged) and which of its fields did (getChangedFields), so a
-   record never changes with no field listed. */
-export function isRecordValueChanged(newValue: any, oldValue: any): boolean {
-  return !Helpers.isTwoValueEquals(newValue, oldValue, false, true, false);
-}
-export function getChangedFields(oldRecord: any, newRecord: any): Array<string> {
-  const res: Array<string> = [];
-  const add = (key: string): void => {
-    if (res.indexOf(key) < 0) res.push(key);
-  };
-  for (const key in oldRecord || {}) {
-    if (isRecordValueChanged((newRecord || {})[key], (oldRecord || {})[key])) add(key);
-  }
-  for (const key in newRecord || {}) {
-    if (isRecordValueChanged((newRecord || {})[key], (oldRecord || {})[key])) add(key);
-  }
-  return res;
-}
-/* The client owns the fields it sent or changed while the insert was in flight, the server owns
-   the rest, and the key belongs to the server. So the answer contributes only the fields outside
-   clientFields - a field the client cleared is missing from its record and must stay missing, not
-   come back as the value the insert sent - and its key is applied last, over anything the client
-   record holds in the key field: that is the one field the client never overrules. The window
-   merge and the payload of an update queued behind the insert are both made here, so that they
-   cannot drift apart. clientFields is the ownership the client record goes with: the window merge
-   takes everything the client has owned so far (the entry's), a queued update the fields owned
-   when it was made (getOwnedFields). Called only once the entry has the key (and the answer). */
-export function mergeInsertAnswer(entry: IPendingInsert, clientRecord: any, clientFields: Array<string> = entry.clientFields): any {
-  const res: any = {};
-  const answer = entry.answer;
-  Object.keys(answer).forEach((field: string): void => {
-    if (clientFields.indexOf(field) < 0) res[field] = answer[field];
-  });
-  Object.assign(res, clientRecord);
-  res[entry.keyField] = entry.key;
-  return res;
-}
-/* The fields the client owns as of the write being made, taken right after it reached the window.
-   A later write widens entry.clientFields, and must not change what an earlier queued update
-   sends: that update's snapshot does not hold the later field, so the wider set would drop the
-   server's value of it from the payload - blanking a server-filled field until the later update
-   lands, and for good when that one fails. */
-export function getOwnedFields(pending: IPendingInsert): Array<string> {
-  return !!pending ? pending.clientFields.slice() : undefined;
-}
-/* The record an update sends. A write that resolved its key normally sends the record as it is.
-   One queued behind the insert of its record sends it merged with the insert's answer: a
-   whole-record update of the snapshot alone would blank the fields the server filled in, and it
-   would carry no key. Called when the update runs, so the answer is known. */
-export function getUpdatePayload(pending: IPendingInsert, record: any, ownedFields: Array<string>): any {
-  return !!pending ? mergeInsertAnswer(pending, record, ownedFields) : record;
+function createAsyncLocalWriteError(): Error {
+  return new Error("DynamicDataList: a local data source is written synchronously; asynchronous writes need a data source with keyField");
 }
 
 /* The asynchronous writes in flight, per source object and per channel: the tail of each channel's
@@ -218,11 +141,6 @@ export class DynamicDataSourceChannel {
   // Bumped by every source change. A push carries the epoch it was enqueued in, so that a chain left
   // running against a replaced source cannot report back into the list.
   private sourceEpoch: number = 0;
-  /* Bumped by a failed insert, remove or move of a source without keyField. Such a source is written
-     by storage index, and every write queued behind the failed one took its index from a window that
-     had the failed change: it is dropped and reported instead of landing on the record next to its
-     own (see onPushFailed). */
-  private addressEpoch: number = 0;
 
   constructor(private host: IDynamicDataChannelHost) { }
 
@@ -458,7 +376,7 @@ export class DynamicDataSourceChannel {
      a deferred push belongs to the source the edit was made against, not to whatever the list holds
      when the push finally runs. The capability check follows the same rule: a source that may not be
      sent the write gets nothing, and the edit stays in the window. */
-  public pushToSource(operation: DynamicDataOperation, method: (source: IDynamicDataSource, key: any) => any,
+  public pushToSource(operation: DynamicDataSourceMethod, method: (source: IDynamicDataSource, key: any) => any,
     info?: IDynamicDataPushInfo): void {
     const host = this.host;
     const source = host.getSource();
@@ -475,16 +393,13 @@ export class DynamicDataSourceChannel {
     }
     this.markInFlightReadOvertaken(operation, push);
     const epoch = this.sourceEpoch;
-    const addressEpoch = !host.getKeyField() ? this.addressEpoch : undefined;
     const entry = this.registerPendingInsert(operation, push);
     const onAnswer = !!entry ? (answer: any): void => this.applyInsertAnswer(entry, answer, epoch) : undefined;
-    const onFailed = (): void => this.onPushFailed(epoch, operation);
     /* The key of a write queued behind the insert of its record is read when the write runs: the
        chain runs it after that insert has settled, so the answer has brought the key by then - or
        it never will (the insert failed or answered without it), and the write is reported for its
        own operation instead of being sent, which is the keep-and-report rule above, only later. */
     const action = (): any => {
-      if (addressEpoch !== undefined && addressEpoch !== this.addressEpoch) throw createStalePositionError();
       if (!pending) return method(source, push.key);
       if (!pending.isSettled || pending.key === undefined) {
         host.raiseError(createNoKeyError(), operation);
@@ -498,9 +413,25 @@ export class DynamicDataSourceChannel {
        an in-memory one the developer assigned included. */
     const isOwnStorage = host.isOwnStorage(source);
     if (!this.pushChain) {
-      const res = this.runPush(operation, action, onAnswer, onFailed, isOwnStorage, true);
+      /* A local source is written synchronously, so its writes never start a chain and never queue on
+         one: a promise it answers with is not chained - whatever it does later is ignored - and the
+         write is reported. */
+      let isAsyncLocalWrite = false;
+      const send = !host.isLocalSource(source) ? action : (): any => {
+        const answer = action();
+        if (!isPromiseLike(answer)) return answer;
+        answer.then(undefined, (): void => undefined);
+        isAsyncLocalWrite = true;
+        return undefined;
+      };
+      const res = this.runPush(operation, send, onAnswer, isOwnStorage, true);
+      if (isAsyncLocalWrite)this.reportSyncFailure(createAsyncLocalWriteError(), operation, true);
       if (!isPromiseLike(res)) {
-        this.settleSyncPush(epoch, res === "failed", onFailed);
+        if (host.isDisposed() || epoch !== this.sourceEpoch) return;
+        // After a success the window takes what the storage holds; after a reported failure it keeps
+        // the local change, unless the list puts it back.
+        if (isAsyncLocalWrite || res === "failed") host.onPushFailed(operation, isAsyncLocalWrite);
+        else host.syncWindowAfterSyncPush();
         return;
       }
       this.pendingPushes = 1;
@@ -515,20 +446,17 @@ export class DynamicDataSourceChannel {
       previous.then((): void => {
         let res: PushResult;
         try {
-          res = this.runPush(operation, action, onAnswer, onFailed, isOwnStorage);
+          res = this.runPush(operation, action, onAnswer, isOwnStorage);
         } catch(e) {
           // A synchronous failure whose report threw: the chain goes on, and the exception is the
           // rejection of this continuation. The window keeps the local change.
-          this.settleLink(epoch, false, resolve);
+          this.settleLink(epoch, resolve);
           throw e;
         }
         if (!isPromiseLike(res)) {
-          // A failed link does not sync the window: it keeps the local change.
-          const isFailed = res === "failed";
-          if (isFailed)onFailed();
-          this.settleLink(epoch, !isFailed, resolve);
+          this.settleLink(epoch, resolve);
         } else {
-          (<Promise<void>>res).then((): void => { this.settleLink(epoch, false, resolve); });
+          (<Promise<void>>res).then((): void => { this.settleLink(epoch, resolve); });
         }
       });
     });
@@ -538,13 +466,13 @@ export class DynamicDataSourceChannel {
      write always runs after an earlier one has settled - see runPush. */
   private createFirstLink(res: Promise<void>, epoch: number): Promise<void> {
     return new Promise<void>((resolve: () => void): void => {
-      res.then((): void => { this.settleLink(epoch, false, resolve); });
+      res.then((): void => { this.settleLink(epoch, resolve); });
     });
   }
   // onPushSettled may start the read the chain held, and its commit runs user code: the link settles whatever it does.
-  private settleLink(epoch: number, wasSync: boolean, resolve: () => void): void {
+  private settleLink(epoch: number, resolve: () => void): void {
     try {
-      this.onPushSettled(epoch, wasSync);
+      this.onPushSettled(epoch);
     } finally {
       resolve();
     }
@@ -571,7 +499,7 @@ export class DynamicDataSourceChannel {
       });
     });
   }
-  private registerPendingInsert(operation: DynamicDataOperation, push: IDynamicDataPushInfo): IPendingInsert {
+  private registerPendingInsert(operation: DynamicDataSourceMethod, push: IDynamicDataPushInfo): IPendingInsert {
     const keyField = this.host.getKeyField();
     if (operation !== "insert" || !keyField || push.insertedRecord === undefined) return undefined;
     // The payload the insert sends, without the key (see add): the fields the client owns from the start.
@@ -607,7 +535,7 @@ export class DynamicDataSourceChannel {
      records and changes the total, and a move shifts the records between its two ends, so each of
      them does. An update changes one record in place: the answer of a paged read is stale only when
      it holds that record - an edit on page 1 while page 2 is loading leaves page 2 as it is. */
-  private markInFlightReadOvertaken(operation: DynamicDataOperation, push: IDynamicDataPushInfo): void {
+  private markInFlightReadOvertaken(operation: DynamicDataSourceMethod, push: IDynamicDataPushInfo): void {
     const read = this.inFlightRead;
     if (!read || read.isOvertaken) return;
     if (operation === "update" && read.isPagedRead && read.take > 0) {
@@ -639,10 +567,10 @@ export class DynamicDataSourceChannel {
      The chain does not wait for it to succeed: the promise returned settles in any case, and an
      exception of that code is the rejection of the answer's own continuation, as an exception of any
      asynchronous callback is - a rejection of the chain would stop every later write and read.
-     onFailed runs after a reported failure, synchronous or asynchronous - for a synchronous one the
-     caller runs it, once the result is known. */
-  private runPush(operation: DynamicDataOperation, action: () => any,
-    onAnswer: (answer: any) => void, onFailed: () => void, isOwnStorage: boolean, isInWrite: boolean = false): PushResult {
+     Only a keyed source answers asynchronously or queues on the chain, and the list keeps its local
+     change after any failure of it: onPushFailed is the caller's, for a synchronous local push. */
+  private runPush(operation: DynamicDataSourceMethod, action: () => any,
+    onAnswer: (answer: any) => void, isOwnStorage: boolean, isInWrite: boolean = false): PushResult {
     let res: any;
     try {
       res = action();
@@ -671,7 +599,6 @@ export class DynamicDataSourceChannel {
           resolve();
         }
         this.host.raiseError(error, operation);
-        onFailed();
       });
     });
   }
@@ -681,7 +608,7 @@ export class DynamicDataSourceChannel {
      (takeListenerError). A queued push has no write around it: its listener's exception is the
      rejection of that link, as before. */
   private listenerError: { error: any } = undefined;
-  private reportSyncFailure(error: any, operation: DynamicDataOperation, isInWrite: boolean): void {
+  private reportSyncFailure(error: any, operation: DynamicDataSourceMethod, isInWrite: boolean): void {
     if (!isInWrite) {
       this.host.raiseError(error, operation);
       return;
@@ -697,7 +624,7 @@ export class DynamicDataSourceChannel {
     this.listenerError = undefined;
     return res;
   }
-  private onPushSettled(epoch: number, wasSync: boolean): void {
+  private onPushSettled(epoch: number): void {
     // A chain detached by a source change runs to its end against its own source, but the counters
     // and the window it would touch belong to the source that replaced it.
     if (epoch !== this.sourceEpoch) return;
@@ -705,7 +632,6 @@ export class DynamicDataSourceChannel {
     if (this.pendingPushes <= 0) {
       this.pendingPushes = 0;
       this.pushChain = undefined;
-      if (wasSync)this.syncWindowAfterSyncPush(epoch);
       this.startQueuedRead();
       this.notifySettled();
     }
@@ -718,26 +644,5 @@ export class DynamicDataSourceChannel {
   private notifySettled(): void {
     if (this.hasPendingWrites || this.hasPendingRead || this.host.isDisposed()) return;
     this.host.onSettled();
-  }
-  private syncWindowAfterSyncPush(epoch: number): void {
-    if (this.host.isDisposed() || epoch !== this.sourceEpoch) return;
-    this.host.syncWindowAfterSyncPush();
-  }
-  /* After a synchronous push: the window takes what the storage holds after a success, and keeps the
-     local change after a reported failure (the list may still put it back, see onPushFailed). */
-  private settleSyncPush(epoch: number, isFailed: boolean, onFailed: () => void): void {
-    if (!isFailed) {
-      this.syncWindowAfterSyncPush(epoch);
-      return;
-    }
-    onFailed();
-  }
-  /* A push failed and was reported. A failed insert, remove or move of a source without keyField
-     shifts the storage indexes the writes queued behind it were given: they are dropped
-     (addressEpoch). The list decides what its window becomes. */
-  private onPushFailed(epoch: number, operation: DynamicDataOperation): void {
-    if (this.host.isDisposed() || epoch !== this.sourceEpoch) return;
-    if (operation !== "update" && !this.host.getKeyField())this.addressEpoch++;
-    this.host.onPushFailed(operation);
   }
 }

@@ -74,9 +74,7 @@ export class QuestionSingleInputBehavior {
 
   public get singleInputSummary(): QuestionSingleInputSummary {
     return this.getPropertyValue("singleInputSummary", undefined, () => {
-      if (!this.supportNestedSingleInput()) return undefined;
-      const q = this.singleInputQuestion;
-      if (!q || q !== this.question) return undefined;
+      if (this.singleInputQuestion !== this.question || !this.canShowSelfAsSummary()) return undefined;
       const res = this.createSingleInputSummary();
       if (!!res) {
         this.calcSingleInputActions();
@@ -88,6 +86,19 @@ export class QuestionSingleInputBehavior {
 
   protected createSingleInputSummary(): QuestionSingleInputSummary {
     return undefined;
+  }
+
+  // true for the types whose createSingleInputSummary() returns a summary. Answers without building it.
+  protected canCreateSingleInputSummary(): boolean {
+    return false;
+  }
+
+  // Whether a stored "self" is a summary step that the question can show, asked without building the
+  // summary: building it reads the parent container's css, which reads Question.singleInputQuestion
+  // again for a dynamic container nested in another one. Not public API: besides singleInputSummary,
+  // its caller is Question.singleInputQuestion.
+  private canShowSelfAsSummary(): boolean {
+    return this.isSelfSummaryStep() && this.canCreateSingleInputSummary() && this.supportNestedSingleInput();
   }
 
   private get rootParentQuestion(): Question {

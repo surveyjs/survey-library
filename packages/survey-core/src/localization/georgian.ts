@@ -5,6 +5,34 @@ export var georgianSurveyStrings = {
   pagePrevText: "უკან",
   // "Next"
   pageNextText: "შემდეგ",
+  // [Auto-translated] "First"
+  pageFirstText: "პირველი",
+  // [Auto-translated] "Last"
+  pageLastText: "ბოლო",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "აირჩიეთ გვერდი",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "დალაგება {0} მიხედვით",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "მაღალი - დაბალი",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "დაბალი - მაღალი",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "ანბანი, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "ანბანი, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "ახალი პირველი",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "უძველესი პირველი",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "დალაგებულია {0} მიხედვით",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, შემდეგ {1}",
   // "Complete"
   completeText: "დასრულება",
   // [Auto-translated] "Preview"

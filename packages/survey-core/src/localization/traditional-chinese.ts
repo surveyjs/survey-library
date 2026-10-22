@@ -5,6 +5,34 @@ export var traditionalChineseSurveyStrings = {
   pagePrevText: "上一頁",
   // "Next"
   pageNextText: "下一頁",
+  // [Auto-translated] "First"
+  pageFirstText: "第一",
+  // [Auto-translated] "Last"
+  pageLastText: "最後",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "以及{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "選擇頁面",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "依{0}排序",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "高 - 低",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "低 - 高",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "字母表，A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "字母表，Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "最新先行",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "最年長的先",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "依{0}排序",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}，然後{1}",
   // "Complete"
   completeText: "提交問卷",
   // [Auto-translated] "Preview"

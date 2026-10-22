@@ -5219,6 +5219,11 @@ export class SurveyModel extends SurveyElementCore
   private pageContainerValue: PageModel;
   private onShowingPreviewChanged() {
     this.updatePagesContainer();
+    this.notifyQuestionsSingleInputModeChanged();
+  }
+  // Dynamic panels and matrices do not page in single-input mode, except in the preview.
+  private notifyQuestionsSingleInputModeChanged(): void {
+    this.getAllQuestions().forEach(q => (<any>q).onSurveySingleInputModeChanged());
   }
   private createRootPage(name: string, pages: Array<PageModel>): PageModel {
     const container = Serializer.createClass("page");
@@ -5393,6 +5398,9 @@ export class SurveyModel extends SurveyElementCore
     }
     if (oldValue === "inputPerPage") {
       this.getAllQuestions().forEach(q => q.resetSingleInput());
+    }
+    if (oldValue === "inputPerPage" || this.isSingleVisibleInput) {
+      this.notifyQuestionsSingleInputModeChanged();
     }
     if (this.isSinglePage) {
       this.updatePagesContainer();

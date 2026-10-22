@@ -52,6 +52,10 @@
   --sd-question-description-under-input-padding-block: 0;
   --sd-question-description-under-input-padding-inline: 0;
   --sd-question-description-under-input-margin-block: var(--sjs2-layout-component-question-box-gap-vertical) 0;
+
+  //comment area
+  --sd-question-comment-padding-block: 0;
+  --sd-question-comment-padding-inline: 0;
 }
 .sd-question--nested {
   //container
@@ -262,6 +266,8 @@
   gap: var(--sjs2-spacing-x100);
   color: $foreground;
   white-space: normal;
+  padding-inline: var(--sd-question-comment-padding-inline);
+  padding-block: var(--sd-question-comment-padding-block);
 }
 
 .sd-question__placeholder {

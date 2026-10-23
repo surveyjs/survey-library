@@ -9557,7 +9557,13 @@ Serializer.addClass("survey", [
     visible: false
   },
   { name: "readOnly:boolean" },
-  { name: "readOnlyMode", default: "readonly", choices: ["readonly", "view"] },
+  {
+    name: "readOnlyMode",
+    default: "readonly",
+    choices: ["readonly", "view"],
+    dependsOn: ["readOnly"],
+    visibleIf: (obj: any) => !!obj && !!obj.readOnly
+  },
   { name: "mode", visible: false, isSerializable: false },
   { name: "storeOthersAsComment:boolean", default: true },
   { name: "maxTextLength:number", default: 0, minValue: 0 },

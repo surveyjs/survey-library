@@ -4100,7 +4100,13 @@ Serializer.addClass("question", [
   },
   { name: "errorLocation", default: "default", choices: ["default", "top", "bottom"] },
   { name: "readOnly:switch", overridingProperty: "enableIf" },
-  { name: "readOnlyMode", default: "default", choices: ["default", "readonly", "view"] },
+  {
+    name: "readOnlyMode",
+    default: "default",
+    choices: ["default", "readonly", "view"],
+    dependsOn: ["readOnly"],
+    visibleIf: (obj: any) => !!obj && !!obj.readOnly
+  },
   {
     name: "validators:validators",
     baseClassName: "surveyvalidator",

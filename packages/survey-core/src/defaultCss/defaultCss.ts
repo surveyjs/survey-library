@@ -465,6 +465,7 @@ export var defaultCss = {
     rootMobile: "sd-multipletext--mobile",
     itemLabel: "sd-multipletext__item-container sd-formbox",
     itemLabelReadOnly: "sd-formbox--readonly",
+    itemLabelView: "sd-formbox--view",
     itemLabelDisabled: "sd-formbox--disabled",
     itemLabelPreview: "sd-formbox--preview",
     itemLabelOnError: "sd-formbox--error",

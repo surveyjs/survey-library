@@ -2577,7 +2577,13 @@ Serializer.addClass(
     },
     { name: "visible:switch", default: true, overridingProperty: "visibleIf" },
     { name: "readOnly:boolean", overridingProperty: "enableIf" },
-    { name: "readOnlyMode", default: "default", choices: ["default", "readonly", "view"] },
+    {
+      name: "readOnlyMode",
+      default: "default",
+      choices: ["default", "readonly", "view"],
+      dependsOn: ["readOnly"],
+      visibleIf: (obj: any) => !!obj && !!obj.readOnly
+    },
     "visibleIf:condition",
     "enableIf:condition",
     "requiredIf:condition",

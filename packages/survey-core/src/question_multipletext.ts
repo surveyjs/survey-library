@@ -891,7 +891,8 @@ export class QuestionMultipleTextModel extends Question
     return toCssClasses(
       this.cssClasses.itemLabel,
       this.isDisabledStyle && this.cssClasses.itemLabelDisabled,
-      this.isReadOnlyStyle && this.cssClasses.itemLabelReadOnly,
+      this.isReadOnlyStyle && !this.isViewMode && this.cssClasses.itemLabelReadOnly,
+      this.isViewMode && this.cssClasses.itemLabelView,
       this.isPreviewStyle && this.cssClasses.itemLabelPreview,
       item.editor.isAnswered && this.cssClasses.itemLabelAnswered,
       !this.isDesignMode && this.cssClasses.itemLabelAllowFocus,

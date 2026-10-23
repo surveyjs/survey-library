@@ -15,9 +15,18 @@ import { QuestionFileModel } from "../src/question_file";
 import { QuestionHtmlModel } from "../src/question_html";
 import { PanelModel } from "../src/panel";
 import { RendererFactory } from "../src/rendererFactory";
+import { Serializer } from "../src/jsonobject";
 import { describe, test, expect, afterEach } from "vitest";
 
 describe("readOnlyMode", () => {
+  test("readOnlyMode is visible only when readOnly is true", () => {
+    ["question", "panel", "survey"].forEach(className => {
+      const prop = Serializer.findProperty(className, "readOnlyMode");
+      expect(prop.isVisible("", { readOnly: false })).toBe(false);
+      expect(prop.isVisible("", { readOnly: true })).toBe(true);
+    });
+  });
+
   afterEach(() => {
     if (RendererFactory.Instance.getRenderer("question", "view") !== "default") {
       RendererFactory.Instance.unregisterRenderer("question", "view");
@@ -329,6 +338,23 @@ describe("readOnlyMode", () => {
     const previewRow = previewMatrix.visibleRows[0];
     expect(previewMatrix.getItemSvgIcon(previewRow, previewMatrix.visibleColumns[0])).toBe("#icon-check-16x16");
     expect(previewMatrix.getItemClass(previewRow, previewMatrix.visibleColumns[0])).toContain("sd-radio--preview");
+  });
+
+  test("multiple text view mode drops the formbox frame", () => {
+    const survey = new SurveyModel({
+      readOnly: true,
+      elements: [{
+        type: "multipletext",
+        name: "q",
+        items: [{ name: "text1" }]
+      }]
+    });
+    const question = <QuestionMultipleTextModel>survey.getQuestionByName("q");
+    expect(question.getItemLabelCss(question.items[0])).toContain("sd-formbox--readonly");
+    survey.readOnlyMode = "view";
+    const viewCss = question.getItemLabelCss(question.items[0]);
+    expect(viewCss).toContain("sd-formbox--view");
+    expect(viewCss).not.toContain("sd-formbox--readonly");
   });
 
   test("stars and smileys stay compact icons in view mode", () => {

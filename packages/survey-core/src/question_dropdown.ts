@@ -389,7 +389,7 @@ Serializer.addClass(
   "dropdown",
   [
     { name: "placeholder", alternativeName: "optionsCaption", serializationProperty: "locPlaceholder" },
-    { name: "allowClear:boolean", alternativeName: "showOptionsCaption", category: "choices", default: true },
+    { name: "allowClear:boolean", alternativeName: "showOptionsCaption", default: true },
     { name: "choicesMin:number", default: 0 },
     { name: "choicesMax:number", default: 0 },
     { name: "choicesStep:number", default: 1, minValue: 1 },

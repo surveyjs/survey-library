@@ -3511,7 +3511,6 @@ export class MatrixDropdownBaseSingleInputBehavior extends QuestionRecordsSingle
 Serializer.addClass(
   "matrixdropdownbase",
   [
-    { name: "allowClear:boolean", category: "choices" },
     { name: "showCommentArea:switch", visible: true },
     "columnsVisibleIf:condition",
     "rowsVisibleIf:condition",

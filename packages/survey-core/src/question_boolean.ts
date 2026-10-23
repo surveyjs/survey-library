@@ -518,7 +518,6 @@ Serializer.addClass(
     "valueTrue",
     "valueFalse",
     { name: "swapOrder:boolean" },
-    { name: "allowClear:boolean", category: "general" },
     {
       name: "displayMode",
       default: "segmented",

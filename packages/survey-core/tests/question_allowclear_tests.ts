@@ -191,14 +191,13 @@ describe("allowClear, Bug#11936", () => {
     expect(Serializer.findProperty("matrixdynamic", "allowClear").visible, "matrixdynamic hides allowClear").toBe(false);
     expect(Serializer.findProperty("paneldynamic", "allowClear").visible, "paneldynamic hides allowClear").toBe(false);
   });
-  test("allowClear is placed in Choices or General", () => {
-    const choices = ["checkbox", "radiogroup", "dropdown", "tagbox", "ranking", "imagepicker", "matrixdropdown"];
-    const general = ["text", "comment", "boolean", "rating", "slider", "multipletext", "matrix", "signaturepad"];
-    choices.forEach((type) => {
-      expect(Serializer.findProperty(type, "allowClear").category, `${type} category`).toBe("choices");
-    });
-    general.forEach((type) => {
-      expect(Serializer.findProperty(type, "allowClear").category, `${type} category`).toBe("general");
+  test("allowClear stays available for value questions", () => {
+    const types = ["checkbox", "radiogroup", "dropdown", "tagbox", "ranking", "imagepicker", "matrixdropdown", "text", "comment", "boolean", "rating", "slider", "multipletext", "matrix", "signaturepad"];
+    types.forEach((type) => {
+      const prop = Serializer.findProperty(type, "allowClear");
+      expect(prop, type).toBeTruthy();
+      expect(prop.visible, `${type} visible`).not.toBe(false);
+      expect(prop.isSerializable, `${type} serializable`).not.toBe(false);
     });
   });
   test("every question type builds the same Clear action", () => {

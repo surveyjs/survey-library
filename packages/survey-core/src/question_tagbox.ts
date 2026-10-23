@@ -259,7 +259,7 @@ Serializer.addClass(
   "tagbox",
   [
     { name: "placeholder", serializationProperty: "locPlaceholder" },
-    { name: "allowClear:boolean", category: "choices", default: true },
+    { name: "allowClear:boolean", default: true },
     { name: "searchEnabled:boolean", default: true },
     {
       name: "allowCustomChoices:boolean", default: false,

@@ -1090,7 +1090,6 @@ Serializer.addClass(
     },
     {
       name: "allowClear:boolean",
-      category: "general",
       default: false,
     },
   ],

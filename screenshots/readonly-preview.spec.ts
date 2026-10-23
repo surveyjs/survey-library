@@ -1,7 +1,19 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
 
 const title = "ReadOnly and Preview";
+
+async function enableReadOnlyView(page: Page, makeSurveyReadOnly = false): Promise<void> {
+  await page.evaluate((readOnly) => {
+    const survey = (window as any).survey;
+    survey.cancelPreview();
+    if (readOnly) {
+      survey.readOnly = true;
+    }
+    survey.readOnlyMode = "view";
+  }, makeSurveyReadOnly);
+  await resetFocusToBody(page);
+}
 
 frameworks.forEach(framework => {
   test.describe(`${framework} ${title}`, () => {
@@ -31,6 +43,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-radiogroup.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-radiogroup.png");
     });
 
     test("Single Input ReadOnly and Preview", async ({ page }) => {
@@ -54,6 +68,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-single-input.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-single-input.png");
     });
 
     test("Comment Input ReadOnly and Preview", async ({ page }) => {
@@ -81,6 +97,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-comment.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-comment.png");
     });
 
     test("Multiple text Input ReadOnly and Preview", async ({ page }) => {
@@ -111,6 +129,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-multiple.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-multiple.png");
     });
 
     test("Rating ReadOnly and Preview", async ({ page }) => {
@@ -139,6 +159,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-rating.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-rating.png");
     });
 
     test("Rating as dropdown ReadOnly and Preview", async ({ page }) => {
@@ -168,6 +190,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-rating-dropdown.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-rating-dropdown.png");
     });
 
     test("Rating Stars ReadOnly and Preview", async ({ page }) => {
@@ -197,6 +221,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-rating-stars.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-rating-stars.png");
     });
 
     test("Rating Smileys ReadOnly and Preview", async ({ page }) => {
@@ -226,6 +252,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-rating-smileys.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-rating-smileys.png");
     });
 
     test("Rating Smileys colored ReadOnly and Preview", async ({ page }) => {
@@ -256,6 +284,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-rating-smileys-colored.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-rating-smileys-colored.png");
     });
 
     test("Rating Smileys and Stars in matrix ReadOnly and Preview", async ({ page }) => {
@@ -302,6 +332,9 @@ frameworks.forEach(framework => {
       await expect(page.locator(".sd-rating__item-star--preview").first()).toBeVisible();
       await compareScreenshot(page, page.locator(".sd-table__cell .sd-rating").nth(0), "preview-rating-smileys-matrix.png");
       await compareScreenshot(page, page.locator(".sd-table__cell .sd-rating").nth(1), "preview-rating-stars-matrix.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, page.locator(".sd-table__cell .sd-expression").nth(0), "view-rating-smileys-matrix.png");
+      await compareScreenshot(page, page.locator(".sd-table__cell .sd-expression").nth(1), "view-rating-stars-matrix.png");
     });
 
     test("Dropdown ReadOnly and Preview", async ({ page }) => {
@@ -326,6 +359,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-dropdown.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-dropdown.png");
     });
 
     test("Tagbox ReadOnly and Preview", async ({ page }) => {
@@ -350,6 +385,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-tagbox.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-tagbox.png");
     });
 
     test("Checkbox Group ReadOnly and Preview", async ({ page }) => {
@@ -374,6 +411,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-checkbox.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-checkbox.png");
     });
 
     test("Signature ReadOnly and Preview", async ({ page }) => {
@@ -396,6 +435,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-signature.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-signature.png");
     });
 
     test("Panel Dynamic ReadOnly and Preview", async ({ page }) => {
@@ -473,6 +514,10 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, page.locator(".sd-question--paneldynamic").nth(0), "preview-panel-dynamic-no-entries.png");
       await compareScreenshot(page, page.locator(".sd-question--paneldynamic").nth(1), "preview-panel-dynamic-one-entry.png");
       await compareScreenshot(page, page.locator(".sd-question--paneldynamic").nth(2), "preview-panel-dynamic-two-entries.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, page.locator(".sd-question--paneldynamic").nth(0), "view-panel-dynamic-no-entries.png");
+      await compareScreenshot(page, page.locator(".sd-question--paneldynamic").nth(1), "view-panel-dynamic-one-entry.png");
+      await compareScreenshot(page, page.locator(".sd-question--paneldynamic").nth(2), "view-panel-dynamic-two-entries.png");
     });
 
     test("Ranking ReadOnly and Preview", async ({ page }) => {
@@ -496,6 +541,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-ranking.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-ranking.png");
     });
 
     test("Boolean ReadOnly and Preview", async ({ page }) => {
@@ -520,6 +567,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-boolean.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-boolean.png");
     });
 
     test("Boolean:Indeterminate ReadOnly and Preview", async ({ page }) => {
@@ -544,6 +593,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-boolean-indeterminate.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-boolean-indeterminate.png");
     });
 
     test("Boolean:Radio ReadOnly and Preview", async ({ page }) => {
@@ -569,6 +620,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-boolean-radio.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-boolean-radio.png");
     });
 
     test("Boolean:Checkbox ReadOnly and Preview", async ({ page }) => {
@@ -597,6 +650,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-boolean-checkbox.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-boolean-checkbox.png");
     });
 
     test("ImagePicker ReadOnly and Preview", async ({ page }) => {
@@ -633,6 +688,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-imagepicker.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-imagepicker.png");
     });
 
     test("Matrix ReadOnly and Preview", async ({ page }) => {
@@ -663,6 +720,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-matrix-single.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-matrix-single.png");
     });
 
     test("Matrix ReadOnly and Preview alt rows", async ({ page }) => {
@@ -694,6 +753,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question", "preview-matrix-single-alt-rows.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question", "view-matrix-single-alt-rows.png");
     });
 
     test("File ReadOnly and Preview", async ({ page }) => {
@@ -728,6 +789,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-question__content", "preview-file.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-file.png");
     });
 
     test("Numbered page Preview", async ({ page }) => {
@@ -756,6 +819,8 @@ frameworks.forEach(framework => {
         (window as any).survey.showPreview();
       });
       await compareScreenshot(page, ".sd-panel--as-page", "preview-numbered-page.png");
+      await enableReadOnlyView(page, true);
+      await compareScreenshot(page, ".sd-panel--as-page", "view-numbered-page.png");
     });
 
     test("Readonly and Focus", async ({ page }) => {
@@ -771,6 +836,8 @@ frameworks.forEach(framework => {
 
       await page.locator("div").filter({ hasText: /^Yes$/ }).click();
       await compareScreenshot(page, ".sd-question__content", "readonly-and-focus-unselect-item-not-focused.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-and-focus-unselect-item-not-focused.png");
     });
   });
 });

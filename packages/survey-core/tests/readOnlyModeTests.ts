@@ -410,10 +410,13 @@ describe("readOnlyMode", () => {
       expect(stars.getComponentName()).toBe("default");
       expect(stars.itemSmallMode).toBe(true);
       expect(stars.itemStarIcon).toBe("icon-rating-star-small");
+      expect(stars.itemTabIndex).toBe(-1);
       expect(smileys.getComponentName()).toBe("default");
       expect(smileys.itemSmallMode).toBe(true);
+      expect(smileys.itemTabIndex).toBe(-1);
       expect(smileys.ratingRootCss).toContain("sd-rating--small");
       expect(labels.getComponentName()).toBe("sv-question-view");
+      expect(labels.itemTabIndex).toBeUndefined();
       expect(labels.itemSmallMode).toBeFalsy();
       expect(dropdown.getComponentName()).toBe("default");
       expect(dropdown.itemSmallMode).toBe(true);

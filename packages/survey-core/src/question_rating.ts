@@ -886,6 +886,10 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
   private get isCompactIconView(): boolean {
     return this.isViewMode && (this.isStar || this.isSmiley);
   }
+  // Those icons are display-only: their radios must stay out of the tab order.
+  public get itemTabIndex(): number | undefined {
+    return this.isCompactIconView ? -1 : undefined;
+  }
   protected get supportsQuestionView(): boolean {
     return !this.isCompactIconView;
   }

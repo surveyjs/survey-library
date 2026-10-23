@@ -191,11 +191,22 @@ export class Dependencies {
   }
   dependencies: Array<{ obj: Base, prop: string, id: string }> = [];
   id: string = "" + (++Dependencies.DependenciesCount);
+  // Objects already in "dependencies", per property: an updater can read thousands of properties,
+  // and scanning the array for a duplicate on every read is O(N^2).
+  // Keyed by property first: updaters read few property names from many objects
+  // (e.g. survey width mode reads "elements"/"startWithNewLine"/"rows" of every element), so there are few sets.
+  private dependencyKeys: Map<string, Set<Base>> = new Map<string, Set<Base>>();
   addDependency(target: Base, property: string): void {
     if (this.target === target && this.property === property)
       return;
-    if (this.dependencies.some(dependency => dependency.obj === target && dependency.prop === property))
+    let objs = this.dependencyKeys.get(property);
+    if (!objs) {
+      objs = new Set<Base>();
+      this.dependencyKeys.set(property, objs);
+    }
+    if (objs.has(target))
       return;
+    objs.add(target);
 
     this.dependencies.push({
       obj: target,

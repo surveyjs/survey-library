@@ -18,6 +18,16 @@ A class that describes the Yes/No (Boolean) question type.
 
 ## Properties
 
+### `allowClear`
+
+**Type**: `boolean`
+
+Specifies whether to display a button that clears the question value.
+
+The button appears in the question title and stays hidden when the [title is hidden](#titleLocation).
+
+Default value: `false`
+
 ### `booleanValue`
 
 **Type**: `any`

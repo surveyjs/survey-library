@@ -89,6 +89,8 @@ export var greekSurveyStrings = {
   panelDynamicTabTextFormat: "Πίνακας {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Απαντήθηκαν {0} / {1} ερωτήσεις",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Ερώτηση {0} του {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Δεν υπάρχει καμία ορατή σελίδα ή ορατή ερώτηση σε αυτό το ερωτηματολόγιο.",
   // "Thank you for completing the survey"

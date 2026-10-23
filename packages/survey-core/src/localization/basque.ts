@@ -89,6 +89,8 @@ export var basqueSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Erantzundako galderak {0}/{1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Galdera {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Ez dago orrialde bistaragarririk edo ez dago galderarik.",
   // "Thank you for completing the survey"

@@ -89,6 +89,8 @@ export var croatianStrings = {
   panelDynamicTabTextFormat: "Ploča {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Odgovorio na {0}/{1} pitanja",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Pitanje {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "U anketi nema vidljive stranice ili pitanja.",
   // "Thank you for completing the survey"

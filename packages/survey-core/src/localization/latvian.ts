@@ -89,6 +89,8 @@ export var latvianSurveyStrings = {
   panelDynamicTabTextFormat: "Panelis {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Atbildēts uz {0} / {1} jautājumiem",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Jautājums {0} par {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Nav neviena jautājuma.",
   // "Thank you for completing the survey"

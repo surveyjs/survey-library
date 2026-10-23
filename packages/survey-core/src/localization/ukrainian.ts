@@ -89,6 +89,8 @@ export var ukrainianSurveyStrings = {
   panelDynamicTabTextFormat: "Панель {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Відповіли на {0}/{1} питань",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Питання {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Немає жодного питання.",
   // "Thank you for completing the survey"

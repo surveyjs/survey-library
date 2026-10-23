@@ -89,6 +89,8 @@ export var italianSurveyStrings = {
   panelDynamicTabTextFormat: "Pannello {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Risposte a {0}/{1} domande",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Domanda {0} di {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Non ci sono pagine o domande visibili nel questionario.",
   // "Thank you for completing the survey"

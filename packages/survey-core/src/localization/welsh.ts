@@ -89,6 +89,8 @@ export var welshSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Wedi ateb {0}/{1} cwestiwn",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Cwestiwn {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Does dim modd gweld tudalen na chwestiwn yn yr arolwg.",
   // "Thank you for completing the survey"

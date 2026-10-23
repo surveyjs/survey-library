@@ -89,6 +89,8 @@ export var swahiliStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Yaliyojibiwa {0}/{1} maswali",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Swali {0} la {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Hakuna ukurasa unaoonekana au swali katika utafiti.",
   // "Thank you for completing the survey"

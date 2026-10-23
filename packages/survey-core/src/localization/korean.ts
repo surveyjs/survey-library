@@ -89,6 +89,8 @@ export var koreanStrings = {
   panelDynamicTabTextFormat: "패널 {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0} / {1} 개의 질문에 답변함",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "{1} 질문 {0}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "설문지에 보여지는 페이지나 질문이 없습니다.",
   // "Thank you for completing the survey"

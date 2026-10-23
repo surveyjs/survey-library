@@ -89,6 +89,8 @@ export var hindiStrings = {
   panelDynamicTabTextFormat: "पैनल {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{1} सवालों में से {0} के जवाब दिए",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "{1} प्रश्न {0}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "सर्वेक्षण में कोई दृश्यमान पृष्ठ या प्रश्न नहीं है",
   // "Thank you for completing the survey"

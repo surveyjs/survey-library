@@ -271,4 +271,62 @@ describe("readOnlyMode", () => {
     expect(cell.isViewMode).toBe(true);
     expect(cell.getPropertyValue("isViewMode")).toBe(true);
   });
+
+  test("single-select matrix uses preview checkmarks in view mode", () => {
+    const survey = new SurveyModel({
+      readOnly: true,
+      elements: [{
+        type: "matrix",
+        name: "single",
+        columns: ["Column 1", "Column 2"],
+        rows: ["Row 1"],
+        defaultValue: { "Row 1": "Column 1" }
+      }, {
+        type: "matrix",
+        name: "multi",
+        cellType: "checkbox",
+        columns: ["Column 1", "Column 2"],
+        rows: ["Row 1"],
+        defaultValue: { "Row 1": ["Column 1"] }
+      }]
+    });
+    const single = <QuestionMatrixModel>survey.getQuestionByName("single");
+    const multi = <QuestionMatrixModel>survey.getQuestionByName("multi");
+    const singleRow = single.visibleRows[0];
+    const checked = single.visibleColumns[0];
+    const unchecked = single.visibleColumns[1];
+    expect(single.getItemSvgIcon(singleRow, checked)).toBe("#icon-radio-16x16");
+    expect(single.getItemClass(singleRow, checked)).toContain("sd-radio--readonly");
+
+    survey.readOnlyMode = "view";
+    expect(single.getItemSvgIcon(singleRow, checked)).toBe("#icon-check-16x16");
+    expect(single.getItemSvgIcon(singleRow, unchecked)).toBe("#icon-check-16x16");
+    expect(single.getItemClass(singleRow, checked)).toContain("sd-radio--preview");
+    expect(single.getItemClass(singleRow, checked)).not.toContain("sd-radio--readonly");
+    expect(single.getItemClass(singleRow, unchecked)).toContain("sd-radio--preview");
+
+    const multiRow = multi.visibleRows[0];
+    const multiChecked = multi.visibleColumns[0];
+    const multiUnchecked = multi.visibleColumns[1];
+    expect(multi.getItemSvgIcon(multiRow, multiChecked)).toBe("#icon-check-16x16");
+    expect(multi.getItemSvgIcon(multiRow, multiUnchecked)).toBe("#icon-radio-16x16");
+    expect(multi.getItemClass(multiRow, multiChecked)).toContain("sd-checkbox--readonly");
+    expect(multi.getItemClass(multiRow, multiChecked)).not.toContain("sd-checkbox--preview");
+
+    const preview = new SurveyModel({
+      showPreviewBeforeComplete: true,
+      elements: [{
+        type: "matrix",
+        name: "single",
+        columns: ["Column 1", "Column 2"],
+        rows: ["Row 1"],
+        defaultValue: { "Row 1": "Column 1" }
+      }]
+    });
+    preview.showPreview();
+    const previewMatrix = <QuestionMatrixModel>preview.getQuestionByName("single");
+    const previewRow = previewMatrix.visibleRows[0];
+    expect(previewMatrix.getItemSvgIcon(previewRow, previewMatrix.visibleColumns[0])).toBe("#icon-check-16x16");
+    expect(previewMatrix.getItemClass(previewRow, previewMatrix.visibleColumns[0])).toContain("sd-radio--preview");
+  });
 });

@@ -683,6 +683,10 @@ export class QuestionMatrixModel
     return col;
   }
   public get checkType(): string { return this.isMultiSelect ? "checkbox" : "radio"; }
+  // Single-select view mode uses the same checkmarks as preview.
+  private get isCheckmarkStyle(): boolean {
+    return this.isPreviewStyle || (!this.isMultiSelect && this.isViewMode);
+  }
   private formatCss(val: string) : string {
     return (val || "").replace("{type}", this.checkType);
   }
@@ -695,19 +699,20 @@ export class QuestionMatrixModel
     const allowHover = !isDisabled && !(!!this.survey && this.survey.isDesignMode);
     const hasCellText = this.hasCellText;
     const css = this.cssClasses;
+    const checkmarkStyle = this.isCheckmarkStyle;
     return toCssClasses(
       hasCellText && css.cell,
       hasCellText ? css.cellText : this.formatCss(css.label),
       !hasCellText && (this.eachRowRequired || this.eachRowUnique ? row.hasError : this.hasCssError()) && css.itemOnError,
       isChecked && (hasCellText ? css.cellTextSelected : this.formatCss(css.itemChecked)),
       this.isDisabledStyle && (hasCellText ? css.cellTextDisabled : this.formatCss(css.itemDisabled)),
-      this.isReadOnlyStyle && (hasCellText ? css.cellTextReadOnly : this.formatCss(css.itemReadOnly)),
-      this.isPreviewStyle && (hasCellText ? css.cellTextPreview : this.formatCss(css.itemPreview)),
+      this.isReadOnlyStyle && !checkmarkStyle && (hasCellText ? css.cellTextReadOnly : this.formatCss(css.itemReadOnly)),
+      checkmarkStyle && (hasCellText ? css.cellTextPreview : this.formatCss(css.itemPreview)),
       allowHover && !hasCellText && this.formatCss(css.itemHover)
     );
   }
   public get itemSvgIcon(): string {
-    if (this.isPreviewStyle && this.cssClasses.itemPreviewSvgIconId) {
+    if (this.isCheckmarkStyle && this.cssClasses.itemPreviewSvgIconId) {
       return this.cssClasses.itemPreviewSvgIconId;
     }
     return this.cssClasses.itemSvgIconId;

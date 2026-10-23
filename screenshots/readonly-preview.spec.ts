@@ -333,8 +333,8 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, page.locator(".sd-table__cell .sd-rating").nth(0), "preview-rating-smileys-matrix.png");
       await compareScreenshot(page, page.locator(".sd-table__cell .sd-rating").nth(1), "preview-rating-stars-matrix.png");
       await enableReadOnlyView(page);
-      await compareScreenshot(page, page.locator(".sd-table__cell .sd-expression").nth(0), "view-rating-smileys-matrix.png");
-      await compareScreenshot(page, page.locator(".sd-table__cell .sd-expression").nth(1), "view-rating-stars-matrix.png");
+      await compareScreenshot(page, page.locator(".sd-table__cell .sd-rating").nth(0), "view-rating-smileys-matrix.png");
+      await compareScreenshot(page, page.locator(".sd-table__cell .sd-rating").nth(1), "view-rating-stars-matrix.png");
     });
 
     test("Dropdown ReadOnly and Preview", async ({ page }) => {

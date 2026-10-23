@@ -19,6 +19,7 @@ import { getColorFromProperty } from "./utils/utils";
 import { getRGBaColor } from "./utils/color";
 import { ITheme } from "./themes";
 import { DomDocumentHelper } from "./global_variables_utils";
+import { RendererFactory } from "./rendererFactory";
 import { HashTable } from "./helpers";
 import { Base } from "./base";
 
@@ -879,8 +880,23 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
     this.resetItemsVisuals();
   }
 
+  // Stars and smileys in view mode stay icons, at the same small size matrices use.
+  private get isCompactIconView(): boolean {
+    return this.isViewMode && (this.isStar || this.isSmiley);
+  }
+  protected get supportsQuestionView(): boolean {
+    return !this.isCompactIconView;
+  }
+  public getComponentName(): string {
+    if (this.isCompactIconView) {
+      return RendererFactory.Instance.getRenderer(this.getType(), "default");
+    }
+    return super.getComponentName();
+  }
   public get itemSmallMode() {
-    return !this.isSingleInputActive && this.inMatrixMode && settings.matrix.rateSize == "small";
+    if (this.isSingleInputActive) return false;
+    if (this.isCompactIconView) return true;
+    return this.inMatrixMode && settings.matrix.rateSize == "small";
   }
 
   public get ratingRootCss(): string {

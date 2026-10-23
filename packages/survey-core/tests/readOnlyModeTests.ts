@@ -8,6 +8,7 @@ import { QuestionBooleanModel } from "../src/question_boolean";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionMatrixModel } from "../src/question_matrix";
+import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionFileModel } from "../src/question_file";
@@ -328,5 +329,38 @@ describe("readOnlyMode", () => {
     const previewRow = previewMatrix.visibleRows[0];
     expect(previewMatrix.getItemSvgIcon(previewRow, previewMatrix.visibleColumns[0])).toBe("#icon-check-16x16");
     expect(previewMatrix.getItemClass(previewRow, previewMatrix.visibleColumns[0])).toContain("sd-radio--preview");
+  });
+
+  test("stars and smileys stay compact icons in view mode", () => {
+    const survey = new SurveyModel({
+      readOnly: true,
+      readOnlyMode: "view",
+      elements: [
+        { type: "rating", name: "stars", rateType: "stars", defaultValue: 4 },
+        { type: "rating", name: "smileys", rateType: "smileys", defaultValue: 4 },
+        { type: "rating", name: "labels", defaultValue: 4 },
+        { type: "rating", name: "dropdown", displayMode: "dropdown", rateType: "stars", defaultValue: 4 }
+      ]
+    });
+    const stars = <QuestionRatingModel>survey.getQuestionByName("stars");
+    const smileys = <QuestionRatingModel>survey.getQuestionByName("smileys");
+    const labels = <QuestionRatingModel>survey.getQuestionByName("labels");
+    const dropdown = <QuestionRatingModel>survey.getQuestionByName("dropdown");
+    RendererFactory.Instance.registerRenderer("question", "view", "sv-question-view");
+    RendererFactory.Instance.registerRenderer("rating", "dropdown", "sv-rating-dropdown");
+    try {
+      expect(stars.getComponentName()).toBe("default");
+      expect(stars.itemSmallMode).toBe(true);
+      expect(stars.itemStarIcon).toBe("icon-rating-star-small");
+      expect(smileys.getComponentName()).toBe("default");
+      expect(smileys.itemSmallMode).toBe(true);
+      expect(smileys.ratingRootCss).toContain("sd-rating--small");
+      expect(labels.getComponentName()).toBe("sv-question-view");
+      expect(labels.itemSmallMode).toBeFalsy();
+      expect(dropdown.getComponentName()).toBe("default");
+      expect(dropdown.itemSmallMode).toBe(true);
+    } finally {
+      RendererFactory.Instance.unregisterRenderer("rating", "dropdown");
+    }
   });
 });

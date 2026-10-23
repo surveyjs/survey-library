@@ -16,7 +16,8 @@ import { setOldTheme } from "./oldTheme";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { Helpers } from "../src/helpers";
 import { FunctionFactory, registerFunction } from "../src/functionsfactory";
-import { describe, test, expect } from "vitest";
+import { activateLazyRenderingChecks } from "../src/utils/dom-utils";
+import { describe, test, expect, vi } from "vitest";
 describe("Panel", () => {
   test("questions-elements synhronization", () => {
     const page = new PageModel();
@@ -1150,6 +1151,183 @@ describe("Panel", () => {
       settings.lazyRowsRendering = prevLazyRowsRendering;
       settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
       createdDivs.forEach(div => div?.remove());
+    }
+  });
+
+  // A lazy survey whose rows live in real divs under document.body. With a container, the rows are inside a
+  // scrolling div; without one, the document element scrolls and the rows listen on window.
+  // A row div is offscreen until showRow() makes it visible.
+  function createLazyRowsFixture(useContainer: boolean) {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+        { type: "text", name: "q3" },
+        { type: "text", name: "q4" }
+      ]
+    });
+    survey.lazyRenderEnabled = true;
+    const page = survey.currentPage;
+    const docEl = document.documentElement;
+    const container = document.createElement("div");
+    const rootElement = document.createElement("div");
+    const pageDiv = document.createElement("div");
+    pageDiv.id = page.id;
+    rootElement.appendChild(pageDiv);
+    if (useContainer) {
+      container.style.overflowY = "auto";
+      Object.defineProperty(container, "scrollHeight", { configurable: true, value: 5000 });
+      Object.defineProperty(container, "clientHeight", { configurable: true, value: 500 });
+      container.appendChild(rootElement);
+      document.body.appendChild(container);
+    } else {
+      Object.defineProperty(docEl, "scrollHeight", { configurable: true, value: 5000 });
+      Object.defineProperty(docEl, "clientHeight", { configurable: true, value: 500 });
+      document.body.appendChild(rootElement);
+    }
+    survey.rootElement = rootElement;
+    const visibleDivs: Array<HTMLElement> = [];
+    const rowDivs = page.rows.map((row, index) => {
+      const div = document.createElement("div");
+      Object.defineProperty(div, "offsetHeight", { configurable: true, value: 50 });
+      div.getBoundingClientRect = () => {
+        const top = visibleDivs.indexOf(div) > -1 ? 100 : 10000 + index * 100;
+        return <any>{ top: top, bottom: top + 50, height: 50 };
+      };
+      pageDiv.appendChild(div);
+      return div;
+    });
+    return {
+      survey, page, container, rowDivs,
+      startRows: () => page.rows.forEach((row, index) => row.startLazyRendering(rowDivs[index])),
+      showRow: (index: number) => { visibleDivs.push(rowDivs[index]); },
+      dispose: () => {
+        page.rows.forEach(row => row.stopLazyRendering());
+        rootElement.remove();
+        container.remove();
+        delete (<any>docEl).scrollHeight;
+        delete (<any>docEl).clientHeight;
+      }
+    };
+  }
+  function runLazyRowsTest(useContainer: boolean, func: (fixture: ReturnType<typeof createLazyRowsFixture>) => void) {
+    const prevStartRow = settings.lazyRowsRenderingStartRow;
+    settings.lazyRowsRenderingStartRow = 0;
+    vi.useFakeTimers();
+    let fixture: ReturnType<typeof createLazyRowsFixture>;
+    try {
+      fixture = createLazyRowsFixture(useContainer);
+      func(fixture);
+    } finally {
+      fixture?.dispose();
+      vi.useRealTimers();
+      settings.lazyRowsRenderingStartRow = prevStartRow;
+    }
+  }
+  test("activateLazyRenderingChecks renders a row that listens on window", () => {
+    runLazyRowsTest(false, ({ page, rowDivs, startRows, showRow }) => {
+      startRows();
+      const row = page.rows[2];
+      expect(row["_scrollableParent"], "the row listens on window").toBe(window);
+      vi.advanceTimersByTime(10);
+      expect(row.isNeedRender, "offscreen after initialization").toBe(false);
+      showRow(2);
+      activateLazyRenderingChecks(rowDivs[2]);
+      vi.advanceTimersByTime(9);
+      expect(row.isNeedRender, "not before 10 ms").toBe(false);
+      vi.advanceTimersByTime(1);
+      expect(row.isNeedRender, "rendered after 10 ms").toBe(true);
+      expect(page.rows[3].isNeedRender, "the offscreen row stays a skeleton").toBe(false);
+    });
+  });
+  test("activateLazyRenderingChecks dispatches on a scrolling container and renders its row", () => {
+    runLazyRowsTest(true, ({ page, container, rowDivs, startRows, showRow }) => {
+      startRows();
+      const row = page.rows[2];
+      expect(row["_scrollableParent"], "the row listens on the container").toBe(container);
+      let containerEvents = 0;
+      let windowEvents = 0;
+      const onContainerScroll = () => containerEvents++;
+      const onWindowScroll = () => windowEvents++;
+      container.addEventListener("scroll", onContainerScroll);
+      window.addEventListener("scroll", onWindowScroll);
+      try {
+        vi.advanceTimersByTime(10);
+        expect(row.isNeedRender, "offscreen after initialization").toBe(false);
+        showRow(2);
+        activateLazyRenderingChecks(rowDivs[2]);
+        vi.advanceTimersByTime(9);
+        expect(row.isNeedRender, "not before 10 ms").toBe(false);
+        vi.advanceTimersByTime(1);
+        expect(row.isNeedRender, "rendered after 10 ms").toBe(true);
+        expect(containerEvents, "the container gets the event").toBe(1);
+        expect(windowEvents, "window does not get the event").toBe(0);
+      } finally {
+        container.removeEventListener("scroll", onContainerScroll);
+        window.removeEventListener("scroll", onWindowScroll);
+      }
+    });
+  });
+  test("activateLazyRenderingChecks dispatches on window, not on the document element, when the page scrolls", () => {
+    runLazyRowsTest(false, ({ rowDivs }) => {
+      const docEl = document.documentElement;
+      let docElEvents = 0;
+      let windowEvents = 0;
+      const onDocElScroll = () => docElEvents++;
+      const onWindowScroll = () => windowEvents++;
+      docEl.addEventListener("scroll", onDocElScroll);
+      window.addEventListener("scroll", onWindowScroll);
+      try {
+        activateLazyRenderingChecks(rowDivs[0]);
+        vi.advanceTimersByTime(10);
+        expect(docElEvents, "the document element gets nothing").toBe(0);
+        expect(windowEvents, "window gets one event").toBe(1);
+      } finally {
+        docEl.removeEventListener("scroll", onDocElScroll);
+        window.removeEventListener("scroll", onWindowScroll);
+      }
+    });
+  });
+  test("Removing a question renders rows that moved into view when the page scrolls", () => {
+    runLazyRowsTest(false, ({ survey, page, startRows, showRow }) => {
+      startRows();
+      vi.advanceTimersByTime(10);
+      const row = page.rows[2];
+      expect(row.isNeedRender, "offscreen after initialization").toBe(false);
+      showRow(2);
+      survey.getQuestionByName("q1").delete();
+      expect(page.rows.indexOf(row), "the row is kept").toBe(1);
+      vi.advanceTimersByTime(9);
+      expect(row.isNeedRender, "not before 10 ms").toBe(false);
+      vi.advanceTimersByTime(1);
+      expect(row.isNeedRender, "rendered after 10 ms").toBe(true);
+    });
+  });
+  test("scrollElementToTop keeps rows suspended while scrolling and checks them after", () => {
+    const oldScrollElementToTop = SurveyElement.ScrollElementToTop;
+    try {
+      runLazyRowsTest(true, ({ survey, page, container, startRows, showRow }) => {
+        startRows();
+        vi.advanceTimersByTime(10);
+        const row = page.rows[2];
+        let renderedWhileScrolling: boolean = undefined;
+        SurveyElement.ScrollElementToTop = ((el, _, __, doneCallback) => {
+          showRow(2);
+          container.dispatchEvent(new CustomEvent("scroll"));
+          renderedWhileScrolling = row.isNeedRender;
+          doneCallback();
+        }) as any;
+        const q1 = survey.getQuestionByName("q1");
+        survey.scrollElementToTop(q1, q1, null, q1.id);
+        vi.advanceTimersByTime(100);
+        expect(page.rows[0].isNeedRender, "the target row is force-rendered").toBe(true);
+        expect(renderedWhileScrolling, "rows do not render while suspended").toBe(false);
+        expect(row.isNeedRender, "not before the check").toBe(false);
+        vi.advanceTimersByTime(10);
+        expect(row.isNeedRender, "rendered on the check after release").toBe(true);
+      });
+    } finally {
+      SurveyElement.ScrollElementToTop = oldScrollElementToTop;
     }
   });
   test("row.isNeedRender & settings.lazyRowsRenderingStartRow", () => {

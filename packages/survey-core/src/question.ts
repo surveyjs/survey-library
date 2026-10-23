@@ -2140,7 +2140,7 @@ export class Question extends SurveyElement<Question>
   }
   public get viewModeCssClass(): string {
     const css = this.survey ? this.survey.getCss() : null;
-    return css && css.expression ? css.expression : "sd-expression";
+    return css && css.view ? css.view : "sd-view";
   }
   public getCommentViewText(item?: any): string {
     let text = "";

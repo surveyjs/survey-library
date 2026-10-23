@@ -837,6 +837,7 @@ export var defaultCss = {
     onError: "sd-formbox--error"
   },
   expression: "sd-expression",
+  view: "sd-view",
   file: {
     root: "sd-file",
     rootDragging: "sd-file--dragging",

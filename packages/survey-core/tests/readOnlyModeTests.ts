@@ -349,6 +349,7 @@ describe("readOnlyMode", () => {
     RendererFactory.Instance.registerRenderer("question", "view", "sv-question-view");
     RendererFactory.Instance.registerRenderer("rating", "dropdown", "sv-rating-dropdown");
     try {
+      expect(stars.viewModeCssClass).toBe("sd-view");
       expect(stars.getComponentName()).toBe("default");
       expect(stars.itemSmallMode).toBe(true);
       expect(stars.itemStarIcon).toBe("icon-rating-star-small");

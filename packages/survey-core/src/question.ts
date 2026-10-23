@@ -31,6 +31,8 @@ import { isAnimationEnabled } from "./utils/reduced-motion";
 import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choices";
 import { Scope, ValueScope } from "./utils/scope";
 
+export const readOnlyViewEmptyText = "\u2014";
+
 export interface IConditionObject {
   name: string;
   text: string;
@@ -590,6 +592,9 @@ export class Question extends SurveyElement<Question>
     }
     if (name === "showCommentArea" || name === "showOtherItem") {
       this.initCommentFromSurvey();
+    }
+    if (name === "readOnlyMode") {
+      this.notifyViewModeChanged();
     }
     if (name === "commentPlaceholder") {
       this.resetRenderedCommentPlaceholder();
@@ -2128,6 +2133,42 @@ export class Question extends SurveyElement<Question>
   public get isDisabledAttr(): boolean {
     return this.isDesignMode || (!!this.readOnlyCallback && this.readOnlyCallback());
   }
+  public get isViewMode(): boolean {
+    return !this.isDesignMode && this.isReadOnly && this.getReadOnlyMode() === "view";
+  }
+  public get viewDisplayText(): string {
+    const value = this.getViewDisplayText();
+    if (value === undefined || value === null || value === "") return readOnlyViewEmptyText;
+    return value;
+  }
+  protected getViewDisplayText(): string {
+    const value = this.displayValue;
+    if (typeof value === "string") return value;
+    if (typeof value === "number" || typeof value === "boolean") return String(value);
+    return "";
+  }
+  public get viewModeCssClass(): string {
+    const css = this.survey ? this.survey.getCss() : null;
+    return css && css.view ? css.view : "sd-view";
+  }
+  public getCommentViewText(item?: any): string {
+    let text = "";
+    if (item && typeof (<any>this).getCommentTextAreaModel === "function") {
+      text = (<any>this).getCommentTextAreaModel(item)?.getTextValue() || "";
+    } else {
+      text = this.comment || "";
+    }
+    return text ? text : readOnlyViewEmptyText;
+  }
+  public notifyViewModeChanged(): void {
+    const value = this.isViewMode;
+    if (this.getPropertyValue("isViewMode") !== value) {
+      this.setPropertyValue("isViewMode", value);
+    }
+    this.forEachNestedElement(info => {
+      getNestedElementQuestions(info).forEach(q => q.notifyViewModeChanged());
+    }, { build: "none", visibleOnly: false });
+  }
   protected onReadOnlyChanged(): void {
     this.setPropertyValue("isInputReadOnly", this.isInputReadOnly);
     super.onReadOnlyChanged();
@@ -2136,6 +2177,7 @@ export class Question extends SurveyElement<Question>
     }
     this.updateQuestionCss();
     this.resetRenderedCommentPlaceholder();
+    this.notifyViewModeChanged();
   }
   /**
    * A Boolean expression. If it evaluates to `false`, this question becomes read-only.
@@ -3598,7 +3640,20 @@ export class Question extends SurveyElement<Question>
     this[propName] = value;
   }
   public getComponentName(): string {
+    const viewComponentName = this.getViewModeComponentName();
+    if (viewComponentName) return viewComponentName;
     return RendererFactory.Instance.getRendererByQuestion(this);
+  }
+  protected get supportsQuestionView(): boolean {
+    return true;
+  }
+  protected getViewModeComponentName(): string | undefined {
+    if (!this.isViewMode || !this.supportsQuestionView) return undefined;
+    const specific = RendererFactory.Instance.getRenderer(this.getType(), "view");
+    if (specific !== "default") return specific;
+    const common = RendererFactory.Instance.getRenderer("question", "view");
+    if (common !== "default") return common;
+    return undefined;
   }
 
   public isDefaultRendering(): boolean {
@@ -4054,6 +4109,13 @@ Serializer.addClass("question", [
   },
   { name: "errorLocation", default: "default", choices: ["default", "top", "bottom"] },
   { name: "readOnly:switch", overridingProperty: "enableIf" },
+  {
+    name: "readOnlyMode",
+    default: "default",
+    choices: ["default", "readonly", "view"],
+    dependsOn: ["readOnly"],
+    visibleIf: (obj: any) => !!obj && !!obj.readOnly
+  },
   {
     name: "validators:validators",
     baseClassName: "surveyvalidator",

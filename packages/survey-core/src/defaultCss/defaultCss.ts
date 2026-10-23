@@ -465,6 +465,7 @@ export var defaultCss = {
     rootMobile: "sd-multipletext--mobile",
     itemLabel: "sd-multipletext__item-container sd-formbox",
     itemLabelReadOnly: "sd-formbox--readonly",
+    itemLabelView: "sd-formbox--view",
     itemLabelDisabled: "sd-formbox--disabled",
     itemLabelPreview: "sd-formbox--preview",
     itemLabelOnError: "sd-formbox--error",
@@ -775,6 +776,7 @@ export var defaultCss = {
     itemFixedSize: "sd-rating__item--fixed-size",
     control: "sd-formbox sd-dropdown",
     itemSmall: "sd-rating--small",
+    rootView: "sd-rating--view",
     selectWrapper: "sv-dropdown_select-wrapper",
     controlValue: "sd-dropdown__input sd-formbox__input",
     controlDisabled: "sd-formbox--disabled",
@@ -837,6 +839,7 @@ export var defaultCss = {
     onError: "sd-formbox--error"
   },
   expression: "sd-expression",
+  view: "sd-view",
   file: {
     root: "sd-file",
     rootDragging: "sd-file--dragging",

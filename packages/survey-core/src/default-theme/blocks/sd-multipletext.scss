@@ -56,3 +56,25 @@
     margin: 0;
   }
 }
+
+.sd-multipletext__item-container.sd-formbox--view {
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+
+  &:where(:hover),
+  &:where(:focus-within) {
+    background: none;
+    box-shadow: none;
+  }
+
+  .sd-formbox__label {
+    height: auto;
+    padding: 0 calc(
+        var(--sjs2-layout-component-input-medium-label-padding-horizontal) +
+          var(--sjs2-layout-component-formbox-medium-gap)
+      ) 0 0;
+    border: none;
+  }
+}

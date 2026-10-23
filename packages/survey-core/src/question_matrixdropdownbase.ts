@@ -1134,6 +1134,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   public getType(): string {
     return "matrixdropdownbase";
   }
+  protected get supportsQuestionView(): boolean {
+    return false;
+  }
   /**
    * Specifies whether to display the table header that contains column captions.
    *

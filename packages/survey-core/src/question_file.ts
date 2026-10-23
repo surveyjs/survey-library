@@ -574,6 +574,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public getType(): string {
     return "file";
   }
+  protected get supportsQuestionView(): boolean {
+    return false;
+  }
   public getValueType(): QuestionValueType {
     return "array";
   }
@@ -864,6 +867,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     return this.allowMultiple ? "multiple" : undefined;
   }
   public get showFileDecorator(): boolean {
+    if (this.isViewMode) return false;
     const isPlayingVideo = this.isPlayingVideo;
     const showLoadingIndicator = this.showLoadingIndicator;
     return !isPlayingVideo && !showLoadingIndicator;

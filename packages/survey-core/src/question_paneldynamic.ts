@@ -671,6 +671,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public getType(): string {
     return "paneldynamic";
   }
+  protected get supportsQuestionView(): boolean {
+    return false;
+  }
   public getValueType(): QuestionValueType {
     return "array";
   }

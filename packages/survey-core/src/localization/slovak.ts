@@ -13,6 +13,50 @@ export var slovakSurveyStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Vybrať stránku",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Zoradiť podľa {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Vysoké - Nízke",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Nízke - Vysoké",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Abeceda, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Abeceda, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Najnovšie prvé",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Najstarší prvýkrát",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Zoradené podľa {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, potom do {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Zoradiť podľa",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Predvolený stav",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sort pole",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Poradie triedenia",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Pridať úroveň triedenia",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Odstráňte triedenie {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sortovacie pole {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Poradie triedenia {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Viac...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Zobraziť všetky úrovne triedenia",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Pridať nové",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Dokončené",
   // "Preview"
@@ -45,6 +89,8 @@ export var slovakSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Zodpovedané otázky {0}/{1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Otázka {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "V prieskume nie je žiadna vidieľná stránka ani otázka.",
   // "Thank you for completing the survey"

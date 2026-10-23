@@ -13,6 +13,50 @@ export var czechSurveyStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Vybrat stránku",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Seřadit podle {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Vysoké - Nízké",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Nízké - Vysoké",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Abeceda, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Abeceda, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Nejnovější poprvé",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Nejstarší první",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Seřazeno podle {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, pak do {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Seřadit podle",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Výchozí stav",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sort field",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Pořadí třídění",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Přidat úroveň třídění",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Odstraňte úroveň třídění {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sortovací pole {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Pořadí třídění {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Více...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Zobrazit všechny úrovně sortování",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Přidat nové",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Dokončit",
   // "Preview"
@@ -45,6 +89,8 @@ export var czechSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Zodpovězené otázky: {0} / {1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Otázka {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Průzkum neobsahuje žádné otázky.",
   // "Thank you for completing the survey"

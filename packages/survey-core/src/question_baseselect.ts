@@ -2858,6 +2858,7 @@ export class SelectBaseSingleInputBehavior extends QuestionSingleInputBehavior {
   // The step list follows the selection: a stored nested step whose choice got deselected falls
   // back to the question's own step; otherwise only Next/Complete need a refresh.
   public onSelectionChanged(): void {
+    this.question.resetSurveyProgressTotal();
     const q = this.getPropertyValue("singleInputQuestion");
     if (!!q && q !== this.question && this.getSingleInputQuestions().indexOf(q) < 0) {
       this.resetSingleInput();
@@ -2928,6 +2929,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase implements IChoiceS
    *
    * Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
    * @hidefor QuestionRankingModel
+   * @since 3.2.2
    */
   public get choiceShortcutsEnabled(): boolean | undefined {
     const own = this.getPropertyValueWithoutDefault("choiceShortcutsEnabled");

@@ -13,6 +13,50 @@ export var bulgarianStrings = {
   pagerTotalText: "от {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Изберете страница",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Сортирайте по {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Високо - Ниско",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Ниско - Високо",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Азбука, А - Я",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Азбука, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Най-новото първо",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Най-старият първи",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Сортирано по {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, после от {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Сортирайте по",
+  // [Auto-translated] "Default"
+  sortDefaultText: "По подразбиране",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Поле за сортиране",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Ред на сортиране",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Добавете ниво на сортиране",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Премахнете нивото на сортиране {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Сортиране на полето {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Сортирайте {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Още...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Покажи всички нива на сортиране",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Добави ново",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Край",
   // "Preview"
@@ -45,6 +89,8 @@ export var bulgarianStrings = {
   panelDynamicTabTextFormat: "Панел {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Отговорени на {0} / {1} въпроса",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Въпрос {0} на {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Анкетата не съдържа видими страници или въпроси.",
   // "Thank you for completing the survey"

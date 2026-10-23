@@ -1,5 +1,5 @@
 import { HashTable } from "../helpers";
-import { IValueGetterContext, VariableGetterContextEx } from "../conditions/conditionProcessValue";
+import { IValueGetterContext, IValueGetterNameInfo, VariableGetterContextEx } from "../conditions/conditionProcessValue";
 import { IExpressionValidationOptions } from "../base";
 import { IExpressionError } from "./expressionError";
 import type { IExpressionExecutorBase } from "./expressionExecutor";
@@ -14,7 +14,9 @@ export function setCreateExpressionExecutor(func: (expression: string) => IExpre
 export class ExpressionRunnerBase {
   private expressionExecutor: IExpressionExecutorBase;
   private variables: string[];
+  private variablesInfo: Array<IValueGetterNameInfo>;
   private containsFunc: boolean;
+  private containsNoParamsFunc: boolean;
   private runIdCounter = 0;
   public getRunId: () => number;
   public onBeforeAsyncRun: (id: number) => void;
@@ -32,7 +34,9 @@ export class ExpressionRunnerBase {
     this.expressionExecutor = createExpressionExecutor(value);
     this.expressionExecutor.onComplete = (res: any, id: number) => { this.doOnComplete(res, id); };
     this.variables = undefined;
+    this.variablesInfo = undefined;
     this.containsFunc = undefined;
+    this.containsNoParamsFunc = undefined;
   }
 
   public getVariables(): Array<string> {
@@ -41,9 +45,25 @@ export class ExpressionRunnerBase {
     }
     return this.variables;
   }
+  // The parsed parts of getVariables() for the value-change skip check, one item per variable.
+  // ValueGetter.isAnyKeyChangedCore fills it as it reaches a variable and rebuilds an item whose name differs.
+  public getVariablesInfo(): Array<IValueGetterNameInfo> {
+    if (this.variablesInfo === undefined) {
+      const vars = this.getVariables();
+      this.variablesInfo = new Array<IValueGetterNameInfo>(Array.isArray(vars) ? vars.length : 0);
+    }
+    return this.variablesInfo;
+  }
 
   public hasFunction(noParamsOnly?: boolean): boolean {
-    if (noParamsOnly === true) return !!this.expressionExecutor && this.expressionExecutor.hasFunction(true);
+    if (noParamsOnly === true) {
+      // The skip checks ask this on every value change. The answer depends only on the parsed
+      // expression, and nothing changes a parsed operand tree, so it is kept until the expression changes
+      if (this.containsNoParamsFunc === undefined) {
+        this.containsNoParamsFunc = !!this.expressionExecutor && this.expressionExecutor.hasFunction(true);
+      }
+      return this.containsNoParamsFunc;
+    }
     if (this.containsFunc === undefined) {
       this.containsFunc = this.expressionExecutor.hasFunction();
     }

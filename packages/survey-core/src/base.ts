@@ -15,7 +15,7 @@ import { IExpressionError } from "./expressions/expressionError";
 import { expressionObjectCachedValue } from "./functionsfactory";
 import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
-import { IObjectValueContext, IValueGetterContext, ValueGetter, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterNameInfo, ValueGetter, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { EventBase, Event } from "./event";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isAnimationEnabled } from "./utils/reduced-motion";
@@ -1147,9 +1147,14 @@ export class Base implements IObjectValueContext {
   protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[], isClearedKeyChanged?: boolean): boolean {
     if (!keys) return false;
     if (!!runner && runner.hasFunction(true)) return false;
-    if (vars === undefined) vars = !!runner ? runner.getVariables() : [];
+    // Names given by the caller (triggers) are parsed per check; the runner's own variables reuse its kept information
+    let varsInfo: Array<IValueGetterNameInfo>;
+    if (vars === undefined && !!runner) {
+      vars = runner.getVariables();
+      varsInfo = runner.getVariablesInfo();
+    }
     if (!Array.isArray(vars) || vars.length === 0) return false;
-    return !new ValueGetter().isAnyKeyChanged(keys, vars, isClearedKeyChanged);
+    return !new ValueGetter().isAnyKeyChangedCore(keys, vars, varsInfo, isClearedKeyChanged);
   }
   private asynExpressionHash: any;
   private doBeforeAsynRun(id: number): void {

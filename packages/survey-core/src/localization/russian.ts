@@ -13,6 +13,50 @@ export var russianSurveyStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Выбрать страницу",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Сортируйте по {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Высокий — Низкий",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Низкий — Высокий",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Алфавит, А - Я",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Алфавит, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Новейший первый",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Сначала Старейшие",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Отсортировано по {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, потом {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Сортировать по",
+  // [Auto-translated] "Default"
+  sortDefaultText: "По умолчанию",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Поле сортировки",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Порядок сортировки",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Добавить уровень сортировки",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Удалить уровень сортировки {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Сортировка поля {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Сортировка {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Ещё...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Показывать все уровни сортировки",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Добавить новое",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Готово",
   // "Preview"
@@ -45,6 +89,8 @@ export var russianSurveyStrings = {
   panelDynamicTabTextFormat: "Панель {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Oтвечено на {0}/{1} вопросов",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Вопрос {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Нет ни одного вопроса.",
   // "Thank you for completing the survey"

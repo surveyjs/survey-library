@@ -24,7 +24,7 @@
    </span>
     <SvComponent
       :is="'survey-element-title-content'"
-      v-if="!element.hasTitleActions"
+      v-if="!element.hasVisibleTitleActions"
       :element="element"
       :css="css"
     ></SvComponent>
@@ -49,7 +49,7 @@ const props = defineProps<{
 }>();
 
 const needRenderActions = computed(() => {
-  return props.element.hasTitleActions && props.renderActions !== false;
+  return props.element.hasVisibleTitleActions && props.renderActions !== false;
 });
 const keyup = (event: any) => {
   doKey2ClickUp(event);

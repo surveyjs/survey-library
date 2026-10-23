@@ -225,10 +225,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.template.addElementCallback = (element) => {
       this.addOnPropertyChangedCallback(<SurveyElement><any>element);
       this.rebuildPanels();
+      this.updateRecordsBar();
     };
     this.template.removeElementCallback = (element) => {
       this.removeOnPropertyChangedCallback(<SurveyElement><any>element);
       this.rebuildPanels();
+      this.updateRecordsBar();
     };
     this.template.onPropertyChanged.add((sender: Base, options: any) => {
       if (options.name === "title") {
@@ -391,6 +393,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   protected getFields(): Array<IDynamicDataField> {
     return this.getFieldsOfQuestions(this.template.questions);
+  }
+  protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
+    return this.getTemplateSortFieldCandidates(this.template);
   }
   protected refreshRenderedPage(): void {
     this.updateRenderedPanels();
@@ -612,9 +617,11 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   };
   private onNestedTemplateElementAdded = (element: IElement): void => {
     this.addOnPropertyChangedCallback(<SurveyElement><any>element);
+    this.updateRecordsBar();
   };
   private onNestedTemplateElementRemoved = (element: IElement): void => {
     this.removeOnPropertyChangedCallback(<SurveyElement><any>element);
+    this.updateRecordsBar();
   };
   private addOnPropertyChangedCallback(element: SurveyElement) {
     if (element.isQuestion) {
@@ -636,6 +643,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
   }
   private onTemplateElementPropertyChanged(element: any, options: any) {
+    // Before the return below: the sort bar offers the template questions without any panel too.
+    this.updateRecordsBar();
     if (this.isLoadingFromJson || this.useTemplatePanel || this.panelsCore.length == 0)
       return;
     var property = Serializer.findProperty(element.getType(), options.name);
@@ -3892,6 +3901,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
 }
 
 export class PanelDynamicSingleInputBehavior extends QuestionRecordsSingleInputBehavior<PanelModel> {
+  protected isSummaryProgressStep(): boolean {
+    return true;
+  }
   protected get panelDynamic(): QuestionPanelDynamicModel {
     return this.question as QuestionPanelDynamicModel;
   }
@@ -3929,6 +3941,9 @@ export class PanelDynamicSingleInputBehavior extends QuestionRecordsSingleInputB
   }
   private getSingleInputTitleTemplate(): string {
     return this.panelDynamic.getLocalizationString("panelDynamicTabTextFormat");
+  }
+  protected canCreateSingleInputSummary(): boolean {
+    return true;
   }
   protected createSingleInputSummary(): QuestionSingleInputSummary {
     const pd = this.panelDynamic;

@@ -1718,6 +1718,9 @@ class QuestionMatrixDynamicRenderedTable extends QuestionMatrixDropdownRenderedT
 }
 
 export class MatrixDynamicSingleInputBehavior extends MatrixDropdownBaseSingleInputBehavior {
+  protected isSummaryProgressStep(): boolean {
+    return true;
+  }
   protected get matrixDynamic(): QuestionMatrixDynamicModel {
     return this.question as QuestionMatrixDynamicModel;
   }
@@ -1728,6 +1731,9 @@ export class MatrixDynamicSingleInputBehavior extends MatrixDropdownBaseSingleIn
   }
   protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
     return this.getDynamicSingleInputQuestions(question, checkDynamic);
+  }
+  protected canCreateSingleInputSummary(): boolean {
+    return true;
   }
   protected createSingleInputSummary(): QuestionSingleInputSummary {
     const md = this.matrixDynamic;

@@ -15,6 +15,7 @@ export * from "../../src/actions/dropdown-action";
 export * from "../../src/actions/menu-list";
 export * from "../../src/utils/animation";
 export * from "../../src/utils/reduced-motion";
+export { initTooltips, tooltipAttributeName } from "../../src/utils/tooltip";
 export * from "../../src/actions/adaptive-container";
 export * from "../../src/actions/container";
 export * from "../../src/utils/dragOrClickHelper";

@@ -112,6 +112,7 @@ import { ConsoleWarnings } from "./console-warnings";
 import DefaultLightTheme from "./themes/default-light";
 import { createBoxShadowReset } from "./utils/shadow-effects";
 import { Scope } from "./utils/scope";
+import type { DynamicDataErrorOperation } from "./dynamic-data/dynamic-data-interfaces";
 
 export var DefaultTheme = DefaultLightTheme;
 
@@ -6350,7 +6351,7 @@ export class SurveyModel extends SurveyElementCore
   // ISurveyDynamicDataCallbacks: the default does nothing - survey-core writes nothing to the
   // console for an error an application is expected to handle, the way onServerValidateQuestions
   // failures are the application's business too.
-  dynamicDataError(question: IQuestion, operation: string, error: any): void {
+  dynamicDataError(question: IQuestion, operation: DynamicDataErrorOperation, error: any): void {
     this.onDynamicDataError.fire(this, { question: <Question>question, operation: operation, error: error });
   }
   /* A completion the respondent or tryComplete started waits while a records question has a write

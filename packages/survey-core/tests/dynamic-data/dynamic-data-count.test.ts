@@ -29,10 +29,14 @@ function page(length: number, extra?: { total?: number, hasMore?: boolean }): ID
   if (!!extra && extra.hasMore !== undefined) res.hasMore = extra.hasMore;
   return res;
 }
+// The answer of one read, as the list hands it to the count.
+function answer(result: IDynamicDataReadResult, skip: number, take: number, length: number) {
+  return { result: result, skip: skip, take: take, length: length };
+}
 // Commits a window read with take 10 and returns what commitWindow answered.
 function commit(counter: DynamicDataCount, skip: number, length: number,
   extra?: { total?: number, hasMore?: boolean }, filter: string = ""): number {
-  return counter.commitWindow(page(length, extra), skip, 10, length, filter);
+  return counter.commitWindow(answer(page(length, extra), skip, 10, length), filter);
 }
 // A source without a total walked to its end: 25 records, found on the third page of 10.
 function createDiscovered(filter: string = ""): DynamicDataCount {
@@ -93,7 +97,7 @@ describe("DynamicDataCount: a window commits", () => {
   });
   test("a take of 0 asks for everything from skip: any window is the end", () => {
     const counter = new DynamicDataCount();
-    counter.commitWindow(page(7), 0, 0, 7, "");
+    counter.commitWindow(answer(page(7), 0, 0, 7), "");
     expect(stateOf(counter, 0, 7).count, "#1").toBe(7);
     expect(stateOf(counter, 0, 7).isCountKnown, "#2").toBe(true);
   });
@@ -158,7 +162,7 @@ describe("DynamicDataCount: a page past the end", () => {
     const counter = new DynamicDataCount();
     commit(counter, 10, 10);
     const before = stateOf(counter, 10, 10);
-    expect(counter.stepBackPastEnd(page(0), 20, 10, 0, 2, 10, ""), "#1: not committed").toBe(true);
+    expect(counter.stepBackPastEnd(answer(page(0), 20, 10, 0), 2, 10, ""), "#1: not committed").toBe(true);
     expect(counter.retryPageIndex, "#2: one page back").toBe(1);
     expect(stateOf(counter, 10, 10), "#3: the window in force keeps its count")
       .toEqual(Object.assign({}, before, { retryPageIndex: 1 }));
@@ -166,21 +170,21 @@ describe("DynamicDataCount: a page past the end", () => {
   test("a reported total goes straight to its last page", () => {
     const counter = new DynamicDataCount();
     commit(counter, 40, 10, { total: 60 });
-    expect(counter.stepBackPastEnd(page(0, { total: 15 }), 50, 10, 0, 5, 10, ""), "#1").toBe(true);
+    expect(counter.stepBackPastEnd(answer(page(0, { total: 15 }), 50, 10, 0), 5, 10, ""), "#1").toBe(true);
     expect(counter.retryPageIndex, "#2: the last page of 15 records").toBe(1);
     expect(stateOf(counter, 40, 10).count, "#3: the total of the window in force").toBe(60);
   });
   test("a reported total of 0 retries the first page", () => {
     const counter = new DynamicDataCount();
-    expect(counter.stepBackPastEnd(page(0, { total: 0 }), 20, 10, 0, 2, 10, ""), "#1").toBe(true);
+    expect(counter.stepBackPastEnd(answer(page(0, { total: 0 }), 20, 10, 0), 2, 10, ""), "#1").toBe(true);
     expect(counter.retryPageIndex, "#2").toBe(0);
   });
   test("an empty answer that is not past the end is committed as it is", () => {
     const counter = new DynamicDataCount();
-    expect(counter.stepBackPastEnd(page(0), 0, 10, 0, 0, 10, ""), "#1: skip 0").toBe(false);
-    expect(counter.stepBackPastEnd(page(0), 20, 10, 0, 0, 10, ""), "#2: nothing to step back to").toBe(false);
-    expect(counter.stepBackPastEnd(page(0, { total: 25 }), 20, 10, 0, 2, 10, ""), "#3: in front of the total").toBe(false);
-    expect(counter.stepBackPastEnd(page(3), 20, 10, 3, 2, 10, ""), "#4: records").toBe(false);
+    expect(counter.stepBackPastEnd(answer(page(0), 0, 10, 0), 0, 10, ""), "#1: skip 0").toBe(false);
+    expect(counter.stepBackPastEnd(answer(page(0), 20, 10, 0), 0, 10, ""), "#2: nothing to step back to").toBe(false);
+    expect(counter.stepBackPastEnd(answer(page(0, { total: 25 }), 20, 10, 0), 2, 10, ""), "#3: in front of the total").toBe(false);
+    expect(counter.stepBackPastEnd(answer(page(3), 20, 10, 3), 2, 10, ""), "#4: records").toBe(false);
     expect(counter.retryPageIndex, "#5: no retry").toBeUndefined();
     expect(commit(counter, 0, 0), "#6").toBeUndefined();
     expect(stateOf(counter, 0, 0).count, "#7").toBe(0);
@@ -192,7 +196,7 @@ describe("DynamicDataCount: the retry transaction", () => {
   function createPendingRetry(): DynamicDataCount {
     const counter = new DynamicDataCount();
     commit(counter, 10, 10);
-    counter.stepBackPastEnd(page(0), 20, 10, 0, 2, 10, "");
+    counter.stepBackPastEnd(answer(page(0), 20, 10, 0), 2, 10, "");
     return counter;
   }
   test("the retry's window commits: its page is returned, and the proven end is confirmed", () => {
@@ -210,7 +214,7 @@ describe("DynamicDataCount: the retry transaction", () => {
   });
   test("a retry of a retry starts from the retry's page, not the committed one", () => {
     const counter = createPendingRetry();
-    expect(counter.stepBackPastEnd(page(0), 10, 10, 0, 2, 10, ""), "#1").toBe(true);
+    expect(counter.stepBackPastEnd(answer(page(0), 10, 10, 0), 2, 10, ""), "#1").toBe(true);
     expect(counter.retryPageIndex, "#2: page 1 answered empty too").toBe(0);
     expect(commit(counter, 0, 4), "#3").toBe(0);
     expect(stateOf(counter, 0, 4).count, "#4").toBe(4);

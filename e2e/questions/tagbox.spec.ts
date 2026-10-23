@@ -178,7 +178,8 @@ frameworks.forEach((framework) => {
       const questionHint = page.locator(".sd-tagbox__hint");
 
       await expect(popupContainer).not.toBeVisible();
-      await expect(listItems).toHaveCount(28);
+      // The list is rendered when the popup opens first; the keyboard below works without it.
+      await expect(listItems).toHaveCount(0);
       await expect(listItems.filter({ visible: true })).toHaveCount(0);
       await expect(page.locator(".sd-tagbox__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("2");
@@ -240,7 +241,8 @@ frameworks.forEach((framework) => {
       const selectedItems = page.locator(".sd-tagbox-item");
 
       await expect(popupContainer).not.toBeVisible();
-      await expect(listItems).toHaveCount(28);
+      // The list is rendered when the popup opens first; the keyboard below works without it.
+      await expect(listItems).toHaveCount(0);
       await expect(listItems.filter({ visible: true })).toHaveCount(0);
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
@@ -269,7 +271,8 @@ frameworks.forEach((framework) => {
       const questionHint = page.locator(".sd-tagbox__hint");
 
       await expect(popupContainer).not.toBeVisible();
-      await expect(listItems).toHaveCount(28);
+      // The list is rendered when the popup opens first; the keyboard below works without it.
+      await expect(listItems).toHaveCount(0);
       await expect(listItems.filter({ visible: true })).toHaveCount(0);
 
       await expect(page.locator(".sd-tagbox__filter-string-input").first()).toBeFocused();
@@ -333,7 +336,8 @@ frameworks.forEach((framework) => {
       const selectedItems = page.locator(".sd-tagbox-item");
 
       await expect(popupContainer).not.toBeVisible();
-      await expect(listItems).toHaveCount(28);
+      // The list is rendered when the popup opens first; the keyboard below works without it.
+      await expect(listItems).toHaveCount(0);
       await expect(listItems.filter({ visible: true })).toHaveCount(0);
 
       await page.keyboard.press("ArrowDown");

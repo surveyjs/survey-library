@@ -14,16 +14,22 @@
     <template v-for="item in question.getViewModeItems()" :key="item.uniqueId">
       <video
         v-if="question.contentMode === 'video'"
+        :class="question.cssClasses.image"
         :src="item.locImageLink.renderedHtml"
         :width="question.renderedImageWidth"
         :height="question.renderedImageHeight"
+        :style="{ objectFit: question.imageFit }"
+        @loadedmetadata="(event) => question.onContentLoaded(item, event)"
       ></video>
       <img
         v-else
+        :class="question.cssClasses.image"
         :src="item.locImageLink.renderedHtml"
         :alt="item.locText.renderedHtml"
         :width="question.renderedImageWidth"
         :height="question.renderedImageHeight"
+        :style="{ objectFit: question.imageFit }"
+        @load="(event) => question.onContentLoaded(item, event)"
       />
     </template>
   </div>

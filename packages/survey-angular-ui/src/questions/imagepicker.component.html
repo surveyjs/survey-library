@@ -1,8 +1,8 @@
 <div *ngIf="model.isViewMode && model.getViewModeItems().length === 0" [class]="model.viewModeCssClass" [attr.id]="model.inputId">{{ model.viewDisplayText }}</div>
 <div *ngIf="model.isViewMode && model.getViewModeItems().length > 0" [class]="model.getSelectBaseRootCss()" [attr.id]="model.inputId">
   <ng-container *ngFor="let item of model.getViewModeItems()">
-    <video *ngIf="model.contentMode === 'video'" [src]="item.locImageLink.renderedHtml" [attr.width]="model.renderedImageWidth" [attr.height]="model.renderedImageHeight"></video>
-    <img *ngIf="model.contentMode !== 'video'" [src]="item.locImageLink.renderedHtml" [alt]="item.locText.renderedHtml" [attr.width]="model.renderedImageWidth" [attr.height]="model.renderedImageHeight">
+    <video *ngIf="model.contentMode === 'video'" [class]="model.cssClasses.image" [src]="item.locImageLink.renderedHtml" [attr.width]="model.renderedImageWidth" [attr.height]="model.renderedImageHeight" [style.objectFit]="model.imageFit" (loadedmetadata)="model.onContentLoaded(item, $event)"></video>
+    <img *ngIf="model.contentMode !== 'video'" [class]="model.cssClasses.image" [src]="item.locImageLink.renderedHtml" [alt]="item.locText.renderedHtml" [attr.width]="model.renderedImageWidth" [attr.height]="model.renderedImageHeight" [style.objectFit]="model.imageFit" (load)="model.onContentLoaded(item, $event)">
   </ng-container>
 </div>
 <fieldset *ngIf="!model.isViewMode" [class]="model.getSelectBaseRootCss()" [style]="model.getContainerStyle()" #contentElement (keydown)="onKeyDown($event)">

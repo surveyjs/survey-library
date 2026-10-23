@@ -39,6 +39,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
       );
     }
     const isVideo = this.question.contentMode === "video";
+    const style: any = { objectFit: this.question.imageFit };
     return (
       <div className={this.question.getSelectBaseRootCss()} id={this.question.inputId} ref={(root) => (this.setControl(root))}>
         {items.map((item) => {
@@ -46,9 +47,30 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
           const width = this.question.renderedImageWidth;
           const height = this.question.renderedImageHeight;
           if (isVideo) {
-            return <video key={item.uniqueId} src={src} width={width} height={height} />;
+            return (
+              <video
+                key={item.uniqueId}
+                className={this.question.cssClasses.image}
+                src={src}
+                width={width}
+                height={height}
+                style={style}
+                onLoadedMetadata={(event: any) => { this.question.onContentLoaded(item, event.nativeEvent); }}
+              />
+            );
           }
-          return <img key={item.uniqueId} src={src} alt={item.locText.renderedHtml} width={width} height={height} />;
+          return (
+            <img
+              key={item.uniqueId}
+              className={this.question.cssClasses.image}
+              src={src}
+              alt={item.locText.renderedHtml}
+              width={width}
+              height={height}
+              style={style}
+              onLoad={(event: any) => { this.question.onContentLoaded(item, event.nativeEvent); }}
+            />
+          );
         })}
       </div>
     );

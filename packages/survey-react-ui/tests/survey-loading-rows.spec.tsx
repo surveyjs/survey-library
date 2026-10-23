@@ -55,4 +55,25 @@ describe("A shown page renders elements added while the survey loads", () => {
     expect(container.querySelector("[data-name='q2']"), "q2 is rendered").toBeTruthy();
     expect(container.querySelector("[data-name='q3']"), "q3 is rendered").toBeTruthy();
   });
+  it("rows that are kept are not re-mounted when the change is not batched by React", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2" },
+      { type: "text", name: "q3" }
+    ] });
+    container = document.createElement("div");
+    document.body.appendChild(container);
+    act(() => {
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.render(<SurveyReact model={survey} />, container as HTMLElement);
+    });
+    const q3El = container.querySelector("[data-name='q3']");
+    expect(q3El, "q3 is rendered").toBeTruthy();
+    // Outside act() and outside a React event handler, React 17 renders every state change at once.
+    survey.startLoadingFromJson();
+    survey.pages[0].addElement(new QuestionTextModel("q4"));
+    survey.endLoadingFromJson();
+    expect(container.querySelector("[data-name='q4']"), "q4 is rendered").toBeTruthy();
+    expect(container.querySelector("[data-name='q3']"), "q3 keeps its DOM element").toBe(q3El);
+  });
 });

@@ -4144,12 +4144,67 @@ describe("Panel rows after the survey loads with element changes", () => {
     };
     const json = getJson();
     json.gridLayoutEnabled = true;
+    const addThreeInRow = (s: SurveyModel): void => {
+      addQ2Q3(s);
+      s.pages[0].addElement(createQuestion("q4", false));
+    };
     const survey = new SurveyModel(json);
-    changeWhileLoading(survey, addQ2Q3);
+    const stateBefore = getState(survey);
+    changeWhileLoading(survey, addThreeInRow);
     const direct = new SurveyModel(json);
-    addQ2Q3(direct);
+    getState(direct);
+    addThreeInRow(direct);
+    expect(getState(direct), "the change outside loading changes the layout").not.toBe(stateBefore);
     expect(getState(survey)).toBe(getState(direct));
-    expect(rowsToText(survey.pages[0])).toBe("[q1] [pOld] [q9,q10] [q2,q3]");
+    expect(survey.pages[0].gridLayoutColumns.length, "three columns").toBe(3);
+    expect(rowsToText(survey.pages[0])).toBe("[q1] [pOld] [q9,q10] [q2,q3,q4]");
+  });
+  test("Grid layout: colSpan changed while loading, the rows are kept", () => {
+    const getState = (survey: SurveyModel): string => {
+      const page = survey.pages[0];
+      const res: any = { columns: page.gridLayoutColumns.length, styles: {} };
+      survey.getAllQuestions().forEach(el => res.styles[el.name] = el.rootStyle);
+      return JSON.stringify(res);
+    };
+    const json = getJson();
+    json.gridLayoutEnabled = true;
+    const change = (s: SurveyModel): void => { s.getQuestionByName("q9").colSpan = 2; };
+    const survey = new SurveyModel(json);
+    const rows = [].concat(survey.pages[0].rows);
+    const stateBefore = getState(survey);
+    changeWhileLoading(survey, change);
+    const direct = new SurveyModel(json);
+    getState(direct);
+    change(direct);
+    expect(getState(direct), "the change outside loading changes the layout").not.toBe(stateBefore);
+    expect(getState(survey)).toBe(getState(direct));
+    rows.forEach((row, index) => expect(survey.pages[0].rows[index], "row #" + index + " is kept").toBe(row));
+  });
+  test("Remove every element of a shown panel: visibleRows are updated", () => {
+    const survey = new SurveyModel(getJson());
+    survey.setDesignMode(true);
+    const panel = <PanelModelBase>survey.getPanelByName("pOld");
+    expect(panel.visibleRows.length, "before").toBe(1);
+    changeWhileLoading(survey, (s: SurveyModel) => { panel.removeElement(s.getQuestionByName("pq1")); });
+    expect(panel.rows.length, "rows").toBe(0);
+    expect(panel.visibleRows.length, "visibleRows").toBe(0);
+  });
+  test("visibleRows are published once, not once per kept row", () => {
+    const json: any = { elements: [] };
+    for (let i = 0; i < 20; i++) json.elements.push({ type: "text", name: "q" + i });
+    const survey = new SurveyModel(json);
+    const page = survey.pages[0];
+    const rows = [].concat(page.rows);
+    const onRowVisibleChanged = vi.spyOn(PanelModelBase.prototype, "onRowVisibleChanged");
+    try {
+      changeWhileLoading(survey, (s: SurveyModel) => { s.pages[0].addElement(createQuestion("q20")); });
+      expect(page.rows.length).toBe(21);
+      expect(page.visibleRows.length).toBe(21);
+      rows.forEach((row, index) => expect(page.visibleRows[index], "row #" + index + " is kept").toBe(row));
+      expect(onRowVisibleChanged.mock.calls.length, "onRowVisibleChanged calls").toBeLessThanOrEqual(2);
+    } finally {
+      onRowVisibleChanged.mockRestore();
+    }
   });
   test("Lazy rendering: rendered rows that are kept stay rendered", () => {
     const createSurvey = (): SurveyModel => {

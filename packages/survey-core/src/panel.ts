@@ -1492,11 +1492,27 @@ export class PanelModelBase extends SurveyElement<Question>
       start = end;
     }
     if (isChanged || rows.length !== oldRows.length) {
-      this.setArrayPropertyDirectly("rows", rows);
-      this.updateColumns();
+      this.replaceRows(oldRows, rows);
     }
     rows.forEach(row => row.updateVisible());
+    // Layout properties (colSpan, width) may have changed while loading without changing the rows.
+    this.updateColumns();
     this.elements.forEach(el => el.onFirstRendering());
+  }
+  // setArrayPropertyDirectly() calls onAddRow() after each row, and onAddRow() publishes visibleRows
+  // every time: the UI would unmount the kept rows in between (resetting their lazy rendering), and it is O(n^2).
+  // An empty array calls no callbacks at all and leaves visibleRows stale. Publish visibleRows once instead.
+  private replaceRows(oldRows: Array<QuestionRowModel>, rows: Array<QuestionRowModel>): void {
+    const keptRows = new Set<QuestionRowModel>(rows);
+    oldRows.forEach(row => {
+      if (!keptRows.has(row)) {
+        row.visibleElementsAnimation.cancel();
+        row.onVisibleChangedCallback = undefined;
+      }
+    });
+    this.setArrayPropertyDirectly("rows", rows, false);
+    rows.forEach(row => row.onVisibleChangedCallback = () => this.onRowVisibleChanged());
+    this.onRowVisibleChanged();
   }
   private isRowElements(row: QuestionRowModel, els: Array<IElement>, start: number, end: number): boolean {
     if (row.elements.length !== end - start) return false;

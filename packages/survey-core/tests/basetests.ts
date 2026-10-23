@@ -9,6 +9,7 @@ import { Action } from "../src/actions/action";
 import { findParentByClassNames } from "../src/utils/dom-utils";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionTextModel } from "../src/question_text";
+import { SurveyElement } from "../src/survey-element";
 import { settings } from "../src/settings";
 import { describe, test, expect, vi } from "vitest";
 export * from "../src/localization/german";
@@ -628,6 +629,73 @@ describe("Base", () => {
     base1.propA = 1;
     expect(updaterCallCount, "no updater calls").toBe(3);
     expect(base3.propC, "no value updates").toBe(5);
+  });
+  test("Collect dependencies: question properties outside loading are collected in order", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const base3 = new BaseTester3();
+    let updaterCallCount = 0;
+    const updater = () => {
+      base3.propC = (q.isRequired ? 1 : 0) + (q.startWithNewLine ? 2 : 0);
+      updaterCallCount++;
+    };
+
+    Base.startCollectDependencies(updater, base3, "propC");
+    updater();
+    const deps = Base.finishCollectDependencies();
+    expect(deps.dependencies.map(d => d.prop), "two dependencies in order").toEqual(["isRequired", "startWithNewLine"]);
+    expect(deps.dependencies[0].obj).toBe(q);
+    expect(deps.dependencies[1].obj).toBe(q);
+
+    expect(updaterCallCount, "first time calculation").toBe(1);
+    expect(base3.propC).toBe(2);
+    q.isRequired = true;
+    expect(updaterCallCount, "isRequired changed").toBe(2);
+    expect(base3.propC).toBe(3);
+    q.startWithNewLine = false;
+    expect(updaterCallCount, "startWithNewLine changed").toBe(3);
+    expect(base3.propC).toBe(1);
+    deps.dispose();
+  });
+  test("Collect dependencies: question properties while the survey is loading are not collected", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const base3 = new BaseTester3();
+    let updaterCallCount = 0;
+    const updater = () => {
+      base3.propC = (q.isRequired ? 1 : 0) + (q.startWithNewLine ? 2 : 0);
+      updaterCallCount++;
+    };
+
+    survey.startLoadingFromJson();
+    Base.startCollectDependencies(updater, base3, "propC");
+    updater();
+    const deps = Base.finishCollectDependencies();
+    // endLoadingFromJson starts the width-mode collection, so it must run after finishCollectDependencies
+    survey.endLoadingFromJson();
+    expect(deps.dependencies.length, "no dependencies").toBe(0);
+    q.isRequired = true;
+    expect(updaterCallCount, "not subscribed").toBe(1);
+    deps.dispose();
+  });
+  test("Property reads outside a dependency collection do not check the loading state", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const readAll = () => [q.name, q.isRequired, q.startWithNewLine, q.readOnly, q.width, q.minWidth,
+      q.maxWidth, q.indent, q.valueName, q.visibleIf];
+    readAll();
+    const getterSpy = vi.spyOn(Base.prototype, "isLoadingFromJson", "get");
+    const elementSpy = vi.spyOn(SurveyElement.prototype as any, "getIsLoadingFromJson");
+    try {
+      readAll();
+      // Before the check for a running collection, 10 reads made 20 getter calls (the question, then its survey)
+      // and 10 getIsLoadingFromJson calls
+      expect(getterSpy, "isLoadingFromJson getter").toHaveBeenCalledTimes(0);
+      expect(elementSpy, "SurveyElement.getIsLoadingFromJson").toHaveBeenCalledTimes(0);
+    } finally {
+      getterSpy.mockRestore();
+      elementSpy.mockRestore();
+    }
   });
   test("Collect dependencies automatically", () => {
     const base1 = new BaseTester1();

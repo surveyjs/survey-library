@@ -61,7 +61,18 @@
   height: auto;
   box-sizing: border-box;
   padding: var(--sjs2-spacing-x075);
-  background-clip: content-box;
+  border-radius: 0;
+  background-color: var(--sjs2-color-utility-surface-survey);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset-block: var(--sjs2-spacing-x075);
+    inset-inline: var(--sjs2-spacing-x075);
+    border-radius: var(--sjs2-radius-round);
+    background-color: var(--sjs2-color-bg-basic-tertiary);
+    pointer-events: none;
+  }
 
   .sd-progress__bar {
     height: var(--sjs2-size-x050);

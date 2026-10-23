@@ -720,8 +720,6 @@ describe("the focus kept for a read", () => {
     source.hold();
     removeUI(q, 1);
     expect(focusIndex(q), "the refill of the page is pending").toBe(1);
-    // removeRowUI focuses the next row after 10 ms, and that timer throws on a matrix disposed before it fires: it runs first.
-    await new Promise(r => setTimeout(r, 20));
     return { q: q, source: source };
   };
   kinds.forEach((kind: IKind) => {

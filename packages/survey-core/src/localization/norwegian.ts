@@ -33,6 +33,30 @@ export var norwegianSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, så ved {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sorter etter",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Default",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sorteringsfelt",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Sorteringsrekkefølge",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Legg til sorteringsnivå",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Fjern sorteringsnivå {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sorteringsfelt {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Sorteringsrekkefølge {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Mer...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Vis alle sorteringsnivåer",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Legg til nytt",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Fullfør",
   // "Preview"
@@ -65,6 +89,8 @@ export var norwegianSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Besvarte {0} / {1} spørsmål",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Spørsmål {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Det er ingen synlig side eller spørsmål i undersøkelsen.",
   // "Thank you for completing the survey"

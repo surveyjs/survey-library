@@ -442,7 +442,13 @@ export class RecordsPagingController implements ISortCriterionOwner {
      sort: a paging source that cannot sort is read whole while a sort is set (DynamicDataList). */
   public toggleSort(field: string, append?: boolean): boolean {
     if (!field) return false;
-    const newSort = this.getToggledSort(field, append);
+    return this.sortByUser(this.getToggledSort(field, append));
+  }
+  /* A sort the respondent makes - a header click (toggleSort), a pick from the sort bar. It validates
+     the page it replaces and returns false only for an error found synchronously. Not on the question:
+     the sort bar reaches it through its owner, and code sorts with sort(). */
+  public sortByUser(criteria: Array<ISortCriterion>): boolean {
+    const newSort = toPlainSort(criteria);
     if (!this.canPushToList) {
       this.setSortCore(newSort, true);
       return true;

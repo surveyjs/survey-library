@@ -33,6 +33,30 @@ export var ukrainianSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, потім {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Сортуйте за",
+  // [Auto-translated] "Default"
+  sortDefaultText: "За замовчуванням",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Поле сортування",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Порядок сортування",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Додайте рівень сортування",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Видалити рівень сортування {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Сортування поля {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Порядок сортування {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Ще...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Показати всі рівні сортування",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Додати нове",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Завершити",
   // "Preview"
@@ -65,6 +89,8 @@ export var ukrainianSurveyStrings = {
   panelDynamicTabTextFormat: "Панель {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Відповіли на {0}/{1} питань",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Питання {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Немає жодного питання.",
   // "Thank you for completing the survey"

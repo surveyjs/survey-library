@@ -1129,7 +1129,7 @@ export class Question extends SurveyElement<Question>
     if (runner.hasFunction(true)) return "func";
     const vars = runner.getVariables();
     if ((!Array.isArray(vars) || vars.length === 0)) return "const";
-    return new ValueGetter().isAnyKeyChanged(keys, vars) ? "var" : "";
+    return new ValueGetter().isAnyKeyChangedCore(keys, vars, runner.getVariablesInfo()) ? "var" : "";
   }
   // Whether an item condition of this question (a choice, row or column visibleIf / enableIf) may keep
   // its last result in the current value-change run. It follows the element rule, with one difference:
@@ -1276,6 +1276,8 @@ export class Question extends SurveyElement<Question>
     this.onParentChanged();
   }
   protected onParentChanged(): void { }
+  // The survey switched design mode at runtime (SurveyModel.setDesignMode).
+  public onDesignModeChanged(): void { }
   //#region singleInput - delegated to singleInputBehavior
   private _singleInputBehavior: QuestionSingleInputBehavior;
   public get singleInputBehavior(): QuestionSingleInputBehavior {
@@ -1314,6 +1316,15 @@ export class Question extends SurveyElement<Question>
   }
   public getSingleInputElementPos(): number {
     return this.singleInputBehavior.getSingleInputElementPos();
+  }
+  public getProgressStepCount(): number {
+    return this.singleInputBehavior.getProgressStepCount();
+  }
+  public getProgressStepIndex(): number {
+    return this.singleInputBehavior.getProgressStepIndex();
+  }
+  public resetSurveyProgressTotal(): void {
+    (<SurveyModel>this.survey)?.resetProgressTotal();
   }
   protected get isSingleInputActive(): boolean {
     return this.singleInputBehavior.isSingleInputActive;

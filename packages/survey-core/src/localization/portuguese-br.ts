@@ -35,6 +35,30 @@ export var portugueseBrSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, depois por {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Ordenar por",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Padrão",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Campo de ordenação",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Ordem de ordenação",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Adicionar nível de ordenação",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Remover o nível de ordenação {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Campo de ordenação {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Ordem de ordenação {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Mais...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Mostrar todos os níveis de tipo",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Adicionar Novo",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // [Auto-translated] "Complete"
   completeText: "Completar",
   // [Auto-translated] "Preview"
@@ -67,6 +91,8 @@ export var portugueseBrSurveyStrings = {
   panelDynamicTabTextFormat: "Painel {panelIndex}",
   // [Auto-translated] "Answered {0}/{1} questions"
   questionsProgressText: "Perguntas respondidas {0}/{1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Pergunta {0} de {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Não há página visível ou pergunta na pesquisa.",
   // "Thank you for completing the survey"

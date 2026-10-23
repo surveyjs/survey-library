@@ -211,25 +211,25 @@ frameworks.forEach(framework => {
       await page.click(".sd-file input[type=file] + div label");
       const questionRoot = page.locator(".sd-question");
 
+      // Files are read asynchronously (FileReader), so wait for the value before clearing it.
+      // Otherwise the late read appends SingleImage.jpg after clear() and the question shows 5 files.
+      await page.waitForFunction(() => (window as any).survey.getQuestionByName("file_question").value?.length === 1);
+
       await page.evaluate(() => {
         const question = (window as any).survey.getQuestionByName("file_question");
         question.allowMultiple = true;
         question.clear();
       });
+      await page.waitForFunction(() => (window as any).survey.getQuestionByName("file_question").isEmpty());
 
       await page.setInputFiles(".sd-file input", ["../../screenshots/files/Badger.png", "../../screenshots/files/Bird.png", "../../screenshots/files/Read Me.txt", "../../screenshots/files/Flamingo.png"]);
       await page.click(".sd-file input[type=file] + div label");
+      await page.waitForFunction(() => (window as any).survey.getQuestionByName("file_question").value?.length === 4);
 
       await page.evaluate(() => {
         const order = ["Badger.png", "Bird.png", "Read Me.txt", "Flamingo.png"];
         const question = (window as any).survey.getQuestionByName("file_question");
         question.value = [].concat(question.value).sort((a: any, b: any) => order.indexOf(a.name) - order.indexOf(b.name));
-      });
-
-      // Wait for the question model to rebuild fileIndexAction after the value sort
-      await page.waitForFunction(() => {
-        const question = (window as any).survey.getQuestionByName("file_question");
-        return !!(question && question.fileIndexAction);
       });
 
       await page.evaluate(() => {

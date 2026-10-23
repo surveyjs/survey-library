@@ -33,6 +33,30 @@ export var turkishSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, sonra {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sıralayın",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Varsayılan",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sıralama alanı",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Sıralama sırası",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Sıralama seviyesi ekleyin",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Sıralama seviyesini kaldır {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Alanı {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Sıralama sırası {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Daha fazla...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Tüm sıralama seviyelerini göster",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Yeni Ekle",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Tamamla",
   // "Preview"
@@ -65,6 +89,8 @@ export var turkishSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0}/{1} soru yanıtlandı",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "{0} soru {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Ankette görüntülenecek sayfa ya da soru mevcut değil.",
   // "Thank you for completing the survey"

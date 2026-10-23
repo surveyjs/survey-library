@@ -33,6 +33,30 @@ export var frenchSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, puis par {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Trier par",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Par défaut",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Champ de tri",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Ordre de tri",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Ajouter le niveau de tri",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Supprimez le niveau de tri {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Champ de tri {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Ordre de tri {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Plus...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Afficher tous les niveaux de type",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Ajouter du nouveau",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Terminer",
   // "Preview"
@@ -65,6 +89,8 @@ export var frenchSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0}/{1} question(s) répondue(s)",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Question {0} de {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Il n'y a ni page visible ni question visible dans ce questionnaire",
   // "Thank you for completing the survey"

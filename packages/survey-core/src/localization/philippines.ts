@@ -33,6 +33,30 @@ export var philippinesStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, tapos {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Ayusin ayon sa",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Default",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sort field",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Ayusin ang pagkakasunod-sunod",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Magdagdag ng antas ng pag-aayos",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Alisin ang sort level {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sort field {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Ayusin ang pagkakasunod-sunod {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Higit pa...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Ipakita ang lahat ng antas ng sort",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Magdagdag ng Bago",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Kumpleto",
   // "Preview"
@@ -65,6 +89,8 @@ export var philippinesStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Sinagot ang {0}/{1} mga tanong",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Tanong {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Ang survey ay hindi naglalaman ng anumang nakikitang elemento.",
   // "Thank you for completing the survey"

@@ -33,6 +33,30 @@ export var estonianSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, siis {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sorteeri vastavalt",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Vaikimisi",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sorteerimisväli",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Sorteerimise järjekord",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Lisa sorteerimistase",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Eemalda sorteerimistase {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sorteeri välja {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Sorteerimisjärjekord {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Veel...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Näita kõiki sorteerimistasemeid",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Lisa uus",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Lõpeta",
   // "Preview"
@@ -65,6 +89,8 @@ export var estonianSurveyStrings = {
   panelDynamicTabTextFormat: "Paneel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Vastatud {0} küsimust {1}-st",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Küsimus {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Selles uuringus ei ole ühtki nähtavat lehekülge või küsimust.",
   // "Thank you for completing the survey"

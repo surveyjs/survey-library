@@ -161,6 +161,7 @@ export {
 export { property, propertyArray } from "../../src/decorators";
 export { QuestionRecordsModel } from "../../src/question_records";
 export { QuestionRecordsBar } from "../../src/question_records_bar";
+export { RecordsSortDialogModel } from "../../src/records/records-sort-dialog";
 export {
   IMatrixDropdownData,
   MatrixDropdownCell,

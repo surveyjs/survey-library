@@ -5,6 +5,7 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionCommentModel } from "../src/question_comment";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionBooleanModel } from "../src/question_boolean";
+import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionMatrixModel } from "../src/question_matrix";
@@ -262,6 +263,36 @@ describe("readOnlyMode", () => {
     expect(file.getComponentName()).toBe("default");
     expect(file.showFileDecorator).toBe(false);
     expect(file.viewDisplayText).toBe("\u2014");
+  });
+
+  test("stars and smileys in view mode drop min and max labels and stay left aligned", () => {
+    const survey = new SurveyModel({
+      readOnly: true,
+      readOnlyMode: "view",
+      elements: [
+        { type: "rating", name: "stars", rateType: "stars", minRateDescription: "Bad", maxRateDescription: "Good", defaultValue: 3 },
+        { type: "rating", name: "smileys", rateType: "smileys", minRateDescription: "Bad", maxRateDescription: "Good", defaultValue: 4 },
+        { type: "rating", name: "labels", rateType: "labels", minRateDescription: "Bad", maxRateDescription: "Good", defaultValue: 2 }
+      ]
+    });
+    const stars = <QuestionRatingModel>survey.getQuestionByName("stars");
+    const smileys = <QuestionRatingModel>survey.getQuestionByName("smileys");
+    const labels = <QuestionRatingModel>survey.getQuestionByName("labels");
+    expect(stars.hasMinLabel).toBe(false);
+    expect(stars.hasMaxLabel).toBe(false);
+    expect(stars.ratingRootCss).toContain("sd-rating--view");
+    expect(smileys.hasMinLabel).toBe(false);
+    expect(smileys.hasMaxLabel).toBe(false);
+    expect(smileys.ratingRootCss).toContain("sd-rating--view");
+    expect(labels.hasMinLabel).toBe(true);
+    expect(labels.ratingRootCss).not.toContain("sd-rating--view");
+
+    const editable = new SurveyModel({
+      elements: [{ type: "rating", name: "stars", rateType: "stars", minRateDescription: "Bad", maxRateDescription: "Good" }]
+    });
+    const editableStars = <QuestionRatingModel>editable.getQuestionByName("stars");
+    expect(editableStars.hasMinLabel).toBe(true);
+    expect(editableStars.ratingRootCss).not.toContain("sd-rating--view");
   });
 
   test("changing the survey mode updates nested questions", () => {

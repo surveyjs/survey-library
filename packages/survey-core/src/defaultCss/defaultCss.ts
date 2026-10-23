@@ -776,6 +776,7 @@ export var defaultCss = {
     itemFixedSize: "sd-rating__item--fixed-size",
     control: "sd-formbox sd-dropdown",
     itemSmall: "sd-rating--small",
+    rootView: "sd-rating--view",
     selectWrapper: "sv-dropdown_select-wrapper",
     controlValue: "sd-dropdown__input sd-formbox__input",
     controlDisabled: "sd-formbox--disabled",

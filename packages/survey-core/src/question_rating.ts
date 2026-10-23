@@ -702,9 +702,11 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
     return this.getPropertyValue("hasMaxRateDescription", undefined, () => !!this.maxRateDescription);
   }
   get hasMinLabel(): boolean {
+    if (this.isCompactIconView) return false;
     return !this.displayRateDescriptionsAsExtremeItems && !!this.hasMinRateDescription;
   }
   get hasMaxLabel(): boolean {
+    if (this.isCompactIconView) return false;
     return !this.displayRateDescriptionsAsExtremeItems && !!this.hasMaxRateDescription;
   }
 
@@ -909,7 +911,8 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
       hasLabel && this.rateDescriptionLocation == "top" && this.cssClasses.rootLabelsTop,
       hasLabel && this.rateDescriptionLocation == "bottom" && this.cssClasses.rootLabelsBottom,
       hasLabel && this.rateDescriptionLocation == "topBottom" && this.cssClasses.rootLabelsDiagonal,
-      this.itemSmallMode && this.rateType != "labels" && this.cssClasses.itemSmall
+      this.itemSmallMode && this.rateType != "labels" && this.cssClasses.itemSmall,
+      this.isCompactIconView && this.cssClasses.rootView
     );
   }
 

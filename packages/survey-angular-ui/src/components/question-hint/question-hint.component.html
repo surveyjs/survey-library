@@ -1,0 +1,9 @@
+<div *ngIf="question.getKeyboardHints().length" class="sd-question__keyboard-hints" aria-hidden="true">
+  <span *ngFor="let hint of question.getKeyboardHints(); let hintIndex = index" class="sd-question__keyboard-hint">
+    <ng-container *ngFor="let key of hint.keys; let keyIndex = index">
+      <span *ngIf="keyIndex > 0" class="sd-question__keyboard-hint-or">{{ question.getLocalizationString('keyboardHintOrText') }}</span>
+      <span class="sd-item__shortcut-key">{{ key.label }}</span>
+    </ng-container>
+    <span class="sd-question__keyboard-hint-text">{{ hint.text }}</span>
+  </span>
+</div>

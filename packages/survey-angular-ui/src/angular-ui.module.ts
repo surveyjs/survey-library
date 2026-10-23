@@ -108,6 +108,7 @@ import { ExpressionComponent } from "./questions/expression.component";
 import { ImageQuestionComponent } from "./questions/image.component";
 import { BrandInfoComponent } from "./components/brand-info/brand-info.component";
 import { QuestionErrorComponent } from "./components/question-error/question-error.component";
+import { QuestionHintComponent } from "./components/question-hint/question-hint.component";
 import { CustomQuestionComponent } from "./questions/custom.component";
 import { CompositeQuestionComponent } from "./questions/composite.component";
 import { SurveyContentComponent } from "./survey-content.component";
@@ -153,7 +154,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     SurveyHeaderComponent, ProgressDefaultComponent, ProgressButtonsComponent, ProgressTocComponent, MatrixQuestionComponent, SvgIconComponent, FileQuestionComponent, SafeUrlPipe, SafeHtmlPipe, CommentQuestionComponent, SignaturePadQuestionComponent, ErrorsComponent,
     MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, RankingItemContentComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent,
     MatrixCellComponent, MatrixDropdownCellComponent, MatrixTableComponent, MatrixDropdownComponent,
-    MatrixDynamicComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, MatrixHeaderSortButtonComponent, ExpressionComponent, SafeResourceUrlPipe, BrandInfoComponent, QuestionErrorComponent,
+    MatrixDynamicComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, MatrixHeaderSortButtonComponent, ExpressionComponent, SafeResourceUrlPipe, BrandInfoComponent, QuestionErrorComponent, QuestionHintComponent,
     CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupItemComponent, ButtonGroupQuestionComponent, MatrixRowComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent,
     NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, ChooseFileBtn, FilePreviewComponent, SvgBundleComponent, FileItemComponent, FilePageComponent,
     BreadcrumbsComponent, SingleInputSummaryComponent, MatrixDynamicPlaceholderComponent, PanelDynamicPlaceholderComponent, ImageMapQuestionComponent, SvgIconRegisteredComponent
@@ -167,6 +168,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     TextAreaComponent,
     QuestionSkeletonComponent, ScrollComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     CharacterCounterComponent,
+    QuestionHintComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
     PopupComponent, PopupBaseContainerComponent, PopupPointerComponent, PopupCloseButtonComponent,
     CharacterCounterComponent, ListComponent, ListItemComponent, ListItemContentComponent, ListItemGroupComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,

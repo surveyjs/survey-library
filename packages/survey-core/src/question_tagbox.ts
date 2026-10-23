@@ -1,4 +1,6 @@
 import { Serializer } from "./jsonobject";
+import { keyboardHint, keyboardHintAdvanceText, keyboardHintKey, IKeyboardHint } from "./keyboard-hints";
+import { SurveyModel } from "./survey";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
@@ -157,6 +159,23 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
   @property({ localizable: { defaultStr: true } }) placeholder: string;
   public getType(): string {
     return "tagbox";
+  }
+  protected getKeyboardHintsCore(): IKeyboardHint[] {
+    const survey = this.survey as SurveyModel;
+    const rows = [
+      keyboardHint(this, "keyboardHintOpenText", [keyboardHintKey("arrowDown", true)]),
+      keyboardHint(this, "keyboardHintNavigateText", [keyboardHintKey("arrowsVertical", true)]),
+      keyboardHint(this, "keyboardHintCloseText", [keyboardHintKey("esc", true)])
+    ];
+    if (this.dropdownListModelValue?.popupModel?.isVisible === true) {
+      rows.push(keyboardHint(this, "keyboardHintSelectText", [
+        keyboardHintKey("space", true),
+        keyboardHintKey("enter", true)
+      ]));
+    } else if (survey.autoAdvanceEnabled === true) {
+      rows.push(keyboardHint(this, keyboardHintAdvanceText(this), [keyboardHintKey("enter", !this.isEmpty())]));
+    }
+    return rows;
   }
   public supportMultipleComment(item: ItemValue): boolean { return this.isOtherValue(item.value); }
   public get a11yInputAriaRole(): string | null {

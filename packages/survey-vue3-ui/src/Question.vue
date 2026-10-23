@@ -99,6 +99,7 @@
       />
     </div>
   </div>
+  <SvComponent :is="'sv-question-hint'" :question="element" />
 </template>
 
 <script lang="ts">

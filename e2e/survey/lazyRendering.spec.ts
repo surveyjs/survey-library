@@ -326,5 +326,32 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(50);
       expect(await page.locator(".sv-skeleton-element").count()).toBe(0);
     });
+    // survey-js-ui renders the survey into a shadow root whose host does not scroll, so no skeletons appear.
+    (framework == "survey-js-ui" ? test.skip : test)("Check lazy rendering when no container with restricted height and questions above are removed", async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await page.evaluate(() => {
+        window["Survey"].settings.lazyRender.enabled = true;
+      });
+      const json = { elements: <Array<any>>[] };
+      for (let i = 0; i < 30; i++) {
+        json.elements.push({ type: "text", name: "question" + (i + 1) });
+      }
+      await initSurvey(page, framework, json);
+      await page.waitForTimeout(500);
+      const firstSkeletonId = await page.locator(".sv-skeleton-element").first().getAttribute("id");
+      expect(firstSkeletonId).toBeTruthy();
+      const removedCount = await page.evaluate((skeletonId) => {
+        const survey = window["survey"];
+        const questions = survey.getAllQuestions();
+        const index = questions.findIndex(q => q.id === skeletonId);
+        questions.slice(0, index).forEach(q => q.delete());
+        return index;
+      }, firstSkeletonId);
+      expect(removedCount).toBeGreaterThan(0);
+      expect(await page.evaluate(() => window.scrollY)).toBe(0);
+      await page.waitForTimeout(500);
+      await expect(page.locator(`.sv-skeleton-element[id="${firstSkeletonId}"]`)).toHaveCount(0);
+      await expect(page.locator(`[id="${firstSkeletonId}"]`)).toHaveCount(1);
+    });
   });
 });

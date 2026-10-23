@@ -809,21 +809,20 @@ export class Base implements IObjectValueContext {
       this.setPropertyValue(name, undefined);
     }
   }
-  private doNotSerializeEmptyProperty(prop: JsonObjectProperty): boolean {
-    return this.isPropertyStoredInHash(prop.name);
-  }
   protected isPropertyStoredInHash(name: string): boolean {
     return false;
   }
   public getIsSerializablePropertyEmpty(prop: JsonObjectProperty): boolean {
-    const orgObj = this.getOriginalByProperty(prop.name);
+    const name = prop.name;
+    // Every getOriginalByProperty returns this object when it is its own original.
+    const orgObj = this.getOriginalObj() === this ? this : this.getOriginalByProperty(name);
     if (prop.isLocalizable && !prop.isMultipleText) {
       // getOriginalByProperty can return a wrapper. The value for a question-level
       // loc string (description, requiredErrorText) stays on this object.
-      const locStr = this.getLocalizableString(prop.name) || orgObj !== this && orgObj.getLocalizableString(prop.name);
+      const locStr = this.getLocalizableString(name) || orgObj !== this && orgObj.getLocalizableString(name);
       return !locStr;
     }
-    if (orgObj === this && this.doNotSerializeEmptyProperty(prop)) return this.getPropertyValueWithoutDefault(prop.name) == undefined;
+    if (orgObj === this && this.isPropertyStoredInHash(name)) return this.getPropertyValueWithoutDefault(name) == undefined;
     return false;
   }
   public getOriginalObj(): Base {

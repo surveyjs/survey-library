@@ -191,11 +191,16 @@ export class Dependencies {
   }
   dependencies: Array<{ obj: Base, prop: string, id: string }> = [];
   id: string = "" + (++Dependencies.DependenciesCount);
+  // Keys of "dependencies" (uniqueId + "|" + property): an updater can read thousands of properties,
+  // and scanning the array for a duplicate on every read is O(N^2).
+  private dependencyKeys: Set<string> = new Set<string>();
   addDependency(target: Base, property: string): void {
     if (this.target === target && this.property === property)
       return;
-    if (this.dependencies.some(dependency => dependency.obj === target && dependency.prop === property))
+    const key = target.uniqueId + "|" + property;
+    if (this.dependencyKeys.has(key))
       return;
+    this.dependencyKeys.add(key);
 
     this.dependencies.push({
       obj: target,

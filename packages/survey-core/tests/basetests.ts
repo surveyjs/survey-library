@@ -629,6 +629,89 @@ describe("Base", () => {
     expect(updaterCallCount, "no updater calls").toBe(3);
     expect(base3.propC, "no value updates").toBe(5);
   });
+  class BaseTester5 extends Base {
+  @property({ defaultValue: 1 }) propA: number;
+  @property({ defaultValue: 2 }) propB: number;
+  }
+  const depsToArray = (updater: ComputedUpdater): Array<{ obj: Base, prop: string }> =>
+    updater["getDependencies"]().dependencies.map(d => ({ obj: d.obj, prop: d.prop }));
+  test("Collect dependencies: a property read twice is one dependency", () => {
+    const a = new BaseTester5();
+    const b = new BaseTester5();
+    const target = new BaseTester3();
+    let updaterCallCount = 0;
+    const updater = new ComputedUpdater<number>(() => {
+      updaterCallCount++;
+      return a.propA + b.propA + a.propA + a.propB;
+    });
+    target.propC = <any>updater;
+    expect(depsToArray(updater), "three dependencies in reading order").toEqual([
+      { obj: a, prop: "propA" }, { obj: b, prop: "propA" }, { obj: a, prop: "propB" }]);
+    expect(updaterCallCount, "first time calculation").toBe(1);
+    a.propA = 3;
+    expect(updaterCallCount, "a.propA changed, updater runs once").toBe(2);
+    expect(target.propC, "3 + 1 + 3 + 2").toBe(9);
+    updater.dispose();
+  });
+  test("Collect dependencies: two objects with equal names are two dependencies", () => {
+    const a = new QuestionTextModel("q");
+    const b = new QuestionTextModel("q");
+    const target = new BaseTester4();
+    let updaterCallCount = 0;
+    const updater = new ComputedUpdater<string>(() => {
+      updaterCallCount++;
+      return a.title + "," + b.title;
+    });
+    target.propC = <any>updater;
+    expect(depsToArray(updater), "name and title of both questions").toEqual([
+      { obj: a, prop: "name" }, { obj: a, prop: "title" }, { obj: b, prop: "name" }, { obj: b, prop: "title" }]);
+    expect(target.propC).toBe("q,q");
+    a.title = "A";
+    expect(updaterCallCount, "a.title changed").toBe(2);
+    expect(target.propC).toBe("A,q");
+    b.title = "B";
+    expect(updaterCallCount, "b.title changed").toBe(3);
+    expect(target.propC).toBe("A,B");
+    updater.dispose();
+  });
+  test("Collect dependencies: many dependencies", () => {
+    const objs: Array<BaseTester5> = [];
+    for (let i = 0; i < 2000; i++) objs.push(new BaseTester5());
+    const target = new BaseTester3();
+    let updaterCallCount = 0;
+    const updater = new ComputedUpdater<number>(() => {
+      updaterCallCount++;
+      let res = 0;
+      objs.forEach(o => { res += o.propA + o.propB + o.propA + o.propB; });
+      return res;
+    });
+    target.propC = <any>updater;
+    const deps = depsToArray(updater);
+    expect(deps.length, "two dependencies per object").toBe(4000);
+    expect(deps[3998], "last object propA").toEqual({ obj: objs[1999], prop: "propA" });
+    expect(deps[3999], "last object propB").toEqual({ obj: objs[1999], prop: "propB" });
+    expect(target.propC).toBe(2000 * 6);
+    objs[1999].propB = 4;
+    expect(updaterCallCount, "last object propB changed, updater runs once").toBe(2);
+    expect(target.propC).toBe(2000 * 6 + 4);
+    updater.dispose();
+    expect(objs.filter(o => o["onPropChangeFunctions"].length > 0).length, "no handlers left").toBe(0);
+    objs[0].propA = 5;
+    expect(updaterCallCount, "no updater calls after dispose").toBe(2);
+  });
+  test("Collect dependencies: survey width mode follows a late element", () => {
+    const pages: Array<any> = [];
+    for (let i = 0; i < 300; i++) pages.push({ elements: [{ type: "text", name: "q" + i }] });
+    const survey = new SurveyModel({ pages });
+    const lastPage = survey.pages[299];
+    survey.currentPage = lastPage;
+    expect(survey.calculatedWidthMode, "one question per page").toBe("static");
+    const q = lastPage.addNewQuestion("text", "q300");
+    q.startWithNewLine = false;
+    expect(survey.calculatedWidthMode, "two questions in a row on the last page").toBe("responsive");
+    lastPage.removeElement(q);
+    expect(survey.calculatedWidthMode, "the question is removed").toBe("static");
+  });
   test("Collect dependencies automatically", () => {
     const base1 = new BaseTester1();
     const base2 = new BaseTester2();

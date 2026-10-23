@@ -50,7 +50,7 @@ frameworks.forEach(framework => {
             rowCount: 0,
             maxWidth: "768px",
             minWidth: "768px",
-            width: "768px"
+            width: "792px"
           }
         ]
       });
@@ -107,7 +107,7 @@ frameworks.forEach(framework => {
             rowCount: 3,
             maxWidth: "768px",
             minWidth: "768px",
-            width: "768px"
+            width: "792px"
           },
         ]
       });
@@ -157,7 +157,7 @@ frameworks.forEach(framework => {
             removeRowText: "Remove",
             maxWidth: "800px",
             minWidth: "800px",
-            width: "800px"
+            width: "824px"
           }
         ]
       });
@@ -196,7 +196,7 @@ frameworks.forEach(framework => {
             rowCount: 3,
             maxWidth: "724px",
             minWidth: "724px",
-            width: "724px"
+            width: "748px"
           },
         ]
       });
@@ -236,7 +236,7 @@ frameworks.forEach(framework => {
             rowCount: 3,
             maxWidth: "724px",
             minWidth: "724px",
-            width: "724px"
+            width: "748px"
           },
         ]
       });

@@ -2,6 +2,7 @@
   <div
     v-if="element.renderedIsContentVisible"
     :class="element.getContainerCss()"
+    :style="element.getRootStyle()"
     :id="element.id"
     @focusin="element.focusIn()"
     @click="(event) => element.clickRootFunction && element.clickRootFunction(event)"

@@ -22,7 +22,7 @@ frameworks.forEach(framework => {
             maxRateDescription: "Completely satisfied",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px"
+            width: "732px"
           }
         ]
       });
@@ -50,7 +50,7 @@ frameworks.forEach(framework => {
             maxRateDescription: "Completely satisfied",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             defaultValue: 2,
             readOnly: true
           }
@@ -73,7 +73,7 @@ frameworks.forEach(framework => {
             rateMax: 30,
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px"
+            width: "732px"
           }
         ]
       });
@@ -96,7 +96,7 @@ frameworks.forEach(framework => {
             renderAs: "dropdown",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px"
+            width: "732px"
           }
         ]
       });
@@ -132,7 +132,7 @@ frameworks.forEach(framework => {
             ],
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px"
+            width: "732px"
           }
         ]
       });
@@ -255,7 +255,7 @@ frameworks.forEach(framework => {
             maxRateDescription: "Completely satisfied",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px"
+            width: "732px"
           }
         ]
       });
@@ -290,7 +290,7 @@ frameworks.forEach(framework => {
             maxRateDescription: "Completely satisfied",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             defaultValue: 2,
             readOnly: true
           }
@@ -316,7 +316,7 @@ frameworks.forEach(framework => {
             maxRateDescription: "Completely satisfied",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px"
+            width: "720px"
           }
         ]
       });
@@ -344,7 +344,7 @@ frameworks.forEach(framework => {
             maxRateDescription: "Completely satisfied",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px"
+            width: "732px"
           }
         ]
       });
@@ -379,7 +379,7 @@ frameworks.forEach(framework => {
             maxRateDescription: "Completely satisfied",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px"
+            width: "732px"
           }
         ]
       });
@@ -414,7 +414,7 @@ frameworks.forEach(framework => {
             maxRateDescription: "Completely satisfied",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px"
+            width: "732px"
           }
         ]
       });
@@ -450,7 +450,7 @@ frameworks.forEach(framework => {
             maxRateDescription: "Completely satisfied",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px"
+            width: "732px"
           }
         ]
       });
@@ -505,7 +505,7 @@ frameworks.forEach(framework => {
             maxRateDescription: "Completely satisfied",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             defaultValue: 2,
             readOnly: true
           }
@@ -530,7 +530,7 @@ frameworks.forEach(framework => {
             maxRateDescription: "Completely satisfied",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             isRequired: true
           },
           {
@@ -544,7 +544,7 @@ frameworks.forEach(framework => {
             maxRateDescription: "Completely satisfied",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             isRequired: true
           }
         ]

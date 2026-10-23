@@ -991,7 +991,7 @@ frameworks.forEach(framework => {
             title: "Please, specify the delivery details.",
             minWidth: "708px",
             maxWidth: "708px",
-            width: "708px",
+            width: "732px",
             elements: [
               {
                 type: "radiogroup",

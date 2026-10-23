@@ -39,6 +39,7 @@ import { HiddenAnswerTracker, IHiddenAnswerTrackerOwner, isHiddenAnswerContainer
 import { IRecordCleanupRunnerOwner, RecordCleanupRunner } from "./records/records-cleanup-runner";
 import { IRecordRemoval, IRecordTarget, IRecordTargetResolverOwner, RecordTargetResolver } from "./records/records-target-resolver";
 import { IQuestionRecordsBarOwner, IRecordsBarCssClasses, QuestionRecordsBar } from "./question_records_bar";
+import { IRecordsSortField } from "./records/records-sort-bar";
 import type { PanelModelBase } from "./panel";
 
 /* An item of the nested walk of a records question: a matrix row, or a dynamic panel's panel - not its
@@ -106,33 +107,10 @@ function getRecordNumberOf(item: QuestionRecordItem): number {
   return item.getIndex() + (!!item.data ? item.data.getRecordNumberOffset() : 0);
 }
 
-/* The question side shared by every question whose answer is a collection of records, and the
-   coordination between such a question and its record list. The list computes
-   (dynamic-data-list.ts), the question builds and renders its own rows or panels - its objects - and
-   this class is what sits between the two: it creates and disposes the list and the question-side
-   helpers, answers the changes of the list, and holds the question side of a caller-provided data
-   source - the survey-data side of a source swap, the running state and the focus kept across a
-   refill. The source itself, its capabilities and the loaded window belong to the list. It also
-   coordinates the value assignment, the loading state and the disposal with the list.
-   What the questions do with the helpers - a page leave, the validation of the records off the
-   page, the record visibility of a question that pages, the page states kept for nested questions -
-   runs here with the subclass's rules (the specialization hooks at the end): a subclass never sees
-   the page validation. Rows, panels, columns and templates are the subclasses' terms. The matrix
-   with fixed rows is one too: it defines its records itself and answers the hooks over its keyed
-   answer.
-   The list and the helpers are created on first use; dataListValue and _pageValidation never create.
-   They talk to one private owner object (helperOwner) and not to the question, so the members they
-   call never have to be public on a question.
-
-   What a source does NOT change is where the records are kept while they are being edited:
-   question.value is the loaded window, so the nested questions, the {row.x} / {panel.x} contexts,
-   validation and getFilteredData keep working on exactly the records the respondent can see. What
-   it does change is who owns them - see canSetValueToSurvey.
-   Its objects - rows or panels -, their contexts and the single-input behavior call its protected
-   members by element access (question["getItemRecordIndex"](item)). The compiler checks the
-   signature; tests/dynamic-data/internal-access.test.ts checks that the member exists. A member
-   reached this way is added to, or renamed in, that test's list. The rows and the panel items of the
-   other modules ask the protected helpers of QuestionRecordItem. */
+/**
+ * A base class for questions whose answers contain collections of records. Manages shared data, paging, and validation behavior.
+ * @since 3.2.2
+ */
 export abstract class QuestionRecordsModel extends Question {
   private _dataList: DynamicDataList;
   private _paging: RecordsPagingController;
@@ -181,6 +159,7 @@ export abstract class QuestionRecordsModel extends Question {
       get pageSize(): number { return question.pageSize; },
       get listPageSize(): number { return question.listPageSize; },
       get maxSortLevel(): number { return question.maxSortLevel; },
+      getFieldDataType: (field: string): DynamicDataFieldType => question.getSortFieldDataType(field),
       get pageIndex(): number { return question.reportedPageIndex; },
       get pageCount(): number { return question.reportedPageCount; },
       get isDesignMode(): boolean { return question.isDesignMode; },
@@ -417,6 +396,9 @@ export abstract class QuestionRecordsModel extends Question {
       this.isDataLoading = change.isLoading;
       return;
     }
+    if (change.type === "recordAdded" || change.type === "recordRemoved" || change.type === "reset") {
+      this.resetSurveyProgressTotal();
+    }
     if (change.type === "pageChanged") {
       this.followRecordIndexEvent({ kind: "pageChanged" });
       this.syncPagingState();
@@ -450,6 +432,8 @@ export abstract class QuestionRecordsModel extends Question {
     }
     if (change.type !== "reset") return;
     this.syncPagingState();
+    // An edit of a sortCriteria item re-sorts without writing the array: the sort bar follows the reset.
+    this.updateRecordsBar();
     const isRemote = list.isRemote;
     const hasView = list.hasView || isRemote || this.isPagingActive;
     if (!hasView && !this.hasMaterializedView) return;
@@ -674,7 +658,8 @@ export abstract class QuestionRecordsModel extends Question {
   /* Whether the question pages is decided by three facts, each in one place:
      - pageSize: the authored page size, 0 for none;
      - listPageSize: the size the list is to page by - 0 in single-input mode, which is its own
-       paging, and capped by maxRecordsPerPage;
+       paging, for every question of the survey and not only the current one, except in the preview;
+       capped by maxRecordsPerPage;
      - list.pageSize: the size the list pages by now; the paging helper sets it from listPageSize at
        every sync, 0 in design mode;
      and by two facts of the list: isRemoteData (a source is assigned) and isPagedBySource (the source
@@ -692,6 +677,7 @@ export abstract class QuestionRecordsModel extends Question {
        a source the list pages          >0        >0           yes          yes         yes         yes         no
        design mode                      >0        >0           no           no          no          no          no
        single-input mode                >0        0            no           no          no          no          no
+       single-input mode, preview       >0        >0           yes          yes         yes         no          no
        a filter or a sort, no paging    0         0            no           no          yes         no          no
      getMaxRecordCount lifts the page maximum whenever pageSize is set, and getRecordCountLimit only
      while the question pages: in design and single-input mode with a pageSize, maxRowCount /
@@ -1104,11 +1090,11 @@ export abstract class QuestionRecordsModel extends Question {
     write();
   }
   /* A change of the minimum or the maximum count (getRecordCountNames): the other limit and the count
-     follow, and the count expression runs again over the new limits. The type adds its own steps:
-     onMinRecordCountApplied before the count follows a new minimum, onMaxRecordCountApplied last. */
+     follow, and the count expression runs again over the new limits. The type adds its own step:
+     onMinRecordCountApplied before the count follows a new minimum. */
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
-    if (name === pagingStateKeys.pageCount) {
+    if (recordsBarInputs.indexOf(name) > -1) {
       this.updateRecordsBar();
     }
     // A push or a splice on sortCriteria: the array that raised it exists, and so does the helper.
@@ -1137,10 +1123,8 @@ export abstract class QuestionRecordsModel extends Question {
     const limit = this.getRecordCountLimitOf(names.maxCount);
     if (this.recordCount > limit)this.writeRecordCount(limit, "internal");
     this.rerunRecordCountExpression();
-    this.onMaxRecordCountApplied();
   }
   protected onMinRecordCountApplied(val: number): void { }
-  protected onMaxRecordCountApplied(): void { }
   /* The count expression of a type (rowCountExpression, panelCountExpression) over the count it sets
      (getRecordCountNames). A data source owns the number of records, so the expression is ignored
      while one is attached - including the add/remove gating it otherwise imposes. No error: a question
@@ -1174,10 +1158,12 @@ export abstract class QuestionRecordsModel extends Question {
   /* The page size the list gets: the authored one, capped by settings.maxPageSize - read on each call;
      a value that is not a positive number is no cap. Single-input mode walks every object and lists
      them in its own summary - it is its own paging - so it builds every object and the list does not
-     page. A carousel without pageSize builds every panel, as it always has; with it, it pages like
-     list and tab mode and shows one panel of the page. */
+     page. That holds for the whole mode, not only while the question is the current one: the mode
+     renders the current question only, and code that reads a question that is not current sees every
+     object. The preview renders every question and pages. A carousel without pageSize builds every
+     panel, as it always has; with it, it pages like list and tab mode and shows one panel of the page. */
   protected get listPageSize(): number {
-    if (this.isSingleInputActive) return 0;
+    if (this.isSingleInputPagingOff) return 0;
     const maxPageSize = settings.maxPageSize;
     if (typeof maxPageSize !== "number" || !(maxPageSize > 0)) return this.pageSize;
     return Math.min(this.pageSize, maxPageSize);
@@ -1228,16 +1214,33 @@ export abstract class QuestionRecordsModel extends Question {
     }
     return res;
   }
-  /* defaultRowValue / defaultPanelValue: an empty question gets recordCount copies of it. Returns
-     false when it does not apply - there is no default record value, or defaultValue is set - and the
-     question's own default value is applied instead. */
-  protected setDefaultRecordValues(defaultRecordValue: any, recordCount: number): boolean {
-    if (this.isValueEmpty(defaultRecordValue) || !this.isValueEmpty(this.defaultValue)) return false;
-    if (!this.isEmpty() || recordCount == 0) return true;
+  /* The record every new row or panel starts from: defaultRowValue, defaultPanelValue. undefined: the
+     type has none - the Multi-Select Matrix, whose default value is the question's own. */
+  protected getDefaultRecordValue(): any {
+    return undefined;
+  }
+  protected isDefaultValueEmpty(): boolean {
+    return super.isDefaultValueEmpty() && this.isValueEmpty(this.getDefaultRecordValue());
+  }
+  /* The default record: an empty question gets recordCount copies of it. It does not apply when there
+     is none, or when defaultValue is set - the question's own default value is applied instead. */
+  protected setDefaultValue(): void {
+    const defaultRecordValue = this.getDefaultRecordValue();
+    if (this.isValueEmpty(defaultRecordValue) || !this.isValueEmpty(this.defaultValue)) {
+      super.setDefaultValue();
+      return;
+    }
+    const recordCount = this.recordCount;
+    if (!this.isEmpty() || recordCount == 0) return;
     const newValue: Array<any> = [];
     for (let i = 0; i < recordCount; i++) newValue.push(defaultRecordValue);
     this.value = newValue;
-    return true;
+  }
+  // With confirmDelete on, a removal asks for a confirmation unless the record is empty or equals the default record.
+  protected isRecordToConfirmOnDelete(record: any): boolean {
+    const defaultRecordValue = this.getDefaultRecordValue();
+    return !this.isValueEmpty(record) &&
+      (this.isValueEmpty(defaultRecordValue) || !this.isTwoValueEquals(record, defaultRecordValue));
   }
   /* The records decide the page: their visibility is decided over the records, and when a flag changed
      and the page is not the one the objects hold, the objects are rebuilt - the rebuild runs the
@@ -2076,6 +2079,7 @@ export abstract class QuestionRecordsModel extends Question {
    * The effective page size is limited by the [`settings.maxPageSize`](https://surveyjs.io/form-library/documentation/api-reference/settings#maxPageSize) property.
    * @see pageIndex
    * @see pageCount
+   * @since 3.2.2
    */
   public get pageSize(): number {
     return this.getPropertyValue(pagingStateKeys.pageSize);
@@ -2094,14 +2098,23 @@ export abstract class QuestionRecordsModel extends Question {
     if (!list || !list.isRemote) return;
     return list.refresh();
   }
+  private get isSingleInputPagingOff(): boolean {
+    return !!this.singleInput?.isSingleVisibleInput && this.survey.state !== "preview";
+  }
   // Single-input mode reads every object, and nothing tells the list that it became active.
   protected syncPageSizeWithMode(): void {
     this.syncListPageSize();
+  }
+  // The survey's single-input mode or its preview started or ended: the list pages by another size.
+  protected onSurveySingleInputModeChanged(): void {
+    this.syncPageSizeWithMode();
+    super.onSurveySingleInputModeChanged();
   }
   /**
    * Gets or sets the zero-based index of the current data page containing rows or panels. Set this property to switch between data pages.
    * @see pageSize
    * @see pageCount
+   * @since 3.2.2
    */
   public get pageIndex(): number { return this.reportedPageIndex; }
   public set pageIndex(val: number) { this.paging.pageIndex = val; }
@@ -2109,6 +2122,7 @@ export abstract class QuestionRecordsModel extends Question {
    * Gets the number of data pages used to display rows or panels. Returns 1 when the question is empty or pagination is disabled.
    * @see pageSize
    * @see pageIndex
+   * @since 3.2.2
    */
   public get pageCount(): number { return this.reportedPageCount; }
   /* False while the data source answers a read without a total: the record count (rowCount,
@@ -2147,12 +2161,20 @@ export abstract class QuestionRecordsModel extends Question {
     this.paging.sort(fieldOrCriteria, direction, append);
   }
   public clearSort(): void { this.paging.clearSort(); }
-  /* What a click on a sortable header does: ascending, then descending, then not sorted. With
+  /* What a click on a sortable header does: the field's first direction - descending for a number
+     or a date field, ascending otherwise (getSortFieldDataType) - then the other one, then not sorted. With
      append the field is cycled inside the current sort instead of replacing it, which is the
      multi-field sort a modified header click makes; a new field that would go past maxSortLevel
-     replaces the last level. It validates the page it replaces. For the renderers: code sorts with
-     sort(). */
+     replaces the last level. While maxSortLevel is above 1, a field already in the sort is cycled in
+     place without append too, and the other levels stay; a field that is not sorted still replaces
+     the sort. It validates the page it replaces. For the renderers: code sorts with sort(). */
   public toggleSort(field: string, append?: boolean): boolean { return this.paging.toggleSort(field, append); }
+  /* The data type the list knows a record field by (getFields): it decides the direction a field is
+     sorted in first and how a direction is labelled. A field the list does not know is "any". */
+  public getSortFieldDataType(field: string): DynamicDataFieldType {
+    const found = this.getFields().filter((item: IDynamicDataField): boolean => item.name === field)[0];
+    return !!found && !!found.dataType ? found.dataType : "any";
+  }
   /* The sort a respondent can make: by a header click a renderer may offer (a column opts out with
      column.allowSort = false) or from the Sort by menu. It does not gate the code API - sort(),
      sortCriteria, clearSort() and toggleSort() work whatever its value: the renderers gate on
@@ -2168,19 +2190,20 @@ export abstract class QuestionRecordsModel extends Question {
     const num = Helpers.getNumber(val);
     this.setPropertyValue("maxSortLevel", num >= 1 ? Math.floor(num) : 1);
   }
-  // true, false or "auto": "auto" shows the Sort by menu only where the column headers cannot sort.
-  public get showSortMenu(): boolean | "auto" {
-    return this.getPropertyValue("showSortMenu", "auto");
+  /* The sort bar in the question header, next to the sortable column headers of a matrix. false hides
+     it and leaves the headers. Any value but false reads as true: a released JSON "auto" included. */
+  public get showSortMenu(): boolean {
+    return this.getPropertyValue("showSortMenu", true);
   }
-  public set showSortMenu(val: boolean | "auto") {
-    this.setPropertyValue("showSortMenu", val === true || val === false ? val : "auto");
+  public set showSortMenu(val: boolean) {
+    this.setPropertyValue("showSortMenu", val !== false);
   }
+  // The API's opt-in for the sort bar. Design mode, the collapse and the offered fields are the bar's (QuestionRecordsBar.showSort).
   public get isSortMenuVisible(): boolean {
-    const show = this.showSortMenu;
-    return this.allowSort === true && (show === true || show === "auto" && !this.canSortByHeaders);
+    return this.allowSort === true && this.showSortMenu;
   }
   // Whether the rendered column headers sort: paneldynamic has no headers.
-  protected get canSortByHeaders(): boolean { return false; }
+  public get canSortByHeaders(): boolean { return false; }
   /* A survey expression over the record values - the same language as visibleIf, with the record
      fields as its variables. A record that does not satisfy it has no object; the question value
      keeps every record. An empty string = no filter. It is not rowsVisibleIf / templateVisibleIf:
@@ -2189,20 +2212,114 @@ export abstract class QuestionRecordsModel extends Question {
   public get filterExpression(): string { return this.paging.filterExpression; }
   public set filterExpression(val: string) { this.paging.filterExpression = val; }
   public refreshView(): void { this.paging.refreshView(); }
-  /* The bar the renderers show under the records: the pager. Created on its first read; the question
-     keeps it current through updateRecordsBar(). */
+  /* The bar the renderers show: the pager under the records and the sort bar in the header. Created on
+     its first read; the question keeps it current through updateRecordsBar(). */
   private recordsBarValue: QuestionRecordsBar;
   public get recordsBar(): QuestionRecordsBar {
     if (!this.recordsBarValue) {
       this.recordsBarValue = new QuestionRecordsBar(this.createRecordsBarOwner());
+      this.updateSortBarLocation();
     }
     return this.recordsBarValue;
   }
-  // Nothing to do before the bar is created: it reads the current state when it is.
+  /* Nothing to do before the bar is created: it reads the current state when it is. A question that
+     allows sorting creates it, because where its sort bar goes is stored on the question
+     (sortBarLocation) and the header reads it before anything else reads the bar. */
   protected updateRecordsBar(): void {
-    if (!!this.recordsBarValue) {
-      this.recordsBarValue.update();
+    if (this.isLoadingFromJson || this.isDisposed) return;
+    if (!this.recordsBarValue && this.allowSort !== true) return;
+    this.recordsBar.update();
+    this.updateSortBarLocation();
+  }
+  /* Where the renderers mount the sort bar (recordsBar.sortActions): "header" - the header's
+     additionalTitleToolbar, at the end of the title row or under the title on a phone and with a left
+     title; "top" - above the records, while the header is not on top or on the left; "none" - while
+     the bar does not show. Stored, because the header renderers observe the question and not the
+     bar: every input of the bar and of the effective title location refreshes it through
+     updateRecordsBar(). */
+  public get sortBarLocation(): "header" | "top" | "none" {
+    return this.getPropertyValue("sortBarLocation", "none");
+  }
+  private updateSortBarLocation(): void {
+    const bar = this.recordsBarValue;
+    const location = !bar || !bar.showSort ? "none" : (this.hasTitleOnLeftTop ? "header" : "top");
+    if (location === this.sortBarLocation) return;
+    this.setPropertyValue("sortBarLocation", location);
+    // The header's modifier class follows the location; css is computed once the question renders.
+    if (!!this.survey && this.wasRendered) {
+      this.setCssHeader(this.getCssHeader(this.cssClasses));
     }
+  }
+  public get hasAdditionalTitleToolbar(): boolean {
+    return this.sortBarLocation === "header";
+  }
+  protected getAdditionalTitleToolbar(): ActionContainer | null {
+    return this.recordsBar.sortActions;
+  }
+  protected getCssHeader(cssClasses: any): string {
+    return toCssClasses(super.getCssHeader(cssClasses), this.sortBarLocation === "header" && cssClasses.headerWithSortBar);
+  }
+  /* The fields the sort bar offers, in the order the question shows them: the sortable columns of a
+     matrix, the value-sortable template questions of a dynamic panel. Computed on every read from the
+     columns or the template, which notify the bar through updateRecordsBar(). The data type is the
+     one the list registered (getFields), so the bar and the list agree. */
+  protected get sortFields(): Array<IRecordsSortField> {
+    const res: Array<IRecordsSortField> = [];
+    this.getSortFieldCandidates().forEach((item: { field: string, title: string }): void => {
+      if (!!item.field && !res.some((f: IRecordsSortField): boolean => f.field === item.field)) {
+        res.push({ field: item.field, title: item.title, dataType: this.getSortFieldDataType(item.field) });
+      }
+    });
+    return res;
+  }
+  protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
+    return [];
+  }
+  /* Every value-sortable question of a record template, nested panels included (their values live in
+     the same record), under the value name the list knows it by (getFieldsOfQuestions). A question
+     hidden in the template is left out; one a visibleIf hides in some records is not: the sort covers
+     those records too. */
+  protected getTemplateSortFieldCandidates(template: PanelModelBase): Array<{ field: string, title: string }> {
+    const res: Array<{ field: string, title: string }> = [];
+    template.questions.forEach((q: Question): void => {
+      if (!q.isValueSortable || !isVisibleInTemplate(q, template)) return;
+      res.push({ field: q.getValueName(), title: getTemplateQuestionSortTitle(q) });
+    });
+    return res;
+  }
+  // A locale change changes no sort and no property; the bar's texts and the field titles follow it.
+  public locStrsChanged(): void {
+    super.locStrsChanged();
+    this.updateRecordsBar();
+  }
+  public onSurveyLoad(): void {
+    super.onSurveyLoad();
+    this.updateRecordsBar();
+  }
+  public endLoadingFromJson(): void {
+    super.endLoadingFromJson();
+    this.updateRecordsBar();
+  }
+  /* The inherited title location: the survey, the page and every parent panel call updateElementCss(true)
+     down to their questions when their questionTitleLocation changes. */
+  public updateElementCss(reNew?: boolean): void {
+    super.updateElementCss(reNew);
+    this.updateRecordsBar();
+  }
+  // A new parent changes the title location the question inherits.
+  protected onParentChanged(): void {
+    super.onParentChanged();
+    this.updateRecordsBar();
+  }
+  /* The survey's updateElementCss walks the visible pages only: a question on a hidden page misses a
+     questionTitleLocation change made meanwhile. */
+  protected onFirstRenderingCore(): void {
+    super.onFirstRenderingCore();
+    this.updateRecordsBar();
+  }
+  public onDesignModeChanged(): void {
+    super.onDesignModeChanged();
+    this.updateRecordsBar();
   }
   /* The footer under the records: the type's own footer content (the matrix's bottom toolbar, the
      dynamic panel's progress and buttons) and the pager share one row while the pager shows. The
@@ -2231,13 +2348,29 @@ export abstract class QuestionRecordsModel extends Question {
       get isMobile(): boolean { return question.isMobile; },
       get isDisposed(): boolean { return question.isDisposed; },
       get showPager(): boolean { return question.showPager; },
+      // The sort bar: plain criteria, the offered fields and the states that hide or disable it.
+      get sortCriteria(): Array<ISortCriterion> {
+        return question.sortCriteria.map((item: ISortCriterion): ISortCriterion => ({ field: item.field, direction: item.direction }));
+      },
+      get sortFields(): Array<IRecordsSortField> { return question.sortFields; },
+      get isSortMenuVisible(): boolean { return question.isSortMenuVisible; },
+      get isDesignMode(): boolean { return question.isDesignMode; },
+      get isCollapsed(): boolean { return question.isCollapsed; },
+      get maxSortLevel(): number { return question.maxSortLevel; },
+      sortByUser: (criteria: Array<ISortCriterion>): boolean => question.paging.sortByUser(criteria),
+      getSortFieldDataType: (field: string): DynamicDataFieldType => question.getSortFieldDataType(field),
+      getLocalizationString: (strName: string): string => question.getLocalizationString(strName),
       getLocalizationFormatString: (strName: string, ...args: any[]): string => question.getLocalizationFormatString(strName, ...args),
       getLocOwner: (): ILocalizableOwner => question,
       getCssClasses: (): IRecordsBarCssClasses => {
         const css = question.cssClasses;
-        return { root: css.recordsBar, pager: css.pager, pagerPage: css.pagerPage, pagerTotal: css.pagerTotal };
+        return { root: css.recordsBar, pager: css.pager, pagerPage: css.pagerPage, pagerTotal: css.pagerTotal,
+          sortBar: css.sortBar, sortDropdown: css.sortDropdown, sortLabel: css.sortLabel, sortLevel: css.sortLevel,
+          sortDialog: css.sortDialog, sortDialogRow: css.sortDialogRow };
       },
-      createActionContainer: (): ActionContainer => question.createActionContainer()
+      createActionContainer: <T extends ActionContainer>(container?: T): T =>
+        !!container ? question.initActionContainer(container) : <T>question.createActionContainer(),
+      getRootElement: (): HTMLElement => question.survey?.rootElement
     };
   }
   /* The type's pager rule: the renderers draw the pager under the records while it is true. The bar
@@ -2735,6 +2868,10 @@ export abstract class QuestionRecordsModel extends Question {
   public runTriggers(name: string, value: any, keys?: any): void {
     super.runTriggers(name, value, keys);
     this.runComputedWrites((): void => { this.runTriggersInObjects(name, value, keys); });
+  }
+  // Forwards triggers to the questions of its rows or panels, so the survey always walks it
+  public canRunTriggers(): boolean {
+    return true;
   }
   protected abstract runTriggersInObjects(name: string, value: any, keys: any): void;
   /* A write of a record by one of its questions. A question the respondent answers (hasInput) touches
@@ -4038,7 +4175,27 @@ export function getRecordViewProperties(): Array<any> {
        grid - on the Multi-Select Matrix for good, on the dynamic types until the sort UI ships. */
     { name: "allowSort:boolean", default: false, visible: false },
     { name: "maxSortLevel:number", default: 1, minValue: 1, visible: false },
-    { name: "showSortMenu", default: "auto", choices: ["auto", true, false], visible: false }];
+    { name: "showSortMenu:boolean", default: true, visible: false }];
+}
+/* The question properties the records bar shows (updateRecordsBar): the page count of the pager; the
+   sort, the opt-ins, the level limit of "+", the collapse, the mobile mode and the states that disable the sort bar; and the
+   question's own title location and title, which decide where the sort bar goes (sortBarLocation). */
+const recordsBarInputs = [pagingStateKeys.pageCount, pagingStateKeys.sortCriteria, "allowSort", "maxSortLevel", "showSortMenu", "state",
+  "_isMobile", "isDataLoading", pagingStateKeys.isPageMovePending, "titleLocation", "title"];
+function isVisibleInTemplate(q: Question, template: PanelModelBase): boolean {
+  let el: any = q;
+  while(!!el && el !== template) {
+    if (!el.visible) return false;
+    el = el.parent;
+  }
+  return true;
+}
+/* The title the sort bar shows for a template question. The template belongs to no record, so the
+   record piping ({panel.x}, {panelIndex}, {row.x}, {rowIndex}) has nothing to resolve: the unprocessed
+   title is taken with every placeholder stripped, and the name when nothing is left. */
+function getTemplateQuestionSortTitle(q: Question): string {
+  const res = (q.locTitle.pureText || "").replace(/\{[^}]*\}/g, "").replace(/\s+/g, " ").trim();
+  return res || q.name;
 }
 /* The count properties of a type with a record count, named after its entity: rowCount, minRowCount,
    maxRowCount and rowCountExpression for "Row". A type makes one (getRecordCountNamesOf), and its
@@ -4092,6 +4249,49 @@ export abstract class QuestionRecordsSingleInputBehavior<TRecord extends ISingle
     this.recordsQuestion["addRecordFromUI"]();
   }
   protected abstract getRecords(): Array<TRecord>;
+  // A static matrix never stops on a summary. Dynamic matrix and dynamic panel do.
+  protected isSummaryProgressStep(): boolean {
+    return false;
+  }
+  public getProgressStepCount(): number {
+    const questions = this.getProgressQuestions();
+    if (!questions) return 1;
+    let count = 0;
+    for (let i = 0; i < questions.length; i++) {
+      count += this.getProgressStepCountOf(questions[i]);
+    }
+    return Math.max(1, count);
+  }
+  public getProgressStepIndex(): number {
+    const questions = this.getProgressQuestions();
+    const current = this.singleInputQuestion;
+    if (!questions || !current) return 0;
+    let offset = 0;
+    for (let i = 0; i < questions.length; i++) {
+      const q = questions[i];
+      if (q === current) return offset + (q === this.question ? 0 : q.getProgressStepIndex());
+      offset += this.getProgressStepCountOf(q);
+    }
+    return 0;
+  }
+  // undefined: nested single input is off, the question is one step at index 0.
+  private getProgressQuestions(): Array<Question> {
+    if (!this.supportNestedSingleInput()) return undefined;
+    return this.collectProgressQuestions();
+  }
+  // The question itself is the summary step: one step, not its own nested steps.
+  private getProgressStepCountOf(q: Question): number {
+    return q === this.question ? 1 : q.getProgressStepCount();
+  }
+  private collectProgressQuestions(): Array<Question> {
+    this.recordsQuestion["syncPageSizeWithMode"]();
+    const res = new Array<Question>();
+    this.getRecords().forEach(record => {
+      record.visibleQuestions.forEach(q => res.push(q));
+    });
+    if (this.isSummaryProgressStep()) res.push(this.question);
+    return res;
+  }
   // Not always a record: the lookup is also asked for the question itself and for its parents.
   protected abstract getRecordOfQuestion(question: Question): TRecord;
   protected abstract isRecordValid(record: TRecord): boolean;

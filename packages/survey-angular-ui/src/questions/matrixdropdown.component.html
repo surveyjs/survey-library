@@ -1,4 +1,7 @@
 <ng-template #template>
+    <div *ngIf="model.sortBarLocation === 'top'" [class]="model.cssClasses.sortBarTop">
+      <sv-ng-action-bar [model]="model.recordsBar.sortActions"></sv-ng-action-bar>
+    </div>
     <sv-ng-matrix-table *ngIf="model.renderedTable?.showTable" [question]="model" [table]="model.renderedTable"></sv-ng-matrix-table>
     <sv-ng-records-bar [model]="model.recordsBar"></sv-ng-records-bar>
 </ng-template>

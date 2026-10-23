@@ -93,7 +93,9 @@ export function getRowSegment(matrix: any, row: any, index: number): string {
 
 // A question's container: its parentQuestion, except for a question inside a choice of a radiogroup or
 // a checkbox. The model links that question to the select question so that the inputPerPage mode walks
-// it as a step, but its value stays at the top level of data, so its target name is its bare name. A
+// it as a step, but the select question is not a container the grammar addresses, so the path is built
+// as if the choice were not there: a bare name for a select at the top level. For a select inside a
+// dynamic panel or a matrix, the bare name does not resolve and the round trip of nameOf rejects it. A
 // choice panel carries its choice ("choiceItem"), and the choice names its owner.
 function getParentContainer(question: any): any {
   const parent = question.parentQuestion;

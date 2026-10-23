@@ -8,7 +8,7 @@ import { SurveyElement } from "./survey-element";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner, AsyncElementsRunner } from "./validator";
 import { LocalizableString } from "./localizablestring";
-import { ExpressionRunner } from "./expressions/expressionRunner";
+import { ExpressionRunner, ExpressionRunnerBase } from "./expressions/expressionRunner";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
 import { settings } from "./settings";
@@ -518,6 +518,12 @@ export class Question extends SurveyElement<Question>
   public onSurveyChoiceShortcutsEnabledChanged(): void {
     this.forEachNestedElement(info => getNestedElementQuestions(info).forEach(q => q.onSurveyChoiceShortcutsEnabledChanged()), { build: "none", visibleOnly: false });
   }
+  // The survey calls it on its questions when its single-input mode or its preview starts or ends; a
+  // container forwards it to the nested questions that exist. Not public API: the survey calls it
+  // through a cast.
+  protected onSurveySingleInputModeChanged(): void {
+    this.forEachNestedElement(info => getNestedElementQuestions(info).forEach(q => q.onSurveySingleInputModeChanged()), { build: "none", visibleOnly: false });
+  }
   protected getIsMobile(): boolean {
     return this._isMobile;
   }
@@ -550,6 +556,9 @@ export class Question extends SurveyElement<Question>
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
+    if (this.isTriggerPropertyName(name)) {
+      this.notifySurveyOnTriggersChanged();
+    }
     if (name === "validators") {
       this.resetValidationDependencies();
     }
@@ -812,6 +821,7 @@ export class Question extends SurveyElement<Question>
    * | Single-Select Matrix | `"object"` |
    * | Yes/No (Boolean) | `"boolean"` \| `"string"` \| `"number"` |
    * @hidefor QuestionImageModel, QuestionHtmlModel
+   * @since 3.1.1
    */
   public getValueType(): QuestionValueType {
     return "string";
@@ -831,6 +841,7 @@ export class Question extends SurveyElement<Question>
    * - Yes/No (Boolean)
    *
    * [Specialized questions](/form-library/documentation/customize-question-types/create-specialized-question-types) based on any of these question types also return `true`.
+   * @since 3.1.1
    */
   public isSelectQuestion(): boolean {
     return false;
@@ -840,6 +851,13 @@ export class Question extends SurveyElement<Question>
   // a voice front end, an AI agent) cannot answer such a question at all.
   public get hasPlainInput(): boolean {
     return this.hasInput;
+  }
+  /* Whether records can be ordered by this question's value: a scalar value only. It reads
+     getValueType() on every call, so it follows a type switch (multiSelect) as it happens. Not
+     hasInput: an expression has a value to sort by although nobody types it. */
+  public get isValueSortable(): boolean {
+    const type = this.getValueType();
+    return type !== "array" && type !== "object";
   }
   /**
    * Returns a page to which the question belongs and allows you to move this question to a different page.
@@ -1110,7 +1128,38 @@ export class Question extends SurveyElement<Question>
     if (runner.hasFunction(true)) return "func";
     const vars = runner.getVariables();
     if ((!Array.isArray(vars) || vars.length === 0)) return "const";
-    return new ValueGetter().isAnyKeyChanged(keys, vars) ? "var" : "";
+    return new ValueGetter().isAnyKeyChangedCore(keys, vars, runner.getVariablesInfo()) ? "var" : "";
+  }
+  // Whether an item condition of this question (a choice, row or column visibleIf / enableIf) may keep
+  // its last result in the current value-change run. It follows the element rule, with one difference:
+  // a path under a cleared value ({m.r1} once m is cleared) counts as changed, since an item condition
+  // writes no value back. The item names resolve inside this question's value first ({r1} in a matrix
+  // row reads row r1), so a change of the value, or of any container that holds it, runs them all.
+  public canSkipItemCondition(runner: ExpressionRunnerBase): boolean {
+    const survey: any = this.getSurvey();
+    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    if (!keys || this.isOwnOrContainerValueChanged(keys, survey)) return false;
+    return this.canSkipExpressionByKeys(runner, keys, undefined, true);
+  }
+  // A change inside a dynamic panel or a composite question reports the container's name only
+  private isOwnOrContainerValueChanged(keys: any, survey: any): boolean {
+    const lowerKeys: HashTable<boolean> = Object.create(null);
+    for (const key in keys) {
+      lowerKeys[key.toLowerCase()] = true;
+    }
+    let question: Question = this;
+    while(!!question) {
+      const valueName = question.getValueName();
+      if (!!valueName && lowerKeys[valueName.toLowerCase()]) return true;
+      let data: any = question.data;
+      // A dynamic panel item or a matrix row hands over to the question that holds it. The walk stops
+      // at the survey: its data getter builds the whole result object.
+      if (!!data && data !== survey && !(data instanceof Question) && data.data instanceof Question) {
+        data = data.data;
+      }
+      question = data instanceof Question && data !== question ? data : undefined;
+    }
+    return false;
   }
   public getValueGetterContext(): IValueGetterContext {
     return new QuestionValueGetterContext(this);
@@ -1154,6 +1203,30 @@ export class Question extends SurveyElement<Question>
   }
   protected addTriggerInfo(info: ITriggerExpressionInfo): void {
     this.triggersInfo.push(info);
+    this.notifySurveyOnTriggersChanged();
+  }
+  // The survey walks only the questions that answer true (SurveyModel.runQuestionsTriggers): a trigger
+  // whose property is empty runs nothing. A question that forwards triggers to nested questions overrides it.
+  public canRunTriggers(): boolean {
+    for (let i = 0; i < this.triggersInfo.length; i++) {
+      const info = this.triggersInfo[i];
+      if (!!this[info.name] || !!info.secondName && !!this[info.secondName]) return true;
+    }
+    return false;
+  }
+  private isTriggerPropertyName(name: string): boolean {
+    // Properties change in the base constructors, before the trigger infos exist
+    if (!this.triggersInfo) return false;
+    for (let i = 0; i < this.triggersInfo.length; i++) {
+      const info = this.triggersInfo[i];
+      if (info.name === name || info.secondName === name) return true;
+    }
+    return false;
+  }
+  private notifySurveyOnTriggersChanged(): void {
+    if (!!this.survey && !this.parentQuestion) {
+      this.lifecycleCallbacks.questionTriggersChanged();
+    }
   }
   public runTriggers(name: string, value: any, keys?: any): void {
     if (this.isSettingQuestionValue || (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
@@ -1202,6 +1275,8 @@ export class Question extends SurveyElement<Question>
     this.onParentChanged();
   }
   protected onParentChanged(): void { }
+  // The survey switched design mode at runtime (SurveyModel.setDesignMode).
+  public onDesignModeChanged(): void { }
   //#region singleInput - delegated to singleInputBehavior
   private _singleInputBehavior: QuestionSingleInputBehavior;
   public get singleInputBehavior(): QuestionSingleInputBehavior {
@@ -1215,11 +1290,11 @@ export class Question extends SurveyElement<Question>
   }
   public get singleInputQuestion(): Question {
     const res = this.singleInputBehavior.singleInputQuestion;
-    // A stored "self" that is not a summary step is a question at its own step (a select question with
-    // nested choice elements before its nested inputs): render the question's own content. Asked of the
-    // behavior, not of singleInputSummary: building a summary reads the parent container's css, which
-    // reads this getter again for a dynamic container nested in another one.
-    if (res === this && !this.singleInputBehavior.isSelfSummaryStep()) return undefined;
+    // A stored "self" that cannot be a summary step is a question at its own step (a select question with
+    // nested choice elements before its nested inputs): render the question's own content.
+    // canShowSelfAsSummary() is private to the behavior, not public API. It answers without building
+    // singleInputSummary, which would re-enter this getter for a dynamic container nested in another one.
+    if (res === this && !(<any>this.singleInputBehavior).canShowSelfAsSummary()) return undefined;
     return res;
   }
   public get singleInputSummary(): QuestionSingleInputSummary {
@@ -1240,6 +1315,15 @@ export class Question extends SurveyElement<Question>
   }
   public getSingleInputElementPos(): number {
     return this.singleInputBehavior.getSingleInputElementPos();
+  }
+  public getProgressStepCount(): number {
+    return this.singleInputBehavior.getProgressStepCount();
+  }
+  public getProgressStepIndex(): number {
+    return this.singleInputBehavior.getProgressStepIndex();
+  }
+  public resetSurveyProgressTotal(): void {
+    (<SurveyModel>this.survey)?.resetProgressTotal();
   }
   protected get isSingleInputActive(): boolean {
     return this.singleInputBehavior.isSingleInputActive;
@@ -2072,8 +2156,30 @@ export class Question extends SurveyElement<Question>
     properties["question"] = this;
     this.runConditionCore(properties);
     if (this.canApplyDefaultValue() && (!this.isClearValueOnHidden || this.isVisibleInSurvey)) {
-      this.runDefaultValueExpression(properties);
+      if (!this.canSkipDefaultValueExpression()) {
+        this.runDefaultValueExpression(properties);
+      }
     }
+  }
+  // The inputs and the result of the last completed default value run of the conditions pass.
+  // Copies, not references: a defaultValue or a value changed in place must count as changed.
+  private lastDefaultValueRun: { expression: string, defaultValue: any, value: any };
+  // A run in the survey's conditions pass is skipped, the way a strict-dependency visibleIf is,
+  // when no value the expression uses changed. The inputs and the question's value must also be
+  // what the last run left: a value cleared or changed by code gets the default value back.
+  private canSkipDefaultValueExpression(): boolean {
+    const lastRun = this.lastDefaultValueRun;
+    if (!lastRun || !settings.expressionQuestionTrackDependencies) return false;
+    const survey: any = this.getSurvey();
+    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    if (!keys) return false;
+    if (lastRun.expression !== this.defaultValueExpression) return false;
+    const runner = this.getExpressionByProperty("defaultValueExpression");
+    if (!runner || runner.isAsync) return false;
+    if (!Helpers.isTwoValueEquals(lastRun.defaultValue, this.defaultValue, false, true, false)) return false;
+    if (!this.isTwoValueEquals(lastRun.value, this.value)) return false;
+    // A path under a cleared value ({a.x} once a is cleared) counts as changed
+    return this.canSkipExpressionByKeys(runner, keys, undefined, true);
   }
   public get isInDesignMode(): boolean {
     return !this.isContentElement && this.isDesignMode;
@@ -2111,6 +2217,11 @@ export class Question extends SurveyElement<Question>
   }
   protected getHasTitleOnCalcNo(): boolean {
     return this.hasTitle;
+  }
+  endLoadingFromJson(): void {
+    super.endLoadingFromJson();
+    // Property changes are not reported while the JSON loads
+    this.notifySurveyOnTriggersChanged();
   }
   public onSurveyLoad(): void {
     this.isCustomWidgetRequested = false;
@@ -2659,6 +2770,8 @@ export class Question extends SurveyElement<Question>
   }
   private runDefaultValueExpression(properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
     if (!this.data) return false;
+    // Only a run of the conditions pass (no setFunc) is recorded for canSkipDefaultValueExpression
+    const isConditionsPass = !setFunc;
     if (!setFunc) {
       setFunc = (val: any): void => {
         this.runExpressionSetValue(val);
@@ -2673,6 +2786,13 @@ export class Question extends SurveyElement<Question>
       this.isChangingViaDefaultValue = true;
       setFunc(res);
       this.isChangingViaDefaultValue = false;
+      if (isConditionsPass) {
+        this.lastDefaultValueRun = {
+          expression: this.defaultValueExpression,
+          defaultValue: Helpers.getUnbindValue(this.defaultValue),
+          value: Helpers.getUnbindValue(this.value)
+        };
+      }
     });
   }
   /**

@@ -1941,7 +1941,6 @@ describe("Expression parser: nesting and error offsets", () => {
       ["1 + * 2", 4],
       ["{a} foo 1", 4],
       ["{a} = 'x", 8],
-      ["[1, 2", 5],
       ["{a} anyof [1,", 13],
       ["1 +", 3],
       ["and 1", 4],
@@ -1960,11 +1959,62 @@ describe("Expression parser: nesting and error offsets", () => {
       ["max(1, 2", "max(1, 2)"],
       ["iif(1, 2, 3", "iif(1, 2, 3)"],
       ["{a} = (1 + 2", "({a} == (1 + 2))"],
+      ["[1, 2", "[1, 2]"],
     ];
     cases.forEach(([text, expected]) => {
       const res = parseWithError(text);
       expect(res.at, text + " has no error").toBeUndefined();
       expect(res.operand.toString(), text).toBe(expected);
     });
+  });
+});
+
+describe("Expression parser: atoms and variable names", () => {
+  const parseResult = (text: string): string | number => {
+    const parser = new ConditionsParser();
+    const operand = parser.parseExpression(text);
+    return operand ? operand.toString() : parser.error.at;
+  };
+  const checkCases = (cases: Array<[string, string | number]>): void => {
+    cases.forEach(([text, expected]) => {
+      expect(parseResult(text), text).toBe(expected);
+    });
+  };
+
+  test("empty / notempty after an atom", () => {
+    checkCases([
+      ["{a} empty", "{a} empty"],
+      ["{a} notempty", "{a} notempty"],
+      ["{a}empty", "{a} empty"],
+      ["'x' empty", "'x' empty"],
+      ["1 notempty", "1 notempty"],
+      ["!{a} empty", "! {a} empty"],
+      ["negate {a} notempty", "! {a} notempty"],
+      ["{a} empty and {b} notempty", "({a} empty and {b} notempty)"],
+      ["{a} emptyx", 9],
+      ["{a} empty = true", "({a} empty == true)"],
+      ["{a.b[0]} notempty", "{a.b[0]} notempty"],
+    ]);
+    const negated = <any>new ConditionsParser().parseExpression("!{a} empty");
+    expect(negated.operator, "! applies to {a} empty").toBe("negate");
+    expect(negated.expression.operator, "empty applies to {a}").toBe("empty");
+  });
+  test("Variable names", () => {
+    checkCases([
+      ["{a}", "{a}"],
+      ["{a b}", "{a b}"],
+      ["{a.b[1].c}", "{a.b[1].c}"],
+      ["{$q.isVisible}", "{$q.isVisible}"],
+      ["{a-unwrapped}", "{a-unwrapped}"],
+      ["{ a }", "{ a }"],
+      ["{}", 1],
+      ["{a{b}", 2],
+      ["{a}}", 3],
+    ]);
+  });
+  test("An unclosed [ inside an unclosed ( is parsed in linear time", () => {
+    const start = performance.now();
+    parseResult("(1 and [".repeat(30));
+    expect(performance.now() - start).toBeLessThan(50);
   });
 });

@@ -74,9 +74,7 @@ export class QuestionSingleInputBehavior {
 
   public get singleInputSummary(): QuestionSingleInputSummary {
     return this.getPropertyValue("singleInputSummary", undefined, () => {
-      if (!this.supportNestedSingleInput()) return undefined;
-      const q = this.singleInputQuestion;
-      if (!q || q !== this.question) return undefined;
+      if (this.singleInputQuestion !== this.question || !this.canShowSelfAsSummary()) return undefined;
       const res = this.createSingleInputSummary();
       if (!!res) {
         this.calcSingleInputActions();
@@ -88,6 +86,19 @@ export class QuestionSingleInputBehavior {
 
   protected createSingleInputSummary(): QuestionSingleInputSummary {
     return undefined;
+  }
+
+  // true for the types whose createSingleInputSummary() returns a summary. Answers without building it.
+  protected canCreateSingleInputSummary(): boolean {
+    return false;
+  }
+
+  // Whether a stored "self" is a summary step that the question can show, asked without building the
+  // summary: building it reads the parent container's css, which reads Question.singleInputQuestion
+  // again for a dynamic container nested in another one. Not public API: besides singleInputSummary,
+  // its caller is Question.singleInputQuestion.
+  private canShowSelfAsSummary(): boolean {
+    return this.isSelfSummaryStep() && this.canCreateSingleInputSummary() && this.supportNestedSingleInput();
   }
 
   private get rootParentQuestion(): Question {
@@ -161,6 +172,17 @@ export class QuestionSingleInputBehavior {
   // false: a stored "self" is an ordinary first step that renders the question's own content.
   public isSelfSummaryStep(): boolean {
     return true;
+  }
+
+  public getProgressStepCount(): number {
+    return Math.max(1, this.getProgressSteps().length);
+  }
+  public getProgressStepIndex(): number {
+    return Math.max(0, this.getProgressSteps().indexOf(this.singleInputQuestion));
+  }
+  protected getProgressSteps(): Array<Question> {
+    if (!this.supportNestedSingleInput()) return [];
+    return this.getSingleInputQuestions();
   }
 
   public getSingleInputElementPos(): number {
@@ -349,7 +371,7 @@ export class QuestionSingleInputBehavior {
     return undefined;
   }
 
-  private supportNestedSingleInput(): boolean {
+  protected supportNestedSingleInput(): boolean {
     return this.survey?.supportsNestedSingleInput(this.question);
   }
 

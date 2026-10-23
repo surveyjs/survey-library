@@ -717,10 +717,7 @@ describe("interview dynamic containers in batch mode (issue #11818)", () => {
     expect(iv.data.meds[4]).toEqual({ name: "n5", dose: "d5" });
   });
 
-  // Expected to fail until OPEN 34 (prompt 23, task 3) is decided: the model turns paging off only for the
-  // container whose root is survey.currentSingleQuestion, so while "intro" is current the record lists
-  // the first page only, and the patch of position 4 writes nothing and reports no error.
-  test.fails.each(["paneldynamic", "matrixdynamic"])("A %s with pageSize lists and writes every entry while another question is current", async (type) => {
+  test.each(["paneldynamic", "matrixdynamic"])("A %s with pageSize lists and writes every entry while another question is current", async (type) => {
     const iv = await createInterview(pagedSurvey(type, true));
     expect(iv.survey.currentSingleQuestion.name).toBe("intro");
     const record = iv.getBatchDocument().items.filter(item => item.name === "meds")[0];

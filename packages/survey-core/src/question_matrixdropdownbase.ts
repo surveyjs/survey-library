@@ -1113,6 +1113,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     if (name === "columns" || name === "cellType") {
       this.updateColumnsAndRows();
+      this.updateRecordsBar();
     }
     const clearRowsProps = ["placeholder", "columnColCount", "rowTitleWidth", "choices"];
     const resetRenderTableProps = [
@@ -1192,6 +1193,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    */
   @property() columnsVisibleIf: string;
   protected onColumnsChanged(): void { }
+  /* The columns the sort bar offers: the visible columns a header click sorts by (column.isSortable),
+     in column order, under the key the cell writes. A column hidden on the current page is offered:
+     the sort covers every record. The questions of the detail panel are not offered. */
+  protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
+    return this.columns.filter((column: MatrixDropdownColumn): boolean => column.visible && column.isSortable)
+      .map((column: MatrixDropdownColumn): { field: string, title: string } => ({ field: column.sortField, title: column.title }));
+  }
   // The points where the visible rows may have changed; the fixed matrix hides itself without rows
   // (hideIfRowsEmpty).
   protected updateVisibilityBasedOnRows(): void { }
@@ -1396,7 +1404,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return this.isMobile ? true : !this.transposeData;
   }
   // The table renders a header row with one column per header.
-  protected get canSortByHeaders(): boolean {
+  public get canSortByHeaders(): boolean {
     return !this.isMobile && !!this.showHeader && !this.transposeData;
   }
   /**
@@ -1512,6 +1520,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.updateVisibilityBasedOnRows();
     this.fireCallback(this.visibleRowsChangedCallback);
     this.updateRowsVisibleIndexes();
+    this.resetSurveyProgressTotal();
   }
   private updateRowsVisibleIndexes(): void {
     const rows = this.visibleRows;
@@ -1715,6 +1724,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   onColumnPropertyChanged(column: MatrixDropdownColumn, name: string, newValue: any): void {
     this.updateHasFooter();
+    // Before the return below: the sort bar offers the columns without any row too.
+    this.updateRecordsBar();
     if (!this.generatedVisibleRows) return;
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       this.generatedVisibleRows[i].updateCellQuestionOnColumnChanged(
@@ -1765,6 +1776,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   onColumnVisibilityChanged(column: MatrixDropdownColumn): void {
     this.renderedTableHost.clearRowsAndReset();
+    this.updateRecordsBar();
   }
   onColumnCellVisibilityChanged(column: MatrixDropdownColumn): void {
     if (this.isRunningCellsCondition) return;
@@ -1774,6 +1786,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void {
     this.renderedTableHost.clearRowsAndReset();
+    this.updateRecordsBar();
   }
   getDesignRowContext(): IValueGetterContext {
     if (this.visibleRows && this.visibleRows.length > 0) return this.visibleRows[0].getValueGetterContext();
@@ -1980,6 +1993,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       !Helpers.isTwoValueEquals(prevTotalValue, this.totalValue) &&
       counter < 3
     );
+    if (isRowVisiblilityChanged) {
+      this.resetSurveyProgressTotal();
+    }
     if (isRowVisiblilityChanged && this.isClearValueOnHidden) {
       this.clearInvisibleValuesInRows();
     }
@@ -2030,6 +2046,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       }
       if (this.columnState.checkColumnsVisibility()) {
         this.resetRenderedTable(true);
+        this.resetSurveyProgressTotal();
       }
       this.columnState.checkColumnsRenderedRequired();
     } finally {

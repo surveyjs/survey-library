@@ -13,6 +13,50 @@ export var slovenianStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Izberi stran",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Razvrstite po {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Visoko - Nizko",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Nizko - Visoko",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Abeceda, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Abeceda, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Najnovejši prvi",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Najstarejši prvi",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Razvrščeno po {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, potem do {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Razvrsti po",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Privzeto",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sort polje",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Vrstni red razporejanja",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Dodaj stopnjo sortiranja",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Odstranite stopnjo sortiranja {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Polje sortiranja {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Razvrstitev {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Več...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Pokaži vse stopnje sortiranja",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Dodaj novo",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Zaključi",
   // "Preview"
@@ -45,6 +89,8 @@ export var slovenianStrings = {
   panelDynamicTabTextFormat: "Plošča {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Odgovorjeno {0}/{1} vprašanj",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Vprašanje {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Anketa ne vsebuje vidnih elementov.",
   // "Thank you for completing the survey"

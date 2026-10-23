@@ -22,6 +22,7 @@ import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
 import { RegexValidator } from "./validator";
 import { Trigger } from "./trigger";
+import type { DynamicDataErrorOperation } from "./dynamic-data/dynamic-data-interfaces";
 
 export interface QuestionEventMixin {
   /**
@@ -940,7 +941,7 @@ export interface DynamicDataErrorEvent extends QuestionEventMixin {
   // The data source operation that failed: "read", "insert", "update" or "remove". "move" and "count"
   // are only reported as refused: a matrix with a data source does not reorder its rows, and the
   // source owns the record count, so rowCount and panelCount cannot be set while it is assigned.
-  operation: string;
+  operation: DynamicDataErrorOperation;
   // The error the data source reported: whatever its promise was rejected with or its method threw.
   error: any;
 }

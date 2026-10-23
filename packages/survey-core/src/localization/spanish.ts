@@ -13,6 +13,50 @@ export var spanishSurveyStrings = {
   pagerTotalText: "de {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Seleccionar página",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Ordena por {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Alto - Bajo",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Bajo - Alto",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabeto, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabeto, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Lo más nuevo primero",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Primero el más antiguo",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Ordenado por {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, y luego por {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Ordenar por",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Default",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Campo de ordenación",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Orden de ordenación",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Añadir nivel de ordenación",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Elimina el nivel de ordenación {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Campo de ordenamiento {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Orden de orden{0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Más...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Mostrar todos los niveles de tipo",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Añadir Nuevo",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Completar",
   // "Preview"
@@ -45,6 +89,8 @@ export var spanishSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Respondió a {0}/{1} preguntas",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Pregunta {0} de {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "No hay página visible o pregunta en la encuesta.",
   // "Thank you for completing the survey"

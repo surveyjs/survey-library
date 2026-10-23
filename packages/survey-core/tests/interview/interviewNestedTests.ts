@@ -740,10 +740,7 @@ describe("interview nested inputs (issue #11818)", () => {
     expect(iv.data.meds[4]).toEqual({ name: "n5", dose: "d5" });
   });
 
-  // Expected to fail until OPEN 34 (prompt 23, task 3) is decided: the model turns paging off only for the
-  // container whose root is survey.currentSingleQuestion, so while "intro" is current the matrix or
-  // panel exposes its first page only and "meds[4].dose" is badAddress.
-  test.fails.each(["paneldynamic", "matrixdynamic"])("A %s with pageSize: an entry past the first page is reachable while another question is current", async (type) => {
+  test.each(["paneldynamic", "matrixdynamic"])("A %s with pageSize: an entry past the first page is reachable while another question is current", async (type) => {
     const iv = await createInterview(pagedSurvey(type, true));
     expect(iv.survey.currentSingleQuestion.name).toBe("intro");
     const result = await iv.answer("meds[4].dose", "d5");

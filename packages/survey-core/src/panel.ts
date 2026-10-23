@@ -299,6 +299,7 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   private _columns: Array<PanelLayoutColumnModel> = undefined;
   private _columnsReady = false;
+  private isColumnsUpdatePending: boolean;
 
   /**
    * An array of columns used to arrange survey elements within this page or panel. Applies only if you set the `SurveyModel`'s [`gridLayoutEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#gridLayoutEnabled) property to `true`.
@@ -446,6 +447,9 @@ export class PanelModelBase extends SurveyElement<Question>
     super.endLoadingFromJson();
     this.markQuestionListDirty();
     this.onRowsChanged();
+    if (this.isColumnsUpdatePending) {
+      this.updateColumns();
+    }
   }
 
   @property({ defaultValue: true }) showTitle: boolean;
@@ -629,6 +633,9 @@ export class PanelModelBase extends SurveyElement<Question>
       }
       const newElements = Helpers.randomizeArray<IElement>(oldElements, this.randomSeed);
       this.setArrayPropertyDirectly("elements", newElements, false);
+      if (!!this.survey) {
+        this.lifecycleCallbacks.questionTriggersChanged();
+      }
       this.updateRows();
       this.updateVisibleIndexes();
     });
@@ -1241,6 +1248,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   };
   public updateColumns() {
+    this.isColumnsUpdatePending = false;
     this._columns = undefined;
     this.updateRootStyle();
   }
@@ -1450,6 +1458,10 @@ export class PanelModelBase extends SurveyElement<Question>
     super.onSurveyLoad();
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].onSurveyLoad();
+    }
+    // A panel without a survey gets here from its own endLoadingFromJson, which updates the columns after its rows.
+    if (this.isColumnsUpdatePending && !!this.survey) {
+      this.updateColumns();
     }
     this.onElementVisibilityChanged(this);
     this.releaseAnimations();
@@ -1939,7 +1951,13 @@ export class PanelModelBase extends SurveyElement<Question>
     if (this.wasRendered) {
       element.onFirstRendering();
     }
-    this.updateColumns();
+    // Code that builds a survey element by element while it loads (Creator's translation tab) would restyle
+    // this subtree on every add. Update the columns once when loading ends: onSurveyLoad or endLoadingFromJson does it.
+    if (this.isLoadingFromJson) {
+      this.isColumnsUpdatePending = true;
+    } else {
+      this.updateColumns();
+    }
     return true;
   }
   public insertElement(element: IElement, dest?: IElement, location: "bottom" | "top" | "left" | "right" = "bottom"): void {

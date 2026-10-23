@@ -13,6 +13,50 @@ export var romanianSurveyStrings = {
   pagerTotalText: "de {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Selectează pagina",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sortează după {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Sus - Jos",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Jos - Sus",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabet, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Cea mai nouă premieră",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Cea mai veche primă",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sortat după {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, apoi de {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sortează după",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Implicit",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Câmp de sortare",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Ordinea de sortare",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Adaugă nivelul de sortare",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Elimină nivelul de sortare {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Câmpul de sortare {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Ordinea de sortare {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Mai mult...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Afișează toate nivelurile de tip",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Adaugă noutăți",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Finalizare",
   // "Preview"
@@ -45,6 +89,8 @@ export var romanianSurveyStrings = {
   panelDynamicTabTextFormat: "Panou {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Răspunsuri la {0} / {1} întrebări",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Întrebare {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Nu sunt întrebări pentru acest chestionar",
   // "Thank you for completing the survey"

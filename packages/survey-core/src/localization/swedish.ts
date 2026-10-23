@@ -13,6 +13,50 @@ export var swedishSurveyStrings = {
   pagerTotalText: "av {0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Välj sida",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sortera efter {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Högt - Lågt",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Låg - Hög",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabetet, A - Ö",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Nyaste första gången",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Äldsta första",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sorterat efter {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, sedan av {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sortera efter",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Standard",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sorteringsfält",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Sorteringsordning",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Lägg till sorteringsnivå",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Ta bort sorteringsnivå {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sorteringsfält {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Sorteringsordning {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Mer...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Visa alla sorteringsnivåer",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Lägg till Nytt",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Slutför",
   // "Preview"
@@ -45,6 +89,8 @@ export var swedishSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0} / {1} frågor besvarade",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Fråga {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Det finns ingen synlig sida eller fråga i enkäten.",
   // "Thank you for completing the survey"

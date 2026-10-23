@@ -39,6 +39,8 @@ export * from "./components-container.component";
 
 export * from "./components/action-bar/action-bar.component";
 export * from "./components/records-bar/records-bar.component";
+export * from "./components/records-bar/sort-bar-level.component";
+export * from "./components/records-bar/records-sort-dialog.component";
 export * from "./components/action-bar/action.component";
 export * from "./components/action-bar/action-bar-item.component";
 export * from "./components/action-bar/action-bar-item-dropdown.component";
@@ -112,6 +114,7 @@ export * from "./questions/matrixdropdown.component";
 export * from "./questions/matrixdynamic.component";
 export * from "./components/matrix-actions/drag-drop-icon/drag-drop-icon";
 export * from "./questions/matrixrequiredheader.component";
+export * from "./questions/matrixheadersortbutton.component";
 export * from "./questions/expression.component";
 export * from "./questions/image.component";
 export * from "./components/brand-info/brand-info.component";

@@ -573,7 +573,10 @@ export class FunctionOperand extends Operand {
       if (this.paramValues.length === 0) return true;
       const paramVars: string[] = [];
       this.parameters.setVariables(paramVars);
-      return paramVars.length === 0;
+      if (paramVars.length === 0) return true;
+      // A function with constant parameters nested in another call ("iif({a} = 1, readQ('src'), 0)")
+      // may read any value, so no changed key tells its result changed: the whole expression must run
+      return this.parameters.hasFunction(true);
     }
     return true;
   }

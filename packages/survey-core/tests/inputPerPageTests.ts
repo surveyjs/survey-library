@@ -3291,4 +3291,157 @@ describe("Input Per Page Tests", () => {
     expect(panel.singleInputSummary.isEmpty(), "the panel summary is empty, #2").toBe(true);
     expect(panel.getShowPlaceholderToolbar(), "the panel placeholder has no toolbar, #2").toBe(false);
   });
+  function getNestedSummaryJson(): any {
+    return {
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "paneldynamic", name: "outer", panelCount: 1, templateElements: [
+          { type: "text", name: "q1" },
+          { type: "matrixdynamic", name: "matrix", rowCount: 0, columns: [{ name: "col1", cellType: "text" }] },
+          { type: "paneldynamic", name: "panel", panelCount: 0, templateElements: [{ type: "text", name: "q2" }] }
+        ] }
+      ]
+    };
+  }
+  test("Nested dynamic matrix and panel: the summary step is reached while the outer css is not calculated, Issue#11818", () => {
+    const survey = new SurveyModel(getNestedSummaryJson());
+    survey.data = { outer: [{ q1: "a", matrix: [{ col1: "A-1" }, { col1: "A-2" }], panel: [{ q2: "b" }] }] };
+    const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const matrix = <QuestionMatrixDynamicModel>outer.panels[0].getQuestionByName("matrix");
+    const panel = <QuestionPanelDynamicModel>outer.panels[0].getQuestionByName("panel");
+    survey.currentSingleQuestion = outer;
+    [{ q: <Question>matrix, count: 2 }, { q: <Question>panel, count: 1 }].forEach(({ q, count }) => {
+      outer.singleInputBehavior.setSingleInputQuestion(q);
+      q.singleInputBehavior.setSingleInputQuestion(q);
+      // The step is reached before anything is rendered: no summary and no outer css yet.
+      q.singleInputBehavior.resetSingleInputSummary();
+      outer["clearCssClasses"]();
+      expect(!!outer.getPropertyValue("cssClassesValue"), q.name + ": the outer css is not calculated").toBe(false);
+      expect(q.singleInputSummary.items.length, q.name + ": the summary lists the entries").toBe(count);
+      expect(q.singleInputQuestion?.name, q.name + ": the container stands on its summary step").toBe(q.name);
+    });
+  });
+  test("A stored self that cannot show a summary renders the question itself, Issue#11818", () => {
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: "text", name: "q0" },
+        { type: "paneldynamic", name: "panel", panelCount: 1, templateElements: [{ type: "text", name: "q1" }] },
+        { type: "matrixdropdown", name: "matrix", rows: ["r1"], columns: [{ name: "col1", cellType: "text" }] }
+      ]
+    });
+    // The host turns the mode off for the panel, so it has no summary step to show.
+    survey.onCheckSingleInputPerPageMode.add((_, options) => {
+      if (options.question.name === "panel") options.enabled = false;
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+    [<Question>panel, <Question>matrix].forEach(q => {
+      survey.currentSingleQuestion = q;
+      q.singleInputBehavior.setSingleInputQuestion(q);
+      expect(q.singleInputQuestion === undefined, q.name + ": singleInputQuestion is undefined").toBe(true);
+      expect(q.getRootCss().indexOf(q.cssRoot) > -1, q.name + ": css root is cssRoot").toBe(true);
+      expect(q.getRootCss().indexOf(q.cssClasses.rootSingleInput) < 0, q.name + ": no rootSingleInput").toBe(true);
+    });
+  });
+  test("A nested dynamic panel and matrix keep their summary step before the summary is built, Issue#11818", () => {
+    const survey = new SurveyModel(getNestedSummaryJson());
+    survey.data = { outer: [{ q1: "a", matrix: [{ col1: "A-1" }], panel: [{ q2: "b" }] }] };
+    const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outer");
+    const matrix = <QuestionMatrixDynamicModel>outer.panels[0].getQuestionByName("matrix");
+    const panel = <QuestionPanelDynamicModel>outer.panels[0].getQuestionByName("panel");
+    outer.cssClasses;
+    survey.currentSingleQuestion = outer;
+    [<Question>matrix, <Question>panel].forEach(q => {
+      outer.singleInputBehavior.setSingleInputQuestion(q);
+      q.singleInputBehavior.setSingleInputQuestion(q);
+      q.singleInputBehavior.resetSingleInputSummary();
+      expect(!!q.getPropertyValue("singleInputSummary"), q.name + ": the summary is not built yet").toBe(false);
+      expect(q.singleInputQuestion?.name, q.name + ": singleInputQuestion is the container").toBe(q.name);
+      expect(q.getRootCss().indexOf(q.cssClasses.rootSingleInput) > -1, q.name + ": css root is rootSingleInput").toBe(true);
+      expect(q.singleInputSummary.items.length, q.name + ": the summary is then built").toBe(1);
+    });
+  });
+  function createPagedContainersSurvey(): SurveyModel {
+    const fiveRows = [1, 2, 3, 4, 5].map(i => ({ a: "r" + i }));
+    const fivePanels = [1, 2, 3, 4, 5].map(i => ({ t: "p" + i }));
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      showPreviewBeforeComplete: "showAllQuestions",
+      elements: [
+        { type: "text", name: "q0" },
+        { type: "matrixdynamic", name: "md", pageSize: 2, columns: [{ name: "a", cellType: "text" }] },
+        { type: "paneldynamic", name: "pd", pageSize: 2, templateElements: [{ type: "text", name: "t" }] },
+        { type: "paneldynamic", name: "outer", templateElements: [
+          { type: "matrixdynamic", name: "md2", pageSize: 2, columns: [{ name: "a", cellType: "text" }] },
+          { type: "paneldynamic", name: "pd2", pageSize: 2, templateElements: [{ type: "text", name: "t" }] }
+        ] }
+      ]
+    });
+    survey.data = { md: fiveRows, pd: fivePanels, outer: [{ md2: fiveRows, pd2: fivePanels }] };
+    return survey;
+  }
+  // The visible entries of md, pd and of the copies nested in the outer panel: [md, pd, md2, pd2].
+  function getPagedContainerCounts(survey: SurveyModel): Array<number> {
+    const outerPanel = (<QuestionPanelDynamicModel>survey.getQuestionByName("outer")).panels[0];
+    return [
+      (<QuestionMatrixDynamicModel>survey.getQuestionByName("md")).visibleRows.length,
+      (<QuestionPanelDynamicModel>survey.getQuestionByName("pd")).visiblePanels.length,
+      (<QuestionMatrixDynamicModel>outerPanel.getQuestionByName("md2")).visibleRows.length,
+      (<QuestionPanelDynamicModel>outerPanel.getQuestionByName("pd2")).visiblePanels.length
+    ];
+  }
+  test("Single-input mode: a dynamic matrix and panel that are not current list every entry, Issue#11818", () => {
+    const survey = createPagedContainersSurvey();
+    expect(survey.currentSingleQuestion.name, "the text question is current").toBe("q0");
+    expect(getPagedContainerCounts(survey), "[md, pd, md2, pd2]").toEqual([5, 5, 5, 5]);
+  });
+  test("Single-input mode: paging follows a questionsOnPageMode change, Issue#11818", () => {
+    const survey = createPagedContainersSurvey();
+    expect(getPagedContainerCounts(survey), "inputPerPage, #1").toEqual([5, 5, 5, 5]);
+    survey.questionsOnPageMode = "standard";
+    expect(getPagedContainerCounts(survey), "standard pages, #2").toEqual([2, 2, 2, 2]);
+    survey.questionsOnPageMode = "inputPerPage";
+    expect(survey.currentSingleQuestion.name, "the text question is current, #3").toBe("q0");
+    expect(getPagedContainerCounts(survey), "inputPerPage again, #3").toEqual([5, 5, 5, 5]);
+  });
+  test("Single-input mode: the preview pages, Issue#11818", () => {
+    const survey = createPagedContainersSurvey();
+    expect(survey.currentSingleQuestion.name, "the text question is current, #1").toBe("q0");
+    survey.showPreview();
+    expect(survey.state, "the preview is shown, #2").toBe("preview");
+    expect(getPagedContainerCounts(survey), "the preview pages, #2").toEqual([2, 2, 2, 2]);
+  });
+  test("Single-input mode: leaving the preview lists every entry again, Issue#11818", () => {
+    const survey = createPagedContainersSurvey();
+    survey.showPreview();
+    expect(survey.state, "the preview is shown, #1").toBe("preview");
+    survey.cancelPreview();
+    expect(survey.state, "the preview is closed, #2").toBe("running");
+    expect(survey.currentSingleQuestion.name, "the text question is current again, #2").toBe("q0");
+    expect(getPagedContainerCounts(survey), "every entry, #2").toEqual([5, 5, 5, 5]);
+  });
+  test("singleInput and single matrix: rows and columns shown by rowsVisibleIf / columnsVisibleIf, Issue#11818", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "q1", choices: ["a", "b", "c"] },
+        { type: "checkbox", name: "q2", choices: ["x", "y", "z"], defaultValue: ["x", "y"] },
+        { type: "matrix", name: "matrix1", rows: ["a", "b", "c"], columns: ["x", "y", "z"],
+          rowsVisibleIf: "{q1} contains {item}", columnsVisibleIf: "{q2} contains {item}" }
+      ],
+      questionsOnPageMode: "inputPerPage"
+    });
+    const matrix1 = survey.getQuestionByName("matrix1");
+    survey.currentSingleQuestion = matrix1;
+    expect(matrix1.singleInputQuestion, "no row is visible, #1").toBeFalsy();
+    survey.getQuestionByName("q1").value = ["a", "b"];
+    expect(matrix1.singleInputQuestion?.name, "the first revealed row, #2").toBe("a");
+    expect(matrix1.singleInputQuestion.choices.map(c => c.value), "visible columns, #2").toEqual(["x", "y"]);
+    survey.getQuestionByName("q2").value = ["y", "z"];
+    expect(matrix1.singleInputQuestion.choices.map(c => c.value), "visible columns, #3").toEqual(["y", "z"]);
+    matrix1.singleInputQuestion.value = "z";
+    survey.performNext();
+    expect(matrix1.singleInputQuestion.name, "the second revealed row, #4").toBe("b");
+    expect(matrix1.value, "matrix1.value").toEqual({ a: "z" });
+  });
 });

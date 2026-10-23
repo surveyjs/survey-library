@@ -781,6 +781,7 @@ export class QuestionMatrixModel
     this.resetSingleInputQuestions();
     this.updateVisibilityBasedOnRows();
     this.fireCallback(this.visibleRowsChangedCallback);
+    this.resetSurveyProgressTotal();
   }
   // The row questions of the single-input mode are built from visibleRows and visibleColumns, so a
   // rowsVisibleIf / columnsVisibleIf that changes either makes them stale. resetSingleInput() drops

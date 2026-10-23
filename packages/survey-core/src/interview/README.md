@@ -1285,7 +1285,8 @@ await iv.answerAll({
 ```
 
 The record of such a container is the ordinary item record — no `unsupported`, no `reason` — with
-three extra keys: `entries`, `template` and `canAdd`.
+three extra keys: `entries`, `template` and `canAdd`. `entries` lists every entry, whichever question
+is current. `pageSize` does not apply: the model's single-input mode is its own paging.
 
 ````markdown
 ```yaml

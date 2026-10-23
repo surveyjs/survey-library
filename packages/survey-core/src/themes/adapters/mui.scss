@@ -288,7 +288,9 @@
   --sjs2-layout-component-question-description-padding-horizontal: 14px;
   --sjs2-layout-component-question-description-padding-top: 3px;
   --sjs2-typography-line-height-component-question-description: 1.66;
-  --sjs2-layout-component-question-box-gap-vertical: 0;
+  // A length, not a bare 0: creator adds this to px inside calc(), and a unitless 0
+  // makes that calc invalid. The winning declaration then falls back to padding: 0.
+  --sjs2-layout-component-question-box-gap-vertical: 0px;
 
   --sjs2-typography-line-height-default: 1.43;
   --sjs2-typography-line-height-large: 1.5;
@@ -1144,4 +1146,132 @@ input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
 // MUI uses the question title as the floating label, so that placeholder must not stay on screen.
 .svc-question__adorner:not(.svc-question__adorner--collapsed) > .svc-element__header--hidden {
   display: none;
+}
+
+// Collapsed bottom padding stays on the creator formula: spacing-x200 + question gap.
+// MUI's gap is 0px, so that is the same 16px the expanded card already has and the
+// plaque edge does not jump. Forcing it up to the 32px top padding is what needed
+// the padding animations.
+//
+// Floating labels (text, comment, dropdown) are position:absolute until collapsed,
+// so their height still has to join and leave the flow on the question-body clock.
+// 0fr → 1fr on collapse (100ms delay, 250ms). Expand plays the same frames backward
+// (250ms, ease-out once reversed) and the label fades in only after the row is 0.
+@keyframes svc-mui-floating-label-rows {
+  from,
+  to {
+    position: static;
+    top: auto;
+    right: auto;
+    left: auto;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+    display: grid;
+  }
+  from {
+    grid-template-rows: 0fr;
+  }
+  to {
+    grid-template-rows: 1fr;
+  }
+}
+
+@mixin svc-mui-floating-header($motion) {
+  .sd-question:not(.sd-question--complex):has(
+      .sd-question__content--text,
+      .sd-question__content--comment,
+      .sd-question__content--dropdown
+    ):has(
+      > .sd-question__container
+        > .sd-question__header-and-content-container
+        > .sd-question__content.svc-question--#{$motion}
+    )
+    > .sd-question__container
+    > .sd-question__header-and-content-container
+    > .sd-question__header:not(.sd-question__header--location--left) {
+    @content;
+  }
+}
+
+@mixin svc-mui-floating-header-clip {
+  // One grid row. Angular wraps the title, so keep whichever child contains it.
+  > * {
+    grid-row: 1;
+    grid-column: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+  > *:not(.sd-element__title):not(:has(.sd-element__title)) {
+    display: none;
+  }
+}
+
+@include svc-mui-floating-header(leave) {
+  opacity: 0;
+  transition: opacity 150ms;
+  animation: svc-mui-floating-label-rows var(--sjs-svc-collapse-move-out-duration, 250ms) cubic-bezier(0, 0, 0.58, 1) var(--sjs-svc-collapse-move-out-delay, 100ms) forwards;
+  @include svc-mui-floating-header-clip;
+}
+
+@include svc-mui-floating-header(enter) {
+  opacity: 0;
+  transition: none;
+  // Match the collapsed title width while the row closes. Transform stays the
+  // floating one: the label is invisible and must already be in place when it fades back.
+  width: auto !important;
+  animation: svc-mui-floating-label-rows var(--sjs-svc-expand-move-in-duration, 250ms) cubic-bezier(0.42, 0, 1, 1) reverse both;
+  @include svc-mui-floating-header-clip;
+}
+
+.svc-question__content--collapsed
+  .sd-question:not(.sd-question--complex):has(
+    .sd-question__content--text,
+    .sd-question__content--comment,
+    .sd-question__content--dropdown
+  )
+  .sd-question__header:not(.sd-question__header--location--left) {
+  // Same plaque padding as every other collapsed question. Drop the floating
+  // offset so the label sits in that padding instead of on top of it.
+  // Grid (not flex) matches the leave animation's last frame, so removing that
+  // animation does not remeasure the title.
+  position: static !important;
+  top: auto;
+  right: auto;
+  left: auto;
+  transform: none !important;
+  width: auto !important;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  z-index: auto;
+  display: grid !important;
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition: opacity 150ms;
+  --sjs2-color-component-question-default-title: var(--mui-palette-text-secondary);
+
+  > * {
+    grid-row: 1;
+    grid-column: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @include svc-mui-floating-header(leave) {
+    animation: none;
+  }
+  @include svc-mui-floating-header(enter) {
+    animation: none;
+  }
+}
+
+.svc-creator--disable-animations {
+  @include svc-mui-floating-header(leave) {
+    animation: none;
+  }
+  @include svc-mui-floating-header(enter) {
+    animation: none;
+  }
 }

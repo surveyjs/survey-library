@@ -1520,6 +1520,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.updateVisibilityBasedOnRows();
     this.fireCallback(this.visibleRowsChangedCallback);
     this.updateRowsVisibleIndexes();
+    this.resetSurveyProgressTotal();
   }
   private updateRowsVisibleIndexes(): void {
     const rows = this.visibleRows;
@@ -1992,6 +1993,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       !Helpers.isTwoValueEquals(prevTotalValue, this.totalValue) &&
       counter < 3
     );
+    if (isRowVisiblilityChanged) {
+      this.resetSurveyProgressTotal();
+    }
     if (isRowVisiblilityChanged && this.isClearValueOnHidden) {
       this.clearInvisibleValuesInRows();
     }
@@ -2042,6 +2046,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       }
       if (this.columnState.checkColumnsVisibility()) {
         this.resetRenderedTable(true);
+        this.resetSurveyProgressTotal();
       }
       this.columnState.checkColumnsRenderedRequired();
     } finally {

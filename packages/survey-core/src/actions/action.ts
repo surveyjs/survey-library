@@ -8,6 +8,7 @@ import { toCssClasses } from "../utils/cssClassBuilder";
 import { ActionBarCssClasses, defaultActionBarCss } from "./actionBarCss";
 import { IListModel } from "./list-model";
 import { ListModel } from "../list";
+import { initTooltips } from "../utils/tooltip";
 
 export type actionModeType = "large" | "small" | "popup" | "removed";
 
@@ -331,6 +332,10 @@ export abstract class BaseAction extends Base implements IAction {
   }
   public getTooltip(): string {
     return this.tooltip || (!this.hasTitle ? this.title : null);
+  }
+  // Icon-only actions no longer render a `title` attribute, so the tooltip text has to name them.
+  public getAriaLabel(): string {
+    return this.ariaLabel || (!this.hasTitle ? this.getTooltip() : undefined);
   }
   public getIsTrusted(args: any): boolean {
     if (!!args.originalEvent) {
@@ -656,6 +661,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private inputElementValue: HTMLElement;
   public setInputElement(val: HTMLElement) {
     this.inputElementValue = val;
+    if (val) initTooltips(val.ownerDocument);
   }
   public getInputElement() {
     return this.inputElementValue;

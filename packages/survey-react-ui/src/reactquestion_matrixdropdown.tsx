@@ -11,9 +11,16 @@ export class SurveyQuestionMatrixDropdown extends SurveyQuestionMatrixDropdownBa
     return (
       <>
         {this.renderTableDiv()}
-        {this.renderRecordsBar()}
+        {this.renderFooterBar()}
       </>
     );
+  }
+  protected renderFooterBar() {
+    if (this.question.showPager) {
+      return <div className={this.question.cssClasses.footerBar}>
+        {this.renderRecordsBar()}
+      </div>;
+    }
   }
 }
 

@@ -295,3 +295,28 @@
   overflow: visible;
   max-width: 100%;
 }
+
+.sd-question__bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  gap: var(--sd-question-bar-gap);
+  padding-block: var(--sd-question-bar-padding-block);
+  padding-inline: var(--sd-question-bar-padding-inline);
+}
+.sd-question__bar--header {
+  border-bottom: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-basic-secondary);
+}
+.sd-question__bar--footer {
+  border-top: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-basic-secondary);
+}
+.sd-question__records-bar {
+  width: max-content;
+}
+
+.sd-question--mobile {
+  .sd-question__bar {
+    flex-direction: column;
+  }
+}

@@ -3758,6 +3758,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.updateFooterActionsCallback();
     this.footerToolbarValue.setItems(items);
     this.footerToolbar.flushUpdates();
+    this.footerToolbar.containerCss = this.cssClasses.toolbar;
     this._showFooterToolbar = new ComputedUpdater<boolean>(() => this.footerToolbarValue?.hasVisibleActions) as any as boolean;
   }
   /* One tab per panel of the page. Nothing positional is captured: the title event gets the tab's

@@ -3,7 +3,7 @@ import { createRecordsPagerActions, IRecordsPagerCssClasses, IRecordsPagerOwner 
 import type { ActionContainer } from "./actions/container";
 
 // The class names of the bar and of its pager block, from the question's css, and the pager's item classes.
-export interface IRecordsBarCssClasses extends IRecordsPagerCssClasses { root: string, pager: string }
+export interface IRecordsBarCssClasses extends IRecordsPagerCssClasses { root: string }
 
 /* What the records bar reads from its question and the moves it makes. The question implements it on a
    private object, so the members it calls stay protected on the question. */

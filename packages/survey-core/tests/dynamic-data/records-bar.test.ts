@@ -71,11 +71,11 @@ describe("Records bar: the object", () => {
   test("cssClasses gives each question's class names", () => {
     const pagerClasses = { pagerPage: "sd-pager__page", pagerTotal: "sd-pager__total" };
     expect(createPanel(5).recordsBar.cssClasses, "#1").toEqual(Object.assign({
-      root: "sd-paneldynamic__records-bar", pager: "sd-paneldynamic__pager" }, pagerClasses));
+      root: "sd-question__records-bar sd-pager" }, pagerClasses));
     expect(createMatrix(5).recordsBar.cssClasses, "#2").toEqual(Object.assign({
-      root: "sd-matrixdynamic__records-bar", pager: "sd-matrixdynamic__pager" }, pagerClasses));
+      root: "sd-question__records-bar sd-pager" }, pagerClasses));
     expect(createFixedMatrix().recordsBar.cssClasses, "#3").toEqual(Object.assign({
-      root: "sd-matrixdropdown__records-bar", pager: "sd-matrixdropdown__pager" }, pagerClasses));
+      root: "sd-question__records-bar sd-pager" }, pagerClasses));
   });
 });
 
@@ -146,19 +146,19 @@ describe("Records bar: the matrix with fixed rows pages through the same bar", (
 describe("Records bar: the footer it shares with the buttons", () => {
   test("the dynamic panel: the footer shows for the pager alone and is marked while the pager shows", () => {
     const panel = createPanel(5);
-    expect([panel.showFooter, panel.getFooterCss()], "#1: Add and the pager")
-      .toEqual([true, "sd-paneldynamic__footer sd-paneldynamic__footer--pager"]);
-    expect([createPanel(2).showFooter, createPanel(2).getFooterCss()], "#2: Add alone")
-      .toEqual([true, "sd-paneldynamic__footer"]);
+    expect(panel.showFooter, "#1: Add and the pager")
+      .toEqual(true);
+    expect(createPanel(2).showFooter, "#2: Add alone")
+      .toEqual(true);
     expect(createPanel(5, { allowAddPanel: false }).showFooter, "#3: the pager alone").toBe(true);
     expect(createPanel(2, { allowAddPanel: false }).showFooter, "#4: nothing").toBe(false);
     // A read-only panel with one panel on its page has no navigation, but keeps its pager.
     expect(createPanel(3, { readOnly: true, pageSize: 1 }).showFooter, "#5").toBe(true);
     panel.pageSize = 0;
-    expect([panel.showFooter, panel.getFooterCss()], "#6: no paging").toEqual([true, "sd-paneldynamic__footer"]);
+    expect(panel.showFooter, "#6: no paging").toEqual(true);
     const onePage = createPanel(2, { pageSize: 10 });
-    expect([onePage.showPager, onePage.showFooter, onePage.getFooterCss()], "#7: one page, Add shows")
-      .toEqual([false, true, "sd-paneldynamic__footer"]);
+    expect([onePage.showPager, onePage.showFooter], "#7: one page, Add shows")
+      .toEqual([false, true,]);
   });
   test("the dynamic panel: showFooter is the bottom progress, the buttons or the pager", () => {
     const footerState = (q: QuestionPanelDynamicModel): Array<boolean> =>
@@ -181,10 +181,10 @@ describe("Records bar: the footer it shares with the buttons", () => {
   });
   test("the matrix: the footer is the pager row and is marked while the pager shows", () => {
     const matrix = createMatrix(5);
-    expect([matrix.showPager, matrix.getFooterCss()], "#1: Add and the pager")
-      .toEqual([true, "sd-matrixdynamic__footer sd-matrixdynamic__footer--pager"]);
-    expect([createMatrix(2).showPager, createMatrix(2).getFooterCss()], "#2: Add alone")
-      .toEqual([false, "sd-matrixdynamic__footer"]);
+    expect(matrix.showPager, "#1: Add and the pager")
+      .toEqual(true);
+    expect(createMatrix(2).showPager, "#2: Add alone")
+      .toEqual(false);
     const readOnly = createMatrix(5, { readOnly: true });
     expect([readOnly.showPager, readOnly.getShowToolbar("bottom")], "#3: the pager alone").toEqual([true, false]);
     const readOnlyOnePage = createMatrix(2, { readOnly: true });

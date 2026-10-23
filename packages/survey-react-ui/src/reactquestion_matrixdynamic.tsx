@@ -24,31 +24,30 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
       : this.renderNoRowsContent(cssClasses);
     return (
       <div>
-        {this.renderTopToolbar()}
+        {this.renderHeaderBar()}
         {mainDiv}
-        {this.renderRecordsFooter()}
+        {this.renderFooterBar()}
       </div>
     );
   }
   // The footer exists only with the pager: the bottom toolbar and the pager in one row.
   // Without the pager the bottom toolbar is the next sibling of the table, as without paging.
-  protected renderRecordsFooter(): React.JSX.Element | null {
-    const toolbar = this.renderBottomToolbar();
-    if (!this.matrix.showPager) return toolbar;
-    return <div className={this.matrix.getFooterCss()}>{toolbar}{this.renderRecordsBar()}</div>;
+  protected renderFooterBar(): React.JSX.Element | null {
+    if (this.matrix.getShowToolbar("bottom") || this.matrix.showPager) {
+      return <div className={this.matrix.cssClasses.footerBar}>
+        {this.matrix.getShowToolbar("bottom") ? this.renderToolbar() : null}
+        {this.matrix.showPager ? this.renderRecordsBar() : null}
+      </div>;
+    }
+    return null;
   }
-  protected renderToolbar(location: "top" | "bottom"): React.JSX.Element | null {
-    if (!this.matrix.getShowToolbar(location)) return null;
-    return <div className={this.matrix.getToolbarCssClass(location)}>
-      {ReactElementFactory.Instance.createElement("sv-action-bar", { model: this.matrix.toolbar })}
-    </div>;
+  protected renderToolbar(): React.JSX.Element | null {
+    return ReactElementFactory.Instance.createElement("sv-action-bar", { model: this.matrix.toolbar });
   }
-  protected renderTopToolbar(): React.JSX.Element | null {
-    return this.renderToolbar("top");
+  protected renderHeaderBar(): React.JSX.Element | null {
+    return this.matrix.getShowToolbar("top") ? <div className={this.matrix.cssClasses.headerBar}>{this.renderToolbar()}</div> : null;
   }
-  protected renderBottomToolbar(): React.JSX.Element | null {
-    return this.renderToolbar("bottom");
-  }
+
   protected renderNoRowsContent(cssClasses: any): React.JSX.Element {
     return ReactElementFactory.Instance.createElement("sv-placeholder-matrixdynamic", { cssClasses: cssClasses, question: this.matrix });
   }

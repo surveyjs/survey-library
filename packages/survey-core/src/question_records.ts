@@ -2205,13 +2205,6 @@ export abstract class QuestionRecordsModel extends Question {
       this.recordsBarValue.update();
     }
   }
-  /* The footer under the records: the type's own footer content (the matrix's bottom toolbar, the
-     dynamic panel's progress and buttons) and the pager share one row while the pager shows. The
-     matrix renders the footer only with the pager, so its markup stays the same without paging. A
-     type without a footer class (the matrix dropdown) gets "". */
-  public getFooterCss(): string {
-    return toCssClasses(this.cssClasses.footer, this.showPager && this.cssClasses.footerWithPager);
-  }
   /* The functions call the question's members when they are called, so an override or a spy on the
      question is honoured (see helperOwner). The page index and count are the synced state in the
      property hash, not the reported values: those answer one page without reading the hash while
@@ -2236,9 +2229,13 @@ export abstract class QuestionRecordsModel extends Question {
       getLocOwner: (): ILocalizableOwner => question,
       getCssClasses: (): IRecordsBarCssClasses => {
         const css = question.cssClasses;
-        return { root: css.recordsBar, pager: css.pager, pagerPage: css.pagerPage, pagerTotal: css.pagerTotal };
+        return { root: css.recordsBar, pagerPage: css.pagerPage, pagerTotal: css.pagerTotal };
       },
-      createActionContainer: (): ActionContainer => question.createActionContainer()
+      createActionContainer: (): ActionContainer => {
+        const res = question.createActionContainer();
+        res.containerCss = question.cssClasses.recordsBar;
+        return res;
+      }
     };
   }
   /* The type's pager rule: the renderers draw the pager under the records while it is true. The bar

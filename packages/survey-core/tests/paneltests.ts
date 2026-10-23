@@ -1,7 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { PageModel } from "../src/page";
 import { Question, ValidationContext } from "../src/question";
-import { PanelModel } from "../src/panel";
+import { PanelModel, PanelModelBase } from "../src/panel";
 import { QuestionTextModel } from "../src/question_text";
 import { JsonObject, Serializer } from "../src/jsonobject";
 import { FlowPanelModel } from "../src/flowpanel";
@@ -16,7 +16,7 @@ import { setOldTheme } from "./oldTheme";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { Helpers } from "../src/helpers";
 import { FunctionFactory, registerFunction } from "../src/functionsfactory";
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 describe("Panel", () => {
   test("questions-elements synhronization", () => {
     const page = new PageModel();
@@ -4025,5 +4025,248 @@ describe("Panel", () => {
     expect(panel.renderedIsContentVisible, "a visible question is added").toBe(true);
     panel.removeElement(q4);
     expect(panel.renderedIsContentVisible, "the visible question is removed").toBe(false);
+  });
+});
+
+describe("Panel rows after the survey loads with element changes", () => {
+  const getJson = (): any => ({
+    pages: [{
+      name: "page1",
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "panel", name: "pOld", elements: [{ type: "text", name: "pq1" }] },
+        { type: "text", name: "q9" },
+        { type: "text", name: "q10", startWithNewLine: false }
+      ]
+    }]
+  });
+  const rowsToText = (panel: PanelModelBase): string =>
+    panel.rows.map(row => "[" + row.elements.map(el => el.name).join(",") + (row.visible ? "" : " hidden") + "]").join(" ");
+  const createQuestion = (name: string, startWithNewLine: boolean = true): QuestionTextModel => {
+    const q = new QuestionTextModel(name);
+    q.startWithNewLine = startWithNewLine;
+    return q;
+  };
+  const changeWhileLoading = (survey: SurveyModel, change: (survey: SurveyModel) => void): void => {
+    survey.startLoadingFromJson();
+    change(survey);
+    survey.endLoadingFromJson();
+  };
+  const addQ2Q3 = (survey: SurveyModel): void => {
+    survey.pages[0].addElement(createQuestion("q2"));
+    survey.pages[0].addElement(createQuestion("q3", false));
+  };
+  const getPanel = (survey: SurveyModel, name: string): PanelModelBase =>
+    name === "page" ? survey.pages[0] : <PanelModelBase>survey.getPanelByName(name);
+  const checkChange = (change: (survey: SurveyModel) => void, expected: { [name: string]: string }): SurveyModel => {
+    const survey = new SurveyModel(getJson());
+    expect(survey.pages[0].wasRendered, "the page is shown").toBe(true);
+    changeWhileLoading(survey, change);
+    const direct = new SurveyModel(getJson());
+    change(direct);
+    for (const name in expected) {
+      expect(rowsToText(getPanel(direct, name)), name + " rows, the change outside loading").toBe(expected[name]);
+      expect(rowsToText(getPanel(survey, name)), name + " rows, the change while loading").toBe(expected[name]);
+    }
+    return survey;
+  };
+
+  test("A: add questions to a shown page", () => {
+    checkChange(addQ2Q3, { page: "[q1] [pOld] [q9,q10] [q2,q3]", pOld: "[pq1]" });
+  });
+  test("B: add a panel with questions to a shown page", () => {
+    const survey = checkChange((s: SurveyModel) => {
+      const panel = new PanelModel("pNew");
+      s.pages[0].addElement(panel);
+      panel.addElement(createQuestion("q4"));
+      panel.addElement(createQuestion("q5", false));
+    }, { page: "[q1] [pOld] [q9,q10] [pNew]", pOld: "[pq1]", pNew: "[q4,q5]" });
+    expect(survey.getPanelByName("pNew").wasRendered, "pNew is rendered").toBe(true);
+    expect(survey.getQuestionByName("q4").wasRendered, "q4 is rendered").toBe(true);
+  });
+  test("C: add a question to a shown nested panel", () => {
+    const survey = checkChange((s: SurveyModel) => {
+      s.getPanelByName("pOld").addElement(createQuestion("pq2", false));
+    }, { page: "[q1] [pOld] [q9,q10]", pOld: "[pq1,pq2]" });
+    expect(survey.getQuestionByName("pq2").wasRendered, "pq2 is rendered").toBe(true);
+  });
+  test("D: remove a question from a shown page, rows follow the elements", () => {
+    const survey = new SurveyModel(getJson());
+    changeWhileLoading(survey, (s: SurveyModel) => { s.pages[0].removeElement(s.getQuestionByName("q9")); });
+    expect(rowsToText(survey.pages[0])).toBe("[q1] [pOld,q10]");
+    expect(survey.getQuestionByName("q10").startWithNewLine, "q10.startWithNewLine is not changed").toBe(false);
+    const loaded = new SurveyModel(survey.toJSON());
+    expect(rowsToText(loaded.pages[0]), "the same rows as loading the resulting JSON").toBe("[q1] [pOld,q10]");
+  });
+  test("E: change startWithNewLine on a shown page", () => {
+    checkChange((s: SurveyModel) => { s.getQuestionByName("q10").startWithNewLine = true; }, { page: "[q1] [pOld] [q9] [q10]" });
+  });
+  test("F: hide a question on a shown page", () => {
+    checkChange((s: SurveyModel) => { s.getQuestionByName("q1").visible = false; }, { page: "[q1 hidden] [pOld] [q9,q10]" });
+  });
+  test("G: move a question on a shown page", () => {
+    checkChange((s: SurveyModel) => {
+      const q10 = s.getQuestionByName("q10");
+      s.pages[0].removeElement(q10);
+      s.pages[0].addElement(q10, 0);
+    }, { page: "[q10] [q1] [pOld] [q9]" });
+  });
+  test("H: no change keeps the row objects", () => {
+    const survey = new SurveyModel(getJson());
+    const pageRows = [].concat(survey.pages[0].rows);
+    const panelRows = [].concat(survey.getPanelByName("pOld").rows);
+    changeWhileLoading(survey, () => {});
+    expect(survey.pages[0].rows.length).toBe(pageRows.length);
+    survey.pages[0].rows.forEach((row, index) => expect(row, "page row #" + index).toBe(pageRows[index]));
+    expect(survey.getPanelByName("pOld").rows.length).toBe(panelRows.length);
+    survey.getPanelByName("pOld").rows.forEach((row, index) => expect(row, "pOld row #" + index).toBe(panelRows[index]));
+  });
+  test("A condition that changes on loading hides its row", () => {
+    const json = getJson();
+    json.pages[0].elements[2].visibleIf = "{q1} = 'a'";
+    json.pages[0].elements[3].visibleIf = "{q1} = 'a'";
+    const survey = new SurveyModel(json);
+    survey.setValue("q1", "a");
+    expect(rowsToText(survey.pages[0])).toBe("[q1] [pOld] [q9,q10]");
+    changeWhileLoading(survey, (s: SurveyModel) => {
+      // survey.clearValue() while loading does not reach the question, so the condition would not change.
+      s.getQuestionByName("q1").clearValue();
+      s.pages[0].addElement(createQuestion("q2"));
+    });
+    expect(rowsToText(survey.pages[0])).toBe("[q1] [pOld] [q9,q10 hidden] [q2]");
+  });
+  test("Grid layout: columns and root styles", () => {
+    const getState = (survey: SurveyModel): string => {
+      const page = survey.pages[0];
+      const res: any = { columns: page.gridLayoutColumns.map(col => ({ width: col.width, questionTitleWidth: col.questionTitleWidth })), styles: {} };
+      (<Array<any>>survey.getAllQuestions()).concat(survey.getAllPanels()).forEach(el => res.styles[el.name] = el.rootStyle);
+      return JSON.stringify(res);
+    };
+    const json = getJson();
+    json.gridLayoutEnabled = true;
+    const survey = new SurveyModel(json);
+    changeWhileLoading(survey, addQ2Q3);
+    const direct = new SurveyModel(json);
+    addQ2Q3(direct);
+    expect(getState(survey)).toBe(getState(direct));
+    expect(rowsToText(survey.pages[0])).toBe("[q1] [pOld] [q9,q10] [q2,q3]");
+  });
+  test("Lazy rendering: rendered rows that are kept stay rendered", () => {
+    const createSurvey = (): SurveyModel => {
+      const survey = new SurveyModel();
+      survey.lazyRenderEnabled = true;
+      survey.lazyRenderFirstBatchSize = 1;
+      survey.fromJSON(getJson());
+      const page = survey.pages[0];
+      expect(page.rows.map(row => row.isNeedRender), "before the change").toEqual([true, true, false]);
+      page.rows[2].isNeedRender = true;
+      return survey;
+    };
+    const survey = createSurvey();
+    const rows = [].concat(survey.pages[0].rows);
+    changeWhileLoading(survey, addQ2Q3);
+    const direct = createSurvey();
+    addQ2Q3(direct);
+    expect(rowsToText(survey.pages[0])).toBe("[q1] [pOld] [q9,q10] [q2,q3]");
+    expect(direct.pages[0].rows.map(row => row.isNeedRender), "outside loading").toEqual([true, true, true, false]);
+    expect(survey.pages[0].rows.map(row => row.isNeedRender), "while loading").toEqual([true, true, true, false]);
+    rows.forEach((row, index) => expect(survey.pages[0].rows[index], "row #" + index + " is kept").toBe(row));
+  });
+  test("Design mode: added rows are not lazy", () => {
+    const createSurvey = (): SurveyModel => {
+      const survey = new SurveyModel();
+      survey.setDesignMode(true);
+      survey.lazyRenderEnabled = true;
+      survey.lazyRenderFirstBatchSize = 1;
+      survey.fromJSON(getJson());
+      return survey;
+    };
+    const survey = createSurvey();
+    changeWhileLoading(survey, addQ2Q3);
+    const direct = createSurvey();
+    addQ2Q3(direct);
+    expect(rowsToText(survey.pages[0])).toBe("[q1] [pOld] [q9,q10] [q2,q3]");
+    expect(direct.pages[0].rows[3].isNeedRender, "outside loading").toBe(true);
+    expect(survey.pages[0].rows[3].isNeedRender, "while loading").toBe(true);
+  });
+  test("A fresh load does not build rows more often", () => {
+    const buildRows = vi.spyOn(PanelModelBase.prototype as any, "buildRows");
+    const createRow = vi.spyOn(PanelModelBase.prototype as any, "createRow");
+    try {
+      const survey = new SurveyModel(getJson());
+      expect(rowsToText(survey.pages[0])).toBe("[q1] [pOld] [q9,q10]");
+      expect(rowsToText(<PanelModelBase>survey.getPanelByName("pOld"))).toBe("[pq1]");
+      expect(buildRows.mock.calls.length, "new SurveyModel(json): buildRows, the page and pOld").toBe(2);
+      expect(createRow.mock.calls.length, "new SurveyModel(json): createRow").toBe(4);
+      buildRows.mockClear();
+      createRow.mockClear();
+      const json = getJson();
+      json.pages[0].elements.push({ type: "text", name: "q11" });
+      survey.fromJSON(json);
+      expect(rowsToText(survey.pages[0])).toBe("[q1] [pOld] [q9,q10] [q11]");
+      expect(rowsToText(<PanelModelBase>survey.getPanelByName("pOld"))).toBe("[pq1]");
+      expect(buildRows.mock.calls.length, "survey.fromJSON(json): buildRows, the page and pOld").toBe(2);
+      expect(createRow.mock.calls.length, "survey.fromJSON(json): createRow").toBe(5);
+    } finally {
+      buildRows.mockRestore();
+      createRow.mockRestore();
+    }
+  });
+  test("A page loaded on its own builds its rows once", () => {
+    const survey = new SurveyModel(getJson());
+    const page = survey.pages[0];
+    const direct = new SurveyModel(getJson());
+    direct.pages[0].addElement(createQuestion("q2"));
+    expect(rowsToText(direct.pages[0]), "outside loading").toBe("[q1] [pOld] [q9,q10] [q2]");
+    const buildRows = vi.spyOn(PanelModelBase.prototype as any, "buildRows");
+    try {
+      page.startLoadingFromJson();
+      page.addElement(createQuestion("q2"));
+      page.endLoadingFromJson();
+      expect(rowsToText(page)).toBe("[q1] [pOld] [q9,q10] [q2]");
+      expect(buildRows.mock.calls.length, "buildRows").toBe(1);
+    } finally {
+      buildRows.mockRestore();
+    }
+  });
+  test("A rendered panel without a survey builds its rows once", () => {
+    const panel = new PanelModel("p1");
+    panel.addElement(createQuestion("a"));
+    panel.onFirstRendering();
+    expect(rowsToText(panel)).toBe("[a]");
+    const buildRows = vi.spyOn(PanelModelBase.prototype as any, "buildRows");
+    try {
+      panel.startLoadingFromJson();
+      panel.addElement(createQuestion("b", false));
+      panel.addElement(createQuestion("c"));
+      panel.endLoadingFromJson();
+      expect(rowsToText(panel)).toBe("[a,b] [c]");
+      expect(buildRows.mock.calls.length, "buildRows").toBe(1);
+    } finally {
+      buildRows.mockRestore();
+    }
+  });
+  test("A page that is not shown builds its rows on first rendering", () => {
+    const json = getJson();
+    json.pages.unshift({ name: "page0", elements: [{ type: "text", name: "q0" }] });
+    const survey = new SurveyModel(json);
+    const page = survey.pages[1];
+    expect(page.wasRendered, "page1 is not shown").toBe(false);
+    const buildRows = vi.spyOn(PanelModelBase.prototype as any, "buildRows");
+    const createRow = vi.spyOn(PanelModelBase.prototype as any, "createRow");
+    try {
+      changeWhileLoading(survey, () => {
+        page.addElement(createQuestion("q2"));
+        page.addElement(createQuestion("q3", false));
+      });
+      expect(buildRows.mock.calls.length, "buildRows while and after loading").toBe(0);
+      expect(createRow.mock.calls.length, "createRow while and after loading").toBe(0);
+      expect(page.rows.length, "no rows").toBe(0);
+      page.onFirstRendering();
+      expect(rowsToText(page)).toBe("[q1] [pOld] [q9,q10] [q2,q3]");
+    } finally {
+      buildRows.mockRestore();
+      createRow.mockRestore();
+    }
   });
 });

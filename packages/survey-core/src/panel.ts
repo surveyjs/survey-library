@@ -1454,8 +1454,56 @@ export class PanelModelBase extends SurveyElement<Question>
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].onSurveyLoad();
     }
+    this.updateRowsOnSurveyLoad();
     this.onElementVisibilityChanged(this);
     this.releaseAnimations();
+  }
+  // While the survey loads (survey.startLoadingFromJson()/endLoadingFromJson()), rows are not updated
+  // incrementally and the "visible"/"startWithNewLine" handlers do not run, so a panel rendered before
+  // the survey started loading keeps stale rows. A panel that is not rendered builds its rows on first
+  // rendering, and a panel without a survey rebuilds them in endLoadingFromJson(), so only a rendered
+  // panel in a survey needs it. The rows are compared with the elements because the handlers that would
+  // mark them dirty are skipped while loading. Unchanged rows are kept: the UI and lazy rendering hold them.
+  private updateRowsOnSurveyLoad(): void {
+    if (!this.wasRendered || !this.survey || !this.canBuildRows()) return;
+    const oldRows = this.rows;
+    const rowsByFirstElement = new Map<IElement, QuestionRowModel>();
+    oldRows.forEach(row => {
+      if (row.elements.length > 0) rowsByFirstElement.set(row.elements[0], row);
+    });
+    const rows = new Array<QuestionRowModel>();
+    const els = this.getElementsForRows();
+    let isChanged = false;
+    for (let start = 0; start < els.length;) {
+      let end = start + 1;
+      while(end < els.length && !els[end].startWithNewLine) end++;
+      let row = rowsByFirstElement.get(els[start]);
+      if (!row || !this.isRowElements(row, els, start, end)) {
+        row = this.createRowAndSetLazy(rows.length);
+        if (this.isDesignMode) {
+          row.setIsLazyRendering(false);
+        }
+        for (let i = start; i < end; i++) {
+          row.elements.push(els[i]);
+        }
+      }
+      isChanged = isChanged || row !== oldRows[rows.length];
+      rows.push(row);
+      start = end;
+    }
+    if (isChanged || rows.length !== oldRows.length) {
+      this.setArrayPropertyDirectly("rows", rows);
+      this.updateColumns();
+    }
+    rows.forEach(row => row.updateVisible());
+    this.elements.forEach(el => el.onFirstRendering());
+  }
+  private isRowElements(row: QuestionRowModel, els: Array<IElement>, start: number, end: number): boolean {
+    if (row.elements.length !== end - start) return false;
+    for (let i = start; i < end; i++) {
+      if (row.elements[i - start] !== els[i]) return false;
+    }
+    return true;
   }
   protected onFirstRenderingCore(): void {
     super.onFirstRenderingCore();

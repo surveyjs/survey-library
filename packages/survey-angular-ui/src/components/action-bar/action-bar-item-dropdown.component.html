@@ -1,6 +1,6 @@
 <ng-template #template>
-    <button type="button" (click)="model.doAction($event)" [key2click]="{ processEsc: false, disableTabStop: model.disableTabStop }" [class]="model.getActionBarItemCss()" [attr.data-sv-tooltip]="model.getTooltip()" [attr.aria-label]="model.getAriaLabel()" [disabled]="model.disabled" [attr.role]="model.ariaRole">
-        <svg *ngIf="model.iconName" [iconName]="model.iconName" [size]="model.iconSize" [class]="model.cssClasses.itemIcon" sv-ng-svg-icon></svg>
+    <button type="button" (click)="model.doAction($event)" [key2click]="{ processEsc: false, disableTabStop: model.disableTabStop }" [class]="model.getActionBarItemCss()" [attr.title]="model.getTooltip()" [attr.data-sv-tooltip]="model.getTooltip()" [attr.aria-label]="model.ariaLabel" [disabled]="model.disabled" [attr.role]="model.ariaRole">
+        <svg *ngIf="model.iconName" [iconName]="model.iconName" [size]="model.iconSize" [title]="model.tooltip || model.title" [class]="model.cssClasses.itemIcon" sv-ng-svg-icon></svg>
         <sv-ng-string-viewer  style="display:contents" *ngIf="model.hasTitle" [model]="model.locTitle" [textClass]="model.getActionBarItemTitleCss()"></sv-ng-string-viewer>
     </button>
     <sv-ng-popup [popupModel]="model.popupModel"></sv-ng-popup>

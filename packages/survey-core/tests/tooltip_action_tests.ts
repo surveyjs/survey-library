@@ -22,9 +22,4 @@ describe("Action tooltips", () => {
     button.remove();
     vi.useRealTimers();
   });
-  test("an icon-only action exposes its tooltip as the accessible name", () => {
-    expect(new Action({ id: "delete", iconName: "icon-delete", title: "Delete", showTitle: false }).getAriaLabel()).toBe("Delete");
-    expect(new Action({ id: "delete", iconName: "icon-delete", title: "Delete", ariaLabel: "Remove row" }).getAriaLabel()).toBe("Remove row");
-    expect(new Action({ id: "save", title: "Save", tooltip: "Save the survey" }).getAriaLabel()).toBeUndefined();
-  });
 });

@@ -13,8 +13,9 @@
       }
     "
     v-bind:disabled="item.disabled"
+    v-bind:title="item.getTooltip()"
     v-bind:data-sv-tooltip="item.getTooltip()"
-    v-bind:aria-label="item.getAriaLabel()"
+    v-bind:aria-label="item.ariaLabel"
     v-bind:role="item.ariaRole"
     v-key2click="{ processEsc: false, disableTabStop: item.disableTabStop }"
   >
@@ -24,6 +25,7 @@
       :class="item.cssClasses.itemIcon"
       :iconName="item.iconName"
       :size="item.iconSize"
+      :title="item.tooltip || item.title"
     ></SvComponent>
     <StringViewer v-if="item.hasTitle" :model="item.locTitle" :textClass="item.getActionBarItemTitleCss()" />
   </button>

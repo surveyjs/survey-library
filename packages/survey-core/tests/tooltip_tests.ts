@@ -136,4 +136,22 @@ describe("tooltips on [data-sv-tooltip] elements", () => {
     expect(visibleTooltip()?.textContent).toBe("Edit");
     pointer("pointerout", other, { relatedTarget: document.body });
   });
+  test("keeps the native title until the tooltip shows, suppresses it while shown and restores it on hide", () => {
+    button.setAttribute("title", "Delete");
+    pointer("pointerover", button);
+    vi.advanceTimersByTime(199);
+    expect(button.getAttribute("title")).toBe("Delete");
+    vi.advanceTimersByTime(1);
+    expect(button.hasAttribute("title")).toBe(false);
+    pointer("pointerout", button, { relatedTarget: document.body });
+    expect(button.getAttribute("title")).toBe("Delete");
+  });
+  test("does not overwrite a title the renderer changed while the tooltip was shown", () => {
+    button.setAttribute("title", "Expand");
+    pointer("pointerover", button);
+    vi.advanceTimersByTime(200);
+    button.setAttribute("title", "Collapse");
+    pointer("pointerdown", button);
+    expect(button.getAttribute("title")).toBe("Collapse");
+  });
 });

@@ -97,6 +97,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
         className={this.item.cssClasses.itemIcon}
         size={this.item.iconSize}
         iconName={this.item.iconName}
+        title={this.item.tooltip || this.item.title}
       ></SvgIcon>
     ) : null;
     return (
@@ -120,13 +121,14 @@ export class SurveyActionBarItem extends SurveyElementBase<
         onMouseDown={(args) => this.item.doMouseDown(args)}
         onFocus={(args) => this.item.doFocus(args)}
         onClick={(args) => this.item.doAction(args)}
+        title={this.item.getTooltip()}
         data-sv-tooltip={this.item.getTooltip()}
         tabIndex={tabIndex}
         aria-checked={this.item.ariaChecked}
         aria-expanded={this.item.ariaExpanded}
         aria-controls={this.item.ariaControls}
         aria-labelledby={this.item.ariaLabelledBy}
-        aria-label={this.item.getAriaLabel()}
+        aria-label={this.item.ariaLabel}
         role={this.item.ariaRole}
       >
         {buttonContent}

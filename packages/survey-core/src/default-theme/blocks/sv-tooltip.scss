@@ -31,6 +31,11 @@
   opacity: 1;
 }
 
+// An icon's SVG <title> would raise its own native tooltip; keeping the pointer on the trigger avoids it.
+[data-sv-tooltip] svg {
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sv-tooltip {
     transition: none;

@@ -28,6 +28,8 @@ class TooltipManager {
   private element: HTMLElement;
   private trigger: HTMLElement | undefined;
   private timer: ReturnType<typeof setTimeout> | undefined;
+  private titleOwner: HTMLElement | undefined;
+  private suppressedTitle: string | null = null;
 
   constructor(private doc: Document) {
     doc.addEventListener("pointerover", this.onPointerOver);
@@ -93,11 +95,22 @@ class TooltipManager {
     tooltip.style.left = position.left + "px";
     tooltip.style.top = position.top + "px";
     tooltip.classList.add("sv-tooltip--visible");
+    // Triggers keep their `title` (selectors and automation rely on it); it is taken off only while
+    // the tooltip is shown, so the browser's native tooltip does not appear on top of it.
+    this.titleOwner = trigger;
+    this.suppressedTitle = trigger.getAttribute("title");
+    trigger.removeAttribute("title");
   }
   private hide = (): void => {
     clearTimeout(this.timer);
     this.timer = undefined;
     this.trigger = undefined;
+    // A renderer may have set a new title meanwhile; that one wins.
+    if (this.titleOwner && this.suppressedTitle !== null && !this.titleOwner.hasAttribute("title")) {
+      this.titleOwner.setAttribute("title", this.suppressedTitle);
+    }
+    this.titleOwner = undefined;
+    this.suppressedTitle = null;
     if (!this.element) return;
     this.element.classList.remove("sv-tooltip--visible");
     this.element.style.display = "";

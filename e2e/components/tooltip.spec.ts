@@ -19,14 +19,13 @@ frameworks.forEach((framework) => {
       });
 
       const button = page.locator(".sd-question__title button[data-sv-tooltip='Delete']");
-      await expect(button).toHaveAttribute("aria-label", "Delete");
-      await expect(button).not.toHaveAttribute("title");
-      await expect(button.locator("title")).toHaveCount(0);
+      await expect(button).toHaveAttribute("title", "Delete");
 
       const tooltip = page.locator(".sv-tooltip--visible");
       await button.hover();
       await expect(tooltip).toHaveText("Delete");
       expect(await tooltip.evaluate((el) => el.matches(":popover-open"))).toBe(true);
+      await expect(button).not.toHaveAttribute("title");
 
       const buttonBox = await button.boundingBox();
       const tooltipBox = await tooltip.boundingBox();
@@ -34,6 +33,7 @@ frameworks.forEach((framework) => {
 
       await page.mouse.move(0, 0);
       await expect(tooltip).toHaveCount(0);
+      await expect(button).toHaveAttribute("title", "Delete");
     });
   });
 });

@@ -333,10 +333,6 @@ export abstract class BaseAction extends Base implements IAction {
   public getTooltip(): string {
     return this.tooltip || (!this.hasTitle ? this.title : null);
   }
-  // Icon-only actions no longer render a `title` attribute, so the tooltip text has to name them.
-  public getAriaLabel(): string {
-    return this.ariaLabel || (!this.hasTitle ? this.getTooltip() : undefined);
-  }
   public getIsTrusted(args: any): boolean {
     if (!!args.originalEvent) {
       return args.originalEvent.isTrusted;

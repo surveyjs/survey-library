@@ -1090,8 +1090,8 @@ export abstract class QuestionRecordsModel extends Question {
     write();
   }
   /* A change of the minimum or the maximum count (getRecordCountNames): the other limit and the count
-     follow, and the count expression runs again over the new limits. The type adds its own steps:
-     onMinRecordCountApplied before the count follows a new minimum, onMaxRecordCountApplied last. */
+     follow, and the count expression runs again over the new limits. The type adds its own step:
+     onMinRecordCountApplied before the count follows a new minimum. */
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (recordsBarInputs.indexOf(name) > -1) {
@@ -1123,10 +1123,8 @@ export abstract class QuestionRecordsModel extends Question {
     const limit = this.getRecordCountLimitOf(names.maxCount);
     if (this.recordCount > limit)this.writeRecordCount(limit, "internal");
     this.rerunRecordCountExpression();
-    this.onMaxRecordCountApplied();
   }
   protected onMinRecordCountApplied(val: number): void { }
-  protected onMaxRecordCountApplied(): void { }
   /* The count expression of a type (rowCountExpression, panelCountExpression) over the count it sets
      (getRecordCountNames). A data source owns the number of records, so the expression is ignored
      while one is attached - including the add/remove gating it otherwise imposes. No error: a question
@@ -1216,16 +1214,33 @@ export abstract class QuestionRecordsModel extends Question {
     }
     return res;
   }
-  /* defaultRowValue / defaultPanelValue: an empty question gets recordCount copies of it. Returns
-     false when it does not apply - there is no default record value, or defaultValue is set - and the
-     question's own default value is applied instead. */
-  protected setDefaultRecordValues(defaultRecordValue: any, recordCount: number): boolean {
-    if (this.isValueEmpty(defaultRecordValue) || !this.isValueEmpty(this.defaultValue)) return false;
-    if (!this.isEmpty() || recordCount == 0) return true;
+  /* The record every new row or panel starts from: defaultRowValue, defaultPanelValue. undefined: the
+     type has none - the Multi-Select Matrix, whose default value is the question's own. */
+  protected getDefaultRecordValue(): any {
+    return undefined;
+  }
+  protected isDefaultValueEmpty(): boolean {
+    return super.isDefaultValueEmpty() && this.isValueEmpty(this.getDefaultRecordValue());
+  }
+  /* The default record: an empty question gets recordCount copies of it. It does not apply when there
+     is none, or when defaultValue is set - the question's own default value is applied instead. */
+  protected setDefaultValue(): void {
+    const defaultRecordValue = this.getDefaultRecordValue();
+    if (this.isValueEmpty(defaultRecordValue) || !this.isValueEmpty(this.defaultValue)) {
+      super.setDefaultValue();
+      return;
+    }
+    const recordCount = this.recordCount;
+    if (!this.isEmpty() || recordCount == 0) return;
     const newValue: Array<any> = [];
     for (let i = 0; i < recordCount; i++) newValue.push(defaultRecordValue);
     this.value = newValue;
-    return true;
+  }
+  // With confirmDelete on, a removal asks for a confirmation unless the record is empty or equals the default record.
+  protected isRecordToConfirmOnDelete(record: any): boolean {
+    const defaultRecordValue = this.getDefaultRecordValue();
+    return !this.isValueEmpty(record) &&
+      (this.isValueEmpty(defaultRecordValue) || !this.isTwoValueEquals(record, defaultRecordValue));
   }
   /* The records decide the page: their visibility is decided over the records, and when a flag changed
      and the page is not the one the objects hold, the objects are rebuilt - the rebuild runs the

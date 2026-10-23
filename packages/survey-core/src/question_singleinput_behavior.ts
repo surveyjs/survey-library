@@ -170,7 +170,7 @@ export class QuestionSingleInputBehavior {
 
   // true: a stored "self" is the summary step (Dynamic Panel, matrices).
   // false: a stored "self" is an ordinary first step that renders the question's own content.
-  public isSelfSummaryStep(): boolean {
+  protected isSelfSummaryStep(): boolean {
     return true;
   }
 

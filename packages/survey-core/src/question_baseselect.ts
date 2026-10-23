@@ -2834,7 +2834,7 @@ export class SelectBaseSingleInputBehavior extends QuestionSingleInputBehavior {
   protected get selectBase(): QuestionSelectBase {
     return <QuestionSelectBase>this.question;
   }
-  public isSelfSummaryStep(): boolean {
+  protected isSelfSummaryStep(): boolean {
     return false;
   }
   protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {

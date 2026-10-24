@@ -162,6 +162,7 @@ export { property, propertyArray } from "../../src/decorators";
 export { QuestionRecordsModel, IRecordsDesignSortDialogOptions } from "../../src/question_records";
 export { QuestionRecordsBar } from "../../src/question_records_bar";
 export { RecordsSortDialogModel } from "../../src/records/records-sort-dialog";
+export { IRecordsSortField } from "../../src/records/records-sort-bar";
 export {
   IMatrixDropdownData,
   MatrixDropdownCell,

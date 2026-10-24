@@ -173,6 +173,7 @@ export abstract class QuestionRecordsModel extends Question {
       get listPageSize(): number { return question.listPageSize; },
       get maxSortLevel(): number { return question.maxSortLevel; },
       getFieldDataType: (field: string): DynamicDataFieldType => question.getSortFieldDataType(field),
+      getDesignSortFields: (): Array<IRecordsSortField> => question.getDesignSortFields(),
       get pageIndex(): number { return question.reportedPageIndex; },
       get pageCount(): number { return question.reportedPageCount; },
       get isDesignMode(): boolean { return question.isDesignMode; },
@@ -2173,7 +2174,7 @@ export abstract class QuestionRecordsModel extends Question {
   /* The sort a respondent can make: by a header click a renderer may offer (a column opts out with
      column.allowSort = false) or from the sort bar. It does not gate the code API - sort(),
      sortCriteria, clearSort() and toggleSort() work whatever its value: the renderers gate on
-     column.isSortable and isSortBarVisible. Nor does it gate the designer's dialog (showSortDialog). */
+     column.isSortable and isSortBarVisible. Nor does it gate what a designer can sort by (getDesignSortFields). */
   @property({ defaultValue: false }) allowSort: boolean;
   /* The most criteria a respondent's toggleSort(field, true) leaves in the sort: at least 1, with no
      upper bound. sort(), sortCriteria and JSON are not limited by it. The clamp is in the setter, which
@@ -2267,7 +2268,7 @@ export abstract class QuestionRecordsModel extends Question {
   protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
     return [];
   }
-  /* The fields the designer's dialog offers (showSortDialog): every field whose values sort, whatever allowSort
+  /* The fields a designer can sort by (getDesignSortFields): every field whose values sort, whatever allowSort
      and a column's allowSort say - they gate the respondent, not sortCriteria. The dynamic panel offers what its
      bar offers. */
   protected getDesignSortFieldCandidates(): Array<{ field: string, title: string }> {
@@ -2371,7 +2372,14 @@ export abstract class QuestionRecordsModel extends Question {
       getRootElement: (): HTMLElement => question.survey?.rootElement
     };
   }
-  /* Creator's entry to the "Sort by" dialog: the designer edits sortCriteria with it. Not for respondents.
+  /* The fields a designer can sort by, computed on every call: Creator's property grid offers them as the choices
+     of a sortCriteria item's field (SortCriterion.getFieldChoices), and the designer's dialog (showSortDialog)
+     offers the same ones, so the two never disagree. */
+  public getDesignSortFields(): Array<IRecordsSortField> {
+    return this.toSortFields(this.getDesignSortFieldCandidates());
+  }
+  /* Creator's entry to the "Sort by" dialog, an alternative to editing the sortCriteria items in place in the
+     property grid (each item reports this question's survey, so an edit is an undo step). Not for respondents.
      The dialog offers every value-sortable field (getDesignSortFieldCandidates) and as many rows as fields:
      allowSort, a column's allowSort and maxSortLevel limit the respondent only. Its Apply neither sorts nor
      validates the page: a changed draft goes to options.onApply. The dialog reads its texts again on every
@@ -2417,7 +2425,7 @@ export abstract class QuestionRecordsModel extends Question {
   private createDesignSortDialogOwner(options: IRecordsDesignSortDialogOptions): IQuestionRecordsBarOwner {
     const question = this;
     const locale = options.locale;
-    const fields = (): Array<IRecordsSortField> => question.toSortFields(question.getDesignSortFieldCandidates());
+    const fields = (): Array<IRecordsSortField> => question.getDesignSortFields();
     const owner: IQuestionRecordsBarOwner = Object.create(this.createRecordsBarOwner());
     Object.defineProperties(owner, {
       sortFields: { get: fields },
@@ -4229,8 +4237,10 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
 }
 /* The serializer entries of the paging, the sort and the filter of a records question.
    pageSize shows in the property grid.
-   sortCriteria shows there too: Creator edits it with the "Sort by" dialog (showSortDialog), whatever
-   allowSort says - a designer's initial sort applies without letting respondents re-sort.
+   sortCriteria shows there too, whatever allowSort says - a designer's initial sort applies without
+   letting respondents re-sort. Creator edits its items in place, a row per item with field and direction
+   (SortCriterion: the survey and the field choices); uniqueProperty marks field as the column whose
+   values must not repeat. The "Sort by" dialog (showSortDialog) is the other way to edit it.
    filterExpression stays hidden and only loads from and saves to JSON.
    sortCriteria is an array of sortcriterion objects (the shape of calculatedValues); an element that
    is a plain string is not a criterion and has no shorthand.
@@ -4244,7 +4254,7 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
    list, for good. */
 export function getRecordViewProperties(): Array<any> {
   return [{ name: pagingStateKeys.pageSize + ":number", default: 0, minValue: 0 },
-    { name: pagingStateKeys.sortCriteria + ":sortcriteria", className: "sortcriterion", isArray: true },
+    { name: pagingStateKeys.sortCriteria + ":sortcriteria", className: "sortcriterion", isArray: true, uniqueProperty: "field" },
     { name: pagingStateKeys.filterExpression, default: "", visible: false },
     { name: "allowSort:boolean", default: false },
     { name: "maxSortLevel:number", default: 1, minValue: 1, visibleIf: isSortAllowed, dependsOn: ["allowSort"] }];

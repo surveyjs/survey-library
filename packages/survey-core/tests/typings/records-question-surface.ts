@@ -130,6 +130,9 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   const designDialog: PopupBaseViewModel = pd.showSortDialog({ onApply: (criteria: Array<ISortCriterion>): void => { res.push(criteria); },
     rootElement: undefined, locale: "de" });
   res.push(designDialog, md.showSortDialog({ onApply: (): void => { } }));
+  // The fields a designer can sort by: Creator's property grid offers them for a sortCriteria item.
+  const designFields: Array<{ field: string, title: string, dataType: string }> = md.getDesignSortFields();
+  res.push(designFields, pd.getDesignSortFields());
   // @ts-expect-error the sort bar reaches the respondent's sort through the question's owner object
   const mdSortByUser: DeclaredKeys<QuestionMatrixDynamicModel> = "sortByUser";
   // @ts-expect-error the offered fields reach the sort bar through the question's owner object

@@ -1867,6 +1867,138 @@ describe("Records sort: plain criteria", () => {
   });
 });
 
+/* Creator edits sortCriteria in its property grid as a dynamic matrix bound to the live array, a row per item:
+   an item reports its question's survey, so an edit of its field or direction is an undo step, its field offers
+   the designer's fields as choices, and the item a row holds stays the same object when the row moves or an undo
+   puts it back. */
+describe("Records sort: the items Creator's property grid edits", () => {
+  const create = createSorted;
+  type PropertyChange = { name: string, oldValue: any, newValue: any, target: any };
+  function trackChanges(survey: SurveyModel): Array<PropertyChange> {
+    const res: Array<PropertyChange> = [];
+    survey.onPropertyValueChangedCallback = (name: string, oldValue: any, newValue: any, target: any): void => {
+      res.push({ name: name, oldValue: oldValue, newValue: newValue, target: target });
+    };
+    return res;
+  }
+  const itemChanges = (changes: Array<PropertyChange>): Array<PropertyChange> =>
+    changes.filter((change: PropertyChange) => change.target instanceof SortCriterion);
+  sortKinds.forEach(kind => {
+    test("every item reports the question's survey, a loaded, pushed or created one; a new one has none, " + kind.type, () => {
+      const survey = new SurveyModel({ elements: [Object.assign({ type: kind.type, name: "q", sortCriteria: [{ field: "a", direction: "desc" }] }, kind.json)] });
+      const q: any = survey.getQuestionByName("q");
+      expect(q.sortCriteria.map((item: SortCriterion) => item.getSurvey() === survey), "#1: loaded").toEqual([true]);
+      q.sortCriteria.push({ field: "b" });
+      const created = Serializer.createClass("sortcriterion");
+      created.field = "a";
+      q.sortCriteria.splice(0, 1, created);
+      expect(getSort(q), "#2").toEqual([{ field: "a", direction: "asc" }, { field: "b", direction: "asc" }]);
+      expect(q.sortCriteria.map((item: SortCriterion) => item.getSurvey() === survey), "#2: pushed and created").toEqual([true, true]);
+      expect(Serializer.createClass("sortcriterion").getSurvey(), "#3: no owner, no survey").toBeNull();
+    });
+    test("design mode: an edit of field and direction notifies the survey once each and keeps the items, " + kind.type, () => {
+      const q = create(kind, { sortCriteria: [{ field: "a" }, { field: "b" }] }, true);
+      const items = [].concat(q.sortCriteria);
+      const changes = trackChanges(q.survey);
+      items[0].field = "b";
+      items[1].direction = "desc";
+      expect(changes, "#1").toEqual([{ name: "field", oldValue: "a", newValue: "b", target: items[0] },
+        { name: "direction", oldValue: "asc", newValue: "desc", target: items[1] }]);
+      expect(q.sortCriteria.every((item: any, index: number) => item === items[index]), "#2: the same objects").toBe(true);
+      expect(getSort(q), "#3").toEqual([{ field: "b", direction: "asc" }, { field: "b", direction: "desc" }]);
+    });
+    test("runtime: toggleSort, sort() and an assignment notify the survey of no item, " + kind.type, () => {
+      const q = create(kind);
+      const changes = trackChanges(q.survey);
+      q.toggleSort("a");
+      q.toggleSort("a");
+      q.sort("b", "desc", true);
+      q.sortCriteria = [{ field: "b" }, { field: "a", direction: "desc" }];
+      q.sortCriteria.push({ field: "x" });
+      expect(itemChanges(changes), "#1").toEqual([]);
+      // An edit of an item from code is an edit of an object of the survey: it is reported, as any other one.
+      q.sortCriteria[0].direction = "desc";
+      expect(itemChanges(changes).map((change: PropertyChange) => change.name), "#2").toEqual(["direction"]);
+    });
+    test("design mode: a move by splice and a removed item put back keep the same object, " + kind.type, () => {
+      const q = create(kind, { sortCriteria: [{ field: "a" }, { field: "b" }, { field: "c" }] }, true);
+      const [a, b, c] = q.sortCriteria;
+      q.sortCriteria.splice(0, 1);
+      q.sortCriteria.splice(2, 0, a);
+      expect(q.sortCriteria[2] === a, "#1: moved, the same object").toBe(true);
+      expect(getSort(q).map((item: any) => item.field), "#1").toEqual(["b", "c", "a"]);
+      q.sortCriteria.splice(1, 1);
+      q.sortCriteria.splice(1, 0, c);
+      expect(q.sortCriteria.every((item: any, index: number) => item === [b, c, a][index]), "#2: put back, the same object").toBe(true);
+      const changes = trackChanges(q.survey);
+      c.direction = "desc";
+      expect(itemChanges(changes).length, "#3: the item is still the sort's").toBe(1);
+      expect(getSort(q)[1], "#3").toEqual({ field: "c", direction: "desc" });
+    });
+  });
+  test("a property grid matrix moves a row and keeps the item it edits", () => {
+    const design = new SurveyModel();
+    design.setDesignMode(true);
+    design.fromJSON({ elements: [{ type: "matrixdynamic", name: "q", columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text" }],
+      sortCriteria: [{ field: "a" }, { field: "b", direction: "desc" }] }] });
+    const question: any = design.getQuestionByName("q");
+    const items = [].concat(question.sortCriteria);
+    const grid = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "sortCriteria", allowRowReorder: true,
+      columns: [{ cellType: "dropdown", name: "field" }, { cellType: "dropdown", name: "direction" }] }] });
+    const matrix = <QuestionMatrixDynamicModel>grid.getQuestionByName("sortCriteria");
+    grid.editingObj = question;
+    expect(matrix.visibleRows.map((row: any) => row.editingObj === items[row.rowIndex - 1]), "#1").toEqual([true, true]);
+    matrix.moveRowByIndex(0, 1);
+    expect(question.sortCriteria[0] === items[1] && question.sortCriteria[1] === items[0], "#2: the same objects, moved").toBe(true);
+    expect(matrix.visibleRows.map((row: any) => row.editingObj === question.sortCriteria[matrix.visibleRows.indexOf(row)]), "#3: rows edit them").toEqual([true, true]);
+    expect(getSort(question), "#4").toEqual([{ field: "b", direction: "desc" }, { field: "a", direction: "asc" }]);
+  });
+  test("getDesignSortFields: the matrix offers every value-sortable column, whatever allowSort, and follows the columns", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", allowSort: false, columns: [
+      { name: "a", title: "Alpha", cellType: "text", allowSort: false },
+      { name: "b", cellType: "text", visible: false },
+      { name: "tags", cellType: "checkbox", choices: ["x"] },
+      { name: "n", title: "Number", cellType: "text", inputType: "number" }] }] });
+    const q: any = survey.getQuestionByName("q");
+    const fields = (): Array<any> => q.getDesignSortFields().map((f: any) => ({ field: f.field, title: f.title }));
+    expect(fields(), "#1").toEqual([{ field: "a", title: "Alpha" }, { field: "b", title: "b" }, { field: "n", title: "Number" }]);
+    expect(q.getDesignSortFields().map((f: any) => f.dataType), "#2: the data type the list registered").toEqual(["any", "any", "number"]);
+    q.addColumn("c", "Gamma");
+    q.getColumnByName("a").title = "A";
+    expect(fields(), "#3").toEqual([{ field: "a", title: "A" }, { field: "b", title: "b" }, { field: "n", title: "Number" }, { field: "c", title: "Gamma" }]);
+  });
+  test("getDesignSortFields: the dynamic panel offers its template's value-sortable questions once each", () => {
+    const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "q", templateElements: [
+      { type: "text", name: "a", title: "Alpha" },
+      { type: "checkbox", name: "tags", choices: ["x"] },
+      { type: "panel", name: "p", elements: [{ type: "text", name: "b" }, { type: "text", name: "b2", valueName: "a" }] }] }] });
+    const q: any = survey.getQuestionByName("q");
+    expect(q.getDesignSortFields().map((f: any) => ({ field: f.field, title: f.title })), "#1").toEqual([{ field: "a", title: "Alpha" }, { field: "b", title: "b" }]);
+  });
+  test("the choices of field: the item's question's design fields; none without an item or an owner", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m", columns: [{ name: "a", title: "Alpha", cellType: "text" }, { name: "b", cellType: "text", visible: false }], sortCriteria: [{ field: "a" }] },
+      { type: "paneldynamic", name: "p", templateElements: [{ type: "text", name: "x", title: "X" }], sortCriteria: [{ field: "stale" }] }] });
+    const prop = Serializer.findProperty("sortcriterion", "field");
+    const m: any = survey.getQuestionByName("m");
+    const p: any = survey.getQuestionByName("p");
+    expect(prop.getChoices(m.sortCriteria[0]), "#1: matrix").toEqual([{ value: "a", text: "Alpha" }, { value: "b", text: "b" }]);
+    expect(prop.getChoices(p.sortCriteria[0]), "#2: dynamic panel").toEqual([{ value: "x", text: "X" }]);
+    expect(p.sortCriteria[0].field, "#3: a field that is not offered stays").toBe("stale");
+    expect(prop.getChoices(Serializer.createClass("sortcriterion")), "#4: no owner").toEqual([]);
+    expect(prop.getChoices(null), "#5: no object").toEqual([]);
+    expect(prop.getChoices(m), "#6: not an item").toEqual([]);
+  });
+  test("sortCriteria marks field as its unique property; the JSON round trip is unchanged", () => {
+    ["matrixdynamic", "paneldynamic", "matrixdropdown"].forEach((type: string) => {
+      expect(Serializer.findProperty(type, "sortCriteria").uniquePropertyName, type).toBe("field");
+    });
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", columns: [{ name: "a" }, { name: "b" }],
+      sortCriteria: [{ field: "a" }, { field: "b", direction: "desc" }] }] });
+    expect(survey.getQuestionByName("q").toJSON().sortCriteria, "#1").toEqual([{ field: "a" }, { field: "b", direction: "desc" }]);
+  });
+});
+
 /* What a respondent can sort: allowSort and maxSortLevel are on every records question, showSortBar on the
    matrices. The property grid shows them on the dynamic types only. */
 describe("Records sort: what a respondent can sort", () => {

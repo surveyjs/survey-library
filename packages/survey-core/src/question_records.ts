@@ -3712,6 +3712,9 @@ export abstract class QuestionRecordsValueGetterContext extends QuestionValueGet
     if (!params.createObjects && this.question.isEmpty()) return { isFound: params.path.length === 0, value: undefined };
     return super.getValue(params);
   }
+  public getFieldValueConverter(name: string): (val: any) => any {
+    return getRecordFieldValueConverter(<QuestionRecordsModel>this.question, name);
+  }
 }
 
 export abstract class QuestionRecordItemGetterContext extends QuestionItemValueGetterContext {
@@ -4115,6 +4118,13 @@ class RecordValueItem extends QuestionRecordItem {
   public get questions(): Array<Question> {
     return [];
   }
+}
+/* The converter of a record field for the value getter contexts (getFieldValueConverter): the template
+   question that stores the field converts a stored value, so a record without a row or a panel is
+   converted too (Bug#12122). */
+export function getRecordFieldValueConverter(question: QuestionRecordsModel, name: string): (val: any) => any {
+  const template = question["getRecordTemplateQuestion"](name);
+  return !!template ? (val: any): any => template.getExpressionValue(val) : undefined;
 }
 // A records value as an array of records: [] for any other value (an empty answer, a keyed one).
 function asRecords(value: any): Array<any> {

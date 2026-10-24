@@ -15,7 +15,7 @@ import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValuePa
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { ArrayChanges, Base } from "./base";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
-import { QuestionRecordItem, IDynamicDataRecordUniqueness } from "./question_records";
+import { QuestionRecordItem, IDynamicDataRecordUniqueness, getRecordFieldValueConverter } from "./question_records";
 import { IRowsChange, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
 import { IDynamicDataRecordCondition } from "./dynamic-data/dynamic-data-record-visibility";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
@@ -32,11 +32,14 @@ export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
     if (!this.question.isDesignMode && !params.createObjects && this.question.isEmpty() && path.length === 0) return { isFound: true, value: undefined };
-    if (path.length > 0) {
-      const res = super.getValue(params);
-      if (res && res.isFound) return res;
-    }
+    // {matrix} itself is answered here, so a reader gets this context with the value (getFieldValueConverter).
+    if (path.length === 0) return { isFound: true, value: this.question.value, context: this };
+    const res = super.getValue(params);
+    if (res && res.isFound) return res;
     return new VariableGetterContext(this.question.value).getValue(params);
+  }
+  public getFieldValueConverter(name: string): (val: any) => any {
+    return getRecordFieldValueConverter(this.question, name);
   }
   getRootObj(): IObjectValueContext { return <any>this.question.data; }
   // A name that is no rows item does not build the rows.

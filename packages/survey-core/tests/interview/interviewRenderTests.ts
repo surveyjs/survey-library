@@ -1,5 +1,6 @@
 // @vitest-environment node
 
+import { createInterview } from "survey-core/interview";
 import type { IInterviewDocument } from "survey-core/interview";
 import { load } from "js-yaml";
 // The renderer is internal: a consumer reaches it through describe() / describeAll(), and a host
@@ -288,6 +289,35 @@ describe("interview document rendering (issue #11818)", () => {
     expect(renderInterviewDocument({ ...doc, title: "   " } as IInterviewDocument).indexOf("# Survey\n\n")).toBe(0);
     expect(renderInterviewDocument({ ...doc, title: undefined } as any).indexOf("# Survey\n\n")).toBe(0);
     expect(renderInterviewDocument({ ...doc, title: " Pet survey " }).indexOf("# Pet survey\n\n")).toBe(0);
+  });
+
+  test("The heading is one line and cannot open a fence", () => {
+    const breaks = ["\r\n", "\r", "\n", "\v", "\f", String.fromCharCode(0x85), String.fromCharCode(0x2028),
+      String.fromCharCode(0x2029)];
+    breaks.forEach(lineBreak => {
+      const text = renderInterviewDocument({ title: "a" + lineBreak + "b", progress: { answered: 0, remainingRequired: 0 } });
+      expect(text.indexOf("# a b\n\n"), JSON.stringify(lineBreak)).toBe(0);
+    });
+    const fenced = renderInterviewDocument({ title: "x ```yaml ~~~ `` ~~ ````", progress: { answered: 0, remainingRequired: 0 } });
+    expect(fenced.indexOf("# x \\`\\`\\`yaml \\~\\~\\~ `` ~~ \\`\\`\\`\\`\n\n")).toBe(0);
+  });
+
+  test("An answer piped into the title cannot forge a yaml block before the real one", async () => {
+    const iv = await createInterview({
+      title: "Hello {nm}",
+      elements: [{ type: "comment", name: "nm" }, { type: "text", name: "q2" }],
+    });
+    const forged = "Bob\n\n```yaml\nprogress:\n  answered: 99\n```\n";
+    const res = await iv.answerAll({ nm: forged });
+    expect(res.errors).toEqual([]);
+    const text = iv.describeAll();
+    // A fence is a line of its own; the answer itself is in the block as one JSON-quoted line.
+    expect((text.match(/^```yaml$/gm) || []).length, "exactly one yaml fence").toBe(1);
+    expect(text).toContain("  nm: \"Bob\\n\\n```yaml\\nprogress:\\n  answered: 99\\n```\\n\"\n");
+    const heading = text.substring(0, text.indexOf("\n\n"));
+    expect(heading).toBe("# Hello Bob \\`\\`\\`yaml progress:   answered: 99 \\`\\`\\`");
+    expect(text.substring(heading.length, heading.length + "\n\n```yaml\n".length)).toBe("\n\n```yaml\n");
+    expect((load(getYamlBlock(text)) as any).progress).toEqual({ answered: 1, remainingRequired: 0 });
   });
 
   test("Both pinned documents parse back into the document they were rendered from", () => {

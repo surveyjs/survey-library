@@ -230,6 +230,13 @@ current:
 
 * The heading is the survey's `processedTitle`. A survey with no title gets `# Survey`, so that a
   document always starts the same way.
+* The heading is **one line that cannot open a fence**. The title pipes answers in, so `"Hello {nm}"`
+  with an `nm` that holds a newline and a ```` ```yaml ```` fence would otherwise put a block of the
+  interviewee's making before the real one. Every line break (`\r\n`, `\r`, `\n`, `\v`, `\f`, U+0085,
+  U+2028, U+2029) becomes a space, and a run of three or more backticks or tildes gets a backslash
+  before each — `` \` `` and `\~` are CommonMark escapes and render as the plain characters, and a
+  consumer that searches the text for ```` ```yaml ```` finds only the real block. The heading is
+  the only text outside the block; any text added there later is written the same way.
 * The sections come out in one fixed order — `progress`, `answered`, `changes`, `errors`, then
   `current` (single mode) or `items` (batch mode) — whatever order the document was built in.
 * `progress` always carries both `answered` and `remainingRequired`.
@@ -301,13 +308,23 @@ What it guarantees is that **the value a consumer parses back is the value the s
   `"No"`, `"1"`, `"2024-01-01"`, `""`, `"true"`, `"~"`, a string that starts with an indicator
   (`- ? : , [ ] { } # & * ! | > ' " % @ \``) or with a space, ends with a space or a colon, or
   carries `: `, ` #`, a newline or a tab. `Dog`, `petType` and `Do you have a pet?` stay bare.
+* The rule is YAML 1.1's as well, which PyYAML and go-yaml v2 still speak: `y`, `n` (any case), `=`,
+  `<<` and a base-60 number (`12:30`, `+1:2`, `1:2:3.5`) are quoted, as values and as keys. js-yaml
+  is YAML 1.2 and would read all of them back as strings either way, so the tests assert the text.
+* A string that holds DEL, a C1 control (0x80–0x9f, 0x85 included), U+2028, U+2029, U+FFFE, U+FFFF
+  or a lone surrogate is quoted, and each of those characters is written as a `\uXXXX` escape. js-yaml
+  refuses them in a plain scalar — the whole document with it — and PyYAML refuses them anywhere, or
+  reads 0x85 and U+2028/U+2029 as line breaks.
+* A root scalar that is `...`, or starts with `...` and whitespace, is quoted: the line would end the
+  document.
 * A multi-line string — an HTML description — is quoted with `\n` in it, never written as a block
   scalar: one line per key keeps the consumer's parser trivial.
 * A sequence of scalars that fits in 80 columns is inline (`becameVisible: [petType, petAge]`);
   anything else is a block sequence, and a map inside one starts on its dash line
   (`- value: Dog`). In a flow sequence `,` `[` `]` `{` `}` are delimiters, so a string carrying one
   is quoted there even though it is bare in block context: `["a,b"]` is one value, not two.
-* Numbers, booleans and `null` are written as themselves; a non-finite number is quoted.
+* Numbers, booleans and `null` are written as themselves; a non-finite number is quoted, so `NaN`
+  and `Infinity` read back as the strings `"NaN"` and `"Infinity"` — JSON has no such values either.
 
 `tests/interview/interviewYamlTests.ts` pins every rule above and reads each fixture back with
 `js-yaml` — a real parser, on purpose: a second parser written next to the emitter would only agree
@@ -1054,7 +1071,8 @@ carries — and not of the nested input a respondent fills one at a time. So:
   terms, and for most sources they are not in `survey.data`. So the interview does not support it
   yet. It is listed and never current, a key for it is `notAskable`, and in single mode so is an
   address inside it (`items[0].sku`). It has no property in the answer schema.
-* an item an `enableIf` turned off is listed with `disabled: true` and refused by `answerAll()`; a
+* an item an `enableIf` turned off is listed with `disabled: true` and refused by `answerAll()`,
+  unless another key of the same call turns it on; a
   question that is read-only by property is not an item and is not listed.
 * items the interviewee **skipped** in single mode are listed. Skipping is a gesture of a
   conversation with a person; an agent that wants to leave a question blank leaves it blank.
@@ -1071,9 +1089,12 @@ belongs to.
 **A key that names an input another key of the same call reveals is written in that call**, whatever
 order the object carries them in — a question inside the choice that key selects
 (`{ petName: "Rex", hasPet: "Yes" }`), a root that key's `visibleIf` shows
-(`{ from: "Rome", trip: "yes" }`). The keys that name nothing when the call starts are resolved again
-once the others were written, and written as a further pass, again in item order; that repeats while
-a pass writes something. A key still left after the last pass is refused against the state **after**
+(`{ from: "Rome", trip: "yes" }`). **So is a key that names an input another key of the same call
+enables** — an `enableIf` that key turns true (`{ hasPet: "Yes", petName: "Rex" }`). The keys that
+name nothing when the call starts, and the keys refused as `disabled`, are resolved again once the
+others were written, and written as a further pass, again in item order; that repeats while a pass
+writes something. A key still disabled after the last pass keeps its `notAskable` refusal with the
+reason `disabled`. A key still left after the last pass is refused against the state **after**
 the writes: a question the survey has and does not show now — hidden before the call or by an earlier
 key of it, or inside a choice that is not selected — is `notAskable` with the reason `hidden`, the
 answer a hidden field of a container gets at any depth; any other key is `unknownQuestion`, and its
@@ -1694,14 +1715,14 @@ fetches a meta-schema at run time. The mapping, per item:
 | `valueType: "string"` | `type: "string"` |
 | `valueType: "number"` | `type: "number"` |
 | `valueType: "boolean"` | `enum` of the two values — `[false, true]`, or the custom `valueFalse`/`valueTrue` pair. One rule for every question that offers a set, and no special case to get wrong. |
-| `valueType: "date"` | `type: "string"` with `format` by `inputType`: `datetime-local` → `date-time`, `time` → `time`, everything else → `date` |
-| `valueType: "array"` | `type: "array"`, `uniqueItems: true`, and `items: { enum: [...] }` when the choices can be enumerated |
-| `constraints.min` / `max` | `minimum` / `maximum` |
+| `valueType: "date"` | `type: "string"`. `inputType: "date"` adds `format: "date"`. `datetime-local`, `time`, `month` and `week` get no `format` — `date-time` and `time` want seconds and an offset, which the inputs do not produce, and no format means a month or a week — and their shape goes into `description`: `YYYY-MM-DDTHH:mm[:ss]`, `HH:mm[:ss]`, `YYYY-MM`, `YYYY-Www` |
+| `valueType: "array"` | `type: "array"`, and `items: { enum: [...] }` when the choices can be enumerated. `uniqueItems: true` only for a question whose value is a set: `checkbox`, `tagbox`, `ranking`. A range slider is `items: { type: "number" }`, its two ends may be equal |
+| `constraints.min` / `max` | `minimum` / `maximum`; on a range slider inside `items`. The slider model does not enforce them; they are the bounds its UI offers |
 | `constraints.minLength` / `maxLength` | `minLength` / `maxLength` |
 | `constraints.minCount` / `maxCount` | `minItems` / `maxItems` |
-| `constraints.regex` | `pattern` |
+| `constraints.regex` | `pattern`. With `constraints.regexFlags: "i"` (the validator's `caseInsensitive`) there is no `pattern` — it has no flags, and would refuse what the model accepts — and `description` says `regex /<regex>/i` |
 | `constraints.format: "email"`, or `inputType: "email"` | `format: "email"` |
-| `constraints.step` | `multipleOf`, **only** when `min` is `0` or absent — JSON Schema counts multiples from zero and the model steps from `min`, so anywhere else the step goes unreported rather than wrong |
+| `constraints.step` | `multipleOf` **only** for `inputType: "number"` and an integer step, whatever `min` is: that is the one step the model checks, and it counts from zero, as `multipleOf` does. Any other step — a fraction (`multipleOf: 0.1` fails `0.3` on float error, the model does not), `inputType: "range"`, a slider, whose step the model does not check — goes into `description`: `step 0.1` |
 | `comment` | a second property, `<name>` + `settings.commentSuffix`, of `type: "string"` |
 | `required: true` | the name is in `required` |
 | `disabled: true` | `readOnly: true`, and never in `required` |
@@ -1714,12 +1735,18 @@ fetches a meta-schema at run time. The mapping, per item:
 
 A date bound and a mask have no draft 2020-12 keyword, and an `ExpressionValidator` has none either.
 They go into `description` as text, in brackets after the question's own description:
-`"Your birthday (min 2020-01-01, max 2030-12-31)"`.
+`"Your birthday (min 2020-01-01, max 2030-12-31)"`. A date shape, a step and a case-insensitive regex
+go there the same way, the shape first: `"When (YYYY-MM, min 2024-01)"`.
+
+The rule behind every row: **the schema never refuses a value that is stored and passes the model's
+validation**. Where a keyword would be stricter than the model, the constraint is text instead.
 
 ## Tools
 
 `getTools()` returns three tool definitions in the **MCP shape** — `name`, `description`,
-`inputSchema` — which every function-calling API accepts after renaming one key.
+`inputSchema`. A function-calling API takes them once that one key is renamed: `parameters` for
+OpenAI, `input_schema` for Anthropic (below). Every call returns new objects, the empty schemas
+included, so a host that decorates one definition changes no other.
 
 | `name` | `inputSchema` | `callTool` runs |
 | --- | --- | --- |
@@ -1729,7 +1756,9 @@ They go into `description` as text, in brackets after the question's own descrip
 
 `getTools({ prefix })` prepends `prefix` to all three names, so one server can expose several surveys
 through one set of tools; `callTool(name, args)` takes the prefixed name back and rejects an unknown
-one with `Error("unknown tool: <name>")`. The definitions are plain data — nothing in this module
+one with `Error("unknown tool: <name>")`. OpenAI and Anthropic both take a tool name of
+`^[a-zA-Z0-9_-]{1,64}$`, so a prefix is letters, digits, `_` and `-`, at most 49 of them (the longest
+base name is 15). Any other prefix, or one that is not a string, throws a `TypeError`. The definitions are plain data — nothing in this module
 talks to a network, and nothing remembers the prefix.
 
 The descriptions are fixed English on purpose. Every other text the interview produces is a localized

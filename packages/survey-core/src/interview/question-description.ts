@@ -39,6 +39,8 @@ export interface IQuestionConstraints {
   maxCount?: number;
   step?: number;
   regex?: string;
+  // the regex validator's caseInsensitive
+  regexFlags?: "i";
   format?: "email";
   mask?: { type: string, pattern?: string, min?: any, max?: any };
   // an ExpressionValidator, opaque to the consumer
@@ -165,6 +167,7 @@ function addValidatorConstraints(constraints: IQuestionConstraints, question: Qu
       case "regexvalidator":
         if (!isEmptyValue(validator.regex) && constraints.regex === undefined) {
           constraints.regex = validator.regex;
+          if (validator.caseInsensitive === true) constraints.regexFlags = "i";
         }
         break;
       case "emailvalidator":

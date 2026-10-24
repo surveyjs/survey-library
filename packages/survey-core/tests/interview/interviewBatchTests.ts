@@ -178,6 +178,47 @@ describe("interview batch mode (issue #11818)", () => {
     expect(iv.data).toEqual({ open: true, choice: "yes" });
   });
 
+  test("A key that an earlier key of the same call enables is written in that call", async () => {
+    const json = {
+      elements: [
+        { type: "radiogroup", name: "hasPet", choices: ["Yes", "No"] },
+        { type: "text", name: "petName", enableIf: "{hasPet} = 'Yes'" },
+        { type: "text", name: "petAge", visibleIf: "{hasPet} = 'Yes'" },
+        { type: "text", name: "vet", enableIf: "{petAge} > 10" },
+      ],
+    };
+    const iv = await createInterview(json);
+    const res = await iv.answerAll({ hasPet: "Yes", petName: "Rex", petAge: "3" });
+    expect(res.errors).toEqual([]);
+    expect(iv.data).toEqual({ hasPet: "Yes", petName: "Rex", petAge: "3" });
+    // The order the object carries the keys in does not matter, and a key that nothing in the call
+    // enables keeps its refusal.
+    const other = await createInterview(json);
+    const refused = await other.answerAll({ vet: "Dr. Who", petName: "Rex", hasPet: "Yes" });
+    expect(refused.errors.length).toBe(1);
+    expect(refused.errors[0].code).toBe(InterviewErrorCodes.notAskable);
+    expect(refused.errors[0].name).toBe("vet");
+    expect(refused.errors[0].message).toContain("enableIf");
+    expect(other.data).toEqual({ hasPet: "Yes", petName: "Rex" });
+  });
+
+  test("A key that an earlier key of the same call disables is refused, and the rest are written", async () => {
+    const iv = await createInterview({
+      elements: [
+        { type: "radiogroup", name: "hasPet", choices: ["Yes", "No"] },
+        { type: "text", name: "petName", enableIf: "{hasPet} = 'Yes'" },
+        { type: "text", name: "note" },
+      ],
+    });
+    await iv.answerAll({ hasPet: "Yes" });
+    const res = await iv.answerAll({ note: "x", petName: "Rex", hasPet: "No" });
+    expect(res.errors.length).toBe(1);
+    expect(res.errors[0].code).toBe(InterviewErrorCodes.notAskable);
+    expect(res.errors[0].name).toBe("petName");
+    expect(res.errors[0].message).toContain("enableIf");
+    expect(iv.data).toEqual({ hasPet: "No", note: "x" });
+  });
+
   test("A rating scale is checked for generated and authored values, and inside a container", async () => {
     const iv = await createInterview({
       elements: [

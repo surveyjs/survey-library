@@ -147,13 +147,15 @@ export interface IInterview {
 
 export interface IInterviewToolOptions {
   // prepended to every tool name, so that one server can expose several surveys through one set of
-  // tools; callTool() takes the prefixed name back
+  // tools; callTool() takes the prefixed name back. Letters, digits, "_" and "-", at most 49 of them,
+  // so that every name matches ^[a-zA-Z0-9_-]{1,64}$; anything else throws a TypeError
   prefix?: string;
 }
 
 export interface IInterviewToolDefinition {
   name: string;
   description: string;
-  // JSON Schema object; MCP shape, usable for function calling as-is
+  // JSON Schema object, under the MCP key: for function calling it is renamed - "parameters" for
+  // OpenAI, "input_schema" for Anthropic
   inputSchema: any;
 }

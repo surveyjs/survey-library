@@ -49,6 +49,35 @@ describe("interview tools (issue #11818)", () => {
     expect(await iv.callTool("pets_describe_survey", {})).toBe(iv.describeAll());
   });
 
+  test("Every definition carries a schema object of its own", async () => {
+    const iv = await createInterview(petJson);
+    const first = iv.getTools();
+    const second = iv.getTools();
+    expect(first[0].inputSchema).not.toBe(first[2].inputSchema);
+    expect(first[0].inputSchema.properties).not.toBe(first[2].inputSchema.properties);
+    expect(first[0].inputSchema).not.toBe(second[0].inputSchema);
+    expect(first[0].inputSchema.properties).not.toBe(second[0].inputSchema.properties);
+    // A host that decorates one definition does not change the next call's.
+    first[0].inputSchema.properties.extra = { type: "string" };
+    expect(iv.getTools()[0].inputSchema).toEqual(EMPTY_SCHEMA);
+    expect(first[2].inputSchema).toEqual(EMPTY_SCHEMA);
+  });
+
+  test("A prefix that would make a name the function-calling APIs refuse throws", async () => {
+    const iv = await createInterview(petJson);
+    const longest = new Array(50).join("p");
+    expect(longest.length).toBe(49);
+    expect(toolNames(iv, longest)[2]).toBe(longest + "complete_survey");
+    expect(toolNames(iv, "a-B_9")[0]).toBe("a-B_9describe_survey");
+    [longest + "p", "a.b", "a b", "a/b", "\u00e9"].forEach(prefix => {
+      expect(() => iv.getTools({ prefix: prefix }), JSON.stringify(prefix)).toThrow(TypeError);
+    });
+    expect(() => iv.getTools({ prefix: 5 as any })).toThrow(TypeError);
+    expect(() => iv.getTools({ prefix: null as any })).toThrow(TypeError);
+    expect(toolNames(iv, "")).toEqual(["describe_survey", "answer_survey", "complete_survey"]);
+    expect(iv.getTools({}).length).toBe(3);
+  });
+
   test("callTool runs each of the three", async () => {
     const iv = await createInterview(petJson);
     const described = await iv.callTool("describe_survey", {});

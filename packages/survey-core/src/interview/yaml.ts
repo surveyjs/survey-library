@@ -17,9 +17,12 @@ const MAX_FLOW_WIDTH = 80;
 // A key is written bare only when it looks like an identifier. An address - "medications[0].dose",
 // "matrix.row.column" - therefore comes out quoted; the consumer parses it as a string either way.
 const BARE_KEY_REGEX = /^[A-Za-z_][A-Za-z0-9_-]*$/;
-// Words a parser types for us if we leave them bare: "Yes" would arrive as a boolean.
-const RESERVED_REGEX = /^(?:true|false|yes|no|on|off|null|~)$/i;
+// Words a parser types for us if we leave them bare: "Yes" would arrive as a boolean. "y" and "n"
+// are booleans to go-yaml v2, and PyYAML's SafeLoader fails on "=" (the value tag) and "<<" (merge).
+const RESERVED_REGEX = /^(?:true|false|yes|no|y|n|on|off|null|~|=|<<)$/i;
 const NUMBER_REGEX = /^[-+]?(?:\d[\d_]*(?:\.[\d_]*)?|\.[\d_]+)(?:[eE][-+]?\d+)?$/;
+// YAML 1.1 base 60, an integer or a float: PyYAML reads "12:30" as 750.
+const SEXAGESIMAL_REGEX = /^[-+]?\d[\d_]*(?::[0-5]?\d)+(?:\.[\d_]*)?$/;
 const RADIX_NUMBER_REGEX = /^[-+]?0(?:x[0-9a-fA-F_]+|o[0-7_]+|b[01_]+)$/;
 const SPECIAL_NUMBER_REGEX = /^[-+]?\.(?:inf|nan)$/i;
 // js-yaml resolves both forms into a Date with its default schema, so both are quoted.
@@ -30,6 +33,8 @@ const INDICATOR_START_REGEX = /^[-?:,[\]{}#&*!|>'"%@`\s]/;
 // A flow sequence delimits its items with these, so a string carrying one is quoted there even
 // though it is bare in block context: ["a,b"] must never come out as [a,b], which is two values.
 const FLOW_INDICATOR_REGEX = /[,[\]{}]/;
+// A line that starts with the document end marker ends the document: a root "..." reads back as null.
+const DOCUMENT_END_REGEX = /^\.\.\.(?:\s|$)/;
 
 export function toYaml(value: any, options?: { indent?: number }): string {
   const unit = getIndentUnit(options);
@@ -46,7 +51,8 @@ function getIndentUnit(options?: { indent?: number }): string {
 
 function writeRoot(value: any, unit: string, lines: Array<string>): void {
   if (isScalarValue(value)) {
-    lines.push(formatScalar(value, false));
+    const isDocumentEnd = typeof value === "string" && DOCUMENT_END_REGEX.test(value);
+    lines.push(isDocumentEnd ? quote(value) : formatScalar(value, false));
     return;
   }
   if (Array.isArray(value)) {
@@ -160,9 +166,16 @@ function formatScalar(value: any, isFlow: boolean): string {
 }
 
 // A double-quoted YAML scalar accepts every escape JSON produces, so a multi-line string - an HTML
-// description - stays one line per key and the consumer's parser stays trivial.
+// description - stays one line per key and the consumer's parser stays trivial. JSON leaves the
+// non-printable characters above ASCII raw, and PyYAML refuses them even inside the quotes, so they
+// are escaped as well.
 function quote(text: string): string {
-  return JSON.stringify(text);
+  const json = JSON.stringify(text);
+  let res = "";
+  for (let i = 0; i < json.length; i++) {
+    res += isNonPrintableAt(json, i) ? "\\u" + ("000" + json.charCodeAt(i).toString(16)).slice(-4) : json.charAt(i);
+  }
+  return res;
 }
 
 function isPlainSafe(text: string, isFlow: boolean): boolean {
@@ -180,18 +193,37 @@ function isPlainSafe(text: string, isFlow: boolean): boolean {
 }
 
 function isNumberLike(text: string): boolean {
-  return NUMBER_REGEX.test(text) || RADIX_NUMBER_REGEX.test(text) || SPECIAL_NUMBER_REGEX.test(text);
+  return NUMBER_REGEX.test(text) || RADIX_NUMBER_REGEX.test(text) || SPECIAL_NUMBER_REGEX.test(text) ||
+    SEXAGESIMAL_REGEX.test(text);
 }
 
 function isDateLike(text: string): boolean {
   return DATE_REGEX.test(text) || TIMESTAMP_REGEX.test(text);
 }
 
-// Newlines and tabs included: neither survives a plain scalar.
+// Newlines and tabs included: neither survives a plain scalar. js-yaml refuses a plain scalar that
+// holds a non-printable character - and the whole document with it.
 function hasControlCharacter(text: string): boolean {
   for (let i = 0; i < text.length; i++) {
-    const code = text.charCodeAt(i);
-    if (code < 0x20 || code === 0x7f) return true;
+    if (text.charCodeAt(i) < 0x20 || isNonPrintableAt(text, i)) return true;
   }
   return false;
+}
+
+// The characters a parser refuses, or reads as a line break, beyond the ASCII controls: DEL and the
+// C1 controls (0x85 is a YAML 1.1 line break), U+2028 and U+2029, U+FFFE and U+FFFF, and a surrogate
+// that is not half of a pair.
+function isNonPrintableAt(text: string, index: number): boolean {
+  const code = text.charCodeAt(index);
+  if (isHighSurrogate(code)) return !isLowSurrogate(text.charCodeAt(index + 1));
+  if (isLowSurrogate(code)) return !isHighSurrogate(text.charCodeAt(index - 1));
+  return (code >= 0x7f && code <= 0x9f) || code === 0x2028 || code === 0x2029 || code === 0xfffe || code === 0xffff;
+}
+
+function isHighSurrogate(code: number): boolean {
+  return code >= 0xd800 && code <= 0xdbff;
+}
+
+function isLowSurrogate(code: number): boolean {
+  return code >= 0xdc00 && code <= 0xdfff;
 }

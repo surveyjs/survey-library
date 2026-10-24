@@ -135,6 +135,16 @@ describe("question description (issue #11818)", () => {
     expect(describeByName(survey, "q3").constraints).toEqual({ expression: "{q3} != 'no'" });
     expect(describeByName(survey, "q4").constraints).toEqual({ minCount: 1, maxCount: 2 });
   });
+  test("A case-insensitive regex validator reports its flag next to the regex", () => {
+    const survey = createSurvey({
+      elements: [
+        { type: "text", name: "q1", validators: [{ type: "regex", regex: "^[a-z]+$", caseInsensitive: true }] },
+        { type: "text", name: "q2", validators: [{ type: "regex", regex: "^[a-z]+$", caseInsensitive: false }] },
+      ],
+    });
+    expect(describeByName(survey, "q1").constraints).toEqual({ regex: "^[a-z]+$", regexFlags: "i" });
+    expect(describeByName(survey, "q2").constraints).toEqual({ regex: "^[a-z]+$" });
+  });
   test("A mask of each type is described", () => {
     const survey = createSurvey({
       elements: [

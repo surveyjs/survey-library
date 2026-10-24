@@ -1,8 +1,9 @@
 import type { IInterviewToolDefinition, IInterviewToolOptions } from "./interview-types";
 
 // The three tools an agent needs to conduct a survey: look, answer, submit. They are plain data in
-// the MCP shape - name, description, inputSchema - which every function-calling API accepts after
-// renaming one key, and nothing in this module talks to a network or knows that one exists.
+// the MCP shape - name, description, inputSchema. A function-calling API takes them once that one key
+// is renamed - "parameters" for OpenAI, "input_schema" for Anthropic - and nothing in this module
+// talks to a network or knows that one exists.
 //
 // The descriptions are fixed English. Every other text the interview produces is a localized model
 // string, but these are not shown to the interviewee: they are read by the agent's own model, which
@@ -15,7 +16,12 @@ export const InterviewToolNames = Object.freeze({
   complete: "complete_survey",
 });
 
-const EMPTY_SCHEMA = { type: "object", properties: {} };
+const BASE_NAMES = [InterviewToolNames.describe, InterviewToolNames.answer, InterviewToolNames.complete];
+
+// OpenAI and Anthropic both take a tool name of ^[a-zA-Z0-9_-]{1,64}$, so a prefix holds those
+// characters only, and no more of them than the longest base name leaves room for.
+const NAME_CHARS_REGEX = /^[a-zA-Z0-9_-]*$/;
+const MAX_NAME_LENGTH = 64;
 
 const DESCRIPTIONS: { [name: string]: string } = {
   [InterviewToolNames.describe]:
@@ -27,12 +33,28 @@ const DESCRIPTIONS: { [name: string]: string } = {
 };
 
 export function getToolDefinitions(answerSchema: any, options?: IInterviewToolOptions): Array<IInterviewToolDefinition> {
-  const prefix = !!options && typeof options.prefix === "string" ? options.prefix : "";
+  const prefix = getPrefix(options);
   return [
-    createTool(prefix, InterviewToolNames.describe, EMPTY_SCHEMA),
+    createTool(prefix, InterviewToolNames.describe, createEmptySchema()),
     createTool(prefix, InterviewToolNames.answer, answerSchema),
-    createTool(prefix, InterviewToolNames.complete, EMPTY_SCHEMA),
+    createTool(prefix, InterviewToolNames.complete, createEmptySchema()),
   ];
+}
+
+function getPrefix(options?: IInterviewToolOptions): string {
+  const prefix = !!options ? options.prefix : undefined;
+  if (prefix === undefined) return "";
+  const room = MAX_NAME_LENGTH - Math.max.apply(Math, BASE_NAMES.map(name => name.length));
+  if (typeof prefix !== "string" || !NAME_CHARS_REGEX.test(prefix) || prefix.length > room) {
+    throw new TypeError("getTools: a prefix is at most " + room + " letters, digits, \"_\" or \"-\", so " +
+      "that every tool name matches ^[a-zA-Z0-9_-]{1,64}$; it received " + JSON.stringify(prefix) + ".");
+  }
+  return prefix;
+}
+
+// A new object for every definition: a host that decorates one must not change the others.
+function createEmptySchema(): any {
+  return { type: "object", properties: {} };
 }
 
 function createTool(prefix: string, name: string, inputSchema: any): IInterviewToolDefinition {
@@ -44,7 +66,6 @@ function createTool(prefix: string, name: string, inputSchema: any): IInterviewT
 // which is exactly what makes one server able to expose several surveys under one set of tools.
 export function getToolBaseName(name: string): string {
   if (typeof name !== "string") return undefined;
-  const known = [InterviewToolNames.describe, InterviewToolNames.answer, InterviewToolNames.complete];
-  return known.filter(base => name === base ||
+  return BASE_NAMES.filter(base => name === base ||
     (name.length > base.length && name.substring(name.length - base.length) === base))[0];
 }

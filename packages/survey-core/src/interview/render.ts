@@ -33,8 +33,22 @@ export function renderInterviewDocument(doc: IInterviewDocument): string {
 }
 
 function getHeading(doc: IInterviewDocument): string {
-  const title = !!doc && typeof doc.title === "string" ? doc.title.trim() : "";
+  const title = !!doc && typeof doc.title === "string" ? toMarkdownLine(doc.title).trim() : "";
   return title.length > 0 ? title : DEFAULT_TITLE;
+}
+
+// The heading is the one text outside the block, and the title pipes answers in: "Hello {nm}" with an
+// nm that holds a newline and a ```yaml fence would put a block of the interviewee's making before the
+// real one, and a consumer reads the first. So every line break becomes a space, and a run of three or
+// more backticks or tildes gets a backslash before each. Once the text is one line CommonMark cannot
+// open a fence in it anyway, but a consumer that searches the text for ```yaml could; \` and \~ are
+// CommonMark escapes and render as the plain characters. Any other text written outside the block
+// goes through this function too.
+const LINE_BREAK_REGEX = /[\r\n\v\f\u0085\u2028\u2029]+/g;
+const FENCE_RUN_REGEX = /`{3,}|~{3,}/g;
+
+function toMarkdownLine(text: string): string {
+  return text.replace(LINE_BREAK_REGEX, " ").replace(FENCE_RUN_REGEX, run => run.replace(/./g, "\\$&"));
 }
 
 // The title is the heading, not a key of the block, and the sections come out in one fixed order

@@ -55,6 +55,54 @@ describe("interview yaml (issue #11818)", () => {
     });
   });
 
+  test("Strings a YAML 1.1 parser would type are quoted, as values and as keys", () => {
+    // js-yaml is YAML 1.2 and reads every one of these back as a string either way, so the text is
+    // what is asserted: go-yaml v2 reads "y" as true, PyYAML reads "12:30" as 750, and its
+    // SafeLoader has no constructor for a bare "=" or "<<".
+    const quoted = ["y", "n", "Y", "N", "12:30", "1:2:3.5", "+1:2", "1_0:30", "190:20:30", "=", "<<"];
+    quoted.forEach(text => {
+      expect(scalarLine(text), "\"" + text + "\" must be quoted").toBe(JSON.stringify(text));
+    });
+    expect(yamlOf({ y: 1 })).toBe("\"y\": 1\n");
+    expect(yamlOf({ N: 1 })).toBe("\"N\": 1\n");
+    expect(yamlOf({ "12:30": 1 })).toBe("\"12:30\": 1\n");
+    expect(yamlOf("12:30")).toBe("\"12:30\"\n");
+    // Not a base-60 form: a letter, or a second digit pair past 59.
+    expect(scalarLine("yes please")).toBe("yes please");
+    expect(scalarLine("12:30pm")).toBe("12:30pm");
+    expect(scalarLine("x:y")).toBe("x:y");
+  });
+
+  test("Characters a parser refuses or reads as a line break are quoted and escaped", () => {
+    // js-yaml refuses them in a plain scalar, PyYAML anywhere in the stream: inside the quotes they
+    // are \u escapes, never the raw character.
+    const cases: { [text: string]: string } = {
+      "a\u007fb": "\"a\\u007fb\"",
+      "a\u0080b": "\"a\\u0080b\"",
+      "a\u0085b": "\"a\\u0085b\"",
+      "a\u009fb": "\"a\\u009fb\"",
+      "a\u2028b": "\"a\\u2028b\"",
+      "a\u2029b": "\"a\\u2029b\"",
+      "a\ufffeb": "\"a\\ufffeb\"",
+      "a\uffffb": "\"a\\uffffb\"",
+      "a\ud800b": "\"a\\ud800b\"",
+      "a\udc00b": "\"a\\udc00b\"",
+    };
+    Object.keys(cases).forEach(text => {
+      expect(scalarLine(text), JSON.stringify(text)).toBe(cases[text]);
+    });
+    // A surrogate pair is one character, and an ordinary one.
+    expect(scalarLine("a\ud83d\ude00b")).toBe("a\ud83d\ude00b");
+    expect(scalarLine("x\u00e9\u00a0y")).toBe("x\u00e9\u00a0y");
+  });
+
+  test("A root scalar that would end the document is quoted", () => {
+    expect(yamlOf("...")).toBe("\"...\"\n");
+    expect(yamlOf("... x")).toBe("\"... x\"\n");
+    expect(yamlOf("...x")).toBe("...x\n");
+    expect(yamlOf({ k: "..." })).toBe("k: ...\n");
+  });
+
   test("Strings that can only be strings stay bare", () => {
     const bare = [
       "Dog", "Cat", "Other", "petType", "q-1", "q_1", "Do you have a pet?", "Do you have a pet",
@@ -210,11 +258,29 @@ describe("interview yaml parses back with a real parser (issue #11818)", () => {
       "", "Yes", "No", "yes", "null", "~", "1", "1e3", "0x1f", "1_000", "2024-01-01",
       "2024-01-01T10:30:00Z", "a: b", "#x", "a #b", " x", "x ", "x:", "[x]", "a,b", "- x", "x\ny",
       "x\ty", "Dog", "Do you have a pet?", "The value should not be greater than 40",
+      "y", "n", "Y", "N", "12:30", "1:2:3.5", "+1:2", "1_0:30", "=", "<<", "...", "... x",
+      "a\u007fb", "a\u0080b", "a\u0085b", "a\u2028b", "a\u2029b", "a\ufffeb", "a\uffffb", "a\ud800b", "a\udc00b",
     ];
     const map: any = {};
     strings.forEach((text, index) => { map["s" + index] = text; });
     expect(load(toYaml(map))).toEqual(map);
     // The same strings as the items of a sequence, where the flow delimiters apply as well.
     expect(load(toYaml({ list: strings }))).toEqual({ list: strings });
+  });
+
+  test("A root scalar reads back as itself", () => {
+    ["...", "... x", "12:30", "y", "a\u0080b"].forEach(text => {
+      expect(load(toYaml(text)), JSON.stringify(text)).toBe(text);
+    });
+  });
+
+  test("A document with non-printable characters parses, and none of them is in the text raw", () => {
+    const doc = { answered: { a: "a\u0080b", b: "a\u2028b", c: "a\ufffeb", d: "a\ud800b" }, list: ["x\u009fy"] };
+    const text = toYaml(doc);
+    expect(load(text)).toEqual(doc);
+    ["\\u0080", "\\u2028", "\\ufffe", "\\ud800", "\\u009f"].forEach(escape => {
+      expect(text, escape).toContain(escape);
+    });
+    expect(/[\u0080\u009f\u2028\ufffe\ud800]/.test(text)).toBe(false);
   });
 });

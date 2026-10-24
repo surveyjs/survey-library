@@ -217,10 +217,11 @@ export class Interview implements IInterview {
   // good ones, and the errors say which key was refused and why.
   //
   // A key that names nothing when the call starts may name an input another key of the same call
-  // reveals - a question inside the choice that key selects, a root its visibleIf shows. So once a pass
-  // has written, the keys that resolved to nothing are resolved again against the live inventory and
+  // reveals - a question inside the choice that key selects, a root its visibleIf shows - and a key
+  // refused as disabled may name one that key's enableIf turns on. So once a pass has written, the keys
+  // that resolved to nothing and the disabled ones are resolved again against the live inventory and
   // written as a further pass, in item order; the passes go on while one writes something, and what
-  // is left is unknownQuestion, listing the inputs there are after the writes. The rule a
+  // is left is unknownQuestion, listing the inputs there are after the writes, or still disabled. The rule a
   // container already applies to its own fields ("a field an earlier key of the same object revealed is
   // written in the same call"), at the root level. A key that named an entry at the start is written
   // in the first pass as before, and one an earlier write hid is still refused by the refresh.
@@ -253,8 +254,11 @@ export class Interview implements IInterview {
       resolved.writes.forEach(write => {
         this.writeBatchValue(write, written, hadErrors).forEach(error => writeErrors.push(error));
       });
-      if (resolved.unresolved.length === 0) break;
-      resolved = resolveBatchValues(getBatchEntries(survey, this.getInputs()), values, resolved.unresolved,
+      const retry = resolved.unresolved.concat(resolved.disabled);
+      if (retry.length === 0) break;
+      // A key still disabled is refused again by the pass below, with the same reason.
+      resolved.disabled.forEach(key => { delete refused[key]; });
+      resolved = resolveBatchValues(getBatchEntries(survey, this.getInputs()), values, retry,
         survey.commentSuffix);
       Object.keys(resolved.refused).forEach(key => { refused[key] = resolved.refused[key]; });
     }
@@ -824,6 +828,8 @@ interface IBatchResolution {
   refused: { [key: string]: IInterviewError };
   // the keys that named nothing, in the order the object carried them
   unresolved: Array<string>;
+  // the refused keys whose entry an enableIf turned off: an earlier key of the call may turn it on
+  disabled: Array<string>;
 }
 
 // The keys of the object, resolved against the entries of one pass before anything of that pass is
@@ -838,6 +844,7 @@ function resolveBatchValues(entries: Array<IInterviewBatchEntry>, values: { [add
   // The keys are the agent's text, and "toString" is a key like any other.
   const refused = createNameLookup<IInterviewError>();
   const unresolved: Array<string> = [];
+  const disabled: Array<string> = [];
   const byAddress = createNameLookup<IBatchWrite>();
   const writes: Array<IBatchWrite> = [];
   keys.forEach(key => {
@@ -849,6 +856,7 @@ function resolveBatchValues(entries: Array<IInterviewBatchEntry>, values: { [add
     const entry = target.entry;
     if (!isBatchWritable(entry)) {
       refused[key] = notAskableError(entry.address, getNotWritableReason(entry));
+      if (entry.item.disabled === true) disabled.push(key);
       return;
     }
     let write = byAddress[entry.address];
@@ -866,7 +874,7 @@ function resolveBatchValues(entries: Array<IInterviewBatchEntry>, values: { [add
     }
   });
   writes.sort((a, b) => a.order - b.order);
-  return { writes: writes, refused: refused, unresolved: unresolved };
+  return { writes: writes, refused: refused, unresolved: unresolved, disabled: disabled };
 }
 
 // The refusals of the call in the order the object carried the keys, whichever pass refused them. A

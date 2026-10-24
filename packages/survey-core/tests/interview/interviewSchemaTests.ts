@@ -72,13 +72,28 @@ describe("interview answer schema (issue #11818)", () => {
       .toEqual({ title: "Agree?", enum: ["no", "yes"] });
   });
 
-  test("A date question is a string with the format its input type implies", async () => {
+  test("A date question is a string; a shape JSON Schema has no format for is said in the description", async () => {
     expect(await propertyOf({ type: "text", name: "born", title: "Born", inputType: "date" }))
       .toEqual({ title: "Born", type: "string", format: "date" });
-    expect(await propertyOf({ type: "text", name: "at", title: "At", inputType: "datetime-local" }))
-      .toEqual({ title: "At", type: "string", format: "date-time" });
-    expect(await propertyOf({ type: "text", name: "at", title: "At", inputType: "time" }))
-      .toEqual({ title: "At", type: "string", format: "time" });
+    // "date-time" and "time" want seconds and an offset, and "date" a day: the inputs produce none of
+    // them, and the model stores what they produce.
+    const shapes: { [inputType: string]: { shape: string, value: string } } = {
+      "datetime-local": { shape: "YYYY-MM-DDTHH:mm[:ss]", value: "2024-05-01T10:30" },
+      "time": { shape: "HH:mm[:ss]", value: "10:30" },
+      "month": { shape: "YYYY-MM", value: "2024-05" },
+      "week": { shape: "YYYY-Www", value: "2024-W20" },
+    };
+    for (const inputType of Object.keys(shapes)) {
+      const element = { type: "text", name: "at", title: "At", inputType: inputType };
+      expect(await propertyOf(element), inputType).toEqual({ title: "At", type: "string", description: shapes[inputType].shape });
+      const iv = await createInterview({ elements: [element] });
+      expect((await iv.answerAll({ at: shapes[inputType].value })).errors, inputType).toEqual([]);
+      expect(iv.data.at, inputType).toBe(shapes[inputType].value);
+    }
+    // The shape comes before the bounds, and both after the question's own description.
+    expect(await propertyOf({ type: "text", name: "at", title: "At", description: "When", inputType: "month",
+      min: "2024-01" }))
+      .toEqual({ title: "At", type: "string", description: "When (YYYY-MM, min 2024-01)" });
   });
 
   test("A date bound has no keyword, so it is said in the description", async () => {
@@ -124,15 +139,57 @@ describe("interview answer schema (issue #11818)", () => {
       .toEqual({ title: "Mail", type: "string", format: "email" });
   });
 
-  test("A step becomes multipleOf only where the two count from the same place", async () => {
+  test("A step becomes multipleOf where the model checks it: a number input with an integer step", async () => {
     expect(await propertyOf({ type: "text", name: "n", title: "N", inputType: "number", step: 5 }))
       .toEqual({ title: "N", type: "number", multipleOf: 5 });
     expect(await propertyOf({ type: "text", name: "n", title: "N", inputType: "number", min: 0, step: 5 }))
       .toEqual({ title: "N", type: "number", minimum: 0, multipleOf: 5 });
-    // The model steps from min, multipleOf counts from zero: 3, 8, 13 are not multiples of 5, so the
-    // step goes unreported rather than wrong.
-    expect(await propertyOf({ type: "text", name: "n", title: "N", inputType: "number", min: 3, step: 5 }))
-      .toEqual({ title: "N", type: "number", minimum: 3 });
+    // The model counts the step from zero, whatever min is, and so does multipleOf.
+    const element = { type: "text", name: "n", title: "N", inputType: "number", min: 3, step: 5 };
+    expect(await propertyOf(element)).toEqual({ title: "N", type: "number", minimum: 3, multipleOf: 5 });
+    const iv = await createInterview({ elements: [element] });
+    expect((await iv.answerAll({ n: 10 })).errors).toEqual([]);
+    expect((await iv.answerAll({ n: 8 })).errors.length).toBe(1);
+  });
+
+  test("A step the model checks in no way multipleOf can is said in the description", async () => {
+    // A fractional step: the model scales both numbers to integers, multipleOf fails 0.3 / 0.1 on
+    // float error.
+    const fractional = { type: "text", name: "n", title: "N", inputType: "number", step: 0.1 };
+    expect(await propertyOf(fractional)).toEqual({ title: "N", type: "number", description: "step 0.1" });
+    const iv = await createInterview({ elements: [fractional] });
+    expect((await iv.answerAll({ n: 0.3 })).errors).toEqual([]);
+    expect(iv.data.n).toBe(0.3);
+    // A range input and a slider: the model checks no step at all.
+    expect(await propertyOf({ type: "text", name: "r", title: "R", inputType: "range", step: 5 }))
+      .toEqual({ title: "R", type: "number", description: "step 5" });
+    const slider = { type: "slider", name: "sl", title: "Sl" };
+    expect(await propertyOf(slider))
+      .toEqual({ title: "Sl", type: "number", minimum: 0, maximum: 100, description: "step 1" });
+    const sliderIv = await createInterview({ elements: [slider] });
+    expect((await sliderIv.answerAll({ sl: 2.5 })).errors).toEqual([]);
+    expect(sliderIv.data.sl).toBe(2.5);
+  });
+
+  test("A range slider bounds its two numbers, and is no set", async () => {
+    const element = { type: "slider", name: "sl", title: "Sl", sliderType: "range", min: 10, max: 50, step: 5 };
+    expect(await propertyOf(element)).toEqual({ title: "Sl", type: "array",
+      items: { type: "number", minimum: 10, maximum: 50 }, description: "step 5" });
+    const iv = await createInterview({ elements: [element] });
+    expect((await iv.answerAll({ sl: [20, 20] })).errors).toEqual([]);
+    expect(iv.data.sl).toEqual([20, 20]);
+    // A set is a question that says so: checkbox and tagbox above, ranking here.
+    expect(await propertyOf({ type: "ranking", name: "rk", title: "Rk", choices: ["a", "b"] }))
+      .toEqual({ title: "Rk", type: "array", items: { enum: ["a", "b"] }, uniqueItems: true });
+  });
+
+  test("A case-insensitive regex is said in the description, not as a pattern", async () => {
+    const element = { type: "text", name: "code", title: "Code",
+      validators: [{ type: "regex", regex: "^[a-z]+$", caseInsensitive: true }] };
+    expect(await propertyOf(element)).toEqual({ title: "Code", type: "string", description: "regex /^[a-z]+$/i" });
+    const iv = await createInterview({ elements: [element] });
+    expect((await iv.answerAll({ code: "ABC" })).errors).toEqual([]);
+    expect(iv.data.code).toBe("ABC");
   });
 
   test("A mask and an expression validator are said in the description", async () => {

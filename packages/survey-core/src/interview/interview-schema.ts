@@ -12,12 +12,20 @@ import { createNameLookup, setOwnValue } from "./interview-address";
 // Being a function of the current state, it is also the answer to "what may be sent now": an agent
 // that answers hasPet sees petType in the next schema and not before.
 
-// A bound the model expresses as a date has no JSON Schema keyword: draft 2020-12 dropped
-// formatMinimum. It goes into the description as text, which is where an agent reads it anyway.
-const DATE_FORMATS: { [inputType: string]: string } = {
-  "datetime-local": "date-time",
-  "time": "time",
+// JSON Schema's "date-time" and "time" want seconds and an offset, and "date" wants a day. These
+// inputs produce none of them, the model stores what they produce, and no format says "a month" or
+// "a week". So the shape goes into the description as text, which is where an agent reads it anyway.
+// A bound the model expresses as a date has no keyword either - draft 2020-12 dropped formatMinimum -
+// and goes there too.
+const DATE_SHAPES: { [inputType: string]: string } = {
+  "datetime-local": "YYYY-MM-DDTHH:mm[:ss]",
+  "time": "HH:mm[:ss]",
+  "month": "YYYY-MM",
+  "week": "YYYY-Www",
 };
+// The questions whose value is a set. Everything else with an array value is not one: the two ends of
+// a range slider may be equal.
+const SET_TYPES = ["checkbox", "tagbox", "ranking"];
 
 export function createAnswerSchema(items: Array<IInterviewItem>, commentSuffix: string): any {
   const properties: any = {};
@@ -306,7 +314,7 @@ function createNullable(property: any): any {
 function createProperty(item: IInterviewItem): any {
   const res: any = { title: item.title };
   const notes: Array<string> = [];
-  addValueType(res, item);
+  addValueType(res, item, notes);
   addConstraints(res, item, notes);
   const description = getDescription(item, notes);
   if (!!description) res.description = description;
@@ -324,12 +332,14 @@ function createCommentProperty(item: IInterviewItem): any {
 // One rule for every question that offers a set of values: enum. A boolean question therefore comes
 // out as enum: [true, false] - or as its valueTrue/valueFalse pair - rather than as type: boolean,
 // and there is no case to get wrong.
-function addValueType(res: any, item: IInterviewItem): void {
+function addValueType(res: any, item: IInterviewItem, notes: Array<string>): void {
   const choices = getEnumChoices(item);
   if (item.valueType === "array") {
     res.type = "array";
     if (!!choices) res.items = { enum: choices };
-    res.uniqueItems = true;
+    // A range slider holds [lo, hi]; its bounds go into this element schema.
+    if (item.type === "slider") res.items = { type: "number" };
+    if (SET_TYPES.indexOf(item.type) >= 0) res.uniqueItems = true;
     return;
   }
   if (!!choices) {
@@ -346,7 +356,12 @@ function addValueType(res: any, item: IInterviewItem): void {
   }
   if (item.valueType === "date") {
     res.type = "string";
-    res.format = DATE_FORMATS[item.inputType] || "date";
+    const shape = DATE_SHAPES[item.inputType];
+    if (!!shape) {
+      notes.push(shape);
+    } else {
+      res.format = "date";
+    }
     return;
   }
   res.type = "string";
@@ -365,18 +380,33 @@ function getEnumChoices(item: IInterviewItem): Array<any> {
 function addConstraints(res: any, item: IInterviewItem, notes: Array<string>): void {
   const constraints: IQuestionConstraints = item.constraints;
   if (!constraints) return;
-  addBound(res, item, notes, "minimum", "min", constraints.min);
-  addBound(res, item, notes, "maximum", "max", constraints.max);
+  // The bounds of an array value - a range slider's - bound its elements.
+  const bounded = res.type === "array" && !!res.items ? res.items : res;
+  addBound(bounded, item, notes, "minimum", "min", constraints.min);
+  addBound(bounded, item, notes, "maximum", "max", constraints.max);
   if (constraints.minLength !== undefined) res.minLength = constraints.minLength;
   if (constraints.maxLength !== undefined) res.maxLength = constraints.maxLength;
   if (constraints.minCount !== undefined) res.minItems = constraints.minCount;
   if (constraints.maxCount !== undefined) res.maxItems = constraints.maxCount;
-  if (constraints.regex !== undefined) res.pattern = constraints.regex;
+  if (constraints.regex !== undefined) {
+    // A pattern has no flags, and a case-sensitive one would refuse what the model accepts.
+    if (constraints.regexFlags === "i") {
+      notes.push("regex /" + constraints.regex + "/i");
+    } else {
+      res.pattern = constraints.regex;
+    }
+  }
   if (constraints.format === "email") res.format = "email";
-  // multipleOf counts from zero and the model's step counts from min, so the two agree only when
-  // there is no lower bound or it is zero. Anywhere else the step goes unreported rather than wrong.
-  if (constraints.step !== undefined && (constraints.min === undefined || constraints.min === 0)) {
-    res.multipleOf = constraints.step;
+  // multipleOf only where the model checks the step - a number input - and only for an integer step.
+  // The model scales value and step to integers and counts from zero, whatever min is; multipleOf
+  // counts from zero too, but fails 0.3 for 0.1 on float error. Every other step - a fraction, a range
+  // input or a slider, whose step the model does not check - is said in the description.
+  if (constraints.step !== undefined) {
+    if (item.inputType === "number" && Math.floor(constraints.step) === constraints.step) {
+      res.multipleOf = constraints.step;
+    } else {
+      notes.push("step " + constraints.step);
+    }
   }
   if (!!constraints.mask) {
     notes.push("mask " + constraints.mask.type + (!!constraints.mask.pattern ? " " + constraints.mask.pattern : ""));

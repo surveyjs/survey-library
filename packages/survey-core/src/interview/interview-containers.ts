@@ -120,9 +120,7 @@ export function writeContainer(question: Question, address: string, item: IInter
   if (value === undefined || value === null) return res;
   const nesting = createNesting("live", depth + 1, hadErrors, true);
   if (isDynamicContainer(question)) {
-    const constraints: any = item.constraints || {};
-    const records = writeRecordsValue(question, address, value, commentSuffix,
-      { minCount: constraints.minCount, maxCount: constraints.maxCount }, nesting);
+    const records = writeRecordsValue(question, address, value, commentSuffix, nesting);
     mergeWriteResult(res, records);
     if (records.applied !== true) return res;
   } else {

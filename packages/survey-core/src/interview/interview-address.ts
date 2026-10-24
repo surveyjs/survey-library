@@ -21,7 +21,9 @@ import type { Question, SurveyModel } from "survey-core";
 //     string ('contact."e.mail"'), which the tester's grammar has no form for at all.
 //
 // The interview composes an address nowhere else: getAddress() writes them and resolveAddress()
-// reads them. getPanelAddress() writes the name a panel's errors are reported under.
+// reads them. getPanelAddress() writes the name a panel's errors are reported under, and
+// getEntryAddress() / getChildAddress() extend an address the caller already holds - an entry of a
+// record, a field or a key under it.
 
 // The one ceiling of the interview. The depth of a question is the number of container questions
 // above it - the parentQuestion hops from it to a root - so a root is at depth 0 and the address of a
@@ -64,12 +66,16 @@ export function setOwnValue(target: any, name: string, value: any): void {
   Object.defineProperty(target, name, { value: value, enumerable: true, writable: true, configurable: true });
 }
 
-export function formatAddressSegment(segment: IInterviewAddressSegment): string {
-  return quoteSegment(segment.name) + (segment.index === undefined ? "" : "[" + segment.index + "]");
+// The entry at a position of the container at "address": "medications" and 0 give "medications[0]".
+export function getEntryAddress(address: string, index: number): string {
+  return address + "[" + index + "]";
 }
 
-export function formatAddress(segments: Array<IInterviewAddressSegment>): string {
-  return segments.map(formatAddressSegment).join(".");
+// A named child of what "address" names - a field of an entry, a row of a matrix dropdown, an item of
+// a multiple text, a key an agent sent for one of them: "medications[0]" and "dose" give
+// "medications[0].dose", and a name that carries a delimiter is quoted.
+export function getChildAddress(address: string, name: string): string {
+  return address + "." + quoteSegment(name);
 }
 
 // Derived from the model, never remembered: the input the mode handed out is walked up through
@@ -155,7 +161,7 @@ function isInChoiceOf(question: Question, owner: Question): boolean {
 function getContainerSegment(parent: any, child: any): string | undefined {
   if (isDynamicPanel(parent)) {
     const index = getPanelIndex(parent, child);
-    return index < 0 ? undefined : "[" + index + "]";
+    return index < 0 ? undefined : getEntryAddress("", index);
   }
   // The one container whose inputs are not questions of the JSON: the mode synthesizes a radiogroup
   // or a checkbox per row, named after the row, so the row needs no segment of its own.
@@ -166,10 +172,13 @@ function getContainerSegment(parent: any, child: any): string | undefined {
     // the row it belongs to.
     const index = rows.indexOf(child.data);
     if (index >= 0) {
-      if (isDynamicMatrix(parent)) return "[" + index + "]";
+      if (isDynamicMatrix(parent)) return getEntryAddress("", index);
       const rowName = getRowName(rows[index]);
-      return rowName === undefined ? undefined : "." + quoteSegment(rowName);
+      return rowName === undefined ? undefined : getChildAddress("", rowName);
     }
+    // A cell of no visible row - a total row, a row a rowsVisibleIf hides - has no address, as the
+    // tester has no name for it.
+    return undefined;
   }
   return "";
 }
@@ -284,6 +293,7 @@ export function resolveAddress(survey: SurveyModel, text: string): IInterviewAdd
   let current: any = undefined;
   for (let i = 0; i < segments.length; i++) {
     const segment = segments[i];
+    if (i > 0 && isEntryMissing(current, segment.name)) return { isBad: true };
     current = i === 0 ? (<any>survey).getQuestionByName(segment.name) : resolveChild(current, segment.name);
     if (!current) return {};
     if (segment.index !== undefined) {
@@ -299,16 +309,30 @@ export function resolveAddress(survey: SurveyModel, text: string): IInterviewAdd
   return isQuestion(current) ? { question: current } : {};
 }
 
+// A dynamic container is followed by the index of an entry, and a matrix dropdown by the name of a
+// row. "medications.dose", "items.quantity" and "matrix.column1" leave the entry out, and what they
+// name exists once per entry: the address is malformed, not a way to say "the first one". A name after
+// a matrix dropdown that is neither a row nor a column - a hidden row, a typo - names nothing.
+function isEntryMissing(obj: any, name: string): boolean {
+  if (isDynamicPanel(obj) || isDynamicMatrix(obj)) return true;
+  if (!isMatrixDropdown(obj) || !!findRowByName(obj.visibleRows, name)) return false;
+  const columns: Array<any> = Array.isArray(obj.columns) ? obj.columns : [];
+  return columns.some(column => !!column && column.name === name);
+}
+
+// The matrix whose rows are named: a question with visibleRows that is neither of the other two. A
+// panel has visibleRows as well - its layout rows - and is not a question.
+function isMatrixDropdown(obj: any): boolean {
+  return isQuestion(obj) && !!getVisibleRows(obj) && !isDynamicMatrix(obj) && !isSingleChoiceMatrix(obj);
+}
+
 function resolveChild(obj: any, name: string): any {
   if (!obj) return undefined;
   if (isSingleChoiceMatrix(obj)) {
     return findByName(obj.getMatrixSingleInputQuestions(undefined, true), name);
   }
-  const rows = getVisibleRows(obj);
-  if (!!rows && !isDynamicMatrix(obj)) {
-    const row = findRowByName(rows, name);
-    if (!!row) return row;
-  }
+  // A matrix dropdown names its rows and nothing else (isEntryMissing).
+  if (isMatrixDropdown(obj)) return findRowByName(obj.visibleRows, name);
   // A panel and a row of a matrix both answer getQuestionByName, and a row answers it for its cells
   // and for the questions of its detail panel.
   if (typeof obj.getQuestionByName === "function") {

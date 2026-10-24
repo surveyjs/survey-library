@@ -1,11 +1,11 @@
-import type { SurveyModel } from "survey-core";
+import type { Question, SurveyModel } from "survey-core";
 import type { IInterviewChanges } from "./interview-types";
 import { IInterviewInput, isOnStartPage } from "./interview-items";
-import { createNameLookup } from "./interview-address";
+import { createNameLookup, getParentContainer } from "./interview-address";
 import { describeQuestion } from "./question-description";
 
 // The state the model has no notion of, and the "before" picture every mutating call is compared
-// against. Two things live here: the set of addresses the interviewee chose to skip, and the
+// against. Two things live here: the set of inputs the interviewee chose to skip, and the
 // snapshot / diff pair that turns one write into the change report the issue asks for.
 
 // One address as it was at a moment in time. "visible" is what makes the report possible at all: a
@@ -19,22 +19,36 @@ export interface IInterviewStateEntry {
 
 // The model knows nothing about "skipped": a question a respondent walked past is simply empty. The
 // interview remembers the gesture, because the input it asks next must not be the one it was just
-// told to leave alone.
+// told to leave alone. Keyed by the question and not by its address: an address is a position, and
+// removing an entry would hand the skip of medications[0].dose to the entry that moves into its
+// place. A summary step's "done" is the container question's, at any depth.
 export class InterviewSkipped {
   private items = createNameLookup<boolean>();
 
-  public has(address: string): boolean {
-    return this.items[address] === true;
+  public has(question: Question): boolean {
+    return this.items[getSkipKey(question)] === true;
   }
-  public add(address: string): void {
-    this.items[address] = true;
+  public add(question: Question): void {
+    this.items[getSkipKey(question)] = true;
   }
-  public remove(address: string): void {
-    delete this.items[address];
+  public remove(question: Question): void {
+    delete this.items[getSkipKey(question)];
   }
   public clear(): void {
     this.items = createNameLookup<boolean>();
   }
+}
+
+// The question's id, except for the radiogroup or checkbox the mode synthesizes per row of a
+// single-choice matrix: the matrix disposes of those and builds new ones whenever its visible rows or
+// columns change, so the row is named instead - the matrix's id and the row name, which is all the
+// address says of it too.
+function getSkipKey(question: Question): string {
+  const parent: any = getParentContainer(question);
+  if (!!parent && typeof parent.getMatrixSingleInputQuestions === "function") {
+    return parent.id + "." + question.name;
+  }
+  return question.id;
 }
 
 // The inventory as it is now, plus every root that is currently invisible. The invisible ones carry

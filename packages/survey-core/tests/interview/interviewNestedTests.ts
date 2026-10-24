@@ -140,6 +140,74 @@ describe("interview nested inputs (issue #11818)", () => {
     expect(result.describe).toContain("  \"medications[0].name\": Ibuprofen");
   });
 
+  // The skipped set was keyed by address, and the removal moves the next entry to the skipped one's
+  // address. Issue#11818
+  test("A skip stays with its entry: after a removal, the next entry's optional field is still asked", async () => {
+    const iv = await createInterview(medicationsJson());
+    await iv.answer({ action: "add" });
+    await iv.answer("Aspirin");
+    expect(iv.current().name).toBe("medications[0].dose");
+    await iv.skip();
+    await iv.answer({ action: "add" });
+    await iv.answer("Ibuprofen");
+    expect(iv.current().name).toBe("medications[1].dose");
+    const result = await iv.answer("medications", { action: "remove", index: 0 });
+    expect(result.errors).toEqual([]);
+    expect(iv.data).toEqual({ medications: [{ name: "Ibuprofen" }] });
+    expect(result.current.name).toBe("medications[0].dose");
+  });
+
+  test("A skip in a filtered dynamic panel holds while the filter rebuilds the entries", async () => {
+    const survey = new SurveyModel(medicationsJson({ filterExpression: "{name} notempty" }));
+    survey.data = { medications: [{ name: "Aspirin" }, { name: "Ibuprofen" }] };
+    const iv = await createInterview(survey);
+    expect(iv.current().name).toBe("medications[0].dose");
+    await iv.skip();
+    expect(iv.current().name).toBe("medications[1].dose");
+    await iv.answer("20mg");
+    expect(iv.current().name).toBe("medications");
+  });
+
+  test("A skip of a single-choice matrix row holds when the matrix rebuilds its row questions", async () => {
+    const iv = await createInterview({
+      elements: [
+        { type: "matrix", name: "m", rows: ["price", "quality", { value: "speed", visibleIf: "{m.quality} = 'high'" }],
+          columns: ["low", "high"] },
+        { type: "text", name: "next" },
+      ],
+    });
+    expect(iv.current().name).toBe("m.price");
+    await iv.skip();
+    expect(iv.current().name).toBe("m.quality");
+    // Revealing a row rebuilds the questions the mode synthesizes per row.
+    await iv.answer("high");
+    expect(iv.current().name).toBe("m.speed");
+    await iv.answer("low");
+    expect(iv.current().name).toBe("next");
+  });
+
+  // Known gap: the sort hands the row objects - and the cell questions in them - to other records, so
+  // a skip follows the position, as it did when the skipped set was keyed by address. Issue#11818
+  test.fails("A skip in a sorted dynamic matrix holds while the sort moves the rows", async () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, columns: [
+        { name: "c", cellType: "text" }, { name: "note", cellType: "text" },
+      ] }],
+    });
+    survey.data = { m: [{ c: "b" }, { c: "a" }] };
+    (<any>survey.getQuestionByName("m")).sort("c", "asc");
+    const iv = await createInterview(survey);
+    expect(iv.current().name).toBe("m[0].note");
+    await iv.skip();
+    expect(iv.current().name).toBe("m[1].note");
+    // "0" sorts first: the rows trade places, and the skipped note goes with its row "a".
+    expect((await iv.answer("m[1].c", "0")).errors).toEqual([]);
+    expect(iv.data.m).toEqual([{ c: "0" }, { c: "a" }]);
+    expect(iv.current().name).toBe("m[0].note");
+    await iv.answer("n");
+    expect(iv.current().name).toBe("m");
+  });
+
   test("A populated entry with confirmDelete is removed without a prompt", async () => {
     // settings.confirmActionAsync is deliberately left untouched: removePanelUI would hand the entry
     // to a dialog nobody answers in Node, and the test would hang instead of failing.

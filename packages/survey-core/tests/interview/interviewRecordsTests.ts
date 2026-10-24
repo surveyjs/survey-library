@@ -62,6 +62,20 @@ function hiddenRowJson(): any {
   };
 }
 
+// Three panels, and templateVisibleIf hides the last two: one entry is listed, the model counts three.
+function hiddenPanelsData(): Array<any> {
+  return [{ name: "A", show: true }, { name: "B" }, { name: "C" }];
+}
+
+function hiddenPanelsJson(extra?: any): any {
+  return medicationsJson(Object.assign({ templateVisibleIf: "{panel.show} = true", defaultValue: hiddenPanelsData() },
+    extra || {}), [
+    { type: "text", name: "name", title: "Name" },
+    { type: "text", name: "dose", title: "Dose" },
+    { type: "boolean", name: "show", title: "Show" },
+  ]);
+}
+
 // The loop an integrator writes, driven by a scripted agent (README, "The loop").
 async function runAgentLoop(interview: IInterview, agent: (document: string) => any): Promise<number> {
   let result = await interview.answerAll(agent(interview.describeAll()));
@@ -409,6 +423,75 @@ describe("interview dynamic containers in batch mode (issue #11818)", () => {
     expect(res.errors[0].message).toContain("position 5");
     expect(res.errors[0].message).toContain("Removing an entry first");
     expect(iv.survey.getQuestionByName("medications").panelCount).toBe(4);
+  });
+
+  // The model limits the total - panelCount, rowCount - and not what the interviewee sees, so the
+  // count checks of a key do too. Issue#11818
+  test("Count checks use the model's total: a remove the model allows is not refused for hidden entries", async () => {
+    const iv = await createInterview(hiddenPanelsJson({ minPanelCount: 2 }));
+    expect(iv.survey.getQuestionByName("medications").visiblePanels.length).toBe(1);
+    const res = await iv.answerAll({ medications: [null] });
+    expect(res.errors).toEqual([]);
+    expect(iv.survey.getQuestionByName("medications").panelCount).toBe(2);
+  });
+
+  test("Count checks use the model's total: adds past the maximum with hidden entries write nothing", async () => {
+    const iv = await createInterview(hiddenPanelsJson({ maxPanelCount: 4 }));
+    const res = await iv.answerAll({ medications: [{ dose: "changed" }, { name: "N1" }, { name: "N2" }] });
+    expect(res.errors.length).toBe(1);
+    expect(res.errors[0].code).toBe(InterviewErrorCodes.cannotAdd);
+    expect(res.errors[0].name).toBe("medications[2]");
+    // Whole-key: neither the patch nor the add that would have fit landed.
+    expect(iv.survey.getQuestionByName("medications").panelCount).toBe(3);
+    expect(iv.data).toEqual({ medications: hiddenPanelsData() });
+  });
+
+  test("Count checks with hidden entries: an add and a remove in one key", async () => {
+    // Three panels and a maximum of four: one add fits before the remove runs.
+    const iv = await createInterview(hiddenPanelsJson({ maxPanelCount: 4, minPanelCount: 2 }));
+    const res = await iv.answerAll({ medications: [null, { name: "N1", show: true }] });
+    expect(res.errors).toEqual([]);
+    expect(iv.data.medications.map(panel => panel.name)).toEqual(["B", "C", "N1"]);
+    // Two adds do not fit, and the remove of the same key does not make room for them.
+    const over = await iv.answerAll({ medications: [null, { name: "N2" }, { name: "N3" }] });
+    expect(over.errors.map(error => error.code)).toEqual([InterviewErrorCodes.cannotAdd]);
+    expect(iv.data.medications.map(panel => panel.name)).toEqual(["B", "C", "N1"]);
+    // At the minimum, counted over all three panels: the one visible entry cannot be removed.
+    iv.survey.getQuestionByName("medications").minPanelCount = 3;
+    const below = await iv.answerAll({ medications: [null] });
+    expect(below.errors.map(error => error.code)).toEqual([InterviewErrorCodes.cannotRemove]);
+    expect(iv.survey.getQuestionByName("medications").panelCount).toBe(3);
+  });
+
+  test("Count checks use the limit the model enforces: a maximum above the global setting", async () => {
+    const saved = settings.panel.maxPanelCount;
+    settings.panel.maxPanelCount = 3;
+    try {
+      const iv = await createInterview(medicationsJson({ panelCount: 2, maxPanelCount: 10 }));
+      const res = await iv.answerAll({ medications: [{ name: "A" }, {}, { name: "N1" }, { name: "N2" }] });
+      expect(res.errors.length).toBe(1);
+      expect(res.errors[0].code).toBe(InterviewErrorCodes.cannotAdd);
+      expect(res.errors[0].name).toBe("medications[3]");
+      expect(iv.survey.getQuestionByName("medications").panelCount).toBe(2);
+      expect(iv.data).toEqual({ medications: [{}, {}] });
+    } finally {
+      settings.panel.maxPanelCount = saved;
+    }
+  });
+
+  test("Count checks under a filter: the records it leaves out count toward the limits", async () => {
+    const survey = new SurveyModel(medicationsJson({ filterExpression: "{dose} notempty", maxPanelCount: 2,
+      minPanelCount: 1 }));
+    survey.data = { medications: [{ name: "A" }, { name: "B", dose: "1" }] };
+    const iv = await createInterview(survey);
+    expect(iv.survey.getQuestionByName("medications").visiblePanels.length).toBe(1);
+    // One entry is listed and the maximum is two, but "A" is the second record: nothing can be added.
+    const add = await iv.answerAll({ medications: [{}, { name: "N", dose: "2" }] });
+    expect(add.errors.map(error => error.code)).toEqual([InterviewErrorCodes.cannotAdd]);
+    // The minimum is one and one entry is listed, but there are two records: "B" can be removed.
+    const remove = await iv.answerAll({ medications: [null] });
+    expect(remove.errors).toEqual([]);
+    expect(iv.data).toEqual({ medications: [{ name: "A" }] });
   });
 
   // A plain object would otherwise patch position 0 and silently overwrite the first entry. Issue#11818

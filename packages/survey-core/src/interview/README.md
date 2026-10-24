@@ -480,9 +480,17 @@ below it, the address says which container, which entry of it, and which input i
   `valueName` is addressed by its name and its value lands under the `valueName`: the address is the
   survey's structure, the data key is the model's.
 * An index counts the entries the interviewee **sees** — `visiblePanels`, `visibleRows` — which is
-  the list the summary step numbers and the `remove` and `edit` actions index. An index past the
-  entries that exist is `badAddress`: an entry comes into being through the summary step's `add`,
-  never by answering an address that names nothing.
+  the list the summary step numbers and the `remove` and `edit` actions index. It is a position in
+  that list, not an index into the value: the two differ wherever the list leaves a record out or
+  reorders it — a `templateVisibleIf` or a `rowsVisibleIf` that hides an entry, a sort, a filter.
+  With a `templateVisibleIf` hiding the first panel, `meds[0]` is the second record of
+  `data.meds`. An index past the entries that exist is `badAddress`: an entry comes into being
+  through the summary step's `add`, never by answering an address that names nothing.
+* The entry cannot be left out. A dynamic panel or a dynamic matrix followed by another segment
+  carries an index, and a matrix dropdown is followed by a row: `medications.dose`, `items.quantity`
+  and `matrix.column1` are `badAddress`, not a way to say "the first one". The container's own
+  name alone is its summary step. A name after a matrix dropdown that is neither a row nor a column — a
+  hidden row, a typo — names nothing (`unknownQuestion`).
 * The view decides, whatever made it. A **sort** puts the entries in its order: after
   `sort("c", "asc")` on a matrix holding the rows `b`, `a`, `c`, `m[0].note` is the row of `a`, which
   is `data.m[1]`. A **`filterExpression`** leaves out the entries that fail it: with
@@ -504,8 +512,9 @@ It is the same grammar as the tester's target names (`SurveyTestTargets.nameOf` 
 `survey-core/tester`), and the two are implemented separately because neither sub-bundle may import
 the other — `tests/interview/interviewAddressTests.ts` pins them against each other over a nested
 fixture. Two differences: the interview indexes the entries a respondent sees where the tester
-indexes `panels`, and the tester's grammar has no quoted form and no name at all for a multiple-text
-item or a composite's content question.
+indexes `panels` for a dynamic panel — for a dynamic matrix both index `visibleRows`, so the two
+differ only under a `templateVisibleIf` — and the tester's grammar has no quoted form and no name at
+all for a multiple-text item or a composite's content question.
 
 ### The summary step
 
@@ -657,6 +666,12 @@ un-skips it, and a skipped item that a `requiredIf` turns required is asked agai
 asked.
 
 A skipped item is left out of the `answered` map and counts as done for `progress.answered`.
+
+A skip belongs to the input, not to its address. Removing `medications[0]` does not hand the skip of
+`medications[0].dose` to the entry that moves into position 0: that entry's dose is still asked. A
+single-choice matrix row is the one input named rather than identified — the matrix rebuilds the
+questions it asks its rows with — so its skip is kept by the matrix and the row name. Under a **sort**
+the model hands its row objects to other records, and a skip there still follows the position.
 
 ### `complete()`
 
@@ -1397,6 +1412,15 @@ the order the operations run**, because the model enforces every add and every r
 adds have to fit *before* the removals happen. Four entries, a maximum of five, two adds and one
 `null` is therefore `cannotAdd`, although the final count would be five — an agent that needs the
 room removes first, in a turn of its own, and the message says so.
+
+The counts are the **model's**: every entry the container holds, the ones a `templateVisibleIf`, a
+`rowsVisibleIf` or a filter leaves out of the document included, against the limit the model
+enforces — the maximum, capped by the global setting (`settings.panel.maxPanelCount`,
+`settings.matrix.maxRowCount`) whether or not `constraints.maxCount` reports it. So an entry the
+agent cannot see still takes room: with a filter that leaves one of two records out and a maximum of
+two, nothing can be added although one entry is listed — and with a minimum of one, the one listed
+entry can be removed, because the model counts two. A list the pre-check lets through is not refused
+half-way by a count; only a handler of the survey can do that (below).
 
 **Per record**, the keys are field names — never addresses — and the rules are the ones one level up:
 they are written in the entry's own **field order**, each resolved immediately before its own write,

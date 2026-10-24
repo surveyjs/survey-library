@@ -1,3 +1,4 @@
+import { settings } from "survey-core";
 import type { Question } from "survey-core";
 import type { IInterviewEntry, IInterviewError, IInterviewItem } from "./interview-types";
 import {
@@ -5,6 +6,7 @@ import {
   createFields, getColumnQuestions, getDesignDetailQuestions, getFieldItems, isFieldValid, isPlainObject,
   writeFields,
 } from "./interview-fields";
+import { getEntryAddress } from "./interview-address";
 import { ensureRowDetailPanel } from "./interview-detail";
 import { badRecordError, cannotAddError, cannotRemoveError, notAskableError } from "./interview-errors";
 
@@ -75,8 +77,21 @@ function canRemoveEntry(container: Question, entry: any): boolean {
   return target.canRemoveRows === true && target.canRemoveRow(entry) === true;
 }
 
-function getEntryAddress(address: string, index: number): string {
-  return address + "[" + index + "]";
+// The limit the model checks every add against (canAddPanel / canAddRow): the maximum, capped by the
+// global setting while the list does not page - and it never pages in single-input mode, which the
+// interview keeps the survey in. Not the description's maxCount, which leaves out a ceiling the survey
+// never set.
+function getMaxEntryCount(container: Question): number {
+  const target: any = container;
+  return isPanelDynamic(target)
+    ? Math.min(target.maxPanelCount, settings.panel.maxPanelCount)
+    : Math.min(target.maxRowCount, settings.matrix.maxRowCount);
+}
+
+function getMinEntryCount(container: Question): number {
+  const target: any = container;
+  const min = isPanelDynamic(target) ? target.minPanelCount : target.minRowCount;
+  return typeof min === "number" ? min : 0;
 }
 
 interface IEntryPosition {
@@ -214,11 +229,6 @@ export function isRecordsValid(container: Question, entries: Array<IInterviewRec
   return entries.every(entry => entry.fields.every(field => isFieldValid(field, nesting)));
 }
 
-export interface IRecordCounts {
-  minCount?: number;
-  maxCount?: number;
-}
-
 export interface IRecordWriteResult extends IFieldWriteResult {
   // Whether the key got past its pre-check. A key refused as a whole leaves the container exactly as
   // it was, and there is then nothing for the container to validate itself about.
@@ -247,7 +257,7 @@ interface IRecordPlan {
 // entries an agent did not resend. The same function for a root key and for a field of an entry at
 // any depth: the address is the owner address the caller hands in.
 export function writeRecordsValue(container: Question, address: string, value: any,
-  commentSuffix: string, counts: IRecordCounts, nesting: IInterviewNesting): IRecordWriteResult {
+  commentSuffix: string, nesting: IInterviewNesting): IRecordWriteResult {
   const res: IRecordWriteResult = { errors: [], written: [], containers: [] };
   const list = toRecordList(value);
   if (list === undefined) {
@@ -255,7 +265,7 @@ export function writeRecordsValue(container: Question, address: string, value: a
     return res;
   }
   if (list.length === 0) return res;
-  const plan = createPlan(container, address, list, counts);
+  const plan = createPlan(container, address, list);
   if (!!plan.error) {
     // Whole-key: a partially realized shape shifts the positions the agent reasoned about, so nothing
     // of the key is written and the message names the position that cannot work.
@@ -284,8 +294,7 @@ function toRecordList(value: any): Array<any> | undefined {
 
 // Every position below the count is resolved to the entry object it names before anything is written,
 // and every operation of the call then acts on that object rather than on an index.
-function createPlan(container: Question, address: string, list: Array<any>,
-  counts: IRecordCounts): IRecordPlan {
+function createPlan(container: Question, address: string, list: Array<any>): IRecordPlan {
   const res: IRecordPlan = { patches: [], adds: [], removes: [] };
   const entries = getEntryPositions(container, address);
   const count = entries.length;
@@ -316,7 +325,7 @@ function createPlan(container: Question, address: string, list: Array<any>,
     }
     res.patches.push({ position: i, address: entry.address, entry: entry.entry, values: element });
   }
-  res.error = checkCounts(container, address, res, count, counts);
+  res.error = checkCounts(container, address, res);
   return res;
 }
 
@@ -326,12 +335,16 @@ function createPlan(container: Question, address: string, list: Array<any>,
 // cannotAdd although the final count would be five, and an agent that needs the room removes first,
 // in a turn of its own. The refusal is named after the position that cannot work, and its message
 // after the container that refused it.
-function checkCounts(container: Question, address: string, plan: IRecordPlan, count: number,
-  counts: IRecordCounts): IInterviewError | undefined {
+//
+// Counted the way the model counts: over every entry the container holds - the ones a
+// templateVisibleIf, a rowsVisibleIf or a filter leaves out included - and against the limits it
+// enforces, so that an add the pre-check lets through is not refused half-way through the key.
+function checkCounts(container: Question, address: string, plan: IRecordPlan): IInterviewError | undefined {
   const refused = plan.removes.filter(operation => operation.canRemove !== true)[0];
   if (!!refused) return cannotRemoveError(refused.address, refused.position, { container: address });
-  const maxCount = counts.maxCount === undefined ? Number.MAX_VALUE : counts.maxCount;
-  const minCount = counts.minCount === undefined ? 0 : counts.minCount;
+  const count = getEntryCount(container);
+  const maxCount = getMaxEntryCount(container);
+  const minCount = getMinEntryCount(container);
   if (plan.adds.length > 0) {
     if (!canAddEntry(container)) {
       return cannotAddError(plan.adds[0].address, { container: address, position: plan.adds[0].position });

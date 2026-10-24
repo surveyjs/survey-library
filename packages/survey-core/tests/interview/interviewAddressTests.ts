@@ -186,6 +186,33 @@ describe("interview addresses (issue #11818)", () => {
     expect(unknown.errors[0].message).toContain("medications[0].dose");
   });
 
+  // A dynamic panel, a dynamic matrix and a matrix dropdown have no getQuestionByName, so a lookup
+  // that fell through to their nested questions resolved these to the first entry or row. Issue#11818
+  test("An address with a missing index or row is badAddress and writes nothing", async () => {
+    const missing = ["medications.dose", "items.quantity", "matrix.column1", "orders.items[0].sku",
+      "orders[0].items.sku"];
+    const iv = await createAddressInterview();
+    // The panels and rows the fixture's counts create, before anything is written.
+    const data = JSON.stringify(iv.data);
+    for (let i = 0; i < missing.length; i++) {
+      const result = await iv.answer(missing[i], "x");
+      expect(result.errors.length, missing[i]).toBe(1);
+      expect(result.errors[0].code, missing[i]).toBe(InterviewErrorCodes.badAddress);
+    }
+    expect(JSON.stringify(iv.data)).toBe(data);
+    // A name after a matrix dropdown that is neither a row nor a column names nothing.
+    expect((await iv.answer("matrix.row9.column1", "x")).errors[0].code).toBe(InterviewErrorCodes.unknownQuestion);
+    // A key of answerAll() is a root's address, so batch mode refuses every nested address, these
+    // included, as a name it does not take.
+    const batch = await createAddressInterview();
+    for (let i = 0; i < missing.length; i++) {
+      const result = await batch.answerAll({ [missing[i]]: "x" });
+      expect(result.errors.length, missing[i]).toBe(1);
+      expect(result.errors[0].code, missing[i]).toBe(InterviewErrorCodes.unknownQuestion);
+    }
+    expect(JSON.stringify(batch.data)).toBe(data);
+  });
+
   test("An address that names a panel or a row answers nothing", async () => {
     const iv = await createAddressInterview();
     const result = await iv.answer("medications[0]", "x");

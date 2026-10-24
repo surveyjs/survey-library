@@ -145,7 +145,7 @@ export class Interview implements IInterview {
       // refused, so that the consumer hears why the same item comes back.
       return this.createErrorResult(invalidCannotSkipError(target.address), inputs);
     }
-    this.skipped.add(target.address);
+    this.skipped.add(target.question);
     this.editingQuestion = undefined;
     await this.settleSurvey();
     const after = this.getInputs();
@@ -390,11 +390,11 @@ export class Interview implements IInterview {
     }
     this.editingQuestion = undefined;
     if (applied.isDone === true) {
-      this.skipped.add(target.address);
+      this.skipped.add(target.question);
     } else {
       // Growing, shrinking or revisiting the list re-opens it: a "done" said earlier was about the
       // list as it was then, and the interviewee gets the summary back when the new entry is filled.
-      this.skipped.remove(target.address);
+      this.skipped.remove(target.question);
       // MinRowCountError, a required container that has just lost its last entry: the container's
       // own errors are written by validating it after every add and every remove, and so is a
       // duplicated key on the key fields of its entries.
@@ -484,7 +484,7 @@ export class Interview implements IInterview {
       // A container written in batch loses its "done", at whatever depth it sits: growing, shrinking
       // or editing the list re-opens it, so a host that switches to single mode afterwards gets the
       // summary step back.
-      this.skipped.remove(nested.address);
+      this.skipped.remove(nested.question);
       this.editingQuestion = undefined;
       written.containers.push(nested);
     });
@@ -493,7 +493,9 @@ export class Interview implements IInterview {
 
   // An answer un-skips, exactly as in single mode, and it ends an "edit" the same way.
   private markWritten(written: IBatchWritten, address: string, question?: Question): void {
-    this.skipped.remove(address);
+    if (!!question) {
+      this.skipped.remove(question);
+    }
     this.editingQuestion = undefined;
     written.addresses[address] = true;
     if (!!question) written.questions[question.id] = true;
@@ -508,7 +510,7 @@ export class Interview implements IInterview {
       target.question.comment = prepared.comment;
     }
     // An answer un-skips: the interviewee changed their mind about leaving it alone.
-    this.skipped.remove(target.address);
+    this.skipped.remove(target.question);
     // The entry an "edit" opened has been answered: the selection rule takes over again.
     this.editingQuestion = undefined;
   }
@@ -577,13 +579,13 @@ export class Interview implements IInterview {
   }
 
   private isAnswered(input: IInterviewInput): boolean {
-    if (this.skipped.has(input.address) && input.item.required === true && !input.isSummary) {
+    if (this.skipped.has(input.question) && input.item.required === true && !input.isSummary) {
       // A skipped item that a requiredIf turned required leaves the set: required means asked. Not a
       // summary step: its entry in the set is the "done" of the list, not a skip, and a required
       // container that is empty or invalid stays current through isInputValid without losing it.
-      this.skipped.remove(input.address);
+      this.skipped.remove(input.question);
     }
-    return isInputAnswered(input, this.skipped.has(input.address));
+    return isInputAnswered(input, this.skipped.has(input.question));
   }
 
   // The batch predicates of a dynamic container, which replace the "done" gesture of single mode
@@ -685,7 +687,7 @@ export class Interview implements IInterview {
         if (isDone) res[input.address] = input.question.value;
         return;
       }
-      if (this.skipped.has(input.address)) return;
+      if (this.skipped.has(input.question)) return;
       res[input.address] = getAnsweredValue(input);
     });
     return res;

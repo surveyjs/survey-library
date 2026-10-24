@@ -2,7 +2,7 @@ import { Helpers } from "survey-core";
 import type { Question } from "survey-core";
 import type { IInterviewError, IInterviewItem, IInterviewRow } from "./interview-types";
 import { IInterviewContainer, hasChoiceElements, markDataSourceItem } from "./interview-items";
-import { createNameLookup, formatAddressSegment, getAddress } from "./interview-address";
+import { createNameLookup, getAddress, getChildAddress } from "./interview-address";
 import { isAction } from "./interview-summary";
 import { describeQuestion } from "./question-description";
 import {
@@ -142,7 +142,7 @@ export function getContainerRows(container: Question, address: string,
   target.visibleRows.forEach((row: any) => {
     const name = getRowName(row);
     if (name === undefined) return;
-    const rowAddress = address + "." + formatAddressSegment({ name: name });
+    const rowAddress = getChildAddress(address, name);
     res.push({
       name: name,
       title: getRowTitle(row) || name,
@@ -288,7 +288,7 @@ export function createFields(questions: Array<Question>, address: string,
 }
 
 function createField(question: Question, address: string, nesting: IInterviewNesting): IInterviewField | undefined {
-  const fieldAddress = getAddress(question) || (address + "." + formatAddressSegment({ name: question.name }));
+  const fieldAddress = getAddress(question) || getChildAddress(address, question.name);
   const item = createFieldItem(question, fieldAddress, nesting);
   // undefined from the describer means read-only by property: nobody can ever answer it, so it is
   // not a field at all - the rule the inventory applies to a root.
@@ -610,7 +610,7 @@ function writeContainerField(res: IFieldWriteResult, write: IFieldWrite, field: 
 
 function getRefusedCommentError(owner: IFieldOwner, write: IFieldWrite,
   fields: Array<IInterviewField>): IInterviewError {
-  return unknownQuestionError(owner.address + "." + formatAddressSegment({ name: write.commentKey }),
+  return unknownQuestionError(getChildAddress(owner.address, write.commentKey),
     fields.map(item => item.name));
 }
 
@@ -619,7 +619,7 @@ function getRefusedCommentError(owner: IFieldOwner, write: IFieldWrite,
 // answered with the list of what the container does offer.
 function getUnknownKeyError(address: string, key: string, known: Array<string>,
   offered: Array<string>): IInterviewError {
-  const name = address + "." + formatAddressSegment({ name: key });
+  const name = getChildAddress(address, key);
   if (known.indexOf(key) >= 0) return notAskableError(name, "hidden");
   return unknownQuestionError(name, offered);
 }

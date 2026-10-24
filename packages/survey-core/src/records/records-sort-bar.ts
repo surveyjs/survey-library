@@ -22,8 +22,8 @@ export interface IRecordsSortBarOwner {
   readonly sortCriteria: Array<ISortCriterion>;
   // The fields the bar offers, in the order the question shows them. Computed on every read.
   readonly sortFields: Array<IRecordsSortField>;
-  // The API's opt-in: allowSort and showSortMenu.
-  readonly isSortMenuVisible: boolean;
+  // The API's opt-in: allowSort, and on the matrix showSortBar.
+  readonly isSortBarVisible: boolean;
   readonly isDesignMode: boolean;
   readonly isCollapsed: boolean;
   // A page is read, or a move waits for asynchronous validators: no sort can be made meanwhile.
@@ -64,7 +64,7 @@ export interface IRecordsSortActions {
    with header clicks), while the question is expanded, with a field to offer. Read-only and display
    mode keep it: a sort changes no answer. */
 export function getShowSort(owner: IRecordsSortBarOwner, fields: Array<IRecordsSortField>): boolean {
-  return owner.isSortMenuVisible && !owner.isDesignMode && !owner.isCollapsed && fields.length > 0;
+  return owner.isSortBarVisible && !owner.isDesignMode && !owner.isCollapsed && fields.length > 0;
 }
 
 interface ISortBarState {

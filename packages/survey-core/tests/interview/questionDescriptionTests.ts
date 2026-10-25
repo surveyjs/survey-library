@@ -158,13 +158,14 @@ describe("question description (issue #11818)", () => {
       mask: { type: "pattern", pattern: "+1(999)-999-99-99" },
     });
     expect(describeByName(survey, "amount").constraints).toEqual({
-      mask: { type: "numeric", min: 0, max: 100 },
+      mask: { type: "numeric", decimalSeparator: ".", thousandsSeparator: ",", precision: 2, min: 0, max: 100 },
     });
     expect(describeByName(survey, "price").constraints).toEqual({
-      mask: { type: "currency", min: 1 },
+      mask: { type: "currency", decimalSeparator: ".", thousandsSeparator: ",", precision: 2, currencySymbol: "$",
+        currencyPattern: "@#", example: "$1,234.5", min: 1 },
     });
     expect(describeByName(survey, "when").constraints).toEqual({
-      mask: { type: "datetime", pattern: "mm/dd/yyyy", min: "2020-01-01" },
+      mask: { type: "datetime", pattern: "mm/dd/yyyy", valueFormat: "YYYY-MM-DD", min: "2020-01-01" },
     });
   });
   test("A text question's step is described", () => {

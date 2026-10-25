@@ -4,7 +4,7 @@ import type { IInterviewError, IInterviewItem, IInterviewRow } from "./interview
 import { IInterviewContainer, hasChoiceElements, markDataSourceItem } from "./interview-items";
 import { createNameLookup, getAddress, getChildAddress } from "./interview-address";
 import { isAction } from "./interview-summary";
-import { describeQuestion } from "./question-description";
+import { describeQuestion, getMaskValueFormat } from "./question-description";
 import {
   badActionError, badFormatError, badRecordError, getUnsupportedReason, notAChoiceError, notANumberError,
   notAskableError, tooLongError, tooManyChoicesError, unknownQuestionError,
@@ -758,7 +758,8 @@ function checkNumber(item: IInterviewItem, address: string, value: any): IInterv
 // What the input itself would not let a respondent type, read off the question as the input reads
 // it - never off the described constraints, which also hold the validators' bounds. A validator is
 // the model's own check: it reports its own localized error and keeps the value. So are min and
-// max: a well-formed date out of bounds is the model's error, as it is in the tester.
+// max: a well-formed date out of bounds is the model's error, as it is in the tester. An input mask's
+// min and max are not: the model never checks them, the mask only stops a respondent typing past them.
 function checkEnterable(question: Question, address: string, value: any): IInterviewError {
   if (Helpers.isValueEmpty(value)) return undefined;
   return checkDateFormat(question, address, value) || checkMask(question, address, value) ||
@@ -788,14 +789,101 @@ function checkDateFormat(question: Question, address: string, value: any): IInte
   return isValid ? undefined : badFormatError(address, value, "a \"" + format.text + "\" string");
 }
 
-// One check per mask type, chosen by the type. A mask type without a branch is not checked.
+// One check per mask type, chosen by the type. A mask type without a branch is not checked. Every
+// format comes off the question's mask, which has applied survey.locale, survey.regionalFormat and
+// the question's maskSettings in that order; survey.regionalFormat is never read here.
 function checkMask(question: Question, address: string, value: any): IInterviewError {
   if (!(question instanceof QuestionTextModel) || question.maskTypeIsEmpty) return undefined;
   switch(question.maskType) {
     case "pattern":
       return checkPatternMask(question, address, value);
+    case "numeric":
+    case "currency":
+      return checkNumericMask(question, address, value);
+    case "datetime":
+      return checkDateTimeMask(question, address, value);
   }
   return undefined;
+}
+
+// A number is stored as a number - and with saveMaskedValue as the text the mask makes of it - and a
+// text, with saveMaskedValue, as itself. Either is accepted only when it survives the mask unchanged:
+// the mask truncates to its precision, drops a minus sign allowNegativeValues forbids, and reads the
+// separators of its own locale, so "1.234,5" is another number in en. The model stores whatever it is
+// given and checks neither that nor the mask's min and max. A number never goes to getUnmaskedValue:
+// it takes the masked text, reads a number's "." as a thousands separator in de-DE, and throws on a
+// number for a currency mask.
+function checkNumericMask(question: QuestionTextModel, address: string, value: any): IInterviewError {
+  const mask: any = question.maskInstance;
+  const isSaveMasked = mask.saveMaskedValue === true;
+  const example = mask.getMaskedValue(1234.5);
+  const shown = (!!example ? JSON.stringify(example) + " " : "") + "(decimal " + JSON.stringify(mask.decimalSeparator) +
+    ", thousands " + JSON.stringify(mask.thousandsSeparator) + ")";
+  const expected = isSaveMasked ? "a number, or the text the input shows, as " + shown : "a number, shown as " + shown;
+  let num: any = undefined;
+  if (typeof value === "number") {
+    num = isFinite(value) ? value : undefined;
+  } else if (isSaveMasked && typeof value === "string") {
+    num = mask.getUnmaskedValue(value);
+  }
+  if (typeof num !== "number" || isNaN(num)) return badFormatError(address, value, expected);
+  const range = getNumericRange(mask, num);
+  if (!!range) return badFormatError(address, value, range);
+  const masked = mask.getMaskedValue(num);
+  if (typeof value === "string") {
+    return masked === value ? undefined : badFormatError(address, value, expected, masked);
+  }
+  const roundTrip = typeof masked === "string" ? mask.getUnmaskedValue(masked) : undefined;
+  if (roundTrip === value) return undefined;
+  return badFormatError(address, value, expected, isSaveMasked ? masked : roundTrip);
+}
+
+function getNumericRange(mask: any, num: number): string {
+  const min = typeof mask.min === "number" ? mask.min : undefined;
+  const max = typeof mask.max === "number" ? mask.max : undefined;
+  if ((min === undefined || num >= min) && (max === undefined || num <= max)) return undefined;
+  if (min !== undefined && max !== undefined) return "a number from " + min + " to " + max;
+  return min !== undefined ? "a number of at least " + min : "a number of at most " + max;
+}
+
+// The stored value is an ISO string in the shape the mask reads back (its valueFormat), and with
+// saveMaskedValue also the text the input shows. Only an exact round trip is accepted: a display
+// text is refused without saveMaskedValue - "05/01/2024" is May in one locale and January in another
+// - and so is an ISO value the mask would change: seconds a "HH:MM" input drops, a "yy" year it moves
+// to another century. The mask's min and max are compared as ISO text, each cut to the shorter of
+// the two, so "2024-12-31T10:30" is within a max of "2024-12-31".
+function checkDateTimeMask(question: QuestionTextModel, address: string, value: any): IInterviewError {
+  const mask: any = question.maskInstance;
+  const pattern = JSON.stringify(mask.activePattern);
+  const valueFormat = getMaskValueFormat(mask);
+  if (!valueFormat) {
+    return badFormatError(address, value, "no value: its " + pattern + " datetime mask stores no date or time");
+  }
+  const isSaveMasked = mask.saveMaskedValue === true;
+  const expected = "a " + JSON.stringify(valueFormat) + " string " +
+    (isSaveMasked ? "or the text the input shows, as " + pattern : "(the input shows it as " + pattern + ")");
+  if (typeof value !== "string") return badFormatError(address, value, expected);
+  let iso: string = undefined;
+  if (mask.getUnmaskedValue(mask.getMaskedValue(value)) === value) {
+    iso = value;
+  } else if (isSaveMasked) {
+    const unmasked = mask.getUnmaskedValue(value);
+    if (!!unmasked && mask.getMaskedValue(unmasked) === value) iso = unmasked;
+  }
+  if (!iso) return badFormatError(address, value, expected);
+  const isBelow = !!mask.min && compareIsoPrefix(iso, mask.min) < 0;
+  const isAbove = !!mask.max && compareIsoPrefix(iso, mask.max) > 0;
+  if (!isBelow && !isAbove) return undefined;
+  const bounds = !!mask.min && !!mask.max ? "from " + JSON.stringify(mask.min) + " to " + JSON.stringify(mask.max) :
+    !!mask.min ? "of " + JSON.stringify(mask.min) + " or later" : "of " + JSON.stringify(mask.max) + " or earlier";
+  return badFormatError(address, value, "a " + JSON.stringify(valueFormat) + " value " + bounds);
+}
+
+function compareIsoPrefix(iso: string, bound: string): number {
+  const length = Math.min(iso.length, bound.length);
+  const left = iso.slice(0, length);
+  const right = bound.slice(0, length);
+  return left < right ? -1 : left > right ? 1 : 0;
 }
 
 // The value goes through the mask the way a typed one does, and must come back unchanged and fill

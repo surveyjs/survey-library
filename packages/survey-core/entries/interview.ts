@@ -26,6 +26,7 @@ export { describeQuestion } from "../src/interview/question-description";
 export type {
   IQuestionChoiceDescription,
   IQuestionConstraints,
+  IQuestionMask,
   IQuestionDescription,
   IQuestionDescriptionOptions,
 } from "../src/interview/question-description";

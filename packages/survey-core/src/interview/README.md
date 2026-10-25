@@ -180,7 +180,7 @@ Every mutating call answers with an `errors` array of `{ name, message, code? }`
 | `notAskable` | The item or the field exists but cannot take a value: an `enableIf` turned it off — its own, or one of a panel, a page or a container it sits in (`disabled`) — it has no plain input — a file, a signature, an image picker (`unsupported`), it sits deeper than the 20 nested containers the interview addresses and neither mode reaches it (`reason: "batch"`, see [the ceiling](#the-depth-ceiling)), it is a dynamic container with a `dataSource` or sits inside one (`reason: "dataSource"`), or the survey hid it, an earlier key of the same `answerAll()` included. The message says which. |
 | `notAChoice` | The value is not among the choices the item lists — `choices`, or a rating's `rateValues` — or it is a choice listed with `disabled: true` that the question does not already hold. Checked per element for a multi-select; `other` and `none` are choices like any other; skipped entirely when the item says `choicesUnknown` — a value is then written unchecked, and the model keeps it too, because it does not judge a value without a usable list. An item with `choices: []` refuses every value: nothing can be chosen now, and the model would clear what was written. A disabled choice that is already selected stays accepted, as the UI keeps a checked item checked: `["cat", "dog"]` with `cat` stored and disabled is accepted, `["cat", "dog"]` after `cat` was dropped is not. A value that differs from one choice only in case or surrounding spaces is not an error — the choice's own value is written (see [the matching rule](#items-are-the-models-own-single-inputs)) — but one that differs that way from several (`" a"` against `"a"` and `"A"`) is `notAChoice`. |
 | `notANumber` | A string that is not a number, for an item whose value is a number. |
-| `badFormat` | A value the input itself would not produce: a date-like `inputType` given anything but its shape — `date` `YYYY-MM-DD` (a valid date; a JavaScript `Date` is accepted too), `datetime-local` `YYYY-MM-DDTHH:mm[:ss]` (or a `Date`), `time` `HH:mm[:ss]`, `month` `YYYY-MM`, `week` `YYYY-Www` — or a value a `pattern` input mask does not accept: it does not survive the mask unchanged, or leaves a position unfilled (`"12"` for `999`). Only the format: a well-formed date outside `min` / `max` is the model's own validation error, without a code. |
+| `badFormat` | A value the input itself would not produce: a date-like `inputType` given anything but its shape — `date` `YYYY-MM-DD` (a valid date; a JavaScript `Date` is accepted too), `datetime-local` `YYYY-MM-DDTHH:mm[:ss]` (or a `Date`), `time` `HH:mm[:ss]`, `month` `YYYY-MM`, `week` `YYYY-Www` — or a value an input mask does not accept: it does not survive the mask unchanged, or leaves a `pattern` position unfilled (`"12"` for `999`), or lies outside the mask's own `min` / `max`, which the model does not check. A `numeric` or `currency` mask takes a number (`1.005` is refused at `precision: 2`), a `datetime` mask an ISO string in its `valueFormat`, and with `saveMaskedValue` either one or the exact text the input shows; see [Formats and masks](#formats-and-masks). Only the format otherwise: a well-formed date outside the question's `min` / `max` is the model's own validation error, without a code. |
 | `tooLong` | A text longer than the input accepts — the question's `maxLength`, or the survey's `maxTextLength` — on a text, a comment or a multiple-text item. A text validator's `maxLength` is the model's own validation error instead, and the value is kept, as the model keeps it. |
 | `tooManyChoices` | More selected choices than a checkbox's `maxSelectedChoices`, counted after the choices are matched (a choice sent twice is one). An answer-count validator's `maxCount` is the model's own validation error instead. |
 | `badAction` | An action object (`{ action: "add" }`) sent to an item that takes a value, a plain value sent to a [summary step](#the-summary-step), an action the step does not offer, or a `remove` / `edit` without an `index` of an entry that exists. |
@@ -1703,6 +1703,58 @@ await iv.complete();
 //                  { ref: "PO-2", items: [{ sku: "C-3", qty: 1 }] }] }
 ```
 
+## Formats and masks
+
+An input mask shows one text and stores another. In a de-DE survey a date input shows
+`01.05.2024` and stores `"2024-05-01"`, and a currency input shows `1.234,5 €` and stores `1234.5`.
+The description, the schema and the checks on write all deal in the **stored** value.
+
+**Where the formats come from.** `survey.locale`, then `survey.regionalFormat.locale`, then the
+overrides in `survey.regionalFormat`, then the question's own `maskSettings`. The interview reads the
+result off each question's mask, never `survey.regionalFormat` itself, so a `maskSettings` override
+always wins. Nothing is cached: a change of the locale or the regional format between two calls
+shows in the next document and changes what the next write accepts. A mask the input type ignores
+(any `inputType` but `text` and `tel`) is not described and not checked.
+
+`constraints.mask` reports what the mask resolved, each key only for the mask types that use it:
+
+```yaml
+constraints:
+  mask:
+    type: currency
+    decimalSeparator: ","
+    thousandsSeparator: .
+    precision: 2
+    currencySymbol: €
+    currencyPattern: "# @"
+    example: 1.234,5 €
+```
+
+* `pattern`: a pattern mask's pattern, or a datetime mask's display pattern (`dd.mm.yyyy`).
+* `valueFormat` (datetime): the ISO shape stored — `YYYY-MM-DDTHH:mm:ss`, `YYYY-MM-DDTHH:mm`,
+  `YYYY-MM-DD`, `YYYY-MM`, `YYYY`, `HH:mm:ss` or `HH:mm`. The mask decides it: the first shape whose
+  sample comes back unchanged through the mask. A pattern that stores nothing readable (`mm/dd`,
+  `HH`) has none, and every value is refused.
+* `decimalSeparator`, `thousandsSeparator`, `precision`, `allowNegativeValues: false`, and `example`
+  — 1234.5 as the input shows it, when it is within the bounds (numeric, currency).
+* `currencySymbol`, `currencyPattern` (currency).
+* `min`, `max`: the mask's bounds.
+* `saveMaskedValue: true`: the model stores the text the input shows.
+
+**What an agent sends.** One accepted form per question, and only a value that survives the mask
+unchanged — the model would otherwise store a value the input could never produce, or reformat it
+silently:
+
+| Mask | Without `saveMaskedValue` | With `saveMaskedValue` |
+| --- | --- | --- |
+| `numeric`, `currency` | a number: `1234.5`. Text is refused, the input's own (`"1.234,5"`) included, and so is a number the mask changes — `1.005` at `precision: 2`, `-5` with `allowNegativeValues: false` | a number, stored as the mask formats it (`1234.5` → `"1.234,5 €"`), or that exact text. `"1.234,50 €"` is refused: the input would store `"1.234,5 €"`, and the message says so |
+| `datetime` | an ISO string in `valueFormat`: `"2024-05-01"`. The display text (`"01.05.2024"`) is refused — `05/01/2024` is May in one locale and January in another — and so is an ISO value the mask changes: seconds for `HH:MM`, none for `HH:MM:ss`, a two-digit year in another century | the ISO string, stored as the mask formats it (`"2024-05-01"` → `"01.05.2024"`), or that exact text |
+| `pattern` | text that fills the pattern | the same |
+
+The mask's `min` / `max` are checked too, since the model does not: `150` against `max: 100` is
+`badFormat`, and the message names the bounds. A datetime value is compared with a bound as ISO text,
+each cut to the shorter of the two, so `"2024-12-31T10:30"` is within `max: "2024-12-31"`.
+
 ## Answer schema
 
 `getAnswerSchema()` returns a JSON Schema for exactly the keys `answerAll()` accepts **right now**,
@@ -1743,6 +1795,9 @@ fetches a meta-schema at run time. The mapping, per item:
 | `constraints.minCount` / `maxCount` | `minItems` / `maxItems` |
 | `constraints.regex` | `pattern`. With `constraints.regexFlags: "i"` (the validator's `caseInsensitive`) there is no `pattern` — it has no flags, and would refuse what the model accepts — and `description` says `regex /<regex>/i` |
 | `constraints.format: "email"`, or `inputType: "email"` | `format: "email"` |
+| `constraints.mask`, `numeric` / `currency` | `type: "number"` — the model reports `valueType: "string"` for every masked question, and a number is what it stores — with the mask's `min` / `max` as `minimum` / `maximum`, and `description` `currency, shown as 1.234,5 € (decimal ",", thousands ".")`. With `saveMaskedValue`: `anyOf: [{ "type": "number", … }, { "type": "string" }]`, the bounds in the number branch, and `currency, as 1.234,5 € (…)` |
+| `constraints.mask`, `datetime` with a `valueFormat` | `type: "string"`, `description` `YYYY-MM-DD (shown as dd.mm.yyyy)`; with `saveMaskedValue` just the pattern, `dd.mm.yyyy`. The mask's bounds follow as `min …`, `max …` |
+| `constraints.mask`, `pattern`, or `datetime` without a `valueFormat` | the item's own type, and `description` `mask pattern +9 (999) 999` / `mask datetime mm/dd` |
 | `constraints.step` | `multipleOf` **only** for `inputType: "number"` and an integer step, whatever `min` is: that is the one step the model checks, and it counts from zero, as `multipleOf` does. Any other step — a fraction (`multipleOf: 0.1` fails `0.3` on float error, the model does not), `inputType: "range"`, a slider, whose step the model does not check — goes into `description`: `step 0.1` |
 | `comment` | a second property, `<name>` + `settings.commentSuffix`, of `type: "string"`. Never in `required`, `comment.required: true` included: that one is required only while `other` is selected |
 | `required: true` | the name is in `required` |
@@ -1752,12 +1807,12 @@ fetches a meta-schema at run time. The mapping, per item:
 | `rows` (a matrix dropdown), at any depth | the same, one level deeper: a property per row, each `type: "object"` with the row's fields |
 | `entries` (a [dynamic container](#dynamic-containers-as-records)), at any depth | `type: "array"`, `maxItems` from `constraints.maxCount`, and one element schema for every position: `{ "anyOf": [ { "type": "object", "properties": …, "additionalProperties": false }, { "type": "null" } ] }`. The properties are the **union**, by field name, of the `template` records and the fields of every entry, each nullable. No `minItems` — a patch is legitimately shorter than the minimum — and the minimum goes into the fixed English `description` along with the current number of entries. A [nested](#nested-containers) list serves every entry of its owner, whose inner lists have different counts, so its description names no count ("a position past the entries the document lists for this entry adds one"). |
 | a field that is a container | the property its root twin would be, nested where the field sits and nullable like every field. The union of an element schema merges the records of one name before it builds the property: a nested list takes the template and the entries of every record as one template, a nested object the fields of every record, so the enum of a column two levels down is the union of what every entry offers, and `maxItems` is the loosest of the records'. A name that is a plain field in one record and a container in another is left out. |
-| a field of a container | the per-item mapping above, wrapped as `{ "anyOf": [ …, { "type": "null" } ] }` — a field is cleared by sending `null` for it, and a schema that forbade `null` would refuse the agent before the interview could. `anyOf`, not `type: ["string", "null"]`: the strict function-calling modes accept the first and not always the second. Comment keys are nullable the same way; `unsupported` fields are left out. |
+| a field of a container | the per-item mapping above, wrapped as `{ "anyOf": [ …, { "type": "null" } ] }` — a field is cleared by sending `null` for it, and a schema that forbade `null` would refuse the agent before the interview could. `anyOf`, not `type: ["string", "null"]`: the strict function-calling modes accept the first and not always the second. A property that is already an `anyOf` (a mask with `saveMaskedValue`) gets `{ "type": "null" }` as one more branch, never an `anyOf` inside an `anyOf`. Comment keys are nullable the same way; `unsupported` fields are left out. |
 
-A date bound and a mask have no draft 2020-12 keyword, and an `ExpressionValidator` has none either.
-They go into `description` as text, in brackets after the question's own description:
-`"Your birthday (min 2020-01-01, max 2030-12-31)"`. A date shape, a step and a case-insensitive regex
-go there the same way, the shape first: `"When (YYYY-MM, min 2024-01)"`.
+A date bound and a mask's display have no draft 2020-12 keyword, and an `ExpressionValidator` has
+none either. They go into `description` as text, in brackets after the question's own description:
+`"Your birthday (min 2020-01-01, max 2030-12-31)"`. A date shape, a mask, a step and a
+case-insensitive regex go there the same way, the shape first: `"When (YYYY-MM, min 2024-01)"`.
 
 The rule behind every row: **the schema never refuses a value that is stored and passes the model's
 validation**. Where a keyword would be stricter than the model, the constraint is text instead.

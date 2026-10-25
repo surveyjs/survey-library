@@ -125,11 +125,15 @@ export function notANumberError(name: string, value: any): IInterviewError {
 }
 
 // "expected" says what the input takes, in the words of its own format: "a \"YYYY-MM-DD\" string",
-// "text that fills the \"999\" pattern mask".
-export function badFormatError(name: string, value: any, expected: string): IInterviewError {
+// "text that fills the \"999\" pattern mask". "stored" is what the input would make of the value - a
+// mask that truncates 1.005 to 1, or writes "1'234.50 CHF" as "1'234.5 CHF" - when it makes anything.
+export function badFormatError(name: string, value: any, expected: string, stored?: any): IInterviewError {
+  const storedText = stored !== undefined && stored !== null && stored !== "" ?
+    ", which the input would store as " + quoteValue(stored) : "";
   return {
     name: name,
-    message: "The input " + quoteValue(name) + " takes " + expected + ", and the value is " + quoteValue(value) + ".",
+    message: "The input " + quoteValue(name) + " takes " + expected + ", and the value is " + quoteValue(value) +
+      storedText + ".",
     code: InterviewErrorCodes.badFormat,
   };
 }

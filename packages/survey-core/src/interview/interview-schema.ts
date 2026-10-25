@@ -1,5 +1,5 @@
 import type { IInterviewEntry, IInterviewItem, IInterviewRow } from "./interview-types";
-import type { IQuestionChoiceDescription, IQuestionConstraints } from "./question-description";
+import type { IQuestionChoiceDescription, IQuestionConstraints, IQuestionMask } from "./question-description";
 import { createNameLookup, setOwnValue } from "./interview-address";
 
 // The answers of a batch call as a JSON Schema, so that an agent's function-calling API constrains
@@ -139,7 +139,7 @@ function createEntryProperty(item: IInterviewItem, commentSuffix: string): any {
 const LOOSEST_LOW = ["minimum", "minLength", "minItems"];
 const LOOSEST_HIGH = ["maximum", "maxLength", "maxItems"];
 // A keyword the descriptions cannot agree on is dropped for that field.
-const MUST_AGREE = ["type", "pattern", "format", "uniqueItems", "multipleOf", "readOnly"];
+const MUST_AGREE = ["type", "anyOf", "pattern", "format", "uniqueItems", "multipleOf", "readOnly"];
 
 function mergeProperties(list: Array<any>): any {
   if (list.length === 1) return list[0];
@@ -306,9 +306,15 @@ function mergeCounts(records: Array<IInterviewItem>): any {
 
 // A field is cleared by sending null for it, and a schema that forbids null would refuse the agent
 // before the interview could. "anyOf" with { type: "null" } rather than type: ["string", "null"]:
-// the strict function-calling modes accept the first and not always the second.
+// the strict function-calling modes accept the first and not always the second. A property that is
+// already a union - a mask that saves its text takes a number or a string - gets null as one more
+// branch, not a union nested in a union.
 function createNullable(property: any): any {
-  return { anyOf: [property, { type: "null" }] };
+  if (!Array.isArray(property.anyOf)) return { anyOf: [property, { type: "null" }] };
+  const res: any = {};
+  Object.keys(property).forEach(key => res[key] = property[key]);
+  res.anyOf = property.anyOf.concat([{ type: "null" }]);
+  return res;
 }
 
 function createProperty(item: IInterviewItem): any {
@@ -346,6 +352,7 @@ function addValueType(res: any, item: IInterviewItem, notes: Array<string>): voi
     res.enum = choices;
     return;
   }
+  if (addMaskType(res, item, notes)) return;
   if (item.valueType === "number") {
     res.type = "number";
     return;
@@ -368,6 +375,45 @@ function addValueType(res: any, item: IInterviewItem, notes: Array<string>): voi
   // inputType "email" validates as an address without putting an EmailValidator in the list, so it
   // reaches the record as an input type and nothing else. The constraint is real all the same.
   if (item.inputType === "email") res.format = "email";
+}
+
+// The model reports "string" as the value type of every masked question, and a mask stores something
+// else: a numeric or currency mask a number - and with saveMaskedValue the text it shows, which the
+// model also makes of a number it is given - a datetime mask an ISO string in its valueFormat, or the
+// shown text with saveMaskedValue. The mask's bounds go where its value type takes them. A pattern
+// mask, and a datetime mask that stores nothing readable, keep the "mask" note of addConstraints().
+function addMaskType(res: any, item: IInterviewItem, notes: Array<string>): boolean {
+  const mask: IQuestionMask = !!item.constraints ? item.constraints.mask : undefined;
+  if (!isTypedMask(mask)) return false;
+  if (mask.type === "datetime") {
+    res.type = "string";
+    notes.push(mask.saveMaskedValue === true ? mask.pattern : mask.valueFormat + " (shown as " + mask.pattern + ")");
+    if (!isEmptyBound(mask.min)) notes.push("min " + String(mask.min));
+    if (!isEmptyBound(mask.max)) notes.push("max " + String(mask.max));
+    return true;
+  }
+  const num: any = { type: "number" };
+  if (typeof mask.min === "number") num.minimum = mask.min;
+  if (typeof mask.max === "number") num.maximum = mask.max;
+  const separators = "(decimal " + JSON.stringify(mask.decimalSeparator) + ", thousands " +
+    JSON.stringify(mask.thousandsSeparator) + ")";
+  if (mask.saveMaskedValue === true) {
+    res.anyOf = [num, { type: "string" }];
+    notes.push(mask.type + (!!mask.example ? ", as " + mask.example : "") + " " + separators);
+  } else {
+    Object.keys(num).forEach(key => res[key] = num[key]);
+    notes.push(mask.type + (!!mask.example ? ", shown as " + mask.example : "") + " " + separators);
+  }
+  return true;
+}
+
+function isTypedMask(mask: IQuestionMask): boolean {
+  if (!mask) return false;
+  return mask.type === "numeric" || mask.type === "currency" || (mask.type === "datetime" && !!mask.valueFormat);
+}
+
+function isEmptyBound(value: any): boolean {
+  return value === undefined || value === null || value === "";
 }
 
 function getEnumChoices(item: IInterviewItem): Array<any> {
@@ -408,7 +454,7 @@ function addConstraints(res: any, item: IInterviewItem, notes: Array<string>): v
       notes.push("step " + constraints.step);
     }
   }
-  if (!!constraints.mask) {
+  if (!!constraints.mask && !isTypedMask(constraints.mask)) {
     notes.push("mask " + constraints.mask.type + (!!constraints.mask.pattern ? " " + constraints.mask.pattern : ""));
   }
   if (!!constraints.expression) {

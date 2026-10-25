@@ -30,6 +30,28 @@ export interface IQuestionChoiceDescription {
   none?: true;
 }
 
+// An input mask as it resolved for the question, the regional format and maskSettings applied. The
+// stored value is a number (numeric, currency), an ISO string in valueFormat (datetime), or - with
+// saveMaskedValue - the text the input shows.
+export interface IQuestionMask {
+  type: string;
+  // the pattern mask's pattern, or the datetime mask's display pattern ("dd.mm.yyyy")
+  pattern?: string;
+  // datetime: the ISO shape stored without saveMaskedValue ("YYYY-MM-DD")
+  valueFormat?: string;
+  decimalSeparator?: string;
+  thousandsSeparator?: string;
+  precision?: number;
+  allowNegativeValues?: false;
+  currencySymbol?: string;
+  currencyPattern?: string;
+  // numeric, currency: 1234.5 as the input shows it ("1'234.5 CHF")
+  example?: string;
+  min?: any;
+  max?: any;
+  saveMaskedValue?: true;
+}
+
 export interface IQuestionConstraints {
   // numbers, or ISO date strings for the date input types
   min?: any;
@@ -43,7 +65,7 @@ export interface IQuestionConstraints {
   // the regex validator's caseInsensitive
   regexFlags?: "i";
   format?: "email";
-  mask?: { type: string, pattern?: string, min?: any, max?: any };
+  mask?: IQuestionMask;
   // an ExpressionValidator, opaque to the consumer
   expression?: string;
   allowDigits?: false;
@@ -148,18 +170,67 @@ function setMaxLength(constraints: IQuestionConstraints, val: any): void {
   }
 }
 
+// What the mask resolved - survey.locale, then survey.regionalFormat, then the question's own
+// maskSettings - read off the mask's own getters. Never getFormatValue() and never
+// survey.regionalFormat: both skip the maskSettings overrides. A mask the input type ignores (any
+// inputType but text and tel) is not described: the input is the browser's own.
 function addMaskConstraint(constraints: IQuestionConstraints, question: QuestionTextModel): void {
-  const maskType = question.maskType;
-  if (!maskType || maskType === "none") return;
+  if (question.maskTypeIsEmpty) return;
   const maskSettings: any = question.maskSettings;
   if (!maskSettings) return;
-  const mask: { type: string, pattern?: string, min?: any, max?: any } = { type: maskType };
+  const maskType = question.maskType;
+  const mask: IQuestionMask = { type: maskType };
   // A datetime mask resolves its pattern from patternPreset when the JSON authored none.
-  const pattern = maskSettings.activePattern || maskSettings.pattern;
+  const pattern = maskType === "datetime" ? maskSettings.activePattern : maskSettings.pattern;
   if (!isEmptyValue(pattern)) mask.pattern = pattern;
+  if (maskType === "datetime") {
+    const valueFormat = getMaskValueFormat(maskSettings);
+    if (!!valueFormat) mask.valueFormat = valueFormat;
+  }
+  if (maskType === "numeric" || maskType === "currency") {
+    mask.decimalSeparator = maskSettings.decimalSeparator;
+    mask.thousandsSeparator = maskSettings.thousandsSeparator;
+    mask.precision = maskSettings.precision;
+    if (maskSettings.allowNegativeValues === false) mask.allowNegativeValues = false;
+  }
+  if (maskType === "currency") {
+    if (!isEmptyValue(maskSettings.currencySymbol)) mask.currencySymbol = maskSettings.currencySymbol;
+    if (!isEmptyValue(maskSettings.activeCurrencyPattern)) mask.currencyPattern = maskSettings.activeCurrencyPattern;
+  }
+  if (maskType === "numeric" || maskType === "currency") {
+    // The input's own rendering of one number, so a reader sees the separators and the symbol in place.
+    // None when the number is outside the mask's bounds: the mask renders nothing then.
+    const example = maskSettings.getMaskedValue(MASK_EXAMPLE_NUMBER);
+    if (!isEmptyValue(example)) mask.example = example;
+  }
   if (!isEmptyValue(maskSettings.min)) mask.min = maskSettings.min;
   if (!isEmptyValue(maskSettings.max)) mask.max = maskSettings.max;
+  if (maskSettings.saveMaskedValue === true) mask.saveMaskedValue = true;
   constraints.mask = mask;
+}
+
+const MASK_EXAMPLE_NUMBER = 1234.5;
+
+// The ISO shapes a datetime mask can store, longest first, each with a sample.
+const MASK_VALUE_FORMATS: Array<{ format: string, sample: string }> = [
+  { format: "YYYY-MM-DDTHH:mm:ss", sample: "2024-05-01T10:30:15" },
+  { format: "YYYY-MM-DDTHH:mm", sample: "2024-05-01T10:30" },
+  { format: "YYYY-MM-DD", sample: "2024-05-01" },
+  { format: "YYYY-MM", sample: "2024-05" },
+  { format: "YYYY", sample: "2024" },
+  { format: "HH:mm:ss", sample: "10:30:15" },
+  { format: "HH:mm", sample: "10:30" },
+];
+
+// The shape a datetime mask stores without saveMaskedValue: the first one whose sample comes back
+// unchanged through the mask, so the mask itself is the parser. Undefined for a pattern that stores
+// nothing the mask reads back ("mm/dd", "HH"): no value survives it.
+export function getMaskValueFormat(mask: any): string | undefined {
+  for (let i = 0; i < MASK_VALUE_FORMATS.length; i++) {
+    const sample = MASK_VALUE_FORMATS[i].sample;
+    if (mask.getUnmaskedValue(mask.getMaskedValue(sample)) === sample) return MASK_VALUE_FORMATS[i].format;
+  }
+  return undefined;
 }
 
 // A validator's custom text is not described: it surfaces as the error text when the validator

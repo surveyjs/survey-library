@@ -343,7 +343,7 @@ function addInput(question: Question, root: Question, res: Array<IInterviewInput
   // A container the address grammar cannot walk - a model shape no version of it addresses - has no
   // item rather than one nobody could answer or report an error against.
   if (!address) return;
-  const item = createItem(question, address, root, !!isSummary);
+  const item = createItem(question, address, root);
   // undefined from the describer means read-only by property: nobody can ever answer it, so it is
   // not an item at all. A question that carries an enableIf comes back described as disabled, is an
   // item, and is never made current.
@@ -357,7 +357,7 @@ function addInput(question: Question, root: Question, res: Array<IInterviewInput
   });
 }
 
-function createItem(question: Question, address: string, root: Question, isSummary: boolean): IInterviewItem {
+function createItem(question: Question, address: string, root: Question): IInterviewItem {
   const description = describeQuestion(question);
   if (!description) return undefined;
   // The describer's key order is the order the document renders, so the record is copied and only
@@ -369,13 +369,10 @@ function createItem(question: Question, address: string, root: Question, isSumma
     const entry = getEntryTitle(root);
     if (!!entry) res.entry = entry;
   }
-  if (isSummary) {
-    // The key is placed here and filled by updateCurrentItem(), so that a summary step renders its
-    // entries in the same position whichever call built the item. The model only builds the summary
-    // for the container that is the current single input, and the current item is the one the
-    // interview has just moved the model to.
-    res.summary = undefined;
-  }
+  // A summary step has no "summary" key here, not even an empty one: updateCurrentItem() adds it once
+  // the item is current, because the model only builds the summary for the container that is the
+  // current single input. Nothing is added to the record between the two, so the key still lands
+  // right after the described keys, before the "error" getCurrentItem() sets.
   return res;
 }
 

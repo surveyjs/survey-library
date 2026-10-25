@@ -339,7 +339,7 @@ export class Interview implements IInterview {
     // value: the entries are grown and shrunk through the model's own summary, which is what the UI
     // offers a respondent.
     if (target.isSummary) return this.answerSummary(target, value, inputs);
-    const prepared = prepareValue(target.item, target.address, value, target.question.value);
+    const prepared = prepareValue(target.item, target.question, target.address, value);
     if (!!prepared.error) {
       // Nothing was written, so nothing changed: the result carries the one coded error and the same
       // current item.
@@ -457,7 +457,7 @@ export class Interview implements IInterview {
     if (!!container) return this.writeBatchContainer(container, address, fresh.item, write, written, hadErrors);
     const question = fresh.input.question;
     if (write.hasValue) {
-      const prepared = prepareValue(fresh.input.item, address, write.value, question.value);
+      const prepared = prepareValue(fresh.input.item, question, address, write.value);
       if (!!prepared.error) return [prepared.error];
       question.value = prepared.value;
       if (prepared.hasComment) question.comment = prepared.comment;

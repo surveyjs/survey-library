@@ -650,11 +650,12 @@ describe("interview fixed-shape containers in batch mode (issue #11818)", () => 
     expect(iv.data.short).toBe("x");
   });
 
-  test("A container with nothing to fill says so with an empty fields list", async () => {
+  test("A container with nothing to fill says so with an empty fields list; a disabled one lists them disabled", async () => {
     const iv = await createInterview({
       elements: [
         { type: "text", name: "q1" },
-        // Turned off as a whole: the enableIf makes every editor read-only with it.
+        // Turned off as a whole: the enableIf makes every editor read-only with it, and each editor
+        // is listed as disabled - the same expression gives them back.
         { type: "multipletext", name: "contact", enableIf: "{q1} = 'open'", items: [{ name: "email" }] },
         // An authoring mistake, and still one object with a fixed set of keys - there is no plain
         // value an agent could send for it either.
@@ -668,7 +669,12 @@ describe("interview fixed-shape containers in batch mode (issue #11818)", () => 
       "    title: contact",
       "    required: false",
       "    disabled: true",
-      "    fields: []"
+      "    fields:",
+      "      - name: email",
+      "        type: text",
+      "        title: email",
+      "        required: false",
+      "        disabled: true"
     ));
     expect(document).toContain(block(
       "  - name: empty",

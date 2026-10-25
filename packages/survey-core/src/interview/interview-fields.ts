@@ -1,4 +1,4 @@
-import { Helpers } from "survey-core";
+import { Helpers, QuestionCheckboxModel, QuestionTextBase, QuestionTextModel, settings } from "survey-core";
 import type { Question } from "survey-core";
 import type { IInterviewError, IInterviewItem, IInterviewRow } from "./interview-types";
 import { IInterviewContainer, hasChoiceElements, markDataSourceItem } from "./interview-items";
@@ -6,8 +6,8 @@ import { createNameLookup, getAddress, getChildAddress } from "./interview-addre
 import { isAction } from "./interview-summary";
 import { describeQuestion } from "./question-description";
 import {
-  badActionError, badRecordError, getUnsupportedReason, notAChoiceError, notANumberError, notAskableError,
-  unknownQuestionError,
+  badActionError, badFormatError, badRecordError, getUnsupportedReason, notAChoiceError, notANumberError,
+  notAskableError, tooLongError, tooManyChoicesError, unknownQuestionError,
 } from "./interview-errors";
 
 // The inputs a container holds, as batch fields. A fixed-shape container is one whose value is a
@@ -571,7 +571,7 @@ function writeField(res: IFieldWriteResult, write: IFieldWrite, owner: IFieldOwn
     return;
   }
   if (write.hasValue) {
-    const prepared = prepareValue(field.item, field.address, write.value, field.question.value);
+    const prepared = prepareValue(field.item, field.question, field.address, write.value);
     if (!!prepared.error) {
       res.errors.push(prepared.error);
       return;
@@ -644,13 +644,15 @@ export interface IPreparedValue {
 }
 
 // The checks the model cannot make. It accepts any value a caller assigns - what keeps a respondent
-// from entering an impossible one is the UI, which offers a list of choices and a numeric field.
-// A text consumer has neither, so the same three mistakes are caught here, each with a code the
+// from entering an impossible one is the UI: a list of choices, a numeric field, a date picker, an
+// input mask, a text box that stops at maxLength, check boxes that stop at maxSelectedChoices. A
+// text consumer has none of them, so the same mistakes are caught here, each with a code the
 // consumer can act on, and nothing is written when one of them fires. The tester's
-// checkValueEnterable exists for the same reason. One implementation: single mode checks an item
-// with it, batch mode a root, and the field write above a field. "stored" is the question's value
-// before the write: a choice that is disabled now is still accepted where it is already selected.
-export function prepareValue(item: IInterviewItem, address: string, value: any, stored?: any): IPreparedValue {
+// checkValueEnterable exists for the same reason (src/tester/test-commands.ts); neither imports the
+// other. One implementation: single mode checks an item with it, batch mode a root, and the field
+// write above a field. The question's value before the write is the stored one: a choice that is
+// disabled now is still accepted where it is already selected.
+export function prepareValue(item: IInterviewItem, question: Question, address: string, value: any): IPreparedValue {
   if (isAction(value)) {
     return { error: badActionError(address, value.action) };
   }
@@ -666,11 +668,11 @@ export function prepareValue(item: IInterviewItem, address: string, value: any, 
     !Array.isArray(res.value)) {
     res.value = [res.value];
   }
-  const matched = matchChoices(item, address, res.value, stored);
+  const matched = matchChoices(item, address, res.value, question.value);
   if (!!matched.error) return { error: matched.error };
   res.value = matched.value;
-  const numberError = checkNumber(item, address, res.value);
-  if (!!numberError) return { error: numberError };
+  const error = checkNumber(item, address, res.value) || checkEnterable(question, address, res.value);
+  if (!!error) return { error: error };
   return res;
 }
 
@@ -751,4 +753,83 @@ function isNormalizedChoice(choice: any, value: any): boolean {
 function checkNumber(item: IInterviewItem, address: string, value: any): IInterviewError {
   if (item.valueType !== "number" || typeof value !== "string" || value === "") return undefined;
   return Helpers.isNumber(value) ? undefined : notANumberError(address, value);
+}
+
+// What the input itself would not let a respondent type, read off the question as the input reads
+// it - never off the described constraints, which also hold the validators' bounds. A validator is
+// the model's own check: it reports its own localized error and keeps the value. So are min and
+// max: a well-formed date out of bounds is the model's error, as it is in the tester.
+function checkEnterable(question: Question, address: string, value: any): IInterviewError {
+  if (Helpers.isValueEmpty(value)) return undefined;
+  return checkDateFormat(question, address, value) || checkMask(question, address, value) ||
+    checkMaxLength(question, address, value) || checkChoiceCount(question, address, value);
+}
+
+// The shapes a date-like input produces. The schema names the same ones (interview-schema.ts).
+const DATE_FORMATS: { [inputType: string]: { regex: RegExp, text: string, isDate?: boolean } } = {
+  "date": { regex: /^\d{4}-\d{2}-\d{2}$/, text: "YYYY-MM-DD", isDate: true },
+  "datetime-local": { regex: /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/, text: "YYYY-MM-DDTHH:mm[:ss]", isDate: true },
+  "time": { regex: /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/, text: "HH:mm[:ss]" },
+  "month": { regex: /^\d{4}-(0[1-9]|1[0-2])$/, text: "YYYY-MM" },
+  "week": { regex: /^\d{4}-W(0[1-9]|[1-4]\d|5[0-3])$/, text: "YYYY-Www" },
+};
+
+function checkDateFormat(question: Question, address: string, value: any): IInterviewError {
+  if (!(question instanceof QuestionTextModel)) return undefined;
+  const format = DATE_FORMATS[question.inputType];
+  if (!format) return undefined;
+  // A host that calls the API from code may pass a Date for a date: the model normalizes it to the
+  // string the input produces. A JSON consumer cannot send one.
+  if (value instanceof Date && format.isDate === true) {
+    return isNaN(value.getTime()) ? badFormatError(address, String(value), "a valid date") : undefined;
+  }
+  const isValid = typeof value === "string" && format.regex.test(value) &&
+    (format.isDate !== true || !isNaN(Date.parse(value)));
+  return isValid ? undefined : badFormatError(address, value, "a \"" + format.text + "\" string");
+}
+
+// One check per mask type, chosen by the type. A mask type without a branch is not checked.
+function checkMask(question: Question, address: string, value: any): IInterviewError {
+  if (!(question instanceof QuestionTextModel) || question.maskTypeIsEmpty) return undefined;
+  switch(question.maskType) {
+    case "pattern":
+      return checkPatternMask(question, address, value);
+  }
+  return undefined;
+}
+
+// The value goes through the mask the way a typed one does, and must come back unchanged and fill
+// every position: "abc" never gets into a "999" input, and "12" leaves a placeholder in it. With
+// saveMaskedValue the stored value is the masked text, so the round trip starts from the unmasked one.
+function checkPatternMask(question: QuestionTextModel, address: string, value: any): IInterviewError {
+  const mask: any = question.maskInstance;
+  const expected = "text that fills the " + JSON.stringify(mask.pattern) + " pattern mask";
+  if (typeof value !== "string" && typeof value !== "number") return badFormatError(address, value, expected);
+  const text = String(value);
+  const isSaveMasked = mask.saveMaskedValue === true;
+  const masked: string = mask.getMaskedValue(isSaveMasked ? mask.getUnmaskedValue(text) : text);
+  const roundTrip = isSaveMasked ? masked : mask.getUnmaskedValue(masked);
+  if (masked.indexOf(settings.maskSettings.patternPlaceholderChar) > -1 || roundTrip !== text) {
+    return badFormatError(address, value, expected);
+  }
+  return undefined;
+}
+
+// getMaxLength() is what the input stops at: the question's maxLength or survey.maxTextLength, and
+// null where the input type ignores both.
+function checkMaxLength(question: Question, address: string, value: any): IInterviewError {
+  if (typeof value !== "string" || !(question instanceof QuestionTextBase)) return undefined;
+  const maxLength = question.getMaxLength();
+  if (!maxLength || value.length <= maxLength) return undefined;
+  return tooLongError(address, maxLength, value.length);
+}
+
+// The model disables the remaining check boxes at the limit and never checks the count in code, so
+// without this the schema's maxItems and the stored value disagree. Counted after the choices are
+// matched: a choice sent twice is one selection.
+function checkChoiceCount(question: Question, address: string, value: any): IInterviewError {
+  if (!(question instanceof QuestionCheckboxModel) || !Array.isArray(value)) return undefined;
+  const max = question.maxSelectedChoices;
+  if (!(max > 0) || value.length <= max) return undefined;
+  return tooManyChoicesError(address, max, value.length);
 }

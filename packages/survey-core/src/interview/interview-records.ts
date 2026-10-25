@@ -176,16 +176,22 @@ export function getTemplateItems(container: Question, nesting: IInterviewNesting
 // "choices" property - only the cells the rows build are - so a dropdown column that offers a list
 // reports none there. When a row exists, its cell is asked instead; when none does, the template says
 // what it can and the entry's own fields are the truth once an entry is added. No throwaway row is
-// ever created to read it.
+// ever created to read it. What the template can say never includes an empty list: on a question
+// "choices: []" means nothing can be chosen, and a template with none may simply not be bound to the
+// list it inherits, so the key is dropped there.
 function fillTemplateChoices(item: IInterviewItem, entry: any, declaration: IInterviewNesting): IInterviewItem {
-  if (!entry || !!item.choices || !!item.rateValues || item.choicesUnknown === true) return item;
-  if (item.unsupported === true || isContainerRecord(item)) return item;
-  const cell = getEntryQuestions(entry).filter(question => question.name === item.name)[0];
+  if (hasChoiceList(item) || item.unsupported === true || isContainerRecord(item)) return item;
+  const cell = !!entry ? getEntryQuestions(entry).filter(question => question.name === item.name)[0] : undefined;
   const described = !!cell ? createFieldItem(cell, undefined, declaration) : undefined;
-  if (!described || (!described.choices && !described.rateValues && described.choicesUnknown !== true)) {
-    return item;
-  }
-  return described;
+  if (!!described && hasChoiceList(described)) return described;
+  if (!item.choices) return item;
+  const res: IInterviewItem = { ...item };
+  delete res.choices;
+  return res;
+}
+
+function hasChoiceList(item: IInterviewItem): boolean {
+  return (!!item.choices && item.choices.length > 0) || !!item.rateValues || item.choicesUnknown === true;
 }
 
 function isContainerRecord(item: IInterviewItem): boolean {

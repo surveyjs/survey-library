@@ -15,7 +15,8 @@ import type { ISelectQuestion, ItemValue, Question, QuestionValueType } from "su
 // requiredIf, choicesVisibleIf, the locale and the text piping are already applied.
 //
 // Keys are emitted only when they carry information: no "description: undefined", no empty arrays,
-// no "disabled: false". A consumer that sees a key can act on it.
+// no "disabled: false". A consumer that sees a key can act on it. One empty array does carry it:
+// "choices: []" says nothing can be chosen now - an empty choicesFromQuestion source, an empty list.
 
 export interface IQuestionChoiceDescription {
   value: any;
@@ -56,19 +57,24 @@ export interface IQuestionDescription {
   description?: string;
   required: boolean;
   valueType: QuestionValueType;
-  // isReadOnly with a non-empty enableIf: answerable again once the expression turns true
+  // read-only now, and an enableIf - its own, or one of a panel, a page or a container it is in -
+  // makes it answerable again once the expression turns true
   disabled?: true;
   // no plain input: file, signaturepad, imagepicker, imagemap, html, image, expression
   unsupported?: true;
   choices?: Array<IQuestionChoiceDescription>;
-  // choicesByUrl not loaded / choicesLazyLoadEnabled: the set cannot be enumerated
+  // choicesByUrl not loaded, waiting for its parameters or failed / choicesLazyLoadEnabled: the set
+  // cannot be enumerated
   choicesUnknown?: true;
+  // the model's text for a choicesByUrl request that failed, next to choicesUnknown
+  choicesError?: string;
   inputType?: string;
   constraints?: IQuestionConstraints;
   rateValues?: Array<IQuestionChoiceDescription>;
   minRateDescription?: string;
   maxRateDescription?: string;
-  // showCommentArea / other: a name + settings.commentSuffix text is accepted as well
+  // showCommentArea / other: a name + settings.commentSuffix text is accepted as well. "required"
+  // means required when the "other" item is selected, never required on its own.
   comment?: { required: boolean };
   // multipletext items, composite content
   items?: Array<IQuestionDescription>;
@@ -101,10 +107,20 @@ function toPositiveNumber(val: any): number | undefined {
   return num;
 }
 
-function setNumber(constraints: any, key: string, val: any): void {
-  if (constraints[key] !== undefined) return;
+// A count or a length may be declared twice too - by the question and by a validator - and the
+// stricter one is what a respondent has to satisfy: the largest minimum, the smallest maximum.
+function setCount(constraints: any, key: string, val: any, isMax: boolean): void {
   const num = toPositiveNumber(val);
-  if (num !== undefined) constraints[key] = num;
+  if (num === undefined) return;
+  const current = constraints[key];
+  if (current === undefined || (isMax ? num < current : num > current)) constraints[key] = num;
+}
+
+// Of two steps neither is stricter, so the first one declared - the question's own - is kept.
+function setStep(constraints: IQuestionConstraints, val: any): void {
+  if (constraints.step !== undefined) return;
+  const num = toPositiveNumber(val);
+  if (num !== undefined) constraints.step = num;
 }
 
 function isStricter(val: any, current: any, isMax: boolean): boolean {
@@ -156,13 +172,13 @@ function addValidatorConstraints(constraints: IQuestionConstraints, question: Qu
         if (!isEmptyValue(validator.maxValue)) setBound(constraints, "max", validator.maxValue, true);
         break;
       case "textvalidator":
-        setNumber(constraints, "minLength", validator.minLength);
+        setCount(constraints, "minLength", validator.minLength, false);
         setMaxLength(constraints, validator.maxLength);
         if (validator.allowDigits === false) constraints.allowDigits = false;
         break;
       case "answercountvalidator":
-        setNumber(constraints, "minCount", validator.minCount);
-        setNumber(constraints, "maxCount", validator.maxCount);
+        setCount(constraints, "minCount", validator.minCount, false);
+        setCount(constraints, "maxCount", validator.maxCount, true);
         break;
       case "regexvalidator":
         if (!isEmptyValue(validator.regex) && constraints.regex === undefined) {
@@ -201,31 +217,31 @@ function getConstraints(question: Question): IQuestionConstraints | undefined {
     setMaxLength(res, question.getMaxLength());
   }
   if (question instanceof QuestionTextModel) {
-    setNumber(res, "step", question.step);
+    setStep(res, question.step);
     addMaskConstraint(res, question);
   }
   if (question instanceof QuestionSliderModel) {
     setBound(res, "min", question.min, false);
     setBound(res, "max", question.max, true);
-    setNumber(res, "step", question.step);
+    setStep(res, question.step);
   }
   if (question instanceof QuestionCheckboxModel) {
-    setNumber(res, "minCount", question.minSelectedChoices);
-    setNumber(res, "maxCount", question.maxSelectedChoices);
+    setCount(res, "minCount", question.minSelectedChoices, false);
+    setCount(res, "maxCount", question.maxSelectedChoices, true);
   }
   // How many entries a dynamic container takes. A ceiling nobody set is not a constraint: both
   // maximums fall back to a global default - settings.panel.maxPanelCount, settings.matrix.maxRowCount -
   // that the survey never asked for, and a minimum of zero says nothing either.
   if (question instanceof QuestionPanelDynamicModel) {
-    setNumber(res, "minCount", question.minPanelCount);
+    setCount(res, "minCount", question.minPanelCount, false);
     if (question.maxPanelCount < settings.panel.maxPanelCount) {
-      setNumber(res, "maxCount", question.maxPanelCount);
+      setCount(res, "maxCount", question.maxPanelCount, true);
     }
   }
   if (question instanceof QuestionMatrixDynamicModel) {
-    setNumber(res, "minCount", question.minRowCount);
+    setCount(res, "minCount", question.minRowCount, false);
     if (question.maxRowCount < settings.matrix.maxRowCount) {
-      setNumber(res, "maxCount", question.maxRowCount);
+      setCount(res, "maxCount", question.maxRowCount, true);
     }
   }
   addValidatorConstraints(res, question);
@@ -242,15 +258,50 @@ function describeNested(questions: Array<Question>, options: IQuestionDescriptio
   return res;
 }
 
+// A choicesByUrl whose result cannot be used once it stopped loading: a request that failed, or a
+// URL that still waits for the values its {placeholders} name. The model then neither lists choices
+// from it nor clears a value against them (canClearIncorrectValues), so the set is unknown, not
+// empty. undefined when the question has no usable-or-not URL to speak of; "" when the result is
+// unusable with no error to name; the model's text when the request failed.
+function getChoicesByUrlError(question: Question): string | undefined {
+  const byUrl: any = (<any>question).choicesByUrl;
+  if (!byUrl || byUrl.isEmpty !== false || byUrl.canUseResult) return undefined;
+  return !!byUrl.error ? byUrl.error.getText() : "";
+}
+
+// enableIf writes into readOnly (question.ts, panel.ts), so after evaluation the two are one flag,
+// and a question is read-only when it or anything it is in - a panel, a page, the container
+// question of a dynamic panel, a matrix or a composite - is. It can become answerable again when
+// every element of that chain that is read-only now carries an enableIf: the expression may turn
+// true. One read-only element without an expression - a readOnly property, a read-only container -
+// or display mode keeps it read-only for good, whatever the other expressions do.
+function canBecomeEnabled(question: Question): boolean {
+  if (!!question.survey && question.survey.isDisplayMode) return false;
+  const chain: Array<any> = [];
+  const pending: Array<any> = [question];
+  while(pending.length > 0) {
+    const element = pending.pop();
+    if (!element || chain.indexOf(element) > -1) continue;
+    chain.push(element);
+    pending.push(element.parent, element.parentQuestion);
+  }
+  // A container copies its own read-only state onto the panels it holds outside the page tree - an
+  // entry of a dynamic panel, a composite's content panel, a detail panel - so their readOnly is
+  // not a source of its own: the container question in the chain is.
+  const isContainerPanel = (element: any): boolean => element.isPanel === true && !element.parent;
+  const readOnly = chain.filter(element => element.readOnly === true && !isContainerPanel(element));
+  // Read-only for a reason no element states - a matrix row's own rule (readOnlyCallback) - is
+  // nothing an enableIf of the chain controls.
+  if (readOnly.length === 0) return false;
+  return readOnly.every(element => !!element.enableIf);
+}
+
 export function describeQuestion(question: Question, options?: IQuestionDescriptionOptions): IQuestionDescription | undefined {
   if (!question) return undefined;
   const includeReadOnly = !!options && options.includeReadOnly === true;
   let disabled = false;
   if (question.isReadOnly) {
-    // enableIf writes into readOnly (question.ts), so after evaluation the two are one flag. A
-    // question that carries the expression can become answerable again and is described as
-    // disabled; one that does not is read-only for good and nobody can answer it.
-    if (!includeReadOnly && !question.enableIf) return undefined;
+    if (!includeReadOnly && !canBecomeEnabled(question)) return undefined;
     disabled = true;
   }
   // A single custom component is described through the question it wraps - that is where the items
@@ -264,7 +315,8 @@ export function describeQuestion(question: Question, options?: IQuestionDescript
   const res: any = {};
   res.name = question.name;
   res.type = type;
-  res.title = question.processedTitle || question.name;
+  // processedTitle falls back to the name itself when the question has no title.
+  res.title = question.processedTitle;
   const description = question.locDescription.textOrHtml;
   if (!isEmptyValue(description)) res.description = description;
   res.required = question.isRequired;
@@ -280,12 +332,15 @@ export function describeQuestion(question: Question, options?: IQuestionDescript
   let items: Array<IQuestionChoiceDescription> = [];
   if (target.isSelectQuestion()) {
     const select = <ISelectQuestion><any>target;
-    if (select.hasUnknownChoices) {
+    const byUrlError = getChoicesByUrlError(target);
+    if (select.hasUnknownChoices || byUrlError !== undefined) {
       res.choicesUnknown = true;
+      if (!!byUrlError) res.choicesError = byUrlError;
     } else {
       items = select.getValueChoices().map(item => describeItem(select, item));
-      // A Rating reports its items under their own key; every other pick-one question uses choices.
-      if (items.length > 0 && !(target instanceof QuestionRatingModel)) res.choices = items;
+      // A Rating reports its items under their own key; every other pick-one question uses choices,
+      // and an empty list says that nothing can be chosen now - the value would be cleared.
+      if (!(target instanceof QuestionRatingModel)) res.choices = items;
     }
   }
   if (target instanceof QuestionTextModel && target.inputType !== "text") {
@@ -304,8 +359,8 @@ export function describeQuestion(question: Question, options?: IQuestionDescript
     }
   }
   // requireUpdateCommentValue is the question's own answer to "a comment belongs to this value".
-  // The model requires the text only for the "other" item (OtherEmptyError); a comment area on its
-  // own is optional.
+  // The model requires the text only for the "other" item (OtherEmptyError), so "required: true"
+  // means required when "other" is selected, and never on its own. A comment area alone is optional.
   if (target.requireUpdateCommentValue) {
     res.comment = { required: items.some(item => item.other === true) };
   }

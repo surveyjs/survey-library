@@ -399,14 +399,15 @@ describe("interview answer schema (issue #11818)", () => {
           enableIf: "{q1} = 'open'", items: [{ name: "email" }] },
       ],
     });
-    // An enableIf that is false makes the whole container read-only, its editors with it: there is
-    // no field left to offer, and the property says only that the question exists and is refused
-    // for now.
+    // An enableIf that is false makes the whole container read-only, its editors with it: each field
+    // is offered read-only like the container, and the same expression gives them back.
     expect(schema.properties.contact).toEqual({
       title: "Contact",
       description: FIELDS_TEXT,
       type: "object",
-      properties: {},
+      properties: {
+        email: { anyOf: [{ title: "email", type: "string", readOnly: true }, { type: "null" }] },
+      },
       additionalProperties: false,
       readOnly: true,
     });

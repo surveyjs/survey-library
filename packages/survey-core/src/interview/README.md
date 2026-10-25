@@ -152,8 +152,9 @@ interface IInterviewOptions {
 `timeout` is wall-clock time and it bounds one asynchronous survey operation. When it runs out, the
 call rejects with an `Error` carrying `code: "asyncTimeout"`, the `reason` the model reported and,
 for choices loading from a web service, the `urls` that have not answered. `timeout: 0` never waits:
-the interview then describes whatever the model holds at that instant — an empty choice list, if the
-choices are still on their way.
+the interview then describes whatever the model holds at that instant — `choicesUnknown: true`, if
+the choices are still on their way. A request that failed is `choicesUnknown: true` as well, with the
+model's error text under `choicesError`; so is a URL whose `{placeholders}` are not answered yet.
 
 `Question.isReady` is deliberately not waited for: a question with a `choicesByUrl` url is un-ready
 from the moment it has the url and stays un-ready forever if nothing ever sends the request. What is
@@ -176,9 +177,12 @@ Every mutating call answers with an `errors` array of `{ name, message, code? }`
 | --- | --- |
 | `nothingToAnswer` | `answer(value)` or `skip()` with no current item — everything that can be asked is answered and valid. |
 | `unknownQuestion` | `answer(name, value)` with a name that is not an item: it does not exist, it is invisible, or it is read-only by property and can never be answered. In `answerAll()`, a key that names no question the survey has, or a visible one that is not an item; a hidden one is `notAskable`. |
-| `notAskable` | The item or the field exists but cannot take a value: an `enableIf` turned it off (`disabled`), it has no plain input — a file, a signature, an image picker (`unsupported`), it sits deeper than the 20 nested containers the interview addresses and neither mode reaches it (`reason: "batch"`, see [the ceiling](#the-depth-ceiling)), it is a dynamic container with a `dataSource` or sits inside one (`reason: "dataSource"`), or the survey hid it, an earlier key of the same `answerAll()` included. The message says which. |
-| `notAChoice` | The value is not among the choices the item lists — `choices`, or a rating's `rateValues` — or it is a choice listed with `disabled: true` that the question does not already hold. Checked per element for a multi-select; `other` and `none` are choices like any other; skipped entirely when the item says `choicesUnknown`. A disabled choice that is already selected stays accepted, as the UI keeps a checked item checked: `["cat", "dog"]` with `cat` stored and disabled is accepted, `["cat", "dog"]` after `cat` was dropped is not. A value that differs from one choice only in case or surrounding spaces is not an error — the choice's own value is written (see [the matching rule](#items-are-the-models-own-single-inputs)) — but one that differs that way from several (`" a"` against `"a"` and `"A"`) is `notAChoice`. |
+| `notAskable` | The item or the field exists but cannot take a value: an `enableIf` turned it off — its own, or one of a panel, a page or a container it sits in (`disabled`) — it has no plain input — a file, a signature, an image picker (`unsupported`), it sits deeper than the 20 nested containers the interview addresses and neither mode reaches it (`reason: "batch"`, see [the ceiling](#the-depth-ceiling)), it is a dynamic container with a `dataSource` or sits inside one (`reason: "dataSource"`), or the survey hid it, an earlier key of the same `answerAll()` included. The message says which. |
+| `notAChoice` | The value is not among the choices the item lists — `choices`, or a rating's `rateValues` — or it is a choice listed with `disabled: true` that the question does not already hold. Checked per element for a multi-select; `other` and `none` are choices like any other; skipped entirely when the item says `choicesUnknown` — a value is then written unchecked, and the model keeps it too, because it does not judge a value without a usable list. An item with `choices: []` refuses every value: nothing can be chosen now, and the model would clear what was written. A disabled choice that is already selected stays accepted, as the UI keeps a checked item checked: `["cat", "dog"]` with `cat` stored and disabled is accepted, `["cat", "dog"]` after `cat` was dropped is not. A value that differs from one choice only in case or surrounding spaces is not an error — the choice's own value is written (see [the matching rule](#items-are-the-models-own-single-inputs)) — but one that differs that way from several (`" a"` against `"a"` and `"A"`) is `notAChoice`. |
 | `notANumber` | A string that is not a number, for an item whose value is a number. |
+| `badFormat` | A value the input itself would not produce: a date-like `inputType` given anything but its shape — `date` `YYYY-MM-DD` (a valid date; a JavaScript `Date` is accepted too), `datetime-local` `YYYY-MM-DDTHH:mm[:ss]` (or a `Date`), `time` `HH:mm[:ss]`, `month` `YYYY-MM`, `week` `YYYY-Www` — or a value a `pattern` input mask does not accept: it does not survive the mask unchanged, or leaves a position unfilled (`"12"` for `999`). Only the format: a well-formed date outside `min` / `max` is the model's own validation error, without a code. |
+| `tooLong` | A text longer than the input accepts — the question's `maxLength`, or the survey's `maxTextLength` — on a text, a comment or a multiple-text item. A text validator's `maxLength` is the model's own validation error instead, and the value is kept, as the model keeps it. |
+| `tooManyChoices` | More selected choices than a checkbox's `maxSelectedChoices`, counted after the choices are matched (a choice sent twice is one). An answer-count validator's `maxCount` is the model's own validation error instead. |
 | `badAction` | An action object (`{ action: "add" }`) sent to an item that takes a value, a plain value sent to a [summary step](#the-summary-step), an action the step does not offer, or a `remove` / `edit` without an `index` of an entry that exists. |
 | `badAddress` | `answer(name, value)` with text that is not an [address](#addresses) at all, or with an index past the entries the container holds now. The entry a well-formed index names into thin air is created by the summary step's `add`, not by answering. |
 | `badRecord` | The value `answerAll()` was given is not the shape the container takes: not an object of field values for a [fixed-shape container](#fixed-shape-containers-as-objects) or for a row inside one, not a list for a [dynamic one](#dynamic-containers-as-records), or an element of that list that is neither an object nor a `null` naming an entry that exists — at any depth, under the address of what was refused: `orders[0].items` for a string sent for a nested list, `orders[0].items[1]` for a `null` past its count. `null` and `undefined` for a container are not a mistake: they leave it alone. |
@@ -263,7 +267,11 @@ current:
   of its own with `value` and `error` on top), and `error`
   last when the current answer failed validation. A key that carries nothing is not written at all:
   there is no `description: null` and no `disabled: false`, so a key a consumer sees is a key it can
-  act on. `name` is the [address](#addresses), not necessarily the question's name.
+  act on. The one empty value that is written is `choices: []`: it says that nothing can be chosen
+  now — an empty `choicesFromQuestion` source, an empty list — and every value is refused with
+  `notAChoice`. A list that cannot be enumerated is `choicesUnknown: true` instead, plus
+  `choicesError` when a `choicesByUrl` request failed. `name` is the [address](#addresses), not
+  necessarily the question's name.
 * One key of the record is deliberately **not** written: `valueType`. A reader already knows what a
   value is from the choices, the input type or the constraints, and where the value type is needed as
   data — the JSON Schema an agent fills in — `getAnswerSchema()` produces it. The `IInterviewItem`
@@ -420,7 +428,7 @@ with the navigation instead of with the answers.
 
 `current()` is **the first item, in document order, that can be asked and is either unanswered or
 invalid**, and `null` when there is none. "Can be asked" leaves out an item that an `enableIf` turned
-off (`disabled`) and one with no plain input — a file, a signature, an image picker (`unsupported`) —
+off — its own, or one of a panel, a page or a container it sits in (`disabled`) — and one with no plain input — a file, a signature, an image picker (`unsupported`) —
 or whose records a data source owns (`unsupported`, `reason: "dataSource"`).
 
 That is the issue's rule, and it is not the mode's own navigation: `performNext()` goes to the input
@@ -653,6 +661,10 @@ Then the written input is validated, the model is allowed to settle, and the res
   describe          // the document, with the changes and the errors in it
 }
 ```
+
+An `enableIf` that turns true is not `becameVisible`: the item was listed before, as `disabled`, so
+it was already being reported — it became answerable, not visible. That holds for a question's own
+`enableIf` and for one of a panel, a page or a container it sits in.
 
 An input that stays invalid keeps its value — 55 stays in the box with the error under it — and
 `current()` stays on it. A question that went invisible had its value cleared by the model if the
@@ -1072,8 +1084,12 @@ carries — and not of the nested input a respondent fills one at a time. So:
   yet. It is listed and never current, a key for it is `notAskable`, and in single mode so is an
   address inside it (`items[0].sku`). It has no property in the answer schema.
 * an item an `enableIf` turned off is listed with `disabled: true` and refused by `answerAll()`,
-  unless another key of the same call turns it on; a
-  question that is read-only by property is not an item and is not listed.
+  unless another key of the same call turns it on. The `enableIf` may be the question's own or one
+  of a panel, a page or a container it sits in: a question is `disabled` when every element that
+  makes it read-only now carries an `enableIf`. A question that is read-only for a reason no
+  expression controls — its own `readOnly`, a `readOnly` panel or container above it (even when the
+  question has an `enableIf` of its own), or the survey's display mode — is not an item and is not
+  listed.
 * items the interviewee **skipped** in single mode are listed. Skipping is a gesture of a
   conversation with a person; an agent that wants to leave a question blank leaves it blank.
 
@@ -1159,6 +1175,10 @@ the key `getAnswerSchema()` advertises:
 await iv.answerAll({ petType: "other", "petType-Comment": "Ferret" });
 // data: { petType: "other", "petType-Comment": "Ferret" }
 ```
+
+`comment: { required: true }` means the text is required **when the `other` item is selected** — the
+model's `OtherEmptyError` — and never on its own; `required: false` is a comment area that is always
+optional.
 
 It is the batch twin of single mode's `{ value, comment }` object. A key that ends with the suffix but
 names no item that accepts a comment is `unknownQuestion`, and a question really called
@@ -1709,7 +1729,8 @@ fetches a meta-schema at run time. The mapping, per item:
 | Item | Schema |
 | --- | --- |
 | `title`, `description` | `title`, `description` |
-| `choices` (and no `choicesUnknown`) | `enum` of the values, `other` included |
+| `choices` (and no `choicesUnknown`) | `enum` of the values, `other` included. `choices: []` gets no `enum` at all — `enum: []` is a schema some strict function-calling validators refuse — and `answer()` / `answerAll()` refuse every value with `notAChoice` |
+| `choicesUnknown` (with or without `choicesError`) | no `enum`: the value is not checked against choices |
 | `rateValues` | `enum` of the values |
 | a choice with `disabled: true` | still in the `enum`: the schema is widened, never narrowed, and a disabled choice the question already holds is accepted. `answer()` / `answerAll()` refuse a new selection of it with `notAChoice`. |
 | `valueType: "string"` | `type: "string"` |
@@ -1723,7 +1744,7 @@ fetches a meta-schema at run time. The mapping, per item:
 | `constraints.regex` | `pattern`. With `constraints.regexFlags: "i"` (the validator's `caseInsensitive`) there is no `pattern` — it has no flags, and would refuse what the model accepts — and `description` says `regex /<regex>/i` |
 | `constraints.format: "email"`, or `inputType: "email"` | `format: "email"` |
 | `constraints.step` | `multipleOf` **only** for `inputType: "number"` and an integer step, whatever `min` is: that is the one step the model checks, and it counts from zero, as `multipleOf` does. Any other step — a fraction (`multipleOf: 0.1` fails `0.3` on float error, the model does not), `inputType: "range"`, a slider, whose step the model does not check — goes into `description`: `step 0.1` |
-| `comment` | a second property, `<name>` + `settings.commentSuffix`, of `type: "string"` |
+| `comment` | a second property, `<name>` + `settings.commentSuffix`, of `type: "string"`. Never in `required`, `comment.required: true` included: that one is required only while `other` is selected |
 | `required: true` | the name is in `required` |
 | `disabled: true` | `readOnly: true`, and never in `required` |
 | `unsupported: true` | not in the schema at all — there is no value an agent could send |

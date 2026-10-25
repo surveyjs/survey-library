@@ -565,3 +565,137 @@ describe("question description (issue #11818)", () => {
     expect(res.choices).toEqual([{ value: "c1" }, { value: "c2" }]);
   });
 });
+
+describe("question description: the stricter constraint, ancestors, missing choices (issue #11818)", () => {
+  function describeByName(survey: SurveyModel, name: string, options?: any): IQuestionDescription {
+    return describeQuestion(survey.getQuestionByName(name), options);
+  }
+
+  test("A minimum keeps the largest value and a maximum the smallest, whoever declares it", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "pick", choices: ["a", "b", "c", "d", "e", "f"], maxSelectedChoices: 5,
+          validators: [{ type: "answercount", maxCount: 2 }] },
+        { type: "checkbox", name: "pickMin", choices: ["a", "b", "c", "d"], minSelectedChoices: 3,
+          validators: [{ type: "answercount", minCount: 1 }] },
+        { type: "text", name: "name", validators: [{ type: "text", minLength: 2 }, { type: "text", minLength: 5 }] },
+        { type: "paneldynamic", name: "people", minPanelCount: 1, maxPanelCount: 4,
+          validators: [{ type: "answercount", minCount: 3, maxCount: 6 }],
+          templateElements: [{ type: "text", name: "n" }] },
+      ],
+    });
+    expect(describeByName(survey, "pick").constraints.maxCount).toBe(2);
+    expect(describeByName(survey, "pickMin").constraints.minCount).toBe(3);
+    expect(describeByName(survey, "name").constraints.minLength).toBe(5);
+    const people = describeByName(survey, "people").constraints;
+    expect(people.minCount).toBe(3);
+    expect(people.maxCount).toBe(4);
+  });
+
+  test("Of two steps neither is stricter: the question's own step is the one reported", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "slider", name: "s", min: 0, max: 100, step: 5 }],
+    });
+    expect(describeByName(survey, "s").constraints.step).toBe(5);
+  });
+
+  test("A question inside a panel with enableIf is disabled, not omitted", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "panel", name: "p", enableIf: "{q1} = 'open'", elements: [{ type: "text", name: "inner" }] },
+      ],
+    });
+    expect(describeByName(survey, "inner").disabled).toBe(true);
+    survey.setValue("q1", "open");
+    expect(describeByName(survey, "inner").disabled).toBeUndefined();
+  });
+
+  test("A question inside a dynamic panel with enableIf is disabled, not omitted", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "paneldynamic", name: "dp", panelCount: 1, enableIf: "{q1} = 'open'",
+          templateElements: [{ type: "text", name: "inner" }] },
+      ],
+    });
+    const inner = (<any>survey.getQuestionByName("dp")).panels[0].getQuestionByName("inner");
+    expect(describeQuestion(inner).disabled).toBe(true);
+    survey.setValue("q1", "open");
+    expect(describeQuestion(inner).disabled).toBeUndefined();
+  });
+
+  test("An enableIf under a read-only ancestor can never make a question answerable", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "panel", name: "p", readOnly: true, elements: [{ type: "text", name: "inner", enableIf: "{q1} = 'open'" }] },
+        { type: "panel", name: "page", elements: [{ type: "text", name: "ro", readOnly: true }] },
+      ],
+    });
+    expect(describeByName(survey, "inner")).toBeUndefined();
+    survey.setValue("q1", "open");
+    expect(describeByName(survey, "inner"), "the panel is still read-only").toBeUndefined();
+    expect(describeByName(survey, "ro")).toBeUndefined();
+    expect(describeByName(survey, "inner", { includeReadOnly: true }).disabled).toBe(true);
+  });
+
+  test("Display mode makes every question read-only for good, enableIf or not", () => {
+    const survey = new SurveyModel({
+      mode: "display",
+      elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2", enableIf: "{q1} = 'open'" }],
+    });
+    expect(describeByName(survey, "q2")).toBeUndefined();
+  });
+
+  test("choicesByUrl: a failed request is unknown and names the model's error", () => {
+    const survey = new SurveyModel();
+    survey.webProvider = {
+      sendRequest: (request, onResponse): void => {
+        onResponse({ status: 500, statusText: "Server Error", response: "boom" });
+      },
+    };
+    survey.fromJSON({
+      elements: [{ type: "dropdown", name: "city", choicesByUrl: { url: "https://api.example.com/cities" } }],
+    });
+    const res = describeByName(survey, "city");
+    expect(res.choicesUnknown).toBe(true);
+    expect(res.choices).toBeUndefined();
+    expect(res.choicesError).toContain("Server Error");
+  });
+
+  test("choicesByUrl: a URL that waits for its parameters is unknown, with no error", () => {
+    const survey = new SurveyModel();
+    survey.webProvider = {
+      sendRequest: (request, onResponse): void => { onResponse({ status: 200, response: [{ value: "x" }] }); },
+    };
+    survey.fromJSON({
+      elements: [
+        { type: "text", name: "country" },
+        { type: "dropdown", name: "city", choicesByUrl: { url: "https://api.example.com/{country}/cities" } },
+      ],
+    });
+    const res = describeByName(survey, "city");
+    expect(res.choicesUnknown).toBe(true);
+    expect(res.choicesError).toBeUndefined();
+  });
+
+  test("Choices that are empty now are described as an empty list", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "src", choices: ["a", "b"] },
+        { type: "dropdown", name: "dst", choicesFromQuestion: "src", choicesFromQuestionMode: "selected" },
+        { type: "dropdown", name: "none", choices: [] },
+      ],
+    });
+    expect(describeByName(survey, "dst").choices).toEqual([]);
+    expect(describeByName(survey, "none").choices).toEqual([]);
+    survey.setValue("src", ["b"]);
+    expect(describeByName(survey, "dst").choices).toEqual([{ value: "b" }]);
+  });
+
+  test("A question with no title is titled by its name", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    expect(describeByName(survey, "q1").title).toBe("q1");
+  });
+});

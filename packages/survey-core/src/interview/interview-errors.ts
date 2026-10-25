@@ -22,6 +22,9 @@ export const InterviewErrorCodes = Object.freeze({
   badRecord: "badRecord",
   cannotAdd: "cannotAdd",
   cannotRemove: "cannotRemove",
+  badFormat: "badFormat",
+  tooLong: "tooLong",
+  tooManyChoices: "tooManyChoices",
 });
 
 // An error the interview raises has no address to point at when it is about the interview as a
@@ -107,7 +110,8 @@ export function notAChoiceError(name: string, value: any, choices: Array<any>, i
   }
   return {
     name: name,
-    message: "The value " + quoteValue(value) + why + ". Available choices: " + quoteValues(choices) + ".",
+    message: "The value " + quoteValue(value) + why + ". Available choices: " +
+      (choices.length > 0 ? quoteValues(choices) : "none") + ".",
     code: InterviewErrorCodes.notAChoice,
   };
 }
@@ -117,6 +121,34 @@ export function notANumberError(name: string, value: any): IInterviewError {
     name: name,
     message: "The input " + quoteValue(name) + " takes a number, and the value is " + quoteValue(value) + ".",
     code: InterviewErrorCodes.notANumber,
+  };
+}
+
+// "expected" says what the input takes, in the words of its own format: "a \"YYYY-MM-DD\" string",
+// "text that fills the \"999\" pattern mask".
+export function badFormatError(name: string, value: any, expected: string): IInterviewError {
+  return {
+    name: name,
+    message: "The input " + quoteValue(name) + " takes " + expected + ", and the value is " + quoteValue(value) + ".",
+    code: InterviewErrorCodes.badFormat,
+  };
+}
+
+export function tooLongError(name: string, maxLength: number, length: number): IInterviewError {
+  return {
+    name: name,
+    message: "The input " + quoteValue(name) + " accepts at most " + maxLength + " character(s), and the value has " +
+      length + ".",
+    code: InterviewErrorCodes.tooLong,
+  };
+}
+
+export function tooManyChoicesError(name: string, maxCount: number, count: number): IInterviewError {
+  return {
+    name: name,
+    message: "The input " + quoteValue(name) + " allows at most " + maxCount + " selected choice(s), and the value has " +
+      count + ".",
+    code: InterviewErrorCodes.tooManyChoices,
   };
 }
 

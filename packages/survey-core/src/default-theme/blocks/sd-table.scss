@@ -420,11 +420,9 @@
 }
 
 @mixin table_responsive {
-  &.sd-question--table > .sd-question__container > .sd-question__header-and-content-container > .sd-question__content {
-    overflow-x: visible;
-  }
   .sd-table-wrapper {
     width: auto;
+    overflow-x: visible;
     padding: 0;
     margin: 0;
     --sd-table-sticky-background-color: transparent;

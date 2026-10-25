@@ -174,11 +174,14 @@
   .sd-matrixdynamic__toolbar {
     box-sizing: border-box;
     width: 100%;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: stretch;
+    .sd-action-bar__item {
+      margin: 0;
+    }
     .sd-action-bar__item--hidden {
       display: none;
     }
-    .sd-action-bar__item,
     .sd-action {
       box-sizing: border-box;
       flex-basis: 100%;

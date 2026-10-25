@@ -2362,12 +2362,7 @@ export abstract class QuestionRecordsModel extends Question {
           sortDialog: css.sortDialog, sortDialogRow: css.sortDialogRow };
       },
       createActionContainer: <T extends ActionContainer>(container?: T): T => {
-        if (!!container) return question.initActionContainer(container);
-        else {
-          const res = <T>question.createActionContainer();
-          res.containerCss = question.cssClasses.recordsBar;
-          return res;
-        }
+        return !!container ? question.initActionContainer(container) : <T>question.createActionContainer();
       },
       getRootElement: (): HTMLElement => question.survey?.rootElement
     };

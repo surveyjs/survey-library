@@ -60,7 +60,9 @@ export class QuestionRecordsBar extends Base {
   private pagerActionsValue: ActionContainer;
   public get pagerActions(): ActionContainer {
     if (!this.pagerActionsValue) {
-      this.pagerActionsValue = createRecordsPagerActions(this.owner.createActionContainer(), this.owner);
+      this.pagerActionsValue = this.owner.createActionContainer();
+      createRecordsPagerActions(this.pagerActionsValue, this.owner);
+      this.pagerActionsValue.containerCss = this.owner.getCssClasses().root;
     }
     return this.pagerActionsValue;
   }

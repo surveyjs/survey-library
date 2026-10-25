@@ -1,6 +1,8 @@
 <template>
   <SvComponent :is="'survey-matrixtable'" :question="question" ref="root" />
-  <SvComponent :is="'sv-records-bar'" :model="question.recordsBar"></SvComponent>
+  <div v-if="question.showPager" :class="question.cssClasses.footerBar">
+    <SvComponent :is="'sv-action-bar'" :model="question.recordsBar.pagerActions"></SvComponent>
+  </div>
 </template>
 
 <script lang="ts" setup>

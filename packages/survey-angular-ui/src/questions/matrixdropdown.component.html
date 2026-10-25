@@ -1,4 +1,6 @@
 <ng-template #template>
     <sv-ng-matrix-table *ngIf="model.renderedTable?.showTable" [question]="model" [table]="model.renderedTable"></sv-ng-matrix-table>
-    <sv-ng-records-bar [model]="model.recordsBar"></sv-ng-records-bar>
+    <div *ngIf="model.showPager" [class]="model.cssClasses.footerBar">
+        <sv-ng-action-bar [model]="model.recordsBar.pagerActions"></sv-ng-action-bar>
+    </div>
 </ng-template>

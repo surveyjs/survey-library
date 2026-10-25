@@ -33,6 +33,30 @@ export var hindiStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, फिर {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "के अनुसार क्रमबद्ध करें",
+  // [Auto-translated] "Default"
+  sortDefaultText: "डिफ़ॉल्ट",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "सॉर्ट फ़ील्ड",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "क्रम क्रमबद्ध करें",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "सॉर्ट स्तर जोड़ें",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "सॉर्ट स्तर {0} निकालें",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "सॉर्ट फ़ील्ड {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "क्रमबद्ध क्रम {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "अधिक...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "सभी सॉर्ट स्तर दिखाएं",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "नया जोड़ें",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "पूरा",
   // "Preview"
@@ -65,6 +89,8 @@ export var hindiStrings = {
   panelDynamicTabTextFormat: "पैनल {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{1} सवालों में से {0} के जवाब दिए",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "{1} प्रश्न {0}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "सर्वेक्षण में कोई दृश्यमान पृष्ठ या प्रश्न नहीं है",
   // "Thank you for completing the survey"

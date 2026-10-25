@@ -33,6 +33,30 @@ export var vietnameseSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, rồi đến {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sắp xếp theo",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Mặc định",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Trường sắp xếp",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Thứ tự sắp xếp",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Thêm mức sắp xếp",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Loại bỏ {0} cấp sắp xếp",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Trường sắp xếp {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Thứ tự sắp xếp {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Xem thêm...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Hiển thị tất cả các cấp độ sắp xếp",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Thêm mới",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Hoàn thành",
   // "Preview"
@@ -65,6 +89,8 @@ export var vietnameseSurveyStrings = {
   panelDynamicTabTextFormat: "Bảng điều khiển {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Đã trả lời {0}/{1} câu hỏi",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Câu hỏi {0} về {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Không có trang hoặc câu hỏi nào được hiển thị trong cuộc khảo sát này.",
   // "Thank you for completing the survey"

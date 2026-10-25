@@ -228,9 +228,13 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
       value === "" || Helpers.isValueEmpty(value)
     );
   }
+  // For internal use: the empty check of getSerializableValue, shared with JsonObject's loop that skips empty properties
+  public isEmptyIn(obj: any): boolean {
+    return this.isSerializable && !!obj.getIsSerializablePropertyEmpty && obj.getIsSerializablePropertyEmpty(this);
+  }
   public getSerializableValue(obj: any, storeDefaults?: boolean, options?: ISaveToJSONOptions): any {
     if (!!this.onSerializeValue) return this.onSerializeValue(obj);
-    if (!storeDefaults && this.isSerializable && obj.getIsSerializablePropertyEmpty && obj.getIsSerializablePropertyEmpty(this)) return undefined;
+    if (!storeDefaults && this.isEmptyIn(obj)) return undefined;
     const value = this.getValue(obj, options);
     if (value === undefined || value === null) return undefined;
     if (!storeDefaults && this.isDefaultValueByObj(obj, value)) return undefined;
@@ -388,7 +392,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public set isLocalizable(val: boolean) {
     this.isLocalizableValue = val;
   }
-  public get isMultipleText(): boolean { return this.type === "string[]"; }
+  public get isMultipleText(): boolean { return this.typeValue === "string[]"; }
   public get dataList(): Array<string> {
     return Array.isArray(this.dataListValue) ? this.dataListValue : [];
   }
@@ -1753,23 +1757,36 @@ export class JsonObject {
     json: any,
     options: ISaveToJSONOptions
   ) {
+    // With these options and property flags, valueToJson's filters let the property through and
+    // getSerializableValue calls the same empty check (isEmptyIn) first, so an empty property writes nothing there.
+    const canSkipEmpty = !options.storeDefaults && !options.version && this.storesAllLocaleStrings(options);
     for (var i: number = 0; i < properties.length; i++) {
-      this.valueToJson(obj, json, properties[i], options);
+      const prop = properties[i];
+      if (canSkipEmpty && !prop.isSerializableFunc && !prop.onSerializeValue && !this.isLightSkipped(prop) && prop.isEmptyIn(obj)) continue;
+      this.valueToJson(obj, json, prop, options);
     }
   }
   public valueToJson(obj: any, result: any, prop: JsonObjectProperty, options?: ISaveToJSONOptions): void {
     if (!options) options = {};
     if (!this.isProretyCanBeStoredByOptions(prop, options)) return;
-    if (!prop.isPropertySerializable(obj) || (prop.isLightSerializable === false && this.lightSerializing)) return;
+    if (!prop.isPropertySerializable(obj) || this.isLightSkipped(prop)) return;
     if (options.version && !prop.isAvailableInVersion(options.version)) return;
     this.valueToJsonCore(obj, result, prop, options);
   }
   private isProretyCanBeStoredByOptions(prop: JsonObjectProperty, options: ISaveToJSONOptions): boolean {
+    if (this.storesAllLocaleStrings(options)) return true;
     const storeStrings = options.storeLocaleStrings;
     if (prop.isArray || prop.isUnique || prop.name === "name") return true;
     if (storeStrings === false) return !prop.isLocalizable;
     if (storeStrings === "stringsOnly") return prop.isLocalizable || !!prop.serializationProperty;
     return true;
+  }
+  private isLightSkipped(prop: JsonObjectProperty): boolean {
+    return prop.isLightSerializable === false && this.lightSerializing;
+  }
+  private storesAllLocaleStrings(options: ISaveToJSONOptions): boolean {
+    const storeStrings = options.storeLocaleStrings;
+    return storeStrings === undefined || storeStrings === true;
   }
   private valueToJsonCore(obj: any, result: any, prop: JsonObjectProperty, options: ISaveToJSONOptions): void {
     const serProp = prop.getSerializedProperty(obj, options.version);

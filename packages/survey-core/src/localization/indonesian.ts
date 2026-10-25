@@ -33,6 +33,30 @@ export var indonesianStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, lalu {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Urutkan berdasarkan",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Gagal bayar",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Kolom pengurutan",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Urutan pengurutan",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Tambahkan tingkat pengurutan",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Hapus {0} tingkat pengurutan",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Urutkan bidang {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Urutkan urutan {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Selengkapnya...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Tampilkan semua tingkat pengurutan",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Tambah Baru",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Selesai",
   // "Preview"
@@ -65,6 +89,8 @@ export var indonesianStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Menjawab pertanyaan {0} / {1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Pertanyaan {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Tidak ada halaman atau pertanyaan dalam survei.",
   // "Thank you for completing the survey"

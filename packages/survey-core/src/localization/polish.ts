@@ -33,6 +33,30 @@ export var polishSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, a potem do {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sortuj według",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Domyślność",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Pole sortowania",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Kolejność sortowania",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Dodaj poziom sortowania",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Usuń sort level {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Pole sortowania {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Sortowanie {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Więcej...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Pokaż wszystkie poziomy sortowania",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Dodaj Nowe",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Gotowe",
   // "Preview"
@@ -65,6 +89,8 @@ export var polishSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Odpowiedzi na {0}/{1} pytania",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Pytanie {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Nie ma widocznych pytań.",
   // "Thank you for completing the survey"

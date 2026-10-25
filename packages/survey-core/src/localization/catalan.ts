@@ -33,6 +33,30 @@ export var catalanSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, després per {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Ordenar per",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Valor per defecte",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Camp d'ordenació",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Ordre d'ordenació",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Afegeix nivell d'ordenació",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Elimina el nivell d'ordenació {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Camp d'ordenació {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Ordre d'ordenació {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Més...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Mostra tots els nivells de tipus",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Afegeix nou",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Complet",
   // [Auto-translated] "Preview"
@@ -65,6 +89,8 @@ export var catalanSurveyStrings = {
   panelDynamicTabTextFormat: "Panell {panelIndex}",
   // [Auto-translated] "Answered {0}/{1} questions"
   questionsProgressText: "Respostes {0}/{1} preguntes",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Pregunta {0} de {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "No hi ha cap pàgina visible o pregunta a l'enquesta.",
   // "Thank you for completing the survey"

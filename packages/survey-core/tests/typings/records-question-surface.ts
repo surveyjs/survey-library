@@ -109,9 +109,23 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   const pdPager: DeclaredKeys<QuestionPanelDynamicModel> = "pagerActions";
   res.push(ddPager, mdPager, pdPager);
   // The records bar's public surface.
-  const barApi: Array<DeclaredKeys<QuestionRecordsBar>> = ["pagerActions", "showPager", "isVisible", "cssClasses"];
+  const barApi: Array<DeclaredKeys<QuestionRecordsBar>> = ["pagerActions", "showPager", "isVisible", "cssClasses",
+    "sortActions", "showSort"];
   const bar: QuestionRecordsBar = md.recordsBar;
   res.push(barApi, pd.recordsBar === bar);
+  // showSortMenu is a boolean: the released "auto" loads as true.
+  const showSortMenu: boolean = md.showSortMenu;
+  pd.showSortMenu = false;
+  // @ts-expect-error "auto" is gone
+  md.showSortMenu = "auto";
+  // Where the renderers mount the sort bar.
+  const sortBarLocation: "header" | "top" | "none" = dd.sortBarLocation;
+  res.push(showSortMenu, sortBarLocation);
+  // @ts-expect-error the sort bar reaches the respondent's sort through the question's owner object
+  const mdSortByUser: DeclaredKeys<QuestionMatrixDynamicModel> = "sortByUser";
+  // @ts-expect-error the offered fields reach the sort bar through the question's owner object
+  const pdSortFields: DeclaredKeys<QuestionPanelDynamicModel> = "sortFields";
+  res.push(mdSortByUser, pdSortFields);
   // @ts-expect-error the question's state reaches the bar through its owner object
   const barOwner: DeclaredKeys<QuestionRecordsBar> = "owner";
   res.push(barOwner);

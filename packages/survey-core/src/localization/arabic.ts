@@ -33,6 +33,30 @@ export var arabicSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}، ثم بحلول {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "الترتيب حسب",
+  // [Auto-translated] "Default"
+  sortDefaultText: "الافتراضي",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "حقل الفرز",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "ترتيب الفرز",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "أضف مستوى الفرز",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "إزالة مستوى الترتيب {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "حقل الفرز {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "ترتيب {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "المزيد...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "عرض جميع مستويات الترتيب",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "إضافة جديد",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "إرسال البيانات",
   // "Preview"
@@ -65,6 +89,8 @@ export var arabicSurveyStrings = {
   panelDynamicTabTextFormat: "لوحة {بانل إندكس}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "تمت الإجابة على أسئلة {0} / {1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "سؤال {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "لا توجد صفحة مرئية أو سؤال في النموذج",
   // "Thank you for completing the survey"

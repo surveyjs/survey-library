@@ -1275,6 +1275,8 @@ export class Question extends SurveyElement<Question>
     this.onParentChanged();
   }
   protected onParentChanged(): void { }
+  // The survey switched design mode at runtime (SurveyModel.setDesignMode).
+  public onDesignModeChanged(): void { }
   //#region singleInput - delegated to singleInputBehavior
   private _singleInputBehavior: QuestionSingleInputBehavior;
   public get singleInputBehavior(): QuestionSingleInputBehavior {
@@ -1313,6 +1315,15 @@ export class Question extends SurveyElement<Question>
   }
   public getSingleInputElementPos(): number {
     return this.singleInputBehavior.getSingleInputElementPos();
+  }
+  public getProgressStepCount(): number {
+    return this.singleInputBehavior.getProgressStepCount();
+  }
+  public getProgressStepIndex(): number {
+    return this.singleInputBehavior.getProgressStepIndex();
+  }
+  public resetSurveyProgressTotal(): void {
+    (<SurveyModel>this.survey)?.resetProgressTotal();
   }
   protected get isSingleInputActive(): boolean {
     return this.singleInputBehavior.isSingleInputActive;

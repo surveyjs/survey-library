@@ -33,6 +33,30 @@ export var teluguStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}, తరువాత {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "క్రమబద్ధీకరించండి",
+  // [Auto-translated] "Default"
+  sortDefaultText: "డిఫాల్ట్",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "క్షేత్రాన్ని క్రమబద్ధీకరించండి",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "క్రమబద్ధీకరణ క్రమం",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "క్రమబద్ధీకరణ స్థాయిని జోడించండి",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "క్రమబద్ధీకరణ స్థాయిని తీసివేయండి {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "ఫీల్డ్ {0} క్రమబద్ధీకరించు",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "క్రమబద్ధీకరణ {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "మరిన్ని...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "అన్ని సార్ట్ లెవల్స్ చూపించు",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "క్రొత్తదాన్ని జోడించండి",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "పూర్తి చేయండి",
   // "Preview"
@@ -65,6 +89,8 @@ export var teluguStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0}/{1} ప్రశ్నలకు జవాబు ఇవ్వడం అయినది",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "ప్రశ్న {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "ఈ సర్వేలో పేజీలు గాని ప్రశ్నలు గాని కనబడుట లేదు",
   // "Thank you for completing the survey"

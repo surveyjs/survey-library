@@ -10,6 +10,7 @@ export class SurveyQuestionMatrixDropdown extends SurveyQuestionMatrixDropdownBa
   protected renderElement(): React.JSX.Element {
     return (
       <>
+        {this.renderSortBar()}
         {this.renderTableDiv()}
         {this.renderFooterBar()}
       </>

@@ -33,6 +33,30 @@ export var simplifiedChineseSurveyStrings = {
   sortOrderLevelText: "{0} ({1})",
   // [Auto-translated] "{0}, then by {1}"
   sortOrderNextText: "{0}，然后{1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "排序",
+  // [Auto-translated] "Default"
+  sortDefaultText: "默认",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "排序字段",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "排序顺序",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "添加排序层级",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "移除排序级别{0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "排序字段{0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "排序顺序{0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "更多......",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "显示各种级别",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "添加新",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "提交问卷",
   // "Preview"
@@ -65,6 +89,8 @@ export var simplifiedChineseSurveyStrings = {
   panelDynamicTabTextFormat: "面板 {面板索引}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "第 {0}/{1} 题",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "问题{0}{1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "问卷中没有问题或页面",
   // "Thank you for completing the survey"

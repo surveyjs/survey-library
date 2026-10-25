@@ -599,3 +599,57 @@ frameworks.forEach(framework => {
     });
   });
 });
+frameworks.forEach(framework => {
+  test.describe(`${framework} ${title} sort bar`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+    });
+    const sortBarJson = {
+      showQuestionNumbers: false,
+      elements: [{
+        type: "paneldynamic",
+        name: "products",
+        title: "Products",
+        allowSort: true,
+        allowAddPanel: false,
+        allowRemovePanel: false,
+        defaultValue: [
+          { product: "Lamp", added: "2024-03-01" },
+          { product: "Chair", added: "2024-01-15" }
+        ],
+        templateElements: [
+          { type: "text", name: "product", title: "Product" },
+          { type: "text", name: "added", title: "Added", inputType: "date" }
+        ]
+      }]
+    };
+    // The bar at the end of the title row on a desktop and under the title on a phone, each with the direction list open.
+    for (const size of [{ name: "desktop", width: 1000, height: 700 }, { name: "mobile", width: 420, height: 900 }]) {
+      test(`Paneldynamic sort bar, ${size.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: size.width, height: size.height });
+        await initSurvey(page, framework, sortBarJson);
+        await page.getByRole("button", { name: /^Sort field/ }).click();
+        await page.locator(".sv-popup__container").filter({ visible: true }).getByRole("menuitemradio", { name: "Added", exact: true }).click();
+        await page.getByRole("button", { name: /^Sort order/ }).click();
+        await expect(page.locator(".sv-popup__container").filter({ visible: true }).getByRole("menuitemradio", { name: "Oldest first", exact: true })).toBeVisible();
+        await page.mouse.move(0, 0);
+        await compareScreenshot(page, undefined, `paneldynamic-sort-bar-${size.name}.png`);
+      });
+    }
+    // Two levels on a phone: the row runs past the panel's edge and scrolls sideways; shown scrolled to its start.
+    test("Paneldynamic sort bar with two levels, mobile", async ({ page }) => {
+      await page.setViewportSize({ width: 420, height: 900 });
+      const json = JSON.parse(JSON.stringify(sortBarJson));
+      json.elements[0].maxSortLevel = 3;
+      json.elements[0].templateElements.push({ type: "text", name: "category", title: "Category" });
+      await initSurvey(page, framework, json);
+      // Sorted after loading: a sortCriteria in the JSON together with defaultValue shows no panels (a separate bug).
+      await page.evaluate(() => { (window as any).survey.getQuestionByName("products").sort([{ field: "product", direction: "asc" }, { field: "added", direction: "desc" }]); });
+      const bar = page.locator(".sd-question__header .sd-paneldynamic__sort-bar");
+      await expect(bar).toBeVisible();
+      expect(await bar.evaluate((el: HTMLElement) => el.scrollLeft)).toBe(0);
+      await page.mouse.move(0, 0);
+      await compareScreenshot(page, undefined, "paneldynamic-sort-bar-levels-mobile.png");
+    });
+  });
+});

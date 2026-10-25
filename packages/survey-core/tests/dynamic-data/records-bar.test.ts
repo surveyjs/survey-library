@@ -69,13 +69,14 @@ describe("Records bar: the object", () => {
     expect(barState(createMatrix(5).recordsBar), "#4: the matrix").toEqual([true, true]);
   });
   test("cssClasses gives each question's class names", () => {
-    const pagerClasses = { pagerPage: "sd-pager__page", pagerTotal: "sd-pager__total" };
+    const itemClasses = { pagerPage: "sd-pager__page", pagerTotal: "sd-pager__total", sortDropdown: "sd-sort-bar__dropdown", sortLabel: "sd-sort-bar__label",
+      sortLevel: "sd-sort-bar__level", sortDialog: "sd-sort-dialog", sortDialogRow: "sd-sort-dialog__row" };
     expect(createPanel(5).recordsBar.cssClasses, "#1").toEqual(Object.assign({
-      root: "sd-question__records-bar sd-pager" }, pagerClasses));
+      root: "sd-question__records-bar sd-pager", sortBar: "sd-paneldynamic__sort-bar" }, itemClasses));
     expect(createMatrix(5).recordsBar.cssClasses, "#2").toEqual(Object.assign({
-      root: "sd-question__records-bar sd-pager" }, pagerClasses));
+      root: "sd-question__records-bar sd-pager", sortBar: "sd-matrixdynamic__sort-bar" }, itemClasses));
     expect(createFixedMatrix().recordsBar.cssClasses, "#3").toEqual(Object.assign({
-      root: "sd-question__records-bar sd-pager" }, pagerClasses));
+      root: "sd-question__records-bar sd-pager", sortBar: "sd-matrixdropdown__sort-bar" }, itemClasses));
   });
 });
 

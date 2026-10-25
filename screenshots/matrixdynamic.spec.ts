@@ -552,3 +552,113 @@ frameworks.forEach(framework => {
     });
   });
 });
+frameworks.forEach(framework => {
+  test.describe(`${framework} ${title} sort bar`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+    });
+    const sortBarJson = {
+      showQuestionNumbers: false,
+      elements: [{
+        type: "matrixdynamic",
+        name: "matrix",
+        title: "Products",
+        allowSort: true,
+        rowCount: 0,
+        defaultValue: [
+          { product: "Lamp", category: "Home", price: 30 },
+          { product: "Chair", category: "Home", price: 120 },
+          { product: "Pen", category: "Office", price: 2 }
+        ],
+        columns: [
+          { name: "product", title: "Product", cellType: "text" },
+          { name: "category", title: "Category", cellType: "text" },
+          { name: "price", title: "Price", cellType: "text", inputType: "number" }
+        ]
+      }]
+    };
+    // The bar at the end of the title row on a desktop and under the title on a phone, each with the direction list open.
+    for (const size of [{ name: "desktop", width: 1000, height: 600 }, { name: "mobile", width: 420, height: 700 }]) {
+      test(`Matrixdynamic sort bar, ${size.name}`, async ({ page }) => {
+        await page.setViewportSize({ width: size.width, height: size.height });
+        await initSurvey(page, framework, sortBarJson);
+        await page.getByRole("button", { name: /^Sort field/ }).click();
+        await page.locator(".sv-popup__container").filter({ visible: true }).getByRole("menuitemradio", { name: "Price", exact: true }).click();
+        await page.getByRole("button", { name: /^Sort order/ }).click();
+        await expect(page.locator(".sv-popup__container").filter({ visible: true }).getByRole("menuitemradio", { name: "Low - High", exact: true })).toBeVisible();
+        await page.mouse.move(0, 0);
+        await compareScreenshot(page, undefined, `matrixdynamic-sort-bar-${size.name}.png`);
+      });
+    }
+    // Two levels at the end of the title row: Sort by, two groups, the remove button of the second one and "+".
+    test("Matrixdynamic sort bar with two levels, desktop", async ({ page }) => {
+      await page.setViewportSize({ width: 1000, height: 600 });
+      const json = JSON.parse(JSON.stringify(sortBarJson));
+      Object.assign(json.elements[0], { maxSortLevel: 3, sortCriteria: [{ field: "product", direction: "asc" }, { field: "category", direction: "desc" }] });
+      await initSurvey(page, framework, json);
+      await expect(page.getByRole("button", { name: "Remove sort level 2", exact: true })).toBeVisible();
+      await page.mouse.move(0, 0);
+      await compareScreenshot(page, undefined, "matrixdynamic-sort-bar-levels-desktop.png");
+    });
+  });
+});
+
+frameworks.forEach(framework => {
+  test.describe(`${framework} ${title} sort bar: More... and the sort dialog`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+    });
+    // The design's frame: a long title and five sortable columns.
+    const moreJson = (sortCriteria: Array<any>): any => ({
+      showQuestionNumbers: false,
+      elements: [{
+        type: "matrixdynamic",
+        name: "matrix",
+        title: "Health Product - Long Title for Example",
+        allowSort: true,
+        maxSortLevel: 6,
+        rowCount: 0,
+        sortCriteria: sortCriteria,
+        defaultValue: [
+          { product: "Syrup Montana", category: "Condiments", price: 22, quantity: "36 boxes", stock: 160 },
+          { product: "Chang", category: "Beverages", price: 15, quantity: "12 bottles", stock: 23 },
+          { product: "Guarana", category: "Supplements", price: 10, quantity: "8 jars", stock: 0 }
+        ],
+        columns: [
+          { name: "product", title: "Product", cellType: "text" },
+          { name: "category", title: "Category", cellType: "text" },
+          { name: "price", title: "Price, USD", cellType: "text", inputType: "number" },
+          { name: "quantity", title: "Quantity per Unit", cellType: "text" },
+          { name: "stock", title: "In Stock", cellType: "text", inputType: "number" },
+          { name: "discontinued", title: "Discontinued", cellType: "boolean" }
+        ]
+      }]
+    });
+    const headerBar = (page) => page.locator(".sd-question__header .sd-matrixdynamic__sort-bar");
+    const moreButton = (page) => page.getByRole("button", { name: "Show all sort levels", exact: true });
+    // Three levels at 1280px: the third one is behind More..., between the separators before "+".
+    test("Matrixdynamic sort bar with More..., desktop", async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 600 });
+      await initSurvey(page, framework, moreJson([{ field: "product", direction: "asc" }, { field: "category", direction: "asc" }, { field: "price", direction: "asc" }]));
+      await expect(moreButton(page)).toBeVisible();
+      await expect(headerBar(page)).not.toHaveAttribute("style", /opacity/);
+      await page.mouse.move(0, 0);
+      await compareScreenshot(page, ".sd-question", "matrixdynamic-sort-bar-more-desktop.png");
+    });
+    // The dialog with five rows, as in the design: two levels and three rows added with Add New, which stays.
+    test("Matrixdynamic sort dialog with five rows", async ({ page }) => {
+      await page.setViewportSize({ width: 1000, height: 800 });
+      await initSurvey(page, framework, moreJson([{ field: "product", direction: "asc" }, { field: "category", direction: "asc" }]));
+      await page.evaluate(() => { (window as any).survey.getQuestionByName("matrix").recordsBar.sortActions.getActionById("sv-sort-more").action(); });
+      const dialog = page.locator(".sv-popup--records-sort");
+      for (let i = 0; i < 3; i++) {
+        await dialog.getByRole("button", { name: "Add New", exact: true }).click();
+      }
+      await expect(dialog.locator(".sd-sort-dialog__row")).toHaveCount(5);
+      await expect(dialog.getByRole("button", { name: "Add New", exact: true })).toBeVisible();
+      await resetFocusToBody(page);
+      await page.mouse.move(0, 0);
+      await compareScreenshot(page, ".sv-popup--records-sort .sv-popup__container", "matrixdynamic-sort-dialog.png");
+    });
+  });
+});

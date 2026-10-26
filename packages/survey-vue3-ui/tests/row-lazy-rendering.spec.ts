@@ -116,7 +116,8 @@ describe("Row component lazy rendering timer", () => {
       expect(call[0], "the row's root element is passed").toBe(row.getRootElement());
     });
     vi.advanceTimersByTime(10);
-    expect(windowScrollListeners(), "each lazy row waits on window scroll").toBe(lazyRows.length);
+    expect(lazyRows.length, "several lazy rows register").toBeGreaterThan(1);
+    expect(windowScrollListeners(), "lazy rows share one window scroll listener").toBe(1);
   });
 
   it("row model swap before the timer starts the new row on the same element", async () => {

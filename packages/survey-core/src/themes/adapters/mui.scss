@@ -394,6 +394,10 @@
   --sjs2-layout-component-matrix-box-padding-right: var(--sjs-mui-card-edge-padding);
   --sjs2-layout-component-matrix-box-padding-top: 0;
   --sjs2-layout-component-matrix-box-padding-bottom: var(--sjs-mui-card-edge-content-padding-bottom);
+  --sjs2-layout-component-panel-matrix-footer-padding-top: 0;
+  --sjs2-layout-component-panel-matrix-footer-padding-bottom: var(--sjs2-layout-component-matrix-box-padding-bottom);
+  --sjs2-layout-component-panel-matrix-footer-padding-left: var(--sjs2-layout-component-matrix-box-padding-left);
+  --sjs2-layout-component-panel-matrix-footer-padding-right: var(--sjs2-layout-component-matrix-box-padding-right);
 
   /* panelless: a page-level question is not a card. Same recipe as the built-in *-panelless
      themes: the simple panel keeps no background, ring or padding, so the fields sit directly on
@@ -547,7 +551,7 @@
     background-color: transparent;
 
     max-width: calc(100% - 12px);
-    &>.sd-question__description {
+    & > .sd-question__description {
       display: none;
     }
   }
@@ -1118,17 +1122,23 @@
 input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   height: 4px;
 }
+.sd-matrixdynamic__content > div > .sd-question__bar--footer {
+  border-top: none;
+}
 
 .svc-question__content--title-bottom {
-  &>.sd-question:not(.sd-question--complex):has(
-    .sd-question__content--text,
-    .sd-question__content--comment,
-    .sd-question__content--dropdown
-  ) .sd-question__container > .sd-question__header-and-content-container {
-    &>.sd-question__content {
+  &
+    > .sd-question:not(.sd-question--complex):has(
+      .sd-question__content--text,
+      .sd-question__content--comment,
+      .sd-question__content--dropdown
+    )
+    .sd-question__container
+    > .sd-question__header-and-content-container {
+    & > .sd-question__content {
       margin-top: 12px;
     }
-    &>.sd-question__header {
+    & > .sd-question__header {
       top: 12px;
     }
   }
@@ -1210,7 +1220,8 @@ input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
 @include svc-mui-floating-header(leave) {
   opacity: 0;
   transition: opacity 150ms;
-  animation: svc-mui-floating-label-rows var(--sjs-svc-collapse-move-out-duration, 250ms) cubic-bezier(0, 0, 0.58, 1) var(--sjs-svc-collapse-move-out-delay, 100ms) forwards;
+  animation: svc-mui-floating-label-rows var(--sjs-svc-collapse-move-out-duration, 250ms) cubic-bezier(0, 0, 0.58, 1)
+    var(--sjs-svc-collapse-move-out-delay, 100ms) forwards;
   @include svc-mui-floating-header-clip;
 }
 
@@ -1220,7 +1231,8 @@ input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   // Match the collapsed title width while the row closes. Transform stays the
   // floating one: the label is invisible and must already be in place when it fades back.
   width: auto !important;
-  animation: svc-mui-floating-label-rows var(--sjs-svc-expand-move-in-duration, 250ms) cubic-bezier(0.42, 0, 1, 1) reverse both;
+  animation: svc-mui-floating-label-rows var(--sjs-svc-expand-move-in-duration, 250ms) cubic-bezier(0.42, 0, 1, 1)
+    reverse both;
   @include svc-mui-floating-header-clip;
 }
 

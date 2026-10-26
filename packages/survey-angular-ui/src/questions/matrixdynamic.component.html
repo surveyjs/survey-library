@@ -1,6 +1,6 @@
 <ng-template #template>
   <div #contentElement>
-    <div *ngIf="model.getShowToolbar('top')" [class]="model.getToolbarCssClass('top')">
+    <div *ngIf="model.getShowToolbar('top')" [class]="model.cssClasses.headerBar">
       <sv-ng-action-bar [model]="model.toolbar"></sv-ng-action-bar>
     </div>
     <div *ngIf="model.sortBarLocation === 'top'" [class]="model.cssClasses.sortBarTop">

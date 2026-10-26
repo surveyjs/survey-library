@@ -97,6 +97,14 @@ describe("FilterToolbars: an active preset locks the chips", () => {
     q.items = [q.getItemByName("kids")];
     expect([q.isLocked, action(q.chipsToolbar, "sv-filter-field-age").markerIconName], "#2").toEqual([false, "icon-chevrondown-24x24"]);
   });
+  test("an active preset the host takes away takes Clear All with it", () => {
+    const q = createFilter();
+    const clear = action(q.clearToolbar, "sv-filter-clear");
+    q.toggleItem("adults");
+    expect(clear.visible, "#1").toBe(true);
+    q.items = [q.getItemByName("kids")];
+    expect([q.filterExpression, q.canClearActiveItem, clear.visible], "#2: nothing filters").toEqual(["", false, false]);
+  });
   test("turning a preset on closes a badge's open popup", () => {
     const q = createFilter();
     const age = action(q.chipsToolbar, "sv-filter-field-age");

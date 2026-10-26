@@ -260,9 +260,11 @@ export class QuestionFilterModel extends QuestionNonValue {
   // Whether clearActiveItem() has anything to clear. It is that method's own guard, so a "Clear"
   // button shown by it is shown exactly when clicking it does something. Cleared conditions ([])
   // with no preset under them filter nothing - the same as no edits at all - so they are not
-  // something to clear; over a preset (single mode too) they are: clearing brings its text back.
+  // something to clear; over a preset (single mode too) they are: clearing brings its text back. A
+  // name no item answers to (the host took the preset away) filters nothing either.
   public get canClearActiveItem(): boolean {
-    if (!!this.activeItemName || this.pendingConditions !== undefined) return true;
+    if (this.pendingConditions !== undefined) return true;
+    if (!!this.activeItemName && !!this.getItemByName(this.activeItemName)) return true;
     const own = this.ownConditions;
     return own !== undefined && (own.length > 0 || !!this.activeItem);
   }

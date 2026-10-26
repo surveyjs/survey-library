@@ -7,6 +7,7 @@ import {
   Const,
   BinaryOperand,
   Operand,
+  FunctionOperand,
 } from "../../src/expressions/expressions";
 
 import { ProcessValue, VariableGetterContext } from "../../src/conditions/conditionProcessValue";
@@ -1882,6 +1883,38 @@ describe("Expressions", () => {
     expect(runner.runContext(new VariableGetterContext({})), "#2").toBe(true);
     runner = new ExpressionRunner("{\"key\": \"value\"} = {\"key\": \"value1\"}");
     expect(runner.runContext(new VariableGetterContext({})), "#3").toBe(false);
+  });
+  test("null/undefined as a function argument, Bug#12130", () => {
+    let runner = new ExpressionRunner("iif({a} = 1, 'x', null)");
+    expect(runner.canRun(), "#1 canRun").toBe(true);
+    expect(runner.runValues({ a: 1 }), "#1 condition is true").toBe("x");
+    expect(runner.runValues({ a: 2 }), "#1 condition is false").toBeNull();
+    runner = new ExpressionRunner("iif({a} = 1, 'x', undefined)");
+    expect(runner.runValues({ a: 2 }), "#2").toBeNull();
+    runner = new ExpressionRunner("iif({a}, null, {b})");
+    expect(runner.runValues({ a: true, b: 1 }), "#3 null branch").toBeNull();
+    expect(runner.runValues({ a: false, b: 1 }), "#3 variable branch").toBe(1);
+    expect(runner.getVariables(), "#3 variables").toEqual(["a", "b"]);
+    expect(runner.hasFunction(), "#3 hasFunction").toBe(true);
+    expect(runner.isAsync, "#3 isAsync").toBe(false);
+
+    const parser = new ConditionsParser();
+    const operand = parser.parseExpression("iif({a} = 1, 'x', null)");
+    expect(operand.toString(), "#4 toString keeps null").toBe("iif(({a} == 1), 'x', null)");
+    expect(parser.parseExpression(operand.toString()).toString(), "#4 round trip").toBe("iif(({a} == 1), 'x', null)");
+    expect(operand.isEqual(parser.parseExpression("iif({a} = 1, 'x', null)")), "#5 equal").toBe(true);
+    expect(operand.isEqual(parser.parseExpression("iif({a} = 1, 'x', 'y')")), "#5 not equal, null vs const").toBe(false);
+    expect(parser.parseExpression("iif({a} = 1, 'x', 'y')").isEqual(operand), "#5 not equal, const vs null").toBe(false);
+
+    expect(parser.parseExpression("f()").toString(), "#6 no params").toBe("f()");
+    expect((<FunctionOperand>parser.parseExpression("f()")).paramValues.length, "#6 no params, length").toBe(0);
+    expect((<FunctionOperand>parser.parseExpression("f(null)")).paramValues.length, "#7 null param, length").toBe(1);
+    expect(parser.parseExpression("f(null)").toString(), "#7 null param").toBe("f(null)");
+    expect(parser.parseExpression("f(null, {a})").toString(), "#8 the first param is null").toBe("f(null, {a})");
+    expect(parser.parseExpression("{a} anyof [null, 1]").toString(), "#9 array starts with null").toBe("({a} anyof [null, 1])");
+    runner = new ExpressionRunner("iif(null, 1, {b})");
+    expect(runner.runValues({ b: 2 }), "#10 null condition").toBe(2);
+    expect(runner.getVariables(), "#10 variables").toEqual(["b"]);
   });
 });
 

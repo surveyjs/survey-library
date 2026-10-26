@@ -546,8 +546,15 @@ export class MatrixDropdownColumn extends Base
    * Default value: `false`
    */
   @property() isUnique: boolean;
-  /* Opts this column out of the header-click sort. A cell whose value is not a scalar - a checkbox,
-     a file, a signature - is never sortable, whatever this says (Question.isValueSortable). */
+  /**
+   * Specifies whether respondents can sort matrix rows by this column. Applies only when the matrix's `allowSort` property is `true`.
+   *
+   * Default value: `true`
+   *
+   * Columns with `"checkbox"`, `"file"`, or `"signaturepad"` [cell types](#cellType) are excluded from respondent sorting regardless of this setting.
+   *
+   * Sorting configured in code remains available regardless of this property's value.
+   */
   @property({ defaultValue: true }) allowSort: boolean;
   // Whether the cell's value can be sorted at all, whatever allowSort says: the designer's dialog offers such a column.
   public get isValueSortable(): boolean {

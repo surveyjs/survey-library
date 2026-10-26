@@ -1417,9 +1417,18 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   public get canSortByHeaders(): boolean {
     return !this.isMobile && !!this.showHeader && !this.transposeData;
   }
-  /* Where the sort bar shows while allowSort is true: "auto" only where the headers cannot sort (canSortByHeaders),
-     "always" next to them too. There is no "never": a matrix without sorting has allowSort false. A released
-     showSortMenu loads here: true (the bar next to the headers) and "always" read "always", anything else "auto". */
+  /**
+   * Specifies when to display the sort bar. Applies only when [`allowSort`](#allowSort) is `true`.
+   *
+   * Possible values:
+   *
+   * - `"auto"` (default)\
+   * Displays the sort bar when column headers cannot be used for sorting: on mobile devices, when [`showHeader`](#showHeader) is `false`, or when [`transposeData`](#transposeData) is `true`.
+   *
+   * - `"always"`\
+   * Displays the sort bar even when column headers support sorting.
+   * @see maxSortLevel
+   */
   public get showSortBar(): "auto" | "always" {
     return this.getPropertyValue("showSortBar", "auto");
   }

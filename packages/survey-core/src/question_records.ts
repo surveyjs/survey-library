@@ -2138,24 +2138,48 @@ export abstract class QuestionRecordsModel extends Question {
   public goToPage(index: number): boolean { return this.changePageWithoutAnimation(() => this.paging.goToPage(index)); }
   public nextPage(): boolean { return this.changePageWithoutAnimation(() => this.paging.nextPage()); }
   public prevPage(): boolean { return this.changePageWithoutAnimation(() => this.paging.prevPage()); }
-  /* The sort the records are displayed in: criteria applied in array order, an empty array = no sort.
-     It never reorders the question value. A live array, like choices: an assignment, a push, an
-     unshift or a splice on it, or an edit of an item's field or direction re-applies it. The caller
-     reads and writes plain { field, direction } objects, a missing direction being ascending. The
-     question never holds the caller's objects: it converts every item it is given - on an assignment
-     and on the array's own operations alike - into an internal SortCriterion, which is what makes an
-     item edit live and what the serializer reads and writes. It is the current sort: a sort made at
-     runtime changes what toJSON() emits. */
+  /**
+   * Specifies the sort order used to display data.
+   *
+   * Default value: `[]` (no sorting)
+   *
+   * Each array item is an object with the following properties:
+   *
+   * - `field` &ndash; The name of the field to sort by.
+   * - `direction` &ndash; `"asc"` (default) for ascending order or `"desc"` for descending order.
+   *
+   * Criteria are applied in array order. Each subsequent field sorts records with equal values in the preceding fields.
+   *
+   * Assigning an array, adding or removing criteria, or changing an item's `field` or `direction` reapplies sorting. This property reflects the current sort, including changes made by respondents.
+   *
+   * Sorting changes the display order while preserving the record order in the question's `value`.
+   * @see sort
+   * @see clearSort
+   * @see allowSort
+   * @see maxSortLevel
+   */
   public get sortCriteria(): Array<ISortCriterion> { return this.paging.sortCriteria; }
   public set sortCriteria(val: Array<ISortCriterion>) { this.paging.sortCriteria = val; }
-  /* sort("price") sorts by one field, ascending unless direction is "desc"; with append the current
-     sort stays and the field takes the direction where it already is, or joins at the end.
-     sort([...]) is the assignment of sortCriteria. A sort from code does not validate the page. */
-  public sort(field: string, direction?: SortDirection, append?: boolean): void;
-  public sort(criteria: Array<ISortCriterion>): void;
+  /**
+   * Sorts data by the specified field or criteria.
+   *
+   * Updates [`sortCriteria`](#sortCriteria) and applies sorting without validating the current data page. Available regardless of the [`allowSort`](#allowSort) and [`maxSortLevel`](#maxSortLevel) settings.
+   *
+   * When an array of sorting criteria is passed, it replaces all existing criteria, and the `direction` and `append` parameters are ignored.
+   * @param fieldOrCriteria A field name or an array of objects with a `field` name and an optional `direction` (`"asc"` or `"desc"`). Criteria are applied in array order; the default direction is `"asc"`.
+   * @param direction The sort direction: `"asc"` (default) or `"desc"`. Applies when `fieldOrCriteria` is a field name.
+   * @param append Pass `true` to preserve existing criteria and add the field as the last sorting level. If the field is already present, its direction is updated in place. Defaults to `false`, which replaces all existing criteria. Applies when `fieldOrCriteria` is a field name.
+   * @see clearSort
+   */
   public sort(fieldOrCriteria: string | Array<ISortCriterion>, direction?: SortDirection, append?: boolean): void {
     this.paging.sort(fieldOrCriteria, direction, append);
   }
+  /**
+   * Clears all sorting criteria and displays data in the original order.
+   *
+   * Equivalent to setting [`sortCriteria`](#sortCriteria) to an empty array.
+   * @see sort
+   */
   public clearSort(): void { this.paging.clearSort(); }
   /* What a click on a sortable header does: the field's first direction - descending for a number
      or a date field, ascending otherwise (getSortFieldDataType) - then the other one, then not sorted. With
@@ -2171,14 +2195,29 @@ export abstract class QuestionRecordsModel extends Question {
     const found = this.getFields().filter((item: IDynamicDataField): boolean => item.name === field)[0];
     return !!found && !!found.dataType ? found.dataType : "any";
   }
-  /* The sort a respondent can make: by a header click a renderer may offer (a column opts out with
-     column.allowSort = false) or from the sort bar. It does not gate the code API - sort(),
-     sortCriteria, clearSort() and toggleSort() work whatever its value: the renderers gate on
-     column.isSortable and isSortBarVisible. Nor does it gate what a designer can sort by (getDesignSortFields). */
+  /**
+   * Specifies whether respondents can sort data in the UI.
+   *
+   * Default value: `false`
+   *
+   * Sorting in code is available regardless of this property's value.
+   *
+   * In matrix questions, you can set an individual column's [`allowSort`](/form-library/documentation/api-reference/multi-select-matrix-column-values#allowSort) property to `false` to disable sorting by that column.
+   * @see maxSortLevel
+   * @see sortCriteria
+   * @see sort
+   */
   @property({ defaultValue: false }) allowSort: boolean;
-  /* The most criteria a respondent's toggleSort(field, true) leaves in the sort: at least 1, with no
-     upper bound. sort(), sortCriteria and JSON are not limited by it. The clamp is in the setter, which
-     also runs while the question loads from JSON. */
+  /**
+   * Specifies the maximum number of fields respondents can add to a sort.
+   *
+   * Default value: `1`
+   *
+   * Each field defines a sorting level. Set this property to a value greater than 1 to enable sorting by multiple fields.
+   *
+   * This limit applies only to respondent sorting. You can specify more fields in code using [`sortCriteria`](#sortCriteria) or the [`sort()`](#sort) method.
+   * @see allowSort
+   */
   public get maxSortLevel(): number {
     return this.getPropertyValue("maxSortLevel", 1);
   }

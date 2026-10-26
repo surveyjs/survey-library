@@ -3469,7 +3469,9 @@ describe("Fixed matrix sorts and filters its rows", () => {
     expect(matrix.columns.map(column => column.isSortable), "#2: not allowed by default").toEqual([false, false]);
     matrix.allowSort = true;
     expect(matrix.columns.map(column => column.isSortable), "#3: the column that opted out stays unsortable").toEqual([true, false]);
-    expect(matrix.isSortMenuVisible, "#4: \"auto\" and sortable headers: no menu").toBe(false);
+    expect(matrix.isSortBarVisible, "#4: no sort bar next to the sortable headers by default").toBe(false);
+    matrix.showSortBar = "always";
+    expect(matrix.isSortBarVisible, "#5: the sort bar shows next to them with showSortBar \"always\"").toBe(true);
   });
   describe("filtered-out rows", () => {
     test("their answers are kept by clearIncorrectValues", () => {

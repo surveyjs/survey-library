@@ -23,6 +23,9 @@ export class QuestionNonValue extends Question {
   public get hasTitle(): boolean {
     return false;
   }
+  public get isValueSortable(): boolean {
+    return false;
+  }
   public getTitleLocation(): string {
     return "";
   }

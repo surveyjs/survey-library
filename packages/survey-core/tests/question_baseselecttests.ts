@@ -5479,4 +5479,23 @@ describe("Item conditions run only when a variable they use changed", () => {
     m.value = { r1: "c1" };
     expect(visibleValues(q), "m.r1 = c1 again").toEqual([1, 2]);
   });
+  test("defaultValueExpression with null as a function argument, Bug#12130", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "radiogroup", name: "gender", choices: ["male", "female"] },
+        {
+          type: "dropdown",
+          name: "partnerGender",
+          choices: ["male", "female"],
+          defaultValueExpression: "iif({gender} = 'male', 'female', iif({gender} = 'female', 'male', null))"
+        }
+      ]
+    });
+    const q = survey.getQuestionByName("partnerGender");
+    expect(q.isEmpty(), "#1 gender is empty").toBe(true);
+    survey.setValue("gender", "male");
+    expect(q.value, "#2 gender is male").toBe("female");
+    survey.setValue("gender", "female");
+    expect(q.value, "#3 gender is female").toBe("male");
+  });
 });

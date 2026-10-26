@@ -1,9 +1,11 @@
 import { Helpers } from "../helpers";
-import { SortDirection, ISortCriterion } from "../dynamic-data/dynamic-data-interfaces";
+import { SortDirection, ISortCriterion, DynamicDataFieldType } from "../dynamic-data/dynamic-data-interfaces";
 import { DynamicDataList } from "../dynamic-data/dynamic-data-list";
 import { normalizeSort } from "../dynamic-data/dynamic-data-view";
 import { ISortCriterionOwner, SortCriterion } from "./records-sort-criterion";
+import { getFirstSortDirection } from "./records-sort-directions";
 import { Scope } from "../utils/scope";
+import { ISurvey } from "../base-interfaces";
 
 /* The question side of the list's paging, sorting and filtering. The behaviour lives here and the
    questions keep the thin public accessors. Its owner is a private object of the question
@@ -41,8 +43,17 @@ export interface IRecordsPagingOwner {
      its own paging and builds every object. Absent -> pageSize. */
   listPageSize?: number;
   /* The most criteria a respondent's toggleSort(field, true) leaves in the sort: maxSortLevel.
-     Absent or 0 -> no limit. sort(), sortCriteria and JSON are never limited. */
+     Absent or 0 -> no limit. sort(), sortCriteria and JSON are never limited. Above 1, a toggleSort
+     without append on a field already in the sort cycles that level in place; absent, 0 or 1 -> it
+     replaces the sort. */
   maxSortLevel?: number;
+  /* The data type the list registered for a record field: the direction toggleSort starts with
+     follows it (getFirstSortDirection). Absent, or "any" -> ascending first. */
+  getFieldDataType?(field: string): DynamicDataFieldType;
+  /* What an item of sortCriteria serves to Creator's property grid (ISortCriterionOwner): the question's
+     survey, and the fields its designer can sort by. Absent -> no survey, no fields. */
+  getSurvey?(): ISurvey;
+  getDesignSortFields?(): Array<{ field: string, title: string }>;
   // What the question reports: 1 page and page 0 while it does not page.
   pageIndex: number;
   pageCount: number;
@@ -80,11 +91,22 @@ function isSameSort(a: Array<ISortCriterion>, b: Array<ISortCriterion>): boolean
     item.field === b[index].field && item.direction === b[index].direction);
 }
 
+function isInArrayOnce(items: any, item: any): boolean {
+  return Array.isArray(items) && items.indexOf(item) === items.lastIndexOf(item);
+}
+
 export class RecordsPagingController implements ISortCriterionOwner {
   // getList: whoever holds the list hands it over; it may create the list when it is asked.
   constructor(private owner: IRecordsPagingOwner, private getList: () => DynamicDataList) { }
   private get list(): DynamicDataList {
     return this.getList();
+  }
+  // ISortCriterionOwner: what an item of the sort reads for Creator's property grid.
+  public getSurvey(): ISurvey {
+    return !!this.owner.getSurvey ? this.owner.getSurvey() : null;
+  }
+  public getDesignSortFields(): Array<{ field: string, title: string }> {
+    return !!this.owner.getDesignSortFields ? this.owner.getDesignSortFields() : [];
   }
   /* In design mode nothing is paged: the authored pageSize keeps its value for
      serialization, but the Creator shows every row. The page size is re-pushed on every sync and
@@ -336,16 +358,18 @@ export class RecordsPagingController implements ISortCriterionOwner {
     }
   }
   /* A SortCriterion without an owner is kept: the serializer creates it while it loads, and
-     writeSortCriteria creates it. Anything else - a plain object, or an item that already has an
-     owner (another question's, or one added to this array a second time) - is replaced in place by a
-     new SortCriterion. The plain index assignment is not wrapped, so it raises no second change.
+     writeSortCriteria creates it. So is this sort's own item that comes back - a row moved by splice,
+     an undo that re-inserts a removed item - as long as the array holds it once: Creator's undo steps
+     and the matrix's rows hold that very object. Anything else - a plain object, another question's
+     item, or the second copy of an item added twice - is replaced in place by a new SortCriterion.
+     The plain index assignment is not wrapped, so it raises no second change.
      The item is found by identity and not by the index Base passes: that index is wrong for a
      negative splice start and missing for an assignment. When one call adds the same object twice,
      the first slot already holds its converted item by the time the second one is looked for. */
   private toOwnSortCriterion(item: any): SortCriterion {
-    if (item instanceof SortCriterion && !item.hasOwner) return item;
-    const res = new SortCriterion(item.field, item.direction);
     const items = this.owner.getPropertyValue(pagingStateKeys.sortCriteria);
+    if (item instanceof SortCriterion && (!item.hasOwner || item.isOwnedBy(this) && isInArrayOnce(items, item))) return item;
+    const res = new SortCriterion(item.field, item.direction);
     const index = Array.isArray(items) ? items.indexOf(item) : -1;
     if (index > -1) {
       items[index] = res;
@@ -423,17 +447,26 @@ export class RecordsPagingController implements ISortCriterionOwner {
     this.setSortCore(isInSort ? sort.map((s: ISortCriterion): ISortCriterion => s.field === field ? criterion : s) :
       sort.concat([criterion]), true);
   }
-  /* One field, the way a header click sorts: ascending, then descending, then not sorted. Sorting
+  /* One field, the way a header click sorts: the field's first direction (descending for a number
+     or a date, ascending otherwise - getFirstSortDirection), then the other one, then not sorted. Sorting
      by a field in a given direction is sort() and does not need a third spelling; what is unique here
      is the cycle, which every renderer needs in one place. append runs the same cycle over one entry
      of the sort instead of over the whole of it - what a modified header click does in a grid - and
-     leaves the other fields where they are. */
+     leaves the other fields where they are. While maxSortLevel is above 1, a field that is already in
+     the sort is cycled the same way without append, so a plain click changes only its own level; a
+     plain click on a field that is not sorted still makes a sort by that field alone. */
   /* A header click is a move the respondent makes: it replaces the page, so the page it replaces is
      validated first (layer 1). Returns false only for an error found synchronously. Every list can
      sort: a paging source that cannot sort is read whole while a sort is set (DynamicDataList). */
   public toggleSort(field: string, append?: boolean): boolean {
     if (!field) return false;
-    const newSort = this.getToggledSort(field, append);
+    return this.sortByUser(this.getToggledSort(field, append));
+  }
+  /* A sort the respondent makes - a header click (toggleSort), a pick from the sort bar. It validates
+     the page it replaces and returns false only for an error found synchronously. Not on the question:
+     the sort bar reaches it through its owner, and code sorts with sort(). */
+  public sortByUser(criteria: Array<ISortCriterion>): boolean {
+    const newSort = toPlainSort(criteria);
     if (!this.canPushToList) {
       this.setSortCore(newSort, true);
       return true;
@@ -443,13 +476,17 @@ export class RecordsPagingController implements ISortCriterionOwner {
   private getToggledSort(field: string, append: boolean): Array<ISortCriterion> {
     const sort = this.currentSort;
     const current = sort.filter((s: ISortCriterion): boolean => s.field === field)[0];
+    const first = getFirstSortDirection(!!this.owner.getFieldDataType ? this.owner.getFieldDataType(field) : "any");
     let dir: SortDirection = undefined;
     if (!current) {
-      dir = "asc";
-    } else if (current.direction === "asc") {
-      dir = "desc";
+      dir = first;
+    } else if (current.direction === first) {
+      dir = first === "asc" ? "desc" : "asc";
     }
-    if (!append) {
+    // While a respondent can sort by more than one field, every level of the sort is cycled in place:
+    // a plain click on a field that is already sorted changes only its own level.
+    const inPlace = append || !!current && this.owner.maxSortLevel > 1;
+    if (!inPlace) {
       return !dir ? [] : [{ field: field, direction: dir }];
     }
     // Every branch below builds a NEW array: the setter compares the incoming value with the sort

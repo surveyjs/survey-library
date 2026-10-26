@@ -159,8 +159,10 @@ export {
   Serializer,
 } from "../../src/jsonobject";
 export { property, propertyArray } from "../../src/decorators";
-export { QuestionRecordsModel } from "../../src/question_records";
+export { QuestionRecordsModel, IRecordsDesignSortDialogOptions } from "../../src/question_records";
 export { QuestionRecordsBar } from "../../src/question_records_bar";
+export { RecordsSortDialogModel } from "../../src/records/records-sort-dialog";
+export { IRecordsSortField } from "../../src/records/records-sort-bar";
 export {
   IMatrixDropdownData,
   MatrixDropdownCell,
@@ -198,7 +200,8 @@ export { FlowPanelModel } from "../../src/flowpanel";
 export { PageModel } from "../../src/page";
 export * from "../../src/template-renderer";
 export { DefaultTitleModel } from "../../src/defaultTitle";
-export { Question, QuestionValueType } from "../../src/question";
+export { Question, QuestionValueType, ValidationContext } from "../../src/question";
+export type { IValidationContextParams } from "../../src/question";
 export { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "../../src/questionSingleInputSummary";
 export { QuestionNonValue } from "../../src/questionnonvalue";
 export { QuestionEmptyModel } from "../../src/question_empty";

@@ -59,6 +59,7 @@ import MatrixCell from "./MatrixCell.vue";
 import MatrixDropdown from "./MatrixDropdown.vue";
 import MatrixTable from "./MatrixTable.vue";
 import MatrixHeaderRequired from "./MatrixHeaderRequired.vue";
+import MatrixHeaderSortButton from "./MatrixHeaderSortButton.vue";
 import MatrixDropdownCellComp from "./MatrixDropdownCellComp.vue";
 import MatrixDynamic from "./MatrixDynamic.vue";
 import MatrixDynamicPlaceholder from "./MatrixDynamicPlaceholder.vue";
@@ -84,6 +85,8 @@ import ActionBarItem from "./components/action-bar/ActionBarItem.vue";
 import ActionBarItemDropdown from "./components/action-bar/ActionBarItemDropdown.vue";
 import ActionBarSeparator from "./components/action-bar/ActionBarSeparator.vue";
 import RecordsBar from "./components/records-bar/RecordsBar.vue";
+import SortBarLevel from "./components/records-bar/SortBarLevel.vue";
+import RecordsSortDialog from "./components/records-bar/RecordsSortDialog.vue";
 
 import List from "./components/list/List.vue";
 import ListItem from "./components/list/ListItem.vue";
@@ -233,6 +236,7 @@ function registerComponents(
   registerComponent("survey-matrixdropdown", MatrixDropdown);
   registerComponent("survey-matrixtable", MatrixTable);
   registerComponent("survey-matrixheaderrequired", MatrixHeaderRequired);
+  registerComponent("survey-matrixheadersortbutton", MatrixHeaderSortButton);
   registerComponent("survey-matrixdropdown-cell", MatrixDropdownCellComp);
   registerComponent("survey-matrixdynamic", MatrixDynamic);
   registerComponent("survey-placeholder-matrixdynamic", MatrixDynamicPlaceholder);
@@ -266,6 +270,8 @@ function registerComponents(
   registerComponent("sv-action-bar-item-dropdown", ActionBarItemDropdown);
   registerComponent("sv-action-bar-separator", ActionBarSeparator);
   registerComponent("sv-records-bar", RecordsBar);
+  registerComponent("sv-sort-bar-level", SortBarLevel);
+  registerComponent("sv-records-sort-dialog", RecordsSortDialog);
 
   registerComponent("sv-list", List);
   registerComponent("sv-list-item-content", ListItemContent);

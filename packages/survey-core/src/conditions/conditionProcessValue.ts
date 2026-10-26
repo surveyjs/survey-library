@@ -10,6 +10,16 @@ export interface IValueGetterItem {
   from?: number;
   to?: number;
 }
+// What ValueGetter.isAnyKeyChangedCore reads from a name, built once per name
+export interface IValueGetterNameInfo {
+  name: string;
+  lowerName: string;
+  // the first path item's name in its own letter case, for the unwrap postfix
+  firstName: string;
+  isBuiltIn: boolean;
+  // "m", "m.r1", "m.r1.x" for "M.R1[0].x": the path prefixes in lower case, shortest first
+  lowerPrefixes: Array<string>;
+}
 export interface IValueGetterInfo {
   obj?: IObjectValueContext;
   propObj?: any;
@@ -39,6 +49,10 @@ export interface IValueGetterContext {
   getRootObj?(): IObjectValueContext;
   getQuestion?(): IQuestion;
   getContextKeys?(keys?: any): { [key: string]: any };
+  // A value made of records (a matrix, a dynamic panel): converts a stored value of the field name to
+  // the one expressions read - a masked text field that saves its masked value gives the unmasked one.
+  // undefined when no question stores the field. The *InArray functions call it on the raw records.
+  getFieldValueConverter?(name: string): (val: any) => any;
 }
 export interface IValueInfoParams {
   name: string;
@@ -55,6 +69,8 @@ export interface IReturnValue {
   propObj?: any;
   propName?: string;
   strictCompare?: boolean;
+  // The context that answered the name.
+  context?: IValueGetterContext;
 }
 // The changed-keys objects are keyed by value names, so a question named "hasOwnProperty" shadows
 // the method: always check own keys through Object.prototype (Bug#11858)
@@ -90,6 +106,7 @@ export class ValueGetter {
     res.strictCompare = info.requireStrictCompare;
     res.propObj = info.propObj;
     res.propName = info.propName;
+    res.context = info.context;
     if (info.context) {
       if (params.isText && info.context.getTextValue) {
         res.value = info.context.getTextValue(name, res.value, params.isDisplayValue);
@@ -111,6 +128,14 @@ export class ValueGetter {
   // counts as changed. Elements leave it off: a matrix cell expression re-run while a handler clears
   // the matrix writes its result back into the cleared rows.
   public isAnyKeyChanged(keys: any, usedNames: string[], isClearedKeyChanged?: boolean): boolean {
+    return this.isAnyKeyChangedCore(keys, usedNames, undefined, isClearedKeyChanged);
+  }
+  // namesInfo keeps the parsed parts of usedNames between calls, one item per name, filled as the
+  // loop reaches a name (an expression runner owns it, see ExpressionRunnerBase.getVariablesInfo).
+  // Without it the parts are parsed and dropped, as each name is reached. An item is rebuilt when
+  // its name differs: a trigger may push a name into the runner's variables (CopyValueTrigger).
+  public isAnyKeyChangedCore(keys: any, usedNames: string[], namesInfo: Array<IValueGetterNameInfo>, isClearedKeyChanged?: boolean): boolean {
+    // Settings are read on every call, never kept in a name's information: tests change them at runtime
     const propPrefix = settings.expressionElementPropertyPrefix;
     // Names are case-insensitive in expressions ({age} reads the question "Age"), so the keys are
     // matched by their lower-case form, in both directions. Built when the first name needs it.
@@ -120,23 +145,50 @@ export class ValueGetter {
       if (!name) continue;
       // An element property reference ({$q1.isVisible}) can change without any value key change
       if (!!propPrefix && name[0] === propPrefix) return true;
-      const path = this.getPath(name);
+      let info = !!namesInfo ? namesInfo[i] : undefined;
+      if (!info || info.name !== name) {
+        info = this.getNameInfo(name);
+        if (!!namesInfo) namesInfo[i] = info;
+      }
       // A built-in variable ({pageno}, {correctanswers}, ...) is never a key, but its value can change
-      // in any value-change run. It resolves for a one-item path only, the way the survey reads it.
-      if (path.length === 1 && isBuiltInVariableName(path[0].name)) return true;
+      // in any value-change run
+      if (info.isBuiltIn) return true;
       if (!lowerKeys) lowerKeys = this.getLowerCaseKeys(keys);
-      const lowerName = name.toLowerCase();
-      if (!!lowerKeys[lowerName]) return true;
-      if (this.isUnwrappedNameChanged(lowerKeys, path)) return true;
-      const prefix = this.getFirstNameByKeys(lowerKeys, path);
+      if (!!lowerKeys[info.lowerName]) return true;
+      if (this.isUnwrappedNameChanged(lowerKeys, info.firstName)) return true;
+      const prefix = this.getFirstNameByKeys(lowerKeys, info.lowerPrefixes);
       if (!prefix) continue;
-      if (lowerName === prefix) return true;
+      if (info.lowerName === prefix) return true;
       const keyNames = lowerKeys[prefix];
       for (let j = 0; j < keyNames.length; j++) {
         if (this.isKeyValueChanged(keys, keyNames[j], name, isClearedKeyChanged)) return true;
       }
     }
     return false;
+  }
+  // The parts of a name that the key check reads and that depend on the name only. The parsed path
+  // itself is not kept: run() changes the path it parses ({$q.isVisible}), so a kept one must never reach it.
+  // A runner keeps one per variable (~90,000 on a large survey), so the arrays get their exact size and
+  // the full-length prefix shares the lower-case name's string.
+  private getNameInfo(name: string): IValueGetterNameInfo {
+    const path = this.getPath(name);
+    const lowerName = name.toLowerCase();
+    const lowerPrefixes = new Array<string>(path.length);
+    let prefix = "";
+    for (let i = 0; i < path.length; i++) {
+      const part = path[i].name.toLowerCase();
+      prefix = i > 0 ? prefix + "." + part : part;
+      if (prefix === lowerName) prefix = lowerName;
+      lowerPrefixes[i] = prefix;
+    }
+    return {
+      name: name,
+      lowerName: lowerName,
+      firstName: path[0].name,
+      // It resolves for a one-item path only, the way the survey reads it
+      isBuiltIn: path.length === 1 && isBuiltInVariableName(path[0].name),
+      lowerPrefixes: lowerPrefixes
+    };
   }
   // Every key under its lower-case form. Two keys that differ in case only share one entry.
   private getLowerCaseKeys(keys: any): HashTable<Array<string>> {
@@ -166,20 +218,17 @@ export class ValueGetter {
     var newValue = this.getValueFromObject(v, name);
     return !Helpers.isTwoValueEquals(oldValue, newValue, false, false, false);
   }
-  private isUnwrappedNameChanged(lowerKeys: HashTable<Array<string>>, path: Array<IValueGetterItem>): boolean {
+  private isUnwrappedNameChanged(lowerKeys: HashTable<Array<string>>, first: string): boolean {
     const postfix = settings.expressionVariables.unwrapPostfix;
     if (!postfix) return false;
-    const first = path[0].name;
     if (!first.endsWith(postfix)) return false;
     const baseName = first.substring(0, first.length - postfix.length);
     return !!lowerKeys[baseName.toLowerCase()];
   }
-  // The shortest path prefix ("m" for "m.row1") that is a key, in lower case
-  private getFirstNameByKeys(lowerKeys: HashTable<Array<string>>, path: Array<IValueGetterItem>): string {
-    let res = "";
-    for (let i = 0; i < path.length; i++) {
-      res += (i > 0 ? "." : "") + path[i].name.toLowerCase();
-      if (!!lowerKeys[res]) return res;
+  // The shortest path prefix ("m" for "m.row1") that is a key, in lower case. Only it decides.
+  private getFirstNameByKeys(lowerKeys: HashTable<Array<string>>, lowerPrefixes: Array<string>): string {
+    for (let i = 0; i < lowerPrefixes.length; i++) {
+      if (!!lowerKeys[lowerPrefixes[i]]) return lowerPrefixes[i];
     }
     return "";
   }

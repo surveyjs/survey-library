@@ -15,7 +15,7 @@ import { IExpressionError } from "./expressions/expressionError";
 import { expressionObjectCachedValue } from "./functionsfactory";
 import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
-import { IObjectValueContext, IValueGetterContext, ValueGetter, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterNameInfo, ValueGetter, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { EventBase, Event } from "./event";
 import { SurveyIdGenerator } from "./survey-id-generator";
 import { isAnimationEnabled } from "./utils/reduced-motion";
@@ -191,11 +191,22 @@ export class Dependencies {
   }
   dependencies: Array<{ obj: Base, prop: string, id: string }> = [];
   id: string = "" + (++Dependencies.DependenciesCount);
+  // Objects already in "dependencies", per property: an updater can read thousands of properties,
+  // and scanning the array for a duplicate on every read is O(N^2).
+  // Keyed by property first: updaters read few property names from many objects
+  // (e.g. survey width mode reads "elements"/"startWithNewLine"/"rows" of every element), so there are few sets.
+  private dependencyKeys: Map<string, Set<Base>> = new Map<string, Set<Base>>();
   addDependency(target: Base, property: string): void {
     if (this.target === target && this.property === property)
       return;
-    if (this.dependencies.some(dependency => dependency.obj === target && dependency.prop === property))
+    let objs = this.dependencyKeys.get(property);
+    if (!objs) {
+      objs = new Set<Base>();
+      this.dependencyKeys.set(property, objs);
+    }
+    if (objs.has(target))
       return;
+    objs.add(target);
 
     this.dependencies.push({
       obj: target,
@@ -798,21 +809,20 @@ export class Base implements IObjectValueContext {
       this.setPropertyValue(name, undefined);
     }
   }
-  private doNotSerializeEmptyProperty(prop: JsonObjectProperty): boolean {
-    return this.isPropertyStoredInHash(prop.name);
-  }
   protected isPropertyStoredInHash(name: string): boolean {
     return false;
   }
   public getIsSerializablePropertyEmpty(prop: JsonObjectProperty): boolean {
-    const orgObj = this.getOriginalByProperty(prop.name);
+    const name = prop.name;
+    // Every getOriginalByProperty returns this object when it is its own original.
+    const orgObj = this.getOriginalObj() === this ? this : this.getOriginalByProperty(name);
     if (prop.isLocalizable && !prop.isMultipleText) {
       // getOriginalByProperty can return a wrapper. The value for a question-level
       // loc string (description, requiredErrorText) stays on this object.
-      const locStr = this.getLocalizableString(prop.name) || orgObj !== this && orgObj.getLocalizableString(prop.name);
+      const locStr = this.getLocalizableString(name) || orgObj !== this && orgObj.getLocalizableString(name);
       return !locStr;
     }
-    if (orgObj === this && this.doNotSerializeEmptyProperty(prop)) return this.getPropertyValueWithoutDefault(prop.name) == undefined;
+    if (orgObj === this && this.isPropertyStoredInHash(name)) return this.getPropertyValueWithoutDefault(name) == undefined;
     return false;
   }
   public getOriginalObj(): Base {
@@ -829,7 +839,8 @@ export class Base implements IObjectValueContext {
     return res;
   }
   protected getPropertyValueCore(propertiesHash: any, name: string): any {
-    if (!this.isLoadingFromJson) {
+    // Test for a running collection first: isLoadingFromJson walks up to the survey on every read
+    if (Base.currentDependencis !== undefined && !this.isLoadingFromJson) {
       Base.collectDependency(this, name);
     }
     if (this.getPropertyValueCoreHandler)
@@ -1147,9 +1158,14 @@ export class Base implements IObjectValueContext {
   protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[], isClearedKeyChanged?: boolean): boolean {
     if (!keys) return false;
     if (!!runner && runner.hasFunction(true)) return false;
-    if (vars === undefined) vars = !!runner ? runner.getVariables() : [];
+    // Names given by the caller (triggers) are parsed per check; the runner's own variables reuse its kept information
+    let varsInfo: Array<IValueGetterNameInfo>;
+    if (vars === undefined && !!runner) {
+      vars = runner.getVariables();
+      varsInfo = runner.getVariablesInfo();
+    }
     if (!Array.isArray(vars) || vars.length === 0) return false;
-    return !new ValueGetter().isAnyKeyChanged(keys, vars, isClearedKeyChanged);
+    return !new ValueGetter().isAnyKeyChangedCore(keys, vars, varsInfo, isClearedKeyChanged);
   }
   private asynExpressionHash: any;
   private doBeforeAsynRun(id: number): void {

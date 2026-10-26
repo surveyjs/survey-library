@@ -1,6 +1,7 @@
 import type { Base } from "../base";
 import type { SurveyError } from "../survey-error";
 import type { CreateCustomChoiceItemEvent } from "../survey-events-api";
+import type { DynamicDataErrorOperation } from "../dynamic-data/dynamic-data-interfaces";
 import type {
   IElement,
   IPage,
@@ -120,7 +121,7 @@ export interface ISurveyDynamicPanelCallbacks {
 // that source here - a page that could not be read, an edit the server rejected. The operation names
 // are the source method names, and "count" for the record count (DynamicDataErrorOperation).
 export interface ISurveyDynamicDataCallbacks {
-  dynamicDataError(question: IQuestion, operation: string, error: any): void;
+  dynamicDataError(question: IQuestion, operation: DynamicDataErrorOperation, error: any): void;
 }
 /* What a records question tells the survey about the writes its data source has not answered, so
    that a completion waits for them. Not part of ISurvey and not exported by the entries: a survey

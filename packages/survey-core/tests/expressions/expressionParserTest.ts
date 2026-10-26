@@ -7,6 +7,7 @@ import {
   Const,
   BinaryOperand,
   Operand,
+  FunctionOperand,
 } from "../../src/expressions/expressions";
 
 import { ProcessValue, VariableGetterContext } from "../../src/conditions/conditionProcessValue";
@@ -1883,6 +1884,38 @@ describe("Expressions", () => {
     runner = new ExpressionRunner("{\"key\": \"value\"} = {\"key\": \"value1\"}");
     expect(runner.runContext(new VariableGetterContext({})), "#3").toBe(false);
   });
+  test("null/undefined as a function argument, Bug#12130", () => {
+    let runner = new ExpressionRunner("iif({a} = 1, 'x', null)");
+    expect(runner.canRun(), "#1 canRun").toBe(true);
+    expect(runner.runValues({ a: 1 }), "#1 condition is true").toBe("x");
+    expect(runner.runValues({ a: 2 }), "#1 condition is false").toBeNull();
+    runner = new ExpressionRunner("iif({a} = 1, 'x', undefined)");
+    expect(runner.runValues({ a: 2 }), "#2").toBeNull();
+    runner = new ExpressionRunner("iif({a}, null, {b})");
+    expect(runner.runValues({ a: true, b: 1 }), "#3 null branch").toBeNull();
+    expect(runner.runValues({ a: false, b: 1 }), "#3 variable branch").toBe(1);
+    expect(runner.getVariables(), "#3 variables").toEqual(["a", "b"]);
+    expect(runner.hasFunction(), "#3 hasFunction").toBe(true);
+    expect(runner.isAsync, "#3 isAsync").toBe(false);
+
+    const parser = new ConditionsParser();
+    const operand = parser.parseExpression("iif({a} = 1, 'x', null)");
+    expect(operand.toString(), "#4 toString keeps null").toBe("iif(({a} == 1), 'x', null)");
+    expect(parser.parseExpression(operand.toString()).toString(), "#4 round trip").toBe("iif(({a} == 1), 'x', null)");
+    expect(operand.isEqual(parser.parseExpression("iif({a} = 1, 'x', null)")), "#5 equal").toBe(true);
+    expect(operand.isEqual(parser.parseExpression("iif({a} = 1, 'x', 'y')")), "#5 not equal, null vs const").toBe(false);
+    expect(parser.parseExpression("iif({a} = 1, 'x', 'y')").isEqual(operand), "#5 not equal, const vs null").toBe(false);
+
+    expect(parser.parseExpression("f()").toString(), "#6 no params").toBe("f()");
+    expect((<FunctionOperand>parser.parseExpression("f()")).paramValues.length, "#6 no params, length").toBe(0);
+    expect((<FunctionOperand>parser.parseExpression("f(null)")).paramValues.length, "#7 null param, length").toBe(1);
+    expect(parser.parseExpression("f(null)").toString(), "#7 null param").toBe("f(null)");
+    expect(parser.parseExpression("f(null, {a})").toString(), "#8 the first param is null").toBe("f(null, {a})");
+    expect(parser.parseExpression("{a} anyof [null, 1]").toString(), "#9 array starts with null").toBe("({a} anyof [null, 1])");
+    runner = new ExpressionRunner("iif(null, 1, {b})");
+    expect(runner.runValues({ b: 2 }), "#10 null condition").toBe(2);
+    expect(runner.getVariables(), "#10 variables").toEqual(["b"]);
+  });
 });
 
 describe("Expression parser: nesting and error offsets", () => {
@@ -1941,7 +1974,6 @@ describe("Expression parser: nesting and error offsets", () => {
       ["1 + * 2", 4],
       ["{a} foo 1", 4],
       ["{a} = 'x", 8],
-      ["[1, 2", 5],
       ["{a} anyof [1,", 13],
       ["1 +", 3],
       ["and 1", 4],
@@ -1960,11 +1992,62 @@ describe("Expression parser: nesting and error offsets", () => {
       ["max(1, 2", "max(1, 2)"],
       ["iif(1, 2, 3", "iif(1, 2, 3)"],
       ["{a} = (1 + 2", "({a} == (1 + 2))"],
+      ["[1, 2", "[1, 2]"],
     ];
     cases.forEach(([text, expected]) => {
       const res = parseWithError(text);
       expect(res.at, text + " has no error").toBeUndefined();
       expect(res.operand.toString(), text).toBe(expected);
     });
+  });
+});
+
+describe("Expression parser: atoms and variable names", () => {
+  const parseResult = (text: string): string | number => {
+    const parser = new ConditionsParser();
+    const operand = parser.parseExpression(text);
+    return operand ? operand.toString() : parser.error.at;
+  };
+  const checkCases = (cases: Array<[string, string | number]>): void => {
+    cases.forEach(([text, expected]) => {
+      expect(parseResult(text), text).toBe(expected);
+    });
+  };
+
+  test("empty / notempty after an atom", () => {
+    checkCases([
+      ["{a} empty", "{a} empty"],
+      ["{a} notempty", "{a} notempty"],
+      ["{a}empty", "{a} empty"],
+      ["'x' empty", "'x' empty"],
+      ["1 notempty", "1 notempty"],
+      ["!{a} empty", "! {a} empty"],
+      ["negate {a} notempty", "! {a} notempty"],
+      ["{a} empty and {b} notempty", "({a} empty and {b} notempty)"],
+      ["{a} emptyx", 9],
+      ["{a} empty = true", "({a} empty == true)"],
+      ["{a.b[0]} notempty", "{a.b[0]} notempty"],
+    ]);
+    const negated = <any>new ConditionsParser().parseExpression("!{a} empty");
+    expect(negated.operator, "! applies to {a} empty").toBe("negate");
+    expect(negated.expression.operator, "empty applies to {a}").toBe("empty");
+  });
+  test("Variable names", () => {
+    checkCases([
+      ["{a}", "{a}"],
+      ["{a b}", "{a b}"],
+      ["{a.b[1].c}", "{a.b[1].c}"],
+      ["{$q.isVisible}", "{$q.isVisible}"],
+      ["{a-unwrapped}", "{a-unwrapped}"],
+      ["{ a }", "{ a }"],
+      ["{}", 1],
+      ["{a{b}", 2],
+      ["{a}}", 3],
+    ]);
+  });
+  test("An unclosed [ inside an unclosed ( is parsed in linear time", () => {
+    const start = performance.now();
+    parseResult("(1 and [".repeat(30));
+    expect(performance.now() - start).toBeLessThan(50);
   });
 });

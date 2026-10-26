@@ -8116,6 +8116,34 @@ describe("Survey_QuestionMatrixDynamic", () => {
       settings.confirmActionAsync = prevAsync;
     }
   });
+  test("removeRowUI followed by dispose does not throw when the focus timer fires", () => {
+    vi.useFakeTimers();
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", rowCount: 0, columns: [{ name: "id" }] }] });
+      survey.data = { q: [{ id: 0 }, { id: 1 }, { id: 2 }] };
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+      matrix.removeRowUI(matrix.visibleRows[1]);
+      matrix.dispose();
+      expect(() => vi.advanceTimersByTime(20)).not.toThrow();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  test("removeRowUI of the last row followed by dispose does not focus the add button", () => {
+    vi.useFakeTimers();
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", rowCount: 0, columns: [{ name: "id" }] }] });
+      survey.data = { q: [{ id: 0 }] };
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+      matrix.removeRowUI(matrix.visibleRows[0]);
+      matrix.dispose();
+      const focusAdd = vi.spyOn(matrix, "focusAddBUtton");
+      vi.advanceTimersByTime(20);
+      expect(focusAdd).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
   test("matrixdynamic.removeRow & settings.confirmActionFunc, #10145", () => {
     let funcRes = false;
     settings.confirmActionFunc = (message: string): boolean => {
@@ -11599,7 +11627,7 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(json.sortCriteria, "#12").toEqual([{ field: "c1" }]);
     expect(json.filterExpression, "#13").toBe("{c1} = 'a'");
   });
-  test("the new properties round-trip through JSON, pageSize is in the property grid", () => {
+  test("the new properties round-trip through JSON, pageSize and the sort are in the property grid", () => {
     const matrix = createMatrix({ rowCount: 2, pageSize: 3, allowSort: true,
       columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text", allowSort: false }] });
     expect(matrix.pageSize, "#1").toBe(3);
@@ -11610,8 +11638,8 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(json.allowSort, "#5").toBe(true);
     expect(json.columns[1].allowSort, "#6").toBe(false);
     expect(Serializer.findProperty("matrixdynamic", "pageSize").visible, "#7").toBe(true);
-    expect(Serializer.findProperty("matrixdynamic", "allowSort").visible, "#8").toBe(false);
-    expect(Serializer.findProperty("matrixdropdowncolumn", "allowSort").visible, "#9").toBe(false);
+    expect(Serializer.findProperty("matrixdynamic", "allowSort").visible, "#8").toBe(true);
+    expect(Serializer.findProperty("matrixdropdowncolumn", "allowSort").isVisible("", matrix.columns[1]), "#9: the matrix allows sorting").toBe(true);
   });
   test("the defaults are not serialized", () => {
     const matrix = createMatrix({ rowCount: 2 });
@@ -11675,7 +11703,8 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(matrix.allRows.map(r => r.getQuestionByName("c1").value + r.getQuestionByName("c2").value), "#4")
       .toEqual(["a1", "b2", "b1"]);
     matrix.toggleSort("c1");
-    expect(getSort(matrix), "#5: a click without the modifier starts over").toEqual([{ field: "c1", direction: "desc" }]);
+    expect(getSort(matrix), "#5: a click without the modifier turns a sorted field around in its own level")
+      .toEqual([{ field: "c1", direction: "desc" }, { field: "c2", direction: "desc" }]);
   });
   test("removing a row on an earlier page fills the vacated slot from the next one", () => {
     const matrix = createMatrix({ rowCount: 5, pageSize: 2, allowRemoveRows: true }, abcde);
@@ -11749,14 +11778,14 @@ describe("Survey_QuestionMatrixDynamic: the sort and the filter in JSON", () => 
     expect(values(matrix, "c2"), "#2").toEqual(["3", "1", "2", "1"]);
     expect(matrix.toJSON().sortCriteria, "#3: normalized").toEqual([{ field: "c1" }, { field: "c2", direction: "desc" }]);
   });
-  test("the defaults are not serialized and the properties stay out of the property grid", () => {
+  test("the defaults are not serialized; sortCriteria is in the property grid and filterExpression is not", () => {
     const matrix = createMatrix({ rowCount: 2 }, cba);
     const json = matrix.toJSON();
     expect(json.sortCriteria, "#1").toBe(undefined);
     expect(json.filterExpression, "#2").toBe(undefined);
     expect(getSort(matrix), "#3").toEqual([]);
     expect(matrix.filterExpression, "#4").toBe("");
-    expect(Serializer.findProperty("matrixdynamic", "sortCriteria").visible, "#5").toBe(false);
+    expect(Serializer.findProperty("matrixdynamic", "sortCriteria").visible, "#5").toBe(true);
     expect(Serializer.findProperty("matrixdynamic", "filterExpression").visible, "#6").toBe(false);
     const sortProp = Serializer.findProperty("matrixdynamic", "sortCriteria");
     expect([sortProp.className, sortProp.isArray], "#7: an array of sortcriterion objects").toEqual(["sortcriterion", true]);

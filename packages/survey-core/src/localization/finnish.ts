@@ -13,6 +13,50 @@ export var finnishSurveyStrings = {
   pagerTotalText: "{0}",
   // [Auto-translated] "Select Page"
   pagerSelectPageTitle: "Valitse sivu",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Lajittele {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Korkea - Matala",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Matala - Korkea",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Aakkoset, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Aakkoset, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Uusin ensimmäisenä",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Vanhin ensin",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Lajiteltu {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, sitten {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Lajittele mukaan",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Oletus",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Lajittelukenttä",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Lajittelujärjestys",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Lisää lajittelutaso",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Poista lajittelutaso {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Lajittele kenttä {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Lajittelujärjestys {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Lisää...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Näytä kaikki lajittelutasot",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Lisää uusi",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Valmis",
   // "Preview"
@@ -45,6 +89,8 @@ export var finnishSurveyStrings = {
   panelDynamicTabTextFormat: "Paneeli {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Olet vastannut {0} / {1} kysymykseen.",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Kysymys {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Tässä kyselyssä ei ole yhtään näkyvillä olevaa sivua tai kysymystä.",
   // "Thank you for completing the survey"

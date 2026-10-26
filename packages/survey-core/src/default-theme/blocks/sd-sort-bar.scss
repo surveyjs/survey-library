@@ -1,0 +1,118 @@
+@use "../variables.scss" as *;
+
+/* The sort bar of a dynamic panel and of a matrix:
+   Sort by  [field v] [direction v]  |  [field v] [direction v] [remove]  |  More...  |  [+]
+   Each level is one item of the bar. On a desktop the bar is one line: the levels that do not fit leave
+   it whole, from the last one, and "More..." shows (RecordsSortBarContainer); on a phone the row scrolls. */
+.sd-paneldynamic__sort-bar,
+.sd-matrixdynamic__sort-bar,
+.sd-matrixdropdown__sort-bar {
+  // The design's 12px between "Sort by", the levels, the separators, "More..." and "+".
+  --sd-action-bar-gap: var(--sjs2-layout-component-panel-header-action-group-gap);
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  min-width: 0;
+
+  /* The separator a later level and "+" draw before their content: the full height of the row, and the
+     bar's gap after it, as between any two items. */
+  .sd-action-bar__item-content > .sd-action-bar__separator {
+    align-self: stretch;
+    height: auto;
+    margin-right: 0;
+    margin-inline-end: var(--sjs2-layout-component-panel-header-action-group-gap);
+    background-color: var(--sjs2-color-border-basic-secondary);
+  }
+}
+
+// The items of one level: the design's 8px between them, and never on two lines.
+.sd-sort-bar__level {
+  --sd-action-bar-gap: var(--sjs2-spacing-x100);
+  flex-wrap: nowrap;
+}
+
+// A dropdown of the bar: the chevron follows the label, as on the pager's page dropdown.
+.sd-action.sd-sort-bar__dropdown {
+  flex-direction: row-reverse;
+  box-sizing: border-box;
+}
+
+// "Sort by": a disabled item without a tab stop that reads as a label, not as a disabled button.
+.sd-action.sd-sort-bar__label {
+  box-sizing: border-box;
+  // Text, not a button: the vertical padding of the other items, so it sits on their line, and none at the sides.
+  --sd-action-padding: var(--sjs2-layout-component-action-x-small-box-padding-vertical) var(--sjs2-spacing-x000);
+  --sd-action-title-padding: var(--sjs2-layout-component-action-x-small-label-padding-vertical) var(--sjs2-spacing-x000);
+  --sd-action-disabled-background: var(--sd-action-background);
+  --sd-action-disabled-title-color: var(--sd-action-title-color);
+}
+
+/* A question header that holds the sort bar. With the title on top, the title (and the description
+   under it) takes the width of its line, up to half of the row, and the bar fills the rest, its items
+   at its end and centred on the title line. The bar is as wide as its column, which is the width it is
+   fitted to. The bar is the header's last child in every renderer. Logical placement, so a right-to-left
+   survey mirrors it. */
+.sd-question__header--sort-bar.sd-question__header--location-top {
+  display: grid;
+  grid-template-columns: fit-content(50%) minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--sjs2-layout-component-question-header-action-group-gap);
+
+  & > * {
+    grid-column: 1;
+  }
+  & > :last-child {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: stretch;
+  }
+}
+
+/* On a phone and with the title on the left the bar goes under the title and the description, its items
+   start-aligned. The bar takes the header's width, the width it is fitted to or scrolls in. */
+.sd-question--mobile .sd-question__header--sort-bar,
+.sd-question__header--sort-bar.sd-question__header--location--left {
+  display: flex;
+  flex-direction: column;
+  // The desktop rule centres the grid items on the title line; in a column that would centre the title.
+  align-items: stretch;
+
+  & > :last-child {
+    align-self: stretch;
+    justify-content: flex-start;
+    margin-block-start: calc(var(--sjs2-layout-component-question-header-action-group-gap) - var(--sd-question-header-row-gap));
+  }
+}
+
+/* On a phone the row of levels scrolls sideways instead of wrapping. The scroll box would clip the
+   focus ring of an item at its edge: it gets the ring's width as padding, and gives it back with a
+   negative margin, so the items stay where they were. */
+.sd-question--mobile {
+  .sd-paneldynamic__sort-bar,
+  .sd-matrixdynamic__sort-bar,
+  .sd-matrixdropdown__sort-bar {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: var(--sjs2-border-width-a11y);
+    margin: calc(-1 * var(--sjs2-border-width-a11y));
+  }
+  .sd-question__header--sort-bar > :last-child {
+    max-width: calc(100% + 2 * var(--sjs2-border-width-a11y));
+    margin-block-start: calc(var(--sjs2-layout-component-question-header-action-group-gap) - var(--sd-question-header-row-gap) - var(--sjs2-border-width-a11y));
+  }
+}
+
+// Above the records, while the question header is not on top or on the left: the full width, the items at its start.
+.sd-paneldynamic__sort-bar-top,
+.sd-matrixdynamic__sort-bar-top,
+.sd-matrixdropdown__sort-bar-top {
+  display: flex;
+  margin-block-end: var(--sjs2-layout-component-question-header-action-group-gap);
+
+  & > .sd-action-bar {
+    flex: 1 1 auto;
+    justify-content: flex-start;
+  }
+}

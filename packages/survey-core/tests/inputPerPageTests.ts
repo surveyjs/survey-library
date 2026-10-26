@@ -3314,4 +3314,86 @@ describe("Input Per Page Tests", () => {
       expect(q.singleInputSummary.items.length, q.name + ": the summary is then built").toBe(1);
     });
   });
+  function createPagedContainersSurvey(): SurveyModel {
+    const fiveRows = [1, 2, 3, 4, 5].map(i => ({ a: "r" + i }));
+    const fivePanels = [1, 2, 3, 4, 5].map(i => ({ t: "p" + i }));
+    const survey = new SurveyModel({
+      questionsOnPageMode: "inputPerPage",
+      showPreviewBeforeComplete: "showAllQuestions",
+      elements: [
+        { type: "text", name: "q0" },
+        { type: "matrixdynamic", name: "md", pageSize: 2, columns: [{ name: "a", cellType: "text" }] },
+        { type: "paneldynamic", name: "pd", pageSize: 2, templateElements: [{ type: "text", name: "t" }] },
+        { type: "paneldynamic", name: "outer", templateElements: [
+          { type: "matrixdynamic", name: "md2", pageSize: 2, columns: [{ name: "a", cellType: "text" }] },
+          { type: "paneldynamic", name: "pd2", pageSize: 2, templateElements: [{ type: "text", name: "t" }] }
+        ] }
+      ]
+    });
+    survey.data = { md: fiveRows, pd: fivePanels, outer: [{ md2: fiveRows, pd2: fivePanels }] };
+    return survey;
+  }
+  // The visible entries of md, pd and of the copies nested in the outer panel: [md, pd, md2, pd2].
+  function getPagedContainerCounts(survey: SurveyModel): Array<number> {
+    const outerPanel = (<QuestionPanelDynamicModel>survey.getQuestionByName("outer")).panels[0];
+    return [
+      (<QuestionMatrixDynamicModel>survey.getQuestionByName("md")).visibleRows.length,
+      (<QuestionPanelDynamicModel>survey.getQuestionByName("pd")).visiblePanels.length,
+      (<QuestionMatrixDynamicModel>outerPanel.getQuestionByName("md2")).visibleRows.length,
+      (<QuestionPanelDynamicModel>outerPanel.getQuestionByName("pd2")).visiblePanels.length
+    ];
+  }
+  test("Single-input mode: a dynamic matrix and panel that are not current list every entry, Issue#11818", () => {
+    const survey = createPagedContainersSurvey();
+    expect(survey.currentSingleQuestion.name, "the text question is current").toBe("q0");
+    expect(getPagedContainerCounts(survey), "[md, pd, md2, pd2]").toEqual([5, 5, 5, 5]);
+  });
+  test("Single-input mode: paging follows a questionsOnPageMode change, Issue#11818", () => {
+    const survey = createPagedContainersSurvey();
+    expect(getPagedContainerCounts(survey), "inputPerPage, #1").toEqual([5, 5, 5, 5]);
+    survey.questionsOnPageMode = "standard";
+    expect(getPagedContainerCounts(survey), "standard pages, #2").toEqual([2, 2, 2, 2]);
+    survey.questionsOnPageMode = "inputPerPage";
+    expect(survey.currentSingleQuestion.name, "the text question is current, #3").toBe("q0");
+    expect(getPagedContainerCounts(survey), "inputPerPage again, #3").toEqual([5, 5, 5, 5]);
+  });
+  test("Single-input mode: the preview pages, Issue#11818", () => {
+    const survey = createPagedContainersSurvey();
+    expect(survey.currentSingleQuestion.name, "the text question is current, #1").toBe("q0");
+    survey.showPreview();
+    expect(survey.state, "the preview is shown, #2").toBe("preview");
+    expect(getPagedContainerCounts(survey), "the preview pages, #2").toEqual([2, 2, 2, 2]);
+  });
+  test("Single-input mode: leaving the preview lists every entry again, Issue#11818", () => {
+    const survey = createPagedContainersSurvey();
+    survey.showPreview();
+    expect(survey.state, "the preview is shown, #1").toBe("preview");
+    survey.cancelPreview();
+    expect(survey.state, "the preview is closed, #2").toBe("running");
+    expect(survey.currentSingleQuestion.name, "the text question is current again, #2").toBe("q0");
+    expect(getPagedContainerCounts(survey), "every entry, #2").toEqual([5, 5, 5, 5]);
+  });
+  test("singleInput and single matrix: rows and columns shown by rowsVisibleIf / columnsVisibleIf, Issue#11818", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "q1", choices: ["a", "b", "c"] },
+        { type: "checkbox", name: "q2", choices: ["x", "y", "z"], defaultValue: ["x", "y"] },
+        { type: "matrix", name: "matrix1", rows: ["a", "b", "c"], columns: ["x", "y", "z"],
+          rowsVisibleIf: "{q1} contains {item}", columnsVisibleIf: "{q2} contains {item}" }
+      ],
+      questionsOnPageMode: "inputPerPage"
+    });
+    const matrix1 = survey.getQuestionByName("matrix1");
+    survey.currentSingleQuestion = matrix1;
+    expect(matrix1.singleInputQuestion, "no row is visible, #1").toBeFalsy();
+    survey.getQuestionByName("q1").value = ["a", "b"];
+    expect(matrix1.singleInputQuestion?.name, "the first revealed row, #2").toBe("a");
+    expect(matrix1.singleInputQuestion.choices.map(c => c.value), "visible columns, #2").toEqual(["x", "y"]);
+    survey.getQuestionByName("q2").value = ["y", "z"];
+    expect(matrix1.singleInputQuestion.choices.map(c => c.value), "visible columns, #3").toEqual(["y", "z"]);
+    matrix1.singleInputQuestion.value = "z";
+    survey.performNext();
+    expect(matrix1.singleInputQuestion.name, "the second revealed row, #4").toBe("b");
+    expect(matrix1.value, "matrix1.value").toEqual({ a: "z" });
+  });
 });

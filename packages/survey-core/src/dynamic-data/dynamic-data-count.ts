@@ -10,6 +10,14 @@ interface IDynamicDataRetry {
   total: number;
   discoveredTotalFilter: string;
 }
+// The answer of one read of a paging source: the window it asked for (skip, take) and the length of
+// the window it got.
+export interface IDynamicDataWindowAnswer {
+  result: IDynamicDataReadResult;
+  skip: number;
+  take: number;
+  length: number;
+}
 
 /* What DynamicDataList knows about the size of its storage: the total, whether it is known, whether
    there are records behind the window, how far the windows have reached, and the pending retry of a
@@ -74,8 +82,8 @@ export class DynamicDataCount {
      Both steps go to the retry and not to the committed state: the
      window in force, its page index and its total stay together until the retry commits, and a
      retry that fails leaves them as they were. */
-  public stepBackPastEnd(result: IDynamicDataReadResult, skip: number, take: number, length: number,
-    pageIndex: number, pageSize: number, filter: string): boolean {
+  public stepBackPastEnd(answer: IDynamicDataWindowAnswer, pageIndex: number, pageSize: number, filter: string): boolean {
+    const result = answer.result, skip = answer.skip, take = answer.take, length = answer.length;
     const fromPageIndex = !!this.retry ? this.retry.pageIndex : pageIndex;
     if (length === 0 && skip > 0 && take > 0 && typeof result.total !== "number" && fromPageIndex > 0) {
       this.retry = { pageIndex: fromPageIndex - 1, total: skip, discoveredTotalFilter: filter };
@@ -98,7 +106,7 @@ export class DynamicDataCount {
      and what the empty answer proved about the end become the committed state, before commitCount -
      which keeps a discovered end the window confirms and lowers one it contradicts. Returns the
      retry's page index, for the list to apply, or undefined when there was no retry. */
-  public commitWindow(result: IDynamicDataReadResult, skip: number, take: number, length: number, filter: string): number {
+  public commitWindow(answer: IDynamicDataWindowAnswer, filter: string): number {
     const retry = this.retry;
     this.retry = undefined;
     if (!!retry) {
@@ -106,8 +114,8 @@ export class DynamicDataCount {
       this._isCountKnown = true;
       this.discoveredTotalFilter = retry.discoveredTotalFilter;
     }
-    this.commitCount(result, skip, take, length, filter);
-    this.maxSeenCount = Math.max(this.maxSeenCount, skip + length);
+    this.commitCount(answer, filter);
+    this.maxSeenCount = Math.max(this.maxSeenCount, answer.skip + answer.length);
     return !!retry ? retry.pageIndex : undefined;
   }
   // A source without paging answers with the whole storage, so its length IS the count. A total or
@@ -159,7 +167,8 @@ export class DynamicDataCount {
     if (typeof result.hasMore === "boolean") return !result.hasMore;
     return take <= 0 || length < take;
   }
-  private commitCount(result: IDynamicDataReadResult, skip: number, take: number, length: number, filter: string): void {
+  private commitCount(answer: IDynamicDataWindowAnswer, filter: string): void {
+    const result = answer.result, skip = answer.skip, take = answer.take, length = answer.length;
     if (typeof result.total === "number") {
       this._total = result.total;
       this._isCountKnown = true;

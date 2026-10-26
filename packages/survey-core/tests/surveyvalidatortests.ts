@@ -18,6 +18,7 @@ import { settings } from "../src/settings";
 import { SurveyError } from "../src/survey-error";
 import { surveyLocalization } from "../src/surveyStrings";
 
+import { ValidationContext } from "survey-core";
 import { describe, test, expect } from "vitest";
 test("Numeric validator", () => {
   var validator = new NumericValidator();
@@ -861,4 +862,32 @@ test("Validation dependencies: reset on changing validator expression", () => {
   expect(q3.errors.length, "Error cleared with new expression: 3+6<=10").toBe(0);
   q1.value = 100;
   expect(q3.errors.length, "No error: q1 no longer a dependency").toBe(0);
+});
+test("A ValidationContext with clearIncorrectValues false keeps the values that are not choices, Issue#11818", () => {
+  const json = {
+    elements: [
+      { type: "radiogroup", name: "r", choices: ["Yes", "No"] },
+      { type: "checkbox", name: "c", choices: ["a", "b"], validators: [{ type: "answercount", minCount: 3 }] }
+    ]
+  };
+  const data = { r: "Maybe", c: ["a", "zzz"] };
+  const validate = (survey: SurveyModel, clearIncorrectValues: boolean): void => {
+    // Imported from the public entry: the interview may use only what survey-core exports.
+    const context = new ValidationContext({ fireCallback: true, clearIncorrectValues: clearIncorrectValues });
+    survey.getAllQuestions().forEach(q => q.validateElement(context));
+    context.finish();
+  };
+  const survey = new SurveyModel(json);
+  survey.data = data;
+  validate(survey, false);
+  expect(survey.data, "the values stay").toEqual({ r: "Maybe", c: ["a", "zzz"] });
+  const c = survey.getQuestionByName("c");
+  expect(c.errors.map(er => er.getErrorType()), "the checkbox shows the validator error").toEqual(["custom"]);
+  expect(survey.getQuestionByName("r").isValueCorrect(), "r: the value is not a choice").toBe(false);
+  expect(c.isValueCorrect(), "c: a value is not a choice").toBe(false);
+
+  const clearing = new SurveyModel(json);
+  clearing.data = data;
+  validate(clearing, true);
+  expect(clearing.data, "the default context clears them").toEqual({ c: ["a"] });
 });

@@ -1445,3 +1445,153 @@ describe("Triggers", () => {
     FunctionFactory.Instance.unregister("checkConstParam");
   });
 });
+describe("A nested function with constant parameters runs on any change", () => {
+  const nested = "iif({a} = 1, readQ('src'), 0)";
+  function registerReadQ(): void {
+    FunctionFactory.Instance.register("readQ", function (this: any, params: any[]) { return this.survey.getValue(params[0]); });
+  }
+  let calls = 0;
+  function registerCountCalls(): void {
+    calls = 0;
+    FunctionFactory.Instance.register("countCalls", (params: any[]) => { calls++; return params[0]; });
+  }
+  function surveyJSON(q: any, calculatedValues?: any[]): any {
+    return {
+      elements: [{ type: "text", name: "a" }, { type: "text", name: "src" }, { type: "text", name: "other" }, q],
+      calculatedValues
+    };
+  }
+  test("A nested function with constant parameters in a question visibleIf runs on any change", () => {
+    registerReadQ();
+    try {
+      const survey = new SurveyModel(surveyJSON({ type: "text", name: "q", visibleIf: nested + " = 1" }));
+      const q = survey.getQuestionByName("q");
+      survey.setValue("a", 1);
+      expect(q.isVisible, "a = 1").toBe(false);
+      survey.setValue("src", 1);
+      expect(q.isVisible, "src = 1").toBe(true);
+      survey.setValue("src", 2);
+      survey.setValue("other", "x");
+      expect(q.isVisible, "src = 2, other = x").toBe(false);
+    } finally {
+      FunctionFactory.Instance.unregister("readQ");
+    }
+  });
+  test("A nested function with constant parameters in a calculated value runs on any change", () => {
+    registerReadQ();
+    try {
+      const survey = new SurveyModel(surveyJSON({ type: "text", name: "q" }, [{ name: "cv", expression: nested }]));
+      survey.setValue("a", 1);
+      expect(survey.getVariable("cv"), "a = 1").toBeUndefined();
+      survey.setValue("src", 1);
+      expect(survey.getVariable("cv"), "src = 1").toBe(1);
+      survey.setValue("src", 2);
+      survey.setValue("other", "x");
+      expect(survey.getVariable("cv"), "src = 2, other = x").toBe(2);
+    } finally {
+      FunctionFactory.Instance.unregister("readQ");
+    }
+  });
+  test("A nested function with constant parameters in a defaultValueExpression runs on any change", () => {
+    registerReadQ();
+    try {
+      const survey = new SurveyModel(surveyJSON({ type: "text", name: "q", defaultValueExpression: nested }));
+      const q = survey.getQuestionByName("q");
+      survey.setValue("a", 1);
+      expect(q.value, "a = 1").toBeUndefined();
+      survey.setValue("src", 1);
+      expect(q.value, "src = 1").toBe(1);
+      survey.setValue("src", 2);
+      survey.setValue("other", "x");
+      expect(q.value, "src = 2, other = x").toBe(2);
+    } finally {
+      FunctionFactory.Instance.unregister("readQ");
+    }
+  });
+  test("A nested function with constant parameters in a choice visibleIf runs on any change", () => {
+    registerReadQ();
+    try {
+      const survey = new SurveyModel(surveyJSON({ type: "radiogroup", name: "q",
+        choices: [{ value: "x", visibleIf: nested + " = 1" }, "y"] }));
+      const q = <any>survey.getQuestionByName("q");
+      const visible = () => q.visibleChoices.map((c: any) => c.value).join(",");
+      survey.setValue("a", 1);
+      expect(visible(), "a = 1").toBe("y");
+      survey.setValue("src", 1);
+      expect(visible(), "src = 1").toBe("x,y");
+      survey.setValue("src", 2);
+      survey.setValue("other", "x");
+      expect(visible(), "src = 2, other = x").toBe("y");
+    } finally {
+      FunctionFactory.Instance.unregister("readQ");
+    }
+  });
+  test("A top-level function with constant parameters still runs on any change", () => {
+    registerReadQ();
+    try {
+      const survey = new SurveyModel(surveyJSON({ type: "text", name: "q", visibleIf: "readQ('src') = 1" }));
+      const q = survey.getQuestionByName("q");
+      survey.setValue("a", 1);
+      expect(q.isVisible, "a = 1").toBe(false);
+      survey.setValue("src", 1);
+      expect(q.isVisible, "src = 1").toBe(true);
+      survey.setValue("src", 2);
+      survey.setValue("other", "x");
+      expect(q.isVisible, "src = 2, other = x").toBe(false);
+    } finally {
+      FunctionFactory.Instance.unregister("readQ");
+    }
+  });
+  test("A nested function with variables only still skips", () => {
+    registerCountCalls();
+    try {
+      const survey = new SurveyModel({
+        elements: [{ type: "text", name: "a" }, { type: "text", name: "b" }, { type: "text", name: "other" },
+          { type: "text", name: "q", visibleIf: "iif({a} = 1, countCalls({b}), 0) = 1" }]
+      });
+      const q = survey.getQuestionByName("q");
+      survey.setValue("a", 1);
+      survey.setValue("b", 1);
+      expect(q.isVisible, "a = 1, b = 1").toBe(true);
+      calls = 0;
+      survey.setValue("other", "x");
+      expect(calls, "other = x").toBe(0);
+      survey.setValue("b", 2);
+      expect(calls, "b = 2").toBeGreaterThanOrEqual(1);
+      expect(q.isVisible, "b = 2").toBe(false);
+    } finally {
+      FunctionFactory.Instance.unregister("countCalls");
+    }
+  });
+  test("An expression replaced in place drops the kept answer", () => {
+    registerReadQ();
+    registerCountCalls();
+    try {
+      const survey = new SurveyModel(surveyJSON({ type: "text", name: "q", visibleIf: "{a} = 1" },
+        [{ name: "cv", expression: "countCalls('k')" }]));
+      const q = survey.getQuestionByName("q");
+      survey.setValue("a", 1);
+      survey.setValue("other", "x");
+      expect(q.isVisible, "a = 1").toBe(true);
+      // The new expression holds a variable, so the skip check applies, but not src
+      q.visibleIf = "{a} = 1 and readQ('src') = 1";
+      survey.setValue("src", 1);
+      expect(q.isVisible, "src = 1").toBe(true);
+      survey.setValue("src", 2);
+      survey.setValue("other", "y");
+      expect(q.isVisible, "src = 2, other = y").toBe(false);
+
+      const cv = survey.calculatedValues[0];
+      calls = 0;
+      survey.setValue("other", "z");
+      expect(calls, "countCalls('k'), other = z").toBeGreaterThanOrEqual(1);
+      cv.expression = "countCalls({a})";
+      calls = 0;
+      survey.setValue("other", "w");
+      expect(calls, "countCalls({a}), other = w").toBe(0);
+    } finally {
+      FunctionFactory.Instance.unregister("readQ");
+      FunctionFactory.Instance.unregister("countCalls");
+    }
+  });
+});

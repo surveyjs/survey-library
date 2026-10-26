@@ -28,13 +28,16 @@ function render(element: React.JSX.Element): HTMLElement {
   });
   return container;
 }
-afterEach(() => {
+function unmount(): void {
   if (container) {
     // eslint-disable-next-line react/no-deprecated
     ReactDOM.unmountComponentAtNode(container);
     container.remove();
     container = undefined;
   }
+}
+afterEach(() => {
+  unmount();
 });
 function getRoot(q: Question): HTMLElement {
   return (container as HTMLElement).querySelector("#" + q.id) as HTMLElement;
@@ -84,6 +87,33 @@ describe("A popup renders its content the first time it is shown", () => {
       expect(getComboboxInput(q).getAttribute("aria-controls"), name + ": aria-controls, closed").toBe(listId);
       expect(!!(container as HTMLElement).querySelector("#" + listId), name + ": the list, closed").toBe(true);
     }
+  });
+  it("a survey with many dropdowns and tagboxes renders no popup until one opens", () => {
+    const renderSurvey = (n: number): SurveyModel => {
+      const elements: Array<any> = [];
+      for (let i = 0; i < n; i++) {
+        elements.push({ type: i % 2 === 0 ? "dropdown" : "tagbox", name: "q" + i, choices: ["a", "b", "c"] });
+      }
+      const survey = new SurveyModel({ elements });
+      render(<SurveyReact model={survey} />);
+      return survey;
+    };
+    const getPopupCount = (): number => (container as HTMLElement).querySelectorAll(".sv-popup").length;
+
+    const small = renderSurvey(20);
+    // Before popups rendered on first show, every question mounted a hidden popup: 20 here
+    expect(getPopupCount(), "20 questions, not opened").toBe(0);
+    unmount();
+    small.dispose();
+
+    const large = renderSurvey(40);
+    expect(getPopupCount(), "40 questions, not opened").toBe(0);
+    const q0 = large.getQuestionByName("q0");
+    act(() => {
+      (getInput(q0).parentElement as HTMLElement).click();
+    });
+    expect(q0.dropdownListModel.popupModel.isVisible, "q0 opened").toBe(true);
+    expect(getPopupCount(), "40 questions, q0 opened").toBe(1);
   });
   it("the keyboard works from the list model and renders the popup list only when it opens the popup", () => {
     const choices = Array.from({ length: 27 }, (_, i) => "item" + (i + 1));

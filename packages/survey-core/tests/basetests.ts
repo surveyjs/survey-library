@@ -767,6 +767,42 @@ describe("Base", () => {
     objs[0].propA = 5;
     expect(updaterCallCount, "no updater calls after dispose").toBe(2);
   });
+  test("Collect dependencies: adding a dependency does not scan the collected dependencies", () => {
+    const collect = (count: number): { length: number, indexReads: number } => {
+      const objs: Array<BaseTester5> = [];
+      for (let i = 0; i < count; i++) objs.push(new BaseTester5());
+      const target = new BaseTester5();
+      const updater = () => {
+        objs.forEach(o => { o.propA; o.propB; o.propA; o.propB; });
+      };
+      let indexReads = 0;
+      let deps;
+      Base.startCollectDependencies(updater, target, "propA");
+      try {
+        const running = Base["currentDependencis"];
+        let reads = 0;
+        running.dependencies = new Proxy(running.dependencies, {
+          get: (arr, key, receiver) => {
+            if (typeof key === "string" && /^\d+$/.test(key)) reads++;
+            return Reflect.get(arr, key, receiver);
+          }
+        });
+        updater();
+        indexReads = reads;
+      } finally {
+        deps = Base.finishCollectDependencies();
+        deps.dispose();
+      }
+      return { length: deps.dependencies.length, indexReads: indexReads };
+    };
+    const small = collect(50);
+    expect(small.length, "two dependencies per object, 50 objects").toBe(100);
+    // A scan for a duplicate on every read made 10,000 index reads here
+    expect(small.indexReads, "index reads while collecting, 50 objects").toBe(0);
+    const large = collect(100);
+    expect(large.length, "two dependencies per object, 100 objects").toBe(200);
+    expect(large.indexReads, "index reads while collecting, 100 objects").toBe(0);
+  });
   test("Collect dependencies: survey width mode follows a late element", () => {
     const pages: Array<any> = [];
     for (let i = 0; i < 300; i++) pages.push({ elements: [{ type: "text", name: "q" + i }] });

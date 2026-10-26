@@ -1,0 +1,242 @@
+@use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
+
+// The Filter Control: an optional search row (the box and the Filters button), then the quick filters
+// row - the chips, wrapping or cut to one row with "Show More", and Clear All at its right end.
+.sd-filter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sjs2-spacing-x200);
+}
+
+.sd-filter__search-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sjs2-spacing-x100);
+}
+
+.sd-filter__search {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sd-filter__search-icon {
+  flex: 0 0 auto;
+  width: var(--sjs2-size-x300);
+  height: var(--sjs2-size-x300);
+
+  use {
+    fill: var(--sjs2-color-fg-basic-secondary);
+  }
+}
+
+.sd-filter__chips-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sjs2-spacing-x100);
+}
+
+.sd-filter__chips {
+  // A chip the collapsed row does not show is positioned against this box (see --overflow).
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+
+  .sd-action-bar {
+    --sd-action-bar-gap: var(--sjs2-spacing-x100);
+    flex-wrap: wrap;
+    white-space: nowrap;
+  }
+}
+
+// Out of the flow and invisible, but still laid out: FilterChipsLayout reads its width.
+.sd-filter__chip--overflow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.sd-filter__chip-marker {
+  flex: 0 0 auto;
+  width: var(--sjs2-size-x200);
+  height: var(--sjs2-size-x200);
+
+  use {
+    fill: var(--sd-action-icon-color);
+  }
+}
+
+.sd-filter__show-more .sd-action__title {
+  text-decoration: none;
+}
+
+.sd-filter__clear {
+  flex: 0 0 auto;
+}
+
+// On a phone the chips stay in one row that scrolls sideways.
+.sd-filter--mobile .sd-filter__chips .sd-action-bar {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// The advanced dialog's editor survey: no page gutter and no framed card per field - inside a dialog
+// that is only empty space. A field's title is a plain label over its operator and value.
+.sd-filter-editor {
+  min-width: calc(40 * var(--sjs2-base-unit-size));
+
+  .sd-page__content {
+    padding: 0;
+  }
+
+  .sd-panel.sd-element--with-frame {
+    box-shadow: none;
+    background: transparent;
+    border-radius: 0;
+  }
+
+  .sd-panel {
+    --sd-panel-header-border-bottom: none;
+    --sd-panel-header-padding-inline: 0;
+    --sd-panel-title-padding-inline: 0;
+  }
+
+  .sd-panel__content {
+    padding: 0;
+  }
+}
+
+// A badge's popup: an optional search box, the title row with its link, the list or the operator and
+// value, and Apply.
+.sd-filter-popup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sjs2-spacing-x100);
+  box-sizing: border-box;
+  min-width: calc(40 * var(--sjs2-base-unit-size));
+  padding: var(--sjs2-spacing-x100);
+
+  .sd-filter-editor {
+    min-width: 0;
+  }
+}
+
+.sd-filter-popup__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sjs2-spacing-x100);
+  padding: 0 var(--sjs2-spacing-x150);
+}
+
+.sd-filter-popup__title {
+  @include sjs2--typography--default;
+  color: var(--sjs2-color-fg-basic-secondary);
+}
+
+.sd-filter-popup__search {
+  display: flex;
+  align-items: center;
+  gap: var(--sjs2-spacing-x100);
+  padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
+  border-radius: var(--sjs2-radius-component-drop-item);
+  background: var(--sjs2-color-bg-basic-secondary);
+}
+
+.sd-filter-popup__search-icon {
+  flex: 0 0 auto;
+  width: var(--sjs2-size-x300);
+  height: var(--sjs2-size-x300);
+
+  use {
+    fill: var(--sjs2-color-fg-basic-secondary);
+  }
+}
+
+.sd-filter-popup__search-input {
+  @include sjs2--typography--default;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--sjs2-color-fg-basic-primary);
+}
+
+.sd-filter-popup__body {
+  // A checkbox list shows its state with the checkbox, not with a selected row.
+  .sv-list__item--selected .sv-list__item-body:has(.sd-filter-popup__item) {
+    background: transparent;
+    color: var(--sjs2-color-fg-basic-primary);
+  }
+}
+
+.sd-filter-popup__item {
+  display: flex;
+  align-items: center;
+  gap: var(--sjs2-spacing-x150);
+  width: 100%;
+}
+
+.sd-filter-popup__check {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--sjs2-size-x300);
+  height: var(--sjs2-size-x300);
+  border-radius: var(--sjs2-radius-x050);
+  background: var(--sjs2-color-bg-basic-secondary);
+
+  use {
+    fill: var(--sjs2-color-fg-brand-on-primary);
+  }
+}
+
+.sd-filter-popup__check--checked {
+  background: var(--sjs2-color-bg-brand-primary);
+}
+
+.sd-filter-popup__item-text {
+  @include sjs2--typography--default;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sd-filter-popup__item-remove {
+  display: flex;
+  flex: 0 0 auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  use {
+    fill: var(--sjs2-color-fg-basic-secondary);
+  }
+}
+
+.sd-filter-popup__footer .sd-action-bar {
+  width: 100%;
+}
+
+.sd-filter-popup__footer .sd-action-bar__item {
+  flex: 1 1 auto;
+}
+
+.sd-filter-popup__footer .sd-action {
+  box-sizing: border-box;
+  width: 100%;
+}

@@ -31,6 +31,12 @@ describe("QuestionFilterModel", () => {
     expect(q.items[0].expression, "#2").toBe("{age} > 18");
     expect(q.toJSON().items[0].expression, "#3").toBe("{age} > 18");
   });
+  test("the theme's filter classes reach the control", () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1" }] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    expect([q.cssClasses.root, q.cssClasses.chips, q.cssClasses.chipOverflow, q.cssClasses.popup])
+      .toEqual(["sd-filter", "sd-filter__chips", "sd-filter__chip--overflow", "sd-filter-popup"]);
+  });
   test("the new properties are registered but invisible in the property grid", () => {
     ["source", "fields", "items", "defaultItem", "allowMultipleItems", "allowAddItems",
       "allowReorderItems", "showSearch", "searchFields", "allowChangeSearchFields",

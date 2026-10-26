@@ -839,7 +839,8 @@ export class Base implements IObjectValueContext {
     return res;
   }
   protected getPropertyValueCore(propertiesHash: any, name: string): any {
-    if (!this.isLoadingFromJson) {
+    // Test for a running collection first: isLoadingFromJson walks up to the survey on every read
+    if (Base.currentDependencis !== undefined && !this.isLoadingFromJson) {
       Base.collectDependency(this, name);
     }
     if (this.getPropertyValueCoreHandler)

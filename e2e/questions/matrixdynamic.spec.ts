@@ -1087,6 +1087,7 @@ frameworks.forEach((framework) => {
         name: "matrix",
         title: "Products",
         allowSort: true,
+        showSortBar: "always",
         rowCount: 0,
         columns: [
           { name: "product", title: "Product", cellType: "text" },
@@ -1295,6 +1296,7 @@ frameworks.forEach((framework) => {
         name: "matrix",
         title: "Health Product - Long Title for Example",
         allowSort: true,
+        showSortBar: "always",
         maxSortLevel: 4,
         rowCount: 0,
         columns: [

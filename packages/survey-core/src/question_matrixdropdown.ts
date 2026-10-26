@@ -3,6 +3,7 @@ import {
   MatrixDropdownRowModelBase,
   MatrixRowGetterContext,
   IMatrixDropdownData,
+  getHiddenSortProperties,
 } from "./question_matrixdropdownbase";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
@@ -682,6 +683,7 @@ Serializer.addClass(
       default: "initial",
       choices: ["initial", "random"],
     },
+    ...getHiddenSortProperties(),
   ],
   function() {
     return new QuestionMatrixDropdownModel("");

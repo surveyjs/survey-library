@@ -3373,7 +3373,7 @@ describe("toJSON skips empty properties", () => {
       expect(survey.getQuestionByName("q9").toJSON({ storeDefaults: true }), "storeDefaults: text").toEqual({
         name: "q9", state: "default", visible: true, useDisplayValuesInDynamicTexts: true, width: "", minWidth: "", maxWidth: "",
         startWithNewLine: true, indent: 0, titleLocation: "default", descriptionLocation: "default", showNumber: true, valueName: "",
-        clearIfInvisible: "default", isRequired: false, errorLocation: "default", readOnly: false, renderAs: "default", showCommentArea: false,
+        clearIfInvisible: "default", isRequired: false, errorLocation: "default", readOnly: false, readOnlyMode: "default", renderAs: "default", showCommentArea: false,
         randomize: true, inputType: "text", textUpdateMode: "default", inputTextAlignment: "auto", maskType: "none", maxLength: -1
       });
       expect(survey.getQuestionByName("q6").items[0].toJSON({ storeDefaults: true }), "storeDefaults: multiple text item").toEqual({

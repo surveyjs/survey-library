@@ -30,6 +30,10 @@ function open(q: QuestionFilterModel, key: string): { popup: FilterFieldPopup, c
 function titles(popup: FilterFieldPopup): Array<string> {
   return popup.list.actions.filter((a: Action) => a.visible).map((a: Action) => a.title);
 }
+// The entries the search box leaves in the list.
+function found(popup: FilterFieldPopup): Array<string> {
+  return popup.list.actions.filter((a: Action) => popup.list.isItemVisible(a)).map((a: Action) => a.title);
+}
 function item(popup: FilterFieldPopup, title: string): Action {
   return popup.list.actions.filter((a: Action) => a.title === title)[0];
 }
@@ -193,6 +197,18 @@ describe("FilterFieldPopup: search and typed values", () => {
     expect(many.list.showFilter, "#2: the popup draws the box, not the list").toBe(false);
     many.dispose();
     few.dispose();
+  });
+  test("the search box finds a value by its value too, and a value the list has offers no Add", () => {
+    const q = control({ fields: [{ name: "land", fieldType: "dropdown", allowCustomChoices: true,
+      choices: [{ value: "de", text: "Germany" }, { value: "fr", text: "France" }] }] });
+    const { popup } = open(q, "land");
+    popup.list.filterString = "de";
+    expect(found(popup), "#1").toEqual(["Germany"]);
+    popup.list.filterString = "germ";
+    expect(found(popup), "#2: a part of a text is a new value, as in the library's dropdowns").toEqual(["Germany", "Add \"germ\"..."]);
+    popup.list.filterString = "Oreo";
+    expect(found(popup), "#3").toEqual(["Add \"Oreo\"..."]);
+    popup.dispose();
   });
   test("Arrow Down in the search box moves to the list's first entry", () => {
     const { popup } = open(control(), "many");

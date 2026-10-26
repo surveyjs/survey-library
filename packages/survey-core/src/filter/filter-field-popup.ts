@@ -4,7 +4,7 @@ import { ActionContainer } from "../actions/container";
 import { ListModel } from "../list";
 import { MultiSelectListModel } from "../multiSelectListModel";
 import { ILocalizableOwner } from "../localizablestring";
-import { Helpers } from "../helpers";
+import { Helpers, normalizeTextForSearch } from "../helpers";
 import { getLocaleString } from "../surveyStrings";
 import { ElementHelper } from "../element-helper";
 import { classesToSelector, getFirstVisibleChild } from "../utils/dom-utils";
@@ -147,13 +147,14 @@ export class FilterFieldPopup extends Base {
   }
   private createList(): ListModel<Action> {
     const items = this.createItems(this.conditionValues);
+    const onTextSearchCallback = (item: IAction, text: string): boolean => this.isFound(item, text);
     let list: ListModel<Action>;
     if (this.isMultiple) {
-      list = new MultiSelectListModel<Action>({ items: [], allowSelection: true, locOwner: this.owner,
+      list = new MultiSelectListModel<Action>({ items: [], allowSelection: true, locOwner: this.owner, onTextSearchCallback,
         onSelectionChanged: (item: Action, status: string): void => { this.onItemToggled(item, status); } });
       list.itemComponent = filterListItemComponentName;
     } else {
-      list = new ListModel<Action>({ items: [], allowSelection: true, locOwner: this.owner,
+      list = new ListModel<Action>({ items: [], allowSelection: true, locOwner: this.owner, onTextSearchCallback,
         onSelectionChanged: (item: Action): void => { this.onItemPicked(item); } });
     }
     // The list still filters its entries by filterString; only its own box is not drawn.
@@ -278,6 +279,18 @@ export class FilterFieldPopup extends Base {
   private getTypedText(): string {
     return (this.listValue.filterString || "").trim();
   }
+  // The search box finds an entry by its text or by the value itself: "de" finds Germany. "Add" stays
+  // in the list for as long as it is there (see updateAddAction).
+  private isFound(item: IAction, text: string): boolean {
+    if (!!item.data && item.data.isAdd) return true;
+    const search = normalizeTextForSearch(text || "");
+    return this.getSearchTexts(item).some((t: string): boolean => t.indexOf(search) > -1);
+  }
+  private getSearchTexts(item: IAction): Array<string> {
+    const value = !!item.data ? item.data.value : undefined;
+    return [item.title, value].filter((v: any): boolean => v !== undefined && v !== null)
+      .map((v: any): string => normalizeTextForSearch(String(v)));
+  }
   // "Add" is in the list while the search box holds text that is no value of the list yet. It is
   // added and taken out rather than hidden: a checkbox list makes every entry visible again whenever
   // its selection changes (MultiSelectListModel.updateItemState).
@@ -285,8 +298,9 @@ export class FilterFieldPopup extends Base {
     const add = this.addAction;
     if (!add) return;
     const typed = (text || "").trim();
-    const lower = typed.toLowerCase();
-    const isKnown = this.getValueActions().some((a: Action): boolean => (a.title || "").toLowerCase() === lower);
+    const search = normalizeTextForSearch(typed);
+    const isKnown = this.getValueActions().some((a: Action): boolean =>
+      this.getSearchTexts(a).some((t: string): boolean => t === search));
     add.title = filterUIStrings.addCustomValue.replace("{0}", typed);
     const isNeeded = !!typed && !isKnown;
     if (isNeeded === this.listValue.actions.indexOf(add) > -1) return;

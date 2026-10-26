@@ -18,7 +18,7 @@
         :src="item.locImageLink.renderedHtml"
         :width="question.renderedImageWidth"
         :height="question.renderedImageHeight"
-        :style="{ objectFit: question.imageFit }"
+        :style="{ objectFit: question.imageFit } as any"
         @loadedmetadata="(event) => question.onContentLoaded(item, event)"
       ></video>
       <img
@@ -28,7 +28,7 @@
         :alt="item.locText.renderedHtml"
         :width="question.renderedImageWidth"
         :height="question.renderedImageHeight"
-        :style="{ objectFit: question.imageFit }"
+        :style="{ objectFit: question.imageFit } as any"
         @load="(event) => question.onContentLoaded(item, event)"
       />
     </template>

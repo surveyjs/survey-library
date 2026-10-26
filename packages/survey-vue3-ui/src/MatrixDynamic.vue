@@ -1,6 +1,8 @@
 <template>
   <div ref="root">
-    <SvComponent v-if="question.getShowToolbar('top')" :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
+    <div v-if="question.getShowToolbar('top')" :class="question.cssClasses.headerBar">
+      <SvComponent  :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
+    </div>
     <div v-if="question.sortBarLocation === 'top'" :class="question.cssClasses.sortBarTop">
       <SvComponent :is="'sv-action-bar'" :model="question.recordsBar.sortActions"></SvComponent>
     </div>

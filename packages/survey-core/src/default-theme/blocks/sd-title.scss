@@ -6,9 +6,7 @@
   align-items: center;
   padding: var(--sd-page-vertical-padding) var(--sd-page-vertical-padding);
   gap: var(--sjs2-spacing-x400);
-  // box-shadow: inset 0 -2px 0 0 $primary;
-  border-bottom: 2px solid $primary;
-  box-sizing: border-box;
+  box-shadow: inset 0 -2px 0 0 $primary;
 
   .sd-logo.sv-logo--right {
     margin-left: auto;

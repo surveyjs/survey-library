@@ -20,18 +20,15 @@ import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { settings } from "./settings";
-import { classesToSelector } from "./utils/dom-utils";
-import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/animation-dom";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { Scope, ValueScope } from "./utils/scope";
 import { ActionContainer } from "./actions/container";
-import { defaultActionBarCss } from "./actions/actionBarCss";
 import { Action, IAction } from "./actions/action";
-import { ComputedUpdater } from "./base";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ITheme } from "./themes";
-import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
-import { getScrollBehavior } from "./utils/reduced-motion";
+import { AnimationProperty, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
+import { PanelDynamicActions, PanelDynamicTabbedMenuItem } from "./paneldynamic-actions";
+import { PanelDynamicAnimation } from "./paneldynamic-animation";
 import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
@@ -102,16 +99,6 @@ export class PanelDynamicValueGetterContext extends QuestionRecordsValueGetterCo
     if (!q) return { isFound: false };
     path.shift();
     return path.length === 0 ? { isFound: true } : q.getValueGetterContext().getValue(params);
-  }
-}
-
-interface IPanelDynamicTabbedMenuItem extends IAction {
-  panelId: string;
-}
-class PanelDynamicTabbedMenuItem extends Action {
-  public panelId: string;
-  constructor(innerItem: IPanelDynamicTabbedMenuItem) {
-    super(innerItem);
   }
 }
 
@@ -248,17 +235,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (name === "panelsState") {
       this.setPanelsState();
     }
-    const footerProps = ["newPanelPosition", "displayMode", "showProgressBar"];
-    if (footerProps.indexOf(name) > -1) {
-      this.updateFooterActions();
-    }
     // The pager shows in list mode only (showPager).
     if (name === "displayMode") {
       this.updateRecordsBar();
     }
     if (name === "allowAddPanel" || name === "panelCountExpression") {
       this.updateNoEntriesTextDefaultLoc();
-      this.updateFooterActions();
     }
     const templateProps = ["templateQuestionTitleLocation", "templateQuestionTitleWidth"];
     if (templateProps.indexOf(name) > -1) {
@@ -269,7 +251,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.lifecycleCallbacks.questionVisibilityChanged(this, this.visible, true);
     }
     if (name === "tabAlign" && this.isRenderModeTab) {
-      this.tabbedMenu.containerCss = this.getTabbedMenuCss();
+      this.dynamicActions.updateTabbedMenuCss();
     }
   }
   public dispose(): void {
@@ -278,24 +260,50 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.templateValue.dispose();
   }
   /* The panels go with the question, before the list: the ones kept for a later dispose (still animated
-     out) and the live ones, with their actions; then the toolbars. In design mode a panel can be the
-     template, which goes in dispose. */
+     out) and the live ones, with their actions; then the actions and the toolbars. In design mode a
+     panel can be the template, which goes in dispose. */
   protected disposeRecordObjects(): void {
     const left = this.panelsToDispose;
     this.panelsToDispose = [];
     left.forEach((panel: PanelModel): void => { this.disposePanelObject(panel); });
     this.panelsCore.filter((panel: PanelModel): boolean => panel !== this.template)
       .forEach((panel: PanelModel): void => { this.disposePanelObject(panel); });
-    this.disposeActions(this.removePanelActions);
-    this.removePanelActions = {};
-    this.disposeActions(this.tabActions);
-    this.tabActions = {};
-    if (!!this.tabbedMenuValue) {
-      this.tabbedMenuValue.dispose();
+    if (!!this.actionsValue) {
+      this.actionsValue.dispose();
     }
-    if (!!this.footerToolbarValue) {
-      this.footerToolbarValue.dispose();
+  }
+  // The footer toolbar, the tabbed menu and the remove buttons (PanelDynamicActions); created on first use.
+  private actionsValue: PanelDynamicActions;
+  private get dynamicActions(): PanelDynamicActions {
+    if (!this.actionsValue) {
+      const question = this;
+      this.actionsValue = new PanelDynamicActions({
+        question: question,
+        get canGoToNextRecord(): boolean { return question.canGoToNextRecord; },
+        get isRebuildingPanels(): boolean { return question.isRebuildingPanels; },
+        getVisiblePanels: (): Array<PanelModel> => question.visiblePanelsCore,
+        getPanelVisibleIndex: (panel: PanelModel): number => question.getPanelVisibleIndex(panel),
+        createActionContainer: (): ActionContainer => question.createActionContainer(),
+        disposeLeftObject: (obj: { dispose(): void }): void => { question.disposeLeftObject(obj); }
+      });
     }
+    return this.actionsValue;
+  }
+  // The animation of the rendered panels (PanelDynamicAnimation).
+  private animationValue: PanelDynamicAnimation;
+  private get dynamicAnimation(): PanelDynamicAnimation {
+    if (!this.animationValue) {
+      const question = this;
+      this.animationValue = new PanelDynamicAnimation({
+        question: question,
+        get renderedPanels(): Array<PanelModel> { return question._renderedPanels; },
+        set renderedPanels(val: Array<PanelModel>) { question._renderedPanels = val; },
+        getPanels: (): Array<PanelModel> => question.panelsCore,
+        getPanelVisibleIndex: (panel: PanelModel): number => question.getPanelVisibleIndex(panel),
+        disposeLeftPanels: (rendered: Array<PanelModel>): void => { question.disposeLeftPanels(rendered); }
+      });
+    }
+    return this.animationValue;
   }
   public validateExpressions(options: IExpressionValidationOptions = { functions: true, variables: true, semantics: true }): IExpressionValidationResult[] {
     if (!this.useTemplatePanel) {
@@ -564,7 +572,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       });
     };
     markElements(panel);
-    this.disposeRemovePanelAction(panel);
+    this.actionsValue?.disposeRemovePanelAction(panel);
     panel.dispose();
   }
   /* The current panel follows its record (QuestionRecordsModel keeps it renumbered); when that
@@ -1051,8 +1059,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     // Inside an operation the change is announced when the operation ends (announceCurrentPanel).
     const isAnnounced = !!val && !this.currentPanelChangeScope.isActive;
     if (isAnnounced) {
-      this.leftVisibleIndex = this.currentVisibleIndexValue;
-      this.currentVisibleIndexValue = visibleIndex;
+      this.dynamicAnimation.moveCurrentVisibleIndex(visibleIndex);
       this.announcedRecordIndex = this.getCurrentRecordIndex();
     }
     this.updateRenderedPanels();
@@ -1090,9 +1097,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const visibleIndex = !!panel ? this.getPanelVisibleIndex(panel) : -1;
     if (visibleIndex < 0) return;
     const recordIndex = this.getCurrentRecordIndex();
-    if (recordIndex === this.announcedRecordIndex && visibleIndex === this.currentVisibleIndexValue) return;
-    this.leftVisibleIndex = this.currentVisibleIndexValue;
-    this.currentVisibleIndexValue = visibleIndex;
+    if (recordIndex === this.announcedRecordIndex && visibleIndex === this.dynamicAnimation.currentVisibleIndex) return;
+    this.dynamicAnimation.moveCurrentVisibleIndex(visibleIndex);
     this.announcedRecordIndex = recordIndex;
     this.raiseCurrentIndexChanged(panel, visibleIndex);
   }
@@ -1155,128 +1161,23 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
   }
   public set renderedPanels(val: Array<PanelModel>) {
-    if (this.renderedPanels.length == 0 || val.length == 0) {
-      this.blockAnimations();
-      this.panelsAnimation.sync(val);
-      this.releaseAnimations();
-    } else {
-      this.isPanelsAnimationRunning = true;
-      this.panelsAnimation.sync(val);
-    }
+    this.dynamicAnimation.syncRenderedPanels(val);
   }
 
   public get renderedPanels(): Array<PanelModel> {
     return this._renderedPanels;
   }
-  private isPanelsAnimationRunning: boolean = false;
-  /* The visibleIndex of the current panel, and of the one it replaced. A carousel Next rebuilds the
-     page, so the panel that leaves is not in visiblePanels any more and its position there cannot
-     say which way it goes: the two records' positions in the whole list do. */
-  private currentVisibleIndexValue: number = -1;
-  private leftVisibleIndex: number = -1;
+  // The animation state under the names the question held it by, which the tests read and write.
+  private get leftVisibleIndex(): number { return this.dynamicAnimation.leftVisibleIndex; }
+  private get removedPanelIndex(): number { return this.dynamicAnimation.removedPanelIndex; }
+  private set removedPanelIndex(val: number) { this.dynamicAnimation.removedPanelIndex = val; }
+  private get focusNewPanelCallback(): () => void { return this.dynamicAnimation.focusNewPanelCallback; }
+  private set focusNewPanelCallback(val: () => void) { this.dynamicAnimation.focusNewPanelCallback = val; }
   private getPanelsAnimationOptions(): IAnimationConsumer<[PanelModel]> {
-    const getDirectionCssClass = () => {
-      if (this.isRenderModeList) return "";
-      const leavingPanel = this.renderedPanels.filter(el => el !== this.currentPanel)[0];
-      // A panel that is still on the page answers for itself; one a page move took away is the one
-      // the current panel replaced; one that was removed is neither.
-      const leavingIndex = this.getPanelVisibleIndex(leavingPanel);
-      const isRemoving = leavingIndex < 0 && (!leavingPanel || leavingPanel === this.removedPanel || this.leftVisibleIndex < 0);
-      let leavingPanelIndex = leavingIndex > -1 ? leavingIndex : this.leftVisibleIndex;
-      if (isRemoving) {
-        leavingPanelIndex = this.removedPanelIndex;
-      }
-      return toCssClasses(
-        !!this.focusNewPanelCallback && "sv-pd-animation-adding",
-        isRemoving && "sv-pd-animation-removing",
-        leavingPanelIndex <= this.currentIndex && "sv-pd-animation-left",
-        leavingPanelIndex > this.currentIndex && "sv-pd-animation-right"
-      );
-    };
-    return {
-      getRerenderEvent: () => this.onElementRerendered,
-      getAnimatedElement: (panel) => {
-        if (panel && this.cssContent) {
-          const contentSelector = classesToSelector(this.cssContent);
-          return this.getWrapperElement()?.querySelector(`:scope ${contentSelector} #${panel.id}`)?.parentElement;
-        }
-      },
-      getEnterOptions: () => {
-        const cssClass = toCssClasses(this.cssClasses.panelWrapperEnter, getDirectionCssClass());
-        return {
-          onBeforeRunAnimation: (el) => {
-            if (this.focusNewPanelCallback) {
-              const scolledElement = this.isRenderModeList ? el : el.parentElement;
-              SurveyElement.ScrollElementToViewCore(scolledElement, false, false, { behavior: getScrollBehavior() });
-            }
-            if (!this.isRenderModeList && el.parentElement) {
-              setPropertiesOnElementForAnimation(el.parentElement, { heightTo: el.offsetHeight + "px" });
-            } else {
-              prepareElementForVerticalAnimation(el);
-            }
-          },
-          onAfterRunAnimation: (el) => {
-            cleanHtmlElementAfterAnimation(el);
-            if (el.parentElement) {
-              cleanHtmlElementAfterAnimation(el.parentElement);
-            }
-          },
-          cssClass: cssClass
-        };
-      },
-      getLeaveOptions: () => {
-        const cssClass = toCssClasses(this.cssClasses.panelWrapperLeave, getDirectionCssClass());
-        return {
-          onBeforeRunAnimation: (el) => {
-            if (!this.isRenderModeList && el.parentElement) {
-              setPropertiesOnElementForAnimation(el.parentElement, { heightFrom: el.offsetHeight + "px" });
-            } else {
-              prepareElementForVerticalAnimation(el);
-            }
-          },
-          onAfterRunAnimation: (el) => {
-            cleanHtmlElementAfterAnimation(el);
-            if (el.parentElement) {
-              cleanHtmlElementAfterAnimation(el.parentElement);
-            }
-          },
-          cssClass: cssClass
-        };
-      },
-      isAnimationEnabled: () => {
-        return this.animationAllowed && !!this.getWrapperElement();
-      },
-    };
+    return this.dynamicAnimation.getAnimationOptions();
   }
-
-  private _panelsAnimations: AnimationProperty<Array<PanelModel>, IAnimationGroupConsumer<PanelModel>>;
-  private disablePanelsAnimations() {
-    this.panelsCore.forEach((panel) => {
-      panel.blockAnimations();
-    });
-  }
-  private enablePanelsAnimations() {
-    this.panelsCore.forEach((panel) => {
-      panel.releaseAnimations();
-    });
-  }
-  private updatePanelsAnimation() {
-    this._panelsAnimations = new (this.isRenderModeList ? AnimationGroup : AnimationTab)(this.getPanelsAnimationOptions(), (val, isTempUpdate?: boolean) => {
-      this._renderedPanels = val;
-      if (!isTempUpdate) {
-        this.isPanelsAnimationRunning = false;
-        // The panels that animated out are off the screen now.
-        this.disposeLeftPanels(val);
-        this.focusNewPanel();
-      }
-    }, () => this._renderedPanels);
-  }
-
   get panelsAnimation(): AnimationProperty<Array<PanelModel>, IAnimationGroupConsumer<PanelModel>> {
-    if (!this._panelsAnimations) {
-      this.updatePanelsAnimation();
-    }
-    return this._panelsAnimations;
+    return this.dynamicAnimation.panelsAnimation;
   }
 
   public onHidingContent(): void {
@@ -1537,7 +1438,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       if (val < this.panelCount) {
         this.disposePanels(this.panelsCore.splice(val, this.panelCount - val));
       }
-      this.disablePanelsAnimations();
+      this.dynamicAnimation.disablePanelsAnimations();
       this.setValueAfterPanelsCreating();
     } finally {
       this.clearPanelsCreating();
@@ -1547,7 +1448,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.updateFooterActions();
     this.updateNewPanelsVisibleIndex(firstAddedIndex);
     this.fireCallback(this.panelCountChangedCallback);
-    this.enablePanelsAnimations();
+    this.dynamicAnimation.enablePanelsAnimations();
   }
   /* panelCount counts records while a filter is active, so it grows and shrinks the storage and the
      panels follow the view afterwards. The records that appear are always in the view, which keeps
@@ -1737,10 +1638,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   // The limit panelCount is checked against (see getRecordCountLimit).
   protected get panelCountLimit(): number {
     return this.getRecordCountLimitOf("maxPanelCount");
-  }
-  // A new maximum changes whether the add button shows.
-  protected onMaxRecordCountApplied(): void {
-    this.updateFooterActions();
   }
   /**
    * Specifies whether users are allowed to add new panels.
@@ -1934,7 +1831,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.blockAnimations();
     this.updateRenderedPanels();
     this.releaseAnimations();
-    this.updatePanelsAnimation();
+    this.dynamicAnimation.resetPanelsAnimation();
     this.updateTabbedMenuItems();
   }
   /**
@@ -2122,13 +2019,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public set defaultValueFromLastPanel(val: boolean) {
     this.copyDefaultValueFromLastEntry = val;
   }
-  protected isDefaultValueEmpty(): boolean {
-    return (
-      super.isDefaultValueEmpty() && this.isValueEmpty(this.defaultPanelValue)
-    );
-  }
-  protected setDefaultValue() {
-    if (!this.setDefaultRecordValues(this.defaultPanelValue, this.panelCount)) super.setDefaultValue();
+  protected getDefaultRecordValue(): any {
+    return this.defaultPanelValue;
   }
   public get isValueArray(): boolean { return true; }
   public isEmpty(): boolean {
@@ -2231,12 +2123,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       if (this.displayMode === "list" && this.panelsState !== "default") {
         newPanel.expand();
       }
-      this.focusNewPanelCallback = () => {
+      this.dynamicAnimation.focusNewPanelWhenIdle(() => {
         this.focusNewRecord(newPanel, this.panelsCore.indexOf(newPanel), true);
-      };
-      if (!this.isPanelsAnimationRunning) {
-        this.focusNewPanel();
-      }
+      });
     }
     return newPanel;
   }
@@ -2370,13 +2259,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.updateNewPanelsVisibleIndex(this.panelsCore.length - 1);
     this.fireCallback(this.panelCountChangedCallback);
   }
-  private focusNewPanelCallback: () => void;
-  private focusNewPanel() {
-    if (this.focusNewPanelCallback) {
-      this.focusNewPanelCallback();
-      this.focusNewPanelCallback = undefined;
-    }
-  }
   /* The unpaged add: panelCount++ creates the panel and appends its record, which then moves to the
      created position index. prevIndex is a record index. The panel object exists before its record is moved into place:
      onPanelAdded must see the same state it sees today. A handler that assigned the value meanwhile
@@ -2418,9 +2300,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (!this.confirmDelete) return false;
     const target = this.resolvePanelTarget(val);
     if (!target || !target.item && target.recordIndex < 0) return false;
-    const panelValue = !!target.item ? (<QuestionPanelDynamicItem>target.item).panel.getValue() : target.record;
-    return !this.isValueEmpty(panelValue) &&
-      (this.isValueEmpty(this.defaultPanelValue) || !this.isTwoValueEquals(panelValue, this.defaultPanelValue));
+    return this.isRecordToConfirmOnDelete(!!target.item ? (<QuestionPanelDynamicItem>target.item).panel.getValue() : target.record);
   }
   /* What removePanel and isRequireConfirmOnDelete act on. A panel, or its item, names itself. A number
      is a position among the visible records of the whole view, as currentIndex is (resolveRecordTarget):
@@ -2514,17 +2394,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const nextIndex = visIndex >= pnlCount ? pnlCount - 1 : visIndex;
     const element = pnlCount === 0 ? () => this.addPanelAction?.getInputElement() : (nextIndex > -1 ? () => this.getRemovePanelAction(this.visiblePanels[nextIndex])?.getInputElement() : "");
     if (!!element) {
-      SurveyElement.FocusElement(element, true, this.survey?.rootElement, this.shouldHandleFocusScroll);
+      SurveyElement.FocusElement(() => this.isDisposed ? undefined : element(), true, this.survey?.rootElement, this.shouldHandleFocusScroll);
     }
   }
   // After the panels were rebuilt from a committed read; FocusElement's own timeout lets them render.
   protected focusItemAfterRead(index: number): void {
     this.focusAfterPanelRemoved(index);
   }
-  // The visibleIndex of the removed panel and the panel itself: the animation that follows takes its
-  // direction from them.
-  private removedPanelIndex: number;
-  private removedPanel: PanelModel;
   // Returns the removed panel's position in visiblePanels, -1 when no panel was removed.
   private removePanelCore(target: IRecordTarget): number {
     let res = -1;
@@ -2543,7 +2419,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return { panel: null, visibleIndex: visibleIndex - 1 };
   }
   private removePanelCoreInScope(target: IRecordTarget): number {
-    this.removedPanelIndex = target.visibleIndex;
+    this.dynamicAnimation.removedPanelIndex = target.visibleIndex;
     const panelOf = (removal: IRecordRemoval): PanelModel => !!removal.item ? (<QuestionPanelDynamicItem>removal.item).panel : undefined;
     let visIndex = -1;
     const removal = this.removeTarget(target, (resolved: IRecordRemoval): boolean => {
@@ -2552,7 +2428,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }, (resolved: IRecordRemoval): IPanelRemoval => {
       const panel = panelOf(resolved);
       visIndex = !!panel ? this.visiblePanelsCore.indexOf(panel) : -1;
-      this.removedPanel = panel;
+      this.dynamicAnimation.removedPanel = panel;
       const isCurrentRemoved = !!panel && !this.isRenderModeList && this.getPropertyValue("currentPanel", null) === panel;
       return Object.assign(resolved, { visiblePosition: visIndex,
         successor: isCurrentRemoved ? this.getRemovalSuccessor(panel, target.visibleIndex) : undefined });
@@ -2835,7 +2711,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected onReadOnlyChanged(): void {
     this.updatePanelsReadOnly();
     this.updateNoEntriesTextDefaultLoc();
-    this.updateFooterActions();
     super.onReadOnlyChanged();
   }
   private updateNoEntriesTextDefaultLoc(): void {
@@ -3238,63 +3113,15 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     }
     return false;
   }
-  // Keyed by panel.uniqueId. An action goes with its panel (disposePanelObjectCore): its computed
-  // properties keep handlers on the question.
-  private removePanelActions: { [uniqueId: string]: Action } = { };
-  public getRemovePanelAction(panel: PanelModel) {
-    if (!panel) return undefined;
-    if (!this.removePanelActions[panel.uniqueId]) {
-      const action = new Action({
-        id: `remove-panel-${panel.id}`,
-        locTitle: this.locRemovePanelText,
-        innerCss: this.getPanelRemoveButtonCss(),
-        appearance: { style: "alert", mode: "secondary", size: "small" },
-        action: () => {
-          if (!this.isInputReadOnly) {
-            this.removePanelUI(panel);
-            if (panel.isDisposed) {
-              this.disposeRemovePanelAction(panel);
-            }
-          }
-        },
-        visible: <any>new ComputedUpdater(() => this.canRenderRemovePanel(panel) === true),
-        enabled: <any>new ComputedUpdater(() => this.enableRemovePanel !== false),
-        data: { question: this, panel: panel }
-      });
-      action.cssClasses = this.survey?.getCss().actionBar || defaultActionBarCss;
-      this.removePanelActions[panel.uniqueId] = action;
-    }
-    return this.removePanelActions[panel.uniqueId];
-  }
-  private disposeRemovePanelAction(panel: PanelModel): void {
-    const action = this.removePanelActions[panel.uniqueId];
-    delete this.removePanelActions[panel.uniqueId];
-    if (!!action && !action.isDisposed) {
-      action.dispose();
-    }
-  }
-  private disposeActions(actions: { [key: string]: Action }): void {
-    Object.keys(actions).forEach((key: string): void => {
-      if (!actions[key].isDisposed) actions[key].dispose();
-    });
+  // A method of the question, which the tests spy on: getPanelActions asks it too.
+  public getRemovePanelAction(panel: PanelModel): Action {
+    return this.dynamicActions.getRemovePanelAction(panel);
   }
   public getPanelActions(panel: PanelModel): Array<IAction> {
-    let actions = panel.footerActions;
-    if (this.removePanelButtonLocation !== "right") {
-      actions.push(this.getRemovePanelAction(panel));
-    }
-    if (!!this.survey) {
-      actions = this.titleSettings.getUpdatedPanelFooterActions(panel, actions, this);
-    }
-    return actions;
+    return this.dynamicActions.getPanelActions(panel);
   }
   public canRenderRemovePanelOnRight(panel: PanelModel): boolean {
-    const notCollpased = panel.state !== "collapsed";
-    return this.canRenderRemovePanel(panel, "right") && notCollpased;
-  }
-  private canRenderRemovePanel(panel: PanelModel, side?: string): boolean {
-    const canRemove = this.canRemovePanel;
-    return (side !== undefined ? this.removePanelButtonLocation === side : true) && canRemove;
+    return this.dynamicActions.canRenderRemovePanelOnRight(panel);
   }
   // The values a new panel writes while it is attached - its defaults - are computed (runComputedWrites).
   protected createNewPanel(): PanelModel {
@@ -3674,34 +3501,28 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public get showPager(): boolean {
     return this.pageCount > 1 && this.isRenderModeList;
   }
-  private tabbedMenuValue: AdaptiveActionContainer<PanelDynamicTabbedMenuItem>;
   public get hasTabbedMenu(): boolean {
     return this.isRenderModeTab && this.visiblePanels.length > 0;
   }
   public get tabbedMenu(): AdaptiveActionContainer<PanelDynamicTabbedMenuItem> | null {
-    if (!this.isRenderModeTab) return null;
-    if (!this.tabbedMenuValue) {
-      this.tabbedMenuValue = new AdaptiveActionContainer<PanelDynamicTabbedMenuItem>();
-      this.tabbedMenuValue.dotsItem.popupModel.showPointer = false;
-      this.tabbedMenuValue.dotsItem.popupModel.verticalPosition = "bottom";
-      this.tabbedMenuValue.dotsItem.popupModel.horizontalPosition = "center";
-      this.updateElementCss(false);
-      this.updateTabbedMenuItems();
-    }
-    return this.tabbedMenuValue;
+    return this.isRenderModeTab ? this.dynamicActions.tabbedMenu : null;
   }
+  // The menu once it is created, which the tests read.
+  private get tabbedMenuValue(): AdaptiveActionContainer<PanelDynamicTabbedMenuItem> {
+    return this.actionsValue?.createdTabbedMenu;
+  }
+  private updateTabbedMenuItems(): void {
+    this.actionsValue?.updateTabbedMenuItems();
+  }
+  // A property of the question, which the renderers observe; the footer toolbar computes it.
   @property({ defaultValue: false }) _showFooterToolbar: boolean;
 
   get showFooterToolbar() {
     return this.footerToolbar && this._showFooterToolbar;
   }
 
-  private footerToolbarValue: ActionContainer;
   public get footerToolbar(): ActionContainer {
-    if (!this.footerToolbarValue) {
-      this.initFooterToolbar();
-    }
-    return this.footerToolbarValue;
+    return this.dynamicActions.footerToolbar;
   }
 
   public get ariaRole() {
@@ -3713,101 +3534,21 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public get ariaInvalid() {
     return null;
   }
-  private updateFooterActionsCallback: any;
-  private updateFooterActions() {
-    if (!!this.updateFooterActionsCallback) {
-      this.updateFooterActionsCallback();
-    }
+  // The footer update under the names the question held it by: a callback assigned here is the one updateFooterActions runs.
+  private get updateFooterActionsCallback(): () => void {
+    return this.actionsValue?.updateFooterActionsCallback;
+  }
+  private set updateFooterActionsCallback(val: () => void) {
+    this.dynamicActions.updateFooterActionsCallback = val;
+  }
+  /* The footer follows the question properties it reads by itself (PanelDynamicActions). This update is
+     for what is not a property: the current panel's visibleIndex, the panels a build or a removal
+     changes, the records and the capabilities of a source. */
+  private updateFooterActions(): void {
+    this.actionsValue?.updateFooterActions();
   }
   public get addPanelAction(): Action {
-    return this.footerToolbar.getActionById("sv-pd-add-btn");
-  }
-  private initFooterToolbar() {
-    this.footerToolbarValue = this.createActionContainer();
-    this.footerToolbarValue.setActionsAppearance({ style: "brand", mode: "secondary", size: "small" });
-    const items = [];
-    const prevTextBtn = new Action({
-      id: "sv-pd-prev-btn",
-      locTitle: this.locPrevPanelText,
-      action: () => {
-        this.goToPrevPanel();
-      }
-    });
-    const nextTextBtn = new Action({
-      id: "sv-pd-next-btn",
-      locTitle: this.locNextPanelText,
-      action: () => {
-        this.goToNextPanel();
-      }
-    });
-    const progressText = new Action({
-      id: "sv-pd-progress-text",
-      component: "sv-paneldynamic-progress-text",
-      data: { question: this }
-    });
-    const addBtn = new Action({
-      id: "sv-pd-add-btn",
-      enabled: <any>new ComputedUpdater(() => this.enableAddPanel !== false),
-      action: () => {
-        this.addPanelUI();
-      },
-      locTitle: this.locAddPanelText,
-      innerCss: this.getAddButtonCss()
-    });
-    items.push(prevTextBtn, nextTextBtn, addBtn, progressText);
-    this.updateFooterActionsCallback = () => {
-      const isRenderModeList = this.isRenderModeList;
-      const isMobile = this.isMobile;
-      const showNavigation = !isRenderModeList;
-      prevTextBtn.visible = showNavigation && this.currentIndex > 0;
-      nextTextBtn.visible = showNavigation && this.canGoToNextRecord;
-      nextTextBtn.needSpace = isMobile && nextTextBtn.visible && prevTextBtn.visible;
-      addBtn.visible = this.canAddPanel;
-      addBtn.needSpace = this.isMobile && !nextTextBtn.visible && prevTextBtn.visible;
-      progressText.visible = !this.isRenderModeList && !isMobile && !this.getShowNoEntriesPlaceholder();
-      progressText.needSpace = !this.isMobile;
-    };
-    this.updateFooterActionsCallback();
-    this.footerToolbarValue.setItems(items);
-    this.footerToolbar.flushUpdates();
-    this._showFooterToolbar = new ComputedUpdater<boolean>(() => this.footerToolbarValue?.hasVisibleActions) as any as boolean;
-  }
-  /* One tab per panel of the page. Nothing positional is captured: the title event gets the tab's
-     visibleIndex at the time the title is asked for, "active" is computed from currentPanel, and a
-     click maps the panel to its pageVisibleIndex and then to its visibleIndex - an insert in front of
-     the tab or a page other than the first cannot make any of them stale. */
-  private createTabByPanel(panel: PanelModel): PanelDynamicTabbedMenuItem {
-    const locTitle = new LocalizableString(panel, true);
-    locTitle.onGetTextCallback = (str: string): string => {
-      if (!str) {
-        str = this.locTabTitlePlaceholder.renderedHtml;
-      }
-      if (!this.survey) return str;
-      const options = {
-        title: str,
-        panel: panel,
-        visiblePanelIndex: this.getPanelVisibleIndex(panel)
-      };
-      this.dynamicPanelCallbacks.dynamicPanelGetTabTitle(this, options);
-      return options.title;
-    };
-    locTitle.sharedData = this.locTemplateTabTitle;
-    const panelId = panel.id;
-    const isActive = (): boolean => this.getPropertyValue("currentPanelId") === panelId;
-    const newItem = new PanelDynamicTabbedMenuItem({
-      id: `${this.id}_tab_${panelId}`,
-      panelId: panelId,
-      active: <any>new ComputedUpdater<boolean>(isActive),
-      locTitle: locTitle,
-      disableHide: <any>new ComputedUpdater<boolean>(isActive),
-      action: () => {
-        const visibleIndex = this.getPanelVisibleIndex(panel);
-        if (visibleIndex > -1) {
-          this.currentIndex = visibleIndex;
-        }
-      }
-    });
-    return newItem;
+    return this.dynamicActions.addPanelAction;
   }
   // The panel's visibleIndex: its position among the visible records of the whole list; -1 when it is not visible.
   private getPanelVisibleIndex(panel: PanelModel): number {
@@ -3817,51 +3558,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private getVisiblePanelAt(visibleIndex: number): PanelModel {
     const visPanels = this.visiblePanelsCore;
     return visPanels[Math.max(0, Math.min(this.getPositionAtVisibleIndex(visibleIndex), visPanels.length - 1))];
-  }
-  private getTabbedMenuCss(cssClasses?: any): string {
-    const css = cssClasses ?? this.cssClasses;
-    return toCssClasses(
-      css.tabsRoot,
-      this.tabAlign === "left" && css.tabsLeft,
-      this.tabAlign === "right" && css.tabsRight,
-      this.tabAlign === "center" && css.tabsCenter
-    );
-  }
-  /* The tab bar is derived from the page (Andrew's decision 2026-09-25): its actions are the current
-     page's visiblePanels, in order, computed from that one source whenever it changes. An action is
-     reused for the same panel, so that the adaptive overflow is not reset needlessly. A rebuild
-     derives it once, at its end. */
-  private tabActions: { [panelId: string]: PanelDynamicTabbedMenuItem } = {};
-  private updateTabbedMenuItems(): void {
-    if (!this.tabbedMenuValue || this.isRebuildingPanels) return;
-    if (!this.isRenderModeTab) {
-      this.disposeReplacedTabActions({});
-      if (this.tabbedMenuValue.actions.length > 0)this.tabbedMenuValue.setItems([]);
-      return;
-    }
-    const actions: { [panelId: string]: PanelDynamicTabbedMenuItem } = {};
-    const items = this.visiblePanelsCore.map((panel: PanelModel): PanelDynamicTabbedMenuItem => {
-      const action = this.tabActions[panel.id] || this.createTabByPanel(panel);
-      actions[panel.id] = action;
-      return action;
-    });
-    this.disposeReplacedTabActions(actions);
-    const current = this.tabbedMenuValue.actions;
-    if (current.length === items.length && current.every((a: Action, i: number): boolean => a === items[i])) return;
-    this.tabbedMenuValue.setItems(items);
-  }
-  /* A tab whose panel left the page is never reused: a panel that comes back gets a new one. The old one
-     keeps handlers on the question (its computed properties), and the menu can still show it until the
-     UI rerenders the question. */
-  private disposeReplacedTabActions(actions: { [panelId: string]: PanelDynamicTabbedMenuItem }): void {
-    const old = this.tabActions;
-    this.tabActions = actions;
-    Object.keys(old).forEach((panelId: string): void => {
-      const action = old[panelId];
-      if (actions[panelId] !== action && !action.isDisposed) {
-        this.disposeLeftObject(action);
-      }
-    });
   }
 
   get showNavigation(): boolean {
@@ -3887,16 +3583,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
 
   protected calcCssClasses(css: any): any {
     const classes = super.calcCssClasses(css);
-    const tabbedMenu = <AdaptiveActionContainer>this.tabbedMenu;
-    if (!!tabbedMenu) {
-      tabbedMenu.containerCss = this.getTabbedMenuCss(classes);
-      tabbedMenu.cssClasses = classes.tabs;
+    if (this.isRenderModeTab) {
+      this.dynamicActions.updateTabbedMenuCss(classes);
     }
     return classes;
-  }
-  protected onMobileChanged(): void {
-    super.onMobileChanged();
-    this.updateFooterActions();
   }
   public ensureRowsVisibility(): void {
     this.visiblePanels.forEach(panel => panel.ensureRowsVisibility());
@@ -3904,6 +3594,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
 }
 
 export class PanelDynamicSingleInputBehavior extends QuestionRecordsSingleInputBehavior<PanelModel> {
+  protected isSummaryProgressStep(): boolean {
+    return true;
+  }
   protected get panelDynamic(): QuestionPanelDynamicModel {
     return this.question as QuestionPanelDynamicModel;
   }

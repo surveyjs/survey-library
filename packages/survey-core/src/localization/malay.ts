@@ -89,6 +89,8 @@ export var malaySurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0}/{1} soalan telah dijawab",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Soalan {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Tiada halaman atau soalan boleh dilihat dalam tinjauan.",
   // "Thank you for completing the survey"

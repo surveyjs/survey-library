@@ -116,12 +116,14 @@ ConstValue
 ArrayOp
   = "[" sequence:Sequence "]"? { return sequence; }
 
+// The first item is wrapped: the "null"/"undefined" literal is a null operand, so a bare Expression?
+// can't tell an empty sequence ("f()") from a sequence that starts with null ("f(null, 1)").
 Sequence
-  = expr:Expression? tail:(_ "," _ Expression)* {
-    if (expr == null)
+  = head:(expr:Expression { return { expr: expr }; })? tail:(_ "," _ Expression)* {
+    if (head == null)
       return new ArrayOperand([]);
 
-    var array = [expr];
+    var array = [head.expr];
     if (Array.isArray(tail)) {
       var flatten = flattenArray(tail);
       for (var i = 3; i < flatten.length; i += 4) {

@@ -29,7 +29,7 @@ const productRows = [
 ];
 function createMatrix(json?: any): QuestionMatrixDynamicModel {
   const survey = new SurveyModel({ elements: [Object.assign({
-    type: "matrixdynamic", name: "matrix", title: "Products", rowCount: 0, allowSort: true, maxSortLevel: 4, columns: productColumns
+    type: "matrixdynamic", name: "matrix", title: "Products", rowCount: 0, allowSort: true, showSortBar: "always", maxSortLevel: 4, columns: productColumns
   }, json)] });
   survey.data = { matrix: productRows.map((row: any): any => Object.assign({}, row)) };
   return <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
@@ -419,5 +419,138 @@ describe("Sort dialog: the locale", () => {
     expect(titlesOf(directionListOf(dialog, 0))[0], "#3").toBe("Stored");
     matrix.survey.locale = "";
     expect(popup.title, "#4").toBe("Sort by");
+  });
+});
+
+interface IOpenDesignDialog extends IOpenDialog { applied: Array<Array<any>> }
+function openDesignDialog(q: QuestionRecordsModel, options?: any): IOpenDesignDialog {
+  const applied: Array<Array<any>> = [];
+  const popup = q.showSortDialog(Object.assign({ onApply: (criteria: Array<any>): void => { applied.push(criteria); } }, options));
+  return { dialog: <RecordsSortDialogModel>popup.model.contentComponentData.model, popup: popup, applied: applied };
+}
+const designColumns = productColumns.map((column: any): any => column.name === "category" ? Object.assign({ allowSort: false }, column) : column)
+  .concat([{ name: "tags", title: "Tags", cellType: "checkbox", choices: ["a", "b"] }, { name: "code", title: "Code", cellType: "text", visible: false }]);
+
+describe("Sort dialog: the designer's dialog (showSortDialog)", () => {
+  test("opens in design mode without allowSort and offers every value-sortable column, a row per field; Apply hands the rows to onApply", () => {
+    const matrix = createMatrix({ allowSort: false, maxSortLevel: 1, columns: designColumns });
+    matrix.survey.setDesignMode(true);
+    expect(matrix.recordsBar.showSort, "#1: no bar in design mode").toBe(false);
+    const { dialog, popup, applied } = openDesignDialog(matrix);
+    expect([popup.isVisible, dialogOptions.length], "#2: open").toEqual([true, 1]);
+    expect(rowsOf(dialog), "#3: the first offered field, not sorted").toEqual([["Product", "Default", false]]);
+    expect(titlesOf(fieldListOf(dialog, 0)), "#4: a column with allowSort false and an invisible one are offered, a checkbox column is not")
+      .toEqual(["Product", "Category", "Price", "Discontinued", "Code"]);
+    for (let i = 0; i < 4; i++) addNew(popup).action();
+    expect([dialog.rows.length, dialog.canAddRow, addNew(popup).visible], "#5: a row per field, whatever maxSortLevel").toEqual([5, false, false]);
+    pick(directionListOf(dialog, 0), "Alphabet, Z - A");
+    pick(directionListOf(dialog, 2), "Low - High");
+    apply(popup);
+    expect(applied, "#6").toEqual([[{ field: "product", direction: "desc" }, { field: "price", direction: "asc" }]]);
+    expect([sortOf(matrix), popup.isVisible, dialog.isDisposed], "#7: sortCriteria is the caller's to write; closed and disposed").toEqual([[], false, true]);
+  });
+  test("the current sort fills the rows; an unchanged Apply calls nothing", () => {
+    const matrix = createMatrix({ allowSort: false });
+    matrix.sortCriteria = [{ field: "price", direction: "desc" }];
+    const { dialog, popup, applied } = openDesignDialog(matrix);
+    expect(rowsOf(dialog), "#1").toEqual([["Price", "High - Low", false]]);
+    apply(popup);
+    expect([applied, popup.isVisible], "#2").toEqual([[], false]);
+  });
+  test("Apply validates nothing: an empty required cell does not stop it", () => {
+    const matrix = createMatrix({ pageSize: 2, columns: productColumns.map((column: any): any =>
+      column.name === "product" ? Object.assign({ isRequired: true }, column) : column) });
+    matrix.value = [{ price: 1 }, { product: "x", price: 2 }, { product: "y", price: 3 }];
+    const emptyCell = matrix.visibleRows[0].getQuestionByName("product");
+    const { dialog, popup, applied } = openDesignDialog(matrix);
+    pick(fieldListOf(dialog, 0), "Price");
+    pick(directionListOf(dialog, 0), "Low - High");
+    apply(popup);
+    expect([applied, sortOf(matrix), emptyCell.errors.length], "#1").toEqual([[[{ field: "price", direction: "asc" }]], [], 0]);
+  });
+  test("the dynamic panel offers its bar's fields, a row per field, and hands the rows to onApply", () => {
+    const panel = createPanel({ allowSort: false, maxSortLevel: 1 });
+    panel.survey.setDesignMode(true);
+    const { dialog, popup, applied } = openDesignDialog(panel);
+    expect(titlesOf(fieldListOf(dialog, 0)), "#1").toEqual(["Product", "Category", "Price", "Discontinued"]);
+    for (let i = 0; i < 3; i++) addNew(popup).action();
+    expect([dialog.rows.length, dialog.canAddRow], "#2").toEqual([4, false]);
+    pick(directionListOf(dialog, 0), "Alphabet, A - Z");
+    apply(popup);
+    expect([applied, sortOf(panel)], "#3").toEqual([[[{ field: "product", direction: "asc" }]], []]);
+  });
+  test("the modal goes under options.rootElement, or the survey's root element without it", () => {
+    const roots: Array<HTMLElement> = [];
+    const show = settings.showDialog;
+    settings.showDialog = (options: IDialogOptions, rootElement?: HTMLElement): any => {
+      roots.push(rootElement);
+      return show(options, rootElement);
+    };
+    const matrix = createMatrix();
+    const root = document.createElement("div");
+    openDesignDialog(matrix, { rootElement: root });
+    openDesignDialog(matrix);
+    expect([roots[0] === root, roots[1] === matrix.survey.rootElement], "#1").toEqual([true, true]);
+  });
+  test("with no renderer to show a dialog it returns undefined and keeps nothing", () => {
+    const matrix = createMatrix();
+    settings.showDialog = undefined;
+    expect(matrix.showSortDialog({ onApply: (): void => { } }), "#1").toBeUndefined();
+    expect((<any>matrix).designSortDialog, "#2").toBeUndefined();
+  });
+  test("disposing the question closes the open dialog and disposes it; onHide runs once", () => {
+    const matrix = createMatrix();
+    const { dialog, popup } = openDesignDialog(matrix);
+    let hides = 0;
+    const onHide = popup.model.onHide;
+    popup.model.onHide = (): void => { hides++; onHide(); };
+    matrix.dispose();
+    expect([dialog.isDisposed, popup.isVisible, hides], "#1").toEqual([true, false, 1]);
+  });
+  test("a second call closes and disposes the first dialog", () => {
+    const matrix = createMatrix();
+    const first = openDesignDialog(matrix);
+    const second = openDesignDialog(matrix);
+    expect([first.dialog.isDisposed, first.popup.isVisible, second.dialog.isDisposed, second.popup.isVisible], "#1").toEqual([true, false, false, true]);
+    second.popup.clickClose();
+    expect([second.dialog.isDisposed, (<any>matrix).designSortDialog], "#2: closed by the designer").toEqual([true, undefined]);
+  });
+});
+
+describe("Sort dialog: the designer's locale", () => {
+  const testLocale = "sort-design-dialog-test";
+  beforeEach(() => {
+    surveyLocalization.locales[testLocale] = { sortByText: "Order", sortDefaultText: "Stored", sortNoDirectionText: "None", sortAddNewText: "New level",
+      modalApplyButtonText: "Use", sortAZText: "A first", sortZAText: "Z first", sortLowHighText: "Small first", sortHighLowText: "Big first",
+      sortRemoveLevelText: "Drop {0}", sortLevelFieldAriaLabel: "Key {0}" };
+  });
+  afterEach(() => { delete surveyLocalization.locales[testLocale]; });
+  test("options.locale holds for the dialog's whole life: at opening, after Add New, a removed row and each pick", () => {
+    const matrix = createMatrix();
+    matrix.survey.setDesignMode(true);
+    const { dialog, popup } = openDesignDialog(matrix, { locale: testLocale });
+    const texts = (): Array<string> => [popup.title, addNew(popup).title, footerAction(popup, "apply").title];
+    expect(texts(), "#1: opening").toEqual(["Order", "New level", "Use"]);
+    expect(rowsOf(dialog), "#2").toEqual([["Product", "Stored", false]]);
+    expect(titlesOf(directionListOf(dialog, 0)), "#3").toEqual(["Stored", "A first", "Z first"]);
+    addNew(popup).action();
+    expect([texts(), rowsOf(dialog), rowActions(dialog, 1)[2].title, rowActions(dialog, 1)[0].ariaLabel], "#4: Add New")
+      .toEqual([["Order", "New level", "Use"], [["Product", "Stored", false], ["Category", "None", true]], "Drop 2", "Key 2 Category"]);
+    addNew(popup).action();
+    removeRow(dialog, 1);
+    expect([texts(), rowsOf(dialog)], "#5: a removed row").toEqual([["Order", "New level", "Use"], [["Product", "Stored", false], ["Price", "None", true]]]);
+    pick(fieldListOf(dialog, 0), "Category");
+    expect([texts(), rowsOf(dialog)[0]], "#6: a field pick").toEqual([["Order", "New level", "Use"], ["Category", "Stored", false]]);
+    pick(directionListOf(dialog, 0), "Z first");
+    pick(directionListOf(dialog, 1), "Small first");
+    expect([texts(), rowsOf(dialog)], "#7: the direction picks").toEqual([["Order", "New level", "Use"], [["Category", "Z first", false], ["Price", "Small first", true]]]);
+    expect(matrix.survey.locale, "#8: the survey's locale is not touched").toBe("");
+  });
+  test("without options.locale the dialog follows the survey's locale", () => {
+    const matrix = createMatrix();
+    matrix.survey.locale = testLocale;
+    const { popup } = openDesignDialog(matrix);
+    expect(popup.title, "#1").toBe("Order");
+    matrix.survey.locale = "";
   });
 });

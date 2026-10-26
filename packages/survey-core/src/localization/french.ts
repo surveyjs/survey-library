@@ -89,6 +89,8 @@ export var frenchSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0}/{1} question(s) répondue(s)",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Question {0} de {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Il n'y a ni page visible ni question visible dans ce questionnaire",
   // "Thank you for completing the survey"

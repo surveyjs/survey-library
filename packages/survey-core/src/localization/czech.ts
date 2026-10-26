@@ -89,6 +89,8 @@ export var czechSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Zodpovězené otázky: {0} / {1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Otázka {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Průzkum neobsahuje žádné otázky.",
   // "Thank you for completing the survey"

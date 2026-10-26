@@ -89,6 +89,8 @@ export var lithuaniaSurveyStrings = {
   panelDynamicTabTextFormat: "Skydelis {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Atsakė į {0} / {1} klausimus",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Klausimas {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Apklausoje nėra matomo puslapio ar klausimo.",
   // "Thank you for completing the survey"

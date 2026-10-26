@@ -546,12 +546,23 @@ export class MatrixDropdownColumn extends Base
    * Default value: `false`
    */
   @property() isUnique: boolean;
-  /* Opts this column out of the header-click sort. A cell whose value is not a scalar - a checkbox,
-     a file, a signature - is never sortable, whatever this says (Question.isValueSortable). */
+  /**
+   * Specifies whether respondents can sort matrix rows by this column. Applies only when the matrix's `allowSort` property is `true`.
+   *
+   * Default value: `true`
+   *
+   * Columns whose cells hold multiple values (`"checkbox"` and `"tagbox"` [cell types](#cellType), or a `"slider"` with `sliderType: "range"`) are excluded from respondent sorting regardless of this setting.
+   *
+   * Sorting configured in code remains available regardless of this property's value.
+   */
   @property({ defaultValue: true }) allowSort: boolean;
+  // Whether the cell's value can be sorted at all, whatever allowSort says: the designer's dialog offers such a column.
+  public get isValueSortable(): boolean {
+    return !!this.templateQuestion && this.templateQuestion.isValueSortable;
+  }
   public get isSortable(): boolean {
     const matrix = this.colOwner;
-    return !!matrix && matrix.allowSort === true && this.allowSort && !!this.templateQuestion && this.templateQuestion.isValueSortable;
+    return !!matrix && matrix.allowSort === true && this.allowSort && this.isValueSortable;
   }
   /* The record key this column sorts by, which is the key the cell writes and not the column name:
      a column with a valueName shares the key with the question it is bound to. It is the same name
@@ -1033,8 +1044,12 @@ Serializer.addClass(
     { name: "totalMaximumFractionDigits:number", default: -1, visibleIf: (obj: any): boolean => obj.hasTotal },
     { name: "totalMinimumFractionDigits:number", default: -1, visibleIf: (obj: any): boolean => obj.hasTotal },
     { name: "renderAs", default: "default", visible: false },
-    // Invisible until the UI series renders sortable headers, see the matrix allowSort.
-    { name: "allowSort:boolean", default: true, visible: false },
+    /* Shows on a column of a Dynamic Matrix that allows sorting, see the matrix allowSort. dependsOn cannot reach the
+       matrix's property: Creator refreshes its column grid. */
+    {
+      name: "allowSort:boolean", default: true,
+      visibleIf: (obj: any): boolean => !!obj && !!obj.colOwner && obj.colOwner.getType() === "matrixdynamic" && obj.colOwner.allowSort === true
+    },
     { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
   ],
   function () {

@@ -89,6 +89,8 @@ export var hungarianSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Válaszolt kérdések: {0} / {1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Kérdés {0} {1}",
   // [Auto-translated] "The survey doesn't contain any visible elements."
   emptySurvey: "A felmérés nem tartalmaz látható elemeket.",
   // "Thank you for completing the survey"

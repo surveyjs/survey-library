@@ -89,6 +89,8 @@ export var teluguStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0}/{1} ప్రశ్నలకు జవాబు ఇవ్వడం అయినది",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "ప్రశ్న {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "ఈ సర్వేలో పేజీలు గాని ప్రశ్నలు గాని కనబడుట లేదు",
   // "Thank you for completing the survey"

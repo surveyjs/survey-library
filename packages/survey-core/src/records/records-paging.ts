@@ -5,6 +5,7 @@ import { normalizeSort } from "../dynamic-data/dynamic-data-view";
 import { ISortCriterionOwner, SortCriterion } from "./records-sort-criterion";
 import { getFirstSortDirection } from "./records-sort-directions";
 import { Scope } from "../utils/scope";
+import { ISurvey } from "../base-interfaces";
 
 /* The question side of the list's paging, sorting and filtering. The behaviour lives here and the
    questions keep the thin public accessors. Its owner is a private object of the question
@@ -49,6 +50,10 @@ export interface IRecordsPagingOwner {
   /* The data type the list registered for a record field: the direction toggleSort starts with
      follows it (getFirstSortDirection). Absent, or "any" -> ascending first. */
   getFieldDataType?(field: string): DynamicDataFieldType;
+  /* What an item of sortCriteria serves to Creator's property grid (ISortCriterionOwner): the question's
+     survey, and the fields its designer can sort by. Absent -> no survey, no fields. */
+  getSurvey?(): ISurvey;
+  getDesignSortFields?(): Array<{ field: string, title: string }>;
   // What the question reports: 1 page and page 0 while it does not page.
   pageIndex: number;
   pageCount: number;
@@ -86,11 +91,22 @@ function isSameSort(a: Array<ISortCriterion>, b: Array<ISortCriterion>): boolean
     item.field === b[index].field && item.direction === b[index].direction);
 }
 
+function isInArrayOnce(items: any, item: any): boolean {
+  return Array.isArray(items) && items.indexOf(item) === items.lastIndexOf(item);
+}
+
 export class RecordsPagingController implements ISortCriterionOwner {
   // getList: whoever holds the list hands it over; it may create the list when it is asked.
   constructor(private owner: IRecordsPagingOwner, private getList: () => DynamicDataList) { }
   private get list(): DynamicDataList {
     return this.getList();
+  }
+  // ISortCriterionOwner: what an item of the sort reads for Creator's property grid.
+  public getSurvey(): ISurvey {
+    return !!this.owner.getSurvey ? this.owner.getSurvey() : null;
+  }
+  public getDesignSortFields(): Array<{ field: string, title: string }> {
+    return !!this.owner.getDesignSortFields ? this.owner.getDesignSortFields() : [];
   }
   /* In design mode nothing is paged: the authored pageSize keeps its value for
      serialization, but the Creator shows every row. The page size is re-pushed on every sync and
@@ -342,16 +358,18 @@ export class RecordsPagingController implements ISortCriterionOwner {
     }
   }
   /* A SortCriterion without an owner is kept: the serializer creates it while it loads, and
-     writeSortCriteria creates it. Anything else - a plain object, or an item that already has an
-     owner (another question's, or one added to this array a second time) - is replaced in place by a
-     new SortCriterion. The plain index assignment is not wrapped, so it raises no second change.
+     writeSortCriteria creates it. So is this sort's own item that comes back - a row moved by splice,
+     an undo that re-inserts a removed item - as long as the array holds it once: Creator's undo steps
+     and the matrix's rows hold that very object. Anything else - a plain object, another question's
+     item, or the second copy of an item added twice - is replaced in place by a new SortCriterion.
+     The plain index assignment is not wrapped, so it raises no second change.
      The item is found by identity and not by the index Base passes: that index is wrong for a
      negative splice start and missing for an assignment. When one call adds the same object twice,
      the first slot already holds its converted item by the time the second one is looked for. */
   private toOwnSortCriterion(item: any): SortCriterion {
-    if (item instanceof SortCriterion && !item.hasOwner) return item;
-    const res = new SortCriterion(item.field, item.direction);
     const items = this.owner.getPropertyValue(pagingStateKeys.sortCriteria);
+    if (item instanceof SortCriterion && (!item.hasOwner || item.isOwnedBy(this) && isInArrayOnce(items, item))) return item;
+    const res = new SortCriterion(item.field, item.direction);
     const index = Array.isArray(items) ? items.indexOf(item) : -1;
     if (index > -1) {
       items[index] = res;

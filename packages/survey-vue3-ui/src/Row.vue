@@ -14,7 +14,7 @@
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
 import type { QuestionRowModel, SurveyModel } from "survey-core";
-import { onMounted, ref } from "vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 import { isBaseElementSubsribed, useBase } from "./base";
 
 const props = defineProps<{
@@ -34,7 +34,6 @@ useBase(
   },
   (value) => {
     if (!isBaseElementSubsribed(value)) {
-      clearTimeout(lazyRenderingTimeout)
       value.setRootElement(undefined);
       value.stopLazyRendering();
       value.isNeedRender = !value.isLazyRendering();
@@ -46,10 +45,18 @@ onMounted(() => {
     props.row.setRootElement(root.value);
     if (!props.row.isNeedRender) {
       const rowContainerDiv = root.value;
-      setTimeout(() => {
+      lazyRenderingTimeout = setTimeout(() => {
+        lazyRenderingTimeout = undefined;
         props.row.startLazyRendering(rowContainerDiv as HTMLElement);
       }, 10);
     }
   }
+});
+// The timer belongs to this component instance: clear it on unmount even if another component
+// still subscribes to the row. Not in the useBase clean callback, which also runs on a row swap,
+// where the timer must start the new row.
+onBeforeUnmount(() => {
+  clearTimeout(lazyRenderingTimeout);
+  lazyRenderingTimeout = undefined;
 });
 </script>

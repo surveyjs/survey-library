@@ -89,6 +89,8 @@ export var vietnameseSurveyStrings = {
   panelDynamicTabTextFormat: "Bảng điều khiển {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Đã trả lời {0}/{1} câu hỏi",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Câu hỏi {0} về {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Không có trang hoặc câu hỏi nào được hiển thị trong cuộc khảo sát này.",
   // "Thank you for completing the survey"

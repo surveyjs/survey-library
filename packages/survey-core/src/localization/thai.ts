@@ -89,6 +89,8 @@ export var thaiStrings = {
   panelDynamicTabTextFormat: "แผง {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "คำตอบที่ {0}/{1} จำนวนคำถาม",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "คําถาม{0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "ไม่มีหน้าเพจที่มองเห็น หรือ คำถามใน survey นี้",
   // "Thank you for completing the survey"

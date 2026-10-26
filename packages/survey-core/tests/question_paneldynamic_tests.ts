@@ -4148,6 +4148,36 @@ describe("Survey_QuestionPanelDynamic", () => {
     panel.removePanelUI(0);
     expect(panel.panelCount, "Remove the first panel").toBe(0);
   });
+  test("removePanelUI followed by dispose creates no remove action when the focus timer fires", () => {
+    vi.useFakeTimers();
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [{ type: "text", name: "a" }] }] });
+      survey.data = { p: [{ a: 1 }, { a: 2 }, { a: 3 }] };
+      const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+      panel.removePanelUI(panel.panels[1]);
+      panel.dispose();
+      const getRemoveAction = vi.spyOn(panel, "getRemovePanelAction");
+      vi.advanceTimersByTime(150);
+      expect(getRemoveAction).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  test("removePanelUI of the last panel followed by dispose does not read the add button when the focus timer fires", () => {
+    vi.useFakeTimers();
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [{ type: "text", name: "a" }] }] });
+      survey.data = { p: [{ a: 1 }] };
+      const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+      panel.removePanelUI(panel.panels[0]);
+      panel.dispose();
+      const getAddAction = vi.spyOn(panel, "addPanelAction", "get");
+      vi.advanceTimersByTime(150);
+      expect(getAddAction).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 
   test("call clearFiles for QuestionFile on removing the panel, Bug #1970", () => {
     var json = {
@@ -11019,14 +11049,14 @@ describe("Question Panel Dynamic: the sort and the filter in JSON", () => {
     expect(values(question, "q2"), "#2").toEqual(["3", "1", "2", "1"]);
     expect(question.toJSON().sortCriteria, "#3: normalized").toEqual([{ field: "q1" }, { field: "q2", direction: "desc" }]);
   });
-  test("the defaults are not serialized and the properties stay out of the property grid", () => {
+  test("the defaults are not serialized; sortCriteria is in the property grid and filterExpression is not", () => {
     const question = createQuestion({ panelCount: 2 }, cba);
     const json = question.toJSON();
     expect(json.sortCriteria, "#1").toBe(undefined);
     expect(json.filterExpression, "#2").toBe(undefined);
     expect(getSort(question), "#3").toEqual([]);
     expect(question.filterExpression, "#4").toBe("");
-    expect(Serializer.findProperty("paneldynamic", "sortCriteria").visible, "#5").toBe(false);
+    expect(Serializer.findProperty("paneldynamic", "sortCriteria").visible, "#5").toBe(true);
     expect(Serializer.findProperty("paneldynamic", "filterExpression").visible, "#6").toBe(false);
     const sortProp = Serializer.findProperty("paneldynamic", "sortCriteria");
     expect([sortProp.className, sortProp.isArray], "#7: an array of sortcriterion objects").toEqual(["sortcriterion", true]);

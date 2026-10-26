@@ -89,6 +89,8 @@ export var macedonianSurveyStrings = {
   panelDynamicTabTextFormat: "Панел {панел Индекс}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Одговорени на {0} / {1} прашања",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Прашање {0} од {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Нема видлива страница или прашање во истражувањето.",
   // "Thank you for completing the survey"

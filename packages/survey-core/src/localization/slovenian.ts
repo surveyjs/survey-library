@@ -89,6 +89,8 @@ export var slovenianStrings = {
   panelDynamicTabTextFormat: "Plošča {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Odgovorjeno {0}/{1} vprašanj",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Vprašanje {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Anketa ne vsebuje vidnih elementov.",
   // "Thank you for completing the survey"

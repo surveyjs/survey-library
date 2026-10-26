@@ -89,6 +89,8 @@ export var indonesianStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Menjawab pertanyaan {0} / {1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Pertanyaan {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Tidak ada halaman atau pertanyaan dalam survei.",
   // "Thank you for completing the survey"

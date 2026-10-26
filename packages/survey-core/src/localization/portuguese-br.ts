@@ -91,6 +91,8 @@ export var portugueseBrSurveyStrings = {
   panelDynamicTabTextFormat: "Painel {panelIndex}",
   // [Auto-translated] "Answered {0}/{1} questions"
   questionsProgressText: "Perguntas respondidas {0}/{1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Pergunta {0} de {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Não há página visível ou pergunta na pesquisa.",
   // "Thank you for completing the survey"

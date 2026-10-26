@@ -89,6 +89,8 @@ export var dutchSurveyStrings = {
   panelDynamicTabTextFormat: "Paneel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Geantwoord {0}/{1} vragen",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Vraag {0} van {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Er is geen zichtbare pagina of vraag in deze vragenlijst",
   // "Thank you for completing the survey"

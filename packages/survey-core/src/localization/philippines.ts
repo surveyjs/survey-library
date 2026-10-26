@@ -89,6 +89,8 @@ export var philippinesStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Sinagot ang {0}/{1} mga tanong",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Tanong {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Ang survey ay hindi naglalaman ng anumang nakikitang elemento.",
   // "Thank you for completing the survey"

@@ -89,6 +89,8 @@ export var germanSurveyStrings = {
   panelDynamicTabTextFormat: "Bereich {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0}/{1} Fragen beantwortet",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Frage {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Es sind keine Fragen vorhanden.",
   // "Thank you for completing the survey"

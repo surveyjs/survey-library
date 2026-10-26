@@ -89,6 +89,8 @@ export var estonianSurveyStrings = {
   panelDynamicTabTextFormat: "Paneel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Vastatud {0} küsimust {1}-st",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Küsimus {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Selles uuringus ei ole ühtki nähtavat lehekülge või küsimust.",
   // "Thank you for completing the survey"

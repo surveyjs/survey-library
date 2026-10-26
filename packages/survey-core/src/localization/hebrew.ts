@@ -89,6 +89,8 @@ export var hebrewSurveyStrings = {
   panelDynamicTabTextFormat: "לוח {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "ענה על שאלות",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "שאלה {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "אין שאלות",
   // "Thank you for completing the survey"

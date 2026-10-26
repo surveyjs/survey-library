@@ -9,7 +9,7 @@ import {
 import { DynamicDataSourceChannel, IDynamicDataChannelHost, IDynamicDataPushInfo } from "./dynamic-data-channel";
 import { getChangedFields, isRecordValueChanged, toReadResult } from "./dynamic-data-records";
 import { IPendingInsert, getOwnedFields, getUpdatePayload, mergeInsertAnswer } from "./dynamic-data-pending-insert";
-import { DynamicDataCount } from "./dynamic-data-count";
+import { DynamicDataCount, IDynamicDataWindowAnswer } from "./dynamic-data-count";
 import { ArrayDynamicDataSource, isLocalSource, LocalDynamicDataSource } from "./dynamic-data-sources";
 import { DynamicDataSourceBinding } from "./dynamic-data-source-binding";
 import { DynamicDataWriteScope } from "./dynamic-data-write-scope";
@@ -814,10 +814,7 @@ export class DynamicDataList {
        on meaningless, while a sort keeps the same records and only reorders them. An assignment of
        the filter it already has changes neither. */
     if (this.view.setView(newFilter, sort)) {
-      /* Not setPageIndexInternal: the page cache is dropped by resetMembership() below, after the filter
-         is parsed. updateFilterRunner can raise onError, and a handler that reads the page meanwhile
-         sees the page cached before this call. */
-      this._pageIndex = 0;
+      this.setPageIndexInternal(0, false);
       // Another filter is another set of records: what the old one reached says nothing about it.
       this.storageCount.forgetReach();
       this.view.updateFilterRunner(this.readState);
@@ -1059,8 +1056,8 @@ export class DynamicDataList {
     if (pageIndex === undefined) return;
     this.setPageIndexInternal(pageIndex, true);
   }
-  /* Every write of the page index but the one in setView: the page cache of the membership belongs to
-     the page index, and notify raises pageChanged. */
+  /* Every write of the page index: the page cache of the membership belongs to the page index, and
+     notify raises pageChanged. */
   private setPageIndexInternal(value: number, notify: boolean): void {
     this._pageIndex = value;
     this.membership.resetPage();
@@ -1077,8 +1074,9 @@ export class DynamicDataList {
       /* A page past the end is not committed: the count records the retry and the list reads that
          page instead (getReadRange takes its skip from it). No pageChanged here: until the retry commits,
          the question shows the window in force together with the page it was read for. */
-      if (this.storageCount.stepBackPastEnd(result, skip, take, records.length, this._pageIndex, this._pageSize, this.view.filter)) return false;
-      const retryPageIndex = this.storageCount.commitWindow(result, skip, take, records.length, this.view.filter);
+      const answer: IDynamicDataWindowAnswer = { result: result, skip: skip, take: take, length: records.length };
+      if (this.storageCount.stepBackPastEnd(answer, this._pageIndex, this._pageSize, this.view.filter)) return false;
+      const retryPageIndex = this.storageCount.commitWindow(answer, this.view.filter);
       if (retryPageIndex !== undefined) {
         this.setPageIndexInternal(retryPageIndex, false);
       }

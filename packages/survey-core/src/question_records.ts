@@ -396,6 +396,9 @@ export abstract class QuestionRecordsModel extends Question {
       this.isDataLoading = change.isLoading;
       return;
     }
+    if (change.type === "recordAdded" || change.type === "recordRemoved" || change.type === "reset") {
+      this.resetSurveyProgressTotal();
+    }
     if (change.type === "pageChanged") {
       this.followRecordIndexEvent({ kind: "pageChanged" });
       this.syncPagingState();
@@ -1087,8 +1090,8 @@ export abstract class QuestionRecordsModel extends Question {
     write();
   }
   /* A change of the minimum or the maximum count (getRecordCountNames): the other limit and the count
-     follow, and the count expression runs again over the new limits. The type adds its own steps:
-     onMinRecordCountApplied before the count follows a new minimum, onMaxRecordCountApplied last. */
+     follow, and the count expression runs again over the new limits. The type adds its own step:
+     onMinRecordCountApplied before the count follows a new minimum. */
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (recordsBarInputs.indexOf(name) > -1) {
@@ -1120,10 +1123,8 @@ export abstract class QuestionRecordsModel extends Question {
     const limit = this.getRecordCountLimitOf(names.maxCount);
     if (this.recordCount > limit)this.writeRecordCount(limit, "internal");
     this.rerunRecordCountExpression();
-    this.onMaxRecordCountApplied();
   }
   protected onMinRecordCountApplied(val: number): void { }
-  protected onMaxRecordCountApplied(): void { }
   /* The count expression of a type (rowCountExpression, panelCountExpression) over the count it sets
      (getRecordCountNames). A data source owns the number of records, so the expression is ignored
      while one is attached - including the add/remove gating it otherwise imposes. No error: a question
@@ -1213,16 +1214,33 @@ export abstract class QuestionRecordsModel extends Question {
     }
     return res;
   }
-  /* defaultRowValue / defaultPanelValue: an empty question gets recordCount copies of it. Returns
-     false when it does not apply - there is no default record value, or defaultValue is set - and the
-     question's own default value is applied instead. */
-  protected setDefaultRecordValues(defaultRecordValue: any, recordCount: number): boolean {
-    if (this.isValueEmpty(defaultRecordValue) || !this.isValueEmpty(this.defaultValue)) return false;
-    if (!this.isEmpty() || recordCount == 0) return true;
+  /* The record every new row or panel starts from: defaultRowValue, defaultPanelValue. undefined: the
+     type has none - the Multi-Select Matrix, whose default value is the question's own. */
+  protected getDefaultRecordValue(): any {
+    return undefined;
+  }
+  protected isDefaultValueEmpty(): boolean {
+    return super.isDefaultValueEmpty() && this.isValueEmpty(this.getDefaultRecordValue());
+  }
+  /* The default record: an empty question gets recordCount copies of it. It does not apply when there
+     is none, or when defaultValue is set - the question's own default value is applied instead. */
+  protected setDefaultValue(): void {
+    const defaultRecordValue = this.getDefaultRecordValue();
+    if (this.isValueEmpty(defaultRecordValue) || !this.isValueEmpty(this.defaultValue)) {
+      super.setDefaultValue();
+      return;
+    }
+    const recordCount = this.recordCount;
+    if (!this.isEmpty() || recordCount == 0) return;
     const newValue: Array<any> = [];
     for (let i = 0; i < recordCount; i++) newValue.push(defaultRecordValue);
     this.value = newValue;
-    return true;
+  }
+  // With confirmDelete on, a removal asks for a confirmation unless the record is empty or equals the default record.
+  protected isRecordToConfirmOnDelete(record: any): boolean {
+    const defaultRecordValue = this.getDefaultRecordValue();
+    return !this.isValueEmpty(record) &&
+      (this.isValueEmpty(defaultRecordValue) || !this.isTwoValueEquals(record, defaultRecordValue));
   }
   /* The records decide the page: their visibility is decided over the records, and when a flag changed
      and the page is not the one the objects hold, the objects are rebuilt - the rebuild runs the
@@ -4231,6 +4249,49 @@ export abstract class QuestionRecordsSingleInputBehavior<TRecord extends ISingle
     this.recordsQuestion["addRecordFromUI"]();
   }
   protected abstract getRecords(): Array<TRecord>;
+  // A static matrix never stops on a summary. Dynamic matrix and dynamic panel do.
+  protected isSummaryProgressStep(): boolean {
+    return false;
+  }
+  public getProgressStepCount(): number {
+    const questions = this.getProgressQuestions();
+    if (!questions) return 1;
+    let count = 0;
+    for (let i = 0; i < questions.length; i++) {
+      count += this.getProgressStepCountOf(questions[i]);
+    }
+    return Math.max(1, count);
+  }
+  public getProgressStepIndex(): number {
+    const questions = this.getProgressQuestions();
+    const current = this.singleInputQuestion;
+    if (!questions || !current) return 0;
+    let offset = 0;
+    for (let i = 0; i < questions.length; i++) {
+      const q = questions[i];
+      if (q === current) return offset + (q === this.question ? 0 : q.getProgressStepIndex());
+      offset += this.getProgressStepCountOf(q);
+    }
+    return 0;
+  }
+  // undefined: nested single input is off, the question is one step at index 0.
+  private getProgressQuestions(): Array<Question> {
+    if (!this.supportNestedSingleInput()) return undefined;
+    return this.collectProgressQuestions();
+  }
+  // The question itself is the summary step: one step, not its own nested steps.
+  private getProgressStepCountOf(q: Question): number {
+    return q === this.question ? 1 : q.getProgressStepCount();
+  }
+  private collectProgressQuestions(): Array<Question> {
+    this.recordsQuestion["syncPageSizeWithMode"]();
+    const res = new Array<Question>();
+    this.getRecords().forEach(record => {
+      record.visibleQuestions.forEach(q => res.push(q));
+    });
+    if (this.isSummaryProgressStep()) res.push(this.question);
+    return res;
+  }
   // Not always a record: the lookup is also asked for the question itself and for its parents.
   protected abstract getRecordOfQuestion(question: Question): TRecord;
   protected abstract isRecordValid(record: TRecord): boolean;

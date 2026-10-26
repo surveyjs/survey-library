@@ -89,6 +89,8 @@ export var finnishSurveyStrings = {
   panelDynamicTabTextFormat: "Paneeli {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Olet vastannut {0} / {1} kysymykseen.",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Kysymys {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Tässä kyselyssä ei ole yhtään näkyvillä olevaa sivua tai kysymystä.",
   // "Thank you for completing the survey"

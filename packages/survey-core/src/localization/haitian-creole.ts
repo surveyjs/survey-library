@@ -91,6 +91,8 @@ export var haitianCreoleStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Reponn {0}/{1} kesyon",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Kesyon {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Sondaj la pa genyen okenn eleman vizib.",
   // "Thank you for completing the survey"

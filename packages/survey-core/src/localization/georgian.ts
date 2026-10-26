@@ -89,6 +89,8 @@ export var georgianSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // [Auto-translated] "Answered {0}/{1} questions"
   questionsProgressText: "უპასუხეთ {0}/{1} კითხვებს",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "კითხვა {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "არცერთი კითხვა არ არის.",
   // "Thank you for completing the survey"

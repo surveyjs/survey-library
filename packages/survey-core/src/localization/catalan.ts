@@ -89,6 +89,8 @@ export var catalanSurveyStrings = {
   panelDynamicTabTextFormat: "Panell {panelIndex}",
   // [Auto-translated] "Answered {0}/{1} questions"
   questionsProgressText: "Respostes {0}/{1} preguntes",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Pregunta {0} de {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "No hi ha cap pàgina visible o pregunta a l'enquesta.",
   // "Thank you for completing the survey"

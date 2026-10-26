@@ -20401,6 +20401,87 @@ describe("Survey", () => {
     expect(survey.pages[0].passed, "First page passed").toBeTruthy();
     expect(survey.pages[1].passed, "Second page passed").toBeTruthy();
   });
+  const pagePassedMatrixJson = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          { type: "text", name: "q1", isRequired: true },
+          { type: "matrixdropdown", name: "matrix", rows: ["r1", "r2"], columns: [{ name: "c1", cellType: "text", isRequired: true }] }
+        ]
+      },
+      { name: "page2", elements: [{ type: "text", name: "q2" }] }
+    ]
+  };
+  test("design mode: leaving a page does not validate it", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON(pagePassedMatrixJson);
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+    expect(!!(<any>matrix).generatedVisibleRows, "rows are not generated before the page change").toBe(false);
+    let validateCount = 0;
+    survey.onValidateQuestion.add(() => { validateCount++; });
+    survey.currentPage = survey.pages[1];
+    expect(survey.currentPage.name).toBe("page2");
+    expect(survey.pages[0].passed, "page 1 is not passed").toBe(false);
+    expect(!!(<any>matrix).generatedVisibleRows, "rows are not generated after the page change").toBe(false);
+    expect(validateCount, "onValidateQuestion is not fired").toBe(0);
+    survey.pages[0].questions.forEach(q => expect(q.errors.length, q.name + " has no errors").toBe(0));
+  });
+  const designLocaleJson = {
+    pages: [
+      { name: "page1", elements: [{ type: "text", name: "q1", title: { default: "Q1 EN", de: "Q1 DE" } }] },
+      { name: "page2", elements: [{ type: "text", name: "q2", title: { default: "Q2 EN", de: "Q2 DE" }, maskType: "numeric" }] }
+    ]
+  };
+  test("design mode: changing the page does not refresh localizable strings, runtime does", () => {
+    [true, false].forEach(designMode => {
+      const survey = new SurveyModel();
+      survey.setDesignMode(designMode);
+      survey.fromJSON(designLocaleJson);
+      let callCount = 0;
+      const locStrsChanged = survey.locStrsChanged;
+      survey.locStrsChanged = function () { callCount++; locStrsChanged.call(survey); };
+      survey.currentPage = survey.pages[1];
+      expect(survey.currentPage.name).toBe("page2");
+      expect(callCount, "design mode: " + designMode).toBe(designMode ? 0 : 1);
+    });
+  });
+  test("design mode: a locale change refreshes strings on every page", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON(designLocaleJson);
+    survey.currentPage = survey.pages[1];
+    const q1 = survey.getQuestionByName("q1");
+    expect(q1.locTitle.renderedHtml).toBe("Q1 EN");
+    let changedCount = 0;
+    q1.locTitle.onChanged = () => { changedCount++; };
+    survey.locale = "de";
+    expect(changedCount, "the title on the page that is not current is notified").toBe(1);
+    expect(q1.locTitle.renderedHtml).toBe("Q1 DE");
+    expect(survey.getQuestionByName("q2").locTitle.renderedHtml).toBe("Q2 DE");
+    survey.locale = "";
+  });
+  test("design mode: a regionalFormat locale change re-masks values on every page", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON(designLocaleJson);
+    const q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+    q2.value = 1234.5;
+    expect(q2.inputValue, "english format").toBe("1,234.5");
+    survey.regionalFormat.locale = "de";
+    expect(q2.inputValue, "german format on the page that is not current").toBe("1.234,5");
+    survey.currentPage = survey.pages[1];
+    survey.regionalFormat.locale = "en";
+    expect(q2.inputValue, "english format on the current page").toBe("1,234.5");
+    expect(q2.locTitle.renderedHtml, "the display language does not change").toBe("Q2 EN");
+  });
+  test("runtime: leaving a valid page marks it passed", () => {
+    const survey = new SurveyModel(pagePassedMatrixJson);
+    survey.data = { q1: "a", matrix: { r1: { c1: "1" }, r2: { c1: "2" } } };
+    survey.currentPage = survey.pages[1];
+    expect(survey.pages[0].passed, "page 1 is passed").toBe(true);
+  });
   test("showPreview & updateProgress & updateVisibleIndexes", () => {
     const survey = new SurveyModel({
       showProgressBar: true,

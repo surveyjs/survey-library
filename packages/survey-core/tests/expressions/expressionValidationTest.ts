@@ -1047,4 +1047,19 @@ describe("Expression Validation", () => {
     expect(result[0].errors[0].errorType, "Error type is 'UnknownVariable'").toBe(ExpressionErrorType.UnknownVariable);
     expect(result[0].errors[0].variableName, "The unknown variable is reported").toBe("undefinedVar");
   });
+  test("validateExpressions() with null as a function argument, Bug#12130", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2", defaultValueExpression: "iif({q1} = 1, 'x', null)" },
+        { type: "text", name: "q3", visibleIf: "sumInArray(null, 'a', {unknown} = 1) > 0" }
+      ],
+    });
+    const result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+    expect(result.length, "only q3 has an error").toBe(1);
+    expect(result[0].obj.name, "q3 has the error").toBe("q3");
+    expect(result[0].errors.length, "There is 1 error").toBe(1);
+    expect(result[0].errors[0].errorType, "Error type is 'UnknownVariable'").toBe(ExpressionErrorType.UnknownVariable);
+    expect(result[0].errors[0].variableName, "The unknown variable is reported").toBe("unknown");
+  });
 });

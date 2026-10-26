@@ -14,6 +14,7 @@ import {
   conditionsToExpression, getFieldsByValueName, getFilterConditionText, getFilterFieldOperators, getFilterValueEditorJson,
   normalizeFilterCondition, normalizeFilterConditions, parseFilterExpression
 } from "./filter/filter-conditions";
+import { FilterFieldEditorKind, getFilterChipText, getFilterFieldEditorKind } from "./filter/filter-field-kinds";
 import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
 import { IDynamicDataFilterSource } from "./dynamic-data/dynamic-data-interfaces";
 import { combineFilterExpressions } from "./dynamic-data/dynamic-data-filter";
@@ -513,9 +514,32 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (!isRawPreset && this.isSameConditionSet(res, current)) return;
     this.editConditions((): Array<IFilterCondition> => res);
   }
+  // What a fast mode badge edits its field with - see getFilterFieldEditorKind. undefined for a name
+  // that leads to no field.
+  public getFieldEditorKind(name: string): FilterFieldEditorKind {
+    const field = this.getFieldByName(name);
+    return !!field ? getFilterFieldEditorKind(field) : undefined;
+  }
+  // The number a renderer shows next to the advanced editor's button: the conditions the filter is
+  // made of now - the respondent's own, or the active preset's. A preset that does not decompose
+  // has none to count but still filters, and counts as one.
+  public get activeConditionCount(): number {
+    const own = this.ownConditions;
+    if (own !== undefined) return own.length;
+    if (!this.activeItem) return 0;
+    const preset = this.parseActiveItemConditions();
+    return preset === null ? 1 : preset.length;
+  }
+  // With several presets an active one locks the quick filters: they show what it filters by and
+  // any click on them turns the whole filter off (see FilterToolbars). Single mode has no presets to
+  // pick, so its one preset never locks anything.
+  public get isLocked(): boolean {
+    return this.allowMultipleItems && !!this.activeItem;
+  }
   // What the fields toolbar shows, read in one pass: each fast mode field's key (the name
-  // getFieldKey() gives it), its title and its condition's text. One read of the field list and one
-  // parse of the preset for all of them - the toolbar asks on every change of the control.
+  // getFieldKey() gives it), its title, the editor its popup opens and its condition's text. One
+  // read of the field list and one parse of the preset for all of them - the toolbar asks on every
+  // change of the control.
   public getFastModeFieldStates(): Array<IFilterFieldState> {
     const all = this.getFilterFields();
     const fast = this.collapseDuplicateValueNames(all.filter((field: IDynamicDataFilterField): boolean => field.showInFastMode !== false));
@@ -529,7 +553,8 @@ export class QuestionFilterModel extends QuestionNonValue {
       res.push({
         key: key,
         title: !!field.locTitle ? field.locTitle.calculatedText : field.name,
-        text: !!condition ? getFilterConditionText(field, condition, locale) : ""
+        kind: getFilterFieldEditorKind(field),
+        text: !!condition ? getFilterChipText(field, condition, locale) : ""
       });
     });
     return res;

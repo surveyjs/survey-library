@@ -271,6 +271,9 @@ export { FilterItem } from "../../src/filter/filter-item";
 export { FilterConditionsEditor, IFilterConditionsEditorOwner, IFilterConditionsEditorOptions } from "../../src/filter/filter-conditions-editor";
 export { FilterToolbars, FilterEditorHolder, IFilterToolbarsOwner, filterUIStrings, filterEditorComponentName } from "../../src/filter/filter-toolbars";
 export {
+  FilterFieldEditorKind, IFilterFieldListItem, getFilterFieldEditorKind, getFilterFieldListItems, getFilterChipText
+} from "../../src/filter/filter-field-kinds";
+export {
   FilterConditionItem, getConditionOperatorTitle, conditionsToExpression, parseFilterExpression
 } from "../../src/filter/filter-conditions";
 export type { IFilterCondition, IFilterElementUIState } from "../../src/interfaces/ui-interfaces";

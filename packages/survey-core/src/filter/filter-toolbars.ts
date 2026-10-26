@@ -7,6 +7,7 @@ import { IDialogOptions, PopupModel } from "../popup";
 import { settings } from "../settings";
 import { FilterItem } from "./filter-item";
 import { FilterConditionsEditor } from "./filter-conditions-editor";
+import { FilterFieldEditorKind } from "./filter-field-kinds";
 
 // The captions the control's UI adds. Prototype strings, not localized yet: only the captions the
 // library already has (clearCaption, filterStringPlaceholder, the dialog's Apply and Cancel) are.
@@ -53,10 +54,11 @@ export interface IFilterToolbarsOwner {
   getSurveyRootElement(): HTMLElement;
 }
 // What the fields toolbar shows of one fast mode field: the key it is addressed by (getFieldKey), its
-// title and its condition's text ("" with no condition).
+// title, the editor its popup opens and its condition's text ("" with no condition).
 export interface IFilterFieldState {
   key: string;
   title: string;
+  kind: FilterFieldEditorKind;
   text: string;
 }
 // The content component both the badge popups and the advanced dialog show.

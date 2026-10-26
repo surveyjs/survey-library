@@ -61,6 +61,10 @@ describe("FilterToolbars: the chips row", () => {
     q.items.splice(0, 1);
     expect(ids(q.chipsToolbar).indexOf("sv-filter-item-adults"), "#2").toBe(-1);
   });
+  test("two presets with one name get a chip each", () => {
+    const q = createFilter({ items: [{ name: "p", expression: "{age} > 1" }, { name: "p", expression: "{age} > 2" }] });
+    expect(ids(q.chipsToolbar).filter((id: string) => id.indexOf("sv-filter-item-") === 0)).toEqual(["sv-filter-item-p", "sv-filter-item-p-2"]);
+  });
   test("single mode shows no presets", () => {
     const q = createFilter({ allowMultipleItems: false });
     expect(ids(q.chipsToolbar)).toEqual(["sv-filter-filters"].concat(badges, ["sv-filter-more"]));

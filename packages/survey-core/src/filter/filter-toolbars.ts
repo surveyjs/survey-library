@@ -350,7 +350,14 @@ export class FilterToolbars {
   private getItemChip(item: FilterItem): Action {
     let entry = this.itemChips.filter((e: { item: FilterItem, chip: Action }): boolean => e.item === item)[0];
     if (!entry) {
-      const chip = new Action({ id: "sv-filter-item-" + item.name, innerCss: this.cssClasses.chip,
+      // A chip of its own even for a second preset with the same name (an authoring error): the row
+      // tells its chips apart by id, and so does a renderer.
+      const base = "sv-filter-item-" + item.name;
+      let id = base;
+      for (let n = 2; this.itemChips.some((e: { item: FilterItem, chip: Action }): boolean => e.chip.id === id); n++) {
+        id = base + "-" + n;
+      }
+      const chip = new Action({ id: id, innerCss: this.cssClasses.chip,
         activeAppearance: { style: "brand", mode: "primary" }, action: (): void => { this.onItemChipClick(item); } });
       // Borrowed after the constructor, so a retitled preset and a locale change reach the chip
       // without an update.

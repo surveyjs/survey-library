@@ -116,7 +116,8 @@ export class SurveyFilterFieldPopup extends SurveyElementBase<{ holder: FilterEd
       <SvgIcon className={css.popupSearchIcon} iconName="icon-search-24x24" size={"auto"}></SvgIcon>
       <input type="text" className={css.popupSearchInput} value={list.filterString || ""}
         placeholder={list.filterStringPlaceholder} aria-label={list.filterStringPlaceholder}
-        onChange={(e) => { list.filterString = e.target.value; }} />
+        onChange={(e) => { list.filterString = e.target.value; }}
+        onKeyDown={(e) => { popup.onSearchKeyDown(e.nativeEvent); }} />
     </div>;
   }
   protected renderElement(): React.JSX.Element | null {

@@ -6,6 +6,8 @@ import { MultiSelectListModel } from "../multiSelectListModel";
 import { ILocalizableOwner } from "../localizablestring";
 import { Helpers } from "../helpers";
 import { getLocaleString } from "../surveyStrings";
+import { ElementHelper } from "../element-helper";
+import { classesToSelector, getFirstVisibleChild } from "../utils/dom-utils";
 import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-filter-fields";
 import { IFilterCondition } from "../interfaces/ui-interfaces";
 import { FilterConditionsEditor } from "./filter-conditions-editor";
@@ -96,6 +98,18 @@ export class FilterFieldPopup extends Base {
       this.write(getFilterSelectionCondition(this.field, this.kind, this.getCheckedValues()));
     }
     this.close();
+  }
+  // Arrow Down in the popup's search box moves to the first entry of the list, as in the list's own
+  // box. ListModel.goToItems looks for the list around its box, and this box is outside the list.
+  public onSearchKeyDown(event: KeyboardEvent): void {
+    if (!this.listValue || !(event.key === "ArrowDown" || event.keyCode === 40)) return;
+    const box = <HTMLElement>event.target;
+    const root = !!box && !!box.closest ? box.closest(classesToSelector(this.cssClasses.popup)) : undefined;
+    const listElement = !!root ? root.querySelector("ul") : undefined;
+    const first = !!listElement ? getFirstVisibleChild(listElement) : undefined;
+    if (!first) return;
+    ElementHelper.focusElement(first);
+    event.preventDefault();
   }
   // Removes a value the respondent typed from a checkbox list. A "single" list has no checkboxes:
   // its typed value goes with the next pick or with Clear.

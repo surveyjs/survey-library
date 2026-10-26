@@ -194,6 +194,21 @@ describe("FilterFieldPopup: search and typed values", () => {
     many.dispose();
     few.dispose();
   });
+  test("Arrow Down in the search box moves to the list's first entry", () => {
+    const { popup } = open(control(), "many");
+    const root = document.createElement("div");
+    root.className = popup.cssClasses.popup;
+    root.innerHTML = "<input /><ul><li tabindex=\"0\">a</li></ul>";
+    document.body.appendChild(root);
+    let prevented = 0;
+    const press = (key: string) => popup.onSearchKeyDown(<any>{ key: key, target: root.querySelector("input"), preventDefault: () => { prevented++; } });
+    press("ArrowUp");
+    expect([document.activeElement === root.querySelector("li"), prevented], "#1: another key").toEqual([false, 0]);
+    press("ArrowDown");
+    expect([document.activeElement === root.querySelector("li"), prevented], "#2").toEqual([true, 1]);
+    root.remove();
+    popup.dispose();
+  });
   test("a field that takes custom choices: search always; typed text that is no value gives Add", () => {
     const q = control();
     const { popup } = open(q, "product");

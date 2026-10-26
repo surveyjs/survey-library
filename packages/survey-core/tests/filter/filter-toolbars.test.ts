@@ -178,6 +178,10 @@ describe("FilterToolbars: Filters, Clear All and Save", () => {
     expect(filters.title, "#2").toBe("1");
     expect(q.chipsLayout.isMobile, "#3: and the chips row scrolls").toBe(true);
   });
+  test("Filters next to the search box is a small action, as tall as the box", () => {
+    const q = createFilter({ showSearch: true });
+    expect(action(q.searchToolbar, "sv-filter-filters").predefinedAppearance.size).toBe("small");
+  });
   test("Clear All follows canClearActiveItem and keeps the search", () => {
     const q = createFilter({ showSearch: true });
     const clear = action(q.clearToolbar, "sv-filter-clear");

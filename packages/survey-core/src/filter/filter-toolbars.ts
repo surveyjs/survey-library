@@ -91,7 +91,7 @@ export class FilterToolbars {
 
   public get chipsToolbar(): ActionContainer {
     if (!this.chipsToolbarValue) {
-      this.chipsToolbarValue = this.createRow("small");
+      this.chipsToolbarValue = this.createRow();
       this.chipsToolbarValue.setCssClasses({ itemMarkerIcon: this.cssClasses.chipMarker });
       this.update();
     }
@@ -99,14 +99,14 @@ export class FilterToolbars {
   }
   public get clearToolbar(): ActionContainer {
     if (!this.clearToolbarValue) {
-      this.clearToolbarValue = this.createRow("small");
+      this.clearToolbarValue = this.createRow();
       this.update();
     }
     return this.clearToolbarValue;
   }
   public get searchToolbar(): ActionContainer {
     if (!this.searchToolbarValue) {
-      this.searchToolbarValue = this.createRow("medium");
+      this.searchToolbarValue = this.createRow();
       this.update();
     }
     return this.searchToolbarValue;
@@ -197,9 +197,11 @@ export class FilterToolbars {
   }
 
   private get cssClasses(): any { return this.owner.cssClasses || {}; }
-  private createRow(size: "small" | "medium"): ActionContainer {
+  // Every row is small: 40px, as tall as the search box (see sd-filter.scss); the chips row makes
+  // its text smaller still.
+  private createRow(): ActionContainer {
     const container = this.createContainer(false);
-    container.setActionsAppearance({ style: "neutral", mode: "secondary", size: size });
+    container.setActionsAppearance({ style: "neutral", mode: "secondary", size: "small" });
     return container;
   }
   private createHolder(): FilterEditorHolder {

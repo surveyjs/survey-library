@@ -18,6 +18,14 @@
 .sd-filter__search {
   flex: 1 1 auto;
   min-width: 0;
+
+  // The small input's height: 40px as in the mockup, where a text question's box is 48px. The
+  // horizontal padding stays the text question's, so the text starts where the mockup's does.
+  .sd-formbox__input {
+    min-height: calc(1lh + var(--sjs2-layout-component-input-small-content-padding-vertical) * 2);
+    padding-top: var(--sjs2-layout-component-input-small-content-padding-vertical);
+    padding-bottom: var(--sjs2-layout-component-input-small-content-padding-vertical);
+  }
 }
 
 .sd-filter__search-icon {

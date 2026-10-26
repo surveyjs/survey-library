@@ -97,10 +97,11 @@ export class FilterFieldPopup extends Base {
     }
     this.close();
   }
-  // Removes a value the respondent typed from a checkbox list.
+  // Removes a value the respondent typed from a checkbox list. A "single" list has no checkboxes:
+  // its typed value goes with the next pick or with Clear.
   public removeCustomItem(item: IAction): void {
     const list = <MultiSelectListModel<Action>>this.listValue;
-    if (!list || !item || !item.data || !item.data.isCustom) return;
+    if (!list || !this.isMultiple || !item || !item.data || !item.data.isCustom) return;
     list.setSelectedItems(list.selectedItems.filter((a: IAction): boolean => a.id !== item.id));
     list.setItems(list.actions.filter((a: Action): boolean => a.id !== item.id), false);
     this.updateHeader();

@@ -234,6 +234,16 @@ describe("FilterFieldPopup: search and typed values", () => {
     expect(closed(), "#2").toBe(1);
     popup.dispose();
   });
+  test("a single pick's typed value is no checkbox to remove: removeCustomItem leaves it", () => {
+    const q = control();
+    q.setFieldCondition("pick", "equal", "Oreo");
+    const { popup } = open(q, "pick");
+    const oreo = item(popup, "Oreo");
+    expect(oreo.data.isCustom, "#1").toBe(true);
+    expect(() => popup.removeCustomItem(oreo), "#2").not.toThrow();
+    expect(titles(popup), "#3").toEqual(["Chai", "Beer", "Oreo"]);
+    popup.dispose();
+  });
 });
 
 describe("FilterFieldPopup: read-only and dispose", () => {

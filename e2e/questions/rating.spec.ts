@@ -20,6 +20,29 @@ frameworks.forEach(framework => {
       await page.goto(`${url}${framework}`);
     });
 
+    for (const direction of ["ltr", "rtl"]) {
+      for (const location of ["top", "bottom", "topBottom"]) {
+        test(`endpoint descriptions follow ${direction} at ${location}`, async ({ page }) => {
+          await page.evaluate((dir) => { document.documentElement.dir = dir; }, direction);
+          await initSurvey(page, framework, {
+            locale: direction === "rtl" ? "he" : "",
+            elements: [{ type: "rating", name: "rating", displayMode: "buttons", rateMin: 1, rateMax: 5,
+              minRateDescription: "Low", maxRateDescription: "High", rateDescriptionLocation: location }]
+          });
+          const min = page.locator(".sd-rating__min-text");
+          const max = page.locator(".sd-rating__max-text");
+          await expect(min).toBeVisible();
+          await expect(max).toBeVisible();
+          const minBox = await min.boundingBox();
+          const maxBox = await max.boundingBox();
+          expect(minBox).not.toBeNull();
+          expect(maxBox).not.toBeNull();
+          if (direction === "rtl") expect(minBox!.x).toBeGreaterThan(maxBox!.x);
+          else expect(minBox!.x).toBeLessThan(maxBox!.x);
+        });
+      }
+    }
+
     test("description exists", async ({ page }) => {
       await initSurvey(page, framework, json);
       await expect(page.locator(".sv-string-viewer").filter({ hasText: "Not Satisfied" })).toBeVisible();

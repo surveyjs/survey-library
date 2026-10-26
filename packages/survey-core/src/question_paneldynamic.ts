@@ -2391,7 +2391,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const nextIndex = visIndex >= pnlCount ? pnlCount - 1 : visIndex;
     const element = pnlCount === 0 ? () => this.addPanelAction?.getInputElement() : (nextIndex > -1 ? () => this.getRemovePanelAction(this.visiblePanels[nextIndex])?.getInputElement() : "");
     if (!!element) {
-      SurveyElement.FocusElement(element, true, this.survey?.rootElement, this.shouldHandleFocusScroll);
+      SurveyElement.FocusElement(() => this.isDisposed ? undefined : element(), true, this.survey?.rootElement, this.shouldHandleFocusScroll);
     }
   }
   // After the panels were rebuilt from a committed read; FocusElement's own timeout lets them render.

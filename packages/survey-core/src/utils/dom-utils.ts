@@ -81,9 +81,15 @@ export function findScrollableParent(element: Element): Element {
   return findScrollableParent(element.parentElement);
 }
 
+// The document element never fires scroll; the window does. Must match QuestionRowModel.startLazyRendering,
+// which listens on window in that case.
+function getScrollEventTarget(scrollableEl: Element): EventTarget {
+  return scrollableEl === DomDocumentHelper.getDocumentElement() ? DomWindowHelper.getWindow() : scrollableEl;
+}
+
 export function activateLazyRenderingChecks(element: Element): void {
   if (!element) return;
-  const scrollableEl = findScrollableParent(element);
+  const scrollableEl = getScrollEventTarget(findScrollableParent(element));
   if (!!scrollableEl) {
     setTimeout(() => scrollableEl.dispatchEvent(new CustomEvent("scroll")), 10);
   }

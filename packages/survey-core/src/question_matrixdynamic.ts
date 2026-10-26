@@ -1027,6 +1027,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     });
   }
   private focusActionCellOrAddButton(row: MatrixDropdownRowModelBase): void {
+    if (this.isDisposed) return;
     if (row) {
       this.renderedTable.focusActionCell(row, this.getActionCellIndex(row));
     } else {

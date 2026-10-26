@@ -150,10 +150,12 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(json);
       }, json);
       await page.waitForTimeout(1000);
+      // The popup container is rendered when the popup opens first: set its margins with a stylesheet.
       await page.evaluate(() => {
-        const style = (window as any).survey.rootElement.getRootNode().querySelector(".sv-popup__container").style;
-        style.marginLeft = "4px";
-        style.marginRight = "4px";
+        const root = (window as any).survey.rootElement.getRootNode();
+        const style = document.createElement("style");
+        style.textContent = ".sv-popup__container { margin-left: 4px; margin-right: 4px; }";
+        (root.head || root).appendChild(style);
       });
 
       const popupSelector = page.locator(".sv-popup .sv-popup__container").first();

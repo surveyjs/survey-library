@@ -174,7 +174,7 @@ describe("Records bar: the footer it shares with the buttons", () => {
     expect(footerState(panel), "#3: no visible button").toEqual([true, false, false, true]);
     actions[0].visible = true;
     expect(panel.showFooterButtons, "#4: the toolbar's first visible action is observed").toBe(true);
-    panel.survey.onUpdateQuestionCssClasses.add((_, options) => { options.cssClasses.footer = ""; });
+    panel.survey.onUpdateQuestionCssClasses.add((_, options) => { options.cssClasses.footerBar = ""; });
     panel.updateElementCss();
     expect(footerState(panel), "#5: no navigation").toEqual([false, false, false, false]);
     const list = createPanel(5, { allowAddPanel: false });

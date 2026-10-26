@@ -309,7 +309,9 @@ another one, and no property holds it.
   honoured.
 * **Data keys, not just names.** `valueName`, the `-Comment` suffix, matrix `-total` keys, the
   built-in variables the survey answers itself (`{pageno}`, `{locale}`, quiz counters) and the
-  special choice items (`none`, `other`, `refuse`, `dontknow`) are all resolved.
+  special choice items (`none`, `other`, `refuse`, `dontknow`) are all resolved. The `-Comment`
+  and `-total` keys of a template question or a column are known inside a panel or row object
+  too: in a `defaultValue` / `defaultPanelValue` / `defaultRowValue` and in `{panel.matrix1-total.col1}`.
 * **The condition of an inArray call.** `sumInArray({m1}, 'col1', '{col1} > 5')` runs its
   third (or fourth, after a return column) argument as a condition over every row of `m1`, so
   that condition becomes a site of its own, under the path `<property>.inArray[<n>]`, where `n`

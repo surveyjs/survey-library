@@ -551,7 +551,7 @@ export class MatrixDropdownColumn extends Base
    *
    * Default value: `true`
    *
-   * Columns with `"checkbox"`, `"file"`, or `"signaturepad"` [cell types](#cellType) are excluded from respondent sorting regardless of this setting.
+   * Columns whose cells hold multiple values (`"checkbox"` and `"tagbox"` [cell types](#cellType), or a `"slider"` with `sliderType: "range"`) are excluded from respondent sorting regardless of this setting.
    *
    * Sorting configured in code remains available regardless of this property's value.
    */

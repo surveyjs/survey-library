@@ -9,6 +9,7 @@ import { FilterItem } from "./filter/filter-item";
 import { FilterConditionsEditor } from "./filter/filter-conditions-editor";
 import { FilterFieldPopup } from "./filter/filter-field-popup";
 import { FilterToolbars, IFilterFieldState, filterUIStrings } from "./filter/filter-toolbars";
+import { FilterChipsLayout } from "./filter/filter-chips-layout";
 import { ActionContainer } from "./actions/container";
 import { buildSearchFragment } from "./filter/filter-expression";
 import {
@@ -581,16 +582,12 @@ export class QuestionFilterModel extends QuestionNonValue {
     }
     return this.toolbarsValue;
   }
-  public get itemsToolbar(): ActionContainer { return this.toolbars.itemsToolbar; }
-  public get fieldsToolbar(): ActionContainer { return this.toolbars.fieldsToolbar; }
-  // The line a renderer shows under the presets: why the conditions cannot be edited, or that the
-  // active preset has none to show and the first edit starts a new filter.
-  public get noteText(): string {
-    if (this.isDesignMode) return "";
-    const item = this.activeItem;
-    if (!!item && item.type === "ai") return filterUIStrings.readOnlyNote;
-    return this.isRawExpression ? filterUIStrings.rawNote : "";
-  }
+  public get chipsToolbar(): ActionContainer { return this.toolbars.chipsToolbar; }
+  public get clearToolbar(): ActionContainer { return this.toolbars.clearToolbar; }
+  public get searchToolbar(): ActionContainer { return this.toolbars.searchToolbar; }
+  // What cuts the chips row to one row while it is collapsed: the renderer attaches the element
+  // that holds the chips' action bar to it.
+  public get chipsLayout(): FilterChipsLayout { return this.toolbars.layout; }
   // The quick search box is drawn the way a text question's input is, from the survey's own css.
   public get searchCss(): { root: string, control: string } {
     const css: any = !!this.survey ? this.survey.getCss() : undefined;

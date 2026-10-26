@@ -112,6 +112,7 @@ import { ConsoleWarnings } from "./console-warnings";
 import DefaultLightTheme from "./themes/default-light";
 import { createBoxShadowReset } from "./utils/shadow-effects";
 import { Scope } from "./utils/scope";
+import type { DynamicDataErrorOperation } from "./dynamic-data/dynamic-data-interfaces";
 
 export var DefaultTheme = DefaultLightTheme;
 
@@ -1286,6 +1287,7 @@ export class SurveyModel extends SurveyElementCore
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "questionsOnPageMode") {
+      this.resetProgressTotal();
       this.onQuestionsOnPageModeChanged(oldValue);
     }
     if (name === "locale") {
@@ -3179,19 +3181,44 @@ export class SurveyModel extends SurveyElementCore
     if (val === "requiredquestion") return "requiredQuestion";
     return val;
   } }) progressBarType: string;
-  // In the "questionPerPage" mode a respondent moves from question to question rather than from
-  // page to page, so page-based progress ("Page 2 of 3") does not match what they see. The default
-  // "pages" type falls back to answered-question progress there. The "inputPerPage" mode is
-  // excluded on purpose: progress is meaningless when inputs are filled one by one, so the bar is
-  // hidden instead, the same way as in the "singlePage" mode - see
-  // SurveyProgressTextModel.isProgressBarInContainer.
-  // Every progress consumer (text, value, component name, css) must use this method, not the raw
-  // progressBarType property.
+  // questionPerPage and inputPerPage walk one screen at a time, so the linear bar shows that position.
+  // The returned "questions" value selects sv-progress-questions. It does not select
+  // the answered-question formula. The stored progressBarType is left unchanged.
   public getEffectiveProgressBarType(): string {
-    const res = this.progressBarType;
-    const isQuestionPerPage = this.isSingleVisibleQuestion && !this.isSingleVisibleInput;
-    return isQuestionPerPage && isStrCiEqual(res, "pages") ? "questions" : res;
+    if (this.isSingleVisibleQuestion) return "questions";
+    return this.progressBarType;
   }
+
+  // The step total. Dropped when visibility or the question set changes; a page move keeps it.
+  private progressTotal: number;
+  public resetProgressTotal(): void {
+    this.progressTotal = undefined;
+  }
+  public getProgressPosition(): { current: number, total: number } {
+    const elements = this.getSingleElements();
+    if (!this.isSingleVisibleInput) {
+      if (this.progressTotal === undefined) {
+        this.progressTotal = elements.length;
+      }
+      return { current: elements.indexOf(this.currentSingleElement) + 1, total: this.progressTotal };
+    }
+    const isTotalKnown = this.progressTotal !== undefined;
+    let passed = 0;
+    let current = 0;
+    for (let i = 0; i < elements.length; i++) {
+      const question = <Question>elements[i];
+      if (question === this.currentSingleElement) {
+        current = passed + question.getProgressStepIndex() + 1;
+        if (isTotalKnown) break;
+      }
+      passed += question.getProgressStepCount();
+    }
+    if (!isTotalKnown) {
+      this.progressTotal = passed;
+    }
+    return { current: current, total: this.progressTotal };
+  }
+
   /**
    * Specifies whether the progress bar displays [navigation titles](https://surveyjs.io/form-library/documentation/api-reference/page-model#navigationTitle) and [descriptions](https://surveyjs.io/form-library/documentation/api-reference/page-model#navigationDescription). Applies only when [`showProgressBar`](#showProgressBar) is `true` and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
    *
@@ -4422,6 +4449,11 @@ export class SurveyModel extends SurveyElementCore
   }
   public getProgress(): number {
     if (this.currentPage == null) return 0;
+    if (this.isSingleVisibleQuestion) {
+      const position = this.getProgressPosition();
+      if (position.current < 1 || position.total < 1) return 0;
+      return Math.floor((position.current * 100) / position.total);
+    }
     const progressBarType = this.getEffectiveProgressBarType();
     if (progressBarType !== "pages") {
       var info = this.getProgressInfo();
@@ -5445,6 +5477,9 @@ export class SurveyModel extends SurveyElementCore
   }
   public updateNavigationElements(): void {
     this.updateButtonsVisibility();
+    if (this.isSingleVisibleInput) {
+      this.updateProgressText();
+    }
   }
   private updateButtonsVisibility(): void {
     this.updateIsFirstLastPageState();
@@ -6316,7 +6351,7 @@ export class SurveyModel extends SurveyElementCore
   // ISurveyDynamicDataCallbacks: the default does nothing - survey-core writes nothing to the
   // console for an error an application is expected to handle, the way onServerValidateQuestions
   // failures are the application's business too.
-  dynamicDataError(question: IQuestion, operation: string, error: any): void {
+  dynamicDataError(question: IQuestion, operation: DynamicDataErrorOperation, error: any): void {
     this.onDynamicDataError.fire(this, { question: <Question>question, operation: operation, error: error });
   }
   /* A completion the respondent or tryComplete started waits while a records question has a write
@@ -7459,6 +7494,7 @@ export class SurveyModel extends SurveyElementCore
       this.updateVisibleIndexAfterBindings = true;
       return;
     }
+    this.resetProgressTotal();
     this.updatePageVisibleIndexes();
     this.updatePageElementsVisibleIndexes(page);
     this.updateProgressText(true);
@@ -9330,6 +9366,16 @@ export class SurveyModel extends SurveyElementCore
   }
 }
 
+function isSingleVisibleQuestionMode(obj: any): boolean {
+  const mode = obj && obj.questionsOnPageMode;
+  return mode === "questionPerPage" || mode === "inputPerPage" || mode === "questionOnPage";
+}
+// Page-button settings also require progressBarType "pages". The question-position modes ignore that type.
+function isProgressBarPropertyVisible(obj: any, pagesTypeOnly?: boolean): boolean {
+  if (!obj || !obj.showProgressBar || isSingleVisibleQuestionMode(obj)) return false;
+  return !pagesTypeOnly || obj.progressBarType === "pages";
+}
+
 function isStrCiEqual(a: string, b: string) {
   if (!a) return false;
   if (!b) return false;
@@ -9492,7 +9538,8 @@ Serializer.addClass("survey", [
       const isAdvanced = headerView === undefined || headerView === null || headerView === ""
         || isStrCiEqual(String(headerView), "advanced");
       const type = typeof obj.progressBarType === "string" ? obj.progressBarType.toLowerCase() : "";
-      const isQuestionProgress = type === "questions"
+      const isQuestionProgress = isSingleVisibleQuestionMode(obj)
+        || type === "questions"
         || type === "requiredquestions" || type === "requiredquestion"
         || type === "correctquestions" || type === "correctquestion";
       if (isAdvanced && isQuestionProgress) return choices.filter(item => item !== "belowheader");
@@ -9509,29 +9556,29 @@ Serializer.addClass("survey", [
       "requiredQuestions",
       "correctQuestions",
     ],
-    visibleIf: (obj: any) => { return obj.showProgressBar; }
+    visibleIf: (obj: any) => isProgressBarPropertyVisible(obj)
   },
   {
     name: "progressBarShowNavigationText:switch",
     alternativeName: "progressBarShowPageTitles",
-    visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages"; }
+    visibleIf: (obj: any) => isProgressBarPropertyVisible(obj, true)
   },
 
   {
     name: "progressBarShowPageNumbers:switch",
-    visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages"; }
+    visibleIf: (obj: any) => isProgressBarPropertyVisible(obj, true)
   },
   {
     name: "progressBarNavigationTextLocation",
     default: "top",
     choices: ["top", "bottom", "inline"],
-    visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages" && obj.progressBarShowNavigationText === true; }
+    visibleIf: (obj: any) => isProgressBarPropertyVisible(obj, true) && obj.progressBarShowNavigationText === true
   },
   {
     name: "progressBarInheritWidthFrom",
     default: "container",
     choices: ["container", "survey"],
-    visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages"; }
+    visibleIf: (obj: any) => isProgressBarPropertyVisible(obj, true)
   },
   {
     name: "showTOC:switch",

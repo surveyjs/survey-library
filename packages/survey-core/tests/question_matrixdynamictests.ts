@@ -8116,6 +8116,34 @@ describe("Survey_QuestionMatrixDynamic", () => {
       settings.confirmActionAsync = prevAsync;
     }
   });
+  test("removeRowUI followed by dispose does not throw when the focus timer fires", () => {
+    vi.useFakeTimers();
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", rowCount: 0, columns: [{ name: "id" }] }] });
+      survey.data = { q: [{ id: 0 }, { id: 1 }, { id: 2 }] };
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+      matrix.removeRowUI(matrix.visibleRows[1]);
+      matrix.dispose();
+      expect(() => vi.advanceTimersByTime(20)).not.toThrow();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  test("removeRowUI of the last row followed by dispose does not focus the add button", () => {
+    vi.useFakeTimers();
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", rowCount: 0, columns: [{ name: "id" }] }] });
+      survey.data = { q: [{ id: 0 }] };
+      const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+      matrix.removeRowUI(matrix.visibleRows[0]);
+      matrix.dispose();
+      const focusAdd = vi.spyOn(matrix, "focusAddBUtton");
+      vi.advanceTimersByTime(20);
+      expect(focusAdd).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
   test("matrixdynamic.removeRow & settings.confirmActionFunc, #10145", () => {
     let funcRes = false;
     settings.confirmActionFunc = (message: string): boolean => {

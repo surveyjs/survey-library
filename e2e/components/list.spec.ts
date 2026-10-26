@@ -34,6 +34,8 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
       await page.waitForTimeout(1000);
+      // The overflow menu renders its list when it opens first.
+      await page.locator(".sv-dots__item").first().click();
       await expect(await page.locator(".sv-popup__content .my-custom-action-class").getByText("Custom Action 29").count()).toBe(1);
     });
 

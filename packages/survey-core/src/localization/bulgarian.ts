@@ -89,6 +89,8 @@ export var bulgarianStrings = {
   panelDynamicTabTextFormat: "Панел {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Отговорени на {0} / {1} въпроса",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Въпрос {0} на {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Анкетата не съдържа видими страници или въпроси.",
   // "Thank you for completing the survey"

@@ -89,6 +89,8 @@ export var danishSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Besvarede {0} / {1} spørgsmål",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Spørgsmål {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Der er ingen synlige spørgsmål.",
   // "Thank you for completing the survey"

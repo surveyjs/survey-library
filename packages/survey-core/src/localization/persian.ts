@@ -89,6 +89,8 @@ export var persianSurveyStrings = {
   panelDynamicTabTextFormat: "پنل {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "تعداد پاسخ {0}/{1} سوال",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "سؤال {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "صفحه ای یا گزینه ای برای این پرسشنامه موجود نیست.",
   // "Thank you for completing the survey"

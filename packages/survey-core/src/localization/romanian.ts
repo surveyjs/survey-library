@@ -89,6 +89,8 @@ export var romanianSurveyStrings = {
   panelDynamicTabTextFormat: "Panou {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Răspunsuri la {0} / {1} întrebări",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Întrebare {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Nu sunt întrebări pentru acest chestionar",
   // "Thank you for completing the survey"

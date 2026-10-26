@@ -89,6 +89,8 @@ export var traditionalChineseSurveyStrings = {
   panelDynamicTabTextFormat: "面板 {面板索引}",
   // [Auto-translated] "Answered {0}/{1} questions"
   questionsProgressText: "回答了{0}/{1}問題",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "{1}{0}問題",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "問卷中沒有問題或頁面",
   // "Thank you for completing the survey"

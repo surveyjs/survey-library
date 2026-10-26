@@ -89,6 +89,8 @@ export var kazakhStrings = {
   panelDynamicTabTextFormat: "Панель {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0}/{1} сұрақтарға жауап",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "{0} сұрақ {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Бір де бір сұрақ жоқ.",
   // "Thank you for completing the survey"

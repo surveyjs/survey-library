@@ -4148,6 +4148,36 @@ describe("Survey_QuestionPanelDynamic", () => {
     panel.removePanelUI(0);
     expect(panel.panelCount, "Remove the first panel").toBe(0);
   });
+  test("removePanelUI followed by dispose creates no remove action when the focus timer fires", () => {
+    vi.useFakeTimers();
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [{ type: "text", name: "a" }] }] });
+      survey.data = { p: [{ a: 1 }, { a: 2 }, { a: 3 }] };
+      const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+      panel.removePanelUI(panel.panels[1]);
+      panel.dispose();
+      const getRemoveAction = vi.spyOn(panel, "getRemovePanelAction");
+      vi.advanceTimersByTime(150);
+      expect(getRemoveAction).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  test("removePanelUI of the last panel followed by dispose does not read the add button when the focus timer fires", () => {
+    vi.useFakeTimers();
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "p", templateElements: [{ type: "text", name: "a" }] }] });
+      survey.data = { p: [{ a: 1 }] };
+      const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+      panel.removePanelUI(panel.panels[0]);
+      panel.dispose();
+      const getAddAction = vi.spyOn(panel, "addPanelAction", "get");
+      vi.advanceTimersByTime(150);
+      expect(getAddAction).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 
   test("call clearFiles for QuestionFile on removing the panel, Bug #1970", () => {
     var json = {

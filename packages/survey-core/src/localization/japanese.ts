@@ -89,6 +89,8 @@ export var japaneseSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0}/{1}問回答済",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "質問{0}{1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "アンケートに表示可能な要素がありません。",
   // "Thank you for completing the survey"

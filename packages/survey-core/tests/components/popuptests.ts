@@ -1954,4 +1954,63 @@ describe("Popup", () => {
       vi.useRealTimers();
     }
   });
+  test("A shown popup positions itself and focuses its first input", () => {
+    vi.useFakeTimers();
+    const targetElement: HTMLElement = document.createElement("div");
+    addElementIntoBody(targetElement);
+    const model: PopupModel = new PopupModel("sv-list", {}, { isFocusedContent: true });
+    const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
+    try {
+      viewModel.initializePopupContainer();
+      viewModel.container.innerHTML = "<div class=\"sv-popup\"><div class=\"sv-popup__container\"><div class=\"sv-popup__body-content\">" +
+        "<div class=\"sv-popup__scrolling-content\"><div class=\"sv-popup__content\"><input id=\"popupInput\" /></div></div></div></div></div>";
+      const input = viewModel.container.querySelector("#popupInput");
+      model.isVisible = true;
+      expect(viewModel.isVisible, "#1").toBe(true);
+      viewModel.updateOnShowing();
+      expect(viewModel.isPositionSet, "#2").toBe(true);
+      expect(document.activeElement === input, "#3: not focused yet").toBe(false);
+      vi.advanceTimersByTime(100);
+      expect(document.activeElement === input, "#4: the input is focused").toBe(true);
+    } finally {
+      viewModel.dispose();
+      targetElement.remove();
+      vi.useRealTimers();
+    }
+  });
+  test("hasBeenShown: turns true on the first show and stays true after hiding", () => {
+    const model: PopupModel = new PopupModel("sv-list", {});
+    const viewModel = createPopupViewModel(model);
+    let log = "";
+    viewModel.registerFunctionOnPropertyValueChanged("hasBeenShown", () => { log += "->" + viewModel.hasBeenShown; });
+    model.isVisible = true;
+    expect(viewModel.hasBeenShown, "#1: shown").toBe(true);
+    model.isVisible = false;
+    expect(viewModel.isVisible, "#2: hidden").toBe(false);
+    expect(viewModel.hasBeenShown, "#2: hidden").toBe(true);
+    model.isVisible = true;
+    expect(viewModel.hasBeenShown, "#3: shown again").toBe(true);
+    model.isVisible = false;
+    expect(viewModel.hasBeenShown, "#4: hidden again").toBe(true);
+    expect(log, "#5: changed once").toBe("->true");
+    viewModel.dispose();
+  });
+  test("hasBeenShown: a never-shown popup is not marked shown", () => {
+    const model: PopupModel = new PopupModel("sv-list", {});
+    const viewModel = createPopupViewModel(model);
+    expect(viewModel.hasBeenShown, "#1: created").toBe(false);
+    model.hide();
+    model.title = "Title";
+    model.isVisible = false;
+    expect(viewModel.hasBeenShown, "#2: hidden, changed").toBe(false);
+    viewModel.model = new PopupModel("sv-list", {});
+    expect(viewModel.hasBeenShown, "#3: another hidden model").toBe(false);
+    viewModel.dispose();
+
+    const shownModel: PopupModel = new PopupModel("sv-list", {});
+    shownModel.isVisible = true;
+    const shownViewModel = createPopupViewModel(shownModel);
+    expect(shownViewModel.hasBeenShown, "#4: created for a shown model").toBe(true);
+    shownViewModel.dispose();
+  });
 });

@@ -1,7 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { PageModel } from "../src/page";
 import { Question, ValidationContext } from "../src/question";
-import { PanelModel } from "../src/panel";
+import { PanelModel, QuestionRowModel } from "../src/panel";
 import { QuestionTextModel } from "../src/question_text";
 import { JsonObject, Serializer } from "../src/jsonobject";
 import { FlowPanelModel } from "../src/flowpanel";
@@ -16,7 +16,8 @@ import { setOldTheme } from "./oldTheme";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { Helpers } from "../src/helpers";
 import { FunctionFactory, registerFunction } from "../src/functionsfactory";
-import { describe, test, expect } from "vitest";
+import { activateLazyRenderingChecks } from "../src/utils/dom-utils";
+import { describe, test, expect, vi } from "vitest";
 describe("Panel", () => {
   test("questions-elements synhronization", () => {
     const page = new PageModel();
@@ -1150,6 +1151,472 @@ describe("Panel", () => {
       settings.lazyRowsRendering = prevLazyRowsRendering;
       settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
       createdDivs.forEach(div => div?.remove());
+    }
+  });
+  describe("Lazy rendering: rows share a scroll container", () => {
+    const createLazySurvey = (rowCount: number): { survey: SurveyModel, rows: Array<QuestionRowModel> } => {
+      const elements: Array<any> = [];
+      for (let i = 0; i < rowCount; i++) {
+        elements.push({ type: "text", name: "q" + i });
+      }
+      const survey = new SurveyModel({ elements: [{ type: "panel", name: "panel1", elements: elements }] });
+      survey.lazyRenderEnabled = true;
+      const panel = <PanelModel>survey.getPanelByName("panel1");
+      expect(panel.rows.length, "a row per question").toBe(rowCount);
+      return { survey, rows: panel.rows };
+    };
+    const setRowDivVisible = (div: HTMLElement, visible: boolean): void => {
+      Object.defineProperty(div, "offsetHeight", { configurable: true, value: 100 });
+      const top = visible ? 10 : 100000;
+      div.getBoundingClientRect = () => <any>{ top: top, bottom: top + 100, left: 0, right: 100, width: 100, height: 100 };
+    };
+    const createContainer = (rowCount: number): { container: HTMLElement, divs: Array<HTMLElement> } => {
+      const container = document.createElement("div");
+      container.style.overflowY = "auto";
+      Object.defineProperty(container, "scrollHeight", { configurable: true, value: 10000 });
+      Object.defineProperty(container, "clientHeight", { configurable: true, value: 500 });
+      document.body.appendChild(container);
+      const divs: Array<HTMLElement> = [];
+      for (let i = 0; i < rowCount; i++) {
+        const div = document.createElement("div");
+        setRowDivVisible(div, false);
+        container.appendChild(div);
+        divs.push(div);
+      }
+      return { container, divs };
+    };
+    const spyScrollListeners = (target: HTMLElement): { added: number, removed: number, active: number } => {
+      const res = { added: 0, removed: 0, active: 0 };
+      const listeners = new Set<any>();
+      const add = target.addEventListener.bind(target);
+      const remove = target.removeEventListener.bind(target);
+      target.addEventListener = (type: string, fn: any, options?: any) => {
+        if (type === "scroll") {
+          res.added++;
+          listeners.add(fn);
+          res.active = listeners.size;
+        }
+        add(type, fn, options);
+      };
+      target.removeEventListener = (type: string, fn: any, options?: any) => {
+        if (type === "scroll") {
+          res.removed++;
+          listeners.delete(fn);
+          res.active = listeners.size;
+        }
+        remove(type, fn, options);
+      };
+      return res;
+    };
+    const startRows = (rows: Array<QuestionRowModel>, divs: Array<HTMLElement>, container: HTMLElement): void => {
+      rows.forEach((row, index) => row.startLazyRendering(divs[index], () => container));
+    };
+    const scroll = (container: HTMLElement): void => {
+      container.dispatchEvent(new Event("scroll"));
+    };
+
+    test("a row renders when it scrolls into view", () => {
+      vi.useFakeTimers();
+      const { container, divs } = createContainer(2);
+      try {
+        const { rows } = createLazySurvey(2);
+        startRows(rows, divs, container);
+        vi.advanceTimersByTime(10);
+        expect(rows[0].isNeedRender, "row 0 is offscreen after init").toBe(false);
+        expect(rows[1].isNeedRender, "row 1 is offscreen after init").toBe(false);
+        setRowDivVisible(divs[1], true);
+        scroll(container);
+        expect(rows[0].isNeedRender, "row 0 is still offscreen").toBe(false);
+        expect(rows[1].isNeedRender, "row 1 scrolled into view").toBe(true);
+      } finally {
+        container.remove();
+        vi.useRealTimers();
+      }
+    });
+    test("one scroll listener per container", () => {
+      vi.useFakeTimers();
+      const { container, divs } = createContainer(20);
+      try {
+        const listeners = spyScrollListeners(container);
+        const { rows } = createLazySurvey(20);
+        startRows(rows, divs, container);
+        vi.advanceTimersByTime(10);
+        rows.forEach(row => expect(row.isNeedRender, "offscreen after init").toBe(false));
+        expect(listeners.added, "one listener for 20 rows").toBe(1);
+        expect(listeners.active, "one active listener").toBe(1);
+        for (let i = 0; i < 10; i++) {
+          setRowDivVisible(divs[i], true);
+        }
+        scroll(container);
+        for (let i = 0; i < 20; i++) {
+          expect(rows[i].isNeedRender, "row " + i).toBe(i < 10);
+        }
+        expect(listeners.active, "10 rows still wait").toBe(1);
+        for (let i = 10; i < 19; i++) {
+          rows[i].stopLazyRendering();
+        }
+        expect(listeners.active, "1 row still waits").toBe(1);
+        setRowDivVisible(divs[19], true);
+        scroll(container);
+        expect(rows[19].isNeedRender, "the last row renders").toBe(true);
+        expect(listeners.active, "the listener is removed with the last row").toBe(0);
+        expect(listeners.added, "still one add").toBe(1);
+      } finally {
+        container.remove();
+        vi.useRealTimers();
+      }
+    });
+    test("a synthetic scroll event from activateLazyRenderingChecks still checks the rows", () => {
+      vi.useFakeTimers();
+      const { container, divs } = createContainer(2);
+      try {
+        const { rows } = createLazySurvey(2);
+        rows.forEach((row, index) => row.startLazyRendering(divs[index]));
+        vi.advanceTimersByTime(10);
+        expect(rows[0].isNeedRender, "row 0 is offscreen after init").toBe(false);
+        expect(rows[1].isNeedRender, "row 1 is offscreen after init").toBe(false);
+        setRowDivVisible(divs[0], true);
+        activateLazyRenderingChecks(divs[1]);
+        vi.advanceTimersByTime(9);
+        expect(rows[0].isNeedRender, "not before the helper's timer").toBe(false);
+        vi.advanceTimersByTime(1);
+        expect(rows[0].isNeedRender, "rendered after the helper's timer").toBe(true);
+        expect(rows[1].isNeedRender, "row 1 is still offscreen").toBe(false);
+      } finally {
+        container.remove();
+        vi.useRealTimers();
+      }
+    });
+    test("rows are not checked while lazy rendering is suspended", () => {
+      vi.useFakeTimers();
+      const { container, divs } = createContainer(2);
+      try {
+        const { survey, rows } = createLazySurvey(2);
+        startRows(rows, divs, container);
+        vi.advanceTimersByTime(10);
+        expect(rows[0].isNeedRender, "row 0 is offscreen after init").toBe(false);
+        survey["suspendLazyRendering"]();
+        setRowDivVisible(divs[0], true);
+        scroll(container);
+        expect(rows[0].isNeedRender, "suspended").toBe(false);
+        survey["releaseLazyRendering"]();
+        scroll(container);
+        expect(rows[0].isNeedRender, "released").toBe(true);
+        expect(rows[1].isNeedRender, "row 1 is still offscreen").toBe(false);
+      } finally {
+        container.remove();
+        vi.useRealTimers();
+      }
+    });
+    test("ensureVisibility checks a registered row without a scroll event", () => {
+      vi.useFakeTimers();
+      const { container, divs } = createContainer(2);
+      try {
+        const { rows } = createLazySurvey(2);
+        startRows(rows, divs, container);
+        vi.advanceTimersByTime(10);
+        expect(rows[1].isNeedRender, "row 1 is offscreen after init").toBe(false);
+        setRowDivVisible(divs[1], true);
+        rows[1].ensureVisibility();
+        expect(rows[1].isNeedRender, "row 1 is rendered").toBe(true);
+        expect(rows[0].isNeedRender, "row 0 is still offscreen").toBe(false);
+      } finally {
+        container.remove();
+        vi.useRealTimers();
+      }
+    });
+    test("survey.dispose removes the scroll listener", () => {
+      vi.useFakeTimers();
+      const { container, divs } = createContainer(10);
+      try {
+        const listeners = spyScrollListeners(container);
+        const { survey, rows } = createLazySurvey(10);
+        startRows(rows, divs, container);
+        vi.advanceTimersByTime(10);
+        rows.forEach(row => expect(row.isNeedRender, "offscreen after init").toBe(false));
+        expect(listeners.active > 0, "rows listen").toBe(true);
+        survey.dispose();
+        expect(listeners.active, "no listener after dispose").toBe(0);
+      } finally {
+        container.remove();
+        vi.useRealTimers();
+      }
+    });
+    test("a row that starts while the container's timer is pending is checked when that timer fires", () => {
+      vi.useFakeTimers();
+      const { container, divs } = createContainer(2);
+      try {
+        const { rows } = createLazySurvey(2);
+        setRowDivVisible(divs[1], true);
+        rows[0].startLazyRendering(divs[0], () => container);
+        rows[1].startLazyRendering(divs[1], () => container);
+        vi.advanceTimersByTime(9);
+        expect(rows[1].isNeedRender, "not checked before the timer").toBe(false);
+        vi.advanceTimersByTime(1);
+        expect(rows[1].isNeedRender, "checked when the timer fires").toBe(true);
+        expect(rows[0].isNeedRender, "row 0 is offscreen").toBe(false);
+      } finally {
+        container.remove();
+        vi.useRealTimers();
+      }
+    });
+    test("a row that starts after the container listens renders on the next scroll", () => {
+      vi.useFakeTimers();
+      const { container, divs } = createContainer(2);
+      try {
+        const listeners = spyScrollListeners(container);
+        const { rows } = createLazySurvey(2);
+        rows[0].startLazyRendering(divs[0], () => container);
+        vi.advanceTimersByTime(10);
+        expect(listeners.active, "the container listens").toBe(1);
+        rows[1].startLazyRendering(divs[1], () => container);
+        vi.advanceTimersByTime(10);
+        expect(rows[1].isNeedRender, "row 1 is offscreen after init").toBe(false);
+        setRowDivVisible(divs[1], true);
+        scroll(container);
+        expect(rows[1].isNeedRender, "row 1 renders on scroll").toBe(true);
+        expect(rows[0].isNeedRender, "row 0 is still offscreen").toBe(false);
+        expect(listeners.added, "no second listener").toBe(1);
+      } finally {
+        container.remove();
+        vi.useRealTimers();
+      }
+    });
+    test("the timer checks the next row after an asynchronous renderer has updated the layout", async () => {
+      vi.useFakeTimers();
+      const { container, divs } = createContainer(3);
+      try {
+        const { rows } = createLazySurvey(3);
+        setRowDivVisible(divs[0], true);
+        setRowDivVisible(divs[1], true);
+        setRowDivVisible(divs[2], true);
+        // Like Vue, Angular and Preact: rendering row 0 updates the DOM in a microtask, and pushes row 1 out of view
+        rows[0].registerFunctionOnPropertyValueChanged("isNeedRender", () => {
+          queueMicrotask(() => setRowDivVisible(divs[1], false));
+        });
+        startRows(rows, divs, container);
+        await vi.advanceTimersByTimeAsync(10);
+        expect(rows[0].isNeedRender, "row 0 is rendered").toBe(true);
+        // fake timers delay a 0 ms timer created while they run by 1 ms
+        await vi.advanceTimersByTimeAsync(1);
+        expect(rows[1].isNeedRender, "row 1 was checked after the re-render").toBe(false);
+        expect(rows[2].isNeedRender, "row 2 was checked").toBe(true);
+        setRowDivVisible(divs[1], true);
+        scroll(container);
+        expect(rows[1].isNeedRender, "row 1 renders on scroll").toBe(true);
+      } finally {
+        container.remove();
+        vi.useRealTimers();
+      }
+    });
+    test("a row stopped before the timer fires is never checked", () => {
+      vi.useFakeTimers();
+      const { container, divs } = createContainer(2);
+      try {
+        const listeners = spyScrollListeners(container);
+        const { rows } = createLazySurvey(2);
+        setRowDivVisible(divs[0], true);
+        let checks = 0;
+        const ensureVisibility = rows[0].ensureVisibility;
+        rows[0].ensureVisibility = function () {
+          checks++;
+          ensureVisibility.call(this);
+        };
+        rows[0].startLazyRendering(divs[0], () => container);
+        rows[0].stopLazyRendering();
+        vi.advanceTimersByTime(20);
+        expect(checks, "the only row is not checked").toBe(0);
+        expect(rows[0].isNeedRender, "the only row is not rendered").toBe(false);
+        expect(listeners.added, "no listener for a stopped row").toBe(0);
+
+        rows[0].startLazyRendering(divs[0], () => container);
+        rows[1].startLazyRendering(divs[1], () => container);
+        rows[0].stopLazyRendering();
+        vi.advanceTimersByTime(10);
+        expect(checks, "the stopped row is not checked").toBe(0);
+        expect(rows[0].isNeedRender, "the stopped row is not rendered").toBe(false);
+        expect(listeners.active, "the other row listens").toBe(1);
+      } finally {
+        container.remove();
+        vi.useRealTimers();
+      }
+    });
+  });
+
+  // A lazy survey whose rows live in real divs under document.body. With a container, the rows are inside a
+  // scrolling div; without one, the document element scrolls and the rows listen on window.
+  // A row div is offscreen until showRow() makes it visible.
+  function createLazyRowsFixture(useContainer: boolean) {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+        { type: "text", name: "q3" },
+        { type: "text", name: "q4" }
+      ]
+    });
+    survey.lazyRenderEnabled = true;
+    const page = survey.currentPage;
+    const docEl = document.documentElement;
+    const container = document.createElement("div");
+    const rootElement = document.createElement("div");
+    const pageDiv = document.createElement("div");
+    pageDiv.id = page.id;
+    rootElement.appendChild(pageDiv);
+    if (useContainer) {
+      container.style.overflowY = "auto";
+      Object.defineProperty(container, "scrollHeight", { configurable: true, value: 5000 });
+      Object.defineProperty(container, "clientHeight", { configurable: true, value: 500 });
+      container.appendChild(rootElement);
+      document.body.appendChild(container);
+    } else {
+      Object.defineProperty(docEl, "scrollHeight", { configurable: true, value: 5000 });
+      Object.defineProperty(docEl, "clientHeight", { configurable: true, value: 500 });
+      document.body.appendChild(rootElement);
+    }
+    survey.rootElement = rootElement;
+    const visibleDivs: Array<HTMLElement> = [];
+    const rowDivs = page.rows.map((row, index) => {
+      const div = document.createElement("div");
+      Object.defineProperty(div, "offsetHeight", { configurable: true, value: 50 });
+      div.getBoundingClientRect = () => {
+        const top = visibleDivs.indexOf(div) > -1 ? 100 : 10000 + index * 100;
+        return <any>{ top: top, bottom: top + 50, height: 50 };
+      };
+      pageDiv.appendChild(div);
+      return div;
+    });
+    return {
+      survey, page, container, rowDivs,
+      startRows: () => page.rows.forEach((row, index) => row.startLazyRendering(rowDivs[index])),
+      showRow: (index: number) => { visibleDivs.push(rowDivs[index]); },
+      dispose: () => {
+        page.rows.forEach(row => row.stopLazyRendering());
+        rootElement.remove();
+        container.remove();
+        delete (<any>docEl).scrollHeight;
+        delete (<any>docEl).clientHeight;
+      }
+    };
+  }
+  function runLazyRowsTest(useContainer: boolean, func: (fixture: ReturnType<typeof createLazyRowsFixture>) => void) {
+    const prevStartRow = settings.lazyRowsRenderingStartRow;
+    settings.lazyRowsRenderingStartRow = 0;
+    vi.useFakeTimers();
+    let fixture: ReturnType<typeof createLazyRowsFixture>;
+    try {
+      fixture = createLazyRowsFixture(useContainer);
+      func(fixture);
+    } finally {
+      fixture?.dispose();
+      vi.useRealTimers();
+      settings.lazyRowsRenderingStartRow = prevStartRow;
+    }
+  }
+  test("activateLazyRenderingChecks renders a row that listens on window", () => {
+    runLazyRowsTest(false, ({ page, rowDivs, startRows, showRow }) => {
+      startRows();
+      const row = page.rows[2];
+      expect(row["_scrollableParent"], "the row listens on window").toBe(window);
+      vi.advanceTimersByTime(10);
+      expect(row.isNeedRender, "offscreen after initialization").toBe(false);
+      showRow(2);
+      activateLazyRenderingChecks(rowDivs[2]);
+      vi.advanceTimersByTime(9);
+      expect(row.isNeedRender, "not before 10 ms").toBe(false);
+      vi.advanceTimersByTime(1);
+      expect(row.isNeedRender, "rendered after 10 ms").toBe(true);
+      expect(page.rows[3].isNeedRender, "the offscreen row stays a skeleton").toBe(false);
+    });
+  });
+  test("activateLazyRenderingChecks dispatches on a scrolling container and renders its row", () => {
+    runLazyRowsTest(true, ({ page, container, rowDivs, startRows, showRow }) => {
+      startRows();
+      const row = page.rows[2];
+      expect(row["_scrollableParent"], "the row listens on the container").toBe(container);
+      let containerEvents = 0;
+      let windowEvents = 0;
+      const onContainerScroll = () => containerEvents++;
+      const onWindowScroll = () => windowEvents++;
+      container.addEventListener("scroll", onContainerScroll);
+      window.addEventListener("scroll", onWindowScroll);
+      try {
+        vi.advanceTimersByTime(10);
+        expect(row.isNeedRender, "offscreen after initialization").toBe(false);
+        showRow(2);
+        activateLazyRenderingChecks(rowDivs[2]);
+        vi.advanceTimersByTime(9);
+        expect(row.isNeedRender, "not before 10 ms").toBe(false);
+        vi.advanceTimersByTime(1);
+        expect(row.isNeedRender, "rendered after 10 ms").toBe(true);
+        expect(containerEvents, "the container gets the event").toBe(1);
+        expect(windowEvents, "window does not get the event").toBe(0);
+      } finally {
+        container.removeEventListener("scroll", onContainerScroll);
+        window.removeEventListener("scroll", onWindowScroll);
+      }
+    });
+  });
+  test("activateLazyRenderingChecks dispatches on window, not on the document element, when the page scrolls", () => {
+    runLazyRowsTest(false, ({ rowDivs }) => {
+      const docEl = document.documentElement;
+      let docElEvents = 0;
+      let windowEvents = 0;
+      const onDocElScroll = () => docElEvents++;
+      const onWindowScroll = () => windowEvents++;
+      docEl.addEventListener("scroll", onDocElScroll);
+      window.addEventListener("scroll", onWindowScroll);
+      try {
+        activateLazyRenderingChecks(rowDivs[0]);
+        vi.advanceTimersByTime(10);
+        expect(docElEvents, "the document element gets nothing").toBe(0);
+        expect(windowEvents, "window gets one event").toBe(1);
+      } finally {
+        docEl.removeEventListener("scroll", onDocElScroll);
+        window.removeEventListener("scroll", onWindowScroll);
+      }
+    });
+  });
+  test("Removing a question renders rows that moved into view when the page scrolls", () => {
+    runLazyRowsTest(false, ({ survey, page, startRows, showRow }) => {
+      startRows();
+      vi.advanceTimersByTime(10);
+      const row = page.rows[2];
+      expect(row.isNeedRender, "offscreen after initialization").toBe(false);
+      showRow(2);
+      survey.getQuestionByName("q1").delete();
+      expect(page.rows.indexOf(row), "the row is kept").toBe(1);
+      vi.advanceTimersByTime(9);
+      expect(row.isNeedRender, "not before 10 ms").toBe(false);
+      vi.advanceTimersByTime(1);
+      expect(row.isNeedRender, "rendered after 10 ms").toBe(true);
+    });
+  });
+  test("scrollElementToTop keeps rows suspended while scrolling and checks them after", () => {
+    const oldScrollElementToTop = SurveyElement.ScrollElementToTop;
+    try {
+      runLazyRowsTest(true, ({ survey, page, container, startRows, showRow }) => {
+        startRows();
+        vi.advanceTimersByTime(10);
+        const row = page.rows[2];
+        let renderedWhileScrolling: boolean = undefined;
+        SurveyElement.ScrollElementToTop = ((el, _, __, doneCallback) => {
+          showRow(2);
+          container.dispatchEvent(new CustomEvent("scroll"));
+          renderedWhileScrolling = row.isNeedRender;
+          doneCallback();
+        }) as any;
+        const q1 = survey.getQuestionByName("q1");
+        survey.scrollElementToTop(q1, q1, null, q1.id);
+        vi.advanceTimersByTime(100);
+        expect(page.rows[0].isNeedRender, "the target row is force-rendered").toBe(true);
+        expect(renderedWhileScrolling, "rows do not render while suspended").toBe(false);
+        expect(row.isNeedRender, "not before the check").toBe(false);
+        vi.advanceTimersByTime(10);
+        expect(row.isNeedRender, "rendered on the check after release").toBe(true);
+      });
+    } finally {
+      SurveyElement.ScrollElementToTop = oldScrollElementToTop;
     }
   });
   test("row.isNeedRender & settings.lazyRowsRenderingStartRow", () => {

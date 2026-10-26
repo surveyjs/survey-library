@@ -89,6 +89,8 @@ export var urduSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: " سوالات کا جواب دیا۔ {0}/{1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "سوال {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "سروے میں کوئی نظر آنے والا صفحہ یا سوال نہیں ہے۔",
   // "Thank you for completing the survey"

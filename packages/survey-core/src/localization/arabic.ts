@@ -89,6 +89,8 @@ export var arabicSurveyStrings = {
   panelDynamicTabTextFormat: "لوحة {بانل إندكس}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "تمت الإجابة على أسئلة {0} / {1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "سؤال {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "لا توجد صفحة مرئية أو سؤال في النموذج",
   // "Thank you for completing the survey"

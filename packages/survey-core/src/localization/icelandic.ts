@@ -89,6 +89,8 @@ export var icelandicSurveyStrings = {
   panelDynamicTabTextFormat: "Pallborð {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Svarað {0} / {1} spurningum",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Spurning {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Það er enginn síða eða spurningar í þessari könnun.",
   // "Thank you for completing the survey"

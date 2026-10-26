@@ -274,6 +274,7 @@ export {
   FilterFieldEditorKind, IFilterFieldListItem, getFilterFieldEditorKind, getFilterFieldListItems, getFilterChipText
 } from "../../src/filter/filter-field-kinds";
 export { FilterFieldPopup, IFilterFieldPopupOwner, filterPopupSearchMinItemCount, filterListItemComponentName } from "../../src/filter/filter-field-popup";
+export { FilterChipsLayout, fitFilterChips } from "../../src/filter/filter-chips-layout";
 export {
   FilterConditionItem, getConditionOperatorTitle, conditionsToExpression, parseFilterExpression
 } from "../../src/filter/filter-conditions";

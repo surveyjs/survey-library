@@ -1,5 +1,8 @@
 # survey-core/interview
 
+> **Experimental.** `survey-core/interview` is experimental in its first release: its API may still
+> change in a minor version, until a release drops this note.
+
 Conducts a **survey** through a text interface. A chat widget, a voice front end or an AI agent
 that fills a survey today gets the survey JSON and has to re-implement `visibleIf`, `enableIf`,
 `requiredIf`, validators, dynamic panels and matrices — and gets them wrong. `SurveyModel` already
@@ -86,7 +89,8 @@ transparent to it.
 * Everything a survey needs in order to run — `data`, `locale`, variables, `dateProvider`,
   `webProvider`, `onServerValidateQuestions`, `onComplete` — is set on the model **before** the
   hand-over. That is why the options carry nothing but a `timeout`: there is no second place to
-  configure a survey.
+  configure a survey. Any other key — `{ data }`, `{ locale }` — is a `TypeError` that names it, so
+  a setting is never dropped without a word.
 * Nothing is cached. A value written past the interview — by a UI rendering the same model, by your
   own code — is seen on the next call, and so is a `locale` you change afterwards.
 * A UI may render the same model at the same time. The input the interview asks for is the input
@@ -112,9 +116,18 @@ brought into being: a row's [detail panel](#items-are-the-models-own-single-inpu
 — a `choicesByUrl` of a detail question, an asynchronous validator of its `defaultValue` — is
 drained by the same call.
 
+The mutating calls of one interview — `answer()`, `skip()`, `complete()`, `answerAll()` and
+`callTool()` — **run one at a time**. A call made while another is still settling starts once that
+one has resolved or rejected, so two calls sent without an `await` between them answer exactly as
+two sequential calls do; a rejected call never blocks the next. A call on an idle interview starts
+at once. `callTool("describe_survey")` is queued the same way, so it describes what the calls
+before it left. A call made while `complete()` waits for an `onServerValidateQuestions` handler
+therefore waits too, up to the `timeout`. The reads — `current()`, `describe()`, `describeAll()`,
+the documents, `getAnswerSchema()`, `getTools()` — stay synchronous and read the model as it is.
+
 | Export | Description | Arrives in |
 | --- | --- | --- |
-| `createInterview(survey, options?): Promise<IInterview>` | Takes a `SurveyModel` (used as is) or a survey JSON object (`new SurveyModel(json)`, nothing else configured). Anything else — a string, an array, `null`, a disposed model — is a `TypeError`. | tier 02 |
+| `createInterview(survey, options?): Promise<IInterview>` | Takes a `SurveyModel` (used as is) or a survey JSON object (`new SurveyModel(json)`, nothing else configured). Anything else — a string, an array, `null`, a disposed model, a model from another copy of survey-core — is a `TypeError`, and so is an option other than `timeout`. | tier 02 |
 | `interview.survey` | The model that was passed in. | tier 02 |
 | `interview.data` | `survey.data`. | tier 02 |
 | `interview.dispose()` | Drops the interview's own state. The model is untouched. | tier 02 |
@@ -149,9 +162,15 @@ interface IInterviewOptions {
 }
 ```
 
+`timeout` is the only option. Any other key is a `TypeError` that names the keys: data, a locale and
+everything else a survey runs with are set on the model before the hand-over (see
+[The model is yours](#the-model-is-yours)). `undefined`, `null` and `{}` mean the defaults; options
+that are not an object are a `TypeError` too.
+
 `timeout` is wall-clock time and it bounds one asynchronous survey operation. When it runs out, the
-call rejects with an `Error` carrying `code: "asyncTimeout"`, the `reason` the model reported and,
-for choices loading from a web service, the `urls` that have not answered. `timeout: 0` never waits:
+call rejects with an `Error` carrying `code: "asyncTimeout"`, the `reason` the model reported, the
+`names` of the questions it was still running for and, for choices loading from a web service, the
+`urls` that have not answered. `timeout: 0` never waits:
 the interview then describes whatever the model holds at that instant — `choicesUnknown: true`, if
 the choices are still on their way. A request that failed is `choicesUnknown: true` as well, with the
 model's error text under `choicesError`; so is a URL whose `{placeholders}` are not answered yet.
@@ -177,7 +196,7 @@ Every mutating call answers with an `errors` array of `{ name, message, code? }`
 | --- | --- |
 | `nothingToAnswer` | `answer(value)` or `skip()` with no current item — everything that can be asked is answered and valid. |
 | `unknownQuestion` | `answer(name, value)` with a name that is not an item: it does not exist, it is invisible, or it is read-only by property and can never be answered. In `answerAll()`, a key that names no question the survey has, or a visible one that is not an item; a hidden one is `notAskable`. |
-| `notAskable` | The item or the field exists but cannot take a value: an `enableIf` turned it off — its own, or one of a panel, a page or a container it sits in (`disabled`) — it has no plain input — a file, a signature, an image picker (`unsupported`), it sits deeper than the 20 nested containers the interview addresses and neither mode reaches it (`reason: "batch"`, see [the ceiling](#the-depth-ceiling)), it is a dynamic container with a `dataSource` or sits inside one (`reason: "dataSource"`), or the survey hid it, an earlier key of the same `answerAll()` included. The message says which. |
+| `notAskable` | The item or the field exists but cannot take a value: an `enableIf` turned it off — its own, or one of a panel, a page or a container it sits in (`disabled`) — it has no plain input — a file, a signature, an image picker (`unsupported`), batch mode has no value form for it (`reason: "batch"`): it sits deeper than the 20 nested containers the interview addresses and neither mode reaches it (see [the ceiling](#the-depth-ceiling)), or it is a root whose value is an object the interview has no shape for — no fields, no entries — it is a dynamic container with a `dataSource` or sits inside one (`reason: "dataSource"`), or the survey hid it, an earlier key of the same `answerAll()` included. The message says which. |
 | `notAChoice` | The value is not among the choices the item lists — `choices`, or a rating's `rateValues` — or it is a choice listed with `disabled: true` that the question does not already hold. Checked per element for a multi-select; `other` and `none` are choices like any other; skipped entirely when the item says `choicesUnknown` — a value is then written unchecked, and the model keeps it too, because it does not judge a value without a usable list. An item with `choices: []` refuses every value: nothing can be chosen now, and the model would clear what was written. A disabled choice that is already selected stays accepted, as the UI keeps a checked item checked: `["cat", "dog"]` with `cat` stored and disabled is accepted, `["cat", "dog"]` after `cat` was dropped is not. A value that differs from one choice only in case or surrounding spaces is not an error — the choice's own value is written (see [the matching rule](#items-are-the-models-own-single-inputs)) — but one that differs that way from several (`" a"` against `"a"` and `"A"`) is `notAChoice`. |
 | `notANumber` | A string that is not a number, for an item whose value is a number. |
 | `badFormat` | A value the input itself would not produce: a date-like `inputType` given anything but its shape — `date` `YYYY-MM-DD` (a valid date; a JavaScript `Date` is accepted too), `datetime-local` `YYYY-MM-DDTHH:mm[:ss]` (or a `Date`), `time` `HH:mm[:ss]`, `month` `YYYY-MM`, `week` `YYYY-Www` — or a value an input mask does not accept: it does not survive the mask unchanged, or leaves a `pattern` position unfilled (`"12"` for `999`), or lies outside the mask's own `min` / `max`, which the model does not check. A `numeric` or `currency` mask takes a number (`1.005` is refused at `precision: 2`), a `datetime` mask an ISO string in its `valueFormat`, and with `saveMaskedValue` either one or the exact text the input shows; see [Formats and masks](#formats-and-masks). Only the format otherwise: a well-formed date outside the question's `min` / `max` is the model's own validation error, without a code. |
@@ -192,7 +211,9 @@ Every mutating call answers with an `errors` array of `{ name, message, code? }`
 | `invalidCannotSkip` | `skip()` on an optional item that has an error — a value a validator refuses. A skip keeps the value, and the value would still block `complete()`, so the item stays current; correct the value, or clear it with `answer(null)`, and then skip. |
 | `completionBlocked` | A handler of `onCompleting` set `allow = false`. |
 | `surveyCompleted` | `answer()` or `skip()` after the survey completed. |
-| `startPageIncomplete` | `createInterview` rejects: the model shows a start page and `start()` refused to leave it. An `Error`, not an item error. |
+| `startPageIncomplete` | `createInterview` rejects: the model shows a start page and `start()` refused to leave it. An `Error`, not an item error, carrying `names`. |
+| `asyncTimeout` | A call, or `createInterview`, rejects: the model was still running an asynchronous operation when the [`timeout`](#options) ran out. An `Error`, not an item error, carrying `reason`, and `names` / `urls` when the model reported them. |
+| `unknownTool` | `callTool()` rejects: the name is none of the [tools](#tools) `getTools()` defines. An `Error`, not an item error. |
 
 An error with a code means **nothing was written**: the pre-checks run before the value reaches the
 model, and the same current item comes back.
@@ -1832,7 +1853,7 @@ included, so a host that decorates one definition changes no other.
 
 `getTools({ prefix })` prepends `prefix` to all three names, so one server can expose several surveys
 through one set of tools; `callTool(name, args)` takes the prefixed name back and rejects an unknown
-one with `Error("unknown tool: <name>")`. OpenAI and Anthropic both take a tool name of
+one with `Error("unknown tool: <name>")`, `code: "unknownTool"`. OpenAI and Anthropic both take a tool name of
 `^[a-zA-Z0-9_-]{1,64}$`, so a prefix is letters, digits, `_` and `-`, at most 49 of them (the longest
 base name is 15). Any other prefix, or one that is not a string, throws a `TypeError`. The definitions are plain data — nothing in this module
 talks to a network, and nothing remembers the prefix.

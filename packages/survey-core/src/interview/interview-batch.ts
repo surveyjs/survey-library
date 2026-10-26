@@ -18,8 +18,9 @@ import { describeContainer, isContainerTreeValid } from "./interview-containers"
 // dynamic panel, a dynamic matrix - reports its entries as records and takes a list of records back.
 // Both are described by interview-containers.ts, which does the same for a container nested inside
 // them at any depth. A root whose value no text consumer can produce (a file, a signature) is listed
-// with unsupported and no reason; unsupported with reason "batch" is left for a container below the
-// depth ceiling, which nothing reaches.
+// with unsupported and no reason; unsupported with reason "batch" is left for what batch mode has no
+// value form for: a container at the depth ceiling, which nothing reaches, and a root whose value is
+// an object the interview has no shape for (interview-containers.ts describeContainer).
 
 export interface IInterviewBatchEntry {
   address: string;

@@ -28,8 +28,8 @@ import { createAnswerSchema } from "./interview-schema";
 import { InterviewToolNames, getToolBaseName, getToolDefinitions } from "./interview-tools";
 import { InterviewSkipped, diffSnapshots, noChanges, takeSnapshot } from "./interview-state";
 import {
-  InterviewErrorCodes, InterviewNotAskableReason, badAddressError, completionBlockedError,
-  getUnsupportedReason, invalidCannotSkipError, notAskableError, nothingToAnswerError,
+  IInterviewRejection, InterviewErrorCodes, InterviewNotAskableReason, badAddressError, completionBlockedError,
+  createRejection, getUnsupportedReason, invalidCannotSkipError, notAskableError, nothingToAnswerError,
   requiredCannotSkipError, surveyCompletedError, unknownQuestionError, unknownToolError,
 } from "./interview-errors";
 
@@ -49,6 +49,17 @@ export class Interview implements IInterview {
   // is where the rule resumes.
   private editingQuestion: Question;
   private timeoutValue: number;
+  // The mutating calls run one at a time: "queued" counts the calls started and not yet settled, and
+  // "lastCall" settles when the latest of them has, whether it resolved or rejected (serialize()).
+  private queued = 0;
+  private lastCall: Promise<void> = Promise.resolve();
+
+  // The one way an interview comes into being (createInterview): initialize() runs once, before the
+  // instance is handed out, and is not something a caller can run again.
+  public static create(survey: SurveyModel, options?: IInterviewOptions): Promise<Interview> {
+    const res = new Interview(survey, options);
+    return res.initialize().then(() => res);
+  }
 
   constructor(private surveyValue: SurveyModel, options?: IInterviewOptions) {
     this.timeoutValue = !!options ? options.timeout : undefined;
@@ -60,15 +71,11 @@ export class Interview implements IInterview {
   public get data(): any {
     return this.surveyValue.data;
   }
-  protected get timeout(): number {
-    return this.timeoutValue;
-  }
 
-  // Called once by createInterview, before the instance is handed out. The model is put into the
-  // mode the interview drives and, if it is showing a start page, started: the start page is a UI
-  // concept that getSingleElements() skips, so an interview would otherwise never ask its questions
-  // and never get past it.
-  public async initialize(): Promise<void> {
+  // The model is put into the mode the interview drives and, if it is showing a start page, started:
+  // the start page is a UI concept that getSingleElements() skips, so an interview would otherwise
+  // never ask its questions and never get past it.
+  private async initialize(): Promise<void> {
     const survey: any = this.surveyValue;
     // Setting the property re-runs onQuestionsOnPageModeChanged, which resets the single-input state
     // of every question and makes the first root current. A model already in the mode keeps whatever
@@ -125,12 +132,55 @@ export class Interview implements IInterview {
     // Two arguments mean a revisit by address; one means "the input you just asked me for". The
     // count is what tells them apart: answer(undefined) is a value, not a missing name.
     const hasName = arguments.length > 1;
-    return this.answerCore(hasName ? nameOrValue : undefined, hasName ? value : nameOrValue, hasName);
+    return this.serialize(() => this.answerCore(hasName ? nameOrValue : undefined,
+      hasName ? value : nameOrValue, hasName));
+  }
+
+  public skip(): Promise<IInterviewResult> {
+    return this.serialize(() => this.skipCore());
+  }
+
+  public complete(): Promise<IInterviewCompleteResult> {
+    return this.serialize(() => this.completeCore());
+  }
+
+  public answerAll(values: { [address: string]: any }): Promise<IInterviewResult> {
+    return this.serialize(() => this.answerAllCore(values));
+  }
+
+  // Not serialized itself: it dispatches to the calls that are, and a tool call queued behind its own
+  // answerAll() would wait for itself. The read is queued like a call, so describe_survey sent right
+  // after answer_survey describes what that answer left.
+  public callTool(name: string, args: any): Promise<any> {
+    // The prefix getTools() was given is the host's, and the definitions are plain data that nothing
+    // remembers, so a name is recognized by what it ends with.
+    switch(getToolBaseName(name)) {
+      case InterviewToolNames.describe: return this.serialize(() => Promise.resolve(this.describeAll()));
+      case InterviewToolNames.answer: return this.answerAll(args || {});
+      case InterviewToolNames.complete: return this.complete();
+    }
+    return Promise.reject(unknownToolError(name));
+  }
+
+  // Two calls without an await between them would interleave at the settle: the second writes while
+  // the first is waiting, and the first then reports the second's write as its own consequence. So a
+  // call starts once every call before it has settled, resolved or rejected - a rejected one never
+  // blocks the next. An idle interview starts the call at once, synchronously up to its first settle,
+  // as it did before anything was queued. The reads are not queued: they read whatever the model
+  // holds when they are called.
+  private serialize<T>(run: () => Promise<T>): Promise<T> {
+    const call = (): Promise<T> => new Promise<T>(resolve => resolve(run())).then(
+      res => { this.queued--; return res; },
+      error => { this.queued--; throw error; });
+    this.queued++;
+    const res = this.queued === 1 ? call() : this.lastCall.then(call);
+    this.lastCall = res.then(() => undefined, () => undefined);
+    return res;
   }
 
   // Skipping is a single-mode gesture and it lives only in the interview: the model has no notion of
   // it, and the value - if the input already held one - stays. "Skip" means "move on", not "erase".
-  public async skip(): Promise<IInterviewResult> {
+  private async skipCore(): Promise<IInterviewResult> {
     if (this.isCompleted()) return this.createErrorResult(surveyCompletedError(), []);
     const inputs = this.getInputs();
     const target = this.getCurrentInput(inputs);
@@ -153,7 +203,7 @@ export class Interview implements IInterview {
     return this.createResult(after, noChanges(), []);
   }
 
-  public async complete(): Promise<IInterviewCompleteResult> {
+  private async completeCore(): Promise<IInterviewCompleteResult> {
     const survey = this.surveyValue;
     if (this.isCompleted()) {
       // Completing a completed survey is not an error, it is a no-op with the same answer.
@@ -225,7 +275,7 @@ export class Interview implements IInterview {
   // container already applies to its own fields ("a field an earlier key of the same object revealed is
   // written in the same call"), at the root level. A key that named an entry at the start is written
   // in the first pass as before, and one an earlier write hid is still refused by the refresh.
-  public async answerAll(values: { [address: string]: any }): Promise<IInterviewResult> {
+  private async answerAllCore(values: { [address: string]: any }): Promise<IInterviewResult> {
     if (this.isCompleted()) return this.createErrorResult(surveyCompletedError(), [], true);
     const survey = this.surveyValue;
     const inputs = this.getInputs();
@@ -304,17 +354,6 @@ export class Interview implements IInterview {
 
   public getTools(options?: IInterviewToolOptions): Array<IInterviewToolDefinition> {
     return getToolDefinitions(this.getAnswerSchema(), options);
-  }
-
-  public callTool(name: string, args: any): Promise<any> {
-    // The prefix getTools() was given is the host's, and the definitions are plain data that nothing
-    // remembers, so a name is recognized by what it ends with.
-    switch(getToolBaseName(name)) {
-      case InterviewToolNames.describe: return Promise.resolve(this.describeAll());
-      case InterviewToolNames.answer: return this.answerAll(args || {});
-      case InterviewToolNames.complete: return this.complete();
-    }
-    return Promise.reject(unknownToolError(name));
   }
 
   public dispose(): void {
@@ -923,12 +962,33 @@ function findBatchTarget(entries: Array<IInterviewBatchEntry>, key: string,
 export function createInterview(survey: SurveyModel | any, options?: IInterviewOptions): Promise<IInterview> {
   let model: SurveyModel;
   try {
+    // The options first: a JSON object becomes a model below, and building one may already send its
+    // choicesByUrl requests for a call that is about to be refused.
+    checkOptions(options);
     model = toSurveyModel(survey);
   } catch(error) {
     return Promise.reject(error);
   }
-  const interview = new Interview(model, options);
-  return interview.initialize().then(() => interview);
+  return Interview.create(model, options);
+}
+
+// The options carry nothing the model can express (interview-types.ts IInterviewOptions). A key that
+// is not one of them - the issue's { data, locale } - would be dropped without a word, and the caller
+// would lose the data they passed, so it is refused and named.
+const INTERVIEW_OPTION_KEYS = ["timeout"];
+
+function checkOptions(options: any): void {
+  if (options === undefined || options === null) return;
+  if (typeof options !== "object" || Array.isArray(options)) {
+    throw new TypeError("createInterview takes its options as an object, and it received " +
+      describeArgument(options) + ".");
+  }
+  const unknown = Object.keys(options).filter(key => INTERVIEW_OPTION_KEYS.indexOf(key) < 0);
+  if (unknown.length === 0) return;
+  throw new TypeError("createInterview does not take the option" + (unknown.length > 1 ? "s " : " ") +
+    unknown.map(key => JSON.stringify(key)).join(", ") + ": its options carry only \"timeout\". Data, " +
+    "locale, variables, providers and event handlers are set on the SurveyModel before the hand-over: " +
+    "build the model yourself, set them on it, and pass the model.");
 }
 
 function toSurveyModel(survey: SurveyModel | any): SurveyModel {
@@ -936,10 +996,22 @@ function toSurveyModel(survey: SurveyModel | any): SurveyModel {
     if (survey.isDisposed) throw createTypeError("the SurveyModel passed to it is disposed");
     return survey;
   }
+  if (isForeignModel(survey)) {
+    // Read as JSON it would become a new, empty model with none of the owner's data, handlers or
+    // providers, and the interview would run on that one (rollup.interview.config.mjs).
+    throw new TypeError("createInterview received a SurveyModel that is not an instance of the " +
+      "SurveyModel class \"survey-core/interview\" uses: it comes from another copy of survey-core. Install " +
+      "one copy of survey-core, so that the application and survey-core/interview load the same one.");
+  }
   if (!!survey && typeof survey === "object" && !Array.isArray(survey)) {
     return new SurveyModel(survey);
   }
   throw createTypeError("it received " + describeArgument(survey));
+}
+
+// JSON holds no functions, so an object with the two methods every SurveyModel has is a model.
+function isForeignModel(survey: any): boolean {
+  return !!survey && typeof survey.getAllQuestions === "function" && typeof survey.toJSON === "function";
 }
 
 function createTypeError(what: string): TypeError {
@@ -958,13 +1030,13 @@ function describeArgument(survey: any): string {
 // questions are never items - getSingleElements() skips the start page - so the interview cannot ask
 // them; the owner answers them or turns firstPageIsStartPage off before the hand-over. The model is
 // left in the "starting" state.
-function createStartPageError(survey: any): Error {
+function createStartPageError(survey: any): IInterviewRejection {
   const names = getStartPageErrorNames(survey);
-  const error: any = new Error("The survey is showing its start page and start() refused to leave it" +
+  const error = createRejection(InterviewErrorCodes.startPageIncomplete, "The survey is showing its " +
+    "start page and start() refused to leave it" +
     (names.length > 0 ? ": " + names.join(", ") + " " + (names.length === 1 ? "has" : "have") + " an error" : "") +
     ". Questions of a start page are never asked by the interview. Answer them, or set " +
     "firstPageIsStartPage to false, before createInterview.");
-  error.code = InterviewErrorCodes.startPageIncomplete;
   error.names = names;
   return error;
 }

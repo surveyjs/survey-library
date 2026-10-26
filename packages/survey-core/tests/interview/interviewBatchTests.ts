@@ -2,7 +2,7 @@
 // Batch mode is what an agent talks to, and an agent runs on a server: nothing here needs a DOM.
 import { createInterview, InterviewErrorCodes } from "survey-core/interview";
 import type { IInterview } from "survey-core/interview";
-import { ComponentCollection, SurveyModel, settings, surveyLocalization } from "survey-core";
+import { ComponentCollection, Question, Serializer, SurveyModel, settings, surveyLocalization } from "survey-core";
 
 import { afterEach, describe, expect, test } from "vitest";
 
@@ -615,5 +615,34 @@ describe("interview batch mode: hidden targets (issue #11818)", () => {
     expect(codes(res.errors)).toEqual([{ name: "m.r1.note", code: InterviewErrorCodes.notAskable }]);
     expect(res.errors[0].message).toContain(HIDDEN_TEXT);
     expect(iv.data).toEqual({ m: { r1: { sku: "A-1" } } });
+  });
+});
+
+// "batch" has two triggers: the depth ceiling, and a root whose value is an object the interview has
+// no batch shape for - no fields, no entries. A question type a host registers with an object value
+// and a plain input of its own is the second one.
+class QuestionObjectValueModel extends Question {
+  public getType(): string {
+    return "interviewobjectvalue";
+  }
+  public getValueType(): any {
+    return "object";
+  }
+  public get hasPlainInput(): boolean {
+    return true;
+  }
+}
+Serializer.addClass("interviewobjectvalue", [], () => new QuestionObjectValueModel(""), "question");
+
+describe("a root batch mode has no shape for (issue #11818)", () => {
+  test("It is unsupported with reason batch, and the refusal names the object value as a cause", async () => {
+    const iv = await createInterview({ elements: [{ type: "interviewobjectvalue", name: "geo" }] });
+    const record: any = iv.getBatchDocument().items.filter((item: any) => item.name === "geo")[0];
+    expect(record.unsupported).toBe(true);
+    expect(record.reason).toBe("batch");
+    const res = await iv.answerAll({ geo: { lat: 1 } });
+    expect(res.errors.map(error => error.code)).toEqual([InterviewErrorCodes.notAskable]);
+    expect(res.errors[0].message).toContain("its value is an object");
+    expect(iv.data).toEqual({});
   });
 });

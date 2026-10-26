@@ -1,4 +1,5 @@
 import type { IRunningAsyncOperation, SurveyAsyncOperationType, SurveyModel } from "survey-core";
+import { IInterviewRejection, InterviewErrorCodes, createRejection } from "./interview-errors";
 
 // A survey is not finished deciding when the call that started it returns. choicesByUrl goes out
 // over the network, an asynchronous validator, an asynchronous expression function, server
@@ -65,12 +66,11 @@ export async function settle(survey: SurveyModel, timeout?: number): Promise<voi
   }
 }
 
-function createTimeoutError(busy: IInterviewBusyState, timeout: number): Error {
-  const error: any = new Error("The survey was still running an asynchronous operation " + timeout +
-    "ms after the interview asked it to settle: " + getReasonText(busy) + ". The interview stops " +
-    "here: what it would describe is the state before the operation landed. Raise the \"timeout\" " +
-    "option if the operation needs longer, or pass 0 not to wait at all.");
-  error.code = "asyncTimeout";
+function createTimeoutError(busy: IInterviewBusyState, timeout: number): IInterviewRejection {
+  const error = createRejection(InterviewErrorCodes.asyncTimeout, "The survey was still running an " +
+    "asynchronous operation " + timeout + "ms after the interview asked it to settle: " +
+    getReasonText(busy) + ". The interview stops here: what it would describe is the state before the " +
+    "operation landed. Raise the \"timeout\" option if the operation needs longer, or pass 0 not to wait at all.");
   error.reason = busy.reason;
   if (!!busy.names) error.names = busy.names;
   if (!!busy.urls) error.urls = busy.urls;

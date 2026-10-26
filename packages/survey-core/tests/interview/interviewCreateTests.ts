@@ -1,7 +1,7 @@
 // @vitest-environment node
 // The interview is a Node runtime: it renders nothing and it must not need a DOM. This file runs
 // without jsdom, so a src/interview/ file that reached for document or window would fail here.
-import { createInterview } from "survey-core/interview";
+import { createInterview, InterviewErrorCodes } from "survey-core/interview";
 import { SurveyModel } from "survey-core";
 import type { ISurveyWebRequest, ISurveyWebResponse } from "survey-core";
 
@@ -43,6 +43,47 @@ describe("createInterview takes the model the integrator owns (issue #11818)", (
     await expect(createInterview(<any>42)).rejects.toThrow(TypeError);
     // The message names the two accepted forms, so the caller does not have to guess which it missed.
     await expect(createInterview("{}")).rejects.toThrow("SurveyModel instance or a survey JSON object");
+  });
+
+  // The model of a second copy of survey-core fails instanceof. Read as JSON it would become a new,
+  // empty model with none of the owner's data, handlers or providers, and the interview would run on
+  // that one silently.
+  test("A model from another copy of survey-core is a TypeError that names the two copies", async () => {
+    const foreign: any = {
+      getAllQuestions: (): Array<any> => [],
+      toJSON: (): any => ({ elements: [{ type: "text", name: "q1" }] }),
+      data: { q1: "kept by the owner" },
+    };
+    const error: any = await createInterview(foreign).catch(e => e);
+    expect(error).toBeInstanceOf(TypeError);
+    expect(error.message).toContain("another copy of survey-core");
+  });
+
+  test("Options other than timeout are a TypeError that names them", async () => {
+    const json = { elements: [{ type: "text", name: "q1" }] };
+    const data: any = await createInterview(json, <any>{ data: { q1: "a" } }).catch(e => e);
+    expect(data).toBeInstanceOf(TypeError);
+    expect(data.message).toContain("\"data\"");
+    expect(data.message, "it says where the setting goes instead").toContain("SurveyModel");
+
+    const locale: any = await createInterview(json, <any>{ locale: "de" }).catch(e => e);
+    expect(locale).toBeInstanceOf(TypeError);
+    expect(locale.message).toContain("\"locale\"");
+
+    const mixed: any = await createInterview(json, <any>{ timeout: 0, data: {}, locale: "de" }).catch(e => e);
+    expect(mixed).toBeInstanceOf(TypeError);
+    expect(mixed.message).toContain("\"data\", \"locale\"");
+    expect(mixed.message, "a known key is not named").not.toContain("\"timeout\",");
+
+    await expect(createInterview(json, <any>"fast")).rejects.toThrow(TypeError);
+  });
+
+  test("timeout is the one option, and no options at all is fine", async () => {
+    const json = { elements: [{ type: "text", name: "q1" }] };
+    expect((await createInterview(json, { timeout: 0 })).current().name).toBe("q1");
+    expect((await createInterview(json, {})).current().name).toBe("q1");
+    expect((await createInterview(json, undefined)).current().name).toBe("q1");
+    expect((await createInterview(json, null)).current().name).toBe("q1");
   });
 
   test("A disposed model is a TypeError, not a broken interview", async () => {
@@ -279,6 +320,9 @@ describe("createInterview takes the model the integrator owns (issue #11818)", (
     expect(error.message).toContain("https://example.com/never");
     expect(error.message).toContain("city");
     expect(error.code).toBe("asyncTimeout");
+    expect(error.code).toBe(InterviewErrorCodes.asyncTimeout);
+    expect(error.reason).toBe("webChoices");
+    expect(error.urls).toEqual(["https://example.com/never"]);
     expect(Date.now() - start, "it stops at the budget, it does not hang").toBeLessThan(2000);
   });
 

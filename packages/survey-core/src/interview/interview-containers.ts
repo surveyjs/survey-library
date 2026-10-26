@@ -25,9 +25,11 @@ import {
 // same functions called with a different owner.
 //
 // "depth" is the number of containers above the question (interview-address.ts). A container at the
-// ceiling is the one thing a batch cannot fill: it is described with unsupported and reason "batch",
-// with nothing of its own below it, and a key for it is refused. The inventory and the address grammar
-// stop at the same depth, so nothing reaches what lies below it in either mode.
+// ceiling is one of the two things a batch cannot fill: it is described with unsupported and reason
+// "batch", with nothing of its own below it, and a key for it is refused. The inventory and the
+// address grammar stop at the same depth, so nothing reaches what lies below it in either mode. The
+// other is a root whose value is an object but which is neither dynamic nor a fixed-shape container -
+// no fields to list, no entries - described and refused the same way.
 //
 // Nothing imports this module but interview-batch.ts and interview.ts; the two tier-07 / tier-08 files
 // take it as a parameter instead, which is what keeps the recursion free of an import cycle.

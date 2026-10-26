@@ -25,7 +25,28 @@ export const InterviewErrorCodes = Object.freeze({
   badFormat: "badFormat",
   tooLong: "tooLong",
   tooManyChoices: "tooManyChoices",
+  asyncTimeout: "asyncTimeout",
+  unknownTool: "unknownTool",
 });
+
+// The codes above that reject a call rather than appear in its errors - startPageIncomplete,
+// asyncTimeout, unknownTool - travel on the Error itself, with what the rejection was about.
+export interface IInterviewRejection extends Error {
+  code: string;
+  // asyncTimeout: the kind of operation the model was still running (SurveyAsyncOperationType)
+  reason?: string;
+  // asyncTimeout: the questions or expression owners still running; startPageIncomplete: the
+  // start-page questions with an error
+  names?: Array<string>;
+  // asyncTimeout, "webChoices" only: the requests that have not answered
+  urls?: Array<string>;
+}
+
+export function createRejection(code: string, message: string): IInterviewRejection {
+  const error = <IInterviewRejection>new Error(message);
+  error.code = code;
+  return error;
+}
 
 // An error the interview raises has no address to point at when it is about the interview as a
 // whole and not about one input: "there is nothing left to answer" is true of the survey.
@@ -61,9 +82,11 @@ export function unknownQuestionError(name: string, known: Array<string>): IInter
   };
 }
 
-// One code, five reasons. "batch" and "hidden" belong to answerAll(): a container below the depth
-// ceiling is one no mode reaches, and a question the survey does not show now - hidden before the
-// call, or by an earlier answer of the same call - is one the batch may not write. Both are the same
+// One code, five reasons. "batch" and "hidden" belong to answerAll(): "batch" is a question batch mode
+// has no value form for - a container at the depth ceiling, which no mode reaches, or a root whose
+// value is an object the interview has no shape for (interview-containers.ts describeContainer) - and
+// "hidden" is a question the survey does not show now - hidden before the call, or by an earlier
+// answer of the same call - which the batch may not write. Both are the same
 // statement to the caller - "this key was not written" - so they are the same code with a message
 // that says which. "dataSource" is a dynamic container whose records a data source owns, and
 // anything inside it, in either mode.
@@ -72,8 +95,9 @@ export type InterviewNotAskableReason = "disabled" | "unsupported" | "batch" | "
 const NOT_ASKABLE_REASONS: { [reason: string]: string } = {
   disabled: "an \"enableIf\" expression turned it off, and it takes an answer again once that expression turns true",
   unsupported: "its value can only be produced through the question's own UI - a file to upload, a signature to draw",
-  batch: "it sits deeper than the " + MAX_NESTING_DEPTH + " nested containers the interview addresses, " +
-    "and neither mode reaches it",
+  batch: "batch mode has no value form for it: either it sits deeper than the " + MAX_NESTING_DEPTH +
+    " nested containers the interview addresses and neither mode reaches it, or its value is an object " +
+    "whose keys the interview cannot list",
   hidden: "the survey hides it or no longer offers it, whether that was so before this call or an earlier " +
     "answer of the same call caused it, so it is no longer being asked",
   dataSource: "its entries belong to a data source, which the interview does not read or write",
@@ -92,8 +116,8 @@ export function notAskableError(name: string, reason: InterviewNotAskableReason)
   };
 }
 
-export function unknownToolError(name: string): Error {
-  return new Error("unknown tool: " + name);
+export function unknownToolError(name: string): IInterviewRejection {
+  return createRejection(InterviewErrorCodes.unknownTool, "unknown tool: " + name);
 }
 
 // "isDisabled": the value is one of the question's choices, and a choicesEnableIf has turned it off.

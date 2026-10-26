@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { createInterview } from "survey-core/interview";
+import { createInterview, InterviewErrorCodes } from "survey-core/interview";
 import type { IInterview } from "survey-core/interview";
 
 import { describe, expect, test } from "vitest";
@@ -101,6 +101,14 @@ describe("interview tools (issue #11818)", () => {
     const iv = await createInterview(petJson);
     await expect(iv.callTool("delete_survey", {})).rejects.toThrow("unknown tool: delete_survey");
     await expect(iv.callTool(undefined, {})).rejects.toThrow("unknown tool:");
+  });
+
+  test("An unknown tool name rejects with a code a host can branch on", async () => {
+    const iv = await createInterview(petJson);
+    const error: any = await iv.callTool("delete_survey", {}).catch(e => e);
+    expect(error).toBeInstanceOf(Error);
+    expect(error.code).toBe(InterviewErrorCodes.unknownTool);
+    expect(error.code).toBe("unknownTool");
   });
 
   test("answer_survey without arguments is an empty batch, not a crash", async () => {

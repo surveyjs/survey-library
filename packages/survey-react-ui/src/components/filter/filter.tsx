@@ -211,7 +211,9 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
   }
   protected getStateElements(): Array<Base> {
     const q = this.question;
-    return !!q ? [q, q.chipsLayout] : [];
+    if (!q) return [];
+    // A disposed question has released its layout, and asking for it would build a new one.
+    return q.isDisposed ? [q] : [q, q.chipsLayout];
   }
   componentDidMount(): void {
     super.componentDidMount();
@@ -223,7 +225,7 @@ export class SurveyQuestionFilter extends SurveyQuestionElementBase {
   }
   componentWillUnmount(): void {
     super.componentWillUnmount();
-    if (!!this.question) {
+    if (!!this.question && !this.question.isDisposed) {
       this.question.chipsLayout.detach();
     }
   }

@@ -172,21 +172,26 @@ function renderSurvey(categories) {
       // Text and choice fields only: a quick search over a number or a boolean would send contains()
       // on a decimal, which OData refuses.
       searchFields: ["name", "category", "quantity"],
+      // The presets of the mockup. Turning one on locks the quick filters: they show what it filters
+      // by, and a click on any of them turns the filter off.
       items: [
-        { name: "cheap-beverages", title: "Cheap beverages", expression: "{category} anyof ['Beverages'] and {price} < 20" },
-        { name: "out-of-stock", title: "Out of stock", expression: "{stock} = 0" },
-        { name: "available", title: "Available", expression: "{stock} > 0 and {discontinued} = false" },
-        { name: "edges", title: "Cheap or premium (raw)", expression: "{price} < 10 or {price} > 100" },
-        { name: "ai", title: "AI: discontinued", type: "ai", prompt: "discontinued products", expression: "{discontinued} = true", allowEdit: false }
+        { name: "in-stock", title: "In Stock", expression: "{stock} > 0" },
+        { name: "out-of-stock", title: "Out of Stock", expression: "{stock} = 0" },
+        { name: "cheap-beverages", title: "Cheap Beverages", expression: "{category} anyof ['Beverages'] and {price} < 20" },
+        { name: "expensive-confections", title: "Expensive Confections", expression: "{category} anyof ['Confections'] and {price} > 30" },
+        // No conditions to show for it: an "or" stays the preset's own text.
+        { name: "edges", title: "Cheap or Premium", expression: "{price} < 10 or {price} > 100" },
+        { name: "discontinued", title: "Discontinued", type: "ai", prompt: "discontinued products", expression: "{discontinued} = true", allowEdit: false }
       ] },
     { type: "matrixdynamic", name: "products", title: "Products (OData Northwind)", rowsPerPage: 10, columns: [
       { name: "name", title: "Product", cellType: "text", filterOperators: ["contains"] },
-      // Picked from a list of checkboxes and nothing else: anyof is the only operator the filter offers.
+      // Checkboxes with Apply: anyof is the only operator the filter offers.
       { name: "category", title: "Category", cellType: "dropdown", choices: categories, filterOperators: ["anyof"] },
       { name: "quantity", title: "Quantity per unit", cellType: "text" },
       { name: "price", title: "Price", cellType: "text", inputType: "number" },
       { name: "stock", title: "In stock", cellType: "text", inputType: "number" },
-      { name: "discontinued", title: "Discontinued", cellType: "boolean", filterOperators: ["equal"] }] }
+      // Yes and No checkboxes: one of them is equal, both are notempty.
+      { name: "discontinued", title: "Discontinued", cellType: "boolean", filterOperators: ["equal", "notempty"] }] }
   ] };
   var model = new Survey.Model(json);
   model.getQuestionByName("products").dataSource = productsSource;

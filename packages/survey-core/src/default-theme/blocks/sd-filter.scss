@@ -34,6 +34,14 @@
   display: flex;
   align-items: flex-start;
   gap: var(--sjs2-spacing-x100);
+
+  // The chips, Show More and Clear All are small actions with the x-small text and icons: 12px text
+  // in a 32px chip, as in the mockup (a small action's text is the default size, 40px in all).
+  .sd-action {
+    --sd-action-title-font-size: var(--sjs2-typography-font-size-component-action-x-small-content);
+    --sd-action-title-line-height: var(--sjs2-typography-line-height-component-action-x-small-content);
+    --sd-action-icon-size: var(--sjs2-line-height-x200);
+  }
 }
 
 .sd-filter__chips {

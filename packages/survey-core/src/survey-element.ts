@@ -984,7 +984,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   @property({ defaultValue: true }) isSingleInRow: boolean;
 
   private shouldAddRunnerStyles(): boolean {
-    return !this.isDesignMode;
+    return !this.isDesignMode || !!(<any>this.survey)?.liveLayoutInDesignMode;
   }
 
   public isInternalNested: boolean;

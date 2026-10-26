@@ -1922,7 +1922,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * @see canRemovePanel
    */
   public get canAddPanel(): boolean {
-    if (this.isDesignMode) return false;
+    if (this.isDesignMode && !this.isLiveLayoutInDesignMode) return false;
     if (!this.isRenderModeList &&
       (this.currentIndex < this.visiblePanelCount - 1 && this.newPanelPosition !== "next")) {
       return false;
@@ -1950,8 +1950,22 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
    * @see canAddPanel
    */
   public get canRemovePanel(): boolean {
-    if (this.isDesignMode) return false;
+    if (this.isDesignMode && !this.isLiveLayoutInDesignMode) return false;
     return this.canRemoveRecordCore(this.allowRemovePanel, this.panelCount, this.minPanelCount);
+  }
+  // Survey Creator's inline layout renders the Add / Remove buttons (inert) so the surface keeps the live layout.
+  private get isLiveLayoutInDesignMode(): boolean {
+    return !!(<any>this.survey)?.liveLayoutInDesignMode;
+  }
+  public onDesignModeChanged(): void {
+    super.onDesignModeChanged();
+    // Design mode renders the template: give it the built panels' footer (the Remove button).
+    const template = this.template;
+    if (this.isDesignMode && this.isLiveLayoutInDesignMode && !!template && !template.onGetFooterActionsCallback) {
+      template.onGetFooterActionsCallback = () => this.getPanelActions(template);
+      template.onGetFooterToolbarCssCallback = () => this.cssClasses.panelFooter;
+    }
+    this.updateFooterActions();
   }
   protected rebuildPanels() {
     if (this.isLoadingFromJson) return;

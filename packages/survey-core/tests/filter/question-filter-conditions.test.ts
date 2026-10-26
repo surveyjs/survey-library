@@ -23,7 +23,7 @@ function trackEvents(survey: SurveyModel): { filter: number, uiState: number } {
 }
 
 describe("QuestionFilterModel: conditions over the active preset", () => {
-  test("editing the active preset keeps its other conditions and changes filterExpression", () => {
+  test("an edit over the active preset turns it off and keeps its other conditions as own ones", () => {
     const q = createControl();
     expect(q.activeItemName, "#1").toBe("adults");
     expect(q.ownConditions, "#2: no edits yet").toBe(undefined);
@@ -33,8 +33,21 @@ describe("QuestionFilterModel: conditions over the active preset", () => {
     expect(q.filterExpression, "#4").toBe("{age} > 21 and {country} = 'de'");
     expect(q.ownConditions, "#5: replaced in place, not moved to the end").toEqual([
       { field: "age", operator: "greater", value: 21 }, { field: "country", operator: "equal", value: "de" }]);
-    expect(q.activeItemName, "#6: the preset stays active").toBe("adults");
-    expect(q.activeItem.expression, "#7: and is not changed").toBe("{age} > 18 and {country} = 'de'");
+    expect(q.activeItemName, "#6: the preset is off").toBe("");
+    expect(q.getItemByName("adults").expression, "#7: and is not changed").toBe("{age} > 18 and {country} = 'de'");
+  });
+  test("an edit that leaves the preset's conditions as they are keeps the preset on", () => {
+    const q = createControl();
+    q.setFieldCondition("age", "greater", 18);
+    expect(q.activeItemName, "#1").toBe("adults");
+    expect(q.ownConditions, "#2").toBe(undefined);
+  });
+  test("single mode: an edit goes over the preset and the preset stays", () => {
+    const q = createControl({ allowMultipleItems: false });
+    q.setFieldCondition("age", "greater", 21);
+    expect(q.activeItem.name, "#1").toBe("adults");
+    expect(q.filterExpression, "#2").toBe("{age} > 21 and {country} = 'de'");
+    expect(q.isActiveItemModified, "#3").toBe(true);
   });
   test("a condition on a new field is appended, and conditions can be cleared one by one or all", () => {
     const q = createControl();
@@ -46,7 +59,7 @@ describe("QuestionFilterModel: conditions over the active preset", () => {
     q.clearConditions();
     expect(q.ownConditions, "#4").toEqual([]);
     expect(q.filterExpression, "#5: the preset's conditions are cleared too").toBe("");
-    expect(q.activeItemName, "#6: but the preset stays active").toBe("adults");
+    expect(q.activeItemName, "#6: the first edit took the preset off").toBe("");
   });
   test("clearFieldCondition as the first edit starts from the preset's conditions", () => {
     const q = createControl();
@@ -62,7 +75,8 @@ describe("QuestionFilterModel: conditions over the active preset", () => {
     q.setFieldCondition("age", "greater", 40);
     expect(q.filterExpression, "#4").toBe("{age} > 40");
     expect(q.isRawExpression, "#5").toBe(false);
-    expect(q.activeItem.expression, "#6").toBe("{age} < 18 or {age} > 35");
+    expect(q.getItemByName("edges").expression, "#6").toBe("{age} < 18 or {age} > 35");
+    expect(q.activeItemName, "#7: the edit took the preset off").toBe("");
   });
   test("isRawExpression is false for a decomposable preset and without a preset", () => {
     const q = createControl();
@@ -124,17 +138,17 @@ describe("QuestionFilterModel: switching presets resets the edits", () => {
     expect(q.filterExpression, "#2").toBe("{age} <= 18");
     expect(q.getFieldCondition("age"), "#3").toEqual({ field: "age", operator: "lessorequal", value: 18 });
   });
-  test("taking the preset off drops the edits", () => {
+  test("turning a preset on drops the edits, and clearActiveItem drops them too", () => {
     const q = createControl();
     q.setFieldCondition("age", "greater", 21);
+    expect(q.activeItemName, "#1: the edit took the preset off").toBe("");
     q.toggleItem("adults");
-    expect(q.ownConditions, "#1").toBe(undefined);
-    expect(q.filterExpression, "#2").toBe("");
-    q.toggleItem("adults");
+    expect(q.ownConditions, "#2").toBe(undefined);
+    expect(q.filterExpression, "#3").toBe("{age} > 18 and {country} = 'de'");
     q.setFieldCondition("age", "greater", 21);
     q.clearActiveItem();
-    expect(q.ownConditions, "#3").toBe(undefined);
-    expect(q.filterExpression, "#4").toBe("");
+    expect(q.ownConditions, "#4").toBe(undefined);
+    expect(q.filterExpression, "#5").toBe("");
   });
   test("clearActiveItem drops the edits even with no preset active", () => {
     const survey = createSurvey({ items: presets, defaultItem: "" });
@@ -186,13 +200,28 @@ describe("QuestionFilterModel: condition edits raise one event each", () => {
     q.toggleItem("kids");
     expect(events, "#5").toEqual({ filter: 4, uiState: 4 });
   });
-  test("an edit that leaves the expression as it was raises no onFilterChanged", () => {
+  test("an edit that leaves the preset's conditions as they were raises nothing", () => {
     const survey = createSurvey({ items: presets });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
     const events = trackEvents(survey);
     q.setFieldCondition("age", "greater", 18);
     expect(q.filterExpression, "#1").toBe("{age} > 18 and {country} = 'de'");
-    expect(events, "#2: the edits are new state, the filter is not").toEqual({ filter: 0, uiState: 1 });
+    expect(events, "#2").toEqual({ filter: 0, uiState: 0 });
+  });
+  test("removing a condition the preset does not have is no edit", () => {
+    const survey = createSurvey({ items: presets });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    const events = trackEvents(survey);
+    q.clearFieldCondition("name");
+    expect(q.activeItemName, "#1").toBe("adults");
+    expect(events, "#2").toEqual({ filter: 0, uiState: 0 });
+  });
+  test("any edit over a preset that does not decompose turns it off", () => {
+    const q = createControl({ defaultItem: "edges" });
+    q.clearFieldCondition("name");
+    expect(q.activeItemName, "#1").toBe("");
+    expect(q.ownConditions, "#2: nothing of its text survives as conditions").toEqual([]);
+    expect(q.filterExpression, "#3").toBe("");
   });
   test("a value that differs only in case or type is still an edit", () => {
     const q = createControl({ defaultItem: "" });
@@ -217,14 +246,19 @@ describe("QuestionFilterModel: where conditions cannot be edited", () => {
     expect(q.ownConditions, "#2").toBe(undefined);
     expect(q.filterExpression, "#3").toBe("");
   });
-  test("an ai preset refuses edits", () => {
+  test("an ai preset takes edits, and an edit turns it off", () => {
     const q = createControl({ items: [{ name: "smart", type: "ai", expression: "{age} > 18" }], defaultItem: "smart" });
+    expect(q.canEditConditions, "#1").toBe(true);
+    q.setFieldCondition("age", "greater", 21);
+    expect(q.activeItemName, "#2").toBe("");
+    expect(q.filterExpression, "#3").toBe("{age} > 21");
+  });
+  test("single mode: an ai preset refuses edits", () => {
+    const q = createControl({ allowMultipleItems: false, items: [{ name: "smart", type: "ai", expression: "{age} > 18" }], defaultItem: "smart" });
     expect(q.canEditConditions, "#1").toBe(false);
     q.setFieldCondition("age", "greater", 21);
     expect(q.ownConditions, "#2").toBe(undefined);
     expect(q.filterExpression, "#3").toBe("{age} > 18");
-    q.clearActiveItem();
-    expect(q.canEditConditions, "#4: without it edits are allowed again").toBe(true);
   });
   test("a fields preset allows edits", () => {
     expect(createControl().canEditConditions).toBe(true);
@@ -265,9 +299,11 @@ describe("QuestionFilterModel: bound and single mode", () => {
   });
 });
 
-describe("QuestionFilterModel: saving edits into the active preset", () => {
+// Single mode keeps the edits over its preset and saves them into it: the multi-preset mode turns a
+// preset off on the first edit, so there is nothing to save there.
+describe("QuestionFilterModel: saving edits into the active preset (single mode)", () => {
   test("editing the active preset marks it modified, and reverting the edit clears it again", () => {
-    const q = createControl();
+    const q = createControl({ allowMultipleItems: false });
     expect(q.isActiveItemModified, "#1: no edits yet").toBe(false);
     q.setFieldCondition("age", "greater", 21);
     expect(q.isActiveItemModified, "#2").toBe(true);
@@ -275,7 +311,7 @@ describe("QuestionFilterModel: saving edits into the active preset", () => {
     expect(q.isActiveItemModified, "#3: back to the preset's own condition").toBe(false);
   });
   test("saveActiveItem recomposes item.expression, resets the edits, and the preset is not modified afterwards", () => {
-    const q = createControl();
+    const q = createControl({ allowMultipleItems: false });
     q.setFieldCondition("age", "greater", 21);
     expect(q.canSaveActiveItem, "#1").toBe(true);
     q.saveActiveItem();
@@ -287,7 +323,7 @@ describe("QuestionFilterModel: saving edits into the active preset", () => {
     expect(q.filterExpression, "#6").toBe("{age} > 21 and {country} = 'de'");
   });
   test("saveActiveItem raises no onFilterChanged when the composed text already matches, and one onUIStateChanged", () => {
-    const survey = createSurvey({ items: presets });
+    const survey = createSurvey({ items: presets, allowMultipleItems: false });
     const q = <QuestionFilterModel>survey.getQuestionByName("f1");
     q.setFieldCondition("age", "greater", 21);
     const events = trackEvents(survey);
@@ -296,7 +332,7 @@ describe("QuestionFilterModel: saving edits into the active preset", () => {
   });
   test("allowEdit false refuses the save even when modified", () => {
     const withoutEdit = presets.map((p) => p.name === "adults" ? Object.assign({}, p, { allowEdit: false }) : p);
-    const q = createControl({ items: withoutEdit });
+    const q = createControl({ items: withoutEdit, allowMultipleItems: false });
     q.setFieldCondition("age", "greater", 21);
     expect(q.isActiveItemModified, "#1").toBe(true);
     expect(q.canSaveActiveItem, "#2").toBe(false);
@@ -307,7 +343,7 @@ describe("QuestionFilterModel: saving edits into the active preset", () => {
     expect(q.ownConditions, "#4: nothing was saved, the edits stay").not.toBe(undefined);
   });
   test("the search is not carried into the saved preset", () => {
-    const q = createControl({ searchFields: ["name"] });
+    const q = createControl({ searchFields: ["name"], allowMultipleItems: false });
     q.setFieldCondition("age", "greater", 21);
     q.searchString = "an";
     q.saveActiveItem();
@@ -328,8 +364,7 @@ describe("QuestionFilterModel: saving edits into the active preset", () => {
     expect(q.getItemByName("adults").expression, "#2").toBe("{age} > 18 and {country} = 'de'");
   });
   test("a non-decomposable preset plus any edit is modified, and saving replaces its text with the composed conditions", () => {
-    const q = createControl();
-    q.toggleItem("edges");
+    const q = createControl({ allowMultipleItems: false, defaultItem: "edges" });
     expect(q.isActiveItemModified, "#1: no edits yet").toBe(false);
     q.setFieldCondition("age", "greater", 40);
     expect(q.isActiveItemModified, "#2").toBe(true);
@@ -383,8 +418,8 @@ describe("QuestionFilterModel: field operators and value editors", () => {
 describe("QuestionFilterModel: an edit is normalized as it is written", () => {
   const typeless = { fields: [{ name: "age", valueType: "number" }, { name: "vip", valueType: "boolean" }, { name: "name" }],
     items: [{ name: "adults", expression: "{age} > 18" }, { name: "vips", expression: "{vip} = true" }], defaultItem: "adults" };
-  test("a typeless number field: a typed edit reverted to the preset's value is not modified", () => {
-    const q = createControl(typeless);
+  test("single mode, a typeless number field: a typed edit reverted to the preset's value is not modified", () => {
+    const q = createControl(Object.assign({}, typeless, { allowMultipleItems: false }));
     q.setFieldCondition("age", "greater", "20");
     expect(q.ownConditions, "#1: stored coerced").toEqual([{ field: "age", operator: "greater", value: 20 }]);
     expect(q.isActiveItemModified, "#2").toBe(true);
@@ -394,9 +429,8 @@ describe("QuestionFilterModel: an edit is normalized as it is written", () => {
     expect(q.isActiveItemModified, "#5: back to the preset").toBe(false);
     expect(q.canSaveActiveItem, "#6").toBe(false);
   });
-  test("a typeless boolean field: the same", () => {
-    const q = createControl(typeless);
-    q.toggleItem("vips");
+  test("single mode, a typeless boolean field: the same", () => {
+    const q = createControl(Object.assign({}, typeless, { allowMultipleItems: false, defaultItem: "vips" }));
     q.setFieldCondition("vip", "equal", "false");
     expect(q.ownConditions, "#1").toEqual([{ field: "vip", operator: "equal", value: false }]);
     expect(q.isActiveItemModified, "#2").toBe(true);
@@ -424,7 +458,7 @@ describe("QuestionFilterModel: an edit is normalized as it is written", () => {
       .toEqual([{ field: "age", operator: "greater", value: 21 }, { field: "country", operator: "equal", value: "de" }]);
   });
   test("an operator that takes no value keeps no value", () => {
-    const q = createControl({ items: [{ name: "e", expression: "{country} empty" }], defaultItem: "e" });
+    const q = createControl({ items: [{ name: "e", expression: "{country} empty" }], defaultItem: "e", allowMultipleItems: false });
     q.setFieldCondition("country", "empty", "x");
     expect(q.ownConditions, "#1").toEqual([{ field: "country", operator: "empty", value: undefined }]);
     expect(q.ownConditions[0].value === undefined, "#2").toBe(true);
@@ -438,7 +472,7 @@ describe("QuestionFilterModel: saving after the field list changed", () => {
       { type: "matrixdynamic", name: "m", columns: [{ name: "country" }, { name: "price", cellType: "text", inputType: "number" }] },
       { type: "matrixdynamic", name: "m2", columns: [{ name: "city" }] },
       { type: "matrixdynamic", name: "m3", columns: [{ name: "country" }] },
-      { type: "filter", name: "f1", source: "m", defaultItem: "de", items: [{ name: "de", expression: "{country} = 'de'" }] }] });
+      { type: "filter", name: "f1", source: "m", defaultItem: "de", allowMultipleItems: false, items: [{ name: "de", expression: "{country} = 'de'" }] }] });
   }
   test("a save whose edited fields are all gone is refused and keeps the preset's text", () => {
     const survey = createTwoMatrices();

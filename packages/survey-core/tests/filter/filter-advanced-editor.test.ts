@@ -249,8 +249,17 @@ describe("Advanced mode editor: nothing is written until apply()", () => {
 });
 
 describe("Advanced mode editor: presets", () => {
-  test("applying the preset's own conditions leaves isActiveItemModified false", () => {
+  test("applying a change over the active preset turns it off", () => {
     const q = createControl();
+    const editor = q.createAdvancedModeEditor();
+    valueQ(editor, "age").value = 30;
+    editor.apply();
+    expect(q.activeItemName, "#1").toBe("");
+    expect(q.filterExpression, "#2").toBe("{age} > 30 and {country} = 'de'");
+    editor.dispose();
+  });
+  test("single mode: applying the preset's own conditions leaves isActiveItemModified false", () => {
+    const q = createControl({ allowMultipleItems: false });
     const editor = q.createAdvancedModeEditor();
     editor.apply();
     expect(q.ownConditions, "#1: untouched preset - no edit").toBe(undefined);
@@ -275,7 +284,7 @@ describe("Advanced mode editor: presets", () => {
     editor.apply();
     expect(q.ownConditions, "#2").toEqual([{ field: "age", operator: "greater", value: 40 }]);
     expect(q.filterExpression, "#3").toBe("{age} > 40");
-    expect(q.isActiveItemModified, "#4").toBe(true);
+    expect(q.activeItemName, "#4: the preset is off").toBe("");
     editor.dispose();
   });
   test("no active preset: applying no conditions writes nothing", () => {
@@ -348,8 +357,8 @@ describe("Advanced mode editor: an untouched editor applies nothing", () => {
 });
 
 describe("Advanced mode editor: multi-value values compare as sets", () => {
-  test("changing and restoring an anyof preset's selection leaves it not modified", () => {
-    const q = createControl({ items: [{ name: "eu", expression: "{country} anyof ['fr', 'de']" }], defaultItem: "eu" });
+  test("single mode: changing and restoring an anyof preset's selection leaves it not modified", () => {
+    const q = createControl({ items: [{ name: "eu", expression: "{country} anyof ['fr', 'de']" }], defaultItem: "eu", allowMultipleItems: false });
     const editor = q.createAdvancedModeEditor();
     expect(valueQ(editor, "country").value, "#1").toEqual(["fr", "de"]);
     valueQ(editor, "country").value = ["de"];
@@ -372,8 +381,8 @@ describe("Advanced mode editor: multi-value values compare as sets", () => {
     expect(q.isActiveItemModified, "#2").toBe(false);
     editor.dispose();
   });
-  test("noneof and allof compare as sets too; the elements and everything else stay exact", () => {
-    const q = createControl({ items: [{ name: "eu", expression: "{country} noneof ['fr', 'de']" }], defaultItem: "eu" });
+  test("single mode: noneof and allof compare as sets too; the elements and everything else stay exact", () => {
+    const q = createControl({ items: [{ name: "eu", expression: "{country} noneof ['fr', 'de']" }], defaultItem: "eu", allowMultipleItems: false });
     q.setFieldCondition("country", "noneof", ["de", "fr"]);
     expect(q.isActiveItemModified, "#1").toBe(false);
     q.setFieldCondition("country", "noneof", ["de", "FR"]);
@@ -383,19 +392,19 @@ describe("Advanced mode editor: multi-value values compare as sets", () => {
     q.setFieldCondition("country", "anyof", ["de", "fr"]);
     expect(q.isActiveItemModified, "#4: the operator still counts").toBe(true);
     const q2 = createControl({ fields: [{ name: "tags", fieldType: "checkbox", choices: ["a", "b"] }],
-      items: [{ name: "all", expression: "{tags} allof ['b', 'a']" }], defaultItem: "all" });
+      items: [{ name: "all", expression: "{tags} allof ['b', 'a']" }], defaultItem: "all", allowMultipleItems: false });
     expect(q2.getFieldCondition("tags"), "#5a: the preset decomposes").toEqual({ field: "tags", operator: "allof", value: ["b", "a"] });
     q2.setFieldCondition("tags", "allof", ["a", "b"]);
     expect(q2.isActiveItemModified, "#5").toBe(false);
-    const q3 = createControl({ items: [{ name: "n", expression: "{name} = 'Bob'" }], defaultItem: "n" });
+    const q3 = createControl({ items: [{ name: "n", expression: "{name} = 'Bob'" }], defaultItem: "n", allowMultipleItems: false });
     q3.setFieldCondition("name", "equal", "bob");
     expect(q3.isActiveItemModified, "#6: a single value is still exact").toBe(true);
   });
 });
 
 describe("Advanced mode editor: read-only", () => {
-  test("an ai preset: display-only, and apply() writes nothing", () => {
-    const q = createControl({ items: [{ name: "smart", type: "ai", expression: "{age} > 18" }], defaultItem: "smart" });
+  test("single mode, an ai preset: display-only, and apply() writes nothing", () => {
+    const q = createControl({ items: [{ name: "smart", type: "ai", expression: "{age} > 18" }], defaultItem: "smart", allowMultipleItems: false });
     const events = trackEvents(q);
     const editor = q.createAdvancedModeEditor();
     expect(editor.isReadOnly, "#1").toBe(true);

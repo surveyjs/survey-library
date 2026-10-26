@@ -282,10 +282,13 @@ export class QuestionFilterModel extends QuestionNonValue {
   // setOwnConditions().
   public get ownConditions(): Array<IFilterCondition> { return this.getPropertyValue("ownConditions", undefined); }
   // Not in design mode: filterExpression is never composed there, so an edit would change nothing
-  // anyone can see. An "ai" preset was written from a prompt and not from conditions; editing its
-  // fields would silently turn it into a different kind of filter.
+  // anyone can see. With several presets an edit turns the active one off (editConditions), so an
+  // "ai" preset is left as it was and nothing is refused. Single mode edits over its preset instead,
+  // and an "ai" preset was written from a prompt and not from conditions: editing its fields would
+  // silently turn it into a different kind of filter.
   public get canEditConditions(): boolean {
     if (this.isDesignMode) return false;
+    if (this.allowMultipleItems) return true;
     const item = this.activeItem;
     return !item || item.type !== "ai";
   }
@@ -607,12 +610,30 @@ export class QuestionFilterModel extends QuestionNonValue {
   private editConditions(edit: (conditions: Array<IFilterCondition>) => Array<IFilterCondition>): void {
     if (!this.canEditConditions) return;
     const old = this.ownConditions;
-    const start = old !== undefined ? old : (this.parseActiveItemConditions() || []);
+    const preset = old === undefined ? this.parseActiveItemConditions() : null;
+    const start = old !== undefined ? old : (preset || []);
     const conditions = edit(start);
+    if (this.isPresetReleasedByEdits) {
+      // An edit that leaves the preset's own conditions as they are is no edit: the preset stays on.
+      // A preset that does not decompose has none to compare with, so any edit turns it off.
+      if (preset !== null && this.isSameConditionSet(conditions, preset)) return;
+      this.runBatch((): void => {
+        this.activeItemName = "";
+        this.setOwnConditions(conditions);
+      }, true);
+      return;
+    }
     if (old !== undefined && JSON.stringify(conditions) === JSON.stringify(old)) return;
     this.setOwnConditions(conditions);
     this.updateFilterExpression();
     this.raiseUIStateChanged();
+  }
+  // With several presets a preset and the respondent's own conditions are never applied together:
+  // the first edit over the active preset turns it off and keeps what it filtered by as own
+  // conditions, with the edit applied to them. The preset's chip would otherwise stay lit over a
+  // filter that is no longer the preset. Single mode keeps the edits over its one preset.
+  private get isPresetReleasedByEdits(): boolean {
+    return this.allowMultipleItems && !!this.activeItem && this.ownConditions === undefined;
   }
   // Not setPropertyValue: once this class owns arrays (fields, items), Base.setPropertyValue treats
   // any array value as one of them - it copies the new array INTO the old one instead of storing
@@ -930,6 +951,11 @@ export class QuestionFilterModel extends QuestionNonValue {
   // produced these there either.
   private restoreConditions(conditions: Array<IFilterCondition>): void {
     if (!this.canEditConditions) return;
+    // Restored conditions are edits, and with several presets an edit is never over a preset: a
+    // state that names both (saved before presets turned off on edit) keeps the conditions.
+    if (this.allowMultipleItems && !!this.activeItemName) {
+      this.activeItemName = "";
+    }
     this.setOwnConditions(normalizeFilterConditions(conditions, this.getFilterFields()));
   }
   // Called by updateFilterSource() for the source that is being attached, before it recomposes the
@@ -966,7 +992,10 @@ export class QuestionFilterModel extends QuestionNonValue {
     this.holdChanges(fn);
     const isUIStateChanged = this.uiStateChangedInBatch;
     this.uiStateChangedInBatch = false;
-    this.updateFilterExpression();
+    // Composed silently: a change inside fn may have composed an intermediate text already (a preset
+    // turned off), and updateFilterExpression() would write that difference into the source on its
+    // own, before the write below - two writes and two events for one batch.
+    this.updateFilterExpression(true);
     if (this.filterExpression !== oldExpression) {
       this.applyToSource();
     }

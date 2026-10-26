@@ -41,12 +41,9 @@ describe("FilterToolbars: the presets row", () => {
     q.toggleItem("adults");
     expect([save.visible, clear.visible], "#2: a preset is on").toEqual([false, true]);
     q.setFieldCondition("age", "greater", 30);
-    expect([save.visible, clear.visible], "#3: an edit over it").toEqual([true, true]);
-    save.action();
-    expect(q.activeItem.expression, "#4: saved into the preset").toBe("{age} > 30");
-    expect(save.visible, "#5").toBe(false);
+    expect([save.visible, clear.visible, q.activeItemName], "#3: an edit turns the preset off").toEqual([false, true, ""]);
     clear.action();
-    expect([save.visible, clear.visible, q.activeItemName], "#6").toEqual([false, false, ""]);
+    expect([save.visible, clear.visible, q.activeItemName], "#4").toEqual([false, false, ""]);
   });
   test("Clear keeps to the right when Save is hidden", () => {
     const q = createFilter();
@@ -54,8 +51,6 @@ describe("FilterToolbars: the presets row", () => {
     const clear = action(q.itemsToolbar, "sv-filter-clear");
     q.toggleItem("adults");
     expect([save.needSpace, clear.needSpace], "#1: Save hidden, Clear takes the space").toEqual([false, true]);
-    q.setFieldCondition("age", "greater", 30);
-    expect([save.needSpace, clear.needSpace], "#2: Save shown, it takes the space").toEqual([true, false]);
   });
   test("single mode: no presets and no row, Save and Clear of the one preset sit in the fields row", () => {
     const q = createFilter({ allowMultipleItems: false });
@@ -219,12 +214,12 @@ describe("FilterToolbars: the fields row", () => {
     expect(ids(q.fieldsToolbar).indexOf("sv-filter-field-country"), "#2").toBe(-1);
     expect(ids(q.fieldsToolbar).indexOf("sv-filter-field-age") > -1, "#3: the others stay").toBe(true);
   });
-  test("no clear action over a preset that cannot be edited; Advanced follows allowAdvancedMode; no badges without fast mode", () => {
+  test("an ai preset's conditions can be cleared; Advanced follows allowAdvancedMode; no badges without fast mode", () => {
     const q = createFilter({ items: [{ name: "ai", type: "ai", expression: "{age} > 18" }] });
     q.activeItemName = "ai";
     expect(action(q.fieldsToolbar, "sv-filter-field-age").title, "#1: the badge still says what the preset does").toBe("age: Greater than 18");
     const holder = action(q.fieldsToolbar, "sv-filter-field-age").popupModel.contentComponentData.holder;
-    expect(action(holder.actions, "sv-filter-clear-age").visible, "#2").toBe(false);
+    expect(action(holder.actions, "sv-filter-clear-age").visible, "#2").toBe(true);
     q.allowAdvancedMode = false;
     expect(action(q.fieldsToolbar, "sv-filter-advanced").visible, "#3").toBe(false);
     q.allowAdvancedMode = true;
@@ -337,13 +332,13 @@ describe("FilterToolbars: the overflow menu", () => {
   test("a copy made from an action's innerItem shows the action's current state", () => {
     const q = createFilter();
     q.toggleItem("adults");
+    const preset = new Action(action(q.itemsToolbar, "sv-filter-item-adults").innerItem);
+    expect([preset.title, preset.active], "#1").toEqual(["adults", true]);
     q.setFieldCondition("age", "greater", 30);
     const badge = new Action(action(q.fieldsToolbar, "sv-filter-field-age").innerItem);
-    expect([badge.title, badge.active], "#1").toEqual(["age: Greater than 30", true]);
-    const preset = new Action(action(q.itemsToolbar, "sv-filter-item-adults").innerItem);
-    expect([preset.title, preset.active], "#3").toEqual(["adults", true]);
-    const save = new Action(action(q.itemsToolbar, "sv-filter-save").innerItem);
-    expect(save.visible, "#4").toBe(true);
+    expect([badge.title, badge.active], "#2").toEqual(["age: Greater than 30", true]);
+    const clear = new Action(action(q.itemsToolbar, "sv-filter-clear").innerItem);
+    expect(clear.visible, "#3").toBe(true);
     q.clearFieldCondition("age");
     const cleared = new Action(action(q.fieldsToolbar, "sv-filter-field-age").innerItem);
     expect([cleared.title, !!cleared.active], "#5").toEqual(["age", false]);

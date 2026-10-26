@@ -29,7 +29,7 @@ function trackEvents(survey: SurveyModel): { filter: Array<string>, uiState: num
 }
 
 describe("QuestionFilterModel: uiState conditions and saved presets", () => {
-  test("unsaved edits over the active preset round-trip", () => {
+  test("edits over the active preset round-trip as own conditions with the preset off", () => {
     const survey = create();
     const q = control(survey);
     q.setFieldCondition("age", "greater", 21);
@@ -37,16 +37,37 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
     const expression = q.filterExpression;
     expect(expression, "#1").toBe("{age} > 21 and {country} = 'de' and {name} contains 'an'");
     const state = filterState(survey);
-    expect(state, "#2: the full set, not a diff").toEqual({ conditions: [
+    expect(state, "#2: the full set, not a diff").toEqual({ activeItemName: "", conditions: [
       { field: "age", operator: "greater", value: 21 },
       { field: "country", operator: "equal", value: "de" },
       { field: "name", operator: "contains", value: "an" }] });
     const restored = create();
     restored.uiState = survey.uiState;
     const q2 = control(restored);
-    expect(q2.activeItemName, "#3").toBe("adults");
+    expect(q2.activeItemName, "#3").toBe("");
     expect(q2.filterExpression, "#4").toBe(expression);
-    expect(q2.isActiveItemModified, "#5").toBe(true);
+  });
+  test("single mode: unsaved edits over the preset round-trip", () => {
+    const survey = create({ allowMultipleItems: false });
+    const q = control(survey);
+    q.setFieldCondition("age", "greater", 21);
+    const state = filterState(survey);
+    expect(state, "#1").toEqual({ conditions: [
+      { field: "age", operator: "greater", value: 21 }, { field: "country", operator: "equal", value: "de" }] });
+    const restored = create({ allowMultipleItems: false });
+    restored.uiState = survey.uiState;
+    const q2 = control(restored);
+    expect(q2.activeItem.name, "#2").toBe("adults");
+    expect(q2.filterExpression, "#3").toBe(q.filterExpression);
+    expect(q2.isActiveItemModified, "#4").toBe(true);
+  });
+  test("a restored state that names a preset and has conditions turns the preset off", () => {
+    const restored = create();
+    restored.uiState = { questions: { f1: { filter: { activeItemName: "kids",
+      conditions: [{ field: "age", operator: "less", value: 5 }] } } } };
+    const q = control(restored);
+    expect(q.activeItemName, "#1").toBe("");
+    expect(q.filterExpression, "#2").toBe("{age} < 5");
   });
   test("edits with no active preset round-trip", () => {
     const survey = create({ defaultItem: "" });
@@ -56,34 +77,34 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
     restored.uiState = survey.uiState;
     expect(control(restored).filterExpression, "#2").toBe("{country} = 'fr'");
   });
-  test("edits that leave the active preset unmodified store nothing", () => {
-    const survey = create();
+  test("single mode: edits that leave the active preset unmodified store nothing", () => {
+    const survey = create({ allowMultipleItems: false });
     const q = control(survey);
     q.setFieldCondition("age", "greater", 21);
     q.setFieldCondition("age", "greater", 18);
     expect(q.isActiveItemModified, "#1").toBe(false);
     expect(survey.uiState.questions, "#2").toBe(undefined);
   });
-  test("cleared conditions of the active preset round-trip as []", () => {
-    const survey = create();
+  test("single mode: cleared conditions of the active preset round-trip as []", () => {
+    const survey = create({ allowMultipleItems: false });
     control(survey).clearConditions();
     expect(filterState(survey), "#1").toEqual({ conditions: [] });
-    const restored = create();
+    const restored = create({ allowMultipleItems: false });
     restored.uiState = survey.uiState;
     const q2 = control(restored);
-    expect(q2.activeItemName, "#2").toBe("adults");
+    expect(q2.activeItem.name, "#2").toBe("adults");
     expect(q2.ownConditions, "#3").toEqual([]);
     expect(q2.filterExpression, "#4").toBe("");
   });
-  test("a preset the respondent saved round-trips from its conditions, without parsing", () => {
-    const survey = create();
+  test("single mode: a preset the respondent saved round-trips from its conditions, without parsing", () => {
+    const survey = create({ allowMultipleItems: false });
     const q = control(survey);
     q.setFieldCondition("age", "greater", 30);
     q.saveActiveItem();
     expect(q.activeItem.expression, "#1").toBe("{age} > 30 and {country} = 'de'");
-    expect(filterState(survey), "#2: the preset is active by default and not modified").toEqual({ items: {
+    expect(filterState(survey), "#2: the preset is not modified").toEqual({ items: {
       adults: { conditions: [{ field: "age", operator: "greater", value: 30 }, { field: "country", operator: "equal", value: "de" }] } } });
-    const restored = create();
+    const restored = create({ allowMultipleItems: false });
     const events = trackEvents(restored);
     restored.uiState = survey.uiState;
     const q2 = control(restored);
@@ -139,17 +160,15 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
     expect(q.ownConditions, "#1").toEqual([{ field: "age", operator: "greater", value: 18 }]);
     expect(q.filterExpression, "#2").toBe("{age} > 18");
   });
-  test("a restore raises one onFilterChanged and no onUIStateChanged", () => {
-    const survey = create();
+  test("single mode: a restore raises one onFilterChanged and no onUIStateChanged", () => {
+    const survey = create({ allowMultipleItems: false, defaultItem: "kids" });
     const q = control(survey);
-    q.toggleItem("kids");
     q.setFieldCondition("age", "less", 10);
     q.saveActiveItem();
-    q.toggleItem("adults");
     q.setFieldCondition("country", "equal", "fr");
     q.searchString = "an";
     const state = survey.uiState;
-    const restored = create();
+    const restored = create({ allowMultipleItems: false, defaultItem: "kids" });
     const events = trackEvents(restored);
     restored.uiState = state;
     expect(events.filter, "#1").toEqual([q.filterExpression]);
@@ -172,21 +191,20 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
     expect(events.filter.length, "#3").toBe(1);
     expect(events.uiState, "#4").toBe(1);
   });
-  test("a saved preset the author has since made read-only is not restored", () => {
-    const survey = create();
+  test("single mode: a saved preset the author has since made read-only is not restored", () => {
+    const survey = create({ allowMultipleItems: false, defaultItem: "kids" });
     const q = control(survey);
-    q.toggleItem("kids");
     q.setFieldCondition("age", "less", 10);
     q.saveActiveItem();
     const state = survey.uiState;
     expect(state.questions["f1"].filter.items, "#1").toEqual({ kids: { conditions: [{ field: "age", operator: "less", value: 10 }] } });
     const readOnly = presets.map(p => p.name === "kids" ? Object.assign({}, p, { allowEdit: false }) : p);
-    const restored = create({ items: readOnly });
+    const restored = create({ items: readOnly, allowMultipleItems: false, defaultItem: "kids" });
     restored.uiState = state;
     const q2 = control(restored);
     expect(q2.getItemByName("kids").expression, "#2: the author's text wins").toBe("{age} <= 18");
     expect(q2.filterExpression, "#3").toBe("{age} <= 18");
-    expect(filterState(restored), "#4: and nothing is saved back for it").toEqual({ activeItemName: "kids" });
+    expect(restored.uiState.questions, "#4: and nothing is saved back for it").toBe(undefined);
   });
   test("a read-only preset is not passed through while it waits for the bound source", () => {
     const survey = new SurveyModel({ elements: [
@@ -256,16 +274,14 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
   test("a bound control restores its conditions and saved presets against the matrix columns", () => {
     const json = { elements: [
       { type: "matrixdynamic", name: "m", columns: [{ name: "country" }, { name: "price", cellType: "text", inputType: "number" }] },
-      { type: "filter", name: "f1", source: "m", defaultItem: "de",
+      { type: "filter", name: "f1", source: "m", defaultItem: "fr", allowMultipleItems: false,
         items: [{ name: "de", expression: "{country} = 'de'", allowEdit: true }, { name: "fr", expression: "{country} = 'fr'", allowEdit: true }] }] };
     const records = [{ country: "de", price: 50 }, { country: "fr", price: 500 }, { country: "de", price: 5 }];
     const survey = new SurveyModel(json);
     const q = control(survey);
-    q.toggleItem("fr");
     q.setFieldCondition("price", "greater", 100);
     q.saveActiveItem();
-    q.toggleItem("de");
-    q.setFieldCondition("price", "less", 10);
+    q.setFieldCondition("price", "less", 600);
     const state = survey.uiState;
     const restored = new SurveyModel(json);
     const matrix = <QuestionMatrixDynamicModel>restored.getQuestionByName("m");
@@ -273,7 +289,7 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
     restored.uiState = state;
     const q2 = control(restored);
     expect(q2.getItemByName("fr").expression, "#1").toBe("{country} = 'fr' and {price} > 100");
-    expect(q2.filterExpression, "#2").toBe("{country} = 'de' and {price} < 10");
+    expect(q2.filterExpression, "#2").toBe("{country} = 'fr' and {price} < 600");
     expect(matrix.visibleRows.length, "#3").toBe(1);
   });
   test("a restore that arrives before the bound source exists is applied once the source attaches", () => {
@@ -304,8 +320,9 @@ describe("QuestionFilterModel: uiState conditions and saved presets", () => {
   });
 });
 
-describe("QuestionFilterModel: uiState of normalized edits", () => {
-  const typeless = { fields: [{ name: "age", valueType: "number" }], items: [{ name: "adults", expression: "{age} > 18" }], defaultItem: "adults" };
+describe("QuestionFilterModel: uiState of normalized edits (single mode)", () => {
+  const typeless = { fields: [{ name: "age", valueType: "number" }], items: [{ name: "adults", expression: "{age} > 18" }],
+    defaultItem: "adults", allowMultipleItems: false };
   test("a typed edit over a typeless number field round-trips as modified", () => {
     const survey = create(typeless);
     const q = control(survey);
@@ -331,10 +348,9 @@ describe("QuestionFilterModel: uiState of normalized edits", () => {
 });
 
 describe("QuestionFilterModel: saved presets after the host replaces items", () => {
-  test("a replaced items array drops the saved presets it replaced", () => {
-    const survey = create();
+  test("single mode: a replaced items array drops the saved presets it replaced", () => {
+    const survey = create({ allowMultipleItems: false, defaultItem: "kids" });
     const q = control(survey);
-    q.toggleItem("kids");
     q.setFieldCondition("age", "less", 10);
     q.saveActiveItem();
     expect(filterState(survey).items, "#1").toEqual({ kids: { conditions: [{ field: "age", operator: "less", value: 10 }] } });
@@ -343,12 +359,11 @@ describe("QuestionFilterModel: saved presets after the host replaces items", () 
     q.items = [kids];
     expect(q.activeItem === kids, "#2").toBe(true);
     expect(q.filterExpression, "#3").toBe("{age} < 3");
-    expect(filterState(survey), "#4: the new preset was never saved").toEqual({ activeItemName: "kids" });
+    expect(survey.uiState.questions, "#4: the new preset was never saved").toBe(undefined);
   });
-  test("a saved preset that stays in the replaced array keeps its saved state, and a push keeps it too", () => {
-    const survey = create();
+  test("single mode: a saved preset that stays in the replaced array keeps its saved state, and a push keeps it too", () => {
+    const survey = create({ allowMultipleItems: false, defaultItem: "kids" });
     const q = control(survey);
-    q.toggleItem("kids");
     q.setFieldCondition("age", "less", 10);
     q.saveActiveItem();
     const saved = { kids: { conditions: [{ field: "age", operator: "less", value: 10 }] } };

@@ -562,11 +562,12 @@ export class QuestionFilterModel extends QuestionNonValue {
       const key = this.findFieldKey(all, field);
       if (!key) return;
       const condition = (conditions || []).filter((c: IFilterCondition): boolean => c.field === field.valueName)[0];
+      const kind = getFilterFieldEditorKind(field);
       res.push({
         key: key,
         title: !!field.locTitle ? field.locTitle.calculatedText : field.name,
-        kind: getFilterFieldEditorKind(field),
-        text: !!condition ? getFilterChipText(field, condition, locale) : ""
+        kind: kind,
+        text: !!condition ? getFilterChipText(field, condition, locale, kind) : ""
       });
     });
     return res;

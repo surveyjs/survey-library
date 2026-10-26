@@ -79,9 +79,11 @@ export function getFilterSelectionCondition(field: IDynamicDataFilterField, kind
 }
 // The text of a fast mode badge with a condition, in the words of the editor its popup opens:
 // "Gender: Female" for one value, "Category: 6" for several, "Quantity: Equals 128" for an operator
-// and a value - and for any condition the field's list editor cannot show.
-export function getFilterChipText(field: IDynamicDataFilterField, condition: IFilterCondition, locale?: string): string {
-  const kind = getFilterFieldEditorKind(field);
+// and a value - and for any condition the field's list editor cannot show. kind is the field's
+// editor when the caller has it already (the chips row reads it for every field on every update).
+export function getFilterChipText(field: IDynamicDataFilterField, condition: IFilterCondition, locale?: string,
+  kind?: FilterFieldEditorKind): string {
+  if (!kind) kind = getFilterFieldEditorKind(field);
   const values = kind !== "condition" ? getFilterFieldSelection(field, kind, condition) : undefined;
   if (!values || values.length === 0) return getFilterConditionText(field, condition, locale);
   const title = !!field.locTitle ? field.locTitle.calculatedText : field.name;

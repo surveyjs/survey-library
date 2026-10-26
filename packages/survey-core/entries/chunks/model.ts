@@ -273,6 +273,7 @@ export { FilterToolbars, FilterEditorHolder, IFilterToolbarsOwner, filterUIStrin
 export {
   FilterFieldEditorKind, IFilterFieldListItem, getFilterFieldEditorKind, getFilterFieldListItems, getFilterChipText
 } from "../../src/filter/filter-field-kinds";
+export { FilterFieldPopup, IFilterFieldPopupOwner, filterPopupSearchMinItemCount, filterListItemComponentName } from "../../src/filter/filter-field-popup";
 export {
   FilterConditionItem, getConditionOperatorTitle, conditionsToExpression, parseFilterExpression
 } from "../../src/filter/filter-conditions";

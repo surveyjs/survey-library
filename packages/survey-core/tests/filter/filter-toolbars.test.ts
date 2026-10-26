@@ -163,7 +163,7 @@ describe("FilterToolbars: the fields row", () => {
     expect(editor.isDisposed, "#3").toBe(true);
     expect(badge.title, "#4").toBe("age");
   });
-  test("Clear shows up as soon as a value is entered in the open popup", () => {
+  test("Clear shows up once a value entered in the open popup is applied", () => {
     const q = createFilter({ items: [] });
     const badge = action(q.fieldsToolbar, "sv-filter-field-age");
     const holder = badge.popupModel.contentComponentData.holder;
@@ -171,6 +171,7 @@ describe("FilterToolbars: the fields row", () => {
     const clear = action(holder.actions, "sv-filter-clear-age");
     expect(clear.visible, "#1").toBe(false);
     holder.editor.survey.getQuestionByName("f0_value").value = 30;
+    holder.editor.apply();
     expect(clear.visible, "#2").toBe(true);
   });
   test("a badge's popup creates its field's editor on show and disposes it on hide", () => {

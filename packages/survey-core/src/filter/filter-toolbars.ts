@@ -9,17 +9,8 @@ import { FilterItem } from "./filter-item";
 import { FilterConditionsEditor } from "./filter-conditions-editor";
 import { FilterFieldEditorKind } from "./filter-field-kinds";
 
-// The captions the control's UI adds. Prototype strings, not localized yet: only the captions the
-// library already has (clearCaption, filterStringPlaceholder, the dialog's Apply and Cancel) are.
-export const filterUIStrings = {
-  save: "Save",
-  advanced: "Advanced...",
-  dialogTitle: "Filter",
-  searchLabel: "Search",
-  searchPlaceholder: "Search by {0}",
-  rawNote: "This preset has no editable conditions: the first edit starts a new filter.",
-  readOnlyNote: "This preset cannot be edited."
-};
+import { filterUIStrings } from "./filter-ui-strings";
+export { filterUIStrings } from "./filter-ui-strings";
 
 // What a popup or a dialog shows: the editor it holds, if any. A popup renders its content even
 // while it is hidden and does not re-render it when its content data changes, so a renderer

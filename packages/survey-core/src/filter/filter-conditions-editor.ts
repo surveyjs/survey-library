@@ -32,11 +32,6 @@ export interface IFilterConditionsEditorOwner {
 export interface IFilterConditionsEditorOptions {
   // The editor survey is display-only and reports no change.
   readOnly?: boolean;
-  // Called after every change the respondent makes to one field: with the condition the field
-  // edits now, or with undefined when it edits none (no value where the operator needs one). The
-  // name is the one the field was given to the editor by. A mode that writes every change at once
-  // (fast mode) listens here; one that writes on its own command listens to onApply instead.
-  onConditionChanged?: (name: string, condition: IFilterCondition) => void;
   // A search box on top of the fields, prefilled with searchString. Its text is not a condition:
   // it is only ever handed to onApply.
   showSearch?: boolean;
@@ -50,8 +45,9 @@ export interface IFilterConditionsEditorOptions {
   // Called by apply() with every condition the editor holds, in the order of its fields - or with
   // undefined when no field was changed since the editor opened or was last applied, only the
   // search box: the fields then hold only their prefill, which the owner must not write back - and
-  // with the search text, undefined when there is no search box. A mode that writes on its own
-  // command (advanced mode) listens here; without it apply() has nothing to do.
+  // with the search text, undefined when there is no search box. Both modes write on their own
+  // command - the advanced dialog's Apply, a fast mode popup's Apply - and listen here; without it
+  // apply() has nothing to do.
   onApply?: (conditions: Array<IFilterCondition> | undefined, searchString?: string) => void;
 }
 
@@ -199,14 +195,8 @@ export class FilterConditionsEditor {
       if (isOperator) {
         this.runUpdate((): void => { this.recreateValueQuestion(i); });
       }
-      this.notifyConditionChanged(i);
       return;
     }
-  }
-  private notifyConditionChanged(index: number): void {
-    const callback = this.options.onConditionChanged;
-    if (this.isReadOnly || !callback) return;
-    callback(this.names[index], this.getConditionAt(index));
   }
   // The value question is rebuilt for the new operator: the json differs by operator and not only
   // by type (a dropdown field's anyof edits with a checkbox). What was typed is kept only when the

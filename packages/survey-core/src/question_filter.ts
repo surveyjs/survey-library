@@ -7,6 +7,7 @@ import { IElementUIState, IFilterCondition, IFilterElementUIState } from "./inte
 import { FilterField } from "./filter/filter-field";
 import { FilterItem } from "./filter/filter-item";
 import { FilterConditionsEditor } from "./filter/filter-conditions-editor";
+import { FilterFieldPopup } from "./filter/filter-field-popup";
 import { FilterToolbars, IFilterFieldState, filterUIStrings } from "./filter/filter-toolbars";
 import { ActionContainer } from "./actions/container";
 import { buildSearchFragment } from "./filter/filter-expression";
@@ -400,26 +401,34 @@ export class QuestionFilterModel extends QuestionNonValue {
     this.updateFilterExpression();
     this.raiseUIStateChanged();
   }
-  // Fast mode: one field, and every change the respondent makes is the filter at once. Read-only
-  // where conditions cannot be edited - the edits would be refused anyway, and an editor that looks
-  // editable and changes nothing is worse than one that says so. A change that leaves the field with
-  // no condition where it had none writes nothing: clearing it would still be the first edit, which
-  // replaces the preset's text by its conditions (and over a preset that does not decompose, by
-  // none at all). The caller owns the editor and disposes it. A field fast mode does not show
-  // (showInFastMode: false, or a duplicate valueName collapsed into its first field) gets none:
-  // its condition is changed in advanced mode only.
+  // Fast mode: one field, written when the editor is applied (the Apply of the field's popup).
+  // Read-only where conditions cannot be edited - the edits would be refused anyway, and an editor
+  // that looks editable and changes nothing is worse than one that says so. An apply that leaves the
+  // field with no condition where it had none writes nothing: clearing it would still be an edit,
+  // which turns an active preset off. The caller owns the editor and disposes it. A field fast mode
+  // does not show (showInFastMode: false, or a duplicate valueName collapsed into its first field)
+  // gets none: its condition is changed in advanced mode only.
   public createFastModeEditor(name: string): FilterConditionsEditor {
     if (!this.isFastModeField(this.getFieldByName(name))) return undefined;
     return new FilterConditionsEditor(this, [name], {
       readOnly: !this.canEditConditions,
-      onConditionChanged: (fieldName: string, condition: IFilterCondition): void => {
+      onApply: (conditions: Array<IFilterCondition>): void => {
+        if (conditions === undefined) return;
+        const condition = conditions[0];
         if (!!condition) {
-          this.setFieldCondition(fieldName, condition.operator, condition.value);
-        } else if (!!this.getFieldCondition(fieldName)) {
-          this.clearFieldCondition(fieldName);
+          this.setFieldCondition(name, condition.operator, condition.value);
+        } else if (!!this.getFieldCondition(name)) {
+          this.clearFieldCondition(name);
         }
       }
     });
+  }
+  // The content of a fast mode badge's popup - see FilterFieldPopup. close is how the popup's own
+  // buttons close it (the toolbar hides its PopupModel). The caller owns it and disposes it. undefined
+  // for a field fast mode does not show, as with createFastModeEditor.
+  public createFieldPopup(name: string, close: () => void): FilterFieldPopup {
+    if (!this.isFastModeField(this.getFieldByName(name))) return undefined;
+    return new FilterFieldPopup(this, name, close);
   }
   // By name and valueName and not by object: a standalone field's descriptor is rebuilt on every
   // getFilterFields() call, so the two lists never share an object.

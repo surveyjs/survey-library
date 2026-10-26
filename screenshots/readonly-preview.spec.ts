@@ -820,7 +820,7 @@ frameworks.forEach(framework => {
       });
       await compareScreenshot(page, ".sd-panel--as-page", "preview-numbered-page.png");
       await enableReadOnlyView(page, true);
-      await compareScreenshot(page, ".sd-panel--as-page", "view-numbered-page.png");
+      await compareScreenshot(page, ".sd-page", "view-numbered-page.png");
     });
 
     test("Readonly and Focus", async ({ page }) => {

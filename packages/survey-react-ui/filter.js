@@ -166,7 +166,7 @@ class UiStateToolbar extends React.Component {
   }
 }
 
-function renderSurvey(categories) {
+function renderSurvey(categories, products) {
   var json = { elements: [
     { type: "filter", name: "products-filter", title: "Filter products", source: "products", showSearch: true,
       // Text and choice fields only: a quick search over a number or a boolean would send contains()
@@ -184,7 +184,8 @@ function renderSurvey(categories) {
         { name: "discontinued", title: "Discontinued", type: "ai", prompt: "discontinued products", expression: "{discontinued} = true", allowEdit: false }
       ] },
     { type: "matrixdynamic", name: "products", title: "Products (OData Northwind)", rowsPerPage: 10, columns: [
-      { name: "name", title: "Product", cellType: "text", filterOperators: ["contains"] },
+      // Picked from the product names, or typed in: the Filters dialog edits it with a tagbox.
+      { name: "name", title: "Product", cellType: "dropdown", choices: products, allowCustomChoices: true, filterOperators: ["anyof"] },
       // Checkboxes with Apply: anyof is the only operator the filter offers.
       { name: "category", title: "Category", cellType: "dropdown", choices: categories, filterOperators: ["anyof"] },
       { name: "quantity", title: "Quantity per unit", cellType: "text" },
@@ -210,8 +211,9 @@ function renderSurvey(categories) {
   ReactDOM.render(<UiStateToolbar model={model} />, toolbarElement);
 }
 
-readJson(ODATA + "Categories?$select=CategoryName").then(function (data) {
-  renderSurvey(data.value.map(function (c) { return c.CategoryName; }));
-}).catch(function (e) {
-  document.getElementById("surveyElement").textContent = "Could not load the Northwind categories: " + e.message;
-});
+Promise.all([readJson(ODATA + "Categories?$select=CategoryName"), readJson(ODATA + "Products?$select=ProductName&$orderby=ProductName")])
+  .then(function (data) {
+    renderSurvey(data[0].value.map(function (c) { return c.CategoryName; }), data[1].value.map(function (p) { return p.ProductName; }));
+  }).catch(function (e) {
+    document.getElementById("surveyElement").textContent = "Could not load the Northwind categories and products: " + e.message;
+  });

@@ -157,13 +157,14 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see showSelectAllItem
    */
   public get selectAllText(): string {
-    return this.getLocalizableStringText("selectAllText");
+    return this.getLocStringText(this.locSelectAllText);
   }
   public set selectAllText(val: string) {
     this.setLocStringText(this.locSelectAllText, val);
   }
   public get locSelectAllText(): LocalizableString {
-    return this.selectAllItem.locText;
+    // Not selectAllItem.locText: a tagbox replaces it with the "Deselect all" string while all items are selected
+    return this.getLocalizableString("selectAllText") || this.selectAllItem.locText;
   }
   /**
    * Enable this property to display a "Select All" item. When users select it, all other choice options, except [special options](https://surveyjs.io/form-library/examples/create-checkboxes-question-in-javascript/documentation#display-special-choices), also become selected.

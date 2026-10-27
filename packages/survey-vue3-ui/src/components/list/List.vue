@@ -36,7 +36,12 @@
         </button>
       </div>
     </div>
-    <div v-bind:class="model.cssClasses.emptyContainer" v-show="model.isEmpty">
+    <SvComponent
+      v-if="model.showLoadingComponent"
+      :is="model.loadingComponent"
+      :model="model"
+    />
+    <div v-else v-bind:class="model.cssClasses.emptyContainer" v-show="model.isEmpty">
       <div
         v-bind:class="model.cssClasses.emptyText"
         :aria-label="model.emptyMessage"

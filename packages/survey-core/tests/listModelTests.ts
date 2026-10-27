@@ -402,6 +402,24 @@ describe("List Model", () => {
     expect(list.emptyMessage).toBe("No data to display");
   });
 
+  test("loading component replaces the empty list while choices are not loaded", () => {
+    const list = new ListModel({ items: [], onSelectionChanged: () => { }, allowSelection: true } as any);
+    expect(list.loadingComponent).toBe("sv-list-loading");
+    list.isAllDataLoaded = false;
+    list.flushUpdates();
+    expect(list.showLoadingComponent).toBe(true);
+
+    list.isAllDataLoaded = true;
+    expect(list.showLoadingComponent).toBe(false);
+    expect(list.emptyMessage).toBe("No data to display");
+
+    const items = createIActionArray(2);
+    const partial = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
+    partial.isAllDataLoaded = false;
+    partial.flushUpdates();
+    expect(partial.showLoadingComponent).toBe(false);
+  });
+
   test("getItemClass test", () => {
     const items = createIActionArray(12);
     const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);

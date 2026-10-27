@@ -14,7 +14,10 @@
                     </button>
             </div>
         </div>
-        <div [class]="model.cssClasses.emptyContainer" [visible]="model.isEmpty">
+        <ng-container *ngIf="model.showLoadingComponent">
+            <ng-template [component]="{ name: model.loadingComponent, data: { model: model } }"></ng-template>
+        </ng-container>
+        <div *ngIf="!model.showLoadingComponent" [class]="model.cssClasses.emptyContainer" [visible]="model.isEmpty">
             <div [class]="model.cssClasses.emptyText" [attr.aria-label]="model.emptyMessage || ''">{{ model.emptyMessage }}</div>
         </div>
         <ul *ngIf="model.renderElements" [class]="model.getListClass()" [attr.role]="model.listRole" [attr.aria-label]="model.a11ya11y_input_ariaLabel" [attr.id]="model.elementId" [visible]="!model.isEmpty" (mousedown)="onMouseDown($event)" (keydown)="onKeyDown($event)" (mousemove)="onMouseMove($event)">

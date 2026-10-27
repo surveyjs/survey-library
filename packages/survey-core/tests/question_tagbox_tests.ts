@@ -1,5 +1,6 @@
 import { SurveyModel } from "../src/survey";
 import { QuestionTagboxModel } from "../src/question_tagbox";
+import { ListModel } from "../src/list";
 import { MultiSelectListModel } from "../src/multiSelectListModel";
 import { PopupDropdownViewModel } from "../src/popup-dropdown-view-model";
 import { _setIsTouch } from "../src/utils/devices";
@@ -45,6 +46,24 @@ describe("Tagbox question", () => {
       ]
     }]
   };
+
+  test("tagbox loadingComponent replaces the whole loading view", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "tagbox",
+        name: "q1",
+        choicesLazyLoadEnabled: true,
+        loadingComponent: "my-loading"
+      }]
+    });
+    const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+    const list: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
+    expect(list.loadingComponent).toBe("my-loading");
+    expect(list.showLoadingComponent).toBe(true);
+
+    question.loadingComponent = "";
+    expect(list.loadingComponent).toBe("sv-list-loading");
+  });
 
   test("clearValue", () => {
     const json = {

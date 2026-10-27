@@ -268,6 +268,7 @@ Serializer.addClass(
     { name: "hideSelectedItems:boolean", default: false },
     { name: "closeOnSelect:boolean" },
     { name: "itemComponent", visible: false, default: "" },
+    { name: "loadingComponent", visible: false, default: "" },
     { name: "searchMode", default: "contains", choices: ["contains", "startsWith"] }
   ],
   function () {

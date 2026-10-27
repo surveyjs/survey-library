@@ -55,6 +55,7 @@ import { DynamicHeadComponent } from "./components/element-title/dynamic-head.co
 import { ListComponent } from "./components/list/list.component";
 import { ListItemComponent } from "./components/list/list-item.component";
 import { ListItemContentComponent } from "./components/list/list-item-content.component";
+import { ListLoadingComponent } from "./components/list/list-loading.component";
 import { ListItemGroupComponent } from "./components/list/list-item-group.component";
 import { RatingItemComponent } from "./components/rating/rating-item.component";
 import { RatingItemStarComponent } from "./components/rating/rating-item-star.component";
@@ -145,7 +146,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     QuestionSkeletonComponent, ScrollComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
     PopupComponent, PopupBaseContainerComponent, PopupPointerComponent, PopupCloseButtonComponent,
-    CharacterCounterComponent, ListComponent, ListItemComponent, ListItemContentComponent, ListItemGroupComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
+    CharacterCounterComponent, ListComponent, ListItemComponent, ListItemContentComponent, ListLoadingComponent, ListItemGroupComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, RecordsBarComponent, SortBarLevelComponent, RecordsSortDialogComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentChoiceComponent, ElementHeaderComponent, ElementTitleActionsComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,
@@ -169,7 +170,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     CharacterCounterComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
     PopupComponent, PopupBaseContainerComponent, PopupPointerComponent, PopupCloseButtonComponent,
-    CharacterCounterComponent, ListComponent, ListItemComponent, ListItemContentComponent, ListItemGroupComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
+    CharacterCounterComponent, ListComponent, ListItemComponent, ListItemContentComponent, ListLoadingComponent, ListItemGroupComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, RecordsBarComponent, SortBarLevelComponent, RecordsSortDialogComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
     SelectBaseItemComponent, SelectBaseComponent, SurveyCommentComponent, SurveyCommentChoiceComponent, ElementHeaderComponent, ElementTitleComponent, DynamicHeadComponent, RowComponent,

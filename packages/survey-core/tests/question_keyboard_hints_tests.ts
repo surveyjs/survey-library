@@ -3,7 +3,6 @@ import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { Serializer } from "../src/jsonobject";
-import { IKeyboardHint } from "../src/keyboard-hints";
 import { getLocaleString } from "../src/surveyStrings";
 import { _setIsTouch } from "../src/utils/devices";
 import "../src/localization/german";
@@ -13,16 +12,30 @@ const enter = "Enter";
 const tab = "Tab";
 const space = "Space";
 
-function row(text: string, keys: string[], visible: boolean = true): IKeyboardHint {
-  return { text: text, keys: keys, visible: visible };
+function row(text: string, keys: string[]): { text: string, keys: string[] } {
+  return { text: text, keys: keys };
 }
 
-export function hints(question: any, surveyExtra: any = {}): IKeyboardHint[] {
+function rowOf(item: { parts: Array<{ text: string, className: string }> }): { text: string, keys: string[] } {
+  let text = "";
+  const keys: string[] = [];
+  item.parts.forEach(part => {
+    if (part.className === "sd-item__shortcut-key") keys.push(part.text);
+    if (part.className === "sd-question__keyboard-hint-text") text = part.text;
+  });
+  return { text: text, keys: keys };
+}
+
+export function hints(question: any, surveyExtra: any = {}): Array<{ text: string, keys: string[] }> {
   const survey = new SurveyModel(Object.assign({
     showKeyboardHints: true,
     elements: [Object.assign({ name: "q" }, question)]
   }, surveyExtra));
-  return (survey.getQuestionByName("q") as Question).getKeyboardHints();
+  return (survey.getQuestionByName("q") as Question).getKeyboardHintModel().items.map(rowOf);
+}
+
+function shown(question: Question): Array<{ text: string, keys: string[] }> {
+  return question.getKeyboardHintModel().items.map(rowOf);
 }
 
 test("showKeyboardHints defaults to false on the survey and stays unset on a question", () => {
@@ -41,16 +54,16 @@ test("showKeyboardHints defaults to false on the survey and stays unset on a que
   expect(q.showKeyboardHints).toBeUndefined();
   expect(q.toJSON().showKeyboardHints).toBeUndefined();
   q.showKeyboardHints = true;
-  expect(q.getKeyboardHints().length).toBe(1);
+  expect(q.getKeyboardHintModel().items.length).toBe(1);
   expect(q.toJSON().showKeyboardHints).toBe(true);
   q.showKeyboardHints = false;
   survey.showKeyboardHints = true;
-  expect(q.getKeyboardHints()).toEqual([]);
+  expect(q.getKeyboardHintModel().hasItems()).toBe(false);
   expect(q.toJSON().showKeyboardHints).toBe(false);
   q.showKeyboardHints = undefined;
   expect(q.showKeyboardHints).toBeUndefined();
   expect(q.toJSON().showKeyboardHints).toBeUndefined();
-  expect(q.getKeyboardHints().length).toBe(1);
+  expect(q.getKeyboardHintModel().items.length).toBe(1);
 });
 
 test("questions with no hint table stay empty when the flag is on", () => {
@@ -92,8 +105,7 @@ test("radio hints follow auto-advance, the value, and the comment area", () => {
     row("to select", [arrows])
   ]);
   expect(hints({ type: "radiogroup", choices: ["a", "b"] }, { autoAdvanceEnabled: true })).toEqual([
-    row("to select", [arrows]),
-    row("to submit", [enter], false)
+    row("to select", [arrows])
   ]);
   expect(hints({ type: "radiogroup", choices: ["a", "b"], defaultValue: "a" }, { autoAdvanceEnabled: true })).toEqual([
     row("to select", [arrows]),
@@ -103,7 +115,9 @@ test("radio hints follow auto-advance, the value, and the comment area", () => {
     type: "radiogroup",
     defaultValue: "a",
     choices: [{ value: "a", showCommentArea: true }, "b"]
-  }, { autoAdvanceEnabled: true })[1].visible).toBe(false);
+  }, { autoAdvanceEnabled: true })).toEqual([
+    row("to select", [arrows])
+  ]);
 });
 
 test("single image picker uses arrow and enter hints", () => {
@@ -111,8 +125,10 @@ test("single image picker uses arrow and enter hints", () => {
   expect(hints({ type: "imagepicker", choices: choices, defaultValue: "a" })).toEqual([
     row("to select", [arrows])
   ]);
-  expect(hints({ type: "imagepicker", choices: choices }, { autoAdvanceEnabled: true })[1].visible).toBe(false);
-  expect(hints({ type: "imagepicker", choices: choices, defaultValue: "a" }, { autoAdvanceEnabled: true })[1].visible).toBe(true);
+  expect(hints({ type: "imagepicker", choices: choices }, { autoAdvanceEnabled: true })).toEqual([
+    row("to select", [arrows])
+  ]);
+  expect(hints({ type: "imagepicker", choices: choices, defaultValue: "a" }, { autoAdvanceEnabled: true })[1].text).toBe("to submit");
 });
 
 test("the hint row is suppressed by the shared gate", () => {
@@ -120,20 +136,20 @@ test("the hint row is suppressed by the shared gate", () => {
     elements: [{ type: "radiogroup", name: "q", choices: ["a", "b"] }]
   });
   const q = survey.getQuestionByName("q") as QuestionRadiogroupModel;
-  expect(q.getKeyboardHints()).toEqual([]);
+  expect(q.getKeyboardHintModel().hasItems()).toBe(false);
   survey.showKeyboardHints = true;
-  expect(q.getKeyboardHints().length).toBe(1);
+  expect(q.getKeyboardHintModel().items.length).toBe(1);
   survey.setDesignMode(true);
-  expect(q.getKeyboardHints()).toEqual([]);
+  expect(q.getKeyboardHintModel().hasItems()).toBe(false);
   survey.setDesignMode(false);
   q.readOnly = true;
-  expect(q.getKeyboardHints()).toEqual([]);
+  expect(q.getKeyboardHintModel().hasItems()).toBe(false);
   q.readOnly = false;
   survey.mode = "display";
-  expect(q.getKeyboardHints()).toEqual([]);
+  expect(q.getKeyboardHintModel().hasItems()).toBe(false);
   const bare = new QuestionRadiogroupModel("alone");
   bare.choices = ["a", "b"] as any;
-  expect(bare.getKeyboardHints()).toEqual([]);
+  expect(bare.getKeyboardHintModel().hasItems()).toBe(false);
 });
 
 test("a matrix cell has no hint row and a panel question does", () => {
@@ -151,13 +167,13 @@ test("a matrix cell has no hint row and a panel question does", () => {
       }
     ]
   });
-  expect((survey.getQuestionByName("inPanel") as Question).getKeyboardHints().length).toBe(1);
+  expect((survey.getQuestionByName("inPanel") as Question).getKeyboardHintModel().items.length).toBe(1);
   const dynamic = survey.getQuestionByName("pd") as any;
-  expect(dynamic.panels[0].getQuestionByName("inDynamic").getKeyboardHints().length).toBe(1);
+  expect(dynamic.panels[0].getQuestionByName("inDynamic").getKeyboardHintModel().items.length).toBe(1);
   const matrix = survey.getQuestionByName("m") as any;
   const cell = matrix.visibleRows[0].cells[0].question as Question;
   expect(cell.inMatrixMode).toBe(true);
-  expect(cell.getKeyboardHints()).toEqual([]);
+  expect(cell.getKeyboardHintModel().hasItems()).toBe(false);
 });
 
 test("keyboard hints and letter badges stay independent", () => {
@@ -167,17 +183,17 @@ test("keyboard hints and letter badges stay independent", () => {
   });
   const hinted = hintsOnly.getQuestionByName("q") as QuestionRadiogroupModel;
   expect(hinted.getChoiceKeyBadge(hinted.visibleChoices[0])).toBeFalsy();
-  expect(hinted.getKeyboardHints().length).toBe(1);
+  expect(hinted.getKeyboardHintModel().items.length).toBe(1);
   const badgesOnly = new SurveyModel({
     choiceShortcutsEnabled: true,
     elements: [{ type: "radiogroup", name: "q", choices: ["a", "b"] }]
   });
   const badged = badgesOnly.getQuestionByName("q") as QuestionRadiogroupModel;
   expect(badged.getChoiceKeyBadge(badged.visibleChoices[0])).toBe("A");
-  expect(badged.getKeyboardHints()).toEqual([]);
+  expect(badged.getKeyboardHintModel().hasItems()).toBe(false);
   expect(badged.getItemAriaKeyShortcuts(badged.visibleChoices[0])).toBe("A");
   hintsOnly.choiceShortcutsEnabled = true;
-  expect(hinted.getKeyboardHints().length).toBe(1);
+  expect(hinted.getKeyboardHintModel().items.length).toBe(1);
   expect(hinted.getItemAriaKeyShortcuts(hinted.visibleChoices[0])).toBe("A");
 });
 
@@ -198,10 +214,9 @@ test("checkbox hints are tab, space, and enter when auto-advance is on", () => {
   ]);
   expect(hints({ type: "checkbox", choices: ["a", "b"] }, { autoAdvanceEnabled: true })).toEqual([
     row("to next option", [tab]),
-    row("to toggle", [space]),
-    row("to submit", [enter], false)
+    row("to toggle", [space])
   ]);
-  expect(hints({ type: "checkbox", choices: ["a", "b"], defaultValue: ["a"] }, { autoAdvanceEnabled: true })[2].visible).toBe(true);
+  expect(hints({ type: "checkbox", choices: ["a", "b"], defaultValue: ["a"] }, { autoAdvanceEnabled: true })[2].text).toBe("to submit");
 });
 
 test("multi-select image picker uses the checkbox hint row", () => {
@@ -212,7 +227,7 @@ test("multi-select image picker uses the checkbox hint row", () => {
   ]);
   expect(hints({
     type: "imagepicker", multiSelect: true, choices: choices, defaultValue: ["a"]
-  }, { autoAdvanceEnabled: true })[2].visible).toBe(true);
+  }, { autoAdvanceEnabled: true })[2].text).toBe("to submit");
   expect(hints({
     type: "imagepicker", choices: choices, defaultValue: "a"
   }, { autoAdvanceEnabled: true })[0].keys).toEqual([arrows]);
@@ -230,10 +245,12 @@ test("boolean checkbox uses space and enter", () => {
   expect(hints({ type: "boolean", displayMode: "checkbox" })).toEqual([
     row("to toggle", [space])
   ]);
-  expect(hints({ type: "boolean", displayMode: "checkbox" }, { autoAdvanceEnabled: true })[1].visible).toBe(false);
+  expect(hints({ type: "boolean", displayMode: "checkbox" }, { autoAdvanceEnabled: true })).toEqual([
+    row("to toggle", [space])
+  ]);
   expect(hints({
     type: "boolean", displayMode: "checkbox", defaultValue: false
-  }, { autoAdvanceEnabled: true })[1].visible).toBe(true);
+  }, { autoAdvanceEnabled: true })[1].text).toBe("to submit");
 });
 
 const down = "↓"; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
@@ -247,8 +264,7 @@ const dropdownSet = [
 
 test("dropdown swaps enter to select with enter to continue", () => {
   expect(hints({ type: "dropdown", choices: ["a", "b"] })).toEqual(dropdownSet);
-  const empty = dropdownSet.concat([row("to submit", [enter], false)]);
-  expect(hints({ type: "dropdown", choices: ["a", "b"] }, { autoAdvanceEnabled: true })).toEqual(empty);
+  expect(hints({ type: "dropdown", choices: ["a", "b"] }, { autoAdvanceEnabled: true })).toEqual(dropdownSet);
   const survey = new SurveyModel({
     showKeyboardHints: true,
     autoAdvanceEnabled: true,
@@ -259,18 +275,18 @@ test("dropdown swaps enter to select with enter to continue", () => {
   });
   const q = survey.getQuestionByName("q") as any;
   const closed = dropdownSet.concat([row("to continue", [enter])]);
-  expect(q.getKeyboardHints()).toEqual(closed);
+  expect(shown(q)).toEqual(closed);
   q.dropdownListModel.popupModel.show();
-  expect(q.getKeyboardHints()).toEqual(dropdownSet.concat([row("to select", [enter])]));
+  expect(shown(q)).toEqual(dropdownSet.concat([row("to select", [enter])]));
   q.dropdownListModel.popupModel.hide();
-  expect(q.getKeyboardHints()).toEqual(closed);
-  expect(JSON.stringify(q.getKeyboardHints())).not.toContain("Backspace");
+  expect(shown(q)).toEqual(closed);
+  expect(JSON.stringify(q.getKeyboardHintModel())).not.toContain("Backspace");
   const last = new SurveyModel({
     showKeyboardHints: true,
     autoAdvanceEnabled: true,
     elements: [{ type: "dropdown", name: "q", choices: ["a", "b"], defaultValue: "a" }]
-  }).getQuestionByName("q") as any;
-  expect(last.getKeyboardHints()[3].text).toBe("to submit");
+  }).getQuestionByName("q") as Question;
+  expect(shown(last)[3].text).toBe("to submit");
 });
 
 test("tagbox swaps space or enter to select with enter to continue", () => {
@@ -279,8 +295,7 @@ test("tagbox swaps space or enter to select with enter to continue", () => {
     "to open", "to navigate", "to close"
   ]);
   const empty = hints({ type: "tagbox", choices: choices }, { autoAdvanceEnabled: true });
-  expect(empty.map(row => row.text)).toEqual(["to open", "to navigate", "to close", "to submit"]);
-  expect(empty[3]).toEqual(row("to submit", [enter], false));
+  expect(empty.map(row => row.text)).toEqual(["to open", "to navigate", "to close"]);
   const survey = new SurveyModel({
     showKeyboardHints: true,
     autoAdvanceEnabled: true,
@@ -290,13 +305,14 @@ test("tagbox swaps space or enter to select with enter to continue", () => {
     ]
   });
   const q = survey.getQuestionByName("q") as any;
-  expect(q.getKeyboardHints().map((row: IKeyboardHint) => row.text)).toEqual(["to open", "to navigate", "to close", "to continue"]);
-  expect(q.getKeyboardHints()[3].visible).toBe(true);
+  expect(shown(q).map(row => row.text)).toEqual(["to open", "to navigate", "to close", "to continue"]);
   q.dropdownListModel.popupModel.show();
-  expect(q.getKeyboardHints().map((row: IKeyboardHint) => row.text)).toEqual(["to open", "to navigate", "to close", "to select"]);
-  expect(q.getKeyboardHints()[3].keys).toEqual([space, enter]);
+  const open = q.getKeyboardHintModel().items[3];
+  expect(rowOf(open)).toEqual(row("to select", [space, enter]));
+  expect(open.parts.map(part => part.text)).toEqual([space, "or", enter, "to select"]);
+  expect(open.parts.map(part => part.className)).toEqual(["sd-item__shortcut-key", "sd-question__keyboard-hint-or", "sd-item__shortcut-key", "sd-question__keyboard-hint-text"]);
   q.dropdownListModel.popupModel.hide();
-  expect(q.getKeyboardHints()[3].text).toBe("to continue");
+  expect(shown(q)[3].text).toBe("to continue");
 });
 
 test("rating hints are only enter, and only when auto-advance is on", () => {
@@ -313,9 +329,8 @@ test("ranking hints follow select-to-rank and auto-advance", () => {
     "to move"
   ]);
   const ranked = hints({ type: "ranking", choices: ["a", "b", "c"] }, { autoAdvanceEnabled: true });
-  expect(ranked.map(row => row.text)).toEqual(["to next option", "to move", "to submit"]);
+  expect(ranked.map(row => row.text)).toEqual(["to next option", "to move"]);
   expect(ranked[1].keys).toEqual([upDown]);
-  expect(ranked[2].visible).toBe(false);
   const selectToRank = hints({
     type: "ranking", choices: ["a", "b", "c"], selectToRankEnabled: true
   });
@@ -324,11 +339,11 @@ test("ranking hints follow select-to-rank and auto-advance", () => {
   const emptyRank = hints({
     type: "ranking", choices: ["a", "b", "c"], selectToRankEnabled: true
   }, { autoAdvanceEnabled: true });
-  expect(emptyRank[emptyRank.length - 1].visible).toBe(false);
+  expect(emptyRank.map(row => row.text)).toEqual(["to next option", "to move", "to toggle"]);
   const filledRank = hints({
     type: "ranking", choices: ["a", "b", "c"], selectToRankEnabled: true, defaultValue: ["b", "a"]
   }, { autoAdvanceEnabled: true });
-  expect(filledRank[filledRank.length - 1].visible).toBe(true);
+  expect(filledRank[filledRank.length - 1].text).toBe("to submit");
 });
 
 afterEach(() => {
@@ -344,28 +359,46 @@ test("enter says to continue while another question follows", () => {
       { elements: [{ type: "text", name: "last", defaultValue: "b" }, { type: "text", name: "hidden", visible: false }] }
     ]
   });
-  expect((survey.getQuestionByName("first") as Question).getKeyboardHints()[0].text).toBe("to continue");
-  expect((survey.getQuestionByName("last") as Question).getKeyboardHints()[0].text).toBe("to submit");
+  expect(shown(survey.getQuestionByName("first") as Question)[0].text).toBe("to continue");
+  expect(shown(survey.getQuestionByName("last") as Question)[0].text).toBe("to submit");
 });
 
 test("single-line text hints enter only when the input can auto-advance", () => {
-  expect(hints({ type: "text" }, { autoAdvanceEnabled: true })).toEqual([
-    row("to submit", [enter], false)
-  ]);
-  expect(hints({ type: "text", defaultValue: "a" }, { autoAdvanceEnabled: true })[0].visible).toBe(true);
+  expect(hints({ type: "text" }, { autoAdvanceEnabled: true })).toEqual([]);
+  expect(hints({ type: "text", defaultValue: "a" }, { autoAdvanceEnabled: true })[0].text).toBe("to submit");
   expect(hints({ type: "text" })).toEqual([]);
   expect(hints({ type: "text", inputType: "date", defaultValue: "2020-01-01" }, { autoAdvanceEnabled: true })).toEqual([]);
   expect(hints({ type: "text", inputType: "datetime-local", defaultValue: "2020-01-01T00:00" }, { autoAdvanceEnabled: true })).toEqual([]);
   expect(hints({ type: "text", textUpdateMode: "onTyping", defaultValue: "a" }, { autoAdvanceEnabled: true })).toEqual([]);
 });
 
+test("keyboard hint classes follow question cssClasses", () => {
+  const survey = new SurveyModel({
+    showKeyboardHints: true,
+    autoAdvanceEnabled: true,
+    elements: [{ type: "text", name: "q", defaultValue: "a" }]
+  });
+  survey.onUpdateQuestionCssClasses.add((_, options) => {
+    options.cssClasses.keyboardHintContainer = "hints";
+    options.cssClasses.keyboardHintItem = "hint";
+    options.cssClasses.keyboardHintKeyLabel = "key";
+    options.cssClasses.keyboardHintSeparator = "or";
+    options.cssClasses.keyboardHintText = "label";
+  });
+  const q = survey.getQuestionByName("q") as Question;
+  q.updateElementCss();
+  const model = q.getKeyboardHintModel();
+  expect(model.cssClasses.keyboardHintContainer).toBe("hints");
+  expect(model.cssClasses.keyboardHintItem).toBe("hint");
+  expect(model.items[0].parts.map(part => part.className)).toEqual(["key", "label"]);
+});
+
 test("long text hints shift+enter and enter", () => {
   expect(hints({ type: "comment", defaultValue: "a" })).toEqual([]);
   expect(hints({ type: "comment" }, { autoAdvanceEnabled: true })).toEqual([
-    row("for a new line", ["Shift+Enter"]),
-    row("to submit", [enter], false)
+    row("for a new line", ["Shift+Enter"])
   ]);
-  expect(hints({ type: "comment", defaultValue: "a" }, { autoAdvanceEnabled: true })[1].visible).toBe(true);
+  expect(hints({ type: "comment", defaultValue: "a" }, { autoAdvanceEnabled: true })[1].text).toBe("to submit");
   expect(hints({ type: "comment", acceptCarriageReturn: false, defaultValue: "a" }, { autoAdvanceEnabled: true }).map(row => row.text)).toEqual(["to submit"]);
   _setIsTouch(true);
   expect(hints({ type: "comment", defaultValue: "a" }, { autoAdvanceEnabled: true })).toEqual([]);

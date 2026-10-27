@@ -1,5 +1,5 @@
 import { Serializer } from "./jsonobject";
-import { keyboardHint, keyboardHintAdvanceText, IKeyboardHint } from "./keyboard-hints";
+import { keyboardHint, keyboardHintAdvanceLocName, IKeyboardHintData } from "./keyboard-hints";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { ChoiceItem, QuestionSelectBase } from "./question_baseselect";
@@ -69,7 +69,7 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
   public getType(): string {
     return "dropdown";
   }
-  protected getKeyboardHintsCore(): IKeyboardHint[] {
+  protected getKeyboardHintsCore(): IKeyboardHintData[] {
     const survey = this.survey as SurveyModel;
     const rows = [
       keyboardHint(this, "keyboardHintOpenText", ["arrowDown"]),
@@ -79,7 +79,7 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
     if (this.dropdownListModelValue?.popupModel?.isVisible === true) {
       rows.push(keyboardHint(this, "keyboardHintSelectText", ["enter"]));
     } else if (survey.autoAdvanceEnabled === true) {
-      rows.push(keyboardHint(this, keyboardHintAdvanceText(this), ["enter"], !this.isEmpty()));
+      rows.push(keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"], !this.isEmpty()));
     }
     return rows;
   }

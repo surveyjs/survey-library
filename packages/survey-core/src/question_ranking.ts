@@ -6,7 +6,7 @@ import { Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxModel } from "./question_checkbox";
-import { keyboardHint, keyboardHintAdvanceText, IKeyboardHint } from "./keyboard-hints";
+import { keyboardHint, keyboardHintAdvanceLocName, IKeyboardHintData } from "./keyboard-hints";
 import { SurveyModel } from "./survey";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { IsMobile } from "./utils/devices";
@@ -40,7 +40,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public getType(): string {
     return "ranking";
   }
-  protected getKeyboardHintsCore(): IKeyboardHint[] {
+  protected getKeyboardHintsCore(): IKeyboardHintData[] {
     const survey = this.survey as SurveyModel;
     const rows = [
       keyboardHint(this, "keyboardHintNextItemText", ["tab"]),
@@ -50,7 +50,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       rows.push(keyboardHint(this, "keyboardHintToggleText", ["space"]));
     }
     if (survey.autoAdvanceEnabled === true) {
-      rows.push(keyboardHint(this, keyboardHintAdvanceText(this), ["enter"], !this.isEmpty()));
+      rows.push(keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"], !this.isEmpty()));
     }
     return rows;
   }

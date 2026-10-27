@@ -1,20 +1,19 @@
 <template>
   <div
-    v-if="question.getKeyboardHints().length"
-    class="sd-question__keyboard-hints"
+    v-if="keyboardHintModel().hasItems()"
+    :class="keyboardHintModel().cssClasses.keyboardHintContainer"
     aria-hidden="true"
   >
     <span
-      v-for="(hint, hintIndex) in question.getKeyboardHints()"
+      v-for="(hint, hintIndex) in keyboardHintModel().items"
       :key="hintIndex"
-      class="sd-question__keyboard-hint"
-      :class="{ 'sd-question__keyboard-hint--hidden': !hint.visible }"
+      :class="keyboardHintModel().cssClasses.keyboardHintItem"
     >
-      <template v-for="(key, keyIndex) in hint.keys" :key="keyIndex">
-        <span v-if="keyIndex > 0" class="sd-question__keyboard-hint-or">{{ question.keyboardHintOrText }}</span>
-        <span class="sd-item__shortcut-key">{{ key }}</span>
-      </template>
-      <span class="sd-question__keyboard-hint-text">{{ hint.text }}</span>
+      <span
+        v-for="(part, partIndex) in hint.parts"
+        :key="partIndex"
+        :class="part.className"
+      >{{ part.text }}</span>
     </span>
   </div>
 </template>
@@ -25,4 +24,5 @@ import { useBase } from "@/base";
 
 const props = defineProps<{ question: Question }>();
 useBase(() => props.question);
+const keyboardHintModel = () => props.question.getKeyboardHintModel();
 </script>

@@ -30,7 +30,7 @@ import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { isAnimationEnabled } from "./utils/reduced-motion";
 import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choices";
 import { Scope, ValueScope } from "./utils/scope";
-import { IKeyboardHint } from "./keyboard-hints";
+import { IKeyboardHintData, KeyboardHintModel } from "./keyboard-hints";
 
 export interface IConditionObject {
   name: string;
@@ -3507,19 +3507,16 @@ export class Question extends SurveyElement<Question>
     return false;
   }
   @property() showKeyboardHints: boolean | undefined;
-  public get keyboardHintOrText(): string {
-    return this.getLocalizationString("keyboardHintOrText");
-  }
-  public getKeyboardHints(): IKeyboardHint[] {
-    if (!this.canShowKeyboardHints()) return [];
-    return this.getKeyboardHintsCore();
+  public getKeyboardHintModel(): KeyboardHintModel {
+    const hints = this.canShowKeyboardHints() ? this.getKeyboardHintsCore() : [];
+    return new KeyboardHintModel(this, hints);
   }
   protected canShowKeyboardHints(): boolean {
     const survey = this.survey as SurveyModel;
     if (!survey || this.isDesignMode || this.isReadOnly || this.inMatrixMode) return false;
     return this.showKeyboardHints ?? survey.showKeyboardHints === true;
   }
-  protected getKeyboardHintsCore(): IKeyboardHint[] {
+  protected getKeyboardHintsCore(): IKeyboardHintData[] {
     return [];
   }
   // Set only while Enter commits the current value. tryGoNextPageAutomatic runs on every

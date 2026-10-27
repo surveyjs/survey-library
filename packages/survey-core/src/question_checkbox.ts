@@ -1,5 +1,5 @@
 import { Serializer } from "./jsonobject";
-import { multiChoiceKeyboardHints, IKeyboardHint } from "./keyboard-hints";
+import { multiChoiceKeyboardHints, IKeyboardHintData } from "./keyboard-hints";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import {
@@ -97,7 +97,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       this.commitAutoAdvance(event);
     }
   }
-  protected getKeyboardHintsCore(): IKeyboardHint[] {
+  protected getKeyboardHintsCore(): IKeyboardHintData[] {
     return multiChoiceKeyboardHints(this, !this.isEmpty());
   }
   private isAutoAdvanceTextInputTarget(target: any): boolean {

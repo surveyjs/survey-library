@@ -2,7 +2,7 @@ import { QuestionFactory } from "./questionfactory";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Question, QuestionValueType, getScalarValueType, IVerifyDataContext } from "./question";
-import { keyboardHint, keyboardHintAdvanceText, IKeyboardHint } from "./keyboard-hints";
+import { keyboardHint, keyboardHintAdvanceLocName, IKeyboardHintData } from "./keyboard-hints";
 import { SurveyModel } from "./survey";
 import { ItemValue } from "./itemvalue";
 import type { ISelectQuestion } from "./question_baseselect";
@@ -47,13 +47,13 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
       this.commitAutoAdvance(event);
     }
   }
-  protected getKeyboardHintsCore(): IKeyboardHint[] {
+  protected getKeyboardHintsCore(): IKeyboardHintData[] {
     const survey = this.survey as SurveyModel;
     const displayMode = this.displayMode;
     if (displayMode === "checkbox") {
       const rows = [keyboardHint(this, "keyboardHintToggleText", ["space"])];
       if (survey.autoAdvanceEnabled === true) {
-        rows.push(keyboardHint(this, keyboardHintAdvanceText(this), ["enter"], !this.isEmpty()));
+        rows.push(keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"], !this.isEmpty()));
       }
       return rows;
     }

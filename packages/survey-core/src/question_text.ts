@@ -1,5 +1,5 @@
 import { QuestionFactory } from "./questionfactory";
-import { keyboardHint, keyboardHintAdvanceText, IKeyboardHint } from "./keyboard-hints";
+import { keyboardHint, keyboardHintAdvanceLocName, IKeyboardHintData } from "./keyboard-hints";
 import { SurveyModel } from "./survey";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
@@ -725,10 +725,10 @@ export class QuestionTextModel extends QuestionTextBase {
   supportAutoAdvance(): boolean {
     return !this.getIsInputTextUpdate() && !this.isDateInputType;
   }
-  protected getKeyboardHintsCore(): IKeyboardHint[] {
+  protected getKeyboardHintsCore(): IKeyboardHintData[] {
     const survey = this.survey as SurveyModel;
     if (!this.supportAutoAdvance() || survey.autoAdvanceEnabled !== true) return [];
-    return [keyboardHint(this, keyboardHintAdvanceText(this), ["enter"], !this.isEmpty())];
+    return [keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"], !this.isEmpty())];
   }
   public supportGoNextPageError(): boolean {
     return !this.isDateInputType;

@@ -1,9 +1,5 @@
-<div *ngIf="hints.length" class="sd-question__keyboard-hints" aria-hidden="true">
-  <span *ngFor="let hint of hints" class="sd-question__keyboard-hint" [class.sd-question__keyboard-hint--hidden]="!hint.visible">
-    <ng-container *ngFor="let key of hint.keys; let first = first">
-      <span *ngIf="!first" class="sd-question__keyboard-hint-or">{{ question.keyboardHintOrText }}</span>
-      <span class="sd-item__shortcut-key">{{ key }}</span>
-    </ng-container>
-    <span class="sd-question__keyboard-hint-text">{{ hint.text }}</span>
+<div *ngIf="keyboardHintModel.hasItems()" [class]="keyboardHintModel.cssClasses.keyboardHintContainer" aria-hidden="true">
+  <span *ngFor="let hint of keyboardHintModel.items" [class]="keyboardHintModel.cssClasses.keyboardHintItem">
+    <span *ngFor="let part of hint.parts" [class]="part.className">{{ part.text }}</span>
   </span>
 </div>

@@ -872,6 +872,44 @@ export class DynamicDataList {
   public set controlFilter(v: string) {
     this.applyView(this._filter, v, this._sort);
   }
+  /* How many records the authored filter and this control filter would leave, without applying it:
+     the number a Filter Control shows before its edits are applied. Nothing in the view changes and
+     nothing is reported - a count that cannot be had is undefined:
+     - records held here (a source that does not page, or a paging one read whole for a filter) are
+       counted here, exactly;
+     - a source that pages and filters is asked once for the total of a one-record window. The read
+       goes to the source directly and not through the channel: the channel keeps one read in flight
+       and would drop the list's own;
+     - a paging source that cannot filter, while it holds only a page, and a source that sends no
+       total: unknown. */
+  public countControlFilter(controlFilter: string): Promise<number | undefined> {
+    const caps = this.sourceCapabilities;
+    if (!this._source || this.isDisposed) return Promise.resolve(undefined);
+    if (caps.paging && caps.filtering) return this.countAtSource(combineFilterExpressions(this._filter, controlFilter));
+    if (!this.isLoaded || this.isWindowPagedBySource) return Promise.resolve(undefined);
+    let runner: ConditionRunner;
+    try {
+      runner = createFilterRunner(controlFilter);
+    } catch(e) {
+      return Promise.resolve(undefined);
+    }
+    const records = this.records;
+    return Promise.resolve(applyFilters(records, [this.filterRunner, runner], this.getFields()).length);
+  }
+  private countAtSource(filter: string): Promise<number | undefined> {
+    return new Promise((resolve: (count: number | undefined) => void): void => {
+      const answer = (data: any): void => {
+        const total = toReadResult(data).total;
+        resolve(typeof total === "number" ? total : undefined);
+      };
+      try {
+        Promise.resolve(this._source.read({ skip: 0, take: 1, filter: filter, sort: [] }))
+          .then(answer, (): void => { resolve(undefined); });
+      } catch(e) {
+        resolve(undefined);
+      }
+    });
+  }
   /* Assigns the filter and the sort together and reads ONCE: with a paging source the view travels
      inside the read request, so two assignments would be two requests, the second superseding the
      first. It is what the two setters are made of - and what a question that has both authored

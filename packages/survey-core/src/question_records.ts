@@ -826,6 +826,11 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
      runtime state and are not serialized. */
   public setControlFilter(key: string, expression: string): void { this.paging.setControlFilter(key, expression); }
   public getControlFilter(key: string): string { return this.paging.getControlFilter(key); }
+  // How many records would be shown if the control with this key filtered by expression instead of
+  // what it filters by now; undefined when it cannot be known. Nothing is applied.
+  public getControlFilterCount(key: string, expression: string): Promise<number | undefined> {
+    return this.paging.countControlFilter(key, expression);
+  }
   // The fields a Filter Control offers for the records: the matrix columns, the panel template's
   // questions. A records question with no fields of its own offers none.
   public getFilterFields(): Array<IDynamicDataFilterField> { return []; }

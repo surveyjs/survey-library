@@ -193,4 +193,7 @@ export interface IDynamicDataFilterSource {
   getFilterFields(): Array<IDynamicDataFilterField>;
   setControlFilter(key: string, expression: string): void;
   getControlFilter(key: string): string;
+  // Optional: how many records there would be if this control filtered by expression - before the
+  // control applies it. undefined (or no method) when the count cannot be known.
+  getControlFilterCount?(key: string, expression: string): Promise<number | undefined>;
 }

@@ -47,8 +47,11 @@ describe("Filter editor field kinds: lists of values", () => {
     const e = editor(control(), "category");
     valueQ(e).clickItemHandler(valueQ(e).selectAllItem, true);
     expect(e.getCondition("category").value, "#1").toEqual(["a", "b", "c", "d", "e", "f", "g"]);
+    expect(shown(e).length, "#2: still folded").toBe(4);
     moreAction(e).action();
-    expect(valueQ(e).isAllSelected, "#2: still all after Show More").toBe(true);
+    expect(valueQ(e).isAllSelected, "#3: still all after Show More").toBe(true);
+    valueQ(e).clickItemHandler(valueQ(e).visibleChoices[1], false);
+    expect(valueQ(e).isAllSelected, "#4: one unchecked").toBe(false);
     e.dispose();
   });
   test("a checked value under the fold, or one the field does not list, opens the list unfolded", () => {

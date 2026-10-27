@@ -338,8 +338,8 @@ export class FilterConditionsEditor {
     }
     action.visible = this.canShowMore(index, this.getValueQuestion(index));
     action.title = this.expanded[index] ? filterUIStrings.showLess : filterUIStrings.showMore;
-    // The rows were rendered while the question was being added, before it could be told apart as
-    // this field's list.
+    // fromJSON computed the rendered rows before the fold was hooked in, and the question renders
+    // them again only when its visibleChoices change.
     if (action.visible) {
       this.updateFold(index);
     }

@@ -106,6 +106,8 @@ class ExpressionParser {
   private maxFailPos: number = 0;
   private failedOps: number = 0;
   private failedOther: number = 0;
+  private wsStart: number = -1;
+  private wsEnd: number = 0;
 
   constructor(private text: string) {
     this.len = text.length;
@@ -168,13 +170,21 @@ class ExpressionParser {
     return true;
   }
   // _ "whitespace" = [ \t\n\r]*
+  // After an operand, every precedence level skips the same whitespace to try its operator: the last run is remembered.
   private skipWhitespace(): void {
     const text = this.text;
     let pos = this.pos;
+    if (pos === this.wsStart) {
+      this.pos = this.wsEnd;
+      return;
+    }
+    const start = pos;
     for (;;) {
       const c = text.charCodeAt(pos);
       if (c === 32 || c === 9 || c === 10 || c === 13) pos++; else break;
     }
+    this.wsStart = start;
+    this.wsEnd = pos;
     this.pos = pos;
   }
 

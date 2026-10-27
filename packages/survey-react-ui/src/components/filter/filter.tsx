@@ -1,12 +1,13 @@
 // The Filter Control (#11890). Everything it shows is survey-core's: the chips, Clear All, Save and
 // Filters are actions the question owns (filter-toolbars.ts), drawn with sv-action-bar; a badge's
-// popup is a FilterFieldPopup; the advanced dialog is a FilterConditionsEditor; the classes are the
-// theme's "filter" entry. This file only lays the parts out and draws the few pieces that are not
-// standard components: a chip with a trailing chevron, a checkbox list entry, the popup's frame.
+// popup is a FilterFieldPopup; the Filters dialog is a FilterModal over a FilterConditionsEditor; the
+// classes are the theme's "filter" entry. This file only lays the parts out and draws the few pieces
+// that are not standard components: a chip with a trailing chevron, a checkbox list entry, the
+// popup's frame, the dialog's content.
 import * as React from "react";
 import {
-  Action, ActionDropdownViewModel, Base, FilterConditionsEditor, FilterEditorHolder, FilterFieldPopup, ListModel,
-  Question, QuestionFilterModel, SurveyError, SurveyModel, filterChipComponentName, filterEditorComponentName,
+  Action, ActionDropdownViewModel, Base, FilterConditionsEditor, FilterEditorHolder, FilterFieldPopup, FilterModal, ListModel,
+  Question, QuestionFilterModel, SurveyError, SurveyModel, filterChipComponentName, filterModalComponentName,
   filterFieldPopupComponentName, filterListItemComponentName, filterUIStrings, toCssClasses
 } from "survey-core";
 import { ReactQuestionFactory } from "../../reactquestion_factory";
@@ -41,7 +42,7 @@ class FilterEditorCreator implements ISurveyCreator {
   }
 }
 
-// The page of a FilterConditionsEditor: the advanced dialog's, and a "condition" popup's.
+// The page of a FilterConditionsEditor: the Filters dialog's, and a "condition" popup's.
 class FilterEditorPage extends SurveyElementBase<{ editor: FilterConditionsEditor, className: string }, any> {
   private rootRef: React.RefObject<HTMLDivElement> = React.createRef();
   private creator: FilterEditorCreator;
@@ -78,20 +79,54 @@ class FilterEditorPage extends SurveyElementBase<{ editor: FilterConditionsEdito
   }
 }
 
-// The advanced dialog's content. It watches the holder, so an emptied holder unmounts the page
-// before survey-core disposes the editor.
-export class SurveyFilterConditionsEditor extends SurveyElementBase<{ holder: FilterEditorHolder }, any> {
-  protected getStateElement(): Base {
-    return this.props.holder;
+// The Filters dialog's content: the search box, the presets and the fields; its footer is the
+// dialog's own. It watches the holder, so an emptied holder unmounts the content before survey-core
+// disposes the dialog's model.
+export class SurveyFilterModal extends SurveyElementBase<{ holder: FilterEditorHolder }, any> {
+  private get modal(): FilterModal {
+    const holder = this.props.holder;
+    return !!holder && !!holder.modal && !holder.modal.isDisposed ? holder.modal : undefined;
+  }
+  protected getStateElements(): Array<Base> {
+    const holder = this.props.holder;
+    const modal = this.modal;
+    if (!modal) return !!holder ? [holder] : [];
+    return [holder, modal];
+  }
+  private renderSearch(modal: FilterModal): React.JSX.Element | null {
+    if (!modal.showSearch) return null;
+    const css = modal.cssClasses;
+    const searchCss = modal.searchCss;
+    return <div className={css.modalSection}>
+      <div className={searchCss.root}>
+        <SvgIcon className={css.searchIcon} iconName="icon-search-24x24" size={"auto"}></SvgIcon>
+        <input type="text" className={searchCss.control} value={modal.searchString} placeholder={modal.searchPlaceholder}
+          aria-label={filterUIStrings.searchLabel} disabled={modal.isReadOnly}
+          onChange={(e) => { modal.searchString = e.target.value; }} />
+      </div>
+    </div>;
+  }
+  private renderPresets(modal: FilterModal): React.JSX.Element | null {
+    if (!modal.presetsToolbar.hasActions) return null;
+    const css = modal.cssClasses;
+    return <div className={css.modalSection}>
+      <div className={css.modalSectionTitle}>{filterUIStrings.presetsTitle}</div>
+      <SurveyActionBar model={modal.presetsToolbar} />
+    </div>;
   }
   protected renderElement(): React.JSX.Element | null {
-    const holder = this.props.holder;
-    if (!holder || !holder.editor) return null;
-    return <FilterEditorPage editor={holder.editor} className={holder.cssClasses.editor} />;
+    const modal = this.modal;
+    if (!modal) return null;
+    const css = modal.cssClasses;
+    return <div className={css.modalContent}>
+      {this.renderSearch(modal)}
+      {this.renderPresets(modal)}
+      <FilterEditorPage editor={modal.editor} className={toCssClasses(css.editor, css.modalEditor)} />
+    </div>;
   }
 }
-ReactElementFactory.Instance.registerElement(filterEditorComponentName,
-  (props) => { return React.createElement(SurveyFilterConditionsEditor, props); });
+ReactElementFactory.Instance.registerElement(filterModalComponentName,
+  (props) => { return React.createElement(SurveyFilterModal, props); });
 
 // A badge's popup: the search box (a long list, or one a value can be typed into), the title row
 // with its link, the list or the operator and value, and Apply.

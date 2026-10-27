@@ -36,7 +36,7 @@ describe("tooltips on [data-sv-tooltip] elements", () => {
   let button: HTMLButtonElement;
 
   function pointer(type: string, target: Element, init: any = {}) {
-    const event = new MouseEvent(type, { bubbles: true, relatedTarget: init.relatedTarget });
+    const event = new MouseEvent(type, { bubbles: true, relatedTarget: init.relatedTarget, buttons: init.buttons || 0 });
     if (init.pointerType) Object.defineProperty(event, "pointerType", { value: init.pointerType });
     target.dispatchEvent(event);
   }
@@ -110,6 +110,16 @@ describe("tooltips on [data-sv-tooltip] elements", () => {
     pointer("pointerover", button, { pointerType: "touch" });
     vi.advanceTimersByTime(200);
     expect(visibleTooltip()).toBeNull();
+  });
+  test("does not show while a pointer button is pressed (drag in progress)", () => {
+    pointer("pointerover", button, { buttons: 1 });
+    vi.advanceTimersByTime(200);
+    expect(visibleTooltip()).toBeNull();
+
+    pointer("pointerover", document.body);
+    pointer("pointerover", button);
+    vi.advanceTimersByTime(200);
+    expect(visibleTooltip()?.textContent).toBe("Delete");
   });
   test("ignores elements without text", () => {
     button.setAttribute("data-sv-tooltip", "");

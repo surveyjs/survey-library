@@ -53,7 +53,8 @@ class TooltipManager {
     return target?.closest?.(`[${tooltipAttributeName}]`) as HTMLElement || undefined;
   }
   private onPointerOver = (event: PointerEvent): void => {
-    if (event.pointerType === "touch") return;
+    // A pressed button means a drag (or a text selection) is in progress: crossing a trigger then is not a hover.
+    if (event.pointerType === "touch" || event.buttons) return;
     const trigger = this.findTrigger(event);
     if (trigger !== this.trigger) {
       this.hide();

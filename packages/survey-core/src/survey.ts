@@ -38,7 +38,7 @@ import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
-import { HashKeyIndex, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { HashKeyIndex, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterNameInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { getBuiltInVariableNames, getBuiltInVariableValue } from "./conditions/builtInVariables";
 import { getLocaleString, surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
@@ -7340,6 +7340,18 @@ export class SurveyModel extends SurveyElementCore
     // dependency analysis of the original expressions is unreliable - run everything
     if (!this.onExpressionRunning.isEmpty) return undefined;
     return this.questionTriggersKeys;
+  }
+  // The skip check's parsed variable names (ValueGetter.isAnyKeyChangedCore), shared by every runner and trigger
+  // of the survey and keyed by the exact name: a large survey has far fewer distinct names than runner slots.
+  // An item depends on the name only: settings are read on every call, never kept in it, and an item never
+  // reaches ValueGetter.run, which changes the path it parses. Built on the first keyed check; it lives as long
+  // as the survey and is never cleared.
+  private variableNamesInfo: Map<string, IValueGetterNameInfo>;
+  public getVariableNamesInfo(): Map<string, IValueGetterNameInfo> {
+    if (!this.variableNamesInfo) {
+      this.variableNamesInfo = new Map<string, IValueGetterNameInfo>();
+    }
+    return this.variableNamesInfo;
   }
   private runConditionOnValueChanged(name: string, value: any) {
     const values: HashTable<any> = {};

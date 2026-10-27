@@ -1158,14 +1158,21 @@ export class Base implements IObjectValueContext {
   protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[], isClearedKeyChanged?: boolean): boolean {
     if (!keys) return false;
     if (!!runner && runner.hasFunction(true)) return false;
-    // Names given by the caller (triggers) are parsed per check; the runner's own variables reuse its kept information
+    // Names given by the caller (triggers) have no per-runner slots: they are read from the survey's map, or parsed
+    // per check without a survey. The runner's own variables reuse its kept information
     let varsInfo: Array<IValueGetterNameInfo>;
     if (vars === undefined && !!runner) {
       vars = runner.getVariables();
       varsInfo = runner.getVariablesInfo();
     }
     if (!Array.isArray(vars) || vars.length === 0) return false;
-    return !new ValueGetter().isAnyKeyChangedCore(keys, vars, varsInfo, isClearedKeyChanged);
+    return !new ValueGetter().isAnyKeyChangedCore(keys, vars, varsInfo, isClearedKeyChanged, this.getSurveyVariableNamesInfo());
+  }
+  // The parsed variable names shared by every runner of the survey (SurveyModel.getVariableNamesInfo),
+  // also for the names a trigger passes. Without a survey (a new Base()) each runner keeps its own items.
+  protected getSurveyVariableNamesInfo(): Map<string, IValueGetterNameInfo> {
+    const survey: any = this.getSurvey();
+    return !!survey && typeof survey.getVariableNamesInfo === "function" ? survey.getVariableNamesInfo() : undefined;
   }
   private asynExpressionHash: any;
   private doBeforeAsynRun(id: number): void {

@@ -7,7 +7,7 @@ import { Base } from "../src/base";
 import { ValueGetter } from "../src/conditions/conditionProcessValue";
 import { ExpressionRunner } from "../src/expressions/expressionRunner";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 describe("CalculatedValues", () => {
   test("Use calculated value in expression", () => {
     var survey = new SurveyModel({
@@ -899,6 +899,125 @@ describe("The skip check reads each name's parsed parts once", () => {
     runner.getVariables()[1] = "other";
     expect(base.canSkipExpressionByKeys(runner, { src: 1 }), "src is replaced").toBe(true);
     expect(base.canSkipExpressionByKeys(runner, { other: 1 }), "other is used").toBe(false);
+  });
+});
+describe("The skip check shares each name's parsed parts within a survey", () => {
+  const getSlot = (survey: SurveyModel, name: string): any =>
+    (<any>survey.getQuestionByName(name)).getExpressionByProperty("visibleIf").getVariablesInfo()[0];
+  test("two runners with the same name hold the same item after the first answer", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "x" },
+        { type: "text", name: "a", visibleIf: "{q1} = 1" },
+        { type: "text", name: "b", visibleIf: "{q1} = 1" }
+      ]
+    });
+    survey.setValue("x", 1);
+    const a = getSlot(survey, "a");
+    expect(a, "a's slot is filled").toBeTruthy();
+    expect(a.name, "a's slot name").toBe("q1");
+    expect(getSlot(survey, "b"), "b holds a's item").toBe(a);
+  });
+  test("names that differ only in letter case hold their own items", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "x" },
+        { type: "text", name: "a", visibleIf: "{q1} = 1" },
+        { type: "text", name: "c", visibleIf: "{Q1} = 1" }
+      ]
+    });
+    const a = survey.getQuestionByName("a");
+    const c = survey.getQuestionByName("c");
+    expect(a.isVisible, "at start: a").toBe(false);
+    expect(c.isVisible, "at start: c").toBe(false);
+    survey.setValue("q1", 1);
+    expect(a.isVisible, "q1 = 1: a").toBe(true);
+    expect(c.isVisible, "q1 = 1: c").toBe(true);
+    expect(getSlot(survey, "a").name, "q1 = 1: a's slot name").toBe("q1");
+    expect(getSlot(survey, "c").name, "q1 = 1: c's slot name").toBe("Q1");
+    expect(getSlot(survey, "c"), "q1 = 1: two items").not.toBe(getSlot(survey, "a"));
+    survey.setValue("x", 1);
+    expect(a.isVisible, "x = 1: a").toBe(true);
+    expect(c.isVisible, "x = 1: c").toBe(true);
+    expect(getSlot(survey, "a").name, "x = 1: a's slot name").toBe("q1");
+    expect(getSlot(survey, "c").name, "x = 1: c's slot name").toBe("Q1");
+    expect(getSlot(survey, "c"), "x = 1: two items").not.toBe(getSlot(survey, "a"));
+  });
+  test("a runner whose expression changes to a name in the survey's map gets that item", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "b" },
+        { type: "text", name: "x" },
+        { type: "text", name: "p", visibleIf: "{a} = 1" },
+        { type: "text", name: "q", visibleIf: "{b} = 1" }
+      ]
+    });
+    const p = survey.getQuestionByName("p");
+    const q = survey.getQuestionByName("q");
+    survey.setValue("x", 1);
+    expect(getSlot(survey, "q").name, "q's slot before the change").toBe("b");
+    const runner = (<any>q).getExpressionByProperty("visibleIf");
+    q.visibleIf = "{a} = 2";
+    expect((<any>q).getExpressionByProperty("visibleIf"), "the runner object is kept").toBe(runner);
+    expect(q.isVisible, "visibleIf is {a} = 2").toBe(false);
+    survey.setValue("x", 2);
+    expect(getSlot(survey, "q").name, "q's slot after the change").toBe("a");
+    survey.setValue("a", 2);
+    expect(q.isVisible, "a = 2: q").toBe(true);
+    expect(p.isVisible, "a = 2: p").toBe(false);
+    survey.setValue("a", 1);
+    expect(q.isVisible, "a = 1: q").toBe(false);
+    expect(p.isVisible, "a = 1: p").toBe(true);
+    survey.setValue("b", 1);
+    expect(q.isVisible, "b = 1: q").toBe(false);
+    expect(getSlot(survey, "q"), "q holds p's item").toBe(getSlot(survey, "p"));
+  });
+  test("a survey trigger's names are built once per survey", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "a" },
+        { type: "text", name: "x" },
+        { type: "text", name: "dst" },
+        { type: "text", name: "q", visibleIf: "{a} = 1" }
+      ],
+      triggers: [{ type: "setvalue", expression: "{a} = 1", setToName: "dst", setValue: "done" }]
+    });
+    survey.setValue("x", 1);
+    const spy = vi.spyOn(<any>ValueGetter.prototype, "getNameInfo");
+    try {
+      survey.setValue("x", 2);
+      expect(survey.getValue("dst"), "x = 2: dst").toBeUndefined();
+      survey.setValue("a", 1);
+      expect(survey.getValue("dst"), "a = 1: dst").toBe("done");
+      expect(survey.getQuestionByName("q").isVisible, "a = 1: q").toBe(true);
+      expect(spy, "names parsed after the first answer").toHaveBeenCalledTimes(0);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+  test("two surveys from the same JSON do not share items", () => {
+    const json = {
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "x" },
+        { type: "text", name: "a", visibleIf: "{q1} = 1" },
+        { type: "text", name: "b", visibleIf: "{q1} = 1" }
+      ]
+    };
+    const survey1 = new SurveyModel(json);
+    const survey2 = new SurveyModel(json);
+    survey1.setValue("x", 1);
+    survey2.setValue("x", 1);
+    const a1 = getSlot(survey1, "a");
+    const a2 = getSlot(survey2, "a");
+    expect(a1, "survey 1: a's slot is filled").toBeTruthy();
+    expect(a2, "survey 2: a's slot is filled").toBeTruthy();
+    expect(a2, "across the surveys").not.toBe(a1);
+    expect(getSlot(survey1, "b"), "within survey 1").toBe(a1);
+    expect(getSlot(survey2, "b"), "within survey 2").toBe(a2);
   });
 });
 // The calculated values a calculated value uses run first. They are found by the names its expression

@@ -1028,7 +1028,13 @@ export var defaultCss = {
     listItemCheck: "sd-filter-popup__check",
     listItemCheckChecked: "sd-filter-popup__check--checked",
     listItemText: "sd-filter-popup__item-text",
-    listItemRemove: "sd-filter-popup__item-remove"
+    listItemRemove: "sd-filter-popup__item-remove",
+    modal: "sd-filter-modal",
+    modalMobile: "sd-filter-modal--mobile",
+    modalContent: "sd-filter-modal__content",
+    modalSection: "sd-filter-modal__section",
+    modalSectionTitle: "sd-filter-modal__section-title",
+    modalEditor: "sd-filter-modal__editor"
   }
 };
 

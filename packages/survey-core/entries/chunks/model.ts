@@ -273,7 +273,7 @@ export {
   filterEditorMaxCheckboxChoiceCount
 } from "../../src/filter/filter-conditions-editor";
 export {
-  FilterToolbars, FilterEditorHolder, IFilterToolbarsOwner, IFilterFieldState, filterUIStrings, filterEditorComponentName,
+  FilterToolbars, FilterEditorHolder, IFilterToolbarsOwner, IFilterFieldState, filterUIStrings, filterModalComponentName,
   filterFieldPopupComponentName, filterChipComponentName
 } from "../../src/filter/filter-toolbars";
 export {

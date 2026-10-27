@@ -256,3 +256,72 @@
   box-sizing: border-box;
   width: 100%;
 }
+
+// The Filters dialog (FilterModal): the search box, the presets and every field, above the dialog's
+// own footer with Clear All and the main button. 580px wide; on a phone it covers the screen.
+.sd-filter-modal > .sv-popup__container > .sv-popup__body-content {
+  box-sizing: border-box;
+  width: calc(72.5 * var(--sjs2-base-unit-size));
+  max-width: 100%;
+}
+
+.sd-filter-modal--mobile {
+  padding: 0;
+
+  & > .sv-popup__container {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+  }
+
+  & > .sv-popup__container > .sv-popup__body-content {
+    width: 100%;
+    min-width: 0;
+    max-height: 100%;
+  }
+}
+
+.sd-filter-modal__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sjs2-spacing-x300);
+}
+
+.sd-filter-modal__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sjs2-spacing-x200);
+}
+
+.sd-filter-modal__section .sd-action-bar {
+  --sd-action-bar-gap: var(--sjs2-spacing-x100);
+  flex-wrap: wrap;
+}
+
+.sd-filter-modal__section-title {
+  @include sjs2--typography--default-strong;
+  color: var(--sjs2-color-fg-basic-primary);
+}
+
+// The fields as in the mockup: a field's title right above its editor, 40px rows of checkboxes and
+// 16px between an operator and its value. A field's "Show More" is one more row under its list, a
+// link that starts where the checkboxes do.
+.sd-filter-modal__editor {
+  --sjs2-layout-component-panel-content-area-gap-horizontal: var(--sjs2-spacing-x200);
+  --sjs2-layout-component-labeled-group-box-gap-vertical: var(--sjs2-spacing-x200);
+
+  .sd-panel {
+    --sd-panel-header-padding-block: 0 var(--sjs2-spacing-x200);
+  }
+
+  .sd-panel__footer {
+    margin: 0;
+    padding: 0;
+
+    .sd-action {
+      --sd-action-title-padding: 0;
+      padding-inline: 0;
+    }
+  }
+}

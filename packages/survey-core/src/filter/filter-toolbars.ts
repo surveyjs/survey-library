@@ -1,28 +1,28 @@
-import { Base } from "../base";
+import { Base, ComputedUpdater } from "../base";
 import { property } from "../decorators";
 import { Action } from "../actions/action";
 import { ActionContainer } from "../actions/container";
 import { getActionDropdownButtonTarget } from "../actions/dropdown-action";
 import { IDialogOptions, PopupModel } from "../popup";
 import { settings } from "../settings";
+import { toCssClasses } from "../utils/cssClassBuilder";
 import { FilterItem } from "./filter-item";
-import { FilterConditionsEditor } from "./filter-conditions-editor";
 import { FilterFieldEditorKind } from "./filter-field-kinds";
 import { FilterFieldPopup } from "./filter-field-popup";
 import { FilterChipsLayout } from "./filter-chips-layout";
+import { FilterModal } from "./filter-modal";
 import { filterUIStrings } from "./filter-ui-strings";
 export { filterUIStrings } from "./filter-ui-strings";
 
-// What a popup or a dialog shows: a badge's FilterFieldPopup, or the advanced dialog's editor. A
-// popup renders its content even while it is hidden and does not re-render it when its content data
+// What a popup or a dialog shows: a badge's FilterFieldPopup, or the Filters dialog. A popup
+// renders its content even while it is hidden and does not re-render it when its content data
 // changes, so a renderer watches this instead - and the holder is emptied, unmounting what it held,
 // before that is disposed. cssClasses are the control's: a popup and a dialog are drawn outside the
 // control's markup.
 export class FilterEditorHolder extends Base {
   public getType(): string { return "filtereditorholder"; }
-  @property() editor: FilterConditionsEditor;
   @property() fieldPopup: FilterFieldPopup;
-  @property({ defaultValue: false }) isAdvanced: boolean;
+  @property() modal: FilterModal;
   public cssClasses: any;
 }
 
@@ -46,7 +46,7 @@ export interface IFilterToolbarsOwner {
   cssClasses: any;
   getFastModeFieldStates(): Array<IFilterFieldState>;
   createFieldPopup(name: string, close: () => void): FilterFieldPopup;
-  createAdvancedModeEditor(): FilterConditionsEditor;
+  createFilterModal(): FilterModal;
   getSurveyRootElement(): HTMLElement;
 }
 // What the chips row shows of one fast mode field: the key it is addressed by (getFieldKey), its
@@ -57,8 +57,8 @@ export interface IFilterFieldState {
   kind: FilterFieldEditorKind;
   text: string;
 }
-// The content component of the advanced dialog, of a badge's popup, and the component of a chip.
-export const filterEditorComponentName = "sv-filter-conditions-editor";
+// The content component of the Filters dialog, of a badge's popup, and the component of a chip.
+export const filterModalComponentName = "sv-filter-modal";
 export const filterFieldPopupComponentName = "sv-filter-field-popup";
 export const filterChipComponentName = "sv-filter-chip";
 
@@ -135,23 +135,24 @@ export class FilterToolbars {
     });
     this.update();
   }
-  // All of the fields at once, in a dialog: settings.showDialog mounts it through a portal into the
+  // The Filters dialog (FilterModal): settings.showDialog mounts it through a portal into the
   // survey's root element - outside the survey's <form>, still under its theme - the way Creator
-  // opens its modal property editors. Any way it closes ends in onHide. With no dialog host (no
-  // survey rendered) there is nothing to open, and one dialog is open at a time.
+  // opens its modal property editors. On a phone it covers the screen: a class of its own does that,
+  // the theme has no styles for the host's "overlay" mode. Any way it closes ends in
+  // onHide, and only its main button applies it. With no dialog host (no survey rendered) there is
+  // nothing to open, and one dialog is open at a time.
   public showAdvancedEditor(): void {
     if (!settings.showDialog || !!this.advancedDialog) return;
-    const editor = this.owner.createAdvancedModeEditor();
-    if (!editor) return;
+    const modal = this.owner.createFilterModal();
+    if (!modal) return;
     const holder = this.createHolder();
-    holder.isAdvanced = true;
-    holder.editor = editor;
+    holder.modal = modal;
     this.advancedHolder = holder;
     const options: IDialogOptions = {
-      componentName: filterEditorComponentName,
+      componentName: filterModalComponentName,
       data: { holder: holder },
       onApply: (): boolean => {
-        editor.apply();
+        modal.apply();
         return true;
       },
       onCancel: (): void => { },
@@ -161,9 +162,31 @@ export class FilterToolbars {
         this.advancedHolder = undefined;
       },
       title: filterUIStrings.dialogTitle,
+      showCloseButton: true,
+      cssClass: toCssClasses(this.cssClasses.modal, this.owner.isMobile && this.cssClasses.modalMobile),
       displayMode: "popup"
     };
     this.advancedDialog = settings.showDialog(options, this.owner.getSurveyRootElement());
+    this.setModalFooter(this.advancedDialog, modal);
+  }
+  // The dialog's own Apply and Cancel give way to Clear All on the left and the main button on the
+  // right, which says how many records it will show and applies the dialog through the dialog host
+  // (onApply, then the dialog closes). In the designer there is nothing to clear or apply: only the
+  // close button is left.
+  private setModalFooter(dialog: any, modal: FilterModal): void {
+    const footer: ActionContainer = !!dialog ? dialog.footerToolbar : undefined;
+    if (!footer) return;
+    if (modal.isReadOnly) {
+      footer.setItems([]);
+      return;
+    }
+    footer.setItems([
+      new Action({ id: "sv-filter-modal-clear", title: filterUIStrings.clearAll, appearance: { style: "neutral", mode: "secondary", showBorder: true },
+        action: (): void => { modal.clearAll(); } }),
+      new Action({ id: "sv-filter-modal-apply", needSpace: true, appearance: { style: "brand", mode: "primary" },
+        title: <any>new ComputedUpdater<string>((): string => modal.showResultsText),
+        action: (): void => { dialog.apply(); } })
+    ]);
   }
   public dispose(): void {
     if (!!this.advancedDialog && !!this.advancedDialog.model) {
@@ -405,11 +428,11 @@ export class FilterToolbars {
   // The holder is emptied first: a renderer watching it unmounts what it held, and only then is that
   // disposed - a disposed question that re-renders has nothing left to render from.
   private release(holder: FilterEditorHolder): void {
-    const editor = holder.editor;
+    const modal = holder.modal;
     const fieldPopup = holder.fieldPopup;
-    holder.editor = undefined;
+    holder.modal = undefined;
     holder.fieldPopup = undefined;
-    if (!!editor) editor.dispose();
+    if (!!modal) modal.dispose();
     if (!!fieldPopup) fieldPopup.dispose();
   }
   private isSameList(a: Array<string>, b: Array<string>): boolean {

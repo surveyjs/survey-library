@@ -1,9 +1,11 @@
 import { describe, test, expect, vi } from "vitest";
-import { createFilter } from "./filter-test-helpers";
+import { createBound, createFilter } from "./filter-test-helpers";
 import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { FilterItem } from "../../src/filter/filter-item";
 import { settings } from "../../src/settings";
+import { ActionContainer } from "../../src/actions/container";
+import { FilterModal } from "../../src/filter/filter-modal";
 import "../../src/localization/german";
 
 function ids(container: any): Array<string> { return container.actions.map((a: any) => a.id); }
@@ -242,29 +244,99 @@ describe("FilterToolbars: one row while collapsed", () => {
   });
 });
 
-describe("FilterToolbars: the advanced dialog", () => {
-  test("opens through settings.showDialog, applies on Apply and releases the editor on hide", () => {
+describe("FilterToolbars: the Filters dialog", () => {
+  // A stand-in for the dialog host: the options it was given, its footer and its apply, which hides
+  // the dialog when onApply allows it - as PopupModalViewModel does.
+  function stubDialogs(): { calls: Array<any>, restore: () => void } {
     const saved = settings.showDialog;
-    let options: any;
-    let calls = 0;
-    settings.showDialog = (o: any): any => { options = o; calls++; return { model: { hide: () => o.onHide() } }; };
+    const calls: Array<any> = [];
+    settings.showDialog = (o: any): any => {
+      const dialog: any = { options: o, footerToolbar: new ActionContainer(), model: { hide: () => o.onHide() } };
+      dialog.apply = (): void => { if (o.onApply()) o.onHide(); };
+      calls.push(dialog);
+      return dialog;
+    };
+    return { calls: calls, restore: () => { settings.showDialog = saved; } };
+  }
+  test("Filters opens the dialog: its content, title, close button and size", () => {
+    const dialogs = stubDialogs();
     try {
-      const q = createFilter({ items: [] });
+      const q = createFilter();
       action(q.chipsToolbar, "sv-filter-filters").action();
-      expect(options.componentName, "#1").toBe("sv-filter-conditions-editor");
-      const editor = options.data.holder.editor;
-      expect([options.data.holder.isAdvanced, options.data.holder.cssClasses.editor], "#2").toEqual([true, "sd-filter-editor"]);
-      expect(editor.fieldNames, "#3").toEqual(["name", "country", "age"]);
+      const o = dialogs.calls[0].options;
+      expect([o.componentName, o.title, o.showCloseButton, o.displayMode, o.cssClass], "#1")
+        .toEqual(["sv-filter-modal", "Filters", true, "popup", "sd-filter-modal"]);
+      expect(o.data.holder.modal instanceof FilterModal, "#2").toBe(true);
+      expect(o.data.holder.cssClasses.modalSection, "#3: the control's classes").toBe("sd-filter-modal__section");
       q.showAdvancedEditor();
-      expect(calls, "#4: one dialog at a time").toBe(1);
-      editor.survey.getQuestionByName("f2_operator").value = "greater";
-      editor.survey.getQuestionByName("f2_value").value = 30;
-      expect(options.onApply(), "#5").toBe(true);
-      expect(q.filterExpression, "#6").toBe("{age} > 30");
-      options.onHide();
-      expect([editor.isDisposed, options.data.holder.editor], "#7").toEqual([true, undefined]);
+      expect(dialogs.calls.length, "#4: one dialog at a time").toBe(1);
     } finally {
-      settings.showDialog = saved;
+      dialogs.restore();
+    }
+  });
+  test("the footer: Clear All, and the main button that applies the dialog and closes it", () => {
+    const dialogs = stubDialogs();
+    try {
+      const q = createFilter();
+      q.showAdvancedEditor();
+      const dialog = dialogs.calls[0];
+      const modal: FilterModal = dialog.options.data.holder.modal;
+      expect(ids(dialog.footerToolbar), "#1").toEqual(["sv-filter-modal-clear", "sv-filter-modal-apply"]);
+      const apply = action(dialog.footerToolbar, "sv-filter-modal-apply");
+      expect([apply.title, apply.needSpace], "#2: a standalone control cannot count").toEqual(["Show results", true]);
+      modal.togglePreset(q.getItemByName("adults"));
+      action(dialog.footerToolbar, "sv-filter-modal-clear").action();
+      expect(modal.activeItemName, "#3: Clear All").toBe("");
+      modal.togglePreset(q.getItemByName("adults"));
+      apply.action();
+      expect([q.activeItemName, modal.isDisposed, dialog.options.data.holder.modal], "#4: applied, closed, released")
+        .toEqual(["adults", true, undefined]);
+    } finally {
+      dialogs.restore();
+    }
+  });
+  test("the main button says how many records it will show", async () => {
+    const dialogs = stubDialogs();
+    try {
+      const survey = createBound();
+      const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+      q.showAdvancedEditor();
+      await Promise.resolve();
+      expect(action(dialogs.calls[0].footerToolbar, "sv-filter-modal-apply").title).toBe("Show 3 items");
+    } finally {
+      dialogs.restore();
+    }
+  });
+  test("on a phone the dialog covers the screen; in the designer it has nothing to apply", () => {
+    const dialogs = stubDialogs();
+    try {
+      const q = createFilter();
+      q.isMobile = true;
+      q.showAdvancedEditor();
+      expect([dialogs.calls[0].options.displayMode, dialogs.calls[0].options.cssClass], "#1").toEqual(["popup", "sd-filter-modal sd-filter-modal--mobile"]);
+      const survey = new SurveyModel();
+      survey.setDesignMode(true);
+      survey.fromJSON({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }] }] });
+      (<QuestionFilterModel>survey.getQuestionByName("f1")).showAdvancedEditor();
+      expect(ids(dialogs.calls[1].footerToolbar), "#2").toEqual([]);
+    } finally {
+      dialogs.restore();
+    }
+  });
+  test("closing it any other way applies nothing and releases the dialog", () => {
+    const dialogs = stubDialogs();
+    try {
+      const q = createFilter();
+      q.showAdvancedEditor();
+      const o = dialogs.calls[0].options;
+      const modal: FilterModal = o.data.holder.modal;
+      modal.togglePreset(q.getItemByName("adults"));
+      o.onHide();
+      expect([q.activeItemName, modal.isDisposed], "#1").toEqual(["", true]);
+      q.showAdvancedEditor();
+      expect(dialogs.calls.length, "#2: it opens again").toBe(2);
+    } finally {
+      dialogs.restore();
     }
   });
   test("without settings.showDialog there is no dialog to open", () => {

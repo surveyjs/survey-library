@@ -68,7 +68,7 @@ export interface IFilterConditionsEditorOptions {
   onApply?: (conditions: Array<IFilterCondition> | undefined, searchString?: string) => void;
 }
 // A checkbox list of values shows this many until "Show More" is clicked - with Select All above
-// them, five rows, as in the mockup.
+// them, five rows, as in the mockup - unless one of its checked values is further down.
 export const filterEditorVisibleChoiceCount = 4;
 // A list of more values than this - or one the respondent may type values into - edits with a
 // tagbox instead of checkboxes.
@@ -197,13 +197,6 @@ export class FilterConditionsEditor {
     if (this.isReadOnly) {
       survey.mode = "display";
     }
-    if (!!this.options.useFieldKinds) {
-      survey.onShowingChoiceItem.add((_: SurveyModel, opt: any): void => {
-        const index = this.getFieldIndex(opt.question);
-        if (index < 0 || !this.canShowMore(index, opt.question) || this.expanded[index]) return;
-        opt.visible = opt.visible && opt.question.choices.indexOf(opt.item) < filterEditorVisibleChoiceCount;
-      });
-    }
     return survey;
   }
   // The panel groups a field's editors, and is titled by the field only where the editor shows
@@ -236,6 +229,7 @@ export class FilterConditionsEditor {
       this.surveyValue.clearValue(this.getOperatorName(index));
       this.surveyValue.clearValue(this.getValueName(index));
       this.listKinds[index] = kind;
+      this.expanded[index] = false;
       if (!!kind) {
         this.createListQuestion(index, field, kind, condition);
       } else {
@@ -278,10 +272,10 @@ export class FilterConditionsEditor {
     }
   }
   // The field's values as checkboxes (with Select All, the first filterEditorVisibleChoiceCount shown
-  // until "Show More"), a tagbox for a long list or one that takes typed values, two checkboxes for a
-  // boolean, a dropdown for a single pick. A value of the condition that is none of the field's (typed
-  // in, or written by hand into a preset) is listed after them and checked: the filter holds nothing
-  // the editor hides.
+  // until "Show More" - all of them at once when a checked one is further down), a tagbox for a long
+  // list or one that takes typed values, two checkboxes for a boolean, a dropdown for a single pick. A
+  // value of the condition that is none of the field's (typed in, or written by hand into a preset) is
+  // listed after them and checked: the filter holds nothing the editor hides.
   private createListQuestion(index: number, field: IDynamicDataFilterField, kind: FilterFieldEditorKind, condition: IFilterCondition): void {
     const items = getFilterFieldListItems(field, this.owner.getLocale());
     const selection = getFilterFieldSelection(field, kind, condition) || [];
@@ -305,10 +299,27 @@ export class FilterConditionsEditor {
     json.titleLocation = "hidden";
     json.choices = choices;
     const question = this.createQuestion(json);
+    if (json.showSelectAllItem) {
+      (<any>question).onGetRenderedChoicesCallback = (visible: Array<ItemValue>): Array<ItemValue> => this.foldChoices(index, question, visible);
+      this.expanded[index] = selection.some((value: any): boolean => choices.findIndex((choice: any): boolean =>
+        Helpers.isTwoValueEquals(choice.value, value)) >= filterEditorVisibleChoiceCount);
+    }
     this.getPanel(index).addElement(question);
     if (selection.length > 0) {
       question.value = kind === "single" ? selection[0] : [].concat(selection);
     }
+  }
+  // The rows a checkbox list renders: past filterEditorVisibleChoiceCount its values are folded away
+  // until "Show More". Only what is rendered is folded - visibleChoices keep every value, so Select All
+  // checks them all and the condition keeps the list's order.
+  private foldChoices(index: number, question: Question, visible: Array<ItemValue>): Array<ItemValue> {
+    if (this.expanded[index] || !this.canShowMore(index, question)) return visible;
+    const choices: Array<ItemValue> = (<any>question).choices;
+    return visible.filter((item: ItemValue): boolean => choices.indexOf(item) < filterEditorVisibleChoiceCount);
+  }
+  private updateFold(index: number): void {
+    const question: any = this.getValueQuestion(index);
+    question.renderedChoices = this.foldChoices(index, question, question.visibleChoices);
   }
   // "Show More" under a checkbox list that is longer than filterEditorVisibleChoiceCount; an action
   // of the field's panel footer, made once and shown while the field edits with such a list.
@@ -325,20 +336,18 @@ export class FilterConditionsEditor {
       this.moreActions[index] = action;
       this.getPanel(index).footerActions.push(action);
     }
-    this.expanded[index] = false;
-    const question = this.getValueQuestion(index);
-    action.visible = this.canShowMore(index, question);
-    action.title = filterUIStrings.showMore;
-    // The choices were made visible while the question was being added, before it could be told
-    // apart as this field's list.
+    action.visible = this.canShowMore(index, this.getValueQuestion(index));
+    action.title = this.expanded[index] ? filterUIStrings.showLess : filterUIStrings.showMore;
+    // The rows were rendered while the question was being added, before it could be told apart as
+    // this field's list.
     if (action.visible) {
-      question.surveyChoiceItemVisibilityChange();
+      this.updateFold(index);
     }
   }
   private toggleMore(index: number): void {
     this.expanded[index] = !this.expanded[index];
     this.moreActions[index].title = this.expanded[index] ? filterUIStrings.showLess : filterUIStrings.showMore;
-    this.getValueQuestion(index).surveyChoiceItemVisibilityChange();
+    this.updateFold(index);
   }
   private onValueChanged(questionName: string): void {
     if (this.isUpdating || this.isDisposedValue) return;
@@ -450,12 +459,6 @@ export class FilterConditionsEditor {
     } finally {
       this.isUpdating = false;
     }
-  }
-  private getFieldIndex(question: Question): number {
-    for (let i = 0; i < this.names.length; i++) {
-      if (question.name === this.getValueName(i)) return i;
-    }
-    return -1;
   }
   // Not f-prefixed like the field questions, so it never collides with one of them.
   private getSearchName(): string { return "search"; }

@@ -27,7 +27,7 @@ function moreAction(e: FilterConditionsEditor): Action {
 }
 // The values the list shows, without its Select All entry.
 function shown(e: FilterConditionsEditor): Array<any> {
-  return valueQ(e).visibleChoices.filter((c: any) => c !== valueQ(e).selectAllItem).map((c: any) => c.value);
+  return valueQ(e).renderedChoices.filter((c: any) => c !== valueQ(e).selectAllItem).map((c: any) => c.value);
 }
 
 describe("Filter editor field kinds: lists of values", () => {
@@ -41,6 +41,25 @@ describe("Filter editor field kinds: lists of values", () => {
     expect([shown(e).length, more.title], "#4").toEqual([7, "Show Less"]);
     more.action();
     expect(shown(e).length, "#5").toBe(4);
+    e.dispose();
+  });
+  test("Select All of a list folded under Show More checks every value, the folded ones too", () => {
+    const e = editor(control(), "category");
+    valueQ(e).clickItemHandler(valueQ(e).selectAllItem, true);
+    expect(e.getCondition("category").value, "#1").toEqual(["a", "b", "c", "d", "e", "f", "g"]);
+    moreAction(e).action();
+    expect(valueQ(e).isAllSelected, "#2: still all after Show More").toBe(true);
+    e.dispose();
+  });
+  test("a checked value under the fold, or one the field does not list, opens the list unfolded", () => {
+    const q = control();
+    q.setFieldCondition("category", "anyof", ["g"]);
+    const e = editor(q, "category");
+    expect([shown(e), moreAction(e).title], "#1").toEqual([["a", "b", "c", "d", "e", "f", "g"], "Show Less"]);
+    e.setConditions([{ field: "category", operator: "anyof", value: ["zz"] }]);
+    expect([shown(e).length, moreAction(e).title], "#2").toEqual([8, "Show Less"]);
+    e.setConditions([{ field: "category", operator: "anyof", value: ["b"] }]);
+    expect([shown(e), moreAction(e).title], "#3: all checked values in sight").toEqual([["a", "b", "c", "d"], "Show More"]);
     e.dispose();
   });
   test("4 values or fewer: no Show More", () => {

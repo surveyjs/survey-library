@@ -112,6 +112,7 @@ import { ConsoleWarnings } from "./console-warnings";
 import DefaultLightTheme from "./themes/default-light";
 import { createBoxShadowReset } from "./utils/shadow-effects";
 import { Scope } from "./utils/scope";
+import type { DynamicDataErrorOperation } from "./dynamic-data/dynamic-data-interfaces";
 
 export var DefaultTheme = DefaultLightTheme;
 
@@ -3294,6 +3295,7 @@ export class SurveyModel extends SurveyElementCore
   public getProgressCssClasses(container: string = ""): string {
     return toCssClasses(
       this.css.progress,
+      !isStrCiEqual(this.getEffectiveProgressBarType(), "pages") && this.css.progressLinear,
       this.isShowProgressBarOnTop && (!container || container == "header") && this.css.progressTop,
       this.isShowProgressBarOnBottom && (!container || container == "footer") && this.css.progressBottom
     );
@@ -4006,7 +4008,11 @@ export class SurveyModel extends SurveyElementCore
         newPage.onFirstRendering();
         newPage.updateCustomWidgets();
       }
-      this.locStrsChanged();
+      // Refreshes texts that depend on values (text processing). A designer survey does not process
+      // texts and renders every page, so it would only walk all pages for nothing
+      if (!this.isDesignMode) {
+        this.locStrsChanged();
+      }
       if (!this.isShowingPreview) {
         this.currentPageChanged(newPage, oldValue);
       }
@@ -4411,7 +4417,9 @@ export class SurveyModel extends SurveyElementCore
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
     this.dropHeldCompletion();
     this.notifyQuestionsOnHidingContent(oldValue);
-    if (oldValue && !oldValue.isDisposed && !oldValue.passed) {
+    // A designer survey has no respondent and its pages never pass: validating the page it leaves
+    // only fires validation events and generates rows of matrices that were never rendered
+    if (!this.isDesignMode && oldValue && !oldValue.isDisposed && !oldValue.passed) {
       if (oldValue.validate(false)) {
         oldValue.passed = true;
       }
@@ -6351,7 +6359,7 @@ export class SurveyModel extends SurveyElementCore
   // ISurveyDynamicDataCallbacks: the default does nothing - survey-core writes nothing to the
   // console for an error an application is expected to handle, the way onServerValidateQuestions
   // failures are the application's business too.
-  dynamicDataError(question: IQuestion, operation: string, error: any): void {
+  dynamicDataError(question: IQuestion, operation: DynamicDataErrorOperation, error: any): void {
     this.onDynamicDataError.fire(this, { question: <Question>question, operation: operation, error: error });
   }
   /* A completion the respondent or tryComplete started waits while a records question has a write

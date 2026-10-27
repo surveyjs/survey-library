@@ -9,6 +9,7 @@ import { Action } from "../src/actions/action";
 import { findParentByClassNames } from "../src/utils/dom-utils";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionTextModel } from "../src/question_text";
+import { SurveyElement } from "../src/survey-element";
 import { settings } from "../src/settings";
 import { describe, test, expect, vi } from "vitest";
 export * from "../src/localization/german";
@@ -628,6 +629,192 @@ describe("Base", () => {
     base1.propA = 1;
     expect(updaterCallCount, "no updater calls").toBe(3);
     expect(base3.propC, "no value updates").toBe(5);
+  });
+  test("Collect dependencies: question properties outside loading are collected in order", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const base3 = new BaseTester3();
+    let updaterCallCount = 0;
+    const updater = () => {
+      base3.propC = (q.isRequired ? 1 : 0) + (q.startWithNewLine ? 2 : 0);
+      updaterCallCount++;
+    };
+
+    Base.startCollectDependencies(updater, base3, "propC");
+    updater();
+    const deps = Base.finishCollectDependencies();
+    expect(deps.dependencies.map(d => d.prop), "two dependencies in order").toEqual(["isRequired", "startWithNewLine"]);
+    expect(deps.dependencies[0].obj).toBe(q);
+    expect(deps.dependencies[1].obj).toBe(q);
+
+    expect(updaterCallCount, "first time calculation").toBe(1);
+    expect(base3.propC).toBe(2);
+    q.isRequired = true;
+    expect(updaterCallCount, "isRequired changed").toBe(2);
+    expect(base3.propC).toBe(3);
+    q.startWithNewLine = false;
+    expect(updaterCallCount, "startWithNewLine changed").toBe(3);
+    expect(base3.propC).toBe(1);
+    deps.dispose();
+  });
+  test("Collect dependencies: question properties while the survey is loading are not collected", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const base3 = new BaseTester3();
+    let updaterCallCount = 0;
+    const updater = () => {
+      base3.propC = (q.isRequired ? 1 : 0) + (q.startWithNewLine ? 2 : 0);
+      updaterCallCount++;
+    };
+
+    survey.startLoadingFromJson();
+    Base.startCollectDependencies(updater, base3, "propC");
+    updater();
+    const deps = Base.finishCollectDependencies();
+    // endLoadingFromJson starts the width-mode collection, so it must run after finishCollectDependencies
+    survey.endLoadingFromJson();
+    expect(deps.dependencies.length, "no dependencies").toBe(0);
+    q.isRequired = true;
+    expect(updaterCallCount, "not subscribed").toBe(1);
+    deps.dispose();
+  });
+  test("Property reads outside a dependency collection do not check the loading state", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const readAll = () => [q.name, q.isRequired, q.startWithNewLine, q.readOnly, q.width, q.minWidth,
+      q.maxWidth, q.indent, q.valueName, q.visibleIf];
+    readAll();
+    const getterSpy = vi.spyOn(Base.prototype, "isLoadingFromJson", "get");
+    const elementSpy = vi.spyOn(SurveyElement.prototype as any, "getIsLoadingFromJson");
+    try {
+      readAll();
+      // Before the check for a running collection, 10 reads made 20 getter calls (the question, then its survey)
+      // and 10 getIsLoadingFromJson calls
+      expect(getterSpy, "isLoadingFromJson getter").toHaveBeenCalledTimes(0);
+      expect(elementSpy, "SurveyElement.getIsLoadingFromJson").toHaveBeenCalledTimes(0);
+    } finally {
+      getterSpy.mockRestore();
+      elementSpy.mockRestore();
+    }
+  });
+  class BaseTester5 extends Base {
+  @property({ defaultValue: 1 }) propA: number;
+  @property({ defaultValue: 2 }) propB: number;
+  }
+  const depsToArray = (updater: ComputedUpdater): Array<{ obj: Base, prop: string }> =>
+    updater["getDependencies"]().dependencies.map(d => ({ obj: d.obj, prop: d.prop }));
+  test("Collect dependencies: a property read twice is one dependency", () => {
+    const a = new BaseTester5();
+    const b = new BaseTester5();
+    const target = new BaseTester3();
+    let updaterCallCount = 0;
+    const updater = new ComputedUpdater<number>(() => {
+      updaterCallCount++;
+      return a.propA + b.propA + a.propA + a.propB;
+    });
+    target.propC = <any>updater;
+    expect(depsToArray(updater), "three dependencies in reading order").toEqual([
+      { obj: a, prop: "propA" }, { obj: b, prop: "propA" }, { obj: a, prop: "propB" }]);
+    expect(updaterCallCount, "first time calculation").toBe(1);
+    a.propA = 3;
+    expect(updaterCallCount, "a.propA changed, updater runs once").toBe(2);
+    expect(target.propC, "3 + 1 + 3 + 2").toBe(9);
+    updater.dispose();
+  });
+  test("Collect dependencies: two objects with equal names are two dependencies", () => {
+    const a = new QuestionTextModel("q");
+    const b = new QuestionTextModel("q");
+    const target = new BaseTester4();
+    let updaterCallCount = 0;
+    const updater = new ComputedUpdater<string>(() => {
+      updaterCallCount++;
+      return a.title + "," + b.title;
+    });
+    target.propC = <any>updater;
+    expect(depsToArray(updater), "name and title of both questions").toEqual([
+      { obj: a, prop: "name" }, { obj: a, prop: "title" }, { obj: b, prop: "name" }, { obj: b, prop: "title" }]);
+    expect(target.propC).toBe("q,q");
+    a.title = "A";
+    expect(updaterCallCount, "a.title changed").toBe(2);
+    expect(target.propC).toBe("A,q");
+    b.title = "B";
+    expect(updaterCallCount, "b.title changed").toBe(3);
+    expect(target.propC).toBe("A,B");
+    updater.dispose();
+  });
+  test("Collect dependencies: many dependencies", () => {
+    const objs: Array<BaseTester5> = [];
+    for (let i = 0; i < 2000; i++) objs.push(new BaseTester5());
+    const target = new BaseTester3();
+    let updaterCallCount = 0;
+    const updater = new ComputedUpdater<number>(() => {
+      updaterCallCount++;
+      let res = 0;
+      objs.forEach(o => { res += o.propA + o.propB + o.propA + o.propB; });
+      return res;
+    });
+    target.propC = <any>updater;
+    const deps = depsToArray(updater);
+    expect(deps.length, "two dependencies per object").toBe(4000);
+    expect(deps[3998], "last object propA").toEqual({ obj: objs[1999], prop: "propA" });
+    expect(deps[3999], "last object propB").toEqual({ obj: objs[1999], prop: "propB" });
+    expect(target.propC).toBe(2000 * 6);
+    objs[1999].propB = 4;
+    expect(updaterCallCount, "last object propB changed, updater runs once").toBe(2);
+    expect(target.propC).toBe(2000 * 6 + 4);
+    updater.dispose();
+    expect(objs.filter(o => o["onPropChangeFunctions"].length > 0).length, "no handlers left").toBe(0);
+    objs[0].propA = 5;
+    expect(updaterCallCount, "no updater calls after dispose").toBe(2);
+  });
+  test("Collect dependencies: adding a dependency does not scan the collected dependencies", () => {
+    const collect = (count: number): { length: number, indexReads: number } => {
+      const objs: Array<BaseTester5> = [];
+      for (let i = 0; i < count; i++) objs.push(new BaseTester5());
+      const target = new BaseTester5();
+      const updater = () => {
+        objs.forEach(o => { o.propA; o.propB; o.propA; o.propB; });
+      };
+      let indexReads = 0;
+      let deps;
+      Base.startCollectDependencies(updater, target, "propA");
+      try {
+        const running = Base["currentDependencis"];
+        let reads = 0;
+        running.dependencies = new Proxy(running.dependencies, {
+          get: (arr, key, receiver) => {
+            if (typeof key === "string" && /^\d+$/.test(key)) reads++;
+            return Reflect.get(arr, key, receiver);
+          }
+        });
+        updater();
+        indexReads = reads;
+      } finally {
+        deps = Base.finishCollectDependencies();
+        deps.dispose();
+      }
+      return { length: deps.dependencies.length, indexReads: indexReads };
+    };
+    const small = collect(50);
+    expect(small.length, "two dependencies per object, 50 objects").toBe(100);
+    // A scan for a duplicate on every read made 10,000 index reads here
+    expect(small.indexReads, "index reads while collecting, 50 objects").toBe(0);
+    const large = collect(100);
+    expect(large.length, "two dependencies per object, 100 objects").toBe(200);
+    expect(large.indexReads, "index reads while collecting, 100 objects").toBe(0);
+  });
+  test("Collect dependencies: survey width mode follows a late element", () => {
+    const pages: Array<any> = [];
+    for (let i = 0; i < 300; i++) pages.push({ elements: [{ type: "text", name: "q" + i }] });
+    const survey = new SurveyModel({ pages });
+    const lastPage = survey.pages[299];
+    survey.currentPage = lastPage;
+    expect(survey.calculatedWidthMode, "one question per page").toBe("static");
+    const q = lastPage.addNewQuestion("text", "q300");
+    q.startWithNewLine = false;
+    expect(survey.calculatedWidthMode, "two questions in a row on the last page").toBe("responsive");
+    lastPage.removeElement(q);
+    expect(survey.calculatedWidthMode, "the question is removed").toBe("static");
   });
   test("Collect dependencies automatically", () => {
     const base1 = new BaseTester1();

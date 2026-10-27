@@ -149,7 +149,9 @@ export class PopupContainer extends SurveyElementBase<any, any> {
       </div>
     );
   }
-  render(): React.JSX.Element {
+  render(): React.JSX.Element | null {
+    // Stays mounted and subscribed to the view model: Popup does not re-render when the popup opens.
+    if (!this.model.hasBeenShown) return null;
     const container = this.renderContainer(this.model);
     const className = new CssClassBuilder()
       .append("sv-popup")

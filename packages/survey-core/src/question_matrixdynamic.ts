@@ -352,10 +352,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public set defaultValueFromLastRow(val: boolean) {
     this.copyDefaultValueFromLastEntry = val;
   }
-  protected isDefaultValueEmpty(): boolean {
-    return (
-      super.isDefaultValueEmpty() && this.isValueEmpty(this.defaultRowValue)
-    );
+  protected getDefaultRecordValue(): any {
+    return this.defaultRowValue;
   }
   // A column that becomes a file column takes its answer out of defaultRowValue.
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void {
@@ -401,11 +399,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!Array.isArray(val)) val = [];
     for (var i = val.length; i < this.minRowCount; i++) val.push({});
     return val;
-  }
-  /* Kept here and in the Dynamic Panel, not in QuestionRecordsModel: the dropdown matrix base between
-     them takes a keyed value (the Multi-Select Matrix). */
-  protected setDefaultValue() {
-    if (!this.setDefaultRecordValues(this.defaultRowValue, this.rowCount)) super.setDefaultValue();
   }
   /* Both numbers are created positions; under paging of the whole view, clamped to the records shown as
      without paging, and the records move whether or not they have a row. */
@@ -1034,6 +1027,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     });
   }
   private focusActionCellOrAddButton(row: MatrixDropdownRowModelBase): void {
+    if (this.isDisposed) return;
     if (row) {
       this.renderedTable.focusActionCell(row, this.getActionCellIndex(row));
     } else {
@@ -1061,11 +1055,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const target = this.resolveRowTarget(index);
     const record = !target ? undefined : (!!target.item ? (<MatrixDropdownRowModelBase>target.item).value : target.record);
     return this.isRecordToConfirmOnDelete(record);
-  }
-  // A record equal to defaultRowValue is removed without asking, as the dynamic panel does with defaultPanelValue.
-  private isRecordToConfirmOnDelete(record: any): boolean {
-    return !this.isValueEmpty(record) &&
-      (this.isValueEmpty(this.defaultRowValue) || !this.isTwoValueEquals(record, this.defaultRowValue));
   }
   /* What removeRow acts on (resolveRecordTarget): index is a position among the visible rows - under
      paging among the visible records of the whole view. The rows are built first. */

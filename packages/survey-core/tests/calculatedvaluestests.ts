@@ -1096,3 +1096,227 @@ describe("CalculatedValues: find the calculated values they use", () => {
     }
   });
 });
+describe("CalculatedValues at load: only the calculated values of a cycle run again", () => {
+  const registerLoadCounter = () => {
+    const counts: { [name: string]: number } = {};
+    FunctionFactory.Instance.register({
+      name: "loadCount",
+      func: (params: any[]) => {
+        counts[params[0]] = (counts[params[0]] || 0) + 1;
+        return params[1];
+      },
+      resultDependsOn: "parameters"
+    });
+    return counts;
+  };
+  test("a cycle reaches the same values at load, with the same number of evaluations", () => {
+    const counts = registerLoadCounter();
+    try {
+      const survey = new SurveyModel({
+        elements: [{ type: "text", name: "x" }],
+        calculatedValues: [
+          { name: "a", expression: "loadCount('a', {b} + {x})" },
+          { name: "b", expression: "loadCount('b', {a} + 1)" }
+        ]
+      });
+      expect(survey.getVariable("a"), "a after load").toBe(11);
+      expect(survey.getVariable("b"), "b after load").toBe(11);
+      expect(counts, "evaluations at load").toEqual({ a: 11, b: 11 });
+    } finally {
+      FunctionFactory.Instance.unregister("loadCount");
+    }
+  });
+  test("a calculated value and the conditions that read it are evaluated once at load", () => {
+    const counts = registerLoadCounter();
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "v", visibleIf: "loadCount('visibleIf', {cv}) = 1" },
+          { type: "radiogroup", name: "r", choices: [{ value: 1, visibleIf: "loadCount('choice', {cv}) = 1" }, 2] }
+        ],
+        calculatedValues: [{ name: "cv", expression: "loadCount('cv', 1)" }]
+      });
+      expect(survey.getVariable("cv"), "cv after load").toBe(1);
+      expect(survey.getQuestionByName("v").isVisible, "v is visible").toBe(true);
+      expect(survey.getQuestionByName("r").visibleChoices.length, "the choice is visible").toBe(2);
+      expect(counts, "evaluations at load").toEqual({ cv: 1, visibleIf: 1, choice: 1 });
+    } finally {
+      FunctionFactory.Instance.unregister("loadCount");
+    }
+  });
+  test("a default value expression that reads a calculated value still gets a second pass at load", () => {
+    const counts = registerLoadCounter();
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "v", visibleIf: "loadCount('visibleIf', {cv}) = 1" },
+          { type: "radiogroup", name: "r", choices: [{ value: 1, visibleIf: "loadCount('choice', {cv}) = 1" }, 2] },
+          { type: "text", name: "d", defaultValueExpression: "loadCount('default', {cv})" }
+        ],
+        calculatedValues: [{ name: "cv", expression: "loadCount('cv', 1)" }]
+      });
+      expect(survey.getValue("d"), "d after load").toBe(1);
+      expect(survey.getQuestionByName("v").isVisible, "v is visible").toBe(true);
+      expect(counts, "evaluations at load").toEqual({ default: 3, cv: 2, visibleIf: 2, choice: 2 });
+    } finally {
+      FunctionFactory.Instance.unregister("loadCount");
+    }
+  });
+  test("a value a survey trigger sets when a calculated value changes reaches the conditions and the calculated values that read it", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q2" }, { type: "text", name: "q3", visibleIf: "{q2} = 5" }],
+      triggers: [{ type: "setvalue", expression: "{cv} = 1", setToName: "q2", setValue: 5 }],
+      calculatedValues: [
+        { name: "cv2", expression: "{q2} + 1" },
+        { name: "cv", expression: "1" }
+      ]
+    });
+    expect(survey.getValue("q2"), "q2 after load").toBe(5);
+    expect(survey.getQuestionByName("q3").isVisible, "q3 is visible").toBe(true);
+    expect(survey.getVariable("cv2"), "cv2 after load").toBe(6);
+  });
+  test("a value an onVariableChanged handler sets when a calculated value changes reaches the conditions and the calculated values that read it", () => {
+    const survey = new SurveyModel();
+    survey.onVariableChanged.add((_, options) => {
+      if (options.name === "cv") survey.setValue("q2", 5);
+    });
+    survey.fromJSON({
+      elements: [{ type: "text", name: "q2" }, { type: "text", name: "q3", visibleIf: "{q2} = 5" }],
+      calculatedValues: [
+        { name: "cv2", expression: "{q2} + 1" },
+        { name: "cv", expression: "1" }
+      ]
+    });
+    expect(survey.getValue("q2"), "q2 after load").toBe(5);
+    expect(survey.getQuestionByName("q3").isVisible, "q3 is visible").toBe(true);
+    expect(survey.getVariable("cv2"), "cv2 after load").toBe(6);
+  });
+  test("a calculated value declared after the one that reads it gives its value at load: by its name, in another letter case and through a path", () => {
+    const check = (expression: string, bValue: string, caseName: string) => {
+      const survey = new SurveyModel({
+        elements: [{ type: "text", name: "q", visibleIf: "{a} = 3" }],
+        calculatedValues: [
+          { name: "a", expression: expression },
+          { name: "b", expression: bValue }
+        ]
+      });
+      expect(survey.getVariable("a"), caseName + ": a after load").toBe(3);
+      expect(survey.getQuestionByName("q").isVisible, caseName + ": q is visible").toBe(true);
+    };
+    check("{b} + 1", "2", "by its name");
+    check("{B} + 1", "2", "in another letter case");
+    check("{b[0]} + 1", "[2, 3]", "through a path");
+  });
+  test("a calculated value whose first result is undefined gets the value of a later one it reads in another letter case", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q", visibleIf: "{a} = 2" }],
+      calculatedValues: [
+        { name: "a", expression: "{B}" },
+        { name: "b", expression: "2" }
+      ]
+    });
+    expect(survey.getVariable("a"), "a after load").toBe(2);
+    expect(survey.getQuestionByName("q").isVisible, "q is visible").toBe(true);
+  });
+  test("a cycle of three calculated values that settles after several loops reaches the same values at load", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "x", defaultValue: 1 }],
+      calculatedValues: [
+        { name: "a", expression: "iif({c} > 0, {c}, 1)" },
+        { name: "b", expression: "{a} + {x}" },
+        { name: "c", expression: "iif({b} >= 3, 3, {b})" }
+      ]
+    });
+    expect(survey.getVariable("a"), "a after load").toBe(3);
+    expect(survey.getVariable("b"), "b after load").toBe(4);
+    expect(survey.getVariable("c"), "c after load").toBe(3);
+  });
+  test("a calculated value that reads a cycle gets the cycle's final value at load, declared before or after it", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "x" }],
+      calculatedValues: [
+        { name: "c0", expression: "{a} * 2" },
+        { name: "a", expression: "{b} + {x}" },
+        { name: "b", expression: "{a} + 1" },
+        { name: "c", expression: "{a} * 2" }
+      ]
+    });
+    expect(survey.getVariable("a"), "a after load").toBe(11);
+    expect(survey.getVariable("b"), "b after load").toBe(11);
+    expect(survey.getVariable("c0"), "c0 after load").toBe(22);
+    expect(survey.getVariable("c"), "c after load").toBe(22);
+  });
+  test("a cycle and a default value expression that reads it share the bound of the load's passes", () => {
+    const counts = registerLoadCounter();
+    try {
+      const survey = new SurveyModel({
+        elements: [{ type: "text", name: "x" }, { type: "text", name: "d", defaultValueExpression: "{a}" }],
+        calculatedValues: [
+          { name: "a", expression: "loadCount('a', {b} + {x})" },
+          { name: "b", expression: "{a} + 1" }
+        ]
+      });
+      expect(survey.getVariable("a"), "a after load").toBe(11);
+      expect(survey.getVariable("b"), "b after load").toBe(11);
+      expect(survey.getValue("d"), "d after load").toBe(11);
+      expect(counts, "evaluations of a at load").toEqual({ a: 11 });
+    } finally {
+      FunctionFactory.Instance.unregister("loadCount");
+    }
+  });
+  test("a custom function that does not say what its result depends on gets a second pass at load", () => {
+    FunctionFactory.Instance.register("readLaterValue", function (this: any) {
+      return this.survey.getVariable("b");
+    });
+    try {
+      const survey = new SurveyModel({
+        calculatedValues: [
+          { name: "a", expression: "readLaterValue() + 1" },
+          { name: "b", expression: "2" }
+        ]
+      });
+      expect(survey.getVariable("a"), "a after load").toBe(3);
+    } finally {
+      FunctionFactory.Instance.unregister("readLaterValue");
+    }
+  });
+  test("propertyValue() in a calculated value reads the element state the conditions set at load", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "x" }, { type: "text", name: "q1", visibleIf: "{x} = 1" }],
+      calculatedValues: [{ name: "cv", expression: "propertyValue('q1', 'isVisible')" }]
+    });
+    expect(survey.getQuestionByName("q1").isVisible, "q1 is hidden").toBe(false);
+    expect(survey.getVariable("cv"), "cv after load").toBe(false);
+  });
+  test("an onExpressionRunning handler that makes a calculated value read a later one gets a second pass at load", () => {
+    const survey = new SurveyModel();
+    survey.onExpressionRunning.add((_, options) => {
+      if ((<any>options.element).name === "a" && options.propertyName === "expression") {
+        options.expression = "{b} + 1";
+      }
+    });
+    survey.fromJSON({
+      calculatedValues: [
+        { name: "a", expression: "1" },
+        { name: "b", expression: "2" }
+      ]
+    });
+    expect(survey.getVariable("a"), "a after load").toBe(3);
+  });
+  test("an answer after load runs the same passes as before", () => {
+    const counts = registerLoadCounter();
+    try {
+      const survey = new SurveyModel({
+        elements: [{ type: "text", name: "x" }, { type: "text", name: "v", visibleIf: "loadCount('v', {cv}) = 2" }],
+        calculatedValues: [{ name: "cv", expression: "loadCount('cv', {x} + 1)" }]
+      });
+      for (const key in counts) delete counts[key];
+      survey.setValue("x", 1);
+      expect(survey.getVariable("cv"), "cv after x = 1").toBe(2);
+      expect(survey.getQuestionByName("v").isVisible, "v is visible").toBe(true);
+      expect(counts, "evaluations after x = 1").toEqual({ cv: 2, v: 2 });
+    } finally {
+      FunctionFactory.Instance.unregister("loadCount");
+    }
+  });
+});

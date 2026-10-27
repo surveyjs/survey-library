@@ -300,6 +300,20 @@ describe("survey-tester: function stub isolation", () => {
     await new Promise(resolve => setTimeout(resolve, 10));
     expect(after.getValue("rate")).toBe(9);
   });
+  test("a stubbed function gets back what its result depends on after the run", async () => {
+    registeredFunctions.push("getRate");
+    FunctionFactory.Instance.register({
+      name: "getRate", isAsync: true, useCache: false, resultDependsOn: "parameters",
+      func: function(): any { (<any>this).returnResult(9); return false; },
+    });
+    const result = await run(rateSurvey, {
+      functions: { getRate: { async: true, result: 1.1 } },
+      tests: [{ name: "stubbed", steps: [{ set: { currency: "EUR" } }, { expect: { rate: { value: 1.1 } } }] }],
+    });
+    expect(failedChecks(result.tests[0])).toEqual([]);
+    const reg = FunctionFactory.Instance.getRegistrations().filter(r => r.name === "getRate")[0];
+    expect(reg.resultDependsOn).toBe("parameters");
+  });
   test("two interleaved runs stubbing one name each receive their own answer", async () => {
     const suite = (value: number): any => ({
       functions: { getRate: { async: true, delay: 15, result: value } },

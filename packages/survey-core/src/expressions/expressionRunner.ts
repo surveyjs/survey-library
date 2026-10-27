@@ -69,6 +69,11 @@ export class ExpressionRunnerBase {
     }
     return this.containsFunc;
   }
+  // The names of the functions the expression calls, or undefined when the executor cannot tell
+  public getFunctionNames(): Array<string> {
+    const executor = this.expressionExecutor;
+    return typeof executor.getFunctionNames === "function" ? executor.getFunctionNames() : undefined;
+  }
   public get isAsync(): boolean {
     return this.expressionExecutor.isAsync;
   }

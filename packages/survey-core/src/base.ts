@@ -691,11 +691,15 @@ export class Base implements IObjectValueContext {
    * @param propName A property name.
    */
   public getPropertyByName(propName: string): JsonObjectProperty {
+    const classInfo = this.getClassMetaData();
+    return !!classInfo ? classInfo.findProperty(propName) : null;
+  }
+  private getClassMetaData(): JsonMetadataClass {
     const type = this.getType();
     if (!this.classMetaData || this.classMetaData.name !== type) {
       this.classMetaData = Serializer.findClass(type);
     }
-    return !!this.classMetaData ? this.classMetaData.findProperty(propName) : null;
+    return this.classMetaData;
   }
   public isPropertyVisible(propName: string): boolean {
     const prop = this.getPropertyByName(propName);
@@ -779,7 +783,35 @@ export class Base implements IObjectValueContext {
     return Helpers.isValueUndefined(value);
   }
   public getDefaultPropertyValue(name: string): any {
+    const classInfo = this.getClassMetaData();
+    const entry = !!classInfo && !!classInfo["defaultValues"] ? classInfo["defaultValues"].get(name) : undefined;
+    if (!!entry) {
+      const cachedProp = entry.prop;
+      if (!cachedProp) return entry.value;
+      if (!cachedProp.defaultValueFunc && cachedProp.defaultValueValue === entry.defaultValue && cachedProp.type === entry.type &&
+        !this.localizableStrings?.[name]) return entry.value;
+    }
     const prop = this.getPropertyByName(name);
+    const res = this.getDefaultPropertyValueCore(prop, name);
+    // getPropertyByName may have refilled the class's properties, and with them its map of defaults
+    const defaultValues = !!this.classMetaData ? this.classMetaData["defaultValues"] : undefined;
+    if (!!defaultValues) {
+      if (!prop) {
+        defaultValues.set(name, { prop: null, value: res });
+      } else if (this.isDefaultPropertyValueCacheable(prop, name, res)) {
+        defaultValues.set(name, { prop: prop, value: res, defaultValue: prop.defaultValueValue, type: prop.type });
+      } else {
+        defaultValues.delete(name);
+      }
+    }
+    return res;
+  }
+  private isDefaultPropertyValueCacheable(prop: JsonObjectProperty, name: string, res: any): boolean {
+    if (prop.isCustom || prop.isLocalizable || !!prop.defaultValueFunc || !!prop.onGetValue || !!prop.className) return false;
+    if (this.localizableStrings?.[name]) return false;
+    return res === null || typeof res !== "object" && typeof res !== "function";
+  }
+  private getDefaultPropertyValueCore(prop: JsonObjectProperty, name: string): any {
     if (!prop || prop.isCustom && this.isCreating) return undefined;
     if (!!prop.defaultValueFunc) return prop.defaultValueFunc(this);
     const dValue = prop.getDefaultValue(this);

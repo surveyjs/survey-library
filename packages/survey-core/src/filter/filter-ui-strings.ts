@@ -6,12 +6,16 @@ export const filterUIStrings = {
   save: "Save",
   filters: "Filters",
   filtersCount: "Filters: {0}",
-  dialogTitle: "Filter",
+  dialogTitle: "Filters",
   searchLabel: "Search",
   searchPlaceholder: "Search by {0}",
   showMore: "Show More",
   showLess: "Show Less",
   clearAll: "Clear All",
   addCustomValue: "Add \"{0}\"...",
-  removeValue: "Remove"
+  removeValue: "Remove",
+  presetsTitle: "Filter Presets",
+  showResultsCount: "Show {0} items",
+  showOneResult: "Show 1 item",
+  showResults: "Show results"
 };

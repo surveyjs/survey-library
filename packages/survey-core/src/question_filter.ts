@@ -8,6 +8,7 @@ import { FilterField } from "./filter/filter-field";
 import { FilterItem } from "./filter/filter-item";
 import { FilterConditionsEditor } from "./filter/filter-conditions-editor";
 import { FilterFieldPopup } from "./filter/filter-field-popup";
+import { FilterModal } from "./filter/filter-modal";
 import { FilterToolbars, IFilterFieldState, filterUIStrings } from "./filter/filter-toolbars";
 import { FilterChipsLayout } from "./filter/filter-chips-layout";
 import { ActionContainer } from "./actions/container";
@@ -447,13 +448,7 @@ export class QuestionFilterModel extends QuestionNonValue {
   // isAdvancedModeAvailable is false: that flag tells a renderer whether to offer the mode, it is
   // not a permission the model enforces. The caller owns the editor and disposes it.
   public createAdvancedModeEditor(): FilterConditionsEditor {
-    const all = this.getFilterFields();
-    const names: Array<string> = [];
-    this.collapseDuplicateValueNames(all).forEach((field: IDynamicDataFilterField): void => {
-      const key = this.findFieldKey(all, field);
-      if (!!key) names.push(key);
-    });
-    return new FilterConditionsEditor(this, names, {
+    return new FilterConditionsEditor(this, this.getAdvancedModeFieldKeys(), {
       readOnly: !this.canEditConditions,
       showSearch: this.showSearch,
       searchString: this.searchString,
@@ -463,6 +458,33 @@ export class QuestionFilterModel extends QuestionNonValue {
         this.applyEditorState(conditions, searchString);
       }
     });
+  }
+  // The fields of the Filters dialog: every field, as in advanced mode, each in the form of its kind
+  // (checkboxes, a tagbox, Yes and No, an operator and a value), with no search box of its own - the
+  // dialog has one above its presets. It writes nothing: the dialog reads its conditions
+  // (FilterModal) and is told of every change through onFieldChanged.
+  public createModalEditor(onFieldChanged: () => void): FilterConditionsEditor {
+    return new FilterConditionsEditor(this, this.getAdvancedModeFieldKeys(), {
+      readOnly: !this.canEditConditions,
+      showFieldTitles: true,
+      useFieldKinds: true,
+      onFieldChanged: onFieldChanged
+    });
+  }
+  // The Filters dialog - see FilterModal. The caller owns it and disposes it.
+  public createFilterModal(): FilterModal {
+    return new FilterModal(this);
+  }
+  // Every field by the name the editors reach it back by - those fast mode hides too, a duplicate
+  // valueName collapsed to its first field.
+  private getAdvancedModeFieldKeys(): Array<string> {
+    const all = this.getFilterFields();
+    const names: Array<string> = [];
+    this.collapseDuplicateValueNames(all).forEach((field: IDynamicDataFilterField): void => {
+      const key = this.findFieldKey(all, field);
+      if (!!key) names.push(key);
+    });
+    return names;
   }
   // The name the editor reaches the field back by through getFieldByName(): its own name, unless
   // an earlier field holds that name (a bound nested field is named by its leaf, and two leaves can

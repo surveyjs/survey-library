@@ -86,6 +86,7 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "randomize", default: true, visible: false },
     { name: "randomizeCategory", visible: false },
     { name: "showKeyboardHints", visible: true },
+    { name: "allowClear", visible: true },
     { name: "columnsVisibleIf", visible: true },
     { name: "rowsVisibleIf", visible: true },
     { name: "columnMinWidth", visible: true },
@@ -149,6 +150,7 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "randomize", default: true, visible: false },
     { name: "randomizeCategory", visible: false },
     { name: "showKeyboardHints", visible: true },
+    { name: "allowClear", visible: true },
     { name: "columnsVisibleIf", visible: true },
     { name: "rowsVisibleIf", visible: true },
     { name: "columnMinWidth", visible: true },
@@ -228,6 +230,7 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "randomize", default: true, visible: false },
     { name: "randomizeCategory", visible: false },
     { name: "showKeyboardHints", visible: true },
+    { name: "allowClear", visible: false },
     { name: "columnsVisibleIf", visible: true },
     { name: "rowsVisibleIf", visible: true },
     { name: "columnMinWidth", visible: true },
@@ -320,6 +323,7 @@ const expectedMergedProperties: { [type: string]: Array<IPropertyEntry> } = {
     { name: "randomize", default: true, visible: false },
     { name: "randomizeCategory", visible: false },
     { name: "showKeyboardHints", visible: true },
+    { name: "allowClear", visible: false },
     { name: "templateElements", visible: false },
     { name: "templateTitle", visible: true },
     { name: "templateTabTitle", visible: true },
@@ -374,6 +378,7 @@ const expectedOwnRegistrations: { [type: string]: { parentName: string, properti
   matrixdynamic: {
     parentName: "matrixdropdownbase",
     properties: [
+      "allowClear",
       "allowAddRows", "allowRemoveRows", "rowCount", "rowCountExpression", "minRowCount", "maxRowCount",
       "keyName", "defaultRowValue", "copyDefaultValueFromLastEntry", "confirmDelete", "confirmDeleteText",
       "addRowButtonLocation", "addRowText", "removeRowText", "hideColumnsIfEmpty", "noRowsText",
@@ -383,6 +388,7 @@ const expectedOwnRegistrations: { [type: string]: { parentName: string, properti
   paneldynamic: {
     parentName: "question",
     properties: [
+      "allowClear",
       "showCommentArea", "templateElements", "templateTitle", "templateTabTitle", "tabTitlePlaceholder",
       "templateDescription", "noEntriesText", "allowAddPanel", "allowRemovePanel", "newPanelPosition",
       "panelCount", "panelCountExpression", "minPanelCount", "maxPanelCount", "defaultPanelValue",

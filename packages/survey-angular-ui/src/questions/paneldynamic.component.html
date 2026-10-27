@@ -30,16 +30,13 @@
 </ng-template>
 
 <ng-template #progress>
-  <div [class]="model.getFooterCss()">
-    <hr [class]="model.cssClasses.separator" />
+  <div [class]="model.cssClasses.footerBar">
     <div [class]="model.cssClasses.progress" *ngIf="model.showFooterProgress">
       <div [class]="model.cssClasses.progressBar" [style]="{ width: model.progress }" 
       role="progressbar" [attr.aria-label]="model.progressBarAriaLabel"
       ></div>
     </div>
-    <div *ngIf="model.showFooterButtons"[class]="model.cssClasses.footerButtonsContainer">
-      <sv-ng-action-bar [model]="model.footerToolbar"></sv-ng-action-bar>
-    </div>
-    <sv-ng-records-bar [model]="model.recordsBar"></sv-ng-records-bar>
+    <sv-ng-action-bar  *ngIf="model.showFooterButtons" [model]="model.footerToolbar"></sv-ng-action-bar>
+    <sv-ng-action-bar *ngIf="model.showPager" [model]="model.recordsBar.pagerActions"></sv-ng-action-bar>
   </div>
 </ng-template>

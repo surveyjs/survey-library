@@ -106,6 +106,10 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
    * Specifies whether to display a button that clears the selected value.
    */
   @property() allowClear: boolean;
+  // The clear button lives in the input, not in the question title.
+  public get supportClearTitleAction(): boolean {
+    return false;
+  }
   /**
    * Specifies whether users can enter a value into the input field to filter the drop-down list.
    */
@@ -253,10 +257,8 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
   }
 
   public updateSelectAllItemText(isAllSelected: boolean): void {
-    this.selectAllTextValue = this.selectAllTextValue || this.locSelectAllText;
-    this.selectAllItem.setLocText(isAllSelected ? this.deselectAllText() : this.selectAllTextValue);
+    this.selectAllItem.setLocText(isAllSelected ? this.deselectAllText() : this.locSelectAllText);
   }
-  private selectAllTextValue: LocalizableString;
   private deselectAllTextValue: LocalizableString;
   private deselectAllText(): LocalizableString {
     if (!this.deselectAllTextValue) {

@@ -150,6 +150,25 @@ export function isCommentKeyOf(name: string, map: CIMultiMap<ElementRecord>, lin
   return base !== undefined && map.get(base).some(record => record.type !== ITEM_FIELD_TYPE);
 }
 
+// A matrix writes its total row next to its value under getValueName() +
+// settings.matrix.totalsSuffix (onTotalValueChanged). Returns the base name, or undefined when
+// the suffix is absent.
+export function stripTotalsSuffix(name: string, lintSettings: ILintResolvedSettings): string | undefined {
+  const suffix = lintSettings.matrixTotalsSuffix;
+  if (!endsWithCI(name, suffix)) return undefined;
+  return name.substring(0, name.length - suffix.length);
+}
+
+// The element of a row/panel object a totals key names ({panel.matrix1-total.col1}). The record
+// accepts that key for any element of it (isRecordKeyOfType), so a data key needs no more; only a
+// matrix ever writes it, so an expression passes owns to require one. Undefined for a name that
+// is no totals key.
+export function findTotalsKeyBase(name: string, map: CIMultiMap<ElementRecord>, lintSettings: ILintResolvedSettings,
+  owns: (record: ElementRecord) => boolean = record => record.type !== ITEM_FIELD_TYPE): ElementRecord | undefined {
+  const base = stripTotalsSuffix(name, lintSettings);
+  return base === undefined ? undefined : map.get(base).find(owns);
+}
+
 // The two sources of host-variable names are a union: what the host listed by hand, and what
 // the variable definition declares. Neither is more true than the other, and one host declaring
 // a name twice is not a defect.
@@ -303,7 +322,7 @@ function scopedUnknown(ref: ParsedRef, prefix: string, segmentIndex: number, can
 }
 
 function validateInnerName(ref: ParsedRef, prefix: string, map: CIMultiMap<ElementRecord>,
-  lintSettings: ILintResolvedSettings): ParsedRef {
+  lintSettings: ILintResolvedSettings, withTotals: boolean): ParsedRef {
   if (ref.segments.length < 2) return scopedResolved(ref, prefix);
   // inner names may contain dots too ({row.col.a} for a column named "col.a")
   let record: ElementRecord | undefined;
@@ -322,6 +341,17 @@ function validateInnerName(ref: ParsedRef, prefix: string, map: CIMultiMap<Eleme
     scopedResolved(ref, prefix);
     ref.resolvedKind = "comment";
     return ref;
+  }
+  // so does the total row of a matrix of a dynamic panel ({panel.matrix1-total.col1}): resolvedTo stays
+  // unset, nothing types a total, but a column below it is checked as for {matrix1-total.col1}. A
+  // matrix of a detail panel never writes its total row into the matrix row, so a row has none.
+  const totalsBase = withTotals ? findTotalsKeyBase(ref.segments[1].name, map, lintSettings, record => !!getTotalFields(record)) : undefined;
+  if (!!totalsBase) {
+    const totals = getTotalFields(totalsBase);
+    if (ref.segments.length > 2 && isUnknownName(ref, 2, totals)) {
+      return scopedUnknown(ref, prefix, 2, totals.names());
+    }
+    return scopedResolved(ref, prefix);
   }
   return scopedUnknown(ref, prefix, 1, map.names());
 }
@@ -369,7 +399,7 @@ function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, sc
         "\"" + rowPrefixes[i] + ".\" references are only available inside a matrix cell or a matrix detail panel.");
       // the total row holds the totals of the matrix's own columns, every other row its record
       const fields = equalsCI(rowPrefixes[i], vars.totalRow) ? getTotalFields(matrixFrame.owner) : getFrameItemFields(matrixFrame);
-      return { handled: true, ref: validateInnerName(ref, rowPrefixes[i], fields, lintSettings) };
+      return { handled: true, ref: validateInnerName(ref, rowPrefixes[i], fields, lintSettings, false) };
     }
   }
   const rowStandalone = [vars.rowIndex, vars.visibleRowIndex, vars.rowValue, vars.rowName, vars.rowTitle, vars.matrix];
@@ -395,7 +425,7 @@ function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, sc
   }
   if (equalsCI(root, vars.panel)) {
     if (inFilter) return inFilterScope(vars.panel, true);
-    if (panelFrame) return { handled: true, ref: validateInnerName(ref, vars.panel, getFrameItemFields(panelFrame), lintSettings) };
+    if (panelFrame) return { handled: true, ref: validateInnerName(ref, vars.panel, getFrameItemFields(panelFrame), lintSettings, true) };
     const staticPanel = getStaticPanelAncestor(site.owner);
     if (staticPanel && staticPanel.panelDescendantNames) {
       if (ref.segments.length < 2) return { handled: true, ref: scopedResolved(ref, vars.panel) };
@@ -419,7 +449,7 @@ function tryResolveScopePrefix(ref: ParsedRef, site: { owner?: ElementRecord, sc
       if (inFilter) return inFilterScope(panelSiblings[i], true);
       if (!panelFrame) return inactiveScope(SurveyLintHintReasons.panelSiblingPrefix, panelSiblings[i],
         "\"" + panelSiblings[i] + ".\" references are only available inside a dynamic panel.");
-      return { handled: true, ref: validateInnerName(ref, panelSiblings[i], getFrameItemFields(panelFrame), lintSettings) };
+      return { handled: true, ref: validateInnerName(ref, panelSiblings[i], getFrameItemFields(panelFrame), lintSettings, true) };
     }
   }
   const panelStandalone = [vars.parentPanel, vars.panelIndex, vars.visiblePanelIndex];
@@ -595,9 +625,8 @@ function stripUnwrapPostfix(name: string, postfix: string): string {
 // by default); the suffix comes from settings.matrix.totalsSuffix. The runtime keys
 // the total row off getValueName(), so a matrix with a valueName is addressed by it.
 function tryResolveMatrixTotal(ref: ParsedRef, root: string, index: SurveyIndex): boolean {
-  const suffix = index.settings.matrixTotalsSuffix;
-  if (!endsWithCI(root, suffix)) return false;
-  const base = root.substring(0, root.length - suffix.length);
+  const base = stripTotalsSuffix(root, index.settings);
+  if (base === undefined) return false;
   const record = index.findByDataName(base);
   if (!record || (record.type !== "matrixdropdown" && record.type !== "matrixdynamic")) return false;
   ref.status = "resolved";

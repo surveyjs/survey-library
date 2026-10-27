@@ -563,7 +563,7 @@ frameworks.forEach((framework) => {
           },
         ],
       });
-      const pager = page.locator(".sd-matrixdynamic__pager");
+      const pager = page.locator(".sd-pager");
       const firstId = page.locator("td[title='id'] input").first();
 
       await expect(firstId).toHaveValue("row1");

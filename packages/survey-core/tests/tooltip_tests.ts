@@ -146,6 +146,29 @@ describe("tooltips on [data-sv-tooltip] elements", () => {
     pointer("pointerout", button, { relatedTarget: document.body });
     expect(button.getAttribute("title")).toBe("Delete");
   });
+  test("hides when the pointer moves to a sibling inside the same shadow root", () => {
+    // Moves within one shadow tree never reach document listeners: both ends retarget to the same host.
+    const shadowHost = document.createElement("div");
+    document.body.appendChild(shadowHost);
+    const shadowRoot = shadowHost.attachShadow({ mode: "open" });
+    const shadowButton = document.createElement("button");
+    shadowButton.setAttribute("data-sv-tooltip", "More");
+    const sibling = document.createElement("span");
+    shadowRoot.appendChild(shadowButton);
+    shadowRoot.appendChild(sibling);
+    initTooltips(shadowButton);
+    const shadowPointer = (type: string, target: Element, relatedTarget?: Element) =>
+      target.dispatchEvent(new MouseEvent(type, { bubbles: true, composed: true, relatedTarget }));
+    const shownTooltip = () => shadowRoot.querySelector(".sv-tooltip.sv-tooltip--visible");
+
+    shadowPointer("pointerover", shadowButton, sibling);
+    vi.advanceTimersByTime(200);
+    expect(shownTooltip()?.textContent).toBe("More");
+    shadowPointer("pointerout", shadowButton, sibling);
+    shadowPointer("pointerover", sibling, shadowButton);
+    expect(shownTooltip()).toBeNull();
+    shadowHost.remove();
+  });
   test("does not overwrite a title the renderer changed while the tooltip was shown", () => {
     button.setAttribute("title", "Expand");
     pointer("pointerover", button);

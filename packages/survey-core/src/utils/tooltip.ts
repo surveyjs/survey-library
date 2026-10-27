@@ -30,15 +30,23 @@ class TooltipManager {
   private timer: ReturnType<typeof setTimeout> | undefined;
   private titleOwner: HTMLElement | undefined;
   private suppressedTitle: string | null = null;
+  private listenedRoots = new WeakSet<Document | ShadowRoot>();
 
   constructor(private doc: Document) {
-    doc.addEventListener("pointerover", this.onPointerOver);
-    doc.addEventListener("pointerout", this.onPointerOut);
-    doc.addEventListener("pointerdown", this.hide, true);
-    doc.addEventListener("focusin", this.onFocusIn);
-    doc.addEventListener("focusout", this.hide);
-    doc.addEventListener("scroll", this.hide, true);
-    doc.addEventListener("keydown", this.onKeyDown);
+    this.listen(doc);
+  }
+  // A pointer move between two elements of one shadow tree is not dispatched to the document
+  // (both ends retarget to the same host), so each shadow root hosting triggers gets its own listeners.
+  public listen(root: Document | ShadowRoot): void {
+    if (this.listenedRoots.has(root)) return;
+    this.listenedRoots.add(root);
+    root.addEventListener("pointerover", this.onPointerOver);
+    root.addEventListener("pointerout", this.onPointerOut);
+    root.addEventListener("pointerdown", this.hide, true);
+    root.addEventListener("focusin", this.onFocusIn);
+    root.addEventListener("focusout", this.hide);
+    root.addEventListener("scroll", this.hide, true);
+    root.addEventListener("keydown", this.onKeyDown);
   }
   private findTrigger(event: Event): HTMLElement | undefined {
     const target = (event.composedPath ? event.composedPath()[0] : event.target) as Element;
@@ -131,8 +139,17 @@ class TooltipManager {
 
 const managers = new WeakMap<Document, TooltipManager>();
 
-export function initTooltips(doc?: Document): void {
-  doc = doc || DomDocumentHelper.getDocument();
-  if (!doc || managers.has(doc)) return;
-  managers.set(doc, new TooltipManager(doc));
+// Accepts a document or any node rendered in it; a node inside a shadow root also gets that root covered.
+export function initTooltips(node?: Node): void {
+  node = node || DomDocumentHelper.getDocument();
+  if (!node) return;
+  const doc = node.nodeType === 9 ? node as Document : node.ownerDocument;
+  if (!doc) return;
+  let manager = managers.get(doc);
+  if (!manager) {
+    manager = new TooltipManager(doc);
+    managers.set(doc, manager);
+  }
+  const root = node.getRootNode?.();
+  if (root && root !== doc && (root as ShadowRoot).host) manager.listen(root as ShadowRoot);
 }

@@ -657,7 +657,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private inputElementValue: HTMLElement;
   public setInputElement(val: HTMLElement) {
     this.inputElementValue = val;
-    if (val) initTooltips(val.ownerDocument);
+    if (val) initTooltips(val);
   }
   public getInputElement() {
     return this.inputElementValue;

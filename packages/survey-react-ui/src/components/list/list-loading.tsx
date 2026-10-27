@@ -15,9 +15,10 @@ export class ListLoading extends SurveyElementBase<IListLoadingProps, any> {
     return this.model;
   }
   render(): React.JSX.Element {
+    const loadingText = this.model.getLocalizationString("loadingData");
     return (
       <div className={this.model.cssClasses.emptyContainer}>
-        <div className={this.model.cssClasses.emptyText} aria-label={this.model.emptyMessage}>{this.model.emptyMessage}</div>
+        <div className={this.model.cssClasses.emptyText} aria-label={loadingText}>{loadingText}</div>
       </div>
     );
   }

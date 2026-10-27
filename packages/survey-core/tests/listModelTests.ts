@@ -402,22 +402,24 @@ describe("List Model", () => {
     expect(list.emptyMessage).toBe("No data to display");
   });
 
-  test("loading component replaces the empty list while choices are not loaded", () => {
+  test("loadingState reports loading, empty and loaded", () => {
     const list = new ListModel({ items: [], onSelectionChanged: () => { }, allowSelection: true } as any);
     expect(list.loadingComponent).toBe("sv-list-loading");
     list.isAllDataLoaded = false;
     list.flushUpdates();
-    expect(list.showLoadingComponent).toBe(true);
+    expect(list.loadingState).toBe("loading");
 
     list.isAllDataLoaded = true;
-    expect(list.showLoadingComponent).toBe(false);
+    expect(list.loadingState).toBe("empty");
     expect(list.emptyMessage).toBe("No data to display");
 
     const items = createIActionArray(2);
     const partial = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
     partial.isAllDataLoaded = false;
     partial.flushUpdates();
-    expect(partial.showLoadingComponent).toBe(false);
+    expect(partial.loadingState).toBe("loaded");
+    partial.isAllDataLoaded = true;
+    expect(partial.loadingState).toBe("loaded");
   });
 
   test("getItemClass test", () => {

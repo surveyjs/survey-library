@@ -1,5 +1,5 @@
 <ng-template #template>
     <div [class]="model.cssClasses.emptyContainer">
-        <div [class]="model.cssClasses.emptyText" [attr.aria-label]="model.emptyMessage || ''">{{ model.emptyMessage }}</div>
+        <div [class]="model.cssClasses.emptyText" [attr.aria-label]="model.getLocalizationString('loadingData') || ''">{{ model.getLocalizationString('loadingData') }}</div>
     </div>
 </ng-template>

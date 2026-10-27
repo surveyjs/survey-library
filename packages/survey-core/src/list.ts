@@ -313,8 +313,10 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   public get emptyMessage(): string {
     return this.isAllDataLoaded ? this.getLocalizationString("emptyMessage") : this.getLocalizationString("loadingData");
   }
-  public get showLoadingComponent(): boolean {
-    return !this.isAllDataLoaded && this.isEmpty;
+  // loadingComponent is shown only while choices are loading. The no-data text stays in the list.
+  public get loadingState(): "loading" | "empty" | "loaded" {
+    if (!this.isEmpty) return "loaded";
+    return this.isAllDataLoaded ? "empty" : "loading";
   }
   public get scrollableContainer(): HTMLElement {
     return this.listContainerHtmlElement.querySelector(classesToSelector(this.cssClasses.itemsContainer));

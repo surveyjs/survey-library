@@ -455,6 +455,62 @@ registerMarkupTests(
       },
       snapshot: "dropdown-aria-expanded",
       removeIds: true
+    },
+    {
+      name: "Test dropdown lazy loading popup: loading state",
+      json: {
+        elements: [
+          {
+            "type": "dropdown",
+            "name": "name",
+            "title": "Question title",
+            "choicesLazyLoadEnabled": true,
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      before: () => {
+        Question["questionCounter"] = 100;
+      },
+      initSurvey: (survey) => {
+        survey.onChoicesLazyLoad.add(() => { });
+        const dropdown = survey.getQuestionByName("name");
+        dropdown["popupModel"].isVisible = true;
+      },
+      getElement: () => {
+        return document.querySelector(".sv-popup.sv-dropdown-popup .sv-popup__content") as HTMLElement;
+      },
+      snapshot: "dropdown-lazy-loading-state-loading",
+      removeIds: true
+    },
+    {
+      name: "Test dropdown lazy loading popup: empty state",
+      json: {
+        elements: [
+          {
+            "type": "dropdown",
+            "name": "name",
+            "title": "Question title",
+            "choicesLazyLoadEnabled": true,
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      before: () => {
+        Question["questionCounter"] = 100;
+      },
+      initSurvey: (survey) => {
+        survey.onChoicesLazyLoad.add((_, options) => {
+          options.setItems([], 0);
+        });
+        const dropdown = survey.getQuestionByName("name");
+        dropdown["popupModel"].isVisible = true;
+      },
+      getElement: () => {
+        return document.querySelector(".sv-popup.sv-dropdown-popup .sv-popup__content") as HTMLElement;
+      },
+      snapshot: "dropdown-lazy-loading-state-empty",
+      removeIds: true
     }
   ]
 );

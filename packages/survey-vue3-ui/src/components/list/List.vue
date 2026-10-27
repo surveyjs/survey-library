@@ -36,17 +36,13 @@
         </button>
       </div>
     </div>
-    <SvComponent
-      v-if="model.showLoadingComponent"
-      :is="model.loadingComponent"
-      :model="model"
-    />
+    <SvComponent v-if="model.loadingState === 'loading'" :is="model.loadingComponent" :model="model" />
     <div v-else v-bind:class="model.cssClasses.emptyContainer" v-show="model.isEmpty">
       <div
         v-bind:class="model.cssClasses.emptyText"
-        :aria-label="model.emptyMessage"
+        :aria-label="model.getLocalizationString('emptyMessage')"
       >
-        {{ model.emptyMessage }}
+        {{ model.getLocalizationString('emptyMessage') }}
       </div>
     </div>
     <ul

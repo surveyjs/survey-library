@@ -59,7 +59,7 @@ describe("Tagbox question", () => {
     const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
     const list: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
     expect(list.loadingComponent).toBe("my-loading");
-    expect(list.showLoadingComponent).toBe(true);
+    expect(list.loadingState).toBe("loading");
 
     question.loadingComponent = "";
     expect(list.loadingComponent).toBe("sv-list-loading");

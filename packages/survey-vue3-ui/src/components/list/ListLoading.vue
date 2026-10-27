@@ -1,7 +1,7 @@
 <template>
   <div :class="model.cssClasses.emptyContainer">
-    <div :class="model.cssClasses.emptyText" :aria-label="model.emptyMessage">
-      {{ model.emptyMessage }}
+    <div :class="model.cssClasses.emptyText" :aria-label="model.getLocalizationString('loadingData')">
+      {{ model.getLocalizationString('loadingData') }}
     </div>
   </div>
 </template>

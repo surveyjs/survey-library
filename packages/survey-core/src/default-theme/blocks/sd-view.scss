@@ -5,6 +5,7 @@
   @include sjs2--typography--default;
   color: $font-questiontitle-color;
   white-space: break-spaces;
+  text-align: start;
 }
 
 .sd-question__content--left .sd-view {

@@ -8,6 +8,13 @@
   }
 }
 
+.sd-matrix__cell > .sd-view {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: calc(var(--sjs2-layout-component-labeled-group-box-gap-vertical) / 2) 0;
+}
+
 .sd-matrix__label {
   display: flex;
   position: relative;
@@ -58,6 +65,7 @@
       padding-bottom: var(--sjs2-spacing-x100);
     }
   }
+  .sd-matrix__cell > .sd-view,
   .sd-matrix__label {
     justify-content: flex-start;
   }

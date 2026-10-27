@@ -306,6 +306,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public getType(): string {
     return "matrixdynamic";
   }
+  protected get supportsQuestionView(): boolean {
+    return !!this.hideColumnsIfEmpty && this.rowCount === 0;
+  }
+  protected getViewDisplayText(): string {
+    if (this.supportsQuestionView) return "";
+    return super.getViewDisplayText();
+  }
   public getValueType(): QuestionValueType {
     return "array";
   }

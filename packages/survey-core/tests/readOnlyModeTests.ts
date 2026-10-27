@@ -9,6 +9,7 @@ import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionMatrixModel } from "../src/question_matrix";
+import { QuestionRankingModel } from "../src/question_ranking";
 import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
@@ -265,6 +266,59 @@ describe("readOnlyMode", () => {
     expect(file.viewDisplayText).toBe("\u2014");
   });
 
+  test("empty dynamic matrix and panel show a dash in view mode", () => {
+    const survey = new SurveyModel({
+      readOnly: true,
+      readOnlyMode: "view",
+      elements: [{
+        type: "matrixdynamic",
+        name: "hidden",
+        hideColumnsIfEmpty: true,
+        rowCount: 0,
+        columns: [{ name: "col1" }]
+      }, {
+        type: "matrixdynamic",
+        name: "withRows",
+        hideColumnsIfEmpty: true,
+        rowCount: 1,
+        columns: [{ name: "col1" }]
+      }, {
+        type: "matrixdynamic",
+        name: "columnsVisible",
+        hideColumnsIfEmpty: false,
+        rowCount: 0,
+        columns: [{ name: "col1" }]
+      }, {
+        type: "paneldynamic",
+        name: "emptyPanels",
+        panelCount: 0,
+        templateElements: [{ type: "text", name: "q" }]
+      }, {
+        type: "paneldynamic",
+        name: "panels",
+        panelCount: 1,
+        templateElements: [{ type: "text", name: "q" }]
+      }]
+    });
+    RendererFactory.Instance.registerRenderer("question", "view", "sv-question-view");
+    const hidden = <QuestionMatrixDynamicModel>survey.getQuestionByName("hidden");
+    const emptyPanels = <QuestionPanelDynamicModel>survey.getQuestionByName("emptyPanels");
+    expect(hidden.getComponentName()).toBe("sv-question-view");
+    expect(hidden.viewDisplayText).toBe(readOnlyViewEmptyText);
+    expect(survey.getQuestionByName("withRows").getComponentName()).toBe("default");
+    expect(survey.getQuestionByName("columnsVisible").getComponentName()).toBe("default");
+    expect(emptyPanels.getComponentName()).toBe("sv-question-view");
+    expect(emptyPanels.viewDisplayText).toBe(readOnlyViewEmptyText);
+    expect(emptyPanels.getRootCss()).toContain("sd-paneldynamic--view");
+    expect(survey.getQuestionByName("panels").getComponentName()).toBe("default");
+    expect(survey.getQuestionByName("panels").getRootCss()).not.toContain("sd-paneldynamic--view");
+
+    survey.readOnlyMode = "readonly";
+    expect(hidden.getComponentName()).toBe("default");
+    expect(emptyPanels.getComponentName()).toBe("default");
+    expect(emptyPanels.getRootCss()).not.toContain("sd-paneldynamic--view");
+  });
+
   test("stars and smileys in view mode drop min and max labels and stay left aligned", () => {
     const survey = new SurveyModel({
       readOnly: true,
@@ -342,6 +396,11 @@ describe("readOnlyMode", () => {
     survey.readOnlyMode = "view";
     expect(single.getItemSvgIcon(singleRow, checked)).toBe("#icon-check-16x16");
     expect(single.getItemSvgIcon(singleRow, unchecked)).toBe("#icon-check-16x16");
+    expect(single.getCellViewText(singleRow, checked)).toBe("");
+    expect(single.getCellViewText(singleRow, unchecked)).toBe(readOnlyViewEmptyText);
+    single.isMobile = true;
+    expect(single.getCellViewText(singleRow, unchecked)).toBe("");
+    single.isMobile = false;
     expect(single.getItemClass(singleRow, checked)).toContain("sd-radio--preview");
     expect(single.getItemClass(singleRow, checked)).not.toContain("sd-radio--readonly");
     expect(single.getItemClass(singleRow, unchecked)).toContain("sd-radio--preview");
@@ -353,6 +412,7 @@ describe("readOnlyMode", () => {
     expect(multi.getItemSvgIcon(multiRow, multiUnchecked)).toBe("#icon-radio-16x16");
     expect(multi.getItemClass(multiRow, multiChecked)).toContain("sd-checkbox--readonly");
     expect(multi.getItemClass(multiRow, multiChecked)).not.toContain("sd-checkbox--preview");
+    expect(multi.getCellViewText(multiRow, multiUnchecked)).toBe("");
 
     const preview = new SurveyModel({
       showPreviewBeforeComplete: true,
@@ -369,6 +429,30 @@ describe("readOnlyMode", () => {
     const previewRow = previewMatrix.visibleRows[0];
     expect(previewMatrix.getItemSvgIcon(previewRow, previewMatrix.visibleColumns[0])).toBe("#icon-check-16x16");
     expect(previewMatrix.getItemClass(previewRow, previewMatrix.visibleColumns[0])).toContain("sd-radio--preview");
+    expect(previewMatrix.getCellViewText(previewRow, previewMatrix.visibleColumns[1])).toBe("");
+  });
+
+  test("ranking view mode is a numbered text list", () => {
+    const survey = new SurveyModel({
+      readOnly: true,
+      readOnlyMode: "view",
+      elements: [{
+        type: "ranking",
+        name: "car",
+        choices: ["Ford", "BMW", "Vauxhall"],
+        defaultValue: ["BMW", "Ford", "Vauxhall"]
+      }, {
+        type: "ranking",
+        name: "empty",
+        choices: ["A", "B"]
+      }]
+    });
+    const ranking = <QuestionRankingModel>survey.getQuestionByName("car");
+    const empty = <QuestionRankingModel>survey.getQuestionByName("empty");
+    RendererFactory.Instance.registerRenderer("question", "view", "sv-question-view");
+    expect(ranking.getComponentName()).toBe("sv-question-view");
+    expect(ranking.viewDisplayText).toBe("1. BMW\n2. Ford\n3. Vauxhall");
+    expect(empty.viewDisplayText).toBe(readOnlyViewEmptyText);
   });
 
   test("multiple text view mode drops the formbox frame", () => {

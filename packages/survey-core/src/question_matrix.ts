@@ -17,7 +17,7 @@ import { ItemsByNameIndex } from "./utils/items-by-name-index";
 import { getMatrixCellAriaLabel, getMatrixTableBodyCss, getMatrixTableCss, getMatrixTableWrapperCss, isMatrixColumnsAutoWidth } from "./utils/matrix-table";
 import { IPlainDataOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ConditionRunner } from "./conditions/conditionRunner";
-import { Question, QuestionValueType, IVerifyDataContext } from "./question";
+import { Question, QuestionValueType, IVerifyDataContext, readOnlyViewEmptyText } from "./question";
 import { ISurveyData, ISurvey, ITextProcessor, IQuestion } from "./base-interfaces";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
@@ -722,6 +722,10 @@ export class QuestionMatrixModel
   public getItemSvgIcon(row: any, column: any): string {
     if (this.isMultiSelect && row.isChecked(column)) return this.cssClasses.itemPreviewSvgIconId;
     return this.itemSvgIcon;
+  }
+  public getCellViewText(row: MatrixRowModel, column: ItemValue): string {
+    if (this.isMobile || !this.isViewMode || this.isMultiSelect || this.hasCellText || row.isChecked(column)) return "";
+    return readOnlyViewEmptyText;
   }
   public get cssItemValue(): string {
     return this.formatCss(this.cssClasses.itemValue);

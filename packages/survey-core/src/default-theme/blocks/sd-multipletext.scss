@@ -57,7 +57,10 @@
   }
 }
 
-.sd-multipletext__item-container.sd-formbox--view {
+.sd-multipletext__item-container.sd-formbox.sd-formbox--view {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
   padding: 0;
   background: none;
   box-shadow: none;
@@ -69,12 +72,15 @@
     box-shadow: none;
   }
 
-  .sd-formbox__label {
+  .sd-multipletext__item-title.sd-formbox__label {
     height: auto;
-    padding: 0 calc(
-        var(--sjs2-layout-component-input-medium-label-padding-horizontal) +
-          var(--sjs2-layout-component-formbox-medium-gap)
-      ) 0 0;
+    max-width: none;
+    width: 100%;
+    box-sizing: border-box;
+    padding-block-start: var(--sjs2-layout-component-caption-box-padding-top);
+    padding-block-end: var(--sjs2-layout-component-caption-box-padding-bottom);
+    padding-inline-start: var(--sjs2-layout-component-caption-box-padding-left);
+    padding-inline-end: var(--sjs2-layout-component-caption-box-padding-right);
     border: none;
   }
 }

@@ -672,7 +672,11 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return "paneldynamic";
   }
   protected get supportsQuestionView(): boolean {
-    return false;
+    return this.visiblePanelCount === 0;
+  }
+  protected getViewDisplayText(): string {
+    if (this.supportsQuestionView) return "";
+    return super.getViewDisplayText();
   }
   public getValueType(): QuestionValueType {
     return "array";
@@ -3432,6 +3436,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return toCssClasses(
       super.getRootCss(),
       this.getShowNoEntriesPlaceholder() && this.cssClasses.empty,
+      this.isViewMode && this.visiblePanelCount === 0 && this.cssClasses.root + "--view",
       this.isRangeShowing && this.isProgressTopShowing && this.cssClasses.navigation + "--top",
       this.isRangeShowing && this.isProgressBottomShowing && this.cssClasses.navigation + "--bottom"
     );

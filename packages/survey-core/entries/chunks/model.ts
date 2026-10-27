@@ -202,6 +202,7 @@ export * from "../../src/template-renderer";
 export { DefaultTitleModel } from "../../src/defaultTitle";
 export { Question, QuestionValueType, ValidationContext } from "../../src/question";
 export type { IValidationContextParams } from "../../src/question";
+export type { IKeyboardHint } from "../../src/keyboard-hints";
 export { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "../../src/questionSingleInputSummary";
 export { QuestionNonValue } from "../../src/questionnonvalue";
 export { QuestionEmptyModel } from "../../src/question_empty";

@@ -8,13 +8,11 @@
       v-for="(hint, hintIndex) in question.getKeyboardHints()"
       :key="hintIndex"
       class="sd-question__keyboard-hint"
+      :class="{ 'sd-question__keyboard-hint--hidden': !hint.visible }"
     >
       <template v-for="(key, keyIndex) in hint.keys" :key="keyIndex">
-        <span
-          v-if="keyIndex > 0"
-          class="sd-question__keyboard-hint-or"
-        >{{ question.getLocalizationString("keyboardHintOrText") }}</span>
-        <span class="sd-item__shortcut-key">{{ key.label }}</span>
+        <span v-if="keyIndex > 0" class="sd-question__keyboard-hint-or">{{ question.keyboardHintOrText }}</span>
+        <span class="sd-item__shortcut-key">{{ key }}</span>
       </template>
       <span class="sd-question__keyboard-hint-text">{{ hint.text }}</span>
     </span>

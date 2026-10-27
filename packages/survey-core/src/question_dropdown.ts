@@ -1,5 +1,5 @@
 import { Serializer } from "./jsonobject";
-import { keyboardHint, keyboardHintAdvanceText, keyboardHintKey, IKeyboardHint } from "./keyboard-hints";
+import { keyboardHint, keyboardHintAdvanceText, IKeyboardHint } from "./keyboard-hints";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { ChoiceItem, QuestionSelectBase } from "./question_baseselect";
@@ -72,14 +72,14 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
   protected getKeyboardHintsCore(): IKeyboardHint[] {
     const survey = this.survey as SurveyModel;
     const rows = [
-      keyboardHint(this, "keyboardHintOpenText", [keyboardHintKey("arrowDown", true)]),
-      keyboardHint(this, "keyboardHintNavigateText", [keyboardHintKey("arrowsVertical", true)]),
-      keyboardHint(this, "keyboardHintCloseText", [keyboardHintKey("esc", true)])
+      keyboardHint(this, "keyboardHintOpenText", ["arrowDown"]),
+      keyboardHint(this, "keyboardHintNavigateText", ["arrowsVertical"]),
+      keyboardHint(this, "keyboardHintCloseText", ["esc"])
     ];
     if (this.dropdownListModelValue?.popupModel?.isVisible === true) {
-      rows.push(keyboardHint(this, "keyboardHintSelectText", [keyboardHintKey("enter", true)]));
+      rows.push(keyboardHint(this, "keyboardHintSelectText", ["enter"]));
     } else if (survey.autoAdvanceEnabled === true) {
-      rows.push(keyboardHint(this, keyboardHintAdvanceText(this), [keyboardHintKey("enter", !this.isEmpty())]));
+      rows.push(keyboardHint(this, keyboardHintAdvanceText(this), ["enter"], !this.isEmpty()));
     }
     return rows;
   }

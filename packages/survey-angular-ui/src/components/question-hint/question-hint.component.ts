@@ -1,5 +1,5 @@
 import { Component, Input } from "@angular/core";
-import { Question } from "survey-core";
+import { Question, IKeyboardHint } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 
 @Component({
@@ -10,5 +10,8 @@ export class QuestionHintComponent extends BaseAngular<Question> {
   @Input() question!: Question;
   protected getModel(): Question {
     return this.question;
+  }
+  get hints(): IKeyboardHint[] {
+    return this.question.getKeyboardHints();
   }
 }

@@ -3507,6 +3507,9 @@ export class Question extends SurveyElement<Question>
     return false;
   }
   @property() showKeyboardHints: boolean | undefined;
+  public get keyboardHintOrText(): string {
+    return this.getLocalizationString("keyboardHintOrText");
+  }
   public getKeyboardHints(): IKeyboardHint[] {
     if (!this.canShowKeyboardHints()) return [];
     return this.getKeyboardHintsCore();

@@ -1,33 +1,29 @@
 import * as React from "react";
-import { Question } from "survey-core";
+import { Question, IKeyboardHint } from "survey-core";
 
 export class QuestionHint extends React.Component<{ question: Question }, any> {
+  private renderHint(hint: IKeyboardHint, index: number): React.JSX.Element {
+    const orText = this.props.question.keyboardHintOrText;
+    const className = "sd-question__keyboard-hint" + (hint.visible ? "" : " sd-question__keyboard-hint--hidden");
+    return (
+      <span className={className} key={index}>
+        {hint.keys.map((key, keyIndex) => (
+          <React.Fragment key={keyIndex}>
+            {keyIndex > 0 && <span className="sd-question__keyboard-hint-or">{orText}</span>}
+            <span className="sd-item__shortcut-key">{key}</span>
+          </React.Fragment>
+        ))}
+        <span className="sd-question__keyboard-hint-text">{hint.text}</span>
+      </span>
+    );
+  }
   render(): React.JSX.Element | null {
-    const question = this.props.question;
-    const keyboardHints = question.getKeyboardHints();
-    if (keyboardHints.length === 0) return null;
-    const nodes: React.ReactNode[] = [];
-    for (let hintIndex = 0; hintIndex < keyboardHints.length; hintIndex++) {
-      const hint = keyboardHints[hintIndex];
-      const parts: React.ReactNode[] = [];
-      for (let keyIndex = 0; keyIndex < hint.keys.length; keyIndex++) {
-        const key = hint.keys[keyIndex];
-        if (keyIndex > 0) {
-          parts.push(
-            <span key={"or" + keyIndex} className="sd-question__keyboard-hint-or">
-              {question.getLocalizationString("keyboardHintOrText")}
-            </span>
-          );
-        }
-        parts.push(
-          <span key={"key" + keyIndex} className="sd-item__shortcut-key">
-            {key.label}
-          </span>
-        );
-      }
-      parts.push(<span key="text" className="sd-question__keyboard-hint-text">{hint.text}</span>);
-      nodes.push(<span className="sd-question__keyboard-hint" key={hintIndex}>{parts}</span>);
-    }
-    return <div className="sd-question__keyboard-hints" aria-hidden="true">{nodes}</div>;
+    const hints = this.props.question.getKeyboardHints();
+    if (hints.length === 0) return null;
+    return (
+      <div className="sd-question__keyboard-hints" aria-hidden="true">
+        {hints.map((hint, index) => this.renderHint(hint, index))}
+      </div>
+    );
   }
 }

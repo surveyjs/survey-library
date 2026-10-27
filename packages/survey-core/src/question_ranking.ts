@@ -6,7 +6,7 @@ import { Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxModel } from "./question_checkbox";
-import { keyboardHint, keyboardHintAdvanceText, keyboardHintKey, IKeyboardHint } from "./keyboard-hints";
+import { keyboardHint, keyboardHintAdvanceText, IKeyboardHint } from "./keyboard-hints";
 import { SurveyModel } from "./survey";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { IsMobile } from "./utils/devices";
@@ -43,14 +43,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   protected getKeyboardHintsCore(): IKeyboardHint[] {
     const survey = this.survey as SurveyModel;
     const rows = [
-      keyboardHint(this, "keyboardHintNextItemText", [keyboardHintKey("tab", true)]),
-      keyboardHint(this, "keyboardHintMoveText", [keyboardHintKey("arrowsVertical", true)])
+      keyboardHint(this, "keyboardHintNextItemText", ["tab"]),
+      keyboardHint(this, "keyboardHintMoveText", ["arrowsVertical"])
     ];
     if (this.selectToRankEnabled) {
-      rows.push(keyboardHint(this, "keyboardHintToggleText", [keyboardHintKey("space", true)]));
+      rows.push(keyboardHint(this, "keyboardHintToggleText", ["space"]));
     }
     if (survey.autoAdvanceEnabled === true) {
-      rows.push(keyboardHint(this, keyboardHintAdvanceText(this), [keyboardHintKey("enter", !this.isEmpty())]));
+      rows.push(keyboardHint(this, keyboardHintAdvanceText(this), ["enter"], !this.isEmpty()));
     }
     return rows;
   }

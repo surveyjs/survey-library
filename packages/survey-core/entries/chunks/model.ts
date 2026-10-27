@@ -268,7 +268,10 @@ export { QuestionHtmlModel } from "../../src/question_html";
 export { QuestionFilterModel } from "../../src/question_filter";
 export { FilterField, IFilterFieldOwner } from "../../src/filter/filter-field";
 export { FilterItem } from "../../src/filter/filter-item";
-export { FilterConditionsEditor, IFilterConditionsEditorOwner, IFilterConditionsEditorOptions } from "../../src/filter/filter-conditions-editor";
+export {
+  FilterConditionsEditor, IFilterConditionsEditorOwner, IFilterConditionsEditorOptions, filterEditorVisibleChoiceCount,
+  filterEditorMaxCheckboxChoiceCount
+} from "../../src/filter/filter-conditions-editor";
 export {
   FilterToolbars, FilterEditorHolder, IFilterToolbarsOwner, IFilterFieldState, filterUIStrings, filterEditorComponentName,
   filterFieldPopupComponentName, filterChipComponentName

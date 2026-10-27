@@ -3294,6 +3294,7 @@ export class SurveyModel extends SurveyElementCore
   public getProgressCssClasses(container: string = ""): string {
     return toCssClasses(
       this.css.progress,
+      !isStrCiEqual(this.getEffectiveProgressBarType(), "pages") && this.css.progressLinear,
       this.isShowProgressBarOnTop && (!container || container == "header") && this.css.progressTop,
       this.isShowProgressBarOnBottom && (!container || container == "footer") && this.css.progressBottom
     );
@@ -4006,7 +4007,11 @@ export class SurveyModel extends SurveyElementCore
         newPage.onFirstRendering();
         newPage.updateCustomWidgets();
       }
-      this.locStrsChanged();
+      // Refreshes texts that depend on values (text processing). A designer survey does not process
+      // texts and renders every page, so it would only walk all pages for nothing
+      if (!this.isDesignMode) {
+        this.locStrsChanged();
+      }
       if (!this.isShowingPreview) {
         this.currentPageChanged(newPage, oldValue);
       }
@@ -4411,7 +4416,9 @@ export class SurveyModel extends SurveyElementCore
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
     this.dropHeldCompletion();
     this.notifyQuestionsOnHidingContent(oldValue);
-    if (oldValue && !oldValue.isDisposed && !oldValue.passed) {
+    // A designer survey has no respondent and its pages never pass: validating the page it leaves
+    // only fires validation events and generates rows of matrices that were never rendered
+    if (!this.isDesignMode && oldValue && !oldValue.isDisposed && !oldValue.passed) {
       if (oldValue.validate(false)) {
         oldValue.passed = true;
       }

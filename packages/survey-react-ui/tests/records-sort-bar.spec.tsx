@@ -19,7 +19,7 @@ afterAll(() => {
 let container: HTMLElement | undefined;
 function render(json: any): QuestionMatrixDynamicModel {
   const survey = new SurveyModel({ elements: [Object.assign({
-    type: "matrixdynamic", name: "matrix", title: "Products", rowCount: 0,
+    type: "matrixdynamic", name: "matrix", title: "Products", rowCount: 0, showSortBar: "always",
     columns: [{ name: "product", cellType: "text" }, { name: "price", cellType: "text", inputType: "number" }]
   }, json)] });
   survey.data = { matrix: [{ product: "b", price: 20 }, { product: "a", price: 30 }, { product: "c", price: 10 }] };

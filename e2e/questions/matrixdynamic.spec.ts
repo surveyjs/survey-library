@@ -563,7 +563,7 @@ frameworks.forEach((framework) => {
           },
         ],
       });
-      const pager = page.locator(".sd-matrixdynamic__pager");
+      const pager = page.locator(".sd-pager");
       const firstId = page.locator("td[title='id'] input").first();
 
       await expect(firstId).toHaveValue("row1");
@@ -1087,6 +1087,7 @@ frameworks.forEach((framework) => {
         name: "matrix",
         title: "Products",
         allowSort: true,
+        showSortBar: "always",
         rowCount: 0,
         columns: [
           { name: "product", title: "Product", cellType: "text" },
@@ -1295,6 +1296,7 @@ frameworks.forEach((framework) => {
         name: "matrix",
         title: "Health Product - Long Title for Example",
         allowSort: true,
+        showSortBar: "always",
         maxSortLevel: 4,
         rowCount: 0,
         columns: [

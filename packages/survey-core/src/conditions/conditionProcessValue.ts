@@ -49,6 +49,10 @@ export interface IValueGetterContext {
   getRootObj?(): IObjectValueContext;
   getQuestion?(): IQuestion;
   getContextKeys?(keys?: any): { [key: string]: any };
+  // A value made of records (a matrix, a dynamic panel): converts a stored value of the field name to
+  // the one expressions read - a masked text field that saves its masked value gives the unmasked one.
+  // undefined when no question stores the field. The *InArray functions call it on the raw records.
+  getFieldValueConverter?(name: string): (val: any) => any;
 }
 export interface IValueInfoParams {
   name: string;
@@ -65,6 +69,8 @@ export interface IReturnValue {
   propObj?: any;
   propName?: string;
   strictCompare?: boolean;
+  // The context that answered the name.
+  context?: IValueGetterContext;
 }
 // The changed-keys objects are keyed by value names, so a question named "hasOwnProperty" shadows
 // the method: always check own keys through Object.prototype (Bug#11858)
@@ -100,6 +106,7 @@ export class ValueGetter {
     res.strictCompare = info.requireStrictCompare;
     res.propObj = info.propObj;
     res.propName = info.propName;
+    res.context = info.context;
     if (info.context) {
       if (params.isText && info.context.getTextValue) {
         res.value = info.context.getTextValue(name, res.value, params.isDisplayValue);

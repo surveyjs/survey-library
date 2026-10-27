@@ -33,6 +33,8 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   @property({ defaultValue: "auto" }) width: string;
   @property({ defaultValue: "auto" }) minWidth: string;
   @property({ defaultValue: false }) _isVisible: boolean;
+  // Renderers mount the popup content only after the first show and keep it afterwards.
+  @property({ defaultValue: false }) hasBeenShown: boolean;
   @property() locale: string;
 
   private updateIsVisible(val: boolean) {
@@ -87,6 +89,11 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     return this._isVisible;
   }
   public set isVisible(val: boolean) {
+    // Set before _isVisible (and before the animation registers for the next render), so the content is
+    // in the DOM by the render that shows the popup, where it is positioned, focused and animated.
+    if (val) {
+      this.hasBeenShown = true;
+    }
     this.visibilityAnimation.sync(val);
   }
 

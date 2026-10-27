@@ -1,11 +1,13 @@
 import { ArrayChanges, Base } from "../src/base";
 import { Helpers } from "../src/helpers";
 import { Serializer } from "../src/jsonobject";
+import { PanelModel, PanelModelBase } from "../src/panel";
 import { QuestionTextModel } from "../src/question_text";
 import { SurveyModel } from "../src/survey";
+import { SurveyElement } from "../src/survey-element";
 import { floorTo2Decimals } from "../src/utils/utils";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 describe("Layout:", () => {
   test("columns generate - simple", () => {
     const surveyModel = new SurveyModel({
@@ -865,5 +867,146 @@ describe("Layout:", () => {
 
     surveyModel.gridLayoutEnabled = false;
     expect(page.gridLayoutColumns.length, "#3").toEqual(2);
+  });
+});
+
+describe("Layout: elements added while the survey loads", () => {
+  function addText(container: PanelModelBase, name: string, startWithNewLine: boolean = true): QuestionTextModel {
+    const q = new QuestionTextModel(name);
+    q.startWithNewLine = startWithNewLine;
+    container.addElement(q);
+    return q;
+  }
+  function getColumnWidths(container: PanelModelBase): Array<number> {
+    return container.gridLayoutColumns.map(col => col.effectiveWidth);
+  }
+  function getRowNames(container: PanelModelBase): Array<Array<string>> {
+    return container.rows.map(row => row.elements.map(el => el.name));
+  }
+  const fullRowStyle = { flexGrow: 1, flexShrink: 1, flexBasis: "100%" };
+
+  // The page is shown, so its rows are not rebuilt after loading: it keeps the row [q1], and q2 and q3 get no root style.
+  // Built without loading, the page has one row of three 33.33% columns. This test pins the current behavior.
+  [true, false].forEach(isCached => {
+    test("elements added to a rendered page keep the current layout, " + (isCached ? "cached" : "uncached"), () => {
+      const survey = new SurveyModel({ gridLayoutEnabled: true, elements: [{ type: "text", name: "q1" }] });
+      const page = survey.pages[0];
+      const q1 = survey.getQuestionByName("q1");
+      expect(page.wasRendered, "the current page is rendered").toBe(true);
+      if (isCached) {
+        expect(getColumnWidths(page), "page columns before loading").toEqual([100]);
+        expect(q1.rootStyle, "q1 before loading").toEqual(fullRowStyle);
+      }
+      survey.startLoadingFromJson();
+      const q2 = addText(page, "q2", false);
+      const q3 = addText(page, "q3", false);
+      survey.endLoadingFromJson();
+
+      expect(getRowNames(page), "page rows").toEqual([["q1"]]);
+      expect(getColumnWidths(page), "page columns").toEqual([100]);
+      expect(q1.rootStyle, "q1").toEqual(fullRowStyle);
+      expect(q2.rootStyle, "q2").toEqual({});
+      expect(q3.rootStyle, "q3").toEqual({});
+    });
+  });
+
+  // As above, and the panel added while loading never builds rows, so it has no columns.
+  [true, false].forEach(isCached => {
+    test("elements added to a nested panel of a rendered page keep the current layout, " + (isCached ? "cached" : "uncached"), () => {
+      const survey = new SurveyModel({ gridLayoutEnabled: true, elements: [{ type: "text", name: "q1" }] });
+      const page = survey.pages[0];
+      const q1 = survey.getQuestionByName("q1");
+      if (isCached) {
+        expect(getColumnWidths(page), "page columns before loading").toEqual([100]);
+        expect(q1.rootStyle, "q1 before loading").toEqual(fullRowStyle);
+      }
+      survey.startLoadingFromJson();
+      const panel = new PanelModel("panel1");
+      page.addElement(panel);
+      const q2 = addText(panel, "q2", false);
+      const q3 = addText(panel, "q3", false);
+      survey.endLoadingFromJson();
+
+      expect(getRowNames(page), "page rows").toEqual([["q1"]]);
+      expect(getRowNames(panel), "panel rows").toEqual([]);
+      expect(getColumnWidths(page), "page columns").toEqual([100]);
+      expect(getColumnWidths(panel), "panel columns").toEqual([]);
+      expect(q1.rootStyle, "q1").toEqual(fullRowStyle);
+      expect(panel.rootStyle, "panel").toEqual({});
+      expect(q2.rootStyle, "q2").toEqual({});
+      expect(q3.rootStyle, "q3").toEqual({});
+    });
+  });
+
+  test("a page added while the survey loads and rendered after it has the same layout as without loading", () => {
+    const buildLayout = (isLoading: boolean): any => {
+      const survey = new SurveyModel({ gridLayoutEnabled: true, elements: [{ type: "text", name: "q1" }] });
+      if (isLoading) survey.startLoadingFromJson();
+      const page = survey.addNewPage("page2");
+      const panel = new PanelModel("panel1");
+      page.addElement(panel);
+      const questions = [addText(panel, "q2"), addText(panel, "q3", false), addText(panel, "q4", false)];
+      if (isLoading) survey.endLoadingFromJson();
+      survey.currentPage = page;
+      return {
+        pageColumns: getColumnWidths(page),
+        panelColumns: getColumnWidths(panel),
+        panelRows: getRowNames(panel),
+        panelStyle: panel.rootStyle,
+        questionStyles: questions.map(q => q.rootStyle)
+      };
+    };
+    const expected = buildLayout(false);
+    expect(expected.panelColumns, "the panel has three columns").toEqual([33.33, 33.33, 33.33]);
+    expect(buildLayout(true)).toEqual(expected);
+  });
+
+  // Counts SurveyElement.updateRootStyle calls on this survey's elements. Before the columns update was deferred:
+  // 37,375 while loading (the page's subtree on each panel add, 25,875, plus the panel's subtree on each question add, 11,500)
+  // and 0 in endLoadingFromJson().
+  test("adding elements while the survey loads updates each changed panel once", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q0" }] });
+    const page = survey.pages[0];
+    const spy = vi.spyOn(SurveyElement.prototype, "updateRootStyle");
+    try {
+      const getCount = () => spy.mock.contexts.filter((el: SurveyElement) => el.survey === survey).length;
+      survey.startLoadingFromJson();
+      for (let i = 0; i < 50; i++) {
+        const panel = new PanelModel("panel" + i);
+        page.addElement(panel);
+        for (let j = 0; j < 20; j++) {
+          addText(panel, "q" + i + "_" + j);
+        }
+      }
+      const loadingCount = getCount();
+      survey.endLoadingFromJson();
+      const endLoadingCount = getCount() - loadingCount;
+      expect(loadingCount, "while loading").toBe(0);
+      // The page subtree (1 + q0 + 50 + 1,000) plus each panel's subtree (50 x 21).
+      expect(endLoadingCount, "in endLoadingFromJson").toBeLessThanOrEqual(2102);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  [true, false].forEach(isRendered => {
+    test("a panel without a survey loaded on its own, " + (isRendered ? "rendered" : "not rendered"), () => {
+      const panel = new PanelModel("panel1");
+      if (isRendered) {
+        panel.onFirstRendering();
+        expect(panel.wasRendered, "rendered").toBe(true);
+        expect(panel.rootStyle, "panel before loading").toEqual({});
+      }
+      panel.startLoadingFromJson();
+      const questions = [addText(panel, "q1"), addText(panel, "q2", false), addText(panel, "q3", false)];
+      const spy = vi.spyOn(panel, "updateColumns");
+      panel.endLoadingFromJson();
+
+      expect(spy.mock.calls.length, "updateColumns calls in endLoadingFromJson").toBeLessThanOrEqual(1);
+      expect(getRowNames(panel), "rows").toEqual(isRendered ? [["q1", "q2", "q3"]] : []);
+      expect(panel.rootStyle, "panel").toEqual({});
+      const questionStyle = isRendered ? { flexGrow: 1, flexShrink: 1, flexBasis: "33.333333%" } : {};
+      questions.forEach(q => expect(q.rootStyle, q.name).toEqual(questionStyle));
+    });
   });
 });

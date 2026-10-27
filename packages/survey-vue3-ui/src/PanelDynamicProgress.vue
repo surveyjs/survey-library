@@ -1,6 +1,5 @@
 <template>
-  <div :class="question.getFooterCss()" v-if="question.showFooter">
-    <hr :class="question.cssClasses.separator" />
+  <div :class="question.cssClasses.footerBar" v-if="question.showFooter">
     <div
       :class="question.cssClasses.progress"
       v-if="question.showFooterProgress"
@@ -12,13 +11,8 @@
         :aria-label="question.progressBarAriaLabel"
       ></div>
     </div>
-    <div
-      :class="question.cssClasses.footerButtonsContainer"
-      v-if="question.showFooterButtons"
-    >
-      <SvComponent :is="'sv-action-bar'" :model="question.footerToolbar" />
-    </div>
-    <SvComponent :is="'sv-records-bar'" :model="question.recordsBar"></SvComponent>
+    <SvComponent v-if="question.showFooterButtons" :is="'sv-action-bar'" :model="question.footerToolbar" />
+    <SvComponent v-if="question.showPager" :is="'sv-action-bar'" :model="question.recordsBar.pagerActions"></SvComponent>
   </div>
 </template>
 

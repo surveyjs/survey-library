@@ -2391,7 +2391,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const nextIndex = visIndex >= pnlCount ? pnlCount - 1 : visIndex;
     const element = pnlCount === 0 ? () => this.addPanelAction?.getInputElement() : (nextIndex > -1 ? () => this.getRemovePanelAction(this.visiblePanels[nextIndex])?.getInputElement() : "");
     if (!!element) {
-      SurveyElement.FocusElement(element, true, this.survey?.rootElement, this.shouldHandleFocusScroll);
+      SurveyElement.FocusElement(() => this.isDisposed ? undefined : element(), true, this.survey?.rootElement, this.shouldHandleFocusScroll);
     }
   }
   // After the panels were rebuilt from a committed read; FocusElement's own timeout lets them render.
@@ -3559,7 +3559,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
 
   get showNavigation(): boolean {
     if (this.isReadOnly && this.visiblePanelCount == 1) return false;
-    return this.visiblePanelCount > 0 && !!this.cssClasses.footer;
+    return this.visiblePanelCount > 0 && !!this.cssClasses.footerBar;
   }
   /* The footer under the panels: the bottom progress bar and the footer toolbar while the navigation
      shows, and the pager. The pager shares the footer row with the toolbar buttons. */

@@ -92,6 +92,19 @@ describe("Matrix: sortable column headers", () => {
     act(() => { matrix.sortCriteria[0].direction = "desc"; });
     expect(indicator(), "#4").toBe("sd-table__header-sort sd-table__header-sort--desc");
   });
+  it("the level number is rendered inside the hidden indicator and follows the sort", () => {
+    const matrix = render({ allowSort: true, maxSortLevel: 3 });
+    const rank = (index: number): Element | null => headerButton(index).querySelector(".sd-table__header-sort-rank");
+    expect([rank(0), rank(1)], "#1: not sorted").toEqual([null, null]);
+    click(headerButton(1));
+    click(headerButton(0), { shiftKey: true });
+    expect([rank(1)?.textContent, rank(0)?.textContent], "#2").toEqual(["1", "2"]);
+    expect((rank(1)?.parentElement as HTMLElement).getAttribute("aria-hidden"), "#3").toBe("true");
+    expect((rank(1)?.parentElement as HTMLElement).className, "#4")
+      .toBe("sd-table__header-sort sd-table__header-sort--desc sd-table__header-sort--ranked");
+    act(() => { matrix.sortCriteria.splice(0, 1); });
+    expect([rank(1), rank(0)?.textContent], "#5: the other level moves up").toEqual([null, "1"]);
+  });
   it("a matrix without allowSort renders no button and no aria-sort", () => {
     render({});
     expect(headers().map(th => [th.querySelector("button"), th.hasAttribute("aria-sort"), th.className.indexOf("sortable")]))

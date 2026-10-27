@@ -195,6 +195,63 @@ describe("Sortable headers: a sort by more than one column", () => {
   });
 });
 
+describe("Sortable headers: the level number next to the arrow", () => {
+  function ranks(matrix: QuestionMatrixDynamicModel): Array<number> {
+    return headerCells(matrix).map((cell: QuestionMatrixDropdownRenderedCell): number => cell.sortRank);
+  }
+  function rankedCells(matrix: QuestionMatrixDynamicModel): Array<string> {
+    return headerCells(matrix).filter((cell: QuestionMatrixDropdownRenderedCell): boolean =>
+      !!cell.column && cell.sortCss.indexOf("sd-table__header-sort--ranked") > -1)
+      .map((cell: QuestionMatrixDropdownRenderedCell): string => cell.column.name);
+  }
+  test("each sorted column shows its level while the sort can have more than one level", () => {
+    const matrix = createMatrix({ maxSortLevel: 3,
+      sortCriteria: [{ field: "price", direction: "desc" }, { field: "product", direction: "asc" }] });
+    expect([header(matrix, "price").sortRank, header(matrix, "product").sortRank], "#1").toEqual([1, 2]);
+    expect(ranks(matrix).filter((rank: number): boolean => rank !== undefined).length, "#2: every other cell has none").toBe(2);
+    expect(rankedCells(matrix), "#3").toEqual(["product", "price"]);
+    expect(header(matrix, "price").sortCss, "#4").toBe("sd-table__header-sort sd-table__header-sort--desc sd-table__header-sort--ranked");
+    expect(header(matrix, "added").sortCss, "#5").toBe("sd-table__header-sort sd-table__header-sort--none");
+    expect(header(matrix, "price").sortRankCss, "#6").toBe("sd-table__header-sort-rank");
+  });
+  test("a single sorted column shows 1 while more levels are allowed", () => {
+    const matrix = createMatrix({ maxSortLevel: 3 });
+    header(matrix, "price").toggleSort();
+    expect(header(matrix, "price").sortRank, "#1").toBe(1);
+    expect(rankedCells(matrix), "#2").toEqual(["price"]);
+  });
+  test("with one allowed level, no number; a longer sort from JSON shows its levels", () => {
+    const matrix = createMatrix();
+    header(matrix, "price").toggleSort();
+    expect(ranks(matrix).every((rank: number): boolean => rank === undefined), "#1").toBe(true);
+    expect(header(matrix, "price").sortCss, "#2").toBe("sd-table__header-sort sd-table__header-sort--desc");
+    const fromJson = createMatrix({ sortCriteria: [{ field: "product", direction: "asc" }, { field: "price", direction: "desc" }] });
+    expect(fromJson.maxSortLevel, "#3").toBe(1);
+    expect([header(fromJson, "product").sortRank, header(fromJson, "price").sortRank], "#4").toEqual([1, 2]);
+  });
+  test("removing a level renumbers the others; turning a level around keeps every number", () => {
+    const matrix = createMatrix({ maxSortLevel: 2 });
+    matrix.sort(<any>[{ field: "price", direction: "desc" }, { field: "product", direction: "asc" }]);
+    header(matrix, "product").toggleSort();
+    expect(sortOf(matrix), "#1").toEqual([{ field: "price", direction: "desc" }, { field: "product", direction: "desc" }]);
+    expect([header(matrix, "price").sortRank, header(matrix, "product").sortRank], "#2").toEqual([1, 2]);
+    header(matrix, "price").toggleSort();
+    header(matrix, "price").toggleSort();
+    expect(sortOf(matrix), "#3").toEqual([{ field: "product", direction: "desc" }]);
+    expect([header(matrix, "price").sortRank, header(matrix, "product").sortRank], "#4").toEqual([undefined, 1]);
+  });
+  test("a level without a visible column still counts", () => {
+    const matrix = createMatrix({ maxSortLevel: 3, columns: productColumns.concat([<any>{ name: "hidden", cellType: "text", visible: false }]),
+      sortCriteria: [{ field: "hidden", direction: "asc" }, { field: "price", direction: "desc" }] });
+    expect(header(matrix, "hidden"), "#1").toBeUndefined();
+    expect(header(matrix, "price").sortRank, "#2").toBe(2);
+  });
+  test("design mode: no number", () => {
+    const matrix = createMatrix({ maxSortLevel: 3, sortCriteria: [{ field: "price", direction: "desc" }] }, true);
+    expect(ranks(matrix).every((rank: number): boolean => rank === undefined), "#1").toBe(true);
+  });
+});
+
 describe("Sortable headers: a plain click on a column that is already sorted, while the sort can have more than one level", () => {
   const twoLevels = [{ field: "price", direction: "desc" }, { field: "product", direction: "asc" }];
   test("the second level turns around in place, and then leaves the sort", () => {

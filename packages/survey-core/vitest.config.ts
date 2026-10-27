@@ -14,6 +14,7 @@ export default defineConfig({
       "tests/legacy-theme-vars.ts",
       "tests/linter/lint-test-helpers.ts",
       "tests/linter/lint-fixtures.ts",
+      "tests/expressions/oracle/**",
       "node_modules/**",
       "build/**",
     ],

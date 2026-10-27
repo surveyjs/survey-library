@@ -1129,7 +1129,7 @@ export class Question extends SurveyElement<Question>
     if (runner.hasFunction(true)) return "func";
     const vars = runner.getVariables();
     if ((!Array.isArray(vars) || vars.length === 0)) return "const";
-    return new ValueGetter().isAnyKeyChangedCore(keys, vars, runner.getVariablesInfo()) ? "var" : "";
+    return new ValueGetter().isAnyKeyChangedCore(keys, vars, runner.getVariablesInfo(), undefined, this.getSurveyVariableNamesInfo()) ? "var" : "";
   }
   // Whether an item condition of this question (a choice, row or column visibleIf / enableIf) may keep
   // its last result in the current value-change run. It follows the element rule, with one difference:

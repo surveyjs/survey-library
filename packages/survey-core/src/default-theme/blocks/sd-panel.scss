@@ -220,7 +220,7 @@
     padding: 0;
     row-gap: var(--sjs2-layout-component-page-content-area-gap-vertical);
   }
-  .sd-panel__footer {
+  & > .sd-panel__expandable-content > .sd-panel__footer {
     padding: var(--sjs2-spacing-x400) 0 0;
     margin: 0;
     border: none;

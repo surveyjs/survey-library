@@ -4856,6 +4856,65 @@ describe("baseselect", () => {
     expect(otherItem.locText.textOrHtml, "otherItem text is correct").toBe("Other please specify");
     expect(q1.otherItem.showCommentArea, "otherItem showCommentArea is true").toBe(true);
   });
+  describe("selectAllText reads the Select All item's text", () => {
+    const checkboxJson = { elements: [{ type: "checkbox", name: "q1", choices: [1, 2] }] };
+    test("Runtime, selectAllItem is not created yet", () => {
+      const survey = new SurveyModel(checkboxJson);
+      const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+      expect(q1.getLocalizableString("selectAllText"), "selectAllItem is not created on loading").toBeFalsy();
+      expect(q1.selectAllText, "default text").toBe(surveyLocalization.getString("selectAllItemText"));
+    });
+    test("Runtime, selectAllItem is not created yet, survey.locale is 'de'", () => {
+      const survey = new SurveyModel(checkboxJson);
+      survey.locale = "de";
+      const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+      expect(q1.getLocalizableString("selectAllText"), "selectAllItem is not created on loading").toBeFalsy();
+      expect(q1.selectAllText, "German default text").toBe(surveyLocalization.getString("selectAllItemText", "de"));
+      survey.locale = "";
+    });
+    test("selectAllText from JSON", () => {
+      const survey = new SurveyModel({ elements: [{ type: "checkbox", name: "q1", choices: [1, 2], selectAllText: "Pick all" }] });
+      const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+      expect(q1.selectAllText, "text from JSON").toBe("Pick all");
+      expect(q1.toJSON().selectAllText, "text is serialized").toBe("Pick all");
+      expect(q1.selectAllItem.text, "selectAllItem text").toBe("Pick all");
+    });
+    test("Set selectAllText", () => {
+      const survey = new SurveyModel(checkboxJson);
+      const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+      q1.selectAllText = "Choose every item";
+      expect(q1.selectAllText, "the value set").toBe("Choose every item");
+      expect(q1.selectAllItem.text, "selectAllItem text").toBe("Choose every item");
+    });
+    test("Design mode", () => {
+      const survey = new SurveyModel();
+      survey.setDesignMode(true);
+      survey.fromJSON(checkboxJson);
+      const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+      expect(q1.selectAllText, "default text").toBe(surveyLocalization.getString("selectAllItemText"));
+    });
+    test("Tagbox keeps selectAllText while its item shows 'Deselect all'", () => {
+      const survey = new SurveyModel({
+        elements: [{ type: "tagbox", name: "q1", choices: [1, 2], showSelectAllItem: true, selectAllText: "Pick all" }]
+      });
+      const q1 = <QuestionTagboxModel>survey.getQuestionByName("q1");
+      const item = q1.selectAllItem;
+      q1.clickItemHandler(item);
+      expect(q1.value, "all items are selected").toEqual([1, 2]);
+      // the tagbox swaps the item's text when isAllSelected is read, as rendering does
+      expect(q1.isAllSelected, "isAllSelected").toBe(true);
+      expect(item.title, "the item shows deselect all").toBe(surveyLocalization.getString("deselectAllItemText"));
+      expect(q1.selectAllText, "selectAllText is kept").toBe("Pick all");
+      expect(q1.toJSON().selectAllText, "selectAllText is serialized").toBe("Pick all");
+      q1.selectAllText = "Every item";
+      expect(item.title, "the item still shows deselect all").toBe(surveyLocalization.getString("deselectAllItemText"));
+      expect(q1.toJSON().selectAllText, "the new selectAllText is serialized").toBe("Every item");
+      q1.clickItemHandler(item);
+      expect(q1.isEmpty(), "all items are deselected").toBe(true);
+      expect(q1.isAllSelected, "isAllSelected after deselect").toBe(false);
+      expect(item.title, "the item shows the new selectAllText").toBe("Every item");
+    });
+  });
   test("Do not send notifications on changing built-in choices properties on creating question", () => {
     const survey = new SurveyModel({
       pages: [{ name: "page1" }]

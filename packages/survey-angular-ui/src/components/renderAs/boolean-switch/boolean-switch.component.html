@@ -1,4 +1,4 @@
-<div [class]="model.cssClasses.rootSwitch" (click)="model.booleanValue = !model.booleanValue">
+<div [class]="model.cssClasses.rootSwitch" (click)="onRootClick($event)">
   <div [class]="model.getSwitchButtonCss()" role="checkbox" tabindex="0" [key2click]
     [attr.aria-checked]="model.booleanValue || false"
     [attr.aria-required]="model.a11y_input_ariaRequired" [attr.aria-label]="model.a11y_input_ariaLabel"
@@ -9,6 +9,8 @@
     </div>
   </div>
   <div *ngIf="model.isLabelRendered" [class]="model.cssClasses.switchCaption">
-    <div [class]="model.cssClasses.switchTitle" [id]="model.labelRenderedAriaID" [model]="model.locTitle" sv-ng-string></div>
+    <div [class]="model.cssClasses.switchTitle" [id]="model.labelRenderedAriaID">
+      <sv-ng-element-title-actions [element]="model"></sv-ng-element-title-actions>
+    </div>
   </div>
 </div>

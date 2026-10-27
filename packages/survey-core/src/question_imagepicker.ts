@@ -9,7 +9,6 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { toCssClasses } from "./utils/cssClassBuilder";
 import { classesToSelector } from "./utils/dom-utils";
 import { DomDocumentHelper } from "./global_variables_utils";
-
 export class ImageItemValue extends ChoiceItem implements ILocalizableOwner {
 
   @property({ defaultValue: false }) private videoNotLoaded: boolean;
@@ -135,7 +134,6 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * [View Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
    */
   @property() multiSelect: boolean;
-
   public isItemSelected(item: ItemValue): boolean {
     var val = this.value;
     const imageItemValue = item as ImageItemValue;

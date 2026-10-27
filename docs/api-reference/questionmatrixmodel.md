@@ -18,6 +18,18 @@ A class that describes the Single-Select Matrix question type.
 
 ## Properties
 
+### `allowClear`
+
+**Type**: `boolean`
+
+Specifies whether to display a button that clears the answer in every matrix row.
+
+The button appears in the question title and stays hidden when the [title is hidden](#titleLocation). It clears both [radio and checkbox cells](#cellType).
+
+Default value: `false`
+
+**Related APIs:** [`cellType`](#cellType)
+
 ### `alternateRows`
 
 **Type**: `boolean`

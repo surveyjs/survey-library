@@ -14,6 +14,10 @@ Dynamic Panel allows respondents to add panels based on a panel template and del
 
 [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
 
+## Inheritance
+
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionRecordsModel`](https://surveyjs.io/form-library/documentation/api-reference/questionrecordsmodel.md) &rarr; `QuestionPanelDynamicModel`
+
 ## Properties
 
 ### `addPanelText`

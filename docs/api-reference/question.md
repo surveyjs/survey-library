@@ -619,6 +619,8 @@ The following table illustrates how the return value depends on the question typ
 | Single-Select Matrix | `"object"` |
 | Yes/No (Boolean) | `"boolean"` \| `"string"` \| `"number"` |
 
+Available since: v3.1.1
+
 ### `isAnswerCorrect()`
 
 **Return value:** `boolean`
@@ -653,6 +655,8 @@ The following question types return `true`:
 - Yes/No (Boolean)
 
 [Specialized questions](/form-library/documentation/customize-question-types/create-specialized-question-types) based on any of these question types also return `true`.
+
+Available since: v3.1.1
 
 ### `validate()`
 

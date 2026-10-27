@@ -93,6 +93,8 @@ When this property is `true`, trailing zeros appear immediately as respondents e
 
 Default value: `false`
 
+Available since: v3.1.2
+
 ### `thousandsSeparator`
 
 **Type**: `string`

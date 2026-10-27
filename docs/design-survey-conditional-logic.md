@@ -490,7 +490,7 @@ Expressions can include question names, variables, and calculated values (descri
 
 ### Supported Operators
 
-The SurveyJS expression engine uses a hand-written parser that follows a PEG (parsing expression grammar). The following table gives a brief overview of operators that you can use within expressions. For a detailed look at the grammar rules used by the expression parser, refer to the [`survey-library`](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/expressions/grammar.pegjs) GitHub repository.
+The SurveyJS expression engine is built upon the <a href="https://github.com/peggyjs/peggy#peggy" target="_blank">Peggy</a> parser generator. The following table gives a brief overview of operators that you can use within expressions. For a detailed look at the grammar rules used by the expression parser, refer to the [`survey-library`](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/expressions/grammar.pegjs) GitHub repository.
 
 | Operator | Description | Expression example |
 | -------- | ----------- | ------------------ |

@@ -1009,9 +1009,6 @@
         "readOnly": {
           "type": "boolean"
         },
-        "allowClear": {
-          "type": "boolean"
-        },
         "validators": {
           "type": "array",
           "items": {
@@ -1081,6 +1078,9 @@
         },
         "randomizeCategory": {
           "type": "string"
+        },
+        "allowClear": {
+          "type": "boolean"
         }
       },
       "required": [
@@ -1708,12 +1708,11 @@
             "maxSortLevel": {
               "type": "number"
             },
-            "showSortMenu": {
+            "showSortBar": {
               "type": "string",
               "enum": [
                 "auto",
-                true,
-                false
+                "always"
               ]
             }
           }
@@ -2641,9 +2640,6 @@
                 }
               ]
             },
-            "allowClear": {
-              "type": "boolean"
-            },
             "searchEnabled": {
               "type": "boolean"
             },
@@ -2741,9 +2737,6 @@
         },
         {
           "properties": {
-            "allowClear": {
-              "type": "boolean"
-            },
             "itemComponent": {
               "type": "string"
             }
@@ -2802,9 +2795,6 @@
             },
             "multiSelect": {
               "type": "boolean"
-            },
-            "allowClear": {
-              "type": "boolean"
             }
           }
         }
@@ -2840,9 +2830,6 @@
                   "$ref": "locstring"
                 }
               ]
-            },
-            "allowClear": {
-              "type": "boolean"
             },
             "choicesMin": {
               "type": "number"
@@ -3042,9 +3029,6 @@
               "type": "boolean"
             },
             "eachRowUnique": {
-              "type": "boolean"
-            },
-            "allowClear": {
               "type": "boolean"
             },
             "hideIfRowsEmpty": {
@@ -4047,9 +4031,6 @@
             },
             "labelCount": {
               "type": "number"
-            },
-            "allowClear": {
-              "type": "boolean"
             }
           }
         }
@@ -4107,9 +4088,6 @@
               "type": "string"
             },
             "swapOrder": {
-              "type": "boolean"
-            },
-            "allowClear": {
               "type": "boolean"
             },
             "displayMode": {
@@ -4285,9 +4263,6 @@
             },
             "height": {
               "type": "number"
-            },
-            "allowClear": {
-              "type": "boolean"
             },
             "showPlaceholder": {
               "type": "boolean"
@@ -4637,14 +4612,6 @@
             },
             "maxSortLevel": {
               "type": "number"
-            },
-            "showSortMenu": {
-              "type": "string",
-              "enum": [
-                "auto",
-                true,
-                false
-              ]
             },
             "displayMode": {
               "type": "string",

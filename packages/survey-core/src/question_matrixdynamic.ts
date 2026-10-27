@@ -1592,13 +1592,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public getRootCss(): string {
     return toCssClasses(super.getRootCss(), !this.renderedTable?.showTable && this.cssClasses.empty);
   }
-  public getToolbarCssClass(location?: "top" | "bottom"): string {
-    return toCssClasses(
-      this.cssClasses.toolbar,
-      location == "bottom" && this.cssClasses.toolbarBottom,
-      location == "top" && this.cssClasses.toolbarTop
-    );
-  }
   public getShowToolbar(location?: "top" | "bottom") {
     const showToolbar = !this.isDesignMode && this.canAddRow;
     if (!location) return showToolbar;
@@ -1615,8 +1608,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     // The single input summary adds rows from the survey navigation bar.
     return this.getShowToolbar() && !this.singleInputSummary;
   }
-  private initFooterToolbar() {
+  private initToolbar() {
     this.toolbarValue = this.createActionContainer();
+    this.toolbarValue.containerCss = this.cssClasses.toolbar;
     this.toolbarValue.setActionsAppearance({ style: "brand", mode: "secondary", size: "small", });
     const addBtnAction = new Action({
       locTitle: this.locAddRowText,
@@ -1633,7 +1627,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private toolbarValue: ActionContainer;
   public get toolbar(): ActionContainer {
     if (!this.toolbarValue) {
-      this.initFooterToolbar();
+      this.initToolbar();
     }
     return this.toolbarValue;
   }

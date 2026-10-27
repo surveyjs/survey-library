@@ -803,6 +803,10 @@
   --sjs2-layout-component-matrix-box-padding-right: var(--sjs2-shadcn-card-edge-spacing);
   --sjs2-layout-component-matrix-box-padding-top: 0;
   --sjs2-layout-component-matrix-box-padding-bottom: var(--sjs2-shadcn-card-edge-spacing);
+  --sjs2-layout-component-panel-matrix-footer-padding-top: 0;
+  --sjs2-layout-component-panel-matrix-footer-padding-bottom: var(--sjs2-layout-component-matrix-box-padding-bottom);
+  --sjs2-layout-component-panel-matrix-footer-padding-left: var(--sjs2-layout-component-matrix-box-padding-left);
+  --sjs2-layout-component-panel-matrix-footer-padding-right: var(--sjs2-layout-component-matrix-box-padding-right);
 }
 .sd-table__cell {
   .sd-radio {
@@ -856,4 +860,7 @@
 .sd-slider__track:after,
 input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   height: calc(var(--spacing) * 1.5);
+}
+.sd-matrixdynamic__content > div > .sd-question__bar--footer {
+  border-top: none;
 }

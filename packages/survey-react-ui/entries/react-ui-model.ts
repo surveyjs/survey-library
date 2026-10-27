@@ -99,7 +99,6 @@ export { TitleElement } from "../src/components/title/title-element";
 export { SurveyActionBar } from "../src/components/action-bar/action-bar";
 export { SurveyActionBarItemDropdown } from "../src/components/action-bar/action-bar-item-dropdown";
 export { SurveyActionBarSeparator } from "../src/components/action-bar/action-bar-separator";
-export { SurveyRecordsBar } from "../src/components/records-bar";
 export { SurveySortBarLevel } from "../src/components/sort-bar-level";
 export { SurveyRecordsSortDialog } from "../src/components/records-sort-dialog";
 export { LogoImage } from "../src/components/survey-header/logo-image";

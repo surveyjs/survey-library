@@ -2393,13 +2393,6 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
     super.onDesignModeChanged();
     this.updateRecordsBar();
   }
-  /* The footer under the records: the type's own footer content (the matrix's bottom toolbar, the
-     dynamic panel's progress and buttons) and the pager share one row while the pager shows. The
-     matrix renders the footer only with the pager, so its markup stays the same without paging. A
-     type without a footer class (the matrix dropdown) gets "". */
-  public getFooterCss(): string {
-    return toCssClasses(this.cssClasses.footer, this.showPager && this.cssClasses.footerWithPager);
-  }
   /* The functions call the question's members when they are called, so an override or a spy on the
      question is honoured (see helperOwner). The page index and count are the synced state in the
      property hash, not the reported values: those answer one page without reading the hash while
@@ -2436,12 +2429,13 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
       getLocOwner: (): ILocalizableOwner => question,
       getCssClasses: (): IRecordsBarCssClasses => {
         const css = question.cssClasses;
-        return { root: css.recordsBar, pager: css.pager, pagerPage: css.pagerPage, pagerTotal: css.pagerTotal,
+        return { root: css.recordsBar, pagerPage: css.pagerPage, pagerTotal: css.pagerTotal,
           sortBar: css.sortBar, sortDropdown: css.sortDropdown, sortLabel: css.sortLabel, sortLevel: css.sortLevel,
           sortDialog: css.sortDialog, sortDialogRow: css.sortDialogRow };
       },
-      createActionContainer: <T extends ActionContainer>(container?: T): T =>
-        !!container ? question.initActionContainer(container) : <T>question.createActionContainer(),
+      createActionContainer: <T extends ActionContainer>(container?: T): T => {
+        return !!container ? question.initActionContainer(container) : <T>question.createActionContainer();
+      },
       getRootElement: (): HTMLElement => question.survey?.rootElement
     };
   }

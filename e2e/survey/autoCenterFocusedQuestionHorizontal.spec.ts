@@ -130,7 +130,7 @@ async function getGeometry(page: Page, options: IFixtureOptions): Promise<IGeome
 async function preScroll(page: Page, options: IFixtureOptions): Promise<void> {
   await page.evaluate(([preScroll, rtl]) => {
     const root = (window as any).survey.rootElement.getRootNode();
-    const scroller = root.querySelector(".sd-question[data-name='matrix'] .sd-question__content") as HTMLElement;
+    const scroller = root.querySelector(".sd-question[data-name='matrix'] .sd-table-wrapper") as HTMLElement;
     const max = scroller.scrollWidth - scroller.clientWidth;
     const offset = preScroll === "start" ? 0 : (preScroll === "end" ? max : <number>preScroll);
     // In RTL the scroll offset grows negative from the inline start.

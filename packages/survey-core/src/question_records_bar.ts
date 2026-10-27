@@ -4,7 +4,7 @@ import { createRecordsSortActions, getShowSort, IRecordsSortActions, IRecordsSor
 import type { ActionContainer } from "./actions/container";
 
 // The class names of the bar, of its pager block and of the sort bar, from the question's css, and the items' classes.
-export interface IRecordsBarCssClasses extends IRecordsPagerCssClasses, IRecordsSortBarCssClasses { root: string, pager: string, sortBar: string }
+export interface IRecordsBarCssClasses extends IRecordsPagerCssClasses, IRecordsSortBarCssClasses { root: string, sortBar: string }
 
 /* What the records bar reads from its question and the moves it makes. The question implements it on a
    private object, so the members it calls stay protected on the question. */
@@ -60,7 +60,9 @@ export class QuestionRecordsBar extends Base {
   private pagerActionsValue: ActionContainer;
   public get pagerActions(): ActionContainer {
     if (!this.pagerActionsValue) {
-      this.pagerActionsValue = createRecordsPagerActions(this.owner.createActionContainer(), this.owner);
+      this.pagerActionsValue = this.owner.createActionContainer();
+      createRecordsPagerActions(this.pagerActionsValue, this.owner);
+      this.pagerActionsValue.containerCss = this.owner.getCssClasses().root;
     }
     return this.pagerActionsValue;
   }

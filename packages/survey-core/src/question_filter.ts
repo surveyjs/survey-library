@@ -3,7 +3,7 @@ import { QuestionFactory } from "./questionfactory";
 import { QuestionNonValue } from "./questionnonvalue";
 import { Helpers, HashTable } from "./helpers";
 import { ISurveyImpl } from "./base-interfaces";
-import { IElementUIState, IFilterCondition, IFilterElementUIState } from "./interfaces/ui-interfaces";
+import { IElementUIState, IFilterCondition, IFilterElementUIState, IFilterState } from "./interfaces/ui-interfaces";
 import { FilterField } from "./filter/filter-field";
 import { FilterItem } from "./filter/filter-item";
 import { FilterConditionsEditor } from "./filter/filter-conditions-editor";
@@ -499,6 +499,63 @@ export class QuestionFilterModel extends QuestionNonValue {
       }
     }, true);
   }
+  // The state the Filters dialog opens with: the active preset while it is as it was (its own text
+  // applies, conditions undefined), or the conditions that apply instead ([] for none), and the
+  // search text. Single mode has no preset to pick: its state is its edits over the one preset,
+  // undefined while there are none.
+  public getFilterState(): IFilterState {
+    const own = this.ownConditions;
+    const searchString = this.searchString;
+    if (!this.allowMultipleItems) return { activeItemName: "", conditions: own, searchString: searchString };
+    if (own === undefined && !!this.activeItem) return { activeItemName: this.activeItemName, conditions: undefined, searchString: searchString };
+    return { activeItemName: "", conditions: own !== undefined ? [].concat(own) : [], searchString: searchString };
+  }
+  // A preset's text as conditions - what the Filters dialog shows in the fields when the preset is
+  // turned on in it - or null when the text has none to offer, or there is no such preset.
+  public getItemConditions(name: string): Array<IFilterCondition> | null {
+    return this.parseItemConditions(this.getItemByName(name));
+  }
+  // The filterExpression a state would give, without applying it: what the Filters dialog counts the
+  // records of. Composed the way calcFilterExpression() composes the control's own.
+  public composeFilterExpression(state: IFilterState): string {
+    if (!state) return "";
+    const fields = this.getFilterFields();
+    let text: string;
+    if (state.conditions !== undefined) {
+      text = conditionsToExpression(normalizeFilterConditions(state.conditions, fields), fields);
+    } else {
+      const item = this.allowMultipleItems ? this.getItemByName(state.activeItemName) : this.activeItem;
+      text = !!item ? (item.expression || "").trim() : "";
+    }
+    return combineFilterExpressions(text, this.calcSearchExpression(state.searchString));
+  }
+  // The Filters dialog's apply: its state replaces the control's as one change - one write into the
+  // source, one onFilterChanged and one onUIStateChanged, none of them when nothing changed. With
+  // several presets a preset as it was is turned on (the edits go with the one before). Conditions
+  // replace the filter's own the way an edit does (replaceConditions): over an active preset they
+  // turn it off and keep its order - unless they are the preset's own conditions, which is no edit.
+  // Single mode keeps its one preset and takes the conditions over it.
+  public applyFilterState(state: IFilterState): void {
+    if (!state || !this.canEditConditions) return;
+    this.runBatch((): void => {
+      if (state.conditions !== undefined) {
+        this.replaceConditions(state.conditions);
+      } else if (this.allowMultipleItems) {
+        this.activeItemName = state.activeItemName;
+      }
+      if (this.showSearch && state.searchString !== undefined) {
+        this.searchString = state.searchString;
+      }
+    }, true);
+  }
+  // How many records an expression would leave in the bound source - the "Show N items" of the
+  // Filters dialog - with the filters of the source's other controls and its own authored one.
+  // undefined when it cannot be known: a standalone control, a source that cannot count.
+  public countFilterResults(expression: string): Promise<number | undefined> {
+    const source = this.attachedSource;
+    if (!source || typeof source.getControlFilterCount !== "function") return Promise.resolve(undefined);
+    return source.getControlFilterCount(this.controlFilterKey, expression || "");
+  }
   // A condition the filter holds now keeps its place and a new one goes to the end, as with
   // setFieldCondition(); one the editor no longer holds is dropped. Conditions that are, as a set,
   // what applies now are no edit - over an untouched preset that keeps ownConditions undefined, so
@@ -629,7 +686,9 @@ export class QuestionFilterModel extends QuestionNonValue {
   // control's field list can change with no notification - parseFilterExpression caches the part
   // that is safe to cache.
   private parseActiveItemConditions(): Array<IFilterCondition> | null {
-    const item = this.activeItem;
+    return this.parseItemConditions(this.activeItem);
+  }
+  private parseItemConditions(item: FilterItem): Array<IFilterCondition> | null {
     if (!item) return null;
     return parseFilterExpression((item.expression || "").trim(), this.getFilterFields());
   }
@@ -1151,9 +1210,9 @@ export class QuestionFilterModel extends QuestionNonValue {
     }
     this.updateFilterExpression();
   }
-  private calcSearchExpression(): string {
+  private calcSearchExpression(searchString: string = this.searchString): string {
     if (!this.showSearch) return "";
-    const text = (this.searchString || "").trim();
+    const text = (searchString || "").trim();
     if (!text) return "";
     const fields = this.getSearchFields();
     // No field to search is a configuration gap, not "nothing matches": it must not hide every

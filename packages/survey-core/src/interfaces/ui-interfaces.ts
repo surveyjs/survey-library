@@ -20,6 +20,14 @@ export interface IFilterCondition {
   operator: string;
   value?: any;
 }
+// The state of a Filter Control that the Filters dialog edits and applies as one: the preset it has
+// on while it is as it was (conditions undefined - the preset's own text applies), or the conditions
+// that apply instead, and the search text.
+export interface IFilterState {
+  activeItemName: string;
+  conditions?: Array<IFilterCondition>;
+  searchString: string;
+}
 // The end-user state of a Filter Control. Only what the respondent changed is kept here: what the
 // JSON authored is already in the JSON and is restored by loading it.
 export interface IFilterElementUIState {

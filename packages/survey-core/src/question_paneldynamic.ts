@@ -3559,7 +3559,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
 
   get showNavigation(): boolean {
     if (this.isReadOnly && this.visiblePanelCount == 1) return false;
-    return this.visiblePanelCount > 0 && !!this.cssClasses.footer;
+    return this.visiblePanelCount > 0 && !!this.cssClasses.footerBar;
   }
   /* The footer under the panels: the bottom progress bar and the footer toolbar while the navigation
      shows, and the pager. The pager shares the footer row with the toolbar buttons. */

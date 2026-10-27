@@ -65,13 +65,6 @@
   }
 }
 
-.sd-title+.sv-components-row,
-.sd-title~.sv-components-row {
-  &>.sv-components-column .sv_progress-toc:not(.sv_progress-toc--mobile) {
-    margin-top: 2px;
-  }
-}
-
 .sv_progress-toc.sv_progress-toc--sticky {
   position: sticky;
   height: auto;

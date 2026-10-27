@@ -194,7 +194,7 @@ frameworks.forEach((framework) => {
           }
         ]
       });
-      const pager = page.locator(".sd-matrixdropdown__pager");
+      const pager = page.locator(".sd-pager");
       await expect(page.locator("tbody tr").first()).toContainText("Row 1");
       await expect(pager.locator(".sd-pager__total")).toHaveText("of 3");
       await pager.locator("button[title='Next']").click();

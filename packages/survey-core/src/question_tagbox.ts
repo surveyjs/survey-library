@@ -241,10 +241,8 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
   }
 
   public updateSelectAllItemText(isAllSelected: boolean): void {
-    this.selectAllTextValue = this.selectAllTextValue || this.locSelectAllText;
-    this.selectAllItem.setLocText(isAllSelected ? this.deselectAllText() : this.selectAllTextValue);
+    this.selectAllItem.setLocText(isAllSelected ? this.deselectAllText() : this.locSelectAllText);
   }
-  private selectAllTextValue: LocalizableString;
   private deselectAllTextValue: LocalizableString;
   private deselectAllText(): LocalizableString {
     if (!this.deselectAllTextValue) {

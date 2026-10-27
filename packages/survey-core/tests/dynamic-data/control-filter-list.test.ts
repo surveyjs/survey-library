@@ -232,3 +232,67 @@ describe("applyFilters", () => {
     expect(records[1], "#2: the record itself is not modified").toEqual({ n: 2 });
   });
 });
+
+/* A source that pages and filters but cannot sort: a sort makes the list read it whole and run the
+   filters itself. It runs the toy filter of FakeServerViewSource on a paged read and keeps every
+   request it was asked. */
+class FilteringOnlySource implements IDynamicDataSource {
+  public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true };
+  public requests: Array<IDynamicDataReadRequest> = [];
+  constructor(public records: Array<any>) { }
+  public read(request: IDynamicDataReadRequest): IDynamicDataReadResult {
+    this.requests.push(request);
+    const take = request.take > 0 ? request.take : this.records.length;
+    return { records: this.records.slice(request.skip, request.skip + take), total: this.records.length };
+  }
+}
+
+// The control slot goes by the rules of the authored one (DynamicDataView): a filter the list cannot
+// run is dropped only when no read follows - a read that follows carries it to the source.
+describe("DynamicDataList: a control filter the list cannot run, by the authored filter's rules", () => {
+  const records = (): Array<any> => [{ c1: "a", n: 1 }, { c1: "b", n: 2 }, { c1: "c", n: 3 }];
+  const values = (list: DynamicDataList): Array<any> =>
+    list.getCreatedIndexes().map((i: number): any => list.getRecord(i).c1);
+  const lastFilter = (source: { requests: Array<IDynamicDataReadRequest> }): string =>
+    source.requests[source.requests.length - 1].filter;
+
+  test("a source that pages and filters is handed it and the slot stays", () => {
+    const source = new FakeServerViewSource(records());
+    const list = new DynamicDataList(source);
+    const errors: Array<string> = [];
+    list.onError = (e: any, op: string): void => { errors.push(op); };
+    list.load();
+    list.controlFilter = "{c1} =";
+    expect([lastFilter(source), list.controlFilter, errors], "#1").toEqual(["{c1} =", "{c1} =", []]);
+    list.filter = "{n} > 1";
+    expect(lastFilter(source), "#2: next to the authored one").toBe("({n} > 1) and ({c1} =)");
+  });
+  test("a sort that needs the whole storage is refused by it; the window and the slot stay", () => {
+    const source = new FilteringOnlySource(records());
+    const list = new DynamicDataList(source);
+    const errors: Array<string> = [];
+    list.onError = (e: any, op: string): void => { errors.push(op + ": " + (e && e.message)); };
+    list.pageSize = 2;
+    list.load();
+    list.controlFilter = "{c1} = ";
+    const reads = source.requests.length;
+    list.sort = [{ field: "c1", direction: "desc" }];
+    expect(source.requests.length, "#1: no read is sent").toBe(reads);
+    expect(errors.length, "#2").toBe(1);
+    expect(errors[0], "#3").toMatch(/^read: .*does not declare the "sorting" capability/);
+    expect([list.controlFilter, values(list)], "#4: the window in force stays").toEqual(["{c1} = ", ["a", "b"]]);
+  });
+  test("with the whole storage in force a control filter runs here and reads nothing", () => {
+    const source = new FilteringOnlySource(records());
+    const list = new DynamicDataList(source);
+    list.pageSize = 2;
+    list.load();
+    list.sort = [{ field: "c1", direction: "desc" }];
+    expect(lastFilter(source), "#1: the whole storage is read with no filter").toBe("");
+    const reads = source.requests.length;
+    list.controlFilter = "{c1} != 'b'";
+    expect(values(list), "#2").toEqual(["c", "a"]);
+    list.controlFilter = "{c1} != 'c'";
+    expect([values(list), source.requests.length], "#3").toEqual([["b", "a"], reads]);
+  });
+});

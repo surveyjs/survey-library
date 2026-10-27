@@ -5,6 +5,58 @@ export var icelandicSurveyStrings = {
   pagePrevText: "Tilbaka",
   // "Next"
   pageNextText: "Áfram",
+  // [Auto-translated] "First"
+  pageFirstText: "Fyrst",
+  // [Auto-translated] "Last"
+  pageLastText: "Síðasta",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Veldu síðu",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Raðaðu eftir {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Hátt - Lágt",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Lágt - Hátt",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Stafróf, A - Ö",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Stafróf, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Nýjasta fyrsta",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Elsti fyrsti",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Raðað eftir {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, þá um {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Raðaðu eftir",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Sjálfgefið",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Röðunarsvið",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Röðun",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Bættu við raðunarstigi",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Fjarlægðu flokkunarstig {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Flokkunarreitur {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Raða röð {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Meira...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Sýndu öll flokkunarstig",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Bættu við Nýju",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Lokið",
   // "Preview"
@@ -37,6 +89,8 @@ export var icelandicSurveyStrings = {
   panelDynamicTabTextFormat: "Pallborð {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Svarað {0} / {1} spurningum",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Spurning {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Það er enginn síða eða spurningar í þessari könnun.",
   // "Thank you for completing the survey"

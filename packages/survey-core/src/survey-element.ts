@@ -432,15 +432,20 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.titleToolbarValue.containerCss = (this.isPanel ? this.cssClasses.panel.titleBar : this.cssClasses.titleBar) || "sv-action-title-bar";
       this.titleToolbarValue.setItems(this.getTitleActions());
       this.titleToolbarValue.flushUpdates();
+      this.titleToolbarValue.registerFunctionOnPropertyValueChanged("isEmpty", () => {
+        this.resetHasVisibleTitleActions();
+      });
     }
     return this.titleToolbarValue;
   }
   protected createActionContainer(allowAdaptiveActions?: boolean): ActionContainer {
-    const actionContainer = allowAdaptiveActions ? new AdaptiveActionContainer() : new ActionContainer();
+    return this.initActionContainer(allowAdaptiveActions ? new AdaptiveActionContainer() : new ActionContainer());
+  }
+  // Gives a container the survey's action bar classes.
+  protected initActionContainer<T extends ActionContainer>(actionContainer: T): T {
     if (this.survey && !!this.survey.getCss().actionBar) {
       actionContainer.cssClasses = this.survey.getCss().actionBar;
     }
-
     return actionContainer;
   }
   public get titleActions(): Array<any> {
@@ -475,9 +480,21 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (!!this.titleToolbarValue) {
       this.titleToolbarValue.locStrsChanged();
     }
+    // An error text can interpolate values ({calculatedValue}) the same way a title does.
+    // Read the property directly: the errors getter creates the array.
+    const errors: Array<SurveyError> = this.getPropertyValue("errors");
+    errors?.forEach(err => err.updateRenderedText());
   }
   public get hasTitleActions(): boolean {
     return this.getTitleActions().length > 0;
+  }
+  public get hasVisibleTitleActions() {
+    return this.getPropertyValue("hasVisibleTitleActions", undefined, () => {
+      return this.hasTitleActions && this.getTitleToolbar().hasVisibleActions;
+    });
+  }
+  private resetHasVisibleTitleActions() {
+    this.resetPropertyValue("hasVisibleTitleActions");
   }
   public get hasTitleEvents(): boolean {
     return this.state !== undefined && this.state !== "default";
@@ -519,16 +536,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const data = <IObjectValueContext><any>this.data;
     return !!data ? data.getValueGetterContext() : super.getValueGetterContext();
   }
-  protected canSkipExpressionByKeys(runner: any, keys: any, vars?: string[]): boolean {
+  protected canSkipExpressionByKeys(runner: any, keys: any, vars?: string[], isClearedKeyChanged?: boolean): boolean {
     if (!keys) return false;
     const data = <IObjectValueContext><any>this.data;
     if (!!data && typeof data.getValueGetterContext === "function") {
       const dataContext = data.getValueGetterContext();
       if (typeof dataContext?.getContextKeys === "function") {
-        return super.canSkipExpressionByKeys(runner, Object.assign({}, keys, dataContext.getContextKeys(keys)), vars);
+        return super.canSkipExpressionByKeys(runner, Object.assign({}, keys, dataContext.getContextKeys(keys)), vars, isClearedKeyChanged);
       }
     }
-    return super.canSkipExpressionByKeys(runner, keys, vars);
+    return super.canSkipExpressionByKeys(runner, keys, vars, isClearedKeyChanged);
   }
   protected get shouldHandleFocusScroll(): boolean {
     return !!(this.survey as SurveyModel)?.autoCenterFocusedQuestion;
@@ -1318,10 +1335,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       },
       getAnimatedElement: () => {
         const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
-        if (cssClasses.content) {
-          const selector = classesToSelector(cssClasses.content);
+        if (cssClasses.expandableContent) {
+          const selector = classesToSelector(cssClasses.expandableContent);
           if (selector) {
-            return this.getWrapperElement()?.querySelector(`:scope ${selector}`);
+            return this.rootElement?.querySelector(`:scope ${selector}`);
           }
         }
         return undefined;
@@ -1365,8 +1382,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   public onAfterRenderElement: EventBase<SurveyElement<E>, any> = this.addEvent<SurveyElement<E>, any>();
+  protected rootElement: HTMLElement;
   public afterRenderCore(element: HTMLElement): void {
+    this.rootElement = element;
     this.onAfterRenderElement.fire(this, { htmlElement: element });
+  }
+  public beforeDestroy() {
+    this.rootElement = undefined;
   }
 
   public dispose(): void {
@@ -1374,35 +1396,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (this.titleToolbarValue) {
       this.titleToolbarValue.dispose();
     }
-    this.disposeObjectsAwaitingRerender();
-  }
-  /* An object this element stopped rendering - a dynamic panel, a matrix row - can still be on screen:
-     a UI that renders asynchronously (Angular) checks its components once more before it drops them,
-     and the check throws on a disposed object (a disposed dropdown has no dropdownListModel). While a
-     UI renders this element, the object is disposed after the element's next rerender, or when the UI
-     stops rendering it (an isCancel notification); without a UI it is disposed at once. */
-  protected disposeAfterRerender(obj: { dispose(): void }, disposeFunc?: () => void): void {
-    const rerendered = this.isDisposed ? undefined : this.onElementRerendered;
-    const func = disposeFunc || ((): void => obj.dispose());
-    if (!rerendered) {
-      func();
-      return;
-    }
-    if (this.objectsAwaitingRerender.some(item => item.obj === obj)) return;
-    if (this.objectsAwaitingRerender.length === 0) {
-      rerendered.add(this.onRerenderedDisposeObjects);
-    }
-    this.objectsAwaitingRerender.push({ obj: obj, func: func });
-  }
-  private objectsAwaitingRerender: Array<{ obj: any, func: () => void }> = [];
-  private onRerenderedDisposeObjects = (): void => {
-    this.disposeObjectsAwaitingRerender();
-  };
-  private disposeObjectsAwaitingRerender(): void {
-    this._onElementRerendered.remove(this.onRerenderedDisposeObjects);
-    const items = this.objectsAwaitingRerender;
-    this.objectsAwaitingRerender = [];
-    items.forEach(item => item.func());
   }
   public get randomSeed(): number {
     let seed = this.getOwner()?.randomSeed || 0;

@@ -25,12 +25,18 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
     return (
       <div>
         {this.renderTopToolbar()}
+        {this.renderSortBar()}
         {mainDiv}
-        {/* The pager sits under the table and above the "Add row" toolbar. */}
-        {this.renderPager()}
-        {this.renderBottomToolbar()}
+        {this.renderRecordsFooter()}
       </div>
     );
+  }
+  // The footer exists only with the pager: the bottom toolbar and the pager in one row.
+  // Without the pager the bottom toolbar is the next sibling of the table, as without paging.
+  protected renderRecordsFooter(): React.JSX.Element | null {
+    const toolbar = this.renderBottomToolbar();
+    if (!this.matrix.showPager) return toolbar;
+    return <div className={this.matrix.getFooterCss()}>{toolbar}{this.renderRecordsBar()}</div>;
   }
   protected renderToolbar(location: "top" | "bottom"): React.JSX.Element | null {
     if (!this.matrix.getShowToolbar(location)) return null;
@@ -62,7 +68,7 @@ export class SurveyQuestionMatrixDynamicPlaceholder extends ReactSurveyElement {
     const matrix = this.props.question as QuestionMatrixDynamicModel;
     const text: React.JSX.Element = this.renderLocString(matrix.locNoRowsText);
     const textDiv: React.JSX.Element = <div className={cssClasses.noRowsText}>{text}</div>;
-    const toolbar: React.JSX.Element | undefined = matrix.getShowToolbar() ? ReactElementFactory.Instance.createElement("sv-action-bar", { model: matrix.toolbar }) : null;
+    const toolbar: React.JSX.Element | undefined = matrix.getShowPlaceholderToolbar() ? ReactElementFactory.Instance.createElement("sv-action-bar", { model: matrix.toolbar }) : null;
     return (
       <div className={cssClasses.noRowsSection}>
         {textDiv}

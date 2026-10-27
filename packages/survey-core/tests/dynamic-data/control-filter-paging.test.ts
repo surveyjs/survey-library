@@ -1,31 +1,35 @@
 import { describe, test, expect } from "vitest";
 import { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
-import { DynamicDataPagingController, IDynamicDataPagingOwner } from "../../src/dynamic-data/dynamic-data-paging";
+import { RecordsPagingController, IRecordsPagingOwner } from "../../src/records/records-paging";
 import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
-import { IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner } from "../../src/dynamic-data/dynamic-data-interfaces";
+import {
+  IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSource,
+  IDynamicDataSourceCapabilities
+} from "../../src/dynamic-data/dynamic-data-interfaces";
 
-// The control filter entrance of DynamicDataPagingController, the one a Filter Control writes. It
+// The control filter entrance of RecordsPagingController, the one a Filter Control writes. It
 // lives in a file of its own so that a change of the controller's own tests never conflicts with it.
 
 /* A trimmed copy of the owner dynamic-data-paging.test.ts keeps to itself: a property hash, the two
    mode flags a question would answer from the survey, a real list over a real in-memory source,
    created lazily as a question creates it. It records the errors the list reports and the pending
    page moves the controller drops. */
-class FakePagingOwner implements IDynamicDataPagingOwner, IDynamicDataOwner {
-  public paging: DynamicDataPagingController;
+class FakePagingOwner implements IRecordsPagingOwner, IDynamicDataOwner {
+  public paging: RecordsPagingController;
   public hash: { [index: string]: any } = {};
   public isDesignMode: boolean = false;
   public isLoadingFromJson: boolean = false;
   public errors: Array<string> = [];
   public cancelPendingPageMoveCount: number = 0;
   private listValue: DynamicDataList;
-  constructor(private records: Array<any>) {
-    this.paging = new DynamicDataPagingController(this, (): DynamicDataList => this.getDataList());
+  // source: the one the list reads; an in-memory source over records when not given.
+  constructor(private records: Array<any>, private source?: IDynamicDataSource) {
+    this.paging = new RecordsPagingController(this, (): DynamicDataList => this.getDataList());
   }
   public get hasList(): boolean { return !!this.listValue; }
   public getDataList(): DynamicDataList {
     if (!this.listValue) {
-      this.listValue = new DynamicDataList(ArrayDynamicDataSource.fromArray(this.records), this);
+      this.listValue = new DynamicDataList(this.source || ArrayDynamicDataSource.fromArray(this.records), this);
       this.listValue.onError = (e: any, op: string): void => { this.errors.push(op); };
       this.listValue.load();
       this.paging.updatePageSize();
@@ -34,11 +38,18 @@ class FakePagingOwner implements IDynamicDataPagingOwner, IDynamicDataOwner {
   }
   public getPropertyValue(name: string): any { return this.hash[name]; }
   public setPropertyValue(name: string, val: any): void { this.hash[name] = val; }
+  // The sort is not what these tests are about: a plain array in the hash is enough.
+  public getArrayPropertyValue(name: string): Array<any> {
+    if (!Array.isArray(this.hash[name])) {
+      this.hash[name] = [];
+    }
+    return this.hash[name];
+  }
+  public setArrayPropertyValue(name: string, val: Array<any>): void { this.hash[name] = [].concat(val); }
   public get pageSize(): number { return this.hash["pageSize"] || 0; }
   public get pageIndex(): number { return this.paging.pageIndex; }
   public get pageCount(): number { return this.paging.pageCount; }
   public get isCountKnown(): boolean { return this.paging.isCountKnown; }
-  public raiseSortByChanged(): void { }
   public cancelPendingPageMove(): void {
     this.cancelPendingPageMoveCount++;
   }
@@ -58,8 +69,19 @@ class FakePagingOwner implements IDynamicDataPagingOwner, IDynamicDataOwner {
   }
 }
 const abc = (): Array<any> => [{ c1: "c" }, { c1: "a" }, { c1: "b" }];
+// A source that pages and filters itself: every view travels inside a read. It answers every request
+// with all of its records and keeps the requests.
+class ServerSource implements IDynamicDataSource {
+  public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
+  public requests: Array<IDynamicDataReadRequest> = [];
+  constructor(public records: Array<any>) { }
+  public read(request: IDynamicDataReadRequest): IDynamicDataReadResult {
+    this.requests.push(request);
+    return { records: this.records.slice(), total: this.records.length };
+  }
+}
 
-describe("DynamicDataPagingController: the control filter entrance", () => {
+describe("RecordsPagingController: the control filter entrance", () => {
   test("a control filter applies next to the authored one and does not touch it", () => {
     const owner = new FakePagingOwner(abc());
     owner.paging.filterExpression = "{c1} != 'z'";
@@ -117,6 +139,18 @@ describe("DynamicDataPagingController: the control filter entrance", () => {
     owner.paging.syncState();
     expect(owner.errors.length, "#3: the list cleared its slot, the controller does not re-hand it")
       .toBe(1);
+  });
+  test("a control filter the list cannot run goes to a source that filters once, and stays", () => {
+    const source = new ServerSource(abc());
+    const owner = new FakePagingOwner(abc(), source);
+    owner.getDataList();
+    owner.paging.setControlFilter("control", "{c1} =");
+    const reads = source.requests.length;
+    expect([source.requests[reads - 1].filter, owner.errors.length], "#1: the source runs it").toEqual(["{c1} =", 0]);
+    owner.paging.syncState();
+    owner.paging.syncState();
+    expect(source.requests.length, "#2: syncs hand nothing new to the list").toBe(reads);
+    expect(owner.getDataList().controlFilter, "#3").toBe("{c1} =");
   });
   // A control filter replaces the page from code, as filterExpression does: a move that waits for
   // the validators of the page it leaves is dropped.

@@ -1,16 +1,13 @@
 import { ILintRule, LintContext } from "../rule";
 import { builtInVariableNames, equalsCI, isBuiltInVariable, stripCommentSuffix } from "../expression-utils";
-import { ElementRecord, getEffectiveType, TriggerRecord } from "../symbols";
+import { ElementRecord, getCapturingFrame, getEffectiveType, TriggerRecord } from "../symbols";
 import { isMatrixDropdown, isPropertyOn } from "../metadata";
 import { hasOtherItem } from "../value-types";
+import { addsItemFieldsTo, getDataKey, getDataKeyRecords, getListedRows, getSharedValueShape, getSharingRecords } from "../record-fields";
 import { ILintRelated } from "../types";
 import { SurveyLintReasons } from "../reasons";
 
 const reasons = SurveyLintReasons["name/shadowing"];
-
-function getDataName(record: ElementRecord): string {
-  return record.valueName || record.name;
-}
 
 function relatedOf(records: Array<ElementRecord>): Array<ILintRelated> {
   return records.map(record => ({ path: record.path, elementName: record.name }));
@@ -39,19 +36,28 @@ function reportBuiltIn(ctx: LintContext, name: string, nameKind: string, path: s
   });
 }
 
-// Two questions may deliberately share a valueName - that is how the runtime lets them answer
-// as one. What is reported here is the one-sided form: a valueName landing on the data key
-// another question writes under its own name, where only one of the two is aware of it.
+// Sharing a value through a valueName is a documented feature, on one side or on both (Merge
+// Question Values), so only the form the runtime mishandles is reported: a valueName landing on the
+// name of a dynamic panel or matrix without a valueName of its own, which the question adds fields
+// to. Such a question knows those fields only when it declares the valueName itself
+// (QuestionRecordsModel.getSharedQuestionFromArray): keyed by its name alone it treats them as
+// unknown - setData() reports them and clearIncorrectValues() deletes them. Top-level questions
+// only: a question inside a dynamic-panel template or a matrix detail panel writes into its panel's
+// or row's record, never next to a top-level question (#12014).
 function checkValueNameOverName(ctx: LintContext, record: ElementRecord): void {
   const valueName = record.valueName;
-  if (!valueName || equalsCI(valueName, record.name)) return;
-  const shadowed = ctx.index.byName.get(valueName)
-    .filter(other => other !== record && other.kind === "question" && !other.valueName);
+  if (!valueName || valueName === record.name) return;
+  if (getCapturingFrame(record.scope)) return;
+  const shadowed = getSharingRecords(ctx.index, record)
+    .filter(other => other !== record && other.kind === "question" && !other.valueName &&
+      addsItemFieldsTo(other, record));
   if (shadowed.length === 0) return;
+  const other = shadowed[0];
   ctx.report({
-    message: "The valueName \"" + valueName + "\" of \"" + record.name + "\" is also the name of " +
-      "question \"" + shadowed[0].name + "\" - both store their answer under the data key \"" +
-      valueName + "\".",
+    message: "The valueName \"" + valueName + "\" of \"" + record.name + "\" shares the value of " +
+      other.type + " \"" + other.name + "\", which has no valueName of its own - \"" + other.name +
+      "\" treats the fields \"" + record.name + "\" adds as unknown, and clearIncorrectValues() deletes them." +
+      " Set its valueName to \"" + valueName + "\" too.",
     path: record.path + ".valueName",
     reason: reasons.valueNameShadowsElement,
     messageData: {
@@ -86,7 +92,7 @@ function hasTotals(record: ElementRecord): boolean {
 // element whose own key spells one of those overwrites it, in whichever order they are written.
 function checkDerivedKeyCollision(ctx: LintContext, record: ElementRecord): void {
   if (record.kind !== "question") return;
-  const dataName = getDataName(record);
+  const dataName = getDataKey(record);
   const settings = ctx.index.settings;
   const commentBase = stripCommentSuffix(dataName, settings);
   const totalsSuffix = settings.matrixTotalsSuffix;
@@ -97,8 +103,12 @@ function checkDerivedKeyCollision(ctx: LintContext, record: ElementRecord): void
   const check = (base: string, suffix: string, reason: string, owns: (rec: ElementRecord) => boolean,
     what: string): void => {
     if (!base) return;
-    const owner = ctx.index.findByDataName(base);
-    if (!owner || owner === record || !owns(owner)) return;
+    // the questions writing the base key in the record's data scope: a question of a dynamic-panel
+    // template writes into its panel's record, one of a matrix detail panel into its row's record
+    // next to the columns, every other question into the survey data
+    const owner = getDataKeyRecords(ctx.index, getCapturingFrame(record.scope), base)
+      .filter(other => other !== record && owns(other))[0];
+    if (!owner) return;
     ctx.report({
       message: "The data key \"" + dataName + "\" of \"" + record.name + "\" is also the " + what +
         " key of \"" + owner.name + "\" (its data key plus \"" + suffix +
@@ -113,6 +123,81 @@ function checkDerivedKeyCollision(ctx: LintContext, record: ElementRecord): void
   };
   check(commentBase, settings.commentSuffix, reasons.commentKeyCollision, writesComment, "comment");
   check(totalBase, totalsSuffix, reasons.totalKeyCollision, hasTotals, "totals");
+}
+
+// The keys a question on the data key fills with a single value: the rows of a single-choice matrix
+// (as the JSON lists them), the items of a multiple text.
+function getSingleValueKeys(record: ElementRecord): Array<string> {
+  const type = getEffectiveType(record);
+  if (type === "matrix") return getListedRows(record) || [];
+  if (type === "multipletext" && !!record.multipleTextItems) return record.multipleTextItems.names();
+  return [];
+}
+
+// A matrixdropdown keeps an object of cells under a row key, a single-choice matrix the column
+// value and a multiple text the item text: on one key the runtime stores one of them and deletes the
+// other side (QuestionMatrixModel / QuestionMatrixDropdownModel clearIncorrectValues).
+function checkDropdownRowConflict(ctx: LintContext, record: ElementRecord, reported: Set<string>): void {
+  if (record.kind !== "question" || getEffectiveType(record) !== "matrixdropdown") return;
+  const rows = getListedRows(record);
+  if (!rows) return;
+  getSharingRecords(ctx.index, record).forEach(other => {
+    getSingleValueKeys(other).forEach(key => {
+      // the runtime compares the keys exactly (hasValueKey: row.value + "" === key)
+      const id = other.path + "|" + key;
+      if (rows.indexOf(key) < 0 || reported.has(id)) return;
+      reported.add(id);
+      const what = getEffectiveType(other) === "matrix" ? "a row of matrix" : "an item of multipletext";
+      ctx.report({
+        message: "The row \"" + key + "\" of matrixdropdown \"" + record.name + "\" is also " + what + " \"" +
+          other.name + "\" sharing its value - a cell object and a single value cannot both live under one key;" +
+          " the runtime keeps one and deletes the other.",
+        path: other.path,
+        reason: reasons.dropdownRowConflict,
+        messageData: { key: key, name: other.name, otherName: record.name },
+        elementName: other.name,
+        elementType: other.type,
+        related: relatedOf([record, other]),
+      });
+    });
+  });
+}
+
+const SHAPE_RANK: { [shape: string]: number } = { records: 2, object: 1, plain: 0 };
+const SHAPE_TEXT: { [shape: string]: string } = { records: "an array of objects", object: "an object", plain: "a plain value" };
+
+// Questions on one data key keeping values of different shapes (getSharedValueShape): each side
+// reports the other one's value (invalidValueType) and clearIncorrectValues() deletes it. Reported
+// once per pair, on the question of the simpler shape. Top-level questions only, as with
+// checkValueNameOverName.
+function checkValueShapeConflict(ctx: LintContext, record: ElementRecord): void {
+  if (record.kind !== "question" || getCapturingFrame(record.scope)) return;
+  // the map lookup first: few questions share their data key
+  const sharing = getSharingRecords(ctx.index, record);
+  if (sharing.length < 2) return;
+  const shape = getSharedValueShape(record);
+  if (!shape || SHAPE_RANK[shape] === 0) return;
+  sharing.forEach(other => {
+    if (other === record || other.kind !== "question") return;
+    const otherShape = getSharedValueShape(other);
+    if (!otherShape || SHAPE_RANK[otherShape] >= SHAPE_RANK[shape]) return;
+    const dataKey = getDataKey(record);
+    ctx.report({
+      message: "\"" + other.name + "\" shares the data key \"" + dataKey + "\" with " + record.type + " \"" +
+        record.name + "\", which keeps " + SHAPE_TEXT[shape] + " there, while " + other.type + " \"" + other.name +
+        "\" keeps " + SHAPE_TEXT[otherShape] + " - one cannot hold the other's value; setData() reports it" +
+        " and clearIncorrectValues() deletes it.",
+      path: other.path,
+      reason: reasons.valueShapeConflict,
+      messageData: {
+        name: other.name, otherName: record.name, otherType: record.type, dataKey: dataKey,
+        shape: otherShape, otherShape: shape,
+      },
+      elementName: other.name,
+      elementType: other.type,
+      related: relatedOf([record, other]),
+    });
+  });
 }
 
 // setToName with isVariable writes a variable rather than the question's value, and the
@@ -158,9 +243,12 @@ export const nameShadowingRule: ILintRule = {
     ctx.index.calculatedValueList.forEach(cv => {
       reportBuiltIn(ctx, cv.name, "calculatedValue", cv.path);
     });
+    const reportedRows = new Set<string>();
     ctx.index.allElements.forEach(record => {
       checkValueNameOverName(ctx, record);
       checkDerivedKeyCollision(ctx, record);
+      checkDropdownRowConflict(ctx, record, reportedRows);
+      checkValueShapeConflict(ctx, record);
     });
     ctx.index.triggers.forEach(trigger => checkVariableTrigger(ctx, trigger));
   },

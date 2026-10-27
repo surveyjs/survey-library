@@ -31,6 +31,28 @@ registerMarkupTests(
         return <HTMLElement>el?.querySelector("form");
       },
       snapshot: "survey-navigation"
+    },
+    {
+      name: "Test Survey do not render empty navigation action bar",
+      json: {
+        navigationButtonsLocation: "topBottom",
+        elements: [
+          {
+            "type": "html",
+            "name": "q1",
+            "html": "<div></div>"
+          }
+        ]
+      },
+      event: "onAfterRenderSurvey",
+      initSurvey: (survey) => {
+        survey.headerView = "basic";
+        survey.showCompleteButton = false;
+      },
+      getElement: (el) => {
+        return <HTMLElement>el?.querySelector("form");
+      },
+      snapshot: "survey-navigation-empty"
     }, {
       name: "Test Survey theme css variables",
       json: {
@@ -232,5 +254,23 @@ registerMarkupTests(
         return <HTMLElement>el?.querySelector(".sv-header--mobile");
       },
       snapshot: "survey-header-advanced-mobile"
+    },
+    {
+      name: "Test Survey questionPerPage body single question class",
+      json: {
+        questionsOnPageMode: "questionPerPage",
+        elements: [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ]
+      },
+      event: "onAfterRenderSurvey",
+      getSnapshot: (el) => {
+        const body = el.querySelector(".sd-body");
+        return body ? `<div class="${body.className}"></div>` : "";
+      },
+      snapshot: "survey-question-per-page"
     }
   ]);

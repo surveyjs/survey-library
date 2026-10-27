@@ -5,6 +5,58 @@ export var hebrewSurveyStrings = {
   pagePrevText: "אחורה",
   // "Next"
   pageNextText: "קדימה",
+  // [Auto-translated] "First"
+  pageFirstText: "ראשונה",
+  // [Auto-translated] "Last"
+  pageLastText: "אחרון",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "של {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Select Page",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "מיין לפי {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "גבוה-נמוך",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "נמוך - גבוה",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "אלפבית, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "אלפבית, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "החדש הראשון",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "הראשונה הוותיקה ביותר",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "ממויין לפי {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, ואז עד {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "מיין לפי",
+  // [Auto-translated] "Default"
+  sortDefaultText: "ברירת מחדל",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "שדה מיון",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "סדר מיון",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "הוספת רמת מיון",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "הסר את רמת המיון {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "שדה מיון {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "סדר מיון {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "עוד...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "הצג את כל רמות המיון",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "הוסף חדש",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "סיום",
   // "Preview"
@@ -37,6 +89,8 @@ export var hebrewSurveyStrings = {
   panelDynamicTabTextFormat: "לוח {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "ענה על שאלות",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "שאלה {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "אין שאלות",
   // "Thank you for completing the survey"

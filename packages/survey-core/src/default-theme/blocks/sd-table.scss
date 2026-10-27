@@ -115,6 +115,12 @@
             var(--sjs2-layout-component-matrix-box-padding-bottom);
           padding-inline: var(--sd-question-header-padding-inline);
         }
+        & > .sd-question__comment-area {
+          position: sticky;
+          left: 0;
+          padding-inline: var(--sd-question-header-padding-inline);
+          padding-block-end: var(--sjs2-layout-component-matrix-box-padding-bottom);
+        }
       }
     }
   }

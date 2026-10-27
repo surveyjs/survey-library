@@ -23,7 +23,7 @@
     </div>
   </div>
 </div>
-<div *ngIf="model.isEmpty()">
+<div *ngIf="model.isEmpty()" [class]="css.summaryPlaceholder">
   <ng-template
     [component]="{ 
       name: placeholderComponent,

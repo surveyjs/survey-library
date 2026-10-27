@@ -1,20 +1,24 @@
 import { ConditionRunner } from "../conditions/conditionRunner";
 import { Helpers } from "../helpers";
+import type { ISurvey } from "../interfaces/survey-interfaces";
+import { Scope } from "../utils/scope";
 import {
-  applyFilters, applySort, combineFilterExpressions, createFilterRunner, createIndexes
-} from "./dynamic-data-filter";
-import {
-  DynamicDataOperation, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
-  IDynamicDataReadRequest, IDynamicDataSort, IDynamicDataSource, IDynamicDataSourceCapabilities
+  DynamicDataErrorOperation, DynamicDataSourceMethod, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
+  IDynamicDataReadRequest, ISortCriterion, IDynamicDataSource
 } from "./dynamic-data-interfaces";
-import {
-  DynamicDataSourceChannel, IDynamicDataChannelHost, IPendingInsert, getChangedFields, getOwnedFields, getUpdatePayload,
-  mergeInsertAnswer, toReadResult
-} from "./dynamic-data-channel";
-import { DynamicDataCount } from "./dynamic-data-count";
-import { ArrayDynamicDataSource } from "./dynamic-data-sources";
-import { insertRemap, moveRemap, removeRemap } from "./dynamic-data-record-remap";
+import { DynamicDataSourceChannel, IDynamicDataChannelHost, IDynamicDataPushInfo } from "./dynamic-data-channel";
+import { getChangedFields, isRecordValueChanged, toReadResult } from "./dynamic-data-records";
+import { applyFilters, combineFilterExpressions, createFilterRunner } from "./dynamic-data-filter";
+import { IPendingInsert, getOwnedFields, getUpdatePayload, mergeInsertAnswer } from "./dynamic-data-pending-insert";
+import { DynamicDataCount, IDynamicDataWindowAnswer } from "./dynamic-data-count";
+import { ArrayDynamicDataSource, isLocalSource, LocalDynamicDataSource } from "./dynamic-data-sources";
+import { DynamicDataSourceBinding } from "./dynamic-data-source-binding";
+import { DynamicDataWriteScope } from "./dynamic-data-write-scope";
+import { DynamicDataMembership } from "./dynamic-data-membership";
+import { DynamicDataReadState } from "./dynamic-data-read-state";
 import { DynamicDataRecordVisibility, IDynamicDataRecordCondition, IDynamicDataRecordScope } from "./dynamic-data-record-visibility";
+import { DynamicDataView } from "./dynamic-data-view";
+import { DynamicDataViewIndexes } from "./dynamic-data-view-indexes";
 
 // Index vocabulary - binding for every method and parameter name in this file:
 //
@@ -38,115 +42,101 @@ import { DynamicDataRecordVisibility, IDynamicDataRecordCondition, IDynamicDataR
 export class DynamicDataList {
   private _source: IDynamicDataSource;
   private windowRecords: Array<any> = [];
-  private hiddenFlags: Array<boolean> = [];
-  private _windowOffset: number = 0;
   // The total, what is known about it and the pending retry of a page past the end: committed
   // together with the window (see commitRead).
   private storageCount: DynamicDataCount = new DynamicDataCount();
   private _isLoading: boolean = false;
-  private _filter: string = "";
-  private filterRunner: ConditionRunner = undefined;
-  private _controlFilter: string = "";
-  private controlFilterRunner: ConditionRunner = undefined;
   private recordVisibility: DynamicDataRecordVisibility;
-  private _sort: Array<IDynamicDataSort> = [];
   private _pageSize: number = 0;
   private _pageIndex: number = 0;
-  private isLoaded: boolean = false;
   private isDisposed: boolean = false;
+  private onWriterChanged = (): void => { if (!!this.owner && !!this.owner.onSourceWriterChanged)this.owner.onSourceWriterChanged(); };
+  // The default and the assigned source, and what the source in use may be sent (dynamic-data-source-binding.ts).
+  private binding: DynamicDataSourceBinding = new DynamicDataSourceBinding(this, {
+    getSource: (): IDynamicDataSource => this._source,
+    setSource: (source: IDynamicDataSource): void => { this.source = source; },
+    onWriterChanged: this.onWriterChanged
+  });
   // The reads, the push chain and the pending inserts: everything that orders the requests to the
   // source (see the header of dynamic-data-channel.ts).
   private channel: DynamicDataSourceChannel = new DynamicDataSourceChannel(this.createChannelHost());
-  // Cached views; undefined means "recompute on the next read".
-  private createdIndexes: Array<number> = undefined;
-  private visibleIndexes: Array<number> = undefined;
-  private pageIndexes: Array<number> = undefined;
-  /* The frozen membership (isViewFrozenOnEdit): which records are in the view, and in what order, is
-     decided when filter/sort is assigned and maintained by the list's own writes until the next
-     assignment or refreshView(). frozenRecordCount is the record count it describes: a record count
-     that changed without the list doing it means the membership no longer fits. */
-  private frozenCreatedIndexes: Array<number> = undefined;
-  private frozenRecordCount: number = -1;
-  /* > 0 while the list applies a write of its own. A write-through source assigns the owner's
-     storage, and the owner reports that assignment back through invalidateViews(); the membership
-     must not be re-evaluated by the very write that maintains it. */
-  private writeDepth: number = 0;
-  // The record count the cached views were built for: the records can change outside the list
-  // (survey.data = ..., a trigger, clearValue, a default value, a rowCount that grows the padding),
-  // and a read-through list sees that at once while its views would not.
-  private viewsRecordCount: number = -1;
+  // Which records are in the view and which ones the respondent touched (dynamic-data-membership.ts).
+  private membership: DynamicDataMembership = new DynamicDataMembership({
+    getRecordCount: (): number => this.recordCount,
+    getRecords: (): Array<any> => this.records,
+    getFields: (): Array<IDynamicDataField> => this.getFields(),
+    getLocalFilterRunners: (): Array<ConditionRunner> => this.isWindowWholeStorage ? this.view.filterRunners : [],
+    getLocalSort: (): Array<ISortCriterion> => this.isWindowWholeStorage ? this.view.sort : [],
+    isMembershipFrozen: (): boolean => this.isViewFrozenOnEdit && this.hasLocalViews
+  });
+  // The index arithmetic over the views (dynamic-data-view-indexes.ts); the list delegates to it.
+  private viewIndexes: DynamicDataViewIndexes = new DynamicDataViewIndexes(this, this.membership);
+  // The filter, the sort and the filter runner (dynamic-data-view.ts). A filter the list cannot run
+  // is reported as a failed read.
+  private view: DynamicDataView = new DynamicDataView((error: any): void => this.raiseError(error, "read"));
+  // What the window in force is and how it was read (dynamic-data-read-state.ts).
+  private readState: DynamicDataReadState = new DynamicDataReadState(this.view);
+  // The write transaction: its scopes, the window it started with, the reset it owes (dynamic-data-write-scope.ts).
+  private writes: DynamicDataWriteScope = new DynamicDataWriteScope({
+    getWindowRecords: (): Array<any> => this.windowRecords,
+    getSource: (): IDynamicDataSource => this._source,
+    isAssignedSourceInUse: (): boolean => this.binding.isAssignedSourceInUse,
+    isWindowWholeStorage: (): boolean => this.isWindowWholeStorage,
+    takeListenerError: (): { error: any } => this.channel.takeListenerError(),
+    onWriteEnded: (): void => { if (!this.isDisposed && !!this.owner && !!this.owner.onWriteEnded)this.owner.onWriteEnded(); },
+    raiseChanged: (change: IDynamicDataListChange): void => this.raiseChanged(change)
+  });
 
   public onChanged: (change: IDynamicDataListChange) => void;
-  public onError: (error: any, operation: DynamicDataOperation) => void;
+  public onError: (error: any, operation: DynamicDataErrorOperation) => void;
 
   constructor(source: IDynamicDataSource, public owner?: IDynamicDataOwner) {
     this._source = source;
-    this.takeCapabilities();
+    this.readState.takeCapabilities(source);
   }
   // The exact comparison QuestionRecordItem.isValueChanged uses, so that the questions can
   // delegate to it instead of keeping their own copy.
   public static isValueChanged(newValue: any, oldValue: any): boolean {
-    return !Helpers.isTwoValueEquals(newValue, oldValue, false, true, false);
+    return isRecordValueChanged(newValue, oldValue);
   }
-  /* The list both questions use: an ArrayDynamicDataSource over the owner's own storage - a
-     getter/setter pair, never a captured array, so that every write replaces the array instead of
-     mutating the one the owner currently holds - read through on demand, so that a value assigned
-     outside the list is seen at once. The list keeps the factory and not the instance: a detach
-     builds a fresh source, so that the batch state of the one in use cannot survive a swap.
-     isMembershipFixed: see the flag; the default source carries it too.
-     getCount: the length getArray() would return, for a getter that composes the array on the fly.
-     The list keeps it, not the source, so a default source built again after a detach has it too
-     (see recordCount). */
-  public static createReadThrough(owner: IDynamicDataOwner, getArray: () => Array<any>,
-    setArray: (arr: Array<any>) => void, getCount?: () => number, isMembershipFixed: boolean = false): DynamicDataList {
-    const createSource = (): IDynamicDataSource => new ArrayDynamicDataSource(getArray, setArray, isMembershipFixed);
-    const list = new DynamicDataList(createSource(), owner);
-    list.createDefaultSource = createSource;
-    list.getReadThroughCount = getCount;
-    list.isMembershipFixed = isMembershipFixed;
-    list.isReadThrough = true;
+  /* The list both questions use: a local source over the owner's own storage - a getter/setter
+     pair, never a captured array, so that every write replaces the array instead of mutating the one
+     the owner currently holds - read through on demand, so that a value assigned outside the list is
+     seen at once. The list keeps the factory and not the instance: a detach builds a fresh source, so
+     that the batch state of the one in use cannot survive a swap. A source without insert makes the
+     list's membership fixed (isMembershipFixed); such a list never detaches its source.
+     The list reads and counts the owner's records through that source (see recordCount); a source the
+     owner assigns is read through the list's window instead. */
+  public static createReadThrough(owner: IDynamicDataOwner, createSource: () => LocalDynamicDataSource): DynamicDataList {
+    const source = createSource();
+    const list = new DynamicDataList(source, owner);
+    list.binding.setDefaultSource(createSource, source);
+    list.isReadThroughValue = true;
     // The owner materializes one object per record in the view: its membership may not change under
     // an edit that is being made through one of those objects.
     list.isViewFrozenOnEdit = true;
     list.load();
     return list;
   }
-  private createDefaultSource: () => IDynamicDataSource;
-  private getReadThroughCount: () => number;
-  private assignedSourceValue: IDynamicDataSource;
   // The source the developer assigned (question.dataSource); undefined while the default one is used.
-  public get assignedSource(): IDynamicDataSource {
-    return this.assignedSourceValue;
-  }
-  // A source is remote because it was assigned, never because of its type or because it pages.
-  public get isRemote(): boolean {
-    return !!this.assignedSourceValue;
-  }
-  /* The owner's swap: undefined goes back to the default source. The flag is stored first, then
-     onAssigning runs, then the source is swapped: the owner reads isRemote inside onAssigning and
-     inside the notifications the swap raises. A list without a default source (a standalone one)
-     keeps its source on a detach - there is nothing to go back to - and only the flag changes. */
-  public assignSource(source: IDynamicDataSource, onAssigning?: () => void): void {
-    const newValue = source || undefined;
-    if (this.assignedSourceValue === newValue) return;
-    this.assignedSourceValue = newValue;
-    if (!!onAssigning) onAssigning();
-    if (!!newValue) {
-      this.source = newValue;
-    } else if (!!this.createDefaultSource) {
-      this.source = this.createDefaultSource();
-    }
-  }
+  public get assignedSource(): IDynamicDataSource { return this.binding.assignedSource; }
+  public get isRemote(): boolean { return this.binding.isRemote; }
+  // The owner's swap: undefined goes back to the default source (DynamicDataSourceBinding.assignSource).
+  public assignSource(source: IDynamicDataSource, onAssigning?: () => void): void { this.binding.assignSource(source, onAssigning); }
 
-  // An owner whose source reads and writes its storage directly - the questions, whose
-  // ArrayDynamicDataSource is a getter/setter pair over question.value - sets this flag and the list
+  // An owner whose source reads and writes its storage directly - the questions, whose local
+  // source is a getter/setter pair over their value - sets this flag and the list
   // keeps no window: read() IS the storage and every write is synchronous and visible to the next
   // read. A window would be a second source of truth that goes stale on every assignment made
   // outside the list (survey.data = ..., a trigger, clearValue, a default value) and would hand out
   // record objects the owner no longer holds. It stays off by default: a paged or asynchronous
   // source cannot be read on demand. The flag is about the owner's OWN storage: it stays set while a
-  // source is assigned and the list does not read through that source (useReadThrough).
-  public isReadThrough: boolean = false;
+  // source is assigned and the list does not read through that source (useReadThrough). It is set by
+  // the factory of the owner (createReadThrough), never from outside.
+  private isReadThroughValue: boolean = false;
+  public get isReadThrough(): boolean {
+    return this.isReadThroughValue;
+  }
   /* Owners that materialize an object per record - the two questions - set this flag: the view of a
      bare list re-evaluates itself on every write, which for them would dispose a row from inside its
      own cell's value-changed event and re-sort the table under the cursor on every keystroke. With
@@ -154,29 +144,21 @@ export class DynamicDataList {
      those points an edited record keeps its place, an added record is always in the view, a removed
      record leaves it, and only a change made outside the list re-evaluates it. */
   public isViewFrozenOnEdit: boolean = false;
-  /* The owner defines which records exist and in what order; the list only reads and updates them.
-     add, remove, move, ensureCount and truncate are refused before they touch any state - the hidden
-     flags, the storage count, the membership, the views - so a refused call leaves no trace and
-     raises nothing, and hasCapability answers false for the three operations. */
-  public isMembershipFixed: boolean = false;
+  // The owner defines which records exist and in what order (DynamicDataSourceBinding.isMembershipFixed).
+  public get isMembershipFixed(): boolean { return this.binding.isMembershipFixed; }
   /* Two conditions that are kept apart. Ownership: only the owner's own storage is read through. A
      source the owner assigned is read, not watched, whatever its class: the owner is not told when
      the developer's array changes, so a list that followed it at once would serve records the
      owner's value and objects have never seen. It gets a window, which changes only when the list
      reads or writes. Capability: a read-through source answers read() synchronously with an array.
-     The class is checked for that and for nothing else, so a standalone list that sets isReadThrough
-     by hand reads through its array source, and never through any other. */
+     isLocalSource is checked for that and for nothing else, so a standalone list that sets
+     isReadThrough by hand reads through its local source, and never through any other. */
   private get useReadThrough(): boolean {
-    return this.isReadThrough && !this.isAssignedSourceInUse && this.isWindowWholeStorage && this._source instanceof ArrayDynamicDataSource;
-  }
-  // Not isRemote alone: assignSource sets the flag before it swaps, and until the swap the list
-  // still holds the default source - the owner's storage - and reads through it.
-  private get isAssignedSourceInUse(): boolean {
-    return this.isRemote && this._source === this.assignedSourceValue;
+    return this.isReadThrough && !this.binding.isAssignedSourceInUse && this.isWindowWholeStorage && isLocalSource(this._source);
   }
   private get records(): Array<any> {
     if (!this.useReadThrough) return this.windowRecords;
-    const res = (<ArrayDynamicDataSource>this._source).read();
+    const res = (<LocalDynamicDataSource>this._source).read();
     return Array.isArray(res) ? res : [];
   }
   private set records(val: Array<any>) {
@@ -191,13 +173,12 @@ export class DynamicDataList {
     edit(newRecords);
     this.windowRecords = newRecords;
   }
-  /* The length of records without reading them: a read-through source may compose the array on every
-     read (the matrix pads its value up to rowCount), and most readers want only the count. Inside a
-     batch the owner's storage does not have the writes yet: the source answers records with the
-     array the batch is building, and its length is the count. Every batch of the source is opened by
-     batch() below, so batchDepth knows it. */
+  /* The length of records without reading them. The owner's own source is counted by the source
+     itself: its read may compose the array (the matrix pads its value up to rowCount), and most readers
+     want only the count. Inside a batch the source counts the array the batch is building, which the
+     owner's storage does not have yet. Any other source is counted by the window the list holds. */
   private get recordCount(): number {
-    if (this.useReadThrough && !!this.getReadThroughCount && this.batchDepth === 0) return this.getReadThroughCount();
+    if (this.useReadThrough) return (<LocalDynamicDataSource>this._source).count;
     return this.records.length;
   }
   public get source(): IDynamicDataSource {
@@ -207,15 +188,16 @@ export class DynamicDataList {
   // through assignSource.
   public set source(v: IDynamicDataSource) {
     if (this._source === v) return;
+    this.binding.checkSourceReplaceable();
     /* A list that was asked to fill itself reads the source that replaces the one it had, whatever
        became of that read: an answer that is merely late, and a read that failed or was refused, do
        not make the list a standalone one that was never loaded. Without the in-flight half a source
        swapped during the first read would never be read at all; without the failed half neither
        would a source assigned to replace one whose first read failed. */
-    const wasLoaded = this.isLoadRequested;
+    const wasLoaded = this.readState.isLoadRequested;
     this._source = v;
-    // Before updateFilterRunners: which side runs the filter is decided from them.
-    this.takeCapabilities();
+    // Before updateFilterRunner: which side runs the filter is decided from them.
+    this.readState.takeCapabilities(v);
     // The pushes and the reads of the old source: detached, and discarded when they answer.
     this.channel.detach();
     // The old read is abandoned, whatever happens next starts from "not loading".
@@ -225,9 +207,8 @@ export class DynamicDataList {
        runs them is a capability of the source, so a swap re-decides it: a filter a paging source ran
        on its own side has no local runner yet, and one the list ran locally is handed to a paging
        source inside the very next read request - otherwise the view the owner is showing would
-       disappear with the swap. Both slots are re-decided: the control slot is a filter like any
-       other. */
-    this.updateFilterRunners();
+       disappear with the swap. */
+    this.view.updateFilterRunner(this.readState);
     if (wasLoaded) {
       // One read, with the view inside its request: nothing has to be "applied" to the source first.
       this.load();
@@ -240,33 +221,101 @@ export class DynamicDataList {
      a change notification the owner never asked for. A source that can collect its writes (the
      array source) does so; every other source just runs the function. */
   public batch(func: () => void): void {
+    this.writes.runOpenWrite((): void => { this.batchCore(func); });
+  }
+  private batchCore(func: () => void): void {
     const source: any = this._source;
     let changes: Array<IDynamicDataListChange>;
     try {
-      this.runWrite((): void => {
+      this.writes.runWrite((): void => {
         if (!source || typeof source.batch !== "function") {
           func();
           return;
         }
         const before = this.windowRecords;
-        this.batchDepth++;
-        try {
-          source.batch(func);
-        } catch(e) {
-          // The outermost one: a batch of the source nested in another neither stores nor drops.
-          if (this.batchDepth === 1)this.restoreWindowAfterFailedBatch(source, before);
-          throw e;
-        } finally {
-          this.batchDepth--;
+        const isOutermost = !this.batchScope.isActive;
+        if (isOutermost) {
+          this.batchPushes = { operation: undefined, isStructural: false };
         }
+        // A throw from func is the caller's own exception; any other is the commit's.
+        let isFuncError = false;
+        let isFailureReported = false;
+        try {
+          this.batchScope.run((): void => {
+            try {
+              // With asynchronous writes only the writes the chain sends at once run inside it (IDynamicDataSource.batch).
+              source.batch((): void => {
+                try {
+                  func();
+                } catch(e) {
+                  isFuncError = true;
+                  throw e;
+                }
+              });
+            } catch(e) {
+              // The outermost one: a batch of the source nested in another neither stores nor drops.
+              if (!isOutermost || !this.onBatchFailed(source, before, e, isFuncError)) throw e;
+              isFailureReported = true;
+            }
+          });
+        } finally {
+          if (isOutermost) {
+            this.batchPushes = undefined;
+          }
+        }
+        if (isFailureReported) return;
         changes = this.syncWindowAfterBatch(source);
       });
     } finally {
       (changes || []).forEach((change: IDynamicDataListChange): void => this.raiseChanged(change));
-      this.raisePendingReset();
+      this.writes.raisePendingReset();
     }
   }
-  private batchDepth: number = 0;
+  private batchScope: Scope = new Scope();
+  // What the outermost batch pushed: the operation of its first write, and whether it inserted,
+  // removed or moved a record. Recorded by pushToSource.
+  private batchPushes: { operation: DynamicDataSourceMethod, isStructural: boolean };
+  // Every write reaches the channel here.
+  private pushToSource(operation: DynamicDataSourceMethod, method: (source: IDynamicDataSource, key: any) => any,
+    info?: IDynamicDataPushInfo): void {
+    const pushes = this.batchPushes;
+    if (!!pushes) {
+      if (!pushes.operation) pushes.operation = operation;
+      if (operation !== "update") pushes.isStructural = true;
+    }
+    this.channel.pushToSource(operation, method, info);
+  }
+  /* The batch threw. An exception of the caller's own function, and a failed commit to the owner's
+     own storage, are the caller's: the window goes back to the storage and the exception is
+     rethrown. A failed commit to any other source is that source's failure: it is reported once,
+     under the operation of the first write the batch pushed, and the window keeps the batch's writes
+     and the owner its notifications - unless the batch inserted, removed or moved a record of a
+     source without keyField, which is addressed by storage index: that window goes back to the
+     storage too. Returns true when the failure was reported. */
+  private onBatchFailed(source: IDynamicDataSource, before: Array<any>, error: any, isFuncError: boolean): boolean {
+    const pushes = this.batchPushes;
+    if (isFuncError || this.binding.isOwnStorage(source) || !pushes.operation) {
+      this.restoreWindowToStorage(source, before);
+      return false;
+    }
+    if (pushes.isStructural && !this.keyField) {
+      this.restoreWindowToStorage(source, before);
+    }
+    this.raiseError(error, pushes.operation);
+    return true;
+  }
+  /* A synchronous push failed and was reported. A refused insert, remove or move to a source without
+     keyField - an in-memory one, written by storage index - would leave the window misaddressing every
+     later write: removing A from [A, B, C] fails, the window is [B, C], and the next edit of B
+     overwrites A. That window goes back to what the source stores, and the owner is told to start over
+     once the write has notified. Any other failure keeps the local change. Inside a batch the source
+     method threw and the batch goes on: the window takes the array the batch builds, which the next
+     write of the batch addresses. A local source that answered with a promise (isAsyncLocalWrite)
+     broke its contract: what it stored is unknown, so the window goes back for any operation. */
+  private onPushFailed(operation: DynamicDataSourceMethod, isAsyncLocalWrite: boolean): void {
+    if (!isAsyncLocalWrite && (operation === "update" || !!this.keyField)) return;
+    this.restoreWindowToStorage(this._source, this.batchScope.isActive ? undefined : this.writes.windowAtWriteStart || this.windowRecords);
+  }
   /* An array source assigns its array once, when its batch ends, and the setter may store something
      else than it was handed: trimmed strings, a normalized shape. The writes inside the batch synced
      the window with the array that was being built, so the window takes the stored one here. What
@@ -288,101 +337,42 @@ export class DynamicDataList {
     }
     return res;
   }
-  /* The batch threw. The array source has dropped the writes it collected - or its setter threw
-     after it stored them - so the window, which has every write of the batch, goes back to the
-     storage: the array the source holds now, or the window the batch started with when that array
-     is not the list's to take (syncWindowAfterSyncPush). Which writes survived is not known, so
-     everything derived is decided again as after a read, and the owner, which was notified of every
-     write inside the batch, is told to start over. A read-through list has no window to put back. */
-  private restoreWindowAfterFailedBatch(source: IDynamicDataSource, before: Array<any>): void {
+  /* A write of an array source failed: it dropped the writes it collected - or its setter threw after
+     it stored them - so the window, which has the writes, goes back to the storage: the array the
+     source holds now, or the window the write started with when that array is not the list's to
+     take (syncWindowAfterSyncPush). Which writes survived is not known, so everything derived is
+     decided again as after a read, and the owner, which was notified of the writes, is told to start
+     over. A read-through list has no window to put back. before undefined: the array is read. */
+  private restoreWindowToStorage(source: IDynamicDataSource, before: Array<any>): void {
     if (this._source !== source || !this.isWindowWholeStorage || this.useReadThrough) return;
-    if (!(source instanceof ArrayDynamicDataSource)) return;
-    const stored = this.isAssignedSourceInUse && !this.isAssignedArrayInSync ? before : source.read();
+    if (!isLocalSource(source)) return;
+    const stored = before !== undefined && this.binding.isAssignedSourceInUse && !this.writes.isAssignedArrayInSync ? before : source.read();
     this.records = Array.isArray(stored) ? stored : [];
     this.resetWindowState();
-    this.isResetPending = true;
+    this.writes.isResetPending = true;
   }
   // What a window that was replaced as a whole leaves behind: the flags and the membership of the
   // records it held. They are decided again over the new one, and the page index is clamped to it.
-  private resetWindowState(): void {
-    this.hiddenFlags = [];
-    this.resetMembership();
-    this.resetViews();
-    this.refreezeMembership();
+  private resetWindowState(keepTouched: boolean = false): void {
+    this.membership.reset(keepTouched);
     this.clampPageIndex();
   }
-  /* A reset the list owes its owner for a window it replaced inside a write (takeStoredArray,
-     restoreWindowAfterFailedBatch). It is raised once the outermost write has notified: the owner
-     follows that notification by record index, and a reset in front of it would have it renumber
-     the objects it has just rebuilt. */
-  private isResetPending: boolean = false;
-  private raisePendingReset(): void {
-    if (!this.isResetPending || this.writeDepth > 0) return;
-    this.isResetPending = false;
-    this.raiseChanged({ type: "reset" });
-  }
-  // The notification of a write, raised after its scope.
-  private notifyWrite(change: IDynamicDataListChange): void {
-    this.raiseChanged(change);
-    this.raisePendingReset();
-  }
-  // True while the list applies a write of its own: the owner uses it to tell an assignment it
-  // caused itself from one made outside (survey.data, a trigger, clearValue).
-  public get isWriting(): boolean {
-    return this.writeDepth > 0;
-  }
-  /* Every write of the list runs here. The code inside runs user code - the owner's createRecord,
-     the notifications of a nested write or a clamp, onError, a read-through source's setter and the
-     survey handlers behind it - and a write scope that a throw left open would make isWriting true
-     for good: invalidateViews would ignore every later assignment and the owners would take every
-     assignment from outside for their own. The nesting and the timing of the notifications are
-     unchanged: each method notifies after its own scope, so a write nested in ensureCount, truncate
-     or batch still notifies with the outer scope open. */
-  private runWrite<T>(func: () => T): T {
-    // Before the write edits the window: see isAssignedArrayInSync.
-    if (this.writeDepth === 0)this.isAssignedArrayInSync = this.getIsAssignedArrayInSync();
-    this.writeDepth++;
-    try {
-      return func();
-    } finally {
-      this.endWrite();
-    }
-  }
-  private endWrite(): void {
-    if (this.writeDepth > 0)this.writeDepth--;
-    if (this.writeDepth === 0)this.isAssignedArrayInSync = false;
-  }
-  /* True for the span of the outermost write to an assigned ArrayDynamicDataSource whose array was,
-     when the write started, the window record for record: nothing has replaced it outside the list
-     since the list last read or wrote it. Only then does the window take the array the write stores
-     (syncWindowAfterSyncPush). */
-  private isAssignedArrayInSync: boolean = false;
-  private getIsAssignedArrayInSync(): boolean {
-    if (!this.isAssignedSourceInUse || !this.isWindowWholeStorage || !(this._source instanceof ArrayDynamicDataSource)) return false;
-    const stored = this._source.read();
-    const records = this.windowRecords;
-    // The common case: the window IS the array, taken by the last read or the last write.
-    if (stored === records) return true;
-    // A source that hands out a copy on every read (SurveyDataDynamicDataSource) is compared by content.
-    if (!Array.isArray(stored) || stored.length !== records.length) return false;
-    for (let i = 0; i < records.length; i++) {
-      if (stored[i] !== records[i] && DynamicDataList.isValueChanged(stored[i], records[i])) return false;
-    }
-    return true;
-  }
+  // DynamicDataWriteScope.isWriting / isWriteOpen: the questions read them.
+  public get isWriting(): boolean { return this.writes.isWriting; }
+  public get isWriteOpen(): boolean { return this.writes.isWriteOpen; }
   // Every read asked for from outside the retry supersedes a retry that is pending.
   public load(): void | Promise<void> {
-    this.isLoadRequested = true;
-    this.storageCount.cancelRetry();
-    return this.channel.startRead(false);
+    return this.requestRead(false, false);
   }
   public refresh(): void | Promise<void> {
-    this.isLoadRequested = true;
-    this.storageCount.cancelRetry();
-    return this.channel.startRead(true);
+    return this.requestRead(true, false);
   }
-  // Set by the first load() or refresh(), and never cleared: see the source setter.
-  private isLoadRequested: boolean = false;
+  // isRefill: the read refillWindowAfterRemove asks for (see DynamicDataReadState.isRefillRead).
+  private requestRead(useWindowOffset: boolean, isRefill: boolean): void | Promise<void> {
+    this.readState.onReadRequested(isRefill);
+    this.storageCount.cancelRetry();
+    return this.channel.startRead(useWindowOffset);
+  }
   public get isLoading(): boolean {
     return this._isLoading;
   }
@@ -395,12 +385,12 @@ export class DynamicDataList {
     return this.channel.hasPendingRead;
   }
   public get windowOffset(): number {
-    return this._windowOffset;
+    return this.readState.windowOffset;
   }
 
   // The storage count; with an unknown total, the records known to exist (a lower bound).
   public get count(): number {
-    return this.storageCount.getCount(this._windowOffset, this.recordCount);
+    return this.storageCount.getCount(this.windowOffset, this.recordCount);
   }
   // False while the source answers without a total: count is a lower bound and pageCount is the
   // number of pages known to exist.
@@ -413,10 +403,18 @@ export class DynamicDataList {
   }
   // The most records the list knows to exist. It is what a "Panel N of M" counts against.
   public get knownCount(): number {
-    return this.storageCount.getKnownCount(this._windowOffset, this.recordCount);
+    return this.storageCount.getKnownCount(this.windowOffset, this.recordCount);
   }
   public get visibleCount(): number {
     return this.getVisibleIndexes().length;
+  }
+  public get globalVisibleCount(): number { return this.viewIndexes.globalVisibleCount; }
+  public get globalVisibleExtent(): number { return this.viewIndexes.globalVisibleExtent; }
+  public get globalCreatedExtent(): number { return this.viewIndexes.globalCreatedExtent; }
+  // The source reported more records behind the window and no total: navigation may go past the last
+  // known record.
+  public get hasRecordBeyondKnown(): boolean {
+    return !this.isCountKnown && this.hasMore;
   }
   public get loadedCount(): number {
     return this.recordCount;
@@ -433,24 +431,30 @@ export class DynamicDataList {
     return res;
   }
   public ensureCount(n: number, createRecord?: (i: number) => any): void {
+    this.writes.runOpenWrite((): void => { this.ensureCountCore(n, createRecord); });
+  }
+  private ensureCountCore(n: number, createRecord: (i: number) => any): void {
     if (this.isMembershipFixed) return;
     this.checkWindowIsWholeStorage("ensureCount");
-    this.runWrite((): void => {
+    this.writes.runWrite((): void => {
       for (let i = this.loadedCount; i < n; i++) {
         this.add(!!createRecord ? createRecord(i) : {});
       }
     });
-    this.raisePendingReset();
+    this.writes.raisePendingReset();
   }
   public truncate(n: number): void {
+    this.writes.runOpenWrite((): void => { this.truncateCore(n); });
+  }
+  private truncateCore(n: number): void {
     if (this.isMembershipFixed) return;
     this.checkWindowIsWholeStorage("truncate");
-    this.runWrite((): void => {
+    this.writes.runWrite((): void => {
       for (let i = this.loadedCount - 1; i >= n && i >= 0; i--) {
         this.remove(i);
       }
     });
-    this.raisePendingReset();
+    this.writes.raisePendingReset();
   }
 
   public getRecord(index: number): any {
@@ -463,58 +467,85 @@ export class DynamicDataList {
     return !!record ? record[field] : undefined;
   }
   public setValue(index: number, field: string, value: any): boolean {
+    return this.writes.runOpenWrite((): boolean => this.setValueCore(index, field, value));
+  }
+  /* What an owner computes while it builds its objects for records the source holds (a default, an
+     expression) only shows the record: a write reaches the window, not the source, and its fields wait
+     (unsentFields) for the record's next update. A pending insert and an in-memory array take it all. */
+  public runShowingRecords<T>(func: () => T): T {
+    return this.showingRecordsScope.run(func);
+  }
+  private showingRecordsScope: Scope = new Scope();
+  private isShowingWrite(index: number): boolean {
+    if (!this.showingRecordsScope.isActive) return false;
+    const source = this._source;
+    return !!source && !isLocalSource(source) && !this.findPendingInsert(index);
+  }
+  private setValueCore(index: number, field: string, value: any): boolean {
     const record = this.getRecord(index);
     if (!record) return false;
     if (!DynamicDataList.isValueChanged(value, record[field])) return false;
     const newRecord = this.copyRecord(record);
-    // Mirrors question_paneldynamic.updateItemValue: an empty value deletes the key.
+    // Mirrors QuestionRecordsModel.mergeItemWrite: an empty value deletes the key.
     if (Helpers.isValueEmpty(value)) {
       delete newRecord[field];
     } else {
       newRecord[field] = value;
     }
-    const sourceIndex = this._windowOffset + index;
     // The key of the record that is being replaced, resolved before the replacement: that record is
     // the one the respondent edited, and the copy made on write is not in the window yet.
     const key = this.getRecordKey(index);
     const pending = this.findPendingInsert(index);
-    this.runWrite((): void => {
+    const isShowing = this.isShowingWrite(index);
+    this.writes.runWrite((): void => {
+      const fields = this.channel.takeUnsentFields(record, [field]);
       this.replaceRecord(index, newRecord);
-      const ownedFields = getOwnedFields(pending);
+      if (isShowing) {
+        this.channel.keepUnsentFields(newRecord, fields);
+        return;
+      }
       // The push comes before the notification: with a read-through source the push IS the local
       // write, so the owner must not be notified of a change it cannot read yet.
-      this.channel.pushToSource("update",
-        (source: IDynamicDataSource, runKey: any): any => source.update(runKey, getUpdatePayload(pending, newRecord, ownedFields), [field]),
-        { sourceIndex: sourceIndex, key: key, pendingInsert: pending });
+      this.pushUpdate(key, pending, newRecord, fields);
     });
-    this.notifyWrite({ type: "recordChanged", index: index, field: field });
+    this.writes.notifyWrite({ type: "recordChanged", index: index, field: field });
     return true;
   }
   // force: push the record even when it did not change. An owner that composes its window on the
   // fly - the matrix pads question.value up to rowCount on read - uses it when the composed records
   // themselves have to reach the storage: the stored value changes although the record does not.
   public setRecord(index: number, record: any, force: boolean = false): boolean {
+    return this.writes.runOpenWrite((): boolean => this.setRecordCore(index, record, force));
+  }
+  private setRecordCore(index: number, record: any, force: boolean): boolean {
     const oldRecord = this.getRecord(index);
     if (index < 0 || index >= this.recordCount) return false;
     if (!force && !DynamicDataList.isValueChanged(record, oldRecord)) return false;
-    const changedFields = getChangedFields(oldRecord, record);
-    const sourceIndex = this._windowOffset + index;
+    const changedFields = this.channel.takeUnsentFields(oldRecord, getChangedFields(oldRecord, record));
     // As in setValue: the key belongs to the record being replaced, not to the one replacing it.
     const key = this.getRecordKey(index);
     const pending = this.findPendingInsert(index);
-    this.runWrite((): void => {
+    const isShowing = this.isShowingWrite(index);
+    this.writes.runWrite((): void => {
       this.replaceRecord(index, record);
-      const ownedFields = getOwnedFields(pending);
-      this.channel.pushToSource("update",
-        (source: IDynamicDataSource, runKey: any): any => source.update(runKey, getUpdatePayload(pending, record, ownedFields), changedFields),
-        { sourceIndex: sourceIndex, key: key, pendingInsert: pending });
+      if (isShowing) return this.channel.keepUnsentFields(record, changedFields);
+      this.pushUpdate(key, pending, record, changedFields);
     });
-    this.notifyWrite({ type: "recordChanged", index: index, field: undefined });
+    this.writes.notifyWrite({ type: "recordChanged", index: index, field: undefined });
     return true;
+  }
+  // The update of a record replaced in the window; key and pending belong to the record it replaced.
+  private pushUpdate(key: any, pending: IPendingInsert, record: any, fields: Array<string>): void {
+    const ownedFields = getOwnedFields(pending);
+    this.pushToSource("update", (source: IDynamicDataSource, runKey: any): any =>
+      source.update(runKey, getUpdatePayload(pending, record, ownedFields), fields), { key: key, pendingInsert: pending });
   }
   /* The source assigns the key: with a keyField, a key the record carries - copied from the last
      entry, or put on a default value - is taken out before anything else sees the record. */
   public add(record?: any, index?: number): number {
+    return this.writes.runOpenWrite((): number => this.addCore(record, index));
+  }
+  private addCore(record: any, index: number): number {
     if (this.isMembershipFixed) return -1;
     const newRecord = this.removeKeyField(record === undefined ? {} : record);
     // The count the write produces. It is taken before the write: with a read-through source the
@@ -524,40 +555,38 @@ export class DynamicDataList {
     const at = index === undefined || index === null
       ? this.recordCount
       : Math.max(0, Math.min(index, this.recordCount));
-    this.alignHiddenFlags();
-    this.runWrite((): void => {
+    this.writes.runWrite((): void => {
       this.editWindow((records: Array<any>): void => { records.splice(at, 0, newRecord); });
-      this.hiddenFlags.splice(at, 0, false);
-      this.storageCount.onRecordInserted(this._windowOffset, countAfter);
-      this.insertIntoMembership(at, countAfter);
-      this.resetViews();
-      const sourceIndex = this._windowOffset + at;
-      /* An added record has no key yet: the position says where it goes and the source assigns the
-         key, which the answer of insert brings back (applyInsertAnswer). */
-      this.channel.pushToSource("insert", (source: IDynamicDataSource): any => source.insert(newRecord, sourceIndex),
+      this.storageCount.onRecordInserted(this.windowOffset, countAfter);
+      this.membership.onRecordInserted(at, countAfter);
+      const sourceIndex = this.windowOffset + at;
+      /* An added record has no key yet: the source assigns it, and the answer of insert brings it back
+         (applyInsertAnswer). The position is where the respondent added the record; where it is kept
+         is the source's to decide, and the next read shows it there. */
+      this.pushToSource("insert", (source: IDynamicDataSource): any => source.insert(newRecord, sourceIndex),
         { insertedRecord: newRecord });
     });
-    this.notifyWrite({ type: "recordAdded", index: at });
+    this.writes.notifyWrite({ type: "recordAdded", index: at });
     return at;
   }
   public remove(index: number): void {
+    this.writes.runOpenWrite((): void => { this.removeCore(index); });
+  }
+  private removeCore(index: number): void {
     if (this.isMembershipFixed || index < 0 || index >= this.recordCount) return;
     /* Before the splice: afterwards this slot holds the record that moved up into it, and the last
        record of the window has no slot at all. */
     const key = this.getRecordKey(index);
     const pending = this.findPendingInsert(index);
     const countAfter = this.recordCount - 1;
-    this.alignHiddenFlags();
-    this.runWrite((): void => {
+    this.writes.runWrite((): void => {
       this.editWindow((records: Array<any>): void => { records.splice(index, 1); });
-      this.hiddenFlags.splice(index, 1);
-      this.storageCount.onRecordRemoved(this._windowOffset, countAfter);
-      this.removeFromMembership(index, countAfter);
-      this.resetViews();
-      this.channel.pushToSource("remove", (source: IDynamicDataSource, runKey: any): any => source.remove(runKey),
+      this.storageCount.onRecordRemoved(this.windowOffset, countAfter);
+      this.membership.onRecordRemoved(index, countAfter);
+      this.pushToSource("remove", (source: IDynamicDataSource, runKey: any): any => source.remove(runKey),
         { key: key, pendingInsert: pending });
     });
-    this.notifyWrite({ type: "recordRemoved", index: index });
+    this.writes.notifyWrite({ type: "recordRemoved", index: index });
     // Never two reads for one remove: a clamp to the previous page has already asked for its page.
     if (!this.clampPageIndexAfterChange()) {
       this.refillWindowAfterRemove();
@@ -569,215 +598,143 @@ export class DynamicDataList {
      The whole page and not only the one record that moved up (a read of offset + length, take 1): that
      read would keep the row objects, but it trusts that the server's order did not change between the
      two reads and it leaves the total unverified. The full read is authoritative for both, and it is
-     one request either way. refresh() and not load(): the window stays at its own offset, load()
-     recomputes it from pageIndex and the two agree only by coincidence. */
+     one request either way. A refresh and not a load: the window stays at its own offset, load()
+     recomputes it from pageIndex and the two agree only by coincidence. The records the respondent
+     touched on the page stay in it (commitRead). */
   private refillWindowAfterRemove(): void {
-    if (!this.isPagedBySource || !this.isLoaded || this._pageSize <= 0) return;
+    if (!this.isPagedBySource || !this.isWindowCommitted || this._pageSize <= 0) return;
     // hasMore and not "windowOffset + length < count": with an unknown total the count is the
     // records seen so far and would never say that the source has more. With a known total the two
     // are the same value - the count recomputed the flag when the remove decremented it.
     if (this.recordCount >= this._pageSize || !this.hasMore) return;
-    this.refresh();
+    this.requestRead(true, true);
   }
   public move(fromIndex: number, toIndex: number): void {
-    if (this.isMembershipFixed) return;
+    this.writes.runOpenWrite((): void => { this.moveCore(fromIndex, toIndex); });
+  }
+  // Refused before any state changes unless the source can take a move (hasCapability).
+  private moveCore(fromIndex: number, toIndex: number): void {
+    if (!this.hasCapability("move")) return;
     const length = this.recordCount;
     if (fromIndex < 0 || fromIndex >= length || toIndex < 0 || toIndex >= length) return;
     if (fromIndex === toIndex) return;
-    // Before the splice, for the same reason as in remove.
+    // Before the splice, for the same reason as in remove. A storage index: the source has no keyField.
     const key = this.getRecordKey(fromIndex);
-    const pending = this.findPendingInsert(fromIndex);
-    this.alignHiddenFlags();
-    this.runWrite((): void => {
+    this.writes.runWrite((): void => {
       this.editWindow((records: Array<any>): void => {
         const record = records[fromIndex];
         records.splice(fromIndex, 1);
         records.splice(toIndex, 0, record);
       });
-      // A visibility flag belongs to a record, not to a slot: it travels with it.
-      const flag = this.hiddenFlags[fromIndex];
-      this.hiddenFlags.splice(fromIndex, 1);
-      this.hiddenFlags.splice(toIndex, 0, flag);
-      this.moveInMembership(fromIndex, toIndex);
-      this.resetViews();
-      const toSourceIndex = this._windowOffset + toIndex;
-      this.channel.pushToSource("move", (source: IDynamicDataSource, runKey: any): any => source.move(runKey, toSourceIndex),
-        { key: key, pendingInsert: pending });
+      this.membership.onRecordMoved(fromIndex, toIndex, length);
+      const toSourceIndex = this.windowOffset + toIndex;
+      this.pushToSource("move", (source: IDynamicDataSource, runKey: any): any =>
+        (<ArrayDynamicDataSource>source).move(runKey, toSourceIndex), { key: key });
     });
-    this.notifyWrite({ type: "recordMoved", from: fromIndex, to: toIndex });
+    this.writes.notifyWrite({ type: "recordMoved", from: fromIndex, to: toIndex });
   }
 
   // Returns whether the flag changed: the owner syncs its page state only then.
   public setRecordVisible(index: number, visible: boolean): boolean {
-    if (index < 0 || index >= this.recordCount) return false;
-    const isHidden = !visible;
-    if (!!this.hiddenFlags[index] === isHidden) return false;
-    this.alignHiddenFlags();
-    this.hiddenFlags[index] = isHidden;
-    this.resetViews();
+    if (!this.membership.setRecordVisible(index, visible)) return false;
     this.clampPageIndexAfterChange();
     return true;
   }
   public isRecordVisible(index: number): boolean {
-    if (index < 0 || index >= this.recordCount) return false;
-    return !this.hiddenFlags[index];
+    return this.membership.isRecordVisible(index);
   }
   /* Drops the cached views. The list detects a record array that changed outside it by its length;
      a content change of the same length - a cell written through survey.setValue - it cannot see,
      and with a local filter or sort active that change reorders or re-filters the view. The owner
-     calls this from the one point every value assignment passes through. */
-  public invalidateViews(): void {
+     calls this from the one point every value assignment passes through.
+     remap: the new record index of each old record (-1: removed, undefined: not known) - what the
+     owner knows about the change. The touched records it can place follow it and keep their places
+     in the view; without it they are decided again like every other record. previousCreated: the
+     created indexes before the change, when the owner took them - the views may have been read
+     over the new records since. */
+  public invalidateViews(remap?: (index: number) => number, previousCreated?: Array<number>): void {
     // A write of the list's own maintains the membership record by record; re-evaluating it here
     // would undo that from inside the very assignment that made it. refreshView() is the owner's
     // explicit request and runs during a write too, so the guard stays here and not in the helper.
-    if (this.writeDepth > 0) return;
-    this.rebuildMembership();
-  }
-  // Re-decides the membership over the records as they are now, and re-freezes it.
-  private rebuildMembership(): void {
-    this.resetMembership();
-    this.resetViews();
-    this.refreezeMembership();
+    if (this.writes.isWriting) return;
+    this.membership.rebuild(remap, previousCreated);
     this.clampPageIndexAfterChange();
+  }
+  // internal: the owner's add. Every record the list inserts or appends inside it - also by a record
+  // count that grows (syncMembershipWithRecordCount) - is touched as it enters the list.
+  public runAddScope<T>(func: () => T): T {
+    return this.membership.runAddScope(func);
+  }
+  // internal: a record the respondent edited through an input.
+  public markRecordTouched(index: number): void {
+    this.membership.markRecordTouched(index);
+  }
+  // internal: the owner builds the remap of an assignment only when there is something to place.
+  public get hasTouchedRecords(): boolean {
+    return this.membership.hasTouchedRecords;
   }
   /* The owner changed how many records its storage holds without writing through the list - the
      matrix composes its window by padding question.value up to rowCount. The records that are new
      join the view (an added record is always in it) and the ones that are gone leave it; the
      membership of the rest is not re-evaluated. */
   public syncMembershipWithRecordCount(): void {
-    this.resetViews();
+    this.membership.syncMembershipWithRecordCount();
+    // After the membership follows the count: the clamp reads the views, and a view read before
+    // would decide the membership again - a new record the filter does not accept would leave it.
     this.clampPageIndexAfterChange();
-    if (!this.frozenCreatedIndexes) {
-      this.refreezeMembership();
-      return;
-    }
-    const count = this.recordCount;
-    if (count === this.frozenRecordCount) return;
-    let created = this.frozenCreatedIndexes;
-    if (count < this.frozenRecordCount) {
-      created = created.filter((index: number): boolean => index < count);
-    } else {
-      created = created.slice();
-      for (let i = this.frozenRecordCount; i < count; i++) {
-        created.push(i);
-      }
-    }
-    this.frozenCreatedIndexes = created;
-    this.frozenRecordCount = count;
   }
   /* Re-evaluates the filter and the sort over the records as they are now and announces the new
      view. With isViewFrozenOnEdit off this is what every write does anyway, so it is only the reset
      notification. */
   public refreshView(): void {
-    this.rebuildMembership();
+    this.membership.clearTouched();
+    this.membership.rebuild();
+    this.clampPageIndexAfterChange();
     this.raiseChanged({ type: "reset" });
   }
   // The records that have an object: the ones that pass the filter, in sort order, owner-hidden ones
   // included. With no filter and no sort this is 0 ... count-1.
   public getCreatedIndexes(): Array<number> {
-    this.ensureViews();
-    return this.createdIndexes;
+    return this.membership.getCreatedIndexes();
   }
-  public createdIndexToIndex(createdIndex: number): number {
-    if (!this.hasView) {
-      return createdIndex >= 0 && createdIndex < this.recordCount ? createdIndex : -1;
-    }
-    const indexes = this.getCreatedIndexes();
-    if (createdIndex < 0 || createdIndex >= indexes.length) return -1;
-    return indexes[createdIndex];
-  }
-  public indexToCreatedIndex(index: number): number {
-    if (!this.hasView) {
-      return index >= 0 && index < this.recordCount ? index : -1;
-    }
-    return this.getCreatedIndexes().indexOf(index);
-  }
+  public createdIndexToIndex(createdIndex: number): number { return this.viewIndexes.createdIndexToIndex(createdIndex); }
+  public indexToCreatedIndex(index: number): number { return this.viewIndexes.indexToCreatedIndex(index); }
   // A filter or a sort is set: without one the created indexes are the record indexes and the owner
   // keeps one object per record.
   public get hasView(): boolean {
-    return this.hasFilter || this._sort.length > 0;
+    return this.view.hasView;
   }
   public getVisibleIndexes(): Array<number> {
-    this.ensureViews();
-    return this.visibleIndexes;
+    return this.membership.getVisibleIndexes();
   }
-  /* The owner's side of the index arithmetic matrixdynamic and paneldynamic share. The list answers
-     from its own state: the offset is windowOffset, which only a paged read moves - and a question
-     reads a paging source only when it was assigned - and paging is a page size above 0, which the
-     paging controller sets to 0 in design mode on its next sync. */
-  public getPageStartGlobalVisibleIndex(): number {
-    // A paging decision, not offset arithmetic: a source without paging has offset 0 on every page.
-    if (this.isPagedBySource) return this.windowOffset;
-    return this._pageSize > 0 ? this.pageIndex * this._pageSize : 0;
-  }
-  // Record index + this = the record number the respondent sees ({panelIndex}, {rowIndex}).
-  public getRecordNumberOffset(): number {
-    return this.windowOffset;
-  }
-  // -1 when the record is not visible.
-  public getGlobalVisibleIndex(index: number): number {
-    const pos = this.getVisibleIndexes().indexOf(index);
-    return pos < 0 ? -1 : pos + this.getRecordNumberOffset();
-  }
-  // -1 when there is none: a remote window holds nothing beyond itself.
-  public getIndexAtGlobalVisibleIndex(globalVisibleIndex: number): number {
-    const at = globalVisibleIndex - this.getRecordNumberOffset();
-    const visible = this.getVisibleIndexes();
-    return at < 0 || at >= visible.length ? -1 : visible[at];
-  }
-  /* The records an owner materializes an object for, in object order. The view answers every DATA
-     question (which records are in it, their order, the totals, the neighbours); this answers every
-     OBJECT question (which record a panel or a row holds). Without paging they are the created
-     indexes - owner-hidden records included, the owner keeps an object for them. With paging they
-     are the current page, which holds visible records only: an owner that pages builds nothing for a
-     record that is not on it. It lives here and not on the owner because it is the page cut of the
-     view, and the list owns both. */
-  public getMaterializedIndexes(): Array<number> {
-    return this._pageSize > 0 ? this.getPageIndexes() : this.getCreatedIndexes();
-  }
-  public materializedIndexToIndex(position: number): number {
-    if (this._pageSize <= 0) return this.createdIndexToIndex(position);
-    const indexes = this.getPageIndexes();
-    return position >= 0 && position < indexes.length ? indexes[position] : -1;
-  }
-  public indexToMaterializedIndex(index: number): number {
-    if (this._pageSize <= 0) return this.indexToCreatedIndex(index);
-    const position = this.getMaterializedPositions()[index];
-    return position !== undefined ? position : -1;
-  }
-  /* record index -> position among the materialized records, for the records that have an object.
-     Memoized on the identity of the materialized array: the list never changes a view array in
-     place, it replaces it, so a new array is the only way the map can go stale. A content change of
-     the same length is seen through invalidateViews(), the limit the arrays themselves have. */
-  public getMaterializedPositions(): { [index: number]: number } {
-    const indexes = this.getMaterializedIndexes();
-    if (this.materializedPositionsSource !== indexes) {
-      const res: { [index: number]: number } = {};
-      indexes.forEach((index: number, pos: number): void => { res[index] = pos; });
-      this.materializedPositionsSource = indexes;
-      this.materializedPositions = res;
+  public getPageStartGlobalVisibleIndex(): number { return this.viewIndexes.getPageStartGlobalVisibleIndex(); }
+  public getRecordNumberOffset(): number { return this.viewIndexes.getRecordNumberOffset(); }
+  public getGlobalVisibleIndex(index: number): number { return this.viewIndexes.getGlobalVisibleIndex(index); }
+  public getIndexAtGlobalVisibleIndex(globalVisibleIndex: number): number { return this.viewIndexes.getIndexAtGlobalVisibleIndex(globalVisibleIndex); }
+  public getIndexAtGlobalCreatedIndex(globalCreatedIndex: number): number { return this.viewIndexes.getIndexAtGlobalCreatedIndex(globalCreatedIndex); }
+  public getInsertIndexAtVisibleIndex(globalVisibleIndex: number): number { return this.viewIndexes.getInsertIndexAtVisibleIndex(globalVisibleIndex); }
+  public getInsertIndexAtCreatedIndex(globalCreatedIndex: number): number { return this.viewIndexes.getInsertIndexAtCreatedIndex(globalCreatedIndex); }
+  public getInsertIndexAtMaterializedPosition(position: number): number { return this.viewIndexes.getInsertIndexAtMaterializedPosition(position); }
+  public getMaterializedIndexes(): Array<number> { return this.viewIndexes.getMaterializedIndexes(); }
+  public materializedIndexToIndex(position: number): number { return this.viewIndexes.materializedIndexToIndex(position); }
+  public indexToMaterializedIndex(index: number): number { return this.viewIndexes.indexToMaterializedIndex(index); }
+  public getMaterializedPositions(): { [index: number]: number } { return this.viewIndexes.getMaterializedPositions(); }
+  // The record index of a record object in the loaded window, -1 when no record is that object.
+  public indexOfRecord(record: any): number {
+    // The count is the guard, as in getRecord; the array is read once.
+    const count = this.recordCount;
+    const records = count > 0 ? this.records : [];
+    for (let i = 0; i < count; i++) {
+      if (records[i] === record) return i;
     }
-    return this.materializedPositions;
+    return -1;
   }
-  private materializedPositionsSource: Array<number>;
-  private materializedPositions: { [index: number]: number };
   /* The owner-visibility of many records at once, decided without an object per record. One view
      reset and one page clamp for the whole run instead of one per record: setRecordVisible
      recomputes the views on the clamp, which over every record would be quadratic. Returns whether a
      flag changed. */
   public setRecordsVisible(isVisible: (index: number) => boolean): boolean {
-    const count = this.recordCount;
-    this.alignHiddenFlags();
-    let isChanged = false;
-    for (let i = 0; i < count; i++) {
-      const isHidden = !isVisible(i);
-      if (!!this.hiddenFlags[i] !== isHidden) {
-        this.hiddenFlags[i] = isHidden;
-        isChanged = true;
-      }
-    }
-    if (!isChanged) return false;
-    this.resetViews();
+    if (!this.membership.setRecordsVisible(isVisible)) return false;
     this.clampPageIndexAfterChange();
     return true;
   }
@@ -800,9 +757,10 @@ export class DynamicDataList {
     const newValue = v > 0 ? v : 0;
     if (this._pageSize === newValue) return;
     this._pageSize = newValue;
-    this.clampPageIndex();
-    this.resetViews();
-    if (this.readsSourceOnViewChange && this.isLoaded) {
+    // Not before the first load, as in the pageIndex setter: there is no count to clamp against.
+    if (this.isWindowCommitted)this.clampPageIndex();
+    this.membership.resetViews();
+    if (this.readsSourceOnViewChange && this.isWindowCommitted) {
       this.load();
     } else {
       this.raiseChanged({ type: "reset" });
@@ -813,11 +771,9 @@ export class DynamicDataList {
   }
   public set pageIndex(v: number) {
     // Clamping needs a known count, so it only applies once something has been loaded.
-    const newValue = this.isLoaded ? this.getClampedPageIndex(v) : Math.max(0, v);
+    const newValue = this.isWindowCommitted ? this.getClampedPageIndex(v) : Math.max(0, v);
     if (this._pageIndex === newValue) return;
-    this._pageIndex = newValue;
-    this.pageIndexes = undefined;
-    this.raiseChanged({ type: "pageChanged" });
+    this.setPageIndexInternal(newValue, true);
     if (this.readsSourceOnViewChange) {
       this.load();
     }
@@ -829,72 +785,100 @@ export class DynamicDataList {
     if (!this.isPagedBySource) return Math.max(1, Math.ceil(this.visibleCount / this._pageSize));
     /* An unknown total: the pages known to exist - the one that is loaded, the ones before it, and
        one more when the source said there is something behind the window. The pager then offers
-       "next" one page at a time, which is exactly what the source has told the list. */
-    if (!this.isCountKnown) return this._pageIndex + 1 + (this.hasMore ? 1 : 0);
+       "next" one page at a time, which is exactly what the source has told the list: counted from the
+       committed window, not from a page whose read is pending. */
+    if (!this.isCountKnown) return this.readState.getCommittedPageIndex(this._pageIndex) + 1 + (this.hasMore ? 1 : 0);
     return Math.max(1, Math.ceil(this.count / this._pageSize));
   }
   public getPageIndexes(): Array<number> {
-    // The visible indexes come first: they drop a page cache that an external record change made
-    // stale.
-    const visible = this.getVisibleIndexes();
-    if (!this.pageIndexes) {
-      // A paging source returns one storage page: the loaded window IS the page.
-      if (this._pageSize <= 0 || this.isPagedBySource) {
-        this.pageIndexes = visible;
-      } else {
-        const start = this._pageIndex * this._pageSize;
-        this.pageIndexes = visible.slice(start, start + this._pageSize);
-      }
-    }
-    return this.pageIndexes;
+    return this.membership.getPageIndexes(this._pageSize, this._pageIndex, this.isPagedBySource);
   }
-  // The page that holds a visibleIndex (unpaged, see the vocabulary above); 0 while the list does
-  // not page.
-  public getPageOfVisibleIndex(visibleIndex: number): number {
-    if (this._pageSize <= 0 || visibleIndex < 0) return 0;
-    return Math.floor(visibleIndex / this._pageSize);
-  }
+  public getPageOfVisibleIndex(visibleIndex: number): number { return this.viewIndexes.getPageOfVisibleIndex(visibleIndex); }
+  public getVisibleIndexesOfPage(page: number): Array<number> { return this.viewIndexes.getVisibleIndexesOfPage(page); }
 
   // A survey expression over the record fields, e.g. "{country} = 'de' and {age} > 18". An empty
   // string is no filter.
   public get filter(): string {
-    return this._filter;
+    return this.view.filter;
   }
   public set filter(v: string) {
-    this.setView(v, this._sort);
+    this.setView(v, this.view.sort);
   }
-  /* The filter a control sets, next to the authored one. Two slots and not one: the authored
-     expression is what the question serializes and mirrors, and a control must be able to filter
-     without touching it - or erasing it when its own expression turns out to be unparsable. */
+  /* The filter a Filter Control sets, next to the authored one (see DynamicDataView): the list ANDs
+     the two, and a control filters without touching the expression the question serializes. */
   public get controlFilter(): string {
-    return this._controlFilter;
+    return this.view.controlFilter;
   }
   public set controlFilter(v: string) {
-    this.applyView(this._filter, v, this._sort);
+    this.setView(this.view.filter, this.view.sort, v);
+  }
+  /* Assigns the filter and the sort together and reads ONCE: with a paging source the view travels
+     inside the read request, so two assignments would be two requests, the second superseding the
+     first. It is what the two setters are made of - and what a question that has both authored
+     hands over on its first sync. controlFilter is the control slot; left out, the slot keeps what
+     the list already holds. */
+  public setView(filter: string, sort: Array<ISortCriterion>, controlFilter?: string): void {
+    const newFilter = !!filter ? filter : "";
+    const newControlFilter = controlFilter === undefined ? this.view.controlFilter : (controlFilter || "");
+    this.membership.clearTouched();
+    /* The page reset belongs to the filter: a different membership makes the page the respondent is
+       on meaningless, while a sort keeps the same records and only reorders them. An assignment of
+       the filter it already has changes neither. Either slot counts - both of them filter. */
+    if (this.view.setView(newFilter, sort, newControlFilter)) {
+      this.setPageIndexInternal(0, false);
+      // Another filter is another set of records: what the old one reached says nothing about it.
+      this.storageCount.forgetReach();
+      this.view.updateFilterRunner(this.readState);
+    }
+    this.membership.resetMembership();
+    // The view travels in the request, or the whole storage it needs is not loaded yet: the source
+    // answers with the next read.
+    if (this.readsSourceOnViewChange) {
+      const isWholeStorageInForce = this.isWholeStorageInForce;
+      this.load();
+      /* The read of the page is pending, or it failed or was refused: the whole storage stays in
+         force, and the list runs the new view over it as it does for a source without paging. A page
+         in force is left as it is: the list never filters or sorts one. */
+      if (isWholeStorageInForce && this.isWholeStorageInForce)this.applyLocalView();
+      return;
+    }
+    this.applyLocalView();
+  }
+  private get isWholeStorageInForce(): boolean {
+    return this.readState.isWholeStorageInForce;
+  }
+  private applyLocalView(): void {
+    this.membership.resetViews();
+    this.membership.refreezeMembership();
+    this.raiseChanged({ type: "reset" });
+  }
+  public get sort(): Array<ISortCriterion> {
+    return this.view.sort.slice();
+  }
+  public set sort(v: Array<ISortCriterion>) {
+    this.setView(this.view.filter, v);
   }
   /* How many records the authored filter and this control filter would leave, without applying it:
      the number a Filter Control shows before its edits are applied. Nothing in the view changes and
      nothing is reported - a count that cannot be had is undefined:
-     - records held here (a source that does not page, or a paging one read whole for a filter) are
-       counted here, exactly;
      - a source that pages and filters is asked once for the total of a one-record window. The read
        goes to the source directly and not through the channel: the channel keeps one read in flight
        and would drop the list's own;
+     - records held here as the whole storage (a source that does not page, or a paging one read whole
+       for a view it cannot run) are counted here, exactly;
      - a paging source that cannot filter, while it holds only a page, and a source that sends no
        total: unknown. */
   public countControlFilter(controlFilter: string): Promise<number | undefined> {
-    const caps = this.sourceCapabilities;
     if (!this._source || this.isDisposed) return Promise.resolve(undefined);
-    if (caps.paging && caps.filtering) return this.countAtSource(combineFilterExpressions(this._filter, controlFilter));
-    if (!this.isLoaded || this.isWindowPagedBySource) return Promise.resolve(undefined);
+    if (!this.readState.mayFilterLocally) return this.countAtSource(combineFilterExpressions(this.view.filter, controlFilter));
+    if (!this.isWindowCommitted || !this.isWindowWholeStorage) return Promise.resolve(undefined);
     let runner: ConditionRunner;
     try {
       runner = createFilterRunner(controlFilter);
     } catch(e) {
       return Promise.resolve(undefined);
     }
-    const records = this.records;
-    return Promise.resolve(applyFilters(records, [this.filterRunner, runner], this.getFields()).length);
+    return Promise.resolve(applyFilters(this.records, [this.view.filterRunner, runner], this.getFields()).length);
   }
   private countAtSource(filter: string): Promise<number | undefined> {
     return new Promise((resolve: (count: number | undefined) => void): void => {
@@ -910,191 +894,48 @@ export class DynamicDataList {
       }
     });
   }
-  /* Assigns the filter and the sort together and reads ONCE: with a paging source the view travels
-     inside the read request, so two assignments would be two requests, the second superseding the
-     first. It is what the two setters are made of - and what a question that has both authored
-     hands over on its first sync. controlFilter is the control slot; left out, the slot keeps what
-     the list already holds. */
-  public setView(filter: string, sort: Array<IDynamicDataSort>, controlFilter?: string): void {
-    this.applyView(filter, controlFilter !== undefined ? controlFilter : this._controlFilter, sort);
-  }
-  private applyView(filter: string, controlFilter: string, sort: Array<IDynamicDataSort>): void {
-    const newFilter = !!filter ? filter : "";
-    const newControlFilter = !!controlFilter ? controlFilter : "";
-    /* The page reset belongs to the filter: a different membership makes the page the respondent is
-       on meaningless, while a sort keeps the same records and only reorders them. An assignment of
-       the filter it already has changes neither. Either slot counts - both of them filter. */
-    const isFilterChanged = this._filter !== newFilter || this._controlFilter !== newControlFilter;
-    this._filter = newFilter;
-    this._controlFilter = newControlFilter;
-    this._sort = Array.isArray(sort) ? sort : [];
-    if (isFilterChanged) {
-      this._pageIndex = 0;
-      // Another filter is another set of records: what the old one reached says nothing about it.
-      this.storageCount.forgetReach();
-      this.updateFilterRunners();
-    }
-    this.resetMembership();
-    // The view travels in the request, or the whole storage it needs is not loaded yet: the source
-    // answers with the next read.
-    if (this.readsSourceOnViewChange) {
-      const isWholeStorageInForce = this.isWholeStorageInForce;
-      this.load();
-      /* The read of the page is pending, or it failed or was refused: the whole storage stays in
-         force, and the list runs the new view over it as it does for a source without paging. A page
-         in force is left as it is: the list never filters or sorts one. */
-      if (isWholeStorageInForce && this.isWholeStorageInForce)this.applyLocalView();
-      return;
-    }
-    this.applyLocalView();
-  }
-  // A paging source that cannot filter answered with the whole storage, and that window is in force.
-  private get isWholeStorageInForce(): boolean {
-    return this.isLoaded && !this.isWindowPagedBySource && this.sourceCapabilities.paging;
-  }
-  private applyLocalView(): void {
-    this.resetViews();
-    this.refreezeMembership();
-    this.raiseChanged({ type: "reset" });
-  }
-  // A read request carries one expression, so here - and only here - the slots are combined. Each
-  // side is bracketed because "or" binds looser than "and".
-  private get sourceFilterExpression(): string {
-    return combineFilterExpressions(this._filter, this._controlFilter);
-  }
-  // Either slot filters the list, so every decision that reads "is there a filter" - is there a
-  // view, is a paging source read whole, is the view run here - asks this instead of the authored
-  // expression alone.
-  private get hasFilter(): boolean {
-    return !!this._filter || !!this._controlFilter;
-  }
-  /* A runner per slot, each parsed on its own: the list never concatenates the two expressions, so
-     there is no precedence to get wrong, and a slot the list cannot run resets ITSELF to "" and
-     reports. An expression a control got wrong must not erase the one the author wrote, nor the
-     other way round. The runners exist while the list may be the one filtering: only a source that
-     pages and filters gets the expression text inside every read request and has the list keep
-     none. A paging source that cannot filter has them run here, over the whole storage it is read
-     for. Parsed as soon as the filter - or the source - is set, so that a filter which cannot be run
-     locally is reported then and not on the first read of a view. */
-  private updateFilterRunners(): void {
-    this.filterRunner = this.createSlotRunner(this._filter, (): void => { this._filter = ""; });
-    this.controlFilterRunner = this.createSlotRunner(this._controlFilter, (): void => { this._controlFilter = ""; });
-  }
-  private createSlotRunner(expression: string, clearSlot: () => void): ConditionRunner {
-    if (!expression || !this.mayFilterLocally) return undefined;
-    try {
-      return createFilterRunner(expression);
-    } catch(e) {
-      // The slot stays unfiltered: showing every record beats showing none. The operation is "read":
-      // it is the read of the view that the filter made impossible.
-      clearSlot();
-      this.raiseError(e, "read");
-      return undefined;
-    }
-  }
-  public get sort(): Array<IDynamicDataSort> {
-    return this._sort;
-  }
-  public set sort(v: Array<IDynamicDataSort>) {
-    this.setView(this._filter, v);
-  }
   public dispose(): void {
     this.isDisposed = true;
+    this.binding.dispose();
     this.channel.cancelReads();
     // No notification: a disposed list raises nothing, and a read in flight will never clear it.
     this._isLoading = false;
     this.onChanged = undefined;
     this.onError = undefined;
     this.owner = undefined;
-    // The factory's closures, and the count callback's, hold the owner.
-    this.createDefaultSource = undefined;
-    this.getReadThroughCount = undefined;
     this.records = [];
-    this.hiddenFlags = [];
     this.channel.clearPendingInserts();
     this.storageCount.cancelRetry();
-    this.filterRunner = undefined;
-    this._controlFilter = "";
-    this.controlFilterRunner = undefined;
+    this.view.clear();
     this.recordVisibility = undefined;
-    this.resetMembership();
-    this.resetViews();
+    this.membership.clear();
   }
 
   /* The loaded window is one page of the source: an owner that materializes one object per window
      record must not slice those objects by pageIndex again - they are the page - and "bring this
-     object onto its page" is always already satisfied. It describes the window in force, so it is
-     the mode that window was read in: a paging source that cannot filter is read whole while a
-     filter is set (isReadPagedBySource), and the window it answered with stays the whole storage
-     until the next read commits - a read that is pending or failed changes nothing about it. Before
-     the first commit there is no window to describe, and the mode is the one the next read asks for. */
+     object onto its page" is always already satisfied (see DynamicDataReadState.isPagedBySource). */
   public get isPagedBySource(): boolean {
-    return this.isLoaded ? this.isWindowPagedBySource : this.isReadPagedBySource;
+    return this.readState.isPagedBySource;
   }
-  private isWindowPagedBySource: boolean = false;
-  /* The next read asks the source for a page: the source pages, and it filters too or there is no
-     filter. Otherwise the source is read whole and the list filters, sorts and pages the answer. It
-     decides what a read requests; isPagedBySource decides how the window that is in force is read. */
+  // A read of the source in use has committed a window.
+  public get isWindowCommitted(): boolean {
+    return this.readState.isLoaded;
+  }
+  // The next read asks the source for a page.
   private get isReadPagedBySource(): boolean {
-    const caps = this.sourceCapabilities;
-    return caps.paging && (caps.filtering || !this.hasFilter);
+    return this.readState.isReadPagedBySource;
   }
-  /* A change of the view or of the page is answered by a read of the source: the source pages it, or
-     a paging source that cannot filter owes the whole storage the filter is run over - the window in
-     force is still a page, because the read of the whole storage is pending or failed, or nothing
-     was committed yet. Once the whole storage is in force, the list answers those changes itself. */
+  // A change of the view or of the page is answered by a read of the source.
   public get readsSourceOnViewChange(): boolean {
-    if (this.isReadPagedBySource) return true;
-    if (!this.sourceCapabilities.paging || !this.isLoadRequested) return false;
-    return !this.isLoaded || this.isWindowPagedBySource;
+    return this.readState.readsSourceOnViewChange;
   }
-  /* The read capabilities of the source, taken when it is assigned (takeCapabilities) and never read
-     from the source again: a source that changes them is assigned again. Filtering and sorting mean
-     something only together with paging: a source without paging is read whole and filtered and
-     sorted here. A paging source that cannot filter is read the same way while a filter is set. A
-     paging source that cannot sort is never sorted locally on a page: the sort is refused (see
-     createReadRequest). The decisions below follow the window in force (isPagedBySource). */
-  private sourceCapabilities: IDynamicDataSourceCapabilities = { paging: false, filtering: false, sorting: false };
-  private takeCapabilities(): void {
-    const caps = !!this._source ? this._source.capabilities : undefined;
-    this.sourceCapabilities = {
-      paging: !!caps && !!caps.paging,
-      filtering: !!caps && !!caps.filtering,
-      sorting: !!caps && !!caps.sorting
-    };
-  }
-  // The list runs the filter over the records it holds.
-  private get isFilteredLocally(): boolean {
-    return !this.isPagedBySource;
-  }
-  // The list sorts the records it holds.
-  private get isSortedLocally(): boolean {
-    return !this.isPagedBySource;
-  }
-  // The window holds every record of the source, so a write to it is a write to the whole storage.
+  /* The window holds every record of the source: the list filters and sorts it, and a write to it is
+     a write to the whole storage. */
   private get isWindowWholeStorage(): boolean {
-    return !this.isPagedBySource;
+    return this.readState.isWindowWholeStorage;
   }
-  // The list may have to run the filter: every source except one that pages and filters itself.
-  private get mayFilterLocally(): boolean {
-    return !this.sourceCapabilities.paging || !this.sourceCapabilities.filtering;
-  }
-  /* Can the records be sorted at all: the source does not page, so the list sorts what it holds, or
-     the paging source declared that it sorts. From the capabilities only, not from the filter: a
-     paging source that cannot filter is sorted locally while a filter is set, but offering that sort
-     would offer one the source refuses once the filter is cleared. A sort that is not available is
-     refused when it is read (createReadRequest); an owner asks this first, so that a respondent is
-     never offered one. */
-  public get canSort(): boolean {
-    return !this.sourceCapabilities.paging || this.sourceCapabilities.sorting;
-  }
-  // A capability is declared by the presence of the matching method: the operation names are the
-  // source method names.
-  public hasCapability(operation: DynamicDataOperation): boolean {
-    if (this.isMembershipFixed && (operation === "insert" || operation === "remove" || operation === "move")) return false;
-    const source: any = this._source;
-    return !!source && typeof source[operation] === "function";
-  }
+  // What the source in use may be sent (DynamicDataSourceBinding.hasCapability).
+  public hasCapability(operation: DynamicDataSourceMethod): boolean { return this.binding.hasCapability(operation); }
   private getFields(): Array<IDynamicDataField> {
     return !!this.owner && !!this.owner.getFields ? this.owner.getFields() : undefined;
   }
@@ -1111,8 +952,8 @@ export class DynamicDataList {
     return res;
   }
   /* The name a write gives the record it addresses. A source that declares keyField is told WHICH
-     record changed, a source that does not is told WHERE it is - the source index, exactly as
-     before, and for such a source the key and the position are the same number. Every write resolves
+     record changed; an in-memory array, the only source that is written without one
+     (hasCapability), is told WHERE it is - its storage index. Every write resolves
      it at enqueue time and before its own splice: the window already reflects every earlier write,
      so the record at index is the record the respondent acted on. The one exception is a record whose
      insert is in flight: it has no key here, and its writes carry the pending entry instead, whose
@@ -1123,7 +964,7 @@ export class DynamicDataList {
   }
   private getRecordKey(index: number): any {
     const field = this.keyField;
-    if (!field) return this._windowOffset + index;
+    if (!field) return this.windowOffset + index;
     // A record whose insert is in flight has no key of its own, whatever its key field holds: a
     // value a write put there names another record of the source.
     if (!!this.findPendingInsert(index)) return undefined;
@@ -1143,131 +984,21 @@ export class DynamicDataList {
        With a frozen membership the edited record keeps its place, so the recomputation that follows
        reads the membership back unchanged. */
     if (this.hasLocalViews) {
-      this.resetViews();
+      this.membership.resetViews();
       // The edited record may have left the filter: the visible count can shrink.
       this.clampPageIndexAfterChange();
     }
   }
   private get hasLocalViews(): boolean {
-    return (this.hasFilter && this.isFilteredLocally) || (this._sort.length > 0 && this.isSortedLocally);
-  }
-  // The flags are spliced in step with the records, so they must stay a dense array of the same
-  // length: a shorter one would shift the wrong entries.
-  private alignHiddenFlags(): void {
-    const length = this.recordCount;
-    if (this.hiddenFlags.length === length) return;
-    while(this.hiddenFlags.length < length) {
-      this.hiddenFlags.push(false);
-    }
-    this.hiddenFlags.length = length;
-  }
-  private ensureViews(): void {
-    const recordCount = this.recordCount;
-    if (!!this.visibleIndexes) {
-      if (this.viewsRecordCount === recordCount) return;
-      // The records changed outside the list: the cached views describe a window that is gone. A
-      // content change of the same length cannot be seen here - the owner reports it through
-      // invalidateViews().
-      this.pageIndexes = undefined;
-    }
-    this.alignHiddenFlags();
-    let created = this.getFrozenCreatedIndexes(recordCount);
-    if (!created) {
-      const runners = [this.filterRunner, this.controlFilterRunner].filter((runner: ConditionRunner): boolean => !!runner);
-      const needFilter = runners.length > 0 && this.isFilteredLocally;
-      const needSort = this._sort.length > 0 && this.isSortedLocally;
-      // Read once, and only when the filter or the sort has to look at the records.
-      const records = needFilter || needSort ? this.records : undefined;
-      const fields = needFilter || needSort ? this.getFields() : undefined;
-      created = needFilter ? applyFilters(records, runners, fields) : createIndexes(recordCount);
-      if (needSort) {
-        created = applySort(records, this._sort, fields, created);
-      }
-      this.freezeCreatedIndexes(created, recordCount);
-    }
-    // The owner-hidden records keep the order the filter and the sort gave them; dropping them from
-    // the created indexes is the only difference between the two views.
-    let visible = created;
-    // The flags are dense and aligned here (alignHiddenFlags above), so one scan of them answers
-    // whether the filter below has anything to drop; when it has not, the two views share the array.
-    if (this.hiddenFlags.indexOf(true) > -1) {
-      visible = created.filter((index: number): boolean => !this.hiddenFlags[index]);
-    }
-    this.createdIndexes = created;
-    this.visibleIndexes = visible;
-    this.viewsRecordCount = recordCount;
-  }
-  private resetViews(): void {
-    this.createdIndexes = undefined;
-    this.visibleIndexes = undefined;
-    this.pageIndexes = undefined;
-    this.viewsRecordCount = -1;
-  }
-  private get isMembershipFrozen(): boolean {
-    return this.isViewFrozenOnEdit && this.hasLocalViews;
-  }
-  private getFrozenCreatedIndexes(recordCount: number): Array<number> {
-    if (!this.isMembershipFrozen || !this.frozenCreatedIndexes) return undefined;
-    return this.frozenRecordCount === recordCount ? this.frozenCreatedIndexes : undefined;
-  }
-  private freezeCreatedIndexes(created: Array<number>, recordCount: number): void {
-    if (!this.isMembershipFrozen) {
-      this.resetMembership();
-      return;
-    }
-    this.frozenCreatedIndexes = created;
-    this.frozenRecordCount = recordCount;
-  }
-  private resetMembership(): void {
-    this.frozenCreatedIndexes = undefined;
-    this.frozenRecordCount = -1;
-  }
-  /* The membership is decided when it is reset, not when it is first read: a write made before the
-     first read would otherwise be the one that decides it, and an edit may not decide the view. */
-  private refreezeMembership(): void {
-    if (this.isMembershipFrozen) {
-      this.ensureViews();
-    }
-  }
-  private insertIntoMembership(at: number, newRecordCount: number): void {
-    if (!this.frozenCreatedIndexes) return;
-    const created = this.frozenCreatedIndexes.map(insertRemap(at));
-    // The record that was pushed aside keeps its place; the new object takes the position in front
-    // of it, which for an append is the end.
-    const position = created.indexOf(at + 1);
-    created.splice(position < 0 ? created.length : position, 0, at);
-    this.frozenCreatedIndexes = created;
-    this.frozenRecordCount = newRecordCount;
-  }
-  private removeFromMembership(index: number, newRecordCount: number): void {
-    if (!this.frozenCreatedIndexes) return;
-    this.frozenCreatedIndexes = this.frozenCreatedIndexes.map(removeRemap(index)).filter((i: number): boolean => i > -1);
-    this.frozenRecordCount = newRecordCount;
-  }
-  private moveInMembership(fromIndex: number, toIndex: number): void {
-    if (!this.frozenCreatedIndexes) return;
-    const fromPosition = this.frozenCreatedIndexes.indexOf(fromIndex);
-    const toPosition = this.frozenCreatedIndexes.indexOf(toIndex);
-    // The records renumber; the objects keep their own order except for the one that moved.
-    const created = this.frozenCreatedIndexes.map(moveRemap(fromIndex, toIndex));
-    if (fromPosition > -1 && toPosition > -1) {
-      const moved = created[fromPosition];
-      created.splice(fromPosition, 1);
-      created.splice(toPosition, 0, moved);
-    }
-    this.frozenCreatedIndexes = created;
-    this.frozenRecordCount = this.recordCount;
+    return this.hasView && this.isWindowWholeStorage;
   }
   private resetWindow(): void {
     this.records = [];
-    this.hiddenFlags = [];
     // The inserts of the source that was replaced: their answers belong to a window that is gone.
     this.channel.clearPendingInserts();
     this.storageCount.reset();
-    this._windowOffset = 0;
-    this.isLoaded = false;
-    this.resetMembership();
-    this.resetViews();
+    this.readState.reset();
+    this.membership.clear();
   }
   private getClampedPageIndex(v: number): number {
     return Math.max(0, Math.min(v, this.pageCount - 1));
@@ -1275,20 +1006,17 @@ export class DynamicDataList {
   private clampPageIndex(): void {
     const newValue = this.getClampedPageIndex(this._pageIndex);
     if (newValue !== this._pageIndex) {
-      this._pageIndex = newValue;
-      this.pageIndexes = undefined;
+      this.setPageIndexInternal(newValue, false);
     }
   }
   /* Every change that can shrink the visible count ends here: a page index left past the last page
      would show an empty page. Not before the first successful read - there is no count to clamp
      against yet and the pageIndex setter rules. Returns whether it asked the source for a page. */
   private clampPageIndexAfterChange(): boolean {
-    if (!this.isLoaded) return false;
+    if (!this.isWindowCommitted) return false;
     const newValue = this.getClampedPageIndex(this._pageIndex);
     if (newValue === this._pageIndex) return false;
-    this._pageIndex = newValue;
-    this.pageIndexes = undefined;
-    this.raiseChanged({ type: "pageChanged" });
+    this.setPageIndexInternal(newValue, true);
     if (!this.readsSourceOnViewChange) return false;
     // The records of the previous page are not in the window: they have to be fetched.
     this.load();
@@ -1298,7 +1026,7 @@ export class DynamicDataList {
   // nothing behind it. An unknown total makes "count > loadedCount" unusable - the count IS the
   // window then - so the two committed facts answer it instead.
   private checkWindowIsWholeStorage(operation: string): void {
-    if (!this.isWindowWholeStorage && (this._windowOffset > 0 || this.hasMore)) {
+    if (!this.isWindowWholeStorage && (this.windowOffset > 0 || this.hasMore)) {
       throw new Error("DynamicDataList." + operation + " requires the whole storage to be loaded.");
     }
   }
@@ -1307,7 +1035,8 @@ export class DynamicDataList {
     if (!!this.owner && !!this.owner.onDataListChanged)this.owner.onDataListChanged(change);
     if (!!this.onChanged)this.onChanged(change);
   }
-  private raiseError(error: any, operation: DynamicDataOperation): void {
+  private raiseError(error: any, operation: DynamicDataErrorOperation): void {
+    this.owner?.onDataError?.(error, operation);
     if (!!this.onError)this.onError(error, operation);
   }
   private setIsLoading(val: boolean): void {
@@ -1323,6 +1052,7 @@ export class DynamicDataList {
       getSource: (): IDynamicDataSource => this._source,
       isDisposed: (): boolean => this.isDisposed,
       getKeyField: (): string => this.keyField,
+      hasCapability: (operation: DynamicDataSourceMethod): boolean => this.hasCapability(operation),
       isReadPagedBySource: (): boolean => this.isReadPagedBySource,
       getReadRange: (useWindowOffset: boolean): { skip: number, take: number } => this.getReadRange(useWindowOffset),
       createReadRequest: (skip: number, take: number): IDynamicDataReadRequest => this.createReadRequest(skip, take),
@@ -1330,83 +1060,101 @@ export class DynamicDataList {
         this.commitRead(data, skip, take, isPagedRead),
       onReadFailed: (error: any): void => this.onReadFailed(error),
       setIsLoading: (val: boolean): void => this.setIsLoading(val),
-      raiseError: (error: any, operation: DynamicDataOperation): void => this.raiseError(error, operation),
+      raiseError: (error: any, operation: DynamicDataErrorOperation): void => this.raiseError(error, operation),
       applyInsertAnswer: (entry: IPendingInsert): void => this.applyInsertAnswer(entry),
-      syncWindowAfterSyncPush: (): void => this.syncWindowAfterSyncPush()
+      syncWindowAfterSyncPush: (): void => this.syncWindowAfterSyncPush(),
+      isOwnStorage: (source: IDynamicDataSource): boolean => this.binding.isOwnStorage(source),
+      isLocalSource: (source: IDynamicDataSource): boolean => isLocalSource(source),
+      onPushFailed: (operation: DynamicDataSourceMethod, isAsyncLocalWrite: boolean): void => this.onPushFailed(operation, isAsyncLocalWrite),
+      getSurvey: (): ISurvey => !!this.owner && !!this.owner.getSurvey ? this.owner.getSurvey() : undefined,
+      onSettled: (): void => { if (!!this.owner && !!this.owner.onDataSettled)this.owner.onDataSettled(); },
+      onWritesStarted: (): void => { if (!!this.owner && !!this.owner.onWritesStarted)this.owner.onWritesStarted(); }
     };
   }
-  // The page of a pending retry, else the window in force (a refresh) or the page (a load); a source
-  // without paging - and a paging source that cannot filter, while a filter is set - is read whole:
-  // skip 0, take 0, whatever the page size is.
+  // The range of the next read (see DynamicDataReadState.getReadRange).
   private getReadRange(useWindowOffset: boolean): { skip: number, take: number } {
-    if (!this.isReadPagedBySource) return { skip: 0, take: 0 };
-    let skip: number;
-    const retryPageIndex = this.storageCount.retryPageIndex;
-    if (retryPageIndex !== undefined) {
-      skip = retryPageIndex * this._pageSize;
-    } else {
-      skip = useWindowOffset && this.isLoaded ? this._windowOffset : this._pageIndex * this._pageSize;
-    }
-    return { skip: skip, take: this._pageSize };
+    return this.readState.getReadRange(useWindowOffset, this._pageIndex, this._pageSize, this.storageCount.retryPageIndex);
   }
   /* One read = one request: the range and the view the list wants. The source keeps no state between
      the calls, so nothing has to be pushed to it before a read and two questions may share it. A
-     source that is read whole - one without paging, or a paging source that cannot filter while a
-     filter is set - has the list run the view, so its request carries none. A paged read gets the
-     view: it carries a filter only when the source filters (isReadPagedBySource), and a sort the
-     source has not declared is refused here, before anything is sent - the list would otherwise
-     sort one page - so a part that reaches the request is either declared or empty. The throw
-     takes the read down the path of a source that throws (onReadFailed). */
+     source that is read whole - one without paging, or a paging source while the list has a filter or
+     a sort it cannot run - has the list run the view, so its request carries none. A paged read is
+     made only when the source runs the whole view (isReadPagedBySource), so its request carries the
+     view as it is. */
   private createReadRequest(skip: number, take: number): IDynamicDataReadRequest {
-    if (!this.isReadPagedBySource) return { skip: 0, take: 0, filter: "", sort: [] };
-    if (this._sort.length > 0 && !this.sourceCapabilities.sorting) throw this.createUndeclaredSortError();
-    return { skip: skip, take: take, filter: this.sourceFilterExpression, sort: this._sort.slice() };
-  }
-  private createUndeclaredSortError(): Error {
-    return new Error("DynamicDataList: the source pages but does not declare the \"sorting\" capability, " +
-      "so the sorted page cannot be read. The window in force is kept.");
+    if (!this.isReadPagedBySource) {
+      this.view.ensureWholeStorageFilterRunner(this.readState);
+      return { skip: 0, take: 0, filter: "", sort: [] };
+    }
+    return { skip: skip, take: take, filter: this.view.sourceFilter, sort: this.view.sort.slice() };
   }
   // The previous window stays in force, and so does the page it was read for: a retry that failed
   // has changed nothing. The failed read owns the loading state it inherited.
   private onReadFailed(error: any): void {
+    this.readState.onReadFailed();
     this.storageCount.cancelRetry();
+    this.restoreCommittedPageIndex();
     this.setIsLoading(false);
     this.raiseError(error, "read");
+  }
+  // A failed read leaves the window in force: the page index goes back to the page it was read for.
+  private restoreCommittedPageIndex(): void {
+    const pageIndex = this.readState.getPageIndexToRestore(this._pageIndex);
+    if (pageIndex === undefined) return;
+    this.setPageIndexInternal(pageIndex, true);
+  }
+  /* Every write of the page index: the page cache of the membership belongs to the page index, and
+     notify raises pageChanged. */
+  private setPageIndexInternal(value: number, notify: boolean): void {
+    this._pageIndex = value;
+    this.membership.resetPage();
+    if (notify)this.raiseChanged({ type: "pageChanged" });
   }
   /* The window, its offset, the total and what is known about it are committed together: while a
      read is pending or after it was rejected, the previous window and its own offset stay in force.
      Returns whether the window was committed - an empty page past the end is not. */
   private commitRead(data: any, skip: number, take: number, isPagedRead: boolean): boolean {
-    const result = toReadResult(data);
-    const records = result.records;
+    const result = toReadResult(data, !isLocalSource(this._source));
+    let records = result.records;
+    const isRefill = this.readState.takeRefill(isPagedRead, skip);
     if (isPagedRead) {
       /* A page past the end is not committed: the count records the retry and the list reads that
          page instead (getReadRange takes its skip from it). No pageChanged here: until the retry commits,
          the question shows the window in force together with the page it was read for. */
-      if (this.storageCount.stepBackPastEnd(result, skip, take, records.length, this._pageIndex, this._pageSize, this.sourceFilterExpression)) return false;
-      const retryPageIndex = this.storageCount.commitWindow(result, skip, take, records.length, this.sourceFilterExpression);
+      const answer: IDynamicDataWindowAnswer = { result: result, skip: skip, take: take, length: records.length };
+      if (this.storageCount.stepBackPastEnd(answer, this._pageIndex, this._pageSize, this.view.sourceFilter)) return false;
+      const retryPageIndex = this.storageCount.commitWindow(answer, this.view.sourceFilter);
       if (retryPageIndex !== undefined) {
-        this._pageIndex = retryPageIndex;
-        this.pageIndexes = undefined;
+        this.setPageIndexInternal(retryPageIndex, false);
       }
-      this.records = records;
-      this._windowOffset = skip;
+      if (isRefill) {
+        records = this.keepTouchedRecords(records);
+      }
     } else {
       // The whole storage, whatever shape it came in: total and hasMore mean nothing here.
       this.storageCount.commitWholeStorage();
-      this.records = records;
-      this._windowOffset = 0;
     }
+    this.records = records;
     // Before resetWindowState: the page clamp reads the window as the mode it was read in.
-    this.isWindowPagedBySource = isPagedRead;
-    this.isLoaded = true;
-    this.resetWindowState();
+    this.readState.commitWindow(isPagedRead, skip);
+    // The touched records a refill kept are where keepTouchedRecords put them.
+    this.resetWindowState(isRefill);
+    this.readState.commitPageIndex(this._pageIndex);
     // The reset of a read stands for the one a write still owed (raisePendingReset).
-    this.isResetPending = false;
+    this.writes.isResetPending = false;
     this.raiseChanged({ type: "reset" });
     return true;
   }
 
+  /* The refill after a remove (refillWindowAfterRemove) keeps the records the respondent touched on
+     the page. The count and the offset were committed from the server's answer: the total, hasMore
+     and the retry of a page past the end know the server's records only. The touched records are
+     merged into the answer by key (DynamicDataMembership.keepTouchedRecords). */
+  private keepTouchedRecords(answer: Array<any>): Array<any> {
+    const keyField = this.keyField;
+    const getKey = (record: any): any => !!keyField && !!record && typeof record === "object" ? record[keyField] : undefined;
+    return this.membership.keepTouchedRecords(answer, this.windowRecords, getKey);
+  }
   /* The window half of an insert answer: the merged record (mergeInsertAnswer) replaces the one in
      the window, so that every later write finds the key on it. */
   private applyInsertAnswer(entry: IPendingInsert): void {
@@ -1414,8 +1162,10 @@ export class DynamicDataList {
     // the key itself.
     const index = this.records.indexOf(entry.record);
     if (index < 0) return;
-    this.runWrite((): void => { this.replaceRecord(index, mergeInsertAnswer(entry, entry.record)); });
-    this.raiseChanged({ type: "recordChanged", index: index, field: undefined });
+    this.writes.runOpenWrite((): void => {
+      this.writes.runWrite((): void => { this.replaceRecord(index, mergeInsertAnswer(entry, entry.record)); });
+      this.raiseChanged({ type: "recordChanged", index: index, field: undefined, isInsertAnswer: true });
+    });
   }
   private syncWindowAfterSyncPush(): void {
     if (!this.isWindowWholeStorage || this.useReadThrough) return;
@@ -1425,15 +1175,15 @@ export class DynamicDataList {
        array replaced outside the list would otherwise enter the window with the next write and
        without a reset: the owner would hold it in its value and not in its objects. The window then
        keeps the list's own writes (editWindow), and the rest arrives with the next read. */
-    if (this.isAssignedSourceInUse && !this.isAssignedArrayInSync) return;
-    /* For an ArrayDynamicDataSource the push IS the storage and is synchronous: the window is
+    if (this.binding.isAssignedSourceInUse && !this.writes.isAssignedArrayInSync) return;
+    /* For a local source the push IS the storage and is synchronous: the window is
        rebuilt from it so that the list never holds an array the owner does not. useReadThrough above
        does not already answer this - it is true only when the list reads through as well, and a
        list that does not still has to take the array the push has just written. Inside a batch that
        is the array being built; the stored one is taken when the batch ends (syncWindowAfterBatch).
        Any other source is left alone: read() may answer asynchronously, and an unwrapped promise
        here would empty the window. */
-    if (!(this._source instanceof ArrayDynamicDataSource)) return;
+    if (!isLocalSource(this._source)) return;
     const res = this._source.read();
     this.takeStoredArray(Array.isArray(res) ? res : []);
   }
@@ -1449,14 +1199,14 @@ export class DynamicDataList {
     if (stored === written) return;
     if (stored.length !== written.length) {
       this.resetWindowState();
-      this.isResetPending = true;
+      this.writes.isResetPending = true;
       return;
     }
     // Nothing is cached over the contents of the records without a local filter or sort.
     if (!this.hasLocalViews) return;
     for (let i = 0; i < stored.length; i++) {
       if (stored[i] !== written[i]) {
-        this.resetViews();
+        this.membership.resetViews();
         this.clampPageIndexAfterChange();
         return;
       }

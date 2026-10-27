@@ -1,10 +1,24 @@
 import { IQuestion } from "../base-interfaces";
 import { Helpers, HashTable } from "../helpers";
 import { settings } from "../settings";
+import { isBuiltInVariableName } from "./builtInVariables";
 
 export interface IValueGetterItem {
   name: string;
   index?: number;
+  // where the name sits in the parsed text, set only when parseValuePath is asked for positions
+  from?: number;
+  to?: number;
+}
+// What ValueGetter.isAnyKeyChangedCore reads from a name, built once per name
+export interface IValueGetterNameInfo {
+  name: string;
+  lowerName: string;
+  // the first path item's name in its own letter case, for the unwrap postfix
+  firstName: string;
+  isBuiltIn: boolean;
+  // "m", "m.r1", "m.r1.x" for "M.R1[0].x": the path prefixes in lower case, shortest first
+  lowerPrefixes: Array<string>;
 }
 export interface IValueGetterInfo {
   obj?: IObjectValueContext;
@@ -25,6 +39,8 @@ export interface IValueGetterContextGetValueParams {
   createObjects?: boolean;
   isProperty?: boolean;
   isOriginalValue?: boolean;
+  // The reader holds no object of its own: a records question answers with a row or a panel it already has, and builds none for the read.
+  existingObjectsOnly?: boolean;
 }
 export interface IValueGetterContext {
   getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo;
@@ -33,6 +49,10 @@ export interface IValueGetterContext {
   getRootObj?(): IObjectValueContext;
   getQuestion?(): IQuestion;
   getContextKeys?(keys?: any): { [key: string]: any };
+  // A value made of records (a matrix, a dynamic panel): converts a stored value of the field name to
+  // the one expressions read - a masked text field that saves its masked value gives the unmasked one.
+  // undefined when no question stores the field. The *InArray functions call it on the raw records.
+  getFieldValueConverter?(name: string): (val: any) => any;
 }
 export interface IValueInfoParams {
   name: string;
@@ -49,6 +69,8 @@ export interface IReturnValue {
   propObj?: any;
   propName?: string;
   strictCompare?: boolean;
+  // The context that answered the name.
+  context?: IValueGetterContext;
 }
 // The changed-keys objects are keyed by value names, so a question named "hasOwnProperty" shadows
 // the method: always check own keys through Object.prototype (Bug#11858)
@@ -84,6 +106,7 @@ export class ValueGetter {
     res.strictCompare = info.requireStrictCompare;
     res.propObj = info.propObj;
     res.propName = info.propName;
+    res.context = info.context;
     if (info.context) {
       if (params.isText && info.context.getTextValue) {
         res.value = info.context.getTextValue(name, res.value, params.isDisplayValue);
@@ -101,52 +124,111 @@ export class ValueGetter {
   public getDisplayValue(name: string, context: IValueGetterContext, isDisplayValue: boolean = true): string {
     return this.getValue(name, context, true, isDisplayValue);
   }
-  public isAnyKeyChanged(keys: any, usedNames: string[]): boolean {
+  // isClearedKeyChanged: a path under a key whose value has been cleared ({m.row1} for a cleared m)
+  // counts as changed. Elements leave it off: a matrix cell expression re-run while a handler clears
+  // the matrix writes its result back into the cleared rows.
+  public isAnyKeyChanged(keys: any, usedNames: string[], isClearedKeyChanged?: boolean): boolean {
+    return this.isAnyKeyChangedCore(keys, usedNames, undefined, isClearedKeyChanged);
+  }
+  // namesInfo keeps the parsed parts of usedNames between calls, one item per name, filled as the
+  // loop reaches a name (an expression runner owns it, see ExpressionRunnerBase.getVariablesInfo).
+  // Without it the parts are parsed and dropped, as each name is reached. An item is rebuilt when
+  // its name differs: a trigger may push a name into the runner's variables (CopyValueTrigger).
+  public isAnyKeyChangedCore(keys: any, usedNames: string[], namesInfo: Array<IValueGetterNameInfo>, isClearedKeyChanged?: boolean): boolean {
+    // Settings are read on every call, never kept in a name's information: tests change them at runtime
     const propPrefix = settings.expressionElementPropertyPrefix;
+    // Names are case-insensitive in expressions ({age} reads the question "Age"), so the keys are
+    // matched by their lower-case form, in both directions. Built when the first name needs it.
+    let lowerKeys: HashTable<Array<string>>;
     for (var i = 0; i < usedNames.length; i++) {
       const name = usedNames[i];
       if (!name) continue;
       // An element property reference ({$q1.isVisible}) can change without any value key change
       if (!!propPrefix && name[0] === propPrefix) return true;
-      const lowerName = name.toLowerCase();
-      if (hasOwnKey(keys, name)) return true;
-      if (name !== lowerName && hasOwnKey(keys, lowerName)) return true;
-      if (this.isUnwrappedNameChanged(keys, name)) return true;
-      const firstName = this.getFirstNameByKeys(keys, name);
-      if (!firstName) continue;
-      if (name === firstName) return true;
-      const keyValue = keys[firstName];
-      if (keyValue == undefined) continue;
-      if (
-        !hasOwnKey(keyValue, "oldValue") ||
-        !hasOwnKey(keyValue, "newValue")
-      )
-        return true;
-      const v: any = {};
-      v[firstName] = keyValue["oldValue"];
-      var oldValue = this.getValueFromObject(v, name);
-      v[firstName] = keyValue["newValue"];
-      var newValue = this.getValueFromObject(v, name);
-      if (!Helpers.isTwoValueEquals(oldValue, newValue, false, false, false)) return true;
+      let info = !!namesInfo ? namesInfo[i] : undefined;
+      if (!info || info.name !== name) {
+        info = this.getNameInfo(name);
+        if (!!namesInfo) namesInfo[i] = info;
+      }
+      // A built-in variable ({pageno}, {correctanswers}, ...) is never a key, but its value can change
+      // in any value-change run
+      if (info.isBuiltIn) return true;
+      if (!lowerKeys) lowerKeys = this.getLowerCaseKeys(keys);
+      if (!!lowerKeys[info.lowerName]) return true;
+      if (this.isUnwrappedNameChanged(lowerKeys, info.firstName)) return true;
+      const prefix = this.getFirstNameByKeys(lowerKeys, info.lowerPrefixes);
+      if (!prefix) continue;
+      if (info.lowerName === prefix) return true;
+      const keyNames = lowerKeys[prefix];
+      for (let j = 0; j < keyNames.length; j++) {
+        if (this.isKeyValueChanged(keys, keyNames[j], name, isClearedKeyChanged)) return true;
+      }
     }
     return false;
   }
-  private isUnwrappedNameChanged(keys: any, name: string): boolean {
+  // The parts of a name that the key check reads and that depend on the name only. The parsed path
+  // itself is not kept: run() changes the path it parses ({$q.isVisible}), so a kept one must never reach it.
+  // A runner keeps one per variable (~90,000 on a large survey), so the arrays get their exact size and
+  // the full-length prefix shares the lower-case name's string.
+  private getNameInfo(name: string): IValueGetterNameInfo {
+    const path = this.getPath(name);
+    const lowerName = name.toLowerCase();
+    const lowerPrefixes = new Array<string>(path.length);
+    let prefix = "";
+    for (let i = 0; i < path.length; i++) {
+      const part = path[i].name.toLowerCase();
+      prefix = i > 0 ? prefix + "." + part : part;
+      if (prefix === lowerName) prefix = lowerName;
+      lowerPrefixes[i] = prefix;
+    }
+    return {
+      name: name,
+      lowerName: lowerName,
+      firstName: path[0].name,
+      // It resolves for a one-item path only, the way the survey reads it
+      isBuiltIn: path.length === 1 && isBuiltInVariableName(path[0].name),
+      lowerPrefixes: lowerPrefixes
+    };
+  }
+  // Every key under its lower-case form. Two keys that differ in case only share one entry.
+  private getLowerCaseKeys(keys: any): HashTable<Array<string>> {
+    const res: HashTable<Array<string>> = Object.create(null);
+    for (const key in keys) {
+      if (!hasOwnKey(keys, key)) continue;
+      const lowerKey = key.toLowerCase();
+      if (!res[lowerKey]) res[lowerKey] = [];
+      res[lowerKey].push(key);
+    }
+    return res;
+  }
+  // Whether the part of the key's value that the name points to ({m.row1} in the key "m") changed.
+  // The key's own oldValue/newValue are read, whatever the letter case of the name.
+  private isKeyValueChanged(keys: any, keyName: string, name: string, isClearedKeyChanged: boolean): boolean {
+    const keyValue = keys[keyName];
+    if (keyValue == undefined) return !!isClearedKeyChanged;
+    if (
+      !hasOwnKey(keyValue, "oldValue") ||
+      !hasOwnKey(keyValue, "newValue")
+    )
+      return true;
+    const v: any = {};
+    v[keyName] = keyValue["oldValue"];
+    var oldValue = this.getValueFromObject(v, name);
+    v[keyName] = keyValue["newValue"];
+    var newValue = this.getValueFromObject(v, name);
+    return !Helpers.isTwoValueEquals(oldValue, newValue, false, false, false);
+  }
+  private isUnwrappedNameChanged(lowerKeys: HashTable<Array<string>>, first: string): boolean {
     const postfix = settings.expressionVariables.unwrapPostfix;
     if (!postfix) return false;
-    const first = this.getPath(name)[0].name;
     if (!first.endsWith(postfix)) return false;
     const baseName = first.substring(0, first.length - postfix.length);
-    return hasOwnKey(keys, baseName) || hasOwnKey(keys, baseName.toLowerCase());
+    return !!lowerKeys[baseName.toLowerCase()];
   }
-  private getFirstNameByKeys(keys: any, name: string): string {
-    const path = this.getPath(name);
-    let res = "";
-    for (let i = 0; i < path.length; i++) {
-      res += (i > 0 ? "." : "") + path[i].name;
-      if (hasOwnKey(keys, res)) return res;
-      const lowerRes = res.toLowerCase();
-      if (lowerRes !== res && hasOwnKey(keys, lowerRes)) return lowerRes;
+  // The shortest path prefix ("m" for "m.row1") that is a key, in lower case. Only it decides.
+  private getFirstNameByKeys(lowerKeys: HashTable<Array<string>>, lowerPrefixes: Array<string>): string {
+    for (let i = 0; i < lowerPrefixes.length; i++) {
+      if (!!lowerKeys[lowerPrefixes[i]]) return lowerPrefixes[i];
     }
     return "";
   }
@@ -166,34 +248,79 @@ export class ValueGetter {
     return info?.isFound ? info : undefined;
   }
   public getPath(name: string): Array<IValueGetterItem> {
-    const path: Array<IValueGetterItem> = [];
-    const names = name.split(".");
-    for (let i = 0; i < names.length; i++) {
-      path.push(this.getValueItem(names[i]));
-    }
-    return path;
+    return parseValuePath(name);
   }
-  private getValueItem(name: string): IValueGetterItem {
-    let index: number | undefined = undefined;
-    if (name.lastIndexOf("]") === name.length - 1) {
-      const ind = name.lastIndexOf("[");
-      if (ind > -1) {
-        const indexStr = name.substring(ind + 1, name.length - 1);
-        index = Helpers.getNumber(indexStr);
-        if (isNaN(index)) {
-          index = undefined;
-        }
-        if (index !== undefined) {
-          name = name.substring(0, ind);
-        }
+}
+function getValueItem(name: string): IValueGetterItem {
+  let index: number | undefined = undefined;
+  if (name.lastIndexOf("]") === name.length - 1) {
+    const ind = name.lastIndexOf("[");
+    if (ind > -1) {
+      const indexStr = name.substring(ind + 1, name.length - 1);
+      index = Helpers.getNumber(indexStr);
+      if (isNaN(index)) {
+        index = undefined;
+      }
+      if (index !== undefined) {
+        name = name.substring(0, ind);
       }
     }
-    const res: IValueGetterItem = { name: name };
-    if (index !== undefined) {
-      res.index = index;
-    }
-    return res;
   }
+  const res: IValueGetterItem = { name: name };
+  if (index !== undefined) {
+    res.index = index;
+  }
+  return res;
+}
+// The path a reference names: one item per dot-separated part, a trailing "[n]" being the item's
+// index. withPositions also records where each item's name sits in the text (from/to, the "[n]"
+// left out). Exported so that a tool editing the reference text locates its parts the way the
+// runtime splits them (survey-core/linter).
+export function parseValuePath(name: string, withPositions?: boolean): Array<IValueGetterItem> {
+  const path: Array<IValueGetterItem> = [];
+  const names = name.split(".");
+  let pos = 0;
+  for (let i = 0; i < names.length; i++) {
+    const item = getValueItem(names[i]);
+    if (withPositions) {
+      item.from = pos;
+      item.to = pos + item.name.length;
+    }
+    path.push(item);
+    pos += names[i].length + 1;
+  }
+  return path;
+}
+function getNameByPath(path: Array<IValueGetterItem>, start: number, end: number): string {
+  let name = "";
+  for (let i = start; i < end; i++) {
+    if (i > start) name += ".";
+    name += path[i].name;
+  }
+  return name;
+}
+function getMaxIndexByPath(path: Array<IValueGetterItem>, start: number): number {
+  let index = start;
+  while(index < path.length) {
+    if (path[index].index !== undefined) break;
+    index++;
+  }
+  return index < path.length ? index : path.length - 1;
+}
+// A name may itself contain dots ("address.city"), so the path items from start are joined back
+// into progressively longer names until isFound accepts one. The join stops at the first item
+// with an index - "[n]" walks into the value. isRevert tries the longest name first. Answers the
+// index of the last item the found name spans, or -1. Exported so that a tool reading the JSON
+// resolves dotted names the way the runtime does (survey-core/linter).
+export function findNameByPath(path: Array<IValueGetterItem>, start: number, isRevert: boolean,
+  isFound: (name: string) => boolean): number {
+  const endIndex = getMaxIndexByPath(path, start);
+  let index = isRevert ? endIndex : start;
+  while(index <= endIndex && index >= start) {
+    if (isFound(getNameByPath(path, start, index + 1))) return index;
+    index += isRevert ? -1 : 1;
+  }
+  return -1;
 }
 export class ValueGetterContextCore implements IValueGetterContext {
   constructor() {}
@@ -222,36 +349,11 @@ export class ValueGetterContextCore implements IValueGetterContext {
   }
   protected isSearchNameRevert(): boolean { return false; }
   private checkValueByPath(path: Array<IValueGetterItem>, pIndex: number, res: IValueGetterInfo): number {
-    const isRevert = this.isSearchNameRevert();
-    const initialIndex = pIndex;
-    const endIndex = this.getMaxIndexByPath(path, pIndex);
     res.isFound = false;
-    if (isRevert) {
-      pIndex = endIndex;
-    }
-    while(!res.isFound && pIndex <= endIndex && pIndex >= initialIndex) {
-      const name = this.getNameByPath(path, initialIndex, pIndex + 1);
+    return findNameByPath(path, pIndex, this.isSearchNameRevert(), name => {
       this.updateValueByItem(name, res);
-      if (res.isFound) break;
-      pIndex += isRevert ? -1 : 1;
-    }
-    return pIndex;
-  }
-  private getNameByPath(path: Array<IValueGetterItem>, start: number, end: number): string {
-    let name = "";
-    for (let i = start; i < end; i++) {
-      if (i > start) name += ".";
-      name += path[i].name;
-    }
-    return name;
-  }
-  private getMaxIndexByPath(path: Array<IValueGetterItem>, start: number): number {
-    let index = start;
-    while(index < path.length) {
-      if (path[index].index !== undefined) break;
-      index++;
-    }
-    return index < path.length ? index : path.length - 1;
+      return res.isFound;
+    });
   }
   public getTextValue(name: string, value: any, isDisplayValue: boolean): string {
     if (!isDisplayValue) return value;
@@ -263,14 +365,66 @@ export class ValueGetterContextCore implements IValueGetterContext {
   protected updateItemByIndex(index: number, res: IValueGetterInfo): void {}
 }
 
+// The rule by which a key answers a name ignoring letter case: the same lower-case form, and a first
+// character equal to the name's lower-case or locale upper-case first character. The key scan and
+// HashKeyIndex both apply it, so the two lookups cannot answer a name differently.
+function isKeyOfName(key: string, nameInLow: string, upperFirst: string): boolean {
+  const first = key[0];
+  return (first === nameInLow[0] || first === upperFirst) && key.toLowerCase() === nameInLow;
+}
+// A lookup used to scan every key of the hash for the one that answers a name. This index keeps the
+// keys under their lower-case form, in for...in order, so a lookup checks only the keys that can
+// answer it. The owner of the hash calls reset() whenever the hash gains or loses a key; the index
+// is built again on the next read. A read of another hash builds it again too, so a reader that
+// still holds a hash the owner has since replaced gets the answers of that hash.
+export class HashKeyIndex {
+  private keys: Map<string, Array<string>>;
+  private hash: HashTable<any>;
+  public reset(): void {
+    this.keys = undefined;
+    this.hash = undefined;
+  }
+  public getValue(hash: HashTable<any>, name: string): any {
+    if (!hash || !name) return undefined;
+    if (!this.keys || this.hash !== hash) {
+      this.keys = this.build(hash);
+      this.hash = hash;
+    }
+    const nameInLow = name.toLowerCase();
+    const keys = this.keys.get(nameInLow);
+    if (!keys) return undefined;
+    const upperFirst = name[0].toLocaleUpperCase();
+    for (let i = 0; i < keys.length; i++) {
+      if (isKeyOfName(keys[i], nameInLow, upperFirst)) return hash[keys[i]];
+    }
+    return undefined;
+  }
+  private build(hash: HashTable<any>): Map<string, Array<string>> {
+    const res = new Map<string, Array<string>>();
+    for (const key in hash) {
+      const keyInLow = key.toLowerCase();
+      const keys = res.get(keyInLow);
+      if (keys) {
+        keys.push(key);
+      } else {
+        res.set(keyInLow, [key]);
+      }
+    }
+    return res;
+  }
+}
+
 export class VariableGetterContext extends ValueGetterContextCore {
-  constructor(private variables: HashTable<any>) {
+  // rootLookup answers the names of the root object in place of the scan of its keys, with the
+  // scan's contract: undefined is not found. The members of a value found are still scanned.
+  constructor(private variables: HashTable<any>, private rootLookup?: (name: string) => any) {
     super();
   }
   protected getInitialvalue(): any { return this.variables; }
   protected isSearchNameRevert(): boolean { return true; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
-    const val = this.getValueByItemCore(res.value, name);
+    const isRoot = !!this.rootLookup && res.value === this.variables;
+    const val = isRoot ? this.rootLookup(name) : this.getValueByItemCore(res.value, name);
     res.isFound = val !== undefined;
     if (res.isFound) {
       res.value = val;
@@ -294,14 +448,9 @@ export class VariableGetterContext extends ValueGetterContextCore {
     const nameInLow = name.toLowerCase();
     if (name === "length" && (Array.isArray(obj) || typeof obj === "string")) return obj.length;
     if (typeof obj !== "object") return undefined;
-    let a = nameInLow[0];
-    let A = name[0].toLocaleUpperCase();
+    const upperFirst = name[0].toLocaleUpperCase();
     for (var key in obj) {
-      var first = key[0];
-      if (first === a || first === A) {
-        var keyName = key.toLowerCase();
-        if (keyName == nameInLow) return obj[key];
-      }
+      if (isKeyOfName(key, nameInLow, upperFirst)) return obj[key];
     }
     return undefined;
   }

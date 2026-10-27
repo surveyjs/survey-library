@@ -9,6 +9,7 @@ import { Action } from "../src/actions/action";
 import { findParentByClassNames } from "../src/utils/dom-utils";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionTextModel } from "../src/question_text";
+import { SurveyElement } from "../src/survey-element";
 import { settings } from "../src/settings";
 import { describe, test, expect, vi } from "vitest";
 export * from "../src/localization/german";
@@ -138,6 +139,17 @@ describe("Base", () => {
     value.value = "Item|Text Item";
     expect(value.value, "do not use the text separator").toBe("Item|Text Item");
     settings.itemValueSeparator = "|";
+  });
+  test("ItemValue.hasValue: a value of spaces is no value", () => {
+    ["   ", "", null, undefined].forEach((val: any): void => {
+      expect(new ItemValue(val).hasValue, "no value: " + JSON.stringify(val)).toBe(false);
+    });
+    ["a", 0, false].forEach((val: any): void => {
+      expect(new ItemValue(val).hasValue, "a value: " + val).toBe(true);
+    });
+    const item = new ItemValue("   ");
+    item.value = "b";
+    expect(item.hasValue, "follows the value").toBe(true);
   });
   test("ItemValue.setData()", () => {
     var items = new Array<ItemValue>();
@@ -416,6 +428,25 @@ describe("Base", () => {
     expect(counter, "event called 4 times, pop is called two times").toBe(4);
     expect(propertyName, "items has been changed").toBe("items");
   });
+  test("Base array propety value, the onPush index of push and unshift", () => {
+    class IndexTester extends Base {
+      public indexes: Array<number> = [];
+      constructor() {
+        super();
+        this.createNewArray("items", (item: any, index: number): void => { this.indexes.push(index); });
+      }
+      public get items(): Array<any> {
+        return this.getPropertyValue("items");
+      }
+    }
+    const base = new IndexTester();
+    base.items.push({ value: 1 });
+    base.items.push({ value: 2 });
+    expect(base.indexes, "#1: push, the last index").toEqual([0, 1]);
+    base.items.unshift({ value: 0 });
+    expect(base.items[0].value, "#2: unshift adds at the start").toBe(0);
+    expect(base.indexes, "#3: unshift, index 0").toEqual([0, 1, 0]);
+  });
   test("Base array propety value, set value", () => {
     var base = new BaseTester();
     var counter = 0;
@@ -599,6 +630,192 @@ describe("Base", () => {
     expect(updaterCallCount, "no updater calls").toBe(3);
     expect(base3.propC, "no value updates").toBe(5);
   });
+  test("Collect dependencies: question properties outside loading are collected in order", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const base3 = new BaseTester3();
+    let updaterCallCount = 0;
+    const updater = () => {
+      base3.propC = (q.isRequired ? 1 : 0) + (q.startWithNewLine ? 2 : 0);
+      updaterCallCount++;
+    };
+
+    Base.startCollectDependencies(updater, base3, "propC");
+    updater();
+    const deps = Base.finishCollectDependencies();
+    expect(deps.dependencies.map(d => d.prop), "two dependencies in order").toEqual(["isRequired", "startWithNewLine"]);
+    expect(deps.dependencies[0].obj).toBe(q);
+    expect(deps.dependencies[1].obj).toBe(q);
+
+    expect(updaterCallCount, "first time calculation").toBe(1);
+    expect(base3.propC).toBe(2);
+    q.isRequired = true;
+    expect(updaterCallCount, "isRequired changed").toBe(2);
+    expect(base3.propC).toBe(3);
+    q.startWithNewLine = false;
+    expect(updaterCallCount, "startWithNewLine changed").toBe(3);
+    expect(base3.propC).toBe(1);
+    deps.dispose();
+  });
+  test("Collect dependencies: question properties while the survey is loading are not collected", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const base3 = new BaseTester3();
+    let updaterCallCount = 0;
+    const updater = () => {
+      base3.propC = (q.isRequired ? 1 : 0) + (q.startWithNewLine ? 2 : 0);
+      updaterCallCount++;
+    };
+
+    survey.startLoadingFromJson();
+    Base.startCollectDependencies(updater, base3, "propC");
+    updater();
+    const deps = Base.finishCollectDependencies();
+    // endLoadingFromJson starts the width-mode collection, so it must run after finishCollectDependencies
+    survey.endLoadingFromJson();
+    expect(deps.dependencies.length, "no dependencies").toBe(0);
+    q.isRequired = true;
+    expect(updaterCallCount, "not subscribed").toBe(1);
+    deps.dispose();
+  });
+  test("Property reads outside a dependency collection do not check the loading state", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    const readAll = () => [q.name, q.isRequired, q.startWithNewLine, q.readOnly, q.width, q.minWidth,
+      q.maxWidth, q.indent, q.valueName, q.visibleIf];
+    readAll();
+    const getterSpy = vi.spyOn(Base.prototype, "isLoadingFromJson", "get");
+    const elementSpy = vi.spyOn(SurveyElement.prototype as any, "getIsLoadingFromJson");
+    try {
+      readAll();
+      // Before the check for a running collection, 10 reads made 20 getter calls (the question, then its survey)
+      // and 10 getIsLoadingFromJson calls
+      expect(getterSpy, "isLoadingFromJson getter").toHaveBeenCalledTimes(0);
+      expect(elementSpy, "SurveyElement.getIsLoadingFromJson").toHaveBeenCalledTimes(0);
+    } finally {
+      getterSpy.mockRestore();
+      elementSpy.mockRestore();
+    }
+  });
+  class BaseTester5 extends Base {
+  @property({ defaultValue: 1 }) propA: number;
+  @property({ defaultValue: 2 }) propB: number;
+  }
+  const depsToArray = (updater: ComputedUpdater): Array<{ obj: Base, prop: string }> =>
+    updater["getDependencies"]().dependencies.map(d => ({ obj: d.obj, prop: d.prop }));
+  test("Collect dependencies: a property read twice is one dependency", () => {
+    const a = new BaseTester5();
+    const b = new BaseTester5();
+    const target = new BaseTester3();
+    let updaterCallCount = 0;
+    const updater = new ComputedUpdater<number>(() => {
+      updaterCallCount++;
+      return a.propA + b.propA + a.propA + a.propB;
+    });
+    target.propC = <any>updater;
+    expect(depsToArray(updater), "three dependencies in reading order").toEqual([
+      { obj: a, prop: "propA" }, { obj: b, prop: "propA" }, { obj: a, prop: "propB" }]);
+    expect(updaterCallCount, "first time calculation").toBe(1);
+    a.propA = 3;
+    expect(updaterCallCount, "a.propA changed, updater runs once").toBe(2);
+    expect(target.propC, "3 + 1 + 3 + 2").toBe(9);
+    updater.dispose();
+  });
+  test("Collect dependencies: two objects with equal names are two dependencies", () => {
+    const a = new QuestionTextModel("q");
+    const b = new QuestionTextModel("q");
+    const target = new BaseTester4();
+    let updaterCallCount = 0;
+    const updater = new ComputedUpdater<string>(() => {
+      updaterCallCount++;
+      return a.title + "," + b.title;
+    });
+    target.propC = <any>updater;
+    expect(depsToArray(updater), "name and title of both questions").toEqual([
+      { obj: a, prop: "name" }, { obj: a, prop: "title" }, { obj: b, prop: "name" }, { obj: b, prop: "title" }]);
+    expect(target.propC).toBe("q,q");
+    a.title = "A";
+    expect(updaterCallCount, "a.title changed").toBe(2);
+    expect(target.propC).toBe("A,q");
+    b.title = "B";
+    expect(updaterCallCount, "b.title changed").toBe(3);
+    expect(target.propC).toBe("A,B");
+    updater.dispose();
+  });
+  test("Collect dependencies: many dependencies", () => {
+    const objs: Array<BaseTester5> = [];
+    for (let i = 0; i < 2000; i++) objs.push(new BaseTester5());
+    const target = new BaseTester3();
+    let updaterCallCount = 0;
+    const updater = new ComputedUpdater<number>(() => {
+      updaterCallCount++;
+      let res = 0;
+      objs.forEach(o => { res += o.propA + o.propB + o.propA + o.propB; });
+      return res;
+    });
+    target.propC = <any>updater;
+    const deps = depsToArray(updater);
+    expect(deps.length, "two dependencies per object").toBe(4000);
+    expect(deps[3998], "last object propA").toEqual({ obj: objs[1999], prop: "propA" });
+    expect(deps[3999], "last object propB").toEqual({ obj: objs[1999], prop: "propB" });
+    expect(target.propC).toBe(2000 * 6);
+    objs[1999].propB = 4;
+    expect(updaterCallCount, "last object propB changed, updater runs once").toBe(2);
+    expect(target.propC).toBe(2000 * 6 + 4);
+    updater.dispose();
+    expect(objs.filter(o => o["onPropChangeFunctions"].length > 0).length, "no handlers left").toBe(0);
+    objs[0].propA = 5;
+    expect(updaterCallCount, "no updater calls after dispose").toBe(2);
+  });
+  test("Collect dependencies: adding a dependency does not scan the collected dependencies", () => {
+    const collect = (count: number): { length: number, indexReads: number } => {
+      const objs: Array<BaseTester5> = [];
+      for (let i = 0; i < count; i++) objs.push(new BaseTester5());
+      const target = new BaseTester5();
+      const updater = () => {
+        objs.forEach(o => { o.propA; o.propB; o.propA; o.propB; });
+      };
+      let indexReads = 0;
+      let deps;
+      Base.startCollectDependencies(updater, target, "propA");
+      try {
+        const running = Base["currentDependencis"];
+        let reads = 0;
+        running.dependencies = new Proxy(running.dependencies, {
+          get: (arr, key, receiver) => {
+            if (typeof key === "string" && /^\d+$/.test(key)) reads++;
+            return Reflect.get(arr, key, receiver);
+          }
+        });
+        updater();
+        indexReads = reads;
+      } finally {
+        deps = Base.finishCollectDependencies();
+        deps.dispose();
+      }
+      return { length: deps.dependencies.length, indexReads: indexReads };
+    };
+    const small = collect(50);
+    expect(small.length, "two dependencies per object, 50 objects").toBe(100);
+    // A scan for a duplicate on every read made 10,000 index reads here
+    expect(small.indexReads, "index reads while collecting, 50 objects").toBe(0);
+    const large = collect(100);
+    expect(large.length, "two dependencies per object, 100 objects").toBe(200);
+    expect(large.indexReads, "index reads while collecting, 100 objects").toBe(0);
+  });
+  test("Collect dependencies: survey width mode follows a late element", () => {
+    const pages: Array<any> = [];
+    for (let i = 0; i < 300; i++) pages.push({ elements: [{ type: "text", name: "q" + i }] });
+    const survey = new SurveyModel({ pages });
+    const lastPage = survey.pages[299];
+    survey.currentPage = lastPage;
+    expect(survey.calculatedWidthMode, "one question per page").toBe("static");
+    const q = lastPage.addNewQuestion("text", "q300");
+    q.startWithNewLine = false;
+    expect(survey.calculatedWidthMode, "two questions in a row on the last page").toBe("responsive");
+    lastPage.removeElement(q);
+    expect(survey.calculatedWidthMode, "the question is removed").toBe("static");
+  });
   test("Collect dependencies automatically", () => {
     const base1 = new BaseTester1();
     const base2 = new BaseTester2();
@@ -762,6 +979,177 @@ describe("Base", () => {
     base1.propA = 3;
     expect(updaterCallCount, "updater doesn't react on changes").toBe(2);
     expect(base3.propC, "no value updates").toBe(4);
+  });
+  describe("property change handlers", () => {
+    let changeCounter = 0;
+    const fire = (obj: Base, name: string): void => {
+      obj.setPropertyValue(name, ++changeCounter);
+    };
+    const handlersOf = (obj: Base, name: string): Array<{ name: string, func: any, key: string }> =>
+      obj["onPropChangeFunctions"].filter(item => item.name === name);
+
+    test("a keyed re-registration replaces the handler and keeps its position", () => {
+      const obj = new Base();
+      const calls = new Array<string>();
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("A"), "a");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("B"), "b");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("C"), "c");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("B2"), "b");
+      fire(obj, "p");
+      expect(calls).toEqual(["A", "B2", "C"]);
+      expect(handlersOf(obj, "p").map(item => item.key)).toEqual(["a", "b", "c"]);
+    });
+    test("unkeyed handlers stack, and one unkeyed removal removes only the first", () => {
+      const obj = new Base();
+      let count = 0;
+      const func = () => count++;
+      obj.registerFunctionOnPropertyValueChanged("p", func);
+      obj.registerFunctionOnPropertyValueChanged("p", func);
+      fire(obj, "p");
+      expect(count, "#1: both fire").toBe(2);
+      const removed = obj.unRegisterFunctionOnPropertyValueChanged("p");
+      expect(removed.length, "#2: the removed entry is returned").toBe(1);
+      expect(removed[0].func, "#3").toBe(func);
+      fire(obj, "p");
+      expect(count, "#4: one is left").toBe(3);
+      expect(handlersOf(obj, "p").length, "#5").toBe(1);
+    });
+    test("removal by key leaves the handlers of other keys and of other names intact", () => {
+      const obj = new Base();
+      const calls = new Array<string>();
+      obj.registerPropertyChangedHandlers(["p", "q"], () => calls.push("k1"), "k1");
+      obj.registerPropertyChangedHandlers(["p", "q"], () => calls.push("k2"), "k2");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("unkeyed"));
+      const removed = obj.unRegisterFunctionOnPropertyValueChanged("p", "k1");
+      expect(removed.map(item => item.key), "#1").toEqual(["k1"]);
+      expect(obj.unRegisterFunctionOnPropertyValueChanged("p", "k1"), "#2: nothing left to remove").toBeUndefined();
+      fire(obj, "p");
+      expect(calls, "#3").toEqual(["k2", "unkeyed"]);
+      calls.splice(0);
+      fire(obj, "q");
+      expect(calls, "#4: the same key on another name stays").toEqual(["k1", "k2"]);
+    });
+    test("a handler that removes itself while firing does not stop the next handlers", () => {
+      const obj = new Base();
+      const calls = new Array<string>();
+      obj.registerFunctionOnPropertyValueChanged("p", () => {
+        calls.push("H1");
+        obj.unRegisterFunctionOnPropertyValueChanged("p", "h1");
+      }, "h1");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("H2"), "h2");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("H3"), "h3");
+      fire(obj, "p");
+      expect(calls, "#1").toEqual(["H1", "H2", "H3"]);
+      calls.splice(0);
+      fire(obj, "p");
+      expect(calls, "#2").toEqual(["H2", "H3"]);
+    });
+    test("a handler that removes a later handler while firing: the removed one does not fire", () => {
+      const obj = new Base();
+      const calls = new Array<string>();
+      obj.registerFunctionOnPropertyValueChanged("p", () => {
+        calls.push("H1");
+        obj.unRegisterFunctionOnPropertyValueChanged("p", "h2");
+      }, "h1");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("H2"), "h2");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("H3"), "h3");
+      fire(obj, "p");
+      expect(calls).toEqual(["H1", "H3"]);
+    });
+    test("a handler registered while firing fires in the same pass", () => {
+      const obj = new Base();
+      const calls = new Array<string>();
+      obj.registerFunctionOnPropertyValueChanged("p", () => {
+        calls.push("H1");
+        obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("H4"), "h4");
+      }, "h1");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("H2"), "h2");
+      fire(obj, "p");
+      expect(calls).toEqual(["H1", "H2", "H4"]);
+    });
+    [{ title: "keyed", h1: "h1", h4: "h4" }, { title: "unkeyed", h1: undefined, h4: undefined }].forEach(kind => {
+      test("the only handler removes itself and registers another one while firing: the new one fires in the same pass, " + kind.title, () => {
+        const obj = new Base();
+        const calls = new Array<string>();
+        obj.registerFunctionOnPropertyValueChanged("p", () => {
+          calls.push("H1");
+          obj.unRegisterFunctionOnPropertyValueChanged("p", kind.h1);
+          obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("H4"), kind.h4);
+        }, kind.h1);
+        fire(obj, "p");
+        expect(calls, "#1").toEqual(["H1", "H4"]);
+        calls.splice(0);
+        fire(obj, "p");
+        expect(calls, "#2").toEqual(["H4"]);
+      });
+    });
+    test("20,000 keyed handlers on one object register and unregister completely", () => {
+      const obj = new Base();
+      let count = 0;
+      const func = () => count++;
+      const total = 20000;
+      for (let i = 0; i < total; i++) {
+        obj.registerFunctionOnPropertyValueChanged("p", func, "k" + i);
+      }
+      expect(obj["onPropChangeFunctions"].length, "#1").toBe(total);
+      fire(obj, "p");
+      expect(count, "#2").toBe(total);
+      for (let i = 0; i < total; i++) {
+        obj.unRegisterFunctionOnPropertyValueChanged("p", "k" + i);
+      }
+      expect(obj["onPropChangeFunctions"], "#3: the snapshot is empty").toEqual([]);
+      fire(obj, "p");
+      expect(count, "#4: nothing fires").toBe(total);
+    });
+    test("firing a property does not touch the handlers of other properties", () => {
+      const obj = new Base();
+      let otherCount = 0;
+      for (let i = 0; i < 10000; i++) {
+        obj.registerFunctionOnPropertyValueChanged("other", () => otherCount++, "k" + i);
+      }
+      let targetCount = 0;
+      obj.registerFunctionOnPropertyValueChanged("target", () => targetCount++, "k0");
+      const storage: Map<string, any> = obj["propChangeHandlers"];
+      expect(storage instanceof Map, "#1: the handlers are kept by name").toBe(true);
+      storage.set("other", new Proxy({}, { get: () => { throw new Error("the handlers of 'other' were accessed"); } }));
+      fire(obj, "target");
+      expect(targetCount, "#2").toBe(1);
+      expect(otherCount, "#3").toBe(0);
+    });
+    test("empty-string keys stack like unkeyed handlers, apart from null and undefined keys", () => {
+      const obj = new Base();
+      const calls = new Array<string>();
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("E1"), "");
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("N"), null);
+      obj.registerFunctionOnPropertyValueChanged("p", () => calls.push("E2"), "");
+      fire(obj, "p");
+      expect(calls, "#1").toEqual(["E1", "N", "E2"]);
+      expect(obj.unRegisterFunctionOnPropertyValueChanged("p", null).map(item => item.key), "#2").toEqual([null]);
+      expect(obj.unRegisterFunctionOnPropertyValueChanged("p", undefined), "#3: no null or undefined key is left").toBeUndefined();
+      calls.splice(0);
+      fire(obj, "p");
+      expect(calls, "#4").toEqual(["E1", "E2"]);
+      expect(obj.unRegisterFunctionOnPropertyValueChanged("p", "").map(item => item.key), "#5").toEqual([""]);
+      calls.splice(0);
+      fire(obj, "p");
+      expect(calls, "#6").toEqual(["E2"]);
+    });
+    test("two computed updaters on a shared object: disposing one keeps the other's handler", () => {
+      const shared = new BaseTester1();
+      const owner1 = new BaseTester3();
+      const owner2 = new BaseTester3();
+      owner1.propC = <any>new ComputedUpdater<number>(() => shared.propA + 1);
+      owner2.propC = <any>new ComputedUpdater<number>(() => shared.propA * 10);
+      expect(handlersOf(shared, "propA").length, "#1").toBe(2);
+      shared.propA = 5;
+      expect(owner1.propC, "#2").toBe(6);
+      expect(owner2.propC, "#3").toBe(50);
+      owner1.dispose();
+      expect(handlersOf(shared, "propA").length, "#4").toBe(1);
+      shared.propA = 7;
+      expect(owner1.propC, "#5: the disposed owner does not update").toBe(6);
+      expect(owner2.propC, "#6").toBe(70);
+    });
   });
 
   test("findParentByClassNames function", () => {

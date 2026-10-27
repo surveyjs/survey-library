@@ -40,6 +40,30 @@ describe("Layout element models", () => {
     expect(bottomElement.isInContainer("contentBottom")).toBe(false);
   });
 
+  test("SurveyNavigationLayoutModel: navigation is not placed into a container if the navigation bar is empty", async () => {
+    const survey = new SurveyModel({
+      navigationButtonsLocation: "topBottom",
+      elements: [{ type: "text", name: "q1" }]
+    });
+    survey.showCompleteButton = false;
+    expect(survey.navigationBar.hasVisibleActions, "the navigation bar is empty").toBe(false);
+    expect(survey.getContainerContent("contentTop"), "no top navigation").toEqual([]);
+    expect(survey.getContainerContent("contentBottom"), "no bottom navigation").toEqual([]);
+
+    survey.showCompleteButton = true;
+    expect(survey.getContainerContent("contentTop").map(el => el.id), "top navigation is shown").toEqual(["buttons-navigation-top"]);
+    expect(survey.getContainerContent("contentBottom").map(el => el.id), "bottom navigation is shown").toEqual(["buttons-navigation"]);
+
+    survey.navigationBar.initResponsivityManager(<any>{});
+    let changedCount = 0;
+    survey.registerPropertyChangedHandlers(["hasVisibleNavigationActions"], () => changedCount++);
+    survey.showCompleteButton = false;
+    await Promise.resolve();
+    expect(changedCount, "the survey is notified when the mounted navigation bar becomes empty").toBe(1);
+    expect(survey.getContainerContent("contentBottom"), "no bottom navigation after hiding the complete button").toEqual([]);
+    survey.navigationBar.resetResponsivityManager();
+  });
+
   test("SurveyProgressTextModel: returns all progress variants and picks active one", () => {
     const oldLegacyProgressBarView = settings.legacyProgressBarView;
     const oldCssType = surveyCss.currentType;
@@ -120,7 +144,7 @@ describe("Layout element models", () => {
       expect(questionsElement.isInContainer("center"), "standard mode hides the questions bar").toBe(false);
 
       survey.questionsOnPageMode = "inputPerPage";
-      expect(questionsElement.isInContainer("center"), "inputPerPage hides the questions bar").toBe(false);
+      expect(questionsElement.isInContainer("center"), "inputPerPage shows the same bar").toBe(true);
       expect(buttonsElement.isInContainer("center"), "inputPerPage hides the page buttons").toBe(false);
     } finally {
       settings.legacyProgressBarView = oldLegacyProgressBarView;
@@ -128,7 +152,7 @@ describe("Layout element models", () => {
     }
   });
 
-  test("SurveyProgressTextModel: inputPerPage hides the progress bar like singlePage does, Bug#11773", () => {
+  test("SurveyProgressTextModel: inputPerPage shows the same bar as questionPerPage", () => {
     const oldLegacyProgressBarView = settings.legacyProgressBarView;
     const oldCssType = surveyCss.currentType;
     settings.legacyProgressBarView = false;
@@ -151,19 +175,17 @@ describe("Layout element models", () => {
       const questionsElement = elements.find(el => el.id === "progress-questions");
       const pagesElement = elements.find(el => el.id === "progress-pages");
 
-      expect(questionsElement.isInContainer("center"), "no bar on top").toBe(false);
-      expect(questionsElement.isInContainer("footer"), "no bar at the bottom").toBe(false);
+      expect(questionsElement.isInContainer("center"), "bar on top").toBe(true);
+      expect(questionsElement.isInContainer("footer"), "bar at the bottom").toBe(true);
       expect(buttonsElement.isInContainer("center"), "no page buttons").toBe(false);
       expect(pagesElement.isInContainer("center"), "no pages bar").toBe(false);
 
-      // the same escape hatch as in the singlePage mode: an explicitly requested answered
-      // questions count is still displayed
-      survey.progressBarType = "questions";
-      expect(questionsElement.isInContainer("center"), "an explicit questions bar is shown").toBe(true);
+      survey.progressBarType = "requiredQuestions";
+      expect(questionsElement.isInContainer("center"), "stored type does not hide the bar").toBe(true);
 
       survey.questionsOnPageMode = "questionPerPage";
-      survey.progressBarType = "pages";
-      expect(questionsElement.isInContainer("center"), "questionPerPage still shows the bar").toBe(true);
+      expect(questionsElement.isInContainer("center"), "questionPerPage shows the same bar").toBe(true);
+      expect(buttonsElement.isInContainer("center"), "questionPerPage hides page buttons").toBe(false);
     } finally {
       settings.legacyProgressBarView = oldLegacyProgressBarView;
       surveyCss.currentType = oldCssType;

@@ -183,7 +183,7 @@ function renderSurvey(categories, products) {
         { name: "edges", title: "Cheap or Premium", expression: "{price} < 10 or {price} > 100" },
         { name: "discontinued", title: "Discontinued", type: "ai", prompt: "discontinued products", expression: "{discontinued} = true", allowEdit: false }
       ] },
-    { type: "matrixdynamic", name: "products", title: "Products (OData Northwind)", rowsPerPage: 10, columns: [
+    { type: "matrixdynamic", name: "products", title: "Products (OData Northwind)", pageSize: 10, columns: [
       // Picked from the product names, or typed in: the Filters dialog edits it with a tagbox.
       { name: "name", title: "Product", cellType: "dropdown", choices: products, allowCustomChoices: true, filterOperators: ["anyof"] },
       // Checkboxes with Apply: anyof is the only operator the filter offers.

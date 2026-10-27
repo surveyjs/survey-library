@@ -1,4 +1,5 @@
 import type { IDynamicDataFilterField } from "./dynamic-data-filter-fields";
+import type { ISurvey } from "../interfaces/survey-interfaces";
 
 // The data-source contract for DynamicDataList. A source has one read, read(request), and declares
 // what it does with the request in two ways, on purpose:
@@ -38,30 +39,40 @@ import type { IDynamicDataFilterField } from "./dynamic-data-filter-fields";
 //       fetch(`/api/orders?skip=${request.skip}&take=${request.take}&where=${translate(request.filter)}`)
 //         .then(r => r.json())
 //         .then(r => ({ records: r.items, total: r.total })),
-//     // Optional. The record field that identifies a record: present -> every write below receives
-//     // record[keyField] as its key instead of a position. A source whose records change under the
-//     // grid - a second user, a background job, another tab - needs it: "the record at position 37"
-//     // is a different record by the time the request lands.
+//     // The record field that identifies a record: every write below receives record[keyField] as
+//     // its key. Required for writing: a source without it is read-only, whatever methods it has.
 //     keyField: "id",
 //     // Optional, one capability each. Missing insert -> no add button; missing remove -> no
-//     // delete button; missing move -> no drag reorder; missing update -> the question is
-//     // read-only. The position is where the record goes, the source assigns the key: return the
-//     // stored record (or a promise of it) so that the list learns it.
+//     // delete button; missing update -> the question is read-only. The source assigns the key and
+//     // decides where the record is kept: return the stored record (or a promise of it) so that the
+//     // list learns the key.
 //     insert: (record, sourceIndex) => post("/api/orders", { at: sourceIndex, record }),
-//     update: (key, record, changedFields) => put(`/api/orders/${key}`, record),
-//     remove: (key) => del(`/api/orders/${key}`),
-//     // The key names the record; the target is still a position, that is what a move is.
-//     move: (key, toSourceIndex) => post("/api/orders/move", { id: key, to: toSourceIndex })
+//     // Send the changed fields only: another question on the same source may hold an older copy.
+//     update: (key, record, changedFields) => patch(`/api/orders/${key}`, pick(record, changedFields)),
+//     remove: (key) => del(`/api/orders/${key}`)
 //   };
 //   matrixQuestion.dataSource = source;   // or panelQuestion.dataSource = source
 //
-// A source WITHOUT keyField receives the source index as the key: the position in the WHOLE source,
-// not in the loaded page - the list has already added the offset of the page the edit was made on.
-// That is what the in-memory sources use, and it is exact for a source only this list writes to.
-// sourceIndex, where it is passed on its own, is always that position.
+// A source is never asked to move a record: a matrix whose records come from a data source does not
+// reorder its rows (allowRowReorder is ignored), because a position in the whole source is not
+// something every source can honor.
+//
+// A source WITHOUT keyField is read-only: the list sends it no insert, update or remove, so no
+// write ever names a record by its position. It may still page, sort and filter on its side. The
+// in-memory sources (ArrayDynamicDataSource, SurveyDataDynamicDataSource and any other subclass of
+// LocalDynamicDataSource) are the exception: their writes are synchronous, so a write names a record
+// by its storage index. A write of such a source that returns a promise is reported as an error
+// (onDynamicDataError), and the list reads the window again from the storage; a source with
+// asynchronous writes needs keyField. Such a source has
+// one writer: assigned to a second question, it is read-only there (DynamicDataList.assignSource). sourceIndex, where it is passed on its own, is the position in the WHOLE source - the list
+// has already added the offset of the page the edit was made on.
+//
+// Where an added record is kept is the source's to decide: insert receives the position the
+// respondent added it at, returns the stored record, and the next read shows the record where the
+// source put it. Until the next page, sort or filter change the record stays shown where it was added.
 //
 // A keyed source and a new record: the list addresses a record by the key the source assigned, so
-// return the stored record from insert. The edits, removes and moves made to the new record before
+// return the stored record from insert. The edits and removes made to the new record before
 // that answer lands are queued behind the insert and sent, in order, with the key once it arrives;
 // an update sent then carries the fields the source filled in as well. What is still lost is a write
 // to a record whose insert failed or answered without the key: it stays in the window,
@@ -81,30 +92,35 @@ import type { IDynamicDataFilterField } from "./dynamic-data-filter-fields";
 // answers with every record, and the list filters and sorts that answer itself, whatever the two
 // flags say; its request is always { skip: 0, take: 0, filter: "", sort: [] }. A paging source
 // declares each of the two on its own: a source that pages and sorts but cannot filter declares
-// { paging: true, sorting: true }. The list never filters or sorts one page locally:
-// - a paging source that cannot filter is read whole while a filter is set - the authored one or a
-//   Filter Control's: the request is the one of
-//   a source that does not page, and the list filters, sorts and pages the answer itself. Once the
-//   filter is cleared, the source is paged again. Declare filtering to keep a filter from reading
-//   every record;
-// - a sort a paging source has not declared is refused on a paged read: no request is sent, the
-//   window in force stays, and the refusal is reported through survey.onDynamicDataError with the
-//   operation "read". question.canSortRecords says up front whether a sort is available.
-// The request of a paged read carries only the parts the source has declared: "" for no filter, []
-// for an undeclared sort.
+// { paging: true, sorting: true }. The list never filters or sorts one page locally. While the list
+// has a filter or a sort that a paging source has not declared, the source is read whole: the
+// request is the one of a source that does not page, and the list filters, sorts and pages the
+// answer itself. Once no undeclared part is set, the source is paged again. Declare filtering and
+// sorting to keep a filter or a sort from reading every record. A paged read therefore carries the
+// view as it is: "" for no filter, [] for no sort. One case is refused: a source that filters but
+// cannot sort, with a filter the list cannot run itself (an async function) - a sort would need the
+// list to run it, so the read is not sent, the window in force stays, and survey.onDynamicDataError
+// reports the operation "read".
 //
 // Every method may return a value or a Promise. A rejected promise is reported through
 // survey.onDynamicDataError with the operation name; the records the question shows are kept as
 // they are. While a source is attached the question is excluded from survey.data - the records are
 // the source's, not an answer - and question.isReady is false while a page is being read.
 
-export type DynamicDataSortDirection = "asc" | "desc";
+export type SortDirection = "asc" | "desc";
 export type DynamicDataFieldType = "string" | "number" | "date" | "boolean" | "any";
-export type DynamicDataOperation = "read" | "insert" | "update" | "remove" | "move";
+// The source methods the list calls; a capability is declared by the presence of the method.
+export type DynamicDataSourceMethod = "read" | "insert" | "update" | "remove" | "move";
+/* The operation survey.onDynamicDataError names: a source method that failed or was refused, or
+   "count" - the record count, which the question refuses to set while the source owns it. */
+export type DynamicDataErrorOperation = DynamicDataSourceMethod | "count";
+// The name of DynamicDataErrorOperation released in v3.2.1, kept so that code importing it compiles.
+export type DynamicDataOperation = DynamicDataErrorOperation;
 
-export interface IDynamicDataSort {
+// A missing direction is ascending.
+export interface ISortCriterion {
   field: string;
-  direction: DynamicDataSortDirection;
+  direction?: SortDirection;
 }
 // One read = one request: the range and the view the list wants, so that the source keeps no state
 // of its own and two questions can share it.
@@ -115,8 +131,10 @@ export interface IDynamicDataReadRequest {
   take: number;
   // The expression text of the filter, "" for no filter. The list never parses it.
   filter: string;
-  // The sort descriptors, applied in array order; [] for the source order.
-  sort: Array<IDynamicDataSort>;
+  /* The sort descriptors, applied in array order; [] for the source order. Every criterion the list
+     sends has a direction, "asc" or "desc", although the type says it is optional: the source shares
+     ISortCriterion with the question's sortCriteria, where a missing direction is ascending. */
+  sort: Array<ISortCriterion>;
 }
 export interface IDynamicDataReadResult {
   records: Array<any>;
@@ -144,24 +162,32 @@ export interface IDynamicDataSource {
   read(request: IDynamicDataReadRequest):
     Array<any> | IDynamicDataReadResult | Promise<Array<any> | IDynamicDataReadResult>;
   // Present -> the record field that identifies a record in the source, and every write below
-  // receives record[keyField] as its key. Absent -> the key IS the source index (the position in
-  // the whole source, in the order the last read returned), as before.
+  // receives record[keyField] as its key. Absent -> the source is read-only (see the header), except
+  // for the in-memory sources, which are written by storage index.
   keyField?: string;
-  // Present -> edits are pushed to the source (write-through); absent -> the source is read-only
-  // for that operation and the edit stays in the loaded window.
-  // The position is where the record goes; the source assigns the key. Return the stored record (or
-  // a promise of it) so that the list learns the key: the writes made to the new record meanwhile
+  // Present, with keyField -> edits are pushed to the source (write-through); absent -> the source is
+  // read-only for that operation.
+  // sourceIndex is where the respondent added the record; the source assigns the key and decides where
+  // the record is kept. Return the stored record (or a promise of it) so that the list learns the key: the writes made to the new record meanwhile
   // wait for it, and without it they cannot be delivered. The record never carries the key field -
   // the list takes out a key copied from another record or put on a default value - and the key of
   // the answer is the one the list keeps. A source that wants client-generated keys generates them
   // here, where it sees the record.
   insert?(record: any, sourceIndex: number): any | Promise<any>;
+  // record is the question's own copy of the record with the change applied; changedFields names the
+  // fields that changed. A source shared by several questions applies changedFields only: another
+  // question's copy of the same record may be older in the other fields.
   update?(key: any, record: any, changedFields: Array<string>): void | Promise<void>;
   remove?(key: any): void | Promise<void>;
-  // The key names the record; the target is still a position, that is what a move is.
-  move?(key: any, toSourceIndex: number): void | Promise<void>;
   // Present -> the source collects the writes of func and applies them as one; absent -> the list
   // just runs func. See DynamicDataList.batch.
+  // The order contract with a source whose writes answer asynchronously: the push chain sends one write
+  // at a time, so only the writes the list makes while the chain is idle reach the source inside batch -
+  // the group's first write, and each later one only while the previous ones answered synchronously.
+  // The other writes of the group are sent after batch returned, in the group's order, each once the
+  // previous one settled: a write of a record the group inserted carries the key the insert answered,
+  // and a rejected write is reported (onError) without stopping the writes behind it. Sending the whole
+  // group inside batch would send a write before its insert answered the key.
   batch?(func: () => void): void;
 }
 export interface IDynamicDataField {
@@ -173,9 +199,11 @@ export interface IDynamicDataField {
   // filter expression gets it as a variable beside the record's own keys.
   getValue?(record: any, index: number): any;
 }
+/* isInsertAnswer: the change is the answer of an insert, which may bring fields the client did not
+   send (a server default, a computed column). */
 export type IDynamicDataListChange =
   { type: "reset" } |
-  { type: "recordChanged", index: number, field: string } |
+  { type: "recordChanged", index: number, field: string, isInsertAnswer?: boolean } |
   { type: "recordAdded", index: number } |
   { type: "recordRemoved", index: number } |
   { type: "recordMoved", from: number, to: number } |
@@ -185,6 +213,21 @@ export type IDynamicDataListChange =
 export interface IDynamicDataOwner {
   getFields(): Array<IDynamicDataField>;
   onDataListChanged(change: IDynamicDataListChange): void;
+  /* The outermost write of the list has ended: after its notifications, or when it unwound with an
+     exception. Raised once per outermost write (see DynamicDataList.isWriteOpen). */
+  onWriteEnded?(): void;
+  // No read and no write is pending any more: what the source was asked for has arrived or failed.
+  onDataSettled?(): void;
+  // The first write the source has not answered was sent.
+  onWritesStarted?(): void;
+  // Another list took the claim on the in-memory source this list wrote (DynamicDataList.assignSource): it only reads it now.
+  onSourceWriterChanged?(): void;
+  /* A read or a write of the source failed. The owner hears it from the list's construction on: the
+     first load of a read-through list runs before anyone could assign the list's onError. */
+  onDataError?(error: any, operation: DynamicDataErrorOperation): void;
+  /* The survey of the question the list belongs to: the asynchronous writes of the lists in one
+     survey that share a source object are ordered (DynamicDataSourceChannel.getForeignWrites). */
+  getSurvey?(): ISurvey;
 }
 
 // What a question that can be filtered by a Filter Control answers. The records questions implement

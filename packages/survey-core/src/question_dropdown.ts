@@ -67,6 +67,14 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
   public getType(): string {
     return "dropdown";
   }
+  // Design mode draws dropdown choices with the radio item component and passes this question
+  // into it. That component always asks for a shortcut badge. Dropdown does not show one.
+  public getChoiceKeyBadge(item: ItemValue): string { return ""; }
+  public getItemShortcutKeyClass(item: ItemValue): string { return ""; }
+  public getItemAriaKeyShortcuts(item: ItemValue): string | undefined { return undefined; }
+  public onChoiceKeyDown(event: any): void { }
+  public onChoiceFocusOut(event: any): void { }
+
   public get isNewA11yStructure() {
     return true;
   }
@@ -274,7 +282,7 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
     return this.inputFieldComponent || this.itemComponent;
   }
   public get showSelectedItemLocText(): boolean {
-    return !this.inputHasValue && !this.inputFieldComponentName && !!this.selectedItemLocText && this.dropdownListModel.canShowSelectedItem;
+    return !this.inputHasValue && !this.inputFieldComponentName && !!this.selectedItemLocText && this.dropdownRenderState.canShowSelectedItem;
   }
   public get showInputFieldComponent(): boolean {
     return !this.inputHasValue && !!this.inputFieldComponentName && !this.isEmpty();
@@ -288,14 +296,11 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
     return !!item ? item.text : "";
   }
   private get useDropdownList(): boolean { return this.renderAs !== "select"; }
-  public get dropdownListModel(): DropdownListModel {
-    if (!this.isDisposed && this.useDropdownList && !this.dropdownListModelValue) {
-      this.dropdownListModelValue = new DropdownListModel(this);
-    }
-    return this.dropdownListModelValue;
+  protected canCreateDropdownListModel(): boolean {
+    return this.useDropdownList;
   }
-  public set dropdownListModel(val: DropdownListModel) {
-    this.dropdownListModelValue = val;
+  protected createDropdownListModel(): DropdownListModel {
+    return new DropdownListModel(this);
   }
   public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
 

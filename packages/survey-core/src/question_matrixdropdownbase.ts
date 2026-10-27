@@ -1,6 +1,6 @@
 import { JsonObject, CustomPropertiesCollection, Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { Question, IConditionObject, IQuestionPlainData, IVerifyDataContext } from "./question";
+import { Question, IConditionObject, IQuestionPlainData, IVerifyDataContext, INestedElementInfo, NestedWalkBuild, getNestedElementQuestions } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import { IElement, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks } from "./base-interfaces";
@@ -12,35 +12,34 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { FunctionFactory } from "./functionsfactory";
 import { PanelModel } from "./panel";
 import { settings } from "./settings";
-import { KeyDuplicationError } from "./error";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
 import { toCssClasses } from "./utils/cssClassBuilder";
+import { Scope } from "./utils/scope";
 import { getMatrixCellAriaLabel, getMatrixTableBodyCss, getMatrixTableCss, getMatrixTableWrapperCss, isMatrixColumnsAutoWidth } from "./utils/matrix-table";
 import { IMatrixColumnOwner, MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
-import { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
+import { QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { ConditionRunner } from "./conditions/conditionRunner";
+import { MatrixRenderedTableHost } from "./matrix-rendered-table-host";
+import { MatrixColumnStateEvaluator } from "./matrix-column-state";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditions/conditionProcessValue";
 import { ValidationContext } from "./question";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import {
-  QuestionRecordItemGetterContext, QuestionRecordItem, IDynamicDataRecordUniqueness, IRecordItemWrite, QuestionRecordsModel,
-  QuestionRecordsSingleInputBehavior
+  QuestionRecordItemGetterContext, QuestionRecordItem, IRecordItemWrite, QuestionRecordsModel, NestedWalkItem,
+  QuestionRecordsSingleInputBehavior, IRecordRemoval, IRecordCleanupObject, removeRecordCleanupSkipped, getRecordViewProperties, isSortAllowed
 } from "./question_records";
 import { IDynamicDataField } from "./dynamic-data/dynamic-data-interfaces";
 import { collectFilterFields, IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
-import { createIndexes } from "./dynamic-data/dynamic-data-filter";
-import { getDuplicateKey } from "./dynamic-data/dynamic-data-page-validation";
-
-export interface IMatrixDuplicationEntry {
-  row: MatrixDropdownRowModelBase;
-  value: any;
-}
+import { LocalDynamicDataSource, RowsDynamicDataSource } from "./dynamic-data/dynamic-data-sources";
+import { createIndexes, isRecordEmpty } from "./dynamic-data/dynamic-data-records";
+import type { QuestionExpressionModel } from "./question_expression";
 
 /* The matrix as its cells see it. The first group is what the interface has always declared for the
    rows; the rows themselves type their matrix as QuestionMatrixDropdownModelBase. */
 export interface IMatrixDropdownData extends IObjectValueContext, ILocalizableOwner {
   getSurvey(): ISurvey;
+  // getItem and getItemIndex: positions among the rows that exist - under paging, the page.
   getItem(index: number): QuestionRecordItem;
   getItemData(item: ISurveyData): any;
   getItemIndex(item: ISurveyData): number;
@@ -162,11 +161,7 @@ export class MatrixDropdownCell {
 }
 
 export class MatrixDropdownTotalCell extends MatrixDropdownCell {
-  constructor(
-    public column: MatrixDropdownColumn,
-    public row: MatrixDropdownRowModelBase,
-    public data: IMatrixDropdownData
-  ) {
+  constructor(column: MatrixDropdownColumn, row: MatrixDropdownRowModelBase, data: IMatrixDropdownData) {
     super(column, row, data);
     this.updateCellQuestion();
   }
@@ -183,26 +178,29 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
     this.updateCellQuestion();
     super.locStrsChanged();
   }
+  // The total question is an expression question (createQuestion).
   public updateCellQuestion() {
-    this.question.locCalculation();
-    this.column.updateCellQuestion(this.question, null, function (json) {
+    const question = <QuestionExpressionModel>this.question;
+    question.locCalculation();
+    this.column.updateCellQuestion(question, function (json) {
       delete json["defaultValue"];
     });
-    this.question.expression = this.getTotalExpression();
-    this.question.format = this.column.totalFormat;
-    this.question.currency = this.column.totalCurrency;
-    this.question.displayStyle = this.column.totalDisplayStyle;
-    this.question.maximumFractionDigits = this.column.totalMaximumFractionDigits;
-    this.question.minimumFractionDigits = this.column.totalMinimumFractionDigits;
-    this.question.unlocCalculation();
-    this.question.runIfReadOnly = true;
+    question.expression = this.getTotalExpression();
+    question.format = this.column.totalFormat;
+    question.currency = this.column.totalCurrency;
+    question.displayStyle = this.column.totalDisplayStyle;
+    question.maximumFractionDigits = this.column.totalMaximumFractionDigits;
+    question.minimumFractionDigits = this.column.totalMinimumFractionDigits;
+    question.unlocCalculation();
+    question.runIfReadOnly = true;
   }
   public getQuestionWrapperClassName(className: string): string {
     let result = super.getQuestionWrapperClassName(className);
     if (!result) {
       return result;
     }
-    if (this.question.expression && this.question.expression != "''") {
+    const expression = (<QuestionExpressionModel>this.question).expression;
+    if (expression && expression != "''") {
       result += " " + className + "--expression";
     }
     let alignment = this.column.totalAlignment;
@@ -302,11 +300,6 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   // The row's position among the visible records of the whole list: a matrix that pages holds one
   // page of them as rows (see pageVisibleIndex).
   public visibleIndex: number = -1;
-  // The row's position in visibleRows: the page it is on, when the matrix pages.
-  public get pageVisibleIndex(): number {
-    const rows = !!this.data ? this.data.visibleRows : undefined;
-    return Array.isArray(rows) ? rows.indexOf(this) : -1;
-  }
 
   constructor(public data: QuestionMatrixDropdownModelBase, value: any) {
     super(data);
@@ -375,11 +368,15 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     });
   }
   /* The row notifies each question right after updating it, and it keeps a comment the question
-     typed while the record has none, unless the question's comment was the record's. */
+     typed while the record has none, unless the question's comment was the record's. A cell gets a copy
+     of its value: a question may adjust the value it is given in place (a checkbox puts its other item
+     in), and the record keeps the stored answer, as released. A survey element the row edits in place is
+     not copied. */
   protected updateQuestionFromRecord(question: Question, record: any): void {
-    const val = this.getCellValue(record, question.getValueName());
+    const cellValue = this.getCellValue(record, question.getValueName());
+    const val = !this.editingObj ? Helpers.getUnbindValue(cellValue) : cellValue;
     const oldComment = question.comment;
-    let comment = !!record ? record[question.getValueName() + Base.commentSuffix] : "";
+    let comment = !!record ? record[Helpers.getCommentKey(question.getValueName())] : "";
     if (comment == undefined) comment = "";
     question.updateValueFromSurvey(val);
     if (!!comment || this.isTwoValueEquals(oldComment, question.comment)) {
@@ -406,7 +403,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
         !!this.getSurvey() &&
         this.getSurvey().storeOthersAsComment
       ) {
-        result[valueName + Base.commentSuffix] = question.comment;
+        result[Helpers.getCommentKey(valueName)] = question.comment;
       }
     }
     var detailQuestions = !!this.detailPanel ? this.detailPanel.questions : [];
@@ -422,7 +419,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
         !!this.getSurvey() &&
         this.getSurvey().storeOthersAsComment
       ) {
-        result[valueName + Base.commentSuffix] = question.comment;
+        result[Helpers.getCommentKey(valueName)] = question.comment;
       }
     }
     return result;
@@ -467,7 +464,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
       this.showDetailPanel();
     }
   }
-  private isCreatingDetailPanel = false;
+  private creatingDetailPanelScope: Scope = new Scope();
   public showDetailPanel() {
     this.ensureDetailPanel();
     if (!this.detailPanelValue) return;
@@ -476,27 +473,31 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   public hideDetailPanel(destroyPanel: boolean = false) {
     this.setIsDetailPanelShowing(false);
     if (destroyPanel) {
+      const panel = this.detailPanelValue;
       this.detailPanelValue = null;
+      if (!!panel && !!this.data) {
+        this.data.disposeDroppedDetailPanel(panel);
+      }
     }
   }
   public ensureDetailPanel() {
-    if (this.isCreatingDetailPanel) return;
+    if (this.creatingDetailPanelScope.isActive) return;
     if (!!this.detailPanelValue || !this.hasPanel || !this.data) return;
-    this.isCreatingDetailPanel = true;
-    this.detailPanelValue = this.data.createRowDetailPanel(this);
-    var questions = this.detailPanelValue.questions;
-    var value = this.getDataRowValue();
-    if (!Helpers.isValueEmpty(value)) {
-      for (var i = 0; i < questions.length; i++) {
-        const key = questions[i].getValueName();
-        const val = !!this.editingObj ? Serializer.getObjPropertyValue(this.editingObj, key) : value[key];
-        if (!Helpers.isValueEmpty(val)) {
-          questions[i].value = val;
+    this.creatingDetailPanelScope.run((): void => {
+      this.detailPanelValue = this.data.createRowDetailPanel(this);
+      var questions = this.detailPanelValue.questions;
+      var value = this.getDataRowValue();
+      if (!Helpers.isValueEmpty(value)) {
+        for (var i = 0; i < questions.length; i++) {
+          const key = questions[i].getValueName();
+          const val = !!this.editingObj ? Serializer.getObjPropertyValue(this.editingObj, key) : value[key];
+          if (!Helpers.isValueEmpty(val)) {
+            questions[i].value = val;
+          }
         }
       }
-    }
-    this.detailPanelValue.setSurveyImpl(this);
-    this.isCreatingDetailPanel = false;
+      this.detailPanelValue.setSurveyImpl(this);
+    });
   }
   getAllValues(): any {
     const res = this.value;
@@ -584,11 +585,11 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   /* The owner receives the whole proposed row, after the cell-changing callback had its say and,
      when the matrix validates on value changing, after the cell passed. */
   protected prepareRecordWrite(name: string, newValue: any, isComment: boolean): IRecordItemWrite {
-    if (this.isCreatingDetailPanel) return undefined;
+    if (this.creatingDetailPanelScope.isActive) return undefined;
     const changedQuestion = this.getQuestionByName(name);
     const rowValue = this.onCellValueChanging(changedQuestion, this.value, isComment);
     if (this.data.isValidateOnValueChanging && !this.validateCellQuestion(changedQuestion)) return undefined;
-    const fieldName = isComment ? name + Base.commentSuffix : name;
+    const fieldName = isComment ? Helpers.getCommentKey(name) : name;
     return {
       fieldValue: rowValue[fieldName],
       ownerValue: rowValue,
@@ -598,7 +599,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   protected onRecordWritten(name: string, isComment: boolean): void {
     if (isComment) return;
     const changedQuestion = this.getQuestionByName(name);
-    const survey = <any>this.getSurvey();
+    const survey = this.getSurvey();
     if (changedQuestion && survey && survey.isValidateOnValueChanged) {
       const col = this.data.columns.filter(c => c.name === name)[0];
       if (col && col.isUnique) {
@@ -610,9 +611,13 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
   private onCellValueChanging(question: Question, newValue: any, isComment: boolean): any {
     if (!question) return newValue;
     const name = question.getValueName();
-    const changedName = isComment ? name + Base.commentSuffix : name;
+    const changedName = isComment ? Helpers.getCommentKey(name) : name;
     const changingValue = this.data.onRowChanging(this, changedName, newValue);
-    if (!this.isTwoValueEquals(changingValue, question.value)) {
+    /* The row value leaves an empty question out, so an empty changing value is what the question
+       holds already: written back, it would replace the question's own empty value - a dynamic
+       panel's empty records - with nothing. */
+    const isEmptyAlready = !isComment && question.isEmpty() && Helpers.isValueEmpty(changingValue);
+    if (!isEmptyAlready && !this.isTwoValueEquals(changingValue, question.value)) {
       this.runSettingValue((): void => {
         if (isComment) {
           question.comment = changingValue;
@@ -634,12 +639,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
     return !this.data.checkIfValueInRowDuplicated(this, question);
   }
   public get isEmpty() {
-    var val = this.value;
-    if (Helpers.isValueEmpty(val)) return true;
-    for (var key in val) {
-      if (val[key] !== undefined && val[key] !== null) return false;
-    }
-    return true;
+    return isRecordEmpty(this.value);
   }
   // The detail panel's own errors as well; a panel that was never created has none.
   public clearErrors(): void {
@@ -775,13 +775,9 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
       this.data.updateItemValue(this, key, this.value, true);
     }
   }
+  // The matrix's rule, the one a record without a row is checked by (isRecordKeyUnknown).
   private isUnknownValueKey(key: string): boolean {
-    const suffix = settings.commentSuffix;
-    const index = key.lastIndexOf(suffix);
-    const valueName = index > 0 && index === key.length - suffix.length ? key.substring(0, index) : key;
-    // A detail panel question may store its value under a valueName.
-    if (this.getQuestionsByValueName(valueName).length > 0) return false;
-    return !this.getSharedQuestionByName(key) && key.indexOf(settings.matrix.totalsSuffix) < 0;
+    return this.isOwnRecordKeyUnknown(key);
   }
   public getLocale(): string {
     return this.data ? this.data.getLocale() : "";
@@ -868,10 +864,9 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
       // created. That nested call finds no panel yet; the call that is creating it validates it.
       if (!this.detailPanel) return res;
       const isValid = this.detailPanel.validateElement(context);
-      const rec = <any>context;
-      if (!rec.hideErroredPanel && !isValid && context.fireCallback) {
-        if (rec.isSingleDetailPanel) {
-          rec.hideErroredPanel = true;
+      if (!context.hideErroredPanel && !isValid && context.fireCallback) {
+        if (context.isSingleDetailPanel) {
+          context.hideErroredPanel = true;
         }
         this.showDetailPanel();
       }
@@ -910,7 +905,7 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
         var cellValue = this.getCellValue(value, column.name);
         if (!Helpers.isValueEmpty(cellValue)) {
           cell.question.value = cellValue;
-          var commentKey = column.name + Base.commentSuffix;
+          var commentKey = Helpers.getCommentKey(column.name);
           if (!!value && !Helpers.isValueEmpty(value[commentKey])) {
             cell.question.comment = value[commentKey];
           }
@@ -935,38 +930,46 @@ export class MatrixDropdownRowModelBase extends QuestionRecordItem implements IL
      getIndex() stays the window-local record index the matrix storage is addressed by. */
   public get rowIndex(): number {
     const res = this.getItemIndex();
-    return res > 0 ? res + (!!this.data ? this.data.getRecordNumberOffset() : 0) : res;
+    return res > 0 ? this.getOwnRecordNumber() + 1 : res;
   }
   public getIndex(): number {
     return this.getItemIndex() - 1;
   }
   protected getItemIndex(): number {
-    return !!this.data ? this.data.getItemRecordIndex(this) + 1 : -1;
+    return !!this.data ? this.getOwnRecordIndex() + 1 : -1;
   }
   public get editingObj(): Base {
     return this.editingObjValue;
   }
-  private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
+  // One handler for every object the row edits: it is added and removed by identity.
+  private onEditingObjPropertyChanged = (sender: Base, options: any): void => {
+    this.updateOnSetValue(options.name, options.newValue);
+  };
   private editingObjValue: Base;
   public dispose(): void {
     for (let i = 0; i < this.cells.length; i++) {
       this.cells[i].dispose();
     }
-    if (!!this.editingObj) {
-      this.editingObj.onPropertyChanged.remove(
-        this.onEditingObjPropertyChanged
-      );
-      this.editingObjValue = null;
+    this.unsubscribeFromEditingObj();
+    const panel = this.detailPanelValue;
+    this.detailPanelValue = null;
+    // In design mode a row shows the matrix's template as its detail panel (createRowDetailPanel): it stays.
+    if (!!panel && !panel.isDisposed && !(!!this.data && this.data.isDetailPanelTemplate(panel))) {
+      panel.dispose();
     }
   }
+  // The row follows the object it edits. A value that is not an object to edit ends the editing.
   private subscribeToChanges(value: any) {
-    if (!value || !value.getType || !value.onPropertyChanged) return;
     if (value === this.editingObj) return;
+    this.unsubscribeFromEditingObj();
+    if (!value || !value.getType || !value.onPropertyChanged) return;
     this.editingObjValue = <Base>value;
-    this.onEditingObjPropertyChanged = (sender: Base, options: any) => {
-      this.updateOnSetValue(options.name, options.newValue);
-    };
     this.editingObj.onPropertyChanged.add(this.onEditingObjPropertyChanged);
+  }
+  private unsubscribeFromEditingObj(): void {
+    if (!this.editingObj) return;
+    this.editingObj.onPropertyChanged.remove(this.onEditingObjPropertyChanged);
+    this.editingObjValue = null;
   }
   private updateOnSetValue(name: string, newValue: any) {
     this.runSettingValue((): void => {
@@ -1057,14 +1060,23 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   private detailPanelValue: PanelModel;
   private useCaseSensitiveComparisonValue: boolean;
-  // The matrix is writing its records itself (see QuestionRecordsModel.writeRecords).
+  /* The matrix is writing its records itself (see QuestionRecordsModel.writeRecords). A subclass may
+     still set it, as it could before: the value it sets counts too. */
+  private isRowChangingValue: boolean = false;
   protected get isRowChanging(): boolean {
-    return this.isWritingRecords;
+    return this.isRowChangingValue || this.isWritingRecords;
   }
-  columnsChangedCallback: () => void;
+  protected set isRowChanging(val: boolean) {
+    this.isRowChangingValue = val;
+  }
   onRenderedTableResetCallback: () => void;
+  /* Fires once per rendered table, when the first read of renderedTable (the renderer's or code's) has
+     built and stored it: only the table that is shown is built, so a page that is never shown fires
+     nothing. It exists for owners that decorate rendered rows (the creator's Logic tab marks rules
+     not saved yet): they mark every table they are given and need not build one themselves. A read
+     of renderedTable inside the callback returns the same table. */
+  onRenderedTableCreatedCallback: (table: QuestionMatrixDropdownRenderedTable) => void;
   onCellCreatedCallback: (options: any) => void;
-  onCellValueChangedCallback: (options: any) => void;
   onHasDetailPanelCallback: (row: MatrixDropdownRowModelBase) => boolean;
   onCreateDetailPanelCallback: (
     row: MatrixDropdownRowModelBase,
@@ -1073,8 +1085,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   onCreateDetailPanelRenderedRowCallback: (
     renderedRow: QuestionMatrixDropdownRenderedRow
   ) => void;
-  onAddColumn: (column: MatrixDropdownColumn) => void;
-  onRemoveColumn: (column: MatrixDropdownColumn) => void;
   cellValueChangingCallback: (row: any, columnName: string, value: any, oldValue: any) => any;
 
   protected createColumnValues() {
@@ -1082,21 +1092,31 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       "columns",
       (item: any) => {
         item.colOwner = this;
-        if (this.onAddColumn)this.onAddColumn(item);
         if (this.survey) {
           this.matrixCallbacks.matrixColumnAdded(this, item);
         }
       },
       (item: any) => {
         item.colOwner = null;
-        if (this.onRemoveColumn)this.onRemoveColumn(item);
       }
     );
   }
   constructor(name: string) {
     super(name);
     this.columns = this.createColumnValues();
+    this.rows = this.createItemValues("rows");
   }
+  // The records of the Multi-Select Matrix; the dynamic matrix keeps the empty array it has always had.
+  /**
+   * An array of matrix rows.
+   *
+   * This array can contain primitive values or objects with the `text` (display value) and `value` (value to be saved in survey results) properties.
+   *
+   * [Single-Select Matrix Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
+   *
+   * [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
+   */
+  @property() rows: Array<any>;
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "rowsVisibleIf" || name === "columnsVisibleIf") {
@@ -1104,16 +1124,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     if (name === "columns" || name === "cellType") {
       this.updateColumnsAndRows();
+      this.updateRecordsBar();
+    }
+    // The sort bar's inputs of the matrix: its opt-in and the header row it replaces (isSortBarVisible).
+    if (name === "showSortBar" || name === "showHeader" || name === "transposeData") {
+      this.updateRecordsBar();
     }
     const clearRowsProps = ["placeholder", "columnColCount", "rowTitleWidth", "choices"];
     const resetRenderTableProps = [
       "transposeData",
-      "addRowButtonLocation",
-      "hideColumnsIfEmpty",
       "showHeader",
-      "minRowCount",
       "isReadOnly",
-      "rowCount",
       "hasFooter",
       "detailPanelMode",
       "displayMode"
@@ -1155,6 +1176,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    * Returns an array of visible matrix rows.
    * @see rowsVisibleIf
    */
+  // The rows that exist: under paging the page, and a number of the whole view is not a position in it.
   public get visibleRows(): Array<MatrixDropdownRowModelBase> {
     return this.getVisibleRows();
   }
@@ -1185,11 +1207,20 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    * @see rowsVisibleIf
    */
   @property() columnsVisibleIf: string;
-  protected runConditionCore(properties: HashTable<any>): void {
-    super.runConditionCore(properties);
-    this.runItemsCondition(properties);
-  }
   protected onColumnsChanged(): void { }
+  /* The columns the sort bar offers: the visible columns a header click sorts by (column.isSortable),
+     in column order, under the key the cell writes. A column hidden on the current page is offered:
+     the sort covers every record. The questions of the detail panel are not offered. */
+  protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
+    return this.columns.filter((column: MatrixDropdownColumn): boolean => column.visible && column.isSortable)
+      .map((column: MatrixDropdownColumn): { field: string, title: string } => ({ field: column.sortField, title: column.title }));
+  }
+  /* The designer's dialog offers every column whose values sort, an invisible one included: the column still
+     holds a value in every row, so a designer can order the rows by a key the respondent does not see. */
+  protected getDesignSortFieldCandidates(): Array<{ field: string, title: string }> {
+    return this.columns.filter((column: MatrixDropdownColumn): boolean => column.isValueSortable)
+      .map((column: MatrixDropdownColumn): { field: string, title: string } => ({ field: column.sortField, title: column.title }));
+  }
   // The points where the visible rows may have changed; the fixed matrix hides itself without rows
   // (hideIfRowsEmpty).
   protected updateVisibilityBasedOnRows(): void { }
@@ -1264,12 +1295,19 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected getAllChildren(): Base[] {
     return [
       ...super.getAllChildren(),
-      ...(<any>this.detailElements)
+      ...(<any>this.detailElements),
+      ...this.columns,
+      ...this.choices
     ];
   }
-  // The rows go before the record list (see QuestionRecordsModel.dispose).
+  // The rows go before the record list (see QuestionRecordsModel.dispose), and with them what the matrix renders.
   protected disposeRecordObjects(): void {
     this.clearGeneratedRows();
+    this.disposeTotalRow();
+    this.renderedTableHost.dispose();
+    if (!!this.detailPanelValue) {
+      this.detailPanelValue.dispose();
+    }
   }
   public get isRowsDynamic(): boolean {
     return false;
@@ -1292,21 +1330,23 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     super.endLoadingFromJson();
     this.updateVisibilityBasedOnRows();
   }
-  private isUpdating: boolean;
+  // beginUpdate calls nest: the endUpdate of the outermost one unlocks the matrix.
+  private updateCount: number = 0;
   protected get isUpdateLocked(): boolean {
-    return this.isLoadingFromJson || this.isUpdating;
+    return this.isLoadingFromJson || this.updateCount > 0;
   }
   public beginUpdate(): void {
-    this.isUpdating = true;
+    this.updateCount++;
   }
   public endUpdate(): void {
-    this.isUpdating = false;
+    if (this.updateCount > 0)this.updateCount--;
+    if (this.updateCount > 0) return;
     this.updateColumnsAndRows();
   }
   protected updateColumnsAndRows(): void {
     this.updateColumnsIndexes(this.columns);
     this.updateColumnsCellType();
-    this.generatedTotalRow = null;
+    this.disposeTotalRow();
     this.clearRowsAndResetRenderedTable();
   }
   public itemValuePropertyChanged(
@@ -1383,6 +1423,31 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    */
   public get isColumnLayoutHorizontal(): boolean {
     return this.isMobile ? true : !this.transposeData;
+  }
+  // The table renders a header row with one column per header: no header row, a phone and the vertical layout have none.
+  public get canSortByHeaders(): boolean {
+    return !this.isMobile && !!this.showHeader && !this.transposeData;
+  }
+  /**
+   * Specifies when to display the sort bar. Applies only when [`allowSort`](#allowSort) is `true`.
+   *
+   * Possible values:
+   *
+   * - `"auto"` (default)\
+   * Displays the sort bar when column headers cannot be used for sorting: on mobile devices, when [`showHeader`](#showHeader) is `false`, or when [`transposeData`](#transposeData) is `true`.
+   *
+   * - `"always"`\
+   * Displays the sort bar even when column headers support sorting.
+   * @see maxSortLevel
+   */
+  public get showSortBar(): "auto" | "always" {
+    return this.getPropertyValue("showSortBar", "auto");
+  }
+  public set showSortBar(val: "auto" | "always") {
+    this.setPropertyValue("showSortBar", val === "always" || <any>val === true ? "always" : "auto");
+  }
+  public get isSortBarVisible(): boolean {
+    return this.allowSort === true && (this.showSortBar === "always" || !this.canSortByHeaders);
   }
   /**
    * Enables case-sensitive comparison in columns with the `isUnique` property set to `true`.
@@ -1469,7 +1534,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected mergeLocalizationWithInnerObjects(src: Base, locales?: Array<string>): void {
     const srcPanel = (<QuestionMatrixDropdownModelBase><unknown>src).detailPanelValue;
     if (srcPanel) {
-      (<any>this.detailPanel).mergeLocalizationObj(srcPanel, locales);
+      this.detailPanel["mergeLocalizationObj"](srcPanel, locales);
     }
   }
   protected createNewDetailPanel(): PanelModel {
@@ -1497,6 +1562,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.updateVisibilityBasedOnRows();
     this.fireCallback(this.visibleRowsChangedCallback);
     this.updateRowsVisibleIndexes();
+    this.resetSurveyProgressTotal();
   }
   private updateRowsVisibleIndexes(): void {
     const rows = this.visibleRows;
@@ -1506,80 +1572,109 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     keys[vriName] = 0;
     // A row's visibleIndex is its position among the visible records of the whole list; the rows of
     // a matrix that pages are one page of them.
-    const start = this.getFirstRowVisibleIndex();
     for (let i = 0; i < rows.length; i ++) {
-      rows[i].visibleIndex = start + i;
-      keys[vriName] = start + i + 1;
-      rows[i].runTriggers(vriName, start + i + 1, keys);
+      const visibleIndex = this.setRowVisibleIndex(rows[i], i);
+      keys[vriName] = visibleIndex + 1;
+      rows[i].runTriggers(vriName, visibleIndex + 1, keys);
     }
   }
-  protected getFirstRowVisibleIndex(): number {
-    return this.pageStartVisibleIndex;
+  /* Created on first use: the base constructor can reset the table before the fields of this class are
+     initialized. The table itself is the "renderedTable" property. */
+  private renderedTableHostValue: MatrixRenderedTableHost;
+  private get renderedTableHost(): MatrixRenderedTableHost {
+    if (!this.renderedTableHostValue) {
+      this.renderedTableHostValue = new MatrixRenderedTableHost({
+        getStoredTable: (): QuestionMatrixDropdownRenderedTable => <QuestionMatrixDropdownRenderedTable>this.getPropertyValueWithoutDefault("renderedTable"),
+        getTable: (): QuestionMatrixDropdownRenderedTable => this.getPropertyValue("renderedTable", undefined, () => this.createRenderedTable()),
+        removeStoredTable: (): void => this.resetPropertyValue("renderedTable"),
+        disposeTable: (table: QuestionMatrixDropdownRenderedTable): void => this.disposeLeftObject(table),
+        onTableCreated: (table: QuestionMatrixDropdownRenderedTable): void => {
+          if (!!this.onRenderedTableCreatedCallback)this.onRenderedTableCreatedCallback(table);
+        },
+        onTableReset: (): void => this.fireCallback(this.onRenderedTableResetCallback),
+        clearRows: (): void => this.clearGeneratedRows(),
+        isUpdateLocked: (): boolean => this.isUpdateLocked,
+        isPagingActive: (): boolean => this.isPagingActive,
+        canAppendAddedRow: (): boolean => this.canAppendAddedRow(),
+        getVisibleRows: (): Array<MatrixDropdownRowModelBase> => this.visibleRows
+      });
+    }
+    return this.renderedTableHostValue;
   }
-  private lockResetRenderedTable: boolean = false;
+  // The rows of a matrix that pages are a page: the base cannot tell that the added row is its last one.
+  protected canAppendAddedRow(): boolean {
+    return !this.isPagingActive;
+  }
+  /* Survey Creator sets it directly around an add (logic-ui.ts): it stays readable and writable here.
+     Released, it resets a table whose rows were disposed while it was locked: a paged value assignment
+     that rebuilt the page ends with no add or remove that would. */
+  private get lockResetRenderedTable(): boolean {
+    return this.renderedTableHost.isResetLocked;
+  }
+  private set lockResetRenderedTable(val: boolean) {
+    if (val) {
+      this.renderedTableHost.isResetLocked = true;
+    } else {
+      this.renderedTableHost.releaseResetLock();
+    }
+  }
+  /* The callers end an add or a remove with this in a finally: a handler that throws between
+     onStartRowAddingRemoving and its end does not leave the rendered table locked. It only clears the
+     lock: onEndRowAdding / onEndRowRemoving, called right after it, check the table themselves. */
+  protected unlockResetRenderedTable(): void {
+    this.renderedTableHost.isResetLocked = false;
+  }
   protected onStartRowAddingRemoving() {
-    this.lockResetRenderedTable = true;
+    this.renderedTableHost.onStartRowAddingRemoving();
     this.setValueChangedDirectly(true);
   }
   protected onEndRowAdding() {
-    this.lockResetRenderedTable = false;
-    if (!this.renderedTable) return;
-    /* The incremental add appends the new row to the rendered table, which is right for a table
-       that shows every visible row and wrong for a page that may not hold the new one at all. With
-       paging on the table is reset instead - the question moves pageIndex to the page the new row
-       landed on, which resets it anyway. */
-    if (this.renderedTable.isRequireReset() || this.isPagingActive) {
-      this.resetRenderedTable();
-    } else {
-      const index = this.rowsOnPage.length - 1;
-      this.renderedTable.onAddedRow(this.rowsOnPage[index], index);
-    }
+    this.renderedTableHost.onEndRowAdding();
   }
   protected onEndRowRemoving(row: MatrixDropdownRowModelBase) {
-    this.lockResetRenderedTable = false;
-    /* Removing one row from the rendered table is right for a table that shows every visible row.
-       A page is a window: the row that took the vacated slot comes from the next page, and a
-       removal that emptied the last page moved pageIndex back while the reset it raised was locked
-       out by onStartRowAddingRemoving. Either way the whole page is re-rendered. */
-    if (this.renderedTable.isRequireReset() || this.isPagingActive) {
-      this.resetRenderedTable();
-    } else {
-      if (!!row) {
-        this.renderedTable.onRemovedRow(row);
-      }
-    }
+    this.renderedTableHost.onEndRowRemoving(row);
   }
   protected clearRowsAndResetRenderedTable() {
-    this.clearGeneratedRows();
-    this.resetRenderedTable();
-    this.fireCallback(this.columnsChangedCallback);
+    this.renderedTableHost.clearRowsAndReset();
   }
   //For internal use
   public resetRenderedTable(columnVisibilityChanged?: boolean): void {
-    if (!this.isRendredTableCreated) return;
-    if (this.lockResetRenderedTable || this.isUpdateLocked) {
-      if (columnVisibilityChanged) {
-        this.renderedTable.requireReset();
-      }
-    } else {
-      this.resetPropertyValue("renderedTable");
-      this.fireCallback(this.onRenderedTableResetCallback);
-    }
+    this.renderedTableHost.reset(columnVisibilityChanged);
   }
   protected clearGeneratedRows(): void {
     this.clearVisibleRows();
+    this.clearDesignRow();
     if (!this.generatedVisibleRows) return;
-    // A row that is replaced - a page move, a new value - can still be on screen until the UI rerenders the matrix.
-    for (var i = 0; i < this.generatedVisibleRows.length; i++) {
-      this.disposeAfterRerender(this.generatedVisibleRows[i]);
-    }
+    this.renderedTableHost.onRowsDisposed();
+    this.keepDetailPanelPageStates(this.generatedVisibleRows);
+    this.generatedVisibleRows.forEach((row: MatrixDropdownRowModelBase): void => { this.disposeRow(row); });
     this.generatedVisibleRows = null;
   }
-  protected get isRendredTableCreated(): boolean {
-    return !!this.getPropertyValueWithoutDefault("renderedTable");
+  // A row that leaves - replaced by a page move or a new value, removed, cut off - can still be on screen
+  // or still be writing its cell (disposeLeftObject).
+  protected disposeRow(row: MatrixDropdownRowModelBase): void {
+    if (!row) return;
+    this.disposeLeftObject(row);
+  }
+  private disposeTotalRow(): void {
+    const row = this.generatedTotalRow;
+    this.generatedTotalRow = null;
+    this.disposeRow(row);
+  }
+  // The template a row shows as its detail panel in design mode (createRowDetailPanel) belongs to the matrix.
+  isDetailPanelTemplate(panel: PanelModel): boolean {
+    return !!panel && panel === this.detailPanelValue;
+  }
+  // A detail panel a row drops (hideDetailPanel(true)) is disposed as a row that leaves is (disposeLeftObject).
+  disposeDroppedDetailPanel(panel: PanelModel): void {
+    if (!panel || panel.isDisposed || this.isDetailPanelTemplate(panel)) return;
+    this.disposeLeftObject(panel);
+  }
+  protected get isRenderedTableCreated(): boolean {
+    return this.renderedTableHost.isCreated;
   }
   public get renderedTable(): QuestionMatrixDropdownRenderedTable {
-    return this.getPropertyValue("renderedTable", undefined, () => this.createRenderedTable());
+    return this.renderedTableHost.table;
   }
   protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
     return new QuestionMatrixDropdownRenderedTable(this);
@@ -1628,7 +1723,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    * - [`"rating"`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model)
    * - [`"slider"`](https://surveyjs.io/form-library/documentation/api-reference/questionslidermodel)
    *
-   * Default value: `"dropdown"` (inherited from [`settings.matrix.defaultCellType`](https://surveyjs.io/form-library/documentation/settings#matrixDefaultCellType))
+   * Default value: `"dropdown"` (inherited from [`settings.matrix.defaultCellType`](/form-library/documentation/api-reference/settings#matrix))
    *
    * [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
    *
@@ -1671,6 +1766,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   onColumnPropertyChanged(column: MatrixDropdownColumn, name: string, newValue: any): void {
     this.updateHasFooter();
+    // Before the return below: the sort bar offers the columns without any row too.
+    this.updateRecordsBar();
     if (!this.generatedVisibleRows) return;
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       this.generatedVisibleRows[i].updateCellQuestionOnColumnChanged(
@@ -1717,40 +1814,39 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
 
   onShowInMultipleColumnsChanged(column: MatrixDropdownColumn): void {
-    this.resetTableAndRows();
+    this.renderedTableHost.clearRowsAndReset();
   }
   onColumnVisibilityChanged(column: MatrixDropdownColumn): void {
-    this.resetTableAndRows();
+    this.renderedTableHost.clearRowsAndReset();
+    this.updateRecordsBar();
   }
   onColumnCellVisibilityChanged(column: MatrixDropdownColumn): void {
-    if (this.isDesignMode || this.isRunningCellsCondition) return;
-    if (this.isColumnVisibilityChanged(column, true)) {
+    if (this.isRunningCellsCondition) return;
+    if (this.columnState.onColumnCellVisibilityChanged(column)) {
       this.resetRenderedTable(true);
     }
   }
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void {
-    this.updateDefaultRowValue(column);
-    this.resetTableAndRows();
+    this.renderedTableHost.clearRowsAndReset();
+    this.updateRecordsBar();
   }
   getDesignRowContext(): IValueGetterContext {
-    const row = this.visibleRows && this.visibleRows.length > 0 ? this.visibleRows[0] : this.createMatrixRow(new ItemValue(1));
-    return row.getValueGetterContext();
-  }
-  private updateDefaultRowValue(column: MatrixDropdownColumn): void {
-    let val = this.defaultRowValue;
-    if (!!val) {
-      if (column.cellType === "file" && val[column.name]) {
-        delete val[column.name];
-        if (Object.keys(val).length === 0) {
-          val = undefined;
-        }
-        this.defaultRowValue = val;
-      }
+    if (this.visibleRows && this.visibleRows.length > 0) return this.visibleRows[0].getValueGetterContext();
+    if (!this.designRow) {
+      this.designRow = this.createDesignRow();
     }
+    return this.designRow?.getValueGetterContext();
   }
-  private resetTableAndRows(): void {
-    this.clearGeneratedRows();
-    this.resetRenderedTable();
+  // The row the column expressions are resolved against in design mode when the matrix has no rows.
+  // It goes with the rows (clearGeneratedRows): a column change and dispose clear them.
+  private designRow: MatrixDropdownRowModelBase;
+  protected createDesignRow(): MatrixDropdownRowModelBase {
+    return null;
+  }
+  private clearDesignRow(): void {
+    if (!this.designRow) return;
+    this.designRow.dispose();
+    this.designRow = undefined;
   }
   public getRowTitleWidth(): string {
     return "";
@@ -1765,9 +1861,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return false;
   }
   protected updateShowTable() {
-    if (!!this.renderedTable) {
-      this.renderedTable.updateShowTable();
-    }
+    this.renderedTableHost.updateShowTable();
   }
   protected updateHasFooter() {
     this.setPropertyValue("hasFooter", this.hasTotal);
@@ -1814,97 +1908,101 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected verifyValueCore(val: any, context: IVerifyDataContext): boolean {
     if (!super.verifyValueCore(val, context)) return false;
     if (!context.checks.reportUnknownProperties) return true;
-    if (this.isPagedByList) {
-      this.verifyRecordsUnknownKeys(val, context);
-      return true;
-    }
-    // allRows generates the rows and returns all of them in data order, hidden ones included:
-    // their values are in the data and, for a dynamic matrix, the index into a filtered array is
-    // not the data index.
-    const rows = this.allRows;
-    if (!Array.isArray(rows)) return true;
-    for (let i = 0; i < rows.length; i++) {
-      const rowValue = this.getRowValueCore(rows[i], val);
-      const keys = rows[i].getUnknownValueKeys(rowValue);
-      if (keys.length === 0) continue;
-      context.pushSegment(this.getRowDataSegment(rows[i], i));
-      keys.forEach(key => context.addIssue("unknownProperty", key, rowValue[key], this));
-      context.popSegment();
-    }
+    // Verification builds the rows without paging, as it always has; the page's rows are built already.
+    // The allRows read is kept for its side effect: it builds the rows unless they are being generated.
+    if (!this.isPagedByList)this.allRows;
+    this.verifyRecordsUnknownKeys(val, context);
     // An unknown key inside a row is not a shape problem: a matrixdropdown still checks its rows.
     return true;
   }
-  /* Under paging the rows are one page: every record is checked, hidden ones included, as every row
-     is without paging. A record on the page is checked by its row, one without a row by the rule the
-     row applies (getUnknownValueKeys), against the columns and the detail panel. */
-  private verifyRecordsUnknownKeys(val: any, context: IVerifyDataContext): void {
-    this.forEachRecordRow(createIndexes(this.dataList.loadedCount), (index: number, row: MatrixDropdownRowModelBase): void => {
-      const recordValue = this.getRecordValueIn(val, index);
-      const keys = !!row ? row.getUnknownValueKeys(recordValue) : this.getRecordUnknownKeys(index, recordValue);
-      if (keys.length === 0) return;
-      context.pushSegment(this.getRecordDataSegment(index));
-      keys.forEach(key => context.addIssue("unknownProperty", key, recordValue[key], this));
-      context.popSegment();
-    });
-  }
-  private getRecordUnknownKeys(index: number, recordValue: any): Array<string> {
+  // A row edits an object, not a JSON value, when the survey is used as an object editor.
+  protected getRecordUnknownKeys(index: number, recordValue: any, row: MatrixDropdownRowModelBase): Array<string> {
     if (!!recordValue && typeof recordValue.getType === "function") return [];
-    if (!Helpers.isValueObject(recordValue, true)) return [];
-    const names: { [name: string]: boolean } = {};
-    this.columns.forEach((column: MatrixDropdownColumn): void => {
-      if (!!column.templateQuestion) names[column.templateQuestion.getValueName()] = true;
+    return super.getRecordUnknownKeys(index, recordValue, row);
+  }
+  /* QuestionRecordsModel hooks of isRecordKeyUnknown, one rule for a row and a record without a row, as
+     released: a key a column or a detail panel question stores under its value name - a comment key by
+     the name in front of the suffix -, or a key with the totals suffix anywhere in it. */
+  protected isRecordKeyOfType(key: string, row: QuestionRecordItem): boolean {
+    return !!this.getRecordTemplateQuestion(this.getRecordKeyValueName(key)) || key.indexOf(settings.matrix.totalsSuffix) > -1;
+  }
+  protected getRecordKeyValueName(key: string): string {
+    return Helpers.getNameOfCommentKey(key) ?? key;
+  }
+  // The segment of the row at a position in a location: the segment of the record it holds.
+  private getRowDataSegment(position: number): string | number {
+    const index = this.getRecordIndexAtRowPosition(position);
+    return this.recordsSource["getRecordSegment"](index > -1 ? index : position);
+  }
+  // The rows, then the cells of the total row when it is generated, in every build mode.
+  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
+    super.forEachNestedElementCore(visit, build);
+    const totalRow = this.generatedTotalRow;
+    if (!totalRow) return;
+    totalRow.cells.forEach(cell => {
+      if (!!cell?.question) visit({ element: cell.question, role: "total", segment: undefined, location: "nested", visible: true });
     });
-    if (this.detailPanelMode !== "none") {
-      this.detailPanel.questions.forEach((q: Question): void => { names[q.getValueName()] = true; });
-    }
-    const suffix = settings.commentSuffix;
-    return Object.keys(recordValue).filter((key: string): boolean => {
-      const at = key.lastIndexOf(suffix);
-      const valueName = at > 0 && at === key.length - suffix.length ? key.substring(0, at) : key;
-      if (names[valueName]) return false;
-      return !this.getSharedQuestionFromArray(key, index) && key.indexOf(settings.matrix.totalsSuffix) < 0;
-    });
   }
-  // A record in a value being verified, and its segment in a location: the dynamic matrix keeps its
-  // records in an array.
-  protected getRecordValueIn(value: any, index: number): any {
-    return Array.isArray(value) ? value[index] : undefined;
-  }
-  protected getRecordDataSegment(index: number): string | number {
-    return index;
-  }
-  // The segment of a row in a location: the row index here, because a dynamic matrix keeps its rows
-  // in an array, and the key of the row in the value for a matrixdropdown, which uses an object.
-  protected getRowDataSegment(row: MatrixDropdownRowModelBase, index: number): string | number {
-    return index;
-  }
-  public initializeForVerification(): void {
-    const rows = this.allRows;
+  // "none": the generated rows; "rows": visibleRows; "all": allRows. visibleRows drops the rows rowsVisibleIf hides.
+  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: NestedWalkItem, position: number, visible: boolean) => void): void {
+    const rows = build === "rows" ? this.visibleRows : (build === "all" ? this.allRows : this.generatedVisibleRows);
     if (!Array.isArray(rows)) return;
-    rows.forEach(row => {
-      row.cells.forEach(cell => cell?.question?.initializeForVerification());
-      row.ensureDetailPanel();
-      row.detailPanel?.initializeForVerification();
+    const created = this.generatedVisibleRows;
+    rows.forEach((row, index) => {
+      func(row, rows === created ? index : created.indexOf(row), row.isVisible);
     });
   }
-  public verifyNestedValues(context: IVerifyDataContext): void {
-    const rows = this.allRows;
-    if (!Array.isArray(rows)) return;
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      context.pushSegment(this.getRowDataSegment(row, i));
-      row.cells.forEach(cell => cell?.question?.verifyDataCore(context));
-      row.detailPanel?.verifyDataCore(context);
-      context.popSegment();
-    }
+  // The cells, then the detail panel; "all" creates the detail panel after the cells, as the verification always did.
+  protected forEachNestedElementOfItem(item: NestedWalkItem, position: number, visible: boolean,
+    build: NestedWalkBuild, visit: (info: INestedElementInfo) => void): void {
+    const row = <MatrixDropdownRowModelBase>item;
+    const segment = this.getRowDataSegment(position);
+    row.cells.forEach(cell => {
+      if (!!cell?.question) visit({ element: cell.question, role: "cell", segment: segment, location: "nested", visible: visible });
+    });
+    if (build === "all") row.ensureDetailPanel();
+    if (!!row.detailPanel) visit({ element: row.detailPanel, role: "detail", segment: segment, location: "nested", visible: visible });
   }
-  public clearIncorrectValues(): void {
-    this.clearIncorrectValueInData();
+  // A row has its detail panel after the panel was shown once; it renders it only while it shows it.
+  protected isNestedElementShown(item: NestedWalkItem, info: INestedElementInfo): boolean {
+    return super.isNestedElementShown(item, info) && (info.role !== "detail" || (<MatrixDropdownRowModelBase>item).isDetailPanelShowing);
+  }
+  protected clearIncorrectValuesInObjects(): void {
     if (!Array.isArray(this.visibleRows)) return;
     const rows = this.generatedVisibleRows;
     for (let i = 0; i < rows.length; i++) {
-      rows[i].clearIncorrectValues(this.getRowValue(i));
+      rows[i].clearIncorrectValues(this.getRowRecordValue(i));
     }
+  }
+  protected getRecordTemplateQuestion(key: string): Question {
+    for (let i = 0; i < this.columns.length; i++) {
+      const question = this.columns[i].templateQuestion;
+      if (!!question && question.getValueName() === key) return question;
+    }
+    return this.detailPanelMode !== "none" ? <Question>this.detailPanel.getQuestionByValueName(key) || undefined : undefined;
+  }
+  // QuestionRecordsModel hook of clearHiddenAnswersWithoutObjects: the cell questions a column condition hides.
+  protected getRecordConditionalInputs(): Array<Question> {
+    return this.columns.filter((column: MatrixDropdownColumn): boolean => !!column.visibleIf).map((column: MatrixDropdownColumn): Question => column.templateQuestion);
+  }
+  /* QuestionRecordsModel hook: a temporary row for a record without one, built as a page builds a row
+     (createRowForRecordCleanup: the cells raise onMatrixCellCreating and onMatrixCellCreated) with its
+     detail panel. The row's own released clearIncorrectValues judges the record. */
+  protected createRecordCleanupObject(index: number, record: any): IRecordCleanupObject {
+    const row = this.createRowForRecordCleanup(index, record);
+    if (!row) return undefined;
+    this.onMatrixRowCreated(row);
+    row.ensureDetailPanel();
+    return {
+      item: row,
+      runCondition: (properties: HashTable<any>): void => { row.runCondition(properties, this.getRowsVisibleIfForRows(), true); },
+      clearIncorrectValues: (): void => { row.clearIncorrectValues(Object.assign({}, this.getRecordCleanupCopy(row, false))); },
+      validate: (): boolean => this.validateRecordObjectQuietly((context: ValidationContext): boolean => row.validate(context)),
+      dispose: (): void => { row.dispose(); }
+    };
+  }
+  protected createRowForRecordCleanup(index: number, record: any): MatrixDropdownRowModelBase {
+    return undefined;
   }
   public localeChanged(): void {
     super.localeChanged();
@@ -1927,7 +2025,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     let counter = 0;
     let prevTotalValue;
     let isRowVisiblilityChanged = false;
-    const isColumnChanged = this.runConditionsForColumns(properties);
+    this.runConditionsForColumns(properties);
     do {
       prevTotalValue = Helpers.getUnbindValue(this.totalValue);
       isRowVisiblilityChanged = this.runCellsCondition(properties) || isRowVisiblilityChanged;
@@ -1937,16 +2035,16 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       !Helpers.isTwoValueEquals(prevTotalValue, this.totalValue) &&
       counter < 3
     );
+    if (isRowVisiblilityChanged) {
+      this.resetSurveyProgressTotal();
+    }
     if (isRowVisiblilityChanged && this.isClearValueOnHidden) {
       this.clearInvisibleValuesInRows();
     }
-    if (isColumnChanged) {
-      this.resetRenderedTable(true);
-    }
+    this.clearHiddenAnswersWithoutObjects(properties);
     this.updateVisibilityBasedOnRows();
   }
-  public runTriggers(name: string, value: any, keys?: any): void {
-    super.runTriggers(name, value, keys);
+  protected runTriggersInObjects(name: string, value: any, keys: any): void {
     this.runFuncForCellQuestions((q: Question) => { q.runTriggers(name, value, keys); });
   }
   public updateElementVisibility(): void {
@@ -1961,35 +2059,41 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return false;
   }
   private isRunningCellsCondition: boolean;
+  // The values the cells compute are not edits (runComputedWrites).
   protected runCellsCondition(properties: HashTable<any>): boolean {
+    return this.runComputedWrites((): boolean => this.runCellsConditionCore(properties));
+  }
+  private runCellsConditionCore(properties: HashTable<any>): boolean {
     if (this.isDesignMode) return false;
-    /* Under paging the records decide the page (rebuildStalePage, in two steps): a record that became
-       hidden or visible is a row visibility change even when it has no row, so the answers it hides are
+    /* Under paging the records decide the page (rebuildStalePage): a record that became hidden or
+       visible is a row visibility change even when it has no row, so the answers it hides are
        cleared. */
-    const isRecordVisibilityChanged = this.updatePagedRecordsVisibility(properties);
-    if (isRecordVisibilityChanged && this.isPageStale()) {
-      this.rebuildFromDataList(false);
-      return true;
-    }
-    let isRowVisiblilityChanged = isRecordVisibilityChanged;
+    const stalePage = this.rebuildStalePage(properties);
+    if (stalePage.isRebuilt) return true;
+    let isRowVisiblilityChanged = stalePage.isChanged;
     this.isRunningCellsCondition = true;
-    // A matrix that pages builds rows for visible records only: the records decide their visibility, and
-    // a row and its record cannot disagree.
-    const isAlwaysVisible = this.areInvisibleElementsShowing || this.isPagingActive;
-    const rowsVisibleIf = this.getRowsVisibleIfForRows();
-    const rows = this.generatedVisibleRows;
-    if (!!rows) {
-      for (var i = 0; i < rows.length; i++) {
-        const prevVis = rows[i].isVisible;
-        rows[i].runCondition(properties, rowsVisibleIf, isAlwaysVisible);
-        if (prevVis !== rows[i].isVisible) {
-          isRowVisiblilityChanged = true;
+    try {
+      // The records decide their visibility under paging (areRecordsDecidingVisibility).
+      const isAlwaysVisible = this.areInvisibleElementsShowing || this.areRecordsDecidingVisibility;
+      const rowsVisibleIf = this.getRowsVisibleIfForRows();
+      const rows = this.generatedVisibleRows;
+      if (!!rows) {
+        for (var i = 0; i < rows.length; i++) {
+          const prevVis = rows[i].isVisible;
+          rows[i].runCondition(properties, rowsVisibleIf, isAlwaysVisible);
+          if (prevVis !== rows[i].isVisible) {
+            isRowVisiblilityChanged = true;
+          }
         }
       }
+      if (this.columnState.checkColumnsVisibility()) {
+        this.resetRenderedTable(true);
+        this.resetSurveyProgressTotal();
+      }
+      this.columnState.checkColumnsRenderedRequired();
+    } finally {
+      this.isRunningCellsCondition = false;
     }
-    this.checkColumnsVisibility();
-    this.checkColumnsRenderedRequired();
-    this.isRunningCellsCondition = false;
     this.updateRecordsVisibility();
     return isRowVisiblilityChanged;
   }
@@ -1998,100 +2102,29 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
      created for it. */
   private updateRecordsVisibility(): void {
     const rows = this.generatedVisibleRows;
-    const list = this.dataListValue;
-    if (!Array.isArray(rows) || !list || this.isPagingActive) return;
-    let isChanged = false;
-    for (let i = 0; i < rows.length; i++) {
-      const index = list.materializedIndexToIndex(i);
-      if (index > -1 && list.setRecordVisible(index, rows[i].isVisible)) {
-        isChanged = true;
-      }
-    }
-    // A run that changed no flag changed no page count.
-    if (isChanged) {
-      this.syncPagingState();
-    }
+    if (!Array.isArray(rows)) return;
+    this.setItemRecordsVisible(rows.length, (position: number): boolean => rows[position].isVisible);
   }
-  // The rowsVisibleIf the rows run themselves. A matrix that pages decides it over the records
-  // (updatePagedRecordsVisibility) and builds rows for visible records only, so its rows run none.
+  // The rowsVisibleIf the rows run themselves: none while the records decide it (areRecordsDecidingVisibility).
   private getRowsVisibleIfForRows(): string {
-    return this.isPagingActive ? "" : this.getExpressionFromSurvey(this.getRecordVisibleIfPropertyName());
+    return this.areRecordsDecidingVisibility ? "" : this.getExpressionFromSurvey(this.getRecordVisibleIfPropertyName());
   }
-  protected runConditionsForColumns(properties: HashTable<any>): boolean {
-    const expression = this.getExpressionFromSurvey("columnsVisibleIf");
-    this.columns.forEach(column => {
-      if (!expression) {
-        column.isColumnsVisibleIf = true;
-      } else {
-        const condition = new ConditionRunner(expression);
-        column.isColumnsVisibleIf = condition.runContext(column.getValueGetterContext(), properties) === true;
-      }
-    });
-    return false;
+  // The Dynamic Matrix overrides it: it does not apply columnsVisibleIf.
+  protected runConditionsForColumns(properties: HashTable<any>): void {
+    this.columnState.runColumnConditions(this.getExpressionFromSurvey("columnsVisibleIf"), properties);
   }
-  private checkColumnsVisibility(): void {
-    if (this.isDesignMode) return;
-    var hasChanged = false;
-    for (var i = 0; i < this.columns.length; i++) {
-      const column = this.columns[i];
-      const isCellsVisibilty = !!column.visibleIf || column.isFilteredMultipleColumns;
-      if (!isCellsVisibilty && !this.columnsVisibleIf && column.isColumnVisible) continue;
-      hasChanged = this.isColumnVisibilityChanged(column, isCellsVisibilty) || hasChanged;
+  // Created on first use, as renderedTableHost is.
+  private columnStateValue: MatrixColumnStateEvaluator;
+  private get columnState(): MatrixColumnStateEvaluator {
+    if (!this.columnStateValue) {
+      this.columnStateValue = new MatrixColumnStateEvaluator({
+        getColumns: (): Array<MatrixDropdownColumn> => this.columns,
+        getRows: (): Array<MatrixDropdownRowModelBase> => this.generatedVisibleRows,
+        isDesignMode: (): boolean => this.isDesignMode,
+        getColumnsVisibleIf: (): string => this.columnsVisibleIf
+      });
     }
-    if (hasChanged) {
-      this.resetRenderedTable(true);
-    }
-  }
-  private checkColumnsRenderedRequired(): void {
-    const rows = this.generatedVisibleRows;
-    if (!rows) return;
-    for (var i = 0; i < this.columns.length; i++) {
-      const column = this.columns[i];
-      if (!column.requiredIf || !column.isColumnVisible) continue;
-      let required = rows.length > 0;
-      for (var j = 0; j < rows.length; j++) {
-        if (!rows[j].cells[i].question.isRequired) {
-          required = false;
-          break;
-        }
-      }
-      column.updateIsRenderedRequired(required);
-    }
-  }
-  private isColumnVisibilityChanged(column: MatrixDropdownColumn, checkCellsVisiblity: boolean): boolean {
-    const curVis = column.isColumnVisible;
-    let hasVisCell = !checkCellsVisiblity;
-    const rows = this.generatedVisibleRows;
-    const checkRows = checkCellsVisiblity && rows;
-    const isMultipleColumnsVisibility = checkRows && column.isFilteredMultipleColumns;
-    const curVisibleChoices = isMultipleColumnsVisibility ? column.getVisibleChoicesInCell : [];
-    const newVisibleChoices = new Array<any>();
-    if (checkRows) {
-      for (let i = 0; i < rows.length; i++) {
-        const cell = rows[i].cells[column.index];
-        const q = cell?.question;
-        if (!!q && q.isVisible) {
-          hasVisCell = true;
-          if (isMultipleColumnsVisibility) {
-            this.updateNewVisibleChoices(q, newVisibleChoices);
-          } else break;
-        }
-      }
-    }
-    column.hasVisibleCell = hasVisCell && column.isColumnsVisibleIf;
-    if (isMultipleColumnsVisibility) {
-      column.setVisibleChoicesInCell(newVisibleChoices);
-      if (!Helpers.isArraysEqual(curVisibleChoices, newVisibleChoices, true, false, false)) return true;
-    }
-    return curVis !== column.isColumnVisible;
-  }
-  private updateNewVisibleChoices(q: Question, dest: Array<any>): void {
-    const choices = q.visibleChoices;
-    if (!Array.isArray(choices)) return;
-    for (let i = 0; i < choices.length; i++) {
-      const ch = choices[i];
-      if (dest.indexOf(ch.value) < 0) dest.push(ch.value);
-    }
+    return this.columnStateValue;
   }
   protected runTotalsCondition(properties: HashTable<any>): void {
     if (!this.generatedTotalRow) return;
@@ -2174,6 +2207,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    * @see cellType
    */
   @property ({ localizable: { defaultStr: true } }) placeholder: string;
+  declare readonly locPlaceholder: LocalizableString;
   public get optionsCaption() { return this.placeholder; }
   public set optionsCaption(val: string) { this.placeholder = val; }
   /**
@@ -2210,9 +2244,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       locStr.owner = new MatrixSingleInputLocOwner(this);
     });
   }
-  public getMatrixDropdownBaseSingleQuestionLocTitleCore(): LocalizableString {
-    return this.locSingleInputTitleTemplate;
-  }
   public getSingleInputTitleTemplate(): string { return ""; }
   public processSingleInputTitle(text: string, row: MatrixDropdownRowModelBase): string {
     if (!row) {
@@ -2242,10 +2273,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected isColumnVisible(column: any): boolean {
     return column.isColumnVisible;
   }
-  private isGenereatingRows: boolean;
+  private isGeneratingRows: boolean;
   protected getVisibleRows(): Array<MatrixDropdownRowModelBase> {
     if (this.isUpdateLocked) return null;
-    if (this.isGenereatingRows) return [];
+    if (this.isGeneratingRows) return [];
     if (!!this.visibleRowsArray) return this.visibleRowsArray;
     this.generateVisibleRowsIfNeeded();
     this.visibleRowsArray = this.getVisibleFromGenerated(this.generatedVisibleRows);
@@ -2253,46 +2284,46 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return this.visibleRowsArray;
   }
   public get allRows(): Array<MatrixDropdownRowModelBase> {
-    if (this.isGenereatingRows) return [];
+    if (this.isGeneratingRows) return [];
     this.generateVisibleRowsIfNeeded();
     return this.generatedVisibleRows;
   }
-  /* The rows the rendered table shows. The rows that exist are the page: which rows exist is decided
-     by the list filter and the list sort (they create the rows), and with paging on visibleRows holds
-     the current page only, whatever the source, so the page is visibleRows itself - the same
-     instance - and never a slice of it. */
-  public get rowsOnPage(): Array<MatrixDropdownRowModelBase> {
-    return this.visibleRows;
-  }
   private generateVisibleRowsIfNeeded(): void {
     if (!this.isUpdateLocked && !this.generatedVisibleRows) {
-      this.isGenereatingRows = true;
-      this.generatedVisibleRows = this.generateRows();
-      this.isGenereatingRows = false;
-      for (var i = 0; i < this.generatedVisibleRows.length; i++) {
-        const row = this.generatedVisibleRows[i];
-        row.visibleIndex = i;
-        this.onMatrixRowCreated(row);
-      }
-      if (this.data) {
-        this.runCellsCondition(this.data.getFilteredProperties());
-        if (this.takeValueChangedBeforeBuild()) {
-          this.runTriggersOnNewRows();
-        }
-      }
-      if (!!this.generatedVisibleRows) {
-        this.updateValueOnRowsGeneration(this.generatedVisibleRows);
-        this.updateIsAnswered();
-      }
+      /* The values new rows write - their defaults and expression results - are computed, and they
+         only show the records a data source holds: they go with a record's next update, so showing a
+         page sends nothing (runShowingRecords). */
+      this.runComputedWrites((): void => {
+        this.runShowingRecords((): void => this.generateVisibleRows());
+      });
     }
   }
-  private runTriggersOnNewRows(): void {
-    const val = this.value;
-    this.runTriggersOnItems(
-      this.generatedVisibleRows,
-      row => this.getRowValueCore(row as MatrixDropdownRowModelBase, val),
-      settings.expressionVariables.row
-    );
+  // The one writer of a row's released visibleIndex field: the visible index of the whole view at a page position.
+  private setRowVisibleIndex(row: MatrixDropdownRowModelBase, position: number): number {
+    row.visibleIndex = this.getVisibleIndexAtPosition(position);
+    return row.visibleIndex;
+  }
+  private generateVisibleRows(): void {
+    this.isGeneratingRows = true;
+    try {
+      this.generatedVisibleRows = this.generateRows();
+    } finally {
+      this.isGeneratingRows = false;
+    }
+    for (var i = 0; i < this.generatedVisibleRows.length; i++) {
+      const row = this.generatedVisibleRows[i];
+      this.setRowVisibleIndex(row, i);
+      this.onMatrixRowCreated(row);
+    }
+    if (this.data) {
+      this.runCellsCondition(this.data.getFilteredProperties());
+    }
+    this.runTriggersOnFirstBuild((): Array<QuestionRecordItem> => this.generatedVisibleRows,
+      (row: QuestionRecordItem, value: any): any => this.getRowValueCore(<MatrixDropdownRowModelBase>row, value), settings.expressionVariables.row);
+    if (!!this.generatedVisibleRows) {
+      this.updateValueOnRowsGeneration(this.generatedVisibleRows);
+      this.updateIsAnswered();
+    }
   }
   private getVisibleFromGenerated(rows: Array<MatrixDropdownRowModelBase>): Array<MatrixDropdownRowModelBase> {
     const res: Array<MatrixDropdownRowModelBase> = [];
@@ -2307,19 +2338,37 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     const changedRows: Array<MatrixDropdownRowModelBase> = [];
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
-      if (!row.editingObj && !this.isTwoValueEquals(this.getRowValue(i), row.value)) {
+      if (!row.editingObj && (this.isRowWrittenOnBuild(row) || this.isRecordChangedByRow(row, this.getRowRecordValue(i)))) {
         changedRows.push(row);
       }
     }
-    if (changedRows.length === 0) return;
+    const cleanedValue = this.getValueCleanedOnRowsGeneration();
+    if (changedRows.length === 0 && cleanedValue === undefined) return;
     var oldValue = this.createNewValue(true);
-    var newValue = this.createNewValue();
+    var newValue = cleanedValue !== undefined ? cleanedValue : this.createNewValue();
     for (var i = 0; i < changedRows.length; i++) {
       newValue = this.getNewValueOnRowChanged(changedRows[i], "", changedRows[i].value, false, newValue)
         .value;
     }
     if (this.isTwoValueEquals(oldValue, newValue)) return;
-    this.writeRecords((): void => this.setNewValue(newValue));
+    this.writeRecords((): void => this.setOwnRecordsValue(newValue));
+  }
+  // A row whose build writes the value even when it holds nothing new (see the Dynamic Matrix).
+  protected isRowWrittenOnBuild(row: MatrixDropdownRowModelBase): boolean {
+    return false;
+  }
+  /* A copy of the value with the records the generated rows clean up cleaned, written together with
+     the rows' own values; undefined when nothing is to clean (the default). */
+  protected getValueCleanedOnRowsGeneration(): any {
+    return undefined;
+  }
+  /* Would the row's value, merged into its record as a write merges it, change the record? A record
+     may hold fields no column shows - the key of a data source - which the row neither holds nor
+     writes: comparing the row's value with the whole record would take every such row for changed. */
+  private isRecordChangedByRow(row: MatrixDropdownRowModelBase, record: any): boolean {
+    const merged = Object.assign({}, record);
+    this.mergeRowValue(merged, row, "", row.value, false);
+    return !this.isTwoValueEquals(record || {}, merged);
   }
   public get totalValue(): any {
     if (!this.hasTotal || !this.visibleTotalRow) return {};
@@ -2335,7 +2384,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         }
       }
     } else {
-      this.generatedTotalRow = null;
+      this.disposeTotalRow();
     }
     return this.generatedTotalRow;
   }
@@ -2346,14 +2395,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     super.onSurveyLoad();
     this.updateColumnsIndexes(this.columns);
     this.clearGeneratedRows();
-    this.generatedTotalRow = null;
+    this.disposeTotalRow();
     this.updateHasFooter();
-    this.genetateColumnsName();
+    this.generateColumnsName();
     // The one hook every load ends with: the sort and the filter the JSON authored reach the list
     // here, once, whatever order their keys came in.
     this.flushAuthoredView();
   }
-  private genetateColumnsName(): void {
+  private generateColumnsName(): void {
     this.columns.forEach(column => {
       if (!column.name || column.name === "") {
         column.name = this.generateNewName(this.columns, "question");
@@ -2368,14 +2417,18 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    * @param rowIndex A zero-based row index.
    * @see setRowValue
    */
-  // rowIndex is a CREATED position: the position in allRows/generatedVisibleRows.
+  /* rowIndex is a CREATED position: the position in allRows/generatedVisibleRows; under paging a
+     created position of the whole view (owner-hidden records included), and the stored record is
+     read on the page and off it. A record a source that pages itself has not loaded reads null. */
   public getRowValue(rowIndex: number): any {
     if (rowIndex < 0 || !Array.isArray(this.visibleRows)) return null;
+    if (this.isPagingActive) {
+      const target = this.getRecordTargetAtCreatedIndex(rowIndex);
+      return !target || target.isNotLoaded ? null : this.getStoredRecordValue(target.recordIndex);
+    }
     var rows = this.generatedVisibleRows;
     if (rowIndex >= rows.length) return null;
-    const rowVal = this.getRowValueByIndexCore(rowIndex);
-    if (this.isValueSurveyElement(this.value)) return rowVal;
-    return Helpers.getUnbindValue(rowVal);
+    return this.unbindRowValue(this.getRowValueByIndexCore(rowIndex));
   }
   /* The seam for the record storage: matrix dynamic reads the record from its DynamicDataList,
      matrix dropdown keeps reading the object keyed by rowName. The unbinding and the range checks
@@ -2383,15 +2436,34 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected getRowValueByIndexCore(index: number): any {
     return this.getRowValueCore(this.generatedVisibleRows[index], this.value);
   }
+  // A copy, unless the value is a survey element edited in place (Creator): then it is the record itself.
+  private unbindRowValue(rowValue: any): any {
+    if (this.isValueSurveyElement(this.value)) return rowValue;
+    return Helpers.getUnbindValue(rowValue);
+  }
+  /* The record as it is stored - never row.value, which assembles the cells and the detail questions
+     only and would drop the fields without one (a key, server-only fields) - unbound as getRowValue
+     returns it. null for no record. */
+  private getStoredRecordValue(recordIndex: number): any {
+    const record = recordIndex < 0 ? undefined : this.getListRecordAt(recordIndex);
+    return this.unbindRowValue(record !== undefined ? record : null);
+  }
+  // The record of the row at a position in generatedVisibleRows: the row's own, without looking it up.
+  private getRowRecordValue(position: number): any {
+    return this.getStoredRecordValue(this.getRecordIndexAtRowPosition(position));
+  }
+  // A row without a record reads null; a panel reads {}. Both as released.
   public getItemData(item: ISurveyData): any {
-    return this.getRowValue(this.getItemIndex(item));
+    const copy = this.getRecordCleanupCopy(item, this.getItemIndex(item) < 0);
+    if (copy !== undefined) return this.unbindRowValue(copy);
+    return this.getStoredRecordValue(this.getRecordIndexOf(item));
   }
   public checkIfValueInRowDuplicated(
     checkedRow: MatrixDropdownRowModelBase,
     cellQuestion: Question
   ): boolean {
     if (!this.generatedVisibleRows) return false;
-    return this.isValueInColumnDuplicated(cellQuestion.name, true, checkedRow);
+    return this.checkRecordsUniqueness(true, [cellQuestion.name]).indexOf(checkedRow) > -1;
   }
   /**
    * Assigns values to a row.
@@ -2399,49 +2471,66 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    * @param rowValue An object with the following structure: `{ "column_name": columnValue, ... }`
    * @see getRowValue
    */
-  // rowIndex is a VISIBLE position: the position in visibleRows.
+  /* rowIndex is a VISIBLE position: the position in visibleRows; under paging a visible position of
+     the whole view. A record without a row - on another page - is written by value: the record that
+     assigning rowValue to a row of it would write (mergeRecordFields over the questions of the
+     columns), with no cell event (writeRecordWithoutItem). */
   public setRowValue(rowIndex: number, rowValue: any): any {
     if (rowIndex < 0) return null;
-    var visRows = this.visibleRows;
-    if (rowIndex >= visRows.length) return null;
-    visRows[rowIndex].value = rowValue;
-    this.updateItemValue(visRows[rowIndex], "", rowValue, false);
+    const visRows = this.visibleRows;
+    const target = this.resolveRecordTarget(rowIndex, visRows.length, (pos: number): QuestionRecordItem => visRows[pos]);
+    if (!target) return null;
+    if (!!target.item) {
+      this.setRowValueCore(<MatrixDropdownRowModelBase>target.item, rowValue);
+      return;
+    }
+    const questions = this.columns.map(column => column.templateQuestion).filter(question => !!question);
+    this.writeRecordWithoutItem(target, (record: any): void => { this.mergeRecordFields(record, questions, rowValue); });
   }
+  // setRowValue assigned the row before the write: a refusal puts it back as well.
+  private setRowValueCore(row: MatrixDropdownRowModelBase, rowValue: any): void {
+    row.value = rowValue;
+    this.writeItemValue(row, "", rowValue, false);
+  }
+  // The base has no rows of its own: its records source is empty.
   protected generateRows(): Array<MatrixDropdownRowModelBase> {
-    return null;
+    return [];
   }
   // The rows of the records indexes names, in that order: createRow makes one, and it is told its record.
   protected createRowsForRecords<T extends MatrixDropdownRowModelBase>(indexes: Array<number>, createRow: (index: number) => T): Array<T> {
     return indexes.map((index: number): T => {
       const row = createRow(index);
-      row.builtRecordIndex = index;
+      this.setBuiltRecordIndex(row, index);
       return row;
     });
+  }
+  /* One row for one record that appeared after the rows were built: numbered with its record, so that
+     what is kept under the record (a detail panel's paged question) finds it, put at position in the
+     rows - the end when it is undefined - and announced. The list is not created. */
+  protected addRowForRecord<T extends MatrixDropdownRowModelBase>(row: T, recordIndex: number, position?: number): T {
+    this.setBuiltRecordIndex(row, recordIndex);
+    if (position === undefined) {
+      this.generatedVisibleRows.push(row);
+    } else {
+      this.generatedVisibleRows.splice(position, 0, row);
+    }
+    this.onMatrixRowCreated(row);
+    return row;
   }
   protected generateTotalRow(): MatrixDropdownRowModelBase {
     return new MatrixDropdownTotalRowModel(this);
   }
+  /* How a value holds the records is the subclass's: the Multi-Select Matrix keys them by row name, the
+     Dynamic Matrix keeps an array. The base has no rows, so these are reached only through a row. */
   protected createNewValue(nullOnEmpty: boolean = false): any {
-    var res = !this.value ? {} : this.createValueCopy();
-    if (nullOnEmpty && this.isMatrixValueEmpty(res)) return null;
-    return res;
+    return this.createValueCopy();
   }
   protected getRowValueCore(
     row: MatrixDropdownRowModelBase,
     questionValue: any,
     create: boolean = false
   ): any {
-    var result =
-      !!questionValue && !!questionValue[row.rowName]
-        ? questionValue[row.rowName]
-        : null;
-    if (!result && create) {
-      result = {};
-      if (!!questionValue) {
-        questionValue[row.rowName] = result;
-      }
-    }
-    return result;
+    return create ? {} : null;
   }
   protected getRowObj(row: MatrixDropdownRowModelBase): any {
     var obj = this.getRowValueCore(row, this.value);
@@ -2460,9 +2549,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   /* The display values of a record: its row's cells format them, and a record without a row - off
      the page or never built - is formatted by its columns' template questions, so nothing is built
      for it. The record is formatted in place: the caller passes a copy it owns. */
-  protected getRecordDisplayValue(keysAsText: boolean, row: MatrixDropdownRowModelBase, record: any): any {
+  // A record without a row is formatted as its row would format it: the column, or a question that
+  // shares the value name and stores the field.
+  protected getRecordDisplayValue(keysAsText: boolean, row: MatrixDropdownRowModelBase, record: any, recordIndex: number): any {
     if (!!row) return this.getRowDisplayValue(keysAsText, row, record);
-    return this.formatRecordDisplayValue(keysAsText, record, (key: string): Question => this.getColumnByName(key)?.templateQuestion);
+    return this.formatRecordWithoutObject(keysAsText, record, recordIndex);
   }
   public getPlainData(options: IPlainDataOptions = { includeEmpty: true }): IQuestionPlainData {
     var questionPlainData = super.getPlainData(options);
@@ -2476,25 +2567,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return questionPlainData;
   }
   private getRowPlainData(row: MatrixDropdownRowModelBase, options: IPlainDataOptions): any {
-    var rowDataItem = <any>{
-      name: row.dataName,
-      title: row.text,
-      value: row.value,
-      displayValue: this.getRowDisplayValue(false, row, row.value),
-      getString: (val: any) => this.getValueAsString(val),
-      isNode: true,
-      data: row.cells
-        .map((cell: MatrixDropdownCell) =>
-          cell.question.getPlainData(options)
-        )
-        .filter((d: any) => !!d),
-    };
-    (options.calculations || []).forEach((calculation) => {
-      rowDataItem[calculation.propertyName] = (<any>row)[
-        calculation.propertyName
-      ];
-    });
-    return rowDataItem;
+    return this.createRecordPlainData(row.dataName, row.text, row.value, this.getRowDisplayValue(false, row, row.value),
+      row.cells.map((cell: MatrixDropdownCell) => cell.question.getPlainData(options)), row, options);
   }
   /* Under paging every visible record has an entry, in view order: a record on the page as its row
      gives it, a record without a row an entry of the same shape whose cell entries come from one cell
@@ -2503,9 +2577,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   private getRecordsPlainData(options: IPlainDataOptions): Array<any> {
     const res: Array<any> = [];
     let cellQuestions: Array<{ column: MatrixDropdownColumn, question: Question }> = undefined;
-    this.forEachRecordRow(this.dataList.getVisibleIndexes(), (index: number, row: MatrixDropdownRowModelBase): void => {
+    this.forEachViewRecord(true, (index: number, item: QuestionRecordItem): void => {
+      const row = <MatrixDropdownRowModelBase>item;
       if (!!row) {
-        // Named by its record, as the records without a row are: a row's own name counts its creation.
+        /* Named by its record, as the records without a row are: a row's own name counts its creation, and
+           the paged rows are rebuilt on every page move, so a creation counter means nothing here. */
         const entry = this.getRowPlainData(row, options);
         entry.name = this.getRecordDataName(index);
         res.push(entry);
@@ -2517,35 +2593,29 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       const value = this.getUnbindValue(this.getListRecordAt(index)) || {};
       const visibleIndex = this.dataList.getGlobalVisibleIndex(index);
       const rowTitle = this.getRecordAccessibilityTitle(index, visibleIndex);
-      res.push({
-        name: this.getRecordDataName(index),
-        title: this.getRecordText(index, visibleIndex),
-        value: value,
-        displayValue: this.getRecordDisplayValue(false, undefined, this.getUnbindValue(value)),
-        getString: (val: any) => this.getValueAsString(val),
-        isNode: true,
-        data: cellQuestions.map((cell) => {
+      res.push(this.createRecordPlainData(this.getRecordDataName(index), this.getRecordText(index, visibleIndex), value,
+        this.getRecordDisplayValue(false, undefined, this.getUnbindValue(value), index),
+        cellQuestions.map((cell) => {
           const q = cell.question;
           q.locTitle.onGetTextCallback = (): string => this.getCellAriaLabel({}, cell.column, rowTitle);
           q.value = value[q.getValueName()];
-          q.comment = value[q.getValueName() + Base.commentSuffix];
+          q.comment = value[Helpers.getCommentKey(q.getValueName())];
           return q.getPlainData(options);
-        }).filter((d: any) => !!d)
-      });
+        }), undefined, options));
     });
     (cellQuestions || []).forEach(cell => cell.question.dispose());
     return res;
   }
   // What a row of a record would answer as dataName, text and accessibility text: the matrix's own
-  // names for its records (the dynamic matrix numbers them).
+  // names for its records (the dynamic matrix numbers them, the Multi-Select Matrix uses its rows).
   protected getRecordDataName(index: number): string {
-    return "row" + (index + 1);
+    return undefined;
   }
   protected getRecordText(index: number, visibleIndex: number): string {
-    return "row " + (visibleIndex + 1);
+    return undefined;
   }
   protected getRecordAccessibilityTitle(index: number, visibleIndex: number): string {
-    return (visibleIndex + 1).toString();
+    return undefined;
   }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     let rowElements: Array<any> = [].concat(this.columns);
@@ -2594,23 +2664,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.collectNestedQuestions(questions, true);
     questions.forEach(q => q.onHidingContent());
   }
+  // The questions of the generated rows, the total row included; nothing is built.
   protected getIsReadyNestedQuestions(): Array<Question> {
     if (!this.generatedVisibleRows) return [];
     const res = new Array<Question>();
-    this.collectNestedQuestonsInRows(this.generatedVisibleRows, res, false, true, false);
-    if (!!this.generatedTotalRow) {
-      this.collectNestedQuestonsInRows([this.generatedTotalRow], res, false, true, false);
-    }
+    this.forEachNestedElement(info => {
+      getNestedElementQuestions(info).forEach(q => q.addNestedQuestion(res, false, true, false));
+    }, { build: "none", visibleOnly: false });
     return res;
-  }
-  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    if (includeItSelf) {
-      questions.push(this);
-    }
-    this.collectNestedQuestonsInRows(this.visibleRows, questions, visibleOnly, includeNested, includeItSelf);
-  }
-  protected collectNestedQuestonsInRows(rows: Array<MatrixDropdownRowModelBase>, questions: Question[], visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    this.collectNestedQuestionsOfItems(rows, questions, visibleOnly, includeNested, includeItSelf);
   }
   protected getConditionObjectRowName(index: number): string {
     return "";
@@ -2621,16 +2682,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected getConditionObjectsRowIndeces(): Array<number> {
     return [];
   }
-  public getProgressInfo(): IProgressInfo {
-    // When the list pages the progress is counted from the records (getProgressInfoByRecords): every
-    // input column of every visible record.
-    if (this.isPagedByList) return this.getProgressInfoByRecords((res: IProgressInfo, record: any): void => this.updateProgressInfoByRow(res, record));
+  // QuestionRecordsModel hooks of getProgressInfo.
+  protected prepareProgressObjects(): void {
     this.getIsRequireToGenerateRows() && this.generateVisibleRowsIfNeeded();
-    if (!!this.generatedVisibleRows)
-      return SurveyElement.getProgressInfoByElements(
-        this.getCellQuestions(),
-        this.isRequired
-      );
+  }
+  protected getProgressInfoOfObjects(): IProgressInfo {
+    return SurveyElement.getProgressInfoByElements(this.getCellQuestions(), this.isRequired);
+  }
+  protected updateProgressInfoByRecord(res: IProgressInfo, record: any): void {
+    this.updateProgressInfoByRow(res, record);
+  }
+  protected getProgressInfoWithoutObjects(): IProgressInfo {
     const res = Base.createProgressInfo();
     this.updateProgressInfoByValues(res);
     if (res.requiredQuestionCount === 0 && this.isRequired) {
@@ -2642,18 +2704,21 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected getIsRequireToGenerateRows(): boolean {
     return !!this.rowsVisibleIf;
   }
-  protected updateProgressInfoByValues(res: IProgressInfo): void { }
-  protected updateProgressInfoByRow(res: IProgressInfo, rowValue: any): void {
-    for (var i = 0; i < this.columns.length; i++) {
-      const col = this.columns[i];
-      if (!col.templateQuestion.hasInput) continue;
-      const hasValue = !Helpers.isValueEmpty(rowValue[col.name]);
-      if (!hasValue && !!col.templateQuestion.visibleIf) continue;
-      res.questionCount += 1;
-      res.requiredQuestionCount += col.isRequired;
-      res.answeredQuestionCount += hasValue ? 1 : 0;
-      res.requiredAnsweredQuestionCount += hasValue && col.isRequired ? 1 : 0;
+  /* Before the rows exist the records count, read through the own source, which decides the answer's
+     shape. A remote source counts its window, through the list: the records the matrix has not read
+     say nothing about how far the respondent has got with the ones in front of them. A record the
+     storage does not hold (a padded row of the Dynamic Matrix) counts as unanswered: the default row
+     value counts only once a row shows it. */
+  protected updateProgressInfoByValues(res: IProgressInfo): void {
+    const count = this.loadedRecordCount;
+    for (let i = 0; i < count; i++) {
+      this.updateProgressInfoByRow(res, this.getListRecordAt(i, {}) || {});
     }
+  }
+  // A record is counted by its columns: the value is under the column name.
+  protected updateProgressInfoByRow(res: IProgressInfo, rowValue: any): void {
+    this.addRecordProgress(res, rowValue, this.columns, (col: MatrixDropdownColumn): Question => col.templateQuestion,
+      (col: MatrixDropdownColumn): string => col.name, (col: MatrixDropdownColumn): boolean => col.isRequired);
   }
   private getCellQuestions(): Array<Question> {
     const res: Array<Question> = [];
@@ -2679,17 +2744,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         questions.push(column.templateQuestion);
       }
     });
-    const res = this.getFieldsOfQuestions(questions);
-    questions.forEach(q => {
-      // storeOthersAsComment writes the "other" text into the comment key of the same record.
-      if (!q.hasComment && (<any>q).hasOther === true) {
-        const name = q.getValueName() + settings.commentSuffix;
-        if (!res.some(f => f.name === name)) {
-          res.push({ name: name, dataType: "string" });
-        }
-      }
-    });
-    return res;
+    return this.getFieldsOfQuestions(questions);
   }
   // A filterable column is one field, described by the column itself: its title and its opt-out are
   // the column's, not the cell question's. A cell whose value is a record of its own - a composite
@@ -2726,10 +2781,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected areObjectsBuilt(): boolean {
     return Array.isArray(this.generatedVisibleRows);
   }
-  // Rows that were never built were never shown: there is nothing the respondent could have left
-  // invalid, and validating them would build them.
-  protected validatePageObjects(context: ValidationContext): boolean {
-    if (!this.generatedVisibleRows) return true;
+  protected validateBuiltPageObjects(context: ValidationContext): boolean {
     return this.validateRowObjects(context);
   }
   protected getRecordItemVariableName(): string {
@@ -2738,29 +2790,18 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected createRecordItemContext(item: QuestionRecordItem): IValueGetterContext {
     return new MatrixRowGetterContext(<any>item);
   }
-  /* QuestionRecordsModel hook: every unique column, keyName included. Every record takes part,
-     owner-hidden and filtered-out ones included, as it does without paging, and strings compare as the
-     on-page check compares them; the error goes on the later visible record of a pair, on its page. */
-  protected getRecordUniqueness(): IDynamicDataRecordUniqueness {
-    return { fields: this.getUniqueColumnsNames(), caseSensitive: this.useCaseSensitiveComparison, includeHidden: true, includeFilteredOut: true };
+  // Unique column values compare as useCaseSensitiveComparison says, on the page and off it.
+  protected isRecordUniquenessCaseSensitive(): boolean {
+    return this.useCaseSensitiveComparison;
   }
   protected getRecordVisibleIfPropertyName(): string {
     return "rowsVisibleIf";
   }
-  /* The rows define the records: a list operation that would insert, remove or move one is refused.
-     The dynamic matrix answers false. */
-  protected isRecordMembershipFixed(): boolean {
-    return true;
-  }
-  // The matrix base generates no rows (generateRows), so it has no records: the two matrices answer these.
-  protected getListRecords(): Array<any> {
-    return [];
-  }
-  // No records, so nothing to write: the fixed membership keeps the count at 0.
-  protected setListRecords(records: Array<any>): void { }
-  // No records, so no record at any index.
-  protected getListRecordAt(index: number): any {
-    return undefined;
+  /* The rows define the records, and the base matrix has none: a rows source over no rows, which holds
+     no record and has no insert, remove or move. The Multi-Select Matrix returns a rows source over its
+     rows, and the Dynamic Matrix an array source. */
+  protected createRecordsSource(): LocalDynamicDataSource {
+    return new RowsDynamicDataSource((): Array<ItemValue> => [], (): any => undefined, (): void => { });
   }
   /* A full rebuild: the rows are re-created for the records the view now holds. It costs the
      per-row state - open detail panels, row errors, cell question state, row ids - and fires the
@@ -2769,13 +2810,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   protected rebuildFromDataList(isPageMove: boolean): void {
     if (this.isEditingObjectValue) return;
     const hasRows = !!this.generatedVisibleRows;
-    // The page is a slice of the visible records: their visibility is decided before it is cut.
-    if (hasRows && !!this.data) {
-      this.updatePagedRecordsVisibility(this.getDataFilteredProperties());
+    if (hasRows) {
+      this.decideRecordsVisibility();
     }
+    /* One reset, in onRowsChanged, once the new rows exist: a reset before getVisibleRows too would let
+       an onRenderedTableResetCallback that reads renderedTable build a table the second reset drops. */
     if (hasRows) {
       this.clearGeneratedRows();
-      this.resetRenderedTable();
       this.getVisibleRows();
       this.onRowsChanged();
     }
@@ -2788,26 +2829,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       this.runTotalsCondition(this.getDataFilteredProperties());
     }
   }
-  // Single-input mode is its own paging: it walks every row and lists them in its summary.
-  protected get listPageSize(): number {
-    // settings.matrix.maxRowCount is the number of rows one page may hold.
-    return this.isSingleInputActive ? 0 : Math.min(this.pageSize, settings.matrix.maxRowCount);
-  }
   /* The renderers show a pager under the table while the matrix has more than one page: never in design
      mode or in single-input mode, which do not page. pageCount is the synced property, so a change of it
      re-renders the question. */
   public get showPager(): boolean {
     return this.pageCount > 1;
-  }
-  // The number of rows on one page, 0 = no paging.
-  public get rowsPerPage(): number {
-    return this.pageSize;
-  }
-  public set rowsPerPage(val: number) {
-    this.pageSize = val;
-  }
-  protected getPageSizePropertyName(): string {
-    return "rowsPerPage";
   }
   protected onPageSizeAssigned(): void {
     this.resetRenderedTable();
@@ -2818,13 +2844,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (!rows) rows = this.visibleRows;
     if (!rows) return true;
     for (var i = 0; i < rows.length; i++) {
-      var cells = this.generatedVisibleRows[i].cells;
+      if (!rows[i].isVisible) continue;
+      var cells = rows[i].cells;
       if (!cells) continue;
       for (var colIndex = 0; colIndex < cells.length; colIndex++) {
         var question = cells[colIndex].question;
         if (
           question &&
-          (!question.supportAutoAdvance() || !question.value)
+          (!question.supportAutoAdvance() || question.isEmpty())
         )
           return false;
       }
@@ -2856,6 +2883,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     var rows = this.generatedVisibleRows;
     if (!rows) return false;
     for (var i = 0; i < rows.length; i++) {
+      if (!rows[i].isVisible) continue;
       var cells = rows[i].cells;
       if (!cells) continue;
       for (var colIndex = 0; colIndex < cells.length; colIndex++) {
@@ -2873,9 +2901,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   }
   // Off the page: the edited records, the pages isEveryPageValidated asks for, and a duplicate pair
   // both of whose records have no row. Either moves to the page that holds the error.
-  protected validateElementCore(context: ValidationContext): boolean {
-    const rowsValidation = this.validateRowObjects(context);
-    return super.validateElementCore(context) && rowsValidation && this.validateOffPage(context);
+  // QuestionRecordsModel hook of validateElementCore.
+  protected validateRecordObjectsOfPage(context: ValidationContext): boolean {
+    return this.validateRowObjects(context);
   }
   // The rows that exist and the duplicates they take part in: what a page of a matrix that pages is
   // validated by before the respondent leaves it.
@@ -2894,152 +2922,50 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       rows = this.visibleRows;
     }
     var res = true;
-    (<any>context).isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i].isVisible) {
-        res = rows[i].validate(context) && res;
+    context.isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
+    this.validateRecordObjects(context, (): void => {
+      for (var i = 0; i < rows.length; i++) {
+        if (rows[i].isVisible) {
+          res = rows[i].validate(context) && res;
+        }
       }
-    }
+    });
     return res;
   }
+  // The duplicates are marked once the rows exist; every duplicate cell is an error of the validation.
   private isValueDuplicated(context: ValidationContext): boolean {
     if (!this.generatedVisibleRows) return false;
-    var names = this.getUniqueColumnsNames();
-    var res = false;
-    for (var i = 0; i < names.length; i++) {
-      const rows = this.getDuplicatedRowAndShowErrors(names[i], true);
-      if (!!rows && rows.length > 0) {
-        context.setErrorElement(rows[0].getQuestionByColumnName(names[i]));
-        res = true;
-      }
-    }
-    return res;
+    return this.checkRecordsUniqueness(context.fireCallback, undefined, (question: Question): void => context.setErrorElement(question)).length > 0;
   }
+  // The isUnique columns in column order, then the key: the order decides which question gets the focus.
   protected getUniqueColumnsNames(): Array<string> {
-    var res = new Array<string>();
-    for (var i = 0; i < this.columns.length; i++) {
+    const res = new Array<string>();
+    for (let i = 0; i < this.columns.length; i++) {
       if (this.columns[i].isUnique) {
         res.push(this.columns[i].name);
       }
     }
-    return res;
-  }
-  private isValueInColumnDuplicated(columnName: string, showErrors: boolean, row?: MatrixDropdownRowModelBase): boolean {
-    const rows = this.getDuplicatedRowAndShowErrors(columnName, showErrors, row);
-    return !!row ? rows.indexOf(row) > -1 : rows.length > 0;
-  }
-  private getDuplicatedRowAndShowErrors(columnName: string, showErrors: boolean, row?: MatrixDropdownRowModelBase): Array<MatrixDropdownRowModelBase> {
-    const rows = this.getDuplicatedRows(columnName);
-    if (showErrors) {
-      this.showDuplicatedErrorsInRows(rows, columnName);
-    }
-    this.removeDuplicatedErrorsInRows(rows, columnName);
-    return rows;
-  }
-  /* One entry per RECORD, with the row that holds it when the record has one: a duplicate of a
-     record that has no row still makes the row that repeats it a duplicate, and the error is shown
-     on the row that exists. A pair that is entirely outside the view reports nothing - it cannot
-     be shown. */
-  protected getDuplicationEntries(columnName: string): Array<IMatrixDuplicationEntry> {
-    if (this.hasDataListView) return this.getRecordDuplicationEntries(columnName);
-    const res = new Array<IMatrixDuplicationEntry>();
-    const rows = this.generatedVisibleRows;
-    for (let i = 0; i < rows.length; i++) {
-      if (!rows[i].isVisible) continue;
-      res.push({ row: rows[i], value: this.getDuplicationValue(rows[i], i, columnName) });
-    }
-    return res;
-  }
-  // Under a view the records forEachUniquenessRecord names take part; a row that exists takes part when it is visible.
-  private getRecordDuplicationEntries(columnName: string): Array<IMatrixDuplicationEntry> {
-    const res = new Array<IMatrixDuplicationEntry>();
-    const readRecord = this.createDuplicationRecordReader();
-    this.forEachUniquenessRecord((index: number, item: QuestionRecordItem, position: number): void => {
-      const row = <MatrixDropdownRowModelBase>item;
-      if (!!row) {
-        if (row.isVisible) res.push({ row: row, value: this.getDuplicationValue(row, position, columnName) });
-        return;
-      }
-      const record = readRecord(index);
-      res.push({ row: undefined, value: !!record ? record[columnName] : undefined });
+    super.getUniqueColumnsNames().forEach((name: string): void => {
+      if (res.indexOf(name) < 0) res.push(name);
     });
     return res;
   }
-  // Reads a record without a row for the duplicate scan.
-  protected createDuplicationRecordReader(): (index: number) => any {
-    return (index: number): any => this.getListRecordAt(index);
+  protected getDuplicationErrorText(): string {
+    return this.keyDuplicationError;
   }
-  protected getDuplicationValue(row: MatrixDropdownRowModelBase, createdIndex: number, columnName: string): any {
-    const question = !!row ? row.getQuestionByName(columnName) : undefined;
-    if (!!question) return question.value;
-    const rowVal = this.getRowValue(createdIndex);
-    return !!rowVal ? rowVal[columnName] : undefined;
-  }
-  private getDuplicatedRows(columnName: string): Array<MatrixDropdownRowModelBase> {
-    // A Map keyed by the string a plain object would use: the values are respondent input, and
-    // "__proto__" as a plain object key is the prototype.
-    const keyValues = new Map<string, Array<IMatrixDuplicationEntry>>();
-    const res: Array<MatrixDropdownRowModelBase> = [];
-    const entries = this.getDuplicationEntries(columnName);
-    for (var i = 0; i < entries.length; i++) {
-      const val = entries[i].value;
-      if (!this.isValueEmpty(val)) {
-        const key = getDuplicateKey(val, this.useCaseSensitiveComparison);
-        if (!keyValues.has(key)) {
-          keyValues.set(key, []);
-        }
-        keyValues.get(key).push(entries[i]);
-      }
+  /* A unique field is a column name: the cell, or the detail panel question of that name. A unique
+     column in the detail panel opens the panel to show the error. */
+  protected getUniquenessQuestion(item: QuestionRecordItem, field: string, isShowingError: boolean): Question {
+    const row = <MatrixDropdownRowModelBase>item;
+    if (isShowingError && !!this.detailPanelValue?.getQuestionByName(field)) {
+      row.showDetailPanel();
     }
-    keyValues.forEach((group: Array<IMatrixDuplicationEntry>): void => {
-      if (group.length > 1) {
-        group.forEach(entry => { if (!!entry.row) res.push(entry.row); });
-      }
-    });
-    return res;
+    return row.getQuestionByName(field);
   }
-  private showDuplicatedErrorsInRows(duplicatedRows: Array<MatrixDropdownRowModelBase>, columnName: string): void {
-    duplicatedRows.forEach(row => {
-      let question = row.getQuestionByName(columnName);
-      const inDetailPanel = this.detailPanelValue?.getQuestionByName(columnName);
-      if (!question && inDetailPanel) {
-        row.showDetailPanel();
-        if (row.detailPanel) {
-          question = row.detailPanel.getQuestionByName(columnName);
-        }
-      }
-      if (question) {
-        if (inDetailPanel) {
-          row.showDetailPanel();
-        }
-        this.addDuplicationError(question);
-      }
-    });
-  }
-  private removeDuplicatedErrorsInRows(duplicatedRows: Array<MatrixDropdownRowModelBase>, columnName: string): void {
-    this.generatedVisibleRows.forEach(row => {
-      if (duplicatedRows.indexOf(row) < 0) {
-        const question = row.getQuestionByName(columnName);
-        if (question) {
-          this.removeDuplicationError(row, question);
-        }
-      }
-    });
-  }
-  private getDuplicationError(question: Question): SurveyError {
-    const errors = question.errors;
-    for (let i = 0; i < errors.length; i ++) {
-      if (errors[i].getErrorType() === "keyduplicationerror") return errors[i];
-    }
-    return null;
-  }
-  private addDuplicationError(question: Question) {
-    if (!this.getDuplicationError(question)) {
-      question.addError(new KeyDuplicationError(this.keyDuplicationError, this));
-    }
-  }
-  private removeDuplicationError(row: MatrixDropdownRowModelBase, question: Question) {
-    if (question.removeError(this.getDuplicationError(question)) && question.errors.length === 0 && !!row.editingObj) {
+  // The value a duplicate kept out of the editing object goes there once the cell has no error left.
+  protected onDuplicationErrorRemoved(item: QuestionRecordItem, question: Question): void {
+    const row = <MatrixDropdownRowModelBase>item;
+    if (question.errors.length === 0 && !!row.editingObj) {
       (<any>row.editingObj)[question.getValueName()] = question.value;
     }
   }
@@ -3065,12 +2991,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     return null;
   }
+  // The rows that exist, hidden ones included; nothing is built. A row built later reads the state then.
   protected onReadOnlyChanged() {
     super.onReadOnlyChanged();
-    if (!this.generateRows) return;
-    for (var i = 0; i < this.visibleRows.length; i++) {
-      this.visibleRows[i].onQuestionReadOnlyChanged();
-    }
+    const rows = this.generatedVisibleRows;
+    if (!rows) return;
+    rows.forEach(row => row.onQuestionReadOnlyChanged());
   }
 
   //IMatrixDropdownData
@@ -3085,6 +3011,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     column: MatrixDropdownColumn
   ): Question {
     var question = column.createCellQuestion(row);
+    // A temporary row of the records clean-up: a question it does not judge stays loading, so it sends no request.
+    if (this.isRecordCleanupBuilding && this.isRecordCleanupSkipped(column.templateQuestion))question.startLoadingFromJson();
     question.setSurveyImpl(row);
     question.setParentQuestion(this);
     question.inMatrixMode = true;
@@ -3094,27 +3022,22 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     newValue: any,
     row: MatrixDropdownRowModelBase
   ): any {
-    if (!newValue) return newValue;
-    delete newValue[row.rowName];
-    return this.isObject(newValue) && Object.keys(newValue).length == 0
-      ? null
-      : newValue;
+    return newValue;
   }
-  private isDoingonAnyValueChanged: boolean;
+  private anyValueChangedScope: Scope = new Scope();
+  /* The rows and the totals follow the change. A matrix does not re-validate its own validators when
+     another value changes (Question.onAnyValueChanged): it never has. */
   onAnyValueChanged(name: string, questionName: string): void {
-    if (this.isUpdateLocked || this.isDoingonAnyValueChanged) return;
-    this.isDoingonAnyValueChanged = true;
-    try {
-      super.onAnyValueChanged(name, questionName);
+    if (this.isUpdateLocked || this.anyValueChangedScope.isActive) return;
+    this.anyValueChangedScope.run((): void => {
+      this.onAnyValueChangedInItems(name, questionName);
       // The total row is outside the record walk. It is created with the rows: before them there is
       // nothing for it to total.
       const totalRow = this.areObjectsBuilt() ? this.visibleTotalRow : null;
       if (!!totalRow) {
         totalRow.onAnyValueChanged(name, questionName);
       }
-    } finally {
-      this.isDoingonAnyValueChanged = false;
-    }
+    });
   }
   protected isObject(value: any) {
     return value !== null && typeof value === "object";
@@ -3141,9 +3064,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (!this.survey) return;
     var options = this.getOnCellValueChangedOptions(row, columnName, rowValue);
     options.oldValue = oldCellValue;
-    if (!!this.onCellValueChangedCallback) {
-      this.onCellValueChangedCallback(options);
-    }
     this.matrixCallbacks.matrixCellValueChanged(this, options);
   }
   validateCell(row: MatrixDropdownRowModelBase, columnName: string, rowValue: any): SurveyError {
@@ -3162,40 +3082,51 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     return false;
   }
-  // Under paging the records answer, whether or not the page's rows are built.
+  /* Under paging the records answer, whether or not the page's rows are built; without paging the
+     rows, and before they exist the records a view shows. */
   getFilteredData(): any {
     if (this.isEmpty() || this.isEditingSurveyElement) return this.value;
     if (this.isPagedByList) return this.getPagedFilteredData();
-    if (!this.generatedVisibleRows) return this.value;
+    if (!this.generatedVisibleRows) {
+      return this.hasRecordView ? this.getPagedFilteredData() : this.value;
+    }
     return this.getFilteredDataCore();
   }
-  protected getFilteredDataCore(): any { return this.value; }
+  /* The data the survey and the expressions see: the rows that exist and are visible, in row order, in
+     the answer's shape, which the own source decides. A record the list filter excluded has no row and
+     is not part of it - the same answer a source that filters on its own side gives, and what makes a
+     total the total of the filtered rows. */
+  protected getFilteredDataCore(): any {
+    const source = this.recordsSource;
+    const res = source["createEmptyAnswer"]();
+    this.generatedVisibleRows.forEach((row: MatrixDropdownRowModelBase): void => {
+      if (row.isVisible && !row.isEmpty) {
+        source["addRecordToAnswer"](res, this.getBuiltRecordIndex(row), row.filteredValue);
+      }
+    });
+    return res;
+  }
   // forEachRecordItem with the rows typed.
   protected forEachRecordRow(indexes: Array<number>, func: (index: number, row: MatrixDropdownRowModelBase, position: number) => void): void {
     this.forEachRecordItem(indexes, (index: number, item: QuestionRecordItem, position: number): void => {
       func(index, <MatrixDropdownRowModelBase>item, position);
     });
   }
-  // One walk, the result in the answer's shape: func adds what a record contributes.
+  /* One walk, the result in the answer's shape, which the own source decides: an array in walk order,
+     or keyed by the row value. func adds what a record contributes. */
   protected collectRecordValues(indexes: Array<number>, func: (index: number, row: MatrixDropdownRowModelBase, add: (value: any) => void) => void): any {
-    const res = this.createRecordValues();
+    const source = this.recordsSource;
+    const res = source["createEmptyAnswer"]();
     this.forEachRecordRow(indexes, (index: number, row: MatrixDropdownRowModelBase): void => {
-      func(index, row, (value: any): void => { this.addRecordValue(res, index, value); });
+      func(index, row, (value: any): void => { source["addRecordToAnswer"](res, index, value); });
     });
     return res;
   }
-  // The dynamic matrix collects an array, in walk order.
-  protected createRecordValues(): any {
-    return [];
-  }
-  protected addRecordValue(values: any, index: number, value: any): void {
-    values.push(value);
-  }
-  /* Under paging the survey data and the totals are the view's records, not the page's rows: a
-     record with a row gives its filteredValue (the values of invisible cells dropped), a record
-     without one is taken as it is stored - it has no cells to be invisible. */
+  /* Under paging - and before the rows of a view exist - the survey data and the totals are the view's
+     records, not the page's rows: a record with a row gives its filteredValue (the values of invisible
+     cells dropped), a record without one is taken as it is stored - it has no cells to be invisible. */
   protected getPagedFilteredData(): any {
-    return this.collectRecordValues(this.dataList.getVisibleIndexes(), (index: number, row: MatrixDropdownRowModelBase, add: (value: any) => void): void => {
+    return this.collectRecordValues(this.getViewIndexes(true), (index: number, row: MatrixDropdownRowModelBase, add: (value: any) => void): void => {
       if (!!row) {
         if (row.isVisible && !row.isEmpty) add(row.filteredValue);
         return;
@@ -3221,7 +3152,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     return options.value;
   }
-  updateItemValue(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
+  // The cell value a write stores: newRowValue is the whole proposed row.
+  protected getItemWriteFieldValue(columnName: string, newRowValue: any, isDeletingValue: boolean): any {
+    return !!newRowValue && !isDeletingValue ? newRowValue[columnName] : undefined;
+  }
+  /* A cell write goes into a live row object (Creator's property grid), the whole value edited in place
+     (isEditingObjectValue), or the record the row holds - the list write. The cell-changed event and the
+     unique-column check follow a write that changed something. */
+  protected writeItemRecordValue(item: QuestionRecordItem, position: number, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
+    const row = <MatrixDropdownRowModelBase>item;
     var rowObj = !!columnName ? this.getRowObj(row) : null;
     if (!!rowObj) {
       var oldCellValue = rowObj[columnName];
@@ -3232,38 +3171,26 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       this.writeRecords((): void => Serializer.setObjPropertyValue(rowObj, columnName, columnValue));
       this.onCellValueChanged(row, columnName, rowObj, oldCellValue);
     } else {
-      const res = this.updateRowValueInData(row, columnName, newRowValue, isDeletingValue);
+      const res = this.isEditingObjectValue ? this.updateRowValueInWholeValue(row, columnName, newRowValue, isDeletingValue) :
+        this.writeItemRecord(row, position, columnName, newRowValue, isDeletingValue);
       // Nothing changed: the unique-column check is skipped as well, exactly as before.
       if (!res) return;
       if (columnName) {
-        this.onCellValueChanged(row, columnName, res.rowValue, res.oldCellValue);
+        this.onCellValueChanged(row, columnName, res.record, res.oldValue);
       }
     }
     if (this.getUniqueColumnsNames().indexOf(columnName) > -1) {
-      this.isValueInColumnDuplicated(columnName, !!rowObj);
+      this.checkRecordsUniqueness(!!rowObj, [columnName]);
     }
   }
-  /* The seam for the record storage: a cell write is a record write of the list - the record the row
-     holds, through the question's own source (getListRecords / setListRecords). Returns null when
-     nothing changed. */
-  protected updateRowValueInData(row: MatrixDropdownRowModelBase, columnName: string,
-    newRowValue: any, isDeletingValue: boolean): { rowValue: any, oldCellValue: any } {
-    if (this.isEditingObjectValue) return this.updateRowValueInWholeValue(row, columnName, newRowValue, isDeletingValue);
-    const index = this.getRecordIndexOf(row);
-    if (index < 0) return null;
-    const list = this.dataList;
-    const oldRecord = list.getRecord(index);
-    const oldCellValue = oldRecord?.[columnName];
-    // The merge is the base's; the record it works on is a copy of the one the list holds.
-    const rowValue = Object.assign({}, oldRecord);
-    this.mergeRowValue(rowValue, row, columnName, newRowValue, isDeletingValue);
-    const isChanged = this.writeRecords((): boolean => list.setRecord(index, rowValue));
-    return isChanged ? { rowValue: rowValue, oldCellValue: oldCellValue } : null;
+  // A row write merges the whole proposed row into the record (mergeRowValue).
+  protected mergeItemWrite(record: any, item: QuestionRecordItem, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
+    this.mergeRowValue(record, <MatrixDropdownRowModelBase>item, columnName, newRowValue, isDeletingValue);
   }
   /* The cell write of a value that is edited in place (isEditingObjectValue): the whole value is
      composed and assigned, and the list is not involved. */
   protected updateRowValueInWholeValue(row: MatrixDropdownRowModelBase, columnName: string,
-    newRowValue: any, isDeletingValue: boolean): { rowValue: any, oldCellValue: any } {
+    newRowValue: any, isDeletingValue: boolean): { record: any, oldValue: any } {
     const oldValue = this.createNewValue(true);
     const oldRowValue = this.getRowValueCore(row, oldValue, true);
     const oldCellValue = oldRowValue?.[columnName];
@@ -3275,8 +3202,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       this.createNewValue()
     );
     if (this.isTwoValueEquals(oldValue, combine.value)) return null;
-    this.writeRecords((): void => this.setNewValue(combine.value));
-    return { rowValue: combine.rowValue, oldCellValue: oldCellValue };
+    this.writeRecords((): void => this.setOwnRecordsValue(combine.value));
+    return { record: combine.rowValue, oldValue: oldCellValue };
   }
   /* The per-row half of a cell change: which keys of a record belong to the row's questions is
      question knowledge. It mutates the record it is given - the base passes the row object inside
@@ -3286,7 +3213,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (isDeletingValue) {
       delete rowValue[columnName];
     }
-    row.questions.forEach(q => {
+    this.mergeRecordFields(rowValue, row.questions, newRowValue);
+  }
+  // The fields of the questions give way to the non-empty values of newRowValue; the other fields stay.
+  private mergeRecordFields(rowValue: any, questions: Array<Question>, newRowValue: any): void {
+    questions.forEach(q => {
       delete rowValue[q.getValueName()];
     });
     if (newRowValue) {
@@ -3309,72 +3240,70 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return { value: newValue, rowValue: rowValue };
   }
   protected correctValueForMinMaxRows(newValue: any): any { return newValue; }
+  // The row's position in generatedVisibleRows: under paging a position on the page.
   getItemIndex(item: ISurveyData): number {
     if (!Array.isArray(this.generatedVisibleRows)) return -1;
     return this.generatedVisibleRows.indexOf(<any>item);
+  }
+  // QuestionRecordsModel hooks of a removal: the rows are the objects, and a removal writes the list.
+  protected getItemPosition(item: QuestionRecordItem): number {
+    return this.getItemIndex(item);
+  }
+  protected detachItem(removal: IRecordRemoval): void {
+    const rows = this.generatedVisibleRows;
+    if (removal.position > -1 && Array.isArray(rows)) {
+      rows.splice(removal.position, 1);
+    }
+  }
+  protected removeStoredRecord(removal: IRecordRemoval, refill: () => void): void {
+    this.dataList.remove(removal.recordIndex);
+    refill();
   }
   /* The one seam between an object and its record. getItemIndex stays the row position - it is
      IMatrixDropdownData API and the rendered table addresses rows by position - and this is the
      record the row at that position holds. Without a list the rows are built for every record in
      record order, so the position is the record index; nothing is created for it. */
   protected getRecordIndexOf(item: ISurveyData): number {
-    const position = this.getItemIndex(item);
-    if (position < 0) return -1;
-    const list = this.dataListValue;
-    return !!list ? list.materializedIndexToIndex(position) : position;
+    return this.getRecordIndexAtRowPosition(this.getItemIndex(item));
   }
-  getItemRecordIndex(item: ISurveyData): number {
-    return this.getRecordIndexOf(item);
+  // The record the row at a position in generatedVisibleRows holds; -1 for no position.
+  protected getRecordIndexAtRowPosition(position: number): number {
+    return position < 0 ? -1 : this.getRecordIndexAtCreatedPosition(position);
   }
   /* One row per record in the view. Without a filter and a sort that is one row per record, in
      record order, which is what createNewValue() composed the value for. The live-object value
      (Creator's property grid) is never filtered: its rows follow the edited array. */
   protected getRecordIndexesForRows(): Array<number> {
-    if (this.isEditingObjectValue || !this.hasDataListView) {
-      const count = this.getRecordCountForRows();
-      const res = new Array<number>(count);
-      for (let i = 0; i < count; i++) {
-        res[i] = i;
-      }
-      return res;
-    }
-    return this.dataList.getMaterializedIndexes();
-  }
-  // The number of rows built without a view: one per record.
-  protected getRecordCountForRows(): number {
-    return this.getListRecordCount();
+    return this.isEditingObjectValue ? createIndexes(this.getRecordCountWithoutView()) : this.getObjectRecordIndexes();
   }
   // The value is a Base object, or an array of them, edited in place (Creator's property grid): it is
   // never routed through the list, see the comments on the operations that branch on it.
   protected get isEditingObjectValue(): boolean {
     return this.isValueSurveyElement(this.value);
   }
-  getItemVisibleIndex(item: ISurveyData): number {
+  protected getItemVisibleIndex(item: ISurveyData): number {
     if (item instanceof MatrixDropdownRowModelBase) {
       const rows = this.visibleRows;
       if (!rows) return item.visibleIndex;
-      const pos = rows.indexOf(item);
-      return pos < 0 ? -1 : this.pageStartVisibleIndex + pos;
+      return this.getVisibleIndexAtPosition(rows.indexOf(item));
     }
     return this.getRecordItemVisibleIndex(item);
   }
-  /* The neighbour comes from the view: the row when the record has one, the record read as a value
-     when the matrix pages and it has none. */
-  getItemByVisibleIndex(visibleIndex: number): QuestionRecordItem {
-    if (visibleIndex < 0) return null;
+  // The row at a position among the visible rows (getItemByVisibleIndex); null while there are none.
+  protected getVisibleItemAt(position: number): QuestionRecordItem {
     const rows = this.visibleRows;
     if (!rows) return null;
-    const pos = visibleIndex - this.pageStartVisibleIndex;
-    if (pos >= 0 && pos < rows.length) return rows[pos];
-    return this.getRecordItemByVisibleIndex(visibleIndex);
+    return position >= 0 && position < rows.length ? rows[position] : undefined;
   }
-  // internal: the item {matrix[index].x} reads. index is a record index; a record without a row -
-  // filtered out, off the page or not built - is read as a value.
-  public getExpressionItem(index: number): QuestionRecordItem {
-    // Reading allRows builds the rows, so that a record that has a row is answered by the row.
+  // The item {matrix[index].x} reads. index is a record index; a record without a row - filtered
+  // out, off the page or not built - is read as a value.
+  // QuestionRecordsModel hook of getExpressionItem: reading allRows builds the rows.
+  protected getBuiltItemForExpression(position: number): QuestionRecordItem {
     const rows = this.allRows;
-    if (!this.hasDataListView) return index < rows.length ? rows[index] : null;
-    return this.getViewExpressionItem(index);
+    /* A row past the record count is on its way out: a lower rowCount truncates the value before the
+       rows follow, and the survey runs the expressions in between. The row still answers, from the
+       truncated value, as released: its fields are found and empty. */
+    return position < rows.length ? rows[position] : null;
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
     let elements: Array<IElement>;
@@ -3406,6 +3335,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return this.getPropertyValue("isRowShowing" + row.id, false);
   }
   setIsDetailPanelShowing(row: MatrixDropdownRowModelBase, val: boolean): void {
+    // A hide is where a row may drop its detail panel (hideDetailPanel(true)): its states are kept first.
+    if (!val && !!row.detailPanel) {
+      this.keepDetailPanelPageStates([row]);
+    }
     if (val == this.getIsDetailPanelShowing(row)) return;
     if (val && this.detailPanelMode === "underRowSingle") {
       var rows = this.visibleRows;
@@ -3416,21 +3349,35 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       }
     }
     this.setPropertyValue("isRowShowing" + row.id, val);
-    if (!!this.renderedTable) {
+    if (this.isRenderedTableCreated) {
       this.renderedTable.onDetailPanelChangeVisibility(row, val);
     }
     if (this.survey) {
-      // A created position, as the event has always passed: rowIndex is record-based now.
-      this.matrixCallbacks.matrixDetailPanelVisibleChanged(this, this.getItemIndex(row), row, val);
+      // The row's position in the whole view, as the event has always passed (getRecordViewIndex).
+      this.matrixCallbacks.matrixDetailPanelVisibleChanged(this, this.getItemViewIndex(row), row, val);
     }
+  }
+  /* The paged questions of a row's detail panel keep their page states under the row's record when the
+     row is disposed or its detail panel is hidden, and a new detail panel of the record takes them
+     back (createRowDetailPanel). A row whose detail panel was never created hands nothing over. */
+  private keepDetailPanelPageStates(rows: Array<MatrixDropdownRowModelBase>): void {
+    this.keepNestedPageStates(rows);
+  }
+  // QuestionRecordsModel hook: a row's detail panel questions keep their page states under the row's record.
+  protected getNestedStateQuestions(row: QuestionRecordItem): Array<Question> {
+    const panel = (<MatrixDropdownRowModelBase>row).detailPanel;
+    return !!panel ? panel.questions : undefined;
   }
   createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel {
     if (this.isDesignMode) return this.detailPanel;
     var panel = this.createNewDetailPanel();
     panel.readOnly = this.isMatrixReadOnly() || !row.isRowEnabled();
-    panel.setSurveyImpl(row);
-    var json = this.detailPanel.toJSON();
+    const json = this.isRecordCleanupBuilding ? this.getRecordCleanupJson((): any => removeRecordCleanupSkipped(this.detailPanel.toJSON(),
+      this.detailPanel.questions.filter((q: Question): boolean => this.isRecordCleanupSkipped(q)).map((q: Question): string => q.name))) : this.detailPanel.toJSON();
     new JsonObject().toObject(json, panel);
+    // Attached to the row only after the json is loaded: a question attached earlier takes the row value
+    // while its properties still have default values (a file question loads its preview as text, #12024).
+    panel.setSurveyImpl(row);
     panel.renderWidth = "100%";
     panel.updateCustomWidgets();
     if (!!this.onCreateDetailPanelCallback) {
@@ -3438,24 +3385,18 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     panel.questions.forEach(q => q.setParentQuestion(this));
     panel.onSurveyLoad();
+    // The questions hold the row's values by now: a restored page is not reset by them.
+    this.restorePageStatesOfQuestions(this.getBuiltRecordIndex(row), panel.questions);
     return panel;
   }
   getSharedQuestionByName(
     columnName: string,
     row: MatrixDropdownRowModelBase
   ): Question {
-    if (!this.survey || !this.valueName) return null;
-    var index = this.getItemRecordIndex(row);
-    if (index < 0) return null;
-    return <Question>(
-      this.survey.getQuestionByValueNameFromRecord(
-        this.valueName,
-        columnName,
-        index
-      )
-    );
+    const index = this.getItemRecordIndex(row);
+    return index < 0 ? null : this.getSharedQuestionFromArray(columnName, index);
   }
-  // index is a CREATED position.
+  // index is a CREATED position among the rows that exist: under paging a position on the page.
   getItem(index: number): QuestionRecordItem {
     if (index < 0 || !this.generatedVisibleRows || index >= this.generatedVisibleRows.length) return null;
     return this.generatedVisibleRows[index];
@@ -3464,8 +3405,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (
       !!this.data &&
       !!this.visibleTotalRow &&
-      !this.isUpdateLocked &&
-      !this.isSett
+      !this.isUpdateLocked
     ) {
       this.data.setValue(
         this.getValueName() + settings.matrix.totalsSuffix,
@@ -3474,27 +3414,51 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       );
     }
   }
-  isMatrixReadOnly(): boolean { return this.isReadOnly; }
+  // One hook for the whole matrix, not one per cell: the cell questions read it (parentIsReadOnly).
+  isMatrixReadOnly(): boolean { return this.areRecordsReadOnly; }
   onRowVisibilityChanged(row: MatrixDropdownRowModelBase): void {
     this.clearVisibleRows();
     this.resetRenderedTable();
     this.resetSingleInput();
-    // Under paging the records decide the flags (updatePagedRecordsVisibility).
-    const list = this.dataListValue;
-    const index = !list || this.isPagingActive ? -1 : this.getRecordIndexOf(row);
-    if (index > -1) {
-      list.setRecordVisible(index, row.isVisible);
+    // A hidden row takes no page slot: the page count follows row visibility (setItemRecordVisible).
+    this.setItemRecordVisible(!!this.dataListValue ? this.getRecordIndexOf(row) : -1, row.isVisible);
+  }
+  /* Without paging the error walks keep the scope they have always had: every row's cells report
+     their errors, a hidden row's included, and the cells of the visible rows are cleared; the detail
+     panels take part in neither. With paging they walk the objects of the page, as the validation
+     does. */
+  protected clearItemErrors(): void {
+    if (this.isPagingActive) {
+      super.clearItemErrors();
+      return;
     }
-    // A hidden row takes no page slot: the page count follows row visibility, and the list does not
-    // announce it.
-    this.syncPagingState();
+    this.runFuncForCellQuestions((q: Question): void => { q.clearErrors(); });
+  }
+  protected getItemErrors(): Array<SurveyError> {
+    if (this.isPagingActive) return super.getItemErrors();
+    let res: Array<SurveyError> = [];
+    (this.generatedVisibleRows || []).forEach((row: MatrixDropdownRowModelBase): void => {
+      row.cells.forEach((cell: MatrixDropdownCell): void => {
+        const errors = cell.question.getAllErrors();
+        if (errors && errors.length > 0) {
+          res = res.concat(errors);
+        }
+      });
+    });
+    return res;
   }
   protected clearValueIfInvisibleCore(reason: string): void {
     super.clearValueIfInvisibleCore(reason);
     this.clearInvisibleValuesInRows();
   }
   protected clearInvisibleValuesInRows(): void {
-    if (this.isEmpty() || !this.isRowsFiltered()) return;
+    if (this.isRemoteData) return;
+    if (this.isEmpty()) return;
+    /* Under paging the records rowsVisibleIf hides have no row, on whatever page they are: their
+       visibility is decided over the stored values, for every record (one expression run each), when
+       the survey clears invisible values - never on an ordinary edit. */
+    this.decideRecordsVisibility();
+    if (!this.isRowsFiltered()) return;
     const sharedQuestions = this.survey?.questionsByValueName(this.getValueName()) || [];
     if (sharedQuestions.length < 2) {
       this.value = this.getDataWithoutInvisibleRows();
@@ -3510,54 +3474,63 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     if (!this.hasDataListView) return this.getFilteredData();
     // loadedCount, not count: with a data source that pages, count is the server total and only the
     // records of the loaded window can be looked at. Equal for every local source.
-    return this.collectRecordValues(createIndexes(this.dataList.loadedCount), (index: number, row: MatrixDropdownRowModelBase, add: (value: any) => void): void => {
+    return this.collectRecordValues(this.getLoadedRecordIndexes(), (index: number, row: MatrixDropdownRowModelBase, add: (value: any) => void): void => {
       if (!row) {
-        if (this.isRecordKeptWithoutRow(index)) add(this.getListRecordAt(index));
+        // A row's filteredValue holds the keys its questions store: a record without a row loses the others too.
+        if (this.isRecordKeptWithoutRow(index)) add(this.getRecordWithoutUnknownKeys(index));
       } else if (row.isVisible && !row.isEmpty) {
         add(row.filteredValue);
       }
     });
   }
-  // A record without a row keeps its answer when invisible values are cleared: the dynamic matrix
-  // keeps every such record.
+  private getRecordWithoutUnknownKeys(index: number): any {
+    const record = this.getListRecordAt(index);
+    if (!Helpers.isValueObject(record, true)) return record;
+    const keys = this.getRecordUnknownKeys(index, record, undefined);
+    if (keys.length === 0) return record;
+    const res = Object.assign({}, record);
+    keys.forEach((key: string): void => { delete res[key]; });
+    return res;
+  }
+  /* A record without a row keeps its answer when invisible values are cleared - one the list filter
+     excludes is unrepresented, not invisible - except a record rowsVisibleIf hides in a list that
+     pages in memory: its row is never built, and its answer goes as a hidden row's does. A source that
+     pages itself holds one window, and its records are not removed. */
   protected isRecordKeptWithoutRow(index: number): boolean {
-    return true;
+    return !this.isPagedByList || this.dataList.isRecordVisible(index);
   }
   /* An identity test: getVisibleFromGenerated returns the very array it was given when no row is
      owner-hidden. A list filter alone therefore reads as "not filtered", which is what it has to be
-     - the rows that exist are all visible and there is nothing to clear. */
+     - the rows that exist are all visible and there is nothing to clear. Under paging in memory a
+     hidden record has no row, so the list's flags say it. */
   protected isRowsFiltered(): boolean {
-    return this.visibleRows !== this.generatedVisibleRows;
+    if (this.visibleRows !== this.generatedVisibleRows) return true;
+    const list = this.dataListValue;
+    return this.isPagedByList && list.getVisibleIndexes().length !== list.getCreatedIndexes().length;
   }
-  // index is a VISIBLE position - what it has always been for this method.
+  /* index is a VISIBLE position - what it has always been for this method; under paging a visible
+     position of the whole view. A record without a row on the page answers null: nothing is built and
+     the page stays (getQuestionFromRecord reaches the row a record has). */
   public getQuestionFromArray(name: string, index: number): IQuestion {
-    if (index >= this.visibleRows.length) return null;
-    return this.visibleRows[index].getQuestionByName(name);
-  }
-  // The record-index counterpart of getQuestionFromArray: the object the record has, whatever
-  // position it took.
-  public getQuestionFromRecord(name: string, recordIndex: number): IQuestion {
-    const row = <MatrixDropdownRowModelBase>this.getItemByRecordIndex(recordIndex);
-    return !!row ? row.getQuestionByName(name) : null;
-  }
-  private isMatrixValueEmpty(val: any) {
-    if (!val) return;
-    if (Array.isArray(val)) {
-      for (var i = 0; i < val.length; i++) {
-        if (this.isObject(val[i]) && Object.keys(val[i]).length > 0)
-          return false;
-      }
-      return true;
+    const rows = this.visibleRows;
+    if (this.isPagingActive) {
+      const recordIndex = this.getRecordIndexAtVisibleIndex(index);
+      return recordIndex < 0 ? null : this.getQuestionFromRecord(name, recordIndex);
     }
-    return Object.keys(val).length == 0;
+    if (index >= rows.length) return null;
+    return rows[index].getQuestionByName(name);
   }
-
+  /* QuestionRecordsModel hooks of getQuestionFromRecord. Without a view the rows are built first, as
+     the released lookup built them: another question on the same value name asks for a column of a row
+     it reads. A view builds nothing here (the page stays). */
+  protected prepareQuestionFromRecord(): void {
+    if (!this.generatedVisibleRows && !this.hasDataListView)this.getVisibleRows();
+  }
+  protected getItemQuestionByName(row: QuestionRecordItem, name: string): IQuestion {
+    return (<MatrixDropdownRowModelBase>row).getQuestionByName(name);
+  }
   private get SurveyModel() {
     return this.survey as SurveyModel;
-  }
-  public getCellTemplateData(cell: QuestionMatrixDropdownRenderedCell) {
-    // return cell.cell.column.templateQuestion;
-    return this.SurveyModel.getMatrixCellTemplateData(cell);
   }
   public getCellWrapperComponentName(cell: MatrixDropdownCell) {
     return this.SurveyModel.getElementWrapperComponentName(cell, cell.row instanceof MatrixDropdownTotalRowModel ? "row-footer" : "cell");
@@ -3590,22 +3563,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   public getRootCss(): string {
     return toCssClasses(super.getRootCss(), this.horizontalScroll && this.cssClasses.rootScroll);
   }
-  public afterRenderQuestionElement(el: HTMLElement): void {
-    super.afterRenderQuestionElement(el);
-    this.setRootElement(el?.parentElement);
-  }
-  public beforeDestroyQuestionElement(el: HTMLElement): void {
-    super.beforeDestroyQuestionElement(el);
-    this.setRootElement(undefined);
-  }
-
-  private rootElement: HTMLElement;
-  public setRootElement(val: HTMLElement): void {
-    this.rootElement = val;
-  }
-  public getRootElement(): HTMLElement {
-    return this.rootElement;
-  }
   public get dragDropMatrixAttribute(): string {
     return this.renderedTable.wrapperDropTargetId;
   }
@@ -3628,6 +3585,23 @@ export class MatrixDropdownBaseSingleInputBehavior extends QuestionRecordsSingle
   protected isRecordValid(row: MatrixDropdownRowModelBase): boolean {
     return row.validate(new ValidationContext({ fireCallback: false }));
   }
+}
+
+/* The released showSortMenu loads under its alternative name; a boolean is an accepted value of it, and the
+   setter maps it. */
+function getShowSortBarProperty(): any {
+  return {
+    name: "showSortBar", alternativeName: "showSortMenu", default: "auto", choices: ["auto", "always"], acceptedValues: [true, false],
+    visibleIf: isSortAllowed, dependsOn: ["allowSort"]
+  };
+}
+const sortPropertyNames = ["sortCriteria", "allowSort", "maxSortLevel", "showSortBar"];
+/* The sort entries of the matrix as they are, but invisible in the property grid: the Multi-Select Matrix
+   redeclares them, because its fixed rows are not sorted from the UI. */
+export function getHiddenSortProperties(): Array<any> {
+  return getRecordViewProperties().concat([getShowSortBarProperty()])
+    .filter((prop: any): boolean => sortPropertyNames.indexOf(prop.name.split(":")[0]) > -1)
+    .map((prop: any): any => Object.assign({}, prop, { visible: false }));
 }
 
 Serializer.addClass(
@@ -3700,6 +3674,9 @@ Serializer.addClass(
     },
     { name: "columnColCount", default: 0, choices: [0, 1, 2, 3, 4] },
     { name: "allowAdaptiveActions:boolean", default: false, visible: false },
+    // The paging, the sort and the filter of every matrix with rows (the Dynamic Matrix and the Multi-Select Matrix inherit them).
+    ...getRecordViewProperties(),
+    getShowSortBarProperty(),
   ],
   function () {
     return new QuestionMatrixDropdownModelBase("");

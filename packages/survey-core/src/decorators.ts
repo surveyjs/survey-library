@@ -117,6 +117,7 @@ export interface IArrayPropertyDecoratorOptions {
   onPush?: any;
   onRemove?: any;
   onSet?: (val: any, target: any) => void;
+  wrapSet?: (target: any, set: () => void) => void;
 }
 
 function ensureArray(
@@ -150,13 +151,20 @@ export function propertyArray(options?: IArrayPropertyDecoratorOptions) {
         if (val === arr) {
           return;
         }
-        if (arr) {
-          arr.splice(0, arr.length, ...(val || []));
+        const set = () => {
+          if (arr) {
+            arr.splice(0, arr.length, ...(val || []));
+          } else {
+            this.setPropertyValue(key, val);
+          }
+          if (!!options && options.onSet) {
+            options.onSet(val, this);
+          }
+        };
+        if (!!options && options.wrapSet) {
+          options.wrapSet(this, set);
         } else {
-          this.setPropertyValue(key, val);
-        }
-        if (!!options && options.onSet) {
-          options.onSet(val, this);
+          set();
         }
       },
     });

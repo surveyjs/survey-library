@@ -7,10 +7,15 @@
 // records question shares the paging, sorting and filtering API; the fixed matrix exposes no data source.
 import { Question } from "../../src/question";
 import { QuestionRecordsModel } from "../../src/question_records";
-import { QuestionMatrixDropdownModelBase } from "../../src/question_matrixdropdownbase";
+import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "../../src/question_matrixdropdownbase";
+import { ISurveyData } from "../../src/base-interfaces";
 import { QuestionMatrixDropdownModel } from "../../src/question_matrixdropdown";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { QuestionRecordsBar } from "../../src/question_records_bar";
+import { ISortCriterion } from "../../src/dynamic-data/dynamic-data-interfaces";
+import { settings } from "../../src/settings";
+import { PopupBaseViewModel } from "../../src/popup-view-model";
 
 // The released override surface of the matrix base.
 export class MatrixWithOverrides extends QuestionMatrixDropdownModelBase {
@@ -19,6 +24,17 @@ export class MatrixWithOverrides extends QuestionMatrixDropdownModelBase {
   }
   public dispose(): void {
     super.dispose();
+  }
+}
+// updateItemValue is released with a void return: an application override with a void body compiles.
+export class MatrixWithItemWrite extends QuestionMatrixDynamicModel {
+  public updateItemValue(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
+    super.updateItemValue(row, columnName, newRowValue, isDeletingValue);
+  }
+}
+export class PanelWithItemWrite extends QuestionPanelDynamicModel {
+  public updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): void {
+    super.updateItemValue(item, name, val, isDeletingValue);
   }
 }
 export class PanelWithOverrides extends QuestionPanelDynamicModel {
@@ -59,7 +75,7 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
 
   // The hooks are not public on the fixed matrix, and it has no data source.
   // @ts-expect-error a hook
-  const dd1: DeclaredKeys<QuestionMatrixDropdownModel> = "getListRecords";
+  const dd1: DeclaredKeys<QuestionMatrixDropdownModel> = "setListRecords";
   // @ts-expect-error a hook
   const dd2: DeclaredKeys<QuestionMatrixDropdownModel> = "rebuildFromDataList";
   // @ts-expect-error a hook
@@ -81,26 +97,102 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   const dd29: DeclaredKeys<QuestionMatrixDropdownModel> = "isRowCountKnown";
   res.push(dd26, dd27, dd29);
   // Every records question shares the paging, sorting and filtering API, the fixed matrix included.
-  const ddApi: Array<DeclaredKeys<QuestionMatrixDropdownModel>> = ["pageIndex", "pageCount", "isCountKnown", "sortBy",
-    "filterExpression", "sortOrder", "toggleSort", "clearSort", "refreshView", "canGoNextPage", "canGoPrevPage", "goToPage",
-    "nextPage", "prevPage", "isPageMovePending", "pagerActions", "getDataList", "syncPageSizeWithMode", "pageSize"];
+  const ddApi: Array<DeclaredKeys<QuestionMatrixDropdownModel>> = ["pageIndex", "pageCount", "isCountKnown", "sortCriteria",
+    "filterExpression", "sort", "toggleSort", "clearSort", "refreshView", "canGoNextPage", "canGoPrevPage", "goToPage",
+    "nextPage", "prevPage", "isPageMovePending", "recordsBar", "showPager", "pageSize"];
   res.push(ddApi);
-  // rows defines the records of the fixed matrix; the dynamic matrix and the matrix base have none.
+  // The pager is the records bar's: it left the questions.
+  // @ts-expect-error the records bar's
+  const ddPager: DeclaredKeys<QuestionMatrixDropdownModel> = "pagerActions";
+  // @ts-expect-error the records bar's
+  const mdPager: DeclaredKeys<QuestionMatrixDynamicModel> = "pagerActions";
+  // @ts-expect-error the records bar's
+  const pdPager: DeclaredKeys<QuestionPanelDynamicModel> = "pagerActions";
+  res.push(ddPager, mdPager, pdPager);
+  // The records bar's public surface.
+  const barApi: Array<DeclaredKeys<QuestionRecordsBar>> = ["pagerActions", "showPager", "isVisible", "cssClasses",
+    "sortActions", "showSort"];
+  const bar: QuestionRecordsBar = md.recordsBar;
+  res.push(barApi, pd.recordsBar === bar);
+  // showSortBar is the matrices': "auto" or "always". The dynamic panel has none: allowSort decides alone there.
+  const showSortBar: "auto" | "always" = md.showSortBar;
+  dd.showSortBar = "always";
+  const mdShowSortBar: DeclaredKeys<QuestionMatrixDynamicModel> = "showSortBar";
+  // @ts-expect-error the dynamic panel has no showSortBar
+  const pdShowSortBar: DeclaredKeys<QuestionPanelDynamicModel> = "showSortBar";
+  // @ts-expect-error showSortMenu is only the serializer's alternative name
+  const mdShowSortMenu: DeclaredKeys<QuestionMatrixDynamicModel> = "showSortMenu";
+  res.push(mdShowSortBar, pdShowSortBar, mdShowSortMenu);
+  // Where the renderers mount the sort bar.
+  const sortBarLocation: "header" | "top" | "none" = dd.sortBarLocation;
+  res.push(showSortBar, sortBarLocation);
+  // Creator's entry to the designer's "Sort by" dialog.
+  const designDialog: PopupBaseViewModel = pd.showSortDialog({ onApply: (criteria: Array<ISortCriterion>): void => { res.push(criteria); },
+    rootElement: undefined, locale: "de" });
+  res.push(designDialog, md.showSortDialog({ onApply: (): void => { } }));
+  // The fields a designer can sort by: Creator's property grid offers them for a sortCriteria item.
+  const designFields: Array<{ field: string, title: string, dataType: string }> = md.getDesignSortFields();
+  res.push(designFields, pd.getDesignSortFields());
+  // @ts-expect-error the sort bar reaches the respondent's sort through the question's owner object
+  const mdSortByUser: DeclaredKeys<QuestionMatrixDynamicModel> = "sortByUser";
+  // @ts-expect-error the offered fields reach the sort bar through the question's owner object
+  const pdSortFields: DeclaredKeys<QuestionPanelDynamicModel> = "sortFields";
+  res.push(mdSortByUser, pdSortFields);
+  // @ts-expect-error the question's state reaches the bar through its owner object
+  const barOwner: DeclaredKeys<QuestionRecordsBar> = "owner";
+  res.push(barOwner);
+  // @ts-expect-error the single-input behavior reaches it through the question's owner object
+  const ddSync: DeclaredKeys<QuestionMatrixDropdownModel> = "syncPageSizeWithMode";
+  res.push(ddSync);
+  // The record list is not public on any records question: refreshDataSource() reads a source again.
+  // @ts-expect-error the record list
+  const ddList: DeclaredKeys<QuestionMatrixDropdownModel> = "getDataList";
+  // @ts-expect-error the record list
+  const mdList: DeclaredKeys<QuestionMatrixDynamicModel> = "getDataList";
+  // @ts-expect-error the record list
+  const pdList: DeclaredKeys<QuestionPanelDynamicModel> = "getDataList";
+  // @ts-expect-error the fixed matrix has no data source
+  const ddRefresh: DeclaredKeys<QuestionMatrixDropdownModel> = "refreshDataSource";
+  res.push(ddList, mdList, pdList, ddRefresh);
+  // rows: the records of the fixed matrix; the dynamic matrix keeps the released (empty) property.
   const ddRows: DeclaredKeys<QuestionMatrixDropdownModel> = "rows";
-  // @ts-expect-error the dynamic matrix has no rows
   const mdRows: DeclaredKeys<QuestionMatrixDynamicModel> = "rows";
-  // @ts-expect-error the matrix base has no rows
   const dbRows: DeclaredKeys<QuestionMatrixDropdownModelBase> = "rows";
   res.push(ddRows, mdRows, dbRows);
 
   // The feature's public API stays public on the dynamic questions.
   const mdApi: Array<DeclaredKeys<QuestionMatrixDynamicModel>> = ["dataSource", "pageIndex", "pageCount", "pageSize",
-    "isCountKnown", "canGoNextPage", "canGoPrevPage", "goToPage", "nextPage", "prevPage", "sortOrder", "sortBy", "toggleSort",
-    "clearSort", "filterExpression", "refreshView", "isDataLoading", "isPageMovePending", "isRowCountKnown", "getRecordNumberOffset"];
+    "isCountKnown", "canGoNextPage", "canGoPrevPage", "goToPage", "nextPage", "prevPage", "sortCriteria", "sort", "toggleSort",
+    "clearSort", "filterExpression", "refreshView", "isDataLoading", "isPageMovePending", "getRecordNumberOffset",
+    "refreshDataSource"];
   const pdApi: Array<DeclaredKeys<QuestionPanelDynamicModel>> = ["dataSource", "pageIndex", "pageCount", "pageSize",
-    "isCountKnown", "canGoNextPage", "canGoPrevPage", "goToPage", "nextPage", "prevPage", "sortOrder", "sortBy", "toggleSort",
-    "clearSort", "filterExpression", "refreshView", "isDataLoading", "isPageMovePending", "isPanelCountKnown", "getRecordNumberOffset"];
+    "isCountKnown", "canGoNextPage", "canGoPrevPage", "goToPage", "nextPage", "prevPage", "sortCriteria", "sort", "toggleSort",
+    "clearSort", "filterExpression", "refreshView", "isDataLoading", "isPageMovePending", "getRecordNumberOffset",
+    "refreshDataSource"];
   res.push(mdApi, pdApi);
+  // sortCriteria reads and takes plain { field, direction } objects; a direction is optional.
+  md.sortCriteria = [{ field: "price", direction: "desc" }];
+  pd.sortCriteria = [{ field: "price", direction: "desc" }];
+  pd.sortCriteria = [{ field: "price" }];
+  md.sortCriteria.push({ field: "price" });
+  // @ts-expect-error the property is field
+  md.sortCriteria.push({ fieldName: "price" });
+  const criterion: ISortCriterion = md.sortCriteria[0];
+  md.sort("price", "desc", true);
+  md.sort([{ field: "price", direction: "asc" }]);
+  // @ts-expect-error a direction is "asc" or "desc"
+  md.sort("price", "up");
+  res.push(criterion);
+  // The page size is pageSize on every records question: the type-specific names are gone.
+  // @ts-expect-error renamed to pageSize
+  const ddRowsPerPage: DeclaredKeys<QuestionMatrixDropdownModel> = "rowsPerPage";
+  // @ts-expect-error renamed to pageSize
+  const mdRowsPerPage: DeclaredKeys<QuestionMatrixDynamicModel> = "rowsPerPage";
+  // @ts-expect-error renamed to pageSize
+  const dbRowsPerPage: DeclaredKeys<QuestionMatrixDropdownModelBase> = "rowsPerPage";
+  // @ts-expect-error renamed to pageSize
+  const pdPanelsPerPage: DeclaredKeys<QuestionPanelDynamicModel> = "panelsPerPage";
+  res.push(ddRowsPerPage, mdRowsPerPage, dbRowsPerPage, pdPanelsPerPage);
   // The paging state shared by the records questions is protected on every one of them.
   // @ts-expect-error protected
   const md7: DeclaredKeys<QuestionMatrixDynamicModel> = "isPagingActive";
@@ -118,7 +210,7 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
 
   // The dynamic questions do not expose the hooks or the paging owner's page moves either.
   // @ts-expect-error a hook
-  const md1: DeclaredKeys<QuestionMatrixDynamicModel> = "getListRecords";
+  const md1: DeclaredKeys<QuestionMatrixDynamicModel> = "setListRecords";
   // @ts-expect-error a hook
   const md2: DeclaredKeys<QuestionMatrixDynamicModel> = "syncPagingState";
   // @ts-expect-error a page move of the paging owner
@@ -130,7 +222,7 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error a hook
   const md6: DeclaredKeys<QuestionMatrixDynamicModel> = "getFields";
   // @ts-expect-error a hook
-  const pd1: DeclaredKeys<QuestionPanelDynamicModel> = "getListRecords";
+  const pd1: DeclaredKeys<QuestionPanelDynamicModel> = "setListRecords";
   // @ts-expect-error a hook
   const pd2: DeclaredKeys<QuestionPanelDynamicModel> = "syncPagingState";
   // @ts-expect-error a page move of the paging owner
@@ -196,9 +288,7 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error protected
   const ddShared3: DeclaredKeys<QuestionMatrixDropdownModel> = "getRecordCountLimit";
   // @ts-expect-error protected
-  const ddShared4: DeclaredKeys<QuestionMatrixDropdownModel> = "isRecordCountLimitedByPageMax";
-  // @ts-expect-error protected
-  const ddShared5: DeclaredKeys<QuestionMatrixDropdownModel> = "getPageSizePropertyName";
+  const ddShared4: DeclaredKeys<QuestionMatrixDropdownModel> = "isRecordCountLimitedBySetting";
   // @ts-expect-error protected
   const ddShared6: DeclaredKeys<QuestionMatrixDropdownModel> = "onPageSizeAssigned";
   // @ts-expect-error a hook
@@ -212,9 +302,7 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error protected
   const mdShared3: DeclaredKeys<QuestionMatrixDynamicModel> = "getRecordCountLimit";
   // @ts-expect-error protected
-  const mdShared4: DeclaredKeys<QuestionMatrixDynamicModel> = "isRecordCountLimitedByPageMax";
-  // @ts-expect-error protected
-  const mdShared5: DeclaredKeys<QuestionMatrixDynamicModel> = "getPageSizePropertyName";
+  const mdShared4: DeclaredKeys<QuestionMatrixDynamicModel> = "isRecordCountLimitedBySetting";
   // @ts-expect-error protected
   const mdShared6: DeclaredKeys<QuestionMatrixDynamicModel> = "onPageSizeAssigned";
   // @ts-expect-error a hook
@@ -228,15 +316,13 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error protected
   const pdShared3: DeclaredKeys<QuestionPanelDynamicModel> = "getRecordCountLimit";
   // @ts-expect-error protected
-  const pdShared4: DeclaredKeys<QuestionPanelDynamicModel> = "isRecordCountLimitedByPageMax";
-  // @ts-expect-error protected
-  const pdShared5: DeclaredKeys<QuestionPanelDynamicModel> = "getPageSizePropertyName";
+  const pdShared4: DeclaredKeys<QuestionPanelDynamicModel> = "isRecordCountLimitedBySetting";
   // @ts-expect-error protected
   const pdShared6: DeclaredKeys<QuestionPanelDynamicModel> = "onPageSizeAssigned";
   // @ts-expect-error a hook
   const pdShared7: DeclaredKeys<QuestionPanelDynamicModel> = "getRecordVisibleIfPropertyName";
-  res.push(ddShared1, ddShared2, ddShared3, ddShared4, ddShared5, ddShared6, ddShared7, ddShared8, mdShared1, mdShared2, mdShared3, mdShared4, mdShared5,
-    mdShared6, mdShared7, mdShared8, pdShared1, pdShared2, pdShared3, pdShared4, pdShared5, pdShared6, pdShared7);
+  res.push(ddShared1, ddShared2, ddShared3, ddShared4, ddShared6, ddShared7, ddShared8, mdShared1, mdShared2, mdShared3, mdShared4,
+    mdShared6, mdShared7, mdShared8, pdShared1, pdShared2, pdShared3, pdShared4, pdShared6, pdShared7);
 
   // The helpers the rows and panels share, and the record item the question creates, are not public either.
   // @ts-expect-error protected
@@ -283,8 +369,18 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   const pdItems7: DeclaredKeys<QuestionPanelDynamicModel> = "createRecordItem";
   res.push(ddItems1, ddItems2, ddItems3, ddItems4, ddItems5, ddItems6, ddItems7, mdItems1, mdItems2, mdItems3, mdItems4, mdItems5, mdItems6,
     mdItems7, pdItems1, pdItems2, pdItems3, pdItems4, pdItems5, pdItems6, pdItems7);
-  // The fixed matrix answers the visible-index and expression-item lookups the matrix rows ask for.
-  const ddItemLookups: Array<DeclaredKeys<QuestionMatrixDropdownModel>> = ["getItemVisibleIndex", "getItemByVisibleIndex", "getExpressionItem"];
-  res.push(ddItemLookups);
+  // The lookups the matrix rows and their contexts ask for are protected: they reach them through the question's owner object.
+  // @ts-expect-error protected
+  const ddItemLookup1: DeclaredKeys<QuestionMatrixDropdownModel> = "getItemVisibleIndex";
+  // @ts-expect-error protected
+  const ddItemLookup2: DeclaredKeys<QuestionMatrixDropdownModel> = "getItemByVisibleIndex";
+  // @ts-expect-error protected
+  const ddItemLookup3: DeclaredKeys<QuestionMatrixDropdownModel> = "getExpressionItem";
+  res.push(ddItemLookup1, ddItemLookup2, ddItemLookup3);
+  // settings.maxPageSize, the page cap of every records question that pages, is a number.
+  const maxPageSize: number = settings.maxPageSize;
+  // @ts-expect-error a number
+  settings.maxPageSize = "3";
+  res.push(maxPageSize);
   return res;
 }

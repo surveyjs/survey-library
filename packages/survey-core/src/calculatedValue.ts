@@ -4,11 +4,18 @@ import { ISurvey, ISurveyVariables } from "./base-interfaces";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { ExpressionRunner } from "./expressions/expressionRunner";
+import { settings } from "./settings";
 
 export class CalculatedValue extends Base {
   private data: ISurveyVariables;
   private expressionIsRunning: boolean = false;
   private expressionRunner: ExpressionRunner;
+  // The name and the result of the last completed run, whatever started it
+  private lastRun: { name: string, value: any };
+  // The runner's variables as a set, to find the calculated values this one uses
+  private dependentNames: Set<string>;
+  private dependentNamesSource: Array<string>;
+  private dependentNamesLength: number;
   constructor(name: string = null, expression: string = null) {
     super();
     if (!!name) {
@@ -21,6 +28,7 @@ export class CalculatedValue extends Base {
   protected override onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "expression") {
+      this.lastRun = undefined;
       this.rerunExpression();
     }
   }
@@ -68,7 +76,7 @@ export class CalculatedValue extends Base {
   public doCalculation(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>
   ) {
     if (this.isCalculated) return;
-    this.runExpressionCore(calculatedValues, properties);
+    this.runExpressionCore(calculatedValues, properties, true);
     this.isCalculated = true;
   }
   public runExpression(properties: HashTable<any>) {
@@ -98,20 +106,46 @@ export class CalculatedValue extends Base {
   protected override onDependencyValueChanged(obj: Base, propertyName: string): void {
     this.rerunExpression();
   }
-  private runExpressionCore(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>) {
+  private runExpressionCore(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>, canSkip?: boolean) {
     if (!this.canRunExpression || !this.ensureExpression()) return;
     this.locCalculation();
     if (!!calculatedValues) {
       this.runDependentExpressions(calculatedValues, properties);
     }
+    // Decided after the dependents ran: a calculated value this one uses and that changed in
+    // this pass is in the survey's changed keys by now
+    if (canSkip && this.canSkipCalculation()) {
+      this.unlocCalculation();
+      return;
+    }
     this.expressionRunner.runContext(this.getValueGetterContext(), this.getPropertiesCopy(properties, "expression"));
+  }
+  // A run in the survey's conditions pass is skipped, the way a strict-dependency visibleIf is,
+  // when no variable the expression uses changed. The value's own state must also be what the
+  // last run left: a rename, or a variable cleared or overwritten from outside, runs it again.
+  private canSkipCalculation(): boolean {
+    if (!settings.calculatedValueTrackDependencies || !this.lastRun) return false;
+    if (this.lastRun.name !== this.name) return false;
+    if (!Helpers.isTwoValueEquals(this.lastRun.value, this.value, false, true, false)) return false;
+    const survey: any = this.getSurvey();
+    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    // A calculated value reads a path under a cleared value ({m.row1} once m is cleared) again
+    return this.canSkipExpressionByKeys(this.expressionRunner, keys, undefined, true);
   }
   private runDependentExpressions(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>) {
     var variables = this.expressionRunner.getVariables();
     if (!variables) return;
+    // The runner keeps its variables array until the expression changes, then returns a new one.
+    // The array is shared and may grow in place (CopyValueTrigger pushes into its runner's array),
+    // so the set is rebuilt when the array or its length changes
+    if (this.dependentNamesSource !== variables || this.dependentNamesLength !== variables.length) {
+      this.dependentNames = new Set(variables);
+      this.dependentNamesSource = variables;
+      this.dependentNamesLength = variables.length;
+    }
     for (var i = 0; i < calculatedValues.length; i++) {
       var calcItem = calculatedValues[i];
-      if (calcItem === this || variables.indexOf(calcItem.name) < 0) continue;
+      if (calcItem === this || !this.dependentNames.has(calcItem.name)) continue;
       calcItem.doCalculation(calculatedValues, properties);
     }
   }
@@ -126,6 +160,7 @@ export class CalculatedValue extends Base {
         if (!Helpers.isTwoValueEquals(newValue, this.value, false, true, false)) {
           this.setValue(newValue);
         }
+        this.lastRun = { name: this.name, value: newValue };
         this.unlocCalculation();
       };
     }

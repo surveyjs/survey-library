@@ -5,6 +5,58 @@ export var basqueSurveyStrings = {
   pagePrevText: "Aurrekoa",
   // "Next"
   pageNextText: "Hurrengoa",
+  // [Auto-translated] "First"
+  pageFirstText: "Lehenengoa",
+  // [Auto-translated] "Last"
+  pageLastText: "Azkena",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Hautatu Orria",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Ordenatu {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Goi - Baxua",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Baxua - Altua",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabetoa, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabetoa, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Azken berriena lehenik eta behin",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Zaharrena lehenik eta behin",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Ordenatuta {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, orduan {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Ordenatu arabera",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Lehenetsia",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sailkapen eremua",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Sailkapen ordena",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Gehitu sailkapen maila",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Sailkapen maila kendu {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sailkapen eremua {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Ordena {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Gehiago...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Mota maila guztiak erakutsi",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Gehitu Berria",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Bukatu",
   // "Preview"
@@ -37,6 +89,8 @@ export var basqueSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Erantzundako galderak {0}/{1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Galdera {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Ez dago orrialde bistaragarririk edo ez dago galderarik.",
   // "Thank you for completing the survey"

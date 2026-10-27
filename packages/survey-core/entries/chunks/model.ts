@@ -2,8 +2,8 @@
 // import "../../src/main.scss";
 //import "../../src/modern.scss";
 
-import { DomWindowHelper } from "../../src/global_variables_utils";
 import { settings } from "../../src/settings";
+import { _slk } from "./license";
 
 export var Version: string;
 export var ReleaseDate: string;
@@ -23,63 +23,15 @@ export function checkLibraryVersion(ver: string, libraryName: string): void {
     console.error(str);
   }
 }
+// SurveyJS license keys are issued only by Devsoft Baltic OU via surveyjs.io.
+// Generating, modifying or forging keys is prohibited; see the notice in ./license.ts.
 export function setLicenseKey(key: string): void {
   slk(key);
 }
 export function slk(key: string): void {
-  _slk(key, lic, ReleaseDate);
+  _slk(key, ReleaseDate);
 }
-export function hasLicense(index: number): boolean {
-  return glc(index) === true;
-}
-export function glc(index: number): any {
-  const res = lic[index.toString()];
-  return !res ? false : res;
-}
-const lic: any = {};
-function _slk(k: any, lh: any, rd: any) {
-  if (!k) return;
-  const en = (s: string) => {
-    var e: any = {}, i, b = 0, c, x, l = 0, a, r = "", w = String.fromCharCode, L = s.length;
-    var A = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    for (i = 0; i < 64; i++) { e[A.charAt(i)] = i; }
-    for (x = 0; x < L; x++) {
-      let c = e[s.charAt(x)]; b = (b << 6) + c; l += 6;
-      while(l >= 8) { ((a = (b >>> (l -= 8)) & 0xff) || (x < (L - 2))) && (r += w(a)); }
-    }
-    return r;
-  };
-  let v = en(k);
-  if (!v) return;
-  let index = v.indexOf(";");
-  if (index < 0) return;
-  if (!checkPrefix(v.substring(0, index))) return;
-  v = v.substring(index + 1);
-  v.split(",").forEach(s => {
-    let i = s.indexOf("=");
-    if (i > 0) {
-      const sd = new Date(s.substring(i + 1));
-      lh[s.substring(0, i)] = new Date(rd) <= sd ? true : sd;
-    }
-  });
-}
-function checkPrefix(prefix: string): boolean {
-  if (!prefix) return true;
-  const s = "domains:";
-  const index = prefix.indexOf(s);
-  if (index < 0) return true;
-  const ds = prefix.substring(index + s.length).toLowerCase().split(",");
-  if (!Array.isArray(ds) || ds.length === 0) return true;
-  const location = DomWindowHelper.getLocation();
-  if (!!location && !!location.hostname) {
-    const hn = location.hostname.toLowerCase();
-    for (let i = 0; i < ds.length; i++) {
-      if (hn.indexOf(ds[i]) > -1) return true;
-    }
-    return false;
-  }
-  return true;
-}
+export { hasLicense, glc } from "./license";
 
 export { settings, ISurveyEnvironment } from "../../src/settings";
 export { Helpers, HashTable, ISurveyDateProvider } from "../../src/helpers";
@@ -166,7 +118,7 @@ export {
 } from "../../src/localizablestring";
 export { HtmlConditionItem, UrlConditionItem } from "../../src/expressionItems";
 export { ChoicesRestful, ChoicesRestfull } from "../../src/choicesRestful";
-export { FunctionFactory, registerFunction, IFunctionRegistration, isReturnColumnParam } from "../../src/functionsfactory";
+export { FunctionFactory, registerFunction, IFunctionRegistration, IFunctionParameter, isReturnColumnParam } from "../../src/functionsfactory";
 export { IExpressionError, ExpressionErrorType } from "../../src/expressions/expressionError";
 export { ExpressionRunner } from "../../src/expressions/expressionRunner";
 export { ExpressionExecutorRunner } from "../../src/expressions/expressionExecutor";
@@ -191,7 +143,7 @@ export {
   getConditionOperatorNames,
   getConditionDefaultOperator
 } from "../../src/conditions/conditionOperators";
-export { ProcessValue, ValueGetter, VariableGetterContext } from "../../src/conditions/conditionProcessValue";
+export { ProcessValue, ValueGetter, VariableGetterContext, findNameByPath, parseValuePath } from "../../src/conditions/conditionProcessValue";
 export {
   JsonError,
   JsonIncorrectTypeError,
@@ -207,7 +159,10 @@ export {
   Serializer,
 } from "../../src/jsonobject";
 export { property, propertyArray } from "../../src/decorators";
-export { QuestionRecordsModel } from "../../src/question_records";
+export { QuestionRecordsModel, IRecordsDesignSortDialogOptions } from "../../src/question_records";
+export { QuestionRecordsBar } from "../../src/question_records_bar";
+export { RecordsSortDialogModel } from "../../src/records/records-sort-dialog";
+export { IRecordsSortField } from "../../src/records/records-sort-bar";
 export {
   IMatrixDropdownData,
   MatrixDropdownCell,
@@ -245,7 +200,8 @@ export { FlowPanelModel } from "../../src/flowpanel";
 export { PageModel } from "../../src/page";
 export * from "../../src/template-renderer";
 export { DefaultTitleModel } from "../../src/defaultTitle";
-export { Question, QuestionValueType } from "../../src/question";
+export { Question, QuestionValueType, ValidationContext } from "../../src/question";
+export type { IValidationContextParams } from "../../src/question";
 export { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "../../src/questionSingleInputSummary";
 export { QuestionNonValue } from "../../src/questionnonvalue";
 export { QuestionEmptyModel } from "../../src/question_empty";
@@ -255,7 +211,7 @@ export {
   ChoiceItem,
   ISelectQuestion
 } from "../../src/question_baseselect";
-export { QuestionCheckboxModel, CheckboxItem } from "../../src/question_checkbox";
+export { QuestionCheckboxModel, CheckboxItem, getCheckboxItemFields } from "../../src/question_checkbox";
 export { QuestionTagboxModel } from "../../src/question_tagbox";
 export { QuestionRankingModel } from "../../src/question_ranking";
 export { QuestionCommentModel } from "../../src/question_comment";
@@ -297,20 +253,19 @@ export {
   QuestionImagePickerModel,
   ImageItemValue
 } from "../../src/question_imagepicker";
-export { QuestionImageMapModel } from "../../src/question_imagemap";
+export { QuestionImageMapModel, getImageMapItemFields } from "../../src/question_imagemap";
 export { QuestionImageModel } from "../../src/question_image";
 export { QuestionSignaturePadModel } from "../../src/question_signaturepad";
 export {
   QuestionPanelDynamicModel,
   QuestionPanelDynamicItem
 } from "../../src/question_paneldynamic";
-export { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
-export { ArrayDynamicDataSource, SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
-export { parseDynamicDataSort, dynamicDataSortToString } from "../../src/dynamic-data/dynamic-data-sort";
+export { LocalDynamicDataSource, ArrayDynamicDataSource, SurveyDataDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
+export type { IArrayDynamicDataSourceOptions } from "../../src/dynamic-data/dynamic-data-sources";
 export type {
-  IDynamicDataSource, IDynamicDataSourceCapabilities, IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSort, IDynamicDataField,
-  IDynamicDataOwner, IDynamicDataListChange, DynamicDataSortDirection,
-  DynamicDataFieldType, DynamicDataOperation, IDynamicDataFilterSource
+  IDynamicDataSource, IDynamicDataSourceCapabilities, IDynamicDataReadRequest, IDynamicDataReadResult, ISortCriterion, IDynamicDataField,
+  SortDirection,
+  DynamicDataFieldType, DynamicDataSourceMethod, DynamicDataErrorOperation, DynamicDataOperation, IDynamicDataFilterSource
 } from "../../src/dynamic-data/dynamic-data-interfaces";
 export type { IDynamicDataFilterField } from "../../src/dynamic-data/dynamic-data-filter-fields";
 export { SurveyTimer } from "../../src/surveytimer";
@@ -366,11 +321,13 @@ export { createPopupViewModel, createPopupModalViewModel } from "../../src/popup
 export { PopupModalManager } from "../../src/popup-modal-manager";
 export { DropdownListModel } from "../../src/dropdownListModel";
 export { DropdownMultiSelectListModel } from "../../src/dropdownMultiSelectListModel";
+export { DropdownRenderState, DropdownMultiSelectRenderState } from "../../src/dropdownRenderState";
 export {
   QuestionButtonGroupModel,
   ButtonGroupItemModel,
   ButtonGroupItemValue
 } from "../../src/question_buttongroup";
+export { indexToChoiceKeyCode, choiceKeyCodeToIndex } from "../../src/utils/choice-key-codes";
 export { IsMobile, IsTouch, _setIsTouch, _setIsTablet } from "../../src/utils/devices";
 export * from "../../src/utils/browser";
 export * from "../../src/utils/color";
@@ -394,6 +351,7 @@ export * from "../../src/utils/text-area";
 export * from "../../src/utils/shadow-effects";
 export * from "../../src/utils/resize-manager";
 export * from "../../src/utils/base-theme-init";
+export { setupThemeAdapter } from "../../src/utils/setupThemeAdapter";
 
 export { surveyCss, defaultCss, defaultThemeName } from "../../src/defaultCss/defaultCss";
 

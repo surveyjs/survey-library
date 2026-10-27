@@ -38,6 +38,22 @@ This property is an object whose keys are category names and whose values are ar
 
 Available since: v2.3.16
 
+### `allowExponentialNotation`
+
+**Type**: `boolean`
+
+Specifies whether numeric text inputs accept exponential notation (for example, `1e5` or `2.5E-3`).
+
+Applies to the following elements when their [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) is set to `"number"`:
+
+- [Single-Line Input](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) questions
+- Items in [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model)
+- `text` cell editors in [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) and [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) questions
+
+Default value: `false` (the `e`, `E`, and `+` keys are blocked during keyboard input)
+
+This setting controls keyboard input only and does not change number parsing or numeric input mask behavior.
+
 ### `animationEnabled`
 
 **Type**: `boolean`
@@ -53,6 +69,15 @@ Default value: `true`
 Specifies how many milliseconds a survey should wait before it automatically switches to the next page. Applies only when [auto-advance](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceEnabled) is enabled.
 
 Default value: 300
+
+### `calculatedValueTrackDependencies`
+
+**Type**: `boolean`
+
+Specifies whether [calculated values](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#calculated-values) recalculate only when their dependencies change.
+
+- `true` (default) - Recalculate on the initial run, when all expressions are re-evaluated, when the calculated value's expression or owner changes, and on a value change that affects a value or variable the expression references. Expressions with parameterless functions still recalculate on every value change. A custom function with parameters that reads other survey values by itself (for example, `this.survey.getValue(...)`) does not trigger recalculation when only those other values change.
+- `false` - Recalculate on every value change in the survey.
 
 ### `choicesSeparator`
 
@@ -354,8 +379,8 @@ You can specify this setting for individual questions or matrix columns: [`cellT
 A suffix added to the name of the property that stores total values. The resulting property name consists of the matrix name and the suffix. Default value: `"-total"`.
 
 - `maxRowCount`: `number`\
-A maximum number of rows in a Dynamic Matrix. Default value: 1000.\
-You can specify this setting for an individual Dynamic Matrix: [`maxRowCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#maxRowCount).
+A maximum number of rows in Dynamic Matrix questions. Ignored if [pagination is enabled](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#pageSize). Default value: 1000.\
+You can limit the total number of rows for an individual Dynamic Matrix: [`maxRowCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#maxRowCount).
 
 - `maxRowCountInCondition`: `number`\
 A maximum number of matrix rows included in the Condition drop-down menu in Survey Creator. This menu is used to configure conditional survey logic. Default value: 1.\
@@ -384,6 +409,16 @@ Default value: 10
 **Type**: `string`
 
 Specifies a maximum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"` or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
+
+### `maxPageSize`
+
+**Type**: `number`
+
+Specifies the maximum number of rows or panels per data page in [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list), [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model), and [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model) questions.
+
+Default value: 100
+
+If a question's `pageSize` exceeds this limit, this value is used as the effective page size. Set this property to 0 to remove the limit.
 
 ### `minDate`
 
@@ -433,8 +468,8 @@ An object with properties that apply to [Dynamic Panel](https://surveyjs.io/form
 Nested properties:
 
 - `maxPanelCount`: `number`\
-A maximum number of panels in Dynamic Panel. Default value: 100.\
-You can specify this setting for an individual Dynamic Panel: [`maxPanelCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#maxPanelCount).
+A maximum number of panels in Dynamic Panel questions. Ignored if [pagination is enabled](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#pageSize). Default value: 100.\
+You can limit the total number of panels for an individual Dynamic Panel: [`maxPanelCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#maxPanelCount).
 
 - `maxPanelCountInCondition`: `number`\
 A maximum number of Dynamic Panel panels included in the Condition drop-down menu in Survey Creator. This menu is used to configure conditional survey logic. Default value: 1.\
@@ -496,6 +531,9 @@ Specifies how to render the input field of [Comment](https://surveyjs.io/form-li
 
 - `textRenderMode`: `"input"` (default) | `"div"`\
 Specifies how to render the input field of [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) questions in [read-only](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#readOnly) mode: as a disabled `<input>` element or as a `<div>` element with a non-editable question value within it.
+
+- `enableValidation`: `boolean`\
+Specifies whether to validate questions in read-only mode. Default value: `false`.
 
 ### `refuseItemValue`
 

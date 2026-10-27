@@ -27,8 +27,9 @@ import { QuestionTextModel } from "../src/question_text";
 import { QuestionCommentModel } from "../src/question_comment";
 import { QuestionTagboxModel } from "../src/question_tagbox";
 import { QuestionFactory } from "../src/questionfactory";
+import { ComponentCollection } from "../src/question_custom";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 class Car extends Base implements ILocalizableOwner {
   public locale: string;
   constructor() {
@@ -3266,5 +3267,274 @@ describe("JsonSerializationTests", () => {
     expect(q.getLocalizableString("description"), "There is no description after serializing").toBeUndefined();
     q.description = "desc";
     expect(q.getLocalizableString("description"), "There is a description after setting the value").toBeTruthy();
+  });
+});
+describe("toJSON skips empty properties", () => {
+  const customQuestionName = "tojsoncustomdropdown";
+  const funcPropName = "funcSerializedProp";
+  function withFixtureClasses(func: () => void): void {
+    ComponentCollection.Instance.add({
+      name: customQuestionName,
+      inheritBaseProps: ["allowClear", "placeholder"],
+      questionJSON: { type: "dropdown", choices: [1, 2, 3] }
+    });
+    Serializer.addProperty("text", { name: funcPropName, isSerializable: false, isSerializableFunc: () => true });
+    try {
+      func();
+    } finally {
+      ComponentCollection.Instance.remove(customQuestionName);
+      Serializer.removeProperty("text", funcPropName);
+    }
+  }
+  function createFixtureSurvey(): SurveyModel {
+    const survey = new SurveyModel({
+      title: "Survey",
+      elements: [
+        { type: "text", name: "q1", maskType: "pattern", maskSettings: { pattern: "999-99" }, dataList: ["a", "b"] },
+        { type: "checkbox", name: "q2", commentPlaceholder: "Comment",
+          choices: [{ value: 1, text: "One" }, 2, { value: 3, visibleIf: "{q1} = 'a'" }, { value: 4, showCommentArea: true, commentPlaceholder: "Why?" }] },
+        { type: "panel", name: "p1", title: "Panel",
+          elements: [{ type: "text", name: "q3" }, { type: "panel", name: "p2", elements: [{ type: "comment", name: "q4", description: "desc" }] }] },
+        { type: "matrixdropdown", name: "q5", cellType: "dropdown", choices: [1, 2], rows: ["r1", "r2"],
+          columns: [{ name: "c1", cellType: "text", title: "Column 1" }, { name: "c2" }] },
+        { type: "multipletext", name: "q6", items: [{ name: "i1", title: "Item 1" }, { name: "i2", validators: [{ type: "numeric", minValue: 1 }] }] },
+        { type: customQuestionName, name: "q7", title: "Custom", allowClear: false, placeholder: "Pick" },
+        { type: "text", name: "q8" },
+        { type: "text", name: "q9" }
+      ],
+      triggers: [{ type: "complete", expression: "{q1} = 'x'" }, { type: "setvalue", expression: "{q3} > 10", setToName: "q4", setValue: "big" }],
+      calculatedValues: [{ name: "total", expression: "{q3} + 1", includeIntoResult: true }, { name: "double", expression: "{total} * 2" }]
+    });
+    survey.getQuestionByName("q8")[funcPropName] = "abc";
+    return survey;
+  }
+  test("default options write the same JSON", () => {
+    withFixtureClasses(() => {
+      const survey = createFixtureSurvey();
+      expect(survey.toJSON()).toEqual({
+        title: "Survey",
+        pages: [
+          {
+            name: "page1",
+            elements: [
+              { type: "text", name: "q1", maskType: "pattern", maskSettings: { pattern: "999-99" }, dataList: ["a", "b"] },
+              {
+                type: "checkbox",
+                name: "q2",
+                commentPlaceholder: "Comment",
+                choices: [
+                  { value: 1, text: "One" },
+                  2,
+                  { value: 3, visibleIf: "{q1} = 'a'" },
+                  { value: 4, showCommentArea: true, commentPlaceholder: "Why?" }
+                ]
+              },
+              {
+                type: "panel",
+                name: "p1",
+                elements: [
+                  { type: "text", name: "q3" },
+                  { type: "panel", name: "p2", elements: [{ type: "comment", name: "q4", description: "desc" }] }
+                ],
+                title: "Panel"
+              },
+              {
+                type: "matrixdropdown",
+                name: "q5",
+                columns: [{ name: "c1", title: "Column 1", cellType: "text" }, { name: "c2" }],
+                choices: [1, 2],
+                rows: ["r1", "r2"]
+              },
+              {
+                type: "multipletext",
+                name: "q6",
+                items: [{ name: "i1", title: "Item 1" }, { name: "i2", validators: [{ type: "numeric", minValue: 1 }] }]
+              },
+              { type: customQuestionName, name: "q7", title: "Custom", allowClear: false, placeholder: "Pick" },
+              { type: "text", name: "q8", funcSerializedProp: "abc" },
+              { type: "text", name: "q9" }
+            ]
+          }
+        ],
+        triggers: [
+          { type: "complete", expression: "{q1} = 'x'" },
+          { type: "setvalue", expression: "{q3} > 10", setToName: "q4", setValue: "big" }
+        ],
+        calculatedValues: [{ name: "total", expression: "{q3} + 1", includeIntoResult: true }, { name: "double", expression: "{total} * 2" }]
+      });
+      expect(survey.getQuestionByName("q7").toJSON(), "custom question").toEqual({ name: "q7", title: "Custom", allowClear: false, placeholder: "Pick" });
+      expect(survey.getQuestionByName("q5").columns[0].toJSON(), "matrix column").toEqual({ name: "c1", title: "Column 1", cellType: "text" });
+      expect(survey.getQuestionByName("q6").items[1].toJSON(), "multiple text item").toEqual({ name: "i2", validators: [{ type: "numeric", minValue: 1 }] });
+    });
+  });
+  test("storeDefaults, storeLocaleStrings and getLocalizationJSON write the same JSON", () => {
+    withFixtureClasses(() => {
+      const survey = createFixtureSurvey();
+      expect(survey.getQuestionByName("q9").toJSON({ storeDefaults: true }), "storeDefaults: text").toEqual({
+        name: "q9", state: "default", visible: true, useDisplayValuesInDynamicTexts: true, width: "", minWidth: "", maxWidth: "",
+        startWithNewLine: true, indent: 0, titleLocation: "default", descriptionLocation: "default", showNumber: true, valueName: "",
+        clearIfInvisible: "default", isRequired: false, errorLocation: "default", readOnly: false, renderAs: "default", showCommentArea: false,
+        randomize: true, inputType: "text", textUpdateMode: "default", inputTextAlignment: "auto", maskType: "none", maxLength: -1,
+        allowFiltering: true
+      });
+      expect(survey.getQuestionByName("q6").items[0].toJSON({ storeDefaults: true }), "storeDefaults: multiple text item").toEqual({
+        name: "i1", isRequired: false, inputType: "text", maskType: "none", inputTextAlignment: "auto", title: "Item 1", maxLength: -1
+      });
+      expect(survey.triggers[0].toJSON({ storeDefaults: true }), "storeDefaults: trigger").toEqual({ operator: "equal", expression: "{q1} = 'x'" });
+      expect(survey.calculatedValues[0].toJSON({ storeDefaults: true }), "storeDefaults: calculated value").toEqual({
+        name: "total", expression: "{q3} + 1", includeIntoResult: true
+      });
+      expect(survey.toJSON({ storeLocaleStrings: false }), "storeLocaleStrings: false").toEqual({
+        pages: [
+          {
+            name: "page1",
+            elements: [
+              { type: "text", name: "q1", maskType: "pattern", maskSettings: { pattern: "999-99" }, dataList: ["a", "b"] },
+              { type: "checkbox", name: "q2", choices: [1, 2, { value: 3, visibleIf: "{q1} = 'a'" }, { value: 4, showCommentArea: true }] },
+              { type: "panel", name: "p1", elements: [{ type: "text", name: "q3" }, { type: "panel", name: "p2", elements: [{ type: "comment", name: "q4" }] }] },
+              { type: "matrixdropdown", name: "q5", columns: [{ name: "c1", cellType: "text" }, { name: "c2" }], choices: [1, 2], rows: ["r1", "r2"] },
+              { type: "multipletext", name: "q6", items: [{ name: "i1" }, { name: "i2", validators: [{ type: "numeric", minValue: 1 }] }] },
+              { type: customQuestionName, name: "q7", allowClear: false },
+              { type: "text", name: "q8", funcSerializedProp: "abc" },
+              { type: "text", name: "q9" }
+            ]
+          }
+        ],
+        triggers: [
+          { type: "complete", expression: "{q1} = 'x'" },
+          { type: "setvalue", expression: "{q3} > 10", setToName: "q4", setValue: "big" }
+        ],
+        calculatedValues: [{ name: "total", expression: "{q3} + 1", includeIntoResult: true }, { name: "double", expression: "{total} * 2" }]
+      });
+      expect(survey.getLocalizationJSON(), "getLocalizationJSON").toEqual({
+        title: "Survey",
+        pages: [
+          {
+            name: "page1",
+            elements: [
+              { type: "text", name: "q1" },
+              { type: "checkbox", name: "q2", commentPlaceholder: "Comment", choices: [{ value: 1, text: "One" }, 2, 3, { value: 4, commentPlaceholder: "Why?" }] },
+              {
+                type: "panel",
+                name: "p1",
+                elements: [
+                  { type: "text", name: "q3" },
+                  { type: "panel", name: "p2", elements: [{ type: "comment", name: "q4", description: "desc" }] }
+                ],
+                title: "Panel"
+              },
+              { type: "matrixdropdown", name: "q5", columns: [{ name: "c1", title: "Column 1" }] },
+              { type: "multipletext", name: "q6", items: [{ name: "i1", title: "Item 1" }] },
+              { type: customQuestionName, name: "q7", title: "Custom", placeholder: "Pick" }
+            ]
+          }
+        ]
+      });
+    });
+  });
+  test("version options write the same JSON", () => {
+    Serializer.addProperty("question", { name: "versionedProp", version: "1.9.127", alternativeName: "versionedPropOld" });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "matrixdropdown", name: "m1", transposeData: true, columns: [{ name: "c1" }], rows: ["r1"] },
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ]
+      });
+      survey.getQuestionByName("q1").versionedProp = "abc";
+      const getElements = (version: string): Array<any> => survey.toJSON({ version: version }).pages[0].elements;
+      expect(getElements("1.9.126"), "1.9.126").toEqual([
+        { type: "matrixdropdown", name: "m1", columns: [{ name: "c1" }], columnLayout: "vertical", rows: ["r1"] },
+        { type: "text", name: "q1", versionedPropOld: "abc" },
+        { type: "text", name: "q2" }
+      ]);
+      expect(getElements("1.9.127"), "1.9.127").toEqual([
+        { type: "matrixdropdown", name: "m1", columns: [{ name: "c1" }], columnLayout: "vertical", rows: ["r1"] },
+        { type: "text", name: "q1", versionedProp: "abc" },
+        { type: "text", name: "q2" }
+      ]);
+      expect(getElements("1.9.129"), "1.9.129").toEqual([
+        { type: "matrixdropdown", name: "m1", columns: [{ name: "c1" }], columnLayout: "vertical", rows: ["r1"] },
+        { type: "text", name: "q1", versionedProp: "abc" },
+        { type: "text", name: "q2" }
+      ]);
+      expect(getElements("1.9.130"), "1.9.130").toEqual([
+        { type: "matrixdropdown", name: "m1", columns: [{ name: "c1" }], transposeData: true, rows: ["r1"] },
+        { type: "text", name: "q1", versionedProp: "abc" },
+        { type: "text", name: "q2" }
+      ]);
+    } finally {
+      Serializer.removeProperty("question", "versionedProp");
+    }
+  });
+  test("onSerializingProperty is called for the written properties in order", () => {
+    withFixtureClasses(() => {
+      const survey = createFixtureSurvey();
+      const names = new Array<string>();
+      Serializer.onSerializingProperty = (obj: Base, prop: JsonObjectProperty): boolean => {
+        names.push(obj.getType() + "." + prop.name);
+        return false;
+      };
+      try {
+        survey.getQuestionByName("q2").toJSON();
+        survey.getPanelByName("p1").toJSON();
+        survey.getQuestionByName("q7").toJSON();
+      } finally {
+        Serializer.onSerializingProperty = undefined;
+      }
+      expect(names).toEqual([
+        "checkbox.name", "checkbox.commentPlaceholder",
+        "checkboxitem.value", "checkboxitem.text", "checkboxitem.value", "checkboxitem.value", "checkboxitem.visibleIf",
+        "checkboxitem.value", "checkboxitem.showCommentArea", "checkboxitem.commentPlaceholder", "checkbox.choices",
+        "panel.name", "text.name", "panel.name", "comment.name", "comment.description", "panel.elements", "panel.elements", "panel.title",
+        customQuestionName + ".name", customQuestionName + ".title", customQuestionName + ".allowClear", customQuestionName + ".placeholder"
+      ]);
+    });
+  });
+  test("getPropertyValueCoreHandler is called for the same keys", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", title: "Title" }, { type: "checkbox", name: "q2" }] });
+    const getReadKeys = (name: string): { json: any, keys: Array<string> } => {
+      const q = survey.getQuestionByName(name);
+      const keys = new Set<string>();
+      q.getPropertyValueCoreHandler = (hash: any, key: string): any => {
+        keys.add(key);
+        return hash[key];
+      };
+      const json = q.toJSON();
+      q.getPropertyValueCoreHandler = undefined;
+      return { json: json, keys: Array.from(keys).sort() };
+    };
+    const text = getReadKeys("q1");
+    expect(text.json, "text: json").toEqual({ name: "q1", title: "Title" });
+    expect(text.keys, "text: keys").toEqual(("allowFiltering autocomplete clearIfInvisible colSpan correctAnswer dataList defaultValue defaultValueExpression " +
+      "descriptionLocation enableIf errorLocation filterOperators indent inputSize inputTextAlignment inputType isRequired maskSettings maskType max maxLength " +
+      "maxValueExpression maxWidth min minValueExpression minWidth name randomize randomizeCategory readOnly renderAs requiredIf resetValueIf " +
+      "setValueExpression setValueIf showCommentArea showNumber startWithNewLine state step textUpdateMode titleLocation " +
+      "useDisplayValuesInDynamicTexts validators valueName visible visibleIf width").split(" "));
+    // The checkbox has no choice elements, so elements is stored in the hash and isSerializableFunc drops it before the empty check
+    const checkbox = getReadKeys("q2");
+    expect(checkbox.json, "checkbox: json").toEqual({ name: "q2" });
+    expect(checkbox.keys, "checkbox: keys").toEqual(("allowFiltering choiceShortcutsEnabled choiceTextsFromQuestion choiceValuesFromQuestion choices " +
+      "choicesByUrl choicesEnableIf choicesFromQuestion choicesFromQuestionMode choicesOrder choicesVisibleIf clearIfInvisible colCount colSpan " +
+      "correctAnswer defaultValue defaultValueExpression descriptionLocation enableIf errorLocation filterOperators hideIfChoicesEmpty indent isRequired " +
+      "itemComponent maxSelectedChoices maxWidth minSelectedChoices minWidth name randomize randomizeCategory readOnly renderAs requiredIf " +
+      "resetValueIf separateSpecialChoices setValueExpression setValueIf showCommentArea showDontKnowItem showNoneItem showNumber showOtherItem " +
+      "showRefuseItem showSelectAllItem startWithNewLine state storeOthersAsComment titleLocation useDisplayValuesInDynamicTexts validators " +
+      "valueName valuePropertyName visible visibleIf width").split(" "));
+  });
+  test("an empty property does not reach getSerializableValue", () => {
+    const elements = new Array<any>();
+    for (let i = 1; i <= 50; i++) elements.push({ type: "text", name: "q" + i });
+    const survey = new SurveyModel({ elements: elements });
+    const spy = vi.spyOn(JsonObjectProperty.prototype, "getSerializableValue");
+    try {
+      expect(survey.toJSON().pages[0].elements.length, "all questions are written").toBe(50);
+      // 2974 calls before the empty check moved into the loop. 53 of the 258 write a value. Per question the rest are
+      // colSpan and maskSettings (onSerializeValue), saveMaskedValue (maskSettings' own loop) and title (its localizable string always exists).
+      expect(spy.mock.calls.length).toBe(258);
+    } finally {
+      spy.mockRestore();
+    }
   });
 });

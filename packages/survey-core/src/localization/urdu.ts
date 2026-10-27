@@ -5,6 +5,58 @@ export var urduSurveyStrings = {
   pagePrevText: "پچھلا",
   // "Next"
   pageNextText: "اگلا",
+  // [Auto-translated] "First"
+  pageFirstText: "پہلا",
+  // [Auto-translated] "Last"
+  pageLastText: "آخری",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "منتخب صفحہ",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "{0} کے حساب سے ترتیب دیں",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "ہائی - لو",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "لو - ہائی",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "الفابیٹ، A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "الفابیٹ، Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "نیا پہلا",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "سب سے پرانا پہلا",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "ترتیب دی گئی {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}، پھر {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "ترتیب دیں",
+  // [Auto-translated] "Default"
+  sortDefaultText: "ڈیفالٹ",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "ترتیب میدان",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "ترتیب",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "ترتیب کی سطح شامل کریں",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "ترتیب کی سطح کو ہٹا {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "سورت فیلڈ {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "ترتیب {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "مزید...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "تمام سورت لیولز دکھائیں",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "نیا شامل کریں",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "مکمل",
   // "Preview"
@@ -37,6 +89,8 @@ export var urduSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: " سوالات کا جواب دیا۔ {0}/{1}",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "سوال {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "سروے میں کوئی نظر آنے والا صفحہ یا سوال نہیں ہے۔",
   // "Thank you for completing the survey"

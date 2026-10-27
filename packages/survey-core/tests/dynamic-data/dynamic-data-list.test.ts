@@ -1,6 +1,7 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, beforeEach, afterEach } from "vitest";
 import { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
-import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
+import { ArrayDynamicDataSource, LocalDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
+import { FunctionFactory } from "../../src/functionsfactory";
 import {
   IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner, IDynamicDataReadRequest,
   IDynamicDataReadResult, IDynamicDataSource, IDynamicDataSourceCapabilities
@@ -51,9 +52,19 @@ function recordChanges(list: DynamicDataList): Array<string> {
   return res;
 }
 
+/* The position of the record whose id is key. The sources below that write are keyed by "id" (a
+   source without keyField is read-only) and look their records up by it; the records of
+   createRecords() and tableRecords() have the id of their first position. */
+function indexOfId(records: Array<any>, key: any): number {
+  for (let i = 0; i < records.length; i++) {
+    if (!!records[i] && records[i].id === key) return i;
+  }
+  return -1;
+}
 // A source that pages itself. It is synchronous, so the list stays synchronous with it.
 class FakeRangeSource implements IDynamicDataSource {
   public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
+  public keyField: string = "id";
   public rangeCalls: Array<{ skip: number, take: number }> = [];
   public ops: Array<string> = [];
   constructor(public records: Array<any>) { }
@@ -64,28 +75,35 @@ class FakeRangeSource implements IDynamicDataSource {
     const count = request.take > 0 ? request.take : this.records.length;
     return { records: this.records.slice(request.skip, request.skip + count), total: this.records.length };
   }
-  public update(sourceIndex: number, record: any, changedFields: Array<string>): void {
-    this.ops.push("update:" + sourceIndex + ":" + changedFields.join(","));
-    this.records[sourceIndex] = record;
+  public update(key: any, record: any, changedFields: Array<string>): void {
+    this.ops.push("update:" + key + ":" + changedFields.join(","));
+    const at = indexOfId(this.records, key);
+    if (at > -1)this.records[at] = record;
   }
-  public insert(record: any, sourceIndex: number): void {
+  public insert(record: any, sourceIndex: number): any {
     this.ops.push("insert:" + sourceIndex);
-    this.records.splice(sourceIndex, 0, record);
+    const stored = Object.assign({ id: 1000 + this.ops.length }, record);
+    this.records.splice(sourceIndex, 0, stored);
+    return Object.assign({}, stored);
   }
-  public remove(sourceIndex: number): void {
-    this.ops.push("remove:" + sourceIndex);
-    this.records.splice(sourceIndex, 1);
+  public remove(key: any): void {
+    this.ops.push("remove:" + key);
+    const at = indexOfId(this.records, key);
+    if (at > -1)this.records.splice(at, 1);
   }
-  public move(fromSourceIndex: number, toSourceIndex: number): void {
-    this.ops.push("move:" + fromSourceIndex + ">" + toSourceIndex);
-    const record = this.records[fromSourceIndex];
-    this.records.splice(fromSourceIndex, 1);
+  public move(key: any, toSourceIndex: number): void {
+    this.ops.push("move:" + key + ">" + toSourceIndex);
+    const at = indexOfId(this.records, key);
+    if (at < 0) return;
+    const record = this.records[at];
+    this.records.splice(at, 1);
     this.records.splice(toSourceIndex, 0, record);
   }
 }
 // The same, reading on demand through deferreds.
 class FakeAsyncRangeSource implements IDynamicDataSource {
   public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
+  public keyField: string = "id";
   public pendingReads: Array<Deferred> = [];
   public rangeCalls: Array<{ skip: number, take: number }> = [];
   public ops: Array<string> = [];
@@ -98,8 +116,8 @@ class FakeAsyncRangeSource implements IDynamicDataSource {
     this.pendingReads.push(deferred);
     return deferred.promise;
   }
-  public update(sourceIndex: number, record: any): void {
-    this.ops.push("update:" + sourceIndex);
+  public update(key: any, record: any): void {
+    this.ops.push("update:" + key);
   }
   public resolveRead(index: number): void {
     const call = this.rangeCalls[index];
@@ -112,6 +130,7 @@ class FakeAsyncRangeSource implements IDynamicDataSource {
 }
 // A source that reads synchronously and writes asynchronously.
 class FakeAsyncWriteSource implements IDynamicDataSource {
+  public keyField: string = "id";
   public readCalls: number = 0;
   public ops: Array<string> = [];
   public pendingWrites: Array<Deferred> = [];
@@ -120,12 +139,15 @@ class FakeAsyncWriteSource implements IDynamicDataSource {
     this.readCalls++;
     return this.records;
   }
-  public update(sourceIndex: number, record: any, changedFields: Array<string>): Promise<void> {
-    this.ops.push("update:" + sourceIndex + ":" + changedFields.join(","));
+  public update(key: any, record: any, changedFields: Array<string>): Promise<void> {
+    this.ops.push("update:" + key + ":" + changedFields.join(","));
     const deferred = new Deferred();
     this.pendingWrites.push(deferred);
     // The write reaches the storage when it is acknowledged, as a server write would.
-    return deferred.promise.then((): void => { this.records[sourceIndex] = record; });
+    return deferred.promise.then((): void => {
+      const at = indexOfId(this.records, key);
+      if (at > -1)this.records[at] = record;
+    });
   }
 }
 // A source that reads on demand.
@@ -210,15 +232,6 @@ class FakeKeyedSource implements IDynamicDataSource {
     this.payloads.push(key);
     const at = this.indexOfKey(key);
     if (at > -1)this.records.splice(at, 1);
-  }
-  public move(key: any, toSourceIndex: number): void {
-    this.ops.push("move:" + key + ">" + toSourceIndex);
-    this.payloads.push([key, toSourceIndex]);
-    const at = this.indexOfKey(key);
-    if (at < 0) return;
-    const record = this.records[at];
-    this.records.splice(at, 1);
-    this.records.splice(toSourceIndex, 0, record);
   }
   private indexOfKey(key: any): number {
     for (let i = 0; i < this.records.length; i++) {
@@ -600,6 +613,19 @@ describe("DynamicDataList: local filter, sort and paging", () => {
     expect(list.filter).toBe("");
     expect(list.visibleCount).toBe(3);
   });
+  test("onError of a filter that cannot be parsed reads the first page together with page index 0", () => {
+    const list = createList(createRecords(6));
+    list.pageSize = 2;
+    list.pageIndex = 2;
+    // The page cache is filled on the first read: without it there is no stale page to see.
+    expect(list.getPageIndexes()).toEqual([4, 5]);
+    const seen: Array<any> = [];
+    list.onError = (): void => { seen.push({ pageIndex: list.pageIndex, page: list.getPageIndexes() }); };
+    list.filter = "{id} >";
+    expect(seen).toEqual([{ pageIndex: 0, page: [0, 1] }]);
+    expect(list.pageIndex).toBe(0);
+    expect(list.getPageIndexes()).toEqual([0, 1]);
+  });
   test("setting the filter twice re-parses it", () => {
     const list = createList(createRecords(4));
     list.filter = "{id} > 2";
@@ -669,7 +695,7 @@ describe("DynamicDataList: a source that pages itself", () => {
     expect(list.getVisibleIndexes()).toEqual([0, 1, 2]);
     expect(list.getPageIndexes()).toEqual([0, 1, 2]);
   });
-  test("the source index of an edit is the window offset plus the record index", () => {
+  test("an edit names its record by key; an insert passes the window offset plus the record index", () => {
     const source = new FakeRangeSource(createRecords(6));
     const list = new DynamicDataList(source);
     list.pageSize = 2;
@@ -681,8 +707,6 @@ describe("DynamicDataList: a source that pages itself", () => {
     expect(source.ops[1]).toBe("insert:3");
     list.remove(0);
     expect(source.ops[2]).toBe("remove:2");
-    list.move(0, 1);
-    expect(source.ops[3]).toBe("move:2>3");
   });
   test("refresh re-reads the current window, load re-reads the requested page", () => {
     const source = new FakeRangeSource(createRecords(6));
@@ -756,8 +780,7 @@ describe("DynamicDataList: write-through and the push chain", () => {
     list.setValue(0, "name", "changed");
     list.add({ id: 9 }, 1);
     list.remove(0);
-    list.move(0, 1);
-    expect(source.ops).toEqual(["update:0:name", "insert:1", "remove:0", "move:0>1"]);
+    expect(source.ops).toEqual(["update:0:name", "insert:1", "remove:0"]);
   });
   test("a read-only source keeps the edit in the window", () => {
     const source = new FakeAsyncSource();
@@ -771,7 +794,7 @@ describe("DynamicDataList: write-through and the push chain", () => {
     });
   });
   test("two writes on one record reach the source in order", async () => {
-    const source = new FakeAsyncWriteSource([{ a: 1 }]);
+    const source = new FakeAsyncWriteSource([{ id: 0, a: 1 }]);
     const list = new DynamicDataList(source);
     list.load();
     list.setValue(0, "a", 2);
@@ -785,10 +808,10 @@ describe("DynamicDataList: write-through and the push chain", () => {
     source.pendingWrites[1].resolve();
     await flush();
     expect(list.hasPendingWrites).toBe(false);
-    expect(source.records[0]).toEqual({ a: 2, b: 3 });
+    expect(source.records[0]).toEqual({ id: 0, a: 2, b: 3 });
   });
   test("a rejected push reports onError, keeps the local value and continues the chain", async () => {
-    const source = new FakeAsyncWriteSource([{ a: 1 }]);
+    const source = new FakeAsyncWriteSource([{ id: 0, a: 1 }]);
     const list = new DynamicDataList(source);
     const errors: Array<string> = [];
     list.onError = (error: any, operation: string): void => { errors.push(operation + ":" + error); };
@@ -805,7 +828,7 @@ describe("DynamicDataList: write-through and the push chain", () => {
     expect(list.hasPendingWrites).toBe(false);
   });
   test("a read is deferred until the pending writes settle and does not overwrite the edit", async () => {
-    const source = new FakeAsyncWriteSource([{ a: 1 }]);
+    const source = new FakeAsyncWriteSource([{ id: 0, a: 1 }]);
     const list = new DynamicDataList(source);
     list.load();
     expect(source.readCalls).toBe(1);
@@ -999,20 +1022,17 @@ describe("DynamicDataList: read-through over an array source", () => {
   const createList = (): { list: DynamicDataList, get: () => Array<any>, writes: Array<Array<any>> } => {
     let stored: Array<any> = [{ a: 1 }, { a: 2 }];
     const writes = new Array<Array<any>>();
-    const source = new ArrayDynamicDataSource(() => stored, (arr: Array<any>): void => {
+    const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource(() => stored, (arr: Array<any>): void => {
       stored = arr;
       writes.push(arr);
-    });
-    const list = new DynamicDataList(source);
-    list.isReadThrough = true;
-    list.load();
+    }));
     return { list: list, get: (): Array<any> => stored, writes: writes };
   };
   test("reads the owner array on demand, without a load", () => {
-    let stored: Array<any> = [{ a: 1 }];
-    const list = new DynamicDataList(new ArrayDynamicDataSource(() => stored, (arr) => { stored = arr; }));
-    list.isReadThrough = true;
-    expect(list.count, "No load() was called").toBe(1);
+    let stored: Array<any> = [];
+    const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource(() => stored, (arr) => { stored = arr; }));
+    stored = [{ a: 1 }];
+    expect(list.count, "No read was made since").toBe(1);
     stored = [{ a: 1 }, { a: 2 }, { a: 3 }];
     expect(list.count, "An assignment made behind the back of the list is seen at once").toBe(3);
     expect(list.getRecord(2).a).toBe(3);
@@ -1069,11 +1089,9 @@ describe("DynamicDataList: read-through over an array source", () => {
   });
   test("read-through is ignored for a source that is not an array source", () => {
     const source: IDynamicDataSource = { read: (): Array<any> => [{ a: 1 }, { a: 2 }] };
-    const list = new DynamicDataList(source);
-    list.isReadThrough = true;
-    expect(list.count, "Nothing is loaded yet").toBe(0);
-    list.load();
-    expect(list.count).toBe(2);
+    const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource(() => [], () => { }));
+    list.source = source;
+    expect(list.count, "the list that was loaded reads the new source").toBe(2);
     list.setValue(0, "a", 11);
     expect(list.getRecord(0).a, "A source without update keeps the change in the window").toBe(11);
   });
@@ -1082,17 +1100,21 @@ describe("DynamicDataList: read-through over an array source", () => {
 // A source that names itself in every write, so that a push can be attributed to the source it was
 // enqueued against.
 class FakeNamedAsyncWriteSource implements IDynamicDataSource {
+  public keyField: string = "id";
   public ops: Array<string> = [];
   public pendingWrites: Array<Deferred> = [];
   constructor(public name: string, public records: Array<any>) { }
   public read(): Array<any> {
     return this.records;
   }
-  public update(sourceIndex: number, record: any): Promise<void> {
-    this.ops.push(this.name + ":" + sourceIndex + ":" + JSON.stringify(record));
+  public update(key: any, record: any): Promise<void> {
+    this.ops.push(this.name + ":" + key + ":" + JSON.stringify(record));
     const deferred = new Deferred();
     this.pendingWrites.push(deferred);
-    return deferred.promise.then((): void => { this.records[sourceIndex] = record; });
+    return deferred.promise.then((): void => {
+      const at = indexOfId(this.records, key);
+      if (at > -1)this.records[at] = record;
+    });
   }
 }
 // A source whose read() never settles until it is switched to a synchronous or a throwing one.
@@ -1111,43 +1133,42 @@ class FakeSwitchableSource implements IDynamicDataSource {
 }
 function createReadThrough(records: Array<any>): { list: DynamicDataList, set: (arr: Array<any>) => void } {
   let stored: Array<any> = records;
-  const source = new ArrayDynamicDataSource(() => stored, (arr: Array<any>): void => { stored = arr; });
-  const list = new DynamicDataList(source);
-  list.isReadThrough = true;
-  list.load();
+  const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource(() => stored, (arr: Array<any>): void => { stored = arr; }));
   return { list: list, set: (arr: Array<any>): void => { stored = arr; } };
 }
 
 describe("DynamicDataList: a replaced source", () => {
   test("a queued write is pushed to the source it was enqueued against", async () => {
-    const oldSource = new FakeNamedAsyncWriteSource("old", [{ a: 1 }]);
-    const newSource = new FakeNamedAsyncWriteSource("new", [{ a: 1 }]);
+    const oldSource = new FakeNamedAsyncWriteSource("old", [{ id: 0, a: 1 }]);
+    const newSource = new FakeNamedAsyncWriteSource("new", [{ id: 0, a: 1 }]);
     const list = new DynamicDataList(oldSource);
     list.load();
     list.setValue(0, "a", 2);
     list.setValue(0, "a", 3);
-    expect(oldSource.ops, "#1: the second push is queued").toEqual(["old:0:{\"a\":2}"]);
+    expect(oldSource.ops, "#1: the second push is queued").toEqual(["old:0:{\"id\":0,\"a\":2}"]);
     list.source = newSource;
     oldSource.pendingWrites[0].resolve();
     await flush();
     expect(oldSource.ops, "#2: both edits belong to the old source")
-      .toEqual(["old:0:{\"a\":2}", "old:0:{\"a\":3}"]);
+      .toEqual(["old:0:{\"id\":0,\"a\":2}", "old:0:{\"id\":0,\"a\":3}"]);
     expect(newSource.ops, "#3: the new source got nothing").toEqual([]);
-    expect(newSource.records, "#4: the new record was not overwritten").toEqual([{ a: 1 }]);
+    expect(newSource.records, "#4: the new record was not overwritten").toEqual([{ id: 0, a: 1 }]);
   });
-  test("the new source is read at once: the detached pushes are not waited for", async () => {
-    const oldSource = new FakeNamedAsyncWriteSource("old", [{ a: 1 }]);
+  test("the new source is read once the pushes of the replaced one settled, and they are not counted", async () => {
+    const oldSource = new FakeNamedAsyncWriteSource("old", [{ id: 0, a: 1 }]);
     const list = new DynamicDataList(oldSource);
     list.load();
     list.setValue(0, "a", 2);
     expect(list.hasPendingWrites, "#1").toBe(true);
     list.source = new FakeNamedAsyncWriteSource("new", createRecords(3));
-    expect(list.count, "#2: the new source was read, the push chain was not waited for").toBe(3);
-    expect(list.hasPendingWrites, "#3: a replaced source is no longer the storage of the list").toBe(false);
+    expect(list.count, "#2: the read waits for the pushes of the replaced source").toBe(0);
+    expect(list.hasPendingRead, "#3").toBe(true);
+    expect(list.hasPendingWrites, "#4: a replaced source is no longer the storage of the list").toBe(false);
     oldSource.pendingWrites[0].resolve();
     await flush();
-    expect(list.count, "#4: the settled push does not touch the list").toBe(3);
-    expect(list.hasPendingWrites, "#5").toBe(false);
+    expect(list.count, "#5: then the new source is read").toBe(3);
+    expect(list.hasPendingRead, "#6").toBe(false);
+    expect(list.hasPendingWrites, "#7").toBe(false);
   });
   test("a new source clears an isLoading left by a read that never settles", () => {
     const list = new DynamicDataList(new FakeSwitchableSource());
@@ -1423,17 +1444,13 @@ describe("DynamicDataList: frozen membership", () => {
   test("invalidateViews reported by the storage the write assigns is ignored", () => {
     let records: Array<any> = [{ a: 1 }, { a: 1 }];
     let writing = false;
-    const list = new DynamicDataList(new ArrayDynamicDataSource(
-      () => records,
+    const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource(() => records,
       (arr: Array<any>) => {
         records = arr;
         // The owner reports every assignment of its storage, this one included.
         writing = list.isWriting;
         list.invalidateViews();
       }));
-    list.isReadThrough = true;
-    list.isViewFrozenOnEdit = true;
-    list.load();
     list.filter = "{a} = 1";
     list.setValue(1, "a", 2);
     expect(writing, "#1: the assignment came from the list itself").toBe(true);
@@ -1488,6 +1505,7 @@ interface ITableCall {
    table removed are kept, so that a test can tell WHICH record went, not only how many. */
 class FakeTableSource implements IDynamicDataSource {
   public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
+  public keyField: string = "id";
   public calls: Array<ITableCall> = [];
   public removedIds: Array<any> = [];
   public auto: boolean = false;
@@ -1503,16 +1521,26 @@ class FakeTableSource implements IDynamicDataSource {
     };
     return this.call("read", [request.skip, request.take], (): IDynamicDataReadResult => snapshot);
   }
-  public update(sourceIndex: number, record: any): Promise<void> {
-    return this.call("update", [sourceIndex], (): void => { this.records[sourceIndex] = this.copy(record); });
+  private nextId: number = 1000;
+  public update(key: any, record: any): Promise<void> {
+    return this.call("update", [key], (): void => {
+      const at = indexOfId(this.records, key);
+      if (at > -1)this.records[at] = this.copy(record);
+    });
   }
-  public insert(record: any, sourceIndex: number): Promise<void> {
-    return this.call("insert", [sourceIndex], (): void => { this.records.splice(sourceIndex, 0, this.copy(record)); });
+  public insert(record: any, sourceIndex: number): Promise<any> {
+    return this.call("insert", [sourceIndex], (): any => {
+      const stored = Object.assign({ id: this.nextId++ }, this.copy(record));
+      this.records.splice(sourceIndex, 0, stored);
+      return this.copy(stored);
+    });
   }
-  public remove(sourceIndex: number): Promise<void> {
-    return this.call("remove", [sourceIndex], (): void => {
-      this.removedIds.push(this.records[sourceIndex].id);
-      this.records.splice(sourceIndex, 1);
+  public remove(key: any): Promise<void> {
+    return this.call("remove", [key], (): void => {
+      const at = indexOfId(this.records, key);
+      if (at < 0) return;
+      this.removedIds.push(this.records[at].id);
+      this.records.splice(at, 1);
     });
   }
   private copy = (record: any): any => Object.assign({}, record);
@@ -1601,7 +1629,7 @@ function watchList(list: DynamicDataList): { changes: Array<string>, resetsWhile
 }
 
 describe("DynamicDataList: a removed record refills the page of a source that pages itself", () => {
-  test("[R] a remove on the first page of three reads the page again", async () => {
+  test("a remove on the first page of three reads the page again", async () => {
     const source = new FakeTableSource(tableRecords(30));
     source.auto = true;
     const list = await createTableList(source);
@@ -1613,7 +1641,7 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
     expect(windowIds(list), "#4: the first record of the old second page moved up").toEqual(idRange(1, 10));
     expect(list.isLoading, "#5").toBe(false);
   });
-  test("[R] removing every record of the first page one by one keeps it full", async () => {
+  test("removing every record of the first page one by one keeps it full", async () => {
     const source = new FakeTableSource(tableRecords(30));
     source.auto = true;
     const list = await createTableList(source);
@@ -1628,7 +1656,7 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
     expect(windowIds(list), "#5").toEqual(idRange(10, 19));
     expect(source.records.length, "#6: the server did its part").toBe(20);
   });
-  test("[R] ten removes without settling end in one committed window", async () => {
+  test("ten removes without settling end in one committed window", async () => {
     const source = new FakeTableSource(tableRecords(30));
     const list = await createTableList(source);
     const watch = watchList(list);
@@ -1645,7 +1673,7 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
     expect(watch.resetsWhilePushPending, "#5: no reset while a push was pending").toBe(0);
     expect(source.removedIds, "#6").toEqual(idRange(0, 9));
   });
-  test("[P] a remove on the last page reads nothing", async () => {
+  test("a remove on the last page reads nothing", async () => {
     const shortSource = new FakeTableSource(tableRecords(25));
     shortSource.auto = true;
     const shortList = await createTableList(shortSource);
@@ -1669,7 +1697,7 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
     expect(fullList.loadedCount, "#4: one shorter").toBe(9);
     expect(fullList.count, "#5").toBe(29);
   });
-  test("[P] removing the only record of the last page reads the previous page once", async () => {
+  test("removing the only record of the last page reads the previous page once", async () => {
     const source = new FakeTableSource(tableRecords(21));
     source.auto = true;
     const list = await createTableList(source);
@@ -1685,7 +1713,7 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
     expect(list.pageIndex, "#4").toBe(1);
     expect(windowIds(list), "#5").toEqual(idRange(10, 19));
   });
-  test("[P] pageSize 0 with a paging source: no refill read", async () => {
+  test("pageSize 0 with a paging source: no refill read", async () => {
     const source = new FakeTableSource(tableRecords(5));
     source.auto = true;
     const list = await createTableList(source, 0);
@@ -1695,7 +1723,7 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
     expect(source.argsOf("read").length, "#2").toBe(1);
     expect(list.loadedCount, "#3").toBe(4);
   });
-  test("[R] a rejected refill read keeps the short window", async () => {
+  test("a rejected refill read keeps the short window", async () => {
     const source = new FakeTableSource(tableRecords(30));
     const list = await createTableList(source);
     const errors: Array<string> = [];
@@ -1711,7 +1739,7 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
     expect(list.isLoading, "#4").toBe(false);
     expect(list.hasPendingRead, "#5").toBe(false);
   });
-  test("[R] a rejected remove: the refill brings the record back", async () => {
+  test("a rejected remove: the refill brings the record back", async () => {
     const source = new FakeTableSource(tableRecords(30));
     const list = await createTableList(source);
     const errors: Array<string> = [];
@@ -1727,7 +1755,7 @@ describe("DynamicDataList: a removed record refills the page of a source that pa
 });
 
 describe("DynamicDataList: a read never commits over a pending write", () => {
-  test("[R] two deferred removes: the refill waits for both", async () => {
+  test("two deferred removes: the refill waits for both", async () => {
     const source = new FakeTableSource(tableRecords(30));
     const list = await createTableList(source);
     const watch = watchList(list);
@@ -1757,7 +1785,7 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     expect(list.count, "#9").toBe(28);
     expect(watch.resetsWhilePushPending, "#10: no reset while a push was pending").toBe(0);
   });
-  test("[R] a remove made after a re-read deletes the record that was asked for", async () => {
+  test("a remove made after a re-read deletes the record that was asked for", async () => {
     const source = new FakeTableSource(tableRecords(30));
     const list = await createTableList(source);
     // refresh() by hand stands in for the refill, as in the probe; with the refill in place the two
@@ -1779,7 +1807,7 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     expect(source.removedIds.slice().sort((a, b) => a - b), "#3: by identity").toEqual([0, 1, 3]);
     expect(windowIds(list), "#4").toEqual([2].concat(idRange(4, 12)));
   });
-  test("[R] an edit enqueued while a read is in flight: the stale answer is not committed", async () => {
+  test("an edit enqueued while a read is in flight: the stale answer is not committed", async () => {
     const editSource = new FakeTableSource(tableRecords(30));
     const editList = await createTableList(editSource);
     const editWatch = watchList(editList);
@@ -1797,7 +1825,7 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     expect(editWatch.resetsWhilePushPending, "#5").toBe(0);
     expect(editList.isLoading, "#6").toBe(false);
   });
-  test("[R] a remove enqueued while a page read is in flight: the stale page is not committed", async () => {
+  test("a remove enqueued while a page read is in flight: the stale page is not committed", async () => {
     const source = new FakeTableSource(tableRecords(30));
     const list = await createTableList(source);
     const watch = watchList(list);
@@ -1814,7 +1842,7 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     expect(list.isLoading, "#5").toBe(false);
     expect(watch.resetsWhilePushPending, "#6").toBe(0);
   });
-  test("[R] hasPendingRead spans the wait for the chain and the read itself", async () => {
+  test("hasPendingRead spans the wait for the chain and the read itself", async () => {
     const source = new FakeTableSource(tableRecords(30));
     const list = new DynamicDataList(new FakeTableSource([]));
     list.pageSize = 10;
@@ -1836,7 +1864,7 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     expect(list.hasPendingRead, "#10: committed").toBe(false);
     expect(list.isLoading, "#11").toBe(false);
   });
-  test("[P] a source change while a refill is queued: the queued read dies with the chain", async () => {
+  test("a source change while a refill is queued: the queued read dies with the chain", async () => {
     const oldSource = new FakeTableSource(tableRecords(30));
     const list = await createTableList(oldSource);
     list.remove(0);
@@ -1844,8 +1872,9 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
     newSource.auto = true;
     list.source = newSource;
     await flush(SETTLE_TURNS);
-    expect(newSource.argsOf("read"), "#1: the new source is read once").toEqual([[0, 10]]);
+    expect(newSource.argsOf("read"), "#1: the new source waits for the remove of the old one").toEqual([]);
     await settleEverything(oldSource);
+    expect(newSource.argsOf("read"), "#1a: then it is read once").toEqual([[0, 10]]);
     expect(oldSource.argsOf("read").length, "#2: the old source is not read again").toBe(1);
     expect(newSource.argsOf("read").length, "#3: nor the new one").toBe(1);
     expect(windowIds(list), "#4").toEqual(idRange(0, 4));
@@ -1854,49 +1883,53 @@ describe("DynamicDataList: a read never commits over a pending write", () => {
   });
 });
 
-describe("DynamicDataList: the read-through count comes from the read-through callback", () => {
-  // Built the way the questions build one, over a getter that counts its calls.
-  function createCountingList(recordCount: number, withCount: boolean = true): { list: DynamicDataList, source: ArrayDynamicDataSource, reads: () => number } {
+describe("DynamicDataList: a read-through count does not compose the records", () => {
+  // Built the way the questions build one, over a source that pads the stored records up to minCount and counts the padded compositions.
+  function createCountingList(storedCount: number, minCount: number = 0): { list: DynamicDataList, source: ArrayDynamicDataSource, compositions: () => number } {
     let local: Array<any> = [];
-    for (let i = 0; i < recordCount; i++) local.push({ a: i });
-    let readCount = 0;
-    const list = DynamicDataList.createReadThrough(undefined, (): Array<any> => { readCount++; return local; },
+    for (let i = 0; i < storedCount; i++) local.push({ a: i });
+    let compositionCount = 0;
+    const createSource = (): ArrayDynamicDataSource => new ArrayDynamicDataSource((): Array<any> => local,
       (arr: Array<any>): void => { local = arr; },
-      withCount ? (): number => local.length : undefined);
-    return { list: list, source: <ArrayDynamicDataSource>list.source, reads: (): number => readCount };
+      { getMinCount: (): number => minCount, getDefaultRecord: (): any => { compositionCount++; return { a: -1 }; } });
+    const list = DynamicDataList.createReadThrough(undefined, createSource);
+    return { list: list, source: <ArrayDynamicDataSource>list.source, compositions: (): number => compositionCount };
   }
-  test("count, loadedCount, the identity conversions and visibleCount do not read the records", () => {
-    const { list, reads } = createCountingList(10);
+  test("count, loadedCount, the identity conversions and visibleCount compose nothing", () => {
+    const { list, compositions } = createCountingList(3, 10);
     list.getVisibleIndexes();
-    const start = reads();
+    const start = compositions();
     expect(list.count, "#1").toBe(10);
     expect(list.loadedCount, "#2").toBe(10);
     expect(list.createdIndexToIndex(3), "#3").toBe(3);
     expect(list.indexToCreatedIndex(3), "#4").toBe(3);
     expect(list.visibleCount, "#5").toBe(10);
-    expect(reads() - start, "#6: no read").toBe(0);
+    expect(compositions() - start, "#6: no composition").toBe(0);
   });
-  test("getRecord and getValue read the records once, an out-of-range index not at all", () => {
-    const { list, reads } = createCountingList(10);
+  test("getRecord and getValue compose the records once, an out-of-range index not at all", () => {
+    const { list, compositions } = createCountingList(3, 10);
     list.getVisibleIndexes();
-    let start = reads();
-    expect(list.getRecord(5), "#1").toEqual({ a: 5 });
-    expect(reads() - start, "#2: one read").toBe(1);
-    start = reads();
+    let start = compositions();
+    expect(list.getRecord(5), "#1").toEqual({ a: -1 });
+    expect(compositions() - start, "#2: one composition").toBe(1);
+    start = compositions();
     expect(list.getRecord(10), "#3").toBeUndefined();
-    expect(reads() - start, "#4: the guard reads nothing").toBe(0);
-    start = reads();
-    expect(list.getValue(5, "a"), "#5").toBe(5);
-    expect(reads() - start, "#6: one read").toBe(1);
+    expect(compositions() - start, "#4: the guard composes nothing").toBe(0);
+    start = compositions();
+    expect(list.getValue(5, "a"), "#5").toBe(-1);
+    expect(compositions() - start, "#6: one composition").toBe(1);
   });
-  test("a read-through list without a count callback falls back to the length of the records", () => {
-    const { list, reads } = createCountingList(3, false);
-    let start = reads();
-    expect(list.count, "#1").toBe(3);
-    expect(reads() - start, "#2: one read per access").toBe(1);
-    start = reads();
-    expect(list.count, "#3").toBe(3);
-    expect(reads() - start, "#4").toBe(1);
+  test("the count is the longer of the stored records and the minimum, and inside a batch the length of the array being built", () => {
+    expect(createCountingList(12, 10).list.count, "#1: more stored records than the minimum").toBe(12);
+    const { list } = createCountingList(3, 10);
+    expect(list.count, "#2: fewer stored records than the minimum").toBe(10);
+    const counts: Array<number> = [];
+    list.batch((): void => {
+      list.remove(0);
+      counts.push(list.count);
+    });
+    expect(counts, "#3: the padded array less the removed record").toEqual([9]);
+    expect(list.count, "#4: the nine stored records read padded again").toBe(10);
   });
   test("inside a batch the count follows the array being built", () => {
     const { list } = createCountingList(2);
@@ -1946,7 +1979,7 @@ describe("DynamicDataList: one request per read", () => {
     const { list, source } = createViewList(30, 10);
     list.pageIndex = 2;
     source.requests = [];
-    const sort: Array<IDynamicDataSort> = [{ field: "id", direction: "desc" }];
+    const sort: Array<ISortCriterion> = [{ field: "id", direction: "desc" }];
     list.sort = sort;
     expect(source.requests.length, "#1").toBe(1);
     expect(source.requests[0], "#2").toEqual({ skip: 20, take: 10, filter: "", sort: sort });
@@ -1956,7 +1989,7 @@ describe("DynamicDataList: one request per read", () => {
     const { list, source } = createViewList(30, 10);
     list.pageIndex = 2;
     source.requests = [];
-    const sort: Array<IDynamicDataSort> = [{ field: "id", direction: "desc" }];
+    const sort: Array<ISortCriterion> = [{ field: "id", direction: "desc" }];
     list.setView("{id} > 1", sort);
     expect(source.requests.length, "#1: one request for both").toBe(1);
     expect(source.requests[0], "#2").toEqual({ skip: 0, take: 10, filter: "{id} > 1", sort: sort });
@@ -1984,6 +2017,7 @@ describe("DynamicDataList: one request per read", () => {
    overrides the flag the list would otherwise infer from the length of the window. */
 class NoTotalSource implements IDynamicDataSource {
   public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
+  public keyField: string = "id";
   public requests: Array<IDynamicDataReadRequest> = [];
   public hasMoreAnswer: boolean = undefined;
   public failOnFilter: boolean = false;
@@ -2004,9 +2038,10 @@ class NoTotalSource implements IDynamicDataSource {
     if (this.delay < 0) return res;
     return new Promise((resolve: (value: any) => void): void => { setTimeout(() => resolve(res), this.delay); });
   }
-  public remove(sourceIndex: number): void {
-    this.ops.push("remove:" + sourceIndex);
-    this.records.splice(sourceIndex, 1);
+  public remove(key: any): void {
+    this.ops.push("remove:" + key);
+    const at = indexOfId(this.records, key);
+    if (at > -1)this.records.splice(at, 1);
   }
   public get skips(): Array<number> {
     return this.requests.map((request: IDynamicDataReadRequest): number => request.skip);
@@ -2200,43 +2235,37 @@ describe("DynamicDataList: the operation of a failed read", () => {
     list.filter = "{id} > 1";
     expect(operations, "#1").toEqual(["read"]);
   });
-  /* The request is built inside the read's error handling: a sort array whose copy throws (a proxy,
-     an accessor) is a failed read, and the read it superseded leaves no loading state behind. A
-     source without paging is sent an empty view, so the sort is never copied for it at all. */
-  function createThrowingSort(): { sort: Array<any>, arm: () => void } {
-    let isArmed = false;
-    const sort = new Proxy([{ field: "id", direction: "asc" }], {
-      get: (target: any, prop: any): any => {
-        if (isArmed && prop === "slice") throw new Error("the sort cannot be copied");
-        return target[prop];
-      }
-    });
-    return { sort: sort, arm: (): void => { isArmed = true; } };
-  }
+  /* The request is built inside the read's error handling: a request that cannot be built is a failed
+     read, and the read it superseded leaves no loading state behind. A source that pages and filters
+     but cannot sort is read whole for a sort, and the list cannot run an unparsable filter over it. A
+     source without paging is sent an empty view. */
   test("a request that cannot be built is a failed read", () => {
     const source = new FakeAsyncRangeSource(createRecords(4));
+    source.capabilities = { paging: true, filtering: true };
     const list = new DynamicDataList(source);
     const operations: Array<string> = [];
     list.onError = (error: any, operation: string): void => { operations.push(operation); };
-    const { sort, arm } = createThrowingSort();
-    list.sort = sort;
+    list.filter = "{id} >";
     expect(list.isLoading, "#1: the read of the view is in flight").toBe(true);
-    arm();
-    expect(() => list.refresh(), "#2").not.toThrow();
+    expect(() => { list.sort = [{ field: "id", direction: "asc" }]; }, "#2").not.toThrow();
     expect(operations, "#3").toEqual(["read"]);
     expect(list.isLoading, "#4: the superseded read left no loading state").toBe(false);
     expect(list.hasPendingRead, "#5").toBe(false);
   });
   test("a source without paging is not sent the sort", () => {
-    const list = createList(createRecords(4));
+    const source = ArrayDynamicDataSource.fromArray(createRecords(4));
+    const requests: Array<any> = [];
+    const read = source.read.bind(source);
+    source.read = (request?: any): Array<any> => { requests.push(request); return read(); };
+    const list = new DynamicDataList(source);
     const operations: Array<string> = [];
     list.onError = (error: any, operation: string): void => { operations.push(operation); };
-    const { sort, arm } = createThrowingSort();
-    list.sort = sort;
-    arm();
+    list.sort = [{ field: "id", direction: "desc" }];
     expect(() => list.load(), "#1").not.toThrow();
     expect(operations, "#2").toEqual([]);
     expect(list.loadedCount, "#3").toBe(4);
+    expect(requests.length > 0, "#4: the source was read").toBe(true);
+    expect(requests.filter(request => !!request && request.sort.length > 0), "#5: never with the sort").toEqual([]);
   });
   test("a filter the list cannot run locally is a failed read too", () => {
     const list = createList(createRecords(4));
@@ -2528,6 +2557,7 @@ describe("DynamicDataList: a retry that fails changes nothing", () => {
 describe("DynamicDataList: the pending retry", () => {
   class HeldRangeSource implements IDynamicDataSource {
     public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
+    public keyField: string = "id";
     public skips: Array<number> = [];
     public held: Array<() => void> = [];
     constructor(public records: Array<any>) { }
@@ -2539,8 +2569,9 @@ describe("DynamicDataList: the pending retry", () => {
         ({ records: this.records.slice(request.skip, request.skip + request.take), total: this.records.length }));
     }
     public insert(record: any, sourceIndex: number): any {
-      this.records.splice(sourceIndex, 0, record);
-      return record;
+      const stored = Object.assign({ id: 1000 + this.records.length }, record);
+      this.records.splice(sourceIndex, 0, stored);
+      return Object.assign({}, stored);
     }
     public async answerNext(): Promise<void> {
       this.held.shift()();
@@ -2692,6 +2723,7 @@ describe("a throwing callback does not leave a guard behind", () => {
   test("add: onError throws for a push the source rejected synchronously", () => {
     // Not an array source: that one re-reads its storage after a synchronous push.
     const source: IDynamicDataSource = {
+      keyField: "id",
       read: (): Array<any> => createRecords(1),
       insert: (): any => { throw new Error("rejected"); }
     };
@@ -2753,10 +2785,124 @@ describe("DynamicDataList: the owner's globalVisibleIndex", () => {
   });
 });
 
+/* An insertion names the record it goes in front of, as a record index of the loaded window, or
+   loadedCount for the end. A position of the whole view counts the visible records; a position
+   among the objects counts the materialized records (the page under paging). */
+describe("DynamicDataList: insert positions and record lookup over a view", () => {
+  // Records 0..7, record 3 filtered out, sorted descending, record 5 hidden by the owner:
+  // the visible records are 7, 6, 4, 2, 1, 0.
+  const createViewList = (): DynamicDataList => {
+    const list = createList(createRecords(8));
+    list.filter = "{id} <> 3";
+    list.sort = [{ field: "id", direction: "desc" }];
+    list.setRecordVisible(5, false);
+    return list;
+  };
+  test("a position of the whole view: the record at it, the end past the last visible record", () => {
+    const list = createViewList();
+    expect(list.getVisibleIndexes(), "#0").toEqual([7, 6, 4, 2, 1, 0]);
+    expect(list.getInsertIndexAtVisibleIndex(0), "#1: the first").toBe(7);
+    expect(list.getInsertIndexAtVisibleIndex(2), "#2: past the hidden record").toBe(4);
+    expect(list.getInsertIndexAtVisibleIndex(5), "#3: the last").toBe(0);
+    expect(list.getInsertIndexAtVisibleIndex(6), "#4: right after the last").toBe(8);
+    expect(list.getInsertIndexAtVisibleIndex(20), "#5: far past the last").toBe(8);
+    expect(list.getInsertIndexAtVisibleIndex(-1), "#6: a negative position appends").toBe(8);
+  });
+  test("an empty view appends", () => {
+    const list = createList(createRecords(3));
+    list.filter = "{id} > 10";
+    expect(list.getVisibleIndexes(), "#0").toEqual([]);
+    expect(list.getInsertIndexAtVisibleIndex(0), "#1").toBe(3);
+    expect(list.getInsertIndexAtVisibleIndex(2), "#2").toBe(3);
+    expect(list.getInsertIndexAtMaterializedPosition(0), "#3").toBe(3);
+  });
+  test("in-memory paging: a position of the whole view does not depend on the page", () => {
+    const list = createViewList();
+    list.pageSize = 2;
+    list.pageIndex = 1;
+    expect(list.getPageIndexes(), "#0").toEqual([4, 2]);
+    expect(list.getInsertIndexAtVisibleIndex(1), "#1: the last record of page 0").toBe(6);
+    expect(list.getInsertIndexAtVisibleIndex(2), "#2: the first record of page 1").toBe(4);
+    expect(list.getInsertIndexAtVisibleIndex(4), "#3: the first record of page 2").toBe(1);
+    expect(list.getInsertIndexAtVisibleIndex(6), "#4: the end").toBe(8);
+  });
+  test("a position among the objects: the record at it, the end at or past the last one", () => {
+    const list = createViewList();
+    list.pageSize = 2;
+    list.pageIndex = 1;
+    expect(list.getInsertIndexAtMaterializedPosition(0), "#1").toBe(4);
+    expect(list.getInsertIndexAtMaterializedPosition(1), "#2").toBe(2);
+    expect(list.getInsertIndexAtMaterializedPosition(2), "#3: at the end of the page").toBe(8);
+    expect(list.getInsertIndexAtMaterializedPosition(5), "#4: past it").toBe(8);
+    expect(list.getInsertIndexAtMaterializedPosition(-1), "#5: before the first is the first").toBe(4);
+    list.pageSize = 0;
+    expect(list.getInsertIndexAtMaterializedPosition(1), "#6: without paging the objects are the created records").toBe(6);
+    expect(list.getInsertIndexAtMaterializedPosition(2), "#7: a hidden record has an object").toBe(5);
+    expect(list.getInsertIndexAtMaterializedPosition(7), "#8").toBe(8);
+  });
+  test("a source that pages itself: inside the window, at its end, outside it and past the whole view", () => {
+    const list = new DynamicDataList(new FakeRangeSource(createRecords(10)));
+    list.pageSize = 3;
+    list.load();
+    list.pageIndex = 1;
+    list.setRecordVisible(1, false);
+    expect(list.windowOffset, "#0").toBe(3);
+    expect(list.getVisibleIndexes(), "#0a: the window holds ids 3, 4, 5; id 4 is hidden").toEqual([0, 2]);
+    expect(list.getInsertIndexAtVisibleIndex(2), "#1: before the window").toBe(-1);
+    expect(list.getInsertIndexAtVisibleIndex(3), "#2: the first visible record of the window").toBe(0);
+    expect(list.getInsertIndexAtVisibleIndex(4), "#3: past the hidden record").toBe(2);
+    expect(list.getInsertIndexAtVisibleIndex(5), "#4: the end of the window").toBe(3);
+    expect(list.getInsertIndexAtVisibleIndex(6), "#5: past the window, inside the whole view").toBe(-1);
+    expect(list.getInsertIndexAtVisibleIndex(10), "#6: past the whole view appends to the window").toBe(3);
+    expect(list.getInsertIndexAtVisibleIndex(-1), "#7").toBe(3);
+    expect(list.getInsertIndexAtMaterializedPosition(1), "#8: the objects are the visible records of the window").toBe(2);
+    expect(list.getInsertIndexAtMaterializedPosition(2), "#9").toBe(3);
+  });
+  test("the visible records of the whole view, and whether there are records beyond the known ones", () => {
+    const list = createViewList();
+    expect(list.globalVisibleCount, "#1: the visible records the list holds").toBe(6);
+    expect(list.hasRecordBeyondKnown, "#2: a local list knows its count").toBe(false);
+    const paged = new DynamicDataList(new FakeRangeSource(createRecords(10)));
+    paged.pageSize = 3;
+    paged.load();
+    paged.setRecordVisible(1, false);
+    expect(paged.visibleCount, "#3: the window").toBe(2);
+    expect(paged.globalVisibleCount, "#4: a source that pages itself: its total").toBe(10);
+    expect(paged.hasRecordBeyondKnown, "#5: the total is known").toBe(false);
+    const source = new FakeRangeSource(createRecords(10));
+    source.read = (request: IDynamicDataReadRequest): IDynamicDataReadResult =>
+      ({ records: source.records.slice(request.skip, request.skip + request.take) });
+    const unknown = new DynamicDataList(source);
+    unknown.pageSize = 3;
+    unknown.load();
+    expect(unknown.globalVisibleCount, "#6: the records known so far").toBe(3);
+    expect(unknown.hasRecordBeyondKnown, "#7: a full window without a total").toBe(true);
+    for (let i = 1; i <= 3; i++) unknown.pageIndex = i;
+    expect(unknown.globalVisibleCount, "#8: the end was read").toBe(10);
+    expect(unknown.hasRecordBeyondKnown, "#9").toBe(false);
+  });
+  test("indexOfRecord: a record of the window, one a write replaced, one outside the window", () => {
+    const list = createList(createRecords(4));
+    const record = list.getRecord(2);
+    expect(list.indexOfRecord(record), "#1").toBe(2);
+    list.setValue(2, "name", "changed");
+    expect(list.indexOfRecord(record), "#2: the write made a copy").toBe(-1);
+    expect(list.indexOfRecord(list.getRecord(2)), "#3: the copy is found").toBe(2);
+    expect(list.indexOfRecord({ id: 2, name: "changed" }), "#4: an equal object is not the record").toBe(-1);
+    const paged = new DynamicDataList(new FakeRangeSource(createRecords(10)));
+    paged.pageSize = 3;
+    paged.load();
+    const first = paged.getRecord(0);
+    paged.pageIndex = 1;
+    expect(paged.indexOfRecord(first), "#5: a record of another window").toBe(-1);
+    expect(paged.indexOfRecord(paged.getRecord(1)), "#6").toBe(1);
+  });
+});
+
 describe("DynamicDataList: the assigned source", () => {
   function createOwnerList(): { list: DynamicDataList, setArray: (arr: Array<any>) => void } {
     let arr: Array<any> = createRecords(3);
-    const list = DynamicDataList.createReadThrough(undefined, (): Array<any> => arr, (a: Array<any>): void => { arr = a; });
+    const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a; }));
     return { list: list, setArray: (a: Array<any>): void => { arr = a; } };
   }
   test("createReadThrough: the default source reads through the owner's storage and nothing is assigned", () => {
@@ -2880,16 +3026,13 @@ describe("DynamicDataList: the assigned source", () => {
     list.remove(0);
     expect(names(assigned.get()), "#5 remove").toEqual(["edited", "r2", "added"]);
     expect(names(list.getLoadedRecords()), "#6").toEqual(["edited", "r2", "added"]);
-    list.move(0, 2);
-    expect(names(assigned.get()), "#7 move").toEqual(["r2", "added", "edited"]);
-    expect(names(list.getLoadedRecords()), "#8").toEqual(["r2", "added", "edited"]);
     list.batch((): void => {
       list.add({ name: "b1" });
       list.setValue(0, "name", "b0");
     });
-    expect(names(assigned.get()), "#9 batch").toEqual(["b0", "added", "edited", "b1"]);
-    expect(names(list.getLoadedRecords()), "#10").toEqual(["b0", "added", "edited", "b1"]);
-    expect(list.count, "#11").toBe(4);
+    expect(names(assigned.get()), "#7 batch").toEqual(["b0", "r2", "added", "b1"]);
+    expect(names(list.getLoadedRecords()), "#8").toEqual(["b0", "r2", "added", "b1"]);
+    expect(list.count, "#9").toBe(4);
   });
   test("a detach from an assigned ArrayDynamicDataSource reads through the owner's storage again", () => {
     const { list, setArray } = createOwnerList();
@@ -2902,9 +3045,7 @@ describe("DynamicDataList: the assigned source", () => {
   });
   test("a standalone list that reads through keeps doing so; one that was assigned a source does not", () => {
     const own = createAssignedArray(2);
-    const list = new DynamicDataList(own.source);
-    list.isReadThrough = true;
-    list.load();
+    const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource(own.get, own.set));
     own.set(createRecords(4));
     expect(list.loadedCount, "#1: the source it was constructed with is its own").toBe(4);
     const assigned = createAssignedArray(3);
@@ -3147,7 +3288,7 @@ describe("DynamicDataList: the assigned source", () => {
     expect(list.getLoadedRecords().map((r: any): any => r.name), "#2: the list's own earlier write stays, the outside change is not taken").toEqual(["r0", "r1", "kept"]);
     expect(assigned.get().map((r: any): any => r.name), "#3").toEqual(["outside0", "outside1", "kept"]);
   });
-  test("a setter that throws after it stored the array: the window takes what was stored", () => {
+  test("an assigned source whose setter throws after it stored a batch of updates: reported once, the window keeps the writes", () => {
     let arr: Array<any> = createRecords(3);
     const source = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => {
       arr = a;
@@ -3155,11 +3296,15 @@ describe("DynamicDataList: the assigned source", () => {
     });
     const { list } = createOwnerList();
     list.assignSource(source);
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation + ":" + error.message); };
     expect((): void => {
-      list.batch((): void => { list.setValue(0, "name", "edited"); });
-    }, "#1").toThrow("after the assignment");
-    expect(arr[0].name, "#2: stored").toBe("edited");
-    expect(list.getRecord(0).name, "#3: the list has it").toBe("edited");
+      list.batch((): void => { list.setValue(0, "name", "edited"); list.setValue(1, "name", "edited1"); });
+    }, "#1: not thrown").not.toThrow();
+    expect(errors, "#2: reported once, under the first operation").toEqual(["update:after the assignment"]);
+    expect(arr[0].name, "#3: stored").toBe("edited");
+    expect(list.getRecord(0).name, "#4: the list has it").toBe("edited");
+    expect(list.getRecord(1).name, "#5").toBe("edited1");
   });
   test("an inner batch that throws inside an outer one that goes on: nothing is restored, the outer batch stores every write", () => {
     const { list } = createOwnerList();
@@ -3236,6 +3381,15 @@ describe("DynamicDataList: the page of a visible position", () => {
 });
 
 describe("DynamicDataList: a list whose membership is fixed", () => {
+  // A local source over an array whose membership is its owner's: it has no insert, remove or move.
+  class FixedArraySource extends LocalDynamicDataSource {
+    protected getStoredCount(): number {
+      return this.readStored().length;
+    }
+    protected readStoredAt(index: number): any {
+      return this.readStored()[index];
+    }
+  }
   const createFixedList = (view: "none" | "sort" | "filter"): { list: DynamicDataList, changes: Array<string>, writes: () => number } => {
     let stored: Array<any> = createRecords(7);
     let writes = 0;
@@ -3244,8 +3398,8 @@ describe("DynamicDataList: a list whose membership is fixed", () => {
       getFields: (): Array<IDynamicDataField> => [{ name: "id", dataType: "number" }],
       onDataListChanged: (change: IDynamicDataListChange): void => { changes.push(changeToString(change)); }
     };
-    const list = DynamicDataList.createReadThrough(owner, (): Array<any> => stored,
-      (arr: Array<any>): void => { writes++; stored = arr; }, undefined, true);
+    const list = DynamicDataList.createReadThrough(owner, () => new FixedArraySource((): Array<any> => stored,
+      (arr: Array<any>): void => { writes++; stored = arr; }));
     list.pageSize = 2;
     list.setRecordVisible(3, false);
     if (view === "sort") list.sort = [{ field: "id", direction: "desc" }];
@@ -3278,12 +3432,11 @@ describe("DynamicDataList: a list whose membership is fixed", () => {
       expect(writes(), "#4: nothing is written").toBe(0);
     });
   });
-  test("its default source is no back door, and an update still goes through", () => {
+  test("its default source has no insert, remove or move, and an update still goes through", () => {
     const { list, changes, writes } = createFixedList("none");
     const before = getState(list);
-    list.source.insert({ id: 100 }, 0);
-    list.source.remove(0);
-    list.source.move(0, 2);
+    expect(list.isMembershipFixed, "#1: it follows from the source").toBe(true);
+    expect(["insert", "remove", "move"].filter((name: string): boolean => name in list.source), "#1: no membership method").toEqual([]);
     expect(getState(list), "#1: unchanged").toBe(before);
     expect(writes(), "#1: nothing is written").toBe(0);
     expect(list.setValue(2, "name", "x"), "#2: an update is written").toBe(true);
@@ -3393,28 +3546,28 @@ describe("DynamicDataList: the read request and the read capabilities", () => {
     expect(requests, "#1").toEqual([{ skip: 0, take: 2, filter: "", sort: [] }, { skip: 2, take: 2, filter: "", sort: [] }]);
     expect(errors, "#2").toEqual([]);
   });
-  test("a sort a paging source has not declared is refused: no request, the window and its page stay", () => {
+  test("a sort a paging source cannot run is run locally over the whole storage, which the source is read for", () => {
     const { source, requests } = createCapabilitySource(5, { paging: true, filtering: true });
     const list = new DynamicDataList(source);
     const errors = collectErrors(list);
     list.pageSize = 2;
     list.load();
     list.pageIndex = 1;
-    const changes = recordChanges(list);
     requests.length = 0;
     list.sort = [{ field: "id", direction: "desc" }];
-    expect(requests, "#1: nothing was sent").toEqual([]);
-    expect(errors.map(e => e.operation), "#2").toEqual(["read"]);
-    expect(errors[0].message.indexOf("\"sorting\"") > -1, "#3: the message names the capability: " + errors[0].message).toBe(true);
-    expect(list.pageIndex, "#4").toBe(1);
-    expect(list.windowOffset, "#5").toBe(2);
-    expect(list.getRecord(0).id, "#6: the window in force").toBe(2);
-    expect(list.getVisibleIndexes(), "#7: not sorted locally").toEqual([0, 1]);
-    expect(list.isLoading, "#8").toBe(false);
-    expect(changes, "#9: nothing announced").toEqual([]);
+    expect(requests, "#1: one read of the whole storage").toEqual([{ skip: 0, take: 0, filter: "", sort: [] }]);
+    expect(errors, "#2").toEqual([]);
+    expect(list.isPagedBySource, "#3: the window is the whole storage").toBe(false);
+    expect(list.loadedCount, "#4").toBe(5);
+    expect(list.windowOffset, "#5").toBe(0);
+    expect(list.pageIndex, "#6: a sort keeps the page").toBe(1);
+    expect(list.getPageIndexes().map(i => list.getRecord(i).id), "#7: sorted and paged by the list").toEqual([2, 1]);
+    expect(list.pageCount, "#8").toBe(3);
     list.sort = [];
-    expect(requests, "#10: removing the sort reads again").toEqual([{ skip: 2, take: 2, filter: "", sort: [] }]);
-    expect(errors.length, "#11").toBe(1);
+    expect(requests.slice(1), "#9: without the sort the source pages again, on the same page").toEqual([{ skip: 2, take: 2, filter: "", sort: [] }]);
+    expect(list.isPagedBySource, "#10").toBe(true);
+    expect(list.getPageIndexes().map(i => list.getRecord(i).id), "#11").toEqual([2, 3]);
+    expect(errors, "#12").toEqual([]);
   });
   test("a filter a paging source cannot run is run locally over the whole storage, which the source is read for", () => {
     const { source, requests } = createCapabilitySource(5, { paging: true, sorting: true });
@@ -3441,7 +3594,7 @@ describe("DynamicDataList: the read request and the read capabilities", () => {
     expect(list.loadedCount, "#13").toBe(2);
     expect(errors, "#14").toEqual([]);
   });
-  test("a page change under a view the paging source has not declared is refused too", () => {
+  test("under a sort the paging source cannot run, a refresh reads the whole storage again and a page change is local", () => {
     const { source, requests } = createCapabilitySource(5, { paging: true });
     const list = new DynamicDataList(source);
     const errors = collectErrors(list);
@@ -3451,9 +3604,9 @@ describe("DynamicDataList: the read request and the read capabilities", () => {
     requests.length = 0;
     list.refresh();
     list.pageIndex = 1;
-    expect(requests, "#1").toEqual([]);
-    expect(errors.map(e => e.operation), "#2: one error per read").toEqual(["read", "read", "read"]);
-    expect(list.getRecord(0).id, "#3: the window in force").toBe(0);
+    expect(requests, "#1").toEqual([{ skip: 0, take: 0, filter: "", sort: [] }]);
+    expect(errors, "#2").toEqual([]);
+    expect(list.getPageIndexes().map(i => list.getRecord(i).id), "#3: paged by the list").toEqual([2, 3]);
   });
   test("a paging source that sorts but does not filter is sent the sort and an empty filter", () => {
     const { source, requests } = createCapabilitySource(5, { paging: true, sorting: true });
@@ -3471,43 +3624,43 @@ describe("DynamicDataList: the read request and the read capabilities", () => {
     list.load();
     source.capabilities = { paging: true, sorting: true };
     list.sort = [{ field: "id", direction: "desc" }];
-    expect(requests.length, "#1: the change is not seen").toBe(1);
-    expect(errors.length, "#2: the sort is refused").toBe(1);
+    expect(requests[1], "#1: the change is not seen, the source is read whole").toEqual({ skip: 0, take: 0, filter: "", sort: [] });
     source.capabilities = {};
     list.sort = [];
-    expect(requests.length, "#3: still a paging source").toBe(2);
-    expect(requests[1].take, "#4").toBe(2);
+    expect(requests.length, "#2: still a paging source").toBe(3);
+    expect(requests[2].take, "#3").toBe(2);
     list.source = ArrayDynamicDataSource.fromArray([]);
     source.capabilities = { paging: true, sorting: true };
     list.source = source;
     list.sort = [{ field: "id", direction: "desc" }];
-    expect(requests[requests.length - 1].sort, "#5: assigned again, the new capabilities count").toEqual([{ field: "id", direction: "desc" }]);
-    expect(errors.length, "#6").toBe(1);
+    expect(requests[requests.length - 1], "#4: assigned again, the new capabilities count")
+      .toEqual({ skip: 0, take: 2, filter: "", sort: [{ field: "id", direction: "desc" }] });
+    expect(errors, "#5").toEqual([]);
   });
-  test("a source assigned while a view it has not declared is set: no request, no records, then a capable source recovers", () => {
+  test("a paging source assigned while a sort it cannot run is set is read whole; a source that sorts gets the sort", () => {
     const list = new DynamicDataList(ArrayDynamicDataSource.fromArray(createRecords(3)));
     const errors = collectErrors(list);
     list.load();
     list.sort = [{ field: "id", direction: "desc" }];
-    const refused = createCapabilitySource(5, { paging: true });
+    const pagingOnly = createCapabilitySource(5, { paging: true });
     list.pageSize = 2;
-    list.source = refused.source;
-    expect(refused.requests, "#1").toEqual([]);
-    expect(list.loadedCount, "#2: the window of the old source is gone").toBe(0);
-    expect(errors.map(e => e.operation), "#3").toEqual(["read"]);
-    const capable = createCapabilitySource(5, { paging: true, sorting: true });
-    list.source = capable.source;
-    expect(capable.requests, "#4: the list was asked to fill itself, so the new source is read")
+    list.source = pagingOnly.source;
+    expect(pagingOnly.requests, "#1").toEqual([{ skip: 0, take: 0, filter: "", sort: [] }]);
+    expect(list.loadedCount, "#2").toBe(5);
+    expect(list.getPageIndexes().map(i => list.getRecord(i).id), "#3: sorted here").toEqual([4, 3]);
+    const sorting = createCapabilitySource(5, { paging: true, sorting: true });
+    list.source = sorting.source;
+    expect(sorting.requests, "#4: the list was asked to fill itself, so the new source is read")
       .toEqual([{ skip: 0, take: 2, filter: "", sort: [{ field: "id", direction: "desc" }] }]);
     expect(list.loadedCount, "#5").toBe(2);
-    expect(errors.length, "#6").toBe(1);
+    expect(errors, "#6").toEqual([]);
   });
 });
-/* A paging source that cannot filter is read whole while a filter is set: the list filters, sorts and
-   pages that answer itself, and the source pages again once the filter is cleared. The window keeps
-   the mode it was read in until the next read commits, so a read that is pending or failed never
-   has a page taken for the whole storage, or the whole storage for a page. */
-describe("DynamicDataList: a paging source that cannot filter is read whole while a filter is set", () => {
+/* A paging source is read whole while the list has a filter or a sort it cannot run: the list
+   filters, sorts and pages that answer itself, and the source pages again once no such part is set.
+   The window keeps the mode it was read in until the next read commits, so a read that is pending or
+   failed never has a page taken for the whole storage, or the whole storage for a page. */
+describe("DynamicDataList: a paging source is read whole while a filter or a sort it cannot run is set", () => {
   interface IHeldRead { request: IDynamicDataReadRequest, answer: Deferred }
   // Answers the range it is asked for and ignores the view. held: every read answers with a promise
   // the test settles. total: false -> the answer of a page carries hasMore instead of a total.
@@ -3529,6 +3682,7 @@ describe("DynamicDataList: a paging source that cannot filter is read whole whil
     };
     const source: IDynamicDataSource = {
       capabilities: capabilities,
+      keyField: "id",
       read: (request: IDynamicDataReadRequest): any => {
         requests.push(request);
         if (!options.held) return answer(request);
@@ -3685,7 +3839,7 @@ describe("DynamicDataList: a paging source that cannot filter is read whole whil
     expect(other.isPagedBySource, "#5: the whole storage answered after the page is discarded").toBe(true);
     expect(other.loadedCount, "#6").toBe(2);
   });
-  test("a write in the whole storage addresses the unfiltered source index and overtakes a whole-storage read", async () => {
+  test("a write in the whole storage addresses its record by key and overtakes a whole-storage read", async () => {
     const sync = createSource(5, { paging: true });
     const list = new DynamicDataList(sync.source);
     list.pageSize = 2;
@@ -3693,7 +3847,7 @@ describe("DynamicDataList: a paging source that cannot filter is read whole whil
     list.filter = "{id} > 2";
     expect(list.getPageIndexes(), "#1").toEqual([3, 4]);
     list.remove(3);
-    expect(sync.removed, "#2: the position in the whole source").toEqual([3]);
+    expect(sync.removed, "#2: the record at position 3 of the whole source").toEqual([3]);
     const held = createSource(5, { paging: true }, { held: true });
     const other = new DynamicDataList(held.source);
     other.pageSize = 2;
@@ -3710,7 +3864,7 @@ describe("DynamicDataList: a paging source that cannot filter is read whole whil
     await flush();
     expect(other.isLoading, "#4").toBe(false);
   });
-  test("a sort the source cannot run is sorted locally in the whole storage; once the filter is cleared the page read refuses it", () => {
+  test("a source that can run neither: the filter and the sort each keep the whole storage, and clearing both pages again", () => {
     const { source, requests } = createSource(5, { paging: true });
     const list = new DynamicDataList(source);
     const errors = collectErrors(list);
@@ -3719,26 +3873,257 @@ describe("DynamicDataList: a paging source that cannot filter is read whole whil
     list.filter = "{id} > 0";
     list.sort = [{ field: "id", direction: "desc" }];
     expect(pageIds(list), "#1").toEqual([4, 3]);
-    expect(errors, "#2").toEqual([]);
     requests.length = 0;
     list.filter = "";
-    expect(requests, "#3: nothing was sent").toEqual([]);
-    expect(errors.map(e => e.operation), "#4").toEqual(["read"]);
-    expect(errors[0].message.indexOf("\"sorting\"") > -1, "#5: " + errors[0].message).toBe(true);
-    expect(list.isPagedBySource, "#6: the whole storage stays in force").toBe(false);
-    expect(pageIds(list), "#7: sorted, no longer filtered").toEqual([4, 3]);
+    expect(requests, "#2: the sort keeps the whole storage, nothing is sent").toEqual([]);
+    expect(list.isPagedBySource, "#3").toBe(false);
+    expect(pageIds(list), "#4: sorted, no longer filtered").toEqual([4, 3]);
+    list.sort = [];
+    expect(requests, "#5: one page read").toEqual([{ skip: 0, take: 2, filter: "", sort: [] }]);
+    expect(list.isPagedBySource, "#6").toBe(true);
+    list.sort = [{ field: "id", direction: "desc" }];
+    list.filter = "{id} > 0";
+    requests.length = 0;
+    list.sort = [];
+    expect(requests, "#7: the filter keeps the whole storage, nothing is sent").toEqual([]);
+    expect(pageIds(list), "#8").toEqual([1, 2]);
+    expect(errors, "#9").toEqual([]);
   });
-  test("canSort answers from the capabilities, not from the filter", () => {
-    const paging = new DynamicDataList(createSource(5, { paging: true }).source);
-    paging.pageSize = 2;
-    paging.load();
-    expect(paging.canSort, "#1").toBe(false);
-    paging.filter = "{id} > 0";
-    expect(paging.canSort, "#2: the whole storage is in force").toBe(false);
-    const sorting = new DynamicDataList(createSource(5, { paging: true, sorting: true }).source);
-    expect(sorting.canSort, "#3").toBe(true);
-    const notPaging = new DynamicDataList(createSource(5, {}).source);
-    expect(notPaging.canSort, "#4").toBe(true);
+  test("a source that filters but cannot sort: in the whole storage a page change, another sort and a filter send no request", () => {
+    const { source, requests } = createSource(6, { paging: true, filtering: true });
+    const list = new DynamicDataList(source);
+    const errors = collectErrors(list);
+    list.pageSize = 2;
+    list.load();
+    list.sort = [{ field: "id", direction: "desc" }];
+    expect(requests[1], "#1").toEqual(wholeRequest);
+    requests.length = 0;
+    list.pageIndex = 1;
+    expect(pageIds(list), "#2: the list pages").toEqual([3, 2]);
+    list.sort = [{ field: "id", direction: "asc" }];
+    expect(pageIds(list), "#3: the list sorts").toEqual([2, 3]);
+    list.filter = "{id} > 2";
+    expect(list.pageIndex, "#4: the filter resets the page").toBe(0);
+    expect(pageIds(list), "#5: the list filters").toEqual([3, 4]);
+    expect(requests, "#6").toEqual([]);
+    list.sort = [];
+    expect(requests, "#7: the source filters, so the page read carries the filter")
+      .toEqual([{ skip: 0, take: 2, filter: "{id} > 2", sort: [] }]);
+    expect(list.isPagedBySource, "#8").toBe(true);
+    expect(errors, "#9").toEqual([]);
+  });
+  test("a source that sorts but cannot filter: a sort alone stays a sorted page read", () => {
+    const { source, requests } = createSource(5, { paging: true, sorting: true });
+    const list = new DynamicDataList(source);
+    list.pageSize = 2;
+    list.load();
+    list.sort = [{ field: "id", direction: "desc" }];
+    expect(requests[1], "#1").toEqual({ skip: 0, take: 2, filter: "", sort: [{ field: "id", direction: "desc" }] });
+    expect(list.isPagedBySource, "#2").toBe(true);
+  });
+  test("clearing the sort reads the current page, and the count facts are the page's", () => {
+    const { source, requests } = createSource(5, { paging: true, filtering: true }, { total: false });
+    const list = new DynamicDataList(source);
+    list.pageSize = 2;
+    list.load();
+    list.pageIndex = 1;
+    expect(list.isCountKnown, "#1: a page without a total").toBe(false);
+    list.sort = [{ field: "id", direction: "desc" }];
+    expect(list.isCountKnown, "#2: the whole storage").toBe(true);
+    expect(list.pageCount, "#3").toBe(3);
+    requests.length = 0;
+    list.sort = [];
+    expect(requests, "#4: the page the sort kept").toEqual([{ skip: 2, take: 2, filter: "", sort: [] }]);
+    expect(list.isCountKnown, "#5").toBe(false);
+    expect(list.hasMore, "#6").toBe(true);
+    expect(list.pageCount, "#7: the pages known to exist").toBe(3);
+  });
+  test("while the whole storage is read for a sort, the page in force stays, unsorted; a failed read keeps it", async () => {
+    const { source, requests, held } = createSource(5, { paging: true, filtering: true }, { held: true });
+    const list = new DynamicDataList(source);
+    const errors = collectErrors(list);
+    list.pageSize = 2;
+    const loaded = list.load();
+    held[0].answer.resolve();
+    await loaded;
+    list.sort = [{ field: "id", direction: "desc" }];
+    expect(requests[1], "#1").toEqual(wholeRequest);
+    expect(list.isPagedBySource, "#2: the window in force is a page").toBe(true);
+    expect(pageIds(list), "#3: not sorted locally").toEqual([0, 1]);
+    held[1].answer.reject(new Error("offline"));
+    await flush();
+    expect(errors.map(e => e.operation), "#4").toEqual(["read"]);
+    expect(list.isPagedBySource, "#5: still the page").toBe(true);
+    expect(pageIds(list), "#6").toEqual([0, 1]);
+    list.sort = [{ field: "id", direction: "asc" }];
+    expect(requests[2], "#7: the whole storage is read again").toEqual(wholeRequest);
+    held[2].answer.resolve();
+    await flush();
+    expect(list.isPagedBySource, "#8").toBe(false);
+    expect(pageIds(list), "#9").toEqual([0, 1]);
+  });
+  test("a failed page read after the sort is cleared keeps the whole storage in force", async () => {
+    const { source, held } = createSource(5, { paging: true, filtering: true }, { held: true });
+    const list = new DynamicDataList(source);
+    const errors = collectErrors(list);
+    list.pageSize = 2;
+    list.sort = [{ field: "id", direction: "desc" }];
+    const loaded = list.load();
+    expect(held[0].request, "#1").toEqual(wholeRequest);
+    held[0].answer.resolve();
+    await loaded;
+    list.sort = [];
+    expect(held[1].request, "#2").toEqual({ skip: 0, take: 2, filter: "", sort: [] });
+    held[1].answer.reject(new Error("offline"));
+    await flush();
+    expect(errors.map(e => e.operation), "#3").toEqual(["read"]);
+    expect(list.isPagedBySource, "#4: the whole storage").toBe(false);
+    expect(list.loadedCount, "#5").toBe(5);
+    expect(pageIds(list), "#6: paged by the list, in source order").toEqual([0, 1]);
+  });
+  describe("a source that filters but cannot sort, with a filter the list cannot run", () => {
+    const asyncFilter = "dynamicDataSortFallbackAsync({id}) = true";
+    beforeEach(() => {
+      FunctionFactory.Instance.register("dynamicDataSortFallbackAsync", (): any => true, true);
+    });
+    afterEach(() => {
+      FunctionFactory.Instance.unregister("dynamicDataSortFallbackAsync");
+    });
+    test("without a sort the filter is the source's: it goes into the page read and nothing is reported", () => {
+      const { source, requests } = createSource(5, { paging: true, filtering: true });
+      const list = new DynamicDataList(source);
+      const errors = collectErrors(list);
+      list.pageSize = 2;
+      list.load();
+      list.filter = asyncFilter;
+      expect(requests[1], "#1").toEqual({ skip: 0, take: 2, filter: asyncFilter, sort: [] });
+      expect(errors, "#2").toEqual([]);
+      expect(list.filter, "#3").toBe(asyncFilter);
+    });
+    test("a sort refuses the read: no request, the page and the filter stay; clearing the sort reads the filtered page", () => {
+      const { source, requests } = createSource(5, { paging: true, filtering: true });
+      const list = new DynamicDataList(source);
+      const errors = collectErrors(list);
+      list.pageSize = 2;
+      list.load();
+      list.filter = asyncFilter;
+      requests.length = 0;
+      list.sort = [{ field: "id", direction: "desc" }];
+      expect(requests, "#1: nothing was sent").toEqual([]);
+      expect(errors.map(e => e.operation), "#2").toEqual(["read"]);
+      expect(errors[0].message.indexOf("\"sorting\"") > -1, "#3: the message names the capability: " + errors[0].message).toBe(true);
+      expect(list.filter, "#4: the filter is kept").toBe(asyncFilter);
+      expect(list.isPagedBySource, "#5: the page stays in force").toBe(true);
+      expect(pageIds(list), "#6").toEqual([0, 1]);
+      list.sort = [];
+      expect(requests, "#7").toEqual([{ skip: 0, take: 2, filter: asyncFilter, sort: [] }]);
+      expect(errors.length, "#8").toBe(1);
+    });
+    test("an unparsable filter takes the same path: the sort is refused and the filter is kept", () => {
+      const { source, requests } = createSource(5, { paging: true, filtering: true });
+      const list = new DynamicDataList(source);
+      const errors = collectErrors(list);
+      list.pageSize = 2;
+      list.load();
+      list.filter = "{id} >";
+      expect(errors, "#1: the source filters, the list never parsed it").toEqual([]);
+      requests.length = 0;
+      list.sort = [{ field: "id", direction: "desc" }];
+      expect(requests, "#2").toEqual([]);
+      expect(errors.map(e => e.operation), "#3").toEqual(["read"]);
+      expect(list.filter, "#4").toBe("{id} >");
+    });
+    test("set while the whole storage of a sort is in force, it is reported and dropped, as any filter the list has to run", () => {
+      const { source, requests } = createSource(5, { paging: true, filtering: true });
+      const list = new DynamicDataList(source);
+      const errors = collectErrors(list);
+      list.pageSize = 2;
+      list.load();
+      list.sort = [{ field: "id", direction: "desc" }];
+      requests.length = 0;
+      list.filter = asyncFilter;
+      expect(requests, "#1: the whole storage is in force, nothing is read").toEqual([]);
+      expect(errors.map(e => e.operation), "#2").toEqual(["read"]);
+      expect(list.filter, "#3").toBe("");
+      expect(pageIds(list), "#4: sorted, unfiltered").toEqual([4, 3]);
+    });
+    test("set together with clearing the sort, it is the source's again: one page read carries it, nothing is reported", () => {
+      const { source, requests } = createSource(5, { paging: true, filtering: true });
+      const list = new DynamicDataList(source);
+      const errors = collectErrors(list);
+      list.pageSize = 2;
+      list.load();
+      list.sort = [{ field: "id", direction: "desc" }];
+      requests.length = 0;
+      list.setView(asyncFilter, []);
+      expect(requests, "#1").toEqual([{ skip: 0, take: 2, filter: asyncFilter, sort: [] }]);
+      expect(errors, "#2").toEqual([]);
+      expect(list.filter, "#3: kept").toBe(asyncFilter);
+      expect(list.isPagedBySource, "#4").toBe(true);
+    });
+    test("set while the whole storage of a sort is still being read, it refuses that read and is kept", async () => {
+      const { source, requests, held } = createSource(5, { paging: true, filtering: true }, { held: true });
+      const list = new DynamicDataList(source);
+      const errors = collectErrors(list);
+      list.pageSize = 2;
+      const loaded = list.load();
+      held[0].answer.resolve();
+      await loaded;
+      list.sort = [{ field: "id", direction: "desc" }];
+      expect(requests[1], "#1: the whole storage is asked for").toEqual(wholeRequest);
+      list.filter = asyncFilter;
+      expect(requests.length, "#2: no second request").toBe(2);
+      expect(errors.map(e => e.operation), "#3").toEqual(["read"]);
+      expect(list.filter, "#4: kept").toBe(asyncFilter);
+      expect(list.isLoading, "#5: the refused read owns the loading state").toBe(false);
+      held[1].answer.resolve();
+      await flush();
+      expect(list.isPagedBySource, "#6: the superseded answer is discarded, the page stays").toBe(true);
+      expect(pageIds(list), "#7").toEqual([0, 1]);
+      list.sort = [];
+      expect(requests[2], "#8").toEqual({ skip: 0, take: 2, filter: asyncFilter, sort: [] });
+    });
+  });
+  describe("a source that filters but cannot sort, with a filter the list can run", () => {
+    test("set while the whole storage of a sort is still being read, the read that follows filters it", async () => {
+      const { source, requests, held } = createSource(5, { paging: true, filtering: true }, { held: true });
+      const list = new DynamicDataList(source);
+      const errors = collectErrors(list);
+      list.pageSize = 2;
+      const loaded = list.load();
+      held[0].answer.resolve();
+      await loaded;
+      list.sort = [{ field: "id", direction: "desc" }];
+      list.filter = "{id} < 3";
+      expect(requests.slice(1), "#1: the whole storage is read again").toEqual([wholeRequest, wholeRequest]);
+      held[2].answer.resolve();
+      await flush();
+      expect(list.isPagedBySource, "#2").toBe(false);
+      expect(pageIds(list), "#3: filtered and sorted here").toEqual([2, 1]);
+      expect(errors, "#4").toEqual([]);
+    });
+    test("set while a page read that clears the sort is pending, the whole storage in force shows it filtered", async () => {
+      const { source, requests, held } = createSource(5, { paging: true, filtering: true }, { held: true });
+      const list = new DynamicDataList(source);
+      const errors = collectErrors(list);
+      list.pageSize = 2;
+      list.sort = [{ field: "id", direction: "desc" }];
+      const loaded = list.load();
+      held[0].answer.resolve();
+      await loaded;
+      list.sort = [];
+      list.filter = "{id} > 2";
+      expect(requests.slice(1), "#1: page reads, the second carries the filter")
+        .toEqual([{ skip: 0, take: 2, filter: "", sort: [] }, { skip: 0, take: 2, filter: "{id} > 2", sort: [] }]);
+      expect(list.isPagedBySource, "#2: the whole storage is still in force").toBe(false);
+      expect(pageIds(list), "#3: the view in force is run over it").toEqual([3, 4]);
+      held[2].answer.reject(new Error("offline"));
+      await flush();
+      expect(errors.map(e => e.operation), "#4").toEqual(["read"]);
+      expect(list.isPagedBySource, "#5: a failed page read keeps the whole storage").toBe(false);
+      expect(pageIds(list), "#6: still filtered").toEqual([3, 4]);
+      expect(list.filter, "#7").toBe("{id} > 2");
+    });
   });
   test("a filter the list cannot parse is reported and dropped, and the page is read", () => {
     const { source, requests } = createSource(5, { paging: true });
@@ -3772,5 +4157,624 @@ describe("DynamicDataList: a paging source that cannot filter is read whole whil
     list.load();
     expect(requests, "#3").toEqual([wholeRequest]);
     expect(list.getPageIndexes(), "#4").toEqual([3, 4]);
+  });
+});
+/* A write names its record by key. Only an in-memory array is written by position: the list is its
+   only writer and writes it synchronously. Any other source without keyField is read-only, whatever
+   methods it has, so that no write ever names a record by a position the source resolves another way. */
+describe("DynamicDataList: a source without keyField is read-only", () => {
+  const createUnkeyed = (calls: Array<string>, records: Array<any>): IDynamicDataSource => ({
+    capabilities: { paging: true, sorting: true },
+    read: (request: IDynamicDataReadRequest): IDynamicDataReadResult => {
+      // The source sorts on its side: a position in its answer is not a position in its storage.
+      const sorted = records.slice().sort((a: any, b: any): number => b.id - a.id);
+      return { records: sorted.slice(request.skip, request.skip + (request.take || sorted.length)), total: sorted.length };
+    },
+    insert: (): void => { calls.push("insert"); },
+    update: (key: any): void => { calls.push("update:" + key); },
+    remove: (key: any): void => { calls.push("remove:" + key); },
+    move: (key: any): void => { calls.push("move:" + key); }
+  });
+  test("a custom source without keyField gets no insert, update, remove or move, whatever methods it has", () => {
+    const calls: Array<string> = [];
+    const list = new DynamicDataList(createUnkeyed(calls, createRecords(4)));
+    list.pageSize = 2;
+    list.load();
+    ["insert", "update", "remove", "move"].forEach((op: any): void => {
+      expect(list.hasCapability(op), "#1: " + op).toBe(false);
+    });
+    expect(list.hasCapability("read"), "#2").toBe(true);
+    list.setValue(0, "name", "edited");
+    list.move(0, 1);
+    list.add({ id: 9 });
+    list.remove(0);
+    expect(calls, "#3: nothing is sent").toEqual([]);
+  });
+  test("the same source with keyField receives every write by the key of the record it was made to", () => {
+    const calls: Array<string> = [];
+    const source = createUnkeyed(calls, createRecords(4));
+    source.keyField = "id";
+    const list = new DynamicDataList(source);
+    list.pageSize = 2;
+    list.load();
+    expect(list.getRecord(0).id, "#1: the source sorts on its side").toBe(3);
+    list.setValue(0, "name", "edited");
+    expect(calls, "#2: the record the edit was made to, not position 0 of the storage").toEqual(["update:3"]);
+  });
+  test("an in-memory array is written by storage index without keyField", () => {
+    const list = createList(createRecords(3));
+    ["insert", "update", "remove", "move"].forEach((op: any): void => {
+      expect(list.hasCapability(op), "#1: " + op).toBe(true);
+    });
+    list.setValue(1, "name", "edited");
+    list.remove(0);
+    expect((<ArrayDynamicDataSource>list.source).array, "#2").toEqual([{ id: 1, name: "edited" }, { id: 2, name: "r2" }]);
+  });
+});
+/* User code the list calls from an answer of its source - the owner's follow-up of a committed read,
+   an error listener - may throw. The read is over and the chain goes on: the exception surfaces as
+   the rejection of that answer's continuation. */
+describe("DynamicDataList: user code that throws in an answer of the source", () => {
+  const catchUnhandled = (): { errors: Array<any>, restore: () => void } => {
+    const listeners = process.listeners("unhandledRejection");
+    process.removeAllListeners("unhandledRejection");
+    const errors: Array<any> = [];
+    const onRejection = (reason: any): void => { errors.push(reason); };
+    process.on("unhandledRejection", onRejection);
+    return {
+      errors: errors,
+      restore: (): void => {
+        process.removeListener("unhandledRejection", onRejection);
+        listeners.forEach((listener: any) => process.on("unhandledRejection", listener));
+      }
+    };
+  };
+  test("a commit whose notification throws ends the read: the caller awaiting it gets the exception, the list is not loading", async () => {
+    const source = new FakeAsyncRangeSource(createRecords(10));
+    const list = new DynamicDataList(source);
+    list.pageSize = 5;
+    let isThrowing = true;
+    list.onChanged = (change: IDynamicDataListChange): void => {
+      if (isThrowing && change.type === "reset") {
+        isThrowing = false;
+        throw new Error("owner");
+      }
+    };
+    const loaded = list.load();
+    expect(list.isLoading, "#1").toBe(true);
+    source.resolveRead(0);
+    let error: any = undefined;
+    await (<Promise<void>>loaded).catch((e: any): void => { error = e; });
+    expect(error && error.message, "#2: the exception reaches the caller").toBe("owner");
+    expect(list.isLoading, "#3: the read is over").toBe(false);
+    expect(list.loadedCount, "#4: and committed").toBe(5);
+  });
+  test("a queued write that fails synchronously while the error listener throws: a later write still runs", async () => {
+    const calls: Array<string> = [];
+    const first = new Deferred();
+    let updates = 0;
+    const source: IDynamicDataSource = {
+      keyField: "id",
+      read: (): Array<any> => createRecords(3),
+      update: (key: any): any => {
+        calls.push("update:" + key);
+        updates++;
+        if (updates === 1) return first.promise;
+        if (updates === 2) throw new Error("server");
+        return undefined;
+      }
+    };
+    const list = new DynamicDataList(source);
+    list.load();
+    list.onError = (): void => { throw new Error("listener"); };
+    const unhandled = catchUnhandled();
+    try {
+      list.setValue(0, "name", "a");
+      list.setValue(1, "name", "b");
+      list.setValue(2, "name", "c");
+      expect(calls, "#1: the second and third wait for the first").toEqual(["update:0"]);
+      first.resolve();
+      await flush();
+      // The rejection is reported once the microtasks drain.
+      await new Promise<void>(resolve => setTimeout(resolve, 0));
+      await flush();
+    } finally {
+      unhandled.restore();
+    }
+    expect(calls, "#2: the third ran after the second failed").toEqual(["update:0", "update:1", "update:2"]);
+    expect(unhandled.errors.map(e => e.message), "#3: the listener's exception is not swallowed").toEqual(["listener"]);
+    expect(list.hasPendingWrites, "#4").toBe(false);
+  });
+});
+
+/* A failed write to a source the owner assigned is that source's failure, whatever its class: it is
+   reported (onError) and does not throw. The window keeps the local change, except after a refused
+   insert, remove or move of an in-memory source, which is addressed by storage index: that window goes
+   back to what the source stores, so that no later write lands on another record. A failed write to
+   the owner's own storage is still the caller's exception. */
+describe("DynamicDataList: a failed write to an assigned source is reported", () => {
+  interface IFailingArray { source: ArrayDynamicDataSource, get: () => Array<any>, failures: { count: number } }
+  // The setter throws before it stores, as often as failures.count says.
+  function createFailingArray(names: Array<string>): IFailingArray {
+    let arr: Array<any> = names.map((name: string): any => ({ name: name }));
+    const failures = { count: 0 };
+    const source = new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => {
+      if (failures.count > 0) {
+        failures.count--;
+        throw new Error("setter");
+      }
+      arr = a;
+    });
+    return { source: source, get: (): Array<any> => arr, failures: failures };
+  }
+  function createOwnList(): { list: DynamicDataList, failures: { count: number }, get: () => Array<any> } {
+    let own: Array<any> = createRecords(2);
+    const failures = { count: 0 };
+    const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource((): Array<any> => own, (a: Array<any>): void => {
+      if (failures.count > 0) {
+        failures.count--;
+        throw new Error("own setter");
+      }
+      own = a;
+    }));
+    return { list: list, failures: failures, get: (): Array<any> => own };
+  }
+  function attachFailing(names: Array<string> = ["A", "B", "C"]): { list: DynamicDataList, assigned: IFailingArray, errors: Array<string>, changes: Array<string> } {
+    const { list } = createOwnList();
+    const assigned = createFailingArray(names);
+    list.assignSource(assigned.source);
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation + ":" + error.message); };
+    return { list: list, assigned: assigned, errors: errors, changes: recordChanges(list) };
+  }
+  const names = (records: Array<any>): Array<string> => records.map((r: any): string => r.name);
+
+  test("a failed update is reported and kept: the window has the edit, the array does not", () => {
+    const { list, assigned, errors, changes } = attachFailing();
+    assigned.failures.count = 1;
+    expect((): void => { list.setValue(0, "name", "edited"); }, "#1").not.toThrow();
+    expect(errors, "#2").toEqual(["update:setter"]);
+    expect(names(list.getLoadedRecords()), "#3: kept").toEqual(["edited", "B", "C"]);
+    expect(names(assigned.get()), "#4").toEqual(["A", "B", "C"]);
+    expect(changes, "#5: no reset").toEqual(["recordChanged:0:name"]);
+  });
+  const structuralWrites: Array<{ operation: string, run: (list: DynamicDataList) => void, notification: string }> = [
+    { operation: "insert", run: (list: DynamicDataList): void => { list.add({ name: "X" }, 0); }, notification: "recordAdded:0" },
+    { operation: "remove", run: (list: DynamicDataList): void => { list.remove(0); }, notification: "recordRemoved:0" }
+  ];
+  structuralWrites.forEach((write): void => {
+    test("a failed " + write.operation + " is reported and the window goes back to what the source stores", () => {
+      const { list, assigned, errors, changes } = attachFailing();
+      assigned.failures.count = 1;
+      expect((): void => { write.run(list); }, "#1").not.toThrow();
+      expect(errors, "#2").toEqual([write.operation + ":setter"]);
+      expect(names(list.getLoadedRecords()), "#3: the window is the storage").toEqual(["A", "B", "C"]);
+      expect(names(assigned.get()), "#4").toEqual(["A", "B", "C"]);
+      expect(changes, "#5: one reset, after the write's own notification").toEqual([write.notification, "reset"]);
+    });
+    test("an edit after a failed " + write.operation + " lands on the record it was made in", () => {
+      for (const failureCount of [1, 2]) {
+        const { list, assigned } = attachFailing();
+        assigned.failures.count = failureCount;
+        for (let i = 0; i < failureCount; i++) {
+          write.run(list);
+        }
+        list.setValue(1, "name", "B-edited");
+        expect(names(assigned.get()), "#1: " + failureCount + " failures").toEqual(["A", "B-edited", "C"]);
+        expect(names(list.getLoadedRecords()), "#2: " + failureCount + " failures").toEqual(["A", "B-edited", "C"]);
+      }
+    });
+  });
+  /* An array source whose remove throws, and an array source whose first update answers with a
+     promise and stores nothing: a local source is written synchronously, so that promise is
+     reported and the window goes back to what the array stores. */
+  function attachArray(source: typeof ArrayDynamicDataSource): { list: DynamicDataList, stored: () => Array<any>, errors: Array<string>, changes: Array<string> } {
+    let stored: Array<any> = [{ name: "A" }, { name: "B" }, { name: "C" }];
+    const { list } = createOwnList();
+    list.assignSource(new source((): Array<any> => stored, (arr: Array<any>): void => { stored = arr; }));
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation + ":" + error.message); };
+    return { list: list, stored: (): Array<any> => stored, errors: errors, changes: recordChanges(list) };
+  }
+  class ThrowingRemoveSource extends ArrayDynamicDataSource {
+    public remove(): void { throw new Error("remove"); }
+  }
+  function createPromiseUpdateSource(isRejected: boolean): typeof ArrayDynamicDataSource {
+    return class extends ArrayDynamicDataSource {
+      private promises: number = 1;
+      public update(sourceIndex: number, record: any): any {
+        if (this.promises === 0) return super.update(sourceIndex, record);
+        this.promises--;
+        return isRejected ? Promise.reject(new Error("rejected")) : new Promise<void>((): void => undefined);
+      }
+    };
+  }
+  const asyncLocalWriteMessage = "DynamicDataList: a local data source is written synchronously; asynchronous writes need a data source with keyField";
+  [false, true].forEach((isInBatch: boolean): void => {
+    const where = isInBatch ? " inside a batch" : "";
+    test("a remove that throws" + where + " is reported, the window goes back to the array, and an edit after it lands on its record", () => {
+      const { list, stored, errors, changes } = attachArray(ThrowingRemoveSource);
+      let windowAfterRemove: Array<string>;
+      const write = (): void => {
+        list.remove(0);
+        windowAfterRemove = names(list.getLoadedRecords());
+        list.setValue(windowAfterRemove.indexOf("B"), "name", "B-edited");
+      };
+      if (isInBatch) list.batch(write); else write();
+      expect(names(stored()), "#1: no record is overwritten").toEqual(["A", "B-edited", "C"]);
+      expect(windowAfterRemove, "#2: the window after the failed remove").toEqual(["A", "B", "C"]);
+      expect(names(list.getLoadedRecords()), "#3").toEqual(["A", "B-edited", "C"]);
+      expect(errors, "#4: reported once").toEqual(["remove:remove"]);
+      expect(changes, "#5").toEqual(isInBatch ? ["recordRemoved:0", "recordChanged:1:name", "reset"] : ["recordRemoved:0", "reset", "recordChanged:1:name"]);
+    });
+    [false, true].forEach((isRejected: boolean): void => {
+      test("an update of a local source answered with a " + (isRejected ? "rejected" : "pending") + " promise" + where +
+        " is reported, and the window goes back to the array", async () => {
+        const unhandled: Array<any> = [];
+        const onUnhandled = (reason: any): void => { unhandled.push(reason); };
+        process.on("unhandledRejection", onUnhandled);
+        try {
+          const { list, stored, errors, changes } = attachArray(createPromiseUpdateSource(isRejected));
+          const write = (): void => { list.setValue(1, "name", "edited"); };
+          if (isInBatch) list.batch(write); else write();
+          expect(errors, "#1: reported once, for the update").toEqual(["update:" + asyncLocalWriteMessage]);
+          expect(names(list.getLoadedRecords()), "#2: the window is the array").toEqual(["A", "B", "C"]);
+          expect(names(stored()), "#3").toEqual(["A", "B", "C"]);
+          expect(changes, "#4: the owner starts over").toEqual(["recordChanged:1:name", "reset"]);
+          expect(list.hasPendingWrites, "#5: nothing is chained").toBe(false);
+          list.setValue(names(list.getLoadedRecords()).indexOf("C"), "name", "C-edited");
+          expect(names(stored()), "#6: a later edit lands on its record").toEqual(["A", "B", "C-edited"]);
+          await flush();
+          await new Promise<void>((resolve: () => void): void => { setTimeout(resolve, 0); });
+          expect(errors.length, "#7: the promise is ignored").toBe(1);
+          expect(unhandled, "#8: no unhandled rejection").toEqual([]);
+        } finally {
+          process.off("unhandledRejection", onUnhandled);
+        }
+      });
+    });
+  });
+  test("a batch with a remove and an update that fails at commit: reported once, the window goes back, the next edit lands right", () => {
+    const { list, assigned, errors, changes } = attachFailing();
+    assigned.failures.count = 1;
+    expect((): void => {
+      list.batch((): void => {
+        list.remove(0);
+        list.setValue(0, "name", "B-batch");
+      });
+    }, "#1").not.toThrow();
+    expect(errors, "#2: the first operation").toEqual(["remove:setter"]);
+    expect(names(list.getLoadedRecords()), "#3").toEqual(["A", "B", "C"]);
+    expect(changes, "#4").toEqual(["recordRemoved:0", "recordChanged:0:name", "reset"]);
+    list.setValue(1, "name", "B-edited");
+    expect(names(assigned.get()), "#5").toEqual(["A", "B-edited", "C"]);
+  });
+  test("the own storage: a setter that throws on a single write or at a batch commit still throws at the caller", () => {
+    const { list, failures, get } = createOwnList();
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation); };
+    failures.count = 1;
+    expect((): void => { list.setValue(0, "name", "edited"); }, "#1").toThrow("own setter");
+    expect(list.getRecord(0).name, "#2: the window follows the storage").toBe("r0");
+    failures.count = 1;
+    expect((): void => { list.batch((): void => { list.setValue(0, "name", "edited"); }); }, "#3").toThrow("own setter");
+    expect(names(get()), "#4").toEqual(["r0", "r1"]);
+    expect(list.getRecord(0).name, "#5").toBe("r0");
+    expect(errors, "#6: nothing reported").toEqual([]);
+  });
+  test("after a detach the next write goes to a fresh own storage, and its failure throws again", () => {
+    let own: Array<any> = createRecords(2);
+    let ownFailures = 0;
+    const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource((): Array<any> => own, (a: Array<any>): void => {
+      if (ownFailures > 0) {
+        ownFailures--;
+        throw new Error("own setter");
+      }
+      own = a;
+    }));
+    const assigned = createFailingArray(["A", "B"]);
+    list.assignSource(assigned.source);
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation); };
+    assigned.failures.count = 1;
+    list.setValue(0, "name", "edited");
+    expect(errors, "#1: reported").toEqual(["update"]);
+    list.assignSource(undefined);
+    list.setValue(0, "name", "own-edited");
+    expect(own[0].name, "#2: the own storage got it").toBe("own-edited");
+    ownFailures = 1;
+    expect((): void => { list.setValue(1, "name", "x"); }, "#3").toThrow("own setter");
+    expect(errors, "#4").toEqual(["update"]);
+  });
+});
+
+/* The window offset is the destination of a refresh only while no page move is pending; otherwise the
+   refresh reads the page the move asked for, and that page commits with its index. */
+describe("DynamicDataList: a refresh during a page move reads the page of the move", () => {
+  // A source that pages, filters ("{field} > n") and sorts, and answers each read when the test says so.
+  class DeferredViewSource implements IDynamicDataSource {
+    public capabilities: IDynamicDataSourceCapabilities = { paging: true, filtering: true, sorting: true };
+    public requests: Array<IDynamicDataReadRequest> = [];
+    public reads: Array<Deferred> = [];
+    constructor(public records: Array<any>) { }
+    public read(request: IDynamicDataReadRequest): Promise<IDynamicDataReadResult> {
+      this.requests.push(request);
+      const deferred = new Deferred();
+      this.reads.push(deferred);
+      return deferred.promise;
+    }
+    public answer(index: number): void {
+      const request = this.requests[index];
+      let view = this.records.slice();
+      const parts = /^\{(\w+)\}\s*>\s*(\d+)$/.exec(request.filter || "");
+      if (!!parts) {
+        view = view.filter((record: any): boolean => record[parts[1]] > Number(parts[2]));
+      }
+      (request.sort || []).slice().reverse().forEach((s: any): void => {
+        const sign = s.direction === "desc" ? -1 : 1;
+        view.sort((a: any, b: any): number => (a[s.field] === b[s.field] ? 0 : (a[s.field] < b[s.field] ? -1 : 1)) * sign);
+      });
+      this.reads[index].resolve({ records: view.slice(request.skip, request.skip + request.take), total: view.length });
+    }
+    public get skips(): Array<number> {
+      return this.requests.map((request: IDynamicDataReadRequest): number => request.skip);
+    }
+  }
+  const setUp = async (page: number): Promise<{ list: DynamicDataList, source: DeferredViewSource }> => {
+    const source = new DeferredViewSource(createRecords(40));
+    const list = new DynamicDataList(source);
+    list.pageSize = 10;
+    list.load();
+    source.answer(0);
+    await flush();
+    if (page > 0) {
+      list.pageIndex = page;
+      source.answer(1);
+      await flush();
+    }
+    source.requests = [];
+    source.reads = [];
+    return { list: list, source: source };
+  };
+  const ids = (list: DynamicDataList): Array<any> => list.getLoadedRecords().map((record: any): any => record.id);
+  test("pageIndex = 1, then refresh(): both read page 1, which commits with index 1 in either order", async () => {
+    for (const order of [[0, 1], [1, 0]]) {
+      const { list, source } = await setUp(0);
+      list.pageIndex = 1;
+      list.refresh();
+      expect(source.skips, "#1: " + order).toEqual([10, 10]);
+      order.forEach((i: number): void => { source.answer(i); });
+      await flush();
+      expect(list.pageIndex, "#2: " + order).toBe(1);
+      expect(list.windowOffset, "#3: " + order).toBe(10);
+      expect(ids(list)[0], "#4: " + order).toBe(10);
+      expect(list.isLoading, "#5: " + order).toBe(false);
+    }
+  });
+  test("no page move pending: a refresh reads the window in force at its own offset", async () => {
+    const { list, source } = await setUp(2);
+    list.refresh();
+    expect(source.skips, "#1").toEqual([20]);
+  });
+  test("a new filter, then refresh(): page 0 of the new view, index 0", async () => {
+    const { list, source } = await setUp(2);
+    list.setView("{id} > 5", []);
+    list.refresh();
+    expect(source.skips, "#1").toEqual([0, 0]);
+    source.answer(1);
+    source.answer(0);
+    await flush();
+    expect(list.pageIndex, "#2").toBe(0);
+    expect(list.windowOffset, "#3").toBe(0);
+    expect(ids(list)[0], "#4").toBe(6);
+  });
+  test("a new sort, then refresh(): the page in force in the new order, its index kept", async () => {
+    const { list, source } = await setUp(2);
+    list.setView("", [{ field: "id", direction: "desc" }]);
+    list.refresh();
+    expect(source.skips, "#1").toEqual([20, 20]);
+    source.answer(0);
+    source.answer(1);
+    await flush();
+    expect(list.pageIndex, "#2").toBe(2);
+    expect(list.windowOffset, "#3").toBe(20);
+    expect(ids(list)[0], "#4").toBe(19);
+  });
+});
+
+/* The contract of source.batch with a source whose writes answer asynchronously: the first write of a
+   group runs inside batch, the later ones follow in order, each after the previous one settled - a
+   write of a record the group inserted carries the key its insert answered, and a rejected write is
+   reported and does not stop the ones queued behind it. */
+describe("DynamicDataList: source.batch with an asynchronous source", () => {
+  class AsyncBatchSource implements IDynamicDataSource {
+    public keyField: string = "id";
+    public log: Array<string> = [];
+    public rejectNext: string = undefined;
+    private isInBatch: boolean = false;
+    private nextKey: number = 100;
+    constructor(public records: Array<any>) { }
+    public read(): Array<any> {
+      return this.records.map((record: any): any => Object.assign({}, record));
+    }
+    public batch(func: () => void): void {
+      this.isInBatch = true;
+      try {
+        func();
+      } finally {
+        this.isInBatch = false;
+      }
+    }
+    private answer(name: string, run: () => any): Promise<any> {
+      this.log.push(name + (this.isInBatch ? ":in" : ":out"));
+      if (this.rejectNext === name.split(":")[0]) {
+        this.rejectNext = undefined;
+        return Promise.reject(new Error(name));
+      }
+      return Promise.resolve().then(run);
+    }
+    public insert(record: any, at: number): Promise<any> {
+      return this.answer("insert", (): any => {
+        const stored = Object.assign({}, record, { id: this.nextKey++ });
+        this.records.splice(at, 0, stored);
+        return Object.assign({}, stored);
+      });
+    }
+    public update(key: any, record: any): Promise<void> {
+      return this.answer("update:" + key, (): void => {
+        const at = this.records.map((r: any) => r.id).indexOf(key);
+        if (at > -1)this.records[at] = Object.assign({}, record);
+      });
+    }
+    public remove(key: any): Promise<void> {
+      return this.answer("remove:" + key, (): void => {
+        const at = this.records.map((r: any) => r.id).indexOf(key);
+        if (at > -1)this.records.splice(at, 1);
+      });
+    }
+  }
+  const createBatchList = (): { list: DynamicDataList, source: AsyncBatchSource, errors: Array<string> } => {
+    const source = new AsyncBatchSource([{ id: 1, a: "r1" }, { id: 2, a: "r2" }, { id: 3, a: "r3" }]);
+    const list = new DynamicDataList(source);
+    list.load();
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation); };
+    return { list: list, source: source, errors: errors };
+  };
+  test("insert then update and insert then remove of one record: the later write carries the key the insert answered", async () => {
+    let { list, source } = createBatchList();
+    list.batch((): void => {
+      list.add({ a: "new" }, 0);
+      list.setValue(0, "a", "new-edited");
+    });
+    await flush();
+    expect(source.log, "#1").toEqual(["insert:in", "update:100:out"]);
+    expect(source.records[0], "#2").toEqual({ id: 100, a: "new-edited" });
+    ({ list, source } = createBatchList());
+    list.batch((): void => {
+      list.add({ a: "new" }, 0);
+      list.remove(0);
+    });
+    await flush();
+    expect(source.log, "#3").toEqual(["insert:in", "remove:100:out"]);
+    expect(source.records.map((r: any) => r.id), "#4").toEqual([1, 2, 3]);
+  });
+  test("a rejected first write is reported, and the write queued behind it still runs", async () => {
+    const { list, source, errors } = createBatchList();
+    source.rejectNext = "update";
+    list.batch((): void => {
+      list.setValue(0, "a", "e1");
+      list.setValue(1, "a", "e2");
+    });
+    await flush();
+    expect(source.log, "#1").toEqual(["update:1:in", "update:2:out"]);
+    expect(errors, "#2").toEqual(["update"]);
+    expect(source.records.map((r: any) => r.a), "#3").toEqual(["r1", "e2", "r3"]);
+  });
+});
+
+describe("DynamicDataList: the owner is told the list settled", () => {
+  class SettleOwner extends TestOwner {
+    public settled: number = 0;
+    public onDataSettled(): void {
+      this.settled++;
+    }
+  }
+  test("a synchronous read after a source swap tells the owner the list settled", async () => {
+    const owner = new SettleOwner();
+    const oldSource = new FakeNamedAsyncWriteSource("old", [{ id: 0, a: 1 }]);
+    const list = new DynamicDataList(oldSource, owner);
+    list.load();
+    list.setValue(0, "a", 2);
+    list.source = new FakeNamedAsyncWriteSource("new", createRecords(3));
+    owner.settled = 0;
+    oldSource.pendingWrites[0].resolve();
+    await flush();
+    expect(list.count, "#1: the new source is read").toBe(3);
+    expect(owner.settled > 0, "#2").toBe(true);
+    expect(list.hasPendingRead || list.hasPendingWrites, "#3").toBe(false);
+  });
+  test("a synchronous read that fails tells the owner the list settled", () => {
+    const owner = new SettleOwner();
+    const list = new DynamicDataList(<IDynamicDataSource>{ read: (): Array<any> => { throw new Error("read"); } }, owner);
+    list.onError = (): void => {};
+    list.load();
+    expect(owner.settled, "#1").toBe(1);
+  });
+});
+
+/* A move is not part of the source contract: the list moves a record only in an in-memory array it was
+   not assigned, which it writes synchronously by storage index. Every other source - a standalone
+   list's keyed source, given to the constructor or swapped in by the source setter, and any assigned
+   source - is refused before anything changes, whatever methods it has. */
+describe("DynamicDataList: a list moves records only in an in-memory array it was not assigned", () => {
+  const ids = (records: Array<any>): Array<any> => records.map((r: any): any => r.id);
+  function expectMoveRefused(list: DynamicDataList, stored: () => Array<any>, sourceWrites: () => number, label: string): void {
+    list.setRecordVisible(1, false);
+    const changes = recordChanges(list);
+    const errors: Array<string> = [];
+    list.onError = (error: any, operation: string): void => { errors.push(operation); };
+    const loaded = ids(list.getLoadedRecords());
+    const storedBefore = ids(stored());
+    const count = list.count;
+    const writes = sourceWrites();
+    expect(list.hasCapability("move"), label + " #1: no capability").toBe(false);
+    list.move(0, 2);
+    expect(ids(list.getLoadedRecords()), label + " #2: the window").toEqual(loaded);
+    expect(ids(stored()), label + " #3: the storage").toEqual(storedBefore);
+    expect(list.count, label + " #4: the count").toBe(count);
+    expect([0, 1, 2].map((i: number): boolean => list.isRecordVisible(i)), label + " #5: the visibility flags").toEqual([true, false, true]);
+    expect(changes, label + " #6: no notification").toEqual([]);
+    expect(errors, label + " #7: no error").toEqual([]);
+    expect(sourceWrites(), label + " #8: nothing sent").toBe(writes);
+  }
+  function createOwnerArray(): { list: DynamicDataList, get: () => Array<any> } {
+    let arr: Array<any> = createRecords(3);
+    const list = DynamicDataList.createReadThrough(undefined, () => new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { arr = a; }));
+    return { list: list, get: (): Array<any> => arr };
+  }
+  test("a standalone list constructed with a keyed source that has a move method", () => {
+    const source = new FakeRangeSource(createRecords(3));
+    const list = new DynamicDataList(source);
+    list.load();
+    expectMoveRefused(list, () => source.records, () => source.ops.length, "constructed");
+  });
+  test("a standalone list whose source setter swapped in a keyed source after an array it moved through", () => {
+    const list = createList(createRecords(3));
+    list.move(0, 2);
+    expect(ids(list.getLoadedRecords()), "#1: the array moves").toEqual([1, 2, 0]);
+    const source = new FakeRangeSource(createRecords(3));
+    list.source = source;
+    expect(ids(list.getLoadedRecords()), "#2: the keyed source is read").toEqual([0, 1, 2]);
+    expectMoveRefused(list, () => source.records, () => source.ops.length, "swapped");
+  });
+  test("a keyed source assigned to the list", () => {
+    const { list } = createOwnerArray();
+    const source = new FakeRangeSource(createRecords(3));
+    list.assignSource(source);
+    expectMoveRefused(list, () => source.records, () => source.ops.length, "assigned keyed");
+  });
+  test("an ArrayDynamicDataSource assigned to the list", () => {
+    const { list } = createOwnerArray();
+    let arr: Array<any> = createRecords(3);
+    let writes = 0;
+    list.assignSource(new ArrayDynamicDataSource((): Array<any> => arr, (a: Array<any>): void => { writes++; arr = a; }));
+    expectMoveRefused(list, () => arr, () => writes, "assigned array");
+  });
+  test("a standalone array and the owner's own storage still move a record", () => {
+    const records = createRecords(3);
+    const standalone = createList(records);
+    const standaloneChanges = recordChanges(standalone);
+    expect(standalone.hasCapability("move"), "#1").toBe(true);
+    standalone.move(0, 2);
+    expect(ids(standalone.getLoadedRecords()), "#2: the window").toEqual([1, 2, 0]);
+    expect(ids(<Array<any>>standalone.source.read(undefined)), "#3: the storage").toEqual([1, 2, 0]);
+    expect(standaloneChanges, "#4").toEqual(["recordMoved:0>2"]);
+    const own = createOwnerArray();
+    const ownChanges = recordChanges(own.list);
+    expect(own.list.hasCapability("move"), "#5").toBe(true);
+    own.list.move(0, 2);
+    expect(ids(own.get()), "#6: the owner's storage").toEqual([1, 2, 0]);
+    expect(ownChanges, "#7").toEqual(["recordMoved:0>2"]);
   });
 });

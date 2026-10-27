@@ -5,6 +5,58 @@ export var macedonianSurveyStrings = {
   pagePrevText: "Претходна",
   // "Next"
   pageNextText: "Следно",
+  // [Auto-translated] "First"
+  pageFirstText: "Прво",
+  // [Auto-translated] "Last"
+  pageLastText: "Последна",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "од {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Изберете страница",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Сортирај по {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Високо - Ниско",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Низок - Висок",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Азбука, А - Ш",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Азбука, З - А",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Најновото прво",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Најстар прв",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Сортирано по {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, потоа од {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Сортирај по",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Стандардно",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Поле за сортирање",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Редослед на сортирање",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Додај ниво на сортирање",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Отстрани сортирање ниво {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Сортирај поле {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Сортирај по редослед {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Повеќе...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Прикажи ги сите нивоа на сортирање",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Додај ново",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Заврши",
   // "Preview"
@@ -37,6 +89,8 @@ export var macedonianSurveyStrings = {
   panelDynamicTabTextFormat: "Панел {панел Индекс}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Одговорени на {0} / {1} прашања",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Прашање {0} од {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Нема видлива страница или прашање во истражувањето.",
   // "Thank you for completing the survey"

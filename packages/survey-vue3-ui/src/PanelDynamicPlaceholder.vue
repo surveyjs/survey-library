@@ -8,7 +8,7 @@
         :locString="question.locNoEntriesText"
       ></SvComponent>
     </span>
-    <SvComponent :is="'sv-action-bar'" :model="question.footerToolbar"></SvComponent>
+    <SvComponent v-if="question.getShowPlaceholderToolbar()" :is="'sv-action-bar'" :model="question.footerToolbar"></SvComponent>
   </div>
 </template>
 

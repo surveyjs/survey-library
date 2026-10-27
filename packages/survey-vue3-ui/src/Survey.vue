@@ -149,7 +149,6 @@ import {
   ref,
   computed,
   onMounted,
-  onUnmounted,
   triggerRef
 } from "vue";
 import { useBase } from "./base";
@@ -204,17 +203,12 @@ useBase(
   },
   (model: SurveyModel) => {
     model.stopTimer();
+    model.beforeDestroySurveyElement();
     model.renderCallback = undefined as any;
   }
 );
 
 onMounted(() => {
   setupSurvey(vueSurvey.value);
-});
-
-onUnmounted(() => {
-  vueSurvey.value.stopTimer();
-  vueSurvey.value.beforeDestroySurveyElement();
-  vueSurvey.value.renderCallback = undefined as any;
 });
 </script>

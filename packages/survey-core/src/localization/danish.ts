@@ -5,6 +5,58 @@ export var danishSurveyStrings = {
   pagePrevText: "Tilbage",
   // "Next"
   pageNextText: "Videre",
+  // [Auto-translated] "First"
+  pageFirstText: "Første",
+  // [Auto-translated] "Last"
+  pageLastText: "Sidste",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "af {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Vælg side",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sorter efter {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Høj - Lav",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Lav - Høj",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Alfabet, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Alfabet, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Nyeste første",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Ældste første",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sorteret efter {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, så ved {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sorter efter",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Default",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sorteringsfelt",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Sorteringsrækkefølge",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Tilføj sorteringsniveau",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Fjern sorteringsniveau {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Sorteringsfelt {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Sorteringsrækkefølge {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Mere...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Vis alle sortniveauer",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Tilføj nyt",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Færdig",
   // "Preview"
@@ -37,6 +89,8 @@ export var danishSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Besvarede {0} / {1} spørgsmål",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Spørgsmål {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "Der er ingen synlige spørgsmål.",
   // "Thank you for completing the survey"

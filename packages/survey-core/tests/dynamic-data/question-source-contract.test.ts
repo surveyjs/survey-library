@@ -1,7 +1,9 @@
 import { describe, test, expect, vi, afterEach } from "vitest";
 import { SurveyModel } from "../../src/survey";
+import { FunctionFactory } from "../../src/functionsfactory";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
-import { QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
+import { ArrayDynamicDataSource } from "../../src/dynamic-data/dynamic-data-sources";
+import { QuestionPanelDynamicItem, QuestionPanelDynamicModel } from "../../src/question_paneldynamic";
 import {
   IDynamicDataReadRequest, IDynamicDataReadResult, IDynamicDataSource, IDynamicDataSourceCapabilities
 } from "../../src/dynamic-data/dynamic-data-interfaces";
@@ -25,8 +27,8 @@ interface IContractSourceOptions {
   capabilities?: IDynamicDataSourceCapabilities;
 }
 /* One fake source for every scenario: synchronous answers, so the list and the questions stay
-   synchronous with it, and the storage is what the assertions read. With keyed the records are named
-   by "id" and insert assigns one; without it the key of every write is the position. */
+   synchronous with it, and the storage is what the assertions read. The records are named by "id"
+   and insert assigns one; with keyed: false the source has no keyField and is read-only. */
 class ContractSource implements IDynamicDataSource {
   // Reads of the whole storage (not paging) and reads of one page (paging).
   public readCount: number = 0;
@@ -43,7 +45,8 @@ class ContractSource implements IDynamicDataSource {
   private heldInserts: Array<() => void> = [];
   private nextKey: number = 1000;
   constructor(public records: Array<any>, private options: IContractSourceOptions) {
-    this.keyField = options.keyed ? "id" : undefined;
+    // Keyed unless stated: a source without keyField is read-only.
+    this.keyField = options.keyed === false ? undefined : "id";
     if (options.kind === "paging") {
       this.capabilities = options.capabilities || { paging: true, filtering: true, sorting: true };
     }
@@ -104,6 +107,10 @@ class ContractSource implements IDynamicDataSource {
     return -1;
   }
 }
+// The current sort of a records question, as plain { field, direction } criteria.
+function getSort(q: any): Array<any> {
+  return q.sortCriteria.map((c: any) => ({ field: c.field, direction: c.direction }));
+}
 function copy(record: any): any {
   return Object.assign({}, record);
 }
@@ -141,13 +148,14 @@ interface IQuestionAdapter {
   edit(question: any, position: number, field: string, value: any): void;
   visibleIndex(question: any, position: number): number;
   // The object creations a page change is allowed to make: one per record on the page.
-  createSpy(): { calls: Array<any> };
+  // Counts the objects the question creates from now on, through a public survey event.
+  countCreated(question: any): () => number;
 }
 const matrixAdapter: IQuestionAdapter = {
   name: "matrix",
   create: (source: ContractSource, pageSize: number, json?: any) => {
     const survey = new SurveyModel({ elements: [Object.assign({
-      type: "matrixdynamic", name: "q", rowCount: 0, rowsPerPage: pageSize,
+      type: "matrixdynamic", name: "q", rowCount: 0, pageSize: pageSize,
       columns: [{ name: "id", cellType: "text" }, { name: "name", cellType: "text", isRequired: true }]
     }, json)] });
     const question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
@@ -157,18 +165,23 @@ const matrixAdapter: IQuestionAdapter = {
   items: (question: QuestionMatrixDynamicModel) => question.visibleRows,
   ids: (question: QuestionMatrixDynamicModel) => question.visibleRows.map(row => row.getQuestionByName("id").value),
   add: (question: QuestionMatrixDynamicModel) => { question.addRow(); },
-  remove: (question: QuestionMatrixDynamicModel, position: number) => { question.removeRow(position, false); },
+  // position: on the page; removeRow takes a position in the whole view.
+  remove: (question: QuestionMatrixDynamicModel, position: number) => { question.removeRow(question.pageIndex * question.pageSize + position, false); },
   edit: (question: QuestionMatrixDynamicModel, position: number, field: string, value: any) => {
     question.visibleRows[position].getQuestionByName(field).value = value;
   },
-  visibleIndex: (question: QuestionMatrixDynamicModel, position: number) => question.getItemVisibleIndex(<any>question.visibleRows[position]),
-  createSpy: () => vi.spyOn(<any>QuestionMatrixDynamicModel.prototype, "createMatrixRow").mock
+  visibleIndex: (question: QuestionMatrixDynamicModel, position: number) => question.visibleRows[position].visibleIndex,
+  countCreated: (question: QuestionMatrixDynamicModel) => {
+    let count = 0;
+    (<SurveyModel>question.survey).onMatrixCellCreated.add((_, options) => { if (options.columnName === "id") count++; });
+    return () => count;
+  }
 };
 const panelAdapter: IQuestionAdapter = {
   name: "panel",
   create: (source: ContractSource, pageSize: number, json?: any) => {
     const survey = new SurveyModel({ elements: [Object.assign({
-      type: "paneldynamic", name: "q", panelCount: 0, panelsPerPage: pageSize,
+      type: "paneldynamic", name: "q", panelCount: 0, pageSize: pageSize,
       templateElements: [{ type: "text", name: "id" }, { type: "text", name: "name", isRequired: true }]
     }, json)] });
     const question = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
@@ -178,12 +191,20 @@ const panelAdapter: IQuestionAdapter = {
   items: (question: QuestionPanelDynamicModel) => question.panels,
   ids: (question: QuestionPanelDynamicModel) => question.panels.map(panel => panel.getQuestionByName("id").value),
   add: (question: QuestionPanelDynamicModel) => { question.addPanel(); },
-  remove: (question: QuestionPanelDynamicModel, position: number) => { question.removePanel(position); },
+  // position: on the page; removePanel takes a position in the whole view.
+  remove: (question: QuestionPanelDynamicModel, position: number) => { question.removePanel(question.pageIndex * question.pageSize + position); },
   edit: (question: QuestionPanelDynamicModel, position: number, field: string, value: any) => {
     question.panels[position].getQuestionByName(field).value = value;
   },
-  visibleIndex: (question: QuestionPanelDynamicModel, position: number) => question.getItemVisibleIndex(<any>question.panels[position].data),
-  createSpy: () => vi.spyOn(<any>QuestionPanelDynamicModel.prototype, "createNewPanel").mock
+  visibleIndex: (question: QuestionPanelDynamicModel, position: number) => (<QuestionPanelDynamicItem>question.panels[position].data).visibleIndex,
+  countCreated: (question: QuestionPanelDynamicModel) => {
+    const created: Array<any> = [];
+    (<SurveyModel>question.survey).onQuestionCreated.add((_, options) => {
+      const q = options.question;
+      if (q.name === "id" && q.parentQuestion === question && q.parent !== question.template && created.indexOf(q) < 0) created.push(q);
+    });
+    return () => created.length;
+  }
 };
 const adapters = [matrixAdapter, panelAdapter];
 const namedAdapters: Array<[string, IQuestionAdapter]> = adapters.map((adapter: IQuestionAdapter): [string, IQuestionAdapter] => [adapter.name, adapter]);
@@ -199,7 +220,7 @@ afterEach(() => {
 
 describe.each(cases)("Question source contract, shared: %s over a %s source", (_name: string, kind: "not paging" | "paging", adapter: IQuestionAdapter) => {
   // 5 records, 2 per page, the question on page 1: records 2 and 3.
-  function createOnPage1(keyed: boolean = false): { survey: SurveyModel, question: any, source: ContractSource } {
+  function createOnPage1(keyed: boolean = true): { survey: SurveyModel, question: any, source: ContractSource } {
     const source = new ContractSource(contractRecords(5), { kind: kind, keyed: keyed });
     const { survey, question } = adapter.create(source, 2);
     question.pageIndex = 1;
@@ -215,24 +236,38 @@ describe.each(cases)("Question source contract, shared: %s over a %s source", (_
   });
   test("a page change: the objects of the destination page and nothing else", () => {
     const { question, source } = createOnPage1();
-    const created = adapter.createSpy();
+    const created = adapter.countCreated(question);
     const readsBefore = source.readCount;
     const pagedReadsBefore = source.pagedReadCount;
     question.pageIndex = 0;
     expect(adapter.ids(question), "#1").toEqual([100, 101]);
-    expect(created.calls.length, "#2: one object per record on the page").toBe(2);
+    expect(created(), "#2: one object per record on the page").toBe(2);
     expect(source.readCount, "#3: the whole storage is never read again").toBe(readsBefore);
     expect(source.pagedReadCount - pagedReadsBefore, kind === "not paging"
       ? "#4: the list pages what it holds - no source call" : "#4: the source is asked for the page").toBe(kind === "not paging" ? 0 : 1);
   });
   test("remove on page 1 removes the record the respondent sees", () => {
-    for (const keyed of [false, true]) {
-      const { question, source } = createOnPage1(keyed);
-      adapter.remove(question, 0);
-      expect(source.ids, "#1 keyed=" + keyed + ": record 102 left the storage").toEqual([100, 101, 103, 104]);
-      expect(source.ops, "#2 keyed=" + keyed).toEqual([keyed ? "remove@102" : "remove@2"]);
-      expect(adapter.ids(question), "#3 keyed=" + keyed + ": the page is refilled").toEqual([103, 104]);
-    }
+    const { question, source } = createOnPage1();
+    adapter.remove(question, 0);
+    expect(source.ids, "#1: record 102 left the storage").toEqual([100, 101, 103, 104]);
+    expect(source.ops, "#2: by its key").toEqual(["remove@102"]);
+    expect(adapter.ids(question), "#3: the page is refilled").toEqual([103, 104]);
+  });
+  test("a source without keyField is read-only: an add, a remove and an edit are refused, reported and change nothing locally", () => {
+    const { survey, question, source } = createOnPage1(false);
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation); });
+    const ids = adapter.ids(question);
+    const value = JSON.stringify(question.value);
+    adapter.remove(question, 0);
+    adapter.add(question);
+    adapter.edit(question, 0, "name", "edited");
+    expect(source.ops, "#1: the source got no write").toEqual([]);
+    expect(source.ids, "#2: the storage is as it was").toEqual([100, 101, 102, 103, 104]);
+    expect(errors, "#3: one report per refused call").toEqual(["remove", "insert", "update"]);
+    expect(adapter.ids(question), "#4: the page is as it was").toEqual(ids);
+    expect(adapter.items(question)[0].getQuestionByName("name").value, "#5: the object shows the stored value").toBe("n2");
+    expect(JSON.stringify(question.value), "#6: the value is as it was").toBe(value);
   });
   test("add on page 1 shows the new record", () => {
     const { question, source } = createOnPage1();
@@ -240,10 +275,10 @@ describe.each(cases)("Question source contract, shared: %s over a %s source", (_
     expect(source.records.length, "#1: one insert").toBe(6);
     expect(source.ops.filter(op => op.indexOf("insert") === 0).length, "#2").toBe(1);
     const ids = adapter.ids(question);
-    expect(ids[ids.length - 1], "#3: the new record is the last object of the page shown").toBeUndefined();
-    expect(ids.filter(id => id === undefined).length, "#4: and the only new one").toBe(1);
+    expect(ids[ids.length - 1], "#3: the new record, with the key the source assigned, is the last object of the page shown").toBe(1000);
+    expect(ids.filter(id => id >= 1000).length, "#4: and the only new one").toBe(1);
   });
-  test("getItemVisibleIndex counts the whole list, not the page", () => {
+  test("the visible index of an object counts the whole list, not the page", () => {
     const { question } = createOnPage1();
     expect(adapter.visibleIndex(question, 0), "#1").toBe(2);
     expect(adapter.visibleIndex(question, 1), "#2").toBe(3);
@@ -284,7 +319,7 @@ describe.each(namedAdapters)("Question source contract, not paging: the list pag
     const { survey, question } = create();
     question.pageIndex = 1;
     // Record 0 is empty and its page was never edited: layer 2 visits edited pages only,
-    // so it is not walked - validating every page is a design decision, not this contract.
+    // so it is not walked - validating every page is not part of this contract.
     expect(survey.tryComplete(), "#1").toBe(true);
   });
   test("progress counts every visible record", () => {
@@ -300,7 +335,7 @@ describe.each(namedAdapters)("Question source contract, not paging: the list pag
     adapter.add(question);
     expect(source.ops, "#1: at the end of the storage").toEqual(["insert@5"]);
     expect(question.pageIndex, "#2: the page of the new record").toBe(2);
-    expect(adapter.ids(question), "#3").toEqual([104, undefined]);
+    expect(adapter.ids(question), "#3: the new record has the key the source assigned").toEqual([104, 1000]);
   });
 });
 
@@ -309,18 +344,18 @@ describe("Question source contract: the last entry and the visible panel count",
     const readSource = new ContractSource(contractRecords(5), { kind: "not paging" });
     const read = matrixAdapter.create(readSource, 2, { copyDefaultValueFromLastEntry: true }).question;
     read.addRow();
-    expect(readSource.records[5], "#1: copied from record 4, on another page").toEqual({ id: 104, name: "n4" });
+    expect(readSource.records[5], "#1: copied from record 4, on another page; the source assigned the key").toEqual({ id: 1000, name: "n4" });
     const rangeSource = new ContractSource(contractRecords(5), { kind: "paging" });
     const ranged = matrixAdapter.create(rangeSource, 2, { copyDefaultValueFromLastEntry: true }).question;
     ranged.addRow();
-    expect(rangeSource.records[2], "#2: record 2 is on the server - the window's last record is copied").toEqual({ id: 101, name: "n1" });
+    expect(rangeSource.records[2], "#2: record 2 is on the server - the window's last record is copied").toEqual({ id: 1000, name: "n1" });
   });
   test("panel visiblePanelCount of a source without paging leaves out the filtered records", () => {
     const source = new ContractSource(contractRecords(5), { kind: "not paging" });
     const question = <QuestionPanelDynamicModel>panelAdapter.create(source, 2, { displayMode: "carousel" }).question;
     question.filterExpression = "{id} > 102";
     expect(question.visiblePanelCount, "#1: records 103 and 104").toBe(2);
-    expect(question.getDataList().visibleCount, "#2").toBe(2);
+    expect(question["dataList"].visibleCount, "#2").toBe(2);
   });
 });
 
@@ -368,7 +403,7 @@ describe.each(namedAdapters)("Question source contract, paging: the source pages
     adapter.add(question);
     expect(source.ops, "#1: behind the window").toEqual(["insert@4"]);
     expect(question.pageIndex, "#2: the page in force").toBe(1);
-    expect(adapter.ids(question), "#3").toEqual([102, 103, undefined]);
+    expect(adapter.ids(question), "#3: the new record has the key the source assigned").toEqual([102, 103, 1000]);
     expect(source.pagedReadCount, "#4").toBe(readsBefore);
   });
 });
@@ -410,6 +445,22 @@ describe.each(namedAdapters)("Question source contract, paging: a total that cha
     question.pageIndex = 2;
     expect(question.pageIndex, "#3").toBe(2);
     expect(adapter.ids(question), "#4").toEqual(range(120, 129));
+  });
+  test("a total that changes while the page stays the same is reported as a change of the record count", () => {
+    const source = new ContractSource(contractRecords(25), { kind: "paging" });
+    const { question } = adapter.create(source, 10);
+    const countName = adapter.name === "matrix" ? "rowCount" : "panelCount";
+    expect(question[countName], "#1").toBe(25);
+    const changes: Array<string> = [];
+    question.onPropertyChanged.add((_: any, options: any) => {
+      if (options.name === countName) changes.push(options.oldValue + " -> " + options.newValue);
+    });
+    source.records = contractRecords(30);
+    question.refreshDataSource();
+    expect(adapter.ids(question), "#2: the same page").toEqual(range(100, 109));
+    expect(question[countName], "#3").toBe(30);
+    expect(changes, "#4").toEqual(["25 -> 30"]);
+    expect(question.toJSON()[countName], "#5: the source owns the count, the JSON leaves it out").toBeUndefined();
   });
 });
 
@@ -476,7 +527,7 @@ describe.each(namedAdapters)("Question source contract, paging: a shrink whose r
     expect(skips, "#1: the empty page and the retry").toEqual([20, 10]);
     expect(errors, "#2").toEqual(["read"]);
     expect(question.pageIndex, "#3").toBe(2);
-    expect(question.getDataList().pageIndex, "#4: the list agrees with the pager").toBe(2);
+    expect(question["dataList"].pageIndex, "#4: the list agrees with the pager").toBe(2);
     expect(adapter.ids(question), "#5: the window in force").toEqual(range(120, 124));
     failAt.length = 0;
     skips.length = 0;
@@ -507,10 +558,10 @@ describe.each(namedAdapters)("Question source contract, not paging: a read that 
     return { survey: survey, question: question, source: source };
   }
   test("a record moved by another writer: the edited record is validated where it is now", () => {
-    const { survey, question, source } = createEdited(false);
+    const { survey, question, source } = createEdited(true);
     const record = source.records.splice(0, 1)[0];
     source.records.splice(5, 0, record);
-    question.getDataList().refresh();
+    question.refreshDataSource();
     expect(adapter.ids(question), "#1: the refreshed page").toEqual([103, 104]);
     expect(survey.tryComplete(), "#2: record 100 is invalid wherever it is").toBe(false);
     expect(question.pageIndex, "#3: its page is shown").toBe(2);
@@ -522,7 +573,7 @@ describe.each(namedAdapters)("Question source contract, not paging: a read that 
     // the key does.
     source.records.reverse();
     source.records.unshift({ id: 200, name: "new" });
-    question.getDataList().refresh();
+    question.refreshDataSource();
     expect(source.ids, "#1").toEqual([200, 105, 104, 103, 102, 101, 100]);
     expect(survey.tryComplete(), "#2").toBe(false);
     expect(question.pageIndex, "#3: the last page holds record 100").toBe(3);
@@ -531,17 +582,17 @@ describe.each(namedAdapters)("Question source contract, not paging: a read that 
   test("a keyed source that deleted the edited record: nothing is left to validate", () => {
     const { survey, question, source } = createEdited(true);
     source.records.splice(0, 1);
-    question.getDataList().refresh();
+    question.refreshDataSource();
     expect(survey.tryComplete(), "#1: the record is gone").toBe(true);
   });
   test("a refresh that changed nothing keeps the edited record where it was", () => {
-    const { survey, question } = createEdited(false);
-    question.getDataList().refresh();
+    const { survey, question } = createEdited(true);
+    question.refreshDataSource();
     expect(survey.tryComplete(), "#1").toBe(false);
     expect(question.pageIndex, "#2").toBe(0);
   });
   test("another source: the edited records of the old one are dropped", () => {
-    const { survey, question } = createEdited(false);
+    const { survey, question } = createEdited(true);
     question.dataSource = new ContractSource(namedRecords(6), { kind: "not paging" });
     expect(adapter.ids(question), "#1: the page index is kept, the records are the new source's").toEqual([102, 103]);
     expect(survey.tryComplete(), "#2: record 0 of the new source was never edited").toBe(true);
@@ -560,7 +611,6 @@ describe.each(namedAdapters)("Question source contract, keyed insert: %s", (_nam
     survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation + ":" + options.error.message); });
     return { survey: survey, question: question, source: source, errors: errors };
   }
-  const noKeyYet = (operation: string): string => operation + ":DynamicDataList: the record has no key yet";
   test("copyDefaultValueFromLastEntry does not copy the key", () => {
     const { question, source } = create({ copyDefaultValueFromLastEntry: true });
     adapter.add(question);
@@ -568,7 +618,7 @@ describe.each(namedAdapters)("Question source contract, keyed insert: %s", (_nam
     expect("id" in source.insertPayloads[0], "#2: the payload has no key").toBe(false);
     expect(source.insertPayloads[0].name, "#3: the rest is copied").toBe("n2");
     expect(source.records[3].id, "#4: the stored record has the assigned key").toBe(1000);
-    expect(question.getDataList().getRecord(3).id, "#5: and so has the window").toBe(1000);
+    expect(question["dataList"].getRecord(3).id, "#5: and so has the window").toBe(1000);
     adapter.edit(question, 3, "name", "edited");
     expect(source.ops, "#6: the edit addresses the new record").toEqual(["insert@3", "update@1000"]);
     expect(source.records[2], "#7: the record whose key was copied is unchanged").toEqual({ id: 102, name: "n2" });
@@ -599,11 +649,11 @@ describe.each(namedAdapters)("Question source contract, keyed insert: %s", (_nam
     const { question, source } = create({ copyDefaultValueFromLastEntry: true });
     source.holdInserts = true;
     adapter.add(question);
-    expect(question.getDataList().getRecord(3).name, "#1: copied").toBe("n2");
+    expect(question["dataList"].getRecord(3).name, "#1: copied").toBe("n2");
     adapter.edit(question, 3, "name", "");
     source.releaseInserts();
     await flush();
-    const record = question.getDataList().getRecord(3);
+    const record = question["dataList"].getRecord(3);
     expect(record.id, "#2: the key landed").toBe(1000);
     expect("name" in record, "#3: the cleared field did not come back").toBe(false);
     expect("name" in source.records[3], "#4: nor in the record the queued update stored").toBe(false);
@@ -638,10 +688,8 @@ describe.each(namedAdapters)("Question source contract, keyed insert: %s", (_nam
   });
 });
 
-/* A paging source declares what it does with the view. A sort it has not declared is refused: no
-   request, the rows or panels on display stay, and survey.onDynamicDataError reports a failed read.
-   A filter it has not declared is run by the list over the whole storage, which the source is read
-   for while the filter is set. */
+/* A paging source declares what it does with the view. A filter or a sort it has not declared is run
+   by the list over the whole storage, which the source is read for while that part is set. */
 describe.each(namedAdapters)("Question source contract, paging without a declared view - %s", (_name: string, adapter: IQuestionAdapter) => {
   function createPagingOnly(): { survey: SurveyModel, question: any, source: ContractSource, errors: Array<string> } {
     const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
@@ -657,21 +705,73 @@ describe.each(namedAdapters)("Question source contract, paging without a declare
     expect(source.skips, "#2").toEqual([0, 2]);
     expect(errors, "#3").toEqual([]);
   });
-  test("a sort set from code sends no request and keeps the page; removing it reads again", () => {
+  test("a sort set from code reads the whole storage once and the question pages the sorted records; clearing it shows the server page again", () => {
     const { question, source, errors } = createPagingOnly();
     question.pageIndex = 1;
-    const items = [].concat(adapter.items(question));
     const readsBefore = source.pagedReadCount;
-    question.sortBy = "name-";
-    expect(source.pagedReadCount, "#1: no request").toBe(readsBefore);
-    expect(errors, "#2").toEqual(["read"]);
-    expect(adapter.ids(question), "#3: the page on display").toEqual([102, 103]);
-    expect(question.pageIndex, "#4").toBe(1);
-    expect(adapter.items(question).every((item: any, i: number): boolean => item === items[i]), "#5: the same objects").toBe(true);
-    question.sortBy = "";
-    expect(source.pagedReadCount, "#6: read again").toBe(readsBefore + 1);
-    expect(adapter.ids(question), "#7").toEqual([102, 103]);
-    expect(errors, "#8").toEqual(["read"]);
+    question.sort([{ field: "id", direction: "desc" }]);
+    expect(source.pagedReadCount, "#1: one read").toBe(readsBefore + 1);
+    expect(question["dataList"].isPagedBySource, "#2: of the whole storage").toBe(false);
+    expect(question["dataList"].loadedCount, "#3").toBe(5);
+    expect(errors, "#4").toEqual([]);
+    expect(question.pageIndex, "#5: a sort keeps the page").toBe(1);
+    expect(adapter.ids(question), "#6: sorted, paged by the question").toEqual([102, 101]);
+    question.pageIndex = 2;
+    expect(source.pagedReadCount, "#7: the page is cut from the whole storage").toBe(readsBefore + 1);
+    expect(adapter.ids(question), "#8").toEqual([100]);
+    question.sort([]);
+    expect(source.pagedReadCount, "#9: the source pages again").toBe(readsBefore + 2);
+    expect(source.skips[source.skips.length - 1], "#10: the page the sort kept").toBe(4);
+    expect(question["dataList"].isPagedBySource, "#11").toBe(true);
+    expect(adapter.ids(question), "#12: the server page").toEqual([104]);
+    expect(errors, "#13").toEqual([]);
+  });
+  // Every record has its required name: a record the respondent edits is the only invalid one.
+  function createNamedPagingOnly(): { survey: SurveyModel, question: any, errors: Array<string> } {
+    const records = contractRecords(5);
+    records.forEach((record: any): void => { record.name = "n" + record.id; });
+    const source = new ContractSource(records, { kind: "paging", capabilities: { paging: true } });
+    const { survey, question } = adapter.create(source, 2);
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation); });
+    return { survey: survey, question: question, errors: errors };
+  }
+  // The edit of the record shown first on page 1 of the view, made invalid, then the page is left.
+  const editOffThePage = (question: any, setView: (question: any) => void): void => {
+    setView(question);
+    question.pageIndex = 1;
+    adapter.edit(question, 0, "name", "");
+    question.pageIndex = 0;
+  };
+  test("a record edited on another page of a sort's whole storage is validated before the survey completes", () => {
+    const { survey, question, errors } = createNamedPagingOnly();
+    editOffThePage(question, (q: any): void => { q.sort([{ field: "id", direction: "desc" }]); });
+    expect(survey.tryComplete(), "#1").toBe(false);
+    expect(adapter.ids(question), "#2: the page of the edited record").toEqual([102, 101]);
+    expect(errors, "#3").toEqual([]);
+  });
+  test("the records edited in the whole storage of a sort are not carried onto the page that replaces it", () => {
+    const { survey, question, errors } = createNamedPagingOnly();
+    editOffThePage(question, (q: any): void => { q.sort([{ field: "id", direction: "desc" }]); });
+    question.sort([]);
+    expect(adapter.ids(question), "#1: the server page").toEqual([100, 101]);
+    expect(question.validate(true), "#2: an index of the whole storage names nothing on a page").toBe(true);
+    expect(question.pageIndex, "#3").toBe(0);
+    question.sort([{ field: "id", direction: "desc" }]);
+    expect(question.validate(true), "#4: nothing is remapped into the next whole storage").toBe(true);
+    expect(question.pageIndex, "#5").toBe(0);
+    expect(survey.tryComplete(), "#6").toBe(true);
+    expect(errors, "#7").toEqual([]);
+  });
+  test("a sort in the JSON: the first read is the whole storage", () => {
+    const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
+    const { survey, question } = adapter.create(source, 2, { sortCriteria: [{ field: "id", direction: "desc" }] });
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation); });
+    expect(source.pagedReadCount, "#1").toBe(1);
+    expect(question["dataList"].isPagedBySource, "#2").toBe(false);
+    expect(adapter.ids(question), "#3").toEqual([104, 103]);
+    expect(errors, "#4").toEqual([]);
   });
   test("a filter set from code reads the whole storage once and the question pages the matches; clearing it shows the server page again", () => {
     const { question, source, errors } = createPagingOnly();
@@ -679,8 +779,8 @@ describe.each(namedAdapters)("Question source contract, paging without a declare
     const readsBefore = source.pagedReadCount;
     question.filterExpression = "{id} > 100";
     expect(source.pagedReadCount, "#1: one read").toBe(readsBefore + 1);
-    expect(question.getDataList().isPagedBySource, "#2: of the whole storage").toBe(false);
-    expect(question.getDataList().loadedCount, "#3").toBe(5);
+    expect(question["dataList"].isPagedBySource, "#2: of the whole storage").toBe(false);
+    expect(question["dataList"].loadedCount, "#3").toBe(5);
     expect(errors, "#4").toEqual([]);
     expect(question.pageIndex, "#5: the filter resets the page").toBe(0);
     expect(adapter.ids(question), "#6: the matches, paged by the question").toEqual([101, 102]);
@@ -690,47 +790,52 @@ describe.each(namedAdapters)("Question source contract, paging without a declare
     question.filterExpression = "";
     expect(source.pagedReadCount, "#9: the source pages again").toBe(readsBefore + 2);
     expect(source.skips[source.skips.length - 1], "#10").toBe(0);
-    expect(question.getDataList().isPagedBySource, "#11").toBe(true);
+    expect(question["dataList"].isPagedBySource, "#11").toBe(true);
     expect(adapter.ids(question), "#12: the server page").toEqual([100, 101]);
     expect(errors, "#13").toEqual([]);
   });
-  test("the records edited in the whole storage are not carried onto the page that replaces it", () => {
-    const { question, errors } = createPagingOnly();
-    const editedRecords = (): Array<number> => question._pageValidation.editedRecords;
-    question.filterExpression = "{id} > 100";
-    question.pageIndex = 1;
-    adapter.edit(question, 0, "name", "");
-    question.pageIndex = 0;
-    expect(editedRecords(), "#1: record 103, off the page and not validated").toEqual([3]);
-    question.filterExpression = "";
-    expect(adapter.ids(question), "#2: the server page").toEqual([100, 101]);
-    expect(editedRecords(), "#3: an index of the whole storage names nothing on a page").toEqual([]);
-    question.filterExpression = "{id} > 100";
-    expect(editedRecords(), "#4: nothing is remapped into the next whole storage").toEqual([]);
-    expect(errors, "#5").toEqual([]);
+  test("a record edited on another page of a filter's whole storage is validated before the survey completes", () => {
+    const { survey, question, errors } = createNamedPagingOnly();
+    editOffThePage(question, (q: any): void => { q.filterExpression = "{id} > 100"; });
+    expect(survey.tryComplete(), "#1").toBe(false);
+    expect(adapter.ids(question), "#2: the page of the edited record").toEqual([103, 104]);
+    expect(errors, "#3").toEqual([]);
   });
-  test("a source assigned while such a view is set shows no records; a capable source recovers", () => {
-    const { survey, question } = adapter.create(undefined, 2, { sortBy: "name-" });
+  test("the records edited in the whole storage are not carried onto the page that replaces it", () => {
+    const { survey, question, errors } = createNamedPagingOnly();
+    editOffThePage(question, (q: any): void => { q.filterExpression = "{id} > 100"; });
+    question.filterExpression = "";
+    expect(adapter.ids(question), "#1: the server page").toEqual([100, 101]);
+    expect(question.validate(true), "#2: an index of the whole storage names nothing on a page").toBe(true);
+    expect(question.pageIndex, "#3").toBe(0);
+    question.filterExpression = "{id} > 100";
+    expect(question.validate(true), "#4: nothing is remapped into the next whole storage").toBe(true);
+    expect(question.pageIndex, "#5").toBe(0);
+    expect(survey.tryComplete(), "#6").toBe(true);
+    expect(errors, "#7").toEqual([]);
+  });
+  test("a source assigned while a sort it cannot run is set is read whole; a source that sorts gets the sort", () => {
+    const { survey, question } = adapter.create(undefined, 2, { sortCriteria: [{ field: "id", direction: "desc" }] });
     const errors: Array<string> = [];
     survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation); });
-    const refused = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
-    question.dataSource = refused;
-    expect(refused.pagedReadCount, "#1: no request").toBe(0);
-    expect(adapter.ids(question), "#2: no records").toEqual([]);
-    expect(errors, "#3").toEqual(["read"]);
-    const capable = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true, sorting: true } });
-    question.dataSource = capable;
-    expect(capable.pagedReadCount, "#4").toBe(1);
-    expect(adapter.ids(question), "#5: the source sorts on its side").toEqual([100, 101]);
-    expect(errors, "#6").toEqual(["read"]);
+    const pagingOnly = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
+    question.dataSource = pagingOnly;
+    expect(pagingOnly.pagedReadCount, "#1: one read").toBe(1);
+    expect(adapter.ids(question), "#2: sorted here").toEqual([104, 103]);
+    const sorting = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true, sorting: true } });
+    question.dataSource = sorting;
+    expect(sorting.pagedReadCount, "#3").toBe(1);
+    expect(adapter.ids(question), "#4: the source sorts on its side").toEqual([100, 101]);
+    expect(errors, "#5").toEqual([]);
   });
 });
 
-/* A header sort is offered only where it can run: the list sorts the records, or the paging source
-   declared sorting. A click that cannot sort does nothing - no validation, no request, no error. */
-describe("Question source contract: sort availability", () => {
+/* A header sort runs whatever the source declares: the list sorts the records it holds, a paging
+   source that sorts gets the sort in its page reads, and one that cannot sort is read whole while the
+   sort is set. A header click is a move the respondent makes, so the page is validated first. */
+describe("Question source contract: header sort", () => {
   function createSortableMatrix(source: ContractSource): { survey: SurveyModel, question: QuestionMatrixDynamicModel, errors: Array<string> } {
-    const { survey, question } = matrixAdapter.create(source, 2, { allowSortRows: true });
+    const { survey, question } = matrixAdapter.create(source, 2, { allowSort: true });
     const errors: Array<string> = [];
     survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation); });
     return { survey: survey, question: question, errors: errors };
@@ -738,18 +843,33 @@ describe("Question source contract: sort availability", () => {
   function sortableColumns(question: QuestionMatrixDynamicModel): Array<boolean> {
     return question.columns.map(column => column.isSortable);
   }
-  test("matrix, a paging source without sorting: no column is sortable and a header click does nothing", () => {
+  test("matrix, a paging source without sorting: every column is sortable and a header click sorts the whole storage", () => {
     const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true, filtering: true } });
     const { question, errors } = createSortableMatrix(source);
-    expect(question.canSortRecords, "#1").toBe(false);
-    expect(sortableColumns(question), "#2").toEqual([false, false]);
-    const readsBefore = source.pagedReadCount;
-    // Record 100 has no name, and the name is required: validating the page would show an error.
-    expect(question.toggleSort("id"), "#3").toBe(false);
+    expect(sortableColumns(question), "#1").toEqual([true, true]);
+    // The page is shown: the click validates the rows on display.
+    expect(matrixAdapter.ids(question), "#2").toEqual([100, 101]);
+    let readsBefore = source.pagedReadCount;
+    // Record 100 has no name, and the name is required: the click validates the page and stops.
+    expect(question.toggleSort("id"), "#3: the page is validated first").toBe(false);
     expect(source.pagedReadCount, "#4: no request").toBe(readsBefore);
-    expect(question.sortBy, "#5").toBe("");
-    expect(errors, "#6: no error event").toEqual([]);
-    expect(question.visibleRows[0].getQuestionByName("name").errors.length, "#7: the page was not validated").toBe(0);
+    expect(question.visibleRows[0].getQuestionByName("name").errors.length, "#5").toBe(1);
+    question.pageIndex = 1;
+    readsBefore = source.pagedReadCount;
+    expect(question.toggleSort("id"), "#6").toBe(true);
+    expect(source.pagedReadCount, "#7: the whole storage is read").toBe(readsBefore + 1);
+    expect(question["dataList"].isPagedBySource, "#8").toBe(false);
+    expect(getSort(question), "#9").toEqual([{ field: "id", direction: "asc" }]);
+    expect(matrixAdapter.ids(question), "#10").toEqual([102, 103]);
+    expect(question.toggleSort("id"), "#11").toBe(true);
+    expect(source.pagedReadCount, "#12: descending is sorted here").toBe(readsBefore + 1);
+    expect(matrixAdapter.ids(question), "#13").toEqual([102, 101]);
+    expect(question.toggleSort("id"), "#14").toBe(true);
+    expect(getSort(question), "#15").toEqual([]);
+    expect(source.pagedReadCount, "#16: not sorted, the server page is read").toBe(readsBefore + 2);
+    expect(question["dataList"].isPagedBySource, "#17").toBe(true);
+    expect(matrixAdapter.ids(question), "#18").toEqual([102, 103]);
+    expect(errors, "#19").toEqual([]);
   });
   test("matrix, a paging source with sorting: the columns are sortable and a header click reads the sorted page", () => {
     const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true, sorting: true } });
@@ -759,7 +879,7 @@ describe("Question source contract: sort availability", () => {
     const readsBefore = source.pagedReadCount;
     expect(question.toggleSort("id"), "#2").toBe(true);
     expect(source.pagedReadCount, "#3: the sorted page is read").toBe(readsBefore + 1);
-    expect(question.sortBy, "#4").toBe("id");
+    expect(getSort(question), "#4").toEqual([{ field: "id", direction: "asc" }]);
     expect(errors, "#5").toEqual([]);
   });
   test("matrix, a source without paging and without sorting: the list sorts, so the columns are sortable", () => {
@@ -769,52 +889,112 @@ describe("Question source contract: sort availability", () => {
     expect(sortableColumns(question), "#1").toEqual([true, true]);
     expect(question.toggleSort("id"), "#2").toBe(true);
     expect(question.toggleSort("id"), "#3").toBe(true);
-    expect(question.sortBy, "#4").toBe("id-");
+    expect(getSort(question), "#4").toEqual([{ field: "id", direction: "desc" }]);
     expect(matrixAdapter.ids(question), "#5: sorted here, descending").toEqual([102, 101]);
   });
-  test("matrix, a paging source without sorting: a filter, read over the whole storage, keeps the columns unsortable", () => {
+  test("matrix, a paging source that can neither filter nor sort: under a filter a header click sorts the whole storage in force", () => {
     const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
-    const { question } = createSortableMatrix(source);
+    const { question, errors } = createSortableMatrix(source);
     question.filterExpression = "{id} > 100";
-    expect(question.getDataList().isPagedBySource, "#1: the whole storage is in force").toBe(false);
-    expect(question.canSortRecords, "#2").toBe(false);
-    expect(sortableColumns(question), "#3").toEqual([false, false]);
-    expect(question.toggleSort("id"), "#4").toBe(false);
+    expect(question["dataList"].isPagedBySource, "#1: the whole storage is in force").toBe(false);
+    const readsBefore = source.pagedReadCount;
+    expect(question.toggleSort("id"), "#2").toBe(true);
+    expect(question.toggleSort("id"), "#3").toBe(true);
+    expect(source.pagedReadCount, "#4: nothing is read").toBe(readsBefore);
+    expect(matrixAdapter.ids(question), "#5").toEqual([104, 103]);
+    question.filterExpression = "";
+    expect(source.pagedReadCount, "#6: the sort keeps the whole storage").toBe(readsBefore);
+    expect(matrixAdapter.ids(question), "#7").toEqual([104, 103]);
+    expect(errors, "#8").toEqual([]);
   });
-  test("matrix: assigning another source changes whether the columns are sortable", () => {
-    const sorting = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true, sorting: true } });
-    const { question } = createSortableMatrix(sorting);
-    expect(sortableColumns(question), "#1").toEqual([true, true]);
-    question.dataSource = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
-    expect(sortableColumns(question), "#2").toEqual([false, false]);
-    question.dataSource = undefined;
-    expect(sortableColumns(question), "#3: the question's own value").toEqual([true, true]);
+  test("matrix, a source that filters but cannot sort, with a filter only the source can run", () => {
+    FunctionFactory.Instance.register("contractSortFallbackAsync", (): any => true, true);
+    try {
+      const asyncFilter = "contractSortFallbackAsync({id}) = true";
+      const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true, filtering: true } });
+      const { question, errors } = createSortableMatrix(source);
+      question.filterExpression = asyncFilter;
+      expect(question.filterExpression, "#1: the source runs it").toBe(asyncFilter);
+      expect(errors, "#2").toEqual([]);
+      // Page 1 holds no record with an empty required name, so the click passes the page validation.
+      question.pageIndex = 1;
+      const readsBefore = source.pagedReadCount;
+      expect(question.toggleSort("id"), "#3: the click passes the page validation").toBe(true);
+      expect(source.pagedReadCount, "#4: the sorted read is refused, nothing is sent").toBe(readsBefore);
+      expect(errors, "#5").toEqual(["read"]);
+      expect(question.filterExpression, "#6: the filter is kept").toBe(asyncFilter);
+      expect(matrixAdapter.ids(question), "#7: the page in force").toEqual([102, 103]);
+      question.sort([]);
+      expect(source.pagedReadCount, "#8: clearing the sort reads the filtered page").toBe(readsBefore + 1);
+      question.filterExpression = "";
+      question.sort([{ field: "id", direction: "desc" }]);
+      expect(question["dataList"].isPagedBySource, "#9: the whole storage is in force").toBe(false);
+      question.filterExpression = asyncFilter;
+      expect(question.filterExpression, "#10: the list has to run it and cannot, so it is dropped").toBe("");
+      expect(errors, "#11").toEqual(["read", "read"]);
+      expect(matrixAdapter.ids(question), "#12: sorted, unfiltered").toEqual([104, 103]);
+    } finally {
+      FunctionFactory.Instance.unregister("contractSortFallbackAsync");
+    }
   });
   test("matrix in design mode, or without a list, keeps the header click", () => {
     const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
     const { survey, question } = createSortableMatrix(source);
     survey.setDesignMode(true);
     expect(question.toggleSort("id"), "#1: design mode stores the sort").toBe(true);
-    expect(question.sortBy, "#2").toBe("id");
+    expect(getSort(question), "#2").toEqual([{ field: "id", direction: "asc" }]);
     const standalone = new QuestionMatrixDynamicModel("m");
-    standalone.allowSortRows = true;
+    standalone.allowSort = true;
     standalone.addColumn("col1");
     expect((<any>standalone)._dataList, "#3: no list yet").toBeUndefined();
-    expect(standalone.canSortRecords, "#4").toBe(true);
-    expect((<any>standalone)._dataList, "#5: the answer did not create one").toBeUndefined();
-    expect(standalone.columns[0].isSortable, "#6").toBe(true);
-    expect(standalone.toggleSort("col1"), "#7").toBe(true);
-    expect(standalone.sortBy, "#8").toBe("col1");
+    expect(standalone.columns[0].isSortable, "#4").toBe(true);
+    expect(standalone.toggleSort("col1"), "#5").toBe(true);
+    expect(getSort(standalone), "#6").toEqual([{ field: "col1", direction: "asc" }]);
   });
-  test("panel, a paging source without sorting: toggleSort returns false", () => {
+  test("panel, a paging source without sorting: toggleSort sorts the whole storage", () => {
     const source = new ContractSource(contractRecords(5), { kind: "paging", capabilities: { paging: true } });
     const { survey, question } = panelAdapter.create(source, 2);
     const errors: Array<string> = [];
     survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation); });
+    question.pageIndex = 1;
     const readsBefore = source.pagedReadCount;
-    expect(question.toggleSort("id"), "#1").toBe(false);
-    expect(source.pagedReadCount, "#2").toBe(readsBefore);
-    expect(question.sortBy, "#3").toBe("");
-    expect(errors, "#4").toEqual([]);
+    expect(question.toggleSort("id"), "#1").toBe(true);
+    expect(question.toggleSort("id"), "#2").toBe(true);
+    expect(source.pagedReadCount, "#3: one read of the whole storage").toBe(readsBefore + 1);
+    expect(getSort(question), "#4").toEqual([{ field: "id", direction: "desc" }]);
+    expect(panelAdapter.ids(question), "#5").toEqual([102, 101]);
+    expect(errors, "#6").toEqual([]);
+  });
+});
+
+describe("Question source contract: the question's own records source", () => {
+  // The question's own source fails on its next read while throwNextRead is set.
+  class MatrixWithFailingRecordsSource extends QuestionMatrixDynamicModel {
+    public throwNextRead: boolean = false;
+    protected createRecordsSource(): ArrayDynamicDataSource {
+      const source = super.createRecordsSource();
+      const read = source.read.bind(source);
+      source.read = (): Array<any> => {
+        if (this.throwNextRead) {
+          this.throwNextRead = false;
+          throw new Error("first read");
+        }
+        return read();
+      };
+      return source;
+    }
+  }
+  test("a failure of the first read of the list is reported through onDynamicDataError", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "t" }] });
+    const question = new MatrixWithFailingRecordsSource("m");
+    question.addColumn("id");
+    survey.pages[0].addElement(question);
+    question.value = [{ id: 1 }, { id: 2 }];
+    const errors: Array<string> = [];
+    survey.onDynamicDataError.add((_: any, options: any) => { errors.push(options.operation + ":" + options.error.message); });
+    question.throwNextRead = true;
+    question.filterExpression = "{id} > 0";
+    expect(question.throwNextRead, "#1: the list read the source").toBe(false);
+    expect(errors, "#2").toEqual(["read:first read"]);
   });
 });

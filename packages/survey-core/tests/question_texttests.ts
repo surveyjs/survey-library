@@ -5,6 +5,10 @@ import { QuestionTextBase, CharacterCounter } from "../src/question_textbase";
 import { settings } from "../src/settings";
 import { InputMaskPattern } from "../src/mask/mask_pattern";
 import { FunctionFactory } from "../src/functionsfactory";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
+import { QuestionExpressionModel } from "../src/question_expression";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { describe, test, expect } from "vitest";
 export * from "../src/localization/german";
 
@@ -438,6 +442,25 @@ describe("question text tests", () => {
     expect(q.isTextInput, "isTextInput - password").toBe(true);
     expect(q.getMaxLength(), "getMaxLength() - password").toBe(10);
   });
+  test("Input actions are visible as soon as the container is created", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", maxLength: 10 },
+        { type: "text", name: "q2" }
+      ]
+    });
+    const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+    expect(q1.inputActionsContainer.visibleActions.length, "q1 visibleActions").toBe(1);
+    expect(q1.inputActionsContainer.visibleActions[0].component, "q1 character counter").toBe("sv-character-counter");
+    expect(q1.hasVisibleInputActions, "q1 hasVisibleInputActions").toBe(true);
+    expect(q2.inputActionsContainer.actions.length, "q2 actions").toBe(1);
+    expect(q2.inputActionsContainer.visibleActions.length, "q2 visibleActions").toBe(0);
+    expect(q2.hasVisibleInputActions, "q2 hasVisibleInputActions").toBeFalsy();
+    q2.maxLength = 5;
+    expect(q2.inputActionsContainer.visibleActions.length, "q2 visibleActions after maxLength").toBe(1);
+    expect(q2.hasVisibleInputActions, "q2 hasVisibleInputActions after maxLength").toBe(true);
+  });
   test("settings.storeUtcDates = true, #8542", () => {
     const survey = new SurveyModel({
       "elements": [
@@ -680,6 +703,107 @@ describe("question text tests", () => {
     expect(q2.value, "survey2 q2.value #1").toBe(12);
     q1.inputValue = "1000";
     expect(q2.value, "survey2 q2.value #2").toBe(1012);
+  });
+  test("sumInArray over dynamic panel vs saveMaskedValue, #12122", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "items",
+          templateElements: [
+            {
+              type: "text",
+              name: "item-totalValue",
+              maskType: "numeric",
+              maskSettings: { saveMaskedValue: true, min: 0 }
+            }
+          ]
+        },
+        { type: "expression", name: "total", expression: "sumInArray({items}, 'item-totalValue')" }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("items");
+    const total = <QuestionExpressionModel>survey.getQuestionByName("total");
+    panel.panelCount = 3;
+    const getItem = (index: number) => <QuestionTextModel>panel.panels[index].getQuestionByName("item-totalValue");
+    getItem(0).inputValue = "100";
+    getItem(1).inputValue = "1234";
+    getItem(2).inputValue = "1234567";
+    expect(survey.data.items, "values are saved masked").toEqual(
+      [{ "item-totalValue": "100" }, { "item-totalValue": "1,234" }, { "item-totalValue": "1,234,567" }]
+    );
+    expect(total.value, "sum of unmasked values").toBe(1235901);
+  });
+  test("sumInArray over dynamic panel vs saveMaskedValue and custom separators, #12122", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "items",
+          templateElements: [
+            {
+              type: "text",
+              name: "item-totalValue",
+              maskType: "numeric",
+              maskSettings: { saveMaskedValue: true, decimalSeparator: ",", thousandsSeparator: "." }
+            }
+          ]
+        },
+        { type: "expression", name: "total", expression: "sumInArray({items}, 'item-totalValue')" }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("items");
+    const total = <QuestionExpressionModel>survey.getQuestionByName("total");
+    panel.panelCount = 2;
+    const getItem = (index: number) => <QuestionTextModel>panel.panels[index].getQuestionByName("item-totalValue");
+    getItem(0).inputValue = "1000";
+    getItem(1).inputValue = "2,5";
+    expect(survey.data.items, "values are saved masked").toEqual(
+      [{ "item-totalValue": "1.000" }, { "item-totalValue": "2,5" }]
+    );
+    expect(total.value, "sum of unmasked values").toBe(1002.5);
+  });
+  test("*InArray functions over dynamic matrix vs saveMaskedValue, #12122", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 2,
+          columns: [{ cellType: "text", name: "col1", maskType: "numeric", maskSettings: { saveMaskedValue: true } }]
+        },
+        { type: "expression", name: "sum", expression: "sumInArray({matrix}, 'col1')" },
+        { type: "expression", name: "max", expression: "maxInArray({matrix}, 'col1')" },
+        { type: "expression", name: "avg", expression: "avgInArray({matrix}, 'col1')" }
+      ]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    const rows = matrix.visibleRows;
+    (<QuestionTextModel>rows[0].getQuestionByName("col1")).inputValue = "1234";
+    (<QuestionTextModel>rows[1].getQuestionByName("col1")).inputValue = "1234567";
+    expect(survey.data.matrix, "values are saved masked").toEqual([{ col1: "1,234" }, { col1: "1,234,567" }]);
+    expect(survey.getQuestionByName("sum").value, "sumInArray").toBe(1235801);
+    expect(survey.getQuestionByName("max").value, "maxInArray").toBe(1234567);
+    expect(survey.getQuestionByName("avg").value, "avgInArray").toBe(617900.5);
+  });
+  test("sumInArray over dropdown matrix vs saveMaskedValue, #12122", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          rows: ["row1", "row2"],
+          columns: [{ cellType: "text", name: "col1", maskType: "numeric", maskSettings: { saveMaskedValue: true } }]
+        },
+        { type: "expression", name: "sum", expression: "sumInArray({matrix}, 'col1')" }
+      ]
+    });
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+    const rows = matrix.visibleRows;
+    (<QuestionTextModel>rows[0].getQuestionByName("col1")).inputValue = "1234";
+    (<QuestionTextModel>rows[1].getQuestionByName("col1")).inputValue = "1234567";
+    expect(survey.data.matrix, "values are saved masked").toEqual({ row1: { col1: "1,234" }, row2: { col1: "1,234,567" } });
+    expect(survey.getQuestionByName("sum").value, "sumInArray").toBe(1235801);
   });
   test("inputType email &  checkErrorsMode = `onValueChanged`, #10173", () => {
     const survey = new SurveyModel({

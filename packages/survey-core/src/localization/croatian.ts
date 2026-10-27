@@ -5,6 +5,58 @@ export var croatianStrings = {
   pagePrevText: "Prethodni",
   // "Next"
   pageNextText: "Sljedeći",
+  // [Auto-translated] "First"
+  pageFirstText: "Prvo",
+  // [Auto-translated] "Last"
+  pageLastText: "Zadnji",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "od {0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "Odaberi stranicu",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "Sortirajte po {0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "Visoko - Nisko",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "Nisko - Visoko",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "Abeceda, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "Abeceda, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "Najnoviji prvi",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "Najstariji prvi",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "Sortirano po {0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0}, pa do {1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "Sortiraj po",
+  // [Auto-translated] "Default"
+  sortDefaultText: "Zadano stanje",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "Sort polje",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "Redoslijed sortiranja",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "Dodaj razinu sortiranja",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "Uklonite razinu sortiranja {0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "Polje sortiranja {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "Redoslijed sortiranja {0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "Više...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "Prikaži sve razine sortiranja",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "Dodaj novo",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Kompletan",
   // "Preview"
@@ -37,6 +89,8 @@ export var croatianStrings = {
   panelDynamicTabTextFormat: "Ploča {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Odgovorio na {0}/{1} pitanja",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "Pitanje {0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "U anketi nema vidljive stranice ili pitanja.",
   // "Thank you for completing the survey"

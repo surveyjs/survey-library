@@ -1,6 +1,6 @@
 # SurveyJS survey JSON: an authoring guide
 
-Generated from survey-core 3.1.2 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
+Generated from survey-core 3.2.2 by `survey-utils generate-doc --llm-guide`. Do not hand-edit: every fact below is extracted from the library, and the next run overwrites this file.
 
 ## Output rules
 
@@ -15,7 +15,7 @@ When you are asked for a survey, reply with **one JSON object and nothing else**
 - Give every question a `name` that is unique in the document; it is the key in the result data.
 - An expression may only reference the `name` of a question that exists in the document.
 
-Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@3.1.2/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
+Before returning the JSON, check it against the survey definition schema and fix anything it rejects: https://unpkg.com/survey-core@3.2.2/surveyjs_definition.json. The schema catches unknown properties and malformed values; it does not catch every unknown question type, so still keep to the types listed below.
 
 ## The shape of a survey
 
@@ -96,10 +96,11 @@ The `SurveyModel` object contains properties and methods that allow you to contr
 | `widthMode` | `auto, static, responsive` | `"auto"` | Specifies how to calculate the survey width. |
 | `allowResizeComment` | `boolean` | `true` | Specifies whether to display a resize handle for Long Text questions and other text areas intended for multi-line text content. |
 | `autoAdvanceAllowComplete` | `boolean` | `true` | Specifies whether to complete the survey automatically after a user answers all questions on the last page. |
-| `autoAdvanceEnabled` | `boolean` |  | Specifies whether the survey switches to the next page automatically after a user answers all questions on the current page. |
+| `autoAdvanceEnabled` | `boolean` |  | Specifies whether the survey advances to the next page automatically after a respondent answers all questions on the current page and the answers pass validation. |
 | `autoFocusFirstError` | `boolean` | `true` | Specifies whether to focus the first question with a validation error on the current page. |
 | `autoFocusFirstQuestion` | `boolean` |  | Specifies whether to focus the first question on the page on survey startup or when users switch between pages. |
 | `autoGrowComment` | `boolean` | `false` | Specifies whether to increase the height of Long Text questions and other text areas to accommodate multi-line text content. |
+| `choiceShortcutsEnabled` | `boolean` | `false` | Specifies whether to enable letter shortcuts for selecting choices in Radio Button Group, Checkboxes, and Image Picker questions. |
 | `commentAreaRows` | `number` |  | Specifies the visible height of comment areas, measured in lines. |
 | `completedBeforeHtml` *(loc)* | `string` |  | HTML content displayed to a user who has completed the survey before. |
 | `completedHtml` *(loc)* | `string` |  | HTML content displayed on the complete page. |
@@ -156,25 +157,11 @@ Inherits the properties of `selectbase`.
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | `colCount` | `0, 1, 2, 3, 4, 5` | `1` |  |
-
-### `matrixbase`
-
-A base class for all matrix question types. Inherits the properties of `question`.
-
-[API](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixbasemodel.md)
-
-| Property | Type | Default | Description |
-| --- | --- | --- | --- |
-| `columnsVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each matrix column. |
-| `rowsVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each matrix row. |
-| `verticalAlign` | `top, middle` | `"middle"` | Aligns matrix cell content in the vertical direction. |
-| `alternateRows` | `boolean` | `false` | Specifies whether to apply shading to alternate matrix rows. |
-| `columnMinWidth` | `string` |  | Minimum column width in CSS values. |
-| `showHeader` | `boolean` | `true` | Specifies whether to display the table header that contains column captions. |
+| `choiceShortcutsEnabled` | `boolean` |  |  |
 
 ### `matrixdropdownbase`
 
-A base class for the `QuestionMatrixDropdownModel` and `QuestionMatrixDynamicModel` classes. Inherits the properties of `matrixbase`.
+A base class for the `QuestionMatrixDropdownModel` and `QuestionMatrixDynamicModel` classes. Inherits the properties of `question`.
 
 [API](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixdropdownmodelbase.md)
 
@@ -183,15 +170,22 @@ A base class for the `QuestionMatrixDropdownModel` and `QuestionMatrixDynamicMod
 | `choices` | `array` of `itemvalue` | `[]` | Gets or sets choice items for Dropdown, Checkbox, and Radiogroup matrix cells. |
 | `columns` | `array` of `matrixdropdowncolumn` |  | An array of matrix columns. |
 | `detailElements` | `array` of `question` |  | An array of survey elements (questions and panels) to be displayed in detail sections. |
+| `columnsVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each matrix column. |
+| `rowsVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each matrix row. |
 | `cellErrorLocation` | `default, top, bottom` | `"default"` | Specifies the error message position relative to matrix cells. |
 | `cellType` | `dropdown, checkbox, radiogroup, tagbox, text, comment, boolean, expression, rating, slider` | `"dropdown"` | Specifies the type of matrix cells. |
 | `columnColCount` | `0, 1, 2, 3, 4` | `0` | Specifies the number of columns in Radiogroup and Checkbox cells. |
 | `detailErrorLocation` | `default, top, bottom` | `"default"` | Specifies the error message position for questions within detail sections. |
 | `detailPanelMode` | `none, underRow, underRowSingle` | `"none"` | Specifies the location of detail sections. |
+| `verticalAlign` | `top, middle` | `"middle"` | Aligns matrix cell content in the vertical direction. |
+| `alternateRows` | `boolean` | `false` | Specifies whether to apply shading to alternate matrix rows. |
+| `columnMinWidth` | `string` |  | Minimum column width in CSS values. |
 | `keyDuplicationError` *(loc)* | `string` |  | An error message displayed when users enter a duplicate value into a column that accepts only unique values (`isUnique` is set to `true` or `keyName` is specified). |
 | `placeholder` *(loc)* | `string` |  | A placeholder for Dropdown matrix cells. |
+| `showHeader` | `boolean` | `true` | Specifies whether to display the table header that contains column captions. |
 | `singleInputTitleTemplate` *(loc)* | `string` |  | A title template that applies when the survey is in input-per-page mode. |
 | `transposeData` | `boolean` |  | Specifies whether to display `columns` as rows and `rows` as columns. |
+| `pageSize` | `number` | `0` |  |
 
 ### `nonvalue`
 
@@ -543,7 +537,7 @@ A class that describes the Image Picker question type. Inherits the properties o
 
 ### `matrix`
 
-A class that describes the Single-Select Matrix question type. Inherits the properties of `matrixbase`.
+A class that describes the Single-Select Matrix question type. Inherits the properties of `question`.
 
 [API](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixmodel.md) · [Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/)
 
@@ -551,13 +545,19 @@ A class that describes the Single-Select Matrix question type. Inherits the prop
 | --- | --- | --- | --- |
 | `columns` | `array` of `matrixcolumn` | `[]` | An array of matrix columns. |
 | `rows` | `array` of `itemvalue` | `[]` | An array of matrix rows. |
+| `columnsVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each matrix column. |
+| `rowsVisibleIf` | `expression` |  | A Boolean expression that is evaluated against each matrix row. |
 | `cellType` | `radio, checkbox` | `"radio"` | Specifies the type of matrix cells. |
 | `rowOrder` | `initial, random` | `"initial"` | Specifies a sort order for matrix rows. |
+| `verticalAlign` | `top, middle` | `"middle"` | Aligns matrix cell content in the vertical direction. |
+| `alternateRows` | `boolean` | `false` | Specifies whether to apply shading to alternate matrix rows. |
 | `cells` | `string` |  | An array of matrix cells. |
+| `columnMinWidth` | `string` |  | Minimum column width in CSS values. |
 | `eachRowRequired` | `boolean` |  | Specifies whether each row requires an answer. |
 | `eachRowUnique` | `boolean` |  | Specifies whether answers in all rows should be unique. |
 | `hideIfRowsEmpty` | `boolean` |  | Specifies whether to hide the question when the matrix has no visible rows. |
 | `rowTitleWidth` | `string` |  | A width for the column that displays row titles (first column). |
+| `showHeader` | `boolean` | `true` | Specifies whether to display the table header that contains column captions. |
 
 ```json
 {
@@ -755,6 +755,7 @@ A class that describes the Dynamic Panel question type. Inherits the properties 
 | `templateQuestionTitleWidth` | `string` |  | Sets consistent width for question titles in CSS values. |
 | `templateTabTitle` *(loc)* | `string` |  | A template for tab titles. |
 | `templateTitle` *(loc)* | `string` |  | A template for panel titles. |
+| `pageSize` | `number` | `0` |  |
 
 ```json
 {
@@ -1607,6 +1608,15 @@ Inherits the properties of `itemvalue`.
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | `showValue` | `boolean` | `false` |  |
+
+### `sortcriterion`
+
+Required: `field`.
+
+| Property | Type | Default | Description |
+| --- | --- | --- | --- |
+| `field` | `string` |  |  |
+| `direction` | `asc, desc` | `"asc"` |  |
 
 ### `urlconditionitem`
 

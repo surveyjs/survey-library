@@ -457,7 +457,7 @@ describe("Filter control: the control filter entrance of the records questions",
       FunctionFactory.Instance.register("asyncPageFunc", asyncPageFunc, true);
       const records = new Array<any>();
       for (let i = 0; i < 20; i++) records.push({ id: i, name: "n" + i });
-      const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "pd", panelsPerPage: 5,
+      const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "pd", pageSize: 5,
         templateElements: [{ type: "text", name: "id" },
           { type: "text", name: "name", validators: [{ type: "expression", expression: "asyncPageFunc({panel.id}) = 1" }] }] }] });
       survey.data = { pd: records };

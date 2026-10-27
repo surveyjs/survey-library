@@ -23,6 +23,9 @@
 @use "blocks/sv-string-viewer.scss";
 @use "blocks/sd-action-bar.scss";
 @use "blocks/sd-action.scss";
+@use "blocks/sd-pager.scss";
+@use "blocks/sd-sort-bar.scss";
+@use "blocks/sd-sort-dialog.scss";
 @use "blocks/sd-selectlist.scss";
 @use "blocks/sd-menu-list.scss";
 
@@ -36,11 +39,13 @@
 @use "blocks/sd-signaturepad.scss";
 @use "blocks/sd-matrixdynamic.scss";
 @use "blocks/sd-table.scss";
+@use "blocks/sd-table-sort.scss";
 @use "blocks/sd-page.scss";
 @use "blocks/sd-row.scss";
 @use "blocks/sd-title.scss";
 @use "blocks/sd-description.scss";
 @use "blocks/sd-item.scss";
+@use "blocks/sd-item-shortcut-key.scss";
 @use "blocks/sd-selectbase.scss";
 @use "blocks/sd-checkbox.scss";
 @use "blocks/sd-radio.scss";

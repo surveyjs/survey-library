@@ -3,6 +3,8 @@
 
 .sd-question {
   position: relative;
+  // the indent is set by the question's inline style; do not inherit it from an outer question
+  --sv-element-add-padding-left: 0px;
 }
 
 .sd-question {
@@ -132,6 +134,8 @@
 
 .sd-element--nested > div > .sd-question__header-and-content-container {
   padding: 0;
+  // keep the question indent for questions placed inside panels
+  padding-inline-start: var(--sv-element-add-padding-left, 0px);
 }
 
 .sd-question--single-input {

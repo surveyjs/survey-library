@@ -27,6 +27,9 @@ export class QuestionNonValue extends Question {
   public get hasTitle(): boolean {
     return this.supportTitle ? super.hasTitle : false;
   }
+  public get isValueSortable(): boolean {
+    return false;
+  }
   public getTitleLocation(): string {
     return this.supportTitle ? super.getTitleLocation() : "";
   }

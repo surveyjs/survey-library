@@ -512,6 +512,26 @@ describe("trigger/unknown-target fix", () => {
       { op: "set", path: "triggers[0].setToName", value: "m1[0].col1" },
     ]);
   });
+  test("a dotted name the suggestion spells whole replaces every segment it spans", () => {
+    const json = {
+      elements: [{ type: "text", name: "address.city" }],
+      triggers: [{ type: "setvalue", expression: "{address.city} = 1", setToName: "address.cty", setToValue: 2 }],
+    };
+    const finding = findingOf(json, "trigger/unknown-target");
+    expect(finding.suggestion).toBe("address.city");
+    expect(finding.fix.edits).toEqual([{ op: "set", path: "triggers[0].setToName", value: "address.city" }]);
+    expectFixSettles(json, finding);
+  });
+  test("a segment after a dotted root is respelled in place, the root stays whole", () => {
+    const json = {
+      elements: [{ type: "multipletext", name: "a.b", items: [{ name: "y" }] }],
+      triggers: [{ type: "setvalue", expression: "{a.b.y} = 1", setToName: "a.b.x", setToValue: 2 }],
+    };
+    const finding = findingOf(json, "trigger/unknown-target");
+    expect(finding.suggestion).toBe("y");
+    expect(finding.fix.edits).toEqual([{ op: "set", path: "triggers[0].setToName", value: "a.b.y" }]);
+    expectFixSettles(json, finding);
+  });
   test("a target nothing is close to gets no fix", () => {
     const json = {
       elements: [{ type: "text", name: "q1" }],
@@ -520,6 +540,29 @@ describe("trigger/unknown-target fix", () => {
     const finding = findingOf(json, "trigger/unknown-target");
     expect(finding.suggestion).toBeUndefined();
     expect(finding.fix).toBeUndefined();
+  });
+});
+
+describe("trigger/unknown-target segment level", () => {
+  const segmentFinding = (elements: Array<any>, setToName: string): ILintFinding => lintSurvey({
+    elements: elements,
+    triggers: [{ type: "setvalue", expression: "1 = 1", setToName: setToName, setToValue: 2 }],
+  }).findings.filter(f => f.reason === "segmentNotFound")[0];
+  const md = { type: "matrixdropdown", name: "md", rows: ["r.1"], columns: [{ name: "c" }] };
+  test("a column after a dotted matrixdropdown row is named a column", () => {
+    const finding = segmentFinding([md], "md.r.1.cx");
+    expect(finding.messageData.segmentLevel).toBe("column");
+    expect(finding.message).toContain("has no column \"cx\"");
+  });
+  test("an unknown matrixdropdown row is named a row", () => {
+    const finding = segmentFinding([md], "md.r9.c");
+    expect(finding.messageData.segmentLevel).toBe("row");
+    expect(finding.message).toContain("has no row \"r9\"");
+  });
+  test("an unknown multipletext item is named an item", () => {
+    const finding = segmentFinding([{ type: "multipletext", name: "mt", items: [{ name: "a" }] }], "mt.x");
+    expect(finding.messageData.segmentLevel).toBe("item");
+    expect(finding.message).toContain("has no item \"x\"");
   });
 });
 
@@ -673,6 +716,75 @@ describe("reference/unknown reference fix", () => {
       .filter(f => f.path.indexOf("inArray") > -1);
     expect(findings.length).toBeGreaterThan(0);
     findings.forEach(finding => expect(finding.fix).toBeUndefined());
+  });
+});
+
+describe("reference/unknown fix keeps what surrounds the misspelled name", () => {
+  // the survey with q2 guarded by the expression under test, next to the elements it may name
+  const guardedBy = (expression: string, elements: Array<any>): any => ({
+    elements: elements.concat([{ type: "text", name: "q2", visibleIf: expression }]),
+  });
+  const fixOf = (json: any): string => {
+    const finding = refFinding(json, "elements[" + (json.elements.length - 1) + "].visibleIf");
+    return !!finding && !!finding.fix ? finding.fix.edits[0].value : undefined;
+  };
+  const city = { type: "text", name: "address.city" };
+  const q1 = { type: "checkbox", name: "q1", choices: [1, 2] };
+  test("a dotted name the suggestion spells whole replaces every segment it spans", () => {
+    const json = guardedBy("{address.cty} notempty", [city]);
+    expect(fixOf(json)).toBe("{address.city} notempty");
+    expectFixSettles(json, refFinding(json, "elements[1].visibleIf"));
+  });
+  test("a trailing .length stays", () => {
+    expect(fixOf(guardedBy("{address.cty.length} > 0", [city]))).toBe("{address.city.length} > 0");
+  });
+  test("a segment after a dotted root is respelled in place", () => {
+    const json = guardedBy("{a.b[0].iner} notempty",
+      [{ type: "paneldynamic", name: "a.b", templateElements: [{ type: "text", name: "inner" }] }]);
+    expect(fixOf(json)).toBe("{a.b[0].inner} notempty");
+    expectFixSettles(json, refFinding(json, "elements[1].visibleIf"));
+  });
+  test("an index on the misspelled segment stays", () => {
+    expect(fixOf(guardedBy("{q1x[0]} notempty", [q1]))).toBe("{q1[0]} notempty");
+    expect(fixOf(guardedBy("{mdyn[0].colx[1]} notempty",
+      [{ type: "matrixdynamic", name: "mdyn", columns: [{ name: "col" }] }]))).toBe("{mdyn[0].col[1]} notempty");
+  });
+  test("the unwrap postfix stays", () => {
+    expect(fixOf(guardedBy("{q1x-unwrapped} notempty", [q1]))).toBe("{q1-unwrapped} notempty");
+  });
+  test("the disable-conversion char stays", () => {
+    const json = guardedBy("{#q1x} = 1", [{ type: "text", name: "q1" }]);
+    expect(fixOf(json)).toBe("{#q1} = 1");
+    expectFixSettles(json, refFinding(json, "elements[1].visibleIf"));
+  });
+  test("a dotted name piped into a text is respelled whole", () => {
+    const json = { elements: [city, { type: "text", name: "q2", title: "Hi {address.cty}" }] };
+    expect(refFinding(json, "elements[1].title").fix.edits[0].value).toBe("Hi {address.city}");
+  });
+  test("a typo inside a dotted item name is suggested and respelled whole", () => {
+    const json = guardedBy("{mt.busines.x} notempty",
+      [{ type: "multipletext", name: "mt", items: [{ name: "business.x" }] }]);
+    expect(refFinding(json, "elements[1].visibleIf").suggestion).toBe("business.x");
+    expect(fixOf(json)).toBe("{mt.business.x} notempty");
+    expectFixSettles(json, refFinding(json, "elements[1].visibleIf"));
+  });
+  test("a typo inside a dotted column name is suggested behind a scope prefix", () => {
+    const json = {
+      elements: [{
+        type: "matrixdynamic", name: "m",
+        columns: [{ name: "col.a" }, { name: "o", visibleIf: "{row.col.b} notempty" }],
+      }],
+    };
+    const finding = refFinding(json, "elements[0].columns[1].visibleIf");
+    expect(finding.suggestion).toBe("col.a");
+    expect(finding.fix.edits[0].value).toBe("{row.col.a} notempty");
+  });
+  test("a misspelled dotted row in the middle of a path keeps the column after it", () => {
+    const json = guardedBy("{md.rr.1.c} notempty",
+      [{ type: "matrixdropdown", name: "md", rows: ["r.1"], columns: [{ name: "c" }] }]);
+    expect(refFinding(json, "elements[1].visibleIf").suggestion).toBe("r.1");
+    expect(fixOf(json)).toBe("{md.r.1.c} notempty");
+    expectFixSettles(json, refFinding(json, "elements[1].visibleIf"));
   });
 });
 

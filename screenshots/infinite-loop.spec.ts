@@ -168,5 +168,40 @@ frameworks.forEach((framework) => {
       });
       await compareScreenshot(page, ".sd-row", "inf-loop-matrix-dyn-empty.png");
     });
+
+    test("Check infinite loop - empty dynamic panel summary", async ({ page }) => {
+      await page.setViewportSize({ width: 1000, height: 800 });
+      await initSurvey(page, framework, {
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "question1",
+            "panelCount": 0,
+            "templateElements": [{ "type": "text", "name": "question2" }]
+          }
+        ],
+        "questionsOnPageMode": "inputPerPage"
+      });
+      await expect(page.locator(".sd-paneldynamic__placeholder")).toBeVisible();
+      await compareScreenshot(page, ".sd-body", "inf-loop-panel-dyn-empty-summary.png");
+    });
+
+    test("Check infinite loop - empty dynamic matrix summary", async ({ page }) => {
+      await page.setViewportSize({ width: 1000, height: 800 });
+      await initSurvey(page, framework, {
+        "elements": [
+          {
+            "type": "matrixdynamic",
+            "name": "question1",
+            "rowCount": 0,
+            "columns": [{ "name": "Column 1" }, { "name": "Column 2" }],
+            "cellType": "text"
+          }
+        ],
+        "questionsOnPageMode": "inputPerPage"
+      });
+      await expect(page.locator(".sd-matrixdynamic__placeholder")).toBeVisible();
+      await compareScreenshot(page, ".sd-body", "inf-loop-matrix-dyn-empty-summary.png");
+    });
   });
 });

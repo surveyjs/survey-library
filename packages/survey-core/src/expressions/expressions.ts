@@ -295,9 +295,10 @@ export class ArrayOperand extends Operand {
       if (!!res) return res;
     }
 
+    // a null item is the "null"/"undefined" literal
     let res = this.values
       .map(function(el: Operand) {
-        return el.toString(func);
+        return el == null ? "null" : el.toString(func);
       })
       .join(", ");
 
@@ -306,35 +307,37 @@ export class ArrayOperand extends Operand {
 
   public evaluate(processValue?: ProcessValue): Array<any> {
     return this.values.map(function(el: Operand) {
-      return el.evaluate(processValue);
+      return el == null ? null : el.evaluate(processValue);
     });
   }
 
   public setVariables(variables: Array<string>) {
     this.values.forEach((el) => {
-      el.setVariables(variables);
+      if (!!el) el.setVariables(variables);
     });
   }
 
   public hasFunction(noParamsOnly?: boolean): boolean {
-    return this.values.some((operand) => operand.hasFunction(noParamsOnly));
+    return this.values.some((operand) => !!operand && operand.hasFunction(noParamsOnly));
   }
   protected addChildrenToList(list: Array<Operand>): void {
     this.values.forEach((el) => {
-      el.addOperandsToList(list);
+      if (!!el) el.addOperandsToList(list);
     });
   }
   public hasAsyncFunction(): boolean {
-    return this.values.some((operand) => operand.hasAsyncFunction());
+    return this.values.some((operand) => !!operand && operand.hasAsyncFunction());
   }
   public addToAsyncList(list: Array<AsyncFunctionItem>): void {
-    this.values.forEach((operand) => operand.addToAsyncList(list));
+    this.values.forEach((operand) => {
+      if (!!operand) operand.addToAsyncList(list);
+    });
   }
   protected isContentEqual(op: Operand): boolean {
     const aOp = <ArrayOperand>op;
     if (aOp.values.length !== this.values.length) return false;
     for (var i = 0; i < this.values.length; i ++) {
-      if (!aOp.values[i].isEqual(this.values[i])) return false;
+      if (!this.areOperatorsEquals(aOp.values[i], this.values[i])) return false;
     }
     return true;
   }
@@ -573,7 +576,10 @@ export class FunctionOperand extends Operand {
       if (this.paramValues.length === 0) return true;
       const paramVars: string[] = [];
       this.parameters.setVariables(paramVars);
-      return paramVars.length === 0;
+      if (paramVars.length === 0) return true;
+      // A function with constant parameters nested in another call ("iif({a} = 1, readQ('src'), 0)")
+      // may read any value, so no changed key tells its result changed: the whole expression must run
+      return this.parameters.hasFunction(true);
     }
     return true;
   }

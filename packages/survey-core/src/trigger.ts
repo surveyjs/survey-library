@@ -24,9 +24,7 @@ export function buildTriggerExpression(name: string, operator: string, value: an
   const op = normalizeTriggerOperator(operator);
   // "empty"/"notempty" are the only operators that run without a value
   const requireValue = op !== "empty" && op !== "notempty";
-  // Base.isValueEmpty trims strings before the check, hence trimValue here
-  const trimmed = typeof value === "string" ? value.trim() : value;
-  if (requireValue && Helpers.isValueEmpty(trimmed)) return "";
+  if (requireValue && Helpers.isValueEmpty(value, true)) return "";
   return "{" + name + "} " + op + " " + OperandMaker.toOperandString(value);
 }
 
@@ -114,6 +112,10 @@ export class Trigger extends Base {
   }
   protected canBeExecutedOnSettingData(): boolean {
     return false;
+  }
+  // The survey checks it to skip collecting trigger keys on setting data when no trigger reacts to it
+  public isExecutableOnSettingData(): boolean {
+    return this.canBeExecutedOnSettingData();
   }
   protected isExecutingOnNextPage: boolean;
   protected isExecutingOnNavigation: boolean;

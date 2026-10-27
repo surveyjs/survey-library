@@ -5,6 +5,58 @@ export var thaiStrings = {
   pagePrevText: "ก่อนหน้า",
   // "Next"
   pageNextText: "ถัดไป",
+  // [Auto-translated] "First"
+  pageFirstText: "อันดับแรก",
+  // [Auto-translated] "Last"
+  pageLastText: "สุดท้าย",
+  // [Auto-translated] "of {0}"
+  pagerTotalText: "ของ{0}",
+  // [Auto-translated] "Select Page"
+  pagerSelectPageTitle: "เลือกหน้า",
+  // [Auto-translated] "Sort by {0}"
+  sortByColumnText: "เรียงตาม{0}",
+  // [Auto-translated] "High - Low"
+  sortHighLowText: "สูง - ต่ํา",
+  // [Auto-translated] "Low - High"
+  sortLowHighText: "ต่ํา - สูง",
+  // [Auto-translated] "Alphabet, A - Z"
+  sortAZText: "ตัวอักษร, A - Z",
+  // [Auto-translated] "Alphabet, Z - A"
+  sortZAText: "ตัวอักษร, Z - A",
+  // [Auto-translated] "Newest first"
+  sortNewestFirstText: "ใหม่ล่าสุดก่อน",
+  // [Auto-translated] "Oldest first"
+  sortOldestFirstText: "คนแรกที่เก่าแก่ที่สุด",
+  // [Auto-translated] "Sorted by {0}"
+  sortOrderText: "เรียงตาม{0}",
+  // [Auto-translated] "{0} ({1})"
+  sortOrderLevelText: "{0} ({1})",
+  // [Auto-translated] "{0}, then by {1}"
+  sortOrderNextText: "{0} แล้วก็{1}",
+  // [Auto-translated] "Sort by"
+  sortByText: "เรียงตาม",
+  // [Auto-translated] "Default"
+  sortDefaultText: "ค่าเริ่มต้น",
+  // [Auto-translated] "Sort field"
+  sortFieldAriaLabel: "ฟิลด์เรียงลําดับ",
+  // [Auto-translated] "Sort order"
+  sortDirectionAriaLabel: "ลําดับการจัดเรียง",
+  // [Auto-translated] "Add sort level"
+  sortAddLevelText: "เพิ่มระดับการจัดเรียง",
+  // [Auto-translated] "Remove sort level {0}"
+  sortRemoveLevelText: "ลบระดับการจัดเรียง{0}",
+  // [Auto-translated] "Sort field {0}"
+  sortLevelFieldAriaLabel: "ฟิลด์เรียงลําดับ {0}",
+  // [Auto-translated] "Sort order {0}"
+  sortLevelDirectionAriaLabel: "เรียงลําดับ{0}",
+  // [Auto-translated] "More..."
+  sortMoreText: "เพิ่มเติม...",
+  // [Auto-translated] "Show all sort levels"
+  sortMoreAriaLabel: "แสดงระดับการจัดเรียงทั้งหมด",
+  // [Auto-translated] "Add New"
+  sortAddNewText: "เพิ่มใหม่",
+  // [Auto-translated] "—"
+  sortNoDirectionText: "—",
   // "Complete"
   completeText: "สำเร็จ",
   // "Preview"
@@ -37,6 +89,8 @@ export var thaiStrings = {
   panelDynamicTabTextFormat: "แผง {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "คำตอบที่ {0}/{1} จำนวนคำถาม",
+  // [Auto-translated] "Question {0} of {1}"
+  questionPositionProgressText: "คําถาม{0} {1}",
   // "The survey doesn't contain any visible elements."
   emptySurvey: "ไม่มีหน้าเพจที่มองเห็น หรือ คำถามใน survey นี้",
   // "Thank you for completing the survey"

@@ -4,25 +4,25 @@
       v-if="!question.isReadOnly"
       :id="question.inputId"
       :disabled="question.isDisabledAttr ? true : null"
-      :tabindex="model.noTabIndex ? undefined : 0"
+      :tabindex="renderState.noTabIndex ? undefined : 0"
       @keydown="keyhandler"
       @blur="blur"
       :class="question.getControlClass()"
-      :role="model.ariaQuestionRole"
-      :aria-required="model.ariaQuestionRequired"
-      :aria-invalid="model.ariaQuestionInvalid"
-      :aria-errormessage="model.ariaQuestionErrorMessage" 
-      :aria-expanded="model.ariaQuestionExpanded"
-      :aria-label="model.ariaQuestionLabel" 
-      :aria-labelledby="model.ariaQuestionLabelledby"
-      :aria-describedby="model.ariaQuestionDescribedby"
-      :aria-controls="model.ariaQuestionControls"
-      :aria-activedescendant="model.ariaQuestionActivedescendant"
+      :role="renderState.ariaQuestionRole"
+      :aria-required="renderState.ariaQuestionRequired"
+      :aria-invalid="renderState.ariaQuestionInvalid"
+      :aria-errormessage="renderState.ariaQuestionErrorMessage" 
+      :aria-expanded="renderState.ariaQuestionExpanded"
+      :aria-label="renderState.ariaQuestionLabel" 
+      :aria-labelledby="renderState.ariaQuestionLabelledby"
+      :aria-describedby="renderState.ariaQuestionDescribedby"
+      :aria-controls="renderState.ariaQuestionControls"
+      :aria-activedescendant="renderState.ariaQuestionActivedescendant"
       :required="question.isRequired ? true : null"
     >
       <div :class="question.cssClasses.controlValue">
-        <div v-if="model.showHintPrefix" :class="question.cssClasses.hintPrefix">
-          <span>{{ model.hintStringPrefix }}</span>
+        <div v-if="renderState.showHintPrefix" :class="question.cssClasses.hintPrefix">
+          <span>{{ renderState.hintStringPrefix }}</span>
         </div>
 
         <div :class="question.cssClasses.inputPrefixWrapper">
@@ -32,63 +32,63 @@
             :locString="selectedItemLocText"
           />
           <div
-            v-if="model.showHintString"
+            v-if="renderState.showHintString"
             :class="question.cssClasses.hintSuffix"
           >
             <span style="visibility: hidden">{{
-              model.inputStringRendered
+              renderState.inputStringRendered
             }}</span>
-            <span>{{ model.hintStringSuffix }}</span>
+            <span>{{ renderState.hintStringSuffix }}</span>
           </div>
           <SvComponent
             v-if="question.showInputFieldComponent"
             :is="question.inputFieldComponentName"
-            :item="model.getSelectedAction()"
+            :item="renderState.getSelectedAction()"
             :question="question"
           >
           </SvComponent>
           <input
-            v-if="model.needRenderInput"
+            v-if="renderState.needRenderInput"
             type="text"
             ref="inputElement"
             v-bind:class="question.cssClasses.filterStringInput"
             v-bind:disabled="question.isDisabledAttr"
             autocomplete="off"
-            :inputmode="model.inputMode"
+            :inputmode="renderState.inputMode"
             :id="question.getInputId()"
-            :tabindex="model.noTabIndex ? undefined : -1"
-            :readonly="model.filterReadOnly ? true : undefined"
-            :role="model.ariaInputRole"
-            :aria-required="model.ariaInputRequired"
-            :aria-invalid="model.ariaInputInvalid"
-            :aria-errormessage="model.ariaInputErrorMessage"
-            :aria-expanded="model.ariaInputExpanded"
-            :aria-controls="model.ariaInputControls"
-            :aria-label="model.ariaInputLabel"
-            :aria-labelledby="model.ariaInputLabelledby"
-            :aria-describedby="model.ariaInputDescribedby"
-            :aria-activedescendant="model.ariaInputActivedescendant"
-            :placeholder="model.placeholderRendered"
+            :tabindex="renderState.noTabIndex ? undefined : -1"
+            :readonly="renderState.filterReadOnly ? true : undefined"
+            :role="renderState.ariaInputRole"
+            :aria-required="renderState.ariaInputRequired"
+            :aria-invalid="renderState.ariaInputInvalid"
+            :aria-errormessage="renderState.ariaInputErrorMessage"
+            :aria-expanded="renderState.ariaInputExpanded"
+            :aria-controls="renderState.ariaInputControls"
+            :aria-label="renderState.ariaInputLabel"
+            :aria-labelledby="renderState.ariaInputLabelledby"
+            :aria-describedby="renderState.ariaInputDescribedby"
+            :aria-activedescendant="renderState.ariaInputActivedescendant"
+            :placeholder="renderState.placeholderRendered"
             @input="inputChange"
             @blur="blur"
             @focus="focus"
           />
         </div>
       </div>
-      <SvComponent :is="'sv-action-bar'" :model="model.editorButtons" />
+      <SvComponent :is="'sv-action-bar'" :model="renderState.editorButtons" />
     </div>
     <SvComponent
       :is="'sv-popup'"
       v-if="!question.isInputReadOnly"
-      :model="model.popupModel"
+      :model="question.dropdownListModel.popupModel"
     ></SvComponent>
     <div
       v-if="question.isReadOnly"
       :id="question.inputId"
-      :role="model?.ariaQuestionRole"
-      :aria-label="model?.ariaQuestionLabel"
-      :aria-labelledby="model?.ariaQuestionLabelledby"
-      :aria-describedby="model?.ariaQuestionDescribedby"
+      :role="renderState.ariaQuestionRole"
+      :aria-label="renderState.ariaQuestionLabel"
+      :aria-labelledby="renderState.ariaQuestionLabelledby"
+      :aria-describedby="renderState.ariaQuestionDescribedby"
       :aria-expanded="false"
       :aria-readonly="true"
       :aria-disabled="true"
@@ -111,7 +111,7 @@
       >
         <SvComponent :is="'survey-string'" :locString="question.locReadOnlyText" />
       </div>
-      <SvComponent :is="'sv-action-bar'" :model="model.editorButtons" />
+      <SvComponent :is="'sv-action-bar'" :model="renderState.editorButtons" />
     </div>
   </div>
 </template>
@@ -124,23 +124,32 @@ import { computed, onMounted, onUpdated, ref } from "vue";
 
 const props = defineProps<{ question: Question }>();
 const inputElement = ref<HTMLElement>(null as any);
-const model = computed(() => {
-  return props.question.dropdownListModel;
+// The closed control is rendered from the render state, which does not create DropdownListModel.
+const renderState = computed(() => {
+  return props.question.dropdownRenderState || props.question.dropdownListModel;
+});
+// The model is created when the popup is rendered (an editable control) or on an interaction.
+// modelVersion is bumped after an interaction, so useBase subscribes to a model created by it.
+const modelVersion = ref(0);
+const stateModel = computed(() => {
+  return modelVersion.value >= 0 && props.question.isInputReadOnly ? props.question.dropdownListModelValue : props.question.dropdownListModel;
 });
 const click = (event: any) => {
-  model.value?.onClick(event);
+  props.question.dropdownListModel?.onClick(event);
+  modelVersion.value++;
 };
 const keyhandler = (event: any) => {
-  model.value?.keyHandler(event);
+  props.question.dropdownListModel?.keyHandler(event);
+  modelVersion.value++;
 };
 const updateInputDomElement = () => {
   if (inputElement.value) {
     const control: any = inputElement.value;
-    const newValue = model.value.inputStringRendered;
+    const newValue = renderState.value.inputStringRendered;
     if (
       !Helpers.isTwoValueEquals(newValue, control.value, false, true, false)
     ) {
-      control.value = model.value.inputStringRendered;
+      control.value = renderState.value.inputStringRendered;
     }
   }
 };
@@ -150,9 +159,11 @@ const blur = (event: any) => {
 };
 const focus = (event: any) => {
   props.question.onFocus(event);
+  modelVersion.value++;
 };
 const inputChange = (event: any) => {
-  model.value.inputStringRendered = event.target.value;
+  const model = props.question.dropdownListModel;
+  model.inputStringRendered = event.target.value;
 };
 
 const showSelectedItemLocText = computed(
@@ -160,13 +171,13 @@ const showSelectedItemLocText = computed(
 );
 const selectedItemLocText = computed(() => props.question.selectedItemLocText);
 const readonlySelectedItem = computed(() => {
-  const m = model.value;
+  const m = renderState.value;
   return m && typeof m.getSelectedAction === "function"
     ? m.getSelectedAction()
     : props.question.selectedItem;
 });
 
-useBase(() => model.value);
+useBase(() => stateModel.value);
 
 onUpdated(updateInputDomElement);
 onMounted(updateInputDomElement);

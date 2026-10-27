@@ -8,14 +8,6 @@ import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElement } from "./reactquestion_element";
 import { SurveyAction } from "./components/action-bar/action-bar-item";
 
-// Prototype (#11873): the pager is the question's own pagerActions in an action bar - the core has no
-// renderer and no theme for it yet. Inset the way the matrix's bottom toolbar ("Add row") is; the
-// theme scopes those variables to a matrix, so a Dynamic Panel falls back to the plain 8px.
-const pagerStyle: React.CSSProperties = {
-  paddingInline: "var(--sd-matrixdynamic-toolbar-padding-inline, 0)",
-  paddingBlock: "var(--sd-matrixdynamic-toolbar-padding-block-start, 8px) var(--sd-matrixdynamic-toolbar-padding-block-end, 8px)"
-};
-
 export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
@@ -70,23 +62,27 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     return (
       <div className={cssClasses.root}>
         {this.question.hasTabbedMenu ? <div className={this.question.getTabsContainerCss()}><SurveyActionBar model={this.question.tabbedMenu}></SurveyActionBar></div> : null }
+        {this.renderSortBar()}
         {noEntriesPlaceholder}
         {rangeTop}
         <div className={this.question.cssClasses.panelsContainer}>
           {panels}
         </div>
-        {this.renderPager()}
         {navigation}
       </div>
     );
   }
 
-  /* Prototype (#11873): the question's own pagerActions in an action bar. Shown in displayMode: "list"
-     only - a carousel's navigator moves from page to page by itself, and tab mode keeps the prototype's
-     choice of no pager. The panel has no showPager of its own, so the condition stays here. */
-  protected renderPager(): React.JSX.Element | null {
-    if (!this.question.isRenderModeList || this.question.pageCount <= 1) return null;
-    return <div style={pagerStyle}><SurveyActionBar model={this.question.pagerActions}></SurveyActionBar></div>;
+  // The sort bar above the panels, while the question header is not on top or on the left.
+  protected renderSortBar(): React.JSX.Element | null {
+    if (this.question.sortBarLocation !== "top") return null;
+    return <div className={this.question.cssClasses.sortBarTop}>
+      <SurveyActionBar model={this.question.recordsBar.sortActions}></SurveyActionBar>
+    </div>;
+  }
+  // The records bar in the footer: the pager.
+  protected renderRecordsBar(): React.JSX.Element | null {
+    return ReactElementFactory.Instance.createElement("sv-records-bar", { model: this.question.recordsBar });
   }
 
   protected renderRange(): React.JSX.Element {
@@ -102,15 +98,15 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
   protected renderNavigator(): React.JSX.Element | null {
-    if (!this.question.showNavigation) return null;
-    const range: React.JSX.Element | null = this.question.isRangeShowing && this.question.isProgressBottomShowing ? this.renderRange() : null;
-    if (!range && !this.question.showFooterToolbar) return null;
-    return (<div className={this.question.cssClasses.footer}>
+    if (!this.question.showFooter) return null;
+    const range: React.JSX.Element | null = this.question.showFooterProgress ? this.renderRange() : null;
+    return (<div className={this.question.getFooterCss()}>
       <hr className={this.question.cssClasses.separator} />
       {range}
-      {this.question.showFooterToolbar ? (<div className={this.question.cssClasses.footerButtonsContainer}>
+      {this.question.showFooterButtons ? (<div className={this.question.cssClasses.footerButtonsContainer}>
         <SurveyActionBar model={this.question.footerToolbar}></SurveyActionBar>
       </div>) : null}
+      {this.renderRecordsBar()}
     </div>);
   }
   protected renderPlaceholder(cssClasses: any): React.JSX.Element | null {
@@ -169,7 +165,7 @@ export class SurveyQuestionPanelDynamicPlaceholder extends ReactSurveyElement {
     return (
       <div className={cssClasses.noEntriesPlaceholder}>
         <span>{this.renderLocString(question.locNoEntriesText)}</span>
-        {<SurveyActionBar model={this.props.question.footerToolbar}></SurveyActionBar>}
+        {question.getShowPlaceholderToolbar() ? <SurveyActionBar model={question.footerToolbar}></SurveyActionBar> : null}
       </div>
     );
   }

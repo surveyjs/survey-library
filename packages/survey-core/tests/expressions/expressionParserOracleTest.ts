@@ -111,7 +111,7 @@ describe("Expression parser: differential test against the generated parser", ()
 
   // Per node: getType(); binary: operator, isArithmetic, left/right; unary: operator, expression; function: functionName,
   // paramValues; array: values; const: typeof and the raw value (=== semantics); variable: variable; null vs undefined.
-  // Not toString() (it throws on "!null") and not isEqual (it compares constants with ==).
+  // Not isEqual (it compares constants with ==).
   const constText = (value: any): string => {
     const type = typeof value;
     if (type === "string") return "s" + JSON.stringify(value);

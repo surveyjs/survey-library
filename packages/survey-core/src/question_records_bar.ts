@@ -69,7 +69,7 @@ export class QuestionRecordsBar extends Base {
   private sortActionsValue: IRecordsSortActions;
   public get sortActions(): ActionContainer {
     if (!this.sortActionsValue) {
-      // It fits the bar to its width by whole levels, and shows "More..." while a level is out.
+      // It fits the bar to its width by whole levels, and shows "..." instead of "+" while a level is out.
       const container = this.owner.createActionContainer(new RecordsSortBarContainer());
       container.containerCss = this.owner.getCssClasses().sortBar;
       this.sortActionsValue = createRecordsSortActions(container, this.owner, this);

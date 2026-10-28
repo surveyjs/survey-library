@@ -49,8 +49,6 @@ export var greekSurveyStrings = {
   sortLevelFieldAriaLabel: "Ταξινόμηση πεδίου {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Σειρά ταξινόμησης {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Περισσότερα...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Εμφάνιση όλων των επιπέδων ταξινόμησης",
   // [Auto-translated] "Add New"

@@ -49,8 +49,6 @@ export var dutchSurveyStrings = {
   sortLevelFieldAriaLabel: "Sorteerveld {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Sorteervolgorde {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Meer...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Laat alle sorteerniveaus zien",
   // [Auto-translated] "Add New"

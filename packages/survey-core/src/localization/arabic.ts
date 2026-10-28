@@ -49,8 +49,6 @@ export var arabicSurveyStrings = {
   sortLevelFieldAriaLabel: "حقل الفرز {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "ترتيب {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "المزيد...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "عرض جميع مستويات الترتيب",
   // [Auto-translated] "Add New"

@@ -133,6 +133,38 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-question__content", "view-multiple.png");
     });
 
+    test("Multiple text Input ReadOnly and Preview mobile", async ({ page }) => {
+      await page.setViewportSize({ width: 420, height: 700 });
+      await initSurvey(page, framework, {
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
+        showQuestionNumbers: false,
+        elements: [
+          {
+            "type": "multipletext",
+            "name": "question1",
+            "defaultValue": {
+              "text1": "item1",
+              "text2": "item2"
+            },
+            "readOnly": true,
+            "items": [
+              { "name": "text1" },
+              { "name": "text2" }
+            ]
+          },
+        ]
+      });
+
+      await compareScreenshot(page, ".sd-question__content", "readonly-multiple-mobile.png");
+      await page.evaluate(() => {
+        (window as any).survey.showPreview();
+      });
+      await compareScreenshot(page, ".sd-question__content", "preview-multiple-mobile.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-multiple-mobile.png");
+    });
+
     test("Rating ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
@@ -722,6 +754,38 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-question__content", "preview-matrix-single.png");
       await enableReadOnlyView(page);
       await compareScreenshot(page, ".sd-question__content", "view-matrix-single.png");
+    });
+
+    test("Matrix ReadOnly and Preview mobile", async ({ page }) => {
+      await page.setViewportSize({ width: 420, height: 900 });
+      await initSurvey(page, framework, {
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
+        showQuestionNumbers: false,
+        elements: [
+          {
+            "type": "matrix",
+            "name": "question1",
+            "readOnly": true,
+            "defaultValue": {
+              "Row 1": "Column 1",
+              "Row 2": "Column 2"
+            },
+            "columns": ["Column 1", "Column 2", "Column 3"],
+            "rows": [
+              "Row 1",
+              "Row 2"
+            ]
+          }
+        ]
+      });
+      await compareScreenshot(page, ".sd-question__content", "readonly-matrix-single-mobile.png");
+      await page.evaluate(() => {
+        (window as any).survey.showPreview();
+      });
+      await compareScreenshot(page, ".sd-question__content", "preview-matrix-single-mobile.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-matrix-single-mobile.png");
     });
 
     test("Matrix ReadOnly and Preview alt rows", async ({ page }) => {

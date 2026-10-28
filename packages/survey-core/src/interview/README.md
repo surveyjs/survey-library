@@ -480,7 +480,10 @@ Validators therefore run in exactly these places, always with the errors kept, a
 the settle:
 
 * at `createInterview`, on every askable input that already holds a value — a model resumed from
-  saved data with an answer that violates a validator is invalid from the first `current()`;
+  saved data with an answer that violates a validator is invalid from the first `current()`. A
+  container that holds a value validates its entries with it: a dynamic matrix stores an empty row
+  as `{}`, as a dynamic panel stores an empty panel, so the entry of a dynamic panel that holds such a
+  matrix is not empty. What that run puts on an empty input is dropped, as below;
 * in `answer()`, on the input that was written;
 * in `answer()`, on every input that held errors **before** the write — an expression validator or a
   `min`/`max` bound may depend on the value just written, and a stale error would keep an input
@@ -496,6 +499,8 @@ the settle:
   Validating a container validates its entries with it, and an entry that was just created is empty
   by definition, so the errors that run puts on inputs nobody has been asked for yet are dropped:
   an unanswered required input is an error at `complete()`, not the moment its entry comes into being.
+  One rule covers every run above: an input that is empty, that the call did not write and that
+  carried no error before the call is left without one.
 * in `complete()`, on everything, containers and panels included.
 
 ### Addresses

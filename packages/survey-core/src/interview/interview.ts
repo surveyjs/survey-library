@@ -7,7 +7,7 @@ import {
   IInterviewItem, IInterviewOptions, IInterviewResult, IInterviewToolDefinition, IInterviewToolOptions,
 } from "./interview-types";
 import {
-  IInterviewContainer, IInterviewInput, IInterviewPanel, clearUntouchedChoiceErrors, getAnsweredValue,
+  IInterviewContainer, IInterviewInput, IInterviewPanel, clearUntouchedInputErrors, getAnsweredValue,
   getDataSourceOwner, getInputErrors, getInterviewInputs, getInterviewPanels, getUnreportedContainers, isAskableInput,
   isInShowingChoice, isInputAnswered, isInputValid, makeInputCurrent, updateCurrentItem, validateInput,
   validatePanels,
@@ -100,9 +100,10 @@ export class Interview implements IInterview {
     });
     await this.settleSurvey();
     const after = this.getInputs();
-    // A resumed model with a choice selected: validating its owner validated the empty questions of
-    // the choice, which nobody has been asked for yet.
-    clearUntouchedChoiceErrors(after, input => hadErrors[input.question.id] === true);
+    // A container that holds a value validated its empty entries - a dynamic panel's entry holding
+    // the empty rows of a matrix -, and an owner with a choice selected the empty questions of the
+    // choice: nobody has been asked for them yet.
+    clearUntouchedInputErrors(after, input => hadErrors[input.question.id] === true);
     this.makeCurrent(after);
   }
 
@@ -294,8 +295,7 @@ export class Interview implements IInterview {
     // Which inputs carried an error before anything was written. Validating a dynamic container
     // validates its entries with it, and the errors that run puts on an empty input nobody has been
     // asked for yet are not errors of this call (interview-records.ts).
-    const hadErrors: { [id: string]: boolean } = {};
-    wereInvalid.forEach(input => { hadErrors[input.question.id] = true; });
+    const hadErrors = getErrorIds(wereInvalid);
     const written: IBatchWritten = { addresses: createNameLookup<boolean>(), questions: {}, containers: [] };
     const writeErrors: Array<IInterviewError> = [];
     // A pass that writes consumes at least one key, so there are at most as many passes as keys. A
@@ -323,8 +323,10 @@ export class Interview implements IInterview {
     // drain together instead of one call per key.
     await this.settleSurvey();
     const after = this.getInputs();
-    clearUntouchedChoiceErrors(after, input => isBatchWritten(written, input) ||
-      hadErrors[input.question.id] === true);
+    // Re-validating an input that held an error reaches the entries of a container among them as
+    // well. A container the call wrote keeps its own errors: they are reported under its address.
+    clearUntouchedInputErrors(after, input => isBatchWritten(written, input) ||
+      isContainerWritten(written, input) || hadErrors[input.question.id] === true);
     this.makeCurrent(after);
     const errors = getResolutionErrors(keys, refused, resolved.unresolved, this.getUnresolvedErrors(after));
     writeErrors.forEach(error => errors.push(error));
@@ -402,7 +404,7 @@ export class Interview implements IInterview {
     validateRevealedInputs(inputs, this.getInputs());
     await this.settleSurvey();
     const after = this.getInputs();
-    clearUntouchedChoiceErrors(after, input => input.question === target.question ||
+    clearUntouchedInputErrors(after, input => input.question === target.question ||
       hadErrors[input.question.id] === true);
     this.makeCurrent(after);
     const errors = getInputErrors(target).map(message => ({ name: target.address, message: message }));
@@ -422,8 +424,7 @@ export class Interview implements IInterview {
     makeInputCurrent(this.surveyValue, target);
     const before = takeSnapshot(this.surveyValue, inputs);
     const wereInvalid = inputs.filter(input => input !== target && input.question.errors.length > 0);
-    const hadErrors: { [id: string]: boolean } = {};
-    wereInvalid.forEach(input => { hadErrors[input.question.id] = true; });
+    const hadErrors = getErrorIds(wereInvalid);
     const applied = applySummaryAction(target.question, target.address, value);
     if (!!applied.error) {
       // No entry was added, removed or opened, so nothing changed: the one coded error and the same
@@ -442,18 +443,6 @@ export class Interview implements IInterview {
       // own errors are written by validating it after every add and every remove, and so is a
       // duplicated key on the key fields of its entries.
       validateInput(this.surveyValue, target);
-      // Validating the container validates its entries with it, and that would put "Response
-      // required." on an input nobody has been asked for yet - a freshly added entry is empty by
-      // definition. An input that carried no error before the action and is still empty is left as
-      // it was: an unanswered required input becomes an error at complete(), not the moment its
-      // entry comes into being.
-      this.getInputs().forEach(input => {
-        if (input.question === target.question) return;
-        if (hadErrors[input.question.id] !== true && input.question.isEmpty() &&
-          input.question.errors.length > 0) {
-          input.question.clearErrors();
-        }
-      });
       wereInvalid.forEach(input => {
         if (input.question.isVisibleInSurvey) input.question.validate(true);
       });
@@ -461,6 +450,10 @@ export class Interview implements IInterview {
     }
     await this.settleSurvey();
     const after = this.getInputs();
+    // Validating the container validates its entries with it, and a freshly added entry is empty by
+    // definition: what that run put on its inputs is dropped again.
+    clearUntouchedInputErrors(after, input => input.question === target.question ||
+      hadErrors[input.question.id] === true);
     // "edit" is the one gesture whose current follows the model instead of the rule: the entry it
     // opens is answered and valid, so the rule would walk straight past it, and the interviewee has
     // just asked to see it. It stays current until something is written, and the rule resumes there.
@@ -850,6 +843,10 @@ interface IBatchWritten {
 
 function isBatchWritten(written: IBatchWritten, input: IInterviewInput): boolean {
   return written.addresses[input.address] === true || written.questions[input.question.id] === true;
+}
+
+function isContainerWritten(written: IBatchWritten, input: IInterviewInput): boolean {
+  return written.containers.some(container => container.question === input.question);
 }
 
 interface IBatchWrite {

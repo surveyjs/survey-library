@@ -423,19 +423,21 @@ export function isInputValid(input: IInterviewInput): boolean {
   return input.question.errors.length === 0 && !input.question.hasRequiredError();
 }
 
-// Validating a radiogroup or a checkbox validates the questions of its selected choices with it
-// (QuestionSelectBase.validateElementCore), so the write that selects a choice puts "Response
-// required." on the question the choice has just revealed - an input nobody has asked for yet, and
-// the next current() would carry the error. An input inside a choice that is empty, that the call did
-// not touch and that carried no error before the call is therefore left as it was: the rule a summary
-// step and a batch record already apply to the entries validating a container reaches. An
-// unanswered required input is an error at complete(), not the moment its choice is selected.
-export function clearUntouchedChoiceErrors(inputs: Array<IInterviewInput>,
+// Validating a question validates what it holds: a container validates its entries - a dynamic panel
+// whose entry holds a dynamic matrix validates the matrix's empty rows, each of them a record of the
+// value (Bug#12147) - and a radiogroup or a checkbox the questions of its selected choices
+// (QuestionSelectBase.validateElementCore). That run puts "Response required." on inputs nobody has
+// asked for yet, and the next current() would carry the error. An input that is empty, that the call
+// did not touch and that carried no error before the call is therefore left as it was, after every
+// validation run but complete()'s. An unanswered required input is an error at complete(), not the
+// moment its entry comes into being or its choice is selected. The batch writers apply the same rule
+// to the fields of the containers they write (interview-fields.ts clearUntouchedFields).
+export function clearUntouchedInputErrors(inputs: Array<IInterviewInput>,
   isTouched: (input: IInterviewInput) => boolean): void {
   inputs.forEach(input => {
     const question = input.question;
     if (question.errors.length === 0 || !question.isEmpty() || isTouched(input)) return;
-    if (!!getChoiceOwner(input.root)) question.clearErrors();
+    question.clearErrors();
   });
 }
 

@@ -682,6 +682,38 @@ describe("interview nested inputs (issue #11818)", () => {
     });
   });
 
+  test("A matrix's empty rows inside a dynamic panel's entry carry no error until complete()", async () => {
+    // The matrix stores a record for every row, an empty one as {} (Bug#12147), so the entry holds a
+    // value and the dynamic panel is not empty: validating it validates the empty required sku.
+    const iv = await createInterview({
+      elements: [{ type: "paneldynamic", name: "orders", panelCount: 1, templateElements: [
+        { type: "text", name: "ref", title: "Reference" },
+        { type: "matrixdynamic", name: "items", rowCount: 1,
+          columns: [{ name: "sku", cellType: "text", isRequired: true }] },
+      ] }],
+    });
+    expect(iv.data).toEqual({ orders: [{ items: [{}] }] });
+    const getSku = (index: number): any =>
+      iv.survey.getQuestionByName("orders").panels[index].getQuestionByName("items").visibleRows[0].cells[0].question;
+    expect(getSku(0).errors).toEqual([]);
+    await iv.answer("PO-1");
+    const sku = iv.current();
+    expect(sku.name).toBe("orders[0].items[0].sku");
+    expect(sku.error).toBeUndefined();
+    await iv.answer("A-1");
+    await iv.answer({ action: "done" });
+    // A new entry of the panel comes with the matrix's empty row, and nobody has asked for its sku yet.
+    const added = await iv.answer({ action: "add" });
+    expect(added.errors).toEqual([]);
+    expect(added.current.name).toBe("orders[1].ref");
+    expect(added.current.error).toBeUndefined();
+    expect(getSku(1).errors).toEqual([]);
+    expect(iv.data).toEqual({ orders: [{ ref: "PO-1", items: [{ sku: "A-1" }] }, { items: [{}] }] });
+    // complete() is where an unanswered required input becomes an error.
+    const completed = await iv.complete();
+    expect(completed.errors.map(error => error.name)).toEqual(["orders[1].items[0].sku"]);
+  });
+
   test("Batch mode fills the container as records, and an address is not a batch key", async () => {
     const iv = await createInterview(medicationsJson({ panelCount: 1 }));
     const document = iv.describeAll();

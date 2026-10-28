@@ -108,8 +108,8 @@ ConstValue
   / value:LettersAndDigits  { return value; }
   / "''" {return ""; }
   / "\"\"" {return ""; }
-  / "'" value:AnyInput "'" { return "'" + value + "'"; }
-  / "\"" value:AnyInput "\"" { return "'" + value + "'"; }
+  / "'" value:SingleQuotedInput "'" { return "'" + value + "'"; }
+  / "\"" value:DoubleQuotedInput "\"" { return "'" + value + "'"; }
 
 // "]" is optional, like ")". When it was required, an unclosed "[" inside an unclosed "(" was parsed twice
 // at each nesting level, so the parse time doubled per level.
@@ -150,13 +150,22 @@ Number
 ValueInput
   = $[^{}]+
 
-AnyInput
-  = chars:AnyCharacters+ { return chars.join(""); }
+// A string ends only at its own quote: the other one needs no escape. "\'" and "\"" work in both.
+SingleQuotedInput
+  = chars:SingleQuotedCharacters+ { return chars.join(""); }
 
-AnyCharacters
+SingleQuotedCharacters
   = "\\'"       { return "'"; }
   / "\\\""      { return "\""; }
-  / [^\"\'] { return text(); }
+  / [^\'] { return text(); }
+
+DoubleQuotedInput
+  = chars:DoubleQuotedCharacters+ { return chars.join(""); }
+
+DoubleQuotedCharacters
+  = "\\'"       { return "'"; }
+  / "\\\""      { return "\""; }
+  / [^\"] { return text(); }
 
 LettersAndDigits
   = Letters (Digits Letters*)* { return text(); }

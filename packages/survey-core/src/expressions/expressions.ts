@@ -365,7 +365,12 @@ export class Const extends Operand {
       var res = func(this);
       if (!!res) return res;
     }
-    return this.value === "" ? "''" : this.value.toString();
+    if (this.value === "") return "''";
+    if (this.isStringLiteral()) {
+      // The parser stores a string literal in single quotes with its escapes removed: put them back, so the text parses again
+      return "'" + this.value.substring(1, this.value.length - 1).replace(/['"]/g, "\\$&") + "'";
+    }
+    return this.value.toString();
   }
   public get correctValue(): any {
     return this.getCorrectValue(this.value);
@@ -411,6 +416,10 @@ export class Const extends Operand {
   }
   private isQuote(ch: string): boolean {
     return ch == "'" || ch == '"';
+  }
+  private isStringLiteral(): boolean {
+    const val = this.value;
+    return typeof val === "string" && val.length > 1 && val[0] === "'" && val[val.length - 1] === "'";
   }
 }
 

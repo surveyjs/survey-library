@@ -98,7 +98,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
   }
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
-    return multiChoiceKeyboardHints(this, !this.isEmpty());
+    return multiChoiceKeyboardHints(this);
   }
   private isAutoAdvanceTextInputTarget(target: any): boolean {
     if (!target) return false;

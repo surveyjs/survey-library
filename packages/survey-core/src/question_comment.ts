@@ -119,7 +119,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     if (this.acceptCarriageReturn) {
       rows.push(keyboardHint(this, "keyboardHintNewLineText", ["shiftEnter"]));
     }
-    rows.push(keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"], !this.isEmpty()));
+    rows.push(keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"]));
     return rows;
   }
   // IsTouch means an on-screen keyboard. question.isMobile follows layout width, so a narrow desktop window must keep Enter.

@@ -53,7 +53,7 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
     if (displayMode === "checkbox") {
       const rows = [keyboardHint(this, "keyboardHintToggleText", ["space"])];
       if (survey.autoAdvanceEnabled === true) {
-        rows.push(keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"], !this.isEmpty()));
+        rows.push(keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"]));
       }
       return rows;
     }

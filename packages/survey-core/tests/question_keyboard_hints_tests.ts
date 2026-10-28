@@ -100,24 +100,21 @@ test("german keyboard hint strings are translated", () => {
   expect(getLocaleString("keyboardHintCloseText", "de")).toBe("zum Schließen"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
 });
 
-test("radio hints follow auto-advance, the value, and the comment area", () => {
+test("radio enter hint stays visible while auto-advance is on", () => {
   expect(hints({ type: "radiogroup", choices: ["a", "b"] })).toEqual([
     row("to select", [arrows])
   ]);
-  expect(hints({ type: "radiogroup", choices: ["a", "b"] }, { autoAdvanceEnabled: true })).toEqual([
-    row("to select", [arrows])
-  ]);
-  expect(hints({ type: "radiogroup", choices: ["a", "b"], defaultValue: "a" }, { autoAdvanceEnabled: true })).toEqual([
+  const withEnter = [
     row("to select", [arrows]),
     row("to submit", [enter])
-  ]);
+  ];
+  expect(hints({ type: "radiogroup", choices: ["a", "b"] }, { autoAdvanceEnabled: true })).toEqual(withEnter);
+  expect(hints({ type: "radiogroup", choices: ["a", "b"], defaultValue: "a" }, { autoAdvanceEnabled: true })).toEqual(withEnter);
   expect(hints({
     type: "radiogroup",
     defaultValue: "a",
     choices: [{ value: "a", showCommentArea: true }, "b"]
-  }, { autoAdvanceEnabled: true })).toEqual([
-    row("to select", [arrows])
-  ]);
+  }, { autoAdvanceEnabled: true })).toEqual(withEnter);
 });
 
 test("single image picker uses arrow and enter hints", () => {
@@ -126,7 +123,8 @@ test("single image picker uses arrow and enter hints", () => {
     row("to select", [arrows])
   ]);
   expect(hints({ type: "imagepicker", choices: choices }, { autoAdvanceEnabled: true })).toEqual([
-    row("to select", [arrows])
+    row("to select", [arrows]),
+    row("to submit", [enter])
   ]);
   expect(hints({ type: "imagepicker", choices: choices, defaultValue: "a" }, { autoAdvanceEnabled: true })[1].text).toBe("to submit");
 });
@@ -214,7 +212,8 @@ test("checkbox hints are tab, space, and enter when auto-advance is on", () => {
   ]);
   expect(hints({ type: "checkbox", choices: ["a", "b"] }, { autoAdvanceEnabled: true })).toEqual([
     row("to next option", [tab]),
-    row("to toggle", [space])
+    row("to toggle", [space]),
+    row("to submit", [enter])
   ]);
   expect(hints({ type: "checkbox", choices: ["a", "b"], defaultValue: ["a"] }, { autoAdvanceEnabled: true })[2].text).toBe("to submit");
 });
@@ -246,7 +245,8 @@ test("boolean checkbox uses space and enter", () => {
     row("to toggle", [space])
   ]);
   expect(hints({ type: "boolean", displayMode: "checkbox" }, { autoAdvanceEnabled: true })).toEqual([
-    row("to toggle", [space])
+    row("to toggle", [space]),
+    row("to submit", [enter])
   ]);
   expect(hints({
     type: "boolean", displayMode: "checkbox", defaultValue: false
@@ -264,29 +264,42 @@ const dropdownSet = [
 
 test("dropdown swaps enter to select with enter to continue", () => {
   expect(hints({ type: "dropdown", choices: ["a", "b"] })).toEqual(dropdownSet);
-  expect(hints({ type: "dropdown", choices: ["a", "b"] }, { autoAdvanceEnabled: true })).toEqual(dropdownSet);
+  expect(hints({ type: "dropdown", choices: ["a", "b"] }, { autoAdvanceEnabled: true })).toEqual(
+    dropdownSet.concat([row("to submit", [enter])])
+  );
   const survey = new SurveyModel({
     showKeyboardHints: true,
     autoAdvanceEnabled: true,
     elements: [
-      { type: "dropdown", name: "q", choices: ["a", "b"], defaultValue: "a" },
+      { type: "dropdown", name: "q", choices: ["a", "b"] },
       { type: "text", name: "next" }
     ]
   });
   const q = survey.getQuestionByName("q") as any;
   const closed = dropdownSet.concat([row("to continue", [enter])]);
+  const open = dropdownSet.concat([row("to select", [enter])]);
+  const popupChanges: boolean[] = [];
+  q.addOnPropertyValueChangedCallback((_sender: Question, options: { name: string, newValue: boolean }) => {
+    if (options.name === "isPopupVisible") popupChanges.push(options.newValue);
+  });
+  expect(shown(q)).toEqual(closed);
+  q.value = "a";
   expect(shown(q)).toEqual(closed);
   q.dropdownListModel.popupModel.show();
-  expect(shown(q)).toEqual(dropdownSet.concat([row("to select", [enter])]));
+  expect(shown(q)).toEqual(open);
+  q.clearValue();
+  expect(shown(q)).toEqual(open);
   q.dropdownListModel.popupModel.hide();
   expect(shown(q)).toEqual(closed);
+  expect(popupChanges).toEqual([true, false]);
+  expect(q.toJSON().isPopupVisible).toBeUndefined();
   expect(JSON.stringify(q.getKeyboardHintModel())).not.toContain("Backspace");
   const last = new SurveyModel({
     showKeyboardHints: true,
     autoAdvanceEnabled: true,
-    elements: [{ type: "dropdown", name: "q", choices: ["a", "b"], defaultValue: "a" }]
+    elements: [{ type: "dropdown", name: "q", choices: ["a", "b"] }]
   }).getQuestionByName("q") as Question;
-  expect(shown(last)[3].text).toBe("to submit");
+  expect(shown(last).map(row => row.text)).toEqual(["to open", "to navigate", "to close", "to submit"]);
 });
 
 test("tagbox swaps space or enter to select with enter to continue", () => {
@@ -294,25 +307,34 @@ test("tagbox swaps space or enter to select with enter to continue", () => {
   expect(hints({ type: "tagbox", choices: choices }).map(row => row.text)).toEqual([
     "to open", "to navigate", "to close"
   ]);
-  const empty = hints({ type: "tagbox", choices: choices }, { autoAdvanceEnabled: true });
-  expect(empty.map(row => row.text)).toEqual(["to open", "to navigate", "to close"]);
+  expect(hints({ type: "tagbox", choices: choices }, { autoAdvanceEnabled: true }).map(row => row.text)).toEqual([
+    "to open", "to navigate", "to close", "to submit"
+  ]);
   const survey = new SurveyModel({
     showKeyboardHints: true,
     autoAdvanceEnabled: true,
     elements: [
-      { type: "tagbox", name: "q", choices: choices, defaultValue: ["a"] },
+      { type: "tagbox", name: "q", choices: choices },
       { type: "text", name: "next" }
     ]
   });
   const q = survey.getQuestionByName("q") as any;
   expect(shown(q).map(row => row.text)).toEqual(["to open", "to navigate", "to close", "to continue"]);
+  q.value = ["a"];
+  expect(shown(q).map(row => row.text)).toEqual(["to open", "to navigate", "to close", "to continue"]);
   q.dropdownListModel.popupModel.show();
-  const open = q.getKeyboardHintModel().items[3];
-  expect(rowOf(open)).toEqual(row("to select", [space, enter]));
-  expect(open.parts.map(part => part.text)).toEqual([space, "or", enter, "to select"]);
-  expect(open.parts.map(part => part.className)).toEqual(["sd-item__shortcut-key", "sd-question__keyboard-hint-or", "sd-item__shortcut-key", "sd-question__keyboard-hint-text"]);
+  expect(shown(q).map(row => row.text)).toEqual(["to open", "to navigate", "to close", "to select"]);
+  const select = q.getKeyboardHintModel().items[3];
+  expect(rowOf(select)).toEqual(row("to select", [space, enter]));
+  expect(select.parts.map(part => part.text)).toEqual([space, "or", enter, "to select"]);
+  expect(select.parts.map(part => part.className)).toEqual(["sd-item__shortcut-key", "sd-question__keyboard-hint-or", "sd-item__shortcut-key", "sd-question__keyboard-hint-text"]);
+  q.clearValue();
   q.dropdownListModel.popupModel.hide();
   expect(shown(q)[3].text).toBe("to continue");
+  survey.showKeyboardHints = false;
+  q.dropdownListModel.popupModel.show();
+  survey.showKeyboardHints = true;
+  expect(shown(q)[3].text).toBe("to select");
 });
 
 test("rating hints are only enter, and only when auto-advance is on", () => {
@@ -329,7 +351,7 @@ test("ranking hints follow select-to-rank and auto-advance", () => {
     "to move"
   ]);
   const ranked = hints({ type: "ranking", choices: ["a", "b", "c"] }, { autoAdvanceEnabled: true });
-  expect(ranked.map(row => row.text)).toEqual(["to next option", "to move"]);
+  expect(ranked.map(row => row.text)).toEqual(["to next option", "to move", "to submit"]);
   expect(ranked[1].keys).toEqual([upDown]);
   const selectToRank = hints({
     type: "ranking", choices: ["a", "b", "c"], selectToRankEnabled: true
@@ -339,7 +361,7 @@ test("ranking hints follow select-to-rank and auto-advance", () => {
   const emptyRank = hints({
     type: "ranking", choices: ["a", "b", "c"], selectToRankEnabled: true
   }, { autoAdvanceEnabled: true });
-  expect(emptyRank.map(row => row.text)).toEqual(["to next option", "to move", "to toggle"]);
+  expect(emptyRank.map(row => row.text)).toEqual(["to next option", "to move", "to toggle", "to submit"]);
   const filledRank = hints({
     type: "ranking", choices: ["a", "b", "c"], selectToRankEnabled: true, defaultValue: ["b", "a"]
   }, { autoAdvanceEnabled: true });
@@ -363,8 +385,27 @@ test("enter says to continue while another question follows", () => {
   expect(shown(survey.getQuestionByName("last") as Question)[0].text).toBe("to submit");
 });
 
+test("multiple text hints enter the same way as single-line text", () => {
+  const items = [{ name: "a" }, { name: "b" }];
+  expect(hints({ type: "multipletext", items: items })).toEqual([]);
+  expect(hints({ type: "multipletext", items: items }, { autoAdvanceEnabled: true })).toEqual([
+    row("to submit", [enter])
+  ]);
+  const survey = new SurveyModel({
+    showKeyboardHints: true,
+    autoAdvanceEnabled: true,
+    elements: [
+      { type: "multipletext", name: "q", items: items },
+      { type: "text", name: "next" }
+    ]
+  });
+  expect(shown(survey.getQuestionByName("q") as Question)[0].text).toBe("to continue");
+});
+
 test("single-line text hints enter only when the input can auto-advance", () => {
-  expect(hints({ type: "text" }, { autoAdvanceEnabled: true })).toEqual([]);
+  expect(hints({ type: "text" }, { autoAdvanceEnabled: true })).toEqual([
+    row("to submit", [enter])
+  ]);
   expect(hints({ type: "text", defaultValue: "a" }, { autoAdvanceEnabled: true })[0].text).toBe("to submit");
   expect(hints({ type: "text" })).toEqual([]);
   expect(hints({ type: "text", inputType: "date", defaultValue: "2020-01-01" }, { autoAdvanceEnabled: true })).toEqual([]);
@@ -396,7 +437,8 @@ test("keyboard hint classes follow question cssClasses", () => {
 test("long text hints shift+enter and enter", () => {
   expect(hints({ type: "comment", defaultValue: "a" })).toEqual([]);
   expect(hints({ type: "comment" }, { autoAdvanceEnabled: true })).toEqual([
-    row("for a new line", ["Shift+Enter"])
+    row("for a new line", ["Shift+Enter"]),
+    row("to submit", [enter])
   ]);
   expect(hints({ type: "comment", defaultValue: "a" }, { autoAdvanceEnabled: true })[1].text).toBe("to submit");
   expect(hints({ type: "comment", acceptCarriageReturn: false, defaultValue: "a" }, { autoAdvanceEnabled: true }).map(row => row.text)).toEqual(["to submit"]);

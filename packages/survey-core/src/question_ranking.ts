@@ -50,7 +50,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       rows.push(keyboardHint(this, "keyboardHintToggleText", ["space"]));
     }
     if (survey.autoAdvanceEnabled === true) {
-      rows.push(keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"], !this.isEmpty()));
+      rows.push(keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"]));
     }
     return rows;
   }

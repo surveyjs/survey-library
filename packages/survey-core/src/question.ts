@@ -3676,10 +3676,6 @@ export class Question extends SurveyElement<Question>
   }
   public processPopupVisiblilityChanged(popupModel: PopupModel, visible: boolean): void {
     this.survey.processPopupVisiblityChanged(this, popupModel, visible);
-    // Dropdown and tagbox swap the Enter hint with the popup. The row is rendered from the question, so it needs this notification.
-    if (this.canShowKeyboardHints()) {
-      this.propertyValueChanged("popupVisible", !visible, visible);
-    }
   }
   public processOpenDropdownMenu(options: IDropdownMenuOptions): void {
     this.survey.processOpenDropdownMenu(this, options);

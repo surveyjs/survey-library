@@ -72,23 +72,23 @@ export function keyboardHintAdvanceLocName(question: Question): string {
   return "keyboardHintSubmitText";
 }
 
-export function singleChoiceKeyboardHints(question: Question, advanceVisible: boolean): IKeyboardHintData[] {
+export function singleChoiceKeyboardHints(question: Question): IKeyboardHintData[] {
   const survey = question.survey as SurveyModel;
   const hints = [keyboardHint(question, "keyboardHintSelectText", ["arrowsAll"])];
   if (survey.autoAdvanceEnabled === true) {
-    hints.push(keyboardHint(question, keyboardHintAdvanceLocName(question), ["enter"], advanceVisible));
+    hints.push(keyboardHint(question, keyboardHintAdvanceLocName(question), ["enter"]));
   }
   return hints;
 }
 
-export function multiChoiceKeyboardHints(question: Question, advanceVisible: boolean): IKeyboardHintData[] {
+export function multiChoiceKeyboardHints(question: Question): IKeyboardHintData[] {
   const survey = question.survey as SurveyModel;
   const hints = [
     keyboardHint(question, "keyboardHintNextItemText", ["tab"]),
     keyboardHint(question, "keyboardHintToggleText", ["space"])
   ];
   if (survey.autoAdvanceEnabled === true) {
-    hints.push(keyboardHint(question, keyboardHintAdvanceLocName(question), ["enter"], advanceVisible));
+    hints.push(keyboardHint(question, keyboardHintAdvanceLocName(question), ["enter"]));
   }
   return hints;
 }

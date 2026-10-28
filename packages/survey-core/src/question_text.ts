@@ -728,7 +728,7 @@ export class QuestionTextModel extends QuestionTextBase {
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
     const survey = this.survey as SurveyModel;
     if (!this.supportAutoAdvance() || survey.autoAdvanceEnabled !== true) return [];
-    return [keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"], !this.isEmpty())];
+    return [keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"])];
   }
   public supportGoNextPageError(): boolean {
     return !this.isDateInputType;

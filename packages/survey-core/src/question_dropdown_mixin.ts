@@ -11,6 +11,7 @@ type Constructor<T = {}> = new (...args: any[]) => T;
 export interface IQuestionDropdownMixin extends IDropdownQuestion {
   readonly popupModel: PopupModel;
   readonly showClearButton: boolean;
+  readonly isPopupVisible: boolean;
   onOpenedCallBack(): void;
   setIsChoicesLoading(value: boolean): void;
   dispose(): void;
@@ -52,6 +53,16 @@ export function questionDropdownMixin<TBase extends Constructor<QuestionSelectBa
     }
 
     protected updateCustomChoices(value: any, items: Array<ItemValue>): void { }
+
+    public processPopupVisiblilityChanged(popupModel: PopupModel, visible: boolean): void {
+      super.processPopupVisiblilityChanged(popupModel, visible);
+      // The Enter hint swaps with the popup. The hint row rerenders only when it reads
+      // a stored question property, so the popup state is kept on the question.
+      this.setPropertyValue("isPopupVisible", visible);
+    }
+    public get isPopupVisible(): boolean {
+      return this.getPropertyValue("isPopupVisible", false);
+    }
 
     public onOpenedCallBack(): void {
       this.onOpened.fire(this, { question: this, choices: this.choices });

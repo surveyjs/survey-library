@@ -171,10 +171,10 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
       keyboardHint(this, "keyboardHintNavigateText", ["arrowsVertical"]),
       keyboardHint(this, "keyboardHintCloseText", ["esc"])
     ];
-    if (this.dropdownListModelValue?.popupModel?.isVisible === true) {
+    if (this.isPopupVisible) {
       rows.push(keyboardHint(this, "keyboardHintSelectText", ["space", "enter"]));
     } else if (survey.autoAdvanceEnabled === true) {
-      rows.push(keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"], !this.isEmpty()));
+      rows.push(keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"]));
     }
     return rows;
   }

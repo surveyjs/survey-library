@@ -282,8 +282,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return this.multiSelect ? "checkbox" : "radio";
   }
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
-    if (this.multiSelect) return multiChoiceKeyboardHints(this, !this.isEmpty());
-    return singleChoiceKeyboardHints(this, !this.isEmpty());
+    if (this.multiSelect) return multiChoiceKeyboardHints(this);
+    return singleChoiceKeyboardHints(this);
   }
   protected applyChoiceKeyboardSelection(item: ItemValue): void {
     if (!this.multiSelect) {

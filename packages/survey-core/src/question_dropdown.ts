@@ -76,10 +76,10 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
       keyboardHint(this, "keyboardHintNavigateText", ["arrowsVertical"]),
       keyboardHint(this, "keyboardHintCloseText", ["esc"])
     ];
-    if (this.dropdownListModelValue?.popupModel?.isVisible === true) {
+    if (this.isPopupVisible) {
       rows.push(keyboardHint(this, "keyboardHintSelectText", ["enter"]));
     } else if (survey.autoAdvanceEnabled === true) {
-      rows.push(keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"], !this.isEmpty()));
+      rows.push(keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"]));
     }
     return rows;
   }

@@ -51,7 +51,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     }
   }
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
-    return singleChoiceKeyboardHints(this, !this.isEmpty() && !this.selectedItem?.showCommentArea);
+    return singleChoiceKeyboardHints(this);
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     const json = super.getConditionJson(operator, path);

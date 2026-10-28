@@ -3389,10 +3389,21 @@ export class SurveyModel extends SurveyElementCore
    *
    * Default value: `false`
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/prevent-form-editing-with-read-only-mode/ (linkStyle))
+   * [Demo: Read-Only / Display Mode](https://surveyjs.io/form-library/examples/prevent-form-editing-with-read-only-mode/ (linkStyle))
+   * @see readOnlyMode
    */
   @property() readOnly: boolean;
-  // Visual variant of read-only. "view" shows answers as plain text.
+  /**
+   * Specifies how read-only questions are displayed.
+   *
+   * Possible values:
+   *
+   * - `"readonly"` (default) - Displays the usual input controls, but disabled for editing.
+   * - `"view"` - Displays answers as plain text or other non-interactive visuals.
+   *
+   * You can override this setting for individual questions, panels, and pages using their `readOnlyMode` property.
+   * @see readOnly
+   */
   @property({ defaultValue: "readonly" }) readOnlyMode: "readonly" | "view";
   public getReadOnlyMode(): "readonly" | "view" {
     return this.readOnlyMode === "view" ? "view" : "readonly";

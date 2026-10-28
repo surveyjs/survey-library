@@ -2013,6 +2013,7 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see readOnly
+   * @see readOnlyMode
    * @see isReadOnly
    */
   @property() enableIf: string;

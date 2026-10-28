@@ -628,6 +628,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    *
    * If you want to switch a survey element to the read-only state based on a condition, specify the [`enableIf`](https://surveyjs.io/form-library/documentation/question#enableIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see readOnly
+   * @see readOnlyMode
+   * @readonly
    */
   public get isReadOnly(): boolean {
     return this.readOnly;
@@ -636,6 +638,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * Makes the survey element read-only.
    *
    * If you want to switch a survey element to the read-only state based on a condition, specify the [`enableIf`](https://surveyjs.io/form-library/documentation/question#enableIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   * @see readOnlyMode
    * @see isReadOnly
    */
   public get readOnly(): boolean {
@@ -648,7 +651,20 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.setPropertyValue("isReadOnly", this.isReadOnly);
     }
   }
-  // "default" inherits from the parent panel, the parent question, then the survey.
+  /**
+   * Specifies how the survey element is displayed when it is read-only.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the mode from the parent panel, page, or survey, in this order.
+   * - `"readonly"` - Displays the usual input controls, but disabled for editing.
+   * - `"view"` - Displays answers as plain text or other non-interactive visuals.
+   *
+   * This property applies only when the survey element is read-only, including when this state is inherited from a parent element or the survey.
+   *
+   * To make the element read-only, set its [`readOnly`](#readOnly) property to `true` or specify an [`enableIf`](#enableIf) condition that evaluates to `false`.
+   * @see isReadOnly
+   */
   public get readOnlyMode(): "default" | "readonly" | "view" {
     return this.getPropertyValue("readOnlyMode");
   }

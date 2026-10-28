@@ -2189,6 +2189,7 @@ export class Question extends SurveyElement<Question>
    *
    * [View Demo](https://surveyjs.io/form-library/examples/how-to-conditionally-make-input-field-read-only/ (linkStyle))
    * @see readOnly
+   * @see readOnlyMode
    * @see isReadOnly
    */
   @property() enableIf: string;

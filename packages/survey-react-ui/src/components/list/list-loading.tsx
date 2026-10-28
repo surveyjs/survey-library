@@ -2,6 +2,7 @@ import * as React from "react";
 import { ListModel } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
+import { LoadingIndicatorComponent } from "../loading-indicator";
 
 interface IListLoadingProps {
   model: ListModel;
@@ -15,10 +16,9 @@ export class ListLoading extends SurveyElementBase<IListLoadingProps, any> {
     return this.model;
   }
   render(): React.JSX.Element {
-    const loadingText = this.model.getLocalizationString("loadingData");
     return (
-      <div className={this.model.cssClasses.emptyContainer}>
-        <div className={this.model.cssClasses.emptyText} aria-label={loadingText}>{loadingText}</div>
+      <div className={this.model.cssClasses.emptyContainer} role="status" aria-label={this.model.getLocalizationString("loadingData")}>
+        <LoadingIndicatorComponent />
       </div>
     );
   }

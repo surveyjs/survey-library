@@ -1,12 +1,11 @@
 <template>
-  <div :class="model.cssClasses.emptyContainer">
-    <div :class="model.cssClasses.emptyText" :aria-label="model.getLocalizationString('loadingData')">
-      {{ model.getLocalizationString('loadingData') }}
-    </div>
+  <div :class="model.cssClasses.emptyContainer" role="status" :aria-label="model.getLocalizationString('loadingData')">
+    <SvComponent :is="'sv-loading-indicator'" />
   </div>
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import { useBase } from "@/base";
 import type { ListModel } from "survey-core";
 

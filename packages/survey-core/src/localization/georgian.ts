@@ -49,8 +49,6 @@ export var georgianSurveyStrings = {
   sortLevelFieldAriaLabel: "ველის დალაგება {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "შეკვეთის დალაგება {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "ვრცლად...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "ყველა დალაგების დონის ჩვენება",
   // [Auto-translated] "Add New"

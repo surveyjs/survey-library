@@ -1890,10 +1890,13 @@ describe("Page window: matrix duplicates off the page", () => {
     expect(unpaged.tryComplete(), "#3: the same without paging").toBe(true);
   });
   test("padded records are read as the default row value", () => {
-    const survey = createMatrixSurvey({ pageSize: 5, keyName: "name", defaultRowValue: { name: "same" } }, records(10));
+    // A value assigned shorter than rowCount after the rows are built keeps rowCount (the rowCount setter
+    // stores the records, and a build writes the default row value back).
+    const survey = createMatrixSurvey({ rowCount: 12, pageSize: 5, keyName: "name", defaultRowValue: { name: "same" } });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("md");
     matrix.visibleRows;
-    matrix.rowCount = 12;
+    matrix.value = records(10);
+    expect(matrix.rowCount, "#1: rowCount").toBe(12);
     expect(matrix.getPropertyValueWithoutDefault("value").length, "#1: records 10 and 11 are padded, not stored").toBe(10);
     expect(matrix.pageIndex, "#2").toBe(0);
     expect(survey.tryComplete(), "#3: the two padded records are a pair").toBe(false);

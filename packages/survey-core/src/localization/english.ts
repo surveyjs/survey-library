@@ -26,7 +26,6 @@ export var englishStrings = {
   sortRemoveLevelText: "Remove sort level {0}",
   sortLevelFieldAriaLabel: "Sort field {0}",
   sortLevelDirectionAriaLabel: "Sort order {0}",
-  sortMoreText: "More...",
   sortMoreAriaLabel: "Show all sort levels",
   sortAddNewText: "Add New",
   sortNoDirectionText: "—",

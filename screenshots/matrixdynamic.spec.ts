@@ -601,11 +601,21 @@ frameworks.forEach(framework => {
       await page.mouse.move(0, 0);
       await compareScreenshot(page, undefined, "matrixdynamic-sort-bar-levels-desktop.png");
     });
+    // Two levels at the limit of two: "+" stays, disabled.
+    test("Matrixdynamic sort bar with a disabled \"+\", desktop", async ({ page }) => {
+      await page.setViewportSize({ width: 1000, height: 600 });
+      const json = JSON.parse(JSON.stringify(sortBarJson));
+      Object.assign(json.elements[0], { maxSortLevel: 2, sortCriteria: [{ field: "product", direction: "asc" }, { field: "category", direction: "desc" }] });
+      await initSurvey(page, framework, json);
+      await expect(page.getByRole("button", { name: "Add sort level", exact: true })).toBeDisabled();
+      await page.mouse.move(0, 0);
+      await compareScreenshot(page, undefined, "matrixdynamic-sort-bar-add-disabled-desktop.png");
+    });
   });
 });
 
 frameworks.forEach(framework => {
-  test.describe(`${framework} ${title} sort bar: More... and the sort dialog`, () => {
+  test.describe(`${framework} ${title} sort bar: "..." and the sort dialog`, () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(`${url}${framework}`);
     });
@@ -638,8 +648,8 @@ frameworks.forEach(framework => {
     });
     const headerBar = (page) => page.locator(".sd-question__header .sd-matrixdynamic__sort-bar");
     const moreButton = (page) => page.getByRole("button", { name: "Show all sort levels", exact: true });
-    // Three levels at 1280px: the third one is behind More..., between the separators before "+".
-    test("Matrixdynamic sort bar with More..., desktop", async ({ page }) => {
+    // Three levels at 1280px: the third one is behind "...", which takes the place of "+" after a separator.
+    test("Matrixdynamic sort bar with \"...\", desktop", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 600 });
       await initSurvey(page, framework, moreJson([{ field: "product", direction: "asc" }, { field: "category", direction: "asc" }, { field: "price", direction: "asc" }]));
       await expect(moreButton(page)).toBeVisible();

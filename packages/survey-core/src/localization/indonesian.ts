@@ -49,8 +49,6 @@ export var indonesianStrings = {
   sortLevelFieldAriaLabel: "Urutkan bidang {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Urutkan urutan {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Selengkapnya...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Tampilkan semua tingkat pengurutan",
   // [Auto-translated] "Add New"

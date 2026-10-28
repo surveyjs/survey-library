@@ -49,8 +49,6 @@ export var koreanStrings = {
   sortLevelFieldAriaLabel: "정렬 필드 {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "정렬 순서 {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "더...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "모든 종류의 레벨 표시",
   // [Auto-translated] "Add New"

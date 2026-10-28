@@ -49,8 +49,6 @@ export var slovenianStrings = {
   sortLevelFieldAriaLabel: "Polje sortiranja {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Razvrstitev {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Več...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Pokaži vse stopnje sortiranja",
   // [Auto-translated] "Add New"

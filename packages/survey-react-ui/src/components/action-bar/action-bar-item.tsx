@@ -122,6 +122,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
         onFocus={(args) => this.item.doFocus(args)}
         onClick={(args) => this.item.doAction(args)}
         title={this.item.getTooltip()}
+        data-sv-tooltip={this.item.getTooltip()}
         tabIndex={tabIndex}
         aria-checked={this.item.ariaChecked}
         aria-expanded={this.item.ariaExpanded}

@@ -49,8 +49,6 @@ export var polishSurveyStrings = {
   sortLevelFieldAriaLabel: "Pole sortowania {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Sortowanie {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Więcej...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Pokaż wszystkie poziomy sortowania",
   // [Auto-translated] "Add New"

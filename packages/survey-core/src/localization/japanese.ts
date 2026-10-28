@@ -49,8 +49,6 @@ export var japaneseSurveyStrings = {
   sortLevelFieldAriaLabel: "ソートフィールド{0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "並べ替え順 {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "もっと...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "あらゆるレベルの表示",
   // [Auto-translated] "Add New"

@@ -1,13 +1,13 @@
 @use "../variables.scss" as *;
 
 /* The sort bar of a dynamic panel and of a matrix:
-   Sort by  [field v] [direction v]  |  [field v] [direction v] [remove]  |  More...  |  [+]
+   Sort by  [field v] [direction v]  |  [field v] [direction v] [remove]  |  [...] or [+]
    Each level is one item of the bar. On a desktop the bar is one line: the levels that do not fit leave
-   it whole, from the last one, and "More..." shows (RecordsSortBarContainer); on a phone the row scrolls. */
+   it whole, from the last one, and "..." takes the place of "+" (RecordsSortBarContainer); on a phone the row scrolls. */
 .sd-paneldynamic__sort-bar,
 .sd-matrixdynamic__sort-bar,
 .sd-matrixdropdown__sort-bar {
-  // The design's 12px between "Sort by", the levels, the separators, "More..." and "+".
+  // The design's 12px between "Sort by", the levels, the separators, "..." and "+".
   --sd-action-bar-gap: var(--sjs2-layout-component-panel-header-action-group-gap);
   flex-wrap: nowrap;
   justify-content: flex-end;

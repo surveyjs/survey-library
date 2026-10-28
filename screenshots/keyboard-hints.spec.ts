@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, test } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, test, getButtonByText } from "../e2e/helper";
 import type { Page } from "@playwright/test";
 
 const title = "Keyboard hints";
@@ -39,6 +39,33 @@ const radioJson = {
     defaultValue: "Fast support answers",
     choices: ["Fast support answers", "Reliable updates", "Reasonable pricing"]
   }]
+};
+
+const textInputsJson = {
+  showQuestionNumbers: false,
+  showKeyboardHints: true,
+  autoAdvanceEnabled: true,
+  questionsOnPageMode: "questionPerPage",
+  elements: [
+    {
+      type: "text",
+      name: "q1",
+      title: "Your name",
+      defaultValue: "Alex"
+    },
+    {
+      "type": "multipletext",
+      "name": "q2",
+      "defaultValue": { "text1": "test1", "text2": "test2" },
+      "items": [{ "name": "text1" }, { "name": "text2" }]
+    },
+    {
+      type: "comment",
+      name: "q3",
+      title: "Anything else?",
+      description: "Optional details",
+      defaultValue: "The form was easy to follow."
+    }]
 };
 
 const tagboxJson = {
@@ -110,6 +137,15 @@ frameworks.forEach((framework) => {
     test("tagbox hints", async ({ page }) => {
       await initSurvey(page, framework, tagboxJson);
       await shot(page, "keyboard-hints-tagbox.png", true);
+    });
+
+    test("text inputs hints", async ({ page }) => {
+      await initSurvey(page, framework, textInputsJson);
+      await shot(page, "keyboard-hints-text.png", true);
+      await getButtonByText(page, "Next").click();
+      await shot(page, "keyboard-hints-multipletext.png", true);
+      await getButtonByText(page, "Next").click();
+      await shot(page, "keyboard-hints-comment.png", true);
     });
 
     test("checkbox hints, light panelless", async ({ page }) => {

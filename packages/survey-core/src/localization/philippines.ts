@@ -49,8 +49,6 @@ export var philippinesStrings = {
   sortLevelFieldAriaLabel: "Sort field {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Ayusin ang pagkakasunod-sunod {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Higit pa...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Ipakita ang lahat ng antas ng sort",
   // [Auto-translated] "Add New"

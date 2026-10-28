@@ -49,8 +49,6 @@ export var malaySurveyStrings = {
   sortLevelFieldAriaLabel: "Susun medan {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Susunan {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Lagi...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Paparkan semua tahap susunan",
   // [Auto-translated] "Add New"

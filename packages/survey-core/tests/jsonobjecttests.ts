@@ -14,6 +14,7 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { Question } from "../src/question";
 import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
+import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionMatrixModel } from "../src/question_matrix";
 import { settings } from "../src/settings";
 import { TextValidator } from "../src/validator";
@@ -3726,5 +3727,121 @@ describe("The default of an unset property after a metadata change", () => {
     } finally {
       spy.mockRestore();
     }
+  });
+});
+
+describe("A choice item is deserialized from its JSON once", () => {
+  test("Object choices: setData is not called while loading", () => {
+    const spy = vi.spyOn(ItemValue.prototype, "setData");
+    let survey: SurveyModel;
+    try {
+      survey = new SurveyModel({
+        elements: [{ type: "radiogroup", name: "q", choices: [{ value: 1, text: "a" }, { value: 2, visibleIf: "{q} = 1" }] }]
+      });
+      expect(spy, "setData calls while loading").toHaveBeenCalledTimes(0);
+    } finally {
+      spy.mockRestore();
+    }
+    const choices = survey.getQuestionByName("q").choices;
+    expect(choices.map(item => item.value), "values").toEqual([1, 2]);
+    expect(choices.map(item => item.text), "texts").toEqual(["a", "2"]);
+    expect(choices.map(item => item.id), "ids").toEqual([1, 2]);
+    expect(choices[1].visibleIf, "visibleIf").toBe("{q} = 1");
+    expect(choices.map(item => item.toJSON()), "toJSON").toEqual([{ value: 1, text: "a" }, { value: 2, visibleIf: "{q} = 1" }]);
+  });
+  test("Primitive choices and choices without value", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "checkbox", name: "q", choices: [1, "two", { text: "three" }, { text: "four", visibleIf: "true" }] }]
+    });
+    const choices = survey.getQuestionByName("q").choices;
+    expect(choices.slice(0, 3).map(item => item.value), "values").toEqual([1, "two", "three"]);
+    expect(choices.slice(0, 3).map(item => item.text), "texts").toEqual(["1", "two", "three"]);
+    expect(choices.slice(0, 3).map(item => item.toJSON()), "toJSON").toEqual([{ value: 1 }, { value: "two" }, { value: "three" }]);
+    expect(choices[3].value, "the value of a choice with text and another key").toEqual({ text: "four", visibleIf: "true" });
+  });
+  test("A choice with a custom property", () => {
+    Serializer.addProperty("itemvalue", "score:number");
+    try {
+      const survey = new SurveyModel({
+        elements: [{ type: "radiogroup", name: "q", choices: [{ value: 1, score: 5 }, { value: 2 }] }]
+      });
+      const choices = survey.getQuestionByName("q").choices;
+      expect(choices[0].score, "score of item 1").toBe(5);
+      expect(choices[1].score, "score of item 2").toBeUndefined();
+      expect(choices[0].toJSON(), "toJSON").toEqual({ value: 1, score: 5 });
+    } finally {
+      Serializer.removeProperty("itemvalue", "score");
+    }
+  });
+  test("A choice with a localized text", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "radiogroup", name: "q", choices: [{ value: 1, text: { default: "a", de: "b" } }] }]
+    });
+    const item = survey.getQuestionByName("q").choices[0];
+    expect(item.text, "default locale").toBe("a");
+    survey.locale = "de";
+    expect(item.text, "de").toBe("b");
+    survey.locale = "";
+    expect(item.toJSON(), "toJSON").toEqual({ value: 1, text: { default: "a", de: "b" } });
+  });
+  test("Built-in items and items created for a value", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "checkbox", name: "q", choices: [1, 2], showNoneItem: true, showOtherItem: true,
+        showRefuseItem: true, showDontKnowItem: true, showSelectAllItem: true }]
+    });
+    const q = <QuestionCheckboxModel>survey.getQuestionByName("q");
+    const check = (item: ItemValue, value: any, text: string, id: any, name: string) => {
+      expect(item.value, name + " value").toBe(value);
+      expect(item.text, name + " text").toBe(text);
+      expect(item.id, name + " id").toBe(id);
+    };
+    check(q.noneItem, "none", "None", "none", "none");
+    check(q.otherItem, "other", "Other (describe)", "other", "other");
+    expect(q.otherItem.showCommentArea, "other showCommentArea").toBe(true);
+    check(q.refuseItem, "refused", "Refuse to answer", "refused", "refuse");
+    check(q.dontKnowItem, "dontknow", "Don't know", "dontknow", "dontknow");
+    check(q.selectAllItem, "", "Select All", "selectall", "selectAll");
+    const nullItem = q.createItemValue(null);
+    expect(nullItem.value, "null item value").toBeUndefined();
+    expect(nullItem.id, "null item id").toBeUndefined();
+    const emptyItem = q.createItemValue("");
+    expect(emptyItem.value, "empty item value").toBeUndefined();
+    expect(emptyItem.id, "empty item id").toBeUndefined();
+    const item = q.createItemValue(0, "zero");
+    expect(item.value, "0 item value").toBe(0);
+    expect(item.id, "0 item id").toBe(0);
+    expect(item.text, "0 item text").toBe("zero");
+  });
+  test("A custom item class whose creator takes its JSON", () => {
+    Serializer.addClass("myitem", [{ name: "extra" }], (json: any) => new ItemValue(json, undefined, "myitem"), "itemvalue");
+    Serializer.addProperty("radiogroup", { name: "myitems:myitem[]" });
+    try {
+      const survey = new SurveyModel({
+        elements: [{ type: "radiogroup", name: "q", myitems: [{ value: 1, text: "a", extra: "e" }, { text: "b" }, 3] }]
+      });
+      const items: Array<ItemValue> = survey.getQuestionByName("q").myitems;
+      expect(items.map(item => item.getType()), "types").toEqual(["myitem", "myitem", "myitem"]);
+      expect(items.map(item => item.value), "values").toEqual([1, "b", 3]);
+      expect(items.map(item => item.text), "texts").toEqual(["a", "b", "3"]);
+      expect(items[0].extra, "extra").toBe("e");
+      // extra is not serialized for an item created with a type name: as before the item JSON was loaded once.
+      expect(items.map(item => item.toJSON()), "toJSON").toEqual([{ value: 1, text: "a" }, { value: "b" }, { value: 3 }]);
+    } finally {
+      Serializer.removeProperty("radiogroup", "myitems");
+      Serializer.removeClass("myitem");
+    }
+  });
+  test("An ItemValue placed in the JSON", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "radiogroup", name: "q", choices: [new ItemValue(5, "five"), { value: 6 }] }]
+    });
+    const choices = survey.getQuestionByName("q").choices;
+    expect(choices[0].value, "fromJSON: value").toBe(5);
+    expect(choices[0].text, "fromJSON: text").toBe("five");
+    expect(choices[1].value, "fromJSON: second value").toBe(6);
+    const q = new QuestionRadiogroupModel("q2");
+    new JsonObject().toObject({ choices: [new ItemValue(7, "seven")] }, q);
+    expect(q.choices[0].value, "toObject: value").toBe(7);
+    expect(q.choices[0].text, "toObject: text").toBe("seven");
   });
 });

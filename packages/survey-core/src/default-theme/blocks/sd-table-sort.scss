@@ -1,3 +1,5 @@
+@use "../typography-mixins.scss" as *;
+
 // A sortable column header: the whole cell is one button. The <th> hands its padding to the button,
 // so that the padding is part of the click target and the title stays where it is in a plain header.
 .sd-table__cell--header.sd-table__cell--sortable {
@@ -74,4 +76,11 @@
   use {
     fill: var(--sjs2-color-component-action-neutral-quaternary-hovered-icon);
   }
+}
+// The level number after the arrow, while the sort can have more than one level. The chip grows with it,
+// so a two-digit level fits too; the arrow keeps its place at the start.
+.sd-table__header-sort-rank {
+  @include sjs2--typography--small-strong;
+  padding-inline: var(--sjs2-spacing-x025);
+  color: var(--sjs2-color-component-action-neutral-quaternary-hovered-label);
 }

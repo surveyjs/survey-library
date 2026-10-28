@@ -22,7 +22,8 @@ describe("the default record of the dynamic matrix and the dynamic panel", () =>
   });
   test("defaultValue wins over the default record", () => {
     const defaultValue = [{ b: 2 }];
-    expect(createMatrix({ rowCount: 2, defaultRowValue: { a: 1 }, defaultValue: defaultValue }).value, "#1: matrix").toEqual(defaultValue);
+    // The matrix keeps rowCount 2 for a shorter value; its second row stores the default record it shows (Bug#12147).
+    expect(createMatrix({ rowCount: 2, defaultRowValue: { a: 1 }, defaultValue: defaultValue }).value, "#1: matrix").toEqual([{ b: 2 }, { a: 1 }]);
     expect(createPanel({ panelCount: 2, defaultPanelValue: { a: 1 }, defaultValue: defaultValue }).value, "#2: panel").toEqual(defaultValue);
   });
   test("no record, no copy: the value stays empty", () => {

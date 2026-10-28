@@ -152,6 +152,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.updateRankingChoices();
     this.releaseAnimations();
   }
+  // onSurveyLoad syncs the value and defaultValue with the visible choices (Bug#7919), so they are built at load
+  protected get canDeferVisibleChoicesOnLoad(): boolean {
+    return false;
+  }
 
   protected onVisibleChoicesChanged = (): void => {
     super.onVisibleChoicesChanged();

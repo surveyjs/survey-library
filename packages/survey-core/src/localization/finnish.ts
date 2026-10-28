@@ -49,8 +49,6 @@ export var finnishSurveyStrings = {
   sortLevelFieldAriaLabel: "Lajittele kenttä {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Lajittelujärjestys {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Lisää...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Näytä kaikki lajittelutasot",
   // [Auto-translated] "Add New"

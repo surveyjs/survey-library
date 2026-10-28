@@ -17,7 +17,7 @@ import { ItemValue } from "../src/itemvalue";
 import { SurveyElement } from "../src/survey-element";
 import { FunctionFactory } from "../src/functionsfactory";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 import { PanelModel } from "../src/panel";
 describe("baseselect", () => {
   function getValuesInColumns(question: QuestionSelectBase) {
@@ -5556,5 +5556,245 @@ describe("Item conditions run only when a variable they use changed", () => {
     expect(q.value, "#2 gender is male").toBe("female");
     survey.setValue("gender", "female");
     expect(q.value, "#3 gender is female").toBe("male");
+  });
+});
+
+describe("Design mode: the visible choices are built on first read", () => {
+  const json = {
+    elements: [
+      { type: "checkbox", name: "cb", choices: [1, 2], showSelectAllItem: true },
+      { type: "radiogroup", name: "rg", choices: [1, 2], showNoneItem: true, showOtherItem: true },
+      { type: "dropdown", name: "dd", choices: [1, 2] },
+      { type: "ranking", name: "rk", choices: [1, 2, 3] }
+    ]
+  };
+  function loadInDesign(surveyJson: any): SurveyModel {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON(surveyJson);
+    return survey;
+  }
+  function getQ(survey: SurveyModel, name: string): QuestionSelectBase {
+    return <QuestionSelectBase>survey.getQuestionByName(name);
+  }
+  function getValues(items: Array<ItemValue>): Array<any> {
+    return items.map(item => item.value);
+  }
+  function spyItemCreation(): { builtIn: any, itemValue: any, builtInCount: (type: string) => number, newItemCount: (type: string) => number, restore: () => void } {
+    const builtIn = vi.spyOn(QuestionSelectBase.prototype as any, "createBuiltInItem");
+    const itemValue = vi.spyOn(QuestionSelectBase.prototype as any, "createItemValue");
+    return {
+      builtIn, itemValue,
+      builtInCount: (type: string): number => builtIn.mock.contexts.filter((ctx: any) => ctx.getType() === type).length,
+      newItemCount: (type: string): number => itemValue.mock.calls.filter((args: Array<any>, index: number) =>
+        args[0] === "newitem" && (<any>itemValue.mock.contexts[index]).getType() === type).length,
+      restore: (): void => { builtIn.mockRestore(); itemValue.mockRestore(); }
+    };
+  }
+  const expectedLists: any = {
+    cb: {
+      visible: [["", "Select All", true], [1, "1", true], [2, "2", true], ["newitem", "newitem", true], ["none", "None", true], ["other", "Other (describe)", true]],
+      head: [""], foot: ["newitem", "none", "other"]
+    },
+    rg: {
+      visible: [[1, "1", true], [2, "2", true], ["newitem", "newitem", true], ["none", "None", true], ["other", "Other (describe)", true]],
+      head: [], foot: ["newitem", "none", "other"]
+    },
+    dd: {
+      visible: [[1, "1", true], [2, "2", true], ["newitem", "newitem", true], ["none", "None", true], ["other", "Other (describe)", true]],
+      head: [], foot: ["newitem", "none", "other"]
+    },
+    rk: {
+      visible: [[1, "1", true], [2, "2", true], [3, "3", true], ["newitem", "newitem", true]],
+      head: [], foot: ["newitem"]
+    }
+  };
+
+  test("No placeholder item is created by a design-mode load", () => {
+    const spies = spyItemCreation();
+    try {
+      loadInDesign(json);
+      ["checkbox", "radiogroup", "dropdown"].forEach(type => {
+        expect(spies.newItemCount(type), type + ": the new item is not created").toBe(0);
+        expect(spies.builtInCount(type), type + ": no built-in item is created").toBe(0);
+      });
+      expect(spies.newItemCount("ranking"), "ranking builds its list at load").toBe(1);
+      expect(spies.builtInCount("ranking"), "ranking has no built-in items").toBe(0);
+    } finally {
+      spies.restore();
+    }
+  });
+  ["visibleChoices", "renderedChoices", "newItem", "headItems", "footItems"].forEach(firstRead => {
+    test("The first read of " + firstRead + " builds the same lists as a load that builds them", () => {
+      const survey = loadInDesign(json);
+      ["cb", "rg", "dd", "rk"].forEach(name => {
+        const q = getQ(survey, name);
+        const expected = expectedLists[name];
+        const res = (<any>q)[firstRead];
+        if (firstRead === "newItem") {
+          expect(res.value, name + ": the first read of newItem").toBe("newitem");
+        } else if (firstRead === "headItems") {
+          expect(getValues(res), name + ": the first read of headItems").toEqual(expected.head);
+        } else if (firstRead === "footItems") {
+          expect(getValues(res), name + ": the first read of footItems").toEqual(expected.foot);
+        } else {
+          expect(getValues(res), name + ": the first read of " + firstRead).toEqual(expected.visible.map((item: Array<any>) => item[0]));
+        }
+        expect(q.visibleChoices.map(item => [item.value, item.text, item.isVisible]), name + ": visibleChoices").toEqual(expected.visible);
+        expect(getValues(q.renderedChoices), name + ": renderedChoices").toEqual(expected.visible.map((item: Array<any>) => item[0]));
+        expect(getValues(q.headItems), name + ": headItems").toEqual(expected.head);
+        expect(getValues(q.footItems), name + ": footItems").toEqual(expected.foot);
+        expect(q.newItem.value, name + ": newItem").toBe("newitem");
+      });
+    });
+  });
+  test("The carry-forward type is set by a design-mode load", () => {
+    const survey = loadInDesign({
+      elements: [
+        { type: "checkbox", name: "src", choices: [1, 2] },
+        { type: "matrixdynamic", name: "md", columns: [{ name: "col1" }] },
+        { type: "checkbox", name: "cf1", choicesFromQuestion: "src" },
+        { type: "checkbox", name: "cf2", choicesFromQuestion: "md", choiceValuesFromQuestion: "col1" }
+      ]
+    });
+    const cf1 = getQ(survey, "cf1");
+    const cf2 = getQ(survey, "cf2");
+    expect(cf1.carryForwardQuestionType, "cf1, select source").toBe("select");
+    expect(cf2.carryForwardQuestionType, "cf2, array source").toBe("array");
+    expect(cf1.isPropertyVisible("choicesFromQuestionMode"), "cf1: choicesFromQuestionMode is visible").toBe(true);
+    expect(cf1.isPropertyVisible("choiceValuesFromQuestion"), "cf1: choiceValuesFromQuestion is hidden").toBe(false);
+    expect(cf2.isPropertyVisible("choiceValuesFromQuestion"), "cf2: choiceValuesFromQuestion is visible").toBe(true);
+    expect(cf2.isPropertyVisible("choiceTextsFromQuestion"), "cf2: choiceTextsFromQuestion is visible").toBe(true);
+    expect(getValues(cf1.visibleChoices), "cf1: visibleChoices").toEqual(["", "none", "other"]);
+    expect(getValues(cf2.visibleChoices), "cf2: visibleChoices").toEqual(["", "none", "other"]);
+  });
+  test("The stored isVisible is set by the first read after a design-mode load", () => {
+    const survey = loadInDesign({ elements: [{ type: "panel", name: "p", elements: [{ type: "checkbox", name: "q", choices: [1, 2] }] }] });
+    const q = getQ(survey, "q");
+    // Like text, rating and matrix questions, which store no isVisible at load either
+    expect(q.getPropertyValue("isVisible"), "not stored after load").toBeUndefined();
+    let changes = 0;
+    q.registerFunctionOnPropertyValueChanged("isVisible", () => { changes ++; }, "test");
+    expect(getValues(q.visibleChoices), "the first read").toEqual(["", 1, 2, "newitem", "none", "other"]);
+    expect(q.getPropertyValue("isVisible"), "stored by the first read").toBe(true);
+    expect(changes, "one isVisible change").toBe(1);
+    expect(q.visibleChoices.length, "the second read").toBe(6);
+    expect(changes, "no change on the second read").toBe(1);
+  });
+  test("selectAllItem.isEnabled after the first read, design mode", () => {
+    const survey = loadInDesign({
+      elements: [
+        { type: "checkbox", name: "a", showSelectAllItem: true },
+        { type: "checkbox", name: "b", choices: [1, 2, 3], maxSelectedChoices: 2, showSelectAllItem: true }
+      ]
+    });
+    const a = <QuestionCheckboxModel>survey.getQuestionByName("a");
+    const b = <QuestionCheckboxModel>survey.getQuestionByName("b");
+    expect(getValues(a.visibleChoices), "a: visibleChoices").toEqual(["", "newitem", "none", "other"]);
+    expect(a.selectAllItem.isEnabled, "a: no choices").toBe(false);
+    expect(b.visibleChoices.length, "b: visibleChoices").toBe(7);
+    expect(b.selectAllItem.isEnabled, "b: maxSelectedChoices is less than the choices").toBe(false);
+  });
+  test("Design mode switched off before the first read gives the runtime list", () => {
+    const survey = loadInDesign({ elements: [{ type: "checkbox", name: "q", choices: [1, 2], showSelectAllItem: true }] });
+    survey.setDesignMode(false);
+    const q = getQ(survey, "q");
+    expect(getValues(q.visibleChoices), "no placeholder items").toEqual(["", 1, 2]);
+  });
+  test("Toggle showSelectAllItem, showNoneItem and showOtherItem after a design-mode load", () => {
+    const survey = loadInDesign(json);
+    const cb = <QuestionCheckboxModel>getQ(survey, "cb");
+    const rg = getQ(survey, "rg");
+    cb.showSelectAllItem = false;
+    rg.showNoneItem = false;
+    rg.showOtherItem = false;
+    expect(getValues(cb.visibleChoices), "cb, before the first read").toEqual(["", 1, 2, "newitem", "none", "other"]);
+    expect(getValues(rg.visibleChoices), "rg, before the first read").toEqual([1, 2, "newitem", "none", "other"]);
+    cb.showSelectAllItem = true;
+    rg.showNoneItem = true;
+    rg.showOtherItem = true;
+    expect(getValues(cb.visibleChoices), "cb, after the first read").toEqual(["", 1, 2, "newitem", "none", "other"]);
+    expect(getValues(rg.visibleChoices), "rg, after the first read").toEqual([1, 2, "newitem", "none", "other"]);
+  });
+  test("setCanShowOptionItemCallback before the first read, design mode", () => {
+    const survey = loadInDesign(json);
+    const cb = <QuestionCheckboxModel>getQ(survey, "cb");
+    const rg = getQ(survey, "rg");
+    const callback = (item: ItemValue): boolean => item.value === "newitem";
+    cb.setCanShowOptionItemCallback(callback);
+    rg.setCanShowOptionItemCallback(callback);
+    expect(getValues(cb.visibleChoices), "cb follows the callback").toEqual(["", 1, 2, "newitem"]);
+    expect(getValues(rg.visibleChoices), "rg follows the callback").toEqual([1, 2, "newitem", "none", "other"]);
+    expect(getValues(cb.headItems), "cb: headItems").toEqual([""]);
+    expect(getValues(cb.footItems), "cb: footItems").toEqual(["newitem"]);
+    cb.showSelectAllItem = false;
+    rg.showNoneItem = false;
+    expect(getValues(cb.visibleChoices), "cb, showSelectAllItem is off").toEqual([1, 2, "newitem"]);
+    expect(getValues(rg.visibleChoices), "rg, showNoneItem is off").toEqual([1, 2, "newitem", "other"]);
+  });
+  test("Change choices after a design-mode load", () => {
+    const survey = loadInDesign(json);
+    const cb = getQ(survey, "cb");
+    cb.choices = [3, 4];
+    expect(getValues(cb.visibleChoices), "before the first read").toEqual(["", 3, 4, "newitem", "none", "other"]);
+    cb.choices = [5];
+    expect(getValues(cb.visibleChoices), "after the first read").toEqual(["", 5, "newitem", "none", "other"]);
+  });
+  test("selectAllText before any read, design mode", () => {
+    const survey = loadInDesign(json);
+    const cb = <QuestionCheckboxModel>getQ(survey, "cb");
+    expect(cb.selectAllText).toBe("Select All");
+  });
+  test("A question added to a loaded design-mode survey builds its visible choices", () => {
+    const survey = loadInDesign(json);
+    const added = <QuestionSelectBase>survey.pages[0].addNewQuestion("checkbox", "added");
+    expect(getValues(added.visibleChoices), "addNewQuestion").toEqual(["", "item1", "item2", "item3", "newitem", "none", "other"]);
+    expect(added.newItem.value, "addNewQuestion: newItem").toBe("newitem");
+    const standalone = new QuestionCheckboxModel("standalone");
+    standalone.choices = [1, 2];
+    standalone.showSelectAllItem = true;
+    survey.pages[0].addElement(standalone);
+    expect(getValues(standalone.visibleChoices), "a question created standalone").toEqual(["", 1, 2, "newitem", "none", "other"]);
+    expect(standalone.newItem.value, "a question created standalone: newItem").toBe("newitem");
+  });
+  test("A runtime load builds the visible choices at load", () => {
+    const spies = spyItemCreation();
+    let survey: SurveyModel;
+    try {
+      survey = new SurveyModel(json);
+      expect(spies.builtIn.mock.calls.length, "Select All, None and Other").toBe(3);
+    } finally {
+      spies.restore();
+    }
+    expect(getValues(getQ(survey, "cb").getPropertyValue("visibleChoices")), "cb").toEqual(["", 1, 2]);
+    expect(getValues(getQ(survey, "rg").getPropertyValue("visibleChoices")), "rg").toEqual([1, 2, "none", "other"]);
+    expect(getValues(getQ(survey, "dd").getPropertyValue("visibleChoices")), "dd").toEqual([1, 2]);
+    expect(getValues(getQ(survey, "rk").getPropertyValue("visibleChoices")), "rk").toEqual([1, 2, 3]);
+  });
+  test("A design-mode ranking keeps its defaultValue after load", () => {
+    const survey = loadInDesign({ elements: [{ type: "ranking", name: "rk", choices: [1, 2, 3], defaultValue: [3, 1] }] });
+    const rk = getQ(survey, "rk");
+    expect(rk.defaultValue, "synchronized with the choices at load").toEqual([3, 1, 2]);
+    expect(getValues(rk.getPropertyValue("visibleChoices")), "built at load").toEqual([1, 2, 3, "newitem"]);
+  });
+  test("A build started by a direct updateVisibleChoices call is not made again on the next read, design mode", () => {
+    const survey = loadInDesign({
+      pages: [
+        { name: "p1", elements: [{ type: "checkbox", name: "q", choices: [1, 2] }] },
+        { name: "p2", elements: [{ type: "text", name: "t" }] }
+      ]
+    });
+    const q = getQ(survey, "q");
+    const spy = vi.spyOn(QuestionSelectBase.prototype as any, "onVisibleChoicesChanged");
+    try {
+      // setSurveyImpl calls updateVisibleChoices in design mode
+      survey.pages[1].addElement(q);
+      const callsAfterMove = spy.mock.calls.length;
+      expect(getValues(q.visibleChoices), "the list after the move").toEqual(["", 1, 2, "newitem", "none", "other"]);
+      expect(getValues(q.renderedChoices), "renderedChoices after the move").toEqual(["", 1, 2, "newitem", "none", "other"]);
+      expect(spy.mock.calls.length, "the reads do not build again").toBe(callsAfterMove);
+    } finally {
+      spy.mockRestore();
+    }
   });
 });

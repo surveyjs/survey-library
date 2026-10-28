@@ -49,8 +49,6 @@ export var persianSurveyStrings = {
   sortLevelFieldAriaLabel: "فیلد مرتب سازی {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "ترتیب مرتب سازی {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "بیشتر...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "نمایش همه سطوح مرتب سازی",
   // [Auto-translated] "Add New"

@@ -96,14 +96,16 @@ interface ISortLevelGroup {
 }
 
 /* The container of the sort bar. On a desktop it fits the bar to its width by whole levels (SD02, SD08):
-   "Sort by", the first level, "More..." and "+" stay, and the levels leave the bar from the last one, with
-   mode "removed", until the rest fits; "More..." shows while a level is out. A level is one item of the
-   bar, so a level is never split. The dotsItem menu is not used: it would list single actions and open a
-   list, not the dialog. On a phone nothing is fitted: every level shows and the row scrolls. */
+   while every level and "+" fit, they all show. Otherwise "+" leaves, "..." takes its place, and the levels
+   leave the bar from the last one, with mode "removed", until "Sort by", the levels left and "..." fit;
+   "..." shows only while a level is out. "Sort by" and the first level never leave. A level is one item of
+   the bar, so a level is never split. The dotsItem menu is not used: it would list single actions and open
+   a list, not the dialog. On a phone nothing is fitted: every level and "+" show and the row scrolls. */
 export class RecordsSortBarContainer extends AdaptiveActionContainer {
-  // The items fit() may take out of the bar - the levels from the second one on - and "More...". Set by the bar.
+  // The items fit() may take out of the bar - the levels from the second one on - and "..." and "+". Set by the bar.
   public hideableActions: Array<Action> = [];
   public moreAction: Action;
+  public addLevelAction: Action;
   private afterFitCallback: () => void;
   private afterFitTime: number;
 
@@ -120,28 +122,37 @@ export class RecordsSortBarContainer extends AdaptiveActionContainer {
     }
     this.runAfterFitCallback();
   }
+  /* "..." and "+" are measured each: their boxes match in the design, but nothing makes them. "+" that is
+     not visible (maxSortLevel 1) takes no part: the levels alone are compared, then the levels with "...".
+     With a single level nothing can leave, so the bar keeps "+" and no "...", even when it does not fit. */
   private fitLevels(availableSpace: number, gap: number): void {
-    const more = this.moreAction;
     const visible = this.visibleActions;
+    const more = visible.indexOf(this.moreAction) > -1 ? this.moreAction : undefined;
+    const add = visible.indexOf(this.addLevelAction) > -1 ? this.addLevelAction : undefined;
     const levels = this.hideableActions.filter((item: Action): boolean => visible.indexOf(item) > -1);
-    const fixed = visible.filter((item: Action): boolean => item !== more && levels.indexOf(item) < 0);
-    const getWidth = (count: number, withMore: boolean): number => {
-      const items = fixed.concat(levels.slice(0, count), withMore && !!more ? [more] : []);
+    const fixed = visible.filter((item: Action): boolean => item !== more && item !== add && levels.indexOf(item) < 0);
+    const getWidth = (count: number, last: Action): number => {
+      const items = fixed.concat(levels.slice(0, count), !!last ? [last] : []);
       let res = -gap;
       items.forEach((item: Action): void => { res += (item.maxDimension || 0) + gap; });
       return res;
     };
     let count = levels.length;
-    if (getWidth(count, false) > availableSpace) {
+    // Once the bar overflows, at least one level leaves: "..." never shows with every level in the bar.
+    if (count > 0 && getWidth(count, add) > availableSpace) {
       count--;
-      while(count > 0 && getWidth(count, true) > availableSpace) {
+      while(count > 0 && getWidth(count, more) > availableSpace) {
         count--;
       }
     }
+    const isOverflow = count < levels.length;
     fixed.forEach((item: Action): void => { item.mode = "large"; });
     levels.forEach((item: Action, index: number): void => { item.mode = index < count ? "large" : "removed"; });
     if (!!more) {
-      more.mode = count < levels.length ? "large" : "removed";
+      more.mode = isOverflow ? "large" : "removed";
+    }
+    if (!!add) {
+      add.mode = isOverflow ? "removed" : "large";
     }
   }
   private showAllLevels(): void {
@@ -189,17 +200,18 @@ export class RecordsSortBarContainer extends AdaptiveActionContainer {
     this.afterFitCallback = undefined;
     this.hideableActions = [];
     this.moreAction = undefined;
+    this.addLevelAction = undefined;
     super.dispose();
   }
 }
 
 /* The sort bar the renderers show through their action bar, in the design's order:
-   Sort by  [field v] [direction v]  |  [field v] [direction v] [remove]  |  More...  |  [+]
+   Sort by  [field v] [direction v]  |  [field v] [direction v] [remove]  |  [...] or [+]
    It shows every level of the sort, with at least one group: a sort from code may have more levels
    than maxSortLevel, which limits only "+". "Sort by" is a disabled item without a tab stop, text the
-   keyboard passes over. "More..." shows while the container has taken levels out of the bar, and opens
-   the sort dialog with every level. The bar computes no sort of its own: it shows the question's
-   sortCriteria and passes the respondent's picks back through sortByUser, each one with the complete new sort. */
+   keyboard passes over. "..." takes the place of "+" while the container has taken levels out of the
+   bar, and opens the sort dialog with every level. The bar computes no sort of its own: it shows the
+   question's sortCriteria and passes the respondent's picks back through sortByUser, each one with the complete new sort. */
 class RecordsSortBar implements IRecordsSortActions {
   /* lastField: the field the respondent last sorted the first level by through the bar, shown while
      nothing is sorted. pickedField: the first field of the last pick, which becomes lastField once
@@ -222,12 +234,15 @@ class RecordsSortBar implements IRecordsSortActions {
       innerCss: <any>new ComputedUpdater(() => owner.getCssClasses().sortLabel),
       visible: <any>new ComputedUpdater(() => getSortBarState(owner, view).showSort)
     });
-    // Shown by the container's fit only: out of the bar ("removed") until a level is.
+    // Shown by the container's fit only: out of the bar ("removed") until a level is. It has the box of "+".
     this.moreAction = new Action({
       id: "sv-sort-more",
       title: "",
-      showTitle: true,
+      showTitle: false,
+      iconName: "icon-more-16x16",
+      iconSize: "auto",
       needSeparator: true,
+      appearance: { showBorder: true },
       mode: "removed",
       visible: <any>new ComputedUpdater(() => {
         const showSort = getSortBarState(owner, view).showSort;
@@ -249,12 +264,13 @@ class RecordsSortBar implements IRecordsSortActions {
       action: (): void => { this.onAddLevel(); }
     });
     container.moreAction = this.moreAction;
+    container.addLevelAction = this.addAction;
     container.setActionsAppearance({ style: "neutral", mode: "tertiary", size: "x-small" });
     this.update();
   }
 
   /* Sets what every item shows from the sort: the number of groups, then the titles, accessible
-     names, lists and selected items of each group, "More..." and "+". It runs after every pick too.
+     names, lists and selected items of each group, "..." and "+". It runs after every pick too.
      ListModel selects the picked item before the pick is validated, and the dropdown copies its title
      onto the button: a pick refused by a required cell, or waiting for an asynchronous validator, has
      not sorted, and the bar shows the sort the question has. An accepted asynchronous pick arrives
@@ -272,8 +288,9 @@ class RecordsSortBar implements IRecordsSortActions {
       this.updateGroup(group, index, sort, fields);
     });
     this.labelAction.title = owner.getLocalizationString("sortByText");
-    this.moreAction.title = owner.getLocalizationString("sortMoreText");
-    this.moreAction.ariaLabel = owner.getLocalizationString("sortMoreAriaLabel");
+    const moreTitle = owner.getLocalizationString("sortMoreAriaLabel");
+    this.moreAction.title = moreTitle;
+    this.moreAction.ariaLabel = moreTitle;
     this.updateAddAction(sort, fields);
     if (!!this.dialog) {
       this.dialog.update();
@@ -420,16 +437,17 @@ class RecordsSortBar implements IRecordsSortActions {
   private getFreeField(sort: Array<ISortCriterion>, fields: Array<IRecordsSortField>): IRecordsSortField {
     return fields.filter((item: IRecordsSortField): boolean => !sort.some((criterion: ISortCriterion): boolean => criterion.field === item.field))[0];
   }
-  /* "+" shows while the respondent can add levels (maxSortLevel above 1) and hides once the sort has
-     maxSortLevel levels or no offered field is left for another one. It is disabled while nothing is
-     sorted - a second level under an unsorted first one is no sort - and while no sort can be made.
-     update() runs on every one of these inputs, the loading states included. */
+  /* "+" shows while the respondent can add levels (maxSortLevel above 1); the container's fit takes it
+     out while "..." shows. It is disabled once the sort has maxSortLevel levels (or more, from code) or no
+     offered field is left for another one, while nothing is sorted - a second level under an unsorted
+     first one is no sort - and while no sort can be made. update() runs on every one of these inputs,
+     the loading states included. */
   private updateAddAction(sort: Array<ISortCriterion>, fields: Array<IRecordsSortField>): void {
     const state = getSortBarState(this.owner, this.view);
     const maxSortLevel = this.owner.maxSortLevel;
-    const canAdd = maxSortLevel > 1 && sort.length < maxSortLevel && !!this.getFreeField(sort, fields);
-    this.addAction.visible = state.showSort && canAdd;
-    this.addAction.enabled = state.canSort && sort.length > 0;
+    const canAdd = sort.length > 0 && sort.length < maxSortLevel && !!this.getFreeField(sort, fields);
+    this.addAction.visible = state.showSort && maxSortLevel > 1;
+    this.addAction.enabled = state.canSort && canAdd;
     const title = this.owner.getLocalizationString("sortAddLevelText");
     this.addAction.title = title;
     this.addAction.ariaLabel = title;
@@ -485,8 +503,9 @@ class RecordsSortBar implements IRecordsSortActions {
     }
   }
   /* "+" appends the first offered field that no level has, in its type's first direction, and sorts at
-     once, like a field pick. The focus stays on "+". When the new level hides "+", the focus moves to
-     the new level's field dropdown - or to "More..." when the bar, fitted again, has taken the new level out. */
+     once, like a field pick. The focus is decided once the bar is fitted again: it stays on "+" while "+"
+     is in the bar and enabled. Otherwise it moves to "..." when the new level is out of the bar, or to the
+     new level's field dropdown. A browser may leave the focus on a disabled "+", so it is moved anyway. */
   private onAddLevel(): void {
     const owner = this.owner;
     const sort = copySort(owner.sortCriteria);
@@ -496,9 +515,10 @@ class RecordsSortBar implements IRecordsSortActions {
     sort.push({ field: free.field, direction: getFirstSortDirection(free.dataType) });
     const isAdded = this.sortByUser(sort) && owner.sortCriteria.length === sort.length;
     this.update();
-    if (isAdded && hadFocus && !this.addAction.visible) {
+    if (isAdded && hadFocus) {
       const group = this.groups[sort.length - 1];
       this.container.runAfterFit((): void => {
+        if (this.addAction.isVisible && this.addAction.enabled) return;
         if (!!group && group.action.mode === "removed") {
           focusSortAction(owner, this.moreAction, true);
         } else {
@@ -522,9 +542,9 @@ class RecordsSortBar implements IRecordsSortActions {
     focusSortAction(this.owner, group.field, isTimeOut);
   }
 
-  /* "More..." opens the dialog with every level of the sort (SD03) as a draft: nothing sorts until Apply
+  /* "..." opens the dialog with every level of the sort (SD03) as a draft: nothing sorts until Apply
      (SD04). The first row shows the field the first level shows. When the dialog closes, the focus goes
-     back to "More..." while the bar, fitted again, still shows it; otherwise to the first level's field,
+     back to "..." while the bar, fitted again, still shows it; otherwise to the first level's field,
      which never leaves the bar. */
   private showDialog(): void {
     if (!!this.dialog || !settings.showDialog) return;

@@ -1958,6 +1958,35 @@ describe("Expressions", () => {
       expect(new ExpressionRunner(expectedText).runValues(values), text + " value of the parsed toString").toEqual(expectedValue);
     });
   });
+  test("null/undefined as a unary operand", () => {
+    const parser = new ConditionsParser();
+    const texts = {
+      "!null": "! null",
+      "negate undefined": "! null",
+      "null empty": "null empty",
+      "null notempty": "null notempty",
+      "!undefined": "! null",
+      "!null empty": "! null empty"
+    };
+    for (const text in texts) {
+      const operand = parser.parseExpression(text);
+      expect(operand.toString(), "toString: " + text).toBe(texts[text]);
+      const reparsed = parser.parseExpression(operand.toString());
+      expect(reparsed.toString(), "round trip: " + text).toBe(texts[text]);
+      expect(reparsed.isEqual(operand), "equal after round trip: " + text).toBe(true);
+    }
+
+    expect(new ExpressionRunner("!null").runValues({}), "!null").toBe(true);
+    expect(new ExpressionRunner("null empty").runValues({}), "null empty").toBe(true);
+    expect(new ExpressionRunner("null notempty").runValues({}), "null notempty").toBe(false);
+    const condition = new ConditionRunner("{a} = 1 or !null");
+    expect(condition.runValues({ a: 2 }), "{a} = 1 or !null").toBe(true);
+    expect(condition.hasFunction(), "hasFunction").toBe(false);
+    expect(condition.isAsync, "isAsync").toBe(false);
+    expect(parser.parseExpression("{a} = 1 or !null").toString(), "inside a binary operand").toBe("(({a} == 1) or ! null)");
+
+    expect(new ExpressionRunner("{a} empty or !null").getVariables(), "variables").toEqual(["a"]);
+  });
 });
 
 describe("Expression parser: nesting and error offsets", () => {

@@ -1,0 +1,43 @@
+@use "../variables.scss" as *;
+
+// Fallbacks keep the tooltip styled when its trigger lives outside a themed root.
+.sv-tooltip {
+  display: none;
+  position: fixed;
+  z-index: 10000;
+  inset: auto;
+  margin: 0;
+  border: none;
+  overflow: visible;
+  box-sizing: border-box;
+  max-width: 240px;
+  padding: var(--sjs2-spacing-x050, 4px) var(--sjs2-spacing-x100, 8px);
+  border-radius: var(--sjs2-radius-component-tooltip, 4px);
+  background: var(--sjs2-color-bg-neutral-primary, #1c1b20);
+  color: var(--sjs2-color-fg-neutral-on-primary, #ffffff);
+  font-family: $font-family;
+  font-weight: var(--sjs2-typography-font-weight-strong, 600);
+  font-size: var(--sjs2-typography-font-size-x-small, 10px);
+  line-height: var(--sjs2-typography-line-height-x-small, 14px);
+  text-align: center;
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 100ms;
+}
+
+.sv-tooltip--visible {
+  opacity: 1;
+}
+
+// An icon's SVG <title> would raise its own native tooltip; keeping the pointer on the trigger avoids it.
+[data-sv-tooltip] svg {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sv-tooltip {
+    transition: none;
+  }
+}

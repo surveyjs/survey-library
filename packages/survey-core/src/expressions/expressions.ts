@@ -369,8 +369,8 @@ export class Const extends Operand {
     if (this.isStringLiteral()) {
       // The parser stores a string literal in single quotes with its escapes removed: put them back, so the text parses again.
       // Backslashes stay as is: the grammar has no "\\" escape, a backslash escapes only a following quote and is literal otherwise.
-      // codeql[js/incomplete-sanitization] Escaping backslashes too would change the value parsed back ("a\b" -> "a\\b").
-      return "'" + this.value.substring(1, this.value.length - 1).replace(/['"]/g, "\\$&") + "'";
+      // Escaping backslashes too would change the value parsed back ("a\b" -> "a\\b").
+      return "'" + this.value.substring(1, this.value.length - 1).replace(/['"]/g, (quote: string) => "\\" + quote) + "'";
     }
     return this.value.toString();
   }

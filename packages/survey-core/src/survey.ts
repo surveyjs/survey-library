@@ -108,6 +108,7 @@ import { TOCModel } from "./surveyToc";
 import { SurveyProgressTextModel } from "./surveyProgressTextModel";
 import { SurveyNavigationLayoutModel } from "./surveyNavigationLayoutModel";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
+import { initTooltips } from "./utils/tooltip";
 import { ConsoleWarnings } from "./console-warnings";
 import DefaultLightTheme from "./themes/default-light";
 import { createBoxShadowReset } from "./utils/shadow-effects";
@@ -6006,6 +6007,8 @@ export class SurveyModel extends SurveyElementCore
     if (this.generateStylesheet) {
       ensureBaseThemeStyles(observedElement);
     }
+    // Passing the root (not its document) also covers the shadow root the survey is rendered in.
+    initTooltips(observedElement);
     this._processingResponsivenessFunc = undefined;
     const cssVariables = this.css.variables;
     if (!!cssVariables) {

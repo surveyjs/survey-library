@@ -997,7 +997,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     await flush();
     // The hash was cleared by the attach: the detach restores an empty value and the authored rowCount.
     expect(question.rowCount, "#4: the authored count").toBe(3);
-    expect(question.value, "#5").toEqual([]);
+    expect(question.value, "#5: a cleared value reads as survey.getValue does, Bug#12147").toBeUndefined();
     expect(question["dataList"].loadedCount, "#6: padded up to rowCount again").toBe(3);
     expect(question["dataList"].getRecord(2), "#7: a padded record").toEqual({});
     expect(question.visibleRows.length, "#8").toBe(3);
@@ -3936,9 +3936,10 @@ describe("Remote data source: survey clean-ups and outside assignments leave the
       expect(source.argsOf("update"), "#1: sent with its key").toEqual([[0, firstRecordEdited, ["col1"]]]);
       const local = createLocal(kind, ownedRecords(2));
       local.survey.clearIncorrectValues();
-      // Without a source the unknown keys go: the panel drops them, the matrix drops the whole value.
+      // Without a source the unknown keys go: the panel drops them, the matrix drops them and keeps
+      // an empty record for each row (Bug#12147).
       expect(local.survey.data[kind], "#2: without a source the unknown keys go")
-        .toEqual(kind === "matrix" ? undefined : [{ col1: "v0", col2: "s0" }, { col1: "v1", col2: "s1" }]);
+        .toEqual(kind === "matrix" ? [{}, {}] : [{ col1: "v0", col2: "s0" }, { col1: "v1", col2: "s1" }]);
     });
     test(kind + ": a value not in the choices is not cleared by the validation on complete", async () => {
       const json = kind === "matrix" ?

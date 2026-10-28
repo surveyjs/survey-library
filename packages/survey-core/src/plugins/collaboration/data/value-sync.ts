@@ -22,11 +22,11 @@ export class ValueSyncController {
     const onLocalChange = (_sender: SurveyModel, options: { name: string, value: any }) => {
       this.emitName(options.name, options.value);
     };
-    // Adding or removing an EMPTY matrixdynamic row changes only rowCount - no value is
-    // written and onValueChanged stays silent - so the row events are synced too. Both
-    // fire AFTER rowCount is updated, so the pad below yields an array of the new length.
-    // A non-empty row also writes the value, producing a second identical emit; harmless
-    // (last write wins, and the same-value setValue on peers is a no-op), so no dedup.
+    // The row events are synced too: an add or a removal that writes no value changes
+    // only rowCount, and onValueChanged stays silent. Both fire AFTER rowCount is updated,
+    // so the pad below yields an array of the new length. A row that writes the value -
+    // an empty one writes its empty record too (Bug#12147) - produces a second identical
+    // emit; harmless (last write wins, and the same-value setValue on peers is a no-op).
     // The event carries the matrix itself, which inside a composite is NOT a key of
     // survey.data: its rows live in the composite's object. Emitting its own value name
     // would put a phantom top-level key on the wire and leave the row unshared, so the

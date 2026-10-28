@@ -192,8 +192,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private normalizeRecords(records: Array<any>, operations: Array<DynamicDataSourceMethod>): any {
     const res = Array.isArray(records) ? records : [];
     const isOnly = (operation: DynamicDataSourceMethod): boolean => operations.every((op: DynamicDataSourceMethod): boolean => op === operation);
-    if (isOnly("update")) return this.correctValueForMinMaxRows(this.deleteRowValue(res, null));
-    if (this.isWritingRecords && isOnly("remove")) return this.deleteRowValue(res, null);
+    if (isOnly("update")) return this.correctValueForMinMaxRows(res);
     return res;
   }
   private setLastRowRecord(record: any, force: boolean = false): void {
@@ -327,6 +326,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   @property() confirmDelete: boolean;
 
   public get isValueArray(): boolean { return true; }
+  // The value keeps a record for every row (Bug#12147): a matrix whose records are all empty is empty.
+  public isEmpty(): boolean {
+    const val = this.value;
+    if (!Array.isArray(val)) return super.isEmpty();
+    return val.every((record: any): boolean => this.isValueEmpty(record, !this.allowSpaceAsAnswer));
+  }
   /**
    * Specifies a key column. Set this property to a column name, and the question will display `keyDuplicationError` if a user tries to enter a duplicate value in this column.
    * @see keyDuplicationError
@@ -387,7 +392,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return (visibleIndex + 1).toString();
   }
   protected valueFromData(val: any): any {
-    if (this.minRowCount < 1 || this.isEditingSurveyElement || this.isEmpty()) return super.valueFromData(val);
+    // No value at all, not isEmpty(): records that are all empty are a value to pad (Bug#12147).
+    if (this.minRowCount < 1 || this.isEditingSurveyElement || this.isValueEmpty(this.value)) return super.valueFromData(val);
     return this.correctValueForMinMaxRows(val);
   }
   /* A row built past the stored value writes it, as the released build did: the value then gets the
@@ -396,6 +402,22 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.isRemoteData || this.isEditingObjectValue) return false;
     const val = this.value;
     return this.getBuiltRecordIndex(row) >= (Array.isArray(val) ? val.length : 0);
+  }
+  /* Bug#12147: the value holds a record for every row, an empty row as {}, as the Dynamic Panel's
+     value holds one for every panel. The rows the respondent has not touched get their records when
+     the matrix is first rendered, as the panels do (setValueBasedOnPanelCount). Not in design mode,
+     with a data source or a live object value. Not with a defaultValueExpression either: an own
+     write would count as a direct change and stop the expression from applying. */
+  protected onFirstRenderingCore(): void {
+    super.onFirstRenderingCore();
+    this.storeRecordsUpToRowCount();
+  }
+  private storeRecordsUpToRowCount(): void {
+    if (this.isDesignMode || this.isRemoteData || this.isEditingObjectValue || this.isEditingSurveyElement) return;
+    if (!!this.defaultValueExpression) return;
+    const val = this.value;
+    if ((Array.isArray(val) ? val.length : 0) >= this.rowCount) return;
+    this.writeRecords((): void => this.setOwnRecordsValue(this.createNewValue()));
   }
   // With a data source minRowCount only gates the removal: the value is never padded.
   protected correctValueForMinMaxRows(val: any): any {
@@ -966,8 +988,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         // A live-object value is never written back from the row here, as before. Under paging the
         // last row of the page is the new record's only when the page has room for it.
         const isNewRow = !this.isPagingActive || this.getBuiltRecordIndex(row) === this.getLastRowRecordIndex();
-        if (isNewRow && !this.isValueEmpty(row.value) && !this.isEditingObjectValue) {
-          this.setLastRowRecord(row.value);
+        // An empty new row is stored as an empty record too, as a new panel is (Bug#12147).
+        const isEmptyRow = this.isValueEmpty(row.value);
+        if (isNewRow && !this.isEditingObjectValue && (!isEmptyRow || this.isPaddingPending)) {
+          this.setLastRowRecord(isEmptyRow ? {} : row.value, isEmptyRow);
         }
       }
     }
@@ -1155,7 +1179,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.writeRecords((): void => {
           const next = this.createNewValue();
           next.splice(recordIndex, 1);
-          this.setOwnRecordsValue(this.deleteRowValue(next, null));
+          this.setOwnRecordsValue(next);
         });
       }
       this.followRecordCountChange();
@@ -1491,10 +1515,45 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const defaultRecord = this.getDefaultRowValue(false) || {};
     return (index: number): any => this.getListRecordAt(index, defaultRecord);
   }
+  /* Bug#12147. The stored value holds plain records only, each empty or the default row record: the
+     records of rows nobody answered. A live object array (Creator) holds Base objects, and one emptied
+     in place is [], so it is never taken for them. */
+  private isStoredValueEmptyRecords(): boolean {
+    const stored = this.getPropertyValueWithoutDefault("value");
+    if (!Array.isArray(stored) || stored.length === 0) return false;
+    const defaultRecord = this.getDefaultRowValue(false);
+    return stored.every((record: any): boolean => Helpers.isValueObject(record) && record.constructor === Object &&
+      (Helpers.isValueEmpty(record) || !!defaultRecord && this.isTwoValueEquals(record, defaultRecord)));
+  }
+  /* Clearing such records leaves the rows as they are, as they stayed while such a matrix had no value
+     (onBeforeValueChanged). A live array Creator assigns over them - they were written on first
+     rendering, before the edited object was set - is stored as it is, not copied into them. */
+  private isClearingEmptyRecords: boolean = false;
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
+    const prev = this.isClearingEmptyRecords;
+    const isEmptyRecords = this.isStoredValueEmptyRecords();
+    if (isEmptyRecords && this.isEditingSurveyElement && Array.isArray(newValue)) {
+      this.clearPropertyValue("value");
+    }
+    this.isClearingEmptyRecords = isEmptyRecords && this.isValueEmpty(newValue);
+    try {
+      super.setQuestionValue(newValue, updateIsAnswered);
+    } finally {
+      this.isClearingEmptyRecords = prev;
+    }
+    /* A cleared value: Base.setPropertyValue empties the stored array in place and keeps it. It goes,
+       so that question.value is undefined as survey.getValue is, and the next value - a live object
+       array Creator assigns - becomes the stored one instead of being copied into it. */
+    const stored = this.getPropertyValueWithoutDefault("value");
+    if (newValue === undefined && Array.isArray(stored) && stored.length === 0) {
+      this.clearPropertyValue("value");
+    }
+  }
   protected onBeforeValueChanged(val: any): void {
     // The record count of a remote-backed matrix comes from the read, never from the length of the
     // window: the window is one page of a larger table.
     if (this.isRemoteData) return;
+    if (this.isClearingEmptyRecords) return;
     if (!val || !Array.isArray(val)) return;
     var newRowCount = val.length;
     if (newRowCount == this.rowCount) return;
@@ -1558,18 +1617,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (result.length > this.rowCount) result.splice(this.rowCount);
     return this.arrayRecordsSource["padRecordsToMinCount"](result);
   }
-  protected deleteRowValue(newValue: any, row: MatrixDropdownRowModelBase): any {
-    if (!Array.isArray(newValue)) return newValue;
-    var isEmpty = true;
-    for (var i = 0; i < newValue.length; i++) {
-      if (this.isObject(newValue[i]) && Object.keys(newValue[i]).length > 0) {
-        isEmpty = false;
-        break;
-      }
-    }
-    return isEmpty ? null : newValue;
-  }
-
   // The lookup is the own source's (readRecordInAnswer); a record the value does not hold reads as null here.
   private getRowValueByIndex(questionValue: any, index: number): any {
     const res = this.recordsSource["readRecordInAnswer"](questionValue, index);

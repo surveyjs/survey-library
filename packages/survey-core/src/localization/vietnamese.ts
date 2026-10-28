@@ -49,8 +49,6 @@ export var vietnameseSurveyStrings = {
   sortLevelFieldAriaLabel: "Trường sắp xếp {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Thứ tự sắp xếp {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Xem thêm...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Hiển thị tất cả các cấp độ sắp xếp",
   // [Auto-translated] "Add New"

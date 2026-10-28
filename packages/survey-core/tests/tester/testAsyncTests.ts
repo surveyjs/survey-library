@@ -379,4 +379,18 @@ describe("Dynamic data source", () => {
     // The survey did not complete while the edit was still on its way to the server.
     expect(pushedWhenCompleted).toBe("edited");
   });
+  test("A data source that never answers times out and names the question, Issue#11818", async () => {
+    const result = await run(remoteMatrixSurvey, {
+      options: { asyncTimeout: 30 },
+      tests: [{ name: "t", steps: [{ set: { q1: "abc" } }] }],
+    }, survey => {
+      (<any>survey.getQuestionByName("m")).dataSource = { read: (): Promise<any> => new Promise<any>(() => {}) };
+    });
+    expect(result.tests[0].status).toBe("error");
+    const issue = issueByCode(result.tests[0], SurveyTestIssueCodes.asyncOperationTimeout);
+    expect(!!issue).toBe(true);
+    expect(issue.data.reason).toBe("dynamicData");
+    expect(issue.data.names).toEqual(["m"]);
+    expect(issue.message.indexOf("the records of m are still loading from or saving to their data source") > -1).toBe(true);
+  });
 });

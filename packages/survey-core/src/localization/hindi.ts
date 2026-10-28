@@ -49,8 +49,6 @@ export var hindiStrings = {
   sortLevelFieldAriaLabel: "सॉर्ट फ़ील्ड {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "क्रमबद्ध क्रम {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "अधिक...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "सभी सॉर्ट स्तर दिखाएं",
   // [Auto-translated] "Add New"

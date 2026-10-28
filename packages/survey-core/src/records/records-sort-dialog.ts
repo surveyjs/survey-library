@@ -34,7 +34,7 @@ interface ISortDialogRow {
   keys: ISortListKeys;
 }
 
-/* The "Sort by" dialog that "More..." opens: every level of the sort as a row (SD03), a draft that sorts
+/* The "Sort by" dialog that "..." opens: every level of the sort as a row (SD03), a draft that sorts
    nothing until Apply (SD04). A row without a direction (Default in the first row, the dash item in a later one)
    does not sort, and Apply leaves it out (SD05). A field is in one row at most (SD07). The renderers show
    one action bar per row (sv-records-sort-dialog); the footer's Add New and Apply are the modal's. */

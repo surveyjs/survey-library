@@ -49,8 +49,6 @@ export var kazakhStrings = {
   sortLevelFieldAriaLabel: "Сұрыптау өрісі {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Сұрыптау тәртібі {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Тағы...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Барлық сұрыптау деңгейлерін көрсету",
   // [Auto-translated] "Add New"

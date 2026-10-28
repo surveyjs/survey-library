@@ -787,7 +787,7 @@ frameworks.forEach((framework) => {
 
       await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
-      expect(surveyResult).toEqual({ });
+      expect(surveyResult).toEqual({ matrix: [{}, {}, {}] });
     });
 
     test("Matrix is not re-create rows on setting value after the matrix value is empty array, Bug#10622", async ({ page }) => {
@@ -1241,7 +1241,7 @@ frameworks.forEach((framework) => {
       await expect(anyRank).toHaveCount(0);
     });
 
-    test("the keyboard: \"+\" keeps the focus, a removed level hands it to the level before, and \"+\" that hides hands it to the new level", async ({ page }) => {
+    test("the keyboard: \"+\" keeps the focus, a removed level hands it to the level before, and \"+\" disabled at the limit hands it to the new level", async ({ page }) => {
       await initSurvey(page, framework, levelsJson({ maxSortLevel: 3, sortCriteria: [{ field: "category", direction: "asc" }] }));
       await levelDirection(page, 1).focus();
       await page.keyboard.press("Tab");
@@ -1255,12 +1255,12 @@ frameworks.forEach((framework) => {
       await expect(levelField(page, 2)).toHaveCount(0);
       await expect(levelField(page, 1)).toBeFocused();
 
-      // The limit: the third level hides "+".
+      // The limit: the third level disables "+".
       await addButton(page).focus();
       await page.keyboard.press("Enter");
       await expect(addButton(page)).toBeFocused();
       await page.keyboard.press("Enter");
-      await expect(addButton(page)).toHaveCount(0);
+      await expect(addButton(page)).toBeDisabled();
       await expect(levelField(page, 3).locator(".sd-action__title")).toHaveText("Price");
       await expect(levelField(page, 3)).toBeFocused();
     });
@@ -1274,7 +1274,7 @@ frameworks.forEach((framework) => {
         ] }));
       await addButton(page).focus();
       await page.keyboard.press("Enter");
-      await expect(addButton(page)).toHaveCount(0);
+      await expect(addButton(page)).toBeDisabled();
       await expect(levelField(page, 2).locator(".sd-action__title")).toHaveText("Product");
       await expect(levelField(page, 2)).toBeFocused();
     });
@@ -1307,7 +1307,7 @@ frameworks.forEach((framework) => {
 });
 
 frameworks.forEach((framework) => {
-  test.describe(`${framework} ${title} sort bar: More... and the sort dialog`, () => {
+  test.describe(`${framework} ${title} sort bar: "..." and the sort dialog`, () => {
     // The design's frame: a long title and five sortable columns.
     const moreJson = (extra?: any): any => ({
       elements: [Object.assign({
@@ -1371,17 +1371,28 @@ frameworks.forEach((framework) => {
       return !!el ? el.getAttribute("aria-label") || el.textContent : "";
     });
 
-    test("a level that does not fit is behind More... and comes back on a wider window; the dialog sorts on Apply", async ({ page }) => {
+    test("a level that does not fit is behind \"...\", which takes the place of \"+\", and comes back on a wider window; the dialog sorts on Apply", async ({ page }) => {
       await initSurvey(page, framework, moreJson());
       await waitForFit(page);
       await expect(moreButton(page)).toBeVisible();
+      await expect(addButton(page)).toHaveCount(0);
       await expect(levelField(page, 3)).toHaveCount(0);
       await expect(levelField(page, 1)).toBeVisible();
+      // The rightmost button the bar shows; the renderers wrap the bar's items differently.
+      const lastButton = async (): Promise<string> => headerBar(page).evaluate((el: HTMLElement) => {
+        const shown = Array.prototype.filter.call(el.querySelectorAll("button"), (button: HTMLElement): boolean =>
+          button.getBoundingClientRect().width > 0 && getComputedStyle(button).visibility !== "hidden") as Array<HTMLElement>;
+        shown.sort((a: HTMLElement, b: HTMLElement): number => a.getBoundingClientRect().right - b.getBoundingClientRect().right);
+        return shown[shown.length - 1].getAttribute("aria-label");
+      });
+      expect(await lastButton(), "\"...\" is at the end").toBe("Show all sort levels");
       await page.setViewportSize({ width: 1440, height: 900 });
       await expect(levelField(page, 3)).toBeVisible();
       await expect(moreButton(page)).toHaveCount(0);
+      await expect(addButton(page)).toBeEnabled();
       await page.setViewportSize({ width: 1024, height: 900 });
       await expect(moreButton(page)).toBeVisible();
+      await expect(addButton(page)).toHaveCount(0);
 
       await moreButton(page).click();
       await expect(dialog(page).locator(".sv-popup__body-header")).toHaveText("Sort by");
@@ -1412,11 +1423,14 @@ frameworks.forEach((framework) => {
       expect(await products(page)).toEqual(["a", "b", "c", "d"]);
     });
 
-    test("the keyboard: Enter on More... opens the dialog on row 1, Esc closes an open list and then the dialog", async ({ page }) => {
+    test("the keyboard: Enter on \"...\" opens the dialog on row 1, Esc closes an open list and then the dialog", async ({ page }) => {
       await initSurvey(page, framework, moreJson());
       await waitForFit(page);
-      await addButton(page).focus();
-      await page.keyboard.press("Shift+Tab");
+      // "..." is the bar's last button: "+" is out of the bar while "..." shows.
+      await levelField(page, 1).focus();
+      for (let i = 0; i < 5 && await focusedName(page) !== "Show all sort levels"; i++) {
+        await page.keyboard.press("Tab");
+      }
       await expect(moreButton(page)).toBeFocused();
       await page.keyboard.press("Enter");
       await expect(rowField(page, 1)).toBeFocused();
@@ -1461,7 +1475,7 @@ frameworks.forEach((framework) => {
       expect((await sortOf(page))[2]).toEqual({ field: "price", direction: "asc" });
     });
 
-    test("\"+\" adds a level that does not fit: More... shows, the level is in the dialog, and the focus goes to More...", async ({ page }) => {
+    test("\"+\" adds a level that does not fit: \"...\" takes the place of \"+\", the level is in the dialog, and the focus goes to \"...\"", async ({ page }) => {
       await page.setViewportSize({ width: 1440, height: 900 });
       await initSurvey(page, framework, moreJson());
       await waitForFit(page);
@@ -1475,18 +1489,44 @@ frameworks.forEach((framework) => {
       expect((await rowsShown(page))[3]).toEqual(["Quantity per Unit", "Alphabet, A - Z"]);
     });
 
-    test("\"+\" adds a level that fits: the focus goes to the new level's field", async ({ page }) => {
+    test("\"+\" adds a level that fits and reaches the limit: \"+\" is disabled and the focus goes to the new level's field", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 900 });
       await initSurvey(page, framework, moreJson({ title: "Products" }));
       await waitForFit(page);
       await addButton(page).focus();
       await page.keyboard.press("Enter");
-      await expect(addButton(page)).toHaveCount(0);
+      await expect(addButton(page)).toBeDisabled();
       await expect(moreButton(page)).toHaveCount(0);
       await expect(levelField(page, 4)).toBeFocused();
     });
 
-    test("a longer label pushes a level behind More..., a shorter one brings it back", async ({ page }) => {
+    test("with two levels allowed, \"+\" adds level 2 and becomes disabled; the focus goes to level 2's field", async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await initSurvey(page, framework, moreJson({ maxSortLevel: 2, sortCriteria: [{ field: "category", direction: "asc" }] }));
+      await waitForFit(page);
+      await expect(addButton(page)).toBeEnabled();
+      await addButton(page).click();
+      await expect(levelField(page, 2).locator(".sd-action__title")).toHaveText("Product");
+      await expect(addButton(page)).toBeDisabled();
+      await expect(moreButton(page)).toHaveCount(0);
+      await expect(levelField(page, 2)).toBeFocused();
+    });
+
+    test("the keyboard: \"+\" adds a level that does not fit next to two levels: \"+\" leaves the bar and the focus goes to \"...\"", async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 900 });
+      await initSurvey(page, framework, moreJson({ sortCriteria: [{ field: "category", direction: "asc" }, { field: "product", direction: "desc" }] }));
+      await waitForFit(page);
+      await expect(levelField(page, 2)).toBeVisible();
+      await expect(moreButton(page)).toHaveCount(0);
+      await addButton(page).focus();
+      await page.keyboard.press("Enter");
+      await expect(levelField(page, 3)).toHaveCount(0);
+      await expect(addButton(page)).toHaveCount(0);
+      await expect(moreButton(page)).toBeFocused();
+      expect((await sortOf(page)).length).toBe(3);
+    });
+
+    test("a longer label pushes a level behind \"...\", a shorter one brings it back", async ({ page }) => {
       await page.setViewportSize({ width: 1440, height: 900 });
       const json = moreJson();
       json.elements[0].columns[3].title = "Quantity per Unit, in Boxes";
@@ -1506,7 +1546,7 @@ frameworks.forEach((framework) => {
       await expect(moreButton(page)).toHaveCount(0);
     });
 
-    test("the focus after the dialog: level 1's field when an Apply leaves no More...", async ({ page }) => {
+    test("the focus after the dialog: level 1's field when an Apply leaves no \"...\"", async ({ page }) => {
       await initSurvey(page, framework, moreJson());
       await waitForFit(page);
       await moreButton(page).click();
@@ -1530,11 +1570,12 @@ frameworks.forEach((framework) => {
       await expect(levelField(page, 1)).toBeFocused();
     });
 
-    test("on a phone there is no More...: every level shows and the row scrolls", async ({ page }) => {
+    test("on a phone there is no \"...\": every level and \"+\" show and the row scrolls", async ({ page }) => {
       await page.setViewportSize({ width: 420, height: 900 });
       await initSurvey(page, framework, moreJson());
       await expect(headerBar(page)).toBeVisible();
       await expect(levelField(page, 3)).toHaveCount(1);
+      await expect(addButton(page)).toHaveCount(1);
       await expect(moreButton(page)).toHaveCount(0);
       const layout = await headerBar(page).evaluate((el: HTMLElement) => [el.scrollWidth > el.clientWidth, getComputedStyle(el).overflowX]);
       expect(layout).toEqual([true, "auto"]);

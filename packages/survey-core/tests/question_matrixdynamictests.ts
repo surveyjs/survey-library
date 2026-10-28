@@ -80,7 +80,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     visibleRows[1].cells[1].value = 4;
     expect(question.value, "set the cell value correctly").toEqual([{}, { column2: 4 }, {}]);
     visibleRows[1].cells[1].value = null;
-    expect(question.value, "set to null if all cells are null - array is empty").toEqual([]);
+    expect(question.value, "the empty records stay, Bug#12147").toEqual([{}, {}, {}]);
   });
   test("Matrixdynamic make the question empty on null cell value, Bug #608", () => {
     var question = new QuestionMatrixDynamicModel("matrixDynamic");
@@ -91,7 +91,8 @@ describe("Survey_QuestionMatrixDynamic", () => {
     visibleRows[1].cells[0].question.value = 2;
     expect(question.value, "The value set correctly").toEqual([{}, { column1: 2 }, {}]);
     visibleRows[1].cells[0].question.value = null;
-    expect(question.value, "Clear the question value if all cells are empty - empty array").toEqual([]);
+    expect(question.value, "the empty records stay, Bug#12147").toEqual([{}, {}, {}]);
+    expect(question.isEmpty(), "the question is empty").toBe(true);
   });
 
   test("Matrixdynamic set null value, Bug Editor #156", () => {
@@ -152,8 +153,8 @@ describe("Survey_QuestionMatrixDynamic", () => {
     question.value = [{}, { column1: 2 }, {}];
     question.removeRow(1);
     expect(question.rowCount, "one row is removed").toBe(2);
-    expect(question.value, "value is null now - array is empty").toEqual([]);
-    expect(survey.getValue("q1"), "survey value is undefined or null").toBeUndefined();
+    expect(question.value, "the empty records stay, Bug#12147").toEqual([{}, {}]);
+    expect(survey.getValue("q1"), "the survey holds them").toEqual([{}, {}]);
     question.addRow();
     expect(question.rowCount, "one row is added").toBe(3);
   });
@@ -4856,8 +4857,9 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(rows[0].cells[0].question.errors.length, "There is error, e-mail is incorrect").toBe(1);
     expect(rows[0].cells[1].question.errors.length, "There is no errors yet in the cell, first row, second column").toBe(0);
     expect(rows[1].cells[0].question.errors.length, "There is no errors yet in the cell, second row, first column").toBe(0);
-    expect(matrix.value, "do not set value to matrix").toBeFalsy();
-    expect(survey.data, "do not set value into survey").toEqual({});
+    // The empty records of the untouched rows, written on first rendering (Bug#12147); the rejected cell value is not.
+    expect(matrix.value, "do not set value to matrix").toEqual([{}, {}]);
+    expect(survey.data, "do not set value into survey").toEqual({ question1: [{}, {}] });
     rows[0].cells[0].value = "a@a.com";
     expect(matrix.value, "set value to matrix").toEqual([{ col1: "a@a.com" }, {}]);
     expect(survey.data, "set value into survey").toEqual({ question1: [{ col1: "a@a.com" }, {}] });
@@ -5977,7 +5979,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     q1.clearValue();
     expect(logs, "#2").toEqual([
       { name: "matrix", value: [{ q1: "abc" }, {}] },
-      { name: "matrix", value: [] }
+      { name: "matrix", value: [{}, {}] }
     ]);
   });
 
@@ -6297,7 +6299,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(q1.value, "We have value in the cell").toEqual([{ col1: 1 }]);
     q1.removeRow(0);
     expect(q1.rowCount, "We do not allow to remove the row").toBe(1);
-    expect(q1.value, "We clear value in the row").toEqual([]);
+    expect(q1.value, "We clear value in the row, its empty record stays, Bug#12147").toEqual([{}]);
   });
   test("Text processing in rows and columns, rendered table", () => {
     var survey = new SurveyModel({
@@ -7078,7 +7080,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     q.value = "1";
     expect(matrix.visibleTotalRow.cells[0].value, "summary for first column is empty").toBeFalsy();
-    expect(survey.data, "matrix is empty").toEqual({ col1: "1", "matrix-total": { col2: 0 } });
+    expect(survey.data, "matrix is empty: its empty record, Bug#12147").toEqual({ col1: "1", matrix: [{}], "matrix-total": { col2: 0 } });
   });
   test("Get choices from matrix for default column type", () => {
     const survey = new SurveyModel({
@@ -10579,11 +10581,11 @@ describe("Survey_QuestionMatrixDynamic: DynamicDataList integration", () => {
     const list = matrix["dataList"];
     matrix.rowCount = 4;
     expect(list.count, "#1: count follows rowCount").toBe(4);
-    expect(matrix.value.length, "#1: the value is not padded until it is written").toBe(2);
+    expect(matrix.value, "#1: the records of the added rows are stored at once").toEqual([{ c1: "a" }, { c1: "b" }, {}, {}]);
     expect(list.getRecord(3), "#1: an empty record for a row without a value").toEqual({});
     checkLockstep(matrix, "#1");
     setCell(matrix, 3, 0, "d");
-    expect(matrix.value, "#2: the padding is written with the cell").toEqual([{ c1: "a" }, { c1: "b" }, {}, { c1: "d" }]);
+    expect(matrix.value, "#2: the cell is written into its record").toEqual([{ c1: "a" }, { c1: "b" }, {}, { c1: "d" }]);
     matrix.rowCount = 2;
     expect(list.count, "#3: count").toBe(2);
     expect(matrix.value, "#3: the records beyond rowCount are removed").toEqual([{ c1: "a" }, { c1: "b" }]);
@@ -10592,7 +10594,8 @@ describe("Survey_QuestionMatrixDynamic: DynamicDataList integration", () => {
   test("count is rowCount when the value is empty", () => {
     const matrix = createMatrix({ rowCount: 2, columns: textColumns });
     const list = matrix["dataList"];
-    expect(matrix.value, "#1: no value").toBeFalsy();
+    expect(matrix.value, "#1: the empty records, Bug#12147").toEqual([{}, {}]);
+    expect(matrix.isEmpty(), "#1: the matrix is empty").toBeTruthy();
     expect(list.count, "#1: count is rowCount").toBe(2);
     expect(list.getRecord(1), "#1: an empty record").toEqual({});
     expect(matrix.getRowValue(1), "#1: getRowValue returns an empty object").toEqual({});
@@ -10625,10 +10628,11 @@ describe("Survey_QuestionMatrixDynamic: DynamicDataList integration", () => {
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
     const matrix = <QuestionMatrixDynamicModel>panel.panels[1].getQuestionByName("matrix");
     setCell(matrix, 1, 0, "a");
-    expect(survey.data, "the record reaches the panel item").toEqual({ panel: [{}, { matrix: [{}, { c1: "a" }] }] });
+    // The matrix of the first panel item holds its empty records too, Bug#12147.
+    expect(survey.data, "the record reaches the panel item").toEqual({ panel: [{ matrix: [{}, {}] }, { matrix: [{}, { c1: "a" }] }] });
     checkLockstep(matrix, "#1");
     matrix.removeRow(0);
-    expect(survey.data, "the row is removed inside the panel item").toEqual({ panel: [{}, { matrix: [{ c1: "a" }] }] });
+    expect(survey.data, "the row is removed inside the panel item").toEqual({ panel: [{ matrix: [{}, {}] }, { matrix: [{ c1: "a" }] }] });
   });
   test("A dynamic panel in a matrix detail panel", () => {
     const survey = new SurveyModel({
@@ -11437,7 +11441,11 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(check("x", "y", false), "#4").toEqual([true, true]);
   });
   test("a key typed on the page repeats a padded record: it reads the default row value", () => {
-    const matrix = createMatrix({ rowCount: 2, pageSize: 2, keyName: "c1", defaultRowValue: { c1: "same" } }, [{ c1: "a" }, { c1: "b" }]);
+    // On a page not shown yet the rowCount setter stores nothing (first rendering does): record 2 stays padded.
+    const survey = new SurveyModel({ pages: [{ elements: [{ type: "text", name: "q0" }] }, { elements: [{ type: "matrixdynamic", name: "matrix",
+      columns: cols, rowCount: 2, pageSize: 2, keyName: "c1", defaultRowValue: { c1: "same" } }] }] });
+    survey.data = { matrix: [{ c1: "a" }, { c1: "b" }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     matrix.visibleRows;
     matrix.rowCount = 3;
     expect(matrix.getPropertyValueWithoutDefault("value").length, "#1: record 2 is padded, not stored").toBe(2);
@@ -11918,7 +11926,7 @@ describe("matrixdynamic: the padded records", () => {
     survey.setValue("unrelated", 2);
     expect(matrix.value.length, "#7: the value was materialized").toBe(ROW_COUNT);
   });
-  test("a matrix detached from an assigned source counts its padded records", () => {
+  test("a matrix detached from an assigned source stores its records up to rowCount", () => {
     const survey = createSurvey();
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     matrix.dataSource = ArrayDynamicDataSource.fromArray([{ col1: "a" }]);
@@ -11929,8 +11937,8 @@ describe("matrixdynamic: the padded records", () => {
     expect(list.isRemote, "#2: back on its own storage").toBe(false);
     const rows = matrix.visibleRows;
     expect(rows.length, "#3").toBe(ROW_COUNT);
-    expect(Array.isArray(matrix.value) ? matrix.value.length : 0, "#4: the value is shorter than rowCount").toBeLessThan(ROW_COUNT);
-    expect(list.count, "#5: the count of the padded records").toBe(ROW_COUNT);
+    expect(matrix.value.length, "#4: the detach stores the records of the authored rowCount").toBe(ROW_COUNT);
+    expect(list.count, "#5: the count of the records").toBe(ROW_COUNT);
     rows.forEach(row => row.rowIndex);
     expect(matrix.visibleRows.length, "#6").toBe(ROW_COUNT);
   });
@@ -12022,14 +12030,14 @@ describe("value assigned by a handler during an add or remove", () => {
     expect(getRowValues(matrix), "#2").toEqual([{ a: "x" }]);
     expect(matrix.rowCount, "#3").toBe(1);
   });
-  test("an added row without a default row value writes nothing and fires no value change", () => {
+  test("an added row without a default row value writes its empty record, Bug#12147", () => {
     const { survey, matrix } = createSurvey();
     expect(getRowValues(matrix), "#0").toEqual(createRecords());
     let changedCount = 0;
     survey.onValueChanged.add(() => { changedCount++; });
     matrix.addRow();
-    expect(changedCount, "#1").toBe(0);
-    expect(matrix.value, "#2").toEqual(createRecords());
+    expect(changedCount, "#1").toBe(1);
+    expect(matrix.value, "#2").toEqual(createRecords().concat([{}]));
     expect(getRowValues(matrix), "#3").toEqual([{ a: "1" }, { a: "2" }, { a: "3" }, {}]);
     expect(matrix.rowCount, "#4").toBe(4);
   });
@@ -12110,18 +12118,18 @@ describe("Dynamic matrix without paging keeps its released behaviour", () => {
       expect(matrix.rowCount, "#2").toBe(2);
     });
   });
-  test("removeRow: removing a filled row when the stored records fill rowCount clears an empty value", () => {
+  test("removeRow: removing a filled row when the stored records fill rowCount keeps the empty records, Bug#12147", () => {
     const { survey, matrix } = createMatrix({ rowCount: 3, minRowCount: 2 });
     matrix.value = [{ a: 1 }, {}, {}];
     matrix.visibleRows;
     matrix.removeRow(0);
-    expect(survey.data, "#1").toEqual({});
+    expect(survey.data, "#1").toEqual({ m: [{}, {}] });
   });
-  test("a cell edit that empties every record keeps minRowCount empty records", () => {
+  test("a cell edit that empties every record keeps a record for every row, Bug#12147", () => {
     const { survey, matrix } = createMatrix({ rowCount: 3, minRowCount: 2 });
     matrix.value = [{ a: 1 }];
     matrix.visibleRows[0].getQuestionByColumnName("a").value = "";
-    expect(survey.data, "#1").toEqual({ m: [{}, {}] });
+    expect(survey.data, "#1").toEqual({ m: [{}, {}, {}] });
   });
   test("lowering rowCount keeps the records it does not cut off as they are, empty ones included", () => {
     const { survey, matrix } = createMatrix({ rowCount: 3 });
@@ -12129,14 +12137,15 @@ describe("Dynamic matrix without paging keeps its released behaviour", () => {
     matrix.rowCount = 1;
     expect(survey.data, "#1").toEqual({ m: [{}] });
   });
-  test("removing a row that was added and never filled writes no value", () => {
+  test("removing a row that was added and never filled writes the value without its empty record, Bug#12147", () => {
     const { survey, matrix } = createMatrix({ rowCount: 0 });
     matrix.value = [{ a: 1 }];
     matrix.addRow();
+    expect(survey.data, "#0: the added row's empty record").toEqual({ m: [{ a: 1 }, {}] });
     let changed = 0;
     survey.onValueChanged.add(() => { changed++; });
     matrix.removeRow(1);
-    expect(changed, "#1: nothing was written").toBe(0);
+    expect(changed, "#1: the shorter value is written").toBe(1);
     expect(survey.data, "#2").toEqual({ m: [{ a: 1 }] });
     expect(matrix.rowCount, "#3").toBe(1);
   });
@@ -12323,58 +12332,59 @@ describe("minRowCount and rowCount when the rows are built", () => {
     matrix.visibleRows;
     return { survey: survey, matrix: matrix, log: log };
   }
-  test("minRowCount 1 with rowCount 2: building the rows stores one empty row", () => {
+  // Bug#12147: the value holds a record for every row, written on first rendering (before the log's handler).
+  test("minRowCount 1 with rowCount 2: the value holds an empty record for every row", () => {
     const { survey, matrix, log } = build({ minRowCount: 1 });
-    expect(survey.data, "#1").toEqual({ m: [{}] });
-    expect(log, "#2: one value event").toEqual([[{}]]);
-    expect(survey.runExpression("{m.length}"), "#3").toBe(1);
+    expect(survey.data, "#1").toEqual({ m: [{}, {}] });
+    expect(log, "#2: written on first rendering, before the rows are built").toEqual([]);
+    expect(survey.runExpression("{m.length}"), "#3").toBe(2);
     expect(matrix.visibleRows.length, "#4: the rows stay").toBe(2);
   });
-  test("removeRow of a row the build stored writes the shorter value", () => {
+  test("removeRow of an untouched row writes the shorter value", () => {
     const { survey, matrix, log } = build({ minRowCount: 1 });
     log.length = 0;
     matrix.removeRow(1);
-    expect(survey.data, "#1").toEqual({});
+    expect(survey.data, "#1").toEqual({ m: [{}] });
     expect(log.length, "#2: one value event, as released").toBe(1);
     expect(matrix.rowCount, "#3").toBe(1);
   });
-  test("removing a row past a stored value writes the value of the rows that stay, as released", () => {
+  test("removing an untouched row writes the records of the rows that stay", () => {
     const check = (json: any, index: number, rowCount: number, label: string): void => {
       const { survey, matrix, log } = build(json);
       log.length = 0;
       matrix.removeRow(index);
-      expect(survey.data, label + " data").toEqual({});
+      expect(survey.data, label + " data").toEqual({ m: [{}, {}] });
       expect(log.length, label + " events").toBe(1);
       expect(matrix.rowCount, label + " rowCount").toBe(rowCount);
     };
     check({ minRowCount: 1, rowCount: 3 }, 2, 2, "min 1, rowCount 3");
     check({ minRowCount: 2, rowCount: 3 }, 2, 2, "min 2, rowCount 3");
-    check({ minRowCount: 1, rowCount: 3 }, 0, 2, "the stored row");
+    check({ minRowCount: 1, rowCount: 3 }, 0, 2, "the first row");
   });
-  test("removing a row of a matrix without a value writes nothing", () => {
+  test("removing a row of an untouched matrix writes the shorter value", () => {
     const { survey, matrix, log } = build({ rowCount: 2 });
     matrix.removeRow(1);
-    expect(survey.data, "#1").toEqual({});
-    expect(log, "#2").toEqual([]);
+    expect(survey.data, "#1").toEqual({ m: [{}] });
+    expect(log, "#2").toEqual([[{}]]);
     expect(matrix.rowCount, "#3").toBe(1);
   });
-  test("the minimum empty records are stored when the rows are built, as released", () => {
+  test("the empty records of every row are stored on first rendering", () => {
     const check = (json: any, data: any, expectedData: any, rows: number, events: Array<any>, label: string): void => {
       const { survey, matrix, log } = build(json, data);
       expect(survey.data, label + " data").toEqual(expectedData);
       expect(matrix.visibleRows.length, label + " rows").toBe(rows);
       expect(log, label + " events").toEqual(events);
     };
-    check({ minRowCount: 2, rowCount: 3 }, undefined, { m: [{}, {}] }, 3, [[{}, {}]], "min 2, rowCount 3");
-    check({ minRowCount: 3, rowCount: 1 }, undefined, { m: [{}, {}, {}] }, 1, [[{}, {}, {}]], "min 3, rowCount 1");
+    check({ minRowCount: 2, rowCount: 3 }, undefined, { m: [{}, {}, {}] }, 3, [], "min 2, rowCount 3");
+    check({ minRowCount: 3, rowCount: 1 }, undefined, { m: [{}] }, 1, [], "min 3, rowCount 1: one record for the one row");
     check({ minRowCount: 1, rowCount: 3 }, [{ a: 1 }], { m: [{ a: 1 }] }, 1, [], "a value shorter than rowCount");
-    check({ minRowCount: 2, rowCount: 2 }, undefined, {}, 2, [], "min equal to rowCount");
-    check({ minRowCount: 0, rowCount: 2 }, undefined, {}, 2, [], "no minimum");
+    check({ minRowCount: 2, rowCount: 2 }, undefined, { m: [{}, {}] }, 2, [], "min equal to rowCount");
+    check({ minRowCount: 0, rowCount: 2 }, undefined, { m: [{}, {}] }, 2, [], "no minimum");
   });
-  test("minRowCount 1 and isRequired: validate reports only the minimum row error", () => {
+  test("minRowCount 1 and isRequired: an all-empty matrix is empty, validate reports both errors", () => {
     const { matrix } = build({ minRowCount: 1, isRequired: true });
     matrix.validate();
-    expect(matrix.errors.map(error => error.getErrorType())).toEqual(["minrowcounterror"]);
+    expect(matrix.errors.map(error => error.getErrorType())).toEqual(["required", "minrowcounterror"]);
   });
 });
 
@@ -12672,7 +12682,7 @@ describe("rowCountExpression and removeRowByIndex", () => {
     matrix.removeRowByIndex(0);
     expect(matrix.rowCount, "#1").toBe(3);
     expect(matrix.visibleRows.length, "#2: one row per counted row").toBe(3);
-    expect(survey.data, "#3").toEqual({ m: [{ a: 2 }, { a: 3 }] });
+    expect(survey.data, "#3: the expression's third row keeps its record, as a panel's does").toEqual({ m: [{ a: 2 }, { a: 3 }, {}] });
   });
 });
 

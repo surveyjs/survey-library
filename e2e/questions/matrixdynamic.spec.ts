@@ -787,7 +787,7 @@ frameworks.forEach((framework) => {
 
       await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
-      expect(surveyResult).toEqual({ });
+      expect(surveyResult).toEqual({ matrix: [{}, {}, {}] });
     });
 
     test("Matrix is not re-create rows on setting value after the matrix value is empty array, Bug#10622", async ({ page }) => {

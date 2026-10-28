@@ -11,6 +11,9 @@ export class QuestionNonValue extends Question {
   constructor(name: string) {
     super(name);
   }
+  public get supportClearTitleAction(): boolean {
+    return false;
+  }
   public getType(): string {
     return "nonvalue";
   }
@@ -58,6 +61,7 @@ export class QuestionNonValue extends Question {
 Serializer.addClass(
   "nonvalue",
   [
+    { name: "allowClear:boolean", visible: false, isSerializable: false },
     { name: "title", visible: false },
     { name: "description", visible: false },
     { name: "valueName", visible: false },

@@ -131,6 +131,7 @@ export default {
     "--sjs2-color-component-checkbox-false-hovered-border": "var(--sjs2-color-border-neutral-primary)",
     "--sjs2-color-component-checkbox-false-design-border": "var(--sjs2-color-border-neutral-primary)",
     "--sjs2-color-component-checkbox-false-invalid-bg": "var(--sjs2-color-bg-alert-secondary)",
+    "--sjs2-color-component-panel-matrix-default-border": "var(--sjs2-color-utility-shadow-surface-default)",
     "--sjs2-opacity-hovered": "var(--sjs2-opacity-x100)",
     "--sjs2-opacity-pressed": "var(--sjs2-opacity-x100)",
     "--sjs2-border-spread-form-default": "0px",

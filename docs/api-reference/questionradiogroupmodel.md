@@ -18,14 +18,6 @@ A class that describes the Radio Button Group question type.
 
 ## Properties
 
-### `allowClear`
-
-**Type**: `boolean`
-
-Specifies whether to display a button that clears the question value.
-
-Default value: `false`
-
 ### `selectedItem`
 
 **Type**: `ChoiceItem`

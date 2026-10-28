@@ -2,7 +2,7 @@
   <div
     :class="question.cssClasses.rootSwitch"
     ref="root"
-    @click="renderedValue = !renderedValue"
+    @click="onRootClick"
   >
     <div
       :class="question.getSwitchButtonCss()"
@@ -25,7 +25,18 @@
       :class="question.cssClasses.switchCaption"
     >
       <div :class="question.cssClasses.switchTitle" :id="question.labelRenderedAriaID">
-        <SvComponent :is="'survey-string'" :locString="question.locTitle" />
+        <SvComponent
+          :is="'survey-element-title-content'"
+          v-if="!question.hasVisibleTitleActions"
+          :element="question"
+          :css="question.cssClasses"
+        />
+        <SvComponent
+          :is="'sv-title-actions'"
+          v-if="question.hasVisibleTitleActions"
+          :element="question"
+          :css="question.cssClasses"
+        />
       </div>
     </div>
   </div>
@@ -51,6 +62,11 @@ const renderedValue = computed({
     props.question.booleanValue = val;
   },
 });
+function onRootClick(event: MouseEvent): void {
+  const target = event.target as HTMLElement | null;
+  if (target?.closest(".sd-action-bar")) return;
+  renderedValue.value = !renderedValue.value;
+}
 </script>
 
 <script lang="ts">

@@ -1174,7 +1174,11 @@ export class QuestionMatrixModel
     }
   }
   public getConditionJson(operator: string = null, path: string = null): any {
-    if (!path) return super.getConditionJson(operator);
+    if (!path) {
+      const json = super.getConditionJson(operator);
+      delete json["allowClear"];
+      return json;
+    }
     var question = new QuestionDropdownModel(path);
     question.choices = this.columns;
     var json = new JsonObject().toJsonObject(question);

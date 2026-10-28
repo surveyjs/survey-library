@@ -678,6 +678,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (this.supportsQuestionView) return "";
     return super.getViewDisplayText();
   }
+  // Records can belong to dataSource, and each panel already has remove. A title Clear does not fit.
+  public get supportClearTitleAction(): boolean {
+    return false;
+  }
   public getValueType(): QuestionValueType {
     return "array";
   }
@@ -3567,7 +3571,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
 
   get showNavigation(): boolean {
     if (this.isReadOnly && this.visiblePanelCount == 1) return false;
-    return this.visiblePanelCount > 0 && !!this.cssClasses.footer;
+    return this.visiblePanelCount > 0 && !!this.cssClasses.footerBar;
   }
   /* The footer under the panels: the bottom progress bar and the footer toolbar while the navigation
      shows, and the pager. The pager shares the footer row with the toolbar buttons. */
@@ -3666,6 +3670,7 @@ export class PanelDynamicSingleInputBehavior extends QuestionRecordsSingleInputB
 Serializer.addClass(
   "paneldynamic",
   [
+    { name: "allowClear:boolean", visible: false, isSerializable: false },
     { name: "showCommentArea:switch", visible: true },
     {
       name: "templateElements",

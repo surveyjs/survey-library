@@ -32,6 +32,13 @@
     --sd-question-description-padding-block: var(--sjs2-layout-component-panel-dynamic-description-padding-top)
         var(--sjs2-layout-component-panel-dynamic-description-padding-bottom);
     --sd-question-description-color: var(--sjs2-color-component-panel-dynamic-default-description);
+
+    //bar
+    --sd-question-bar-gap: var(--sjs2-layout-component-panel-dynamic-footer-gap);
+    --sd-question-bar-padding-block: var(--sjs2-layout-component-panel-dynamic-footer-padding-top)
+        var(--sjs2-layout-component-panel-dynamic-footer-padding-bottom);
+    --sd-question-bar-padding-inline: var(--sjs2-layout-component-panel-dynamic-footer-padding-left)
+        var(--sjs2-layout-component-panel-dynamic-footer-padding-right);
 }
 .sd-question--paneldynamic:where(.sd-question--with-frame, .sd-question--nested) {
     --sd-question-container-border-radius: var(--sjs2-radius-component-panel);
@@ -98,69 +105,15 @@
 
 .sd-paneldynamic__footer {
     clear: both;
-    padding-top: var(--sjs2-layout-component-panel-dynamic-footer-padding-top);
-    padding-bottom: var(--sjs2-layout-component-panel-dynamic-footer-padding-bottom);
-    padding-inline-start: var(--sjs2-layout-component-panel-dynamic-footer-padding-left);
-    padding-inline-end: var(--sjs2-layout-component-panel-dynamic-footer-padding-right);
-    gap: var(--sjs2-layout-component-panel-dynamic-footer-gap);
     position: relative;
-
     .sd-progress {
         top: -1px;
     }
-
     .sd-paneldynamic__progress-text,
     .sd-paneldynamic__progress--bottom {
         display: initial;
     }
 }
-
-/* The footer with the pager is one row: the toolbar buttons on the left and the pager on the right, or
-   the pager alone at the start. On a phone the buttons, full-width, stack above the pager. */
-.sd-paneldynamic__footer--pager {
-    display: flex;
-    align-items: center;
-
-    .sd-paneldynamic__buttons-container {
-        flex: 1 1 auto;
-        min-width: 0;
-    }
-    .sd-paneldynamic__buttons-container .sd-action-bar {
-        width: 100%;
-    }
-}
-.sd-paneldynamic__records-bar {
-    display: flex;
-    flex: 0 0 auto;
-}
-.sd-question--mobile .sd-paneldynamic__footer--pager {
-    flex-direction: column;
-    align-items: stretch;
-
-    .sd-paneldynamic__buttons-container .sd-action-bar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    // border-box: .sd-action is content-box, so its padding would push it past the footer's padding.
-    .sd-paneldynamic__buttons-container .sd-action {
-        box-sizing: border-box;
-        width: 100%;
-        justify-content: center;
-    }
-}
-
-// .sd-root-modern--mobile {
-//     .sd-paneldynamic__header {
-//         padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x300);
-//     }
-//     .sd-paneldynamic__footer {
-//         padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x300);
-//     }
-//     .sd-paneldynamic__panel-footer {
-//         padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x300);
-//         margin-top: calc(var(--sjs2-spacing-negative-x400));
-//     }
-// }
 
 .sd-question--readonly,
 .sd-question--preview {
@@ -178,7 +131,6 @@
 .sd-paneldynamic__separator {
     display: none;
 }
-.sd-paneldynamic__footer .sd-paneldynamic__separator,
 .sd-paneldynamic__panel-wrapper--list ~ .sd-paneldynamic__panel-wrapper--list:before {
     content: " ";
     display: block;
@@ -209,11 +161,6 @@
     }
 }
 
-.sd-paneldynamic__buttons-container {
-    display: flex;
-    align-items: center;
-}
-
 .sd-paneldynamic__progress-text {
     font-size: $font-questiontitle-size;
     line-height: multiply(1.5, $font-questiontitle-size);
@@ -222,17 +169,41 @@
     margin-right: calc(var(--sjs2-spacing-x150) + var(--sjs2-spacing-x025));
 }
 
+.sd-paneldynamic__toolbar {
+    flex-grow: 1;
+    --sd-action-bar-gap: var(--sjs2-layout-component-panel-dynamic-footer-action-group-gap);
+}
+
 .sd-paneldynamic__placeholder {
+    .sd-paneldynamic__toolbar {
+        flex-grow: 0;
+    }
     .sd-action-bar--empty {
         margin-top: var(--sjs2-spacing-negative-x200);
     }
 }
 
-.sd-paneldynamic__buttons-container .sd-action-bar {
-    width: 100%;
-    margin: 0;
-    width: calc(100% + var(--sjs2-spacing-x600));
-    --sd-action-bar-gap: var(--sjs2-layout-component-panel-dynamic-footer-action-group-gap);
+.sd-question--mobile {
+    .sd-paneldynamic__panel-footer,
+    .sd-paneldynamic__toolbar {
+        box-sizing: border-box;
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        .sd-action-bar__item {
+            margin: 0;
+        }
+        .sd-action-bar__item--hidden {
+            display: none;
+        }
+        .sd-action {
+            box-sizing: border-box;
+            flex-basis: 100%;
+        }
+        .sd-action-bar__item-content {
+            width: 100%;
+        }
+    }
 }
 
 .sd-paneldynamic__panel-footer {

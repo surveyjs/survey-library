@@ -1499,7 +1499,8 @@ export class PanelModelBase extends SurveyElement<Question>
   protected childVisibilityChanged() {
     this.resetRenderedIsContentVisible();
     if (this.isRunningConditions) return;
-    var newIsVisibleValue = this.getIsPageVisible(null);
+    // Compare with the value onVisibleChanged stores: isVisible, which counts areInvisibleElementsShowing.
+    var newIsVisibleValue = this.isVisible;
     var oldIsVisibleValue = this.getPropertyValue("isVisible", true);
     if (newIsVisibleValue !== oldIsVisibleValue) {
       this.onVisibleChanged();

@@ -1,5 +1,5 @@
 import { ILintRule, LintContext } from "../rule";
-import { builtInVariableNames, equalsCI, isBuiltInVariable, stripCommentSuffix } from "../expression-utils";
+import { builtInVariableNames, equalsCI, isBuiltInVariable, stripCommentSuffix, stripTotalsSuffix } from "../expression-utils";
 import { ElementRecord, getCapturingFrame, getEffectiveType, TriggerRecord } from "../symbols";
 import { isMatrixDropdown, isPropertyOn } from "../metadata";
 import { hasOtherItem } from "../value-types";
@@ -95,11 +95,7 @@ function checkDerivedKeyCollision(ctx: LintContext, record: ElementRecord): void
   const dataName = getDataKey(record);
   const settings = ctx.index.settings;
   const commentBase = stripCommentSuffix(dataName, settings);
-  const totalsSuffix = settings.matrixTotalsSuffix;
-  const totalBase = !!totalsSuffix && dataName.length > totalsSuffix.length &&
-    dataName.toLowerCase().endsWith(totalsSuffix.toLowerCase())
-    ? dataName.substring(0, dataName.length - totalsSuffix.length)
-    : undefined;
+  const totalBase = stripTotalsSuffix(dataName, settings);
   const check = (base: string, suffix: string, reason: string, owns: (rec: ElementRecord) => boolean,
     what: string): void => {
     if (!base) return;
@@ -122,7 +118,7 @@ function checkDerivedKeyCollision(ctx: LintContext, record: ElementRecord): void
     });
   };
   check(commentBase, settings.commentSuffix, reasons.commentKeyCollision, writesComment, "comment");
-  check(totalBase, totalsSuffix, reasons.totalKeyCollision, hasTotals, "totals");
+  check(totalBase, settings.matrixTotalsSuffix, reasons.totalKeyCollision, hasTotals, "totals");
 }
 
 // The keys a question on the data key fills with a single value: the rows of a single-choice matrix

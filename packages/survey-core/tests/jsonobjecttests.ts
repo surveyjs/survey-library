@@ -18,6 +18,7 @@ import { QuestionMatrixModel } from "../src/question_matrix";
 import { settings } from "../src/settings";
 import { TextValidator } from "../src/validator";
 import { englishStrings } from "../src/localization/english";
+import { surveyLocalization } from "../src/surveyStrings";
 import { SurveyModel } from "../src/survey";
 import { CalculatedValue } from "../src/calculatedValue";
 import { QuestionHtmlModel } from "../src/question_html";
@@ -3374,7 +3375,7 @@ describe("toJSON skips empty properties", () => {
         name: "q9", state: "default", visible: true, useDisplayValuesInDynamicTexts: true, width: "", minWidth: "", maxWidth: "",
         startWithNewLine: true, indent: 0, titleLocation: "default", descriptionLocation: "default", showNumber: true, valueName: "",
         clearIfInvisible: "default", isRequired: false, errorLocation: "default", readOnly: false, readOnlyMode: "default", renderAs: "default", showCommentArea: false,
-        randomize: true, inputType: "text", textUpdateMode: "default", inputTextAlignment: "auto", maskType: "none", maxLength: -1
+        randomize: true, allowClear: false, inputType: "text", textUpdateMode: "default", inputTextAlignment: "auto", maskType: "none", maxLength: -1
       });
       expect(survey.getQuestionByName("q6").items[0].toJSON({ storeDefaults: true }), "storeDefaults: multiple text item").toEqual({
         name: "i1", isRequired: false, inputType: "text", maskType: "none", inputTextAlignment: "auto", title: "Item 1", maxLength: -1
@@ -3506,7 +3507,7 @@ describe("toJSON skips empty properties", () => {
     };
     const text = getReadKeys("q1");
     expect(text.json, "text: json").toEqual({ name: "q1", title: "Title" });
-    expect(text.keys, "text: keys").toEqual(("autocomplete clearIfInvisible colSpan correctAnswer dataList defaultValue defaultValueExpression " +
+    expect(text.keys, "text: keys").toEqual(("allowClear autocomplete clearIfInvisible colSpan correctAnswer dataList defaultValue defaultValueExpression " +
       "descriptionLocation enableIf errorLocation indent inputSize inputTextAlignment inputType isRequired maskSettings maskType max maxLength " +
       "maxValueExpression maxWidth min minValueExpression minWidth name randomize randomizeCategory readOnly readOnlyMode renderAs requiredIf resetValueIf " +
       "setValueExpression setValueIf showCommentArea showNumber startWithNewLine state step textUpdateMode titleLocation " +
@@ -3514,7 +3515,7 @@ describe("toJSON skips empty properties", () => {
     // The checkbox has no choice elements, so elements is stored in the hash and isSerializableFunc drops it before the empty check
     const checkbox = getReadKeys("q2");
     expect(checkbox.json, "checkbox: json").toEqual({ name: "q2" });
-    expect(checkbox.keys, "checkbox: keys").toEqual(("choiceShortcutsEnabled choiceTextsFromQuestion choiceValuesFromQuestion choices " +
+    expect(checkbox.keys, "checkbox: keys").toEqual(("allowClear choiceShortcutsEnabled choiceTextsFromQuestion choiceValuesFromQuestion choices " +
       "choicesByUrl choicesEnableIf choicesFromQuestion choicesFromQuestionMode choicesOrder choicesVisibleIf clearIfInvisible colCount colSpan " +
       "correctAnswer defaultValue defaultValueExpression descriptionLocation enableIf errorLocation hideIfChoicesEmpty indent isRequired " +
       "itemComponent maxSelectedChoices maxWidth minSelectedChoices minWidth name randomize randomizeCategory readOnly readOnlyMode renderAs requiredIf " +
@@ -3532,6 +3533,196 @@ describe("toJSON skips empty properties", () => {
       // 2974 calls before the empty check moved into the loop. 53 of the 258 write a value. Per question the rest are
       // colSpan and maskSettings (onSerializeValue), saveMaskedValue (maskSettings' own loop) and title (its localizable string always exists).
       expect(spy.mock.calls.length).toBe(258);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+});
+
+class DefaultCacheParent extends Base {
+  public getType(): string {
+    return "defaultcacheparent";
+  }
+}
+class DefaultCacheChild extends DefaultCacheParent {
+  public getType(): string {
+    return "defaultcachechild";
+  }
+}
+const defaultCacheCreatingReads = new Array<any>();
+class DefaultCacheCreatingObj extends Base {
+  public getType(): string {
+    return "defaultcachecreating";
+  }
+  protected onBaseCreating(): void {
+    super.onBaseCreating();
+    defaultCacheCreatingReads.push(this.getDefaultPropertyValue("customProp"));
+  }
+}
+Serializer.addClass("defaultcacheparent", [
+  { name: "kind", default: "parent" },
+  "flag:boolean",
+  "plainText:string",
+  { name: "items:itemvalue[]", default: [1, 2] }
+], () => new DefaultCacheParent());
+Serializer.addClass("defaultcachechild", [], () => new DefaultCacheChild(), "defaultcacheparent");
+
+describe("The default of an unset property after a metadata change", () => {
+  test("defaultValue set at runtime on a property with a static default", () => {
+    const prop = Serializer.findProperty("defaultcacheparent", "kind");
+    const obj = new DefaultCacheParent();
+    try {
+      expect(obj.getDefaultPropertyValue("kind"), "the static default").toBe("parent");
+      prop.defaultValue = "changed";
+      expect(obj.getDefaultPropertyValue("kind"), "the new default").toBe("changed");
+      expect(new DefaultCacheParent().getDefaultPropertyValue("kind"), "the new default, a new object").toBe("changed");
+      prop.defaultValue = "parent";
+      expect(obj.getDefaultPropertyValue("kind"), "the original default again").toBe("parent");
+    } finally {
+      prop.defaultValue = "parent";
+    }
+  });
+  test("defaultValueFunc assigned directly, then removed", () => {
+    const prop = Serializer.findProperty("defaultcacheparent", "kind");
+    const obj = new DefaultCacheParent();
+    try {
+      expect(obj.getDefaultPropertyValue("kind"), "the static default").toBe("parent");
+      prop.defaultValueFunc = (o: Base): any => o === obj ? "func" : "other";
+      expect(obj.getDefaultPropertyValue("kind"), "the function's answer").toBe("func");
+      expect(new DefaultCacheParent().getDefaultPropertyValue("kind"), "the function's answer for another object").toBe("other");
+      prop.defaultValueFunc = undefined;
+      expect(obj.getDefaultPropertyValue("kind"), "the static default again").toBe("parent");
+    } finally {
+      prop.defaultValueFunc = undefined;
+    }
+  });
+  test("Serializer.getProperty overrides a parent's property for a child class", () => {
+    const parent = new DefaultCacheParent();
+    const child = new DefaultCacheChild();
+    try {
+      expect(parent.getDefaultPropertyValue("kind"), "parent, before").toBe("parent");
+      expect(child.getDefaultPropertyValue("kind"), "child, before").toBe("parent");
+      Serializer.getProperty("defaultcachechild", "kind").defaultValue = "child";
+      expect(child.getDefaultPropertyValue("kind"), "child follows its own property").toBe("child");
+      expect(new DefaultCacheChild().getDefaultPropertyValue("kind"), "a new child object").toBe("child");
+      expect(parent.getDefaultPropertyValue("kind"), "parent does not change").toBe("parent");
+      expect(new DefaultCacheParent().getDefaultPropertyValue("kind"), "a new parent object").toBe("parent");
+    } finally {
+      Serializer.removeProperty("defaultcachechild", "kind");
+    }
+    expect(child.getDefaultPropertyValue("kind"), "child, the override removed").toBe("parent");
+  });
+  test("addProperty on a parent class of a name that had no property, read on a child-class object", () => {
+    const child = new DefaultCacheChild();
+    try {
+      expect(child.getDefaultPropertyValue("kind"), "child has entries").toBe("parent");
+      expect(child.getDefaultPropertyValue("addedLater"), "no property yet").toBeUndefined();
+      Serializer.addProperty("defaultcacheparent", { name: "addedLater", default: "added" });
+      expect(child.getDefaultPropertyValue("addedLater"), "the new property's default on the child").toBe("added");
+      expect(new DefaultCacheParent().getDefaultPropertyValue("addedLater"), "the new property's default on the parent").toBe("added");
+      Serializer.removeProperty("defaultcacheparent", "addedLater");
+      expect(child.getDefaultPropertyValue("addedLater"), "no property again").toBeUndefined();
+    } finally {
+      Serializer.removeProperty("defaultcacheparent", "addedLater");
+    }
+  });
+  test("a custom property read while the object is being created", () => {
+    Serializer.addClass("defaultcachecreating", [], () => new DefaultCacheCreatingObj());
+    Serializer.addProperty("defaultcachecreating", { name: "customProp", default: "custom" });
+    defaultCacheCreatingReads.splice(0, defaultCacheCreatingReads.length);
+    try {
+      const obj1 = new DefaultCacheCreatingObj();
+      expect(defaultCacheCreatingReads, "read while creating").toEqual([undefined]);
+      expect(obj1.getDefaultPropertyValue("customProp"), "read after construction").toBe("custom");
+      const obj2 = new DefaultCacheCreatingObj();
+      expect(defaultCacheCreatingReads, "read while creating the second object").toEqual([undefined, undefined]);
+      expect(obj2.getDefaultPropertyValue("customProp"), "read after the second construction").toBe("custom");
+    } finally {
+      Serializer.removeProperty("defaultcachecreating", "customProp");
+      Serializer.removeClass("defaultcachecreating");
+    }
+  });
+  test("a localizable property's default text follows survey.locale", () => {
+    surveyLocalization.locales["defaultcacheloc"] = { completeText: "Finish" };
+    const survey = new SurveyModel();
+    try {
+      expect(survey.getDefaultPropertyValue("completeText"), "the default locale").toBe("Complete");
+      survey.locale = "defaultcacheloc";
+      expect(survey.getDefaultPropertyValue("completeText"), "the new locale").toBe("Finish");
+      survey.locale = "";
+      expect(survey.getDefaultPropertyValue("completeText"), "the default locale again").toBe("Complete");
+    } finally {
+      survey.locale = "";
+      delete surveyLocalization.locales["defaultcacheloc"];
+    }
+  });
+  test("a boolean property with no defaultValue, then defaultValue set at runtime", () => {
+    const prop = Serializer.findProperty("defaultcacheparent", "flag");
+    const obj = new DefaultCacheParent();
+    try {
+      expect(obj.getDefaultPropertyValue("flag"), "boolean without a default").toBe(false);
+      prop.defaultValue = true;
+      expect(obj.getDefaultPropertyValue("flag"), "the new default").toBe(true);
+      expect(new DefaultCacheParent().getDefaultPropertyValue("flag"), "the new default, a new object").toBe(true);
+    } finally {
+      prop.defaultValue = undefined;
+    }
+    expect(obj.getDefaultPropertyValue("flag"), "no default again").toBe(false);
+  });
+  test("a property with className (itemvalue[] with a default) is looked up on every read", () => {
+    const prop = Serializer.findProperty("defaultcacheparent", "items");
+    const obj = new DefaultCacheParent();
+    expect(obj.getDefaultPropertyValue("items"), "the first read").toBeUndefined();
+    const spy = vi.spyOn(prop, "getDefaultValue");
+    try {
+      expect(obj.getDefaultPropertyValue("items"), "the second read").toBeUndefined();
+      expect(new DefaultCacheParent().getDefaultPropertyValue("items"), "a new object").toBeUndefined();
+      expect(spy.mock.calls.length, "no entry: each read reaches the property").toBe(2);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+  test("a parent-class property's defaultValue changed through the setter, read on a child-class object", () => {
+    const prop = Serializer.findProperty("defaultcacheparent", "kind");
+    const child = new DefaultCacheChild();
+    try {
+      expect(child.getDefaultPropertyValue("kind"), "the inherited default").toBe("parent");
+      prop.defaultValue = "changed";
+      expect(child.getDefaultPropertyValue("kind"), "the changed inherited default").toBe("changed");
+    } finally {
+      prop.defaultValue = "parent";
+    }
+    expect(child.getDefaultPropertyValue("kind"), "the original default again").toBe("parent");
+  });
+  test("a property's type changed to boolean after its default was read", () => {
+    const prop = Serializer.findProperty("defaultcacheparent", "plainText");
+    const obj = new DefaultCacheParent();
+    try {
+      expect(obj.getDefaultPropertyValue("plainText"), "a string without a default").toBeUndefined();
+      prop.type = "boolean";
+      expect(obj.getDefaultPropertyValue("plainText"), "a boolean without a default").toBe(false);
+    } finally {
+      prop.type = "string";
+    }
+    expect(obj.getDefaultPropertyValue("plainText"), "a string again").toBeUndefined();
+  });
+  test("an object's own localizable string under the name of a non-localizable property", () => {
+    const plain = new DefaultCacheParent();
+    const withLocStr = new DefaultCacheParent();
+    withLocStr["createLocalizableString"]("plainText", withLocStr, false, "completeText");
+    expect(plain.getDefaultPropertyValue("plainText"), "no localizable string").toBeUndefined();
+    expect(withLocStr.getDefaultPropertyValue("plainText"), "the localizable string's default text").toBe("Complete");
+    expect(plain.getDefaultPropertyValue("plainText"), "no localizable string, again").toBeUndefined();
+    expect(withLocStr.getDefaultPropertyValue("plainText"), "the localizable string's default text, again").toBe("Complete");
+  });
+  test("a static default is read from the property once per class", () => {
+    const prop = Serializer.findProperty("defaultcacheparent", "kind");
+    expect(new DefaultCacheParent().getDefaultPropertyValue("kind"), "the first read").toBe("parent");
+    const spy = vi.spyOn(prop, "getDefaultValue");
+    try {
+      expect(new DefaultCacheParent().getDefaultPropertyValue("kind"), "another object").toBe("parent");
+      expect(new DefaultCacheParent().getDefaultPropertyValue("kind"), "a third object").toBe("parent");
+      expect(spy.mock.calls.length, "the answer comes from the class").toBe(0);
     } finally {
       spy.mockRestore();
     }

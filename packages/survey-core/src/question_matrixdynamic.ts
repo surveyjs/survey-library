@@ -10,6 +10,7 @@ import {
   MatrixSingleInputLocOwner
 } from "./question_matrixdropdownbase";
 import { SurveyError } from "./survey-error";
+import { SurveyElement } from "./survey-element";
 import { MinRowCountError } from "./error";
 import { Action, IAction } from "./actions/action";
 import { settings } from "./settings";
@@ -301,6 +302,35 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public startDragMatrixRow = (event: PointerEvent, targets: ITargets): void => {
     this.dragDropMatrixRows.startDrag(event, this.draggedRow, this, targets.target);
   };
+  /* The drag handle's keys: ArrowUp and ArrowDown move the row one step on the page, as a drop on its
+     neighbour would (DragDropMatrixRows.moveRowByKeyboard). The row objects keep their positions, so
+     the focus goes to the handle of the row now shown at the new position. */
+  public onDragHandleKeyDown(event: KeyboardEvent, row: MatrixDropdownRowModelBase): void {
+    if (!row || !this.isRowsDragAndDrop || this.isDesignMode) return;
+    const delta = event.key === "ArrowUp" ? -1 : (event.key === "ArrowDown" ? 1 : 0);
+    if (delta === 0) return;
+    const toPosition = this.visibleRows.indexOf(row) + delta;
+    if (!this.dragDropMatrixRows.moveRowByKeyboard(this, row, toPosition)) return;
+    event.preventDefault();
+    this.focusDragHandle(toPosition);
+  }
+  /* The handle is the button inside the element of the row's "drag-drop" action (its renderedId). A keyboard
+     move keeps the table, so it is rendered already; it is looked up in the survey's root element, as the
+     survey can be in a shadow root. */
+  private focusDragHandle(position: number): void {
+    SurveyElement.FocusElement((): HTMLElement => {
+      const row = this.visibleRows[position];
+      const action = !!row ? this.renderedTable.getRowAction(row, "drag-drop") : undefined;
+      const root: HTMLElement = !!this.survey ? (<any>this.survey).rootElement : undefined;
+      if (!action || !root) return null;
+      return root.querySelector("#" + CSS.escape(action.renderedId) + " [role='button']");
+    }, false);
+  }
+  // The drag handle's row number (moveRowAriaLabel): the row's position among the visible rows of the whole view, 1-based.
+  public getRowNumberInView(row: MatrixDropdownRowModelBase): number {
+    if (!this.generatedVisibleRows) return row.visibleIndex + 1;
+    return this.getItemVisibleIndex(row) + 1;
+  }
 
   public getType(): string {
     return "matrixdynamic";
@@ -1716,11 +1746,19 @@ class QuestionMatrixDynamicRenderedTable extends QuestionMatrixDropdownRenderedT
     const visibleIndex = row.visibleIndex > -1 ? row.visibleIndex : this.matrix.visibleRows.indexOf(row);
     const lockedRows = this.matrix.lockedRowCount;
     if (this.isRowsDragAndDrop && (lockedRows < 1 || visibleIndex >= lockedRows)) {
+      /* The handle's name carries the row's number in the view. getRowNumber reads the rendered rows,
+         so a label computed from it (this one, or a host's ComputedUpdater set in onGetMatrixRowActions)
+         follows the rows the table adds and removes in place; a keyboard move keeps every position. */
+      const getRowNumber = (): number => {
+        this.getPropertyValue("rows");
+        return this.matrix.getRowNumberInView(row);
+      };
       actions.push(new Action({
         id: "drag-drop",
         action: () => {},
-        data: { row, question: this.matrix },
+        data: { row, question: this.matrix, getRowNumber },
         iconName: new ComputedUpdater(() => this.matrix.cssClasses.iconDragElement) as unknown as string,
+        ariaLabel: new ComputedUpdater(() => this.matrix.getLocalizationFormatString("moveRowAriaLabel", getRowNumber())) as unknown as string,
         component: "sv-matrix-drag-drop-icon"
       }));
     }

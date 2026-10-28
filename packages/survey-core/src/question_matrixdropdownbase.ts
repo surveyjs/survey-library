@@ -1545,6 +1545,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return true;
   }
   public onPointerDown(pointerDownEvent: PointerEvent, row: MatrixDropdownRowModelBase): void { }
+  public onDragHandleKeyDown(event: KeyboardEvent, row: MatrixDropdownRowModelBase): void { }
   protected onRowsChanged(): void {
     this.clearVisibleRows();
     this.resetRenderedTable();

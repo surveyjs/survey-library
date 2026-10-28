@@ -16,6 +16,8 @@ export interface IExpressionExecutorBase {
   runContext(context: IValueGetterContext, properties: HashTable<any>, id: number): any;
   getVariables(): Array<string>;
   hasFunction(noParamsOnly?: boolean): boolean;
+  // The names of the functions the expression calls; an executor without it is treated as calling unknown ones
+  getFunctionNames?(): Array<string>;
   isAsync: boolean;
   validate(context: IValueGetterContext, isCondition: boolean, options: IExpressionValidationOptions): IExpressionError[];
 }
@@ -171,6 +173,17 @@ export class ExpressionExecutor implements IExpressionExecutor {
     if (noParamsOnly === true) return !!this.operand && this.operand.hasFunction(true);
     return this.hasFunctionValue;
   }
+  public getFunctionNames(): Array<string> {
+    const res = new Array<string>();
+    if (!this.hasFunctionValue) return res;
+    const list = new Array<Operand>();
+    this.operand.addOperandsToList(list);
+    for (let i = 0; i < list.length; i++) {
+      const name = list[i].getType() === "function" ? (<FunctionOperand>list[i]).functionName : undefined;
+      if (!!name && res.indexOf(name) < 0) res.push(name);
+    }
+    return res;
+  }
   public get isAsync(): boolean {
     return this.isAsyncValue;
   }
@@ -237,7 +250,7 @@ export class ExpressionExecutor implements IExpressionExecutor {
     for (const operand of (operands.function || []) as FunctionOperand[]) {
       if (!inArrayFunctions.has(operand.functionName)) continue;
       const params = operand.paramValues;
-      if (!params || params.length < 1 || params[0].getType() !== "variable") continue;
+      if (!params || params.length < 1 || !params[0] || params[0].getType() !== "variable") continue;
       const question = survey.getQuestionByValueName((<Variable>params[0]).variable, true);
       if (!question) continue;
       const templateElements = question.templateElements;

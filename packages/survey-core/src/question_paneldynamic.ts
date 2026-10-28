@@ -671,6 +671,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public getType(): string {
     return "paneldynamic";
   }
+  // Records can belong to dataSource, and each panel already has remove. A title Clear does not fit.
+  public get supportClearTitleAction(): boolean {
+    return false;
+  }
   public getValueType(): QuestionValueType {
     return "array";
   }
@@ -1421,6 +1425,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (val == this.panelsCore.length || this.useTemplatePanel) return;
     this.updateBindings("panelCount", val);
     this.prepareValueForPanelCreating();
+    this.prepareNewPanelRecords(val);
     const isAddingOnePanel = val - this.panelCount === 1;
     const firstAddedIndex = this.panelCount;
     try {
@@ -1440,7 +1445,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     } finally {
       this.clearPanelsCreating();
     }
-    this.setValueBasedOnPanelCount();
+    this.storeRecordsToCount();
     this.reRunCondition();
     this.updateFooterActions();
     this.updateNewPanelsVisibleIndex(firstAddedIndex);
@@ -1575,18 +1580,42 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       panel.state = state;
     }
   }
-  private setValueBasedOnPanelCount() {
-    // The storage of a remote-backed question is the source's, and its window is one page: growing
-    // it up to the count would pad the page with records the server does not have.
-    if (this.isRemoteData) return;
+  /* QuestionRecordsModel.storeRecordsToCount: the records follow panelCount. A data source is left out
+     there: its window is one page, and growing it up to the count would pad the page with records the
+     server does not have. A new record is the panel's value - its defaults, expressions and the
+     defaultPanelValue it was built with (prepareNewPanelRecords); a record past the page has no panel to
+     take its value from. */
+  protected get isRecordsStoreDeferred(): boolean {
+    return this.wasNotRenderedInSurvey;
+  }
+  // An add stores the record of its panel itself (updateValueOnAddingPanelCore).
+  protected canStoreRecordsToCount(): boolean {
+    return super.canStoreRecordsToCount() && !this.panelAddScope.isActive;
+  }
+  // The new panel is not validated on the add's write, as on the count's write it used to be stored with.
+  protected runAddedRecordWrite(write: () => void): void {
+    this.runInternalValueChange(write);
+  }
+  protected storeRecordsToCountCore(): void {
     const panelCount = this.panelCount;
     if (this.storedRecordCount === panelCount) return;
     this.syncRecordCount(panelCount, (i: number): any => {
-      // A record past the page has no panel to take its value from.
       const panel = this.panels[i];
       const panelValue = !!panel ? panel.getValue() : this.createNewRecord();
       return !Helpers.isValueEmpty(panelValue) ? panelValue : {};
     });
+  }
+  /* The panels a count change creates are built from their records: the defaultPanelValue, as an added
+     panel's. They read it from the buffered value, and its store is the store of the new panels' values. */
+  private prepareNewPanelRecords(count: number): void {
+    if (this.panelAddScope.isActive || this.isValueEmpty(this.defaultPanelValue) || !this.canStoreRecordsToCount()) return;
+    const value = Array.isArray(this.addingNewPanelsValue) ? [].concat(this.addingNewPanelsValue) : [];
+    if (value.length !== this.panelsCore.length || value.length >= count) return;
+    while(value.length < count) {
+      value.push(this.composeNewRecord([], undefined, undefined, this.defaultPanelValue));
+    }
+    this.addingNewPanelsValue = value;
+    this.isNewPanelsValueChanged = true;
   }
   /**
    * An expression that dynamically calculates the panel count. Overrides the static [`panelCount`](#panelCount) property.
@@ -2022,13 +2051,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public get isValueArray(): boolean { return true; }
   public isEmpty(): boolean {
     // loadedCount, not count: with a data source that pages, count is the server total and only the
-    // records of the loaded window can be looked at. Equal for every local source. A read: the list
-    // is not created for it.
-    const count = this.loadedRecordCount;
-    for (let i = 0; i < count; i++) {
-      if (!this.isRowEmpty(this.getListRecordAt(i))) return false;
-    }
-    return true;
+    // records of the loaded window can be looked at. Equal for every local source. A record is empty
+    // only without keys (isEmptyRecord): an answer of "", null or [] counts as given, as released.
+    return this.areRecordsEmpty(this.loadedRecordCount);
   }
   // QuestionRecordsModel hooks of getProgressInfo: the panels, or a record by the template's questions.
   protected getProgressInfoOfObjects(): IProgressInfo {
@@ -2063,14 +2088,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       });
     });
     return res;
-  }
-  /* A record is empty only without keys: an answer of "", null or [] counts as given, as released. A
-     matrix row counts such answers as empty (isRecordEmpty). */
-  private isRowEmpty(val: any) {
-    for (var prop in val) {
-      if (val.hasOwnProperty(prop)) return false;
-    }
-    return true;
   }
   /* Returns the panel that was added and is shown, or null: add is not allowed, the page it leaves
      has errors, or the move waits for asynchronous validators - the add then happens once they
@@ -2275,7 +2292,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const list = this.dataList;
     // List mode copies the last record, read before the insert, as every other add (getCopySourceRecord).
     const listCopyFrom = this.isRenderModeList ? this.getCopySourceRecord() : undefined;
-    this.growAndMoveRecord((): void => { this.setRecordCountCore(this.panelCount + 1); }, (): number => {
+    /* panelCount++ creates the panel only; its record is stored with the move and the default record: one
+       value write, one onValueChanged per add. */
+    this.growAndMoveRecord((): void => { this.panelAddScope.run((): void => this.setRecordCountCore(this.panelCount + 1)); }, (): number => {
       if (list.count !== this.panelCount) return -1;
       const lastIndex = this.panelCount - 1;
       // index is a created position; the record it names is where the list moves the new one.
@@ -2291,8 +2310,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       }
       if (this.isValueEmpty(this.defaultPanelValue) && !copyFrom) return undefined;
       return Object.assign({}, list.getRecord(recordIndex), this.composeNewRecord([], undefined, undefined, this.defaultPanelValue, copyFrom));
-    });
+    }, undefined, (): void => this.storeRecordsToCountCore());
   }
+  private panelAddScope: Scope = new Scope();
   public isRequireConfirmOnDelete(val: any): boolean {
     if (!this.confirmDelete) return false;
     const target = this.resolvePanelTarget(val);
@@ -2391,7 +2411,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     const nextIndex = visIndex >= pnlCount ? pnlCount - 1 : visIndex;
     const element = pnlCount === 0 ? () => this.addPanelAction?.getInputElement() : (nextIndex > -1 ? () => this.getRemovePanelAction(this.visiblePanels[nextIndex])?.getInputElement() : "");
     if (!!element) {
-      SurveyElement.FocusElement(element, true, this.survey?.rootElement, this.shouldHandleFocusScroll);
+      SurveyElement.FocusElement(() => this.isDisposed ? undefined : element(), true, this.survey?.rootElement, this.shouldHandleFocusScroll);
     }
   }
   // After the panels were rebuilt from a committed read; FocusElement's own timeout lets them render.
@@ -3260,7 +3280,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.panelSurveyValueChanged(i);
     }
     if (newValue === undefined) {
-      this.setValueBasedOnPanelCount();
+      this.storeRecordsToCount();
     }
     this.updateIsReady();
   }
@@ -3559,7 +3579,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
 
   get showNavigation(): boolean {
     if (this.isReadOnly && this.visiblePanelCount == 1) return false;
-    return this.visiblePanelCount > 0 && !!this.cssClasses.footer;
+    return this.visiblePanelCount > 0 && !!this.cssClasses.footerBar;
   }
   /* The footer under the panels: the bottom progress bar and the footer toolbar while the navigation
      shows, and the pager. The pager shares the footer row with the toolbar buttons. */
@@ -3658,6 +3678,7 @@ export class PanelDynamicSingleInputBehavior extends QuestionRecordsSingleInputB
 Serializer.addClass(
   "paneldynamic",
   [
+    { name: "allowClear:boolean", visible: false, isSerializable: false },
     { name: "showCommentArea:switch", visible: true },
     {
       name: "templateElements",

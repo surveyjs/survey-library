@@ -24,6 +24,8 @@ registerMarkupTests(
       initSurvey: (survey) => {
         const dropdown = survey.getQuestionByName("name");
         dropdown["dropdownListModel"].listModel.renderElements = true;
+        // A popup renders its content only once it is shown.
+        dropdown["dropdownListModel"].popupModel.isVisible = true;
       },
       getElement: () => {
         return document.querySelector(".sv-popup.sv-dropdown-popup .sv-popup__container") as HTMLElement;
@@ -52,6 +54,8 @@ registerMarkupTests(
               onSelectionChanged: (item, ...params) => { }
             });
           items[1].setSubItems({ items: [{ id: "11", title: "text11" }, { id: "21", title: "text21" }] });
+          // A popup renders its content only once it is shown.
+          item.popupModel.isVisible = true;
           opt.titleActions = [item];
         });
       },
@@ -80,6 +84,8 @@ registerMarkupTests(
               verticalPosition: "bottom", horizontalPosition: "center", items: items, allowSelection: true,
               onSelectionChanged: (item, ...params) => { }
             });
+          // A popup renders its content only once it is shown.
+          item.popupModel.isVisible = true;
           opt.titleActions = [item];
         });
       },

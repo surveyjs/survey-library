@@ -2,6 +2,9 @@ import { FunctionFactory, registerFunction, unregisterFunction } from "../../src
 
 import { describe, test, expect } from "vitest";
 
+// Before any test registers a function: what survey-core itself registers
+const registeredByCore = FunctionFactory.Instance.getAll();
+
 describe("Function metadata", () => {
   test("a registration keeps its description, parameters and return type", () => {
     registerFunction({
@@ -50,5 +53,21 @@ describe("Function metadata", () => {
     expect(displayValue.isAsync).toBe(true);
     expect(displayValue.useCache).toBe(false);
     expect(regs.filter(r => r.name === "sumInArray")[0].originalValueParams).toEqual([0]);
+  });
+  test("a registration keeps what its result depends on", () => {
+    registerFunction({ name: "aiexDepends", func: () => 1, resultDependsOn: "parameters" });
+    const reg = FunctionFactory.Instance.getRegistrations().filter(r => r.name === "aiexDepends")[0];
+    expect(reg.resultDependsOn).toBe("parameters");
+    unregisterFunction("aiexDepends");
+  });
+  test("every function survey-core registers says what its result depends on", () => {
+    expect(registeredByCore.length > 0, "survey-core registers functions").toBe(true);
+    const regs = FunctionFactory.Instance.getRegistrations().filter(r => registeredByCore.indexOf(r.name) > -1);
+    expect(regs.map(r => r.name)).toEqual(registeredByCore);
+    regs.forEach(r => {
+      expect(["parameters", "survey", "elements"].indexOf(r.resultDependsOn) > -1, r.name + ": " + r.resultDependsOn).toBe(true);
+    });
+    const elements = regs.filter(r => r.resultDependsOn === "elements").map(r => r.name).sort();
+    expect(elements).toEqual(["displayValue", "isContainerReady", "propertyValue"]);
   });
 });

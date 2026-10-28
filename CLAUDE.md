@@ -85,7 +85,7 @@ When adding or changing a question property, you almost always touch both the Ty
 `Base` → `SurveyElement` (`survey-element.ts`) → `Question` (`question.ts`) and `PanelModelBase`/`PanelModel`/`PageModel` (`panel.ts`, `page.ts`). `SurveyModel` (`survey.ts`) is the top-level container. Concrete question types live in `question_*.ts` (e.g. `question_text.ts`, `question_checkbox.ts`, `question_matrixdynamic.ts`, `question_paneldynamic.ts`) and register with `QuestionFactory` / `ElementFactory` (`questionfactory.ts`) so they can be created from a JSON `type`.
 
 ### Other core subsystems
-- **Expressions** (`src/expressions/`, `src/conditions/`) — `visibleIf`/`enableIf`/`requiredIf`, triggers, calculated values, and the custom function library (`functionsfactory.ts`). The grammar is generated from a PEG file via `peggy`.
+- **Expressions** (`src/expressions/`, `src/conditions/`) — `visibleIf`/`enableIf`/`requiredIf`, triggers, calculated values, and the custom function library (`functionsfactory.ts`). The parser (`src/expressions/expressionParserCore.ts`) is hand-written and follows `tests/expressions/oracle/grammar.pegjs`; a `peggy`-generated parser of that grammar is the test oracle.
 - **Localization** (`src/localization/`, `src/surveyStrings.ts`, `localizablestring.ts`) — every user-facing string is a `LocalizableString` that resolves per-locale and supports text piping/preprocessing (`textPreProcessor.ts`).
 - **Input masks** (`src/mask/`) — pattern/numeric/currency/datetime masks with their own lexer/parser.
 - **Drag & drop** (`src/dragdrop/`), **actions/list/popup UI primitives** (`src/actions/`, `list.ts`, `popup*.ts`), and **theming** (`src/themes.ts`, `src/default-theme/`).

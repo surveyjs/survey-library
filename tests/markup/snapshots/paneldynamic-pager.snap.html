@@ -32,7 +32,7 @@
 								</div>
 								<div class="sd-action-bar__item sd-action-bar__item--hidden sv-dots">
 									<div class="sd-action-bar__item-content">
-										<button class="sd-action sd-action--neutral sd-action--secondary sd-action--small sv-dots__item" role="button" tabindex="0" title="More" type="button">
+										<button class="sd-action sd-action--neutral sd-action--secondary sd-action--small sv-dots__item" data-sv-tooltip="More" role="button" tabindex="0" title="More" type="button">
 											<svg class="sd-action__icon sv-svg-icon" role="presentation" style="height:24px; width:24px;">
 												<use xlink:href="#icon-more-24x24" class="">
 												</use>
@@ -40,23 +40,6 @@
 											</svg>
 										</button>
 										<div>
-											<div class="sv-popup sv-popup--menu-popup" style="display:none;" tabindex="-1">
-												<div class="sv-popup__container">
-													<div class="sv-popup__body-content">
-														<div class="sv-popup__scrolling-content">
-															<div class="sv-popup__content">
-																<div class="sd-menu-list__container">
-																	<div class="sd-menu-list__empty-container">
-																		<div aria-label="No data to display" class="sd-menu-list__empty-text">No data to display</div>
-																	</div>
-																	<ul class="sd-menu-list" role="menu" style="display:none;">
-																	</ul>
-																</div>
-															</div>
-														</div>
-													</div>
-												</div>
-											</div>
 										</div>
 									</div>
 								</div>
@@ -95,7 +78,7 @@
 									</div>
 									<div class="sd-action-bar__item sd-action-bar__item--hidden sv-dots">
 										<div class="sd-action-bar__item-content">
-											<button class="sd-action sd-action--neutral sd-action--secondary sd-action--small sv-dots__item" role="button" tabindex="0" title="More" type="button">
+											<button class="sd-action sd-action--neutral sd-action--secondary sd-action--small sv-dots__item" data-sv-tooltip="More" role="button" tabindex="0" title="More" type="button">
 												<svg class="sd-action__icon sv-svg-icon" role="presentation" style="height:24px; width:24px;">
 													<use xlink:href="#icon-more-24x24" class="">
 													</use>
@@ -103,23 +86,6 @@
 												</svg>
 											</button>
 											<div>
-												<div class="sv-popup sv-popup--menu-popup" style="display:none;" tabindex="-1">
-													<div class="sv-popup__container">
-														<div class="sv-popup__body-content">
-															<div class="sv-popup__scrolling-content">
-																<div class="sv-popup__content">
-																	<div class="sd-menu-list__container">
-																		<div class="sd-menu-list__empty-container">
-																			<div aria-label="No data to display" class="sd-menu-list__empty-text">No data to display</div>
-																		</div>
-																		<ul class="sd-menu-list" role="menu" style="display:none;">
-																		</ul>
-																	</div>
-																</div>
-															</div>
-														</div>
-													</div>
-												</div>
 											</div>
 										</div>
 									</div>
@@ -128,86 +94,62 @@
 						</div>
 					</div>
 				</div>
-				<div class="sd-paneldynamic__footer sd-paneldynamic__footer--pager">
-					<hr class="sd-paneldynamic__separator">
-						<div class="sd-paneldynamic__buttons-container">
-							<div class="sd-action-bar sd-action-bar--default-size">
-								<div class="sd-action-bar__item">
-									<div class="sd-action-bar__item-content">
-										<button class="sd-action sd-action--brand sd-action--secondary sd-action--small sd-paneldynamic__add-btn sd-paneldynamic__add-btn--list-mode sd-paneldynamic__btn" role="button" tabindex="0" type="button">
-											<span class="sd-action__title">Add new</span>
-										</button>
-									</div>
+				<div class="sd-paneldynamic__footer sd-question__bar sd-question__bar--footer">
+					<div class="sd-action-bar sd-action-bar--default-size sd-paneldynamic__toolbar">
+						<div class="sd-action-bar__item">
+							<div class="sd-action-bar__item-content">
+								<button class="sd-action sd-action--brand sd-action--secondary sd-action--small sd-paneldynamic__add-btn sd-paneldynamic__add-btn--list-mode sd-paneldynamic__btn" role="button" tabindex="0" type="button">
+									<span class="sd-action__title">Add new</span>
+								</button>
+							</div>
+						</div>
+					</div>
+					<div class="sd-action-bar sd-action-bar--default-size sd-pager sd-question__records-bar">
+						<div class="sd-action-bar__item">
+							<div class="sd-action-bar__item-content">
+								<button class="sd-action sd-action--neutral sd-action--tertiary sd-action--x-small" data-sv-tooltip="Previous" disabled="" role="button" tabindex="0" title="Previous" type="button">
+									<svg class="sd-action__icon sv-svg-icon" role="presentation">
+										<use xlink:href="#icon-chevronleft-16x16" class="">
+										</use>
+										<title class="">Previous</title>
+									</svg>
+								</button>
+							</div>
+						</div>
+						<div class="sd-action-bar__item sd-action-bar__item--space">
+							<div class="sd-action-bar__item-content">
+								<button aria-label="Page 1 of 3" class="sd-action sd-action--neutral sd-action--secondary sd-action--x-small sd-pager__page" role="button" tabindex="0" type="button">
+									<svg class="sd-action__icon sv-svg-icon" role="presentation">
+										<use xlink:href="#icon-chevrondown-16x16" class="">
+										</use>
+										<title class="">1</title>
+									</svg>
+									<span class="sd-action__title">1</span>
+								</button>
+								<div>
 								</div>
 							</div>
 						</div>
-						<div class="sd-paneldynamic__records-bar">
-							<div class="sd-paneldynamic__pager">
-								<div class="sd-action-bar sd-action-bar--default-size">
-									<div class="sd-action-bar__item">
-										<div class="sd-action-bar__item-content">
-											<button class="sd-action sd-action--neutral sd-action--tertiary sd-action--x-small" disabled="" role="button" tabindex="0" title="Previous" type="button">
-												<svg class="sd-action__icon sv-svg-icon" role="presentation">
-													<use xlink:href="#icon-chevronleft-16x16" class="">
-													</use>
-													<title class="">Previous</title>
-												</svg>
-											</button>
-										</div>
-									</div>
-									<div class="sd-action-bar__item sd-action-bar__item--space">
-										<div class="sd-action-bar__item-content">
-											<button aria-label="Page 1 of 3" class="sd-action sd-action--neutral sd-action--secondary sd-action--x-small sd-pager__page" role="button" tabindex="0" type="button">
-												<svg class="sd-action__icon sv-svg-icon" role="presentation">
-													<use xlink:href="#icon-chevrondown-16x16" class="">
-													</use>
-													<title class="">1</title>
-												</svg>
-												<span class="sd-action__title">1</span>
-											</button>
-											<div>
-												<div class="sv-popup sv-popup--menu-popup" style="display:none;" tabindex="-1">
-													<div class="sv-popup__container">
-														<div class="sv-popup__body-content">
-															<div class="sv-popup__scrolling-content">
-																<div class="sv-popup__content">
-																	<div class="sd-menu-list__container">
-																		<div class="sd-menu-list__empty-container">
-																			<div aria-label="No data to display" class="sd-menu-list__empty-text">No data to display</div>
-																		</div>
-																		<ul class="sd-menu-list" role="menu" style="display:none;">
-																		</ul>
-																	</div>
-																</div>
-															</div>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-									<div class="sd-action-bar__item">
-										<div class="sd-action-bar__item-content">
-											<button class="sd-action sd-action--neutral sd-action--tertiary sd-action--x-small sd-pager__total" disabled="" role="button" tabindex="-1" type="button">
-												<span class="sd-action__title">of 3</span>
-											</button>
-										</div>
-									</div>
-									<div class="sd-action-bar__item sd-action-bar__item--space">
-										<div class="sd-action-bar__item-content">
-											<button class="sd-action sd-action--neutral sd-action--tertiary sd-action--x-small" role="button" tabindex="0" title="Next" type="button">
-												<svg class="sd-action__icon sv-svg-icon" role="presentation">
-													<use xlink:href="#icon-chevronright-16x16" class="">
-													</use>
-													<title class="">Next</title>
-												</svg>
-											</button>
-										</div>
-									</div>
-								</div>
+						<div class="sd-action-bar__item">
+							<div class="sd-action-bar__item-content">
+								<button class="sd-action sd-action--neutral sd-action--tertiary sd-action--x-small sd-pager__total" disabled="" role="button" tabindex="-1" type="button">
+									<span class="sd-action__title">of 3</span>
+								</button>
+							</div>
+						</div>
+						<div class="sd-action-bar__item sd-action-bar__item--space">
+							<div class="sd-action-bar__item-content">
+								<button class="sd-action sd-action--neutral sd-action--tertiary sd-action--x-small" data-sv-tooltip="Next" role="button" tabindex="0" title="Next" type="button">
+									<svg class="sd-action__icon sv-svg-icon" role="presentation">
+										<use xlink:href="#icon-chevronright-16x16" class="">
+										</use>
+										<title class="">Next</title>
+									</svg>
+								</button>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+	</div>

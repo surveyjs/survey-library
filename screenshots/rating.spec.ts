@@ -659,6 +659,26 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, page.locator(".sd-question").nth(2), "question-rating-labels-diagonal.png");
     });
 
+    test("Check rating rate descriptions in an rtl locale", async ({ page }) => {
+      await page.setViewportSize({ width: 1000, height: 1080 });
+      await initSurvey(page, framework, {
+        locale: "he",
+        showQuestionNumbers: false,
+        elements: [{
+          type: "rating",
+          name: "rating",
+          displayMode: "buttons",
+          rateMin: 1,
+          rateMax: 5,
+          minRateDescription: "Low",
+          maxRateDescription: "High",
+          rateDescriptionLocation: "bottom"
+        }]
+      });
+
+      await compareScreenshot(page, ".sd-question", "question-rating-labels-bottom-rtl.png");
+    });
+
     test("Check rating selected label width", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {

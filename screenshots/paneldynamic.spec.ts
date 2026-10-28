@@ -138,7 +138,7 @@ frameworks.forEach(framework => {
         // A fresh page for each survey: initSurvey can't attach a second shadow root to the same host in survey-js-ui.
         await page.goto(`${url}${framework}`);
         await initSurvey(page, framework, pagerJson(pageCount));
-        await page.locator(".sd-paneldynamic__pager .sd-pager__page").click();
+        await page.locator(".sd-pager__page").click();
         const sheet = page.locator(".sv-popup--sheet");
         await expect(sheet).toBeVisible();
         await sheet.getByRole("menuitemradio", { name: "2", exact: true }).click();
@@ -173,7 +173,7 @@ frameworks.forEach(framework => {
         };
       });
       const paneldynamicRoot = page.locator(".sd-question--paneldynamic");
-      await expect(page.locator(".sd-paneldynamic__pager .sd-pager__page")).toBeEnabled();
+      await expect(page.locator(".sd-pager__page")).toBeEnabled();
       await expect(paneldynamicRoot.locator("input").first()).toHaveValue("Panel 1");
       await resetFocusToBody(page);
       await compareScreenshot(page, paneldynamicRoot, "paneldynamic-pager-unknown-count.png");
@@ -596,6 +596,29 @@ frameworks.forEach(framework => {
       });
       const paneldynamicRoot = page.locator(".sd-question--paneldynamic");
       await compareScreenshot(page, paneldynamicRoot, "paneldynamic-collapsed-panels.png");
+    });
+    test("Paneldynamic: singlePage mode", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "panel",
+            "title": "Panel",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "question",
+                "title": "Question"
+              },
+            ],
+            "panelCount": 1,
+          }
+        ],
+        "questionsOnPageMode": "singlePage"
+      });
+      const paneldynamicRoot = page.locator(".sd-question--paneldynamic");
+      await compareScreenshot(page, paneldynamicRoot, "paneldynamic-single-page-mode.png");
     });
   });
 });

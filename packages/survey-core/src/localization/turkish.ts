@@ -49,8 +49,6 @@ export var turkishSurveyStrings = {
   sortLevelFieldAriaLabel: "Alanı {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Sıralama sırası {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Daha fazla...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Tüm sıralama seviyelerini göster",
   // [Auto-translated] "Add New"

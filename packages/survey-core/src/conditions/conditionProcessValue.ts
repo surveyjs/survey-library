@@ -49,6 +49,10 @@ export interface IValueGetterContext {
   getRootObj?(): IObjectValueContext;
   getQuestion?(): IQuestion;
   getContextKeys?(keys?: any): { [key: string]: any };
+  // A value made of records (a matrix, a dynamic panel): converts a stored value of the field name to
+  // the one expressions read - a masked text field that saves its masked value gives the unmasked one.
+  // undefined when no question stores the field. The *InArray functions call it on the raw records.
+  getFieldValueConverter?(name: string): (val: any) => any;
 }
 export interface IValueInfoParams {
   name: string;
@@ -65,6 +69,8 @@ export interface IReturnValue {
   propObj?: any;
   propName?: string;
   strictCompare?: boolean;
+  // The context that answered the name.
+  context?: IValueGetterContext;
 }
 // The changed-keys objects are keyed by value names, so a question named "hasOwnProperty" shadows
 // the method: always check own keys through Object.prototype (Bug#11858)
@@ -100,6 +106,7 @@ export class ValueGetter {
     res.strictCompare = info.requireStrictCompare;
     res.propObj = info.propObj;
     res.propName = info.propName;
+    res.context = info.context;
     if (info.context) {
       if (params.isText && info.context.getTextValue) {
         res.value = info.context.getTextValue(name, res.value, params.isDisplayValue);
@@ -127,7 +134,10 @@ export class ValueGetter {
   // loop reaches a name (an expression runner owns it, see ExpressionRunnerBase.getVariablesInfo).
   // Without it the parts are parsed and dropped, as each name is reached. An item is rebuilt when
   // its name differs: a trigger may push a name into the runner's variables (CopyValueTrigger).
-  public isAnyKeyChangedCore(keys: any, usedNames: string[], namesInfo: Array<IValueGetterNameInfo>, isClearedKeyChanged?: boolean): boolean {
+  // sharedNamesInfo (the survey's, see SurveyModel.getVariableNamesInfo) holds the items by their exact
+  // name: a name is looked up there before it is parsed, and an item built here is stored there.
+  public isAnyKeyChangedCore(keys: any, usedNames: string[], namesInfo: Array<IValueGetterNameInfo>, isClearedKeyChanged?: boolean,
+    sharedNamesInfo?: Map<string, IValueGetterNameInfo>): boolean {
     // Settings are read on every call, never kept in a name's information: tests change them at runtime
     const propPrefix = settings.expressionElementPropertyPrefix;
     // Names are case-insensitive in expressions ({age} reads the question "Age"), so the keys are
@@ -140,7 +150,7 @@ export class ValueGetter {
       if (!!propPrefix && name[0] === propPrefix) return true;
       let info = !!namesInfo ? namesInfo[i] : undefined;
       if (!info || info.name !== name) {
-        info = this.getNameInfo(name);
+        info = this.getSharedNameInfo(name, sharedNamesInfo);
         if (!!namesInfo) namesInfo[i] = info;
       }
       // A built-in variable ({pageno}, {correctanswers}, ...) is never a key, but its value can change
@@ -158,6 +168,15 @@ export class ValueGetter {
       }
     }
     return false;
+  }
+  private getSharedNameInfo(name: string, sharedNamesInfo: Map<string, IValueGetterNameInfo>): IValueGetterNameInfo {
+    if (!sharedNamesInfo) return this.getNameInfo(name);
+    let info = sharedNamesInfo.get(name);
+    if (!info) {
+      info = this.getNameInfo(name);
+      sharedNamesInfo.set(name, info);
+    }
+    return info;
   }
   // The parts of a name that the key check reads and that depend on the name only. The parsed path
   // itself is not kept: run() changes the path it parses ({$q.isVisible}), so a kept one must never reach it.

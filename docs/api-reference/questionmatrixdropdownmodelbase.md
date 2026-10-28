@@ -10,6 +10,10 @@ source: https://surveyjs.io/form-library/documentation/api-reference/questionmat
 
 A base class for the [`QuestionMatrixDropdownModel`](https://surveyjs.io/form-library/documentation/questionmatrixdropdownmodel) and [`QuestionMatrixDynamicModel`](https://surveyjs.io/form-library/documentation/questionmatrixdynamicmodel) classes.
 
+## Inheritance
+
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionRecordsModel`](https://surveyjs.io/form-library/documentation/api-reference/questionrecordsmodel.md) &rarr; `QuestionMatrixDropdownModelBase`
+
 ## Properties
 
 ### `alternateRows`
@@ -270,6 +274,22 @@ A width for the column that displays row titles (first column). Accepts CSS valu
 Specifies whether to display the table header that contains column captions.
 
 Default value: `true`
+
+### `showSortBar`
+
+**Type**: `"auto" | "always"`
+
+Specifies when to display the sort bar. Applies only when [`allowSort`](#allowSort) is `true`.
+
+Possible values:
+
+- `"auto"` (default)\
+Displays the sort bar when column headers cannot be used for sorting: on mobile devices, when [`showHeader`](#showHeader) is `false`, or when [`transposeData`](#transposeData) is `true`.
+
+- `"always"`\
+Displays the sort bar even when column headers support sorting.
+
+**Related APIs:** [`maxSortLevel`](#maxSortLevel)
 
 ### `singleInputTitleTemplate`
 

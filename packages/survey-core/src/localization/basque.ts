@@ -49,8 +49,6 @@ export var basqueSurveyStrings = {
   sortLevelFieldAriaLabel: "Sailkapen eremua {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Ordena {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Gehiago...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Mota maila guztiak erakutsi",
   // [Auto-translated] "Add New"

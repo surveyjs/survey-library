@@ -40,6 +40,9 @@ import { IRecordCleanupRunnerOwner, RecordCleanupRunner } from "./records/record
 import { IRecordRemoval, IRecordTarget, IRecordTargetResolverOwner, RecordTargetResolver } from "./records/records-target-resolver";
 import { IQuestionRecordsBarOwner, IRecordsBarCssClasses, QuestionRecordsBar } from "./question_records_bar";
 import { IRecordsSortField } from "./records/records-sort-bar";
+import { RecordsSortDialogModel, showRecordsSortDialog } from "./records/records-sort-dialog";
+import { getLocaleString } from "./surveyStrings";
+import type { PopupBaseViewModel } from "./popup-view-model";
 import type { PanelModelBase } from "./panel";
 
 /* An item of the nested walk of a records question: a matrix row, or a dynamic panel's panel - not its
@@ -47,6 +50,16 @@ import type { PanelModelBase } from "./panel";
 export type NestedWalkItem = QuestionRecordItem | PanelModelBase;
 import type { ItemValue } from "./itemvalue";
 import type { ISurveyOldValueReads } from "./interfaces/survey-callbacks";
+
+// What Creator passes to QuestionRecordsModel.showSortDialog.
+export interface IRecordsDesignSortDialogOptions {
+  // Apply with a changed draft: the caller writes sortCriteria (Creator does it for undo/redo).
+  onApply: (criteria: Array<ISortCriterion>) => void;
+  // Where the modal is placed; the survey's root element when omitted.
+  rootElement?: HTMLElement;
+  // The locale of the dialog's own texts for as long as it is open; the question's locale when omitted.
+  locale?: string;
+}
 
 export interface IDynamicDataRecordUniqueness {
   // The record keys whose values have to be unique; empty when none has to be.
@@ -160,6 +173,7 @@ export abstract class QuestionRecordsModel extends Question {
       get listPageSize(): number { return question.listPageSize; },
       get maxSortLevel(): number { return question.maxSortLevel; },
       getFieldDataType: (field: string): DynamicDataFieldType => question.getSortFieldDataType(field),
+      getDesignSortFields: (): Array<IRecordsSortField> => question.getDesignSortFields(),
       get pageIndex(): number { return question.reportedPageIndex; },
       get pageCount(): number { return question.reportedPageCount; },
       get isDesignMode(): boolean { return question.isDesignMode; },
@@ -1072,6 +1086,7 @@ export abstract class QuestionRecordsModel extends Question {
   private writeRecordCount(val: number, origin: "code" | "authored" | "internal"): void {
     if (!this.isRemoteData) {
       this.setRecordCountCore(val);
+      this.storeRecordsToCount();
     } else if (origin === "authored") {
       this.setPropertyValue(this.getRecordCountNames().count, Helpers.getNumber(val));
     } else if (origin === "code" && Helpers.getNumber(val) !== this.recordCount) {
@@ -2018,21 +2033,27 @@ export abstract class QuestionRecordsModel extends Question {
      grow defers and follows (see runOwnRecordsChange) stops the add. A count that did not grow runs
      onNotGrown: the caller decides what the add does then. Returns the record index the new record
      ended at, or -1: the count did not grow, an outside assignment happened during the grow - the
-     assigned value stays, none of its records is the new one - or getIndex answered none. */
-  protected growAndMoveRecord(grow: () => void, getIndex: () => number, getRecord: (index: number) => any, onNotGrown?: () => void): number {
+     assigned value stays, none of its records is the new one - or getIndex answered none.
+     storeGrown: a grow that only creates the objects stores their records here, in the same batch as
+     the move, so that the add is one write (the Dynamic Panel). */
+  protected growAndMoveRecord(grow: () => void, getIndex: () => number, getRecord: (index: number) => any, onNotGrown?: () => void,
+    storeGrown?: () => void): number {
     const outsideAssignmentCount = this.outsideAssignmentCount;
     const oldCount = this.getListRecordCount();
     this.runRecordAdd(grow);
     if (this.outsideAssignmentCount !== outsideAssignmentCount) return -1;
     const list = this.dataList;
-    if (list.count === oldCount) {
-      if (!!onNotGrown) onNotGrown();
-      return -1;
-    }
-    let index = getIndex();
-    if (index === undefined) index = list.count - 1;
-    if (index < 0) return -1;
-    list.batch((): void => {
+    let index = -1;
+    let isGrown = true;
+    this.runAddedRecordWrite((): void => list.batch((): void => {
+      if (!!storeGrown)this.runRecordAdd(storeGrown);
+      if (list.count === oldCount) {
+        isGrown = false;
+        return;
+      }
+      index = getIndex();
+      if (index === undefined) index = list.count - 1;
+      if (index < 0) return;
       const lastIndex = list.count - 1;
       if (index !== lastIndex) {
         list.move(lastIndex, index);
@@ -2041,8 +2062,13 @@ export abstract class QuestionRecordsModel extends Question {
       if (record !== undefined) {
         list.setRecord(index, record);
       }
-    });
+    }));
+    if (!isGrown && !!onNotGrown) onNotGrown();
     return index;
+  }
+  // The write of growAndMoveRecord: the Dynamic Panel makes it as a change of its own value.
+  protected runAddedRecordWrite(write: () => void): void {
+    write();
   }
   /* A new record: the default values of the questions a record has (inputs: the columns, the template
      questions; getKey names the key a value is stored under), then defaultRecord, then copyFrom - a
@@ -2142,24 +2168,48 @@ export abstract class QuestionRecordsModel extends Question {
   public goToPage(index: number): boolean { return this.changePageWithoutAnimation(() => this.paging.goToPage(index)); }
   public nextPage(): boolean { return this.changePageWithoutAnimation(() => this.paging.nextPage()); }
   public prevPage(): boolean { return this.changePageWithoutAnimation(() => this.paging.prevPage()); }
-  /* The sort the records are displayed in: criteria applied in array order, an empty array = no sort.
-     It never reorders the question value. A live array, like choices: an assignment, a push, an
-     unshift or a splice on it, or an edit of an item's field or direction re-applies it. The caller
-     reads and writes plain { field, direction } objects, a missing direction being ascending. The
-     question never holds the caller's objects: it converts every item it is given - on an assignment
-     and on the array's own operations alike - into an internal SortCriterion, which is what makes an
-     item edit live and what the serializer reads and writes. It is the current sort: a sort made at
-     runtime changes what toJSON() emits. */
+  /**
+   * Specifies the sort order used to display data.
+   *
+   * Default value: `[]` (no sorting)
+   *
+   * Each array item is an object with the following properties:
+   *
+   * - `field` &ndash; The name of the field to sort by.
+   * - `direction` &ndash; `"asc"` (default) for ascending order or `"desc"` for descending order.
+   *
+   * Criteria are applied in array order. Each subsequent field sorts records with equal values in the preceding fields.
+   *
+   * Assigning an array, adding or removing criteria, or changing an item's `field` or `direction` reapplies sorting. This property reflects the current sort, including changes made by respondents.
+   *
+   * Sorting changes the display order while preserving the record order in the question's `value`.
+   * @see sort
+   * @see clearSort
+   * @see allowSort
+   * @see maxSortLevel
+   */
   public get sortCriteria(): Array<ISortCriterion> { return this.paging.sortCriteria; }
   public set sortCriteria(val: Array<ISortCriterion>) { this.paging.sortCriteria = val; }
-  /* sort("price") sorts by one field, ascending unless direction is "desc"; with append the current
-     sort stays and the field takes the direction where it already is, or joins at the end.
-     sort([...]) is the assignment of sortCriteria. A sort from code does not validate the page. */
-  public sort(field: string, direction?: SortDirection, append?: boolean): void;
-  public sort(criteria: Array<ISortCriterion>): void;
+  /**
+   * Sorts data by the specified field or criteria.
+   *
+   * Updates [`sortCriteria`](#sortCriteria) and applies sorting without validating the current data page. Available regardless of the [`allowSort`](#allowSort) and [`maxSortLevel`](#maxSortLevel) settings.
+   *
+   * When an array of sorting criteria is passed, it replaces all existing criteria, and the `direction` and `append` parameters are ignored.
+   * @param fieldOrCriteria A field name or an array of objects with a `field` name and an optional `direction` (`"asc"` or `"desc"`). Criteria are applied in array order; the default direction is `"asc"`.
+   * @param direction The sort direction: `"asc"` (default) or `"desc"`. Applies when `fieldOrCriteria` is a field name.
+   * @param append Pass `true` to preserve existing criteria and add the field as the last sorting level. If the field is already present, its direction is updated in place. Defaults to `false`, which replaces all existing criteria. Applies when `fieldOrCriteria` is a field name.
+   * @see clearSort
+   */
   public sort(fieldOrCriteria: string | Array<ISortCriterion>, direction?: SortDirection, append?: boolean): void {
     this.paging.sort(fieldOrCriteria, direction, append);
   }
+  /**
+   * Clears all sorting criteria and displays data in the original order.
+   *
+   * Equivalent to setting [`sortCriteria`](#sortCriteria) to an empty array.
+   * @see sort
+   */
   public clearSort(): void { this.paging.clearSort(); }
   /* What a click on a sortable header does: the field's first direction - descending for a number
      or a date field, ascending otherwise (getSortFieldDataType) - then the other one, then not sorted. With
@@ -2175,14 +2225,29 @@ export abstract class QuestionRecordsModel extends Question {
     const found = this.getFields().filter((item: IDynamicDataField): boolean => item.name === field)[0];
     return !!found && !!found.dataType ? found.dataType : "any";
   }
-  /* The sort a respondent can make: by a header click a renderer may offer (a column opts out with
-     column.allowSort = false) or from the Sort by menu. It does not gate the code API - sort(),
-     sortCriteria, clearSort() and toggleSort() work whatever its value: the renderers gate on
-     column.isSortable and isSortMenuVisible. */
+  /**
+   * Specifies whether respondents can sort data in the UI.
+   *
+   * Default value: `false`
+   *
+   * Sorting in code is available regardless of this property's value.
+   *
+   * In matrix questions, you can set an individual column's [`allowSort`](/form-library/documentation/api-reference/multi-select-matrix-column-values#allowSort) property to `false` to disable sorting by that column.
+   * @see maxSortLevel
+   * @see sortCriteria
+   * @see sort
+   */
   @property({ defaultValue: false }) allowSort: boolean;
-  /* The most criteria a respondent's toggleSort(field, true) leaves in the sort: at least 1, with no
-     upper bound. sort(), sortCriteria and JSON are not limited by it. The clamp is in the setter, which
-     also runs while the question loads from JSON. */
+  /**
+   * Specifies the maximum number of fields respondents can add to a sort.
+   *
+   * Default value: `1`
+   *
+   * Each field defines a sorting level. Set this property to a value greater than 1 to enable sorting by multiple fields.
+   *
+   * This limit applies only to respondent sorting. You can specify more fields in code using [`sortCriteria`](#sortCriteria) or the [`sort()`](#sort) method.
+   * @see allowSort
+   */
   public get maxSortLevel(): number {
     return this.getPropertyValue("maxSortLevel", 1);
   }
@@ -2190,19 +2255,13 @@ export abstract class QuestionRecordsModel extends Question {
     const num = Helpers.getNumber(val);
     this.setPropertyValue("maxSortLevel", num >= 1 ? Math.floor(num) : 1);
   }
-  /* The sort bar in the question header, next to the sortable column headers of a matrix. false hides
-     it and leaves the headers. Any value but false reads as true: a released JSON "auto" included. */
-  public get showSortMenu(): boolean {
-    return this.getPropertyValue("showSortMenu", true);
+  /* The API's opt-in for the sort bar: allowSort, and on the matrix showSortBar. Design mode, the collapse
+     and the offered fields are the bar's (QuestionRecordsBar.showSort). */
+  public get isSortBarVisible(): boolean {
+    return this.allowSort === true;
   }
-  public set showSortMenu(val: boolean) {
-    this.setPropertyValue("showSortMenu", val !== false);
-  }
-  // The API's opt-in for the sort bar. Design mode, the collapse and the offered fields are the bar's (QuestionRecordsBar.showSort).
-  public get isSortMenuVisible(): boolean {
-    return this.allowSort === true && this.showSortMenu;
-  }
-  // Whether the rendered column headers sort: paneldynamic has no headers.
+  /* Whether the rendered column headers sort. The dynamic panel has no headers, so its sort bar is the only
+     sort UI; the matrix's showSortBar "auto" shows the bar only while this is false. */
   public get canSortByHeaders(): boolean { return false; }
   /* A survey expression over the record values - the same language as visibleIf, with the record
      fields as its variables. A record that does not satisfy it has no object; the question value
@@ -2264,8 +2323,11 @@ export abstract class QuestionRecordsModel extends Question {
      columns or the template, which notify the bar through updateRecordsBar(). The data type is the
      one the list registered (getFields), so the bar and the list agree. */
   protected get sortFields(): Array<IRecordsSortField> {
+    return this.toSortFields(this.getSortFieldCandidates());
+  }
+  private toSortFields(candidates: Array<{ field: string, title: string }>): Array<IRecordsSortField> {
     const res: Array<IRecordsSortField> = [];
-    this.getSortFieldCandidates().forEach((item: { field: string, title: string }): void => {
+    candidates.forEach((item: { field: string, title: string }): void => {
       if (!!item.field && !res.some((f: IRecordsSortField): boolean => f.field === item.field)) {
         res.push({ field: item.field, title: item.title, dataType: this.getSortFieldDataType(item.field) });
       }
@@ -2274,6 +2336,12 @@ export abstract class QuestionRecordsModel extends Question {
   }
   protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
     return [];
+  }
+  /* The fields a designer can sort by (getDesignSortFields): every field whose values sort, whatever allowSort
+     and a column's allowSort say - they gate the respondent, not sortCriteria. The dynamic panel offers what its
+     bar offers. */
+  protected getDesignSortFieldCandidates(): Array<{ field: string, title: string }> {
+    return this.getSortFieldCandidates();
   }
   /* Every value-sortable question of a record template, nested panels included (their values live in
      the same record), under the value name the list knows it by (getFieldsOfQuestions). A question
@@ -2321,13 +2389,6 @@ export abstract class QuestionRecordsModel extends Question {
     super.onDesignModeChanged();
     this.updateRecordsBar();
   }
-  /* The footer under the records: the type's own footer content (the matrix's bottom toolbar, the
-     dynamic panel's progress and buttons) and the pager share one row while the pager shows. The
-     matrix renders the footer only with the pager, so its markup stays the same without paging. A
-     type without a footer class (the matrix dropdown) gets "". */
-  public getFooterCss(): string {
-    return toCssClasses(this.cssClasses.footer, this.showPager && this.cssClasses.footerWithPager);
-  }
   /* The functions call the question's members when they are called, so an override or a spy on the
      question is honoured (see helperOwner). The page index and count are the synced state in the
      property hash, not the reported values: those answer one page without reading the hash while
@@ -2353,7 +2414,7 @@ export abstract class QuestionRecordsModel extends Question {
         return question.sortCriteria.map((item: ISortCriterion): ISortCriterion => ({ field: item.field, direction: item.direction }));
       },
       get sortFields(): Array<IRecordsSortField> { return question.sortFields; },
-      get isSortMenuVisible(): boolean { return question.isSortMenuVisible; },
+      get isSortBarVisible(): boolean { return question.isSortBarVisible; },
       get isDesignMode(): boolean { return question.isDesignMode; },
       get isCollapsed(): boolean { return question.isCollapsed; },
       get maxSortLevel(): number { return question.maxSortLevel; },
@@ -2364,14 +2425,94 @@ export abstract class QuestionRecordsModel extends Question {
       getLocOwner: (): ILocalizableOwner => question,
       getCssClasses: (): IRecordsBarCssClasses => {
         const css = question.cssClasses;
-        return { root: css.recordsBar, pager: css.pager, pagerPage: css.pagerPage, pagerTotal: css.pagerTotal,
+        return { root: css.recordsBar, pagerPage: css.pagerPage, pagerTotal: css.pagerTotal,
           sortBar: css.sortBar, sortDropdown: css.sortDropdown, sortLabel: css.sortLabel, sortLevel: css.sortLevel,
           sortDialog: css.sortDialog, sortDialogRow: css.sortDialogRow };
       },
-      createActionContainer: <T extends ActionContainer>(container?: T): T =>
-        !!container ? question.initActionContainer(container) : <T>question.createActionContainer(),
+      createActionContainer: <T extends ActionContainer>(container?: T): T => {
+        return !!container ? question.initActionContainer(container) : <T>question.createActionContainer();
+      },
       getRootElement: (): HTMLElement => question.survey?.rootElement
     };
+  }
+  /* The fields a designer can sort by, computed on every call: Creator's property grid offers them as the choices
+     of a sortCriteria item's field (SortCriterion.getFieldChoices), and the designer's dialog (showSortDialog)
+     offers the same ones, so the two never disagree. */
+  public getDesignSortFields(): Array<IRecordsSortField> {
+    return this.toSortFields(this.getDesignSortFieldCandidates());
+  }
+  /* Creator's entry to the "Sort by" dialog, an alternative to editing the sortCriteria items in place in the
+     property grid (each item reports this question's survey, so an edit is an undo step). Not for respondents.
+     The dialog offers every value-sortable field (getDesignSortFieldCandidates) and as many rows as fields:
+     allowSort, a column's allowSort and maxSortLevel limit the respondent only. Its Apply neither sorts nor
+     validates the page: a changed draft goes to options.onApply. The dialog reads its texts again on every
+     change, so options.locale holds for its whole life. A second call closes the dialog of the first, and so does
+     the question's dispose(). Returns the modal, so the caller can wait for its onHide; undefined without
+     settings.showDialog. Design mode does not matter: the dialog does not read it. */
+  public showSortDialog(options: IRecordsDesignSortDialogOptions): PopupBaseViewModel {
+    this.closeDesignSortDialog();
+    if (!settings.showDialog) return undefined;
+    const owner = this.createDesignSortDialogOwner(options);
+    const fields = owner.sortFields;
+    const dialog = new RecordsSortDialogModel(owner, {
+      shownField: fields.length > 0 ? fields[0].field : undefined,
+      sortByUser: (criteria: Array<ISortCriterion>): boolean => {
+        options.onApply(criteria);
+        return true;
+      },
+      onApplied: (): void => { }
+    });
+    this.designSortDialog = dialog;
+    const popup = showRecordsSortDialog(dialog, owner, (): void => { this.onDesignSortDialogClosed(dialog); });
+    if (!popup) {
+      this.onDesignSortDialogClosed(dialog);
+    }
+    return popup;
+  }
+  private designSortDialog: RecordsSortDialogModel;
+  private onDesignSortDialogClosed(dialog: RecordsSortDialogModel): void {
+    if (this.designSortDialog !== dialog) return;
+    this.designSortDialog = undefined;
+    dialog.dispose();
+  }
+  // The bar owns the respondent's dialog (RecordsSortBar.closeDialog); the question owns the designer's.
+  private closeDesignSortDialog(): void {
+    const dialog = this.designSortDialog;
+    if (!dialog) return;
+    this.designSortDialog = undefined;
+    dialog.close();
+    dialog.dispose();
+  }
+  /* The bar's owner with the designer's fields, a row per field, no waiting state (the designer's Apply reads
+     no page) and, with options.locale, the dialog's own locale for its texts and lists. */
+  private createDesignSortDialogOwner(options: IRecordsDesignSortDialogOptions): IQuestionRecordsBarOwner {
+    const question = this;
+    const locale = options.locale;
+    const fields = (): Array<IRecordsSortField> => question.getDesignSortFields();
+    const owner: IQuestionRecordsBarOwner = Object.create(this.createRecordsBarOwner());
+    Object.defineProperties(owner, {
+      sortFields: { get: fields },
+      maxSortLevel: { get: (): number => Math.max(1, fields().length) },
+      isDataLoading: { value: false },
+      isPageMovePending: { value: false }
+    });
+    owner.getRootElement = (): HTMLElement => options.rootElement || question.survey?.rootElement;
+    if (!!locale) {
+      owner.getLocalizationString = (strName: string): string => getLocaleString(strName, locale);
+      owner.getLocalizationFormatString = (strName: string, ...args: any[]): string => {
+        const str: any = getLocaleString(strName, locale);
+        return !!str && !!str.format ? str.format(...args) : "";
+      };
+      const locOwner: ILocalizableOwner = {
+        getLocale: (): string => locale,
+        getMarkdownHtml: (text: string, name: string, item?: any): string => question.getMarkdownHtml(text, name, item),
+        getProcessedText: (text: string): string => question.getProcessedText(text),
+        getRenderer: (name: string): string => question.getRenderer(name),
+        getRendererContext: (locStr: LocalizableString): any => question.getRendererContext(locStr)
+      };
+      owner.getLocOwner = (): ILocalizableOwner => locOwner;
+    }
+    return owner;
   }
   /* The type's pager rule: the renderers draw the pager under the records while it is true. The bar
      mirrors it (QuestionRecordsBar.showPager). */
@@ -2659,8 +2800,9 @@ export abstract class QuestionRecordsModel extends Question {
   }
   /* Detaching: the window is dropped and the question reads the survey hash again. With an answer
      there the count follows its records. With none the question shows the authored count again: the
-     type's count property kept it while the source was assigned (recordCount). It is read before the
-     restore, which can follow the empty answer down (the matrix sets rowCount to its length). */
+     type's count property kept it while the source was assigned (recordCount), and its records are
+     stored. It is read before the restore, which can follow the empty answer down (the matrix sets
+     rowCount to its length). */
   private restoreValueFromSurveyData(): void {
     const names = this.getRecordCountNames();
     const authoredCount = !!names ? this.getPropertyValue(names.count) : undefined;
@@ -2668,6 +2810,7 @@ export abstract class QuestionRecordsModel extends Question {
     this.updateValueFromSurvey(value);
     if (!!names && this.isValueEmpty(value)) {
       this.setRecordCountCore(authoredCount);
+      this.storeRecordsToCount();
     }
   }
   // An error of the source: a write it rejected releases a completion that waits for the writes.
@@ -3214,6 +3357,7 @@ export abstract class QuestionRecordsModel extends Question {
       this.recordsBarValue.dispose();
       this.recordsBarValue = undefined;
     }
+    this.closeDesignSortDialog();
     if (!!this._dataList) {
       this._dataList.dispose();
     }
@@ -3610,6 +3754,39 @@ export abstract class QuestionRecordsModel extends Question {
   /* Runs after every assignment of the page size, whatever the value - also one that does not change
      it, which onPropertyValueChanged would skip: the question refreshes what it renders. */
   protected onPageSizeAssigned(): void { }
+  /* The isEmpty of the array types (the Dynamic Panel, the Dynamic Matrix): every record of the first
+     count is empty by the type's rule (isEmptyRecord). A read: the list is not created for it. */
+  protected areRecordsEmpty(count: number): boolean {
+    for (let i = 0; i < count; i++) {
+      if (!this.isEmptyRecord(this.getListRecordAt(i))) return false;
+    }
+    return true;
+  }
+  // A record without keys; the matrix counts a record whose answers are all empty as empty too.
+  protected isEmptyRecord(record: any): boolean {
+    for (const key in record) {
+      if (record.hasOwnProperty(key)) return false;
+    }
+    return true;
+  }
+  /* The value of the array types holds a record for every row / panel, an empty one as {} (Bug#12147):
+     the stored records follow the record count (storeRecordsToCountCore, the type's write). It runs on
+     first rendering, after a count change of the setter, the count expression, a binding or a limit
+     (writeRecordCount) and after a detach. An add and a removal store their own record instead. The
+     write is no answer: it runs as a default value change, so a defaultValueExpression keeps applying. */
+  private storeRecordsScope: Scope = new Scope();
+  protected storeRecordsToCount(): void {
+    if (this.storeRecordsScope.isActive || !this.canStoreRecordsToCount()) return;
+    this.storeRecordsScope.run((): void => this.runAsDefaultValueChange((): void => this.storeRecordsToCountCore()));
+  }
+  // Not before the question is rendered: its first rendering stores them. The designer writes no value.
+  protected canStoreRecordsToCount(): boolean {
+    return !this.isDesignMode && !this.isRemoteData && !this.isLoadingFromJson && !this.isEditingSurveyElement && !this.isRecordsStoreDeferred;
+  }
+  protected get isRecordsStoreDeferred(): boolean {
+    return !this.wasRendered && !!this.survey;
+  }
+  protected storeRecordsToCountCore(): void { }
   // The count of the question's own records, as the records source reads it, without composing the array.
   protected getListRecordCount(): number {
     return this.recordsSource.count;
@@ -3711,6 +3888,9 @@ export abstract class QuestionRecordsValueGetterContext extends QuestionValueGet
     }
     if (!params.createObjects && this.question.isEmpty()) return { isFound: params.path.length === 0, value: undefined };
     return super.getValue(params);
+  }
+  public getFieldValueConverter(name: string): (val: any) => any {
+    return getRecordFieldValueConverter(<QuestionRecordsModel>this.question, name);
   }
 }
 
@@ -4116,6 +4296,13 @@ class RecordValueItem extends QuestionRecordItem {
     return [];
   }
 }
+/* The converter of a record field for the value getter contexts (getFieldValueConverter): the template
+   question that stores the field converts a stored value, so a record without a row or a panel is
+   converted too (Bug#12122). */
+export function getRecordFieldValueConverter(question: QuestionRecordsModel, name: string): (val: any) => any {
+  const template = question["getRecordTemplateQuestion"](name);
+  return !!template ? (val: any): any => template.getExpressionValue(val) : undefined;
+}
 // A records value as an array of records: [] for any other value (an empty answer, a keyed one).
 function asRecords(value: any): Array<any> {
   return Array.isArray(value) ? value : [];
@@ -4158,29 +4345,37 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
 }
 /* The serializer entries of the paging, the sort and the filter of a records question.
    pageSize shows in the property grid.
-   sortCriteria and filterExpression stay hidden there until the sortable headers ship, and only load
-   from and save to JSON. sortCriteria is an array of sortcriterion objects (the shape of
-   calculatedValues); an element that is a plain string is not a criterion and has no shorthand.
+   sortCriteria shows there too, whatever allowSort says - a designer's initial sort applies without
+   letting respondents re-sort. Creator edits its items in place, a row per item with field and direction
+   (SortCriterion: the survey and the field choices); uniqueProperty marks field as the column whose
+   values must not repeat. The "Sort by" dialog (showSortDialog) is the other way to edit it.
+   filterExpression stays hidden and only loads from and saves to JSON.
+   sortCriteria is an array of sortcriterion objects (the shape of calculatedValues); an element that
+   is a plain string is not a criterion and has no shorthand.
    filterExpression is a plain string rather than ":condition"/":expression", because both of those
    make JsonObjectProperty.isExpression true, and everything that discovers expressions by type -
    Base.validateExpressions(), the linter - would then read it with the survey as the variable
    context, while its variables are record fields.
    All three are stored in the hash under their own names (pagingStateKeys). The respondent's sort
-   (allowSort, maxSortLevel, showSortMenu) follows them. */
+   (allowSort, maxSortLevel) follows them; the matrix adds showSortBar.
+   The sort properties show on the dynamic types; the Multi-Select Matrix hides them again in its own
+   list, for good. */
 export function getRecordViewProperties(): Array<any> {
   return [{ name: pagingStateKeys.pageSize + ":number", default: 0, minValue: 0 },
-    { name: pagingStateKeys.sortCriteria + ":sortcriteria", className: "sortcriterion", isArray: true, visible: false },
+    { name: pagingStateKeys.sortCriteria + ":sortcriteria", className: "sortcriterion", isArray: true, uniqueProperty: "field" },
     { name: pagingStateKeys.filterExpression, default: "", visible: false },
-    /* The respondent's sort. A developer sets it in code or JSON; it is invisible in the property
-       grid - on the Multi-Select Matrix for good, on the dynamic types until the sort UI ships. */
-    { name: "allowSort:boolean", default: false, visible: false },
-    { name: "maxSortLevel:number", default: 1, minValue: 1, visible: false },
-    { name: "showSortMenu:boolean", default: true, visible: false }];
+    { name: "allowSort:boolean", default: false },
+    { name: "maxSortLevel:number", default: 1, minValue: 1, visibleIf: isSortAllowed, dependsOn: ["allowSort"] }];
+}
+// The respondent's sort settings show in the property grid while the question allows sorting.
+export function isSortAllowed(obj: any): boolean {
+  return !!obj && obj.allowSort === true;
 }
 /* The question properties the records bar shows (updateRecordsBar): the page count of the pager; the
-   sort, the opt-ins, the level limit of "+", the collapse, the mobile mode and the states that disable the sort bar; and the
-   question's own title location and title, which decide where the sort bar goes (sortBarLocation). */
-const recordsBarInputs = [pagingStateKeys.pageCount, pagingStateKeys.sortCriteria, "allowSort", "maxSortLevel", "showSortMenu", "state",
+   sort, the opt-in, the level limit of "+", the collapse, the mobile mode and the states that disable the sort bar; and the
+   question's own title location and title, which decide where the sort bar goes (sortBarLocation). The matrix
+   adds its own: showSortBar and the header row's inputs (QuestionMatrixDropdownModelBase.onPropertyValueChanged). */
+const recordsBarInputs = [pagingStateKeys.pageCount, pagingStateKeys.sortCriteria, "allowSort", "maxSortLevel", "state",
   "_isMobile", "isDataLoading", pagingStateKeys.isPageMovePending, "titleLocation", "title"];
 function isVisibleInTemplate(q: Question, template: PanelModelBase): boolean {
   let el: any = q;

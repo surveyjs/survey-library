@@ -1061,9 +1061,6 @@ export class QuestionRatingModel extends dropdownQuestionMixin(Question) impleme
     );
   }
   @property({ localizable: { defaultStr: "ratingOptionsCaption" } }) placeholder: string;
-  get allowClear(): boolean {
-    return true;
-  }
   get searchEnabled(): boolean {
     return false;
   }

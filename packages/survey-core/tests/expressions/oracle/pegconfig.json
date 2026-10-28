@@ -1,7 +1,7 @@
 {
     "tspegjs": {
         "noTslint": false,
-        "customHeader": "import {\nConst,\nBinaryOperand,\nVariable,\nOperand,\nUnaryOperand,\nFunctionOperand,\nArrayOperand\n} from \"./expressions\";"
+        "customHeader": "import {\nConst,\nBinaryOperand,\nVariable,\nOperand,\nUnaryOperand,\nFunctionOperand,\nArrayOperand\n} from \"../../../src/expressions/expressions\";"
     },
     "returnTypes": {
         "Expression" : "Operand",

@@ -1,7 +1,7 @@
 <template>
   <div ref="root">
-    <div v-if="question.getShowToolbar('top')" :class="question.getToolbarCssClass('top')">
-      <SvComponent :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
+    <div v-if="question.getShowToolbar('top')" :class="question.cssClasses.headerBar">
+      <SvComponent  :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
     </div>
     <div v-if="question.sortBarLocation === 'top'" :class="question.cssClasses.sortBarTop">
       <SvComponent :is="'sv-action-bar'" :model="question.recordsBar.sortActions"></SvComponent>
@@ -16,14 +16,9 @@
       v-else
       :question="question"
     />
-    <div v-if="question.showPager" :class="question.getFooterCss()">
-      <div v-if="question.getShowToolbar('bottom')" :class="question.getToolbarCssClass('bottom')">
-        <SvComponent :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
-      </div>
-      <SvComponent :is="'sv-records-bar'" :model="question.recordsBar"></SvComponent>
-    </div>
-    <div v-else-if="question.getShowToolbar('bottom')" :class="question.getToolbarCssClass('bottom')">
-      <SvComponent :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
+    <div v-if="question.showPager || question.getShowToolbar('bottom')" :class="question.cssClasses.footerBar">
+      <SvComponent v-if="question.getShowToolbar('bottom')" :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
+      <SvComponent v-if="question.showPager" :is="'sv-action-bar'" :model="question.recordsBar.pagerActions"></SvComponent>
     </div>
   </div>
 </template>

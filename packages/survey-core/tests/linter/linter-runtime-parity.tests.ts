@@ -1342,7 +1342,8 @@ describe("linter vs runtime: reserved names", () => {
     };
     const matrixSurvey = new SurveyModel(matrixJson);
     cellQuestion(matrixSurvey, "m", 0, 1).value = "x";
-    expect(matrixSurvey.data).toEqual({});
+    // Only the empty record of the row (Bug#12147): the value of the __proto__ column is swallowed.
+    expect(matrixSurvey.data).toEqual({ m: [{}] });
     expect(errors(matrixJson)).toEqual(["name/reserved @ elements[0].columns[1].name"]);
 
     const textJson = { elements: [{ type: "multipletext", name: "mt", items: [{ name: "a" }, { name: "__proto__" }] }] };

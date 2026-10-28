@@ -11,6 +11,7 @@ import { surveyLocalization } from "../../src/surveyStrings";
 import { Action } from "../../src/actions/action";
 import { ListModel } from "../../src/list";
 import { ActionContainer } from "../../src/actions/container";
+import { Serializer } from "../../src/jsonobject";
 
 const productColumns = [
   { name: "product", title: "Product", cellType: "text" },
@@ -33,7 +34,7 @@ function copyRows(): Array<any> {
 }
 function createMatrix(json?: any, surveyJson?: any): QuestionMatrixDynamicModel {
   const survey = new SurveyModel(Object.assign({ elements: [Object.assign({
-    type: "matrixdynamic", name: "matrix", title: "Products", rowCount: 0, allowSort: true, columns: productColumns
+    type: "matrixdynamic", name: "matrix", title: "Products", rowCount: 0, allowSort: true, showSortBar: "always", columns: productColumns
   }, json)] }, surveyJson));
   survey.data = { matrix: copyRows() };
   return <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
@@ -296,7 +297,7 @@ describe("Sort bar: the bar and the headers agree", () => {
 });
 
 describe("Sort bar: when it shows", () => {
-  test("hidden without allowSort, with showSortMenu false, in design mode, while collapsed and with no field; each undone", () => {
+  test("hidden without allowSort, with showSortBar \"auto\" next to sortable headers, in design mode, while collapsed and with no field; each undone", () => {
     const matrix = createMatrix();
     const shows = [true, "header"];
     expect([visibleOf(matrix), placement(matrix).slice(1)], "#1").toEqual([[true, true, true], shows]);
@@ -307,7 +308,7 @@ describe("Sort bar: when it shows", () => {
       expect([visibleOf(matrix), placement(matrix)], name + ", undone").toEqual([[true, true, true], [true, true, "header"]]);
     };
     check(() => { matrix.allowSort = false; }, () => { matrix.allowSort = true; }, "#2: allowSort");
-    check(() => { matrix.showSortMenu = false; }, () => { matrix.showSortMenu = true; }, "#3: showSortMenu");
+    check(() => { matrix.showSortBar = "auto"; }, () => { matrix.showSortBar = "always"; }, "#3: showSortBar");
     check(() => { matrix.survey.setDesignMode(true); }, () => { matrix.survey.setDesignMode(false); }, "#4: design mode");
     check(() => { matrix.state = "collapsed"; }, () => { matrix.state = "expanded"; }, "#5: collapsed");
     check(() => { matrix.columns.forEach(column => { column.allowSort = false; }); },
@@ -327,18 +328,148 @@ describe("Sort bar: when it shows", () => {
     expect(placement(matrix), "#1").toEqual([false, false, "none"]);
   });
   test("the fixed matrix shows the bar too", () => {
-    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "matrix", allowSort: true, rows: ["r1", "r2"], columns: productColumns }] });
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "matrix", allowSort: true, showSortBar: "always", rows: ["r1", "r2"], columns: productColumns }] });
     const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
     expect(placement(matrix), "#1").toEqual([true, true, "header"]);
     expect(titlesOf(fieldList(matrix)), "#2").toEqual(["Product", "Category", "Price", "Discontinued"]);
   });
-  test("a released JSON \"showSortMenu\": \"auto\" loads as true", () => {
-    const matrix = createMatrix({ showSortMenu: "auto" });
-    expect([matrix.showSortMenu, matrix.isSortMenuVisible, placement(matrix)], "#1").toEqual([true, true, [true, true, "header"]]);
-  });
   test("a question without allowSort creates no bar to place it", () => {
     const matrix = createMatrix({ allowSort: false });
     expect([(<any>matrix).recordsBarValue, matrix.sortBarLocation, matrix.hasAdditionalTitleToolbar], "#1").toEqual([undefined, "none", false]);
+  });
+});
+
+describe("Sort bar: showSortBar", () => {
+  const hasHeaderClass = (q: QuestionRecordsModel): boolean => q.cssHeader.indexOf("sd-question__header--sort-bar") > -1;
+  function loadMatrix(json: any): QuestionMatrixDynamicModel {
+    const survey = new SurveyModel();
+    survey.fromJSON({ elements: [Object.assign({ type: "matrixdynamic", name: "matrix", allowSort: true, columns: productColumns }, json)] },
+      { validatePropertyValues: true });
+    expect(survey.jsonErrors, "no JSON error for " + JSON.stringify(json)).toBeNull();
+    return <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  }
+  test("\"auto\" leaves a sortable header row without the bar; \"always\" shows the bar next to it", () => {
+    const matrix = createMatrix({ showSortBar: "auto" });
+    matrix.onFirstRendering();
+    expect([matrix.canSortByHeaders, matrix.isSortBarVisible, placement(matrix), hasHeaderClass(matrix)], "#1: no bar")
+      .toEqual([true, false, [false, false, "none"], false]);
+    expect(header(matrix, "price").toggleSort(), "#2: the headers sort").toBe(true);
+    expect(sortOf(matrix), "#3").toEqual([{ field: "price", direction: "desc" }]);
+    matrix.showSortBar = "always";
+    expect([matrix.isSortBarVisible, placement(matrix), hasHeaderClass(matrix)], "#4: always").toEqual([true, [true, true, "header"], true]);
+    expect(header(matrix, "price").isSortable, "#5: the headers still sort").toBe(true);
+    matrix.showSortBar = "auto";
+    expect([matrix.isSortBarVisible, placement(matrix), hasHeaderClass(matrix)], "#6: back to auto").toEqual([false, [false, false, "none"], false]);
+  });
+  test("\"auto\" shows the bar where the headers do not sort: no header row, the vertical layout, a phone; each switched both ways", () => {
+    const matrix = createMatrix({ showSortBar: "auto" });
+    matrix.onFirstRendering();
+    const check = (change: () => void, undo: () => void, name: string): void => {
+      change();
+      expect([matrix.canSortByHeaders, placement(matrix), hasHeaderClass(matrix)], name).toEqual([false, [true, true, "header"], true]);
+      undo();
+      expect([matrix.canSortByHeaders, placement(matrix), hasHeaderClass(matrix)], name + ", undone").toEqual([true, [false, false, "none"], false]);
+    };
+    check(() => { matrix.showHeader = false; }, () => { matrix.showHeader = true; }, "#1: no header row");
+    check(() => { matrix.transposeData = true; }, () => { matrix.transposeData = false; }, "#2: the vertical layout on a desktop");
+    check(() => { matrix.survey.setIsMobile(true); }, () => { matrix.survey.setIsMobile(false); }, "#3: a phone");
+    expect(placement(createMatrix({ showSortBar: "auto", showHeader: false })), "#4: no header row from JSON").toEqual([true, true, "header"]);
+    expect(placement(createMatrix({ showSortBar: "auto", transposeData: true })), "#5: the vertical layout from JSON").toEqual([true, true, "header"]);
+  });
+  test("\"always\" without allowSort shows no bar and no sortable header", () => {
+    const matrix = createMatrix({ allowSort: false, showSortBar: "always" });
+    expect([matrix.isSortBarVisible, placement(matrix), header(matrix, "price").isSortable], "#1").toEqual([false, [false, false, "none"], false]);
+  });
+  test("the dynamic panel has no showSortBar: allowSort alone shows its bar, and a JSON showSortMenu changes nothing", () => {
+    const panel = createPanel();
+    expect([panel.isSortBarVisible, placement(panel)], "#1").toEqual([true, [true, true, "header"]]);
+    panel.allowSort = false;
+    expect([panel.isSortBarVisible, placement(panel)], "#2").toEqual([false, [false, false, "none"]]);
+    expect([!!Serializer.findProperty("paneldynamic", "showSortBar"), !!Serializer.findProperty("paneldynamic", "showSortMenu"), "showSortBar" in panel],
+      "#3: no such property").toEqual([false, false, false]);
+    const legacy = createPanel({ showSortMenu: false });
+    expect([placement(legacy), "showSortMenu" in legacy.toJSON(), "showSortBar" in legacy.toJSON()], "#4").toEqual([[true, true, "header"], false, false]);
+  });
+  test("JSON: \"auto\" is not written, \"always\" round-trips, true loads as \"always\", false and an unknown value as \"auto\"; the setter maps the same", () => {
+    const loaded = (json: any): Array<any> => {
+      const matrix = loadMatrix(json);
+      const saved = matrix.toJSON();
+      return [matrix.showSortBar, saved.showSortBar, "showSortMenu" in saved];
+    };
+    expect(loaded({}), "#1: the default").toEqual(["auto", undefined, false]);
+    expect(loaded({ showSortBar: "auto" }), "#2").toEqual(["auto", undefined, false]);
+    expect(loaded({ showSortBar: "always" }), "#3").toEqual(["always", "always", false]);
+    expect(loaded({ showSortBar: true }), "#4").toEqual(["always", "always", false]);
+    expect(loaded({ showSortBar: false }), "#5").toEqual(["auto", undefined, false]);
+    const unknown = createMatrix({ showSortBar: "never" });
+    expect([unknown.showSortBar, unknown.toJSON().showSortBar], "#6: an unknown value").toEqual(["auto", undefined]);
+    const matrix = createMatrix();
+    const set = (val: any): string => { matrix.showSortBar = val; return matrix.showSortBar; };
+    expect([set(true), set(false), set("always"), set("never"), set("always"), set(undefined)], "#7: from code").toEqual(["always", "auto", "always", "auto", "always", "auto"]);
+  });
+  test("JSON: the released showSortMenu loads into showSortBar with the same mapping and is saved as showSortBar", () => {
+    const loaded = (value: any): Array<any> => {
+      const matrix = loadMatrix({ showSortMenu: value });
+      const saved = matrix.toJSON();
+      return [matrix.showSortBar, saved.showSortBar, "showSortMenu" in saved];
+    };
+    expect(loaded("auto"), "#1").toEqual(["auto", undefined, false]);
+    expect(loaded(true), "#2: it showed the bar next to the headers").toEqual(["always", "always", false]);
+    expect(loaded(false), "#3").toEqual(["auto", undefined, false]);
+    expect(placement(loadMatrix({ showSortMenu: true })), "#4").toEqual([true, true, "header"]);
+  });
+  test("the property grid: the sort properties show on the dynamic types and not on the Multi-Select Matrix", () => {
+    const visible = (type: string, name: string): boolean => {
+      const prop = Serializer.findProperty(type, name);
+      return !!prop && prop.visible;
+    };
+    const names = ["allowSort", "maxSortLevel", "sortCriteria", "showSortBar", "filterExpression"];
+    expect(names.map((name: string): Array<boolean> => [visible("matrixdynamic", name), visible("paneldynamic", name), visible("matrixdropdown", name)]), "#1")
+      .toEqual([[true, true, false], [true, true, false], [true, true, false], [true, false, false], [false, false, false]]);
+    expect(["maxSortLevel", "showSortBar"].map((name: string): Array<string> => Serializer.findProperty("matrixdynamic", name).dependsOn), "#2")
+      .toEqual([["allowSort"], ["allowSort"]]);
+    expect(Serializer.findProperty("paneldynamic", "maxSortLevel").dependsOn, "#3").toEqual(["allowSort"]);
+  });
+  test("the property grid: maxSortLevel and showSortBar follow allowSort, sortCriteria does not", () => {
+    const isVisible = (obj: any, name: string): boolean => Serializer.findProperty(obj.getType(), name).isVisible("", obj);
+    const matrix = createMatrix({ allowSort: false });
+    const panel = createPanel({ allowSort: false });
+    const read = (): Array<boolean> => [isVisible(matrix, "maxSortLevel"), isVisible(matrix, "showSortBar"), isVisible(matrix, "sortCriteria"),
+      isVisible(panel, "maxSortLevel"), isVisible(panel, "sortCriteria")];
+    expect(read(), "#1: allowSort false").toEqual([false, false, true, false, true]);
+    matrix.allowSort = true;
+    panel.allowSort = true;
+    expect(read(), "#2: allowSort true").toEqual([true, true, true, true, true]);
+  });
+  test("the property grid: a column's allowSort shows on a column of a Dynamic Matrix that allows sorting", () => {
+    const prop = Serializer.findProperty("matrixdropdowncolumn", "allowSort");
+    const matrix = createMatrix({ allowSort: false });
+    const column = matrix.getColumnByName("price");
+    expect([prop.visible, prop.isVisible("", column)], "#1: the matrix does not sort").toEqual([true, false]);
+    matrix.allowSort = true;
+    expect(prop.isVisible("", column), "#2").toBe(true);
+    const survey = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "fixed", allowSort: true, rows: ["r1"], columns: productColumns }] });
+    const fixed = <QuestionMatrixDropdownModel>survey.getQuestionByName("fixed");
+    expect(prop.isVisible("", fixed.getColumnByName("price")), "#3: the Multi-Select Matrix").toBe(false);
+  });
+  test("the Multi-Select Matrix redeclares the sort properties hidden and changes nothing else", () => {
+    const names = ["allowSort", "maxSortLevel", "sortCriteria", "showSortBar"];
+    const describeProp = (type: string, name: string): Array<any> => {
+      const prop = Serializer.findProperty(type, name);
+      return [prop.type, prop.defaultValue, prop.className, prop.isArray, prop.alternativeName, prop.choices];
+    };
+    names.forEach((name: string): void => {
+      expect(describeProp("matrixdropdown", name), name).toEqual(describeProp("matrixdynamic", name));
+    });
+    const json = { type: "matrixdropdown", name: "fixed", rows: ["r1"], columns: [{ name: "price" }],
+      allowSort: true, maxSortLevel: 2, showSortBar: "always", sortCriteria: [{ field: "price", direction: "desc" }] };
+    const survey = new SurveyModel({ elements: [json] });
+    const saved = survey.getQuestionByName("fixed").toJSON();
+    expect([saved.allowSort, saved.maxSortLevel, saved.showSortBar, saved.sortCriteria], "#1: a JSON round trip")
+      .toEqual([true, 2, "always", [{ field: "price", direction: "desc" }]]);
+    const defaults = new SurveyModel({ elements: [{ type: "matrixdropdown", name: "fixed", rows: ["r1"], columns: [{ name: "price" }] }] });
+    const savedDefaults = defaults.getQuestionByName("fixed").toJSON();
+    expect(names.map((name: string): boolean => name in savedDefaults), "#2: the defaults are not written").toEqual([false, false, false, false]);
   });
 });
 
@@ -351,7 +482,7 @@ describe("Sort bar: where it goes", () => {
     expect(createMatrix({ title: "" }).sortBarLocation, "#5: an empty title falls back to the name and renders").toBe("header");
   });
   test("it follows a runtime allowSort change with nothing else reading it", () => {
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "matrix", columns: productColumns }] });
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "matrix", showSortBar: "always", columns: productColumns }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     matrix.allowSort = true;
     expect([matrix.sortBarLocation, matrix.hasAdditionalTitleToolbar], "#1").toEqual(["header", true]);
@@ -371,7 +502,7 @@ describe("Sort bar: where it goes", () => {
   });
   test("the survey's and a parent panel's questionTitleLocation", () => {
     const survey = new SurveyModel({ elements: [{ type: "panel", name: "box", elements: [
-      { type: "matrixdynamic", name: "matrix", allowSort: true, columns: productColumns }] }] });
+      { type: "matrixdynamic", name: "matrix", allowSort: true, showSortBar: "always", columns: productColumns }] }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     const box = <PanelModel>survey.getPanelByName("box");
     survey.questionTitleLocation = "bottom";
@@ -386,7 +517,7 @@ describe("Sort bar: where it goes", () => {
   test("a move into a panel whose question titles are hidden, and back", () => {
     const survey = new SurveyModel({ elements: [
       { type: "panel", name: "box", questionTitleLocation: "hidden" },
-      { type: "matrixdynamic", name: "matrix", allowSort: true, columns: productColumns }] });
+      { type: "matrixdynamic", name: "matrix", allowSort: true, showSortBar: "always", columns: productColumns }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     const box = <PanelModel>survey.getPanelByName("box");
     expect(matrix.sortBarLocation, "#1").toBe("header");
@@ -398,7 +529,7 @@ describe("Sort bar: where it goes", () => {
   test("a question on a hidden page catches up with a title location change when it renders", () => {
     const survey = new SurveyModel({ pages: [
       { name: "p1", elements: [{ type: "text", name: "q1" }] },
-      { name: "p2", visible: false, elements: [{ type: "matrixdynamic", name: "matrix", allowSort: true, columns: productColumns }] }] });
+      { name: "p2", visible: false, elements: [{ type: "matrixdynamic", name: "matrix", allowSort: true, showSortBar: "always", columns: productColumns }] }] });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     expect(matrix.sortBarLocation, "#1").toBe("header");
     survey.questionTitleLocation = "bottom";
@@ -536,26 +667,44 @@ describe("Sort bar: several levels", () => {
     pickField(multi, "Price");
     expect([addAction(multi).visible, addAction(multi).enabled], "#5").toEqual([true, true]);
   });
-  test("\"+\" appends the first field no level has, in its type's first direction, until the limit or the fields run out", () => {
+  test("\"+\" appends the first field no level has, in its type's first direction, and is disabled at the limit or when the fields run out", () => {
     const matrix = createMatrix({ maxSortLevel: 2 });
     pickField(matrix, "Product");
     addLevel(matrix);
     expect(sortOf(matrix), "#1").toEqual([{ field: "product", direction: "asc" }, { field: "category", direction: "asc" }]);
     expect([levelShown(matrix, 1), levelShown(matrix, 2)], "#2").toEqual([["Product", "Alphabet, A - Z", false], ["Category", "Alphabet, A - Z", true]]);
-    expect(barIds(matrix), "#3: the limit is reached").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2"]);
+    expect([barIds(matrix), addAction(matrix).enabled], "#3: the limit is reached").toEqual([["sv-sort-by", "sv-sort-level", "sv-sort-level-2", "sv-sort-add"], false]);
     expect([getAction(matrix, "sv-sort-level-2").needSeparator, getAction(matrix, "sv-sort-level").needSeparator], "#4").toEqual([true, false]);
     const three = createMatrix({ maxSortLevel: 3 });
     pickField(three, "Product");
     addLevel(three);
-    expect(addAction(three).visible, "#5").toBe(true);
+    expect([addAction(three).visible, addAction(three).enabled], "#5").toEqual([true, true]);
     addLevel(three);
     expect(sortOf(three), "#6").toEqual([{ field: "product", direction: "asc" }, { field: "category", direction: "asc" }, { field: "price", direction: "desc" }]);
-    expect([levelShown(three, 3), addAction(three).visible], "#7").toEqual([["Price", "High - Low", true], false]);
+    expect([levelShown(three, 3), addAction(three).visible, addAction(three).enabled], "#7").toEqual([["Price", "High - Low", true], true, false]);
     const twoFields = createMatrix({ maxSortLevel: 3, columns: productColumns.map((column: any): any =>
       column.name === "product" || column.name === "category" ? column : Object.assign({ allowSort: false }, column)) });
     pickField(twoFields, "Product");
     addLevel(twoFields);
-    expect([sortOf(twoFields).length, addAction(twoFields).visible], "#8: no field is left").toEqual([2, false]);
+    expect([sortOf(twoFields).length, addAction(twoFields).visible, addAction(twoFields).enabled], "#8: no field is left").toEqual([2, true, false]);
+    const sorted = sortOf(twoFields);
+    addLevel(twoFields);
+    expect(sortOf(twoFields), "#9: a disabled \"+\" adds nothing").toEqual(sorted);
+  });
+  test("\"+\" stays visible while more than one level is allowed and is enabled only while a level can be added", () => {
+    const matrix = createMatrix({ maxSortLevel: 2 });
+    const addState = (): Array<boolean> => [addAction(matrix).visible, addAction(matrix).enabled];
+    expect(addState(), "#1: nothing sorted").toEqual([true, false]);
+    matrix.sort(<any>[{ field: "product", direction: "asc" }]);
+    expect(addState(), "#2: one level").toEqual([true, true]);
+    matrix.sort(<any>[{ field: "product", direction: "asc" }, { field: "category", direction: "asc" }]);
+    expect(addState(), "#3: maxSortLevel levels").toEqual([true, false]);
+    matrix.sort(<any>[{ field: "product", direction: "asc" }, { field: "category", direction: "asc" }, { field: "price", direction: "asc" }]);
+    expect(addState(), "#4: more levels than maxSortLevel, from code").toEqual([true, false]);
+    matrix.sort(<any>[{ field: "product", direction: "asc" }]);
+    expect(addState(), "#5: back under the limit").toEqual([true, true]);
+    matrix.maxSortLevel = 1;
+    expect(addAction(matrix).visible, "#6: one level allowed").toBe(false);
   });
   test("a field pick in a later level replaces only that level; a level's list leaves out the fields of the other levels", () => {
     const matrix = createMatrix({ maxSortLevel: 2 });
@@ -610,7 +759,7 @@ describe("Sort bar: several levels", () => {
     const matrix = createMatrix({ maxSortLevel: 2 });
     header(matrix, "product").toggleSort(false);
     header(matrix, "price").toggleSort(true);
-    expect(barIds(matrix), "#1").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2"]);
+    expect([barIds(matrix), addAction(matrix).enabled], "#1").toEqual([["sv-sort-by", "sv-sort-level", "sv-sort-level-2", "sv-sort-add"], false]);
     expect(levelShown(matrix, 2), "#2").toEqual(["Price", "High - Low", true]);
     expect(header(matrix, "price").sortDirection, "#3").toBe("desc");
     removeLevel(matrix, 2);

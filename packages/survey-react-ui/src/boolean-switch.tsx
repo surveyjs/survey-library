@@ -2,7 +2,7 @@ import * as React from "react";
 import { RendererFactory } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionBoolean } from "./boolean";
-import { SurveyElementBase } from "./reactquestion_element";
+import { TitleActions } from "./components/title/title-actions";
 import { attachKey2click } from "./attach-key2click";
 
 export class SurveyQuestionBooleanSwitch extends SurveyQuestionBoolean {
@@ -27,17 +27,22 @@ export class SurveyQuestionBooleanSwitch extends SurveyQuestionBoolean {
     </div>, this.question, { processEsc: false });
 
     return (
-      <div className={cssClasses.rootSwitch} onClick={() => this.question.booleanValue = !this.question.booleanValue}>
+      <div className={cssClasses.rootSwitch} onClick={(event) => this.onRootClick(event)}>
         {button}
         {this.question.isLabelRendered && (
           <div className={cssClasses.switchCaption}>
             <div className={cssClasses.switchTitle} id={this.question.labelRenderedAriaID}>
-              {SurveyElementBase.renderLocString(this.question.locTitle)}
+              <TitleActions element={this.question} cssClasses={this.question.cssClasses}></TitleActions>
             </div>
           </div>
         )}
       </div>
     );
+  }
+  private onRootClick(event: React.MouseEvent<HTMLElement>): void {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest?.(".sd-action-bar")) return;
+    this.question.booleanValue = !this.question.booleanValue;
   }
 }
 

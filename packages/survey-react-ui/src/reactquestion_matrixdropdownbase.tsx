@@ -257,9 +257,8 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   protected renderElement(): React.JSX.Element {
     return this.renderTableDiv();
   }
-  // The records bar under the table: the pager.
   protected renderRecordsBar(): React.JSX.Element | null {
-    return ReactElementFactory.Instance.createElement("sv-records-bar", { model: this.question.recordsBar });
+    return ReactElementFactory.Instance.createElement("sv-action-bar", { model: this.question.recordsBar.pagerActions });
   }
   // The sort bar above the table, while the question header is not on top or on the left.
   protected renderSortBar(): React.JSX.Element | null {

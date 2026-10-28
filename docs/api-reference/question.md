@@ -16,6 +16,16 @@ A base class for all questions.
 
 ## Properties
 
+### `allowClear`
+
+**Type**: `boolean`
+
+Specifies whether to display a button that clears the question value.
+
+The button appears in the question title and stays hidden when the [title is hidden](#titleLocation). A question renders the button only when it supports a title action. Dropdown, Multi-Select Dropdown, and Signature Pad use this property for their own clear button. File Upload, HTML, Image, Expression, Dynamic Matrix, and Dynamic Panel do not show it.
+
+Default value: `false`
+
 ### `clearIfInvisible`
 
 **Type**: `string`
@@ -609,6 +619,8 @@ The following table illustrates how the return value depends on the question typ
 | Single-Select Matrix | `"object"` |
 | Yes/No (Boolean) | `"boolean"` \| `"string"` \| `"number"` |
 
+Available since: v3.1.1
+
 ### `isAnswerCorrect()`
 
 **Return value:** `boolean`
@@ -643,6 +655,8 @@ The following question types return `true`:
 - Yes/No (Boolean)
 
 [Specialized questions](/form-library/documentation/customize-question-types/create-specialized-question-types) based on any of these question types also return `true`.
+
+Available since: v3.1.1
 
 ### `validate()`
 

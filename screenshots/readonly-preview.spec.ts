@@ -821,6 +821,72 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-question", "view-matrix-single-alt-rows.png");
     });
 
+    test("Matrix Dropdown ReadOnly and Preview", async ({ page }) => {
+      await page.setViewportSize({ width: 900, height: 600 });
+      await initSurvey(page, framework, {
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
+        showQuestionNumbers: false,
+        elements: [
+          {
+            "type": "matrixdropdown",
+            "name": "question1",
+            "readOnly": true,
+            "columns": [
+              { "name": "Column 1", "cellType": "text" },
+              { "name": "Column 2", "cellType": "dropdown", "choices": ["Item 1", "Item 2"] },
+              { "name": "Column 3", "cellType": "text" }
+            ],
+            "rows": ["Row 1", "Row 2"],
+            "defaultValue": {
+              "Row 1": { "Column 1": "Text", "Column 2": "Item 1" },
+              "Row 2": { "Column 1": "Text" }
+            }
+          }
+        ]
+      });
+      await compareScreenshot(page, ".sd-question__content", "readonly-matrix-dropdown.png");
+      await page.evaluate(() => {
+        (window as any).survey.showPreview();
+      });
+      await compareScreenshot(page, ".sd-question__content", "preview-matrix-dropdown.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-matrix-dropdown.png");
+    });
+
+    test("Matrix Dynamic ReadOnly and Preview", async ({ page }) => {
+      await page.setViewportSize({ width: 900, height: 600 });
+      await initSurvey(page, framework, {
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
+        showQuestionNumbers: false,
+        elements: [
+          {
+            "type": "matrixdynamic",
+            "name": "question1",
+            "readOnly": true,
+            "rowCount": 2,
+            "columns": [
+              { "name": "Column 1", "cellType": "text" },
+              { "name": "Column 2", "cellType": "dropdown", "choices": ["Item 1", "Item 2"] },
+              { "name": "Column 3", "cellType": "text" }
+            ],
+            "defaultValue": [
+              { "Column 1": "Text", "Column 2": "Item 1" },
+              { "Column 1": "Text" }
+            ]
+          }
+        ]
+      });
+      await compareScreenshot(page, ".sd-question__content", "readonly-matrix-dynamic.png");
+      await page.evaluate(() => {
+        (window as any).survey.showPreview();
+      });
+      await compareScreenshot(page, ".sd-question__content", "preview-matrix-dynamic.png");
+      await enableReadOnlyView(page);
+      await compareScreenshot(page, ".sd-question__content", "view-matrix-dynamic.png");
+    });
+
     test("File ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {

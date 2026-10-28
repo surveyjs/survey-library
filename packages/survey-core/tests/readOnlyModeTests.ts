@@ -319,6 +319,28 @@ describe("readOnlyMode", () => {
     expect(emptyPanels.getRootCss()).not.toContain("sd-paneldynamic--view");
   });
 
+  test("matrix dropdown and dynamic column headers are marked for left alignment in view mode", () => {
+    const survey = new SurveyModel({
+      readOnly: true,
+      readOnlyMode: "view",
+      elements: [
+        { type: "matrixdropdown", name: "dropdown", columns: [{ name: "col1" }], rows: ["row1"] },
+        { type: "matrixdynamic", name: "dynamic", columns: [{ name: "col1" }], rowCount: 1 },
+        { type: "matrix", name: "single", columns: ["col1"], rows: ["row1"] }
+      ]
+    });
+    const dropdown = <QuestionMatrixDropdownModel>survey.getQuestionByName("dropdown");
+    const dynamic = <QuestionMatrixDynamicModel>survey.getQuestionByName("dynamic");
+    const single = <QuestionMatrixModel>survey.getQuestionByName("single");
+    expect(dropdown.getTableCss()).toContain("sd-table--view");
+    expect(dynamic.getTableCss()).toContain("sd-table--view");
+    expect(single.getTableCss()).not.toContain("sd-table--view");
+
+    survey.readOnlyMode = "readonly";
+    expect(dropdown.getTableCss()).not.toContain("sd-table--view");
+    expect(dynamic.getTableCss()).not.toContain("sd-table--view");
+  });
+
   test("stars and smileys in view mode drop min and max labels and stay left aligned", () => {
     const survey = new SurveyModel({
       readOnly: true,

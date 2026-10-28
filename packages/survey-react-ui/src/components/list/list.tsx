@@ -152,10 +152,9 @@ export class List extends SurveyElementBase<IListProps, any> {
     if (this.model.loadingState === "loading") {
       return ReactElementFactory.Instance.createElement(this.model.loadingComponent, { model: this.model });
     }
-    const noDataText = this.model.getLocalizationString("emptyMessage");
     const style = { display: this.model.isEmpty ? null : "none" };
     return (<div className={this.model.cssClasses.emptyContainer} style={style as any}>
-      <div className={this.model.cssClasses.emptyText} aria-label={noDataText}>{noDataText}</div>
+      <div className={this.model.cssClasses.emptyText} aria-label={this.model.emptyMessage}>{this.model.emptyMessage}</div>
     </div>);
   }
 }

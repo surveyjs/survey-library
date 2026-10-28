@@ -610,7 +610,7 @@ export class DropdownListModel extends Base {
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 
     this.listModel = this.createListModel();
-    this.setLoadingComponent((this.question as any).loadingComponent);
+    this.setLoadingComponent(this.question.loadingComponent);
     this.setChoicesLazyLoadEnabled(this.question.choicesLazyLoadEnabled);
     this.setInputPlaceholder(this.question.placeholder);
     this.updateAfterListModelCreated(this.listModel);

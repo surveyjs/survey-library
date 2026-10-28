@@ -40,9 +40,9 @@
     <div v-else v-bind:class="model.cssClasses.emptyContainer" v-show="model.isEmpty">
       <div
         v-bind:class="model.cssClasses.emptyText"
-        :aria-label="model.getLocalizationString('emptyMessage')"
+        :aria-label="model.emptyMessage"
       >
-        {{ model.getLocalizationString('emptyMessage') }}
+        {{ model.emptyMessage }}
       </div>
     </div>
     <ul

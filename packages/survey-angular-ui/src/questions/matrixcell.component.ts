@@ -9,8 +9,7 @@ export interface INgMatrixCellChanged {
 
 @Component({
   selector: "sv-ng-matrix-cell, '[sv-ng-matrix-cell]'",
-  templateUrl: "./matrixcell.component.html",
-  styles: [":host { display: contents; }"]
+  templateUrl: "./matrixcell.component.html"
 })
 export class MatrixCellComponent extends BaseAngular<ItemValue> {
   @Input() question!: QuestionMatrixModel;

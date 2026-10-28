@@ -8,7 +8,7 @@
   }
 }
 
-.sd-matrix__cell > .sd-view {
+.sd-matrix__cell .sd-view {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -65,7 +65,7 @@
       padding-bottom: var(--sjs2-spacing-x100);
     }
   }
-  .sd-matrix__cell > .sd-view,
+  .sd-matrix__cell .sd-view,
   .sd-matrix__label {
     justify-content: flex-start;
   }

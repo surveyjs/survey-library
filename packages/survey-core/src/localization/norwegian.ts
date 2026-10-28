@@ -49,8 +49,6 @@ export var norwegianSurveyStrings = {
   sortLevelFieldAriaLabel: "Sorteringsfelt {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Sorteringsrekkefølge {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Mer...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Vis alle sorteringsnivåer",
   // [Auto-translated] "Add New"

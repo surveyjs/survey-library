@@ -49,8 +49,6 @@ export var thaiStrings = {
   sortLevelFieldAriaLabel: "ฟิลด์เรียงลําดับ {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "เรียงลําดับ{0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "เพิ่มเติม...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "แสดงระดับการจัดเรียงทั้งหมด",
   // [Auto-translated] "Add New"

@@ -49,8 +49,6 @@ export var icelandicSurveyStrings = {
   sortLevelFieldAriaLabel: "Flokkunarreitur {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Raða röð {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Meira...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Sýndu öll flokkunarstig",
   // [Auto-translated] "Add New"

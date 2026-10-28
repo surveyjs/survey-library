@@ -49,8 +49,6 @@ export var ukrainianSurveyStrings = {
   sortLevelFieldAriaLabel: "Сортування поля {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Порядок сортування {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Ще...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Показати всі рівні сортування",
   // [Auto-translated] "Add New"

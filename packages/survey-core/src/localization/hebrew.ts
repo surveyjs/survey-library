@@ -49,8 +49,6 @@ export var hebrewSurveyStrings = {
   sortLevelFieldAriaLabel: "שדה מיון {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "סדר מיון {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "עוד...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "הצג את כל רמות המיון",
   // [Auto-translated] "Add New"

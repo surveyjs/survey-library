@@ -49,8 +49,6 @@ export var swahiliStrings = {
   sortLevelFieldAriaLabel: "Panga uwanja {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Panga agizo {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Soma zaidi...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Onyesha viwango vyote vya aina",
   // [Auto-translated] "Add New"

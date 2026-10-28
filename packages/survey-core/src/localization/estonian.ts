@@ -49,8 +49,6 @@ export var estonianSurveyStrings = {
   sortLevelFieldAriaLabel: "Sorteeri välja {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Sorteerimisjärjekord {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Veel...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Näita kõiki sorteerimistasemeid",
   // [Auto-translated] "Add New"

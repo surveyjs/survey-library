@@ -49,8 +49,6 @@ export var czechSurveyStrings = {
   sortLevelFieldAriaLabel: "Sortovací pole {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Pořadí třídění {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Více...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Zobrazit všechny úrovně sortování",
   // [Auto-translated] "Add New"

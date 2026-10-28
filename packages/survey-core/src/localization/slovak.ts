@@ -49,8 +49,6 @@ export var slovakSurveyStrings = {
   sortLevelFieldAriaLabel: "Sortovacie pole {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Poradie triedenia {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Viac...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Zobraziť všetky úrovne triedenia",
   // [Auto-translated] "Add New"

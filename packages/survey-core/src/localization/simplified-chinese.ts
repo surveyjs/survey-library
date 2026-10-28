@@ -49,8 +49,6 @@ export var simplifiedChineseSurveyStrings = {
   sortLevelFieldAriaLabel: "排序字段{0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "排序顺序{0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "更多......",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "显示各种级别",
   // [Auto-translated] "Add New"

@@ -49,8 +49,6 @@ export var welshSurveyStrings = {
   sortLevelFieldAriaLabel: "Trefnu {0} maes",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Trefn ddidoli {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Mwy...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Dangos pob lefel trefnu",
   // [Auto-translated] "Add New"

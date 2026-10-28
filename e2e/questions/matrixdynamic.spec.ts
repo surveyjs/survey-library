@@ -1359,10 +1359,14 @@ frameworks.forEach((framework) => {
       await expect(addButton(page)).toHaveCount(0);
       await expect(levelField(page, 3)).toHaveCount(0);
       await expect(levelField(page, 1)).toBeVisible();
-      const barItems = async (): Promise<Array<string>> => headerBar(page).evaluate((el: HTMLElement) =>
-        Array.prototype.filter.call(el.children, (item: Element): boolean => !item.classList.contains("sd-action-bar__item--hidden"))
-          .map((item: Element): string => (item.querySelector("button[aria-label]") || item).getAttribute("aria-label") || ""));
-      expect((await barItems()).slice(-1), "\"...\" is at the end").toEqual(["Show all sort levels"]);
+      // The rightmost button the bar shows; the renderers wrap the bar's items differently.
+      const lastButton = async (): Promise<string> => headerBar(page).evaluate((el: HTMLElement) => {
+        const shown = Array.prototype.filter.call(el.querySelectorAll("button"), (button: HTMLElement): boolean =>
+          button.getBoundingClientRect().width > 0 && getComputedStyle(button).visibility !== "hidden") as Array<HTMLElement>;
+        shown.sort((a: HTMLElement, b: HTMLElement): number => a.getBoundingClientRect().right - b.getBoundingClientRect().right);
+        return shown[shown.length - 1].getAttribute("aria-label");
+      });
+      expect(await lastButton(), "\"...\" is at the end").toBe("Show all sort levels");
       await page.setViewportSize({ width: 1440, height: 900 });
       await expect(levelField(page, 3)).toBeVisible();
       await expect(moreButton(page)).toHaveCount(0);

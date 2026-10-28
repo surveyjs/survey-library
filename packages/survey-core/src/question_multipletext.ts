@@ -13,6 +13,8 @@ import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
 import { Question, IConditionObject, ValidationContext, QuestionValueType, IVerifyDataContext, INestedElementInfo, NestedWalkBuild } from "./question";
 import { QuestionTextModel, isMinMaxType } from "./question_text";
+import { keyboardHint, keyboardHintAdvanceLocName, IKeyboardHintData } from "./keyboard-hints";
+import { SurveyModel } from "./survey";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
@@ -660,6 +662,11 @@ export class QuestionMultipleTextModel extends Question
       if (this.items[i].isEmpty()) return false;
     }
     return true;
+  }
+  protected getKeyboardHintsCore(): IKeyboardHintData[] {
+    const survey = this.survey as SurveyModel;
+    if (survey.autoAdvanceEnabled !== true) return [];
+    return [keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"])];
   }
   /**
    * The number of columns used to arrange input items. Accepts the following values: 1, 2, 3, 4, 5.

@@ -3740,6 +3740,21 @@ export abstract class QuestionRecordsModel extends Question {
   /* Runs after every assignment of the page size, whatever the value - also one that does not change
      it, which onPropertyValueChanged would skip: the question refreshes what it renders. */
   protected onPageSizeAssigned(): void { }
+  /* The isEmpty of the array types (the Dynamic Panel, the Dynamic Matrix): every record of the first
+     count is empty by the type's rule (isEmptyRecord). A read: the list is not created for it. */
+  protected areRecordsEmpty(count: number): boolean {
+    for (let i = 0; i < count; i++) {
+      if (!this.isEmptyRecord(this.getListRecordAt(i))) return false;
+    }
+    return true;
+  }
+  // A record without keys; the matrix counts a record whose answers are all empty as empty too.
+  protected isEmptyRecord(record: any): boolean {
+    for (const key in record) {
+      if (record.hasOwnProperty(key)) return false;
+    }
+    return true;
+  }
   // The count of the question's own records, as the records source reads it, without composing the array.
   protected getListRecordCount(): number {
     return this.recordsSource.count;

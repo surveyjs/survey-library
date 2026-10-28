@@ -2026,13 +2026,9 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public get isValueArray(): boolean { return true; }
   public isEmpty(): boolean {
     // loadedCount, not count: with a data source that pages, count is the server total and only the
-    // records of the loaded window can be looked at. Equal for every local source. A read: the list
-    // is not created for it.
-    const count = this.loadedRecordCount;
-    for (let i = 0; i < count; i++) {
-      if (!this.isRowEmpty(this.getListRecordAt(i))) return false;
-    }
-    return true;
+    // records of the loaded window can be looked at. Equal for every local source. A record is empty
+    // only without keys (isEmptyRecord): an answer of "", null or [] counts as given, as released.
+    return this.areRecordsEmpty(this.loadedRecordCount);
   }
   // QuestionRecordsModel hooks of getProgressInfo: the panels, or a record by the template's questions.
   protected getProgressInfoOfObjects(): IProgressInfo {
@@ -2067,14 +2063,6 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       });
     });
     return res;
-  }
-  /* A record is empty only without keys: an answer of "", null or [] counts as given, as released. A
-     matrix row counts such answers as empty (isRecordEmpty). */
-  private isRowEmpty(val: any) {
-    for (var prop in val) {
-      if (val.hasOwnProperty(prop)) return false;
-    }
-    return true;
   }
   /* Returns the panel that was added and is shown, or null: add is not allowed, the page it leaves
      has errors, or the move waits for asynchronous validators - the add then happens once they

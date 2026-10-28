@@ -326,11 +326,17 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   @property() confirmDelete: boolean;
 
   public get isValueArray(): boolean { return true; }
-  // The value keeps a record for every row (Bug#12147): a matrix whose records are all empty is empty.
+  /* The value keeps a record for every row (Bug#12147): a matrix whose records are all empty is empty.
+     The records the value holds, not the padded ones the list reads up to rowCount: those are the
+     default row record, which is no answer. */
   public isEmpty(): boolean {
     const val = this.value;
     if (!Array.isArray(val)) return super.isEmpty();
-    return val.every((record: any): boolean => this.isValueEmpty(record, !this.allowSpaceAsAnswer));
+    return this.areRecordsEmpty(this.isRemoteData ? this.loadedRecordCount : val.length);
+  }
+  // A record whose answers are all empty, as a row with no answer.
+  protected isEmptyRecord(record: any): boolean {
+    return this.isValueEmpty(record, !this.allowSpaceAsAnswer);
   }
   /**
    * Specifies a key column. Set this property to a column name, and the question will display `keyDuplicationError` if a user tries to enter a duplicate value in this column.

@@ -113,6 +113,22 @@ export class QuestionMatrixDropdownRenderedCell {
     if (!criterion) return undefined;
     return criterion.direction === "desc" ? "desc" : "asc";
   }
+  /* The column's 1-based level in the sort, shown in the indicator next to the arrow. Only while the sort has
+     more than one level, whatever maxSortLevel allows: a single level has no order to show.
+     The position counts every level, also one without a visible column, as sortDescription does. */
+  public get sortRank(): number {
+    if (!this.isSortable) return undefined;
+    const sort = this.getSort();
+    if (sort.length < 2) return undefined;
+    const field = this.column.sortField;
+    for (let i = 0; i < sort.length; i++) {
+      if (sort[i].field === field) return i + 1;
+    }
+    return undefined;
+  }
+  public get sortRankCss(): string {
+    return toCssClasses(this.matrix.cssClasses.headerCellSortRank);
+  }
   public get sortIconName(): string {
     const dir = this.sortDirection;
     if (dir === "asc") return "icon-arrowup-16x16";
@@ -156,7 +172,8 @@ export class QuestionMatrixDropdownRenderedCell {
     const css = this.matrix.cssClasses;
     const dir = this.sortDirection;
     return toCssClasses(css.headerCellSort,
-      dir === "asc" && css.headerCellSortAsc, dir === "desc" && css.headerCellSortDesc, !dir && css.headerCellSortNone);
+      dir === "asc" && css.headerCellSortAsc, dir === "desc" && css.headerCellSortDesc, !dir && css.headerCellSortNone,
+      !!this.sortRank && css.headerCellSortRanked);
   }
   public get sortButtonCss(): string {
     return toCssClasses(this.matrix.cssClasses.headerCellSortButton);

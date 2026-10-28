@@ -97,13 +97,14 @@ describe("Matrix: sortable column headers", () => {
     const rank = (index: number): Element | null => headerButton(index).querySelector(".sd-table__header-sort-rank");
     expect([rank(0), rank(1)], "#1: not sorted").toEqual([null, null]);
     click(headerButton(1));
+    expect([rank(0), rank(1)], "#1a: one sorted column has no number").toEqual([null, null]);
     click(headerButton(0), { shiftKey: true });
     expect([rank(1)?.textContent, rank(0)?.textContent], "#2").toEqual(["1", "2"]);
     expect((rank(1)?.parentElement as HTMLElement).getAttribute("aria-hidden"), "#3").toBe("true");
     expect((rank(1)?.parentElement as HTMLElement).className, "#4")
       .toBe("sd-table__header-sort sd-table__header-sort--desc sd-table__header-sort--ranked");
     act(() => { matrix.sortCriteria.splice(0, 1); });
-    expect([rank(1), rank(0)?.textContent], "#5: the other level moves up").toEqual([null, "1"]);
+    expect([rank(1), rank(0)], "#5: one level left, no number").toEqual([null, null]);
   });
   it("a matrix without allowSort renders no button and no aria-sort", () => {
     render({});

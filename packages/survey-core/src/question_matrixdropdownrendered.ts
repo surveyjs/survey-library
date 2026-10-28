@@ -113,13 +113,13 @@ export class QuestionMatrixDropdownRenderedCell {
     if (!criterion) return undefined;
     return criterion.direction === "desc" ? "desc" : "asc";
   }
-  /* The column's 1-based level in the sort, shown in the indicator next to the arrow. Only while the sort can
-     have more than one level, or a sort from code already has: two arrows with no order would be ambiguous.
+  /* The column's 1-based level in the sort, shown in the indicator next to the arrow. Only while the sort has
+     more than one level, whatever maxSortLevel allows: a single level has no order to show.
      The position counts every level, also one without a visible column, as sortDescription does. */
   public get sortRank(): number {
     if (!this.isSortable) return undefined;
     const sort = this.getSort();
-    if (this.matrix.maxSortLevel < 2 && sort.length < 2) return undefined;
+    if (sort.length < 2) return undefined;
     const field = this.column.sortField;
     for (let i = 0; i < sort.length; i++) {
       if (sort[i].field === field) return i + 1;

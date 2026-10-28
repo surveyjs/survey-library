@@ -1222,23 +1222,23 @@ frameworks.forEach((framework) => {
       expect(await products(page)).toEqual(["a", "c", "b", "d"]);
     });
 
-    test("the headers show the level numbers, and they follow the bar", async ({ page }) => {
+    test("the headers show the level numbers while two or more columns are sorted, and they follow the bar", async ({ page }) => {
       await initSurvey(page, framework, levelsJson({ maxSortLevel: 3 }));
       const headerButton = (title: string) => page.getByRole("button", { name: "Sort by " + title, exact: true });
       const rank = (title: string) => headerButton(title).locator(".sd-table__header-sort-rank");
+      const anyRank = page.locator(".sd-table__header-sort-rank");
       await headerButton("Product").click();
+      await expect(headerButton("Product").locator(".sd-table__header-sort--asc, .sd-table__header-sort--desc")).toHaveCount(1);
+      await expect(anyRank).toHaveCount(0);
+
       await headerButton("Category").click({ modifiers: ["Shift"] });
       await expect(rank("Product")).toHaveText("1");
       await expect(rank("Category")).toHaveText("2");
       await expect(rank("Price")).toHaveCount(0);
 
       await removeButton(page, 2).click();
-      await expect(rank("Product")).toHaveText("1");
-      await expect(rank("Category")).toHaveCount(0);
-
-      await levelDirection(page, 1).click();
-      await listItem(page, "Default").click();
-      await expect(page.locator(".sd-table__header-sort-rank")).toHaveCount(0);
+      await expect(headerButton("Product").locator(".sd-table__header-sort--asc, .sd-table__header-sort--desc")).toHaveCount(1);
+      await expect(anyRank).toHaveCount(0);
     });
 
     test("the keyboard: \"+\" keeps the focus, a removed level hands it to the level before, and \"+\" that hides hands it to the new level", async ({ page }) => {

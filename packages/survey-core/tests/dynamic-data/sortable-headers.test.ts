@@ -204,7 +204,7 @@ describe("Sortable headers: the level number next to the arrow", () => {
       !!cell.column && cell.sortCss.indexOf("sd-table__header-sort--ranked") > -1)
       .map((cell: QuestionMatrixDropdownRenderedCell): string => cell.column.name);
   }
-  test("each sorted column shows its level while the sort can have more than one level", () => {
+  test("each sorted column shows its level while the sort has more than one level", () => {
     const matrix = createMatrix({ maxSortLevel: 3,
       sortCriteria: [{ field: "price", direction: "desc" }, { field: "product", direction: "asc" }] });
     expect([header(matrix, "price").sortRank, header(matrix, "product").sortRank], "#1").toEqual([1, 2]);
@@ -214,11 +214,14 @@ describe("Sortable headers: the level number next to the arrow", () => {
     expect(header(matrix, "added").sortCss, "#5").toBe("sd-table__header-sort sd-table__header-sort--none");
     expect(header(matrix, "price").sortRankCss, "#6").toBe("sd-table__header-sort-rank");
   });
-  test("a single sorted column shows 1 while more levels are allowed", () => {
+  test("a single sorted column shows no number, also while more levels are allowed", () => {
     const matrix = createMatrix({ maxSortLevel: 3 });
     header(matrix, "price").toggleSort();
-    expect(header(matrix, "price").sortRank, "#1").toBe(1);
-    expect(rankedCells(matrix), "#2").toEqual(["price"]);
+    expect(header(matrix, "price").sortRank, "#1").toBeUndefined();
+    expect(rankedCells(matrix), "#2").toEqual([]);
+    expect(header(matrix, "price").sortCss, "#3").toBe("sd-table__header-sort sd-table__header-sort--desc");
+    header(matrix, "product").toggleSort(true);
+    expect([header(matrix, "price").sortRank, header(matrix, "product").sortRank], "#4: a second level numbers both").toEqual([1, 2]);
   });
   test("with one allowed level, no number; a longer sort from JSON shows its levels", () => {
     const matrix = createMatrix();
@@ -238,7 +241,7 @@ describe("Sortable headers: the level number next to the arrow", () => {
     header(matrix, "price").toggleSort();
     header(matrix, "price").toggleSort();
     expect(sortOf(matrix), "#3").toEqual([{ field: "product", direction: "desc" }]);
-    expect([header(matrix, "price").sortRank, header(matrix, "product").sortRank], "#4").toEqual([undefined, 1]);
+    expect([header(matrix, "price").sortRank, header(matrix, "product").sortRank], "#4: one level left, no number").toEqual([undefined, undefined]);
   });
   test("a level without a visible column still counts", () => {
     const matrix = createMatrix({ maxSortLevel: 3, columns: productColumns.concat([<any>{ name: "hidden", cellType: "text", visible: false }]),
@@ -247,7 +250,8 @@ describe("Sortable headers: the level number next to the arrow", () => {
     expect(header(matrix, "price").sortRank, "#2").toBe(2);
   });
   test("design mode: no number", () => {
-    const matrix = createMatrix({ maxSortLevel: 3, sortCriteria: [{ field: "price", direction: "desc" }] }, true);
+    const matrix = createMatrix({ maxSortLevel: 3,
+      sortCriteria: [{ field: "price", direction: "desc" }, { field: "product", direction: "asc" }] }, true);
     expect(ranks(matrix).every((rank: number): boolean => rank === undefined), "#1").toBe(true);
   });
 });

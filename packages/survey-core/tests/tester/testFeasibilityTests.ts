@@ -548,7 +548,7 @@ describe("Composite questions are filled leaf by leaf", () => {
         columns: [{ name: "amount", cellType: "text" }],
       }],
     }, [{ set: { m: [{ amout: "a" }] } }]);
-    expectRejected(outcome, SurveyTestIssueCodes.unknownTarget, {}, "there is no such column");
+    expectRejected(outcome, SurveyTestIssueCodes.unknownTarget, { m: [{}] }, "there is no such column");
     expect(outcome.issues[0].suggestion, "the closest name is suggested").toEqual("Did you mean \"amount\"?");
     expect(outcome.issues[0].target, "the path names the row").toEqual("m[0]");
   });
@@ -625,7 +625,7 @@ describe("Composite questions are filled leaf by leaf", () => {
         columns: [{ name: "col1", cellType: "text" }],
       }],
     }, [{ set: { m: "a" } }]);
-    expectRejected(outcome, SurveyTestIssueCodes.valueNotEnterable, {}, "a matrix is not filled from a string");
+    expectRejected(outcome, SurveyTestIssueCodes.valueNotEnterable, { m: [{}] }, "a matrix is not filled from a string");
     expect(outcome.messages.indexOf("an array of row values") > -1, "the message says what it takes").toBeTruthy();
   });
   test("Every composite kind names its own shape", async () => {
@@ -748,7 +748,7 @@ describe("Dynamic sizing follows what a respondent could add", () => {
         columns: [{ name: "col1", cellType: "text" }],
       }],
     }, [{ set: { m: [{ col1: "a" }, { col1: "b" }] } }]);
-    expectRejected(outcome, SurveyTestIssueCodes.cannotAddRows, {}, "there is no Add button to press");
+    expectRejected(outcome, SurveyTestIssueCodes.cannotAddRows, { m: [{}] }, "there is no Add button to press");
     expect(outcome.messages.indexOf("\"allowAddRows\" is false") > -1, "the message says which").toBeTruthy();
   });
   test("maxRowCount stops the growth and the message names the maximum", async () => {
@@ -758,7 +758,7 @@ describe("Dynamic sizing follows what a respondent could add", () => {
         columns: [{ name: "col1", cellType: "text" }],
       }],
     }, [{ set: { m: [{ col1: "a" }, { col1: "b" }, { col1: "c" }] } }]);
-    expectRejected(outcome, SurveyTestIssueCodes.cannotAddRows, {}, "the Add button is disabled at the maximum");
+    expectRejected(outcome, SurveyTestIssueCodes.cannotAddRows, { m: [{}] }, "the Add button is disabled at the maximum");
     expect(outcome.messages.indexOf("at most 2") > -1, "the message names the maximum").toBeTruthy();
   });
   test("A shorter value never shrinks the matrix, and the case is told", async () => {
@@ -784,7 +784,7 @@ describe("Dynamic sizing follows what a respondent could add", () => {
         columns: [{ name: "col1", cellType: "text" }],
       }],
     }, [{ addRow: { m: 1 } }]);
-    expectRejected(disabled, SurveyTestIssueCodes.cannotAddRows, {}, "there is no Add button to press");
+    expectRejected(disabled, SurveyTestIssueCodes.cannotAddRows, { m: [{}] }, "there is no Add button to press");
     expect(disabled.messages.indexOf("\"allowAddRows\" is false") > -1, "the message says which").toBeTruthy();
 
     const atMaximum = await runSteps({
@@ -876,11 +876,11 @@ describe("Adding and removing dynamic items follows the model's own buttons", ()
 
   test("A read-only matrix has no Add and no Remove button", async () => {
     const added = await runSteps(matrixWith({ readOnly: true }), [{ addRow: { m: 1 } }]);
-    expectRejected(added, SurveyTestIssueCodes.elementNotEditable, {}, "a read-only matrix cannot grow");
+    expectRejected(added, SurveyTestIssueCodes.elementNotEditable, { m: [{}, {}] }, "a read-only matrix cannot grow");
     expect(question(added, "m").rowCount, "the matrix is untouched").toEqual(2);
 
     const removed = await runSteps(matrixWith({ readOnly: true }), [{ removeRow: { m: 0 } }]);
-    expectRejected(removed, SurveyTestIssueCodes.elementNotEditable, {}, "a read-only matrix cannot shrink");
+    expectRejected(removed, SurveyTestIssueCodes.elementNotEditable, { m: [{}, {}] }, "a read-only matrix cannot shrink");
     expect(question(removed, "m").rowCount, "the matrix is untouched").toEqual(2);
   });
   test("The display mode takes the buttons of a dynamic panel away and the message names the mode", async () => {
@@ -894,13 +894,13 @@ describe("Adding and removing dynamic items follows the model's own buttons", ()
   });
   test("removeRow stops at minRowCount and the message names it", async () => {
     const outcome = await runSteps(matrixWith({ minRowCount: 2 }), [{ removeRow: { m: 0 } }]);
-    expectRejected(outcome, SurveyTestIssueCodes.cannotRemoveRows, {}, "the last allowed row keeps no Remove button");
+    expectRejected(outcome, SurveyTestIssueCodes.cannotRemoveRows, { m: [{}, {}] }, "the last allowed row keeps no Remove button");
     expect(outcome.messages.indexOf("\"minRowCount\" of 2") > -1, "the message names the minimum").toBeTruthy();
     expect(question(outcome, "m").rowCount, "the matrix is untouched").toEqual(2);
   });
   test("allowRemoveRows false is rejected before anything is removed", async () => {
     const outcome = await runSteps(matrixWith({ allowRemoveRows: false }), [{ removeRow: { m: 0 } }]);
-    expectRejected(outcome, SurveyTestIssueCodes.cannotRemoveRows, {}, "there is no Remove button to press");
+    expectRejected(outcome, SurveyTestIssueCodes.cannotRemoveRows, { m: [{}, {}] }, "there is no Remove button to press");
     expect(outcome.messages.indexOf("\"allowRemoveRows\" is false") > -1, "the message says which").toBeTruthy();
     expect(question(outcome, "m").rowCount, "the matrix is untouched").toEqual(2);
   });
@@ -968,7 +968,7 @@ describe("Adding and removing dynamic items follows the model's own buttons", ()
   test("The implicit growth of a set stops where the Add button does", async () => {
     const outcome = await runSteps(matrixWith({ rowCount: 1, readOnly: true }),
       [{ set: { m: [{ col1: "a" }, { col1: "b" }] } }]);
-    expectRejected(outcome, SurveyTestIssueCodes.elementNotEditable, {},
+    expectRejected(outcome, SurveyTestIssueCodes.elementNotEditable, { m: [{}] },
       "a read-only matrix grows for nobody");
     expect(question(outcome, "m").rowCount, "the matrix is untouched").toEqual(1);
   });

@@ -49,8 +49,6 @@ export var germanSurveyStrings = {
   sortLevelFieldAriaLabel: "Sortierfeld {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Sortierreihenfolge {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Mehr...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Zeigen Sie alle Sortierungsstufen",
   // [Auto-translated] "Add New"

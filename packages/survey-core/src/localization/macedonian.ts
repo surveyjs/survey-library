@@ -49,8 +49,6 @@ export var macedonianSurveyStrings = {
   sortLevelFieldAriaLabel: "Сортирај поле {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Сортирај по редослед {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Повеќе...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Прикажи ги сите нивоа на сортирање",
   // [Auto-translated] "Add New"

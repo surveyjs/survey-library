@@ -58,12 +58,13 @@ function columnValues(matrix: QuestionMatrixDynamicModel, name: string): Array<a
 }
 // The items the bar shows, as fit() leaves them.
 const shownIds = (q: QuestionRecordsModel): Array<string> => barOf(q).visibleActions.filter((item: Action): boolean => item.isVisible).map((item: Action): string => item.id);
-const sizes: { [id: string]: number } = { "sv-sort-by": 50, "sv-sort-level": 200, "sv-sort-level-2": 200, "sv-sort-level-3": 200, "sv-sort-more": 60, "sv-sort-add": 32 };
-// The sizes a renderer's manager would measure.
-function measure(q: QuestionRecordsModel): void {
+const sizes: { [id: string]: number } = { "sv-sort-by": 50, "sv-sort-level": 200, "sv-sort-level-2": 200, "sv-sort-level-3": 200, "sv-sort-more": 32, "sv-sort-add": 32 };
+// The sizes a renderer's manager would measure; own sizes replace some of them.
+function measure(q: QuestionRecordsModel, own?: { [id: string]: number }): void {
+  const res = Object.assign({}, sizes, own);
   barOf(q).actions.forEach((item: Action): void => {
-    item.maxDimension = sizes[item.id];
-    item.minDimension = sizes[item.id];
+    item.maxDimension = res[item.id];
+    item.minDimension = res[item.id];
   });
 }
 const gap = 12;
@@ -110,30 +111,76 @@ const addNew = (popup: PopupBaseViewModel): Action => footerAction(popup, "sv-so
 const removeRow = (dialog: RecordsSortDialogModel, index: number): void => { rowActions(dialog, index)[2].action(); };
 const apply = (popup: PopupBaseViewModel): void => { footerAction(popup, "apply").action(); };
 
-describe("Sort dialog: More... in the bar", () => {
-  test("fit() hides whole levels from the last one and shows More... while one is out", () => {
+describe("Sort dialog: \"...\" in the bar", () => {
+  test("fit() shows every level and \"+\" while they fit; otherwise levels leave from the last one and \"...\" takes the place of \"+\"", () => {
     const matrix = createMatrix();
     matrix.sort(threeLevels);
     const bar = barOf(matrix);
     measure(matrix);
-    expect(shownIds(matrix), "#0: before a fit, More... is out of sight").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2", "sv-sort-level-3", "sv-sort-add"]);
+    expect(shownIds(matrix), "#0: before a fit, \"...\" is out of sight").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2", "sv-sort-level-3", "sv-sort-add"]);
     bar.fit({ availableSpace: allLevelsWidth, gap: gap });
-    expect(shownIds(matrix), "#1: every level fits").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2", "sv-sort-level-3", "sv-sort-add"]);
+    expect(shownIds(matrix), "#1: every level and \"+\" fit").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2", "sv-sort-level-3", "sv-sort-add"]);
     bar.fit({ availableSpace: allLevelsWidth - 1, gap: gap });
-    expect(shownIds(matrix), "#2: the last level leaves, More... takes its place before +")
-      .toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2", "sv-sort-more", "sv-sort-add"]);
-    bar.fit({ availableSpace: 50 + 200 + 60 + 32 + 3 * gap, gap: gap });
-    expect(shownIds(matrix), "#3: room for level 1 only").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-more", "sv-sort-add"]);
+    expect(shownIds(matrix), "#2: the last level and \"+\" leave, \"...\" shows")
+      .toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2", "sv-sort-more"]);
+    expect(barAction(matrix, "sv-sort-add").mode, "#2a").toBe("removed");
+    bar.fit({ availableSpace: 50 + 200 + 32 + 2 * gap, gap: gap });
+    expect(shownIds(matrix), "#3: room for level 1 only").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-more"]);
     const level2 = barAction(matrix, "sv-sort-level-2");
     expect([level2.mode, level2.isVisible, level2.getActionRootCss().indexOf("sd-action-bar__item--hidden") > -1], "#4: level 2 is out whole")
       .toEqual(["removed", false, true]);
     expect((<ActionContainer>level2.data).actions.map((item: Action): string => item.id), "#5: with its field, direction and remove button")
       .toEqual(["sv-sort-field-2", "sv-sort-direction-2", "sv-sort-remove-2"]);
     bar.fit({ availableSpace: 10, gap: gap });
-    expect(["sv-sort-by", "sv-sort-level", "sv-sort-add"].map((id: string): string => barAction(matrix, id).mode), "#6: never out").toEqual(["large", "large", "large"]);
-    expect([moreOf(matrix).needSeparator, barAction(matrix, "sv-sort-add").needSeparator], "#7: between separators").toEqual([true, true]);
+    expect(["sv-sort-by", "sv-sort-level"].map((id: string): string => barAction(matrix, id).mode), "#6: never out").toEqual(["large", "large"]);
+    expect(shownIds(matrix), "#6a").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-more"]);
+    expect([moreOf(matrix).needSeparator, barAction(matrix, "sv-sort-add").needSeparator], "#7: after a separator").toEqual([true, true]);
     expect(bar.renderedActions.indexOf(bar.dotsItem), "#8: no dots menu").toBe(-1);
-    expect([moreOf(matrix).title, moreOf(matrix).ariaLabel, moreOf(matrix).hasTitle], "#9").toEqual(["More...", "Show all sort levels", true]);
+    const more = moreOf(matrix);
+    expect([more.title, more.ariaLabel, more.getTooltip(), more.hasTitle, more.iconName, more.getActionBarItemCss() === barAction(matrix, "sv-sort-add").getActionBarItemCss()], "#9: an icon button with the box of \"+\"")
+      .toEqual(["Show all sort levels", "Show all sort levels", "Show all sort levels", false, "icon-more-16x16", true]);
+    expect(bar.visibleActions.map((item: Action): string => item.id).slice(-2), "#10: the order").toEqual(["sv-sort-more", "sv-sort-add"]);
+  });
+  test("a single level that does not fit keeps \"+\" and no \"...\"", () => {
+    const matrix = createMatrix();
+    matrix.sort([threeLevels[0]]);
+    const bar = barOf(matrix);
+    measure(matrix);
+    bar.fit({ availableSpace: 100, gap: gap });
+    expect(shownIds(matrix), "#1").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-add"]);
+    expect(moreOf(matrix).mode, "#2").toBe("removed");
+    matrix.sort([]);
+    bar.fit({ availableSpace: 100, gap: gap });
+    expect(shownIds(matrix), "#3: nothing sorted").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-add"]);
+  });
+  test("\"...\" and \"+\" are measured each: once the bar overflows, a level leaves even when every level and \"...\" would fit", () => {
+    const matrix = createMatrix();
+    matrix.sort(threeLevels);
+    const bar = barOf(matrix);
+    measure(matrix, { "sv-sort-more": 32, "sv-sort-add": 40 });
+    // Every level with "+" needs 738, every level with "..." 730.
+    bar.fit({ availableSpace: 735, gap: gap });
+    expect(shownIds(matrix), "#1").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2", "sv-sort-more"]);
+    bar.fit({ availableSpace: 738, gap: gap });
+    expect(shownIds(matrix), "#2").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2", "sv-sort-level-3", "sv-sort-add"]);
+    measure(matrix, { "sv-sort-more": 60, "sv-sort-add": 32 });
+    // Levels 1 and 2 with a wider "..." need 546.
+    bar.fit({ availableSpace: 545, gap: gap });
+    expect(shownIds(matrix), "#3: a wider \"...\" takes one more level out").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-more"]);
+  });
+  test("with one level allowed, a longer sort from code that does not fit shows \"...\" and never \"+\"", () => {
+    const matrix = createMatrix({ maxSortLevel: 1 });
+    matrix.sort(threeLevels);
+    const bar = barOf(matrix);
+    measure(matrix);
+    expect(barAction(matrix, "sv-sort-add").visible, "#1").toBe(false);
+    // The levels alone: "Sort by" and three levels.
+    bar.fit({ availableSpace: 50 + 3 * 200 + 3 * gap, gap: gap });
+    expect(shownIds(matrix), "#2: every level fits").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2", "sv-sort-level-3"]);
+    bar.fit({ availableSpace: 300, gap: gap });
+    expect(shownIds(matrix), "#3").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-more"]);
+    moreOf(matrix).action();
+    expect(dialogOptions.length, "#4: \"...\" opens the dialog").toBe(1);
   });
   test("a new title inside a level marks the level's sizes stale and fits the bar again", () => {
     const matrix = createMatrix();
@@ -156,13 +203,13 @@ describe("Sort dialog: More... in the bar", () => {
     expect(raiseUpdate, "#5: nothing changed").not.toHaveBeenCalled();
     raiseUpdate.mockRestore();
   });
-  test("on a phone no level is hidden and More... does not show; a runtime switch works both ways", () => {
+  test("on a phone no level is hidden, \"+\" shows and \"...\" does not; a runtime switch works both ways", () => {
     const matrix = createMatrix();
     matrix.sort(threeLevels);
     const bar = barOf(matrix);
     measure(matrix);
     bar.fit({ availableSpace: 300, gap: gap });
-    expect(shownIds(matrix), "#1: desktop").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-more", "sv-sort-add"]);
+    expect(shownIds(matrix), "#1: desktop").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-more"]);
     matrix.survey.setIsMobile(true);
     expect([bar.isResponsivenessDisabled, bar.getRootStyle()], "#2").toEqual([true, undefined]);
     expect(shownIds(matrix), "#3: every level").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-level-2", "sv-sort-level-3", "sv-sort-add"]);
@@ -175,7 +222,7 @@ describe("Sort dialog: More... in the bar", () => {
     expect(raiseUpdate.mock.calls.some((call: any): boolean => call[0].updateResponsivenessMode === UpdateResponsivenessMode.Hard), "#7: measured again").toBe(true);
     raiseUpdate.mockRestore();
     bar.fit({ availableSpace: 300, gap: gap });
-    expect(shownIds(matrix), "#8").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-more", "sv-sort-add"]);
+    expect(shownIds(matrix), "#8").toEqual(["sv-sort-by", "sv-sort-level", "sv-sort-more"]);
   });
 });
 
@@ -396,7 +443,7 @@ describe("Sort dialog: the object", () => {
     expect(() => matrix.dispose(), "#1").not.toThrow();
     expect([dialog.isDisposed, popup.isVisible], "#2").toEqual([true, false]);
   });
-  test("More... with no renderer to show a dialog does nothing", () => {
+  test("\"...\" with no renderer to show a dialog does nothing", () => {
     const matrix = createMatrix();
     settings.showDialog = undefined;
     expect(() => moreOf(matrix).action(), "#1").not.toThrow();
@@ -408,13 +455,14 @@ describe("Sort dialog: the locale", () => {
   afterEach(() => { delete surveyLocalization.locales[testLocale]; });
   test("the dialog's texts follow a locale change while it is open", () => {
     surveyLocalization.locales[testLocale] = { sortByText: "Order", sortDefaultText: "Stored", sortNoDirectionText: "None", sortAddNewText: "New level",
-      modalApplyButtonText: "Use", sortAZText: "A first", sortMoreText: "Others" };
+      modalApplyButtonText: "Use", sortAZText: "A first", sortMoreAriaLabel: "All levels" };
     const matrix = createMatrix();
     matrix.sort([{ field: "product", direction: "asc" }]);
     const { dialog, popup } = openDialog(matrix);
     addNew(popup).action();
     matrix.survey.locale = testLocale;
-    expect([popup.title, addNew(popup).title, footerAction(popup, "apply").title, moreOf(matrix).title], "#1").toEqual(["Order", "New level", "Use", "Others"]);
+    expect([popup.title, addNew(popup).title, footerAction(popup, "apply").title, moreOf(matrix).title, moreOf(matrix).ariaLabel], "#1")
+      .toEqual(["Order", "New level", "Use", "All levels", "All levels"]);
     expect(rowsOf(dialog), "#2").toEqual([["Product", "A first", false], ["Category", "None", true]]);
     expect(titlesOf(directionListOf(dialog, 0))[0], "#3").toBe("Stored");
     matrix.survey.locale = "";

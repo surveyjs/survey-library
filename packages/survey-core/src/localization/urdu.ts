@@ -49,8 +49,6 @@ export var urduSurveyStrings = {
   sortLevelFieldAriaLabel: "سورت فیلڈ {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "ترتیب {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "مزید...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "تمام سورت لیولز دکھائیں",
   // [Auto-translated] "Add New"

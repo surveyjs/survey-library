@@ -849,7 +849,8 @@ describe("Records questions: writes through an item", () => {
       const a = kind.question(q, 0, "a");
       a.value = "bad";
       expect(log, "#1: only the cell-changing callback").toEqual(["cellChanging:a=bad"]);
-      expect(q.value, "#2: nothing is stored").toBeUndefined();
+      // The matrix holds the empty records of its untouched rows (Bug#12147), not the rejected edit.
+      expect(q.value, "#2: nothing is stored").toEqual(kind.type === "matrixdynamic" ? [{}, {}] : undefined);
       expect([a.value, a.errors.length], "#3: the cell keeps the value and shows the error").toEqual(["bad", 1]);
       a.value = "x1";
       expect(kind.record(q, 0), "#4: a valid edit is stored").toEqual({ a: "x1" });

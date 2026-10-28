@@ -466,7 +466,11 @@ export class Question extends SurveyElement<Question>
   hasCssErrorCallback: () => boolean = (): boolean => false;
 
   private triggersInfo: Array<ITriggerExpressionInfo> = [];
-  private isChangingViaDefaultValue: boolean;
+  private defaultValueChangeScope = new ValueScope<boolean>(false);
+  // Read by name by the questions whose data is this question too (isParentChangingViaDefaultValue).
+  private get isChangingViaDefaultValue(): boolean {
+    return this.defaultValueChangeScope.value;
+  }
   private isValueChangedDirectly: boolean;
   valueChangedCallback: () => void;
   commentChangedCallback: () => void;
@@ -2724,9 +2728,11 @@ export class Question extends SurveyElement<Question>
     if (this.isDesignMode && this.isContentElement && this.isDefaultValueEmpty()) return;
     if (!this.defaultValueExpression && this.parentQuestion?.isBuildingChildrenForStoredRecords()) return;
     // Applying a default value is not a direct value change
-    this.isChangingViaDefaultValue = true;
-    this.setDefaultValue();
-    this.isChangingViaDefaultValue = false;
+    this.runAsDefaultValueChange((): void => this.setDefaultValue());
+  }
+  // A write of the question's own that is no answer: the default values keep applying after it.
+  protected runAsDefaultValueChange(func: () => void): void {
+    this.defaultValueChangeScope.run(true, func);
   }
   public get isValueDefault(): boolean {
     return !this.isEmpty() && (this.isTwoValueEquals(this.defaultValue, this.value) || !this.isValueChangedDirectly && !!this.defaultValueExpression);
@@ -2815,9 +2821,7 @@ export class Question extends SurveyElement<Question>
     }
     return this.runExpressionByProperty("defaultValueExpression", properties, (res: any) => {
       if (res == undefined) res = this.defaultValue;
-      this.isChangingViaDefaultValue = true;
-      setFunc(res);
-      this.isChangingViaDefaultValue = false;
+      this.runAsDefaultValueChange((): void => setFunc(res));
       if (isConditionsPass) {
         this.lastDefaultValueRun = {
           expression: this.defaultValueExpression,
@@ -3468,15 +3472,15 @@ export class Question extends SurveyElement<Question>
     }
   }
   private updateValueFromSurveyCore(newValue: any, viaDefaultVal: boolean): void {
-    this.isChangingViaDefaultValue = viaDefaultVal;
-    newValue = this.valueFromData(newValue);
-    const isEqual = this.isTwoValueEquals(this.questionValue, this.convertToCorrectValue(newValue));
-    this.setQuestionValue(newValue);
-    if (!isEqual) {
-      this.resetSingleInput();
-      this.revalidateOnValueChangedFromSurvey();
-    }
-    this.isChangingViaDefaultValue = false;
+    this.defaultValueChangeScope.run(viaDefaultVal, (): void => {
+      newValue = this.valueFromData(newValue);
+      const isEqual = this.isTwoValueEquals(this.questionValue, this.convertToCorrectValue(newValue));
+      this.setQuestionValue(newValue);
+      if (!isEqual) {
+        this.resetSingleInput();
+        this.revalidateOnValueChangedFromSurvey();
+      }
+    });
   }
   private revalidateOnValueChangedFromSurvey(): void {
     if (!this.survey || this.isLoadingFromJson || !this.survey.isSettingData() ||

@@ -49,8 +49,6 @@ export var danishSurveyStrings = {
   sortLevelFieldAriaLabel: "Sorteringsfelt {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Sorteringsrækkefølge {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Mere...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Vis alle sortniveauer",
   // [Auto-translated] "Add New"

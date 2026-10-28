@@ -49,8 +49,6 @@ export var catalanSurveyStrings = {
   sortLevelFieldAriaLabel: "Camp d'ordenació {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Ordre d'ordenació {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Més...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Mostra tots els nivells de tipus",
   // [Auto-translated] "Add New"

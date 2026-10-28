@@ -49,8 +49,6 @@ export var bulgarianStrings = {
   sortLevelFieldAriaLabel: "Сортиране на полето {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Сортирайте {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Още...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Покажи всички нива на сортиране",
   // [Auto-translated] "Add New"

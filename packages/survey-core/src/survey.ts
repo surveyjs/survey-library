@@ -3393,7 +3393,7 @@ export class SurveyModel extends SurveyElementCore
    */
   @property() readOnly: boolean;
   // Visual variant of read-only. "view" shows answers as plain text.
-  @property({ defaultValue: "readonly" }) readOnlyMode: string;
+  @property({ defaultValue: "readonly" }) readOnlyMode: "readonly" | "view";
   public getReadOnlyMode(): "readonly" | "view" {
     return this.readOnlyMode === "view" ? "view" : "readonly";
   }

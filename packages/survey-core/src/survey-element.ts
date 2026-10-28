@@ -649,10 +649,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
   }
   // "default" inherits from the parent panel, the parent question, then the survey.
-  public get readOnlyMode(): string {
+  public get readOnlyMode(): "default" | "readonly" | "view" {
     return this.getPropertyValue("readOnlyMode");
   }
-  public set readOnlyMode(val: string) {
+  public set readOnlyMode(val: "default" | "readonly" | "view") {
     this.setPropertyValue("readOnlyMode", val);
   }
   public getReadOnlyMode(): "readonly" | "view" {

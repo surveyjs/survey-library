@@ -985,7 +985,7 @@ describe("Remote data source: attaching and detaching a source", () => {
     await flush();
     checkLocal("#5", "b");
   });
-  test("matrix: after a detach the list pads the records up to rowCount and the next edit stores them", async () => {
+  test("matrix: after a detach the records of the authored rowCount are stored", async () => {
     const { survey, question } = createLocalMatrix({ rowCount: 3 });
     question.value = [{ col1: "a" }];
     expect(question.rowCount, "#1").toBe(3);
@@ -997,12 +997,13 @@ describe("Remote data source: attaching and detaching a source", () => {
     await flush();
     // The hash was cleared by the attach: the detach restores an empty value and the authored rowCount.
     expect(question.rowCount, "#4: the authored count").toBe(3);
-    expect(question.value, "#5: a cleared value reads as survey.getValue does, Bug#12147").toBeUndefined();
-    expect(question["dataList"].loadedCount, "#6: padded up to rowCount again").toBe(3);
-    expect(question["dataList"].getRecord(2), "#7: a padded record").toEqual({});
+    expect(question.value, "#5: the records of the authored rowCount, as survey.getValue").toEqual([{}, {}, {}]);
+    expect(survey.data.matrix, "#5: survey").toEqual([{}, {}, {}]);
+    expect(question["dataList"].loadedCount, "#6").toBe(3);
+    expect(question["dataList"].getRecord(2), "#7: an empty record").toEqual({});
     expect(question.visibleRows.length, "#8").toBe(3);
     question.visibleRows[2].getQuestionByName("col1").value = "x";
-    expect(question.value, "#9: the padded records are stored with the edit").toEqual([{}, {}, { col1: "x" }]);
+    expect(question.value, "#9: the edit is stored into its record").toEqual([{}, {}, { col1: "x" }]);
     expect(survey.data.matrix, "#10").toEqual([{}, {}, { col1: "x" }]);
     question["dataList"].setValue(1, "col1", "y");
     expect(survey.data.matrix, "#11: a list write goes through normalizeRecords to the hash").toEqual([{}, { col1: "y" }, { col1: "x" }]);

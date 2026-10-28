@@ -22,16 +22,15 @@ export class ValueSyncController {
     const onLocalChange = (_sender: SurveyModel, options: { name: string, value: any }) => {
       this.emitName(options.name, options.value);
     };
-    // The row events are synced too: an add or a removal that writes no value changes
-    // only rowCount, and onValueChanged stays silent. Both fire AFTER rowCount is updated,
-    // so the pad below yields an array of the new length. A row that writes the value -
-    // an empty one writes its empty record too (Bug#12147) - produces a second identical
-    // emit; harmless (last write wins, and the same-value setValue on peers is a no-op).
+    // The row events are synced too. An add, a removal and a rowCount change write the value
+    // - an empty row its empty record (Bug#12147) -, so the row event's emit is a second
+    // identical one; harmless (last write wins, and the same-value setValue on peers is a
+    // no-op). It covers a matrix whose row writes no value (a live-object value). Both
+    // events fire AFTER rowCount is updated, so the pad below yields an array of the new length.
     // The event carries the matrix itself, which inside a composite is NOT a key of
     // survey.data: its rows live in the composite's object. Emitting its own value name
     // would put a phantom top-level key on the wire and leave the row unshared, so the
-    // owner of the key is what gets emitted - and the new row is padded into its object,
-    // because an empty row writes no value to pad.
+    // owner of the key is what gets emitted - and the new row is padded into its object.
     const onRowsChanged = (_sender: SurveyModel, options: { question: Question }) => {
       const matrix = options.question;
       const owner = matrix.rootParentQuestion;

@@ -10581,11 +10581,11 @@ describe("Survey_QuestionMatrixDynamic: DynamicDataList integration", () => {
     const list = matrix["dataList"];
     matrix.rowCount = 4;
     expect(list.count, "#1: count follows rowCount").toBe(4);
-    expect(matrix.value.length, "#1: the value is not padded until it is written").toBe(2);
+    expect(matrix.value, "#1: the records of the added rows are stored at once").toEqual([{ c1: "a" }, { c1: "b" }, {}, {}]);
     expect(list.getRecord(3), "#1: an empty record for a row without a value").toEqual({});
     checkLockstep(matrix, "#1");
     setCell(matrix, 3, 0, "d");
-    expect(matrix.value, "#2: the padding is written with the cell").toEqual([{ c1: "a" }, { c1: "b" }, {}, { c1: "d" }]);
+    expect(matrix.value, "#2: the cell is written into its record").toEqual([{ c1: "a" }, { c1: "b" }, {}, { c1: "d" }]);
     matrix.rowCount = 2;
     expect(list.count, "#3: count").toBe(2);
     expect(matrix.value, "#3: the records beyond rowCount are removed").toEqual([{ c1: "a" }, { c1: "b" }]);
@@ -11441,7 +11441,11 @@ describe("Survey_QuestionMatrixDynamic: paging and sorting", () => {
     expect(check("x", "y", false), "#4").toEqual([true, true]);
   });
   test("a key typed on the page repeats a padded record: it reads the default row value", () => {
-    const matrix = createMatrix({ rowCount: 2, pageSize: 2, keyName: "c1", defaultRowValue: { c1: "same" } }, [{ c1: "a" }, { c1: "b" }]);
+    // On a page not shown yet the rowCount setter stores nothing (first rendering does): record 2 stays padded.
+    const survey = new SurveyModel({ pages: [{ elements: [{ type: "text", name: "q0" }] }, { elements: [{ type: "matrixdynamic", name: "matrix",
+      columns: cols, rowCount: 2, pageSize: 2, keyName: "c1", defaultRowValue: { c1: "same" } }] }] });
+    survey.data = { matrix: [{ c1: "a" }, { c1: "b" }] };
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     matrix.visibleRows;
     matrix.rowCount = 3;
     expect(matrix.getPropertyValueWithoutDefault("value").length, "#1: record 2 is padded, not stored").toBe(2);
@@ -11922,7 +11926,7 @@ describe("matrixdynamic: the padded records", () => {
     survey.setValue("unrelated", 2);
     expect(matrix.value.length, "#7: the value was materialized").toBe(ROW_COUNT);
   });
-  test("a matrix detached from an assigned source counts its padded records", () => {
+  test("a matrix detached from an assigned source stores its records up to rowCount", () => {
     const survey = createSurvey();
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     matrix.dataSource = ArrayDynamicDataSource.fromArray([{ col1: "a" }]);
@@ -11933,8 +11937,8 @@ describe("matrixdynamic: the padded records", () => {
     expect(list.isRemote, "#2: back on its own storage").toBe(false);
     const rows = matrix.visibleRows;
     expect(rows.length, "#3").toBe(ROW_COUNT);
-    expect(Array.isArray(matrix.value) ? matrix.value.length : 0, "#4: the value is shorter than rowCount").toBeLessThan(ROW_COUNT);
-    expect(list.count, "#5: the count of the padded records").toBe(ROW_COUNT);
+    expect(matrix.value.length, "#4: the detach stores the records of the authored rowCount").toBe(ROW_COUNT);
+    expect(list.count, "#5: the count of the records").toBe(ROW_COUNT);
     rows.forEach(row => row.rowIndex);
     expect(matrix.visibleRows.length, "#6").toBe(ROW_COUNT);
   });
@@ -12678,7 +12682,7 @@ describe("rowCountExpression and removeRowByIndex", () => {
     matrix.removeRowByIndex(0);
     expect(matrix.rowCount, "#1").toBe(3);
     expect(matrix.visibleRows.length, "#2: one row per counted row").toBe(3);
-    expect(survey.data, "#3").toEqual({ m: [{ a: 2 }, { a: 3 }] });
+    expect(survey.data, "#3: the expression's third row keeps its record, as a panel's does").toEqual({ m: [{ a: 2 }, { a: 3 }, {}] });
   });
 });
 

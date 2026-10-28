@@ -9,6 +9,7 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
+import { ArrayDynamicDataSource } from "../src/dynamic-data/dynamic-data-sources";
 
 function createSurvey(elements: Array<any>): SurveyModel {
   return new SurveyModel({ elements: elements });
@@ -681,7 +682,7 @@ describe("Bug#12147 a Dynamic Matrix keeps its empty rows in the value, as a Dyn
     expect(survey.data, "#2").toEqual({ m: [{}, {}], p: [{}, {}] });
     expect(changed.sort(), "#3").toEqual(["m", "p"]);
   });
-  test("a matrix with defaultValueExpression is not written on first rendering and follows the expression", () => {
+  test("a matrix with defaultValueExpression is written on first rendering as a default value and follows the expression", () => {
     const survey = new SurveyModel({ elements: [
       { type: "matrixdynamic", name: "m1", rowCount: 2, columns: [{ name: "q", cellType: "text" }] },
       { type: "matrixdynamic", name: "m2", rowCount: 2, defaultValueExpression: "{m1}", columns: [{ name: "q", cellType: "text" }] }
@@ -719,27 +720,141 @@ describe("Bug#12147 a Dynamic Matrix keeps its empty rows in the value, as a Dyn
     survey.clear();
     expect(m.rowCount, "#5").toBe(2);
   });
-  test("the rowCount setter: the records of the added rows are stored with the next write", () => {
+  test("the rowCount setter stores the records at once, as the panelCount setter", () => {
     let { survey, m, p } = createSurveyWithBoth({ rowCount: 1 }, { panelCount: 1 });
+    const changed: Array<string> = [];
+    survey.onValueChanged.add((_, options) => { changed.push(options.name); });
     m.rowCount = 3;
     p.panelCount = 3;
-    // A follow-up: the panel stores them at once, the matrix keeps them virtual until a write (as released).
-    expect(m.value, "#1: untouched, before a write").toEqual([{}]);
+    checkSame(survey, m, p, [{}, {}, {}], "#1: untouched, grown");
+    expect(changed, "#1: one event each").toEqual(["m", "p"]);
     setCell(m, 2, "v");
     setPanel(p, 2, "v");
-    checkSame(survey, m, p, [{}, {}, { q: "v" }], "#1: untouched, after a write");
+    checkSame(survey, m, p, [{}, {}, { q: "v" }], "#1: a write");
     ({ survey, m, p } = createSurveyWithBoth({ rowCount: 1 }, { panelCount: 1 }));
     setCell(m, 0, "v");
     setPanel(p, 0, "v");
     m.rowCount = 3;
     p.panelCount = 3;
-    expect(m.value, "#2: answered, before a write").toEqual([{ q: "v" }]);
-    setCell(m, 2, "w");
-    setPanel(p, 2, "w");
-    checkSame(survey, m, p, [{ q: "v" }, {}, { q: "w" }], "#2: answered, after a write");
+    checkSame(survey, m, p, [{ q: "v" }, {}, {}], "#2: answered, grown");
     m.rowCount = 1;
     p.panelCount = 1;
     checkSame(survey, m, p, [{ q: "v" }], "#3: shrunk");
+  });
+  test("rowCountExpression and panelCountExpression store the records at once", () => {
+    const { survey, m, p } = createSurveyWithBoth({ rowCount: 0, rowCountExpression: "{n}" }, { panelCount: 0, panelCountExpression: "{n}" });
+    survey.setValue("n", 3);
+    checkSame(survey, m, p, [{}, {}, {}], "#1");
+    survey.setValue("n", 1);
+    checkSame(survey, m, p, [{}], "#2");
+  });
+  test("a count expression on the second page: the records are stored when the page is shown", () => {
+    const survey = new SurveyModel({ pages: [
+      { elements: [{ type: "text", name: "n" }] },
+      { elements: [
+        { type: "matrixdynamic", name: "m", rowCount: 0, rowCountExpression: "{n}", columns: [{ name: "q", cellType: "text" }] },
+        { type: "paneldynamic", name: "p", panelCount: 0, panelCountExpression: "{n}", templateElements: [{ type: "text", name: "q" }] }
+      ] }
+    ] });
+    survey.setValue("n", 2);
+    expect(survey.data, "#1: not shown yet").toEqual({ n: 2 });
+    survey.nextPage();
+    expect(survey.data, "#2").toEqual({ n: 2, m: [{}, {}], p: [{}, {}] });
+  });
+  test("one value write and one onValueChanged per addRow / addPanel", () => {
+    const check = (matrixJson: any, panelJson: any, add: (m: QuestionMatrixDynamicModel, p: QuestionPanelDynamicModel) => void, expected: any, msg: string): void => {
+      const { survey, m, p } = createSurveyWithBoth(Object.assign({ rowCount: 1 }, matrixJson), Object.assign({ panelCount: 1 }, panelJson));
+      setCell(m, 0, "a");
+      setPanel(p, 0, "a");
+      const changed: Array<string> = [];
+      survey.onValueChanged.add((_, options) => { changed.push(options.name); });
+      add(m, p);
+      checkSame(survey, m, p, expected, msg);
+      expect(changed, msg + ": one event each").toEqual(["m", "p"]);
+    };
+    check({}, {}, (m, p) => { m.addRow(); p.addPanel(); }, [{ q: "a" }, {}], "#1: plain");
+    check({ defaultRowValue: { q: "d" } }, { defaultPanelValue: { q: "d" } }, (m, p) => { m.addRow(); p.addPanel(); }, [{ q: "a" }, { q: "d" }], "#2: a default record");
+    check({}, {}, (m, p) => { m.addRowByIndex({}, 0); p.addPanel(0); }, [{}, { q: "a" }], "#3: at a position");
+  });
+  test("a handler that assigns the value while a row / panel is added wins", () => {
+    const check = (matrixJson: any, panelJson: any, add: (m: QuestionMatrixDynamicModel, p: QuestionPanelDynamicModel) => void, msg: string): void => {
+      const { survey, m, p } = createSurveyWithBoth(Object.assign({ rowCount: 1 }, matrixJson), Object.assign({ panelCount: 1 }, panelJson));
+      let isDone: any = {};
+      survey.onValueChanged.add((_, options) => {
+        if (isDone[options.name] || (options.name !== "m" && options.name !== "p")) return;
+        isDone[options.name] = true;
+        survey.setValue(options.name, [{ q: "x" }]);
+      });
+      add(m, p);
+      checkSame(survey, m, p, [{ q: "x" }], msg);
+      expect(m.visibleRows.length, msg + ": rows").toBe(1);
+      expect(p.panels.length, msg + ": panels").toBe(1);
+    };
+    check({}, {}, (m, p) => { m.addRow(); p.addPanel(); }, "#1: plain");
+    check({ defaultRowValue: { q: "d" } }, { defaultPanelValue: { q: "d" } }, (m, p) => { m.addRow(); p.addPanel(); }, "#2: a default record");
+    check({}, {}, (m, p) => { m.addRowByIndex({}, 0); p.addPanel(0); }, "#3: at a position");
+  });
+  test("count growth: the stored records and the shown rows / panels agree (default records, column defaults, expressions)", () => {
+    const { survey, m, p } = createSurveyWithBoth(
+      { rowCount: 1, defaultRowValue: { q: "d" }, columns: [{ name: "q", cellType: "text" }, { name: "c", cellType: "text", defaultValue: "cd" }, { name: "e", cellType: "expression", expression: "{rowIndex}" }] },
+      { panelCount: 1, defaultPanelValue: { q: "d" }, templateElements: [{ type: "text", name: "q" }, { type: "text", name: "c", defaultValue: "cd" }, { type: "expression", name: "e", expression: "{panelIndex}" }] });
+    m.rowCount = 3;
+    p.panelCount = 3;
+    expect(m.value, "#1: matrix value").toEqual([{ q: "d", c: "cd", e: 1 }, { q: "d", c: "cd", e: 2 }, { q: "d", c: "cd", e: 3 }]);
+    expect(m.visibleRows.map(row => row.value), "#2: rows").toEqual(m.value);
+    expect(p.value, "#3: panel value").toEqual([{ q: "d", c: "cd", e: 0 }, { q: "d", c: "cd", e: 1 }, { q: "d", c: "cd", e: 2 }]);
+    expect(p.panels.map(panel => panel.getValue()), "#4: panels").toEqual(p.value);
+    expect(survey.data, "#5").toEqual({ m: m.value, p: p.value });
+  });
+  test("paging: rowCount growth stores every record and keeps the page", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 3, pageSize: 2, columns: [{ name: "q", cellType: "text" }] }] });
+    const m = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    m.visibleRows;
+    m.pageIndex = 1;
+    m.rowCount = 7;
+    expect(m.value, "#1").toEqual([{}, {}, {}, {}, {}, {}, {}]);
+    expect(m.pageCount, "#2").toBe(4);
+    expect(m.pageIndex, "#3").toBe(1);
+  });
+  test("a panel with defaultValueExpression keeps following it after its first rendering, as the matrix", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "paneldynamic", name: "src", panelCount: 1, templateElements: [{ type: "text", name: "q" }] },
+      { type: "matrixdynamic", name: "m", rowCount: 2, defaultValueExpression: "{src}", columns: [{ name: "q", cellType: "text" }] },
+      { type: "paneldynamic", name: "p", panelCount: 2, defaultValueExpression: "{src}", templateElements: [{ type: "text", name: "q" }] }
+    ] });
+    const src = <QuestionPanelDynamicModel>survey.getQuestionByName("src");
+    setPanel(src, 0, "x");
+    expect(survey.getValue("m"), "#1: m").toEqual([{ q: "x" }]);
+    expect(survey.getValue("p"), "#1: p").toEqual([{ q: "x" }]);
+    setPanel(src, 0, "y");
+    expect(survey.getValue("m"), "#2: m").toEqual([{ q: "y" }]);
+    expect(survey.getValue("p"), "#2: p").toEqual([{ q: "y" }]);
+  });
+  test("a detach stores the records of the authored count, for both", () => {
+    const { survey, m, p } = createSurveyWithBoth({ rowCount: 3 }, { panelCount: 3 });
+    m.dataSource = ArrayDynamicDataSource.fromArray([{ q: "a" }]);
+    p.dataSource = ArrayDynamicDataSource.fromArray([{ q: "a" }]);
+    expect(survey.data, "#1: attached").toEqual({});
+    m.dataSource = undefined;
+    p.dataSource = undefined;
+    checkSame(survey, m, p, [{}, {}, {}], "#2: detached");
+  });
+  test("a data source: no records are stored on a count change, an add or first rendering", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m", rowCount: 2, columns: [{ name: "q", cellType: "text" }] },
+      { type: "paneldynamic", name: "p", panelCount: 2, templateElements: [{ type: "text", name: "q" }] }
+    ] });
+    const m = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    const p = <QuestionPanelDynamicModel>survey.getQuestionByName("p");
+    const mSource = ArrayDynamicDataSource.fromArray([{ q: "a" }]);
+    const pSource = ArrayDynamicDataSource.fromArray([{ q: "a" }]);
+    m.dataSource = mSource;
+    p.dataSource = pSource;
+    m.addRow();
+    p.addPanel();
+    expect(survey.data, "#1").toEqual({});
+    expect(mSource.count, "#2: m source").toBe(2);
+    expect(pSource.count, "#2: p source").toBe(2);
   });
   test("a detail panel question set and cleared keeps the empty records", () => {
     const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 2, detailPanelMode: "underRow",

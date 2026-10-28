@@ -68,10 +68,9 @@ function expectSameReads(q: RecordsQuestion, label: string): IReadState {
 
 function createDynamicMatrix(): { survey: SurveyModel, q: QuestionMatrixDynamicModel } {
   const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 4, columns: [{ name: "a", cellType: "text" }] }] });
-  survey.data = { m: [{ a: 1 }, { a: 2 }] };
   const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
-  // The two rows added read padded: the stored value keeps its two records until a write.
-  q.rowCount = 4;
+  // A value assigned shorter than rowCount: the two other rows read padded, the stored value keeps its two records until a write.
+  q.value = [{ a: 1 }, { a: 2 }];
   return { survey: survey, q: q };
 }
 function createDynamicPanel(): { survey: SurveyModel, q: QuestionPanelDynamicModel } {

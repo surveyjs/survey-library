@@ -409,21 +409,29 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const val = this.value;
     return this.getBuiltRecordIndex(row) >= (Array.isArray(val) ? val.length : 0);
   }
-  /* Bug#12147: the value holds a record for every row, an empty row as {}, as the Dynamic Panel's
-     value holds one for every panel. The rows the respondent has not touched get their records when
-     the matrix is first rendered, as the panels do (setValueBasedOnPanelCount). Not in design mode,
-     with a data source or a live object value. Not with a defaultValueExpression either: an own
-     write would count as a direct change and stop the expression from applying. */
+  // Bug#12147: the rows the respondent has not touched get their records when the matrix is first rendered.
   protected onFirstRenderingCore(): void {
     super.onFirstRenderingCore();
-    this.storeRecordsUpToRowCount();
+    this.storeRecordsToCount();
   }
-  private storeRecordsUpToRowCount(): void {
-    if (this.isDesignMode || this.isRemoteData || this.isEditingObjectValue || this.isEditingSurveyElement) return;
-    if (!!this.defaultValueExpression) return;
+  protected canStoreRecordsToCount(): boolean {
+    return super.canStoreRecordsToCount() && !this.isEditingObjectValue;
+  }
+  /* The padded records reach question.value. The padding stays virtual otherwise: a value assigned
+     shorter than rowCount and a cleared value keep it. A built row gives its record - its cell defaults
+     and expressions -, a record without a row is the default row record. */
+  protected storeRecordsToCountCore(): void {
     const val = this.value;
-    if ((Array.isArray(val) ? val.length : 0) >= this.rowCount) return;
-    this.writeRecords((): void => this.setOwnRecordsValue(this.createNewValue()));
+    const storedCount = Array.isArray(val) ? val.length : 0;
+    if (storedCount >= this.rowCount) return;
+    const records = this.createNewValue();
+    for (let i = storedCount; i < records.length; i++) {
+      const row = <MatrixDropdownRowModelBase>this.getItemByRecordIndex(i);
+      if (!!row && !row.isEmpty) {
+        records[i] = row.value;
+      }
+    }
+    this.writeRecords((): void => this.setOwnRecordsValue(records));
   }
   // With a data source minRowCount only gates the removal: the value is never padded.
   protected correctValueForMinMaxRows(val: any): any {
@@ -687,8 +695,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       } else {
         this.generatedVisibleRows.splice(val).forEach((row: MatrixDropdownRowModelBase): void => { this.disposeRow(row); });
         // Without a view the rows are built in record order: a row's position is its record index.
+        // A new row shows its record - the default row record - as the record it stores does.
         for (var i = prevValue; i < val; i++) {
-          this.addRowForRecord(this.createMatrixRow(this.getValueForNewRow()), this.generatedVisibleRows.length);
+          this.addRowForRecord(this.createMatrixRow(this.getValueForNewRow() || this.getNewRowValue(i)), this.generatedVisibleRows.length);
         }
       }
       this.runCondition(this.getDataFilteredProperties());
@@ -715,23 +724,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   @property() rowCountExpression: string;
   // The count expression (QuestionRecordsModel.hasRecordCountExpression) sets rowCount.
   protected getRecordCountNames(): IRecordCountNames { return rowCountNames; }
-  // A bound rowCount pads the value with the rows that hold answers (the count expression ignores the binding).
-  protected updateBindingProp(propName: string, value: any): void {
-    super.updateBindingProp(propName, value);
-    const rows = this.generatedVisibleRows;
-    if (propName !== "rowCount" || this.hasRecordCountExpression || !Array.isArray(rows)) return;
-    const val = this.getUnbindValue(this.value) || [];
-    if (val.length < rows.length) {
-      let hasValue = false;
-      for (let i = val.length; i < rows.length; i ++) {
-        hasValue ||= !rows[i].isEmpty;
-        val.push(rows[i].value || {});
-      }
-      if (hasValue) {
-        this.value = val;
-      }
-    }
-  }
   private getValueForNewRow(): any {
     var res = null;
     if (!!this.onGetValueForNewRowCallBack) {
@@ -996,8 +988,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         const isNewRow = !this.isPagingActive || this.getBuiltRecordIndex(row) === this.getLastRowRecordIndex();
         // An empty new row is stored as an empty record too, as a new panel is (Bug#12147).
         const isEmptyRow = this.isValueEmpty(row.value);
-        if (isNewRow && !this.isEditingObjectValue && (!isEmptyRow || this.isPaddingPending)) {
-          this.setLastRowRecord(isEmptyRow ? {} : row.value, isEmptyRow);
+        if (isNewRow && !this.isEditingObjectValue) {
+          this.setLastRowRecord(isEmptyRow ? {} : row.value, true);
         }
       }
     }

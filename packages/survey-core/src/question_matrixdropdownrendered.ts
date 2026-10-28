@@ -803,7 +803,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (!this.isValueEmpty(rowActions)) {
       const cell = new QuestionMatrixDropdownRenderedCell();
       const actionContainer = this.matrix.allowAdaptiveActions ? new AdaptiveActionContainer() : new ActionContainer();
-      actionContainer.setActionsAppearance({ mode: this.matrix.isMobile ? "tertiary" : "quaternary", size: "small", style: "neutral" });
+      actionContainer.setActionsAppearance({ mode: this.matrix.isMobile ? "secondary" : "quaternary", size: "small", style: "neutral" });
       if (!!this.matrix.survey && this.matrix.survey.getCss().actionBar) {
         actionContainer.cssClasses = this.matrix.survey.getCss().actionBar;
       }

@@ -1,4 +1,6 @@
-import type { IRunningAsyncOperation, SurveyAsyncOperationType } from "survey-core";
+import type { SurveyAsyncOperationType } from "survey-core";
+import { DEFAULT_SURVEY_ASYNC_TIMEOUT, getSurveyAsyncReasonText, getSurveyAsyncTimeout, getSurveyBusyState as getBusyState,
+  ISurveyBusyState, waitForSurveyOperations } from "../utils/survey-async";
 import { ISurveyTestContext } from "./test-context";
 import { createCaseError, SurveyTestCaseError } from "./test-error";
 import { ISurveyTestOptions } from "./test-json";
@@ -12,49 +14,26 @@ import { SurveyTestIssueCodes } from "./test-result";
 // step after, and let the survey complete itself once the run is over. So a command is not finished
 // until the model it acted on has settled.
 
-// The budget for one asynchronous survey operation, in milliseconds. It is wall-clock time and it is
-// deliberately not the pinned clock of the test: what is bounded here is how long a real handler may
-// take, not what the survey believes the date is.
-export const DEFAULT_TEST_ASYNC_TIMEOUT = 5000;
-// The first re-read is a plain event-loop turn, so an operation that resolves in the same turn costs
-// no timer at all. Everything after it polls at this interval.
-const ASYNC_POLL_INTERVAL = 5;
+// The budget for the whole wait, chained operations included, in milliseconds. It is wall-clock time
+// and it is deliberately not the pinned clock of the test: what is bounded here is how long a real
+// handler may take, not what the survey believes the date is. The waiting itself lives in
+// src/utils/survey-async.ts, which the interview shares.
+export const DEFAULT_TEST_ASYNC_TIMEOUT = DEFAULT_SURVEY_ASYNC_TIMEOUT;
 
 // The reasons are the operation types of SurveyModel.getRunningAsyncOperations(): the model owns the
 // list of its asynchronous mechanisms, and the tester reports them under the names the model gave.
 export type SurveyTestBusyReason = SurveyAsyncOperationType;
 
-export interface ISurveyTestBusyState {
-  reason: SurveyTestBusyReason;
-  // The questions or the expression owners the survey is still waiting for, when the reason names any.
-  names?: Array<string>;
-  // The urls of the requests that have not answered yet. Only "webChoices" carries them.
-  urls?: Array<string>;
-}
+export type ISurveyTestBusyState = ISurveyBusyState;
 
 export function getAsyncTimeout(options: ISurveyTestOptions): number {
-  const val = !!options ? options.asyncTimeout : undefined;
-  return typeof val === "number" && isFinite(val) ? val : DEFAULT_TEST_ASYNC_TIMEOUT;
+  return getSurveyAsyncTimeout(!!options ? options.asyncTimeout : undefined);
 }
 
-// The first reason found, and everything running for that reason. The model itself enumerates its
-// asynchronous mechanisms - getRunningAsyncOperations() is the one place in survey-core that knows
-// them all, cheapest and most explanatory first - so a mechanism added to the model later is waited
-// for here without this file learning about it. Undefined means the model is settled: everything the
-// last interaction started has landed on it.
+// The first reason found, and everything running for that reason. Undefined means the model is
+// settled: everything the last interaction started has landed on it.
 export function getSurveyBusyState(survey: any): ISurveyTestBusyState {
-  if (!survey || typeof survey.getRunningAsyncOperations !== "function") return undefined;
-  const operations: Array<IRunningAsyncOperation> = survey.getRunningAsyncOperations();
-  if (!Array.isArray(operations) || operations.length === 0) return undefined;
-  const reason = operations[0].type;
-  const res: ISurveyTestBusyState = { reason: reason };
-  if (reason === "serverValidation" || reason === "navigationHandler") return res;
-  const owners = operations.filter(operation => operation.type === reason).map(operation => operation.owner);
-  res.names = owners.map(getOwnerName);
-  if (reason === "webChoices") {
-    res.urls = owners.map((question: any) => question.choicesByUrl.processedUrl || question.choicesByUrl.url);
-  }
-  return res;
+  return getBusyState(survey);
 }
 
 // "what" names the action the wait belongs to, as a phrase: the "complete" command, the start state
@@ -68,22 +47,11 @@ export async function waitForSurvey(context: ISurveyTestContext, what: string): 
 // choicesByUrl questions and asynchronous expressions settle under the same budget.
 export async function waitForSurveyModel(survey: any, options: ISurveyTestOptions,
   signal: AbortSignal, what: string): Promise<void> {
-  let busy = getSurveyBusyState(survey);
-  if (!busy) return;
-  const timeout = getAsyncTimeout(options);
-  // A caller that sets the budget to zero asks for no waiting at all and takes the consequences.
-  if (timeout <= 0) return;
-  const start = Date.now();
-  let turns = 0;
-  while(!!busy) {
-    // A stopped run stops waiting. The runner notices the signal the moment this returns, and an
-    // operation the survey is still holding is the caller's decision, not a broken case.
-    if (!!signal && signal.aborted) return;
-    if (Date.now() - start >= timeout) throw createTimeoutError(what, busy, timeout);
-    await delayTurn(turns === 0 ? 0 : ASYNC_POLL_INTERVAL);
-    turns++;
-    busy = getSurveyBusyState(survey);
-  }
+  // A budget of zero or less asks for no waiting at all, and the caller takes the consequences. A
+  // stopped run stops waiting: the runner notices the signal the moment this returns, and an operation
+  // the survey is still holding is the caller's decision, not a broken case.
+  const res = await waitForSurveyOperations(survey, getAsyncTimeout(options), () => !!signal && signal.aborted);
+  if (res.status === "timedOut") throw createTimeoutError(what, res.busy, res.timeout);
 }
 
 function createTimeoutError(what: string, busy: ISurveyTestBusyState, timeout: number): SurveyTestCaseError {
@@ -92,35 +60,8 @@ function createTimeoutError(what: string, busy: ISurveyTestBusyState, timeout: n
   if (!!busy.urls) data.urls = busy.urls;
   return createCaseError(SurveyTestIssueCodes.asyncOperationTimeout,
     "The survey was still running an asynchronous operation " + timeout + "ms after " + what + ": " +
-    getReasonText(busy) + ". The test stops here: what the survey does next would land on a model no " +
+    getSurveyAsyncReasonText(busy) + ". The test stops here: what the survey does next would land on a model no " +
     "step is watching, and the state every step after this one reads would be the state before it. " +
     "Raise the \"asyncTimeout\" option if the operation needs longer.",
     { data: data });
-}
-
-function getReasonText(busy: ISurveyTestBusyState): string {
-  const names = !!busy.names ? busy.names.join(", ") : "";
-  switch(busy.reason) {
-    case "serverValidation":
-      return "a handler of \"onServerValidateQuestions\" has not called \"options.complete()\"";
-    case "navigationHandler":
-      return "a handler of \"onCompleting\" or \"onCurrentPageChanging\" has not called its callback";
-    case "validators":
-      return "the asynchronous validators of " + names + " have not finished";
-    case "expressions":
-      return "the asynchronous expressions of " + names + " have not finished";
-    case "webChoices":
-      return "the choices of " + names + " are still loading from " +
-        (!!busy.urls ? busy.urls.join(", ") : "a web service");
-  }
-  return busy.reason;
-}
-
-function getOwnerName(obj: any): string {
-  if (!!obj && !!obj.name) return obj.name;
-  return !!obj && typeof obj.getType === "function" ? obj.getType() : "survey";
-}
-
-function delayTurn(ms: number): Promise<void> {
-  return new Promise<void>(resolve => { setTimeout(resolve, ms); });
 }

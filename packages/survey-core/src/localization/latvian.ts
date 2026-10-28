@@ -49,8 +49,6 @@ export var latvianSurveyStrings = {
   sortLevelFieldAriaLabel: "Kārtošanas lauka {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Kārtot {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Vairāk...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Rādīt visdažādākos līmeņus",
   // [Auto-translated] "Add New"

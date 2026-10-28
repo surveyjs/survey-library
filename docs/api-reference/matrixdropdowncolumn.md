@@ -18,6 +18,18 @@ You can get an object of this class from the [`columns`](https://surveyjs.io/for
 
 ## Properties
 
+### `allowSort`
+
+**Type**: `boolean`
+
+Specifies whether respondents can sort matrix rows by this column. Applies only when the matrix's `allowSort` property is `true`.
+
+Default value: `true`
+
+Columns whose cells hold multiple values (`"checkbox"` and `"tagbox"` [cell types](#cellType), or a `"slider"` with `sliderType: "range"`) are excluded from respondent sorting regardless of this setting.
+
+Sorting configured in code remains available regardless of this property's value.
+
 ### `cellType`
 
 **Type**: `string`

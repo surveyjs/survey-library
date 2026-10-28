@@ -303,10 +303,13 @@ describe("composite: matrixdynamic inside a composite", () => {
     matrix.addRow();
 
     // The nested matrix is not a key of survey.data; its rows live inside the
-    // composite's object, so that is what has to go on the wire.
-    expect(values(sent)).toHaveLength(1);
-    expect(values(sent)[0].key).toBe("wm");
-    expect(values(sent)[0].value.rows).toHaveLength(2);
+    // composite's object, so that is what has to go on the wire. The empty row writes
+    // its record (Bug#12147), so the value change and the row event send it twice.
+    expect(values(sent)).toHaveLength(2);
+    values(sent).forEach((message) => {
+      expect(message.key).toBe("wm");
+      expect(message.value.rows).toHaveLength(2);
+    });
   });
 
   test("an empty row added inside a composite reaches the peer", () => {
@@ -563,8 +566,10 @@ describe("composite: containers that are not composites", () => {
     (survey.getQuestionByName("s1") as any).contentQuestion.addRow();
 
     // Its content question carries no parentQuestion, so the owner cannot be resolved -
-    // and a key no peer can interpret is worse than a row that does not travel.
-    expect(values(sent)).toHaveLength(0);
+    // and a key no peer can interpret is worse than a row that does not travel. What
+    // travels is the value change of the custom question itself: the empty row writes
+    // its record (Bug#12147).
+    expect(values(sent).map((message) => message.key)).toEqual(["s1"]);
   });
 
   test("a composite with valueName travels under the value name", () => {

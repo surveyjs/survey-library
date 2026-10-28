@@ -177,11 +177,10 @@ describe("Local sources: the membership of each records question follows from it
     expect(createQuestions()[3].q["recordsSource"] instanceof ArrayDynamicDataSource, "the Dynamic Panel: an array source").toBe(true);
   });
   test("the Dynamic Matrix's own source is an array source that pads up to rowCount, and its rows are added, removed and moved", () => {
-    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 2, columns: [{ name: "a", cellType: "text" }] }] });
-    survey.data = { m: [{ a: 1 }] };
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "m", rowCount: 3, columns: [{ name: "a", cellType: "text" }] }] });
     const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
-    // survey.data sets rowCount to the value length: raise it again, so that two records read padded.
-    q.rowCount = 3;
+    // A value assigned shorter than rowCount keeps rowCount (the rowCount setter stores the records): two records read padded.
+    q.value = [{ a: 1 }];
     const source = q["recordsSource"];
     expect(source instanceof ArrayDynamicDataSource, "#1: an array source").toBe(true);
     expect(q.value, "#2: the stored value is not padded").toEqual([{ a: 1 }]);

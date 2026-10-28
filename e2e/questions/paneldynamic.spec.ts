@@ -450,7 +450,7 @@ frameworks.forEach((framework) => {
           },
         ],
       });
-      const pager = page.locator(".sd-paneldynamic__pager");
+      const pager = page.locator(".sd-pager");
       const nameInput = page.locator(".sd-paneldynamic__panel-wrapper input").first();
 
       await expect(nameInput).toHaveValue("panel1");
@@ -480,7 +480,7 @@ frameworks.forEach((framework) => {
           { type: "html", name: "spacer2", html: "<div style='height: 900px'></div>" },
         ],
       });
-      const pageButton = page.locator(".sd-paneldynamic__pager").getByRole("button", { name: "Page 1 of 5" });
+      const pageButton = page.locator(".sd-pager").getByRole("button", { name: "Page 1 of 5" });
       // The dropdown 120px above the window's bottom: the five pages do not fit below it.
       await pageButton.evaluate(el => { window.scrollBy(0, el.getBoundingClientRect().top - 480); });
       await pageButton.click();
@@ -502,7 +502,7 @@ frameworks.forEach((framework) => {
           },
         ],
       });
-      const pager = page.locator(".sd-paneldynamic__pager");
+      const pager = page.locator(".sd-pager");
       const sheet = page.locator(".sv-popup--sheet");
       const nameInput = page.locator(".sd-paneldynamic__panel-wrapper input").first();
 
@@ -861,7 +861,7 @@ frameworks.forEach((framework) => {
       await page.locator(".sv-popup__container").filter({ visible: true }).getByRole("menuitemradio", { name: "Price", exact: true }).click();
       await expect(priceInput).toHaveValue("30");
       await expect(page.getByRole("button", { name: /^Sort order/ }).locator(".sd-action__title")).toHaveText("High - Low");
-      const pager = page.locator(".sd-paneldynamic__pager");
+      const pager = page.locator(".sd-pager");
       await pager.locator("button[title='Next']").click();
       await expect(priceInput).toHaveValue("10");
       await pager.locator("button[title='Previous']").click();
@@ -898,10 +898,10 @@ frameworks.forEach((framework) => {
       await page.locator(".sv-popup__container").filter({ visible: true }).getByRole("menuitemradio", { name: "Category", exact: true }).click();
       await expect.poll(shownProducts).toEqual(["a", "c"]);
       await page.getByRole("button", { name: "Add sort level", exact: true }).click();
-      // The panel's header leaves the bar too little room for the second level: it is behind "More...".
+      // The panel's header leaves the bar too little room for the second level: it is behind "...".
       await expect(page.getByRole("button", { name: "Show all sort levels", exact: true })).toBeVisible();
       await expect.poll(shownProducts).toEqual(["a", "b"]);
-      const pager = page.locator(".sd-paneldynamic__pager");
+      const pager = page.locator(".sd-pager");
       await pager.locator("button[title='Next']").click();
       await expect.poll(shownProducts).toEqual(["c", "d"]);
       await pager.locator("button[title='Previous']").click();

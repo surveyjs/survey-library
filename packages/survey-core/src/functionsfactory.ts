@@ -17,6 +17,7 @@ interface IFunctionInfo {
   description?: string;
   parameters?: Array<IFunctionParameter>;
   returnType?: string;
+  resultDependsOn?: "parameters" | "survey" | "elements";
 }
 interface IFunctionCachedSurveyValue {
   name: string;
@@ -51,6 +52,7 @@ export class FunctionFactory {
     this.functionHash[info.name] = {
       name: info.name, func: info.func, isAsync: !!info.isAsync, useCache: !!useCacheValue, originalValueParams: info.originalValueParams,
       description: info.description, parameters: info.parameters, returnType: info.returnType,
+      resultDependsOn: info.resultDependsOn,
     };
   }
   // Returns the indexes of the parameters that must receive the original (unfiltered) value.
@@ -98,6 +100,7 @@ export class FunctionFactory {
       if (info.description !== undefined) res.description = info.description;
       if (Array.isArray(info.parameters)) res.parameters = info.parameters.map(param => ({ ...param }));
       if (info.returnType !== undefined) res.returnType = info.returnType;
+      if (info.resultDependsOn !== undefined) res.resultDependsOn = info.resultDependsOn;
       return res;
     });
   }
@@ -240,6 +243,12 @@ export interface IFunctionRegistration {
   description?: string;
   parameters?: Array<IFunctionParameter>;
   returnType?: string;
+  // What the result depends on besides the code of the function: "parameters" - its arguments only;
+  // "survey" - also survey state that a conditions pass does not change unless a value changes (the
+  // clock, the display mode, a comment); "elements" - also element state that the conditions of the
+  // same pass change (visibility, readiness, visible choices, display texts). Not set means unknown,
+  // and it is treated as "elements".
+  resultDependsOn?: "parameters" | "survey" | "elements";
 }
 export interface IFunctionParameter {
   name: string;
@@ -286,6 +295,7 @@ FunctionFactory.Instance.register({
     { name: "values", type: "number|array", description: "Numbers to add", isRest: true },
   ],
   returnType: "number",
+  resultDependsOn: "parameters",
 });
 
 function min_max(params: any[], isMin: boolean): any {
@@ -315,6 +325,7 @@ FunctionFactory.Instance.register({
     { name: "values", type: "number|array", description: "Numbers to compare", isRest: true },
   ],
   returnType: "number",
+  resultDependsOn: "parameters",
 });
 
 function max(params: any[]): any {
@@ -327,6 +338,7 @@ FunctionFactory.Instance.register({
     { name: "values", type: "number|array", description: "Numbers to compare", isRest: true },
   ],
   returnType: "number",
+  resultDependsOn: "parameters",
 });
 
 function count(params: any[]): any {
@@ -341,6 +353,7 @@ FunctionFactory.Instance.register({
     { name: "values", type: "any", description: "Values to count", isRest: true },
   ],
   returnType: "number",
+  resultDependsOn: "parameters",
 });
 
 function avg(params: any[]): any {
@@ -356,6 +369,7 @@ FunctionFactory.Instance.register({
     { name: "values", type: "number|array", description: "Numbers to average", isRest: true },
   ],
   returnType: "number",
+  resultDependsOn: "parameters",
 });
 
 function round(params: any[]): any {
@@ -380,6 +394,7 @@ FunctionFactory.Instance.register({
     { name: "precision", type: "number", description: "Decimal places", optional: true },
   ],
   returnType: "number",
+  resultDependsOn: "parameters",
 });
 
 function trunc(params: any[]): any {
@@ -403,6 +418,7 @@ FunctionFactory.Instance.register({
     { name: "precision", type: "number", description: "Decimal places", optional: true },
   ],
   returnType: "number",
+  resultDependsOn: "parameters",
 });
 
 // Whether the third argument of an inArray function names a column rather than being the
@@ -528,6 +544,7 @@ FunctionFactory.Instance.register({
     { name: "filter", type: "condition", description: "Only the items for which this condition holds are used; it reads the item's own fields: {price} > 0", optional: true },
   ],
   returnType: "number",
+  resultDependsOn: "survey",
 });
 
 function calcMinMaxInArray(properties: any, params: any[], originalParams: any[],
@@ -572,6 +589,7 @@ FunctionFactory.Instance.register({
     { name: "filter", type: "condition", description: "Only the items for which this condition holds are used; it reads the item's own fields: {price} > 0", optional: true },
   ],
   returnType: "number|string",
+  resultDependsOn: "survey",
 });
 
 function maxInArray(params: any[], originalParams: any[]): any {
@@ -588,6 +606,7 @@ FunctionFactory.Instance.register({
     { name: "filter", type: "condition", description: "Only the items for which this condition holds are used; it reads the item's own fields: {price} > 0", optional: true },
   ],
   returnType: "number|string",
+  resultDependsOn: "survey",
 });
 
 function countInArray(params: any[], originalParams: any[]): any {
@@ -608,6 +627,7 @@ FunctionFactory.Instance.register({
     { name: "filter", type: "condition", description: "Only the items for which this condition holds are used; it reads the item's own fields: {price} > 0", optional: true },
   ],
   returnType: "number",
+  resultDependsOn: "survey",
 });
 
 function avgInArray(params: any[], originalParams: any[]): any {
@@ -627,6 +647,7 @@ FunctionFactory.Instance.register({
     { name: "filter", type: "condition", description: "Only the items for which this condition holds are used; it reads the item's own fields: {price} > 0", optional: true },
   ],
   returnType: "number",
+  resultDependsOn: "survey",
 });
 
 function iif(params: any[]): any {
@@ -643,6 +664,7 @@ FunctionFactory.Instance.register({
     { name: "valueIfFalse", type: "any" },
   ],
   returnType: "any",
+  resultDependsOn: "parameters",
 });
 
 function getDate(params: any[]): any {
@@ -656,6 +678,7 @@ FunctionFactory.Instance.register({
     { name: "value", type: "any", description: "A date question or a date string" },
   ],
   returnType: "date",
+  resultDependsOn: "parameters",
 });
 
 // owner carries the clock of the survey the expression belongs to: an age() with one parameter
@@ -683,6 +706,7 @@ FunctionFactory.Instance.register({
     { name: "birthdate", type: "date" },
   ],
   returnType: "number",
+  resultDependsOn: "survey",
 });
 
 function dateDiff(params: any[]): any {
@@ -707,6 +731,7 @@ FunctionFactory.Instance.register({
     { name: "interval", type: "string", description: "'days' (default), 'hours', 'minutes', 'seconds', 'months' or 'years'", optional: true },
   ],
   returnType: "number",
+  resultDependsOn: "survey",
 });
 
 function dateAdd(params: any[]): any {
@@ -744,6 +769,7 @@ FunctionFactory.Instance.register({
     { name: "interval", type: "string", description: "'days' (default), 'hours', 'minutes', 'seconds', 'months' or 'years'", optional: true },
   ],
   returnType: "date",
+  resultDependsOn: "parameters",
 });
 
 function isContainerReadyCore(container: any): boolean {
@@ -790,6 +816,7 @@ FunctionFactory.Instance.register({
     { name: "nameOfPanelOrPage", type: "string", description: "Quoted: 'page1'" },
   ],
   returnType: "boolean",
+  resultDependsOn: "elements",
 });
 
 function isDisplayMode() {
@@ -800,6 +827,7 @@ FunctionFactory.Instance.register({
   description: "Returns true when the survey is shown in display (read-only) or preview mode.",
   parameters: [],
   returnType: "boolean",
+  resultDependsOn: "survey",
 });
 
 // The functions that mean "now" read the clock of the survey the expression runs in. this.survey is
@@ -813,6 +841,7 @@ FunctionFactory.Instance.register({
   description: "Returns the current date and time.",
   parameters: [],
   returnType: "date",
+  resultDependsOn: "survey",
 });
 
 function today(params: any[]) {
@@ -834,6 +863,7 @@ FunctionFactory.Instance.register({
     { name: "daysToAdd", type: "number", description: "today(-1) is yesterday", optional: true },
   ],
   returnType: "date",
+  resultDependsOn: "survey",
 });
 
 function getYear(params: any[]) {
@@ -847,6 +877,7 @@ FunctionFactory.Instance.register({
     { name: "date", type: "date" },
   ],
   returnType: "number",
+  resultDependsOn: "parameters",
 });
 
 function currentYear() {
@@ -857,6 +888,7 @@ FunctionFactory.Instance.register({
   description: "Returns the current year.",
   parameters: [],
   returnType: "number",
+  resultDependsOn: "survey",
 });
 
 function diffDays(params: any[]) {
@@ -876,6 +908,7 @@ FunctionFactory.Instance.register({
     { name: "toDate", type: "date" },
   ],
   returnType: "number",
+  resultDependsOn: "parameters",
 });
 
 // Called through .call() so that the survey the function is running in reaches today(): a plain call
@@ -899,6 +932,7 @@ FunctionFactory.Instance.register({
     { name: "date", type: "date", optional: true },
   ],
   returnType: "number",
+  resultDependsOn: "survey",
 });
 
 function month(params: any[]): any {
@@ -912,6 +946,7 @@ FunctionFactory.Instance.register({
     { name: "date", type: "date", optional: true },
   ],
   returnType: "number",
+  resultDependsOn: "survey",
 });
 
 function day(params: any[]): any {
@@ -925,6 +960,7 @@ FunctionFactory.Instance.register({
     { name: "date", type: "date", optional: true },
   ],
   returnType: "number",
+  resultDependsOn: "survey",
 });
 
 function weekday(params: any[]): any {
@@ -938,6 +974,7 @@ FunctionFactory.Instance.register({
     { name: "date", type: "date", optional: true },
   ],
   returnType: "number",
+  resultDependsOn: "survey",
 });
 
 function getQuestionValueByContext(context: any, name: string): any {
@@ -990,6 +1027,7 @@ FunctionFactory.Instance.register({
     { name: "value", type: "any", optional: true },
   ],
   returnType: "any",
+  resultDependsOn: "elements",
 });
 
 function propertyValue(params: any[]): any {
@@ -1005,6 +1043,7 @@ FunctionFactory.Instance.register({
     { name: "propertyName", type: "string", description: "Quoted: 'visible'" },
   ],
   returnType: "any",
+  resultDependsOn: "elements",
 });
 function substring_(params: any[]): any {
   if (params.length < 2) return "";
@@ -1025,6 +1064,7 @@ FunctionFactory.Instance.register({
     { name: "end", type: "number", optional: true },
   ],
   returnType: "string",
+  resultDependsOn: "parameters",
 });
 
 function getComment(params: any[]): any {
@@ -1046,6 +1086,7 @@ FunctionFactory.Instance.register({
     { name: "choiceValue", type: "any", optional: true },
   ],
   returnType: "string",
+  resultDependsOn: "survey",
 });
 
 export function expressionSurveyCachedValue(name: string, value: any, isVariable?: boolean): void {

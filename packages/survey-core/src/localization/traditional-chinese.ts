@@ -49,8 +49,6 @@ export var traditionalChineseSurveyStrings = {
   sortLevelFieldAriaLabel: "排序欄位{0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "排序順序{0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "更多......",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "顯示各種等級",
   // [Auto-translated] "Add New"

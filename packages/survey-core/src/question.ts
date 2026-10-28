@@ -2,7 +2,7 @@ import { HashTable, Helpers } from "./helpers";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation, IDataVerificationOptions, IDataIssue, DataIssueType } from "./base-interfaces";
-import { Base } from "./base";
+import { Base, ComputedUpdater } from "./base";
 import { EventBase } from "./event";
 import { SurveyElement } from "./survey-element";
 import { AnswerRequiredError, CustomError } from "./error";
@@ -26,6 +26,7 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 import { ActionContainer } from "./actions/container";
+import { Action } from "./actions/action";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { isAnimationEnabled } from "./utils/reduced-motion";
 import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choices";
@@ -464,7 +465,11 @@ export class Question extends SurveyElement<Question>
   hasCssErrorCallback: () => boolean = (): boolean => false;
 
   private triggersInfo: Array<ITriggerExpressionInfo> = [];
-  private isChangingViaDefaultValue: boolean;
+  private defaultValueChangeScope = new ValueScope<boolean>(false);
+  // Read by name by the questions whose data is this question too (isParentChangingViaDefaultValue).
+  private get isChangingViaDefaultValue(): boolean {
+    return this.defaultValueChangeScope.value;
+  }
   private isValueChangedDirectly: boolean;
   valueChangedCallback: () => void;
   commentChangedCallback: () => void;
@@ -1128,7 +1133,7 @@ export class Question extends SurveyElement<Question>
     if (runner.hasFunction(true)) return "func";
     const vars = runner.getVariables();
     if ((!Array.isArray(vars) || vars.length === 0)) return "const";
-    return new ValueGetter().isAnyKeyChangedCore(keys, vars, runner.getVariablesInfo()) ? "var" : "";
+    return new ValueGetter().isAnyKeyChangedCore(keys, vars, runner.getVariablesInfo(), undefined, this.getSurveyVariableNamesInfo()) ? "var" : "";
   }
   // Whether an item condition of this question (a choice, row or column visibleIf / enableIf) may keep
   // its last result in the current value-change run. It follows the element rule, with one difference:
@@ -2367,6 +2372,36 @@ export class Question extends SurveyElement<Question>
   clearValueFromUI(): void {
     this.clearValue(true, true);
   }
+  /**
+   * Specifies whether to display a button that clears the question value.
+   *
+   * The button appears in the question title and stays hidden when the [title is hidden](#titleLocation). A question renders the button only when it supports a title action. Dropdown, Multi-Select Dropdown, and Signature Pad use this property for their own clear button. File Upload, HTML, Image, Expression, Dynamic Matrix, and Dynamic Panel do not show it.
+   *
+   * Default value: `false`
+   */
+  @property() allowClear: boolean;
+  public get canShowClearButton(): boolean {
+    return !!this.allowClear && !this.isReadOnly;
+  }
+  // False for a question whose clear control lives somewhere other than the title,
+  // or for a render mode that has no title-action slot.
+  public get supportClearTitleAction(): boolean {
+    return true;
+  }
+  protected getDefaultTitleActions(): Array<Action> {
+    if (this.isDesignMode || !this.supportClearTitleAction) return [];
+    return [this.createClearTitleAction(() => this.canShowClearButton)];
+  }
+  protected createClearTitleAction(isVisible: () => boolean): Action {
+    return new Action({
+      locTitleName: "clearCaption",
+      id: `sv-clr-btn-${this.id}`,
+      action: () => { this.clearValueFromUI(); },
+      innerCss: this.cssClasses.clearButton,
+      visible: <any>new ComputedUpdater(isVisible),
+      ariaLabelledBy: this.a11y_input_ariaLabelledBy
+    });
+  }
   clearValueOnly(): void {
     this.clearValue(true);
   }
@@ -2692,9 +2727,11 @@ export class Question extends SurveyElement<Question>
     if (this.isDesignMode && this.isContentElement && this.isDefaultValueEmpty()) return;
     if (!this.defaultValueExpression && this.parentQuestion?.isBuildingChildrenForStoredRecords()) return;
     // Applying a default value is not a direct value change
-    this.isChangingViaDefaultValue = true;
-    this.setDefaultValue();
-    this.isChangingViaDefaultValue = false;
+    this.runAsDefaultValueChange((): void => this.setDefaultValue());
+  }
+  // A write of the question's own that is no answer: the default values keep applying after it.
+  protected runAsDefaultValueChange(func: () => void): void {
+    this.defaultValueChangeScope.run(true, func);
   }
   public get isValueDefault(): boolean {
     return !this.isEmpty() && (this.isTwoValueEquals(this.defaultValue, this.value) || !this.isValueChangedDirectly && !!this.defaultValueExpression);
@@ -2783,9 +2820,7 @@ export class Question extends SurveyElement<Question>
     }
     return this.runExpressionByProperty("defaultValueExpression", properties, (res: any) => {
       if (res == undefined) res = this.defaultValue;
-      this.isChangingViaDefaultValue = true;
-      setFunc(res);
-      this.isChangingViaDefaultValue = false;
+      this.runAsDefaultValueChange((): void => setFunc(res));
       if (isConditionsPass) {
         this.lastDefaultValueRun = {
           expression: this.defaultValueExpression,
@@ -2939,6 +2974,7 @@ export class Question extends SurveyElement<Question>
   public getConditionJson(operator: string = null, path: string = null): any {
     const json = new JsonObject().toJsonObject(this);
     json["type"] = this.getType();
+    delete json["allowClear"];
     return json;
   }
   public hasErrors(fireCallback: boolean = true, focusOnFirstError: boolean = false): boolean {
@@ -3435,15 +3471,15 @@ export class Question extends SurveyElement<Question>
     }
   }
   private updateValueFromSurveyCore(newValue: any, viaDefaultVal: boolean): void {
-    this.isChangingViaDefaultValue = viaDefaultVal;
-    newValue = this.valueFromData(newValue);
-    const isEqual = this.isTwoValueEquals(this.questionValue, this.convertToCorrectValue(newValue));
-    this.setQuestionValue(newValue);
-    if (!isEqual) {
-      this.resetSingleInput();
-      this.revalidateOnValueChangedFromSurvey();
-    }
-    this.isChangingViaDefaultValue = false;
+    this.defaultValueChangeScope.run(viaDefaultVal, (): void => {
+      newValue = this.valueFromData(newValue);
+      const isEqual = this.isTwoValueEquals(this.questionValue, this.convertToCorrectValue(newValue));
+      this.setQuestionValue(newValue);
+      if (!isEqual) {
+        this.resetSingleInput();
+        this.revalidateOnValueChangedFromSurvey();
+      }
+    });
   }
   private revalidateOnValueChangedFromSurvey(): void {
     if (!this.survey || this.isLoadingFromJson || !this.survey.isSettingData() ||
@@ -4089,5 +4125,6 @@ Serializer.addClass("question", [
   { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
   { name: "randomize:boolean", default: true, visible: false, locationInTable: "detail" },
   { name: "randomizeCategory:string", visible: false, locationInTable: "detail" },
+  { name: "allowClear:boolean" },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

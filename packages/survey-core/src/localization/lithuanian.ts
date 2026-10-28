@@ -49,8 +49,6 @@ export var lithuaniaSurveyStrings = {
   sortLevelFieldAriaLabel: "Rūšiuoti lauką {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Rūšiuokite {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Daugiau...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Rodyti įvairius lygius",
   // [Auto-translated] "Add New"

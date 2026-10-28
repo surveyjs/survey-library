@@ -49,8 +49,6 @@ export var swedishSurveyStrings = {
   sortLevelFieldAriaLabel: "Sorteringsfält {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Sorteringsordning {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Mer...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Visa alla sorteringsnivåer",
   // [Auto-translated] "Add New"

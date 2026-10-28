@@ -38,7 +38,7 @@ import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
-import { HashKeyIndex, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { HashKeyIndex, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterNameInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { getBuiltInVariableNames, getBuiltInVariableValue } from "./conditions/builtInVariables";
 import { getLocaleString, surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
@@ -108,6 +108,7 @@ import { TOCModel } from "./surveyToc";
 import { SurveyProgressTextModel } from "./surveyProgressTextModel";
 import { SurveyNavigationLayoutModel } from "./surveyNavigationLayoutModel";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
+import { initTooltips } from "./utils/tooltip";
 import { ConsoleWarnings } from "./console-warnings";
 import DefaultLightTheme from "./themes/default-light";
 import { createBoxShadowReset } from "./utils/shadow-effects";
@@ -131,6 +132,14 @@ function createVariablesContext(variablesHash: HashTable<any>): VariableGetterCo
 
 // The built-in variables live in their own module; the name list stays exported from here
 export { getBuiltInVariableNames };
+
+// The calculated values the load's conditions passes repeat (CalculatedValue.getRepeatedAtLoad), and the
+// lower-case names of the calculated values that changed in the current loop over them
+interface ICalculatedValuesAtLoad {
+  repeated: Array<CalculatedValue>;
+  isCalculating: boolean;
+  changed: Set<string>;
+}
 
 class SurveyValueGetterContext extends ValueGetterContextCore {
   constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>, private valuesKeyIndex: HashKeyIndex) {
@@ -6006,6 +6015,8 @@ export class SurveyModel extends SurveyElementCore
     if (this.generateStylesheet) {
       ensureBaseThemeStyles(observedElement);
     }
+    // Passing the root (not its document) also covers the shadow root the survey is rendered in.
+    initTooltips(observedElement);
     this._processingResponsivenessFunc = undefined;
     const cssVariables = this.css.variables;
     if (!!cssVariables) {
@@ -7341,6 +7352,18 @@ export class SurveyModel extends SurveyElementCore
     if (!this.onExpressionRunning.isEmpty) return undefined;
     return this.questionTriggersKeys;
   }
+  // The skip check's parsed variable names (ValueGetter.isAnyKeyChangedCore), shared by every runner and trigger
+  // of the survey and keyed by the exact name: a large survey has far fewer distinct names than runner slots.
+  // An item depends on the name only: settings are read on every call, never kept in it, and an item never
+  // reaches ValueGetter.run, which changes the path it parses. Built on the first keyed check; it lives as long
+  // as the survey and is never cleared.
+  private variableNamesInfo: Map<string, IValueGetterNameInfo>;
+  public getVariableNamesInfo(): Map<string, IValueGetterNameInfo> {
+    if (!this.variableNamesInfo) {
+      this.variableNamesInfo = new Map<string, IValueGetterNameInfo>();
+    }
+    return this.variableNamesInfo;
+  }
   private runConditionOnValueChanged(name: string, value: any) {
     const values: HashTable<any> = {};
     values[name] = value;
@@ -7349,7 +7372,7 @@ export class SurveyModel extends SurveyElementCore
   // One conditions pass for all the changed names at once. The optional name is the value that
   // changed first-hand: the question-level triggers (resetValueIf/setValueIf) use it to skip the
   // question that is being set. A batch has no such name and passes none.
-  private runConditionOnValuesChanged(values: HashTable<any>, name?: string): void {
+  private runConditionOnValuesChanged(values: HashTable<any>, name?: string, isCalculatedValueAtLoad?: boolean): void {
     if (!this.questionTriggersKeys) {
       this.questionTriggersKeys = {};
     }
@@ -7357,7 +7380,13 @@ export class SurveyModel extends SurveyElementCore
       this.questionTriggersKeys[key] = values[key];
     }
     if (this.isRunningConditions) {
-      this.isValueChangedOnRunningCondition = true;
+      // At load, a calculated value's own write in the loop over the calculated values requests no
+      // other pass: every element condition of the same pass runs after that loop and reads the new
+      // value. Only a cycle or a read of a value calculated later needs another loop, and
+      // runConditionsCore repeats those calculated values itself.
+      if (!isCalculatedValueAtLoad) {
+        this.isValueChangedOnRunningCondition = true;
+      }
     } else {
       this.isRunningConditionOnValueChanged = true;
       this.runConditions();
@@ -7371,13 +7400,56 @@ export class SurveyModel extends SurveyElementCore
     for (var i = 0; i < this.calculatedValues.length; i++) {
       this.calculatedValues[i].resetCalculation();
     }
-    for (var i = 0; i < this.calculatedValues.length; i++) {
-      this.calculatedValues[i].doCalculation(this.calculatedValues, properties);
+    const atLoad = this.calculatedValuesAtLoad;
+    if (!!atLoad) {
+      atLoad.isCalculating = true;
+      atLoad.changed.clear();
+    }
+    try {
+      for (var i = 0; i < this.calculatedValues.length; i++) {
+        this.calculatedValues[i].doCalculation(this.calculatedValues, properties);
+      }
+      if (!!atLoad) {
+        this.repeatCalculatedValuesAtLoad(atLoad, properties);
+      }
+    } finally {
+      if (!!atLoad) {
+        atLoad.isCalculating = false;
+      }
     }
     super.runConditionCore(properties);
     for (let i = 0; i < pages.length; i++) {
       pages[i].runCondition(properties);
     }
+  }
+  // Set while the load runs its conditions, unless the load runs its whole passes as before
+  private calculatedValuesAtLoad: ICalculatedValuesAtLoad;
+  private createCalculatedValuesAtLoad(): ICalculatedValuesAtLoad {
+    // A handler can change the expression that runs, so what a calculated value reads is not known
+    if (!this.onExpressionRunning.isEmpty) return undefined;
+    const repeated = CalculatedValue.getRepeatedAtLoad(this.calculatedValues);
+    return !!repeated ? { repeated: repeated, isCalculating: false, changed: new Set<string>() } : undefined;
+  }
+  // A repeat counts as a pass, so a cycle that does not settle stops where the passes stop
+  private repeatCalculatedValuesAtLoad(atLoad: ICalculatedValuesAtLoad, properties: any): void {
+    const repeated = atLoad.repeated;
+    while(this.isAnyCalculatedValueChanged(atLoad) &&
+      this.conditionRunnerCounter < settings.maxConditionRunCountOnValueChanged) {
+      this.conditionRunnerCounter++;
+      atLoad.changed.clear();
+      for (let i = 0; i < repeated.length; i++) {
+        repeated[i].resetCalculation();
+      }
+      for (let i = 0; i < repeated.length; i++) {
+        repeated[i].doCalculation(this.calculatedValues, properties);
+      }
+    }
+  }
+  private isAnyCalculatedValueChanged(atLoad: ICalculatedValuesAtLoad): boolean {
+    for (let i = 0; i < atLoad.repeated.length; i++) {
+      if (atLoad.changed.has((atLoad.repeated[i].name || "").toLowerCase())) return true;
+    }
+    return false;
   }
   // Each value change used to walk every question. It walks only the questions whose triggers can run,
   // and the list is built again on the next walk after anything it depends on changes.
@@ -7636,7 +7708,12 @@ export class SurveyModel extends SurveyElementCore
     this.doElementsOnLoad();
     this.onQuestionsOnPageModeChanged("standard");
     this.isEndLoadingFromJson = "conditions";
-    this.runConditions();
+    this.calculatedValuesAtLoad = this.createCalculatedValuesAtLoad();
+    try {
+      this.runConditions();
+    } finally {
+      this.calculatedValuesAtLoad = undefined;
+    }
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
@@ -7750,10 +7827,24 @@ export class SurveyModel extends SurveyElementCore
     for (const key in changed) {
       values[key] = changed[key].newValue;
     }
-    this.runConditionOnValuesChanged(values, name);
-    this.checkTriggers(changed, false, false, false, name);
-    for (const key in changed) {
-      this.onVariableChanged.fire(this, { name: key, value: changed[key].newValue });
+    // In the load's loop over the calculated values, only they write a single variable. A value set
+    // by a trigger or a handler during that write is not theirs, so the loop counts as left meanwhile.
+    const atLoad = this.calculatedValuesAtLoad;
+    const isCalculatedValueAtLoad = !!atLoad && atLoad.isCalculating && !!name;
+    if (isCalculatedValueAtLoad) {
+      atLoad.changed.add(name);
+      atLoad.isCalculating = false;
+    }
+    try {
+      this.runConditionOnValuesChanged(values, name, isCalculatedValueAtLoad);
+      this.checkTriggers(changed, false, false, false, name);
+      for (const key in changed) {
+        this.onVariableChanged.fire(this, { name: key, value: changed[key].newValue });
+      }
+    } finally {
+      if (isCalculatedValueAtLoad) {
+        atLoad.isCalculating = true;
+      }
     }
   }
   // The only place that writes the variables hash. A variable shadows a data key with the same

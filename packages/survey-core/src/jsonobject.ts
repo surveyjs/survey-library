@@ -590,6 +590,13 @@ export class JsonMetadataClass {
   private allProperties: Array<JsonObjectProperty>;
   private requiredProperties: Array<JsonObjectProperty>;
   private hashProperties: Map<string, JsonObjectProperty>;
+  // Base.getDefaultPropertyValue's answers for unset properties, by name. It lives exactly as long as hashProperties.
+  // It keeps only the answers that depend on the metadata alone: "no property" (prop is null), and the undefined, null
+  // or primitive default of a property that is not custom, not localizable and has no defaultValueFunc, onGetValue or
+  // className. An entry also keeps the property's defaultValueValue and type: a hit compares them with the property's
+  // fields, so a direct assignment to either (or to defaultValueFunc) is caught without a reset. An object with its own
+  // localizable string of that name never uses or makes an entry for a property: that string can give the default.
+  private defaultValues: Map<string, { prop: JsonObjectProperty, value: any, defaultValue?: any, type?: string }>;
   constructor(
     public name: string,
     properties: Array<any>,
@@ -638,6 +645,7 @@ export class JsonMetadataClass {
     this.allProperties = undefined;
     this.requiredProperties = undefined;
     this.hashProperties = undefined;
+    this.defaultValues = undefined;
     var childClasses = Serializer.getChildrenClasses(this.name);
     for (var i = 0; i < childClasses.length; i++) {
       childClasses[i].resetAllProperties();
@@ -648,6 +656,7 @@ export class JsonMetadataClass {
     if (!!this.allProperties) return;
     this.allProperties = [];
     this.hashProperties = new Map<string, JsonObjectProperty>();
+    this.defaultValues = new Map();
     const localProperties = new Map<string, JsonObjectProperty>();
     this.properties.forEach(prop => localProperties.set(prop.name, prop));
     const parentClass = !!this.parentName ? Serializer.findClass(this.parentName) : null;

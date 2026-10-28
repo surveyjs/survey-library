@@ -49,8 +49,6 @@ export var croatianStrings = {
   sortLevelFieldAriaLabel: "Polje sortiranja {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Redoslijed sortiranja {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Više...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Prikaži sve razine sortiranja",
   // [Auto-translated] "Add New"

@@ -4,7 +4,7 @@ import {
   Operand,
   FunctionOperand
 } from "../../src/expressions/expressions";
-import { parse } from "../../src/expressions/expressionParser";
+import { parse } from "../../src/expressions/expressionParserCore";
 
 import { describe, test, expect } from "vitest";
 describe("Expressions", () => {

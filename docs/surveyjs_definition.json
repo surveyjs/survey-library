@@ -1078,6 +1078,9 @@
         },
         "randomizeCategory": {
           "type": "string"
+        },
+        "allowClear": {
+          "type": "boolean"
         }
       },
       "required": [
@@ -1705,12 +1708,11 @@
             "maxSortLevel": {
               "type": "number"
             },
-            "showSortMenu": {
+            "showSortBar": {
               "type": "string",
               "enum": [
                 "auto",
-                true,
-                false
+                "always"
               ]
             }
           }
@@ -2638,9 +2640,6 @@
                 }
               ]
             },
-            "allowClear": {
-              "type": "boolean"
-            },
             "searchEnabled": {
               "type": "boolean"
             },
@@ -2738,9 +2737,6 @@
         },
         {
           "properties": {
-            "allowClear": {
-              "type": "boolean"
-            },
             "itemComponent": {
               "type": "string"
             }
@@ -2834,9 +2830,6 @@
                   "$ref": "locstring"
                 }
               ]
-            },
-            "allowClear": {
-              "type": "boolean"
             },
             "choicesMin": {
               "type": "number"
@@ -4038,9 +4031,6 @@
             },
             "labelCount": {
               "type": "number"
-            },
-            "allowClear": {
-              "type": "boolean"
             }
           }
         }
@@ -4273,9 +4263,6 @@
             },
             "height": {
               "type": "number"
-            },
-            "allowClear": {
-              "type": "boolean"
             },
             "showPlaceholder": {
               "type": "boolean"
@@ -4625,14 +4612,6 @@
             },
             "maxSortLevel": {
               "type": "number"
-            },
-            "showSortMenu": {
-              "type": "string",
-              "enum": [
-                "auto",
-                true,
-                false
-              ]
             },
             "displayMode": {
               "type": "string",

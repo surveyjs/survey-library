@@ -49,8 +49,6 @@ export var romanianSurveyStrings = {
   sortLevelFieldAriaLabel: "Câmpul de sortare {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Ordinea de sortare {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Mai mult...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Afișează toate nivelurile de tip",
   // [Auto-translated] "Add New"

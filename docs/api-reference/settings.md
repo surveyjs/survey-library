@@ -54,6 +54,8 @@ Default value: `false` (the `e`, `E`, and `+` keys are blocked during keyboard i
 
 This setting controls keyboard input only and does not change number parsing or numeric input mask behavior.
 
+Available since: v3.2.0
+
 ### `animationEnabled`
 
 **Type**: `boolean`
@@ -76,8 +78,13 @@ Default value: 300
 
 Specifies whether [calculated values](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#calculated-values) recalculate only when their dependencies change.
 
-- `true` (default) - Recalculate on the initial run, when all expressions are re-evaluated, when the calculated value's expression or owner changes, and on a value change that affects a value or variable the expression references. Expressions with parameterless functions still recalculate on every value change. A custom function with parameters that reads other survey values by itself (for example, `this.survey.getValue(...)`) does not trigger recalculation when only those other values change.
-- `false` - Recalculate on every value change in the survey.
+- `true` (default)\
+Recalculate on the initial run, when all expressions are re-evaluated, when the calculated value's expression or owner changes, and on a value change that affects a value or variable the expression references. Expressions with parameterless functions still recalculate on every value change.
+
+- `false`\
+Recalculate on every value change in the survey.
+
+Available since: v3.2.2
 
 ### `choicesSeparator`
 
@@ -255,10 +262,15 @@ Available since: v2.5.15
 
 **Type**: `boolean`
 
-Specifies whether [Expression](https://surveyjs.io/form-library/documentation/api-reference/expression-model) questions recalculate only when their dependencies change.
+Specifies whether [Expression](https://surveyjs.io/form-library/documentation/api-reference/expression-model) questions and the [`defaultValueExpression`](https://surveyjs.io/form-library/documentation/api-reference/question#defaultValueExpression) of questions recalculate only when their dependencies change.
 
-- `true` (default) - Recalculate only on the initial run, when all expressions are re-evaluated, and when a dependent value or property changes. Expressions with parameterless functions or functions whose parameters do not reference survey values still recalculate on every value change.
-- `false` - Recalculate on every value change in the survey.
+- `true` (default)\
+Recalculate only on the initial run, when all expressions are re-evaluated, and when a dependent value or property changes. Expressions with parameterless functions or functions whose parameters do not reference survey values still recalculate on every value change.
+
+- `false`\
+Recalculate on every value change in the survey.
+
+Available since: v2.5.27
 
 ### `expressionVariableDelimiters`
 
@@ -313,6 +325,8 @@ Default value: `"|"`
 Specifies the maximum interval, in milliseconds, between consecutive key presses that SurveyJS treats as a single keyboard input sequence.
 
 Default value: 400
+
+Available since: v3.2.2
 
 ### `lazyRender`
 
@@ -419,6 +433,8 @@ Specifies the maximum number of rows or panels per data page in [Multi-Select Ma
 Default value: 100
 
 If a question's `pageSize` exceeds this limit, this value is used as the effective page size. Set this property to 0 to remove the limit.
+
+Available since: v3.2.2
 
 ### `minDate`
 

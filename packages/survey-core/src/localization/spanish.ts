@@ -49,8 +49,6 @@ export var spanishSurveyStrings = {
   sortLevelFieldAriaLabel: "Campo de ordenamiento {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Orden de orden{0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Más...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Mostrar todos los niveles de tipo",
   // [Auto-translated] "Add New"

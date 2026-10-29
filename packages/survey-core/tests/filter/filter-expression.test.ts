@@ -17,9 +17,21 @@ describe("filter-expression: building text the parser accepts", () => {
     const expression = "{name} contains " + toExpressionConst("say \"hi\"");
     expect(runs({ name: "they say \"hi\" a lot" }, expression)).toBe(true);
   });
-  test("a backslash in front of a quote or at the end is dropped, not doubled", () => {
+  test("a trailing backslash is dropped, not doubled", () => {
     expect(escapeExpressionText("C:\\")).toBe("C:");
+    expect(escapeExpressionText("C:\\\\")).toBe("C:");
     expect(runs({ name: "C:\\temp" }, "{name} contains " + toExpressionConst("C:\\"))).toBe(true);
+    expect(runs({ name: "C:\\\\x" }, "{name} contains " + toExpressionConst("C:\\\\"))).toBe(true);
+  });
+  test("a backslash in front of a quote is kept", () => {
+    expect(escapeExpressionText("it\\'s")).toBe("it\\\\'s");
+    const apostrophe = "{name} contains " + toExpressionConst("it\\'s");
+    expect(runs({ name: "the it\\'s one" }, apostrophe)).toBe(true);
+    expect(runs({ name: "the it's one" }, apostrophe)).toBe(false);
+    expect(escapeExpressionText("a\\\"b")).toBe("a\\\\\"b");
+    const quote = "{name} contains " + toExpressionConst("a\\\"b");
+    expect(runs({ name: "x a\\\"b y" }, quote)).toBe(true);
+    expect(runs({ name: "x a\"b y" }, quote)).toBe(false);
   });
   test("numbers and booleans are not quoted, numeric strings are", () => {
     expect(toExpressionConst(5)).toBe("5");

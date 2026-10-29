@@ -2,13 +2,15 @@ import { settings } from "../settings";
 import { IDynamicDataFilterField } from "../dynamic-data/dynamic-data-filter-fields";
 
 // The grammar knows exactly two escapes, \' and \" (grammar.pegjs, AnyCharacters), and none for the
-// backslash itself. A bare " is not allowed inside a single-quoted string either - the character
-// class excludes both quotes - so both of them are escaped. A backslash that lands in front of a
-// quote, or at the very end in front of the closing one, would be read as that escape and swallow
-// the quote: it is dropped. A quick search that loses a backslash is a lesser evil than a filter
-// expression the parser refuses, which would take the whole filter down with it.
+// backslash itself: '\\' is two backslashes, so a backslash is never doubled here - that would change
+// the value. A bare " is not allowed inside a single-quoted string either - the character class
+// excludes both quotes - so both of them are escaped. A backslash in front of a quote is safe as is:
+// once the quote is escaped, what follows it is the escape's own backslash, not the quote. Only a
+// trailing run is dropped: its last backslash would pair with the closing quote and the parser would
+// refuse the whole filter. For "contains" that only widens the search; a value that ends with a
+// backslash cannot be written as an exact constant at all.
 export function escapeExpressionText(text: string): string {
-  return (text || "").replace(/\\+(?=['"]|$)/g, "").replace(/(['"])/g, "\\$1");
+  return (text || "").replace(/\\+$/, "").replace(/(['"])/g, "\\$1");
 }
 // OperandMaker.toOperandString (expressions.ts:619) is deliberately not used here: it escapes
 // nothing and it leaves the strings "true"/"false" unquoted, which would turn a choice value into

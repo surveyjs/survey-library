@@ -911,6 +911,60 @@ describe("Base", () => {
     expect(action.active, "active 3").toBe(false);
     expect(action.enabled, "enabled 3").toBe(false);
   });
+  test("ComputedUpdater follows a replaced object", () => {
+    class Holder extends Base {
+      @property() survey: SurveyModel;
+    }
+    const holder = new Holder();
+    holder.survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    let updaterCallCount = 0;
+    const action = new Action(<any>{
+      enabled: <any>new ComputedUpdater<boolean>(() => {
+        updaterCallCount++;
+        return !holder.survey.isEmpty;
+      })
+    });
+    expect(updaterCallCount, "first calculation").toBe(1);
+    expect(action.enabled, "the survey has a page").toBe(true);
+
+    const emptySurvey = new SurveyModel();
+    holder.survey = emptySurvey;
+    expect(updaterCallCount, "survey replaced").toBe(2);
+    expect(action.enabled, "the new survey has no pages").toBe(false);
+
+    emptySurvey.addNewPage("page1");
+    expect(updaterCallCount, "a page is pushed into the new survey").toBe(3);
+    expect(action.enabled, "the new survey is no longer empty").toBe(true);
+
+    emptySurvey.pages.splice(0, emptySurvey.pages.length);
+    expect(action.enabled, "pages cleared").toBe(false);
+    emptySurvey.addNewPage("page2");
+    expect(action.enabled, "a page is pushed again").toBe(true);
+  });
+  test("ComputedUpdater drops dependencies it no longer reads", () => {
+    const box = new BaseTester1();
+    const a = new BaseTester1();
+    const b = new BaseTester2();
+    const target = new BaseTester3();
+    box.propA = 1;
+    a.propA = 1;
+    b.propB = 2;
+    let updaterCallCount = 0;
+    target.propC = <any>new ComputedUpdater<number>(() => {
+      updaterCallCount++;
+      return box.propA ? a.propA : b.propB;
+    });
+    expect(target.propC, "reads a").toBe(1);
+    box.propA = 0;
+    expect(updaterCallCount, "the switch re-runs the updater").toBe(2);
+    expect(target.propC, "reads b").toBe(2);
+    a.propA = 9;
+    expect(updaterCallCount, "a is no longer a dependency").toBe(2);
+    expect(target.propC, "a change does not update the value").toBe(2);
+    b.propB = 5;
+    expect(updaterCallCount, "b is the new dependency").toBe(3);
+    expect(target.propC, "b change updates the value").toBe(5);
+  });
   test("Action, support multiple language in title, issue#10291", () => {
     let action = new Action({ title: "title" });
     expect(action.title, "default title").toBe("title");

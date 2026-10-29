@@ -29,6 +29,7 @@ export var englishStrings = {
   sortMoreAriaLabel: "Show all sort levels",
   sortAddNewText: "Add New",
   sortNoDirectionText: "—",
+  sortMoveLevelAriaLabel: "Move sort level {0}",
   completeText: "Complete",
   previewText: "Preview",
   editText: "Edit",

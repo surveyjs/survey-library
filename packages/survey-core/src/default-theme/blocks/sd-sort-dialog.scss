@@ -27,65 +27,115 @@
     inset-inline-end: var(--sjs2-spacing-x200);
     inset-inline-start: auto;
   }
-  // Cancel is hidden: Add New stays at the start and Apply goes to the end, also while Add New is hidden.
+  // Cancel is hidden: Add New stays at the start and Apply goes to the end.
   .sv-popup__body-footer .sv-modal-footer-action-bar > .sd-action-bar__item:last-child {
     margin-inline-start: auto;
   }
 }
 
-// The rows, x400 apart.
-.sd-sort-dialog {
+/* The dialog's content is a survey with one dynamic matrix. The survey's own boxes - its root, body, page,
+   row and the question's frame - add nothing around the matrix: no background, padding, margin, shadow
+   or width limit. */
+.sv-popup--records-sort .sv-popup__content > .sd-root-modern {
+  background: transparent;
+
+  // The survey's surface color.
+  &::before {
+    content: none;
+  }
+
+  .sd-root-modern__wrapper,
+  .sd-container-modern,
+  .sv-components-row,
+  .sv-components-column,
+  .sd-body,
+  .sd-page,
+  .sd-page__content,
+  .sd-row,
+  .sd-element-wrapper,
+  .sd-question,
+  .sd-question__container,
+  .sd-question__header-and-content-container,
+  .sd-question__content,
+  .sd-table-wrapper,
+  .sd-table {
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+    max-width: none;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  .sd-table-wrapper {
+    overflow: visible;
+  }
+}
+
+/* The matrix as the frame's rows (node 6380:26237): the handle, the number, two dropdowns of the same width
+   and the remove button, x150 apart; the rows x400 apart. */
+.sv-popup--records-sort .sv-popup__content > .sd-root-modern .sd-table {
+  display: block;
+
+  .sd-table__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sjs2-spacing-x400);
+  }
+}
+
+/* A row - also the copy of a row that follows the pointer during a drag, which the drag places outside the
+   dialog (.sv-matrixdynamic-dragged-row). */
+.sv-popup--records-sort .sd-sort-dialog__row,
+.sv-matrixdynamic-dragged-row .sd-sort-dialog__row {
   display: flex;
-  flex-direction: column;
-  gap: var(--sjs2-spacing-x400);
-}
-
-/* A row: two dropdowns of the same width and the remove button, x150 apart. The first row has no remove
-   button, and its third column stays empty, so the dropdowns of every row line up. */
-.sd-sort-dialog__row {
-  --sd-action-bar-gap: var(--sjs2-spacing-x150);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) calc(var(--sjs2-size-x300) + 2 * var(--sjs2-spacing-x100));
   align-items: center;
+  gap: var(--sjs2-spacing-x150);
+  border: none;
+  background: transparent;
 
-  .sd-action-bar__item,
-  .sd-action-bar__item-content {
+  & > .sd-table__cell {
+    display: block;
+    flex: 0 0 auto;
     min-width: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
   }
-  .sd-action-bar__item-content > * {
-    flex: 1 1 auto;
-    min-width: 0;
+
+  // The two dropdowns share the width that is left.
+  & > .sd-table__cell:not(.sd-table__cell--actions):not(:nth-child(2)) {
+    flex: 1 1 0;
+  }
+
+  /* The number: the text centered in x125, then x100 (Figma 6528:26858), in the default strong text of
+     the basic primary color. */
+  & > .sd-table__cell:nth-child(2) {
+    box-sizing: content-box;
+    width: var(--sjs2-spacing-x125);
+    padding-inline-end: var(--sjs2-spacing-x100);
+    text-align: center;
+
+    .sd-expression {
+      @include sjs2--typography--default-strong;
+      color: var(--sjs2-color-fg-basic-primary);
+      white-space: nowrap;
+    }
+  }
+
+  // The handle is grey, as the remove button is.
+  .sd-drag-element__svg use {
+    fill: var(--sjs2-color-component-action-neutral-quaternary-default-icon);
   }
 }
 
-/* A dropdown of a row: the form box of an editor - its background, its inset border and radius, the
-   padding of a medium form box, the input content text in its padding, and a 24px chevron in the padding
-   of a form box action. */
-.sd-sort-dialog__row .sd-action.sd-sort-bar__dropdown {
-  width: 100%;
-  justify-content: space-between;
-  --sd-action-background: var(--sjs2-color-component-formbox-default-bg);
-  --sd-action-hover-background: var(--sjs2-color-component-formbox-hovered-bg);
-  --sd-action-boxshadow: var(--sjs2-border-effect-component-formbox-default);
-  --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-formbox-hovered);
-  --sd-action-border-radius: var(--sjs2-radius-component-formbox);
-  --sd-action-padding: var(--sjs2-layout-component-formbox-medium-padding-vertical) var(--sjs2-layout-component-formbox-medium-padding-horizontal);
-  --sd-action-gap: var(--sjs2-layout-component-formbox-medium-gap);
-  --sd-action-title-padding: var(--sjs2-layout-component-input-medium-content-padding-vertical) var(--sjs2-layout-component-input-medium-content-padding-horizontal);
-  --sd-action-title-font-family: var(--sjs2-typography-font-family-component-input-content);
-  --sd-action-title-font-weight: var(--sjs2-typography-font-weight-component-input-content);
-  --sd-action-title-font-size: var(--sjs2-typography-font-size-component-input-content);
-  --sd-action-title-line-height: var(--sjs2-typography-line-height-component-input-content);
-  --sd-action-title-color: var(--sjs2-color-component-input-default-value);
-  --sd-action-hover-title-color: var(--sjs2-color-component-input-default-value);
-  --sd-action-icon-size: var(--sjs2-size-x300);
-  --sd-action-icon-padding: var(--sjs2-spacing-x100);
-
-  .sd-action__title {
-    flex: 1 1 auto;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-align: start;
-  }
+// The copy that follows the pointer has the dialog's background and the floating shadow of a dragged row.
+.sv-matrixdynamic-dragged-row .sd-sort-dialog__row {
+  background: $background;
+  line-height: normal;
+}
+// The place the dragged row leaves is one dim block, as a dragged matrix row's cells are.
+.sv-popup--records-sort .sd-sort-dialog__row.sv-matrix-row--drag-drop-ghost-mod {
+  background: $background-dim;
+  border-radius: var(--sjs2-radius-component-formbox);
 }

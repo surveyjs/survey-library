@@ -12,9 +12,8 @@ import { RecordsSortDialogModel, showRecordsSortDialog } from "./records-sort-di
 
 // A field the sort bar offers: the record key the list sorts by, the text the bar shows and the data type the list registered.
 export interface IRecordsSortField { field: string, title: string, dataType: DynamicDataFieldType }
-/* The class names the sort bar gives its dropdowns, its "Sort by" text and the container of a sort level, and
-   the ones of the sort dialog: its list of rows and each row. */
-export interface IRecordsSortBarCssClasses { sortDropdown: string, sortLabel: string, sortLevel: string, sortDialog: string, sortDialogRow: string }
+// The class names the sort bar gives its dropdowns, its "Sort by" text and the container of a sort level.
+export interface IRecordsSortBarCssClasses { sortDropdown: string, sortLabel: string, sortLevel: string }
 
 // What the sort bar reads from its records question and the move it makes.
 export interface IRecordsSortBarOwner {

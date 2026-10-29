@@ -140,6 +140,17 @@ describe("FilterEditPresetsDialog: Apply", () => {
     expect(events, "#4").toEqual({ filter: 0, uiState: 0 });
     dialog.dispose();
   });
+  test("presets the respondent did not touch do not hold Apply back, whatever their titles and expressions", () => {
+    const q = control({ items: [
+      { name: "long", title: "Customers who ordered in the last thirty days", expression: "{age} > 1" },
+      { name: "a", title: "Same", expression: "{age} > 2" }, { name: "b", title: "Same", expression: "{age} > 3" },
+      { name: "empty", expression: "" }, { name: "kids", expression: "{age} < 10" }] });
+    const dialog = q.createEditPresetsDialog("kids");
+    setTitle(dialog, "Children");
+    expect(dialog.apply(), "#1").toBe(true);
+    expect([q.getItemByName("kids").title, q.getItemByName("long").title], "#2").toEqual(["Children", "Customers who ordered in the last thirty days"]);
+    dialog.dispose();
+  });
   test("a dialog that is closed without Apply writes nothing", () => {
     const q = control();
     const dialog = q.createEditPresetsDialog("adults");

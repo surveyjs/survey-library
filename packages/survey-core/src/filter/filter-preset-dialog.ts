@@ -268,21 +268,25 @@ export interface IFilterEditPresetsDialogOwner extends IFilterPresetDialogOwner 
   isUserItem(item: FilterItem): boolean;
   applyItemEdits(edits: Array<IFilterItemEdit>): void;
 }
-// A preset of the Edit Presets dialog: its tab, and whether it was deleted or reset in the dialog.
+// A preset of the Edit Presets dialog: its tab, and whether it was deleted, reset or changed in any
+// other way in the dialog.
 interface IFilterPresetTab extends IFilterPresetBuffer {
   chip: Action;
   isDeleted: boolean;
   isReset: boolean;
+  isTouched: boolean;
 }
 
 // The Edit Presets dialog: a tab per preset the respondent may change, delete or reset
 // (getEditableItems), the form and the fields' editors of the selected one, and its actions -
 // Delete, and Reset for an authored preset that is not what the JSON made it. All the tabs are one
 // buffer: a tab keeps its changes while another is selected, Delete takes the tab away and Reset
-// brings the JSON's title and conditions back into it. apply() checks every tab that may be changed
-// - the first one with an error is selected, its errors shown - and writes them all as one change
-// (applyItemEdits). A preset that may not be edited shows read-only; one that does not decompose
-// has its title only, and no Contains.
+// brings the JSON's title and conditions back into it. apply() checks every tab the respondent
+// changed - the first one with an error is selected, its errors shown - and writes them all as one
+// change (applyItemEdits). A tab nobody touched is what the control has: it is neither checked nor
+// written, so an authored title longer than a typed one may be, or one two authored presets share,
+// does not hold the others back. A preset that may not be edited shows read-only; one that does not
+// decompose has its title only, and no Contains.
 export class FilterEditPresetsDialog extends FilterPresetDialog {
   private tabs: Array<IFilterPresetTab>;
   private tabsToolbarValue: ActionContainer;
@@ -311,7 +315,8 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
       }
       used[id] = true;
       const conditions = owner.getItemConditions(item.name);
-      const tab: IFilterPresetTab = { item: item, title: item.title, conditions: conditions, isDeleted: false, isReset: false, chip: undefined };
+      const tab: IFilterPresetTab = { item: item, title: item.title, conditions: conditions, isDeleted: false, isReset: false,
+        isTouched: false, chip: undefined };
       tab.chip = new Action({ id: id, title: item.title, activeAppearance: { style: "neutral", mode: "primary" },
         action: (): void => { this.showTab(tab); } });
       return tab;
@@ -353,16 +358,17 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
     tab.title = original.title;
     tab.conditions = original.conditions;
     tab.isReset = true;
+    tab.isTouched = true;
     this.showBuffer(tab);
     this.updateTabs();
   }
-  // Checks every tab that may be changed and writes all of them as one change. false keeps the
+  // Checks every tab the respondent changed and writes all of them as one change. false keeps the
   // dialog open on the first tab with an error.
   public apply(): boolean {
     if (this.isDisposed) return false;
     this.saveBuffer();
     const owner = this.editOwner;
-    const invalid = this.liveTabs.filter((tab: IFilterPresetTab): boolean => owner.canEditItem(tab.item) && this.hasError(tab))[0];
+    const invalid = this.liveTabs.filter((tab: IFilterPresetTab): boolean => tab.isTouched && owner.canEditItem(tab.item) && this.hasError(tab))[0];
     if (!!invalid) {
       this.showTab(invalid);
       this.validateBuffer();
@@ -373,7 +379,7 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
       const name = tab.item.name;
       if (tab.isDeleted) {
         edits.push({ name: name, isDeleted: true });
-      } else if (owner.canEditItem(tab.item)) {
+      } else if (tab.isTouched && owner.canEditItem(tab.item)) {
         edits.push({ name: name, isReset: tab.isReset, title: tab.title.trim(), conditions: tab.conditions === null ? undefined : tab.conditions });
       } else if (tab.isReset) {
         edits.push({ name: name, isReset: true });
@@ -403,6 +409,9 @@ export class FilterEditPresetsDialog extends FilterPresetDialog {
   // A changed title shows in its tab at once, and Reset follows whether there is anything to reset.
   protected onChanged(): void {
     this.saveBuffer();
+    if (!!this.buffer) {
+      (<IFilterPresetTab>this.buffer).isTouched = true;
+    }
     this.updateTabs();
   }
 

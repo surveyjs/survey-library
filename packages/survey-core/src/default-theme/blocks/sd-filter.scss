@@ -290,6 +290,18 @@
   display: flex;
   flex-direction: column;
   gap: var(--sjs2-spacing-x300);
+  // Room for a focused action's ring at the bottom - see the scrolling area below.
+  padding-bottom: var(--sjs2-border-width-a11y);
+}
+
+// The dialogs scroll in the popup's .sv-popup__scrolling-content, which leaves 2px around them for a
+// focused action's ring; the theme's ring is 4px (--sjs2-border-width-a11y). The sides get room for
+// all of it the way the popup gives its 2px: padding taken back by a negative margin. The bottom gets
+// it from the content: the area's own end padding is not scrolled to - what overflows is the content,
+// out of the popup's .sv-popup__content, not the area's child.
+.sd-filter-modal > .sv-popup__container .sv-popup__scrolling-content {
+  padding: var(--sjs2-border-width-a11y);
+  margin: calc(-1 * var(--sjs2-border-width-a11y));
 }
 
 .sd-filter-modal__section {

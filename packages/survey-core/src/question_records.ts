@@ -44,6 +44,8 @@ import { RecordsSortDialogModel, showRecordsSortDialog } from "./records/records
 import { getLocaleString } from "./surveyStrings";
 import type { PopupBaseViewModel } from "./popup-view-model";
 import type { PanelModelBase } from "./panel";
+import type { QuestionExpressionModel } from "./question_expression";
+import { ExpressionRunner } from "./expressions/expressionRunner";
 
 /* An item of the nested walk of a records question: a matrix row, or a dynamic panel's panel - not its
    QuestionPanelDynamicItem: in design mode the panel shown is the template, which has none. */
@@ -1261,8 +1263,9 @@ export abstract class QuestionRecordsModel extends Question {
      and the page is not the one the objects hold, the objects are rebuilt - the rebuild runs the
      conditions of the new objects itself. Returns whether a flag changed and whether it rebuilt. */
   protected rebuildStalePage(properties: HashTable<any>): { isChanged: boolean, isRebuilt: boolean } {
+    const isViewChanged = this.updateRecordsExpressionFields(properties);
     const isChanged = this.updatePagedRecordsVisibility(properties);
-    const isRebuilt = isChanged && this.isPageStale();
+    const isRebuilt = isViewChanged || isChanged && this.isPageStale();
     if (isRebuilt) {
       this.rebuildFromDataList(false);
     }
@@ -1693,6 +1696,91 @@ export abstract class QuestionRecordsModel extends Question {
     return !this.survey || !this.validationCallbacks.canLeavePageWithErrors;
   }
 
+  /* Bug#12156: an expression column of a matrix and an expression question of a panel template are
+     computed by an object - a row or a panel - while sumInArray, the totals, the filter and the sort
+     read the stored records. A question that pages builds the objects of one page, and a filter builds
+     none for the records it excludes, so the records without an object compute their expression fields
+     here, value-only, in the record visibility scope (createRecordVisibilityScope), and the changed
+     records are written in one batch as a computed write. It runs with the conditions of the question
+     (rebuildStalePage), before the records decide their visibility: a survey value, a record written
+     from outside and an earlier computed field are seen there. The value is the one the object computes,
+     so an object built later writes nothing. The fields are computed in template order, up to three
+     passes per record, so a field that reads another one of the record sees its new value. Not computed:
+     an async expression, a question that does not run while read-only (runIfReadOnly), a record that is
+     not an object, a question that does not page and has no filter or sort - every record gets an object
+     there - and a source that pages itself. Cost: one expression run per expression field per record
+     without an object, per condition run; one runner per expression text.
+     Returns whether the view - the records with an object, in their order - changed. */
+  private recordExpressionRunners: Map<string, ExpressionRunner> = new Map<string, ExpressionRunner>();
+  private updateRecordsExpressionFields(properties: HashTable<any>): boolean {
+    const list = this._dataList;
+    if (!list || this.isDesignMode || this.isRemoteData || !this.survey || !(this.isPagingActive || list.hasView)) return false;
+    /* Not inside an assignment of the value or a write of the question's own - an add, an edit, a page
+       build: the objects are being built or written there, and the condition run the survey makes
+       after it computes the records. */
+    if (this.valueAssignmentScope.isActive || this.recordAddScope.isActive || this.isOwnWriteOpen || this.isWritingRecords) return false;
+    const questions = this.getRecordExpressionQuestions().filter((q: QuestionExpressionModel): boolean => !this.isReadOnly || q.runIfReadOnly);
+    if (questions.length === 0) return false;
+    const built = new Set<number>();
+    this.forEachItem((item: QuestionRecordItem): void => {
+      if (isRecordItem(item)) built.add(this.getBuiltRecordIndex(item));
+    });
+    const runners = new Map<string, ExpressionRunner>();
+    const getRunner = (text: string): ExpressionRunner => {
+      if (!text) return undefined;
+      let runner = runners.get(text) || this.recordExpressionRunners.get(text);
+      if (!runner) runner = new ExpressionRunner(text);
+      runners.set(text, runner);
+      return runner.isAsync ? undefined : runner;
+    };
+    let scope: IDynamicDataRecordScope;
+    const changes: Array<{ index: number, record: any }> = [];
+    for (let index = 0; index < list.loadedCount; index++) {
+      if (built.has(index)) continue;
+      const record = this.getListRecordAt(index);
+      if (!Helpers.isValueObject(record, true)) continue;
+      if (!scope) scope = this.createRecordVisibilityScope(properties);
+      const computed = this.computeRecordExpressionFields(index, record, questions, getRunner, scope);
+      if (!!computed) changes.push({ index: index, record: computed });
+    }
+    this.recordExpressionRunners = runners;
+    if (changes.length === 0) return false;
+    const created = list.hasView ? [].concat(list.getCreatedIndexes()) : undefined;
+    this.runComputedWrites((): void => this.writeRecordChanges(changes));
+    if (!created) return false;
+    // A same-length write is not seen by the list: the filter and the sort read the new fields.
+    list.invalidateViews(list.hasTouchedRecords ? (index: number): number => index : undefined);
+    return !Helpers.isArraysEqual(created, list.getCreatedIndexes());
+  }
+  // The record with the fields recomputed, or undefined when none changed.
+  private computeRecordExpressionFields(index: number, record: any, questions: Array<QuestionExpressionModel>,
+    getRunner: (text: string) => ExpressionRunner, scope: IDynamicDataRecordScope): any {
+    let res: any;
+    for (let pass = 0; pass < 3; pass++) {
+      let isChanged = false;
+      questions.forEach((q: QuestionExpressionModel): void => {
+        const runner = getRunner(q.expression);
+        if (!runner) return;
+        const current = res || record;
+        scope.item.reset(index, current);
+        const value = q["roundValue"](runner.runContext(scope.item.getValueGetterContext(), scope.properties));
+        const name = q.getValueName();
+        const isEmpty = Helpers.isValueEmpty(value);
+        if (isEmpty ? Helpers.isValueEmpty(current[name]) : Helpers.isTwoValueEquals(current[name], value)) return;
+        if (!res) res = Object.assign({}, record);
+        if (isEmpty) {
+          delete res[name];
+        } else {
+          res[name] = value;
+        }
+        isChanged = true;
+      });
+      if (!isChanged) break;
+    }
+    return res;
+  }
+  // The expression questions of a record: the expression columns, the expression questions of the template.
+  protected abstract getRecordExpressionQuestions(): Array<QuestionExpressionModel>;
   /* rowsVisibleIf / templateVisibleIf under paging (Andrew's decision 2026-09-25): a page is a slice
      of the VISIBLE records, so the condition is evaluated over every record without an object and
      the list's hidden flags are written from it (DynamicDataRecordVisibility), without building a
@@ -1701,8 +1789,8 @@ export abstract class QuestionRecordsModel extends Question {
      as usual - and the record item is the {row} / {panel} variable of a copy of the run's
      properties, as a built row or panel is, so a custom function sees it as this.row / this.panel.
      A built object runs no visibility condition of its own (getRowsVisibleIfForRows, createNewPanel):
-     a hidden record gets none, and the two cannot disagree. Limitation: an expression cell or an
-     expression question the condition reads contributes its stored value.
+     a hidden record gets none, and the two cannot disagree. An expression cell or an expression
+     question the condition reads is computed before it (updateRecordsExpressionFields).
      The expression is read only past the guards, and before areInvisibleElementsShowing is applied:
      the survey's onExpressionRunning fires in that mode too. A flag that changed changes the page
      count, which the list does not announce: the question syncs it. Returns whether a flag changed. */
@@ -2875,6 +2963,11 @@ export abstract class QuestionRecordsModel extends Question {
      (onRecordsValueStored) and after it (onRecordsValueAssigned) - and update isAnswered there, after
      that work: the value is stored with updateIsAnswered = false, whatever the caller passed. */
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
+    this.valueAssignmentScope.run((): void => this.setQuestionValueCore(newValue));
+  }
+  // The objects follow the assignment inside it: their condition runs compute no record (updateRecordsExpressionFields).
+  private valueAssignmentScope: Scope = new Scope();
+  private setQuestionValueCore(newValue: any): void {
     const oldRecords = copyRecords(this.getStoredRecords());
     const assignment = this.beginValueAssignment(newValue, oldRecords);
     super.setQuestionValue(newValue, false);
@@ -3036,8 +3129,9 @@ export abstract class QuestionRecordsModel extends Question {
   // for it: without a list there is no view to keep them in.
   protected runRecordAdd<T>(func: () => T): T {
     const list = this.dataListValue;
-    return !!list ? list.runAddScope(func) : func();
+    return this.recordAddScope.run((): T => !!list ? list.runAddScope(func) : func());
   }
+  private recordAddScope: Scope = new Scope();
   /* Writes that only show the records a data source holds: the values the objects compute while they are
      built go with a record's next update (DynamicDataList.runShowingRecords). Nothing is created for it:
      without a list there is nothing to send. */

@@ -1,4 +1,5 @@
 import { HashTable, Helpers } from "./helpers";
+import type { QuestionExpressionModel } from "./question_expression";
 import {
   IElement,
   IQuestion,
@@ -2881,6 +2882,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     if (isPanelsCore) {
       this.clearHiddenAnswersWithoutObjects(properties);
     }
+  }
+  // QuestionRecordsModel hook of updateRecordsExpressionFields: the expression questions of the template.
+  protected getRecordExpressionQuestions(): Array<QuestionExpressionModel> {
+    return this.template.questions.filter((q: Question): boolean => q.getType() === "expression") as Array<QuestionExpressionModel>;
   }
   // QuestionRecordsModel hooks of clearHiddenAnswersWithoutObjects: the template questions and the panels around them.
   protected getRecordConditionalInputs(): Array<Question> {

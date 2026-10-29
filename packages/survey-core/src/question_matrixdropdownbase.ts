@@ -1970,6 +1970,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     }
     return this.detailPanelMode !== "none" ? <Question>this.detailPanel.getQuestionByValueName(key) || undefined : undefined;
   }
+  // QuestionRecordsModel hook of updateRecordsExpressionFields: the cell questions of the expression columns.
+  protected getRecordExpressionQuestions(): Array<QuestionExpressionModel> {
+    return this.columns.map((column: MatrixDropdownColumn): Question => column.templateQuestion)
+      .filter((q: Question): boolean => !!q && q.getType() === "expression") as Array<QuestionExpressionModel>;
+  }
   // QuestionRecordsModel hook of clearHiddenAnswersWithoutObjects: the cell questions a column condition hides.
   protected getRecordConditionalInputs(): Array<Question> {
     return this.columns.filter((column: MatrixDropdownColumn): boolean => !!column.visibleIf).map((column: MatrixDropdownColumn): Question => column.templateQuestion);

@@ -239,6 +239,9 @@ export { FilterFieldPopup, IFilterFieldPopupOwner, filterPopupSearchMinItemCount
 export { FilterChipsLayout, fitFilterChips } from "../../src/filter/filter-chips-layout";
 export { FilterModal, IFilterModalOwner, filterModalCountDelay } from "../../src/filter/filter-modal";
 export {
+  FilterPresetDialog, IFilterPresetDialogOwner, IFilterPresetBuffer, filterPresetTitleMaxLength
+} from "../../src/filter/filter-preset-dialog";
+export {
   FilterConditionItem, getConditionOperatorTitle, conditionsToExpression, parseFilterExpression
 } from "../../src/filter/filter-conditions";
 export type { IFilterCondition, IFilterElementUIState, IFilterItemEdit, IFilterState, IFilterUserItemState } from "../../src/interfaces/ui-interfaces";

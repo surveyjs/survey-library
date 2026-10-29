@@ -11,6 +11,7 @@ import { FilterItem } from "./filter/filter-item";
 import { FilterConditionsEditor } from "./filter/filter-conditions-editor";
 import { FilterFieldPopup } from "./filter/filter-field-popup";
 import { FilterModal } from "./filter/filter-modal";
+import { FilterPresetDialog } from "./filter/filter-preset-dialog";
 import { FilterToolbars, IFilterFieldState, filterUIStrings } from "./filter/filter-toolbars";
 import { FilterChipsLayout } from "./filter/filter-chips-layout";
 import { ActionContainer } from "./actions/container";
@@ -631,6 +632,14 @@ export class QuestionFilterModel extends QuestionNonValue {
   public createFilterModal(): FilterModal {
     return new FilterModal(this);
   }
+  // The Add New Preset dialog, its fields holding the given conditions - see FilterPresetDialog. The
+  // caller owns it and disposes it.
+  public createAddPresetDialog(conditions: Array<IFilterCondition>): FilterPresetDialog {
+    return new FilterPresetDialog(this, conditions || []);
+  }
+  // Every field by its key, in the order the Filters dialog shows them - the fields a preset can be
+  // made of.
+  public getAllFieldKeys(): Array<string> { return this.getAdvancedModeFieldKeys(); }
   // Every field by the name the editors reach it back by - those fast mode hides too, a duplicate
   // valueName collapsed to its first field.
   private getAdvancedModeFieldKeys(): Array<string> {

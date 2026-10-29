@@ -17,5 +17,11 @@ export const filterUIStrings = {
   presetsTitle: "Filter Presets",
   showResultsCount: "Show {0} items",
   showOneResult: "Show 1 item",
-  showResults: "Show results"
+  showResults: "Show results",
+  addPresetTitle: "Add New Preset",
+  presetName: "Preset Name",
+  presetContains: "Contains",
+  addField: "Add",
+  presetTitleExists: "A preset with this name already exists.",
+  presetNoConditions: "Add at least one condition."
 };

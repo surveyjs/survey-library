@@ -137,12 +137,21 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     event.preventDefault();
     event.stopPropagation();
   };
+  /* A drag in a modal puts the shortcut on the modal itself (a fixed box over the page), not on the root element:
+     the root element may be inside the modal's scrolling content, which the shortcut would widen and lengthen. */
+  private get shortcutContainer(): HTMLElement | ShadowRoot {
+    return <HTMLElement>this.popupNode || this.rootElement;
+  }
+  private get viewShortcutContainer(): Element {
+    return this.popupNode || this.viewRootElement;
+  }
   private moveShortcutElement(event: PointerEvent) {
-    let rootElementX = this.viewRootElement.getBoundingClientRect().x;
-    let rootElementY = this.viewRootElement.getBoundingClientRect().y;
+    const container = this.viewShortcutContainer;
+    let rootElementX = container.getBoundingClientRect().x;
+    let rootElementY = container.getBoundingClientRect().y;
 
-    let rootElementScrollLeft = this.viewRootElement.scrollLeft;
-    let rootElementScrollTop = this.viewRootElement.scrollTop;
+    let rootElementScrollLeft = container.scrollLeft;
+    let rootElementScrollTop = container.scrollTop;
 
     this.doScroll(event.clientY, event.clientX);
 
@@ -347,7 +356,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     this.popupNode = DragDropDOMAdapter.getPopupNode(draggedElementNode) || DragDropDOMAdapter.getPopupNode(event.target);
     this.dd.dragInit(event, draggedElement, parentElement, draggedElementNode);
 
-    this.rootElement.append(this.draggedElementShortcut);
+    this.shortcutContainer.append(this.draggedElementShortcut);
     this.moveShortcutElement(event);
 
     DomDocumentHelper.addEventListener("pointermove", this.dragOver);

@@ -84,8 +84,8 @@
   }
 }
 
-/* A row - also the copy of a row that follows the pointer during a drag, which the drag places outside the
-   dialog (.sv-matrixdynamic-dragged-row). */
+/* A row - also the copy of a row that follows the pointer during a drag, which the drag places on the modal,
+   outside the dialog's survey (.sv-matrixdynamic-dragged-row). */
 .sv-popup--records-sort .sd-sort-dialog__row,
 .sv-matrixdynamic-dragged-row .sd-sort-dialog__row {
   display: flex;

@@ -425,3 +425,55 @@ describe("Escape during a row drag", () => {
     }
   });
 });
+
+describe("A row drag in a modal", () => {
+  test("The copy that follows the pointer is placed on the modal, outside the survey in the modal's scrolling content", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "q", allowRowReorder: true, columns: [{ name: "a", cellType: "text" }] }]
+    });
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q");
+    matrix.value = [{ a: 1 }, { a: 2 }];
+    const popup = document.createElement("div");
+    popup.className = "sv-popup sv-popup--modal-popup";
+    const scrollingContent = document.createElement("div");
+    scrollingContent.className = "sv-popup__scrolling-content";
+    const root = document.createElement("div");
+    const rowNode = document.createElement("div");
+    rowNode.setAttribute("data-sv-drop-target-matrix-row", matrix.visibleRows[1].id);
+    const handle = document.createElement("div");
+    rowNode.appendChild(handle);
+    root.appendChild(rowNode);
+    scrollingContent.appendChild(root);
+    popup.appendChild(scrollingContent);
+    document.body.appendChild(popup);
+    survey.rootElement = root;
+    const rect = (x: number, y: number) => () => <DOMRect>{ x: x, y: y, left: x, top: y, right: x + 500, bottom: y + 300, width: 500, height: 300, toJSON() { return this; } };
+    popup.getBoundingClientRect = rect(0, 0);
+    root.getBoundingClientRect = rect(200, 100);
+    rowNode.getBoundingClientRect = rect(250, 130);
+    const docElement = document.documentElement;
+    Object.defineProperty(docElement, "clientWidth", { configurable: true, value: 1000 });
+    Object.defineProperty(docElement, "clientHeight", { configurable: true, value: 800 });
+    const doc: any = document;
+    const hadElementFromPoint = typeof doc.elementFromPoint === "function";
+    const elementFromPoint = doc.elementFromPoint;
+    doc.elementFromPoint = () => handle;
+    try {
+      matrix.dragDropMatrixRows.startDrag(<any>{ clientX: 300, clientY: 150, pageX: 300, pageY: 150, target: handle }, matrix.visibleRows[1], matrix, handle);
+      const shortcut = <HTMLElement>popup.querySelector(".sv-matrixdynamic-dragged-row");
+      expect(!!shortcut, "#1: the copy is on the modal").toBe(true);
+      expect(shortcut.parentElement === popup, "#2: directly, not in the scrolling content").toBe(true);
+      expect(root.querySelector(".sv-matrixdynamic-dragged-row"), "#3: not in the survey").toBeNull();
+      expect(shortcut.style.left, "#4: placed against the modal, where the row is").toBe("250px");
+      expect(shortcut.style.top, "#5").toBe("130px");
+      popup.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", keyCode: 27, bubbles: true } as any));
+      expect(popup.querySelector(".sv-matrixdynamic-dragged-row"), "#6: the drag's end removes it").toBeNull();
+    } finally {
+      if (hadElementFromPoint) doc.elementFromPoint = elementFromPoint; else delete doc.elementFromPoint;
+      delete (<any>docElement).clientWidth;
+      delete (<any>docElement).clientHeight;
+      survey.rootElement = undefined;
+      popup.remove();
+    }
+  });
+});

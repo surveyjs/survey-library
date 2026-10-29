@@ -156,6 +156,41 @@ describe("tooltips on [data-sv-tooltip] elements", () => {
     pointer("pointerout", button, { relatedTarget: document.body });
     expect(button.getAttribute("title")).toBe("Delete");
   });
+  test("keeps the trigger's accessible name while its title is suppressed", () => {
+    // The title is often the only name of an icon-only button; without it the button is nameless
+    // for assistive tech (and role-based selectors) for as long as the tooltip is shown.
+    button.setAttribute("title", "Delete");
+    pointer("pointerover", button);
+    vi.advanceTimersByTime(200);
+    expect(button.hasAttribute("title")).toBe(false);
+    expect(button.getAttribute("aria-label")).toBe("Delete");
+    pointer("pointerout", button, { relatedTarget: document.body });
+    expect(button.getAttribute("title")).toBe("Delete");
+    expect(button.hasAttribute("aria-label")).toBe(false);
+  });
+  test("leaves the trigger's own aria-label and aria-labelledby untouched", () => {
+    button.setAttribute("title", "Delete");
+    button.setAttribute("aria-label", "Delete row");
+    pointer("pointerover", button);
+    vi.advanceTimersByTime(200);
+    expect(button.getAttribute("aria-label")).toBe("Delete row");
+    pointer("pointerout", button, { relatedTarget: document.body });
+    expect(button.getAttribute("aria-label")).toBe("Delete row");
+
+    button.removeAttribute("aria-label");
+    button.setAttribute("aria-labelledby", "row-label");
+    pointer("pointerover", button);
+    vi.advanceTimersByTime(200);
+    expect(button.hasAttribute("aria-label")).toBe(false);
+  });
+  test("does not remove an aria-label the renderer set while the tooltip was shown", () => {
+    button.setAttribute("title", "Expand");
+    pointer("pointerover", button);
+    vi.advanceTimersByTime(200);
+    button.setAttribute("aria-label", "Collapse");
+    pointer("pointerdown", button);
+    expect(button.getAttribute("aria-label")).toBe("Collapse");
+  });
   test("hides when the pointer moves to a sibling inside the same shadow root", () => {
     // Moves within one shadow tree never reach document listeners: both ends retarget to the same host.
     const shadowHost = document.createElement("div");

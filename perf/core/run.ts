@@ -18,8 +18,9 @@ import type { ResultFile, ResultEntry } from "../harness/node/result.ts";
 
 // The core suite (02): every core scenario in its own fresh `node --expose-gc` process, in a fixed order sorted by
 // id, against the target build (PERF_CORE_DIR, default the runner's). It writes one result file.
-// A guard against a hung process only: on survey-core 3.2.0 one complexLogic scenario takes about 4 minutes.
-const scenarioTimeoutMs = 900000;
+// A guard against a hung process, below the 10-minute suite budget. On master the longest process takes about 80 s;
+// on survey-core 3.2.0 complexLogic/answer/next10 takes 7 minutes, and load/design and output/dispose do not finish.
+const scenarioTimeoutMs = 300000;
 const processScript = path.join(runnerRoot, "perf", "core", "scenario-process.ts");
 
 const env = readEnv();
@@ -27,7 +28,7 @@ const core = resolveCoreDir();
 const mainFile = path.join(core.dir, "fesm", "survey-core.mjs");
 const german = path.join(core.dir, "fesm", "i18n", "german.mjs");
 if (!env.coreDir) {
-  checkBuildFresh(path.join(runnerRoot, "packages", "survey-core", "src"), [mainFile, german], coreBuildHint);
+  checkBuildFresh(["src", "entries"].map((d: string) => path.join(runnerRoot, "packages", "survey-core", d)), [mainFile, german], coreBuildHint);
 } else {
   checkBuildExists([mainFile, german]);
   const version = JSON.parse(fs.readFileSync(path.join(core.dir, "package.json"), "utf8")).version;
@@ -40,6 +41,8 @@ const extras = getExtraFixtures(env.extraJson || "");
 extras.forEach((f: any) => extraScenarioIds(f.key).forEach((id: string) => {
   if (!env.only || env.only.indexOf(id) > -1) ids.push(id);
 }));
+const unknownExtra = split.run.filter((id: string) => id.indexOf("extra/") === 0 && ids.indexOf(id) < 0);
+if (unknownExtra.length > 0) throw new Error("PERF_ONLY names extra/ ids with no PERF_EXTRA_JSON file: " + unknownExtra.join(", "));
 ids = ids.sort();
 
 const fixtures: ResultFile["fixtures"] = {};
@@ -77,7 +80,13 @@ let child: ChildProcess | undefined;
 let stopping = false;
 const done = new Set<string>();
 
-function write(): void {
+// Every write before the end says what is still unrun, so a run killed without a chance to write (SIGKILL, out of
+// memory) leaves a file that 04 reads as incomplete, not as complete with scenarios missing.
+function write(final?: boolean): void {
+  if (!final && !result.incomplete) {
+    writeJsonAtomic(file, Object.assign({}, result, { incomplete: { reason: "killed", unrun: ids.filter((id: string) => !done.has(id)) } }));
+    return;
+  }
   writeJsonAtomic(file, result);
 }
 
@@ -87,7 +96,7 @@ const stop = (reason: "timeout" | "killed"): void => {
   stopping = true;
   if (child) child.kill();
   result.incomplete = { reason: reason, unrun: ids.filter((id: string) => !done.has(id)) };
-  write();
+  write(true);
   console.log("stopped (" + reason + "): " + result.incomplete.unrun.length + " scenarios not run; " + file);
   process.exit(143);
 };
@@ -125,6 +134,7 @@ function runOne(id: string): Promise<any> {
 
 async function main(): Promise<void> {
   const start = Date.now();
+  write();
   console.log("core: " + ids.length + " scenarios" + (split.notInSuite.length ? ", " + split.notInSuite.length + " not in this suite" : "") + " -> " + file);
   for (const id of ids) {
     if (stopping) return;
@@ -145,6 +155,7 @@ async function main(): Promise<void> {
     }
     write();
   }
+  write(true);
   console.log("core: done in " + ((Date.now() - start) / 1000).toFixed(0) + " s; " + result.results.length + " measured, " + result.skipped.length +
     " skipped, " + result.failed.length + " failed; " + file);
   if (result.failed.length > 0) process.exitCode = 1;

@@ -14,19 +14,40 @@ import type { PerfScenario } from "../harness/scenario.ts";
 const fileArg = process.argv.indexOf("--file");
 const revsFile = fileArg > -1 ? path.resolve(process.argv[fileArg + 1]) : path.join(path.dirname(fileURLToPath(import.meta.url)), "revs.json");
 
-export function scenarioHash(s: PerfScenario, helpers: { [name: string]: Function }): string {
-  let text = String(s.setup) + String(s.run) + String(s.check);
-  (s.uses || []).forEach((name: string) => {
-    if (!helpers[name]) throw new Error(s.id + ": `uses` names an unknown helper " + name);
-    text += String(helpers[name]);
-  });
+const sourceOf = (value: any): string => (typeof value === "function" ? String(value) : JSON.stringify(value));
+
+// The names of perf/scenarios exports a source reads: a call for a function, any mention for a constant.
+function namesIn(text: string, helpers: { [name: string]: any }): Array<string> {
+  return Object.keys(helpers).filter((name: string) => new RegExp("\\b" + name + (typeof helpers[name] === "function" ? "\\(" : "\\b")).test(text));
+}
+
+// The helpers in `uses`, plus every helper they reach in turn: a change in a helper of a helper changes the hash.
+export function closureOf(s: PerfScenario, helpers: { [name: string]: any }): Array<string> {
+  const res: Array<string> = [];
+  const visit = (name: string): void => {
+    if (res.indexOf(name) > -1) return;
+    if (!(name in helpers)) throw new Error(s.id + ": `uses` names an unknown helper " + name);
+    res.push(name);
+    namesIn(sourceOf(helpers[name]), helpers).forEach(visit);
+  };
+  (s.uses || []).forEach(visit);
+  return res;
+}
+
+// The measured work: setup, run, check and teardown, the fields that change what a sample does, and the source of
+// every helper and constant reached through `uses`.
+export function scenarioHash(s: PerfScenario, helpers: { [name: string]: any }): string {
+  let text = String(s.setup) + String(s.run) + String(s.check) + String(s.teardown || "") + String(s.counters || "");
+  text += JSON.stringify({ repeat: s.repeat, counterOnly: s.counterOnly, requires: s.requires, samples: s.samples, warmup: s.warmup,
+    maxMs: s.maxMs, tolerance: s.tolerance, browser: s.browser });
+  closureOf(s, helpers).forEach((name: string) => { text += name + "=" + sourceOf(helpers[name]); });
   return createHash("sha1").update(text.replace(/\s+/g, "")).digest("hex");
 }
 
-// The helpers a scenario's own functions call by name but do not list in `uses`.
-export function unlistedHelpers(s: PerfScenario, helpers: { [name: string]: Function }): Array<string> {
+// The helpers and constants a scenario's own functions read but do not list in `uses`.
+export function unlistedHelpers(s: PerfScenario, helpers: { [name: string]: any }): Array<string> {
   const text = String(s.setup) + String(s.run) + String(s.check) + String(s.teardown || "");
-  return Object.keys(helpers).filter((name: string) => new RegExp("\\b" + name + "\\(").test(text) && (s.uses || []).indexOf(name) < 0);
+  return namesIn(text, helpers).filter((name: string) => (s.uses || []).indexOf(name) < 0);
 }
 
 function main(): void {

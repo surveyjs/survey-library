@@ -9,7 +9,7 @@ const main = path.join(core.dir, "fesm", "survey-core.mjs");
 const linter = path.join(core.dir, "fesm", "linter", "index.mjs");
 const german = path.join(core.dir, "fesm", "i18n", "german.mjs");
 if (!process.env.PERF_CORE_DIR) {
-  checkBuildFresh(path.join(__dirname, "src"), [main, linter, german], coreBuildHint);
+  checkBuildFresh([path.join(__dirname, "src"), path.join(__dirname, "entries")], [main, linter, german], coreBuildHint);
 } else {
   checkBuildExists([main]);
 }

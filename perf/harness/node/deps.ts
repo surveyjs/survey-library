@@ -6,7 +6,8 @@ import { createHash } from "node:crypto";
 // Linked packages (survey-core in a UI package is a junction to its build), file: entries and the folders' own
 // versions are left out, so a release bump changes nothing.
 export interface DepsInfo {
-  fingerprint: string;
+  // null when no package folder was given (an npm build has no build dependencies here).
+  fingerprint: string | null;
   versions: { [name: string]: string };
 }
 
@@ -57,5 +58,6 @@ export function dependencyInfo(packageDirs: Array<string>): DepsInfo {
     const name = p.substring(0, at);
     if (reportedPackages.indexOf(name) > -1 && !versions[name]) versions[name] = p.substring(at + 1);
   });
+  if (packageDirs.length === 0) return { fingerprint: null, versions: versions };
   return { fingerprint: createHash("sha1").update(list.join("\n")).digest("hex"), versions: versions };
 }

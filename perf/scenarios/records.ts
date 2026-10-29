@@ -1,16 +1,16 @@
 import type { PerfContext, PerfScenario } from "../harness/scenario.ts";
 import { expectThat, expectEqual } from "../harness/scenario.ts";
 import { loadModel, outputScenarios } from "./common.ts";
-import { loadSurvey, disposeSurvey, sortRecords, filterRecords, sum, firstShown } from "./helpers.ts";
+import { loadSurvey, disposeSurvey, sortRecords, filterRecords, sum, firstShown, expectSortedPage, recordsShown } from "./helpers.ts";
 
 // Records on the matrix orders (1k and 10k) and a few on the bound panel ordersPanel (1k). One survey with the data
 // per process; setup restores the page, the sort and the filter instead of reloading (00, Budgets). Every check
 // compares with values computed from the data.
 const requires = ["matrixdynamic.pageSize", "paneldynamic.pageSize"];
-const defaultSort = [{ field: "total", direction: "desc" }];
-const panelSort = [{ field: "qty", direction: "asc" }];
-const filterA = "{status} = 'open' and {total} > 500";
-const filterB = "{status} = 'shipped' and {total} > 500";
+export const defaultSort = [{ field: "total", direction: "desc" }];
+export const panelSort = [{ field: "qty", direction: "asc" }];
+export const filterA = "{status} = 'open' and {total} > 500";
+export const filterB = "{status} = 'shipped' and {total} > 500";
 
 export function recordsSurvey(ctx: PerfContext): any {
   if (!ctx.cache.survey) {
@@ -60,8 +60,9 @@ export function totalAt(records: Array<any>, index: number, direction: string): 
 
 function base(fixture: string, op: string, target: string, uses: Array<string>): any {
   const ready = target === "orders" ? "ordersReady" : "panelReady";
+  const sort = target === "orders" ? "defaultSort" : "panelSort";
   return { id: fixture + "/records/" + op + "@" + target, rev: 1, fixture: fixture, kind: "action", requires: requires,
-    uses: ["loadSurvey", "recordsSurvey", "resetView", "currentOrders", "firstShown", ready].concat(uses) };
+    uses: ["loadSurvey", "recordsSurvey", "resetView", "currentOrders", "firstShown", ready, sort].concat(uses), counters: recordsShown };
 }
 
 function matrixScenarios(fixture: string): Array<PerfScenario> {
@@ -110,13 +111,13 @@ function matrixScenarios(fixture: string): Array<PerfScenario> {
       },
       teardown: (ctx: PerfContext, s: any): void => disposeSurvey(s.survey)
     }),
-    Object.assign(base(fixture, "sort-1", "orders", ["sortRecords", "totalAt"]), {
+    Object.assign(base(fixture, "sort-1", "orders", ["sortRecords", "totalAt", "expectSortedPage", "shownIds"]), {
       setup: ready,
       // A single level on a data field, other than the starting sort.
       run: (ctx: PerfContext, s: any): void => { s.q.sortCriteria = [{ field: "price", direction: "desc" }]; },
       check: (ctx: PerfContext, s: any): void => {
         expectEqual(s.q.pageIndex, 0, "page index");
-        expectEqual(firstShown(s.q, "price"), sortRecords(s.records, [{ field: "price", direction: "desc" }])[0].price, "the first row has the largest price");
+        expectSortedPage(s.q, s.records, [{ field: "price", direction: "desc" }], defaultSort, "price desc");
       }
     }),
     Object.assign(base(fixture, "sort-3", "orders", ["sortRecords", "totalAt"]), {
@@ -138,7 +139,7 @@ function matrixScenarios(fixture: string): Array<PerfScenario> {
         expectEqual(firstShown(s.q, "total"), totalAt(s.records, 0, "asc"), "the first row has the smallest total");
       }
     }),
-    Object.assign(base(fixture, "filter-set", "orders", ["filterRecords"]), {
+    Object.assign(base(fixture, "filter-set", "orders", ["filterRecords", "filterA"]), {
       setup: ready,
       run: (ctx: PerfContext, s: any): void => { s.q.filterExpression = filterA; },
       check: (ctx: PerfContext, s: any): void => {
@@ -148,7 +149,7 @@ function matrixScenarios(fixture: string): Array<PerfScenario> {
         expectEqual(firstShown(s.q, "status"), "open", "the first row is open");
       }
     }),
-    Object.assign(base(fixture, "filter-change", "orders", ["filterRecords"]), {
+    Object.assign(base(fixture, "filter-change", "orders", ["filterRecords", "filterA", "filterB"]), {
       setup: (ctx: PerfContext): any => {
         const s = ready(ctx);
         s.q.filterExpression = filterA;
@@ -161,7 +162,7 @@ function matrixScenarios(fixture: string): Array<PerfScenario> {
         expectEqual(firstShown(s.q, "status"), "shipped", "the first row is shipped");
       }
     }),
-    Object.assign(base(fixture, "filter-clear", "orders", []), {
+    Object.assign(base(fixture, "filter-clear", "orders", ["filterA"]), {
       setup: (ctx: PerfContext): any => {
         const s = ready(ctx);
         s.q.filterExpression = filterA;
@@ -244,11 +245,11 @@ function panelScenarios(fixture: string): Array<PerfScenario> {
         expectEqual(firstShown(s.q, "qty"), sortRecords(s.records, panelSort)[s.q.pageSize].qty, "the first panel of page 2");
       }
     }),
-    Object.assign(base(fixture, "sort-1", "ordersPanel", ["sortRecords", "totalAt"]), {
+    Object.assign(base(fixture, "sort-1", "ordersPanel", ["sortRecords", "totalAt", "expectSortedPage", "shownIds"]), {
       setup: ready,
       run: (ctx: PerfContext, s: any): void => { s.q.sortCriteria = [{ field: "price", direction: "desc" }]; },
       check: (ctx: PerfContext, s: any): void => {
-        expectEqual(firstShown(s.q, "price"), sortRecords(s.records, [{ field: "price", direction: "desc" }])[0].price, "the first panel has the largest price");
+        expectSortedPage(s.q, s.records, [{ field: "price", direction: "desc" }], panelSort, "price desc");
       }
     })
   ];

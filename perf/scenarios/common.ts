@@ -1,5 +1,6 @@
 import type { PerfScenario, PerfContext } from "../harness/scenario.ts";
 import { expectThat, expectEqual } from "../harness/scenario.ts";
+import { work } from "../harness/counters.ts";
 import { loadSurvey, cachedSurvey, disposeSurvey, expectHidden } from "./helpers.ts";
 
 // Scenario factories shared by several fixtures: loads, answers and outputs (02, The scenarios).
@@ -114,6 +115,7 @@ export function outputScenarios(fixture: string, answerName: string, answer: (ct
     id: fixture + "/output/data", rev: 1, fixture: fixture, kind: "action", uses: ["cachedSurvey", answerName],
     setup: (ctx: PerfContext): any => ({ survey: answered(ctx), data: undefined }),
     run: (ctx: PerfContext, state: any): void => { state.data = state.survey.data; },
+    counters: (ctx: PerfContext, state: any): any => ({ answers: work(Object.keys(state.data).length) }),
     // A copy of the stored value, well under a millisecond: its time is reported, its counters judged.
     counterOnly: true,
     check: (ctx: PerfContext, state: any): void => {
@@ -123,6 +125,7 @@ export function outputScenarios(fixture: string, answerName: string, answer: (ct
     id: fixture + "/output/toJSON", rev: 1, fixture: fixture, kind: "action", uses: ["cachedSurvey", answerName],
     setup: (ctx: PerfContext): any => ({ survey: answered(ctx), json: undefined }),
     run: (ctx: PerfContext, state: any): void => { state.json = state.survey.toJSON(); },
+    counters: (ctx: PerfContext, state: any): any => ({ jsonLength: work(JSON.stringify(state.json).length) }),
     check: (ctx: PerfContext, state: any): void => {
       expectEqual(state.json && state.json.pages.length, ctx.fixture.meta.pages, "toJSON pages");
     }
@@ -134,6 +137,7 @@ export function outputScenarios(fixture: string, answerName: string, answer: (ct
       return { survey: survey };
     },
     run: (ctx: PerfContext, state: any): void => { state.survey.dispose(); },
+    counters: (ctx: PerfContext, state: any): any => ({ disposed: work(state.survey.isDisposed ? 1 : 0) }),
     check: (ctx: PerfContext, state: any): void => {
       expectThat(state.survey.isDisposed, "the survey is disposed");
     }

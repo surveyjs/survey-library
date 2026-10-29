@@ -32,7 +32,24 @@ describe("the core runner", () => {
     expect(result.failed).toEqual([]);
     fs.rmSync(dir, { recursive: true, force: true });
   });
-  test("scenario-process.ts reports a scenario whose requires the build lacks as skipped", () => {
+  test("extra/* is exempt from the warning rule (D03): an invalid expression is counted, not a failure", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "perf-extra-"));
+    const json = path.join(dir, "local survey.json");
+    fs.writeFileSync(json, JSON.stringify({ elements: [{ type: "radiogroup", name: "a", choices: [1, 2] }, { type: "text", name: "b", visibleIf: "{a} = = 1" }] }));
+    const file = path.join(dir, "core.json");
+    const res = spawnSync(process.execPath, [path.join(runnerRoot, "perf", "core", "run.ts")], {
+      encoding: "utf8",
+      env: Object.assign({}, process.env, { PERF_EXTRA_JSON: json, PERF_ONLY: "extra/local survey/load/model", PERF_RESULT_FILE: file, PERF_CORE_DIR: "" })
+    });
+    expect(res.stderr).toBe("");
+    const result = JSON.parse(fs.readFileSync(file, "utf8"));
+    expect(result.failed).toEqual([]);
+    expect(result.incomplete).toBeNull();
+    expect(result.results[0].local).toBe(true);
+    expect(result.results[0].info.warnings).toBeGreaterThan(0);
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+  test("scenario-process.ts runs a records scenario on the runner's build, which has paging", () => {
     const res = spawnSync(process.execPath, ["--expose-gc", path.join(runnerRoot, "perf", "core", "scenario-process.ts"), "records-1k/load/model"], {
       encoding: "utf8", env: Object.assign({}, process.env, { PERF_CORE_DIR: "" })
     });

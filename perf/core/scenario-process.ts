@@ -8,6 +8,7 @@ import { calibrateOnce, calibrationResult } from "../harness/calibration.ts";
 import { installFunnels } from "../harness/counters.ts";
 import { summarize } from "../harness/stats.ts";
 import type { PerfContext, PerfFixture } from "../harness/scenario.ts";
+import { missingRequirement } from "../harness/scenario.ts";
 import type { ResultEntry } from "../harness/node/result.ts";
 import { resolveCoreDir } from "../harness/node/build.ts";
 import { readEnv } from "../harness/node/env.ts";
@@ -33,12 +34,10 @@ async function main(): Promise<void> {
   // The target build is imported by path, so the master build and an npm build load the same way (D05).
   const Survey = await import(pathToFileURL(path.join(core.dir, "fesm", "survey-core.mjs")).href);
   await import(pathToFileURL(path.join(core.dir, "fesm", "i18n", "german.mjs")).href);
-  for (const req of scenario.requires || []) {
-    const [cls, prop] = req.split(".");
-    if (!Survey.Serializer.findProperty(cls, prop)) {
-      print({ type: "skipped", id: id, reason: "not in this build: " + req });
-      return;
-    }
+  const skip = missingRequirement(Survey, scenario.requires);
+  if (skip) {
+    print({ type: "skipped", id: id, reason: skip });
+    return;
   }
   const isExtra = scenario.fixture.indexOf("extra/") === 0;
   let fixture: PerfFixture;
@@ -64,7 +63,7 @@ async function main(): Promise<void> {
   const res = await sampleLoop(driver, { warmup: scenario.warmup === undefined ? 2 : scenario.warmup, samples: scenario.samples || 12,
     maxMs: scenario.maxMs || 5000, minSamples: 5, now: now });
   (gc as () => void)();
-  if (warnings.length > 0) throw new Error("warnings during the scenario: " + warnings.slice(0, 3).join(" | "));
+  if (warnings.length > 0 && !isExtra) throw new Error("warnings during the scenario: " + warnings.slice(0, 3).join(" | "));
   const jsonErrors = ctx.cache.jsonErrors || 0;
   // jsonErrors fail a scenario on the runner's own build and in nightly or record runs; elsewhere (an npm build,
   // extra/*) they are only recorded.
@@ -84,7 +83,7 @@ async function main(): Promise<void> {
     calibration: calibrationResult(res.calibrationBefore, res.calibrationAfter),
     phases: phases, counters: res.counters,
     info: { kept: res.samples.length, warmups: res.warmups.length, wallMs: Math.round(res.wallMs), heapMB: Math.round(process.memoryUsage().heapUsed / 1048576),
-      gc: true, fixtureMeta: isExtra ? fixture.meta : undefined },
+      gc: true, fixtureMeta: isExtra ? fixture.meta : undefined, warnings: isExtra ? warnings.length : undefined },
     jsonErrors: jsonErrors, tolerance: scenario.tolerance === undefined ? null : scenario.tolerance, local: isExtra
   };
   if (scenario.repeat) entry.repeat = scenario.repeat;

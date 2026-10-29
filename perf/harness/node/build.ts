@@ -42,8 +42,8 @@ export function newestFile(dir: string): { file: string, mtime: number } {
 }
 
 // Fails with both dates when a built file is older than the newest file of its src folder.
-export function checkBuildFresh(srcDir: string, buildFiles: Array<string>, hint: string): void {
-  const newest = newestFile(srcDir);
+export function checkBuildFresh(srcDirs: string | Array<string>, buildFiles: Array<string>, hint: string): void {
+  const newest = (Array.isArray(srcDirs) ? srcDirs : [srcDirs]).map(newestFile).reduce((a: any, b: any) => (b.mtime > a.mtime ? b : a));
   for (const file of buildFiles) {
     if (!fs.existsSync(file)) throw new Error("Missing build file " + file + ". Run: " + hint);
     const mtime = fs.statSync(file).mtimeMs;

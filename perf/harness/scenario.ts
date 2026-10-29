@@ -80,3 +80,12 @@ export function expectThat(condition: any, message: string): void {
 export function expectEqual(actual: any, expected: any, message: string): void {
   if (actual !== expected) throw new Error("check failed: " + message + ": expected " + JSON.stringify(expected) + ", got " + JSON.stringify(actual));
 }
+
+// The first "<class>.<property>" of requires the build lacks, as a skip reason; "" when it has them all.
+export function missingRequirement(Survey: any, requires: Array<string> | undefined): string {
+  for (const req of requires || []) {
+    const parts = req.split(".");
+    if (!Survey.Serializer.findProperty(parts[0], parts[1])) return "not in this build: " + req;
+  }
+  return "";
+}

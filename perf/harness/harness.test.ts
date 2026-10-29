@@ -8,7 +8,7 @@ import type { SampleDriver } from "./sample.ts";
 import { installFunnels, funnels } from "./counters.ts";
 import { calibrateOnce } from "./calibration.ts";
 import { SCENARIO_IDS, FIXTURE_KEYS, idsOfSuite, splitOnly, suitesOf, DROP_LIST } from "./ids.ts";
-import { defineScenarios, fixtureOfId } from "./scenario.ts";
+import { defineScenarios, fixtureOfId, missingRequirement } from "./scenario.ts";
 import { allScenarios } from "../scenarios/index.ts";
 import { runnerRoot } from "./node/build.ts";
 import { machineKey, slug } from "./node/machine.ts";
@@ -73,6 +73,12 @@ describe("the sample loop", () => {
     expect(log.filter((x: string) => x === "check").length).toBe(1 + 5 + 1);
     expect(res.counters.own).toEqual({ value: 7, kind: "work" });
     expect(res.counters.conditionRuns).toEqual({ value: 0, kind: "work" });
+  });
+  test("requires: the first property the build lacks is the skip reason", () => {
+    const fake = { Serializer: { findProperty: (cls: string, prop: string) => (cls === "matrixdynamic" && prop === "pageSize" ? {} : null) } };
+    expect(missingRequirement(fake, ["matrixdynamic.pageSize", "paneldynamic.pageSize"])).toBe("not in this build: paneldynamic.pageSize");
+    expect(missingRequirement(fake, ["matrixdynamic.pageSize"])).toBe("");
+    expect(missingRequirement(Survey, ["matrixdynamic.pageSize", "paneldynamic.pageSize"])).toBe("");
   });
   test("a scenario without check throws at registration", () => {
     expect(() => defineScenarios([{ id: "large/load/model", rev: 1, fixture: "large", kind: "load", setup: () => 1, run: () => 1 } as any])).toThrow(/no check/);

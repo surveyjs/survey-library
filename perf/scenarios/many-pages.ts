@@ -1,7 +1,7 @@
 import type { PerfContext, PerfScenario } from "../harness/scenario.ts";
 import { expectThat, expectEqual } from "../harness/scenario.ts";
 import { loadModel } from "./common.ts";
-import { cachedSurvey } from "./helpers.ts";
+import { cachedSurvey, pagesShown } from "./helpers.ts";
 
 // Page navigation, preview, validation and locale on manyPages only: on large 108 of 109 pages are hidden at load.
 // One survey per process; setup puts it back on the page each sample starts from (00, Budgets).
@@ -9,10 +9,13 @@ import { cachedSurvey } from "./helpers.ts";
 // The required questions of the first pages answered, with values that hide no page.
 export function answerRequired(ctx: PerfContext, survey: any, pages: number): void {
   const meta = ctx.fixture.meta;
+  const data: { [name: string]: any } = {};
   meta.required.forEach((name: string) => {
     const page = +name.substring(1, name.indexOf("_"));
-    if (page < pages) survey.setValue(name, meta.answers[name]);
+    if (page < pages) data[name] = meta.answers[name];
   });
+  // One merge: a setValue per question re-runs the conditions each time (1,500 of them took 29.5 s).
+  survey.mergeData(data);
 }
 
 export function pagesSurvey(ctx: PerfContext): any {
@@ -23,7 +26,7 @@ export function manyPagesScenarios(): Array<PerfScenario> {
   return [
     loadModel("manyPages"),
     {
-      id: "manyPages/pages/next10", rev: 1, fixture: "manyPages", kind: "action", uses: ["cachedSurvey", "pagesSurvey", "answerRequired"],
+      id: "manyPages/pages/next10", rev: 1, fixture: "manyPages", kind: "action", uses: ["cachedSurvey", "pagesSurvey", "answerRequired", "pagesShown"], counters: pagesShown,
       setup: (ctx: PerfContext): any => {
         const survey = pagesSurvey(ctx);
         survey.currentPageNo = 0;
@@ -35,7 +38,7 @@ export function manyPagesScenarios(): Array<PerfScenario> {
       },
       check: (ctx: PerfContext, state: any): void => expectEqual(state.survey.currentPageNo, 10, "page after ten Next")
     }, {
-      id: "manyPages/pages/prev", rev: 1, fixture: "manyPages", kind: "action", uses: ["cachedSurvey", "pagesSurvey", "answerRequired"],
+      id: "manyPages/pages/prev", rev: 1, fixture: "manyPages", kind: "action", uses: ["cachedSurvey", "pagesSurvey", "answerRequired", "pagesShown"], counters: pagesShown,
       setup: (ctx: PerfContext): any => {
         const survey = pagesSurvey(ctx);
         survey.currentPageNo = 10;
@@ -46,7 +49,7 @@ export function manyPagesScenarios(): Array<PerfScenario> {
       // One Previous takes about 3 ms: five of them in a sample (02 check 1).
       repeat: 5
     }, {
-      id: "manyPages/pages/last", rev: 1, fixture: "manyPages", kind: "action", uses: ["cachedSurvey", "pagesSurvey", "answerRequired"],
+      id: "manyPages/pages/last", rev: 1, fixture: "manyPages", kind: "action", uses: ["cachedSurvey", "pagesSurvey", "answerRequired", "pagesShown"], counters: pagesShown,
       setup: (ctx: PerfContext): any => {
         const survey = pagesSurvey(ctx);
         survey.currentPageNo = 0;

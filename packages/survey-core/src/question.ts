@@ -4,7 +4,7 @@ import { property } from "./decorators";
 import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation, IDataVerificationOptions, IDataIssue, DataIssueType } from "./base-interfaces";
 import { Base, ComputedUpdater } from "./base";
 import { EventBase } from "./event";
-import { SurveyElement } from "./survey-element";
+import { SurveyElement, getReadOnlyModePropertyInfo } from "./survey-element";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner, AsyncElementsRunner } from "./validator";
 import { LocalizableString } from "./localizablestring";
@@ -4140,13 +4140,7 @@ Serializer.addClass("question", [
   },
   { name: "errorLocation", default: "default", choices: ["default", "top", "bottom"] },
   { name: "readOnly:switch", overridingProperty: "enableIf" },
-  {
-    name: "readOnlyMode",
-    default: "default",
-    choices: ["default", "readonly", "view"],
-    dependsOn: ["readOnly"],
-    visibleIf: (obj: any) => !!obj && !!obj.readOnly
-  },
+  getReadOnlyModePropertyInfo(),
   {
     name: "validators:validators",
     baseClassName: "surveyvalidator",

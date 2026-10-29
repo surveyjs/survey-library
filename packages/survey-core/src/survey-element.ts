@@ -37,6 +37,17 @@ import { PanelModel } from "./panel";
 import { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
 import { ItemValue } from "./itemvalue";
 
+// The readOnlyMode serializer property shared by questions and panels; a new object per class.
+export function getReadOnlyModePropertyInfo(): any {
+  return {
+    name: "readOnlyMode",
+    default: "default",
+    choices: ["default", "readonly", "view"],
+    dependsOn: ["readOnly"],
+    visibleIf: (obj: any) => !!obj && !!obj.readOnly
+  };
+}
+
 /**
  * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.
  */

@@ -17,7 +17,7 @@ import {
   IFindElement,
   ISurveyValidation
 } from "./base-interfaces";
-import { SurveyElement, RenderingCompletedAwaiter } from "./survey-element";
+import { SurveyElement, RenderingCompletedAwaiter, getReadOnlyModePropertyInfo } from "./survey-element";
 import { Question } from "./question";
 import { ElementFactory, QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
@@ -2653,13 +2653,7 @@ Serializer.addClass(
     },
     { name: "visible:switch", default: true, overridingProperty: "visibleIf" },
     { name: "readOnly:boolean", overridingProperty: "enableIf" },
-    {
-      name: "readOnlyMode",
-      default: "default",
-      choices: ["default", "readonly", "view"],
-      dependsOn: ["readOnly"],
-      visibleIf: (obj: any) => !!obj && !!obj.readOnly
-    },
+    getReadOnlyModePropertyInfo(),
     "visibleIf:condition",
     "enableIf:condition",
     "requiredIf:condition",

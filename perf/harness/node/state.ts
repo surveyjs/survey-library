@@ -29,13 +29,17 @@ export function writeJson(file: string, value: any): void {
   writeJsonAtomic(file, value);
 }
 
-// Keys sorted at every level and numbers rounded to 0.01, so two files diff cleanly.
+// Keys sorted at every level and numbers rounded to 0.01 (ms), so two files diff cleanly; sigma, a log-space value of
+// about 0.01-0.1, keeps 4 digits.
 export function canonical(value: any): any {
   if (Array.isArray(value)) return value.map(canonical);
   if (typeof value === "number") return Math.round(value * 100) / 100;
   if (!value || typeof value !== "object") return value;
   const res: any = {};
-  Object.keys(value).sort().forEach((key: string) => { if (value[key] !== undefined) res[key] = canonical(value[key]); });
+  Object.keys(value).sort().forEach((key: string) => {
+    if (value[key] === undefined) return;
+    res[key] = key === "sigma" && typeof value[key] === "number" ? Math.round(value[key] * 10000) / 10000 : canonical(value[key]);
+  });
   return res;
 }
 

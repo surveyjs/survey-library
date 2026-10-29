@@ -1,7 +1,7 @@
 import { median } from "../stats.ts";
 import type { Baseline } from "./baseline.ts";
 import type { KnownState } from "./known.ts";
-import { knownEntry } from "./known.ts";
+import { knownEntry, knownEntries } from "./known.ts";
 import { ratchetFile, readJson, writeJson } from "./state.ts";
 
 // The reference a run is judged against (D19): the baseline, the ratchet after improvements, or the value frozen in
@@ -41,8 +41,8 @@ export function referenceOf(suite: string, id: string, baseline: Baseline, ratch
     const fromRatchet = r && r.counters[name] !== undefined ? r.counters[name] : undefined;
     counters[name] = fromRatchet !== undefined ? fromRatchet : b.counters[name].value;
   }
+  knownEntries(known, suite, id).forEach((open: any) => { if (open.entry.kind === "counter" && open.entry.counter) counters[open.entry.counter] = open.entry.ref; });
   const k = knownEntry(known, suite, id);
-  if (k && k.kind === "counter" && k.counter) counters[k.counter] = k.ref;
   if (k && k.kind === "time") return { time: k.ref, timeSource: "frozen", since: k.since, counters: counters };
   if (r && r.rolling && r.rolling.value < b.median) return { time: r.rolling.value, timeSource: "rolling", since: r.rolling.since, counters: counters };
   return { time: b.median, timeSource: "baseline", counters: counters };
@@ -53,7 +53,7 @@ export function referenceOf(suite: string, id: string, baseline: Baseline, ratch
 export function advanceRatchet(ratchet: Ratchet, baseline: Baseline, known: KnownState, suite: string, verdicts: Array<any>, date: string): void {
   for (const v of verdicts) {
     const b = baseline.scenarios[v.id];
-    if (!b || knownEntry(known, suite, v.id)) continue;
+    if (!b || knownEntries(known, suite, v.id).length > 0) continue;
     const r = ratchet.scenarios[v.id] = ratchet.scenarios[v.id] || { okNights: [], counters: {} };
     if (v.verdict === "ok" || v.verdict === "improved") {
       r.okNights.push({ date: date, median: v.median });

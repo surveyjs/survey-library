@@ -9,6 +9,7 @@ import type { Ratchet, Reference } from "./reference.ts";
 import { readRatchet, referenceOf } from "./reference.ts";
 import type { KnownState } from "./known.ts";
 import { readKnown, knownEntry, emptyKnown } from "./known.ts";
+import { median } from "../stats.ts";
 import { baselineFile, newestBaseline } from "./state.ts";
 import { readEnv } from "./env.ts";
 
@@ -43,6 +44,8 @@ export interface ScenarioVerdict {
   calibrationRatio?: number;
   vsPrevious?: number;
   rerunMedians?: Array<number>;
+  // A slow-process first run judged on its reruns: median and change come from the reruns, this is the first run's.
+  firstMedian?: number;
   counters: Array<CounterVerdict>;
   counter?: string;
   counterReference?: number;
@@ -72,6 +75,8 @@ export interface Comparison {
   reruns: Array<string>;
   noisy: boolean;
   failed: boolean;
+  // The night vsPrevious compares with (same machine key), for the post.
+  previous?: { date: string, commit: string | null };
 }
 
 export function minDeltaOf(suite: string): number {
@@ -103,6 +108,14 @@ function judgeCounters(entry: ResultEntry, ref: Reference | undefined, base: Bas
   return res;
 }
 
+// The reason a scenario cannot be compared with a baseline entry, or "".
+function fixtureChange(entry: ResultEntry, fx: any, s: Baseline["scenarios"][string]): string {
+  if (fx.hash !== s.fixtureHash || fx.dataHash !== s.dataHash) return "fixture hash";
+  if (entry.rev !== s.rev) return "rev " + s.rev + " -> " + entry.rev;
+  if (entry.jsonErrors !== s.jsonErrors) return "jsonErrors " + s.jsonErrors + " -> " + entry.jsonErrors;
+  return "";
+}
+
 function sameBuild(a: ResultFile, b: ResultFile): boolean {
   const key = (r: ResultFile): string => JSON.stringify([r.build.core.dir, r.build.core.version, r.build.core.commit, r.build.core.mtime,
     r.build.ui ? [r.build.ui.dir, r.build.ui.version, r.build.ui.commit, r.build.ui.mtime] : null]);
@@ -131,6 +144,14 @@ export function judge(input: CompareInput): Comparison {
     seen.add(entry.id);
     if (entry.local) { verdicts.push(make(entry.id, "local")); continue; }
     const b = baseline ? baseline.scenarios[entry.id] : undefined;
+    const fx = result.fixtures[fixtureKeyOf(entry.id)] || ({} as any);
+    const cb = !baseline && counterBase ? counterBase.scenarios[entry.id] : undefined;
+    const cbChange = cb ? fixtureChange(entry, fx, cb) : "";
+    if (cbChange) {
+      // A new machine key: counters of another key's baseline are comparable only for the same fixture and rev.
+      verdicts.push(make(entry.id, "no reference", { median: entry.median, reason: "counters not judged: " + cbChange + " since the newest baseline" }));
+      continue;
+    }
     const ref = baseline ? referenceOf(suite, entry.id, baseline, ratchet, known) : (counterBase ? referenceOf(suite, entry.id, counterBase, { scenarios: {} }, known) : undefined);
     const counters = judgeCounters(entry, ref, counterBase ? counterBase.scenarios[entry.id] : undefined);
     const counterValues: { [name: string]: number | null } = {};
@@ -143,9 +164,8 @@ export function judge(input: CompareInput): Comparison {
       verdicts.push(make(entry.id, baseline ? "new" : "no reference", base));
       continue;
     }
-    const fx = result.fixtures[fixtureKeyOf(entry.id)] || ({} as any);
-    if (fx.hash !== b.fixtureHash || fx.dataHash !== b.dataHash || entry.rev !== b.rev || entry.jsonErrors !== b.jsonErrors) {
-      const what = fx.hash !== b.fixtureHash || fx.dataHash !== b.dataHash ? "fixture hash" : entry.rev !== b.rev ? "rev " + b.rev + " -> " + entry.rev : "jsonErrors " + b.jsonErrors + " -> " + entry.jsonErrors;
+    const what = fixtureChange(entry, fx, b);
+    if (what) {
       verdicts.push(make(entry.id, "fixture changed", Object.assign(base, { reason: what, countersOk: false })));
       continue;
     }
@@ -157,8 +177,9 @@ export function judge(input: CompareInput): Comparison {
     Object.assign(base, { reference: r.time, timeSource: r.timeSource, referenceSince: r.since, change: change, threshold: threshold,
       tolerance: tol, calibrationRatio: calibrationRatio });
     const k = knownEntry(known, suite, entry.id);
-    const vsPrev = input.previous ? input.previous.results.filter((p: ResultEntry) => p.id === entry.id && p.rev === entry.rev)[0] : undefined;
-    if (vsPrev && input.previous && (input.previous.fixtures[fixtureKeyOf(entry.id)] || {}).hash === fx.hash) base.vsPrevious = entry.median / vsPrev.median - 1;
+    const samePrevious = input.previous && input.previous.machine.key === result.machine.key ? input.previous : undefined;
+    const vsPrev = samePrevious ? samePrevious.results.filter((p: ResultEntry) => p.id === entry.id && p.rev === entry.rev)[0] : undefined;
+    if (vsPrev && samePrevious && (samePrevious.fixtures[fixtureKeyOf(entry.id)] || {}).hash === fx.hash) base.vsPrevious = entry.median / vsPrev.median - 1;
     if (badCounter) {
       verdicts.push(make(entry.id, "counter regression", Object.assign(base, { counter: badCounter.name, counterReference: badCounter.ref as number })));
       continue;
@@ -186,29 +207,39 @@ export function judge(input: CompareInput): Comparison {
       verdicts.push(make(id, "missing", { reason: failed ? "failed: " + String(failed.error).split("\n")[0] : "not in the result" }));
     });
   }
-  // The rerun plan and its cap: at most 12 scenarios to rerun (suspects and slow-process) per suite.
+  // A scenario that threw is a failure with or without a reference (a new scenario, a new machine key, the first nights).
+  (result.failed || []).forEach((f: any) => {
+    if (verdicts.some((v: ScenarioVerdict) => v.id === f.id)) return;
+    verdicts.push(make(f.id, "missing", { reason: "failed: " + String(f.error).split("\n")[0] }));
+  });
+  // The rerun plan and its cap (24 runs a suite): at most 12 suspects; slow-process scenarios use what is left.
   const suspects = verdicts.filter((v: ScenarioVerdict) => v.verdict === "suspect");
   const slow = verdicts.filter((v: ScenarioVerdict) => v.verdict === "slow-process");
-  let reruns = suspects.map((v: ScenarioVerdict) => v.id).concat(slow.map((v: ScenarioVerdict) => v.id));
+  let reruns: Array<string> = [];
   let suiteNoisy = noisy;
-  if (suspects.length + slow.length > rerunCap) {
-    if (slow.length === 0) {
+  if (slow.length > rerunCap) {
+    // High calibrations: the machine, not the code. Times are not judged and nothing is rerun.
+    suiteNoisy = true;
+    suspects.concat(slow).forEach((v: ScenarioVerdict) => { v.verdict = "noisy"; v.reason = "over the rerun cap with high calibrations"; });
+  } else {
+    let top = suspects;
+    if (suspects.length > rerunCap) {
       // Clean calibrations: a broad slowdown points at code. Rerun the 6 with the highest ratio.
-      reruns = suspects.slice().sort((x: ScenarioVerdict, y: ScenarioVerdict) => (y.change || 0) - (x.change || 0)).slice(0, rerunTop).map((v: ScenarioVerdict) => v.id);
+      top = suspects.slice().sort((x: ScenarioVerdict, y: ScenarioVerdict) => (y.change || 0) - (x.change || 0)).slice(0, rerunTop);
       suspects.forEach((v: ScenarioVerdict) => v.tags.push("whole-suite-candidate"));
-    } else {
-      // High calibrations: the machine, not the code. Times are not judged and nothing is rerun.
-      suiteNoisy = true;
-      suspects.concat(slow).forEach((v: ScenarioVerdict) => { v.verdict = "noisy"; v.reason = "over the rerun cap with high calibrations"; });
-      reruns = [];
     }
+    const room = rerunCap - top.length;
+    slow.slice(room).forEach((v: ScenarioVerdict) => { v.verdict = "unconfirmed"; v.reason = "slow-process, over the rerun cap"; });
+    reruns = top.concat(slow.slice(0, room)).map((v: ScenarioVerdict) => v.id);
   }
+  const previous = input.previous && input.previous.machine.key === result.machine.key ? { date: input.previous.date, commit: input.previous.build.core.commit } : undefined;
   return { suite: suite, machineKey: result.machine.key, newMachineKey: !baseline, verdicts: verdicts, reruns: reruns, noisy: suiteNoisy,
-    failed: verdicts.some((v: ScenarioVerdict) => failingVerdicts.indexOf(v.verdict) > -1) };
+    failed: verdicts.some((v: ScenarioVerdict) => failingVerdicts.indexOf(v.verdict) > -1), previous: previous };
 }
 
 // The second pass, after the reruns (twice, at the end of the night, same build): a suspect is a regression when it is
-// a suspect again in both reruns, each with a calibration within 1.15; unconfirmed when a rerun was slow-process.
+// a suspect again in both reruns, each with a calibration within 1.15; unconfirmed when a rerun was not judged on time
+// (slow-process, noisy, failed, not run).
 export function finalize(first: Comparison, input: CompareInput, reruns: Array<ResultFile>): Comparison {
   reruns.forEach((r: ResultFile) => {
     if (!sameBuild(r, input.result)) throw new Error("a rerun with a different build is refused: " + r.date);
@@ -220,17 +251,20 @@ export function finalize(first: Comparison, input: CompareInput, reruns: Array<R
     // Over the cap, a suspect that was not rerun is decided by the whole-suite rule below.
     if (first.reruns.indexOf(v.id) < 0) return v;
     const runs = again.map((c: Comparison) => c.verdicts.filter((x: ScenarioVerdict) => x.id === v.id)[0]).filter((x: any) => !!x);
-    const out = Object.assign({}, v, { rerunMedians: runs.map((x: ScenarioVerdict) => x.median as number) });
+    const out: ScenarioVerdict = Object.assign({}, v, { rerunMedians: runs.map((x: ScenarioVerdict) => x.median).filter((m: any) => typeof m === "number") as Array<number> });
     if (runs.length < 2) return Object.assign(out, { verdict: "unconfirmed" as Verdict, reason: "fewer than two reruns" });
+    const unusable = runs.filter((x: ScenarioVerdict) => ["suspect", "ok", "improved"].indexOf(x.verdict) < 0)[0];
+    if (unusable) return Object.assign(out, { verdict: "unconfirmed" as Verdict, reason: "rerun " + unusable.verdict });
+    if (v.verdict === "slow-process" && out.rerunMedians!.length && v.reference) {
+      // A slow first run says nothing: it is judged on its two clean reruns, and shown and ratcheted with their median.
+      const m = median(out.rerunMedians!);
+      Object.assign(out, { firstMedian: v.median, median: m, change: m / v.reference - 1 });
+    }
+    if (runs.every((x: ScenarioVerdict) => x.verdict === "suspect")) return Object.assign(out, { verdict: "regression" as Verdict });
     if (v.verdict === "slow-process") {
-      // A slow first run: judged on its reruns, which must both be clean.
-      if (runs.some((x: ScenarioVerdict) => x.verdict === "slow-process")) return Object.assign(out, { verdict: "unconfirmed" as Verdict, reason: "rerun slow-process" });
-      if (runs.every((x: ScenarioVerdict) => x.verdict === "suspect")) return Object.assign(out, { verdict: "regression" as Verdict });
       return Object.assign(out, { verdict: runs.every((x: ScenarioVerdict) => x.verdict === "improved") ? "improved" as Verdict : "ok" as Verdict,
         judgedOk: true, okAgainstFrozen: runs.every((x: ScenarioVerdict) => x.okAgainstFrozen) });
     }
-    if (runs.some((x: ScenarioVerdict) => x.verdict === "slow-process")) return Object.assign(out, { verdict: "unconfirmed" as Verdict, reason: "rerun slow-process" });
-    if (runs.every((x: ScenarioVerdict) => x.verdict === "suspect")) return Object.assign(out, { verdict: "regression" as Verdict });
     return Object.assign(out, { verdict: "ok" as Verdict, reason: "not confirmed by the reruns" });
   });
   // The cap: when the top suspects are confirmed, every suspect of the suite is a whole-suite regression.
@@ -254,6 +288,7 @@ export function finalize(first: Comparison, input: CompareInput, reruns: Array<R
 }
 
 const pct = (v: number | undefined): string => (v === undefined || !isFinite(v) ? "" : (v >= 0 ? "+" : "") + (v * 100).toFixed(1) + "%");
+const cell = (s: string): string => s.replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
 const ms = (v: number | undefined): string => (v === undefined || isNaN(v) ? "" : String(Math.round(v * 100) / 100));
 
 export function markdownTable(c: Comparison): string {
@@ -263,7 +298,7 @@ export function markdownTable(c: Comparison): string {
     const counter = v.counter ? " (" + v.counter + " " + v.counters.filter((x: CounterVerdict) => x.name === v.counter).map((x: CounterVerdict) => x.ref + " -> " + x.value)[0] + ")" : "";
     const notes = v.counters.filter((x: CounterVerdict) => x.verdict === "dom-note").map((x: CounterVerdict) => " DOM " + pct(x.change)).join("");
     lines.push("| " + v.id + " | " + ref + " | " + ms(v.median) + " | " + pct(v.change) + " | " + pct(v.threshold) + " | " + pct(v.vsPrevious) +
-      " | " + v.verdict + counter + notes + (v.tags.length ? " [" + v.tags.join(", ") + "]" : "") + (v.reason ? " (" + v.reason + ")" : "") + " | " +
+      " | " + cell(v.verdict + counter + notes + (v.tags.length ? " [" + v.tags.join(", ") + "]" : "") + (v.reason ? " (" + v.reason + ")" : "")) + " | " +
       (v.rerunMedians || []).map(ms).join(", ") + " |");
   });
   return lines.join("\n");
@@ -282,7 +317,8 @@ export function loadInput(resultFile: string, stateDir: string, previousFile?: s
 }
 
 // node perf/harness/node/compare.ts <result.json> [--reruns <a.json>,<b.json>] [--previous <p.json>]
-// Prints the table, writes <suite>-compare.json next to the result, exits 1 on a failing verdict.
+// Prints the table, writes <suite>-compare.json next to the result, exits 1 on a failing verdict and 2 on a usage or
+// input error (a missing file, a rerun with another build), so a caller can tell the two apart.
 function main(): void {
   const args = process.argv.slice(2);
   const opt = (name: string): string | undefined => { const i = args.indexOf(name); return i > -1 ? args[i + 1] : undefined; };
@@ -300,4 +336,11 @@ function main(): void {
   if (c.failed) process.exitCode = 1;
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  try {
+    main();
+  } catch(e: any) {
+    console.error(e && e.stack ? e.stack : String(e));
+    process.exitCode = 2;
+  }
+}

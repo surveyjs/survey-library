@@ -1,11 +1,11 @@
 import { describe, test, expect } from "vitest";
 import { buildBaseline, noiseTolerance } from "./baseline.ts";
 import type { Baseline } from "./baseline.ts";
-import { judge, finalize } from "./compare.ts";
+import { judge, finalize, markdownTable } from "./compare.ts";
 import type { Comparison } from "./compare.ts";
 import { advanceRatchet, referenceOf } from "./reference.ts";
 import type { Ratchet } from "./reference.ts";
-import { emptyKnown, applyNight } from "./known.ts";
+import { emptyKnown, applyNight, renewKnown } from "./known.ts";
 import { bisect, isBadStep, judgeEnds } from "./bisect-step.ts";
 import { canonical } from "./state.ts";
 
@@ -50,7 +50,14 @@ describe("baseline", () => {
     // Two slow runs of five: fewer than 4 left, recorded again.
     const slow = [100, 102, 98, 101, 99].map((m: number, i: number) => result([entry("large/load/model", m, i > 2 ? { calibration: { median: 14, before: 14, after: 14 } } : {})], { kind: "record" }));
     expect(buildBaseline(slow).rerecord).toEqual(["large/load/model"]);
+    // Four slow runs of five do not keep each other: the fast end decides, and the baseline is not a slow one.
+    const mostlySlow = [300, 302, 100, 301, 299].map((m: number, i: number) => result([entry("large/load/model", m, i !== 2 ? { calibration: { median: 27, before: 27, after: 27 } } : {})], { kind: "record" }));
+    const ms = buildBaseline(mostlySlow);
+    expect(ms.baseline.scenarios["large/load/model"]).toMatchObject({ runs: 1, droppedRuns: 4, median: 100, unstable: true });
+    expect(ms.rerecord).toEqual(["large/load/model"]);
+    expect(s.commit).toBe("t1");
     expect(Object.keys(canonical({ b: 1.234, a: [2.345] }))).toEqual(["a", "b"]);
+    expect(canonical({ sigma: 0.012345, median: 1.23456 })).toEqual({ median: 1.23, sigma: 0.0123 });
   });
   test("a counter that differs between the runs is unstable", () => {
     const runs = [0, 1, 2, 3, 4].map((i: number) => result([entry("large/load/model", 100, { counters: { expressionRuns: { value: 100 + (i % 2), kind: "work" } } })], { kind: "record" }));
@@ -122,6 +129,49 @@ describe("compare: the verdict table", () => {
     const other = result([entry("calculations/load/model", 130)], { build: { core: { dir: "/other", version: "1", commit: "t2", mtime: "m" }, deps: {} } });
     expect(() => finalize(c, input, [other, r2])).toThrow(/different build/);
   });
+  test("reruns that were not judged on time leave a suspect unconfirmed; a slow first run is shown with its reruns' median", () => {
+    const first = result([entry("calculations/load/model", 150)]);
+    const input = { result: first, baseline: base };
+    const c = judge(input);
+    const clean = result([entry("calculations/load/model", 151)]);
+    const failed = result([], { requested: { only: ["calculations/load/model"], notInSuite: [] }, failed: [{ id: "calculations/load/model", error: "check: no rows" }] });
+    const unrun = result([], { requested: { only: ["calculations/load/model"], notInSuite: [] }, incomplete: { reason: "killed", unrun: ["calculations/load/model"] } });
+    const noisyRerun = result([entry("calculations/load/model", 150)], { environment: { noisy: true } });
+    for (const bad of [failed, unrun, noisyRerun]) {
+      const v = verdictOf(finalize(c, input, [bad, clean]), "calculations/load/model");
+      expect(v.verdict).toBe("unconfirmed");
+      expect(v.rerunMedians.every((m: any) => typeof m === "number")).toBe(true);
+    }
+    expect(verdictOf(finalize(c, input, [failed, clean]), "calculations/load/model").reason).toBe("rerun missing");
+    const slowFirst = result([entry("calculations/load/model", 300, { calibration: { median: 13, before: 13, after: 13 } })]);
+    const sInput = { result: slowFirst, baseline: base };
+    const s = verdictOf(finalize(judge(sInput), sInput, [result([entry("calculations/load/model", 70)]), result([entry("calculations/load/model", 72)])]), "calculations/load/model");
+    expect(s).toMatchObject({ verdict: "improved", median: 71, firstMedian: 300, judgedOk: true });
+    expect(s.change).toBeCloseTo(71 / base.scenarios["calculations/load/model"].median - 1, 6);
+  });
+  test("a failed scenario is a failure without a baseline entry too; a new key checks the fixture before judging counters", () => {
+    const r = result([entry("large/load/model", 100)], { failed: [{ id: "extra/new/load", error: "check | no rows\nstack" }] });
+    const c = judge({ result: r, baseline: base });
+    expect(verdictOf(c, "extra/new/load")).toMatchObject({ verdict: "missing", reason: "failed: check | no rows" });
+    expect(c.failed).toBe(true);
+    expect(markdownTable(c)).toContain("failed: check \\| no rows");
+    const first = judge({ result: r });
+    expect(verdictOf(first, "extra/new/load").verdict).toBe("missing");
+    expect(first.failed).toBe(true);
+    const newKey = result([entry("expressions/load/model", 100, { rev: 2, counters: { expressionRuns: { value: 300, kind: "work" } } })], { machine: { key: "new-key" } });
+    const n = verdictOf(judge({ result: newKey, counterBaseline: base }), "expressions/load/model");
+    expect(n.verdict).toBe("no reference");
+    expect(n.reason).toContain("rev 1 -> 2");
+  });
+  test("vs previous only on the same machine key, and the comparison names the previous night", () => {
+    const prev = result([entry("large/load/model", 50)], { date: "2026-10-28T03:00:00.000Z" });
+    const c = judge({ result: result([entry("large/load/model", 100)]), baseline: base, previous: prev });
+    expect(verdictOf(c, "large/load/model").vsPrevious).toBe(1);
+    expect(c.previous).toEqual({ date: "2026-10-28T03:00:00.000Z", commit: "t1" });
+    const other = judge({ result: result([entry("large/load/model", 100)]), baseline: base, previous: result([entry("large/load/model", 50)], { machine: { key: "other" } }) });
+    expect(verdictOf(other, "large/load/model").vsPrevious).toBeUndefined();
+    expect(other.previous).toBeUndefined();
+  });
   test("noisy runs: times not judged, counters judged, nothing rerun; unstable and counterOnly are not judged on time", () => {
     const r = result([entry("large/load/model", 200), entry("expressions/load/model", 100, { counters: { expressionRuns: { value: 200, kind: "work" } } })],
       { environment: { noisy: true } });
@@ -162,6 +212,19 @@ describe("compare: the verdict table", () => {
     // The same with high calibrations: the machine, the suite is noisy.
     const hot = result(Object.keys(many).map((id: string) => entry(id, 150, { calibration: { median: 13, before: 13, after: 13 } })));
     expect(judge({ result: hot, baseline: b }).noisy).toBe(true);
+    // One slow-process scenario does not make the suite noisy: it is rerun in the room the 6 suspects leave.
+    const mixed = (): any => result(Object.keys(many).map((id: string, i: number) => entry(id, 150 + i, i === 19 ? { calibration: { median: 13, before: 13, after: 13 } } : {})));
+    const mInput = { result: mixed(), baseline: b };
+    const m = judge(mInput);
+    expect(m.noisy).toBe(false);
+    expect(m.reruns.length).toBe(7);
+    expect(m.reruns).toContain("large/load/s19");
+    const mf = finalize(m, mInput, [slower(1.5), slower(1.5)]);
+    expect(mf.verdicts.filter((v: any) => v.verdict === "regression" && v.tags.indexOf("whole-suite") > -1).length).toBe(19);
+    // 12 suspects and 3 slow-process: all 12 suspects are rerun, the slow ones over the cap are unconfirmed.
+    const twelve = judge({ result: result(Object.keys(many).slice(0, 15).map((id: string, i: number) => entry(id, 150, i >= 12 ? { calibration: { median: 13, before: 13, after: 13 } } : {}))), baseline: b });
+    expect(twelve.reruns.length).toBe(12);
+    expect(twelve.verdicts.filter((v: any) => v.verdict === "unconfirmed").length).toBe(3);
   });
 });
 
@@ -202,6 +265,37 @@ describe("the ratchet and known.json", () => {
     expect(r.v.verdict).toBe("counter regression");
     expect(r.change.added[0].entry).toMatchObject({ kind: "counter", ref: 90, counter: "expressionRuns" });
     for (const d of ["d3", "d4", "d7"]) expect(nightly(state, 100, d, 100).change.still.length).toBe(1);
+    // Fixed: the counter entry goes, and a later counter regression is a new one with its own range.
+    const fixed = nightly(state, 100, "d8", 90);
+    expect(fixed.change.removed).toEqual(["large/load/model#expressionRuns"]);
+    const again = nightly(state, 100, "d9", 120);
+    expect(again.change.added[0].entry).toMatchObject({ kind: "counter", lastOkCommit: "commit-d8" });
+  });
+  test("a time entry and a counter entry are open side by side; unstable nights keep the counter range", () => {
+    const state = { ratchet: { scenarios: {} } as Ratchet, known: emptyKnown() };
+    nightly(state, 100, "d1");
+    expect(nightly(state, 140, "d2").change.added.map((a: any) => a.entry.kind)).toEqual(["time"]);
+    const c = nightly(state, 140, "d3", 200);
+    expect(c.change.added.map((a: any) => a.entry.kind)).toEqual(["counter"]);
+    expect(Object.keys(state.known.entries.core).sort()).toEqual(["large/load/model", "large/load/model#expressionRuns"]);
+    // An unstable scenario: times not judged, but ok counters move the counter range.
+    const unstable = JSON.parse(JSON.stringify(base));
+    unstable.scenarios["large/load/model"].unstable = true;
+    const known = emptyKnown();
+    const u = judge({ result: night(500), baseline: unstable, known: known });
+    applyNight(known, "core", u.verdicts, "commit-u1", "u1");
+    expect(known.lastOk.core["large/load/model"]).toBeUndefined();
+    expect(known.lastOkCounters.core["large/load/model"]).toBe("commit-u1");
+  });
+  test("a renewed baseline removes the renewed scenarios' entries and starts their last ok commit at the baseline's", () => {
+    const known = emptyKnown();
+    known.entries.core = { "large/load/model": { kind: "time", ref: 100, since: "d1", sinceCommit: "x", lastOkCommit: null },
+      "large/load/model#expressionRuns": { kind: "counter", counter: "expressionRuns", ref: 100, since: "d1", sinceCommit: "x", lastOkCommit: null },
+      "expressions/load/model": { kind: "time", ref: 100, since: "d1", sinceCommit: "x", lastOkCommit: null } };
+    expect(renewKnown(known, "core", { "large/load/model": "t9" }, ["large/load/model"])).toEqual(["large/load/model", "large/load/model#expressionRuns"]);
+    expect(Object.keys(known.entries.core)).toEqual(["expressions/load/model"]);
+    expect(known.lastOk.core["large/load/model"]).toBe("t9");
+    expect(renewKnown(known, "core", {})).toEqual(["expressions/load/model"]);
   });
 });
 
@@ -224,5 +318,13 @@ describe("the bisect step rule", () => {
     const counter = await bisect(commits, async(c: string) => (commits.indexOf(c) >= 4 ? 120 : 100), { reference: 100, tolerance: 0.25, counter: true });
     expect(counter.firstBad).toBe("c4");
     expect(counter.steps.every((s: any) => s.medians.length === 1)).toBe(true);
+    // An unbuildable step: a neighbour is measured instead; with none left, the range is narrowed.
+    const skip = await bisect(commits, async(c: string) => (c === "c2" ? null : commits.indexOf(c) >= 4 ? 150 : 100), { reference: 100, tolerance: 0.25 });
+    expect(skip).toMatchObject({ result: "found", firstBad: "c4", unbuildable: ["c2"] });
+    const narrowed = await bisect(commits, async(c: string) => (c === "c2" || c === "c3" ? null : commits.indexOf(c) >= 3 ? 150 : 100), { reference: 100, tolerance: 0.25 });
+    expect(narrowed).toMatchObject({ result: "narrowed", lastGood: "c1", firstBad: "c4" });
+    expect(narrowed.message).toBe("narrowed to c1..c4, unbuildable");
+    const deps = await bisect(commits, async() => 150, { reference: 100, tolerance: 0.25, depsDiff: "typescript 5.4 -> 5.5" });
+    expect(deps.message).toContain("typescript 5.4 -> 5.5");
   });
 });

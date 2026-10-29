@@ -1,8 +1,9 @@
 import { median } from "../stats.ts";
 
 // The bisect step rule (04, D16), used by 05's bisect.ts. A measure function returns the medians of fresh runs of one
-// scenario on one commit; the runner's perf/ stays the same, only the target build changes.
-export type Measure = (commit: string) => Promise<number>;
+// scenario on one commit; the runner's perf/ stays the same, only the target build changes. It gives null for a commit
+// that does not build: bisect then tries its neighbours, and "narrowed" when none in the range builds.
+export type Measure = (commit: string) => Promise<number | null>;
 
 export interface BisectStep {
   commit: string;
@@ -12,10 +13,11 @@ export interface BisectStep {
 }
 
 export interface BisectResult {
-  result: "found" | "not-reproduced" | "not-in-range";
+  result: "found" | "narrowed" | "not-reproduced" | "not-in-range";
   message: string;
   firstBad?: string;
   lastGood?: string;
+  unbuildable?: Array<string>;
   good?: BisectStep;
   bad?: BisectStep;
   steps: Array<BisectStep>;
@@ -28,6 +30,8 @@ export interface BisectOptions {
   runs?: number;
   // A counter regression: one run per step, bad above the good end x 1.02.
   counter?: boolean;
+  // The build.deps fingerprint diff of the two ends, for the "not in range" message.
+  depsDiff?: string;
 }
 
 // A step is bad when its median is past the geometric midpoint of the two ends: ln(step) > (ln(good) + ln(bad)) / 2.
@@ -58,26 +62,58 @@ export async function bisect(commits: Array<string>, measure: Measure, options: 
   // The ends first, in the same session, alternating good and bad.
   const goodMedians: Array<number> = [];
   const badMedians: Array<number> = [];
+  const endValue = async(commit: string): Promise<number> => {
+    const v = await measure(commit);
+    if (v === null) throw new Error("bisect: the end " + commit.substring(0, 9) + " does not build");
+    return v;
+  };
   for (let i = 0; i < runs; i++) {
-    goodMedians.push(await measure(commits[0]));
-    badMedians.push(await measure(commits[commits.length - 1]));
+    goodMedians.push(await endValue(commits[0]));
+    badMedians.push(await endValue(commits[commits.length - 1]));
   }
   const good: BisectStep = { commit: commits[0], medians: goodMedians, median: median(goodMedians) };
   const bad: BisectStep = { commit: commits[commits.length - 1], medians: badMedians, median: median(badMedians) };
   const ends = judgeEnds(good.median, bad.median, options.reference, options.tolerance, options.counter);
   if (ends === "not-reproduced") return { result: ends, message: "not reproduced in " + range, good: good, bad: bad, steps: [] };
-  if (ends === "not-in-range") return { result: ends, message: "regression is not in " + range + ": environment or dependency change", good: good, bad: bad, steps: [] };
+  if (ends === "not-in-range") {
+    return { result: ends, message: "regression is not in " + range + ": environment or dependency change" + (options.depsDiff ? " (" + options.depsDiff + ")" : ""), good: good, bad: bad, steps: [] };
+  }
   let lo = 0;
   let hi = commits.length - 1;
   const steps: Array<BisectStep> = [];
+  const unbuildable: Array<string> = [];
+  const measureStep = async(i: number): Promise<BisectStep | null> => {
+    const medians: Array<number> = [];
+    for (let k = 0; k < runs; k++) {
+      const v = await measure(commits[i]);
+      if (v === null) return null;
+      medians.push(v);
+    }
+    return { commit: commits[i], medians: medians, median: median(medians) };
+  };
   while(hi - lo > 1) {
     const mid = (lo + hi) >> 1;
-    const medians: Array<number> = [];
-    for (let i = 0; i < runs; i++) medians.push(await measure(commits[mid]));
-    const step: BisectStep = { commit: commits[mid], medians: medians, median: median(medians) };
+    // An unbuildable step: its neighbours inside lo..hi, nearest first.
+    const order: Array<number> = [mid];
+    for (let d = 1; mid + d < hi || mid - d > lo; d++) {
+      if (mid + d < hi) order.push(mid + d);
+      if (mid - d > lo) order.push(mid - d);
+    }
+    let step: BisectStep | null = null;
+    let at = mid;
+    for (const i of order) {
+      if (unbuildable.indexOf(commits[i]) > -1) continue;
+      step = await measureStep(i);
+      if (step) { at = i; break; }
+      unbuildable.push(commits[i]);
+    }
+    if (!step) {
+      return { result: "narrowed", message: "narrowed to " + commits[lo].substring(0, 9) + ".." + commits[hi].substring(0, 9) + ", unbuildable",
+        firstBad: commits[hi], lastGood: commits[lo], unbuildable: unbuildable, good: good, bad: bad, steps: steps };
+    }
     step.bad = options.counter ? isBadCounterStep(step.median, good.median) : isBadStep(step.median, good.median, bad.median);
     steps.push(step);
-    if (step.bad) hi = mid; else lo = mid;
+    if (step.bad) hi = at; else lo = at;
   }
-  return { result: "found", message: "first bad " + commits[hi].substring(0, 9), firstBad: commits[hi], lastGood: commits[lo], good: good, bad: bad, steps: steps };
+  return { result: "found", message: "first bad " + commits[hi].substring(0, 9), firstBad: commits[hi], lastGood: commits[lo], unbuildable: unbuildable, good: good, bad: bad, steps: steps };
 }

@@ -6,6 +6,7 @@ import type { ResultFile, ResultEntry } from "./result.ts";
 import { readResult } from "./result.ts";
 import { readEnv } from "./env.ts";
 import { baselineFile, ratchetFile, readJson, writeJson, canonical } from "./state.ts";
+import { readKnown, writeKnown, renewKnown } from "./known.ts";
 
 // The baseline of a suite on one machine (04): built from record runs, never committed to the repo.
 export const defaultTolerance = 0.25;
@@ -22,6 +23,8 @@ export interface BaselineScenario {
   fixtureHash: string;
   dataHash?: string;
   jsonErrors: number;
+  // The target commit the runs were recorded on: the first lastOkCommit after a renewal.
+  commit?: string;
   median: number;
   min: number;
   sigma: number;
@@ -93,9 +96,11 @@ export function buildBaseline(results: Array<ResultFile>, options: BaselineOptio
     const fixtureKey = id.split("/").slice(0, id.indexOf("extra/") === 0 ? 2 : 1).join("/");
     const hashes = new Set(runs.map((x: any) => JSON.stringify([x.e.rev, (x.r.fixtures[fixtureKey] || {}).hash, (x.r.fixtures[fixtureKey] || {}).dataHash, x.e.jsonErrors])));
     if (hashes.size > 1) refuse(id + ": mixed fixture hashes, revs or jsonErrors across the runs");
-    // Drop a run whose calibration was > 1.15x the others'.
+    // Drop a run whose calibration was > 1.15x the fastest one: against the median of the others, a majority of slow
+    // runs would keep each other and make a slow baseline.
     const cals = runs.map((x: any) => Math.max(x.e.calibration.before, x.e.calibration.after));
-    const kept = runs.filter((x: any, i: number) => cals[i] <= calibrationLimit * median(cals.filter((c: number, j: number) => j !== i)));
+    const fastest = Math.min(...cals);
+    const kept = runs.filter((x: any, i: number) => cals[i] <= calibrationLimit * fastest);
     const medians = kept.map((x: any) => x.e.median);
     const sigma = medians.length > 1 ? sigmaOf(medians) : 0;
     const noise = noiseTolerance(sigma);
@@ -110,7 +115,7 @@ export function buildBaseline(results: Array<ResultFile>, options: BaselineOptio
     const first = kept[0] || runs[0];
     const fx = first.r.fixtures[fixtureKey] || {};
     const entry: BaselineScenario = {
-      rev: first.e.rev, fixtureHash: fx.hash, dataHash: fx.dataHash, jsonErrors: first.e.jsonErrors,
+      rev: first.e.rev, fixtureHash: fx.hash, dataHash: fx.dataHash, jsonErrors: first.e.jsonErrors, commit: first.r.build.core.commit || undefined,
       median: medians.length ? median(medians) : NaN, min: medians.length ? Math.min(...medians) : NaN, sigma: sigma,
       calibration: median(kept.map((x: any) => x.e.calibration.median)), noiseTol: noise.noiseTol, counters: counters,
       runs: kept.length, droppedRuns: runs.length - kept.length, createdFrom: results.map((r: ResultFile) => r.date), createdAt: now
@@ -127,8 +132,9 @@ function stamp(date: Date): string {
   return date.toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
 }
 
-// Writes the baseline; a renewal keeps the old file as <name>.<UTC date>.json and removes the ratchet (D19).
-export function writeBaseline(stateDir: string, build: BaselineBuild, options: BaselineOptions = {}): string {
+// Writes the baseline; a renewal keeps the old file as <name>.<UTC date>.json, removes the ratchet (D19) and the
+// renewed scenarios' known.json entries (04, Removal). Returns the file and the removed entries.
+export function writeBaseline(stateDir: string, build: BaselineBuild, options: BaselineOptions = {}): { file: string, knownRemoved: Array<string> } {
   const b = build.baseline;
   const file = baselineFile(stateDir, b.suite, b.machineKey);
   if (fs.existsSync(file)) fs.copyFileSync(file, file.replace(/\.json$/, "." + stamp(options.now || new Date()) + ".json"));
@@ -143,7 +149,13 @@ export function writeBaseline(stateDir: string, build: BaselineBuild, options: B
       fs.unlinkSync(ratchet);
     }
   }
-  return file;
+  const known = readKnown(stateDir);
+  const ids = options.update || Object.keys(b.scenarios);
+  const commits: { [id: string]: string | undefined } = {};
+  ids.forEach((id: string) => { if (b.scenarios[id]) commits[id] = b.scenarios[id].commit; });
+  const knownRemoved = renewKnown(known, b.suite, commits, options.update);
+  writeKnown(stateDir, known);
+  return { file: file, knownRemoved: knownRemoved };
 }
 
 export function readBaseline(file: string): Baseline | undefined {
@@ -154,8 +166,9 @@ export function readBaseline(file: string): Baseline | undefined {
 function main(): void {
   const args = process.argv.slice(2);
   const updateAt = args.indexOf("--update");
+  if (updateAt > -1 && !args[updateAt + 1]) throw new Error("usage: --update needs a comma-separated list of ids");
   const update = updateAt > -1 ? args[updateAt + 1].split(",") : undefined;
-  const rest = args.filter((a: string, i: number) => i !== updateAt && i !== updateAt + 1);
+  const rest = updateAt > -1 ? args.filter((a: string, i: number) => i !== updateAt && i !== updateAt + 1) : args;
   const suite = rest[0];
   const files = rest.slice(1);
   if (!suite || files.length === 0) throw new Error("usage: baseline.ts <suite> <result.json>... [--update <ids>]");
@@ -166,9 +179,10 @@ function main(): void {
   const previous = update ? readBaseline(baselineFile(env.stateDir, suite, key)) : undefined;
   if (update && !previous) throw new Error("--update needs an existing baseline for " + suite + " on " + key);
   const build = buildBaseline(results, { update: update, allowLocal: allowLocal }, previous);
-  const file = writeBaseline(env.stateDir, build, { update: update });
+  const { file, knownRemoved } = writeBaseline(env.stateDir, build, { update: update });
   const unstable = Object.keys(build.baseline.scenarios).filter((id: string) => build.baseline.scenarios[id].unstable);
   console.log(suite + ": baseline of " + Object.keys(build.baseline.scenarios).length + " scenarios from " + results.length + " runs -> " + file);
+  if (knownRemoved.length) console.log("known.json entries removed (baseline renewed): " + knownRemoved.join(", "));
   if (unstable.length) console.log("unstable: " + unstable.join(", "));
   if (build.rerecord.length) console.log("record again (fewer than 4 runs after dropping slow ones): " + build.rerecord.join(","));
 }

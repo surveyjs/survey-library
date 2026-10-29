@@ -1,5 +1,18 @@
 <template>
+  <template v-if="viewText">
+    <div :class="question.viewModeCssClass">{{ viewText }}</div>
+    <span
+      v-if="question.isMobile"
+      :class="question.cssClasses.cellResponsiveTitle"
+    >
+      <SvComponent
+        :is="'survey-string'"
+        :locString="column.locText"
+      ></SvComponent>
+    </span>
+  </template>
   <label
+    v-else
     @mousedown="question.onMouseDown()"
     :class="question.getItemClass(row, column)"
   >
@@ -66,4 +79,5 @@ const changed = () => {
   row.cellClick(column);
 }
 const itemSvgIcon = computed(() => { return props.question.getItemSvgIcon(props.row, props.column); });
+const viewText = computed(() => props.question.getCellViewText(props.row, props.column));
 </script>

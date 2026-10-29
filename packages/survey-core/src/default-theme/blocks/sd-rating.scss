@@ -96,6 +96,11 @@
   min-height: var(--sjs2-size-x300);
   margin: auto;
 
+  &.sd-rating--view {
+    margin-inline-start: 0;
+    margin-inline-end: auto;
+  }
+
   fieldset {
     padding: 0;
     gap: var(--sjs2-spacing-x100);

@@ -305,6 +305,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public getType(): string {
     return "matrixdynamic";
   }
+  protected get supportsQuestionView(): boolean {
+    return !!this.hideColumnsIfEmpty && this.rowCount === 0;
+  }
+  protected getViewDisplayText(): string {
+    if (this.supportsQuestionView) return "";
+    return super.getViewDisplayText();
+  }
   // Records can belong to dataSource, and each row already has remove. A title Clear does not fit.
   public get supportClearTitleAction(): boolean {
     return false;

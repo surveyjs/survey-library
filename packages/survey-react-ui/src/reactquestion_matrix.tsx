@@ -217,13 +217,20 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
     return !!this.question && !!this.row;
   }
   protected renderElement(): React.JSX.Element {
+    const viewText = this.question.getCellViewText(this.row, this.column);
+    const mobileSpan = this.question.isMobile ?
+      (<span className={this.question.cssClasses.cellResponsiveTitle}>{this.renderLocString(this.column.locText)}</span>)
+      : undefined;
+    if (viewText) {
+      return (<>
+        <div className={this.question.viewModeCssClass}>{viewText}</div>
+        {mobileSpan}
+      </>);
+    }
     const isChecked = this.row.isChecked(this.column);
     const inputId = this.question.inputId + "_" + this.row.name + "_" + this.columnIndex;
     const itemClass = this.question.getItemClass(this.row, this.column);
     const itemSvgIcon = this.question.getItemSvgIcon(this.row, this.column);
-    const mobileSpan = this.question.isMobile ?
-      (<span className={this.question.cssClasses.cellResponsiveTitle}>{this.renderLocString(this.column.locText)}</span>)
-      : undefined;
     return (<label onMouseDown={this.handleOnMouseDown} className={itemClass}>
       {this.renderInput(inputId, isChecked)}
       <span className={this.question.cssMaterialDecorator} aria-hidden="true">

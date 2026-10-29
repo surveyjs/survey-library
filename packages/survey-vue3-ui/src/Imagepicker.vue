@@ -1,5 +1,40 @@
 <template>
+  <div
+    v-if="question.isViewMode && question.getViewModeItems().length === 0"
+    :id="question.inputId"
+    :class="question.viewModeCssClass"
+    ref="root"
+  >{{ question.viewDisplayText }}</div>
+  <div
+    v-else-if="question.isViewMode"
+    :id="question.inputId"
+    :class="question.getSelectBaseRootCss()"
+    ref="root"
+  >
+    <template v-for="item in question.getViewModeItems()" :key="item.uniqueId">
+      <video
+        v-if="question.contentMode === 'video'"
+        :class="question.cssClasses.image"
+        :src="item.locImageLink.renderedHtml"
+        :width="question.renderedImageWidth"
+        :height="question.renderedImageHeight"
+        :style="{ objectFit: question.imageFit } as any"
+        @loadedmetadata="(event) => question.onContentLoaded(item, event)"
+      ></video>
+      <img
+        v-else
+        :class="question.cssClasses.image"
+        :src="item.locImageLink.renderedHtml"
+        :alt="item.locText.renderedHtml"
+        :width="question.renderedImageWidth"
+        :height="question.renderedImageHeight"
+        :style="{ objectFit: question.imageFit } as any"
+        @load="(event) => question.onContentLoaded(item, event)"
+      />
+    </template>
+  </div>
   <fieldset
+    v-else
     :class="question.getSelectBaseRootCss()"
     :style="question.getContainerStyle()"
     ref="root"

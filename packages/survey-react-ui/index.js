@@ -1031,107 +1031,64 @@ var json = {
 };
 
 json = {
-  "showProgressBar": true,
-  "progressBarLocation": "auto",
-  "progressBarType": "pages",
-  "progressBarShowPageNumbers": true,
-  "progressBarShowNavigationText": true,
-  progressBarNavigationTextLocation: "inline",
-  "title": "Customer Satisfaction Survey",
-  "pages": [{
-    "navigationTitle": "Overall satisfaction",
-    "elements": [{
-      "type": "matrix",
-      "name": "qualities",
-      "title": "Please indicate if you agree or disagree with the following statements",
-      "columns": [{
-        "value": 5,
-        "text": "Strongly agree"
-      }, {
-        "value": 4,
-        "text": "Agree"
-      }, {
-        "value": 3,
-        "text": "Neutral"
-      }, {
-        "value": 2,
-        "text": "Disagree"
-      }, {
-        "value": 1,
-        "text": "Strongly disagree"
-      }],
-      "rows": [{
-        "value": "affordable",
-        "text": "Product is affordable"
-      }, {
-        "value": "does-what-it-claims",
-        "text": "Product does what it claims"
-      }, {
-        "value": "better-than-others",
-        "text": "Product is better than other products on the market"
-      },{
-        "value": "easy-to-use",
-        "text": "Product is easy to use"
-      }]
-    }, {
-      "type": "rating",
-      "name": "satisfaction-score",
-      "title": "How satisfied are you with our product?",
-      "minRateDescription": "Not satisfied",
-      "maxRateDescription": "Completely satisfied"
-    }, {
-      "type": "rating",
-      "name": "recommend",
-      "visibleIf": "{satisfaction-score} > 3",
-      "title": "How likely are you to recommend our product to a friend or co-worker?",
-      "minRateDescription": "Will not recommend",
-      "maxRateDescription": "I will recommend"
-    }, {
-      "type": "comment",
-      "name": "suggestions",
-      "title": "What would make you more satisfied with our product?"
-    }]
-  }, {
-    "navigationTitle": "Pricing",
-    "elements": [{
-      "type": "radiogroup",
-      "name": "price-comparison",
-      "title": "Compared to our competitors, do you feel our product is:",
-      "choices": [
-        "Less expensive",
-        "Priced about the same",
-        "More expensive",
-        "Not sure"
+  "showQuestionNumbers": false,
+  "pages": [
+    {
+      "name": "page1",
+      "elements": [
+        { "type": "text", "name": "text", "title": "Text", "width": "50%", "defaultValue": "John Doe" },
+        { "type": "text", "name": "textView", "title": "Text · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "text" },
+        { "type": "comment", "name": "comment", "title": "Comment", "width": "50%", "defaultValue": "line one\nline two" },
+        { "type": "comment", "name": "commentView", "title": "Comment · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "comment" },
+        { "type": "dropdown", "name": "dropdown", "title": "Dropdown", "width": "50%", "choices": ["Ford", "Vauxhall", "BMW", "Peugeot"], "defaultValue": "BMW" },
+        { "type": "dropdown", "name": "dropdownView", "title": "Dropdown · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "dropdown", "choices": ["Ford", "Vauxhall", "BMW", "Peugeot"] },
+        { "type": "tagbox", "name": "tagbox", "title": "Tagbox", "width": "50%", "choices": ["Ford", "Vauxhall", "BMW", "Peugeot"], "defaultValue": ["BMW", "Ford"] },
+        { "type": "tagbox", "name": "tagboxView", "title": "Tagbox · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "tagbox", "choices": ["Ford", "Vauxhall", "BMW", "Peugeot"] },
+        { "type": "radiogroup", "name": "radiogroup", "title": "Radiogroup", "width": "50%", "choices": ["Ford", "Vauxhall", "BMW", "Peugeot"], "defaultValue": "BMW" },
+        { "type": "radiogroup", "name": "radiogroupView", "title": "Radiogroup · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "radiogroup", "choices": ["Ford", "Vauxhall", "BMW", "Peugeot"] },
+        { "type": "checkbox", "name": "checkbox", "title": "Checkbox", "width": "50%", "choices": ["Ford", "Vauxhall", "BMW", "Peugeot"], "defaultValue": ["BMW", "Ford"] },
+        { "type": "checkbox", "name": "checkboxView", "title": "Checkbox · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "checkbox", "choices": ["Ford", "Vauxhall", "BMW", "Peugeot"] },
+        { "type": "boolean", "name": "boolean", "title": "Boolean", "width": "50%", "defaultValue": true },
+        { "type": "boolean", "name": "booleanView", "title": "Boolean · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "boolean" },
+        { "type": "rating", "name": "rating", "title": "Rating", "width": "50%", "rateMin": 1, "rateMax": 5, "minRateDescription": "Not Satisfied", "maxRateDescription": "Completely Satisfied", "defaultValue": 4 },
+        { "type": "rating", "name": "ratingView", "title": "Rating · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "rating", "rateMin": 1, "rateMax": 5, "minRateDescription": "Not Satisfied", "maxRateDescription": "Completely Satisfied" },
+        { "type": "rating", "name": "stars", "title": "Rating stars", "width": "50%", "rateType": "stars", "rateMin": 1, "rateMax": 5, "minRateDescription": "Bad", "maxRateDescription": "Good", "defaultValue": 4 },
+        { "type": "rating", "name": "starsView", "title": "Rating stars · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "stars", "rateType": "stars", "rateMin": 1, "rateMax": 5, "minRateDescription": "Bad", "maxRateDescription": "Good" },
+        { "type": "rating", "name": "smileys", "title": "Rating smileys", "width": "50%", "rateType": "smileys", "rateMin": 1, "rateMax": 5, "minRateDescription": "Bad", "maxRateDescription": "Good", "defaultValue": 4 },
+        { "type": "rating", "name": "smileysView", "title": "Rating smileys · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "smileys", "rateType": "smileys", "rateMin": 1, "rateMax": 5, "minRateDescription": "Bad", "maxRateDescription": "Good" },
+        { "type": "slider", "name": "slider", "title": "Slider", "width": "50%", "defaultValue": 40 },
+        { "type": "slider", "name": "sliderView", "title": "Slider · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "slider" },
+        { "type": "buttongroup", "name": "buttongroup", "title": "Button group", "width": "50%", "choices": ["Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi"], "defaultValue": "Volkswagen" },
+        { "type": "buttongroup", "name": "buttongroupView", "title": "Button group · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "buttongroup", "choices": ["Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi"] },
+        { "type": "ranking", "name": "ranking", "title": "Ranking", "width": "50%", "choices": ["Ford", "Vauxhall", "BMW", "Peugeot"], "defaultValue": ["BMW", "Ford", "Vauxhall", "Peugeot"] },
+        { "type": "ranking", "name": "rankingView", "title": "Ranking · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "ranking", "choices": ["Ford", "Vauxhall", "BMW", "Peugeot"] },
+        { "type": "multipletext", "name": "multipletext", "title": "Multiple text", "width": "50%", "items": [{ "name": "text1", "title": "First" }, { "name": "text2", "title": "Second" }], "defaultValue": { "text1": "Ann", "text2": "Lee" } },
+        { "type": "multipletext", "name": "multipletextView", "title": "Multiple text · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "multipletext", "items": [{ "name": "text1", "title": "First" }, { "name": "text2", "title": "Second" }] },
+        { "type": "matrix", "name": "matrix", "title": "Matrix", "width": "50%", "columns": ["Column 1", "Column 2", "Column 3"], "rows": ["Row 1", "Row 2"], "defaultValue": { "Row 1": "Column 1", "Row 2": "Column 2" } },
+        { "type": "matrix", "name": "matrixView", "title": "Matrix · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "matrix", "columns": ["Column 1", "Column 2", "Column 3"], "rows": ["Row 1", "Row 2"] },
+        { "type": "matrixdropdown", "name": "matrixdropdown", "title": "Matrix dropdown", "width": "50%", "columns": [{ "name": "city", "title": "City", "cellType": "text" }, { "name": "year", "title": "Year", "cellType": "dropdown", "choices": ["2020", "2024"] }], "rows": ["Trip"], "defaultValue": { "Trip": { "city": "Paris", "year": "2024" } } },
+        { "type": "matrixdropdown", "name": "matrixdropdownView", "title": "Matrix dropdown · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "matrixdropdown", "columns": [{ "name": "city", "title": "City", "cellType": "text" }, { "name": "year", "title": "Year", "cellType": "dropdown", "choices": ["2020", "2024"] }], "rows": ["Trip"] },
+        { "type": "matrixdynamic", "name": "matrixdynamic", "hideColumnsIfEmpty": true, "title": "Dynamic matrix", "width": "50%", "columns": [{ "name": "name", "title": "Name", "cellType": "text" }], "rowCount": 1, "defaultValue": [{ "name": "Ann" }] },
+        { "type": "matrixdynamic", "name": "matrixdynamicView", "title": "Dynamic matrix · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "matrixdynamic", "columns": [{ "name": "name", "title": "Name", "cellType": "text" }], "rowCount": 1 },
+        { "type": "paneldynamic", "name": "paneldynamic", "title": "Dynamic panel", "width": "50%", "panelCount": 1, "templateElements": [{ "type": "text", "name": "city", "title": "City" }], "defaultValue": [{ "city": "Rome" }] },
+        { "type": "paneldynamic", "name": "paneldynamicView", "title": "Dynamic panel · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "paneldynamic", "panelCount": 1, "templateElements": [{ "type": "text", "name": "city", "title": "City" }] },
+        { "type": "panel", "name": "panel", "title": "Panel", "width": "50%", "elements": [{ "type": "text", "name": "panelText", "title": "Inside panel", "defaultValue": "Card" }] },
+        { "type": "panel", "name": "panelView", "title": "Panel · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "elements": [{ "type": "text", "name": "panelTextView", "title": "Inside panel", "valueName": "panelText" }] },
+        { "type": "imagepicker", "name": "imagepicker", "title": "Image picker", "width": "50%", "choices": [{ "value": "lion", "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg", "text": "Lion" }, { "value": "giraffe", "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/giraffe.jpg", "text": "Giraffe" }], "defaultValue": "lion" },
+        { "type": "imagepicker", "name": "imagepickerView", "title": "Image picker · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "imagepicker", "choices": [{ "value": "lion", "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg", "text": "Lion" }, { "value": "giraffe", "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/giraffe.jpg", "text": "Giraffe" }] },
+        { "type": "image", "name": "image", "title": "Image", "width": "50%", "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg", "imageWidth": "200px", "imageHeight": "133px" },
+        { "type": "image", "name": "imageView", "title": "Image · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg", "imageWidth": "200px", "imageHeight": "133px" },
+        { "type": "html", "name": "html", "title": "HTML", "width": "50%", "html": "<b>HTML question</b> stays as content." },
+        { "type": "html", "name": "htmlView", "title": "HTML · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "html": "<b>HTML question</b> stays as content." },
+        { "type": "expression", "name": "expression", "title": "Expression", "width": "50%", "expression": "123" },
+        { "type": "expression", "name": "expressionView", "title": "Expression · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "expression" },
+        { "type": "file", "name": "file", "title": "File", "width": "50%", "defaultValue": [{ "name": "File.png", "type": "image/png", "content": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" }] },
+        { "type": "file", "name": "fileView", "title": "File · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "file" },
+        { "type": "signaturepad", "name": "signature", "title": "Signature", "width": "50%", "defaultValue": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" },
+        { "type": "signaturepad", "name": "signatureView", "title": "Signature · view", "width": "50%", "startWithNewLine": false, "readOnly": true, "readOnlyMode": "view", "valueName": "signature" }
       ]
-    }, {
-      "type": "radiogroup",
-      "name": "current-price",
-      "title": "Do you feel our current price is merited by our product?",
-      "choices": [
-        "correct|Yes, the price is about right",
-        "low|No, the price is too low for your product",
-        "high|No, the price is too high for your product"
-      ]
-    }, {
-      "type": "multipletext",
-      "name": "price-limits",
-      "title": "What is the highest and lowest price you would pay for a product like ours?",
-      "items": [{
-        "name": "highest",
-        "title": "Highest"
-      }, {
-        "name": "lowest",
-        "title": "Lowest"
-      }]
-    }]
-  }, {
-    "navigationTitle": "Contacts",
-    "elements": [{
-      "type": "text",
-      "name": "email",
-      "title": "Please leave your email address if you would like us to contact you."
-    }]
-  }]
+    }
+  ]
 }
 
 json = {

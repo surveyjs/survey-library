@@ -37,6 +37,13 @@ export interface IFilterItemEdit {
   isReset?: boolean;
   isDeleted?: boolean;
 }
+// A preset the respondent added, as uiState keeps it: its conditions and not its expression text,
+// as with saved presets.
+export interface IFilterUserItemState {
+  name: string;
+  title: string;
+  conditions: Array<IFilterCondition>;
+}
 // The end-user state of a Filter Control. Only what the respondent changed is kept here: what the
 // JSON authored is already in the JSON and is restored by loading it.
 export interface IFilterElementUIState {
@@ -49,9 +56,15 @@ export interface IFilterElementUIState {
   // there are any: over an active preset only when they change it ([] = its conditions were
   // cleared), with no preset only when not empty.
   conditions?: Array<IFilterCondition>;
-  // Presets the respondent saved edits into, by name. Kept as conditions and not as expression
-  // text: the preset's expression is rebuilt from them on restore, with nothing to parse back.
-  items?: { [name: string]: { conditions: Array<IFilterCondition> } };
+  // Authored presets the respondent changed, by name: the conditions saved into one (Save in single
+  // mode, the Edit Presets dialog) and the title given to one. Kept as conditions and not as
+  // expression text: the preset's expression is rebuilt from them on restore, with nothing to parse
+  // back.
+  items?: { [name: string]: { conditions?: Array<IFilterCondition>, title?: string } };
+  // The presets the respondent added, in their order.
+  userItems?: Array<IFilterUserItemState>;
+  // The authored presets the respondent deleted, by name.
+  deletedItems?: Array<string>;
 }
 export interface IElementUIState {
   collapsed?: boolean;

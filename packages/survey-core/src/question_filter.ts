@@ -3,7 +3,9 @@ import { QuestionFactory } from "./questionfactory";
 import { QuestionNonValue } from "./questionnonvalue";
 import { Helpers, HashTable } from "./helpers";
 import { ISurveyImpl } from "./base-interfaces";
-import { IElementUIState, IFilterCondition, IFilterElementUIState, IFilterItemEdit, IFilterState } from "./interfaces/ui-interfaces";
+import {
+  IElementUIState, IFilterCondition, IFilterElementUIState, IFilterItemEdit, IFilterState, IFilterUserItemState
+} from "./interfaces/ui-interfaces";
 import { FilterField } from "./filter/filter-field";
 import { FilterItem } from "./filter/filter-item";
 import { FilterConditionsEditor } from "./filter/filter-conditions-editor";
@@ -22,6 +24,8 @@ import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fiel
 import { IDynamicDataFilterSource } from "./dynamic-data/dynamic-data-interfaces";
 import { combineFilterExpressions } from "./dynamic-data/dynamic-data-filter";
 
+// What uiState keeps of the authored presets the respondent changed, by name.
+type FilterSavedItems = { [name: string]: { conditions?: Array<IFilterCondition>, title?: string } };
 // The operators whose value is a set of values - see isSameConditionSet().
 const multiValueOperators: { [operator: string]: boolean } = { anyof: true, noneof: true, allof: true };
 
@@ -38,12 +42,13 @@ export class QuestionFilterModel extends QuestionNonValue {
   // noted (uiStateChangedInBatch) - see runBatch().
   private batchLevel: number = 0;
   private uiStateChangedInBatch: boolean = false;
-  // The part of a restored uiState that has to be checked against the fields - conditions and saved
-  // presets - when it arrives before the bound source does: with no source there is nothing to
-  // check it against, and checking it against nothing would drop all of it. Applied as the source
-  // attaches, in the same write - see updateFilterSource().
+  // The part of a restored uiState that has to be checked against the fields - conditions, saved
+  // presets and the respondent's own presets - when it arrives before the bound source does: with no
+  // source there is nothing to check it against, and checking it against nothing would drop all of
+  // it. Applied as the source attaches, in the same write - see updateFilterSource().
   private pendingConditions: Array<IFilterCondition>;
-  private pendingItems: { [name: string]: { conditions: Array<IFilterCondition> } };
+  private pendingItems: FilterSavedItems;
+  private pendingUserItems: Array<IFilterUserItemState>;
   private onItemPropertyChanged = (): void => {
     this.updateFilterExpression();
     this.updateToolbars();
@@ -1168,6 +1173,9 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (!!conditions) { state.conditions = conditions; isEmpty = false; }
     const items = this.getUIStateItems();
     if (!!items) { state.items = items; isEmpty = false; }
+    const userItems = this.getUIStateUserItems();
+    if (!!userItems) { state.userItems = userItems; isEmpty = false; }
+    if (this.deletedItemNames.length > 0) { state.deletedItems = [].concat(this.deletedItemNames); isEmpty = false; }
     if (isEmpty) return res;
     res = res || {};
     res.filter = state;
@@ -1188,21 +1196,47 @@ export class QuestionFilterModel extends QuestionNonValue {
     return conditions.map((c: IFilterCondition): IFilterCondition => this.copyCondition(c));
   }
   // Only presets that still exist and may still be edited: restoreItems() would ignore any other.
-  private getUIStateItems(): { [name: string]: { conditions: Array<IFilterCondition> } } {
-    let res: { [name: string]: { conditions: Array<IFilterCondition> } } = undefined;
-    const add = (name: string, conditions: Array<IFilterCondition>): void => {
-      if (!this.canRestoreSavedItem(name) || !Array.isArray(conditions)) return;
+  private getUIStateItems(): FilterSavedItems {
+    let res: FilterSavedItems = undefined;
+    const add = (name: string, conditions: Array<IFilterCondition>, title: string): void => {
+      if (!this.canRestoreSavedItem(name)) return;
+      const entry: { conditions?: Array<IFilterCondition>, title?: string } = {};
+      if (Array.isArray(conditions)) {
+        entry.conditions = conditions.map((c: IFilterCondition): IFilterCondition => this.copyCondition(c));
+      }
+      if (typeof title === "string") {
+        entry.title = title;
+      }
+      if (Object.keys(entry).length === 0) return;
       res = res || {};
-      res[name] = { conditions: conditions.map((c: IFilterCondition): IFilterCondition => this.copyCondition(c)) };
+      res[name] = entry;
     };
     const pending = this.pendingItems || {};
-    Object.keys(pending).forEach((name: string): void => { add(name, !!pending[name] ? pending[name].conditions : undefined); });
-    // A preset saved in this session wins over one still waiting for its source: it is newer.
-    Object.keys(this.savedItemConditions).forEach((name: string): void => { add(name, this.getSavedItemConditions(name)); });
+    Object.keys(pending).forEach((name: string): void => {
+      if (!!pending[name]) add(name, pending[name].conditions, pending[name].title);
+    });
+    // A preset changed in this session wins over one still waiting for its source: it is newer.
+    const names = Object.keys(this.savedItemConditions);
+    Object.keys(this.savedItemTitles).forEach((name: string): void => {
+      if (names.indexOf(name) < 0) names.push(name);
+    });
+    names.forEach((name: string): void => { add(name, this.getSavedItemConditions(name), this.savedItemTitles[name]); });
     return res;
   }
-  // The order is load-bearing. Saved presets first: activeItemName may name one of them, and its
-  // expression has to be the saved one before it is composed. activeItemName before conditions: its
+  // The respondent's presets in their order; those restored before the source attached are passed on
+  // as they came, as conditions are.
+  private getUIStateUserItems(): Array<IFilterUserItemState> {
+    if (!!this.pendingUserItems) return this.copyUserItems(this.pendingUserItems);
+    if (this.userItemsValue.length === 0) return undefined;
+    return this.userItemsValue.map((item: FilterItem): IFilterUserItemState => {
+      const title = item.locTitle.getJson();
+      return { name: item.name, title: typeof title === "string" ? title : "",
+        conditions: this.userItemConditions[item.name].map((c: IFilterCondition): IFilterCondition => this.copyCondition(c)) };
+    });
+  }
+  // The order is load-bearing. Deleted, saved and the respondent's own presets first: activeItemName
+  // may name one of them, and its expression has to be the saved one before it is composed - or the
+  // new name of one of the respondent's that had to be renamed. activeItemName before conditions: its
   // setter resets the edits, which would otherwise wipe the restored ones. The search last - it is
   // independent of the rest. The whole restore is one batch: one write into the source, one
   // onFilterChanged (none if the expression did not change) and no onUIStateChanged - restoring is
@@ -1214,16 +1248,27 @@ export class QuestionFilterModel extends QuestionNonValue {
     if (!filter) return;
     this.runBatch((): void => {
       const isReady = this.isFieldListReady;
+      this.restoreDeletedItems(filter.deletedItems);
       const items = !!filter.items && typeof filter.items === "object" ? filter.items : undefined;
       // A newer restore replaces whatever an earlier one left waiting for the source.
       this.pendingItems = isReady ? undefined : this.copySavedItems(items);
       if (isReady) {
         this.restoreItems(items);
       }
+      let activeItemName = filter.activeItemName;
+      if (Array.isArray(filter.userItems)) {
+        this.pendingUserItems = isReady ? undefined : this.copyUserItems(filter.userItems);
+        if (isReady) {
+          const renamed = this.restoreUserItems(filter.userItems);
+          if (Object.prototype.hasOwnProperty.call(renamed, activeItemName)) {
+            activeItemName = renamed[activeItemName];
+          }
+        }
+      }
       // A key that is not there was not changed by the respondent, EXCEPT activeItemName, whose ""
       // means "switched off" and must survive.
-      if (filter.activeItemName !== undefined) {
-        this.activeItemName = filter.activeItemName;
+      if (activeItemName !== undefined) {
+        this.activeItemName = activeItemName;
       }
       const conditions = Array.isArray(filter.conditions) ? filter.conditions : undefined;
       if (isReady) {
@@ -1248,20 +1293,64 @@ export class QuestionFilterModel extends QuestionNonValue {
   // author has since made read-only (allowEdit: false): the respondent could not save into it now,
   // and the author's text must win. A saved list that had conditions and has none left once they
   // are checked (every field gone, every operator no longer offered) is ignored too: rewriting the
-  // author's expression to "" would turn the preset into "no filter", which nobody saved.
-  private restoreItems(items: { [name: string]: { conditions: Array<IFilterCondition> } }): void {
+  // author's expression to "" would turn the preset into "no filter", which nobody saved. A title
+  // the respondent gave the preset is restored by the same rules.
+  private restoreItems(items: FilterSavedItems): void {
     if (!items) return;
     const fields = this.getFilterFields();
     Object.keys(items).forEach((name: string): void => {
       const entry = items[name];
-      if (!this.canRestoreSavedItem(name) || !entry || !Array.isArray(entry.conditions)) return;
+      if (!this.canRestoreSavedItem(name) || !entry) return;
+      const item = this.getItemByName(name);
+      const title = typeof entry.title === "string" ? entry.title.trim() : "";
+      if (!!title) {
+        this.rememberOriginal(item);
+        this.setItemTitle(item, title);
+        this.savedItemTitles[name] = title;
+      }
+      if (!Array.isArray(entry.conditions)) return;
       const conditions = normalizeFilterConditions(entry.conditions, fields);
       if (conditions.length === 0 && entry.conditions.length > 0) return;
-      const item = this.getItemByName(name);
       this.rememberOriginal(item);
       item.expression = conditionsToExpression(conditions, fields);
       this.savedItemConditions[name] = conditions;
     });
+  }
+  // Hiding a preset needs no field to check it against, so deletions are restored at once - of the
+  // presets the author still lets the respondent delete. A deleted preset that is on goes off.
+  private restoreDeletedItems(names: Array<string>): void {
+    if (!Array.isArray(names)) return;
+    names.forEach((name: string): void => {
+      const item = typeof name === "string" ? this.getItemByName(name) : undefined;
+      if (!item || this.isUserItem(item) || !this.canDeleteItem(item)) return;
+      if (this.activeItemName === name) {
+        this.activeItemName = "";
+      }
+      this.deletedItemNames.push(name);
+    });
+  }
+  // A restore brings back the respondent's whole list, so it replaces the presets of theirs the
+  // control has. Each is checked against the fields as restored conditions are and dropped when none
+  // of its conditions is left; one whose name an authored preset has taken since gets a new name.
+  // Returns the names that changed, old to new.
+  private restoreUserItems(list: Array<IFilterUserItemState>): HashTable<string> {
+    const renamed: HashTable<string> = {};
+    this.userItemsValue.forEach((item: FilterItem): void => { this.onItemRemoved(item); });
+    this.userItemsValue = [];
+    this.userItemConditions = {};
+    const fields = this.getFilterFields();
+    list.forEach((entry: IFilterUserItemState): void => {
+      if (!entry || typeof entry !== "object" || typeof entry.name !== "string" || !entry.name || !Array.isArray(entry.conditions)) return;
+      const conditions = normalizeFilterConditions(entry.conditions, fields);
+      if (conditions.length === 0) return;
+      const isTaken = this.items.some((item: FilterItem): boolean => item.name === entry.name) || !!this.findUserItem(entry.name);
+      const name = isTaken ? this.getNewItemName() : entry.name;
+      if (name !== entry.name) {
+        renamed[entry.name] = name;
+      }
+      this.createUserItem(name, typeof entry.title === "string" ? entry.title : "", conditions);
+    });
+    return renamed;
   }
   private canRestoreSavedItem(name: string): boolean {
     const item = this.getItemByName(name);
@@ -1269,18 +1358,33 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   // Pending saved presets are held for later: the caller's state object must not be able to change
   // them in the meantime.
-  private copySavedItems(items: { [name: string]: { conditions: Array<IFilterCondition> } }): { [name: string]: { conditions: Array<IFilterCondition> } } {
+  private copySavedItems(items: FilterSavedItems): FilterSavedItems {
     if (!items) return undefined;
-    const res: { [name: string]: { conditions: Array<IFilterCondition> } } = {};
+    const res: FilterSavedItems = {};
     Object.keys(items).forEach((name: string): void => {
       const entry = items[name];
-      if (!entry || !Array.isArray(entry.conditions)) return;
-      const conditions = this.copyConditionList(entry.conditions);
-      // Nothing usable left of a non-empty list: see restoreItems(), which would skip it too.
-      if (conditions.length === 0 && entry.conditions.length > 0) return;
-      res[name] = { conditions: conditions };
+      if (!entry) return;
+      const copy: { conditions?: Array<IFilterCondition>, title?: string } = {};
+      if (typeof entry.title === "string") {
+        copy.title = entry.title;
+      }
+      if (Array.isArray(entry.conditions)) {
+        const conditions = this.copyConditionList(entry.conditions);
+        // Nothing usable left of a non-empty list: see restoreItems(), which would skip it too.
+        if (conditions.length > 0 || entry.conditions.length === 0) {
+          copy.conditions = conditions;
+        }
+      }
+      if (Object.keys(copy).length > 0) {
+        res[name] = copy;
+      }
     });
     return res;
+  }
+  private copyUserItems(list: Array<IFilterUserItemState>): Array<IFilterUserItemState> {
+    return list.filter((entry: IFilterUserItemState): boolean => !!entry && typeof entry === "object" && Array.isArray(entry.conditions))
+      .map((entry: IFilterUserItemState): IFilterUserItemState =>
+        ({ name: entry.name, title: entry.title, conditions: this.copyConditionList(entry.conditions) }));
   }
   // A restored list is not trusted to hold only objects; normalizeFilterConditions() would drop
   // anything else later anyway, so it is dropped here, before copyCondition() would trip on it.
@@ -1305,11 +1409,20 @@ export class QuestionFilterModel extends QuestionNonValue {
   private restorePendingState(): void {
     const items = this.pendingItems;
     const conditions = this.pendingConditions;
-    if (!items && !conditions) return;
+    const userItems = this.pendingUserItems;
+    if (!items && !conditions && !userItems) return;
     this.pendingItems = undefined;
     this.pendingConditions = undefined;
+    this.pendingUserItems = undefined;
     this.holdChanges((): void => {
       this.restoreItems(items);
+      if (!!userItems) {
+        const renamed = this.restoreUserItems(userItems);
+        // activeItemName was restored already: it follows a preset that had to be renamed.
+        if (Object.prototype.hasOwnProperty.call(renamed, this.activeItemName)) {
+          this.setPropertyValue("activeItemName", renamed[this.activeItemName]);
+        }
+      }
       if (!!conditions) {
         this.restoreConditions(conditions);
       }

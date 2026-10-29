@@ -241,7 +241,7 @@ export { FilterModal, IFilterModalOwner, filterModalCountDelay } from "../../src
 export {
   FilterConditionItem, getConditionOperatorTitle, conditionsToExpression, parseFilterExpression
 } from "../../src/filter/filter-conditions";
-export type { IFilterCondition, IFilterElementUIState, IFilterItemEdit, IFilterState } from "../../src/interfaces/ui-interfaces";
+export type { IFilterCondition, IFilterElementUIState, IFilterItemEdit, IFilterState, IFilterUserItemState } from "../../src/interfaces/ui-interfaces";
 export { QuestionRadiogroupModel } from "../../src/question_radiogroup";
 export { QuestionRatingModel, RatingItem as RatingItemValue, RatingItem as RenderedRatingItem } from "../../src/question_rating";
 export { QuestionSliderModel, SliderLabelItemValue } from "../../src/question_slider";

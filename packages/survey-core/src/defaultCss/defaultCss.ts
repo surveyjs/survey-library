@@ -1093,9 +1093,14 @@ export var defaultCss = {
     modalMobile: "sd-filter-modal--mobile",
     modalContent: "sd-filter-modal__content",
     modalSection: "sd-filter-modal__section",
+    modalSectionHeader: "sd-filter-modal__section-header",
     modalSectionTitle: "sd-filter-modal__section-title",
     modalEditor: "sd-filter-modal__editor",
-    presetDialog: "sd-filter-preset-dialog"
+    presetDialog: "sd-filter-preset-dialog",
+    presetContent: "sd-filter-preset-dialog__content",
+    presetTabs: "sd-filter-preset-dialog__tabs",
+    presetForm: "sd-filter-preset-dialog__form",
+    presetFields: "sd-filter-preset-dialog__fields"
   }
 };
 

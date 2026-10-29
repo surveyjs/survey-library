@@ -115,8 +115,10 @@ export class FilterPresetDialog extends Base {
     });
   }
   private createForm(): SurveyModel {
-    const elements: Array<any> = [{ type: "text", name: "presetTitle", title: filterUIStrings.presetName,
-      maxLength: filterPresetTitleMaxLength, textUpdateMode: "onTyping" }];
+    // The title in a panel of its own, as Contains is: a question that is not in a panel gets a frame,
+    // and the mockup has none.
+    const elements: Array<any> = [{ type: "panel", name: "presetName", title: filterUIStrings.presetName, elements: [
+      { type: "text", name: "presetTitle", titleLocation: "hidden", maxLength: filterPresetTitleMaxLength, textUpdateMode: "onTyping" }] }];
     if (this.buffer.conditions !== null) {
       elements.push({ type: "panel", name: "contains", title: filterUIStrings.presetContains });
     }
@@ -136,7 +138,7 @@ export class FilterPresetDialog extends Base {
       this.rowCount = 0;
       this.getConditionKeys(this.buffer.conditions).forEach((key: string): void => { this.addRow(panel, key); });
       // An action of each form's own: the panel's footer disposes its actions with the form.
-      this.addFieldAction = new Action({ id: "sv-filter-preset-add-field", title: filterUIStrings.addField, iconName: "icon-add-24x24",
+      this.addFieldAction = new Action({ id: "sv-filter-preset-add-field", title: filterUIStrings.addField, iconName: "icon-plus-16x16",
         iconSize: "auto", appearance: { style: "neutral", mode: "secondary" }, action: (): void => { this.addEmptyRow(); } });
       panel.footerActions.push(this.addFieldAction);
     }

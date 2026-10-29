@@ -268,7 +268,11 @@
 .sd-filter-modal--mobile {
   padding: 0;
 
+  // The popup gives the container an inline width and height (auto), which a width of 100% does not
+  // beat: it is stretched over the screen as the flex item it is, however little the dialog holds.
   & > .sv-popup__container {
+    flex: 1 1 auto;
+    align-self: stretch;
     width: 100%;
     height: 100%;
     max-height: 100%;
@@ -304,6 +308,14 @@
   color: var(--sjs2-color-fg-basic-primary);
 }
 
+// The presets' title with the pencil that opens Edit Presets at its right end.
+.sd-filter-modal__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sjs2-spacing-x100);
+}
+
 // The fields as in the mockup: a field's title right above its editor, 40px rows of checkboxes and
 // 16px between an operator and its value. A field's "Show More" is one more row under its list, a
 // link that starts where the checkboxes do.
@@ -324,4 +336,37 @@
       padding-inline: 0;
     }
   }
+}
+
+// Add New Preset and Edit Presets (FilterPresetDialog): the presets' tabs, the form with the title and
+// Contains, the fields' editors in a frame and the preset's actions, above the dialog's own Cancel and
+// Apply. As wide as the Filters dialog, which they open over.
+.sd-filter-preset-dialog__content {
+  gap: var(--sjs2-spacing-x400);
+}
+
+// The selected tab is the dark one.
+.sd-filter-preset-dialog__tabs .sd-action-bar {
+  --sd-action-bar-gap: var(--sjs2-spacing-x150);
+  flex-wrap: wrap;
+}
+
+// A field's dropdown under another, 16px apart, and "+ Add" under them as in the mockup.
+.sd-filter-preset-dialog__form {
+  --sjs2-layout-component-panel-content-area-gap-vertical: var(--sjs2-spacing-x200);
+
+  .sd-panel {
+    --sd-panel-header-padding-block: 0 var(--sjs2-spacing-x200);
+  }
+
+  .sd-panel__footer {
+    margin: 0;
+    padding: var(--sjs2-spacing-x200) 0 0;
+  }
+}
+
+.sd-filter-preset-dialog__fields {
+  padding: var(--sjs2-spacing-x300) var(--sjs2-spacing-x500);
+  border: 1px solid var(--sjs2-color-border-basic-secondary);
+  border-radius: var(--sjs2-radius-x150);
 }

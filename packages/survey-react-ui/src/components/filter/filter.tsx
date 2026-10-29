@@ -1,14 +1,15 @@
 // The Filter Control (#11890). Everything it shows is survey-core's: the chips, Clear All, Save and
 // Filters are actions the question owns (filter-toolbars.ts), drawn with sv-action-bar; a badge's
-// popup is a FilterFieldPopup; the Filters dialog is a FilterModal over a FilterConditionsEditor; the
-// classes are the theme's "filter" entry. This file only lays the parts out and draws the few pieces
-// that are not standard components: a chip with a trailing chevron, a checkbox list entry, the
-// popup's frame, the dialog's content.
+// popup is a FilterFieldPopup; the Filters dialog is a FilterModal over a FilterConditionsEditor, and
+// Add New Preset and Edit Presets are FilterPresetDialogs; the classes are the theme's "filter"
+// entry. This file only lays the parts out and draws the few pieces that are not standard components:
+// a chip with a trailing chevron, a checkbox list entry, the popup's frame, the dialogs' content.
 import * as React from "react";
 import {
-  Action, ActionDropdownViewModel, Base, FilterConditionsEditor, FilterEditorHolder, FilterFieldPopup, FilterModal, ListModel,
-  Question, QuestionFilterModel, SurveyError, SurveyModel, filterChipComponentName, filterModalComponentName,
-  filterFieldPopupComponentName, filterListItemComponentName, filterUIStrings, toCssClasses
+  Action, ActionDropdownViewModel, Base, FilterEditPresetsDialog, FilterEditorHolder, FilterFieldPopup, FilterModal,
+  FilterPresetDialog, ListModel, Question, QuestionFilterModel, SurveyError, SurveyModel, filterChipComponentName,
+  filterModalComponentName, filterFieldPopupComponentName, filterListItemComponentName, filterPresetDialogComponentName,
+  filterUIStrings, toCssClasses
 } from "survey-core";
 import { ReactQuestionFactory } from "../../reactquestion_factory";
 import { ReactElementFactory } from "../../element-factory";
@@ -42,8 +43,14 @@ class FilterEditorCreator implements ISurveyCreator {
   }
 }
 
-// The page of a FilterConditionsEditor: the Filters dialog's, and a "condition" popup's.
-class FilterEditorPage extends SurveyElementBase<{ editor: FilterConditionsEditor, className: string }, any> {
+// What an editor survey is drawn from: a FilterConditionsEditor, or a preset dialog's form.
+interface IFilterEditorSurvey {
+  survey: SurveyModel;
+  isDisposed: boolean;
+}
+// The page of an editor survey: the Filters dialog's fields, a "condition" popup's, and a preset
+// dialog's form and fields.
+class FilterEditorPage extends SurveyElementBase<{ editor: IFilterEditorSurvey, className: string }, any> {
   private rootRef: React.RefObject<HTMLDivElement> = React.createRef();
   private creator: FilterEditorCreator;
   private creatorSurvey: SurveyModel;
@@ -91,7 +98,7 @@ export class SurveyFilterModal extends SurveyElementBase<{ holder: FilterEditorH
     const holder = this.props.holder;
     const modal = this.modal;
     if (!modal) return !!holder ? [holder] : [];
-    return [holder, modal];
+    return [holder, modal, modal.creationToolbar, modal.presetsToolbar, modal.presetsTitleToolbar];
   }
   private renderSearch(modal: FilterModal): React.JSX.Element | null {
     if (!modal.showSearch) return null;
@@ -106,11 +113,21 @@ export class SurveyFilterModal extends SurveyElementBase<{ holder: FilterEditorH
       </div>
     </div>;
   }
+  // Add Preset, under the search box.
+  private renderCreation(modal: FilterModal): React.JSX.Element | null {
+    if (!modal.creationToolbar.hasVisibleActions) return null;
+    return <div className={modal.cssClasses.modalSection}>
+      <SurveyActionBar model={modal.creationToolbar} />
+    </div>;
+  }
   private renderPresets(modal: FilterModal): React.JSX.Element | null {
     if (!modal.presetsToolbar.hasActions) return null;
     const css = modal.cssClasses;
     return <div className={css.modalSection}>
-      <div className={css.modalSectionTitle}>{filterUIStrings.presetsTitle}</div>
+      <div className={css.modalSectionHeader}>
+        <div className={css.modalSectionTitle}>{filterUIStrings.presetsTitle}</div>
+        <SurveyActionBar model={modal.presetsTitleToolbar} />
+      </div>
       <SurveyActionBar model={modal.presetsToolbar} />
     </div>;
   }
@@ -120,6 +137,7 @@ export class SurveyFilterModal extends SurveyElementBase<{ holder: FilterEditorH
     const css = modal.cssClasses;
     return <div className={css.modalContent}>
       {this.renderSearch(modal)}
+      {this.renderCreation(modal)}
       {this.renderPresets(modal)}
       <FilterEditorPage editor={modal.editor} className={toCssClasses(css.editor, css.modalEditor)} />
     </div>;
@@ -127,6 +145,53 @@ export class SurveyFilterModal extends SurveyElementBase<{ holder: FilterEditorH
 }
 ReactElementFactory.Instance.registerElement(filterModalComponentName,
   (props) => { return React.createElement(SurveyFilterModal, props); });
+
+// Add New Preset and Edit Presets: the tabs (Edit Presets only), the form, the fields' editors in a
+// frame and the preset's actions (Edit Presets only); the footer is the dialog's own. A form or
+// editors made anew (another tab, another set of fields) are drawn anew, keyed by their page.
+export class SurveyFilterPresetDialog extends SurveyElementBase<{ holder: FilterEditorHolder }, any> {
+  private get dialog(): FilterPresetDialog {
+    const holder = this.props.holder;
+    return !!holder && !!holder.presetDialog && !holder.presetDialog.isDisposed ? holder.presetDialog : undefined;
+  }
+  protected getStateElements(): Array<Base> {
+    const holder = this.props.holder;
+    const dialog = this.dialog;
+    if (!dialog) return !!holder ? [holder] : [];
+    if (dialog instanceof FilterEditPresetsDialog) return [holder, dialog, dialog.tabsToolbar, dialog.actionsToolbar];
+    return [holder, dialog];
+  }
+  private renderTabs(dialog: FilterEditPresetsDialog, css: any): React.JSX.Element | null {
+    if (!dialog || !dialog.tabsToolbar.hasActions) return null;
+    return <div className={css.presetTabs}><SurveyActionBar model={dialog.tabsToolbar} /></div>;
+  }
+  private renderActions(dialog: FilterEditPresetsDialog, css: any): React.JSX.Element | null {
+    if (!dialog || !dialog.actionsToolbar.hasVisibleActions) return null;
+    return <div className={css.modalSection}>
+      <div className={css.modalSectionTitle}>{filterUIStrings.presetActions}</div>
+      <SurveyActionBar model={dialog.actionsToolbar} />
+    </div>;
+  }
+  protected renderElement(): React.JSX.Element | null {
+    const dialog = this.dialog;
+    if (!dialog) return null;
+    const css = this.props.holder.cssClasses;
+    const edit = dialog instanceof FilterEditPresetsDialog ? dialog : undefined;
+    const form = dialog.form;
+    const editor = dialog.editor;
+    return <div className={toCssClasses(css.modalContent, css.presetContent)}>
+      {this.renderTabs(edit, css)}
+      {!!form ? <FilterEditorPage key={form.currentPage.id} editor={{ survey: form, isDisposed: dialog.isDisposed }}
+        className={toCssClasses(css.editor, css.presetForm)} /> : null}
+      {!!editor ? <div className={css.presetFields}>
+        <FilterEditorPage key={editor.survey.currentPage.id} editor={editor} className={toCssClasses(css.editor, css.modalEditor)} />
+      </div> : null}
+      {this.renderActions(edit, css)}
+    </div>;
+  }
+}
+ReactElementFactory.Instance.registerElement(filterPresetDialogComponentName,
+  (props) => { return React.createElement(SurveyFilterPresetDialog, props); });
 
 // A badge's popup: the search box (a long list, or one a value can be typed into), the title row
 // with its link, the list or the operator and value, and Apply.

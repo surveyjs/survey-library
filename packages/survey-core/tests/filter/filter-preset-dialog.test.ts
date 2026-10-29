@@ -38,7 +38,7 @@ describe("FilterPresetDialog: what it opens with", () => {
     expect(dialog.editor.fieldNames, "#3").toEqual(["country", "age"]);
     expect(dialog.editor.getConditions(), "#4").toEqual([{ field: "country", operator: "anyof", value: ["de"] },
       { field: "age", operator: "greater", value: 18 }]);
-    expect(dialog.form.getQuestionByName("presetTitle").title, "#5").toBe("Preset Name");
+    expect(dialog.form.getPanelByName("presetName").title, "#5").toBe("Preset Name");
     expect([panel(dialog).title, addField(dialog).title, addField(dialog).visible], "#6").toEqual(["Contains", "Add", true]);
     dialog.dispose();
   });

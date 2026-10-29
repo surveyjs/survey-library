@@ -3,7 +3,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { act } from "react-dom/test-utils";
 // eslint-disable-next-line surveyjs/no-imports-from-entries
-import { Survey as SurveyReact, SurveyFilterModal } from "../entries/index";
+import { Survey as SurveyReact, SurveyFilterModal, SurveyFilterPresetDialog } from "../entries/index";
 import { describe, it, expect, beforeAll } from "vitest";
 
 beforeAll(() => {
@@ -46,10 +46,42 @@ describe("SurveyQuestionFilter", () => {
     expect(container.textContent, "#2").toContain("Adults");
     expect(!!container.querySelector(".sd-filter-modal__section input"), "#3: the search box").toBe(true);
     expect(!!container.querySelector(".sd-filter-modal__editor"), "#4: the fields").toBe(true);
+    expect(container.textContent, "#4a: Add Preset").toContain("Add Preset");
+    expect(!!container.querySelector(".sd-filter-modal__section-header [title='Edit Presets']"), "#4b: the pencil").toBe(true);
     const modal = holder.modal;
     act(() => { holder.modal = undefined; });
     modal.dispose();
     expect(container.innerHTML, "#5: an emptied holder unmounts the content").toBe("");
+    // eslint-disable-next-line react/no-deprecated
+    ReactDOM.unmountComponentAtNode(container);
+    container.remove();
+  });
+});
+
+describe("SurveyFilterPresetDialog", () => {
+  it("Edit Presets shows the tabs, the form, the fields in a frame and the actions; another tab redraws them", () => {
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age" }],
+      items: [{ name: "a", title: "Adults", expression: "{age} > 18" }, { name: "k", title: "Kids", expression: "{age} < 10" }] }] });
+    const q = survey.getQuestionByName("f1") as QuestionFilterModel;
+    const holder = new FilterEditorHolder();
+    holder.cssClasses = q.cssClasses;
+    const dialog = q.createEditPresetsDialog("a");
+    holder.presetDialog = dialog;
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    act(() => {
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.render(React.createElement(SurveyFilterPresetDialog, { holder: holder }), container);
+    });
+    expect(container.querySelector(".sd-filter-preset-dialog__tabs").textContent, "#1").toBe("AdultsKids");
+    expect((container.querySelector(".sd-filter-preset-dialog__form input") as HTMLInputElement).value, "#2").toBe("Adults");
+    expect(!!container.querySelector(".sd-filter-preset-dialog__fields .sd-filter-modal__editor"), "#3: the fields").toBe(true);
+    expect(container.textContent, "#4").toContain("Preset Actions");
+    act(() => { dialog.selectTab("k"); });
+    expect((container.querySelector(".sd-filter-preset-dialog__form input") as HTMLInputElement).value, "#5").toBe("Kids");
+    act(() => { holder.presetDialog = undefined; });
+    dialog.dispose();
+    expect(container.innerHTML, "#6: an emptied holder unmounts the content").toBe("");
     // eslint-disable-next-line react/no-deprecated
     ReactDOM.unmountComponentAtNode(container);
     container.remove();

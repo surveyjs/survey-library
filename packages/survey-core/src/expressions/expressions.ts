@@ -366,7 +366,14 @@ export class Const extends Operand {
       var res = func(this);
       if (!!res) return res;
     }
-    return this.value === "" ? "''" : this.value.toString();
+    if (this.value === "") return "''";
+    if (this.isStringLiteral()) {
+      // The parser stores a string literal in single quotes with its escapes removed: put them back, so the text parses again.
+      // Backslashes stay as is: the grammar has no "\\" escape, a backslash escapes only a following quote and is literal otherwise.
+      // Escaping backslashes too would change the value parsed back ("a\b" -> "a\\b").
+      return "'" + this.value.substring(1, this.value.length - 1).replace(/['"]/g, (quote: string) => "\\" + quote) + "'";
+    }
+    return this.value.toString();
   }
   public get correctValue(): any {
     return this.getCorrectValue(this.value);
@@ -412,6 +419,10 @@ export class Const extends Operand {
   }
   private isQuote(ch: string): boolean {
     return ch == "'" || ch == '"';
+  }
+  private isStringLiteral(): boolean {
+    const val = this.value;
+    return typeof val === "string" && val.length > 1 && val[0] === "'" && val[val.length - 1] === "'";
   }
 }
 

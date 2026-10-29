@@ -189,6 +189,8 @@ export var latvianSurveyStrings = {
   addRow: "Pievienot rindu",
   // "Remove"
   removeRow: "Noņemt",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Pārvietojiet rindu {0}",
   // "There are no rows."
   noRowsText: "Nav rindu.",
   // [Auto-translated] "Row {rowIndex}"

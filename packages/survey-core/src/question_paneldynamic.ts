@@ -1,4 +1,5 @@
 import { HashTable, Helpers } from "./helpers";
+import type { QuestionExpressionModel } from "./question_expression";
 import {
   IElement,
   IQuestion,
@@ -670,6 +671,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   public getType(): string {
     return "paneldynamic";
+  }
+  protected get supportsQuestionView(): boolean {
+    return this.visiblePanelCount === 0;
+  }
+  protected getViewDisplayText(): string {
+    if (this.supportsQuestionView) return "";
+    return super.getViewDisplayText();
   }
   // Records can belong to dataSource, and each panel already has remove. A title Clear does not fit.
   public get supportClearTitleAction(): boolean {
@@ -2131,7 +2139,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return newPanel;
   }
   private addPanelAndShow(index: number, isUI: boolean): PanelModel {
-    const newPanel = this.addPanelCore(index);
+    const newPanel = this.runAddOperation((): PanelModel => this.addPanelCore(index));
     this.panelOnFirstRendering(newPanel);
     if (isUI && !!newPanel) {
       if (this.displayMode === "list" && this.panelsState !== "default") {
@@ -2882,6 +2890,10 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
       this.clearHiddenAnswersWithoutObjects(properties);
     }
   }
+  // QuestionRecordsModel hook of updateRecordsExpressionFields: the expression questions of the template.
+  protected getRecordExpressionQuestions(): Array<QuestionExpressionModel> {
+    return this.template.questions.filter((q: Question): boolean => q.getType() === "expression") as Array<QuestionExpressionModel>;
+  }
   // QuestionRecordsModel hooks of clearHiddenAnswersWithoutObjects: the template questions and the panels around them.
   protected getRecordConditionalInputs(): Array<Question> {
     const template = this.template;
@@ -3449,6 +3461,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return toCssClasses(
       super.getRootCss(),
       this.getShowNoEntriesPlaceholder() && this.cssClasses.empty,
+      this.isViewMode && this.visiblePanelCount === 0 && this.cssClasses.root + "--view",
       this.isRangeShowing && this.isProgressTopShowing && this.cssClasses.navigation + "--top",
       this.isRangeShowing && this.isProgressBottomShowing && this.cssClasses.navigation + "--bottom"
     );

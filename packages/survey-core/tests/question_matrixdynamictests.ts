@@ -11051,7 +11051,7 @@ describe("Survey_QuestionMatrixDynamic: what the view decides", () => {
     expect(valueChanged, "#2: no value assignment").toBe(0);
     expect(matrix.allRows.length, "#3: every record has a row again").toBe(3);
   });
-  test("a cell expression does not run for a record without a row", () => {
+  test("Bug#12156: a cell expression is computed for a record without a row", () => {
     const survey = createSurvey({
       rowCount: 3,
       columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "expression", expression: "{q0} + '!'" }]
@@ -11061,7 +11061,7 @@ describe("Survey_QuestionMatrixDynamic: what the view decides", () => {
     survey.setValue("q0", "x");
     expect(matrix.allRows.map(row => row.getQuestionByName("c2").value), "#1: the rows that exist ran it")
       .toEqual(["x!", "x!"]);
-    expect(matrix.value[1].c2, "#2: the record without a row went stale").toBe(undefined);
+    expect(matrix.value[1].c2, "#2: the record without a row is computed too").toBe("x!");
   });
 });
 

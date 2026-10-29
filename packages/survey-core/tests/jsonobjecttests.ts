@@ -3375,7 +3375,7 @@ describe("toJSON skips empty properties", () => {
       expect(survey.getQuestionByName("q9").toJSON({ storeDefaults: true }), "storeDefaults: text").toEqual({
         name: "q9", state: "default", visible: true, useDisplayValuesInDynamicTexts: true, width: "", minWidth: "", maxWidth: "",
         startWithNewLine: true, indent: 0, titleLocation: "default", descriptionLocation: "default", showNumber: true, valueName: "",
-        clearIfInvisible: "default", isRequired: false, errorLocation: "default", readOnly: false, renderAs: "default", showCommentArea: false,
+        clearIfInvisible: "default", isRequired: false, errorLocation: "default", readOnly: false, readOnlyMode: "default", renderAs: "default", showCommentArea: false,
         randomize: true, allowClear: false, inputType: "text", textUpdateMode: "default", inputTextAlignment: "auto", maskType: "none", maxLength: -1
       });
       expect(survey.getQuestionByName("q6").items[0].toJSON({ storeDefaults: true }), "storeDefaults: multiple text item").toEqual({
@@ -3510,7 +3510,7 @@ describe("toJSON skips empty properties", () => {
     expect(text.json, "text: json").toEqual({ name: "q1", title: "Title" });
     expect(text.keys, "text: keys").toEqual(("allowClear autocomplete clearIfInvisible colSpan correctAnswer dataList defaultValue defaultValueExpression " +
       "descriptionLocation enableIf errorLocation indent inputSize inputTextAlignment inputType isRequired maskSettings maskType max maxLength " +
-      "maxValueExpression maxWidth min minValueExpression minWidth name randomize randomizeCategory readOnly renderAs requiredIf resetValueIf " +
+      "maxValueExpression maxWidth min minValueExpression minWidth name randomize randomizeCategory readOnly readOnlyMode renderAs requiredIf resetValueIf " +
       "setValueExpression setValueIf showCommentArea showNumber startWithNewLine state step textUpdateMode titleLocation " +
       "useDisplayValuesInDynamicTexts validators valueName visible visibleIf width").split(" "));
     // The checkbox has no choice elements, so elements is stored in the hash and isSerializableFunc drops it before the empty check
@@ -3519,7 +3519,7 @@ describe("toJSON skips empty properties", () => {
     expect(checkbox.keys, "checkbox: keys").toEqual(("allowClear choiceShortcutsEnabled choiceTextsFromQuestion choiceValuesFromQuestion choices " +
       "choicesByUrl choicesEnableIf choicesFromQuestion choicesFromQuestionMode choicesOrder choicesVisibleIf clearIfInvisible colCount colSpan " +
       "correctAnswer defaultValue defaultValueExpression descriptionLocation enableIf errorLocation hideIfChoicesEmpty indent isRequired " +
-      "itemComponent maxSelectedChoices maxWidth minSelectedChoices minWidth name randomize randomizeCategory readOnly renderAs requiredIf " +
+      "itemComponent maxSelectedChoices maxWidth minSelectedChoices minWidth name randomize randomizeCategory readOnly readOnlyMode renderAs requiredIf " +
       "resetValueIf separateSpecialChoices setValueExpression setValueIf showCommentArea showDontKnowItem showNoneItem showNumber showOtherItem " +
       "showRefuseItem showSelectAllItem startWithNewLine state storeOthersAsComment titleLocation useDisplayValuesInDynamicTexts validators " +
       "valueName valuePropertyName visible visibleIf width").split(" "));

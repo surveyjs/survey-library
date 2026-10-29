@@ -189,6 +189,8 @@ export var slovenianStrings = {
   addRow: "Dodaj vrstico",
   // "Remove"
   removeRow: "Odstrani",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Premakni se {0}",
   // "There are no rows."
   noRowsText: "Ni vrstic.",
   // [Auto-translated] "Row {rowIndex}"

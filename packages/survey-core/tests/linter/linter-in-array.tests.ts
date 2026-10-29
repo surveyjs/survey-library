@@ -54,6 +54,16 @@ describe("inArray conditions match runtime item lookup", () => {
     expect(contradictions[0].message).toContain("filter");
     expect(contradictions[0].message).not.toContain("never shown");
   });
+
+  test("a filter with a quote inside a string is not a syntax error", () => {
+    const json = {
+      elements: [
+        { type: "matrixdynamic", name: "m", columns: [{ name: "a", cellType: "text" }, { name: "b", cellType: "text" }] },
+        { type: "expression", name: "e", expression: String.raw`sumInArray({m}, 'a', {b} = 'it\'s')` },
+      ],
+    };
+    expect(lintSurvey(json).findings.filter(f => f.ruleId === "expression/syntax")).toHaveLength(0);
+  });
 });
 
 // The fields every container of the tables below holds, as question JSON. A matrix takes them

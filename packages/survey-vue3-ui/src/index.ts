@@ -18,6 +18,7 @@ import Signaturepad from "./Signaturepad.vue";
 import Html from "./Html.vue";
 import Image from "./Image.vue";
 import Expression from "./Expression.vue";
+import QuestionView from "./QuestionView.vue";
 import File from "./File.vue";
 import ImagePicker from "./Imagepicker.vue";
 import ImagePickerItem from "./ImagepickerItem.vue";
@@ -123,7 +124,7 @@ import Element from "./Element.vue";
 
 import TemplateRenderer from "./TemplateRenderer.vue";
 
-import { SurveyModel } from "survey-core";
+import { RendererFactory, SurveyModel } from "survey-core";
 import type { App } from "vue";
 import FileCleanButton from "./FileCleanButton.vue";
 import FileVideo from "./FileVideo.vue";
@@ -187,6 +188,7 @@ function registerComponents(
   registerComponent("survey-html", Html);
   registerComponent("survey-image", Image);
   registerComponent("survey-expression", Expression);
+  registerComponent("survey-question-view", QuestionView);
   registerComponent("survey-file", File);
   registerComponent("sv-file-choose-btn", FileChooseButton);
   registerComponent("sv-file-clean-btn", FileCleanButton);
@@ -307,6 +309,7 @@ function registerComponents(
 registerComponents((name, component) =>
   ComponentFactory.Instance.registerComponent(name, component)
 );
+RendererFactory.Instance.registerRenderer("question", "view", "survey-question-view");
 
 export const surveyPlugin = {
   install(app: App) {

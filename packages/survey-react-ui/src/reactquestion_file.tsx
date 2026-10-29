@@ -24,7 +24,16 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     const className = !this.isDisplayMode ? this.question.cssClasses.fileInput : this.question.getReadOnlyFileCss();
     const style = this.isDisplayMode ? { color: "transparent" } : {};
     let fileInput;
-    if (this.question.isReadOnlyAttr) {
+    if (this.question.isViewMode && this.question.isEmpty()) {
+      return (
+        <div className={this.question.viewModeCssClass} id={this.question.inputId} ref={el => (this.setControl(el))}>
+          {this.question.viewDisplayText}
+        </div>
+      );
+    }
+    if (this.question.isViewMode) {
+      fileInput = null;
+    } else if (this.question.isReadOnlyAttr) {
       fileInput = <input
         readOnly
         type="file"

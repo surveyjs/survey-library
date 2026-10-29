@@ -189,6 +189,8 @@ export var hebrewSurveyStrings = {
   addRow: "להוסיף שורה",
   // "Remove"
   removeRow: "לְהַסִיר",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "הזז שורה {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "אין שורות.",
   // [Auto-translated] "Row {rowIndex}"

@@ -191,6 +191,8 @@ export var portugueseBrSurveyStrings = {
   addRow: "Adicionar linha",
   // [Auto-translated] "Remove"
   removeRow: "Retirar",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Mova a fila {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Não há filas.",
   // [Auto-translated] "Row {rowIndex}"

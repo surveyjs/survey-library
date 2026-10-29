@@ -1,0 +1,14 @@
+@use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
+
+.sd-view {
+  @include sjs2--typography--default;
+  color: $font-questiontitle-color;
+  white-space: break-spaces;
+  text-align: start;
+}
+
+.sd-question__content--left .sd-view {
+  line-height: var(--sjs2-line-height-x300);
+  padding: var(--sjs2-spacing-x150) 0;
+}

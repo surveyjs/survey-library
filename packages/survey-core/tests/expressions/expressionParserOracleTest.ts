@@ -164,4 +164,14 @@ describe("Expression parser: differential test against the generated parser", ()
     expect(kinds.exception, "other exceptions").toBe(0);
     expect(escapedFound, "escaped characters in messages").toBeGreaterThan(0);
   });
+  test("An unterminated string ends only at its own quote: offset and message", () => {
+    const sq = String.raw`Expected "'", "\\'", "\\\"", or [^'] but end of input found.`;
+    const dq = String.raw`Expected "\"", "\\'", "\\\"", or [^"] but end of input found.`;
+    const cases: Array<[string, string]> = [["'abc", sq], ["\"abc", dq], ["'a\"b", sq], ["\"a'b", dq]];
+    cases.forEach(([text, message]) => {
+      const expected = "error at 4: " + message;
+      expect(outcome(oracleParse, PeggySyntaxError, text), text + " generated").toBe(expected);
+      expect(outcome(parse, ExpressionSyntaxError, text), text + " hand-written").toBe(expected);
+    });
+  });
 });

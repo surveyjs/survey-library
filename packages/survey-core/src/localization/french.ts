@@ -189,6 +189,8 @@ export var frenchSurveyStrings = {
   addRow: "Ajouter une ligne",
   // "Remove"
   removeRow: "Supprimer",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Déplacer la rangée {0}",
   // "There are no rows."
   noRowsText: "Il n'y a pas de lignes.",
   // [Auto-translated] "Row {rowIndex}"

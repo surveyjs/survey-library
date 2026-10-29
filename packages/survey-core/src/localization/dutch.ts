@@ -189,6 +189,8 @@ export var dutchSurveyStrings = {
   addRow: "Voeg rij toe",
   // "Remove"
   removeRow: "Verwijder",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Rij {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Er zijn geen rijen.",
   // [Auto-translated] "Row {rowIndex}"

@@ -189,6 +189,8 @@ export var turkishSurveyStrings = {
   addRow: "Satır Ekle",
   // "Remove"
   removeRow: "Kaldır",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Sıra {0}",
   // "There are no rows."
   noRowsText: "Satır yok.",
   // [Auto-translated] "Row {rowIndex}"

@@ -338,6 +338,27 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-lockedRowCount.png");
     });
 
+    test("Check Matrixdynamic drag handle focused from the keyboard", async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 1100 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: true,
+        elements: [{
+          type: "matrixdynamic",
+          name: "question1",
+          allowRowReorder: true,
+          defaultValue: [{ col1: "Row1 value" }, { col1: "Row2 value" }, { col1: "Row3 value" }],
+          columns: [{ "name": "col1", "title": "Column 1", "cellType": "text" }]
+        }]
+      });
+
+      const matrixdynamicRoot = page.locator(".sd-question");
+      await matrixdynamicRoot.locator(".sd-table__row input").first().focus();
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Tab");
+      await expect(page.getByRole("button", { name: "Move row 2", exact: true })).toBeFocused();
+      await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-drag-handle-focused.png");
+    });
+
     test("Check Matrixdynamic delete confirm dialog", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {

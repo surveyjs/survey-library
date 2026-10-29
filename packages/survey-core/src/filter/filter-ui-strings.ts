@@ -27,5 +27,6 @@ export const filterUIStrings = {
   editPresets: "Edit Presets",
   presetActions: "Preset Actions",
   deletePreset: "Delete",
-  resetPreset: "Reset"
+  resetPreset: "Reset",
+  addPreset: "Add Preset"
 };

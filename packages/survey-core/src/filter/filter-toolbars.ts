@@ -4,6 +4,8 @@ import { Action } from "../actions/action";
 import { ActionContainer } from "../actions/container";
 import { getActionDropdownButtonTarget } from "../actions/dropdown-action";
 import { IDialogOptions, PopupModel } from "../popup";
+import { getLocaleString } from "../surveyStrings";
+import { IFilterCondition } from "../interfaces/ui-interfaces";
 import { settings } from "../settings";
 import { toCssClasses } from "../utils/cssClassBuilder";
 import { FilterItem } from "./filter-item";
@@ -11,6 +13,7 @@ import { FilterFieldEditorKind } from "./filter-field-kinds";
 import { FilterFieldPopup } from "./filter-field-popup";
 import { FilterChipsLayout } from "./filter-chips-layout";
 import { FilterModal } from "./filter-modal";
+import { FilterEditPresetsDialog, FilterPresetDialog } from "./filter-preset-dialog";
 import { filterUIStrings } from "./filter-ui-strings";
 export { filterUIStrings } from "./filter-ui-strings";
 
@@ -23,6 +26,7 @@ export class FilterEditorHolder extends Base {
   public getType(): string { return "filtereditorholder"; }
   @property() fieldPopup: FilterFieldPopup;
   @property() modal: FilterModal;
+  @property() presetDialog: FilterPresetDialog;
   public cssClasses: any;
 }
 
@@ -47,7 +51,10 @@ export interface IFilterToolbarsOwner {
   getFastModeFieldStates(): Array<IFilterFieldState>;
   createFieldPopup(name: string, close: () => void): FilterFieldPopup;
   createFilterModal(): FilterModal;
+  createAddPresetDialog(conditions: Array<IFilterCondition>): FilterPresetDialog;
+  createEditPresetsDialog(activeItemName?: string): FilterEditPresetsDialog;
   getSurveyRootElement(): HTMLElement;
+  getLocale(): string;
 }
 // What the chips row shows of one fast mode field: the key it is addressed by (getFieldKey), its
 // title, the editor its popup opens and its condition's text ("" with no condition).
@@ -61,6 +68,7 @@ export interface IFilterFieldState {
 export const filterModalComponentName = "sv-filter-modal";
 export const filterFieldPopupComponentName = "sv-filter-field-popup";
 export const filterChipComponentName = "sv-filter-chip";
+export const filterPresetDialogComponentName = "sv-filter-preset-dialog";
 
 // The control's UI as standard action bars the question owns, drawn with sv-action-bar:
 // - the chips row: Filters (when there is no search box to stand next to), the active preset, a
@@ -85,6 +93,8 @@ export class FilterToolbars {
   private chipIds: Array<string>;
   private advancedHolder: FilterEditorHolder;
   private advancedDialog: any;
+  private presetHolder: FilterEditorHolder;
+  private presetDialog: any;
 
   constructor(private owner: IFilterToolbarsOwner, private createContainer: (adaptive: boolean) => ActionContainer) {
   }
@@ -188,7 +198,58 @@ export class FilterToolbars {
         action: (): void => { dialog.apply(); } })
     ]);
   }
+  // Add New Preset or Edit Presets, over the Filters dialog that opened it - see FilterPresetDialog.
+  // Its Apply writes the presets into the control and refreshes that dialog's presets, or keeps it
+  // open while the preset has errors; any other way it closes writes nothing. One at a time.
+  public showPresetDialog(modal: FilterModal, isEdit: boolean): void {
+    if (!settings.showDialog || !!this.presetDialog || !modal || modal.isDisposed) return;
+    const dialogModel = isEdit ? this.owner.createEditPresetsDialog(modal.activeItemName) : this.owner.createAddPresetDialog(modal.presetConditions);
+    const holder = this.createHolder();
+    holder.presetDialog = dialogModel;
+    this.presetHolder = holder;
+    const options: IDialogOptions = {
+      componentName: filterPresetDialogComponentName,
+      data: { holder: holder },
+      onApply: (): boolean => {
+        if (!dialogModel.apply()) return false;
+        modal.refreshPresets();
+        return true;
+      },
+      onCancel: (): void => { },
+      onHide: (): void => {
+        this.release(holder);
+        this.presetDialog = undefined;
+        this.presetHolder = undefined;
+      },
+      title: dialogModel.title,
+      showCloseButton: true,
+      cssClass: toCssClasses(this.cssClasses.modal, this.cssClasses.presetDialog, this.owner.isMobile && this.cssClasses.modalMobile),
+      displayMode: "popup"
+    };
+    this.presetDialog = settings.showDialog(options, this.owner.getSurveyRootElement());
+    this.setPresetDialogFooter(this.presetDialog);
+  }
+  // Cancel on the left and Apply on the right, as in the mockup.
+  private setPresetDialogFooter(dialog: any): void {
+    const footer: ActionContainer = !!dialog ? dialog.footerToolbar : undefined;
+    if (!footer) return;
+    const locale = this.owner.getLocale();
+    footer.setItems([
+      new Action({ id: "sv-filter-preset-cancel", title: getLocaleString("modalCancelButtonText", locale), appearance: { style: "brand", mode: "secondary" },
+        action: (): void => { dialog.cancel(); } }),
+      new Action({ id: "sv-filter-preset-apply", title: getLocaleString("modalApplyButtonText", locale), needSpace: true,
+        appearance: { style: "brand", mode: "primary" }, action: (): void => { dialog.apply(); } })
+    ]);
+  }
   public dispose(): void {
+    if (!!this.presetDialog && !!this.presetDialog.model) {
+      this.presetDialog.model.hide();
+    }
+    if (!!this.presetHolder) {
+      this.release(this.presetHolder);
+    }
+    this.presetDialog = undefined;
+    this.presetHolder = undefined;
     if (!!this.advancedDialog && !!this.advancedDialog.model) {
       this.advancedDialog.model.hide();
     }
@@ -430,10 +491,13 @@ export class FilterToolbars {
   private release(holder: FilterEditorHolder): void {
     const modal = holder.modal;
     const fieldPopup = holder.fieldPopup;
+    const presetDialog = holder.presetDialog;
     holder.modal = undefined;
     holder.fieldPopup = undefined;
+    holder.presetDialog = undefined;
     if (!!modal) modal.dispose();
     if (!!fieldPopup) fieldPopup.dispose();
+    if (!!presetDialog) presetDialog.dispose();
   }
   private isSameList(a: Array<string>, b: Array<string>): boolean {
     return !!a && a.length === b.length && a.every((v: string, i: number): boolean => v === b[i]);

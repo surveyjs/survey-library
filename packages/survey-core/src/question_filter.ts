@@ -867,6 +867,8 @@ export class QuestionFilterModel extends QuestionNonValue {
   }
   // The advanced editor as a dialog; with no dialog host (no survey rendered) this opens nothing.
   public showAdvancedEditor(): void { this.toolbars.showAdvancedEditor(); }
+  // Add New Preset (isEdit false) or Edit Presets over the Filters dialog - see FilterToolbars.
+  public showPresetDialog(modal: FilterModal, isEdit: boolean): void { this.toolbars.showPresetDialog(modal, isEdit); }
   private updateToolbars(): void {
     if (!!this.toolbarsValue && !this.isDisposed) {
       this.toolbarsValue.update();

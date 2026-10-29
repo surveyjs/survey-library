@@ -22,6 +22,9 @@ export interface IFilterModalOwner {
   countFilterResults(expression: string): Promise<number | undefined>;
   applyFilterState(state: IFilterState): void;
   createModalEditor(onFieldChanged: () => void): FilterConditionsEditor;
+  canAddItems: boolean;
+  getEditableItems(): Array<FilterItem>;
+  showPresetDialog(modal: FilterModal, isEdit: boolean): void;
 }
 // How long the dialog waits after a change before it counts the records again: a source on a
 // server is asked once for a burst of clicks, not once per click.
@@ -42,6 +45,10 @@ export class FilterModal extends Base {
   @property({ defaultValue: false }) isCounting: boolean;
   private editorValue: FilterConditionsEditor;
   private presetsToolbarValue: ActionContainer;
+  private creationToolbarValue: ActionContainer;
+  private presetsTitleToolbarValue: ActionContainer;
+  private addPresetAction: Action;
+  private editPresetsAction: Action;
   // The conditions of the buffer while no field is edited: the control's as the dialog opened, [] once
   // a preset is turned off or everything is cleared, undefined while a preset applies as it is. Once a
   // field is edited, the editor's conditions are the buffer's.
@@ -61,12 +68,51 @@ export class FilterModal extends Base {
     this.presetsToolbarValue.setActionsAppearance({ style: "neutral", mode: "secondary", size: "small" });
     this.presetsToolbarValue.setItems(this.createPresetChips(), false);
     this.updatePresetChips();
+    this.addPresetAction = new Action({ id: "sv-filter-modal-add-preset", title: filterUIStrings.addPreset, iconName: "icon-plus-16x16",
+      iconSize: "auto", action: (): void => { this.owner.showPresetDialog(this, false); } });
+    this.creationToolbarValue = new ActionContainer();
+    this.creationToolbarValue.setActionsAppearance({ style: "neutral", mode: "secondary", size: "small" });
+    this.creationToolbarValue.setItems([this.addPresetAction], false);
+    this.editPresetsAction = new Action({ id: "sv-filter-modal-edit-presets", title: filterUIStrings.editPresets, showTitle: false,
+      tooltip: filterUIStrings.editPresets, iconName: "icon-editsmall-16x16", iconSize: "auto",
+      action: (): void => { this.owner.showPresetDialog(this, true); } });
+    this.presetsTitleToolbarValue = new ActionContainer();
+    this.presetsTitleToolbarValue.setActionsAppearance({ style: "neutral", mode: "tertiary", size: "small" });
+    this.presetsTitleToolbarValue.setItems([this.editPresetsAction], false);
+    this.updatePresetActions();
     this.count();
   }
   public getType(): string { return "filtermodal"; }
   public get editor(): FilterConditionsEditor { return this.editorValue; }
   // The presets' chips; none in single mode, which has no preset to pick.
   public get presetsToolbar(): ActionContainer { return this.presetsToolbarValue; }
+  // The row under the search box: Add Preset.
+  public get creationToolbar(): ActionContainer { return this.creationToolbarValue; }
+  // The pencil at the end of the presets' title, which opens Edit Presets.
+  public get presetsTitleToolbar(): ActionContainer { return this.presetsTitleToolbarValue; }
+  // The conditions the buffer filters by - a preset's that is on as it is, the fields' otherwise -
+  // which a new preset starts with.
+  public get presetConditions(): Array<IFilterCondition> {
+    const state = this.state;
+    if (state.conditions !== undefined) return [].concat(state.conditions);
+    return this.owner.getItemConditions(state.activeItemName) || [];
+  }
+  // The presets changed under the dialog (Add Preset, Edit Presets): their chips are made again. The
+  // buffer's preset, when one is on, shows what it is now in the fields - or, deleted, is off with no
+  // conditions left.
+  public refreshPresets(): void {
+    if (this.isDisposed) return;
+    const old = this.presetsToolbarValue.actions.slice();
+    this.presetsToolbarValue.setItems(this.createPresetChips(), false);
+    old.forEach((chip: Action): void => { chip.dispose(); });
+    const name = this.activeItemName;
+    if (!!name) {
+      const isThere = this.owner.visibleItems.some((item: FilterItem): boolean => item.name === name);
+      this.setBuffer(isThere ? name : "", isThere ? undefined : [], isThere ? (this.owner.getItemConditions(name) || []) : undefined);
+    }
+    this.updatePresetChips();
+    this.updatePresetActions();
+  }
   public get isReadOnly(): boolean { return !this.owner.canEditConditions; }
   public get showSearch(): boolean { return this.owner.showSearch; }
   public get searchPlaceholder(): string { return this.owner.searchPlaceholder; }
@@ -121,6 +167,8 @@ export class FilterModal extends Base {
     this.countRequest++;
     this.editorValue.dispose();
     this.presetsToolbarValue.dispose();
+    this.creationToolbarValue.dispose();
+    this.presetsTitleToolbarValue.dispose();
     super.dispose();
   }
 
@@ -159,6 +207,13 @@ export class FilterModal extends Base {
       chip.data = item;
       return chip;
     });
+  }
+  // Add Preset where presets may be added, the pencil while a preset may be changed, deleted or
+  // reset; neither in the designer or in single mode.
+  private updatePresetActions(): void {
+    const isEditable = !this.isReadOnly && this.owner.allowMultipleItems;
+    this.addPresetAction.visible = isEditable && this.owner.canAddItems;
+    this.editPresetsAction.visible = isEditable && this.owner.getEditableItems().length > 0;
   }
   private updatePresetChips(): void {
     this.presetsToolbarValue.actions.forEach((chip: Action): void => {

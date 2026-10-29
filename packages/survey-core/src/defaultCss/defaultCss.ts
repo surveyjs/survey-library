@@ -1094,7 +1094,8 @@ export var defaultCss = {
     modalContent: "sd-filter-modal__content",
     modalSection: "sd-filter-modal__section",
     modalSectionTitle: "sd-filter-modal__section-title",
-    modalEditor: "sd-filter-modal__editor"
+    modalEditor: "sd-filter-modal__editor",
+    presetDialog: "sd-filter-preset-dialog"
   }
 };
 

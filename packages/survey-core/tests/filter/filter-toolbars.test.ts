@@ -82,32 +82,55 @@ describe("FilterToolbars: the chips row", () => {
   });
 });
 
-describe("FilterToolbars: an active preset locks the chips", () => {
-  test("the preset moves first, the badges show its conditions with no chevron", () => {
-    const q = createFilter({ items: [{ name: "adults", expression: "{age} > 18" }, { name: "kids", expression: "{age} <= 18" }] });
-    q.toggleItem("kids");
-    expect(ids(q.chipsToolbar).slice(0, 2), "#1").toEqual(["sv-filter-filters", "sv-filter-item-kids"]);
-    const age = action(q.chipsToolbar, "sv-filter-field-age");
-    expect([age.title, age.active, age.markerIconName], "#2").toEqual(["age: Less than or equal to 18", true, undefined]);
-    expect(action(q.chipsToolbar, "sv-filter-field-name").markerIconName, "#3").toBe(undefined);
-  });
-  test("a click on any chip only turns the filter off", () => {
+const raw = { name: "raw", expression: "{age} < 18 or {age} > 35" };
+
+describe("FilterToolbars: an active preset", () => {
+  test("lights its chip where it stands; the badges show its conditions and open their popups", () => {
     const q = createFilter();
-    q.toggleItem("adults");
+    q.toggleItem("kids");
+    expect(ids(q.chipsToolbar), "#1").toEqual(["sv-filter-filters"].concat(badges,
+      ["sv-filter-item-adults", "sv-filter-item-kids", "sv-filter-more"]));
     const age = action(q.chipsToolbar, "sv-filter-field-age");
+    expect([age.title, age.active, age.markerIconName], "#2").toEqual(["age: Less than or equal to 18", true, "icon-chevrondown-24x24"]);
     age.action();
-    expect([q.activeItemName, age.popupModel.isVisible], "#1: no popup").toEqual(["", false]);
-    expect(age.markerIconName, "#2: unlocked again").toBe("icon-chevrondown-24x24");
+    expect([age.popupModel.isVisible, q.activeItemName], "#3: the preset stays on").toEqual([true, "kids"]);
+  });
+  test("an edit in a badge turns only the preset's chip off: what it filtered by stays on", () => {
+    const q = createFilter({ items: [{ name: "two", expression: "{age} > 18 and {country} anyof ['de']" }] });
+    q.toggleItem("two");
+    const country = action(q.chipsToolbar, "sv-filter-field-country");
+    country.action();
+    const popup = country.popupModel.contentComponentData.holder.fieldPopup;
+    popup.list.onItemClick(popup.list.actions[1]);
+    popup.apply();
+    expect([q.activeItemName, !!action(q.chipsToolbar, "sv-filter-item-two").active], "#1").toEqual(["", false]);
+    expect([action(q.chipsToolbar, "sv-filter-field-age").title, country.title], "#2").toEqual(["age: Greater than 18", "country: 2"]);
+    expect(q.ownConditions, "#3").toEqual([{ field: "age", operator: "greater", value: 18 },
+      { field: "country", operator: "anyof", value: ["de", "fr"] }]);
+  });
+  test("another preset's chip switches to it; the active one's chip turns it off", () => {
+    const q = createFilter();
     q.toggleItem("adults");
     action(q.chipsToolbar, "sv-filter-item-kids").action();
-    expect(q.activeItemName, "#3: not switched to kids").toBe("");
-    q.toggleItem("adults");
-    action(q.chipsToolbar, "sv-filter-item-adults").action();
-    expect(q.activeItemName, "#4").toBe("");
+    expect(q.activeItemName, "#1").toBe("kids");
+    action(q.chipsToolbar, "sv-filter-item-kids").action();
+    expect([q.activeItemName, q.filterExpression], "#2").toEqual(["", ""]);
   });
-  test("an active preset the host takes away unlocks the chips", () => {
-    const q = createFilter();
-    q.toggleItem("adults");
+  test("a preset with no conditions to show locks the badges: no chevron, a click turns it off", () => {
+    const q = createFilter({ items: [raw, { name: "kids", expression: "{age} <= 18" }] });
+    q.toggleItem("raw");
+    const age = action(q.chipsToolbar, "sv-filter-field-age");
+    expect([!!age.active, age.markerIconName], "#1").toEqual([false, undefined]);
+    age.action();
+    expect([q.activeItemName, age.popupModel.isVisible], "#2: no popup").toEqual(["", false]);
+    expect(age.markerIconName, "#3: unlocked again").toBe("icon-chevrondown-24x24");
+    q.toggleItem("raw");
+    action(q.chipsToolbar, "sv-filter-item-kids").action();
+    expect(q.activeItemName, "#4: a preset's chip still switches").toBe("kids");
+  });
+  test("a locking preset the host takes away unlocks the badges", () => {
+    const q = createFilter({ items: [raw, { name: "kids", expression: "{age} <= 18" }] });
+    q.toggleItem("raw");
     expect(action(q.chipsToolbar, "sv-filter-field-age").markerIconName, "#1").toBe(undefined);
     q.items = [q.getItemByName("kids")];
     expect([q.isLocked, action(q.chipsToolbar, "sv-filter-field-age").markerIconName], "#2").toEqual([false, "icon-chevrondown-24x24"]);
@@ -120,12 +143,12 @@ describe("FilterToolbars: an active preset locks the chips", () => {
     q.items = [q.getItemByName("kids")];
     expect([q.filterExpression, q.canClearActiveItem, clear.visible], "#2: nothing filters").toEqual(["", false, false]);
   });
-  test("turning a preset on closes a badge's open popup", () => {
-    const q = createFilter();
+  test("turning on a locking preset closes a badge's open popup", () => {
+    const q = createFilter({ items: [raw] });
     const age = action(q.chipsToolbar, "sv-filter-field-age");
     age.action();
     expect(age.popupModel.isVisible, "#1").toBe(true);
-    q.toggleItem("adults");
+    q.toggleItem("raw");
     expect(age.popupModel.isVisible, "#2").toBe(false);
   });
 });

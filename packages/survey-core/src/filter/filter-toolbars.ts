@@ -71,14 +71,16 @@ export const filterChipComponentName = "sv-filter-chip";
 export const filterPresetDialogComponentName = "sv-filter-preset-dialog";
 
 // The control's UI as standard action bars the question owns, drawn with sv-action-bar:
-// - the chips row: Filters (when there is no search box to stand next to), the active preset, a
-//   badge per fast mode field, the other presets and "Show More" last;
+// - the chips row: Filters (when there is no search box to stand next to), a badge per fast mode
+//   field, the presets and "Show More" last;
 // - the clear row: Save (single mode only) and Clear All, at the right end of the chips row;
 // - the search row: Filters, next to the search box.
-// An active preset locks the chips (see QuestionFilterModel.isLocked): the badges show its
-// conditions with no chevron and no popup, and a click on any chip only turns the filter off. Kept
-// in sync by update(), which the control calls on every change of its state. Containers are not
-// adaptive: chips that do not fit wrap, and FilterChipsLayout cuts the collapsed row to one.
+// An active preset lights its chip where it stands, and the badges show its conditions and stay
+// editable: an edit turns the preset off and keeps them (QuestionFilterModel.editConditions). Only a
+// preset with no conditions to show locks the badges (QuestionFilterModel.isLocked): no chevron, no
+// popup, and a click turns the preset off. Kept in sync by update(), which the control calls on
+// every change of its state. Containers are not adaptive: chips that do not fit wrap, and
+// FilterChipsLayout cuts the collapsed row to one.
 export class FilterToolbars {
   private chipsToolbarValue: ActionContainer;
   private clearToolbarValue: ActionContainer;
@@ -325,21 +327,17 @@ export class FilterToolbars {
     this.updateFiltersAction();
   }
   // The chips in their order. The row is rebuilt only when that order changes - a chip that comes or
-  // goes, or a preset that is turned on and moves to the front; otherwise the chips are updated in
-  // place, so a badge's open popup stays open while its text changes.
+  // goes; otherwise the chips are updated in place, so a badge's open popup stays open while its
+  // text changes.
   private updateChipsRow(): void {
     if (!this.chipsToolbarValue) return;
     const states = this.owner.isFastModeAvailable ? this.owner.getFastModeFieldStates() : [];
     const items = this.owner.visibleItems;
-    const active = this.owner.isLocked ? this.owner.activeItem : undefined;
     this.releaseGoneChips(states, items);
     const chips: Array<Action> = [];
     if (!this.isFiltersInSearchRow && this.isFiltersShown) chips.push(this.getFiltersAction());
-    if (!!active && items.indexOf(active) > -1) chips.push(this.getItemChip(active));
     states.forEach((state: IFilterFieldState): void => { chips.push(this.getFieldChip(state.key)); });
-    items.forEach((item: FilterItem): void => {
-      if (item !== active) chips.push(this.getItemChip(item));
-    });
+    items.forEach((item: FilterItem): void => { chips.push(this.getItemChip(item)); });
     chips.push(this.getMoreAction());
     const ids = chips.map((a: Action): string => a.id);
     if (!this.isSameList(this.chipIds, ids)) {
@@ -462,7 +460,7 @@ export class FilterToolbars {
         id = base + "-" + n;
       }
       const chip = new Action({ id: id, innerCss: this.cssClasses.chip,
-        activeAppearance: { style: "brand", mode: "primary" }, action: (): void => { this.onItemChipClick(item); } });
+        activeAppearance: { style: "brand", mode: "primary" }, action: (): void => { this.owner.toggleItem(item); } });
       // Borrowed after the constructor, so a retitled preset and a locale change reach the chip
       // without an update.
       chip.locTitle = item.locTitle;
@@ -470,13 +468,6 @@ export class FilterToolbars {
       this.itemChips.push(entry);
     }
     return entry.chip;
-  }
-  private onItemChipClick(item: FilterItem): void {
-    if (this.owner.isLocked) {
-      this.owner.clearActiveItem();
-      return;
-    }
-    this.owner.toggleItem(item);
   }
   private updateItemChip(item: FilterItem, chip: Action): void {
     chip.active = item === this.owner.activeItem;

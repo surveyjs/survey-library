@@ -126,19 +126,22 @@ describe("QuestionFilterModel: activeConditionCount and isLocked", () => {
     q.clearConditions();
     expect(q.activeConditionCount, "#5").toBe(0);
   });
-  test("an active preset locks the quick filters; an edit unlocks them; single mode never locks", () => {
-    const q = createFilter();
+  test("only an active preset with no conditions to show locks the quick filters; an edit unlocks them; single mode never locks", () => {
+    const raw = { name: "raw", expression: "{age} < 18 or {age} > 35" };
+    const q = createFilter({ items: [{ name: "adults", expression: "{age} > 18" }, raw] });
     expect(q.isLocked, "#1").toBe(false);
     q.toggleItem("adults");
-    expect(q.isLocked, "#2").toBe(true);
+    expect(q.isLocked, "#2: the badges show what it filters by").toBe(false);
+    q.toggleItem("raw");
+    expect(q.isLocked, "#3").toBe(true);
     q.setFieldCondition("age", "greater", 30);
-    expect(q.isLocked, "#3").toBe(false);
-    expect(createFilter({ allowMultipleItems: false }).isLocked, "#4").toBe(false);
+    expect(q.isLocked, "#4").toBe(false);
+    expect(createFilter({ allowMultipleItems: false, items: [raw] }).isLocked, "#5").toBe(false);
   });
   test("the search box does not unlock: it is no condition and is applied over the preset", () => {
-    const q = createFilter({ showSearch: true });
-    q.toggleItem("adults");
+    const q = createFilter({ showSearch: true, items: [{ name: "raw", expression: "{age} < 18 or {age} > 35" }] });
+    q.toggleItem("raw");
     q.searchString = "an";
-    expect([q.activeItemName, q.isLocked, q.activeConditionCount]).toEqual(["adults", true, 1]);
+    expect([q.activeItemName, q.isLocked, q.activeConditionCount]).toEqual(["raw", true, 1]);
   });
 });

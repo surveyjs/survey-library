@@ -802,11 +802,14 @@ export class QuestionFilterModel extends QuestionNonValue {
     const preset = this.parseActiveItemConditions();
     return preset === null ? 1 : preset.length;
   }
-  // With several presets an active one locks the quick filters: they show what it filters by and
-  // any click on them turns the whole filter off (see FilterToolbars). Single mode has no presets to
-  // pick, so its one preset never locks anything.
+  // With several presets an active one that has no conditions to show (isRawExpression: an "or", a
+  // function, a comparison of two fields) locks the quick filters: the badges cannot show what it
+  // filters by, and an edit in one would replace it with that edit alone - a click on a badge turns
+  // it off instead (see FilterToolbars). A preset the badges do show locks nothing: an edit there
+  // turns it off and keeps its conditions with the edit (editConditions). Single mode has no presets
+  // to pick, so its one preset never locks anything.
   public get isLocked(): boolean {
-    return this.allowMultipleItems && !!this.activeItem;
+    return this.allowMultipleItems && this.isRawExpression;
   }
   // What the fields toolbar shows, read in one pass: each fast mode field's key (the name
   // getFieldKey() gives it), its title, the editor its popup opens and its condition's text. One

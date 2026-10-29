@@ -172,8 +172,9 @@ function renderSurvey(categories, products) {
       // Text and choice fields only: a quick search over a number or a boolean would send contains()
       // on a decimal, which OData refuses.
       searchFields: ["name", "category", "quantity"],
-      // The presets of the mockup. Turning one on locks the quick filters: they show what it filters
-      // by, and a click on any of them turns the filter off.
+      // The presets of the mockup. Turning one on lights its chip, and the quick filters show what it
+      // filters by: an edit in one turns the preset off and keeps the rest. "Cheap or Premium" has no
+      // conditions to show and locks them instead: a click on one turns it off.
       items: [
         { name: "in-stock", title: "In Stock", expression: "{stock} > 0" },
         { name: "out-of-stock", title: "Out of Stock", expression: "{stock} = 0" },

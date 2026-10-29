@@ -240,7 +240,8 @@ export class UnaryOperand extends Operand {
       if (!!res) return res;
     }
     const opName = OperandMaker.operatorToString(this.operator);
-    const exp = this.expression.toString(func);
+    // a null operand is the "null"/"undefined" literal
+    const exp = !!this.expression ? this.expression.toString(func) : "null";
     return this.isRigtOperator ? exp + " " + opName : opName + " " + exp;
   }
   private get isRigtOperator(): boolean {
@@ -252,23 +253,23 @@ export class UnaryOperand extends Operand {
     return uOp.operator == this.operator && this.areOperatorsEquals(this.expression, uOp.expression);
   }
   public hasFunction(noParamsOnly?: boolean): boolean {
-    return this.expression.hasFunction(noParamsOnly);
+    return !!this.expression && this.expression.hasFunction(noParamsOnly);
   }
   protected addChildrenToList(list: Array<Operand>): void {
-    this.expression.addOperandsToList(list);
+    if (!!this.expression)this.expression.addOperandsToList(list);
   }
   public hasAsyncFunction(): boolean {
-    return this.expression.hasAsyncFunction();
+    return !!this.expression && this.expression.hasAsyncFunction();
   }
   public addToAsyncList(list: Array<AsyncFunctionItem>): void {
-    this.expression.addToAsyncList(list);
+    if (!!this.expression)this.expression.addToAsyncList(list);
   }
   public evaluate(processValue?: ProcessValue): boolean {
-    let value = this.expression.evaluate(processValue);
+    const value = this.expression == null ? null : this.expression.evaluate(processValue);
     return this.consumer.call(this, value);
   }
   public setVariables(variables: Array<string>) {
-    this.expression.setVariables(variables);
+    if (!!this.expression)this.expression.setVariables(variables);
   }
   public isConstant(): boolean {
     return this.isOperandConstant(this.expression);
@@ -365,7 +366,14 @@ export class Const extends Operand {
       var res = func(this);
       if (!!res) return res;
     }
-    return this.value === "" ? "''" : this.value.toString();
+    if (this.value === "") return "''";
+    if (this.isStringLiteral()) {
+      // The parser stores a string literal in single quotes with its escapes removed: put them back, so the text parses again.
+      // Backslashes stay as is: the grammar has no "\\" escape, a backslash escapes only a following quote and is literal otherwise.
+      // Escaping backslashes too would change the value parsed back ("a\b" -> "a\\b").
+      return "'" + this.value.substring(1, this.value.length - 1).replace(/['"]/g, (quote: string) => "\\" + quote) + "'";
+    }
+    return this.value.toString();
   }
   public get correctValue(): any {
     return this.getCorrectValue(this.value);
@@ -411,6 +419,10 @@ export class Const extends Operand {
   }
   private isQuote(ch: string): boolean {
     return ch == "'" || ch == '"';
+  }
+  private isStringLiteral(): boolean {
+    const val = this.value;
+    return typeof val === "string" && val.length > 1 && val[0] === "'" && val[val.length - 1] === "'";
   }
 }
 

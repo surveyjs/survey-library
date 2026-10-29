@@ -89,6 +89,37 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, page.locator(".sd-question--matrixdynamic thead"), "matrixdynamic-sortable-headers.png");
     });
 
+    // A sort by two levels while more are allowed: each arrow shows its level. The last column is the
+    // narrowest a header gets, with a long title that wraps beside a ranked indicator.
+    test("Matrixdynamic sortable headers with level numbers", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: false,
+        elements: [{
+          type: "matrixdynamic",
+          name: "matrix",
+          title: "Question title",
+          allowSort: true,
+          maxSortLevel: 3,
+          sortCriteria: [{ field: "product", direction: "desc" }, { field: "category", direction: "desc" }, { field: "units", direction: "asc" }],
+          rowCount: 0,
+          defaultValue: [
+            { product: "Syrup Montana", category: "Condiments", price: 22, units: "36 boxes" },
+            { product: "Chang", category: "Beverages", price: 15, units: "12 bottles" },
+            { product: "Guarana", category: "Supplements", price: 10, units: "8 jars" }
+          ],
+          columns: [
+            { name: "product", title: "Product", cellType: "text" },
+            { name: "category", title: "Category", cellType: "text" },
+            { name: "price", title: "Price, USD", cellType: "text", inputType: "number" },
+            { name: "units", title: "Quantity per Unit, as shipped to the store", cellType: "text", width: "120px" }
+          ]
+        }]
+      });
+      await resetFocusToBody(page);
+      await compareScreenshot(page, page.locator(".sd-question--matrixdynamic thead"), "matrixdynamic-sortable-headers-ranks.png");
+    });
+
     test("Check Matrixdynamic", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
@@ -305,6 +336,27 @@ frameworks.forEach(framework => {
 
       await page.evaluate(() => { (window as any).survey.getAllQuestions()[0].allowRowReorder = false; });
       await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-lockedRowCount.png");
+    });
+
+    test("Check Matrixdynamic drag handle focused from the keyboard", async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 1100 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: true,
+        elements: [{
+          type: "matrixdynamic",
+          name: "question1",
+          allowRowReorder: true,
+          defaultValue: [{ col1: "Row1 value" }, { col1: "Row2 value" }, { col1: "Row3 value" }],
+          columns: [{ "name": "col1", "title": "Column 1", "cellType": "text" }]
+        }]
+      });
+
+      const matrixdynamicRoot = page.locator(".sd-question");
+      await matrixdynamicRoot.locator(".sd-table__row input").first().focus();
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Tab");
+      await expect(page.getByRole("button", { name: "Move row 2", exact: true })).toBeFocused();
+      await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-drag-handle-focused.png");
     });
 
     test("Check Matrixdynamic delete confirm dialog", async ({ page }) => {

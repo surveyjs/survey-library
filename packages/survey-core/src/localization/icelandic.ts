@@ -189,6 +189,8 @@ export var icelandicSurveyStrings = {
   addRow: "Bæta við röð",
   // "Remove"
   removeRow: "Fjarlægja",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Færðu röð {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Það eru engar raðir.",
   // [Auto-translated] "Row {rowIndex}"

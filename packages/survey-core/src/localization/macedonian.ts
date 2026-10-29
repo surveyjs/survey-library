@@ -189,6 +189,8 @@ export var macedonianSurveyStrings = {
   addRow: "Додади ред",
   // "Remove"
   removeRow: "Отстрани",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Премести го редот {0}",
   // "There are no rows."
   noRowsText: "Нема редови.",
   // [Auto-translated] "Row {rowIndex}"

@@ -189,6 +189,8 @@ export var bulgarianStrings = {
   addRow: "Добавяне на ред",
   // "Remove"
   removeRow: "Премахване на ред",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Преместете {0} ред",
   // [Auto-translated] "There are no rows."
   noRowsText: "Няма редове.",
   // [Auto-translated] "Row {rowIndex}"

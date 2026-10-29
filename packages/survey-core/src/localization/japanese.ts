@@ -189,6 +189,8 @@ export var japaneseSurveyStrings = {
   addRow: "追加行",
   // "Remove"
   removeRow: "削除",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "{0}列を移動してください",
   // [Auto-translated] "There are no rows."
   noRowsText: "行がありません。",
   // [Auto-translated] "Row {rowIndex}"

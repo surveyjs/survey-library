@@ -1138,6 +1138,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   public getType(): string {
     return "matrixdropdownbase";
   }
+  protected get supportsQuestionView(): boolean {
+    return false;
+  }
   /**
    * Specifies whether to display the table header that contains column captions.
    *
@@ -1222,7 +1225,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return isMatrixColumnsAutoWidth(this.isMobile, this.columns);
   }
   public getTableCss(): string {
-    return getMatrixTableCss(this.cssClasses, this.columnsAutoWidth, this.showHeader, this.verticalAlign);
+    return toCssClasses(
+      getMatrixTableCss(this.cssClasses, this.columnsAutoWidth, this.showHeader, this.verticalAlign),
+      this.isViewMode && this.cssClasses.rootView
+    );
   }
   public getTableBodyCss(): string {
     return getMatrixTableBodyCss(this.cssClasses, this.alternateRows, this.isMobile);
@@ -1545,6 +1551,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return true;
   }
   public onPointerDown(pointerDownEvent: PointerEvent, row: MatrixDropdownRowModelBase): void { }
+  public onDragHandleKeyDown(event: KeyboardEvent, row: MatrixDropdownRowModelBase): void { }
   protected onRowsChanged(): void {
     this.clearVisibleRows();
     this.resetRenderedTable();
@@ -1969,6 +1976,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       if (!!question && question.getValueName() === key) return question;
     }
     return this.detailPanelMode !== "none" ? <Question>this.detailPanel.getQuestionByValueName(key) || undefined : undefined;
+  }
+  // QuestionRecordsModel hook of updateRecordsExpressionFields: the cell questions of the expression columns.
+  protected getRecordExpressionQuestions(): Array<QuestionExpressionModel> {
+    return this.columns.map((column: MatrixDropdownColumn): Question => column.templateQuestion)
+      .filter((q: Question): boolean => !!q && q.getType() === "expression") as Array<QuestionExpressionModel>;
   }
   // QuestionRecordsModel hook of clearHiddenAnswersWithoutObjects: the cell questions a column condition hides.
   protected getRecordConditionalInputs(): Array<Question> {

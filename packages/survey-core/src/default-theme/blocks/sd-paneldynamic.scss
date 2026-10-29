@@ -51,6 +51,12 @@
     --sd-question-header-border-bottom: none;
 }
 
+.sd-paneldynamic--view .sd-view {
+    padding-block: var(--sjs2-layout-component-panel-simple-content-area-padding-top)
+        var(--sjs2-layout-component-panel-simple-content-area-padding-bottom);
+    padding-inline: var(--sjs2-layout-component-panel-simple-content-area-padding-horizontal);
+}
+
 .sd-paneldynamic {
     padding-top: var(--sjs2-layout-component-panel-dynamic-content-area-padding-top);
     padding-bottom: var(--sjs2-layout-component-panel-dynamic-content-area-padding-bottom);

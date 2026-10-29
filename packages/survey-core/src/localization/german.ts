@@ -189,6 +189,8 @@ export var germanSurveyStrings = {
   addRow: "Zeile hinzufügen",
   // "Remove"
   removeRow: "Entfernen",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Reihe {0}",
   // "There are no rows."
   noRowsText: "Es gibt keine Reihen.",
   // [Auto-translated] "Row {rowIndex}"

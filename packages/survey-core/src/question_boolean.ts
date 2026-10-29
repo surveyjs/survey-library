@@ -453,6 +453,8 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
     return isBooleanDisplayMode(displayMode) ? displayMode : "default";
   }
   public getComponentName(): string {
+    const viewComponentName = this.getViewModeComponentName();
+    if (viewComponentName) return viewComponentName;
     return RendererFactory.Instance.getRenderer(this.getType(), this.getRenderAsValue());
   }
   public onSurveyLoad(): void {

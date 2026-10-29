@@ -189,6 +189,8 @@ export var romanianSurveyStrings = {
   addRow: "Adăugare rând",
   // "Remove"
   removeRow: "Ștergere",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Mută rândul {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Nu există rânduri.",
   // [Auto-translated] "Row {rowIndex}"

@@ -1,6 +1,7 @@
-import { MultipleTextCell, MultipleTextItemModel, QuestionMultipleTextModel, QuestionTextModel } from "survey-core";
+import { MultipleTextCell, MultipleTextItemModel, Question, QuestionMultipleTextModel, QuestionTextModel } from "survey-core";
 import { Component, DoCheck, Input, OnDestroy } from "@angular/core";
 import { BaseAngular } from "../base-angular";
+import { getComponentName } from "../question";
 
 @Component({
   selector: "'[sv-ng-multipletext-item]'",
@@ -21,6 +22,7 @@ export class MultipleTextItemComponent extends BaseAngular<QuestionTextModel> im
   public get editor(): QuestionTextModel {
     return this.model.item.editor;
   }
+  public getComponentName(element: Question): string { return getComponentName(element); }
   override ngDoCheck(): void {
     super.ngDoCheck();
     if (this.model.isErrorsCell) {

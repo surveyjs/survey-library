@@ -124,8 +124,12 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   private handlePointerCancel = (event: PointerEvent) => {
     this.clear();
   };
+  /* Escape cancels the drag and goes no further: it is heard on the window in the capture phase while a
+     drag is active, so a modal around the dragged element (its keydown handler is on the popup) stays open. */
   private handleEscapeButton = (event: KeyboardEvent) => {
-    if (event.keyCode == 27) {
+    if (event.key === "Escape" || event.keyCode == 27) {
+      event.stopPropagation();
+      event.stopImmediatePropagation();
       this.clear();
     }
   };
@@ -228,7 +232,14 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     return requestAnimationFrame(callback);
   }
 
+  /* The modal a drag started in: the drag scrolls only the scroll containers inside it, never the page
+     behind it. A dropdown popup is not one: a drag from it (Creator's toolbox) goes on to the page. */
+  private popupNode: Element = null;
+  private static getPopupNode(node: any): Element {
+    return !!node && typeof node.closest === "function" ? node.closest(".sv-popup--modal-popup, .sv-popup--modal-overlay") : null;
+  }
   protected scrollByDrag(scrollableParentNode: Element, clientY: number, clientX: number) {
+    if (!!this.popupNode && !this.popupNode.contains(scrollableParentNode)) return;
     const startScrollBoundary = 100;
 
     let top: number;
@@ -293,7 +304,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
 
     DomDocumentHelper.removeEventListener("pointermove", this.dragOver);
     DomDocumentHelper.removeEventListener("pointercancel", this.handlePointerCancel);
-    DomDocumentHelper.removeEventListener("keydown", this.handleEscapeButton);
+    DomWindowHelper.removeEventListener("keydown", this.handleEscapeButton, true);
     DomDocumentHelper.removeEventListener("pointerup", this.drop);
     this.draggedElementShortcut.removeEventListener("pointerup", this.drop);
     if (IsTouch) {
@@ -304,6 +315,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     this.dd.clear();
     this.draggedElementShortcut = null;
     this.scrollIntervalId = null;
+    this.popupNode = null;
 
     if (IsTouch) {
       this.savedTargetNode.style.cssText = null;
@@ -332,6 +344,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     }
     if (event.which === 3) return; //right mouse btn
 
+    this.popupNode = DragDropDOMAdapter.getPopupNode(draggedElementNode) || DragDropDOMAdapter.getPopupNode(event.target);
     this.dd.dragInit(event, draggedElement, parentElement, draggedElementNode);
 
     this.rootElement.append(this.draggedElementShortcut);
@@ -339,7 +352,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
 
     DomDocumentHelper.addEventListener("pointermove", this.dragOver);
     DomDocumentHelper.addEventListener("pointercancel", this.handlePointerCancel);
-    DomDocumentHelper.addEventListener("keydown", this.handleEscapeButton);
+    DomWindowHelper.addEventListener("keydown", this.handleEscapeButton, true);
     DomDocumentHelper.addEventListener("pointerup", this.drop);
     if (!IsTouch) {
       this.draggedElementShortcut.addEventListener("pointerup", this.drop);

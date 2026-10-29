@@ -506,7 +506,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return res;
   }
   private createChoiceItem(value: any): ChoiceItem {
-    return <ChoiceItem>Serializer.createClass(this.getItemValueType(), { value: value });
+    const json = Helpers.isValueObject(value) || Helpers.isValueEmpty(value) ? { value: value } : value;
+    return <ChoiceItem>Serializer.createClass(this.getItemValueType(), json);
   }
   protected validateElementCore(context: ValidationContext): boolean {
     // Read when the validation starts: an async validator that settles later never clears.

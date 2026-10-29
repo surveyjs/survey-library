@@ -26,5 +26,8 @@ export class MatrixCellComponent extends BaseAngular<ItemValue> {
   public get itemSvgIcon(): string {
     return this.question.getItemSvgIcon(this.row, this.column);
   }
+  public get viewText(): string {
+    return this.question.getCellViewText(this.row, this.column);
+  }
 }
 AngularComponentFactory.Instance.registerComponent("survey-matrix-cell", MatrixCellComponent);

@@ -189,6 +189,8 @@ export var croatianStrings = {
   addRow: "Dodavanje redaka",
   // "Remove"
   removeRow: "Ukloniti",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Pomakni red {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Nema redova.",
   // [Auto-translated] "Row {rowIndex}"

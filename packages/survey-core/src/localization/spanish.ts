@@ -189,6 +189,8 @@ export var spanishSurveyStrings = {
   addRow: "Agregue una hilera",
   // "Remove"
   removeRow: "Eliminar una hilera",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Mover la fila {0}",
   // "There are no rows."
   noRowsText: "No hay hileras.",
   // [Auto-translated] "Row {rowIndex}"

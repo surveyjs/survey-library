@@ -189,6 +189,8 @@ export var norwegianSurveyStrings = {
   addRow: "Legg til rad",
   // "Remove"
   removeRow: "Fjern",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Flytt rad {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Det er ingen rader.",
   // [Auto-translated] "Row {rowIndex}"

@@ -189,6 +189,8 @@ export var georgianSurveyStrings = {
   addRow: "რიგის დამატება",
   // [Auto-translated] "Remove"
   removeRow: "წაშლა",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "მწკრივი {0} გადატანა",
   // [Auto-translated] "There are no rows."
   noRowsText: "რიგები არ არის.",
   // [Auto-translated] "Row {rowIndex}"

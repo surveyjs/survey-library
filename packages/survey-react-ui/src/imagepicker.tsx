@@ -13,6 +13,9 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     return this.questionBase as QuestionImagePickerModel;
   }
   protected renderElement(): React.JSX.Element {
+    if (this.question.isViewMode) {
+      return this.renderViewMode();
+    }
     var cssClasses = this.question.cssClasses;
     return (
       <fieldset
@@ -26,6 +29,52 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     );
   }
 
+  protected renderViewMode(): React.JSX.Element {
+    const items = this.question.getViewModeItems();
+    if (items.length === 0) {
+      return (
+        <div className={this.question.viewModeCssClass} id={this.question.inputId} ref={(root) => (this.setControl(root))}>
+          {this.question.viewDisplayText}
+        </div>
+      );
+    }
+    const isVideo = this.question.contentMode === "video";
+    const style: any = { objectFit: this.question.imageFit };
+    return (
+      <div className={this.question.getSelectBaseRootCss()} id={this.question.inputId} ref={(root) => (this.setControl(root))}>
+        {items.map((item) => {
+          const src = item.locImageLink.renderedHtml;
+          const width = this.question.renderedImageWidth;
+          const height = this.question.renderedImageHeight;
+          if (isVideo) {
+            return (
+              <video
+                key={item.uniqueId}
+                className={this.question.cssClasses.image}
+                src={src}
+                width={width}
+                height={height}
+                style={style}
+                onLoadedMetadata={(event: any) => { this.question.onContentLoaded(item, event.nativeEvent); }}
+              />
+            );
+          }
+          return (
+            <img
+              key={item.uniqueId}
+              className={this.question.cssClasses.image}
+              src={src}
+              alt={item.locText.renderedHtml}
+              width={width}
+              height={height}
+              style={style}
+              onLoad={(event: any) => { this.question.onContentLoaded(item, event.nativeEvent); }}
+            />
+          );
+        })}
+      </div>
+    );
+  }
   protected getColumns(cssClasses: any) {
     return this.question.columns.map((column: Array<ItemValue>, ci: number) => {
       var items = column.map((item: any, ii: number) =>

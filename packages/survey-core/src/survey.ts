@@ -1311,6 +1311,9 @@ export class SurveyModel extends SurveyElementCore
     if (name === "readOnly") {
       this.onReadOnlyChanged();
     }
+    if (name === "readOnlyMode") {
+      this.pages.forEach(page => page.onReadOnlyModeChanged());
+    }
     const resetVisibleIndexesProps = ["questionStartIndex", "requiredMark", "questionTitlePattern"];
     if (resetVisibleIndexesProps.indexOf(name) > -1) {
       this.resetVisibleIndexes();
@@ -3386,9 +3389,25 @@ export class SurveyModel extends SurveyElementCore
    *
    * Default value: `false`
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/prevent-form-editing-with-read-only-mode/ (linkStyle))
+   * [Demo: Read-Only / Display Mode](https://surveyjs.io/form-library/examples/prevent-form-editing-with-read-only-mode/ (linkStyle))
+   * @see readOnlyMode
    */
   @property() readOnly: boolean;
+  /**
+   * Specifies how read-only questions are displayed.
+   *
+   * Possible values:
+   *
+   * - `"readonly"` (default) - Displays the usual input controls, but disabled for editing.
+   * - `"view"` - Displays answers as plain text or other non-interactive visuals.
+   *
+   * You can override this setting for individual questions, panels, and pages using their `readOnlyMode` property.
+   * @see readOnly
+   */
+  @property({ defaultValue: "readonly" }) readOnlyMode: "readonly" | "view";
+  public getReadOnlyMode(): "readonly" | "view" {
+    return this.readOnlyMode === "view" ? "view" : "readonly";
+  }
 
   private onReadOnlyChanged() {
     for (var i = 0; i < this.pages.length; i++) {
@@ -9693,6 +9712,13 @@ Serializer.addClass("survey", [
     visible: false
   },
   { name: "readOnly:boolean" },
+  {
+    name: "readOnlyMode",
+    default: "readonly",
+    choices: ["readonly", "view"],
+    dependsOn: ["readOnly"],
+    visibleIf: (obj: any) => !!obj && !!obj.readOnly
+  },
   { name: "mode", visible: false, isSerializable: false },
   { name: "storeOthersAsComment:boolean", default: true },
   { name: "maxTextLength:number", default: 0, minValue: 0 },

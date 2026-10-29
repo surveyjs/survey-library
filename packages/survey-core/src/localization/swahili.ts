@@ -189,6 +189,8 @@ export var swahiliStrings = {
   addRow: "Ongeza safu",
   // "Remove"
   removeRow: "Toa",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Sogeza safu {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Hakuna safu.",
   // [Auto-translated] "Row {rowIndex}"

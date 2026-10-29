@@ -33,7 +33,7 @@ const props = defineProps<{
   css?: any;
 }>();
 const circleRadius: number = 440;
-const progress = computed(() => circleRadius * props.model.progress);
+const progress = computed(() => -circleRadius * props.model.progress);
 const text = computed(() => props.model.text);
 
 useBase(() => props.model);

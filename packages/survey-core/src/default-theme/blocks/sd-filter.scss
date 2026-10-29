@@ -145,6 +145,22 @@
   }
 }
 
+// A popup with a list, cut to the screen (the popup gives its container a height), scrolls the list
+// alone: the search box, the title row and Apply stay in sight. The list scrolls in its own box
+// (sv-list); the popup and its body only hand it the height the rest leaves. The operator and value
+// are left as they are: they are short, and when they do not fit, the whole popup scrolls.
+.sd-filter-popup:has(> .sd-filter-popup__body > .sv-list__container) {
+  flex: 1 1 auto;
+  min-height: 0;
+
+  .sd-filter-popup__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+}
+
 .sd-filter-popup__header {
   display: flex;
   align-items: center;

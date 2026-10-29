@@ -53,18 +53,18 @@ const X_EMPTY_SQ = 1 << 10, X_EMPTY_DQ = 1 << 11, X_SQ = 1 << 12, X_DQ = 1 << 13
 const X_LBRACKET = 1 << 14, X_RBRACKET = 1 << 15, X_COMMA = 1 << 16, X_TRUE = 1 << 17, X_FALSE = 1 << 18;
 const X_HEX = 1 << 19, X_SIGN = 1 << 20, X_DOT = 1 << 21, X_ZERO = 1 << 22, X_VALUE_CHAR = 1 << 23;
 const X_ESC_SQ = 1 << 24, X_ESC_DQ = 1 << 25, X_STRING_CHAR = 1 << 26, X_DIGIT = 1 << 27, X_NONZERO_DIGIT = 1 << 28;
-const X_LETTER = 1 << 29, X_END = 1 << 30;
+// X_STRING_CHAR is a character of a '...' string, X_DQ_STRING_CHAR of a "..." one
+const X_LETTER = 1 << 29, X_END = 1 << 30, X_DQ_STRING_CHAR = 1 << 31;
 const X_DESCRIPTIONS = ["\"(\"", "\")\"", "\"!\"", "\"negate\"", "\"empty\"", "\"notempty\"",
   "\"undefined\"", "\"null\"", "\"{\"", "\"}\"",
   "\"''\"", "\"\\\"\\\"\"", "\"'\"", "\"\\\"\"",
   "\"[\"", "\"]\"", "\",\"", "\"true\"", "\"false\"",
   "\"0x\"", "[\\-]", "\".\"", "\"0\"", "[^{}]",
-  "\"\\\\'\"", "\"\\\\\\\"\"", "[^\"']", "[0-9]", "[1-9]",
-  "[a-zA-Z_]", "end of input"];
+  "\"\\\\'\"", "\"\\\\\\\"\"", "[^']", "[0-9]", "[1-9]",
+  "[a-zA-Z_]", "end of input", "[^\"]"];
 // The first terminals of ConstValue's alternatives: all of them fail on a character that starts none of them
 const X_CONST_START = X_TRUE | X_FALSE | X_HEX | X_SIGN | X_DIGIT | X_NONZERO_DIGIT | X_ZERO | X_LETTER |
   X_EMPTY_SQ | X_EMPTY_DQ | X_SQ | X_DQ;
-const X_STRING_END = X_ESC_SQ | X_ESC_DQ | X_STRING_CHAR;
 
 function isLetter(c: number): boolean {
   return c >= 97 && c <= 122 || c >= 65 && c <= 90 || c === 95;
@@ -702,9 +702,9 @@ class ExpressionParser {
     }
     return undefined;
   }
-  // "'" value:AnyInput "'" or "\"" value:AnyInput "\"", at the opening quote.
-  // AnyInput = AnyCharacters+, AnyCharacters = "\\'" / "\\\"" / [^\"\']: a string ends at either quote.
-  // It stops where all three fail; the failures before that position are left out.
+  // "'" value:SingleQuotedInput "'" or "\"" value:DoubleQuotedInput "\"", at the opening quote.
+  // SingleQuotedInput = ("\\'" / "\\\"" / [^\'])+, DoubleQuotedInput = ("\\'" / "\\\"" / [^\"])+:
+  // a string ends only at its own quote. It stops where all three fail; the failures before that position are left out.
   private parseString(start: number, quote: number, expectedQuote: number): string | undefined {
     const text = this.text;
     const len = this.len;
@@ -722,11 +722,12 @@ class ExpressionParser {
           continue;
         }
       }
-      if (c === 39 || c === 34 || pos >= len) break;
+      if (c === quote || pos >= len) break;
       pos++;
     }
-    this.failOther(pos, X_STRING_END);
+    this.failOther(pos, X_ESC_SQ | X_ESC_DQ | (quote === 39 ? X_STRING_CHAR : X_DQ_STRING_CHAR));
     if (pos === start + 1) return undefined;
+    // Reached only at the end of the input
     if (text.charCodeAt(pos) !== quote) {
       this.failOther(pos, expectedQuote);
       return undefined;

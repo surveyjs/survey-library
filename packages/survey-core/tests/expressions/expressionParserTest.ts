@@ -931,6 +931,14 @@ describe("Expressions", () => {
     var values = { a: [{ val1: "abc" }, { val2: 10 }, { val1: "cde" }] };
     expect(runner.runValues(values), "two items in array").toBe(2);
   });
+  test("ExpressionRunner: an inArray filter with a quote inside a string", () => {
+    // The filter is parsed again from its toString()
+    const values = { arr: [{ a: 1, b: "it's" }, { a: 2, b: "x" }, { a: 4, b: "a\"b" }] };
+    expect(new ExpressionRunner(String.raw`sumInArray({arr}, 'a', {b} = 'it\'s')`).runValues(values), "#1").toBe(1);
+    expect(new ExpressionRunner(String.raw`sumInArray({arr}, 'a', {b} = 'a\"b')`).runValues(values), "#2").toBe(4);
+    expect(new ExpressionRunner(String.raw`countInArray({arr}, 'a', {b} <> 'it\'s')`).runValues(values), "#3").toBe(2);
+    expect(new ExpressionRunner(String.raw`sumInArray({arr}, 'a', {b} = "it's")`).runValues(values), "#4").toBe(1);
+  });
 
   test("ConditionRunner, iif simple", () => {
     var runner = new ExpressionRunner("iif({a}, 'high', 'low')");
@@ -1915,6 +1923,40 @@ describe("Expressions", () => {
     runner = new ExpressionRunner("iif(null, 1, {b})");
     expect(runner.runValues({ b: 2 }), "#10 null condition").toBe(2);
     expect(runner.getVariables(), "#10 variables").toEqual(["b"]);
+  });
+  test("The other quote inside a string literal needs no escape", () => {
+    expect(new ExpressionRunner(String.raw`'a"b'`).runValues({}), "#1 double quote in single quotes").toBe("a\"b");
+    expect(new ExpressionRunner(String.raw`"a'b"`).runValues({}), "#2 single quote in double quotes").toBe("a'b");
+    expect(new ConditionRunner(String.raw`{a} = "it's"`).runValues({ a: "it's" }), "#3 in a condition").toBe(true);
+    expect(new ExpressionRunner(String.raw`'a\"b'`).runValues({}), "#4 escaped double quote").toBe("a\"b");
+    expect(new ExpressionRunner(String.raw`"a\'b"`).runValues({}), "#5 escaped single quote").toBe("a'b");
+  });
+  test("toString() of a string literal parses back to the same value", () => {
+    const cases: Array<[string, string, any]> = [
+      [String.raw`'it\'s'`, String.raw`'it\'s'`, "it's"],
+      [String.raw`"x\'y"`, String.raw`'x\'y'`, "x'y"],
+      [String.raw`'x\"y'`, String.raw`'x\"y'`, "x\"y"],
+      [String.raw`"x\"y"`, String.raw`'x\"y'`, "x\"y"],
+      [String.raw`{a} = 'it\'s'`, String.raw`({a} == 'it\'s')`, true],
+      [String.raw`'a"b'`, String.raw`'a\"b'`, "a\"b"],
+      [String.raw`"a'b"`, String.raw`'a\'b'`, "a'b"],
+      [String.raw`{a} = "it's"`, String.raw`({a} == 'it\'s')`, true],
+      [String.raw`'a\\"b'`, String.raw`'a\\"b'`, String.raw`a\"b`],
+      [String.raw`"a\\"b"`, String.raw`'a\\"b'`, String.raw`a\"b`],
+      [String.raw`'a\\'b'`, String.raw`'a\\'b'`, String.raw`a\'b`],
+      [String.raw`"''"`, String.raw`'\'\''`, "''"],
+      ["''", "''", ""],
+      ["'abc'", "'abc'", "abc"],
+    ];
+    const values = { a: "it's" };
+    cases.forEach(([text, expectedText, expectedValue]) => {
+      const operand = new ConditionsParser().parseExpression(text);
+      expect(operand.toString(), text + " toString").toBe(expectedText);
+      expect(new ExpressionRunner(text).runValues(values), text + " value").toEqual(expectedValue);
+      const reparsed = new ConditionsParser().parseExpression(expectedText);
+      expect(reparsed && reparsed.toString(), text + " toString of the parsed toString").toBe(expectedText);
+      expect(new ExpressionRunner(expectedText).runValues(values), text + " value of the parsed toString").toEqual(expectedValue);
+    });
   });
   test("null/undefined as a unary operand", () => {
     const parser = new ConditionsParser();

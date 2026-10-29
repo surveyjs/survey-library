@@ -17,6 +17,16 @@ export default defineConfig({
     ["json", { outputFile: "test-results/results.json" }],
     ["html", { open: "never", printSteps: false }]
   ],
+  use: {
+    launchOptions: {
+      // Disable LCD (subpixel) text antialiasing so text always renders with grayscale
+      // antialiasing. Chromium switches between the two modes depending on compositing
+      // state (e.g. a freshly opened popup renders grayscale until its composited layer is
+      // released ~1-2s later), which made screenshot tests flaky. All baselines are captured
+      // with this flag; removing it invalidates them.
+      args: ["--disable-lcd-text", "--disable-partial-raster"],
+    }
+  },
   projects: [
     {
       name: "a11y",

@@ -173,7 +173,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         records = records.slice(0, length);
       }
     }
-    this.setOwnRecordsValue(this.normalizeRecords(records, operations));
+    this.storeOwnListRecords(this.normalizeRecords(records, operations));
   }
   /* A record of a value the caller passes - the records of an assignment -, not of the storage, so it
      is padded here and not by the records source: a row past the value reads the default row value, as
@@ -905,7 +905,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.onStartRowAddingRemoving();
     let newRow: MatrixDropdownRowModelBase;
     try {
-      newRow = this.addRowCore();
+      newRow = this.runAddOperation((): MatrixDropdownRowModelBase => this.addRowCore());
     } finally {
       this.unlockResetRenderedTable();
     }

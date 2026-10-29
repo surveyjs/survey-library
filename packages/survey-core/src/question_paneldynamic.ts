@@ -2132,7 +2132,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return newPanel;
   }
   private addPanelAndShow(index: number, isUI: boolean): PanelModel {
-    const newPanel = this.addPanelCore(index);
+    const newPanel = this.runAddOperation((): PanelModel => this.addPanelCore(index));
     this.panelOnFirstRendering(newPanel);
     if (isUI && !!newPanel) {
       if (this.displayMode === "list" && this.panelsState !== "default") {

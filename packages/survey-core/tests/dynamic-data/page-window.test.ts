@@ -2919,7 +2919,8 @@ describe("Page window: an assignment from outside made during the question's own
       }
     });
     expect(() => q.addPanel(), "#1").toThrow("handler");
-    expect(q.value[0], "#2: the nested assignment was stored").toEqual({ a: 10 });
+    // Record 0 has no panel on the last page: its expression field is computed after the add (Bug#12156).
+    expect(q.value[0], "#2: the nested assignment was stored").toEqual({ a: 10, e: 1 });
     isArmed = false;
     const panel = q.addPanel();
     expect(!!panel && panel === q.panels[q.panels.length - 1], "#3: a following add keeps its new record").toBe(true);
@@ -3446,7 +3447,7 @@ describe("Page window: record semantics without an object", () => {
     matrix.sort([{ field: "c", direction: "desc" }]);
     expect(matrix.displayValue, "#3: in record order under a sort").toEqual([{ c: "One" }, { c: "Two" }]);
   });
-  test("with paging, expressions and totals cover the current page and the pages visited, and a visited record keeps its values", () => {
+  test("Bug#12156: with paging, expressions and totals cover every record, as without paging", () => {
     const survey = new SurveyModel({ elements: [
       { type: "matrixdynamic", name: "m", rowCount: 0, pageSize: 2,
         columns: [{ name: "a", cellType: "text", inputType: "number" }, { name: "b", cellType: "expression", expression: "{row.a} * 2" }] },
@@ -3454,12 +3455,12 @@ describe("Page window: record semantics without an object", () => {
     survey.data = { m: [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }, { a: 5 }] };
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     matrix.visibleRows;
-    expect(survey.getValue("s"), "#1: the page shown").toBe(6);
+    expect(survey.getValue("s"), "#1: every record, not the page shown only").toBe(30);
     matrix.pageIndex = 2;
-    expect(survey.getValue("s"), "#2: and the page visited now").toBe(16);
+    expect(survey.getValue("s"), "#2: a page visit changes nothing").toBe(30);
     matrix.pageIndex = 0;
-    expect(survey.data.m.map((r: any) => r.b), "#3: the visited records keep what was computed, page 1 was never opened")
-      .toEqual([2, 4, undefined, undefined, 10]);
+    expect(survey.data.m.map((r: any) => r.b), "#3: page 1 was never opened and is computed too")
+      .toEqual([2, 4, 6, 8, 10]);
     const unpaged = new SurveyModel({ elements: [
       { type: "matrixdynamic", name: "m", rowCount: 0,
         columns: [{ name: "a", cellType: "text", inputType: "number" }, { name: "b", cellType: "expression", expression: "{row.a} * 2" }] },

@@ -102,6 +102,14 @@ export interface IRecordItemWrite {
   ownerValue: any;
   isDeleting: boolean;
 }
+/* One question of the expression-field pass (QuestionRecordsModel.updateRecordsExpressionFields): its
+   expression questions, the records it built objects for, and its record scope, created on first use. */
+interface IRecordExpressionFields {
+  question: QuestionRecordsModel;
+  questions: Array<QuestionExpressionModel>;
+  built: Set<number>;
+  scope?: IDynamicDataRecordScope;
+}
 // The types of the removal flow keep importing these from here.
 export type { IRecordTarget, IRecordRemoval } from "./records/records-target-resolver";
 /* A field is used for sorting only (the filter is an expression and needs no typing), so a value type
@@ -431,7 +439,8 @@ export abstract class QuestionRecordsModel extends Question {
     // A list that pages in memory creates the edited set on every change it raises here. An edit
     // renumbers nothing: it marks the record edited.
     const validation = this.isPagedByList ? this.pageValidation : this._pageValidation;
-    if (change.type === "recordChanged" && !!validation) validation.markEdited(change.index);
+    // The fields the expression-field pass computes are not an edit (updateRecordsExpressionFields).
+    if (change.type === "recordChanged" && !!validation && !this.expressionFieldsWriteScope.isActive) validation.markEdited(change.index);
     const listChange = getRecordListChangeEvent(change);
     if (!!listChange)this.followRecordIndexEvent(listChange);
     /* A write the list pushed to a data source: with the array source over question.value the push
@@ -1087,8 +1096,10 @@ export abstract class QuestionRecordsModel extends Question {
      write (the limits, the count expression) is silent. */
   private writeRecordCount(val: number, origin: "code" | "authored" | "internal"): void {
     if (!this.isRemoteData) {
-      this.setRecordCountCore(val);
-      this.storeRecordsToCount();
+      this.runRecordsOperation(this.recordCountScope, (): void => {
+        this.setRecordCountCore(val);
+        this.storeRecordsToCount();
+      });
     } else if (origin === "authored") {
       this.setPropertyValue(this.getRecordCountNames().count, Helpers.getNumber(val));
     } else if (origin === "code" && Helpers.getNumber(val) !== this.recordCount) {
@@ -1710,20 +1721,25 @@ export abstract class QuestionRecordsModel extends Question {
      not an object, a question that does not page and has no filter or sort - every record gets an object
      there - and a source that pages itself. Cost: one expression run per expression field per record
      without an object, per condition run; one runner per expression text.
+     Questions that share the value (Andrew, 2026-10-29): the first of them that computes fields computes
+     them for all - each one's expression questions over the records it has no object for - and writes
+     once; the others compute nothing and receive the write as an update in place (storeOwnListRecords).
      Returns whether the view - the records with an object, in their order - changed. */
   private recordExpressionRunners: Map<string, ExpressionRunner> = new Map<string, ExpressionRunner>();
   private updateRecordsExpressionFields(properties: HashTable<any>): boolean {
-    const list = this._dataList;
-    if (!list || this.isDesignMode || this.isRemoteData || !this.survey || !(this.isPagingActive || list.hasView)) return false;
-    /* Not inside an assignment of the value or a write of the question's own - an add, an edit, a page
-       build: the objects are being built or written there, and the condition run the survey makes
-       after it computes the records. */
-    if (this.valueAssignmentScope.isActive || this.recordAddScope.isActive || this.isOwnWriteOpen || this.isWritingRecords) return false;
-    const questions = this.getRecordExpressionQuestions().filter((q: QuestionExpressionModel): boolean => !this.isReadOnly || q.runIfReadOnly);
-    if (questions.length === 0) return false;
-    const built = new Set<number>();
-    this.forEachItem((item: QuestionRecordItem): void => {
-      if (isRecordItem(item)) built.add(this.getBuiltRecordIndex(item));
+    if (!this.isExpressionFieldsComputed()) return false;
+    const group = this.getExpressionFieldsQuestions();
+    if (group.some((question: QuestionRecordsModel): boolean => question.isRecordsOperationOpen)) {
+      group.forEach((question: QuestionRecordsModel): void => { question.owedExpressionFields = properties; });
+      return false;
+    }
+    if (group[0] !== this) return false;
+    const parts = group.map((question: QuestionRecordsModel): IRecordExpressionFields => {
+      const built = new Set<number>();
+      question.forEachItem((item: QuestionRecordItem): void => {
+        if (isRecordItem(item)) built.add(question.getBuiltRecordIndex(item));
+      });
+      return { question: question, questions: question.getRecordExpressionFieldQuestions(), built: built };
     });
     const runners = new Map<string, ExpressionRunner>();
     const getRunner = (text: string): ExpressionRunner => {
@@ -1733,51 +1749,113 @@ export abstract class QuestionRecordsModel extends Question {
       runners.set(text, runner);
       return runner.isAsync ? undefined : runner;
     };
-    let scope: IDynamicDataRecordScope;
     const changes: Array<{ index: number, record: any }> = [];
-    for (let index = 0; index < list.loadedCount; index++) {
-      if (built.has(index)) continue;
+    const count = this._dataList.loadedCount;
+    for (let index = 0; index < count; index++) {
       const record = this.getListRecordAt(index);
       if (!Helpers.isValueObject(record, true)) continue;
-      if (!scope) scope = this.createRecordVisibilityScope(properties);
-      const computed = this.computeRecordExpressionFields(index, record, questions, getRunner, scope);
+      const computed = this.computeRecordExpressionFields(index, record, parts, getRunner, properties);
       if (!!computed) changes.push({ index: index, record: computed });
     }
     this.recordExpressionRunners = runners;
     if (changes.length === 0) return false;
-    const created = list.hasView ? [].concat(list.getCreatedIndexes()) : undefined;
-    this.runComputedWrites((): void => this.writeRecordChanges(changes));
-    if (!created) return false;
-    // A same-length write is not seen by the list: the filter and the sort read the new fields.
-    list.invalidateViews(list.hasTouchedRecords ? (index: number): number => index : undefined);
-    return !Helpers.isArraysEqual(created, list.getCreatedIndexes());
+    const views = group.filter((question: QuestionRecordsModel): boolean => question._dataList.hasView)
+      .map((question: QuestionRecordsModel) => ({ question: question, created: question._dataList.getCreatedIndexes().slice() }));
+    this.expressionFieldsWriteScope.run((): void => this.runComputedWrites((): void => this.writeRecordChanges(changes)));
+    let isChanged = false;
+    views.forEach((view: { question: QuestionRecordsModel, created: Array<number> }): void => {
+      const list = view.question._dataList;
+      if (!list || view.question.isDisposed) return;
+      // A same-length write is not seen by the list: the filter and the sort read the new fields.
+      list.invalidateViews(list.hasTouchedRecords ? (index: number): number => index : undefined);
+      if (Helpers.isArraysEqual(view.created, list.getCreatedIndexes())) return;
+      if (view.question === this) {
+        isChanged = true;
+      } else {
+        view.question.rebuildFromDataList(false);
+      }
+    });
+    return isChanged;
   }
   // The record with the fields recomputed, or undefined when none changed.
-  private computeRecordExpressionFields(index: number, record: any, questions: Array<QuestionExpressionModel>,
-    getRunner: (text: string) => ExpressionRunner, scope: IDynamicDataRecordScope): any {
+  private computeRecordExpressionFields(index: number, record: any, parts: Array<IRecordExpressionFields>,
+    getRunner: (text: string) => ExpressionRunner, properties: HashTable<any>): any {
     let res: any;
     for (let pass = 0; pass < 3; pass++) {
       let isChanged = false;
-      questions.forEach((q: QuestionExpressionModel): void => {
-        const runner = getRunner(q.expression);
-        if (!runner) return;
-        const current = res || record;
-        scope.item.reset(index, current);
-        const value = q["roundValue"](runner.runContext(scope.item.getValueGetterContext(), scope.properties));
-        const name = q.getValueName();
-        const isEmpty = Helpers.isValueEmpty(value);
-        if (isEmpty ? Helpers.isValueEmpty(current[name]) : Helpers.isTwoValueEquals(current[name], value)) return;
-        if (!res) res = Object.assign({}, record);
-        if (isEmpty) {
-          delete res[name];
-        } else {
-          res[name] = value;
-        }
-        isChanged = true;
+      parts.forEach((part: IRecordExpressionFields): void => {
+        if (part.built.has(index)) return;
+        part.questions.forEach((q: QuestionExpressionModel): void => {
+          const runner = getRunner(q.expression);
+          if (!runner) return;
+          if (!part.scope) part.scope = part.question.createRecordVisibilityScope(properties);
+          const current = res || record;
+          part.scope.item.reset(index, current);
+          const value = q["roundValue"](runner.runContext(part.scope.item.getValueGetterContext(), part.scope.properties));
+          const name = q.getValueName();
+          const isEmpty = Helpers.isValueEmpty(value);
+          if (isEmpty ? Helpers.isValueEmpty(current[name]) : Helpers.isTwoValueEquals(current[name], value)) return;
+          if (!res) res = Object.assign({}, record);
+          if (isEmpty) {
+            delete res[name];
+          } else {
+            res[name] = value;
+          }
+          isChanged = true;
+        });
       });
       if (!isChanged) break;
     }
     return res;
+  }
+  private isExpressionFieldsComputed(): boolean {
+    const list = this._dataList;
+    return !!list && !this.isDesignMode && !this.isRemoteData && !!this.survey && (this.isPagingActive || list.hasView) &&
+      this.getRecordExpressionFieldQuestions().length > 0;
+  }
+  private getRecordExpressionFieldQuestions(): Array<QuestionExpressionModel> {
+    return this.getRecordExpressionQuestions().filter((q: QuestionExpressionModel): boolean => !this.isReadOnly || q.runIfReadOnly);
+  }
+  // The questions sharing the value that compute fields, in survey order: the first one computes them for all.
+  private getExpressionFieldsQuestions(): Array<QuestionRecordsModel> {
+    const res: Array<QuestionRecordsModel> = [];
+    const add = (question: IQuestion): void => {
+      if (question instanceof QuestionRecordsModel && res.indexOf(question) < 0 && question.isExpressionFieldsComputed()) res.push(question);
+    };
+    if (!!this.survey) {
+      this.getQuestionsSharingValue(this.getValueName()).forEach(add);
+    }
+    add(this);
+    return res;
+  }
+  /* The pass writes the records, so it does not run inside an operation of the question's own, nor of
+     a question sharing the value (Andrew, option A, 2026-10-29): an assignment of the value, an add, a
+     count change, a write of the question's own or of the list, a structural store and the objects
+     that follow it - the objects are built or written there. A condition run inside one owes the pass,
+     with its properties; it runs once, with the latest ones, when the last such operation has ended
+     (runOwedExpressionFields). */
+  private owedExpressionFields: HashTable<any>;
+  private expressionFieldsWriteScope: Scope = new Scope();
+  private recordCountScope: Scope = new Scope();
+  private get isRecordsOperationOpen(): boolean {
+    return this.valueAssignmentScope.isActive || this.recordAddScope.isActive || this.recordCountScope.isActive || this.isOwnWriteOpen ||
+      this.structuralStoreScope.isActive || this.followingWriteScope.isActive;
+  }
+  private runRecordsOperation<T>(scope: Scope, func: () => T): T {
+    try {
+      return scope.run(func);
+    } finally {
+      this.runOwedExpressionFields();
+    }
+  }
+  private runOwedExpressionFields(): void {
+    const properties = this.owedExpressionFields;
+    if (!properties || this.isDisposed) return;
+    const group = this.getExpressionFieldsQuestions();
+    if (group.some((question: QuestionRecordsModel): boolean => question.isRecordsOperationOpen)) return;
+    this.owedExpressionFields = undefined;
+    group.forEach((question: QuestionRecordsModel): void => { question.owedExpressionFields = undefined; });
+    if (group.length > 0) group[0].rebuildStalePage(properties);
   }
   // The expression questions of a record: the expression columns, the expression questions of the template.
   protected abstract getRecordExpressionQuestions(): Array<QuestionExpressionModel>;
@@ -2963,9 +3041,9 @@ export abstract class QuestionRecordsModel extends Question {
      (onRecordsValueStored) and after it (onRecordsValueAssigned) - and update isAnswered there, after
      that work: the value is stored with updateIsAnswered = false, whatever the caller passed. */
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
-    this.valueAssignmentScope.run((): void => this.setQuestionValueCore(newValue));
+    this.runRecordsOperation(this.valueAssignmentScope, (): void => this.setQuestionValueCore(newValue));
   }
-  // The objects follow the assignment inside it: their condition runs compute no record (updateRecordsExpressionFields).
+  // The objects follow the assignment inside it: their condition runs owe the expression-field pass (runOwedExpressionFields).
   private valueAssignmentScope: Scope = new Scope();
   private setQuestionValueCore(newValue: any): void {
     const oldRecords = copyRecords(this.getStoredRecords());
@@ -3129,7 +3207,12 @@ export abstract class QuestionRecordsModel extends Question {
   // for it: without a list there is no view to keep them in.
   protected runRecordAdd<T>(func: () => T): T {
     const list = this.dataListValue;
-    return this.recordAddScope.run((): T => !!list ? list.runAddScope(func) : func());
+    return this.runAddOperation((): T => !!list ? list.runAddScope(func) : func());
+  }
+  // A type's whole add - the insert, the objects that follow it and the values they write back: the
+  // expression-field pass waits for its end (runOwedExpressionFields).
+  protected runAddOperation<T>(func: () => T): T {
+    return this.runRecordsOperation(this.recordAddScope, func);
   }
   private recordAddScope: Scope = new Scope();
   /* Writes that only show the records a data source holds: the values the objects compute while they are
@@ -3202,6 +3285,7 @@ export abstract class QuestionRecordsModel extends Question {
       if (!this.ownRecordsChangeScope.isActive && !!this.owedAssignment && !(!!this._dataList && this._dataList.isWriteOpen)) {
         this.followOwedAssignment();
       }
+      this.runOwedExpressionFields();
     }
   }
   private get isOwnWriteOpen(): boolean {
@@ -3229,6 +3313,7 @@ export abstract class QuestionRecordsModel extends Question {
   private onListWriteEnded(): void {
     if (!this.ownRecordsChangeScope.isActive && !!this.owedAssignment)this.followOwedAssignment();
     this.runHeldItemsCondition();
+    this.runOwedExpressionFields();
   }
   /* An insert, a removal or a move of the list stores the value before the objects follow it: an
      in-memory source stores it inside the push, and the list notifies the owner after the push. Under
@@ -3246,7 +3331,7 @@ export abstract class QuestionRecordsModel extends Question {
     const isStructural = this.hasDataListView && (operations || []).some((operation: DynamicDataSourceMethod): boolean => operation !== "update");
     const store = (): void => this.setListRecords(records, operations);
     if (isStructural) {
-      this.structuralStoreScope.run(store);
+      this.runRecordsOperation(this.structuralStoreScope, store);
     } else {
       store();
     }
@@ -3271,6 +3356,7 @@ export abstract class QuestionRecordsModel extends Question {
       // have them write into the records their positions held before, so it is dropped.
       if (!isFollowed && !this.followingWriteScope.isActive)this.heldItemsCondition = undefined;
       this.runHeldItemsCondition();
+      this.runOwedExpressionFields();
     }
   }
   /* An object's write during the held run can change how many records are stored - a padded record
@@ -3831,7 +3917,16 @@ export abstract class QuestionRecordsModel extends Question {
   /* The write of the default records source, as a type stores it. operations: the writes the source
      made (DynamicDataSourceMethod names), in order. */
   protected setListRecords(records: Array<any>, operations: Array<DynamicDataSourceMethod>): void {
-    this.setOwnRecordsValue(records);
+    this.storeOwnListRecords(records);
+  }
+  /* The store of a list write. The write of the expression-field pass only updates records in place:
+     the siblings bound to the same value keep their objects (setOwnRecordsValueInPlace). */
+  protected storeOwnListRecords(value: any): void {
+    if (this.expressionFieldsWriteScope.isActive) {
+      this.setOwnRecordsValueInPlace(value);
+    } else {
+      this.setOwnRecordsValue(value);
+    }
   }
   /* A full validation visits every page of the view, not only the pages of the edited records: the
      records exist whether or not the respondent opened their page (the rows of the fixed matrix).

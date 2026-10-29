@@ -28,6 +28,15 @@ export interface IFilterState {
   conditions?: Array<IFilterCondition>;
   searchString: string;
 }
+// One preset's change in the Edit Presets dialog, applied with the others as one change: deleted,
+// or reset to what the JSON authored and then given a new title and conditions - each optional.
+export interface IFilterItemEdit {
+  name: string;
+  title?: string;
+  conditions?: Array<IFilterCondition>;
+  isReset?: boolean;
+  isDeleted?: boolean;
+}
 // The end-user state of a Filter Control. Only what the respondent changed is kept here: what the
 // JSON authored is already in the JSON and is restored by loading it.
 export interface IFilterElementUIState {

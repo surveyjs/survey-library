@@ -3,7 +3,7 @@ import { QuestionFactory } from "./questionfactory";
 import { QuestionNonValue } from "./questionnonvalue";
 import { Helpers, HashTable } from "./helpers";
 import { ISurveyImpl } from "./base-interfaces";
-import { IElementUIState, IFilterCondition, IFilterElementUIState, IFilterState } from "./interfaces/ui-interfaces";
+import { IElementUIState, IFilterCondition, IFilterElementUIState, IFilterItemEdit, IFilterState } from "./interfaces/ui-interfaces";
 import { FilterField } from "./filter/filter-field";
 import { FilterItem } from "./filter/filter-item";
 import { FilterConditionsEditor } from "./filter/filter-conditions-editor";
@@ -206,13 +206,18 @@ export class QuestionFilterModel extends QuestionNonValue {
     this.searchFields = val;
   }
 
+  // A preset the respondent deleted is not found: for everything that looks presets up it is gone.
+  // The respondent's own presets are found after the authored ones.
   public getItemByName(name: string): FilterItem {
-    if (!name) return undefined;
+    if (!name || this.deletedItemNames.indexOf(name) > -1) return undefined;
     const items = this.items;
     for (let i = 0; i < items.length; i++) {
       if (items[i].name === name) return items[i];
     }
-    return undefined;
+    return this.findUserItem(name);
+  }
+  private findUserItem(name: string): FilterItem {
+    return this.userItemsValue.filter((item: FilterItem): boolean => item.name === name)[0];
   }
   // The active item is held by name and not by object: the name is what uiState saves, what
   // defaultItem speaks in, and it degrades correctly - a deleted item simply stops being found,
@@ -269,8 +274,13 @@ export class QuestionFilterModel extends QuestionNonValue {
     const own = this.ownConditions;
     return own !== undefined && (own.length > 0 || !!this.activeItem);
   }
-  // The list a renderer shows. Single mode has no list.
-  public get visibleItems(): Array<FilterItem> { return this.allowMultipleItems ? this.items : []; }
+  // The list a renderer shows: the authored presets the respondent did not delete, then the
+  // respondent's own. Single mode has no list.
+  public get visibleItems(): Array<FilterItem> {
+    if (!this.allowMultipleItems) return [];
+    if (this.deletedItemNames.length === 0 && this.userItemsValue.length === 0) return this.items;
+    return this.items.filter((item: FilterItem): boolean => this.deletedItemNames.indexOf(item.name) < 0).concat(this.userItemsValue);
+  }
   public get canAddItems(): boolean { return this.allowMultipleItems && this.allowAddItems; }
   public get canReorderItems(): boolean { return this.allowMultipleItems && this.allowReorderItems; }
   // The spec's rule: what may be done to an item is its own permission AND the control-level
@@ -279,6 +289,146 @@ export class QuestionFilterModel extends QuestionNonValue {
   public canEditItem(item: FilterItem): boolean { return !!item && item.allowEdit; }
   public canDeleteItem(item: FilterItem): boolean { return this.allowMultipleItems && !!item && item.allowDelete; }
   public canCopyItem(item: FilterItem): boolean { return this.canAddItems && !!item && item.allowCopy; }
+  // Whether the respondent added the preset (addItem) - the author did not.
+  public isUserItem(item: FilterItem): boolean { return !!item && this.userItemsValue.indexOf(item) > -1; }
+  // Whether an authored preset is not what the JSON says any more: the respondent renamed it or
+  // changed its conditions (updateItem, or Save in single mode). A preset of the respondent's own has
+  // nothing to differ from.
+  public isItemModified(item: FilterItem): boolean {
+    return !!item && !this.isUserItem(item) && !!this.originalItems[item.name];
+  }
+  public canResetItem(item: FilterItem): boolean { return !this.isDesignMode && this.isItemModified(item); }
+  // The presets the Edit Presets dialog has a tab for: those the respondent may change, delete or
+  // reset. None in the designer, and none in single mode, which has no list.
+  public getEditableItems(): Array<FilterItem> {
+    if (this.isDesignMode) return [];
+    return this.visibleItems.filter((item: FilterItem): boolean =>
+      this.canEditItem(item) || this.canDeleteItem(item) || this.canResetItem(item));
+  }
+  // What a preset is in the JSON - its title and its conditions, null for a preset that does not
+  // decompose - whatever the respondent changed since: what Reset brings back. A preset of the
+  // respondent's own is what it is.
+  public getOriginalItemState(name: string): { title: string, conditions: Array<IFilterCondition> | null } {
+    const item = this.getItemByName(name);
+    if (!item) return undefined;
+    if (!this.isItemModified(item)) return { title: item.title, conditions: this.parseItemConditions(item) };
+    const original = this.createOriginalItem(item.name);
+    const res = { title: original.title, conditions: this.parseItemConditions(original) };
+    original.dispose();
+    return res;
+  }
+  // A preset of the respondent's own (the Filters dialog's Add Preset): the conditions it filters by,
+  // normalized as an edit is, and a title. It goes after every other preset and is not turned on.
+  // Nothing is added where presets cannot be added, in the designer, or for conditions none of which
+  // the fields can hold: a preset that filters by nothing is no preset.
+  public addItem(title: string, conditions: Array<IFilterCondition>): FilterItem {
+    if (!this.canAddItems || this.isDesignMode) return undefined;
+    const fields = this.getFilterFields();
+    const normalized = normalizeFilterConditions(conditions || [], fields);
+    if (normalized.length === 0) return undefined;
+    const item = this.createUserItem(this.getNewItemName(), title, normalized);
+    this.updateToolbars();
+    this.raiseUIStateChanged();
+    return item;
+  }
+  // A preset's new title and conditions (the Edit Presets dialog). conditions undefined keeps the
+  // ones it has - a preset that does not decompose has none to edit, only its title - and so do
+  // conditions none of which the fields can hold, as with addItem(); an empty title keeps the title.
+  // An authored preset remembers what the JSON made it before its first change - resetItem() puts
+  // that back - and a change that brings it back to that is a reset. A preset that is on filters by
+  // its new conditions at once: one write, one onFilterChanged and one onUIStateChanged, none of
+  // them for a change that changes nothing.
+  public updateItem(name: string, title: string, conditions?: Array<IFilterCondition>): void {
+    const item = this.getItemByName(name);
+    if (!item || this.isDesignMode || !this.canEditItem(item)) return;
+    const fields = this.getFilterFields();
+    const text = (title || "").trim();
+    const normalized = conditions !== undefined ? normalizeFilterConditions(conditions, fields) : [];
+    const current = this.parseItemConditions(item);
+    const isTitleChanged = !!text && text !== item.title;
+    const isConditionsChanged = normalized.length > 0 && (current === null || !this.isSameConditionSet(normalized, current));
+    if (!isTitleChanged && !isConditionsChanged) return;
+    this.runBatch((): void => {
+      const isUser = this.isUserItem(item);
+      if (!isUser) {
+        this.rememberOriginal(item);
+      }
+      if (isTitleChanged) {
+        this.setItemTitle(item, text);
+        if (!isUser) {
+          this.savedItemTitles[item.name] = text;
+        }
+      }
+      if (isConditionsChanged) {
+        item.expression = conditionsToExpression(normalized, fields);
+        if (isUser) {
+          this.userItemConditions[item.name] = normalized;
+        } else {
+          this.savedItemConditions[item.name] = normalized;
+        }
+      }
+      if (!isUser && this.isSameAsOriginal(item)) {
+        this.restoreOriginal(item);
+      }
+      this.updateToolbars();
+      this.raiseUIStateChanged();
+    }, true);
+  }
+  // Brings an authored preset back to what the JSON made it: its title and its expression. A preset
+  // that is on filters by it at once.
+  public resetItem(name: string): void {
+    const item = this.getItemByName(name);
+    if (!this.canResetItem(item)) return;
+    this.runBatch((): void => {
+      this.restoreOriginal(item);
+      this.updateToolbars();
+      this.raiseUIStateChanged();
+    }, true);
+  }
+  // Deletes a preset (the Edit Presets dialog). The respondent's own goes away; an authored one is
+  // only hidden - items is the author's JSON - and remembered as deleted. A preset that is on goes
+  // off, and the filter with it: there is nothing left to filter by.
+  public deleteItem(name: string): void {
+    const item = this.getItemByName(name);
+    if (!item || this.isDesignMode || !this.canDeleteItem(item)) return;
+    this.runBatch((): void => {
+      if (this.activeItemName === name) {
+        this.activeItemName = "";
+      }
+      if (this.isUserItem(item)) {
+        this.userItemsValue.splice(this.userItemsValue.indexOf(item), 1);
+        delete this.userItemConditions[name];
+        this.onItemRemoved(item);
+      } else {
+        this.deletedItemNames.push(name);
+        this.updateFilterExpression();
+      }
+      this.updateToolbars();
+      this.raiseUIStateChanged();
+    }, true);
+  }
+  // The Edit Presets dialog's Apply: the changes of every preset as one change - one write into the
+  // source and one onFilterChanged if the filter that applies changed, one onUIStateChanged - and
+  // nothing for no change. Each preset is deleted, or reset first and then given its new title and
+  // conditions.
+  public applyItemEdits(edits: Array<IFilterItemEdit>): void {
+    if (this.isDesignMode || !Array.isArray(edits)) return;
+    this.runBatch((): void => {
+      edits.forEach((edit: IFilterItemEdit): void => {
+        if (!edit) return;
+        if (edit.isDeleted) {
+          this.deleteItem(edit.name);
+          return;
+        }
+        if (edit.isReset) {
+          this.resetItem(edit.name);
+        }
+        if (edit.title !== undefined || edit.conditions !== undefined) {
+          this.updateItem(edit.name, edit.title, edit.conditions);
+        }
+      });
+    }, true);
+  }
 
   // The respondent's own conditions, edited over the active preset. undefined means "no edits":
   // the preset's text then applies verbatim. [] is a real state and not the same thing - the
@@ -393,6 +543,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     const fields = this.getFilterFields();
     const conditions = normalizeFilterConditions(this.ownConditions, fields);
     if (conditions.length === 0 && this.ownConditions.length > 0) return;
+    this.rememberOriginal(item);
     item.expression = conditionsToExpression(conditions, fields);
     this.savedItemConditions[item.name] = conditions.map((c: IFilterCondition): IFilterCondition => this.copyCondition(c));
     this.setOwnConditions(undefined);
@@ -806,6 +957,79 @@ export class QuestionFilterModel extends QuestionNonValue {
   private getSavedItemConditions(name: string): Array<IFilterCondition> {
     return this.savedItemConditions[name];
   }
+  // The titles the respondent gave authored presets (updateItem), by name; their conditions are in
+  // savedItemConditions.
+  private savedItemTitles: HashTable<string> = {};
+  // What an authored preset was in the JSON before the respondent first changed it - its expression
+  // and its title as JSON (a localized title stays localized) - by name. A preset with an entry here
+  // is modified (isItemModified); resetItem() puts it back and drops the entry.
+  private originalItems: HashTable<{ expression: string, title: any }> = {};
+  // The respondent's own presets (addItem), in the order they were added. FilterItems like the
+  // authored ones, but kept out of items: items is the survey JSON, and these are the respondent's
+  // state, not the author's.
+  private userItemsValue: Array<FilterItem> = [];
+  // Their conditions as they were normalized when they were set, by name.
+  private userItemConditions: HashTable<Array<IFilterCondition>> = {};
+  // The authored presets the respondent deleted, by name: hidden from everything that looks presets
+  // up, while items - the JSON - keeps them.
+  private deletedItemNames: Array<string> = [];
+  private createUserItem(name: string, title: string, conditions: Array<IFilterCondition>): FilterItem {
+    const item = new FilterItem(name);
+    this.setItemTitle(item, (title || "").trim());
+    item.expression = conditionsToExpression(conditions, this.getFilterFields());
+    this.userItemConditions[name] = conditions;
+    this.userItemsValue.push(item);
+    this.onItemAdded(item);
+    return item;
+  }
+  // Free among every preset, the deleted ones too: a name is what activeItemName and uiState hold.
+  private getNewItemName(): string {
+    const isUsed = (name: string): boolean =>
+      this.items.some((item: FilterItem): boolean => item.name === name) || !!this.findUserItem(name);
+    let n = this.userItemsValue.length + 1;
+    while(isUsed("userItem" + n)) n++;
+    return "userItem" + n;
+  }
+  // A title the respondent typed is the title in every locale: set as the default text, with no
+  // translations left that would show the author's text in another locale.
+  private setItemTitle(item: FilterItem, title: any): void {
+    item.locTitle.setJson(!!title && typeof title === "object" ? Object.assign({}, title) : (title || null), true);
+    item.locTitle.strChanged();
+  }
+  private rememberOriginal(item: FilterItem): void {
+    if (!this.originalItems[item.name]) {
+      this.originalItems[item.name] = { expression: item.expression, title: item.locTitle.getJson() };
+    }
+  }
+  // The preset as the JSON made it, as a FilterItem of its own, for comparing and reading its title
+  // in the current locale. The caller disposes it.
+  private createOriginalItem(name: string): FilterItem {
+    const original = this.originalItems[name];
+    const item = new FilterItem(name);
+    item.itemOwner = this;
+    item.locTitle.setJson(original.title, true);
+    item.expression = original.expression;
+    return item;
+  }
+  private isSameAsOriginal(item: FilterItem): boolean {
+    const original = this.createOriginalItem(item.name);
+    const a = this.parseItemConditions(original);
+    const b = this.parseItemConditions(item);
+    const isSameConditions = a === null || b === null
+      ? (original.expression || "").trim() === (item.expression || "").trim() : this.isSameConditionSet(a, b);
+    const res = isSameConditions && original.title === item.title;
+    original.dispose();
+    return res;
+  }
+  private restoreOriginal(item: FilterItem): void {
+    const original = this.originalItems[item.name];
+    delete this.originalItems[item.name];
+    delete this.savedItemConditions[item.name];
+    delete this.savedItemTitles[item.name];
+    if (!original) return;
+    this.setItemTitle(item, original.title);
+    item.expression = original.expression;
+  }
   // An array value is copied both ways: the caller's array must not be able to change the filter
   // behind the control's back, and neither must the one it is given back.
   private copyCondition(condition: IFilterCondition): IFilterCondition {
@@ -1033,7 +1257,9 @@ export class QuestionFilterModel extends QuestionNonValue {
       if (!this.canRestoreSavedItem(name) || !entry || !Array.isArray(entry.conditions)) return;
       const conditions = normalizeFilterConditions(entry.conditions, fields);
       if (conditions.length === 0 && entry.conditions.length > 0) return;
-      this.getItemByName(name).expression = conditionsToExpression(conditions, fields);
+      const item = this.getItemByName(name);
+      this.rememberOriginal(item);
+      item.expression = conditionsToExpression(conditions, fields);
       this.savedItemConditions[name] = conditions;
     });
   }
@@ -1142,6 +1368,7 @@ export class QuestionFilterModel extends QuestionNonValue {
     // Neither collection is an ItemValue array, so Base.locStrsChanged does not reach into them.
     this.fields.forEach((field: FilterField): void => { field.locStrsChanged(); });
     this.items.forEach((item: FilterItem): void => { item.locStrsChanged(); });
+    this.userItemsValue.forEach((item: FilterItem): void => { item.locStrsChanged(); });
     if (!!this.toolbarsValue) {
       this.toolbarsValue.locStrsChanged();
     }
@@ -1174,16 +1401,20 @@ export class QuestionFilterModel extends QuestionNonValue {
   // A host that assigns a new items array replaces the presets the respondent saved into: a new
   // preset that merely has the same name was never saved, and getUIState() - which goes by name -
   // would otherwise store the old one's conditions for it, and a restore would rewrite it with them.
-  // Restored saved presets still waiting for a bound source go the same way. A preset that is still
+  // Restored saved presets still waiting for a bound source go the same way, and so do the titles
+  // given to the replaced presets, what they were before and their deletion. A preset that is still
   // there as the same object (a reordered array) keeps what was saved into it.
   private dropReplacedSavedItems(oldItems: Array<FilterItem>, newItems: Array<FilterItem>): void {
     const olds = Array.isArray(oldItems) ? oldItems : [];
     const news = Array.isArray(newItems) ? newItems : [];
     const isKept = (name: string): boolean => olds.some((item: FilterItem): boolean =>
       !!item && item.name === name && news.indexOf(item) > -1);
-    Object.keys(this.savedItemConditions).forEach((name: string): void => {
-      if (!isKept(name)) delete this.savedItemConditions[name];
+    [this.savedItemConditions, this.savedItemTitles, this.originalItems].forEach((saved: HashTable<any>): void => {
+      Object.keys(saved).forEach((name: string): void => {
+        if (!isKept(name)) delete saved[name];
+      });
     });
+    this.deletedItemNames = this.deletedItemNames.filter(isKept);
     const pending = this.pendingItems;
     if (!!pending) {
       Object.keys(pending).forEach((name: string): void => {

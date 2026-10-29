@@ -671,6 +671,13 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   public getType(): string {
     return "paneldynamic";
   }
+  protected get supportsQuestionView(): boolean {
+    return this.visiblePanelCount === 0;
+  }
+  protected getViewDisplayText(): string {
+    if (this.supportsQuestionView) return "";
+    return super.getViewDisplayText();
+  }
   // Records can belong to dataSource, and each panel already has remove. A title Clear does not fit.
   public get supportClearTitleAction(): boolean {
     return false;
@@ -3449,6 +3456,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     return toCssClasses(
       super.getRootCss(),
       this.getShowNoEntriesPlaceholder() && this.cssClasses.empty,
+      this.isViewMode && this.visiblePanelCount === 0 && this.cssClasses.root + "--view",
       this.isRangeShowing && this.isProgressTopShowing && this.cssClasses.navigation + "--top",
       this.isRangeShowing && this.isProgressBottomShowing && this.cssClasses.navigation + "--bottom"
     );

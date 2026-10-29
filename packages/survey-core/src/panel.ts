@@ -17,7 +17,7 @@ import {
   IFindElement,
   ISurveyValidation
 } from "./base-interfaces";
-import { SurveyElement, RenderingCompletedAwaiter } from "./survey-element";
+import { SurveyElement, RenderingCompletedAwaiter, getReadOnlyModePropertyInfo } from "./survey-element";
 import { Question } from "./question";
 import { ElementFactory, QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
@@ -1985,6 +1985,12 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     super.onReadOnlyChanged();
   }
+  public onReadOnlyModeChanged(): void {
+    super.onReadOnlyModeChanged();
+    for (let i = 0; i < this.elements.length; i++) {
+      (<SurveyElement>(<any>this.elements[i])).onReadOnlyModeChanged();
+    }
+  }
   public updateElementCss(reNew?: boolean): void {
     super.updateElementCss(reNew);
     for (let i = 0; i < this.elements.length; i++) {
@@ -1999,6 +2005,7 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see readOnly
+   * @see readOnlyMode
    * @see isReadOnly
    */
   @property() enableIf: string;
@@ -2646,6 +2653,7 @@ Serializer.addClass(
     },
     { name: "visible:switch", default: true, overridingProperty: "visibleIf" },
     { name: "readOnly:boolean", overridingProperty: "enableIf" },
+    getReadOnlyModePropertyInfo(),
     "visibleIf:condition",
     "enableIf:condition",
     "requiredIf:condition",

@@ -2071,6 +2071,14 @@ describe("Expression parser: nesting and error offsets", () => {
       expect(res.operand.toString(), text).toBe(expected);
     });
   });
+  test("A parser reused for another text does not keep the previous error", () => {
+    const parser = new ConditionsParser();
+    expect(parser.parseExpression("1 +")).toBeUndefined();
+    expect(parser.error.at).toBe(3);
+    const operand = parser.parseExpression("1 + 2");
+    expect(operand.toString()).toBe("(1 + 2)");
+    expect(parser.error).toBeUndefined();
+  });
 });
 
 describe("Expression parser: atoms and variable names", () => {
@@ -2234,5 +2242,17 @@ describe("Expression parser: deep nesting", () => {
   test("400 nested arrays", () => {
     const operand = parseDeep("[".repeat(400) + "1" + "]".repeat(400));
     expect(depthOf(operand, op => op.getType() === "array" ? op.values[0] : undefined)).toBe(401);
+  });
+  test("Nesting beyond the stack is reported as an error without a position", () => {
+    const parser = new ConditionsParser();
+    expect(parser.parseExpression("(".repeat(100000) + "1" + ")".repeat(100000))).toBeUndefined();
+    expect(parser.error, "error").toBeTruthy();
+    expect(parser.error.code).toBe("The expression is nested too deeply to parse.");
+    expect(parser.error.at).toBeUndefined();
+  });
+  test("A text that is not a string gives no operand and no error", () => {
+    const parser = new ConditionsParser();
+    expect(parser.parseExpression(null)).toBeUndefined();
+    expect(parser.error).toBeUndefined();
   });
 });

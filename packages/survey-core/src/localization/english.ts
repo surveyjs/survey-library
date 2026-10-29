@@ -96,6 +96,7 @@ export var englishStrings = {
   addColumn: "Add Column",
   addRow: "Add Row",
   removeRow: "Remove",
+  moveRowAriaLabel: "Move row {0}",
   noRowsText: "There are no rows.",
   rowIndexTemplateTitle: "Row {rowIndex}",
   rowNameTemplateTitle: "{rowTitle}",

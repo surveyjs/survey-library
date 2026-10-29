@@ -14,6 +14,24 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
     return this.questionBase as QuestionSignaturePadModel;
   }
   protected renderElement(): React.JSX.Element {
+    if (this.question.isViewMode) {
+      if (!this.question.value) {
+        return (
+          <div className={this.question.viewModeCssClass} id={this.question.inputId} ref={(root) => (this.setControl(root))}>
+            {this.question.viewDisplayText}
+          </div>
+        );
+      }
+      return (
+        <img
+          className={this.question.viewModeCssClass}
+          id={this.question.inputId}
+          src={this.question.value}
+          alt=""
+          ref={(root) => (this.setControl(root))}
+        />
+      );
+    }
     var cssClasses = this.question.cssClasses;
     const loadingIndicator = this.question.showLoadingIndicator ? this.renderLoadingIndicator() : null;
     var toolbar = this.renderToolbar();

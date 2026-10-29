@@ -2919,7 +2919,8 @@ describe("Page window: an assignment from outside made during the question's own
       }
     });
     expect(() => q.addPanel(), "#1").toThrow("handler");
-    expect(q.value[0], "#2: the nested assignment was stored").toEqual({ a: 10 });
+    // Record 0 has no panel on the last page: its expression field is computed after the add (Bug#12156).
+    expect(q.value[0], "#2: the nested assignment was stored").toEqual({ a: 10, e: 1 });
     isArmed = false;
     const panel = q.addPanel();
     expect(!!panel && panel === q.panels[q.panels.length - 1], "#3: a following add keeps its new record").toBe(true);
@@ -3446,7 +3447,7 @@ describe("Page window: record semantics without an object", () => {
     matrix.sort([{ field: "c", direction: "desc" }]);
     expect(matrix.displayValue, "#3: in record order under a sort").toEqual([{ c: "One" }, { c: "Two" }]);
   });
-  test("with paging, expressions and totals cover the current page and the pages visited, and a visited record keeps its values", () => {
+  test("Bug#12156: with paging, expressions and totals cover every record, as without paging", () => {
     const survey = new SurveyModel({ elements: [
       { type: "matrixdynamic", name: "m", rowCount: 0, pageSize: 2,
         columns: [{ name: "a", cellType: "text", inputType: "number" }, { name: "b", cellType: "expression", expression: "{row.a} * 2" }] },
@@ -3454,12 +3455,12 @@ describe("Page window: record semantics without an object", () => {
     survey.data = { m: [{ a: 1 }, { a: 2 }, { a: 3 }, { a: 4 }, { a: 5 }] };
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
     matrix.visibleRows;
-    expect(survey.getValue("s"), "#1: the page shown").toBe(6);
+    expect(survey.getValue("s"), "#1: every record, not the page shown only").toBe(30);
     matrix.pageIndex = 2;
-    expect(survey.getValue("s"), "#2: and the page visited now").toBe(16);
+    expect(survey.getValue("s"), "#2: a page visit changes nothing").toBe(30);
     matrix.pageIndex = 0;
-    expect(survey.data.m.map((r: any) => r.b), "#3: the visited records keep what was computed, page 1 was never opened")
-      .toEqual([2, 4, undefined, undefined, 10]);
+    expect(survey.data.m.map((r: any) => r.b), "#3: page 1 was never opened and is computed too")
+      .toEqual([2, 4, 6, 8, 10]);
     const unpaged = new SurveyModel({ elements: [
       { type: "matrixdynamic", name: "m", rowCount: 0,
         columns: [{ name: "a", cellType: "text", inputType: "number" }, { name: "b", cellType: "expression", expression: "{row.a} * 2" }] },
@@ -3507,6 +3508,91 @@ describe("Page window: record semantics without an object", () => {
       expect(run(mode, [2, 0, 1]), mode + ": the visit order does not matter").toEqual(forward);
       expect(forward.total, mode + ": every record is computed").toBe(36);
     });
+  });
+});
+/* Bug#12156: the expression columns of a matrix and the expression questions of a panel template are
+   computed for every record in memory, with or without an object, when the question pages or has a
+   filter or a sort. Aggregates, sorting and filtering by them give the unpaged result. */
+describe("Bug#12156: expression fields of the records without an object", () => {
+  const orders = (count: number = 10): Array<any> => {
+    const res: Array<any> = [];
+    for (let i = 0; i < count; i++) res.push({ qty: i + 1, price: 10 });
+    return res;
+  };
+  const createMatrix = (props: any, expression: string = "{row.qty} * {row.price}", extraColumns: Array<any> = []): { survey: SurveyModel, q: QuestionMatrixDynamicModel } => {
+    const survey = new SurveyModel({ elements: [
+      Object.assign({ type: "matrixdynamic", name: "orders", rowCount: 0, columns: [
+        { name: "qty", cellType: "text", inputType: "number" },
+        { name: "price", cellType: "text", inputType: "number" },
+        { name: "total", cellType: "expression", expression: expression }].concat(extraColumns) }, props),
+      { type: "expression", name: "sum", expression: "sumInArray({orders}, 'total')" }] });
+    survey.data = { orders: orders() };
+    return { survey: survey, q: <QuestionMatrixDynamicModel>survey.getQuestionByName("orders") };
+  };
+  const createPanel = (props: any): { survey: SurveyModel, q: QuestionPanelDynamicModel } => {
+    const survey = new SurveyModel({ elements: [
+      Object.assign({ type: "paneldynamic", name: "orders", panelCount: 0, templateElements: [
+        { type: "text", name: "qty", inputType: "number" },
+        { type: "text", name: "price", inputType: "number" },
+        { type: "expression", name: "total", expression: "{panel.qty} * {panel.price}" }] }, props),
+      { type: "expression", name: "sum", expression: "sumInArray({orders}, 'total')" }] });
+    survey.data = { orders: orders() };
+    return { survey: survey, q: <QuestionPanelDynamicModel>survey.getQuestionByName("orders") };
+  };
+  const totals = (survey: SurveyModel): Array<any> => survey.data.orders.map((r: any) => r.total);
+  const rowTotals = (q: QuestionMatrixDynamicModel): Array<any> => q.visibleRows.map(r => r.getQuestionByColumnName("total").value);
+  test("matrix with paging: aggregates, sort and filter read every record", () => {
+    const { survey, q } = createMatrix({ pageSize: 3 });
+    q.visibleRows;
+    expect(survey.getValue("sum"), "#1: sumInArray").toBe(550);
+    expect(totals(survey), "#2: every record has total").toEqual([10, 20, 30, 40, 50, 60, 70, 80, 90, 100]);
+    q.sortCriteria = [{ field: "total", direction: "desc" }];
+    expect(rowTotals(q), "#3: sorted by total").toEqual([100, 90, 80]);
+    q.filterExpression = "{total} > 50";
+    expect([rowTotals(q), q.pageCount], "#4: filtered by total").toEqual([[100, 90, 80], 2]);
+  });
+  test("panel with paging: sumInArray reads every record", () => {
+    const { survey, q } = createPanel({ pageSize: 3 });
+    expect(q.panels.length, "#1: one page is built").toBe(3);
+    expect(survey.getValue("sum"), "#2: sumInArray").toBe(550);
+    expect(totals(survey), "#3: every record has total").toEqual([10, 20, 30, 40, 50, 60, 70, 80, 90, 100]);
+  });
+  test("without paging, a filter or a sort by an expression field in JSON", () => {
+    const filtered = createMatrix({ filterExpression: "{total} > 50" });
+    expect([rowTotals(filtered.q), filtered.survey.getValue("sum")], "#1: matrix filter").toEqual([[60, 70, 80, 90, 100], 550]);
+    const sorted = createMatrix({ sortCriteria: [{ field: "total", direction: "desc" }] });
+    expect(rowTotals(sorted.q).slice(0, 3), "#2: matrix sort").toEqual([100, 90, 80]);
+    const panel = createPanel({ filterExpression: "{total} > 50" });
+    expect([panel.q.panels.length, panel.survey.getValue("sum")], "#3: panel filter").toEqual([5, 550]);
+  });
+  test("with paging, the records without an object are computed again when what they read changes", () => {
+    const { survey, q } = createMatrix({ pageSize: 3 }, "{row.qty} * {row.price} * {rate}");
+    survey.setVariable("rate", 1);
+    q.visibleRows;
+    expect(survey.getValue("sum"), "#1").toBe(550);
+    survey.setVariable("rate", 2);
+    expect(survey.getValue("sum"), "#2: a survey variable").toBe(1100);
+    q.pageIndex = 1;
+    q.pageIndex = 0;
+    const records = survey.data.orders.map((r: any) => Object.assign({}, r));
+    records[4].qty = 100;
+    survey.setValue("orders", records);
+    expect(survey.data.orders[4].total, "#3: a record of a page visited and left").toBe(2000);
+    expect(survey.getValue("sum"), "#4").toBe(1100 - 100 + 2000);
+  });
+  test("with paging, an expression that reads another expression field of the record", () => {
+    const { survey, q } = createMatrix({ pageSize: 3 }, "{row.qty} * {row.price}", [{ name: "dbl", cellType: "expression", expression: "{row.total} * 2" }]);
+    q.visibleRows;
+    expect(survey.data.orders.map((r: any) => r.dbl), "#1").toEqual([20, 40, 60, 80, 100, 120, 140, 160, 180, 200]);
+  });
+  test("with paging, a page built later computes the same values and writes nothing", () => {
+    const { survey, q } = createMatrix({ pageSize: 3 });
+    q.visibleRows;
+    const changes: Array<string> = [];
+    survey.onValueChanged.add((_, options) => { changes.push(options.name); });
+    q.pageIndex = 2;
+    expect(rowTotals(q), "#1: the page").toEqual([70, 80, 90]);
+    expect(changes, "#2: no value change").toEqual([]);
   });
 });
 /* A dynamic panel that pages in memory builds panels for one page. Clearing invisible values gives

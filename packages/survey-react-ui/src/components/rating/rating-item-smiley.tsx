@@ -25,6 +25,7 @@ export class RatingItemSmiley extends RatingItemBase {
           value={this.item.value}
           disabled={this.question.isDisabledAttr}
           readOnly={this.question.isReadOnlyAttr}
+          tabIndex={this.question.itemTabIndex}
           checked={this.question.value == this.item.value}
           onClick={this.props.handleOnClick}
           onChange={() => { }}

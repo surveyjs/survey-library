@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getVisibleSelectListItemByText, test, expect, setData, getData, doDragDrop, getButtonByText } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getVisibleSelectListItemByText, test, expect, setData, getData, doDrag, doDragDrop, getButtonByText } from "../helper";
 
 const title = "matrixdynamic";
 
@@ -1579,6 +1579,81 @@ frameworks.forEach((framework) => {
       await expect(moreButton(page)).toHaveCount(0);
       const layout = await headerBar(page).evaluate((el: HTMLElement) => [el.scrollWidth > el.clientWidth, getComputedStyle(el).overflowX]);
       expect(layout).toEqual([true, "auto"]);
+    });
+  });
+});
+
+frameworks.forEach((framework) => {
+  test.describe(`${framework} ${title} row reorder from the keyboard`, () => {
+    const reorderMatrix = {
+      type: "matrixdynamic",
+      name: "matrix",
+      allowRowReorder: true,
+      rowCount: 0,
+      columns: [{ name: "product", cellType: "text" }],
+      defaultValue: [{ product: "a" }, { product: "b" }, { product: "c" }],
+    };
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await page.setViewportSize({ width: 1920, height: 1080 });
+    });
+    const products = async (locator): Promise<Array<string>> =>
+      locator.locator(".sd-table__row input[type=text]").evaluateAll((inputs: Array<HTMLInputElement>) => inputs.map((input) => input.value));
+
+    test("ArrowUp on row 2's handle moves its record to row 1 and the focus to row 1's handle", async ({ page }) => {
+      await initSurvey(page, framework, { elements: [reorderMatrix] });
+      const handle = (n: number) => page.getByRole("button", { name: "Move row " + n, exact: true });
+      await expect(page.getByRole("button", { name: /^Move row \d$/ })).toHaveCount(3);
+      await handle(2).focus();
+      await page.keyboard.press("ArrowUp");
+      expect(await products(page)).toEqual(["b", "a", "c"]);
+      await expect(handle(1)).toBeFocused();
+      await page.keyboard.press("ArrowDown");
+      await page.keyboard.press("ArrowDown");
+      expect(await products(page)).toEqual(["a", "c", "b"]);
+      await expect(handle(3)).toBeFocused();
+      await page.keyboard.press("ArrowDown");
+      expect(await products(page), "the last row stays").toEqual(["a", "c", "b"]);
+      await expect(handle(3)).toBeFocused();
+      expect(await getData(page)).toEqual({ matrix: [{ product: "a" }, { product: "c" }, { product: "b" }] });
+    });
+    test("The handle is in the Tab order before the row's first cell", async ({ page }) => {
+      await initSurvey(page, framework, { elements: [reorderMatrix] });
+      const rowInput = (n: number) => page.locator(".sd-table__row input[type=text]").nth(n - 1);
+      await rowInput(1).focus();
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Tab");
+      await expect(page.getByRole("button", { name: "Move row 2", exact: true })).toBeFocused();
+      await page.keyboard.press("Tab");
+      await expect(rowInput(2)).toBeFocused();
+    });
+    test("Escape during a row drag in a modal cancels the drag and keeps the modal open", async ({ page }) => {
+      await initSurvey(page, framework, {});
+      await page.evaluate((matrixJson) => {
+        const model = new window["Survey"].Model({ elements: [matrixJson] });
+        model.autoFocusFirstQuestion = false;
+        // The dialog is narrower than the mobile width, and a mobile matrix has no drag handle.
+        model.applyTheme({ cssVariables: { "--sd-mobile-width": "100px" } });
+        window["dialogSurvey"] = model;
+        window["Survey"].settings.showDialog({
+          componentName: "survey",
+          data: { model: model, survey: model }
+        }, window["survey"].rootElement);
+      }, reorderMatrix);
+      const modal = page.locator(".sv-popup.sv-popup--modal-popup").first();
+      await expect(modal).toBeVisible();
+      const rows = modal.locator(".sd-table__row");
+      await doDrag({ page, element: rows.nth(0).locator(".sd-drag-element__svg"), target: rows.nth(2) });
+      // The drag re-renders the dragged row and the focus falls to <body>; with the focus in the dialog its keydown handler hears the keys.
+      await rows.nth(1).locator("input[type=text]").evaluate((input: HTMLInputElement) => input.focus());
+      await page.keyboard.press("Escape");
+      await page.mouse.up();
+      await expect(modal).toBeVisible();
+      expect(await products(modal)).toEqual(["a", "b", "c"]);
+      expect(await page.evaluate(() => window["dialogSurvey"].data)).toEqual({ matrix: [{ product: "a" }, { product: "b" }, { product: "c" }] });
+      await modal.locator(".sd-table__row input[type=text]").first().focus();
+      await page.keyboard.press("Escape");
+      await expect(modal, "without a drag Escape closes the modal").not.toBeVisible();
     });
   });
 });

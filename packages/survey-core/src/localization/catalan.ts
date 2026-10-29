@@ -189,6 +189,8 @@ export var catalanSurveyStrings = {
   addRow: "Afegiu una filera",
   // "Remove"
   removeRow: "Eliminar una filera",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Mou la fila {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "No hi ha files.",
   // [Auto-translated] "Row {rowIndex}"

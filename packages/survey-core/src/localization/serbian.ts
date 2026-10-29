@@ -189,6 +189,8 @@ export var serbianStrings = {
   addRow: "Dodaj red",
   // "Remove"
   removeRow: "Ukloni",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Premesti red {0}",
   // "There are no rows."
   noRowsText: "Nema redova.",
   // [Auto-translated] "Row {rowIndex}"

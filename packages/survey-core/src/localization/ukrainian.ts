@@ -189,6 +189,8 @@ export var ukrainianSurveyStrings = {
   addRow: "Додати рядок",
   // "Remove"
   removeRow: "Видалити",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Перемістити ряд {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Рядів немає.",
   // [Auto-translated] "Row {rowIndex}"

@@ -189,6 +189,8 @@ export var basqueSurveyStrings = {
   addRow: "Errenkada bat gehitu",
   // "Remove"
   removeRow: "Errenkada bat kendu",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Mugitu ilara {0}",
   // "There are no rows."
   noRowsText: "Ez dago errenkadarik.",
   // [Auto-translated] "Row {rowIndex}"

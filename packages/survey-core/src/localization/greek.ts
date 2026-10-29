@@ -189,6 +189,8 @@ export var greekSurveyStrings = {
   addRow: "Προσθήκη γραμμής",
   // "Remove"
   removeRow: "Αφαίρεση",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Μετακίνηση γραμμής {0}",
   // "There are no rows."
   noRowsText: "Δεν υπάρχουν εγγραφές.",
   // [Auto-translated] "Row {rowIndex}"

@@ -189,6 +189,8 @@ export var arabicSurveyStrings = {
   addRow: "اضافة صف",
   // "Remove"
   removeRow: "إزالة صف",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "نقل الصف {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "لا توجد صفوف.",
   // [Auto-translated] "Row {rowIndex}"

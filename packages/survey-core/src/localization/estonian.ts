@@ -189,6 +189,8 @@ export var estonianSurveyStrings = {
   addRow: "Lisa rida",
   // "Remove"
   removeRow: "Eemalda",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Liiguta rida {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Ridu pole.",
   // [Auto-translated] "Row {rowIndex}"

@@ -191,6 +191,8 @@ export var haitianCreoleStrings = {
   addRow: "Ajoute Ranje",
   // "Remove"
   removeRow: "Retire",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Deplase ranje {0}",
   // "There are no rows."
   noRowsText: "Pa gen ranje.",
   // [Auto-translated] "Row {rowIndex}"

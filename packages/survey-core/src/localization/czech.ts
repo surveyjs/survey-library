@@ -189,6 +189,8 @@ export var czechSurveyStrings = {
   addRow: "Přidat řádek",
   // "Remove"
   removeRow: "Odstranit",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Přesuňte řadu {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Neexistují žádné řádky.",
   // [Auto-translated] "Row {rowIndex}"

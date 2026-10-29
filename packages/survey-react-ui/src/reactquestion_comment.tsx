@@ -42,8 +42,14 @@ export class SurveyQuestionCommentItem<P extends ISurveyQuestionCommentItemProps
     return this.props.question.commentTextAreaModel;
   }
 
+  protected getViewText(): string {
+    return this.props.question.getCommentViewText();
+  }
   protected renderElement(): React.JSX.Element {
     const question = this.props.question;
+    if (question.isViewMode) {
+      return <div className={question.viewModeCssClass}>{this.getViewText()}</div>;
+    }
     if (question.isReadOnlyRenderDiv()) {
       const comment = this.textAreaModel.getTextValue() || "";
       return <div>{comment}</div>;
@@ -67,6 +73,9 @@ export class SurveyQuestionCommentValueItem extends SurveyQuestionCommentItem<IS
   }
   protected getTextAreaModel(): TextAreaModel {
     return this.props.question.getCommentTextAreaModel(this.props.item);
+  }
+  protected getViewText(): string {
+    return this.props.question.getCommentViewText(this.props.item);
   }
   protected getKey(): number { return this.props.item.uniqueId; }
 }

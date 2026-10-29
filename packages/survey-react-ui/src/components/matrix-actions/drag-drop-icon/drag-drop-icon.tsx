@@ -15,7 +15,9 @@ export class SurveyQuestionMatrixDynamicDragDropIcon extends ReactSurveyElement 
     return this.props.item;
   }
   protected renderElement(): React.JSX.Element | null {
-    return <div onPointerDown={(event: any) => { this.question.onPointerDown(event.nativeEvent, this.row); }}>{this.renderIcon()}</div>;
+    return <div className={this.question.cssClasses.dragHandle} role="button" tabIndex={0} aria-label={this.props.item.ariaLabel}
+      onPointerDown={(event: any) => { this.question.onPointerDown(event.nativeEvent, this.row); }}
+      onKeyDown={(event: any) => { this.question.onDragHandleKeyDown(event.nativeEvent, this.row); }}>{this.renderIcon()}</div>;
   }
   protected renderIcon(): React.JSX.Element {
     if (this.question.iconDragElement) {

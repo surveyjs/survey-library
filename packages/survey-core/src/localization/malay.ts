@@ -189,6 +189,8 @@ export var malaySurveyStrings = {
   addRow: "Tambahkan baris",
   // "Remove"
   removeRow: "Alih keluar",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Gerakkan baris {0}",
   // "There are no rows."
   noRowsText: "Tiada baris.",
   // [Auto-translated] "Row {rowIndex}"

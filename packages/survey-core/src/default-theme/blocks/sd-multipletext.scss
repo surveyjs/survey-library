@@ -56,3 +56,31 @@
     margin: 0;
   }
 }
+
+.sd-multipletext__item-container.sd-formbox.sd-formbox--view {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+
+  &:where(:hover),
+  &:where(:focus-within) {
+    background: none;
+    box-shadow: none;
+  }
+
+  .sd-multipletext__item-title.sd-formbox__label {
+    height: auto;
+    max-width: none;
+    width: 100%;
+    box-sizing: border-box;
+    padding-block-start: var(--sjs2-layout-component-caption-box-padding-top);
+    padding-block-end: var(--sjs2-layout-component-caption-box-padding-bottom);
+    padding-inline-start: var(--sjs2-layout-component-caption-box-padding-left);
+    padding-inline-end: var(--sjs2-layout-component-caption-box-padding-right);
+    border: none;
+  }
+}

@@ -103,14 +103,15 @@
     background: transparent;
   }
 
-  // The two dropdowns share the width that is left.
-  & > .sd-table__cell:not(.sd-table__cell--actions):not(:nth-child(2)) {
+  /* The two dropdowns share the width that is left. The cells are counted "of .sd-table__cell": Angular puts
+     a hidden component element before each cell of a row. */
+  & > .sd-table__cell:not(.sd-table__cell--actions):not(:nth-child(2 of .sd-table__cell)) {
     flex: 1 1 0;
   }
 
   /* The number: the text centered in x125, then x100 (Figma 6528:26858), in the default strong text of
      the basic primary color. */
-  & > .sd-table__cell:nth-child(2) {
+  & > .sd-table__cell:nth-child(2 of .sd-table__cell) {
     box-sizing: content-box;
     width: var(--sjs2-spacing-x125);
     padding-inline-end: var(--sjs2-spacing-x100);

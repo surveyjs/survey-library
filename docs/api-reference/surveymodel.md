@@ -163,6 +163,8 @@ You can override this setting for individual questions using their `choiceShortc
 
 Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
 
+Available since: v3.2.2
+
 ### `clearDisabledChoices`
 
 **Type**: `boolean`

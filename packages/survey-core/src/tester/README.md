@@ -759,10 +759,11 @@ time out on every step of such a survey, over a question no step addresses.
 and are **not** stubbed by the case: they are not a url a case can name. A question using them never
 blocks a run either.
 
-**`asyncTimeout`** bounds the wait — milliseconds, default `5000`, per operation. A handler that never
-answers ends the test with the error `asyncOperationTimeout`, which names what the survey was waiting
-for (`reason`: `serverValidation`, `navigationHandler`, `validators`, `expressions`, `webChoices`) and
-the questions — and, for `webChoices`, the urls — involved. The test stops there rather than reporting
+**`asyncTimeout`** bounds the wait — milliseconds, default `5000`, for the whole wait, including an
+operation that one before it started. A handler that never answers ends the test with the error
+`asyncOperationTimeout`, which names what the survey was waiting for (`reason`: `serverValidation`,
+`navigationHandler`, `validators`, `expressions`, `webChoices`, `dynamicData`) and the questions —
+and, for `webChoices`, the urls — involved. The test stops there rather than reporting
 steps that read a model no one was driving. `asyncTimeout: 0` waits for nothing, for a caller that
 drives the waiting itself.
 

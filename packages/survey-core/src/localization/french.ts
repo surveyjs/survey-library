@@ -49,8 +49,6 @@ export var frenchSurveyStrings = {
   sortLevelFieldAriaLabel: "Champ de tri {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Ordre de tri {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Plus...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Afficher tous les niveaux de type",
   // [Auto-translated] "Add New"

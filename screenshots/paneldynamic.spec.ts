@@ -597,6 +597,29 @@ frameworks.forEach(framework => {
       const paneldynamicRoot = page.locator(".sd-question--paneldynamic");
       await compareScreenshot(page, paneldynamicRoot, "paneldynamic-collapsed-panels.png");
     });
+    test("Paneldynamic: singlePage mode", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "panel",
+            "title": "Panel",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "question",
+                "title": "Question"
+              },
+            ],
+            "panelCount": 1,
+          }
+        ],
+        "questionsOnPageMode": "singlePage"
+      });
+      const paneldynamicRoot = page.locator(".sd-question--paneldynamic");
+      await compareScreenshot(page, paneldynamicRoot, "paneldynamic-single-page-mode.png");
+    });
   });
 });
 frameworks.forEach(framework => {

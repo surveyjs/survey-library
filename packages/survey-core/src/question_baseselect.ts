@@ -506,7 +506,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return res;
   }
   private createChoiceItem(value: any): ChoiceItem {
-    return <ChoiceItem>Serializer.createClass(this.getItemValueType(), { value: value });
+    const json = Helpers.isValueObject(value) || Helpers.isValueEmpty(value) ? { value: value } : value;
+    return <ChoiceItem>Serializer.createClass(this.getItemValueType(), json);
   }
   protected validateElementCore(context: ValidationContext): boolean {
     // Read when the validation starts: an async validator that settles later never clears.
@@ -1474,6 +1475,24 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     this.isLockVisibleChoices = false;
   }
   private isLockVisibleChoices: boolean;
+  private get isVisibleChoicesBuildBlocked(): boolean {
+    return this.isLoadingFromJson || this.isLockVisibleChoices;
+  }
+  // Set by a design-mode onSurveyLoad that does not build the visible choices; cleared by onVisibleChoicesChanged
+  private isVisibleChoicesBuildDeferred: boolean;
+  // A class that reads its visible choices in its own onSurveyLoad (ranking) builds them at load
+  protected get canDeferVisibleChoicesOnLoad(): boolean {
+    return true;
+  }
+  /* Called by every getter that returns the visible choices or a part of them. It calls
+     onVisibleChoicesChanged, so every override runs, as it would have at load. Not while the build is
+     blocked: onVisibleChoicesChanged would return early, and an override that reads visibleChoices
+     after super (checkbox, ranking) would call it again. */
+  private buildDeferredVisibleChoices(): void {
+    if (this.isVisibleChoicesBuildDeferred && !this.isDisposed && !this.isVisibleChoicesBuildBlocked) {
+      this.onVisibleChoicesChanged();
+    }
+  }
   /**
    * Specifies which choice items to copy from another question. Applies only when the [`choicesFromQuestion`](#choicesFromQuestion) property is specified.
    *
@@ -1582,6 +1601,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
    * @see enabledChoices
    */
   public get visibleChoices(): Array<ChoiceItem> {
+    this.buildDeferredVisibleChoices();
     return this.getPropertyValue("visibleChoices");
   }
   /**
@@ -1627,7 +1647,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
       this.onVisibleChoicesChanged();
     }
   }
-  public get newItem(): ItemValue { return this.newItemValue; }
+  public get newItem(): ItemValue {
+    this.buildDeferredVisibleChoices();
+    return this.newItemValue;
+  }
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean): void {
     this.headItemsCount = 0;
     this.footItemsCount = 0;
@@ -2084,7 +2107,20 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   }
   onSurveyLoad(): void {
     this.runChoicesByUrl();
-    this.onVisibleChoicesChanged();
+    if (this.isAddDefaultItems && this.canDeferVisibleChoicesOnLoad) {
+      /* In design mode the visible choices carry the designer's placeholder items (the new item, None,
+         Other, Select All, ...). Creator rebuilds them for every question it renders
+         (setCanShowOptionItemCallback), and most questions of a large survey never render, so they are
+         built on first read. The carry-forward type is read without the choices (the visibility of the
+         choicesFromQuestion* properties, Creator's banner), so it is set here. That does not build this
+         question's choices; it reads the source question's visibleChoices, which builds the source's. */
+      this.isVisibleChoicesBuildDeferred = true;
+      if (!!this.choicesFromQuestion) {
+        this.getCarryForwardQuestion();
+      }
+    } else {
+      this.onVisibleChoicesChanged();
+    }
     this.forEachNestedElement(info => { (<PanelModel>info.element).onSurveyLoad(); }, allChoicePanels);
     super.onSurveyLoad();
   }
@@ -2334,7 +2370,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     this.updateChoicesDependedQuestions();
   }
   protected onVisibleChoicesChanged(): void {
-    if (this.isLoadingFromJson || this.isLockVisibleChoices) return;
+    if (this.isVisibleChoicesBuildBlocked) return;
+    // Cleared before updateVisibleChoices: it reads the visibleChoices getter, which would build again
+    this.isVisibleChoicesBuildDeferred = false;
     this.updateVisibleChoices();
     if (this.isOtherValue(this.renderedValue)) {
       this.setRenderedValue(this.rendredValueFromData(this.value), false);
@@ -2626,6 +2664,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   );
 
   public get renderedChoices(): Array<ItemValue> {
+    this.buildDeferredVisibleChoices();
     return this._renderedChoices;
   }
   public set renderedChoices(val: Array<ItemValue>) {
@@ -2635,6 +2674,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
   private headItemsCount: number = 0;
   private footItemsCount: number = 0;
   get headItems(): ItemValue[] {
+    this.buildDeferredVisibleChoices();
     const count = (this.separateSpecialChoices || this.isInDesignMode) ? this.headItemsCount : 0;
     const res = [];
     for (let i = 0; i < count; i++) {
@@ -2645,6 +2685,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner, ISelec
     return res;
   }
   get footItems(): ItemValue[] {
+    this.buildDeferredVisibleChoices();
     const count = (this.separateSpecialChoices || this.isInDesignMode) ? this.footItemsCount : 0;
     const res = [];
     const items = this.renderedChoices;

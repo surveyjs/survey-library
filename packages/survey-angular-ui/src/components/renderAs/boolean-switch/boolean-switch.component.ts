@@ -9,6 +9,11 @@ import { QuestionBooleanModel, RendererFactory } from "survey-core";
 })
 export class BooleanSwitchComponent {
   @Input() model!: QuestionBooleanModel;
+  public onRootClick(event: Event): void {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest?.(".sd-action-bar")) return;
+    this.model.booleanValue = !this.model.booleanValue;
+  }
 }
 
 AngularComponentFactory.Instance.registerComponent("boolean-switch-question", BooleanSwitchComponent);

@@ -10,6 +10,7 @@
 
 @use "blocks/sv-drag-drop.scss";
 @use "blocks/sv-popup.scss";
+@use "blocks/sv-tooltip.scss";
 @use "blocks/sv-buttongroup.scss";
 @use "blocks/sv-visuallyhidden.scss";
 @use "blocks/sv-hidden.scss";
@@ -60,6 +61,7 @@
 @use "blocks/sd-image.scss";
 @use "blocks/sd-html.scss";
 @use "blocks/sd-expression.scss";
+@use "blocks/sd-view.scss";
 @use "blocks/sd-progress.scss";
 @use "blocks/sd-boolean.scss";
 @use "blocks/sd-slider.scss";

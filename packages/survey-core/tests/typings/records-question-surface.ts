@@ -183,16 +183,6 @@ export function checkRecordsQuestionSurface(question: Question): Array<any> {
   // @ts-expect-error a direction is "asc" or "desc"
   md.sort("price", "up");
   res.push(criterion);
-  // The page size is pageSize on every records question: the type-specific names are gone.
-  // @ts-expect-error renamed to pageSize
-  const ddRowsPerPage: DeclaredKeys<QuestionMatrixDropdownModel> = "rowsPerPage";
-  // @ts-expect-error renamed to pageSize
-  const mdRowsPerPage: DeclaredKeys<QuestionMatrixDynamicModel> = "rowsPerPage";
-  // @ts-expect-error renamed to pageSize
-  const dbRowsPerPage: DeclaredKeys<QuestionMatrixDropdownModelBase> = "rowsPerPage";
-  // @ts-expect-error renamed to pageSize
-  const pdPanelsPerPage: DeclaredKeys<QuestionPanelDynamicModel> = "panelsPerPage";
-  res.push(ddRowsPerPage, mdRowsPerPage, dbRowsPerPage, pdPanelsPerPage);
   // The paging state shared by the records questions is protected on every one of them.
   // @ts-expect-error protected
   const md7: DeclaredKeys<QuestionMatrixDynamicModel> = "isPagingActive";

@@ -590,6 +590,13 @@ export class JsonMetadataClass {
   private allProperties: Array<JsonObjectProperty>;
   private requiredProperties: Array<JsonObjectProperty>;
   private hashProperties: Map<string, JsonObjectProperty>;
+  // Base.getDefaultPropertyValue's answers for unset properties, by name. It lives exactly as long as hashProperties.
+  // It keeps only the answers that depend on the metadata alone: "no property" (prop is null), and the undefined, null
+  // or primitive default of a property that is not custom, not localizable and has no defaultValueFunc, onGetValue or
+  // className. An entry also keeps the property's defaultValueValue and type: a hit compares them with the property's
+  // fields, so a direct assignment to either (or to defaultValueFunc) is caught without a reset. An object with its own
+  // localizable string of that name never uses or makes an entry for a property: that string can give the default.
+  private defaultValues: Map<string, { prop: JsonObjectProperty, value: any, defaultValue?: any, type?: string }>;
   constructor(
     public name: string,
     properties: Array<any>,
@@ -638,6 +645,7 @@ export class JsonMetadataClass {
     this.allProperties = undefined;
     this.requiredProperties = undefined;
     this.hashProperties = undefined;
+    this.defaultValues = undefined;
     var childClasses = Serializer.getChildrenClasses(this.name);
     for (var i = 0; i < childClasses.length; i++) {
       childClasses[i].resetAllProperties();
@@ -648,6 +656,7 @@ export class JsonMetadataClass {
     if (!!this.allProperties) return;
     this.allProperties = [];
     this.hashProperties = new Map<string, JsonObjectProperty>();
+    this.defaultValues = new Map();
     const localProperties = new Map<string, JsonObjectProperty>();
     this.properties.forEach(prop => localProperties.set(prop.name, prop));
     const parentClass = !!this.parentName ? Serializer.findClass(this.parentName) : null;
@@ -1903,7 +1912,7 @@ export class JsonObject {
     var result: any = { newObj: null, error: null };
     const className = this.getClassNameForNewObj(value, property);
     result.newObj = className
-      ? Serializer.createClass(className, value)
+      ? Serializer.createClass(className, this.isItemJsonLoadedOnce(value, className) ? undefined : value)
       : null;
     result.error = this.checkNewObjectOnErrors(
       result.newObj,
@@ -1912,6 +1921,12 @@ export class JsonObject {
       className
     );
     return result;
+  }
+  // toObjectCore deserializes the JSON right after, so an item's creator does not get it. A JSON without value
+  // still does, for setData's text-to-value rule, and so does a Base in the JSON, for setData's toJSON().
+  private isItemJsonLoadedOnce(value: any, className: string): boolean {
+    return !!value && typeof value === "object" && typeof value.getType !== "function" && value.value !== undefined
+      && Serializer.isDescendantOf(className, "itemvalue");
   }
   private getClassNameForNewObj(value: any, property: JsonObjectProperty): string {
     var res = property != null && property.className ? property.className : undefined;

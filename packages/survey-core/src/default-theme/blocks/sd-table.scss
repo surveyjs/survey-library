@@ -192,6 +192,11 @@
   width: 0;
 }
 
+.sd-matrixdropdown.sd-table--view thead .sd-table__cell--header,
+.sd-matrixdynamic.sd-table--view thead .sd-table__cell--header {
+  text-align: start;
+}
+
 .sd-table__cell--actions {
   white-space: nowrap;
 

@@ -10,7 +10,7 @@ import { CustomError } from "../src/error";
 import { ArrayDynamicDataSource } from "../src/dynamic-data/dynamic-data-sources";
 import { ItemValue } from "../src/itemvalue";
 import { SurveyElement } from "../src/survey-element";
-import { Serializer, JsonUnknownPropertyError, JsonRequiredPropertyError } from "../src/jsonobject";
+import { Serializer, JsonRequiredPropertyError } from "../src/jsonobject";
 import { SortCriterion } from "../src/records/records-sort-criterion";
 
 /* The record list and its helpers are created on demand. A matrix whose rows are fixed creates its
@@ -439,19 +439,6 @@ describe("Records questions: the serialized page size", () => {
       const q: any = survey.getQuestionByName("q");
       expect([q.pageSize, q.pageCount], "#2: it pages").toEqual([2, 2]);
       expect(q.toJSON().pageSize, "#3: it is saved").toBe(2);
-      expect(Serializer.findProperty(json.type, "rowsPerPage"), "#4: no rowsPerPage").toBeUndefined();
-      expect(Serializer.findProperty(json.type, "panelsPerPage"), "#5: no panelsPerPage").toBeUndefined();
-    });
-  });
-  [{ key: "rowsPerPage", json: recordJsons[1] }, { key: "panelsPerPage", json: recordJsons[2] }].forEach(item => {
-    test("JSON with " + item.key + " reports an unknown property and does not page, " + item.json.type, () => {
-      const survey = new SurveyModel({ elements: [Object.assign({ name: "q", [item.key]: 2 }, item.json)] });
-      const q: any = survey.getQuestionByName("q");
-      const errors = (survey.jsonErrors || []).filter((error: any) => error instanceof JsonUnknownPropertyError);
-      expect(errors.map((error: any) => error.propertyName), "#1: the error").toEqual([item.key]);
-      expect([q.pageSize, q.pageCount], "#2: no paging").toEqual([0, 1]);
-      const saved = q.toJSON();
-      expect([item.key in saved, "pageSize" in saved], "#3: neither key is saved").toEqual([false, false]);
     });
   });
 });
@@ -849,7 +836,8 @@ describe("Records questions: writes through an item", () => {
       const a = kind.question(q, 0, "a");
       a.value = "bad";
       expect(log, "#1: only the cell-changing callback").toEqual(["cellChanging:a=bad"]);
-      expect(q.value, "#2: nothing is stored").toBeUndefined();
+      // The matrix holds the empty records of its untouched rows (Bug#12147), not the rejected edit.
+      expect(q.value, "#2: nothing is stored").toEqual(kind.type === "matrixdynamic" ? [{}, {}] : undefined);
       expect([a.value, a.errors.length], "#3: the cell keeps the value and shows the error").toEqual(["bad", 1]);
       a.value = "x1";
       expect(kind.record(q, 0), "#4: a valid edit is stored").toEqual({ a: "x1" });

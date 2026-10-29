@@ -2,9 +2,9 @@ import { HashTable, Helpers } from "./helpers";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation, IDataVerificationOptions, IDataIssue, DataIssueType } from "./base-interfaces";
-import { Base } from "./base";
+import { Base, ComputedUpdater } from "./base";
 import { EventBase } from "./event";
-import { SurveyElement } from "./survey-element";
+import { SurveyElement, getReadOnlyModePropertyInfo } from "./survey-element";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner, AsyncElementsRunner } from "./validator";
 import { LocalizableString } from "./localizablestring";
@@ -26,10 +26,13 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 import { ActionContainer } from "./actions/container";
+import { Action } from "./actions/action";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { isAnimationEnabled } from "./utils/reduced-motion";
 import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choices";
 import { Scope, ValueScope } from "./utils/scope";
+
+export const readOnlyViewEmptyText = "\u2014";
 
 export interface IConditionObject {
   name: string;
@@ -464,7 +467,11 @@ export class Question extends SurveyElement<Question>
   hasCssErrorCallback: () => boolean = (): boolean => false;
 
   private triggersInfo: Array<ITriggerExpressionInfo> = [];
-  private isChangingViaDefaultValue: boolean;
+  private defaultValueChangeScope = new ValueScope<boolean>(false);
+  // Read by name by the questions whose data is this question too (isParentChangingViaDefaultValue).
+  private get isChangingViaDefaultValue(): boolean {
+    return this.defaultValueChangeScope.value;
+  }
   private isValueChangedDirectly: boolean;
   valueChangedCallback: () => void;
   commentChangedCallback: () => void;
@@ -1142,7 +1149,7 @@ export class Question extends SurveyElement<Question>
     if (runner.hasFunction(true)) return "func";
     const vars = runner.getVariables();
     if ((!Array.isArray(vars) || vars.length === 0)) return "const";
-    return new ValueGetter().isAnyKeyChangedCore(keys, vars, runner.getVariablesInfo()) ? "var" : "";
+    return new ValueGetter().isAnyKeyChangedCore(keys, vars, runner.getVariablesInfo(), undefined, this.getSurveyVariableNamesInfo()) ? "var" : "";
   }
   // Whether an item condition of this question (a choice, row or column visibleIf / enableIf) may keep
   // its last result in the current value-change run. It follows the element rule, with one difference:
@@ -2142,6 +2149,43 @@ export class Question extends SurveyElement<Question>
   public get isDisabledAttr(): boolean {
     return this.isDesignMode || (!!this.readOnlyCallback && this.readOnlyCallback());
   }
+  public get isViewMode(): boolean {
+    return !this.isDesignMode && this.isReadOnly && this.getReadOnlyMode() === "view";
+  }
+  public get viewDisplayText(): string {
+    const value = this.getViewDisplayText();
+    if (value === undefined || value === null || value === "") return readOnlyViewEmptyText;
+    return value;
+  }
+  protected getViewDisplayText(): string {
+    const value = this.displayValue;
+    if (typeof value === "string") return value;
+    if (typeof value === "number" || typeof value === "boolean") return String(value);
+    return "";
+  }
+  public get viewModeCssClass(): string {
+    const css = this.survey ? this.survey.getCss() : null;
+    return css && css.view ? css.view : "sd-view";
+  }
+  public getCommentViewText(item?: any): string {
+    let text = "";
+    if (item && typeof (<any>this).getCommentTextAreaModel === "function") {
+      text = (<any>this).getCommentTextAreaModel(item)?.getTextValue() || "";
+    } else {
+      text = this.comment || "";
+    }
+    return text ? text : readOnlyViewEmptyText;
+  }
+  public onReadOnlyModeChanged(): void {
+    super.onReadOnlyModeChanged();
+    const value = this.isViewMode;
+    if (this.getPropertyValue("isViewMode") !== value) {
+      this.setPropertyValue("isViewMode", value);
+    }
+    this.forEachNestedElement(info => {
+      getNestedElementQuestions(info).forEach(q => q.onReadOnlyModeChanged());
+    }, { build: "none", visibleOnly: false });
+  }
   protected onReadOnlyChanged(): void {
     this.setPropertyValue("isInputReadOnly", this.isInputReadOnly);
     super.onReadOnlyChanged();
@@ -2150,6 +2194,7 @@ export class Question extends SurveyElement<Question>
     }
     this.updateQuestionCss();
     this.resetRenderedCommentPlaceholder();
+    this.onReadOnlyModeChanged();
   }
   /**
    * A Boolean expression. If it evaluates to `false`, this question becomes read-only.
@@ -2160,6 +2205,7 @@ export class Question extends SurveyElement<Question>
    *
    * [View Demo](https://surveyjs.io/form-library/examples/how-to-conditionally-make-input-field-read-only/ (linkStyle))
    * @see readOnly
+   * @see readOnlyMode
    * @see isReadOnly
    */
   @property() enableIf: string;
@@ -2380,6 +2426,36 @@ export class Question extends SurveyElement<Question>
   protected onClearValue(): void {}
   clearValueFromUI(): void {
     this.clearValue(true, true);
+  }
+  /**
+   * Specifies whether to display a button that clears the question value.
+   *
+   * The button appears in the question title and stays hidden when the [title is hidden](#titleLocation). A question renders the button only when it supports a title action. Dropdown, Multi-Select Dropdown, and Signature Pad use this property for their own clear button. File Upload, HTML, Image, Expression, Dynamic Matrix, and Dynamic Panel do not show it.
+   *
+   * Default value: `false`
+   */
+  @property() allowClear: boolean;
+  public get canShowClearButton(): boolean {
+    return !!this.allowClear && !this.isReadOnly;
+  }
+  // False for a question whose clear control lives somewhere other than the title,
+  // or for a render mode that has no title-action slot.
+  public get supportClearTitleAction(): boolean {
+    return true;
+  }
+  protected getDefaultTitleActions(): Array<Action> {
+    if (this.isDesignMode || !this.supportClearTitleAction) return [];
+    return [this.createClearTitleAction(() => this.canShowClearButton)];
+  }
+  protected createClearTitleAction(isVisible: () => boolean): Action {
+    return new Action({
+      locTitleName: "clearCaption",
+      id: `sv-clr-btn-${this.id}`,
+      action: () => { this.clearValueFromUI(); },
+      innerCss: this.cssClasses.clearButton,
+      visible: <any>new ComputedUpdater(isVisible),
+      ariaLabelledBy: this.a11y_input_ariaLabelledBy
+    });
   }
   clearValueOnly(): void {
     this.clearValue(true);
@@ -2706,9 +2782,11 @@ export class Question extends SurveyElement<Question>
     if (this.isDesignMode && this.isContentElement && this.isDefaultValueEmpty()) return;
     if (!this.defaultValueExpression && this.parentQuestion?.isBuildingChildrenForStoredRecords()) return;
     // Applying a default value is not a direct value change
-    this.isChangingViaDefaultValue = true;
-    this.setDefaultValue();
-    this.isChangingViaDefaultValue = false;
+    this.runAsDefaultValueChange((): void => this.setDefaultValue());
+  }
+  // A write of the question's own that is no answer: the default values keep applying after it.
+  protected runAsDefaultValueChange(func: () => void): void {
+    this.defaultValueChangeScope.run(true, func);
   }
   public get isValueDefault(): boolean {
     return !this.isEmpty() && (this.isTwoValueEquals(this.defaultValue, this.value) || !this.isValueChangedDirectly && !!this.defaultValueExpression);
@@ -2797,9 +2875,7 @@ export class Question extends SurveyElement<Question>
     }
     return this.runExpressionByProperty("defaultValueExpression", properties, (res: any) => {
       if (res == undefined) res = this.defaultValue;
-      this.isChangingViaDefaultValue = true;
-      setFunc(res);
-      this.isChangingViaDefaultValue = false;
+      this.runAsDefaultValueChange((): void => setFunc(res));
       if (isConditionsPass) {
         this.lastDefaultValueRun = {
           expression: this.defaultValueExpression,
@@ -2953,6 +3029,7 @@ export class Question extends SurveyElement<Question>
   public getConditionJson(operator: string = null, path: string = null): any {
     const json = new JsonObject().toJsonObject(this);
     json["type"] = this.getType();
+    delete json["allowClear"];
     return json;
   }
   public hasErrors(fireCallback: boolean = true, focusOnFirstError: boolean = false): boolean {
@@ -3449,15 +3526,15 @@ export class Question extends SurveyElement<Question>
     }
   }
   private updateValueFromSurveyCore(newValue: any, viaDefaultVal: boolean): void {
-    this.isChangingViaDefaultValue = viaDefaultVal;
-    newValue = this.valueFromData(newValue);
-    const isEqual = this.isTwoValueEquals(this.questionValue, this.convertToCorrectValue(newValue));
-    this.setQuestionValue(newValue);
-    if (!isEqual) {
-      this.resetSingleInput();
-      this.revalidateOnValueChangedFromSurvey();
-    }
-    this.isChangingViaDefaultValue = false;
+    this.defaultValueChangeScope.run(viaDefaultVal, (): void => {
+      newValue = this.valueFromData(newValue);
+      const isEqual = this.isTwoValueEquals(this.questionValue, this.convertToCorrectValue(newValue));
+      this.setQuestionValue(newValue);
+      if (!isEqual) {
+        this.resetSingleInput();
+        this.revalidateOnValueChangedFromSurvey();
+      }
+    });
   }
   private revalidateOnValueChangedFromSurvey(): void {
     if (!this.survey || this.isLoadingFromJson || !this.survey.isSettingData() ||
@@ -3612,7 +3689,20 @@ export class Question extends SurveyElement<Question>
     this[propName] = value;
   }
   public getComponentName(): string {
+    const viewComponentName = this.getViewModeComponentName();
+    if (viewComponentName) return viewComponentName;
     return RendererFactory.Instance.getRendererByQuestion(this);
+  }
+  protected get supportsQuestionView(): boolean {
+    return true;
+  }
+  protected getViewModeComponentName(): string | undefined {
+    if (!this.isViewMode || !this.supportsQuestionView) return undefined;
+    const specific = RendererFactory.Instance.getRenderer(this.getType(), "view");
+    if (specific !== "default") return specific;
+    const common = RendererFactory.Instance.getRenderer("question", "view");
+    if (common !== "default") return common;
+    return undefined;
   }
 
   public isDefaultRendering(): boolean {
@@ -4068,6 +4158,7 @@ Serializer.addClass("question", [
   },
   { name: "errorLocation", default: "default", choices: ["default", "top", "bottom"] },
   { name: "readOnly:switch", overridingProperty: "enableIf" },
+  getReadOnlyModePropertyInfo(),
   /* The Filter Control offers this question as a filter field unless the author opts it out. It is
      shown only where it can do something: a question that cannot be filtered at all answers false
      through isFilterable and the property does not apply to it. */
@@ -4110,5 +4201,6 @@ Serializer.addClass("question", [
   { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
   { name: "randomize:boolean", default: true, visible: false, locationInTable: "detail" },
   { name: "randomizeCategory:string", visible: false, locationInTable: "detail" },
+  { name: "allowClear:boolean" },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

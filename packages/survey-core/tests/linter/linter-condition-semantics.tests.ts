@@ -57,6 +57,10 @@ describe("the six forms the core reports as a semantic error", () => {
     expect(verdictOf("'abc' notempty")).toEqual(
       { ruleId: "expression/meaningless-condition", reason: "alwaysTrue" });
   });
+  test("a unary operator over null", () => {
+    expect(verdictOf("!null")).toEqual(
+      { ruleId: "expression/meaningless-condition", reason: "alwaysTrue" });
+  });
 });
 
 describe("classification of a fully constant condition", () => {

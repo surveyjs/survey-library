@@ -121,12 +121,12 @@ describe("QuestionFilterModel: the respondent's presets restored before the boun
     expect([names(q), q.filterExpression], "#1").toEqual([[], ""]);
     expect(filterState(survey), "#2").toEqual({ activeItemName: "userItem1", deletedItems: ["de"],
       userItems: [{ name: "userItem1", title: "Cheap", conditions: [{ field: "price", operator: "less", value: "100" }] }] });
-    const matrix = <QuestionMatrixDynamicModel>survey.pages[0].addNewQuestion("matrixdynamic", "m");
-    matrix.columns = <any>[];
+    const matrix = new QuestionMatrixDynamicModel("m");
     matrix.addColumn("country");
     const price = matrix.addColumn("price");
     price.cellType = "text";
     (<any>price).inputType = "number";
+    survey.pages[0].addElement(matrix);
     survey.setValue("somethingelse", 1);
     expect([names(q), q.filterExpression], "#3").toEqual([["userItem1"], "{price} < 100"]);
     expect(filters, "#4").toEqual(["{price} < 100"]);

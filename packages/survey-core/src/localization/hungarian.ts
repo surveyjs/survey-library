@@ -49,8 +49,6 @@ export var hungarianSurveyStrings = {
   sortLevelFieldAriaLabel: "Sorolj mezőt {0}",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "Rendezés sorrendje {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "Több...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "Minden sortozási szintet mutat",
   // [Auto-translated] "Add New"

@@ -28,6 +28,8 @@ When enabled, choices display letter codes (`A`, `B`, ..., `Z`, `AA`, ...) that 
 
 Letter shortcuts are unavailable on mobile devices and in read-only or preview mode.
 
+Available since: v3.2.2
+
 ### `colCount`
 
 **Type**: `number`

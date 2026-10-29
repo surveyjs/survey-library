@@ -15,6 +15,7 @@ export default defineConfig({
       "tests/linter/lint-test-helpers.ts",
       "tests/linter/lint-fixtures.ts",
       "tests/filter/filter-test-helpers.ts",
+      "tests/expressions/oracle/**",
       "node_modules/**",
       "build/**",
     ],

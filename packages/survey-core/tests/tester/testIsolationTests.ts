@@ -6,14 +6,18 @@ import { describe, expect, test } from "vitest";
 
 // The tester ships as a separate bundle, and that only stays true while the dependency arrow points
 // one way: src/tester/** may import from "survey-core", nothing else in src/** may import from src/tester/**,
-// and entries/index.ts must not reach it, directly or transitively. Nothing here builds anything -
-// the sources are read from disk and their import specifiers are inspected.
+// and entries/index.ts must not reach it, directly or transitively. The one file outside src/tester/
+// the tester may import is src/utils/survey-async.ts, the async waiting it shares with other optional
+// bundles: that file imports nothing but types from "survey-core", so it is compiled into the tester
+// bundle without dragging any other source along, and the main entry does not reach it. Nothing here
+// builds anything - the sources are read from disk and their import specifiers are inspected.
 
 const packageRoot = findPackageRoot();
 const srcDir = join(packageRoot, "src");
 const testerDir = join(srcDir, "tester");
 const entriesDir = join(packageRoot, "entries");
 const testsDir = join(packageRoot, "tests", "tester");
+const asyncHelperFile = join(srcDir, "utils", "survey-async.ts");
 const SURVEY_CORE = "survey-core";
 
 function findPackageRoot(): string {
@@ -104,6 +108,10 @@ function isInsideTester(path: string): boolean {
   return toPosix(path).indexOf(toPosix(testerDir) + "/") === 0;
 }
 
+function isAsyncHelper(path: string): boolean {
+  return toPosix(path) === toPosix(asyncHelperFile);
+}
+
 function isInsideTests(path: string): boolean {
   return toPosix(path).indexOf(toPosix(testsDir) + "/") === 0;
 }
@@ -139,12 +147,22 @@ describe("The tester is isolated from the rest of the library", () => {
     ["index.ts", "i18n.ts", "themes.ts"].forEach(name => {
       const entry = join(entriesDir, name);
       if (!existsSync(entry)) return;
-      const chain = findTesterImportChain(entry);
+      const chain = findImportChain(entry, isInsideTester);
       expect(chain, "entries/" + name + " must not reach src/tester/").toEqual(undefined);
     });
   });
 
-  test("src/tester/ imports nothing but its own files and the survey-core package", () => {
+  // The main bundle stays byte-for-byte the same only while it does not compile the shared helper in.
+  test("No public entry point reaches src/utils/survey-async.ts, Issue#11818", () => {
+    ["index.ts", "i18n.ts", "themes.ts"].forEach(name => {
+      const entry = join(entriesDir, name);
+      if (!existsSync(entry)) return;
+      const chain = findImportChain(entry, isAsyncHelper);
+      expect(chain, "entries/" + name + " must not reach src/utils/survey-async.ts").toEqual(undefined);
+    });
+  });
+
+  test("src/tester/ imports nothing but its own files, the shared async helper and the survey-core package", () => {
     const offenders: Array<string> = [];
     getTypeScriptFiles(testerDir).forEach(file => {
       getImports(file).forEach(record => {
@@ -153,10 +171,21 @@ describe("The tester is isolated from the rest of the library", () => {
           return;
         }
         const resolved = resolveImport(record);
-        if (!resolved || !isInsideTester(resolved)) offenders.push(formatRecord(record));
+        if (!resolved || !isInsideTester(resolved) && !isAsyncHelper(resolved)) offenders.push(formatRecord(record));
       });
     });
     expect(offenders, "the tester must reach the rest of the library through \"survey-core\", and must not depend on a node built-in or on any other package").toEqual([]);
+  });
+
+  // The helper is compiled into every optional bundle that imports it. A relative import would drag
+  // core sources into those bundles, and a value import from "survey-core" would tie it to whichever
+  // public surface that bundle sees, so only an "import type" from "survey-core" is allowed.
+  test("src/utils/survey-async.ts imports nothing but types from the survey-core package, Issue#11818", () => {
+    const offenders: Array<string> = [];
+    getImports(asyncHelperFile).forEach(record => {
+      if (record.source !== SURVEY_CORE || !record.isTypeOnly) offenders.push(formatRecord(record));
+    });
+    expect(offenders, "the shared async helper must import only types, and only from \"survey-core\"").toEqual([]);
   });
 
   // The unit tests read the tester the way its own sources do. A test that reached a src/ module
@@ -181,7 +210,7 @@ describe("The tester is isolated from the rest of the library", () => {
   test("Everything src/tester/ imports from survey-core is exported by it", () => {
     const surface: any = SurveyCore;
     const offenders: Array<string> = [];
-    getTypeScriptFiles(testerDir).forEach(file => {
+    getTypeScriptFiles(testerDir).concat([asyncHelperFile]).forEach(file => {
       getImports(file).forEach(record => {
         // A type is erased before the bundle exists; only a value has to be reachable at run time.
         if (record.source !== SURVEY_CORE || record.isTypeOnly) return;
@@ -196,7 +225,7 @@ describe("The tester is isolated from the rest of the library", () => {
   });
 });
 
-function findTesterImportChain(entry: string): Array<string> {
+function findImportChain(entry: string, isTarget: (path: string) => boolean): Array<string> {
   const visited: { [path: string]: boolean } = {};
   const stack: Array<{ file: string, chain: Array<string> }> = [{ file: entry, chain: [getRelativePath(entry)] }];
   while(stack.length > 0) {
@@ -208,7 +237,7 @@ function findTesterImportChain(entry: string): Array<string> {
       const resolved = resolveImport(records[i]);
       if (!resolved) continue;
       const chain = current.chain.concat([getRelativePath(resolved)]);
-      if (isInsideTester(resolved)) return chain;
+      if (isTarget(resolved)) return chain;
       stack.push({ file: resolved, chain: chain });
     }
   }

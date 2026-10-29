@@ -77,9 +77,9 @@ describe("Records sort bar: several levels", () => {
   it("each level is one element of the bar with its own action bar, separated from the next level and from \"+\"", () => {
     render({ allowSort: true, maxSortLevel: 3, sortCriteria: [{ field: "product", direction: "asc" }, { field: "price", direction: "desc" }],
       columns: [{ name: "product", cellType: "text" }, { name: "price", cellType: "text", inputType: "number" }, { name: "category", cellType: "text" }] });
-    // "More..." is rendered out of sight until the bar is fitted.
+    // "..." is rendered out of sight until the bar is fitted.
     const hidden = Array.prototype.filter.call(headerBar()!.children, (item: Element): boolean => item.classList.contains("sd-action-bar__item--hidden")) as Array<Element>;
-    expect(hidden.map((item: Element): string => item.querySelector(".sd-action__title")!.textContent), "#0").toEqual(["More..."]);
+    expect(hidden.map((item: Element): string => item.querySelector("button")!.getAttribute("aria-label")), "#0").toEqual(["Show all sort levels"]);
     const items = Array.prototype.filter.call(headerBar()!.children, (item: Element): boolean => hidden.indexOf(item) < 0) as Array<Element>;
     expect(items.length, "#1: Sort by, two levels and +").toBe(4);
     const levels = Array.prototype.map.call(items, (item: Element): Element => item.querySelector(".sd-sort-bar__level")) as Array<Element>;
@@ -90,5 +90,16 @@ describe("Records sort bar: several levels", () => {
     expect(labels(levels[1]), "#4: no remove button on the first level").toEqual(["Sort field product", "Sort order Alphabet, A - Z"]);
     expect(labels(levels[2]), "#5").toEqual(["Sort field 2 price", "Sort order 2 High - Low", "Remove sort level 2"]);
     expect(items[3].querySelector("button")!.getAttribute("aria-label"), "#6").toBe("Add sort level");
+  });
+  it("\"...\" renders as an icon button with an accessible name, and \"+\" renders disabled at the limit", () => {
+    const matrix = render({ allowSort: true, maxSortLevel: 2, sortCriteria: [{ field: "product", direction: "asc" }],
+      columns: [{ name: "product", cellType: "text" }, { name: "price", cellType: "text", inputType: "number" }, { name: "category", cellType: "text" }] });
+    const button = (label: string): HTMLButtonElement => headerBar()!.querySelector("button[aria-label='" + label + "']") as HTMLButtonElement;
+    const more = button("Show all sort levels");
+    expect([more.getAttribute("title"), !!more.querySelector(".sv-svg-icon"), !!more.querySelector(".sd-action__title")], "#1")
+      .toEqual(["Show all sort levels", true, false]);
+    expect(button("Add sort level").disabled, "#2: a level can be added").toBe(false);
+    act(() => { matrix.sort([{ field: "product", direction: "asc" }, { field: "price", direction: "asc" }] as any); });
+    expect(button("Add sort level").disabled, "#3: the limit").toBe(true);
   });
 });

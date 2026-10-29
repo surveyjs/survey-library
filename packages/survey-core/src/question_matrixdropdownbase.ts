@@ -1149,6 +1149,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   public getType(): string {
     return "matrixdropdownbase";
   }
+  protected get supportsQuestionView(): boolean {
+    return false;
+  }
   /**
    * Specifies whether to display the table header that contains column captions.
    *
@@ -1233,7 +1236,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return isMatrixColumnsAutoWidth(this.isMobile, this.columns);
   }
   public getTableCss(): string {
-    return getMatrixTableCss(this.cssClasses, this.columnsAutoWidth, this.showHeader, this.verticalAlign);
+    return toCssClasses(
+      getMatrixTableCss(this.cssClasses, this.columnsAutoWidth, this.showHeader, this.verticalAlign),
+      this.isViewMode && this.cssClasses.rootView
+    );
   }
   public getTableBodyCss(): string {
     return getMatrixTableBodyCss(this.cssClasses, this.alternateRows, this.isMobile);

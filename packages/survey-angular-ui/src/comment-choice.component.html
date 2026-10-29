@@ -1,4 +1,5 @@
-<ng-container *ngIf="!question.isReadOnlyRenderDiv()">
+<div *ngIf="question.isViewMode" [class]="question.viewModeCssClass">{{ question.getCommentViewText(item) }}</div>
+<ng-container *ngIf="!question.isViewMode && !question.isReadOnlyRenderDiv()">
   <ng-template [component]="{ name: 'sv-text-area', data: { model: textAreaModel } }"></ng-template>
 </ng-container>
-<div *ngIf="question.isReadOnlyRenderDiv()">{{ commentValue }}</div>
+<div *ngIf="!question.isViewMode && question.isReadOnlyRenderDiv()">{{ commentValue }}</div>

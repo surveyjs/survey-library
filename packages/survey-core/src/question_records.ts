@@ -1087,6 +1087,7 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   private writeRecordCount(val: number, origin: "code" | "authored" | "internal"): void {
     if (!this.isRemoteData) {
       this.setRecordCountCore(val);
+      this.storeRecordsToCount();
     } else if (origin === "authored") {
       this.setPropertyValue(this.getRecordCountNames().count, Helpers.getNumber(val));
     } else if (origin === "code" && Helpers.getNumber(val) !== this.recordCount) {
@@ -2033,21 +2034,27 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
      grow defers and follows (see runOwnRecordsChange) stops the add. A count that did not grow runs
      onNotGrown: the caller decides what the add does then. Returns the record index the new record
      ended at, or -1: the count did not grow, an outside assignment happened during the grow - the
-     assigned value stays, none of its records is the new one - or getIndex answered none. */
-  protected growAndMoveRecord(grow: () => void, getIndex: () => number, getRecord: (index: number) => any, onNotGrown?: () => void): number {
+     assigned value stays, none of its records is the new one - or getIndex answered none.
+     storeGrown: a grow that only creates the objects stores their records here, in the same batch as
+     the move, so that the add is one write (the Dynamic Panel). */
+  protected growAndMoveRecord(grow: () => void, getIndex: () => number, getRecord: (index: number) => any, onNotGrown?: () => void,
+    storeGrown?: () => void): number {
     const outsideAssignmentCount = this.outsideAssignmentCount;
     const oldCount = this.getListRecordCount();
     this.runRecordAdd(grow);
     if (this.outsideAssignmentCount !== outsideAssignmentCount) return -1;
     const list = this.dataList;
-    if (list.count === oldCount) {
-      if (!!onNotGrown) onNotGrown();
-      return -1;
-    }
-    let index = getIndex();
-    if (index === undefined) index = list.count - 1;
-    if (index < 0) return -1;
-    list.batch((): void => {
+    let index = -1;
+    let isGrown = true;
+    this.runAddedRecordWrite((): void => list.batch((): void => {
+      if (!!storeGrown)this.runRecordAdd(storeGrown);
+      if (list.count === oldCount) {
+        isGrown = false;
+        return;
+      }
+      index = getIndex();
+      if (index === undefined) index = list.count - 1;
+      if (index < 0) return;
       const lastIndex = list.count - 1;
       if (index !== lastIndex) {
         list.move(lastIndex, index);
@@ -2056,8 +2063,13 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
       if (record !== undefined) {
         list.setRecord(index, record);
       }
-    });
+    }));
+    if (!isGrown && !!onNotGrown) onNotGrown();
     return index;
+  }
+  // The write of growAndMoveRecord: the Dynamic Panel makes it as a change of its own value.
+  protected runAddedRecordWrite(write: () => void): void {
+    write();
   }
   /* A new record: the default values of the questions a record has (inputs: the columns, the template
      questions; getKey names the key a value is stored under), then defaultRecord, then copyFrom - a
@@ -2804,8 +2816,9 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   }
   /* Detaching: the window is dropped and the question reads the survey hash again. With an answer
      there the count follows its records. With none the question shows the authored count again: the
-     type's count property kept it while the source was assigned (recordCount). It is read before the
-     restore, which can follow the empty answer down (the matrix sets rowCount to its length). */
+     type's count property kept it while the source was assigned (recordCount), and its records are
+     stored. It is read before the restore, which can follow the empty answer down (the matrix sets
+     rowCount to its length). */
   private restoreValueFromSurveyData(): void {
     const names = this.getRecordCountNames();
     const authoredCount = !!names ? this.getPropertyValue(names.count) : undefined;
@@ -2813,6 +2826,7 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
     this.updateValueFromSurvey(value);
     if (!!names && this.isValueEmpty(value)) {
       this.setRecordCountCore(authoredCount);
+      this.storeRecordsToCount();
     }
   }
   // An error of the source: a write it rejected releases a completion that waits for the writes.
@@ -3756,6 +3770,39 @@ export abstract class QuestionRecordsModel extends Question implements IDynamicD
   /* Runs after every assignment of the page size, whatever the value - also one that does not change
      it, which onPropertyValueChanged would skip: the question refreshes what it renders. */
   protected onPageSizeAssigned(): void { }
+  /* The isEmpty of the array types (the Dynamic Panel, the Dynamic Matrix): every record of the first
+     count is empty by the type's rule (isEmptyRecord). A read: the list is not created for it. */
+  protected areRecordsEmpty(count: number): boolean {
+    for (let i = 0; i < count; i++) {
+      if (!this.isEmptyRecord(this.getListRecordAt(i))) return false;
+    }
+    return true;
+  }
+  // A record without keys; the matrix counts a record whose answers are all empty as empty too.
+  protected isEmptyRecord(record: any): boolean {
+    for (const key in record) {
+      if (record.hasOwnProperty(key)) return false;
+    }
+    return true;
+  }
+  /* The value of the array types holds a record for every row / panel, an empty one as {} (Bug#12147):
+     the stored records follow the record count (storeRecordsToCountCore, the type's write). It runs on
+     first rendering, after a count change of the setter, the count expression, a binding or a limit
+     (writeRecordCount) and after a detach. An add and a removal store their own record instead. The
+     write is no answer: it runs as a default value change, so a defaultValueExpression keeps applying. */
+  private storeRecordsScope: Scope = new Scope();
+  protected storeRecordsToCount(): void {
+    if (this.storeRecordsScope.isActive || !this.canStoreRecordsToCount()) return;
+    this.storeRecordsScope.run((): void => this.runAsDefaultValueChange((): void => this.storeRecordsToCountCore()));
+  }
+  // Not before the question is rendered: its first rendering stores them. The designer writes no value.
+  protected canStoreRecordsToCount(): boolean {
+    return !this.isDesignMode && !this.isRemoteData && !this.isLoadingFromJson && !this.isEditingSurveyElement && !this.isRecordsStoreDeferred;
+  }
+  protected get isRecordsStoreDeferred(): boolean {
+    return !this.wasRendered && !!this.survey;
+  }
+  protected storeRecordsToCountCore(): void { }
   // The count of the question's own records, as the records source reads it, without composing the array.
   protected getListRecordCount(): number {
     return this.recordsSource.count;

@@ -17,7 +17,7 @@ import { ItemsByNameIndex } from "./utils/items-by-name-index";
 import { getMatrixCellAriaLabel, getMatrixTableBodyCss, getMatrixTableCss, getMatrixTableWrapperCss, isMatrixColumnsAutoWidth } from "./utils/matrix-table";
 import { IPlainDataOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ConditionRunner } from "./conditions/conditionRunner";
-import { Question, QuestionValueType, IVerifyDataContext } from "./question";
+import { Question, QuestionValueType, IVerifyDataContext, readOnlyViewEmptyText } from "./question";
 import { ISurveyData, ISurvey, ITextProcessor, IQuestion } from "./base-interfaces";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
@@ -396,6 +396,9 @@ export class QuestionMatrixModel
   public getType(): string {
     return "matrix";
   }
+  protected get supportsQuestionView(): boolean {
+    return false;
+  }
   public get isCompositeQuestion(): boolean {
     return true;
   }
@@ -682,6 +685,10 @@ export class QuestionMatrixModel
     return col;
   }
   public get checkType(): string { return this.isMultiSelect ? "checkbox" : "radio"; }
+  // Single-select view mode uses the same checkmarks as preview.
+  private get isCheckmarkStyle(): boolean {
+    return this.isPreviewStyle || (!this.isMultiSelect && this.isViewMode);
+  }
   private formatCss(val: string) : string {
     return (val || "").replace("{type}", this.checkType);
   }
@@ -694,19 +701,20 @@ export class QuestionMatrixModel
     const allowHover = !isDisabled && !(!!this.survey && this.survey.isDesignMode);
     const hasCellText = this.hasCellText;
     const css = this.cssClasses;
+    const checkmarkStyle = this.isCheckmarkStyle;
     return toCssClasses(
       hasCellText && css.cell,
       hasCellText ? css.cellText : this.formatCss(css.label),
       !hasCellText && (this.eachRowRequired || this.eachRowUnique ? row.hasError : this.hasCssError()) && css.itemOnError,
       isChecked && (hasCellText ? css.cellTextSelected : this.formatCss(css.itemChecked)),
       this.isDisabledStyle && (hasCellText ? css.cellTextDisabled : this.formatCss(css.itemDisabled)),
-      this.isReadOnlyStyle && (hasCellText ? css.cellTextReadOnly : this.formatCss(css.itemReadOnly)),
-      this.isPreviewStyle && (hasCellText ? css.cellTextPreview : this.formatCss(css.itemPreview)),
+      this.isReadOnlyStyle && !checkmarkStyle && (hasCellText ? css.cellTextReadOnly : this.formatCss(css.itemReadOnly)),
+      checkmarkStyle && (hasCellText ? css.cellTextPreview : this.formatCss(css.itemPreview)),
       allowHover && !hasCellText && this.formatCss(css.itemHover)
     );
   }
   public get itemSvgIcon(): string {
-    if (this.isPreviewStyle && this.cssClasses.itemPreviewSvgIconId) {
+    if (this.isCheckmarkStyle && this.cssClasses.itemPreviewSvgIconId) {
       return this.cssClasses.itemPreviewSvgIconId;
     }
     return this.cssClasses.itemSvgIconId;
@@ -714,6 +722,10 @@ export class QuestionMatrixModel
   public getItemSvgIcon(row: any, column: any): string {
     if (this.isMultiSelect && row.isChecked(column)) return this.cssClasses.itemPreviewSvgIconId;
     return this.itemSvgIcon;
+  }
+  public getCellViewText(row: MatrixRowModel, column: ItemValue): string {
+    if (this.isMobile || !this.isViewMode || this.isMultiSelect || this.hasCellText || row.isChecked(column)) return "";
+    return readOnlyViewEmptyText;
   }
   public get cssItemValue(): string {
     return this.formatCss(this.cssClasses.itemValue);
@@ -1162,7 +1174,11 @@ export class QuestionMatrixModel
     }
   }
   public getConditionJson(operator: string = null, path: string = null): any {
-    if (!path) return super.getConditionJson(operator);
+    if (!path) {
+      const json = super.getConditionJson(operator);
+      delete json["allowClear"];
+      return json;
+    }
     var question = new QuestionDropdownModel(path);
     question.choices = this.columns;
     var json = new JsonObject().toJsonObject(question);

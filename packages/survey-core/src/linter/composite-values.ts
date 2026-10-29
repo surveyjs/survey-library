@@ -1,5 +1,5 @@
 import { CIMultiMap, ElementRecord, getEffectiveType } from "./symbols";
-import { equalsCI, isCommentKeyOf } from "./expression-utils";
+import { equalsCI, findTotalsKeyBase, isCommentKeyOf } from "./expression-utils";
 import { ValueDomain, ValueSetDomain } from "./value-domain";
 import { getStaticChoiceValues } from "./value-types";
 import { ILintResolvedSettings } from "./lint-settings";
@@ -50,6 +50,8 @@ function findByKey(map: CIMultiMap<ElementRecord>, key: string,
   if (!!direct) return { record: direct, known: true };
   // a comment is a plain string next to the value - known, but nothing types it
   if (isCommentKeyOf(key, map, settings)) return { known: true };
+  // so is the total row a matrix of the row/panel writes next to its value; the runtime computes it
+  if (!!findTotalsKeyBase(key, map, settings)) return { known: true };
   return { known: false };
 }
 

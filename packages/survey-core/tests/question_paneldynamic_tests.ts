@@ -3098,7 +3098,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     const panel6 = question.addPanel();
     expect(panel6.getQuestionByName("q1").value, "Value set").toBe("other");
     expect(panel6.getQuestionByName("q1").comment, "Comment set").toBe("comment1");
-    expect(counter, "Call updates 10 times").toBe(5 * 2);
+    expect(counter, "One update per add: the copied record is stored with the new panel's").toBe(5);
   });
 
   test("Generates error on clearIncorrectValue()", () => {

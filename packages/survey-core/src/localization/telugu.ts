@@ -49,8 +49,6 @@ export var teluguStrings = {
   sortLevelFieldAriaLabel: "ఫీల్డ్ {0} క్రమబద్ధీకరించు",
   // [Auto-translated] "Sort order {0}"
   sortLevelDirectionAriaLabel: "క్రమబద్ధీకరణ {0}",
-  // [Auto-translated] "More..."
-  sortMoreText: "మరిన్ని...",
   // [Auto-translated] "Show all sort levels"
   sortMoreAriaLabel: "అన్ని సార్ట్ లెవల్స్ చూపించు",
   // [Auto-translated] "Add New"

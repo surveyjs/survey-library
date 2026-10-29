@@ -148,7 +148,8 @@ ReactElementFactory.Instance.registerElement(filterModalComponentName,
 
 // Add New Preset and Edit Presets: the tabs (Edit Presets only), the form, the fields' editors in a
 // frame and the preset's actions (Edit Presets only); the footer is the dialog's own. A form or
-// editors made anew (another tab, another set of fields) are drawn anew, keyed by their page.
+// editors made anew (another tab, another set of fields) are drawn anew, keyed by their survey's
+// uniqueId: element ids restart in every survey, so a page id would be the same for each new form.
 export class SurveyFilterPresetDialog extends SurveyElementBase<{ holder: FilterEditorHolder }, any> {
   private get dialog(): FilterPresetDialog {
     const holder = this.props.holder;
@@ -181,10 +182,10 @@ export class SurveyFilterPresetDialog extends SurveyElementBase<{ holder: Filter
     const editor = dialog.editor;
     return <div className={toCssClasses(css.modalContent, css.presetContent)}>
       {this.renderTabs(edit, css)}
-      {!!form ? <FilterEditorPage key={form.currentPage.id} editor={{ survey: form, isDisposed: dialog.isDisposed }}
+      {!!form ? <FilterEditorPage key={form.uniqueId} editor={{ survey: form, isDisposed: dialog.isDisposed }}
         className={toCssClasses(css.editor, css.presetForm)} /> : null}
       {!!editor ? <div className={css.presetFields}>
-        <FilterEditorPage key={editor.survey.currentPage.id} editor={editor} className={toCssClasses(css.editor, css.modalEditor)} />
+        <FilterEditorPage key={editor.survey.uniqueId} editor={editor} className={toCssClasses(css.editor, css.modalEditor)} />
       </div> : null}
       {this.renderActions(edit, css)}
     </div>;

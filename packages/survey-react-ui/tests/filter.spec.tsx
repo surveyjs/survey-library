@@ -77,8 +77,10 @@ describe("SurveyFilterPresetDialog", () => {
     expect((container.querySelector(".sd-filter-preset-dialog__form input") as HTMLInputElement).value, "#2").toBe("Adults");
     expect(!!container.querySelector(".sd-filter-preset-dialog__fields .sd-filter-modal__editor"), "#3: the fields").toBe(true);
     expect(container.textContent, "#4").toContain("Preset Actions");
+    const input = container.querySelector(".sd-filter-preset-dialog__form input");
     act(() => { dialog.selectTab("k"); });
     expect((container.querySelector(".sd-filter-preset-dialog__form input") as HTMLInputElement).value, "#5").toBe("Kids");
+    expect(container.querySelector(".sd-filter-preset-dialog__form input") !== input, "#5a: a new form is drawn anew, not over the old one").toBe(true);
     act(() => { holder.presetDialog = undefined; });
     dialog.dispose();
     expect(container.innerHTML, "#6: an emptied holder unmounts the content").toBe("");

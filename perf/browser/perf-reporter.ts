@@ -59,7 +59,8 @@ export default class PerfReporter {
   }
 
   private write(): void {
-    if (this.written) return;
+    // playwright test --list runs nothing: no result file.
+    if (this.written || process.argv.indexOf("--list") > -1) return;
     this.written = true;
     writeJsonAtomic(this.file, this.result);
   }

@@ -1313,6 +1313,10 @@ export class QuestionFilterModel extends QuestionNonValue {
         this.searchFields = [].concat(filter.searchFields);
       }
     });
+    // Presets the respondent added or deleted change the chips with no property of the control
+    // changing - the expression may read the same - so nothing else would redraw the row. A restore
+    // still waiting for the bound source is redrawn as the source attaches (updateFilterSource).
+    this.updateToolbars();
   }
   // A saved preset's expression is rebuilt from its conditions and not parsed back: that is what
   // saveActiveItem() wrote, and it is what the preset will be saved as again. A name that no longer

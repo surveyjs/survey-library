@@ -69,6 +69,18 @@ describe("QuestionFilterModel: uiState of the respondent's presets", () => {
   });
 });
 
+describe("QuestionFilterModel: a restore after the chips row is drawn", () => {
+  test("the row shows the respondent's presets and no longer the deleted ones", () => {
+    const survey = create();
+    const q = control(survey);
+    const chips = (): Array<string> => q.chipsToolbar.actions.map((a) => a.id).filter((id: string) => id.indexOf("sv-filter-item-") === 0);
+    expect(chips(), "#1").toEqual(["sv-filter-item-adults", "sv-filter-item-germans", "sv-filter-item-edges"]);
+    survey.uiState = { questions: { f1: { filter: { deletedItems: ["germans"],
+      userItems: [{ name: "userItem1", title: "Old", conditions: [{ field: "age", operator: "greater", value: 60 }] }] } } } };
+    expect(chips(), "#2").toEqual(["sv-filter-item-adults", "sv-filter-item-edges", "sv-filter-item-userItem1"]);
+  });
+});
+
 describe("QuestionFilterModel: what is not restored", () => {
   test("deletion of a preset the author no longer lets be deleted, a title of one that may not be edited", () => {
     const q = restored({ deletedItems: ["adults", "nosuchpreset", 5], items: { germans: { title: "Germans" } } }, {

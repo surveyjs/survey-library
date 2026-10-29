@@ -67,6 +67,15 @@ describe("FilterToolbars: the chips row", () => {
     const q = createFilter({ items: [{ name: "p", expression: "{age} > 1" }, { name: "p", expression: "{age} > 2" }] });
     expect(ids(q.chipsToolbar).filter((id: string) => id.indexOf("sv-filter-item-") === 0)).toEqual(["sv-filter-item-p", "sv-filter-item-p-2"]);
   });
+  test("the chips the first build puts in the row are the ones later updates change", () => {
+    // Making the first chip reads the control's css for the first time, which sets its css properties:
+    // each is a change of the control, and asks the toolbars for an update while they build the row.
+    const survey = new SurveyModel({ elements: [{ type: "filter", name: "f1", fields: [{ name: "age", fieldType: "text", inputType: "number" }] }] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    const age = action(q.chipsToolbar, "sv-filter-field-age");
+    q.setFieldCondition("age", "greater", 18);
+    expect(age.title).toBe("age: Greater than 18");
+  });
   test("single mode shows no presets", () => {
     const q = createFilter({ allowMultipleItems: false });
     expect(ids(q.chipsToolbar)).toEqual(["sv-filter-filters"].concat(badges, ["sv-filter-more"]));

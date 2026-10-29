@@ -95,6 +95,8 @@ export class FilterToolbars {
   private advancedDialog: any;
   private presetHolder: FilterEditorHolder;
   private presetDialog: any;
+  private isUpdating: boolean;
+  private isUpdatePending: boolean;
 
   constructor(private owner: IFilterToolbarsOwner, private createContainer: (adaptive: boolean) => ActionContainer) {
   }
@@ -129,7 +131,25 @@ export class FilterToolbars {
     }
     return this.layoutValue;
   }
+  // An update asked for while one runs waits for it and then runs once more. Making the first chip
+  // reads the control's css for the first time, and that sets the control's css properties - each a
+  // change that asks for an update. Run there, it would build the chips again inside the first
+  // build: the row would keep one chip and the toolbars would go on updating the other.
   public update(): void {
+    if (this.isUpdating) {
+      this.isUpdatePending = true;
+      return;
+    }
+    this.isUpdating = true;
+    this.isUpdatePending = false;
+    try {
+      this.updateRows();
+      if (this.isUpdatePending) { this.updateRows(); }
+    } finally {
+      this.isUpdating = false;
+    }
+  }
+  private updateRows(): void {
     if (!!this.layoutValue) {
       this.layoutValue.isMobile = this.owner.isMobile;
     }

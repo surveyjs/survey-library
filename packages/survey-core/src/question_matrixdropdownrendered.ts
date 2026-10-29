@@ -836,6 +836,18 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     return null;
   }
+  // The rendered action with this id in a row's action cells: a default one or one an onGetMatrixRowActions handler gave.
+  public getRowAction(row: MatrixDropdownRowModelBase, id: string): Action {
+    for (const renderedRow of this.rows) {
+      if (renderedRow.row !== row || renderedRow.isErrorsRow || renderedRow.isDetailRow) continue;
+      for (const cell of renderedRow.cells) {
+        const container = cell.isActionsCell && !!cell.item ? <ActionContainer>cell.item.value : undefined;
+        const action = !!container ? container.actions.filter((item: Action) => item.id === id)[0] : undefined;
+        if (!!action) return action;
+      }
+    }
+    return undefined;
+  }
   private getRowActions(rowIndex: number, location: "start" | "end") {
     var actions = this.rowsActions[rowIndex];
     if (!Array.isArray(actions)) return [];

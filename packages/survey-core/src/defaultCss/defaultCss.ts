@@ -716,6 +716,7 @@ export var defaultCss = {
     iconRemove: "",
     dragElementDecorator: "sd-drag-element__svg",
     iconDragElement: "icon-drag-24x24",
+    dragHandle: "sd-matrixdynamic__drag-handle",
     toolbar: "sd-matrixdynamic__toolbar",
     recordsBar: "sd-question__records-bar sd-pager",
     headerAndContentContainer: "sd-question__header-and-content-container",

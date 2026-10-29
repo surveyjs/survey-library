@@ -189,6 +189,8 @@ export var lithuaniaSurveyStrings = {
   addRow: "Pridėti eilutę",
   // "Remove"
   removeRow: "Ištrinti",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Perkelkite eilę {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Eilių nėra.",
   // [Auto-translated] "Row {rowIndex}"

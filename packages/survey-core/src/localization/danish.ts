@@ -189,6 +189,8 @@ export var danishSurveyStrings = {
   addRow: "Tilføj række",
   // "Remove"
   removeRow: "Fjern",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Flyt række {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Der er ingen rækker.",
   // [Auto-translated] "Row {rowIndex}"

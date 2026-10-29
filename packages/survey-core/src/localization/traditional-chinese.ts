@@ -189,6 +189,8 @@ export var traditionalChineseSurveyStrings = {
   addRow: "添加答案",
   // "Remove"
   removeRow: "刪除答案",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "往{0}行移動",
   // [Auto-translated] "There are no rows."
   noRowsText: "沒有行。",
   // [Auto-translated] "Row {rowIndex}"

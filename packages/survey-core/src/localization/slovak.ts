@@ -189,6 +189,8 @@ export var slovakSurveyStrings = {
   addRow: "Pridať riadok",
   // "Remove"
   removeRow: "Odstrániť",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Presuňte rad {0}",
   // "There are no rows."
   noRowsText: "K dispozícii nie sú žiadne riadky.",
   // [Auto-translated] "Row {rowIndex}"

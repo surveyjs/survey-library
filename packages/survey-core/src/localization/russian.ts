@@ -189,6 +189,8 @@ export var russianSurveyStrings = {
   addRow: "Добавить строку",
   // "Remove"
   removeRow: "Удалить",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Переместить ряд {0}",
   // "There are no rows."
   noRowsText: "Рядов нет.",
   // [Auto-translated] "Row {rowIndex}"

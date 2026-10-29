@@ -189,6 +189,8 @@ export var polishSurveyStrings = {
   addRow: "Dodaj wiersz",
   // "Remove"
   removeRow: "Usuń",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Przesuń rząd {0}",
   // "There are no rows."
   noRowsText: "Nie ma rzędów.",
   // [Auto-translated] "Row {rowIndex}"

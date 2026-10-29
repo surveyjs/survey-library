@@ -189,6 +189,8 @@ export var kazakhStrings = {
   addRow: "Жолды қосу",
   // "Remove"
   removeRow: "Өшіру",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Қатарға жылжы {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Қатарлар жоқ.",
   // [Auto-translated] "Row {rowIndex}"

@@ -189,6 +189,8 @@ export var vietnameseSurveyStrings = {
   addRow: "Thêm dòng",
   // "Remove"
   removeRow: "Xóa",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Di chuyển hàng {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Không có hàng.",
   // [Auto-translated] "Row {rowIndex}"

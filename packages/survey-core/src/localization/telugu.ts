@@ -189,6 +189,8 @@ export var teluguStrings = {
   addRow: "వరుసలు చేర్పించండి",
   // "Remove"
   removeRow: "తీసేయండి",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "వరుస {0} తరలించు",
   // [Auto-translated] "There are no rows."
   noRowsText: "వరుసలు లేవు.",
   // [Auto-translated] "Row {rowIndex}"

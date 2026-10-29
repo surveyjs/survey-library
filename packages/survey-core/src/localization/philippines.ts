@@ -189,6 +189,8 @@ export var philippinesStrings = {
   addRow: "Magdagdag ng hilera",
   // "Remove"
   removeRow: "Alisin",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Ilipat ang row {0}",
   // "There are no rows."
   noRowsText: "Walang mga hilera.",
   // [Auto-translated] "Row {rowIndex}"

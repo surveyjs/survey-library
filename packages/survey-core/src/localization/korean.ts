@@ -189,6 +189,8 @@ export var koreanStrings = {
   addRow: "행 추가",
   // "Remove"
   removeRow: "제거",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "{0}행 이동",
   // "There are no rows."
   noRowsText: "행이 없습니다.",
   // [Auto-translated] "Row {rowIndex}"

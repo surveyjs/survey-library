@@ -189,6 +189,8 @@ export var urduSurveyStrings = {
   addRow: "قطار شامل کریں۔",
   // "Remove"
   removeRow: "مٹائے",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "قطار {0} منتقل کریں",
   // "There are no rows."
   noRowsText: "کوئی قطار نہیں ہیں۔ ",
   // [Auto-translated] "Row {rowIndex}"

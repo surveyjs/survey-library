@@ -189,6 +189,8 @@ export var hindiStrings = {
   addRow: "पंक्ति जोड़ें",
   // "Remove"
   removeRow: "हटाए",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "पंक्ति {0} ले जाएँ",
   // [Auto-translated] "There are no rows."
   noRowsText: "कोई पंक्तियाँ नहीं हैं.",
   // [Auto-translated] "Row {rowIndex}"

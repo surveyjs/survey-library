@@ -189,6 +189,8 @@ export var persianSurveyStrings = {
   addRow: "سطر جدید",
   // "Remove"
   removeRow: "حذف",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "حرکت ردیف {0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "هیچ ردیفی وجود ندارد.",
   // [Auto-translated] "Row {rowIndex}"

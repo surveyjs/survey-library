@@ -189,6 +189,8 @@ export var hungarianSurveyStrings = {
   addRow: "Sor hozzáadása",
   // "Remove"
   removeRow: "Eltávolítás",
+  // [Auto-translated] "Move row {0}"
+  moveRowAriaLabel: "Mozgás sor{0}",
   // [Auto-translated] "There are no rows."
   noRowsText: "Nincsenek sorok.",
   // [Auto-translated] "Row {rowIndex}"

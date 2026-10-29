@@ -6,25 +6,52 @@ import { work } from "../harness/counters.ts";
 // Helpers the scenarios call. A scenario lists the ones it calls in `uses`: their source is part of its rev hash
 // (00, Ids), so a change here shows as a changed hash.
 
-// A fresh survey from the fixture text; records the jsonErrors count of the last survey loaded.
-export function loadSurvey(ctx: PerfContext): any {
+// A fresh survey from the fixture text, prepared (answers, data) before it is shown; in a page it is rendered and
+// settled. Records the jsonErrors count of the last survey loaded.
+export async function loadSurvey(ctx: PerfContext, prepare?: (survey: any) => void): Promise<any> {
   const survey = new ctx.Survey.Model(JSON.parse(ctx.fixture.text));
   ctx.cache.jsonErrors = survey.jsonErrors ? survey.jsonErrors.length : 0;
+  if (prepare) prepare(survey);
+  if (ctx.page) await ctx.page.show(survey);
   return survey;
 }
 
 // One survey per process or page, kept between samples, for scenarios whose setup restores the state instead of
 // reloading (00, Budgets).
-export function cachedSurvey(ctx: PerfContext, prepare?: (survey: any) => void): any {
-  if (!ctx.cache.survey) {
-    ctx.cache.survey = loadSurvey(ctx);
-    if (prepare) prepare(ctx.cache.survey);
-  }
+export async function cachedSurvey(ctx: PerfContext, prepare?: (survey: any) => void): Promise<any> {
+  if (!ctx.cache.survey) ctx.cache.survey = await loadSurvey(ctx, prepare);
   return ctx.cache.survey;
 }
 
-export function disposeSurvey(survey: any): void {
-  if (survey && !survey.isDisposed) survey.dispose();
+// The page of the survey an element is on, shown before an action in the page (untimed).
+export async function showPageOf(ctx: PerfContext, survey: any, name: string): Promise<void> {
+  const el = survey.getQuestionByName(name) || survey.getPanelByName(name);
+  const page = el.page;
+  if (survey.currentPage !== page) {
+    survey.currentPage = page;
+    if (ctx.page) await ctx.page.updated();
+  }
+}
+
+// The element of a question in the page.
+export function questionElement(ctx: PerfContext, question: any): any {
+  return ctx.page ? ctx.page.query("[data-name=\"" + question.name + "\"]") : undefined;
+}
+
+// The text of the first data row's cell of a column of a rendered matrix (03: record a DOM fact).
+export function renderedCell(ctx: PerfContext, question: any, column: string): string | undefined {
+  if (!ctx.page) return undefined;
+  const index = question.renderedTable.headerRow.cells.map((c: any) => c.column && c.column.name).indexOf(column);
+  const row = ctx.page.query("[data-name=\"" + question.name + "\"] tbody tr.sd-table__row");
+  const cell = row ? row.children[index] : undefined;
+  if (!cell) return undefined;
+  const input = cell.querySelector("input, textarea");
+  return input ? input.value : (cell.textContent || "").trim();
+}
+
+// The end of a sample. In a page the shown survey stays until show() replaces it, which disposes it.
+export function releaseSurvey(ctx: PerfContext, survey: any): void {
+  if (!ctx.page && survey && !survey.isDisposed) survey.dispose();
 }
 
 // Every planned element is hidden after the answer that hides it (01 check 6).
@@ -101,4 +128,12 @@ export function recordsShown(ctx: PerfContext, state: any): Counters {
 
 export function pagesShown(ctx: PerfContext, state: any): Counters {
   return { currentPageNo: work(state.survey.currentPageNo), visiblePages: work(state.survey.visiblePageCount) };
+}
+
+// Whether the question's rendered root has the class the framework adds once it is answered (F2 of the step-3
+// review: a fact the framework renders, not one the browser or the harness wrote).
+export function renderedAnswered(ctx: PerfContext, name: string): boolean | undefined {
+  if (!ctx.page) return undefined;
+  const root = ctx.page.query("[data-name=\"" + name + "\"]");
+  return !!root && (" " + root.className + " ").indexOf(" sd-question--answered ") > -1;
 }

@@ -3,6 +3,7 @@ import * as path from "node:path";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { allScenarios, helperFunctions } from "./index.ts";
+import { suitesOf } from "../harness/ids.ts";
 import type { PerfScenario } from "../harness/scenario.ts";
 
 // The rev check (00, Ids): the hash of a scenario is the sha1 of String(setup) + String(run) + String(check), plus
@@ -14,6 +15,7 @@ import type { PerfScenario } from "../harness/scenario.ts";
 const fileArg = process.argv.indexOf("--file");
 const revsFile = fileArg > -1 ? path.resolve(process.argv[fileArg + 1]) : path.join(path.dirname(fileURLToPath(import.meta.url)), "revs.json");
 
+const pageHelpersSource = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "browser", "page-helpers.ts"), "utf8");
 const sourceOf = (value: any): string => (typeof value === "function" ? String(value) : JSON.stringify(value));
 
 // The names of perf/scenarios exports a source reads: a call for a function, any mention for a constant.
@@ -37,16 +39,18 @@ export function closureOf(s: PerfScenario, helpers: { [name: string]: any }): Ar
 // The measured work: setup, run, check and teardown, the fields that change what a sample does, and the source of
 // every helper and constant reached through `uses`.
 export function scenarioHash(s: PerfScenario, helpers: { [name: string]: any }): string {
-  let text = String(s.setup) + String(s.run) + String(s.check) + String(s.teardown || "") + String(s.counters || "");
+  let text = String(s.setup) + String(s.run) + String(s.check) + String(s.teardown || "") + String(s.counters || "") + String(s.record || "");
   text += JSON.stringify({ repeat: s.repeat, counterOnly: s.counterOnly, requires: s.requires, samples: s.samples, warmup: s.warmup,
     maxMs: s.maxMs, tolerance: s.tolerance, browser: s.browser });
   closureOf(s, helpers).forEach((name: string) => { text += name + "=" + sourceOf(helpers[name]); });
+  // A browser sample's time also depends on the page helpers (perf/browser/page-helpers.ts).
+  if (suitesOf(s.id).some((suite: string) => suite !== "core")) text += pageHelpersSource;
   return createHash("sha1").update(text.replace(/\s+/g, "")).digest("hex");
 }
 
 // The helpers and constants a scenario's own functions read but do not list in `uses`.
 export function unlistedHelpers(s: PerfScenario, helpers: { [name: string]: any }): Array<string> {
-  const text = String(s.setup) + String(s.run) + String(s.check) + String(s.teardown || "");
+  const text = String(s.setup) + String(s.run) + String(s.check) + String(s.teardown || "") + String(s.record || "");
   return namesIn(text, helpers).filter((name: string) => (s.uses || []).indexOf(name) < 0);
 }
 

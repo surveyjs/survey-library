@@ -29,8 +29,21 @@ add("records-10k", "records", recordOps, "orders");
 add("records-1k", "records", ["next", "sort-1"], "ordersPanel");
 ["large", "complexLogic", "records-10k"].forEach((key: string) => add(key, "output", ["data", "toJSON", "dispose"]));
 
+// The browser column (03): React 19 and survey-js-ui run the same ids.
+const browser: Array<string> = [];
+FIXTURE_KEYS.forEach((key: string) => browser.push(key + "/load/paint"));
+browser.push("complexLogic/answer/first", "complexLogic/answer/type");
+["next10", "preview", "locale"].forEach((op: string) => browser.push("manyPages/pages/" + op));
+["next", "last", "sort-header", "filter-set", "edit-cell", "add-row"].forEach((op: string) => browser.push("records-10k/records/" + op + "@orders"));
+browser.push("records-1k/records/next@ordersPanel");
+
 // The fixture x operation matrix of phase 1.
-export const SCENARIO_IDS: ReadonlyArray<ScenarioIdInfo> = core.map((id: string): ScenarioIdInfo => ({ id: id, suites: ["core"] }));
+export const SCENARIO_IDS: ReadonlyArray<ScenarioIdInfo> = Array.from(new Set(core.concat(browser))).sort().map((id: string): ScenarioIdInfo => {
+  const suites: Array<Suite> = [];
+  if (core.indexOf(id) > -1) suites.push("core");
+  if (browser.indexOf(id) > -1) suites.push("react", "survey-js-ui");
+  return { id: id, suites: suites };
+});
 
 // Remedy 2 of 00, Budgets: when a suite is over budget, drop scenarios from the end of this list first.
 export const DROP_LIST: ReadonlyArray<string> = [

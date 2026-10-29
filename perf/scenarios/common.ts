@@ -1,14 +1,14 @@
 import type { PerfScenario, PerfContext } from "../harness/scenario.ts";
 import { expectThat, expectEqual } from "../harness/scenario.ts";
 import { work } from "../harness/counters.ts";
-import { loadSurvey, cachedSurvey, disposeSurvey, expectHidden } from "./helpers.ts";
+import { loadSurvey, cachedSurvey, releaseSurvey, expectHidden, showPageOf, renderedAnswered } from "./helpers.ts";
 
 // Scenario factories shared by several fixtures: loads, answers and outputs (02, The scenarios).
 
 // load/model: the parse sits inside the time, the same in core and in the browser.
 export function loadModel(fixture: string): PerfScenario {
   return {
-    id: fixture + "/load/model", rev: 1, fixture: fixture, kind: "load", uses: ["disposeSurvey"],
+    id: fixture + "/load/model", rev: 1, fixture: fixture, kind: "load", uses: ["releaseSurvey"],
     setup: (ctx: PerfContext): any => ({ text: ctx.fixture.text, survey: undefined }),
     run: (ctx: PerfContext, state: any): void => {
       state.survey = new ctx.Survey.Model(JSON.parse(state.text));
@@ -19,14 +19,14 @@ export function loadModel(fixture: string): PerfScenario {
       expectEqual(state.survey.pages.length, ctx.fixture.meta.pages, "pages");
       expectEqual(state.survey.getAllQuestions(false).length, ctx.fixture.meta.questions, "questions");
     },
-    teardown: (ctx: PerfContext, state: any): void => disposeSurvey(state.survey)
+    teardown: (ctx: PerfContext, state: any): void => releaseSurvey(ctx, state.survey)
   };
 }
 
 // load/design: design mode, then fromJSON.
 export function loadDesign(fixture: string): PerfScenario {
   return {
-    id: fixture + "/load/design", rev: 1, fixture: fixture, kind: "load", uses: ["disposeSurvey"],
+    id: fixture + "/load/design", rev: 1, fixture: fixture, kind: "load", uses: ["releaseSurvey"],
     setup: (ctx: PerfContext): any => ({ text: ctx.fixture.text, survey: undefined }),
     run: (ctx: PerfContext, state: any): void => {
       const survey = new ctx.Survey.Model();
@@ -40,7 +40,7 @@ export function loadDesign(fixture: string): PerfScenario {
       expectEqual(state.survey.pages.length, ctx.fixture.meta.pages, "pages");
       expectEqual(state.survey.getAllQuestions(false).length, ctx.fixture.meta.questions, "questions");
     },
-    teardown: (ctx: PerfContext, state: any): void => disposeSurvey(state.survey)
+    teardown: (ctx: PerfContext, state: any): void => releaseSurvey(ctx, state.survey)
   };
 }
 
@@ -50,19 +50,31 @@ export function loadDesign(fixture: string): PerfScenario {
 export function answerFirst(fixture: string, uses: Array<string>, after: (ctx: PerfContext, survey: any, before: any) => void,
   before?: (ctx: PerfContext, survey: any) => any): PerfScenario {
   return {
-    id: fixture + "/answer/first", rev: 1, fixture: fixture, kind: "action", uses: ["loadSurvey", "disposeSurvey"].concat(uses),
-    setup: (ctx: PerfContext): any => {
-      const survey = loadSurvey(ctx);
-      return { survey: survey, before: before ? before(ctx, survey) : undefined };
+    id: fixture + "/answer/first", rev: 1, fixture: fixture, kind: "action", uses: ["loadSurvey", "releaseSurvey", "showPageOf", "renderedAnswered"].concat(uses),
+    // A fresh survey each sample; in a page it is rendered on the page of the question (untimed).
+    setup: async(ctx: PerfContext): Promise<any> => {
+      const survey = await loadSurvey(ctx);
+      const name = ctx.fixture.meta.firstAnswer.name;
+      if (ctx.page) await showPageOf(ctx, survey, name);
+      if (ctx.page) expectEqual(renderedAnswered(ctx, name), false, "the question is not answered before the sample");
+      return { survey: survey, before: before ? before(ctx, survey) : undefined, dom: undefined };
     },
-    run: (ctx: PerfContext, state: any): void => {
-      state.survey.setValue(ctx.fixture.meta.firstAnswer.name, ctx.fixture.meta.firstAnswer.value);
+    // In a page: a click on the radio button of the value.
+    run: async(ctx: PerfContext, state: any): Promise<void> => {
+      const a = ctx.fixture.meta.firstAnswer;
+      if (!ctx.page) {
+        state.survey.setValue(a.name, a.value);
+        return;
+      }
+      await ctx.page.click("[data-name=\"" + a.name + "\"] input[value=\"" + a.value + "\"]");
     },
+    record: (ctx: PerfContext, state: any): void => { state.dom = renderedAnswered(ctx, ctx.fixture.meta.firstAnswer.name); },
     check: (ctx: PerfContext, state: any): void => {
       expectEqual(state.survey.getValue(ctx.fixture.meta.firstAnswer.name), ctx.fixture.meta.firstAnswer.value, "the answer is set");
+      if (ctx.page) expectEqual(state.dom, true, "the question renders as answered");
       after(ctx, state.survey, state.before);
     },
-    teardown: (ctx: PerfContext, state: any): void => disposeSurvey(state.survey)
+    teardown: (ctx: PerfContext, state: any): void => releaseSurvey(ctx, state.survey)
   };
 }
 
@@ -70,10 +82,9 @@ export function answerFirst(fixture: string, uses: Array<string>, after: (ctx: P
 export function answerNext10(fixture: string, uses: Array<string>, after: (ctx: PerfContext, survey: any, before: any) => void,
   before?: (ctx: PerfContext, survey: any) => any): PerfScenario {
   return {
-    id: fixture + "/answer/next10", rev: 1, fixture: fixture, kind: "action", uses: ["loadSurvey", "disposeSurvey"].concat(uses),
-    setup: (ctx: PerfContext): any => {
-      const survey = loadSurvey(ctx);
-      survey.setValue(ctx.fixture.meta.firstAnswer.name, ctx.fixture.meta.firstAnswer.value);
+    id: fixture + "/answer/next10", rev: 1, fixture: fixture, kind: "action", uses: ["loadSurvey", "releaseSurvey"].concat(uses),
+    setup: async(ctx: PerfContext): Promise<any> => {
+      const survey = await loadSurvey(ctx, (s: any) => s.setValue(ctx.fixture.meta.firstAnswer.name, ctx.fixture.meta.firstAnswer.value));
       const answers = ctx.fixture.meta.nextAnswers.slice(0, 10);
       answers.forEach((a: any) => expectThat(survey.getValue(a.name) !== a.value, a.name + " differs before the sample"));
       return { survey: survey, answers: answers, before: before ? before(ctx, survey) : undefined };
@@ -86,7 +97,7 @@ export function answerNext10(fixture: string, uses: Array<string>, after: (ctx: 
       state.answers.forEach((a: any) => expectEqual(state.survey.getValue(a.name), a.value, a.name));
       after(ctx, state.survey, state.before);
     },
-    teardown: (ctx: PerfContext, state: any): void => disposeSurvey(state.survey)
+    teardown: (ctx: PerfContext, state: any): void => releaseSurvey(ctx, state.survey)
   };
 }
 
@@ -110,10 +121,10 @@ export function nextPlannedHidden(ctx: PerfContext, survey: any): void {
 
 // output/*: on a freshly loaded, answered survey. data and toJSON keep it between samples; dispose needs a new one.
 export function outputScenarios(fixture: string, answerName: string, answer: (ctx: PerfContext, survey: any) => void): Array<PerfScenario> {
-  const answered = (ctx: PerfContext): any => cachedSurvey(ctx, (survey: any) => answer(ctx, survey));
+  const answered = (ctx: PerfContext): Promise<any> => cachedSurvey(ctx, (survey: any) => answer(ctx, survey));
   return [{
     id: fixture + "/output/data", rev: 1, fixture: fixture, kind: "action", uses: ["cachedSurvey", answerName],
-    setup: (ctx: PerfContext): any => ({ survey: answered(ctx), data: undefined }),
+    setup: async(ctx: PerfContext): Promise<any> => ({ survey: await answered(ctx), data: undefined }),
     run: (ctx: PerfContext, state: any): void => { state.data = state.survey.data; },
     counters: (ctx: PerfContext, state: any): any => ({ answers: work(Object.keys(state.data).length) }),
     // A copy of the stored value, well under a millisecond: its time is reported, its counters judged.
@@ -123,7 +134,7 @@ export function outputScenarios(fixture: string, answerName: string, answer: (ct
     }
   }, {
     id: fixture + "/output/toJSON", rev: 1, fixture: fixture, kind: "action", uses: ["cachedSurvey", answerName],
-    setup: (ctx: PerfContext): any => ({ survey: answered(ctx), json: undefined }),
+    setup: async(ctx: PerfContext): Promise<any> => ({ survey: await answered(ctx), json: undefined }),
     run: (ctx: PerfContext, state: any): void => { state.json = state.survey.toJSON(); },
     counters: (ctx: PerfContext, state: any): any => ({ jsonLength: work(JSON.stringify(state.json).length) }),
     check: (ctx: PerfContext, state: any): void => {
@@ -131,11 +142,7 @@ export function outputScenarios(fixture: string, answerName: string, answer: (ct
     }
   }, {
     id: fixture + "/output/dispose", rev: 1, fixture: fixture, kind: "action", uses: ["loadSurvey", answerName],
-    setup: (ctx: PerfContext): any => {
-      const survey = loadSurvey(ctx);
-      answer(ctx, survey);
-      return { survey: survey };
-    },
+    setup: async(ctx: PerfContext): Promise<any> => ({ survey: await loadSurvey(ctx, (survey: any) => answer(ctx, survey)) }),
     run: (ctx: PerfContext, state: any): void => { state.survey.dispose(); },
     counters: (ctx: PerfContext, state: any): any => ({ disposed: work(state.survey.isDisposed ? 1 : 0) }),
     check: (ctx: PerfContext, state: any): void => {

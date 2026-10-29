@@ -4,7 +4,8 @@ import { loadModel } from "./common.ts";
 import { cachedSurvey, pagesShown } from "./helpers.ts";
 
 // Page navigation, preview, validation and locale on manyPages only: on large 108 of 109 pages are hidden at load.
-// One survey per process; setup puts it back on the page each sample starts from (00, Budgets).
+// One survey per process or page; setup puts it back on the page each sample starts from (00, Budgets). In a page
+// Next is a click on the navigation button; preview and locale are model calls, as there is no single element.
 
 // The required questions of the first pages answered, with values that hide no page.
 export function answerRequired(ctx: PerfContext, survey: any, pages: number): void {
@@ -18,30 +19,51 @@ export function answerRequired(ctx: PerfContext, survey: any, pages: number): vo
   survey.mergeData(data);
 }
 
-export function pagesSurvey(ctx: PerfContext): any {
+export function pagesSurvey(ctx: PerfContext): Promise<any> {
   return cachedSurvey(ctx, (survey: any) => answerRequired(ctx, survey, 11));
 }
 
+// Back to a page before a sample (untimed); in a page the move is rendered and settled by the sampler.
+export async function goToPage(ctx: PerfContext, survey: any, index: number): Promise<void> {
+  if (survey.currentPageNo === index) return;
+  survey.currentPageNo = index;
+  if (ctx.page) await ctx.page.updated();
+}
+
+// The rendered page title: the DOM fact of a page move.
+export function renderedPageTitle(ctx: PerfContext): string | undefined {
+  const el = ctx.page ? ctx.page.query(".sd-page__title") : undefined;
+  return el ? (el.textContent || "").trim() : undefined;
+}
+
 export function manyPagesScenarios(): Array<PerfScenario> {
+  const uses = ["cachedSurvey", "pagesSurvey", "answerRequired", "goToPage", "pagesShown"];
   return [
     loadModel("manyPages"),
     {
-      id: "manyPages/pages/next10", rev: 1, fixture: "manyPages", kind: "action", uses: ["cachedSurvey", "pagesSurvey", "answerRequired", "pagesShown"], counters: pagesShown,
-      setup: (ctx: PerfContext): any => {
-        const survey = pagesSurvey(ctx);
-        survey.currentPageNo = 0;
-        return { survey: survey };
+      id: "manyPages/pages/next10", rev: 1, fixture: "manyPages", kind: "action", uses: uses.concat(["renderedPageTitle"]), counters: pagesShown,
+      setup: async(ctx: PerfContext): Promise<any> => {
+        const survey = await pagesSurvey(ctx);
+        await goToPage(ctx, survey, 0);
+        return { survey: survey, dom: undefined };
       },
       // Validation runs on each page and passes: the required questions are answered.
-      run: (ctx: PerfContext, state: any): void => {
-        for (let i = 0; i < 10; i++) state.survey.nextPage();
+      run: async(ctx: PerfContext, state: any): Promise<void> => {
+        for (let i = 0; i < 10; i++) {
+          if (ctx.page) await ctx.page.click(".sd-navigation__next-btn");
+          else state.survey.nextPage();
+        }
       },
-      check: (ctx: PerfContext, state: any): void => expectEqual(state.survey.currentPageNo, 10, "page after ten Next")
+      record: (ctx: PerfContext, state: any): void => { state.dom = renderedPageTitle(ctx); },
+      check: (ctx: PerfContext, state: any): void => {
+        expectEqual(state.survey.currentPageNo, 10, "page after ten Next");
+        if (ctx.page) expectEqual(state.dom, ctx.fixture.json.pages[10].title.default, "the rendered page title");
+      }
     }, {
-      id: "manyPages/pages/prev", rev: 1, fixture: "manyPages", kind: "action", uses: ["cachedSurvey", "pagesSurvey", "answerRequired", "pagesShown"], counters: pagesShown,
-      setup: (ctx: PerfContext): any => {
-        const survey = pagesSurvey(ctx);
-        survey.currentPageNo = 10;
+      id: "manyPages/pages/prev", rev: 1, fixture: "manyPages", kind: "action", uses: uses, counters: pagesShown,
+      setup: async(ctx: PerfContext): Promise<any> => {
+        const survey = await pagesSurvey(ctx);
+        await goToPage(ctx, survey, 10);
         return { survey: survey, from: 10 };
       },
       run: (ctx: PerfContext, state: any): void => { state.survey.prevPage(); },
@@ -49,10 +71,10 @@ export function manyPagesScenarios(): Array<PerfScenario> {
       // One Previous takes about 3 ms: five of them in a sample (02 check 1).
       repeat: 5
     }, {
-      id: "manyPages/pages/last", rev: 1, fixture: "manyPages", kind: "action", uses: ["cachedSurvey", "pagesSurvey", "answerRequired", "pagesShown"], counters: pagesShown,
-      setup: (ctx: PerfContext): any => {
-        const survey = pagesSurvey(ctx);
-        survey.currentPageNo = 0;
+      id: "manyPages/pages/last", rev: 1, fixture: "manyPages", kind: "action", uses: uses, counters: pagesShown,
+      setup: async(ctx: PerfContext): Promise<any> => {
+        const survey = await pagesSurvey(ctx);
+        await goToPage(ctx, survey, 0);
         return { survey: survey };
       },
       run: (ctx: PerfContext, state: any): void => { state.survey.currentPageNo = state.survey.visiblePageCount - 1; },
@@ -63,19 +85,30 @@ export function manyPagesScenarios(): Array<PerfScenario> {
         expectThat(state.survey.isLastPage, "isLastPage");
       }
     }, {
-      id: "manyPages/pages/preview", rev: 1, fixture: "manyPages", kind: "action", uses: ["cachedSurvey", "answerRequired"],
-      setup: (ctx: PerfContext): any => {
+      id: "manyPages/pages/preview", rev: 1, fixture: "manyPages", kind: "action", uses: ["cachedSurvey", "answerRequired", "goToPage"],
+      setup: async(ctx: PerfContext): Promise<any> => {
         // Every required question answered, so showPreview is not stopped by an error.
-        const survey = cachedSurvey(ctx, (s: any) => answerRequired(ctx, s, ctx.fixture.meta.pages));
-        survey.currentPageNo = 0;
-        return { survey: survey };
+        const survey = await cachedSurvey(ctx, (s: any) => answerRequired(ctx, s, ctx.fixture.meta.pages));
+        if (survey.state === "preview") {
+          survey.cancelPreview();
+          if (ctx.page) await ctx.page.updated();
+        }
+        await goToPage(ctx, survey, 0);
+        return { survey: survey, dom: undefined };
       },
-      run: (ctx: PerfContext, state: any): void => { state.survey.showPreview(); },
-      check: (ctx: PerfContext, state: any): void => expectEqual(state.survey.state, "preview", "survey state"),
-      teardown: (ctx: PerfContext, state: any): void => { state.survey.cancelPreview(); }
+      run: async(ctx: PerfContext, state: any): Promise<void> => {
+        state.survey.showPreview();
+        if (ctx.page) await ctx.page.updated();
+      },
+      // The preview shows every page's questions on one page.
+      record: (ctx: PerfContext, state: any): void => { state.dom = ctx.page ? ctx.page.queryAll(".sd-question").length : undefined; },
+      check: (ctx: PerfContext, state: any): void => {
+        expectEqual(state.survey.state, "preview", "survey state");
+        if (ctx.page) expectThat(state.dom > ctx.fixture.meta.questions / ctx.fixture.meta.pages, "the preview renders the questions of more than one page (" + state.dom + ")");
+      }
     }, {
       id: "manyPages/pages/validate", rev: 1, fixture: "manyPages", kind: "action", uses: ["cachedSurvey"],
-      setup: (ctx: PerfContext): any => ({ survey: cachedSurvey(ctx), res: undefined }),
+      setup: async(ctx: PerfContext): Promise<any> => ({ survey: await cachedSurvey(ctx), res: undefined }),
       // Nothing is answered: every page is visible and its required questions fail.
       run: (ctx: PerfContext, state: any): void => { state.res = state.survey.validate(); },
       check: (ctx: PerfContext, state: any): void => {
@@ -84,23 +117,37 @@ export function manyPagesScenarios(): Array<PerfScenario> {
         expectThat(first.errors.length > 0, "the first required question shows an error");
       }
     }, {
-      id: "manyPages/pages/locale", rev: 1, fixture: "manyPages", kind: "action", uses: ["cachedSurvey"],
-      setup: (ctx: PerfContext): any => {
-        const survey = cachedSurvey(ctx);
-        survey.locale = "";
-        const q = survey.getAllQuestions(false)[0];
-        return { survey: survey, question: q };
+      id: "manyPages/pages/locale", rev: 1, fixture: "manyPages", kind: "action", uses: ["cachedSurvey", "goToPage"],
+      setup: async(ctx: PerfContext): Promise<any> => {
+        const survey = await cachedSurvey(ctx);
+        await goToPage(ctx, survey, 0);
+        if (survey.locale !== "") {
+          survey.locale = "";
+          if (ctx.page) await ctx.page.updated();
+        }
+        return { survey: survey, question: survey.getAllQuestions(false)[0], switches: 0, dom: undefined };
       },
-      run: (ctx: PerfContext, state: any): void => { state.survey.locale = "de"; },
-      // About 6 ms in core, where titles re-render lazily, and not repeatable: counterOnly. The browser suites
-      // measure the re-render.
-      counterOnly: true,
+      // Each run switches "" <-> "de", so a repeat changes the locale every time: 2 in core (~6 ms each, titles
+      // re-render lazily), 3 in the browsers (~15 ms each, the shown page's 15 questions re-render).
+      run: async(ctx: PerfContext, state: any): Promise<void> => {
+        state.survey.locale = state.survey.locale === "de" ? "" : "de";
+        state.switches++;
+        if (ctx.page) await ctx.page.updated();
+      },
+      repeat: 2,
+      browser: { repeat: 3 },
+      record: (ctx: PerfContext, state: any): void => {
+        const title = ctx.page ? ctx.page.query("[data-name=\"" + state.question.name + "\"] .sd-question__title") : undefined;
+        state.dom = title ? (title.textContent || "").trim() : undefined;
+      },
       check: (ctx: PerfContext, state: any): void => {
         const json = ctx.fixture.json.pages[0].elements[0];
-        expectEqual(state.question.locTitle.renderedHtml, json.title.de, "the title in de");
-        expectThat(state.survey.pageNextText !== "Next", "the build's German UI strings are loaded");
-      },
-      teardown: (ctx: PerfContext, state: any): void => { state.survey.locale = ""; }
+        const isDe = state.switches % 2 === 1;
+        expectEqual(state.survey.locale, isDe ? "de" : "", "the locale after " + state.switches + " switches");
+        expectEqual(state.question.locTitle.renderedHtml, isDe ? json.title.de : json.title.default, "the title");
+        if (isDe) expectThat(state.survey.pageNextText !== "Next", "the build's German UI strings are loaded");
+        if (ctx.page) expectThat(!!state.dom && state.dom.indexOf(isDe ? json.title.de : json.title.default) > -1, "the rendered title");
+      }
     }
   ];
 }

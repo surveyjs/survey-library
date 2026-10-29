@@ -9,8 +9,9 @@ import * as complexLogic from "./complex-logic.ts";
 import * as manyPages from "./many-pages.ts";
 import * as records from "./records.ts";
 import * as extra from "./extra.ts";
+import * as browser from "./browser.ts";
 
-// Every scenario of perf/scenarios, the same list in core and in the page (03).
+// Every scenario of perf/scenarios, the same list in core and in the page (03); ids.ts says which suites run each.
 export function allScenarios(): Array<PerfScenario> {
   return defineScenarios(([] as Array<PerfScenario>).concat(
     large.largeScenarios(),
@@ -18,7 +19,8 @@ export function allScenarios(): Array<PerfScenario> {
     calculations.calculationsScenarios(),
     complexLogic.complexLogicScenarios(),
     manyPages.manyPagesScenarios(),
-    records.recordsScenarios()
+    records.recordsScenarios(),
+    browser.browserScenarios()
   ));
 }
 
@@ -38,7 +40,7 @@ export function extraScenarioIds(key: string): Array<string> {
 // perf/scenarios.
 export function helperFunctions(): { [name: string]: any } {
   const res: { [name: string]: any } = {};
-  [helpers, common, large, expressions, calculations, complexLogic, manyPages, records, extra].forEach((mod: any) => {
+  [helpers, common, large, expressions, calculations, complexLogic, manyPages, records, extra, browser].forEach((mod: any) => {
     for (const key of Object.keys(mod)) res[key] = mod[key];
   });
   return res;

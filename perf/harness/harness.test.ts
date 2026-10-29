@@ -96,9 +96,10 @@ describe("ids", () => {
     expect(new Set(ids).size).toBe(ids.length);
     ids.forEach((id: string) => expect(FIXTURE_KEYS as ReadonlyArray<string>).toContain(fixtureOfId(id)));
     SCENARIO_IDS.forEach((s: any) => expect(s.suites.length).toBeGreaterThan(0));
-    expect(allScenarios().map((s: any) => s.id).sort()).toEqual(idsOfSuite("core"));
+    expect(allScenarios().map((s: any) => s.id).sort()).toEqual(ids.slice().sort());
+    expect(idsOfSuite("react")).toEqual(idsOfSuite("survey-js-ui"));
+    expect(idsOfSuite("react").length).toBe(19);
     DROP_LIST.forEach((id: string) => expect(ids).toContain(id));
-    expect(suitesOf("records-10k/records/next@orders")).toEqual(["core"]);
   });
   test("the PERF_ONLY split", () => {
     expect(parseOnly(" a , b,,")).toEqual(["a", "b"]);
@@ -108,6 +109,8 @@ describe("ids", () => {
     expect(() => splitOnly(["large/load/nothing"], "core")).toThrow(/in no suite/);
     // A suite with none of the ids runs nothing and lists the others as notInSuite.
     expect(splitOnly(["large/load/model"], "react")).toEqual({ run: [], notInSuite: ["large/load/model"] });
+    expect(splitOnly(["large/load/paint", "large/load/model"], "core")).toEqual({ run: ["large/load/model"], notInSuite: ["large/load/paint"] });
+    expect(suitesOf("records-10k/records/next@orders")).toEqual(["core", "react", "survey-js-ui"]);
   });
 });
 

@@ -80,6 +80,10 @@ export interface ScenarioDriverOptions {
   gc(): void | Promise<void>;
   calibrate(): number;
   installFunnels(): FunnelCounters;
+  // Untimed, right after the timed run (the page measures frameMs and long tasks here).
+  afterRun?(t0: number, t1: number): void | Promise<void>;
+  // Untimed, after the teardown of every sample and of the counter run (the page settles here).
+  afterSample?(): void | Promise<void>;
 }
 
 // The driver of a scenario that runs where the survey lives (a core process, or the page for browser actions):
@@ -97,6 +101,7 @@ export function scenarioDriver(scenario: PerfScenario, ctx: PerfContext, options
       }
     }
     const t1 = options.now();
+    if (options.afterRun) await options.afterRun(t0, t1);
     if (!phases) return { ms: t1 - t0 };
     let sum = 0;
     for (const key in phases) sum += phases[key];
@@ -107,8 +112,10 @@ export function scenarioDriver(scenario: PerfScenario, ctx: PerfContext, options
       const state = await scenario.setup(ctx);
       await options.gc();
       const s = await runTimed(state);
+      if (scenario.record) await scenario.record(ctx, state);
       await scenario.check(ctx, state);
       if (scenario.teardown) await scenario.teardown(ctx, state);
+      if (options.afterSample) await options.afterSample();
       return s;
     },
     counterRun: async(): Promise<Counters> => {
@@ -125,8 +132,10 @@ export function scenarioDriver(scenario: PerfScenario, ctx: PerfContext, options
       const counters: Counters = {};
       for (const key in read) counters[key] = work(read[key]);
       if (scenario.counters) Object.assign(counters, scenario.counters(ctx, state));
+      if (scenario.record) await scenario.record(ctx, state);
       await scenario.check(ctx, state);
       if (scenario.teardown) await scenario.teardown(ctx, state);
+      if (options.afterSample) await options.afterSample();
       return counters;
     },
     calibrate: async(): Promise<number> => options.calibrate()

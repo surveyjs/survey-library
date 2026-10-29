@@ -1311,9 +1311,7 @@ export class SurveyModel extends SurveyElementCore
       this.onReadOnlyChanged();
     }
     if (name === "readOnlyMode") {
-      for (let i = 0; i < this.pages.length; i++) {
-        this.pages[i].notifyReadOnlyModeChanged();
-      }
+      this.pages.forEach(page => page.onReadOnlyModeChanged());
     }
     const resetVisibleIndexesProps = ["questionStartIndex", "requiredMark", "questionTitlePattern"];
     if (resetVisibleIndexesProps.indexOf(name) > -1) {

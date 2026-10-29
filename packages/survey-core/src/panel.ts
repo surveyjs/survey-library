@@ -485,9 +485,6 @@ export class PanelModelBase extends SurveyElement<Question>
         this.validateContainerOnly();
       }
     }
-    if (name === "readOnlyMode") {
-      this.notifyReadOnlyModeChanged();
-    }
   }
   public getType(): string {
     return "panelbase";
@@ -1988,15 +1985,10 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     super.onReadOnlyChanged();
   }
-  public notifyReadOnlyModeChanged(): void {
-    const elements = this.elements;
-    for (let i = 0; i < elements.length; i++) {
-      const el = elements[i] as any;
-      if (el.isPanel && typeof el.notifyReadOnlyModeChanged === "function") {
-        el.notifyReadOnlyModeChanged();
-      } else if (typeof el.notifyViewModeChanged === "function") {
-        el.notifyViewModeChanged();
-      }
+  public onReadOnlyModeChanged(): void {
+    super.onReadOnlyModeChanged();
+    for (let i = 0; i < this.elements.length; i++) {
+      (<SurveyElement>(<any>this.elements[i])).onReadOnlyModeChanged();
     }
   }
   public updateElementCss(reNew?: boolean): void {

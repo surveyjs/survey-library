@@ -257,6 +257,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (name === "isReadOnly") {
       this.onReadOnlyChanged();
     }
+    if (name === "readOnlyMode") {
+      this.onReadOnlyModeChanged();
+    }
     if (name === "errors") {
       this.updateVisibleErrors();
     }
@@ -688,6 +691,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return "readonly";
   }
+  // Called down the element tree when readOnlyMode changes on the element or on any of its ancestors.
+  public onReadOnlyModeChanged(): void { }
   protected onReadOnlyChanged() {
     if (!!this.readOnlyChangedCallback) {
       this.readOnlyChangedCallback();

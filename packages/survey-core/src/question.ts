@@ -594,9 +594,6 @@ export class Question extends SurveyElement<Question>
     if (name === "showCommentArea" || name === "showOtherItem") {
       this.initCommentFromSurvey();
     }
-    if (name === "readOnlyMode") {
-      this.notifyViewModeChanged();
-    }
     if (name === "commentPlaceholder") {
       this.resetRenderedCommentPlaceholder();
     }
@@ -2161,13 +2158,14 @@ export class Question extends SurveyElement<Question>
     }
     return text ? text : readOnlyViewEmptyText;
   }
-  public notifyViewModeChanged(): void {
+  public onReadOnlyModeChanged(): void {
+    super.onReadOnlyModeChanged();
     const value = this.isViewMode;
     if (this.getPropertyValue("isViewMode") !== value) {
       this.setPropertyValue("isViewMode", value);
     }
     this.forEachNestedElement(info => {
-      getNestedElementQuestions(info).forEach(q => q.notifyViewModeChanged());
+      getNestedElementQuestions(info).forEach(q => q.onReadOnlyModeChanged());
     }, { build: "none", visibleOnly: false });
   }
   protected onReadOnlyChanged(): void {
@@ -2178,7 +2176,7 @@ export class Question extends SurveyElement<Question>
     }
     this.updateQuestionCss();
     this.resetRenderedCommentPlaceholder();
-    this.notifyViewModeChanged();
+    this.onReadOnlyModeChanged();
   }
   /**
    * A Boolean expression. If it evaluates to `false`, this question becomes read-only.

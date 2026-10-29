@@ -11,7 +11,7 @@ import { FilterItem } from "./filter/filter-item";
 import { FilterConditionsEditor } from "./filter/filter-conditions-editor";
 import { FilterFieldPopup } from "./filter/filter-field-popup";
 import { FilterModal } from "./filter/filter-modal";
-import { FilterPresetDialog } from "./filter/filter-preset-dialog";
+import { FilterEditPresetsDialog, FilterPresetDialog } from "./filter/filter-preset-dialog";
 import { FilterToolbars, IFilterFieldState, filterUIStrings } from "./filter/filter-toolbars";
 import { FilterChipsLayout } from "./filter/filter-chips-layout";
 import { ActionContainer } from "./actions/container";
@@ -322,6 +322,17 @@ export class QuestionFilterModel extends QuestionNonValue {
     const res = { title: original.title, conditions: this.parseItemConditions(original) };
     original.dispose();
     return res;
+  }
+  // Whether a title and conditions are what the JSON made the preset: the Edit Presets dialog offers
+  // Reset while they are not. conditions null - a preset that does not decompose - compares only with
+  // an original that does not decompose either. A preset of the respondent's own is compared with
+  // what it is.
+  public isOriginalItemState(name: string, title: string, conditions: Array<IFilterCondition> | null): boolean {
+    const original = this.getOriginalItemState(name);
+    if (!original) return true;
+    if ((title || "").trim() !== original.title) return false;
+    if (conditions === null || original.conditions === null) return conditions === original.conditions;
+    return this.isSameConditionSet(normalizeFilterConditions(conditions, this.getFilterFields()), original.conditions);
   }
   // A preset of the respondent's own (the Filters dialog's Add Preset): the conditions it filters by,
   // normalized as an edit is, and a title. It goes after every other preset and is not turned on.
@@ -636,6 +647,11 @@ export class QuestionFilterModel extends QuestionNonValue {
   // caller owns it and disposes it.
   public createAddPresetDialog(conditions: Array<IFilterCondition>): FilterPresetDialog {
     return new FilterPresetDialog(this, conditions || []);
+  }
+  // The Edit Presets dialog, the named preset's tab selected - see FilterEditPresetsDialog. The
+  // caller owns it and disposes it.
+  public createEditPresetsDialog(activeItemName?: string): FilterEditPresetsDialog {
+    return new FilterEditPresetsDialog(this, activeItemName);
   }
   // Every field by its key, in the order the Filters dialog shows them - the fields a preset can be
   // made of.

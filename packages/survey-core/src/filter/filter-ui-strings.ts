@@ -23,5 +23,9 @@ export const filterUIStrings = {
   presetContains: "Contains",
   addField: "Add",
   presetTitleExists: "A preset with this name already exists.",
-  presetNoConditions: "Add at least one condition."
+  presetNoConditions: "Add at least one condition.",
+  editPresets: "Edit Presets",
+  presetActions: "Preset Actions",
+  deletePreset: "Delete",
+  resetPreset: "Reset"
 };

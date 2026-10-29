@@ -13,3 +13,4 @@ index.js
 packages/survey-core/tests/bundle/*
 packages/survey-core/prompts/
 packages/survey-core/promts/
+perf/results/

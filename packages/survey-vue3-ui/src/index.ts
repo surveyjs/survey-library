@@ -90,6 +90,7 @@ import RecordsSortDialog from "./components/records-bar/RecordsSortDialog.vue";
 import List from "./components/list/List.vue";
 import ListItem from "./components/list/ListItem.vue";
 import ListItemContent from "./components/list/ListItemContent.vue";
+import ListLoading from "./components/list/ListLoading.vue";
 import ListItemGroup from "./components/list/ListItemGroup.vue";
 
 import Popup from "./components/popup/Popup.vue";
@@ -273,6 +274,7 @@ function registerComponents(
 
   registerComponent("sv-list", List);
   registerComponent("sv-list-item-content", ListItemContent);
+  registerComponent("sv-list-loading", ListLoading);
   registerComponent("sv-list-item-group", ListItemGroup);
   registerComponent("sv-list-item", ListItem);
 

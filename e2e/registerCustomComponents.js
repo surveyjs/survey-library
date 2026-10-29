@@ -156,6 +156,30 @@ export const registerCustomItemComponent = async (page, framework) => {
   await page.waitForTimeout(500);
 };
 
+export const registerCustomListLoadingComponent = async (page, framework) => {
+  await page.evaluate((framework) => {
+    const register = (lib, createElement, BaseComponent) => {
+      class ListLoadingComponent extends BaseComponent {
+        render() {
+          return createElement("div", { className: "my-list-loading", "data-state": "loading" }, "Custom loading");
+        }
+      }
+      lib.ReactElementFactory.Instance.registerElement("my-list-loading", (props) => {
+        return createElement(ListLoadingComponent, props);
+      });
+    };
+    if (framework === "react") {
+      register(window["SurveyReact"], window["React"].createElement, window["React"].Component);
+    } else if (framework === "jquery-ui" || framework === "survey-js-ui") {
+      const lib = window["SurveyJquery"] || window["SurveyUI"];
+      const preact = lib["preact"];
+      window.React = { createElement: preact.createElement };
+      register(lib, preact.createElement, preact.Component);
+    }
+  }, framework);
+  await page.waitForTimeout(500);
+};
+
 export const registerCustomItemContentComponent = async (page, framework) => {
   await page.evaluate((framework) => {
     if (framework === "react") {

@@ -4,6 +4,7 @@ import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SvgIcon } from "../svg-icon/svg-icon";
 import { ListItem } from "./list-item";
+import "./list-loading";
 
 interface IListProps {
   model: ListModel;
@@ -148,8 +149,10 @@ export class List extends SurveyElementBase<IListProps, any> {
     }
   }
   emptyContent() {
+    if (this.model.loadingState === "loading") {
+      return ReactElementFactory.Instance.createElement(this.model.loadingComponent, { model: this.model });
+    }
     const style = { display: this.model.isEmpty ? null : "none" };
-
     return (<div className={this.model.cssClasses.emptyContainer} style={style as any}>
       <div className={this.model.cssClasses.emptyText} aria-label={this.model.emptyMessage}>{this.model.emptyMessage}</div>
     </div>);

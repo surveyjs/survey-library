@@ -406,7 +406,8 @@ Serializer.addClass(
     { name: "choicesLazyLoadEnabled:boolean", visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "inputFieldComponent", visible: false },
-    { name: "itemComponent", visible: false, default: "" }
+    { name: "itemComponent", visible: false, default: "" },
+    { name: "loadingComponent", visible: false, default: "" }
   ],
   function () {
     return new QuestionDropdownModel("");

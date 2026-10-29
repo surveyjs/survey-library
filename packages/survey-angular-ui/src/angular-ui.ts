@@ -60,6 +60,7 @@ export * from "./components/list/list.component";
 export * from "./components/list/list-item.component";
 export * from "./components/list/list-item-content.component";
 export * from "./components/list/list-item-group.component";
+export * from "./components/list/list-loading.component";
 export * from "./components/rating/rating-item.component";
 export * from "./components/rating/rating-item-star.component";
 export * from "./components/rating/rating-item-smiley.component";

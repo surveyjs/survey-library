@@ -89,6 +89,7 @@ export { SurveyQuestionCustom, SurveyQuestionComposite } from "../src/reactquest
 
 export { Popup } from "../src/components/popup/popup";
 export { ListItemContent } from "../src/components/list/list-item-content";
+export { ListLoading } from "../src/components/list/list-loading";
 export { ListItemGroup } from "../src/components/list/list-item-group";
 export { List } from "../src/components/list/list";
 export { TitleActions } from "../src/components/title/title-actions";

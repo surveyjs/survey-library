@@ -2,6 +2,7 @@ import type { DropdownListModel } from "./dropdownListModel";
 import type { PopupModel } from "./popup";
 import type { EventBase } from "./event";
 import type { ItemValue } from "./itemvalue";
+import { property } from "./decorators";
 import { QuestionSelectBase } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
 import { dropdownQuestionMixin, IDropdownQuestion } from "./dropdownRenderState";
@@ -22,6 +23,13 @@ export function questionDropdownMixin<TBase extends Constructor<QuestionSelectBa
 
     declare choicesLazyLoadEnabled: boolean;
     declare allowCustomChoices: boolean;
+    @property({
+      onSet: (newValue: string, target: any) => {
+        if (!!target.dropdownListModelValue) {
+          target.dropdownListModel.setLoadingComponent(newValue);
+        }
+      }
+    }) loadingComponent: string;
     declare allowClear: boolean;
     declare placeholder: string;
     declare onOpened: EventBase<any>;

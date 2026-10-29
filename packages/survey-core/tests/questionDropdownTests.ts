@@ -1579,7 +1579,73 @@ describe("Dropdown question", () => {
     doCallback(opts[0]);
     expect(list.actions.length).toBe(0);
     expect(list.emptyMessage).toBe("No data to display");
+    expect(list.loadingState).toBe("empty");
     expect(question.choices.length).toBe(0);
+  });
+
+  test("dropdown loadingComponent replaces the whole loading view", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "dropdown",
+        name: "q1",
+        choicesLazyLoadEnabled: true,
+        loadingComponent: "my-loading"
+      }]
+    });
+    const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+    const list: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
+    expect(list.loadingComponent).toBe("my-loading");
+    expect(list.loadingState).toBe("loading");
+
+    question.loadingComponent = "other-loading";
+    expect(list.loadingComponent).toBe("other-loading");
+
+    question.loadingComponent = "";
+    expect(list.loadingComponent).toBe("sv-list-loading");
+  });
+
+  test("dropdown shows the loading component again while the next choice page is loading", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "dropdown",
+        name: "q1",
+        choicesLazyLoadEnabled: true
+      }]
+    });
+    const opts = new Array<any>();
+    survey.onChoicesLazyLoad.add((_, opt) => { opts.push(opt); });
+    const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+    const list: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+    question.dropdownListModel.popupModel.show();
+    opts[0].setItems([], 0);
+    expect(list.loadingState).toBe("empty");
+
+    question.dropdownListModel.popupModel.hide();
+    question.dropdownListModel.popupModel.show();
+    expect(list.loadingState).toBe("loading");
+    opts[opts.length - 1].setItems([], 0);
+    expect(list.loadingState).toBe("empty");
+  });
+
+  test("dropdown loadingState is loaded once choices arrive", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "dropdown",
+        name: "q1",
+        choicesLazyLoadEnabled: true
+      }]
+    });
+    const opts = new Array<any>();
+    survey.onChoicesLazyLoad.add((_, opt) => { opts.push(opt); });
+    const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+    const list: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+    question.dropdownListModel.popupModel.show();
+    expect(list.loadingState).toBe("loading");
+    opts[0].setItems(["Ford", "Audi"], 2);
+    list.flushUpdates();
+    expect(list.loadingState).toBe("loaded");
   });
 
   test("isReady flag + onGetChoiceDisplayValue", () => {

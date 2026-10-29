@@ -1,4 +1,5 @@
 import { frameworks, url, initSurvey, getVisibleSelectListItemByText, test, expect } from "../helper";
+import { registerCustomListLoadingComponent } from "../registerCustomComponents";
 
 const title = "tagbox";
 
@@ -1033,6 +1034,39 @@ frameworks.forEach((framework) => {
 
       await page.mouse.click(600, 20);
       await expect(popupContainer).not.toBeVisible();
+    });
+
+    test("Check tagbox custom loading component", async ({ page }) => {
+      await registerCustomListLoadingComponent(page, framework);
+
+      const json = {
+        elements: [
+          {
+            type: "tagbox",
+            name: "q1",
+            choicesLazyLoadEnabled: true,
+            loadingComponent: "my-list-loading"
+          }
+        ]
+      };
+      await initSurvey(page, framework, {});
+      await page.evaluate((json) => {
+        window["survey"].onChoicesLazyLoad.add((_, opt) => {
+          setTimeout(() => {
+            opt.setItems(["Ford", "Audi", "BMW"], 3);
+          }, 500);
+        });
+        window["survey"].fromJSON(json);
+      }, json);
+
+      const customLoading = page.locator(".my-list-loading");
+
+      await page.locator(".sd-tagbox").click();
+      await expect(customLoading).toHaveAttribute("data-state", "loading");
+      await expect(customLoading).toHaveText("Custom loading");
+
+      await expect(customLoading).toHaveCount(0);
+      await expect(getVisibleSelectListItemByText(page, "Audi")).toBeVisible();
     });
   });
 });

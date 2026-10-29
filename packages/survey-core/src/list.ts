@@ -68,6 +68,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   @property({ defaultValue: "option" }) listItemRole: string;
   @property() listAriaLabel: string;
   @property({ defaultValue: false }) disableSearch: boolean;
+  @property({ defaultValue: "sv-list-loading" }) loadingComponent: string;
 
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;
@@ -311,6 +312,11 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
   public get emptyMessage(): string {
     return this.isAllDataLoaded ? this.getLocalizationString("emptyMessage") : this.getLocalizationString("loadingData");
+  }
+  // loadingComponent is shown only while choices are loading. The no-data text stays in the list.
+  public get loadingState(): "loading" | "empty" | "loaded" {
+    if (!this.isEmpty) return "loaded";
+    return this.isAllDataLoaded ? "empty" : "loading";
   }
   public get scrollableContainer(): HTMLElement {
     return this.listContainerHtmlElement.querySelector(classesToSelector(this.cssClasses.itemsContainer));

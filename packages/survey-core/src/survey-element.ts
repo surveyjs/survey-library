@@ -677,19 +677,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public getReadOnlyMode(): "readonly" | "view" {
     const own = this.readOnlyMode;
     if (own === "view" || own === "readonly") return own;
-    const parent = this.parent as any;
-    if (parent && parent !== this && typeof parent.getReadOnlyMode === "function") {
-      return parent.getReadOnlyMode();
-    }
-    const parentQuestion = this.parentQuestion as any;
-    if (parentQuestion && parentQuestion !== this && typeof parentQuestion.getReadOnlyMode === "function") {
-      return parentQuestion.getReadOnlyMode();
-    }
-    const survey = this.survey as any;
-    if (survey && survey !== this && typeof survey.getReadOnlyMode === "function") {
-      return survey.getReadOnlyMode();
-    }
-    return "readonly";
+    const owner = <SurveyElement><any>(this.parent || this.parentQuestion);
+    if (!!owner) return owner.getReadOnlyMode();
+    return !!this.survey ? this.survey.getReadOnlyMode() : "readonly";
   }
   // Called down the element tree when readOnlyMode changes on the element or on any of its ancestors.
   public onReadOnlyModeChanged(): void { }

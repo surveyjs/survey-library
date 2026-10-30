@@ -73,24 +73,26 @@
 }
 
 /* The matrix as the frame's rows (node 6380:26237): the handle, the number, two dropdowns of the same width
-   and the remove button, x150 apart; the rows x400 apart. */
+   and the remove button, x150 apart. */
 .sv-popup--records-sort .sv-popup__content > .sd-root-modern .sd-table {
   display: block;
 
   .sd-table__body {
     display: flex;
     flex-direction: column;
-    gap: var(--sjs2-spacing-x400);
   }
 }
 
 /* A row - also the copy of a row that follows the pointer during a drag, which the drag places on the modal,
-   outside the dialog's survey (.sv-matrixdynamic-dragged-row). */
+   outside the dialog's survey (.sv-matrixdynamic-dragged-row). The space between the rows is their own vertical
+   padding, not a gap, so the copy and the place the dragged row leaves include it, and there is no space between
+   two rows where the pointer is over no row. */
 .sv-popup--records-sort .sd-sort-dialog__row,
 .sv-matrixdynamic-dragged-row .sd-sort-dialog__row {
   display: flex;
   align-items: center;
   gap: var(--sjs2-spacing-x150);
+  padding-block: var(--sjs2-spacing-x150);
   border: none;
   background: transparent;
 

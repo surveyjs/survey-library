@@ -556,7 +556,7 @@ export class MatrixDropdownColumn extends Base
    * Sorting configured in code remains available regardless of this property's value.
    */
   @property({ defaultValue: true }) allowSort: boolean;
-  // Whether the cell's value can be sorted at all, whatever allowSort says: the designer's dialog offers such a column.
+  // Whether the cell's value can be sorted at all, whatever allowSort says: the designer's sort fields offer such a column.
   public get isValueSortable(): boolean {
     return !!this.templateQuestion && this.templateQuestion.isValueSortable;
   }

@@ -55,6 +55,8 @@ export var slovenianStrings = {
   sortAddNewText: "Dodaj novo",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Premik sort nivo {0}",
   // "Complete"
   completeText: "Zaključi",
   // "Preview"

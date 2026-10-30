@@ -1207,7 +1207,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     return this.columns.filter((column: MatrixDropdownColumn): boolean => column.visible && column.isSortable)
       .map((column: MatrixDropdownColumn): { field: string, title: string } => ({ field: column.sortField, title: column.title }));
   }
-  /* The designer's dialog offers every column whose values sort, an invisible one included: the column still
+  /* The designer's sort fields (getDesignSortFields) are every column whose values sort, an invisible one included: the column still
      holds a value in every row, so a designer can order the rows by a key the respondent does not see. */
   protected getDesignSortFieldCandidates(): Array<{ field: string, title: string }> {
     return this.columns.filter((column: MatrixDropdownColumn): boolean => column.isValueSortable)

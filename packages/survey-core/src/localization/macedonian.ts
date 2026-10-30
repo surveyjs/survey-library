@@ -55,6 +55,8 @@ export var macedonianSurveyStrings = {
   sortAddNewText: "Додај ново",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Премести сортирање на ниво {0}",
   // "Complete"
   completeText: "Заврши",
   // "Preview"

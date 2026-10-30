@@ -55,6 +55,8 @@ export var urduSurveyStrings = {
   sortAddNewText: "نیا شامل کریں",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "موو سورت لیول {0}",
   // "Complete"
   completeText: "مکمل",
   // "Preview"

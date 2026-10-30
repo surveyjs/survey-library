@@ -55,6 +55,8 @@ export var romanianSurveyStrings = {
   sortAddNewText: "Adaugă noutăți",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Nivel de sortare a mișcărilor {0}",
   // "Complete"
   completeText: "Finalizare",
   // "Preview"

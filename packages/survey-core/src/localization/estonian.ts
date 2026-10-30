@@ -55,6 +55,8 @@ export var estonianSurveyStrings = {
   sortAddNewText: "Lisa uus",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Liigutuste sorteerimise tase {0}",
   // "Complete"
   completeText: "Lõpeta",
   // "Preview"

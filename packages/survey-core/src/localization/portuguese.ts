@@ -55,6 +55,8 @@ export var portugueseSurveyStrings = {
   sortAddNewText: "Adicionar Novo",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Nível de ordenação de movimentos {0}",
   // "Complete"
   completeText: "Finalizar",
   // "Preview"

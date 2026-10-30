@@ -40,8 +40,8 @@ afterEach(() => {
   }
 });
 const root = (): HTMLElement => container as HTMLElement;
-const headerBar = (): Element => root().querySelector(".sd-question__header .sd-matrixdynamic__sort-bar");
-const topBar = (): Element => root().querySelector(".sd-matrixdynamic__sort-bar-top .sd-matrixdynamic__sort-bar");
+const headerBar = (): Element => root().querySelector(".sd-question__header .sd-question__sort-bar");
+const topBar = (): Element => root().querySelector(".sd-question__sort-bar-top .sd-question__sort-bar");
 
 describe("Records sort bar: where the renderer mounts it", () => {
   it("the header shows and hides the bar when allowSort flips at runtime", () => {

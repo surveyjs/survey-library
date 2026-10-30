@@ -1108,7 +1108,7 @@ frameworks.forEach((framework) => {
     });
     const prices = async (page): Promise<Array<string>> =>
       page.locator(".sd-table__row input[type=number]").evaluateAll((inputs: Array<HTMLInputElement>) => inputs.map((input) => input.value));
-    const headerBar = (page) => page.locator(".sd-question__header .sd-matrixdynamic__sort-bar");
+    const headerBar = (page) => page.locator(".sd-question__header .sd-question__sort-bar");
     const fieldButton = (page) => page.getByRole("button", { name: /^Sort field/ });
     const directionButton = (page) => page.getByRole("button", { name: /^Sort order/ });
     const listItem = (page, text: string) =>
@@ -1171,7 +1171,7 @@ frameworks.forEach((framework) => {
     test("with a hidden title the bar shows above the records", async ({ page }) => {
       await initSurvey(page, framework, barJson({ titleLocation: "hidden" }));
       await expect(headerBar(page)).toHaveCount(0);
-      await expect(page.locator(".sd-matrixdynamic__sort-bar-top .sd-matrixdynamic__sort-bar")).toBeVisible();
+      await expect(page.locator(".sd-question__sort-bar-top .sd-question__sort-bar")).toBeVisible();
       await fieldButton(page).click();
       await listItem(page, "Price").click();
       expect(await prices(page)).toEqual(["30", "20", "10"]);
@@ -1340,7 +1340,7 @@ frameworks.forEach((framework) => {
     });
     const products = async (page): Promise<Array<string>> =>
       page.locator(".sd-table__row").evaluateAll((rows: Array<HTMLElement>) => rows.map((row) => (row.querySelector("input[type=text]") as HTMLInputElement).value));
-    const headerBar = (page) => page.locator(".sd-question__header .sd-matrixdynamic__sort-bar");
+    const headerBar = (page) => page.locator(".sd-question__header .sd-question__sort-bar");
     const levelButton = (page, label: string, level: number) =>
       headerBar(page).getByRole("button", { name: level === 1 ? new RegExp("^" + label + " (?!\\d)") : new RegExp("^" + label + " " + level + " ") });
     const levelField = (page, level: number) => levelButton(page, "Sort field", level);
@@ -1476,7 +1476,7 @@ frameworks.forEach((framework) => {
     });
 
     test("\"+\" adds a level that does not fit: \"...\" takes the place of \"+\", the level is in the dialog, and the focus goes to \"...\"", async ({ page }) => {
-      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.setViewportSize({ width: 1160, height: 900 });
       await initSurvey(page, framework, moreJson());
       await waitForFit(page);
       await expect(moreButton(page)).toHaveCount(0);
@@ -1513,7 +1513,7 @@ frameworks.forEach((framework) => {
     });
 
     test("the keyboard: \"+\" adds a level that does not fit next to two levels: \"+\" leaves the bar and the focus goes to \"...\"", async ({ page }) => {
-      await page.setViewportSize({ width: 1280, height: 900 });
+      await page.setViewportSize({ width: 1000, height: 900 });
       await initSurvey(page, framework, moreJson({ sortCriteria: [{ field: "category", direction: "asc" }, { field: "product", direction: "desc" }] }));
       await waitForFit(page);
       await expect(levelField(page, 2)).toBeVisible();
@@ -1527,7 +1527,7 @@ frameworks.forEach((framework) => {
     });
 
     test("a longer label pushes a level behind \"...\", a shorter one brings it back", async ({ page }) => {
-      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.setViewportSize({ width: 1160, height: 900 });
       const json = moreJson();
       json.elements[0].columns[3].title = "Quantity per Unit, in Boxes";
       await initSurvey(page, framework, json);

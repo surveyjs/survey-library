@@ -2481,9 +2481,6 @@ export abstract class QuestionRecordsModel extends Question {
   protected getAdditionalTitleToolbar(): ActionContainer | null {
     return this.recordsBar.sortActions;
   }
-  protected getCssHeader(cssClasses: any): string {
-    return toCssClasses(super.getCssHeader(cssClasses), this.sortBarLocation === "header" && cssClasses.headerWithSortBar);
-  }
   /* The fields the sort bar offers, in the order the question shows them: the sortable columns of a
      matrix, the value-sortable template questions of a dynamic panel. Computed on every read from the
      columns or the template, which notify the bar through updateRecordsBar(). The data type is the

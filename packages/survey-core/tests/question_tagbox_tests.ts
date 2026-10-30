@@ -2618,6 +2618,68 @@ describe("Tagbox question", () => {
     expect(item.title, "default deselect all text after set value").toBe("Deselect all");
   });
 
+  test("Tab after keyboard Enter keeps the selected item", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "tagbox",
+        name: "q1",
+        choices: ["item1", "item2", "item3"]
+      }]
+    });
+    const question = <QuestionTagboxModel>survey.getQuestionByName("q1");
+    const dropdownListModel = question.dropdownListModel;
+    const press = (key: "ArrowDown" | "Enter" | "Tab") => {
+      const keyCode = { ArrowDown: 40, Enter: 13, Tab: 9 }[key];
+      dropdownListModel.keyHandler({
+        key,
+        keyCode,
+        preventDefault: () => { },
+        stopPropagation: () => { }
+      });
+    };
+
+    press("ArrowDown");
+    press("Enter");
+    expect([...(question.value)], "Enter selects the focused item").toEqual(["item1"]);
+
+    press("Tab");
+    dropdownListModel.onBlur({ target: null, relatedTarget: document.createElement("div"), stopPropagation: () => { } });
+
+    expect([...(question.value)], "Tab leaves the Enter selection in place").toEqual(["item1"]);
+    expect(question.selectedItems.length).toBe(1);
+  });
+
+  test("Tab after several keyboard selections keeps the last item", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "tagbox",
+        name: "q1",
+        choices: ["item1", "item2", "item3"]
+      }]
+    });
+    const question = <QuestionTagboxModel>survey.getQuestionByName("q1");
+    const dropdownListModel = question.dropdownListModel;
+    const press = (key: "ArrowDown" | "Enter" | "Tab") => {
+      const keyCode = { ArrowDown: 40, Enter: 13, Tab: 9 }[key];
+      dropdownListModel.keyHandler({
+        key,
+        keyCode,
+        preventDefault: () => { },
+        stopPropagation: () => { }
+      });
+    };
+
+    press("ArrowDown");
+    press("Enter");
+    press("ArrowDown");
+    press("Enter");
+    expect([...(question.value)], "two items selected before Tab").toEqual(["item1", "item2"]);
+
+    press("Tab");
+
+    expect([...(question.value)], "Tab keeps both selected items").toEqual(["item1", "item2"]);
+  });
+
   test("auto-select focused item on Tab", () => {
     const survey = new SurveyModel({
       elements: [{

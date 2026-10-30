@@ -73,24 +73,26 @@
 }
 
 /* The matrix as the frame's rows (node 6380:26237): the handle, the number, two dropdowns of the same width
-   and the remove button, x150 apart; the rows x400 apart. */
+   and the remove button, x150 apart. */
 .sv-popup--records-sort .sv-popup__content > .sd-root-modern .sd-table {
   display: block;
 
   .sd-table__body {
     display: flex;
     flex-direction: column;
-    gap: var(--sjs2-spacing-x400);
   }
 }
 
 /* A row - also the copy of a row that follows the pointer during a drag, which the drag places on the modal,
-   outside the dialog's survey (.sv-matrixdynamic-dragged-row). */
+   outside the dialog's survey (.sv-matrixdynamic-dragged-row). The space between the rows is their own vertical
+   padding, not a gap, so the copy and the place the dragged row leaves include it, and there is no space between
+   two rows where the pointer is over no row. */
 .sv-popup--records-sort .sd-sort-dialog__row,
 .sv-matrixdynamic-dragged-row .sd-sort-dialog__row {
   display: flex;
   align-items: center;
   gap: var(--sjs2-spacing-x150);
+  padding-block: var(--sjs2-spacing-x150);
   border: none;
   background: transparent;
 
@@ -105,8 +107,20 @@
 
   /* The two dropdowns share the width that is left. The cells are counted "of .sd-table__cell": Angular puts
      a hidden component element before each cell of a row. */
-  & > .sd-table__cell:not(.sd-table__cell--actions):not(:nth-child(2 of .sd-table__cell)) {
+  & > .sd-table__cell:not(.sd-table__cell--actions):not(.sd-table__cell--empty):not(:nth-child(2 of .sd-table__cell)) {
     flex: 1 1 0;
+  }
+
+  /* Row 1 has no remove button: its empty cell is as wide as the button's cell, so the dropdowns of all rows line
+     up. The width is the cell's own: the action group's padding, the small button's padding and its icon. A theme
+     can change each of them, and the button's cell has the same minimum because a theme can make its icon smaller. */
+  & > .sd-table__cell--empty,
+  & > .sd-table__cell--actions:last-of-type {
+    min-width: calc(
+      var(--sjs2-layout-component-matrix-action-group-right-padding-left) +
+      2 * var(--sjs2-layout-component-action-small-box-padding-horizontal) +
+      var(--sjs2-line-height-x300)
+    );
   }
 
   /* The number: the text centered in x125, then x100 (Figma 6528:26858), in the default strong text of

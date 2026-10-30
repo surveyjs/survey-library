@@ -53,8 +53,6 @@ export var spanishSurveyStrings = {
   sortMoreAriaLabel: "Mostrar todos los niveles de tipo",
   // [Auto-translated] "Add New"
   sortAddNewText: "Añadir Nuevo",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "Nivel de ordenación de movimientos {0}",
   // "Complete"

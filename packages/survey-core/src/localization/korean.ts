@@ -53,8 +53,6 @@ export var koreanStrings = {
   sortMoreAriaLabel: "모든 종류의 레벨 표시",
   // [Auto-translated] "Add New"
   sortAddNewText: "새 항목 추가하기",
-  // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // [Auto-translated] "Move sort level {0}"
   sortMoveLevelAriaLabel: "이동 정렬 레벨 {0}",
   // "Complete"

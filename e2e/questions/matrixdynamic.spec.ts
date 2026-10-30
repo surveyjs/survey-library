@@ -1427,7 +1427,7 @@ frameworks.forEach((framework) => {
       await expect(dialog(page)).toBeVisible();
       await dialogButton(page, "Add New").click();
       await expect(dialogRows(page)).toHaveCount(4);
-      expect(await rowsShown(page)).toEqual([["1", "Category", "Alphabet, A - Z"], ["2", "Product", "Alphabet, A - Z"], ["3", "Price, USD", "Low - High"], ["4", "Quantity per Unit", "\u2014"]]);
+      expect(await rowsShown(page)).toEqual([["1", "Category", "Alphabet, A - Z"], ["2", "Product", "Alphabet, A - Z"], ["3", "Price, USD", "Low - High"], ["4", "Quantity per Unit", "Alphabet, A - Z"]]);
       await expect(dialogButton(page, "Add New")).toBeDisabled();
       await rowDirection(page, 4).click();
       await optionItem(page, "Alphabet, Z - A").click();
@@ -1462,11 +1462,11 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Enter");
       await expect(rowField(page, 1)).toBeFocused();
       const tabOrder: Array<string> = [];
-      for (let i = 0; i < 14; i++) {
+      for (let i = 0; i < 13; i++) {
         await page.keyboard.press("Tab");
         tabOrder.push(await focusedName(page));
       }
-      expect(tabOrder).toEqual(["Sort order", "Remove sort level 1", "Move sort level 2", "Sort field 2", "Sort order 2", "Remove sort level 2",
+      expect(tabOrder).toEqual(["Sort order", "Move sort level 2", "Sort field 2", "Sort order 2", "Remove sort level 2",
         "Move sort level 3", "Sort field 3", "Sort order 3", "Remove sort level 3", "Add New", "Apply", "Move sort level 1", "Sort field"]);
       await rowDirection(page, 1).focus();
       // A dropdown editor opens its list with Space or ArrowDown.
@@ -1674,23 +1674,79 @@ frameworks.forEach((framework) => {
       await expect(dialogButton(page, "Add New")).toBeDisabled();
       await expect(rowField(page, 5)).toBeFocused();
       expect(await rowsShown(page)).toEqual([["1", "Category", "Alphabet, A - Z"], ["2", "Product", "Alphabet, Z - A"], ["3", "Price, USD", "Low - High"],
-        ["4", "Quantity per Unit", "\u2014"], ["5", "In Stock", "\u2014"]]);
+        ["4", "Quantity per Unit", "Alphabet, A - Z"], ["5", "In Stock", "High - Low"]]);
     });
 
-    test("the remove button of row 1: row 2 becomes row 1 and shows Default instead of the dash; the focus goes to the new row 1's field", async ({ page }) => {
+    test("row 1 has no remove button: removing row 2 keeps row 1 and sends the focus to row 1's field", async ({ page }) => {
       await initSurvey(page, framework, moreJson({ maxSortLevel: 5 }));
       await openDialog(page);
-      await rowDirection(page, 2).click();
-      await optionItem(page, "\u2014").click();
-      expect((await rowsShown(page))[1]).toEqual(["2", "Product", "\u2014"]);
-      await rowRemove(page, 1).click();
+      await expect(rowRemove(page, 1)).toHaveCount(0);
+      await rowRemove(page, 2).click();
       await expect(dialogRows(page)).toHaveCount(2);
-      expect(await rowsShown(page)).toEqual([["1", "Product", "Default"], ["2", "Price, USD", "Low - High"]]);
+      expect(await rowsShown(page)).toEqual([["1", "Category", "Alphabet, A - Z"], ["2", "Price, USD", "Low - High"]]);
       await expect(rowField(page, 1)).toBeFocused();
       await rowRemove(page, 2).click();
       await expect(dialogRows(page)).toHaveCount(1);
-      await expect(rowRemove(page, 1), "the single row's remove button").toBeDisabled();
+      await expect(rowRemove(page, 1), "the single row").toHaveCount(0);
       await expect(rowField(page, 1)).toBeFocused();
+    });
+
+    test("a row dragged above row 1 offers Default, the old row 1 no longer does, and row 1 has no remove button", async ({ page }) => {
+      await initSurvey(page, framework, moreJson({ maxSortLevel: 5 }));
+      await openDialog(page);
+      await doDrag({ page, element: rowHandle(page, 3), target: dialogRows(page).nth(0), options: { targetPosition: { x: 200, y: 2 } } });
+      await page.mouse.up();
+      await expect.poll(() => rowsShown(page)).toEqual([["1", "Price, USD", "Low - High"], ["2", "Category", "Alphabet, A - Z"], ["3", "Product", "Alphabet, Z - A"]]);
+      await expect(rowRemove(page, 1)).toHaveCount(0);
+      await expect(rowRemove(page, 2)).toHaveCount(1);
+      await rowDirection(page, 1).click();
+      await expect(optionItem(page, "Default")).toBeVisible();
+      await page.keyboard.press("Escape");
+      await rowDirection(page, 2).click();
+      await expect(optionItem(page, "Alphabet, Z - A")).toBeVisible();
+      await expect(optionItem(page, "Default")).toHaveCount(0);
+    });
+
+    test("Default in row 1 of three rows leaves one row, disables Add New and keeps the focus on row 1's direction; Apply clears the sort", async ({ page }) => {
+      await initSurvey(page, framework, moreJson());
+      await openDialog(page);
+      await rowDirection(page, 1).click();
+      await optionItem(page, "Default").click();
+      await expect(dialogRows(page)).toHaveCount(1);
+      await expect(dialogButton(page, "Add New")).toBeDisabled();
+      await expect(rowDirection(page, 1)).toBeFocused();
+      expect(await rowsShown(page)).toEqual([["1", "Category", "Default"]]);
+      await dialogButton(page, "Apply").click();
+      await expect(dialog(page)).toHaveCount(0);
+      expect(await sortOf(page)).toEqual([]);
+      await expect(levelDirection(page, 1).locator(".sd-action__title")).toHaveText("Default");
+    });
+
+    test("Delete and Backspace clear no dropdown of a row", async ({ page }) => {
+      await initSurvey(page, framework, moreJson());
+      await openDialog(page);
+      const rows = await rowsShown(page);
+      await rowDirection(page, 2).focus();
+      await page.keyboard.press("Delete");
+      await rowField(page, 1).focus();
+      await page.keyboard.press("Backspace");
+      expect(await rowsShown(page)).toEqual(rows);
+    });
+
+    test("the dropdowns of row 1 and row 2 have the same edges, and a single row keeps that width", async ({ page }) => {
+      await initSurvey(page, framework, moreJson());
+      await openDialog(page);
+      const edges = async (row: number): Promise<Array<number>> => {
+        const field = await rowField(page, row).boundingBox();
+        const direction = await rowDirection(page, row).boundingBox();
+        return [field!.x, field!.x + field!.width, direction!.x, direction!.x + direction!.width].map((value: number): number => Math.round(value));
+      };
+      const row2 = await edges(2);
+      expect(await edges(1)).toEqual(row2);
+      await rowRemove(page, 3).click();
+      await rowRemove(page, 2).click();
+      await expect(dialogRows(page)).toHaveCount(1);
+      expect(await edges(1)).toEqual(row2);
     });
   });
 });

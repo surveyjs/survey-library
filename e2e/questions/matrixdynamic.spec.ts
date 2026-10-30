@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getVisibleSelectListItemByText, test, expect, setData, getData, doDrag, doDragDrop, getButtonByText } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getVisibleSelectListItemByText, test, expect, setData, getData, doDrag, doDragDrop, getButtonByText, resetFocusToBody } from "../helper";
 
 const title = "matrixdynamic";
 
@@ -1075,6 +1075,102 @@ frameworks.forEach((framework) => {
       expect(await products()).toEqual(["b", "c", "a", "d"]);
       await expect(productHeader.locator(".sd-table__header-sort--none")).toHaveCount(1);
       await expect(priceHeader).toHaveAttribute("aria-sort", "descending");
+    });
+
+    // The rest state: no pointer over the table and no focus in it.
+    const leaveHeaders = async (page): Promise<void> => {
+      await resetFocusToBody(page);
+      await page.mouse.move(0, 0);
+    };
+    const headerBoxes = async (header): Promise<any> => ({
+      button: await header.locator("button").boundingBox(),
+      title: await header.locator(".sd-table__header-sort-title").boundingBox(),
+      icon: await header.locator(".sd-table__header-sort").boundingBox(),
+    });
+    const expectIconAfterTitle = ({ title, icon }): void => {
+      expect(Math.abs(icon.x - (title.x + title.width) - 4), "a 4px gap between the title and the icon").toBeLessThan(0.5);
+    };
+
+    test("an unsorted column shows the sort icon at rest", async ({ page }) => {
+      await initSurvey(page, framework, sortJson());
+      await leaveHeaders(page);
+      // Not toBeVisible(): Playwright treats opacity: 0 as visible.
+      await expect(page.locator("thead th").nth(1).locator(".sd-table__header-sort--none")).toHaveCSS("opacity", "1");
+    });
+
+    test("the sort icon follows the title, and the two are centered in the cell as one group", async ({ page }) => {
+      await initSurvey(page, framework, sortJson());
+      await leaveHeaders(page);
+      const boxes = await headerBoxes(page.locator("thead th").nth(1));
+      expectIconAfterTitle(boxes);
+      const groupCenter = (boxes.title.x + boxes.icon.x + boxes.icon.width) / 2;
+      const buttonCenter = boxes.button.x + boxes.button.width / 2;
+      expect(Math.abs(groupCenter - buttonCenter), "the group is centered").toBeLessThanOrEqual(1);
+    });
+
+    test("in the first and the last column the group is centered over the cells below it", async ({ page }) => {
+      await initSurvey(page, framework, sortJson({ allowRowReorder: false, allowRemoveRows: false }));
+      await leaveHeaders(page);
+      const inputs = page.locator(".sd-table__row input");
+      for (const index of [0, 1]) {
+        const { title, icon } = await headerBoxes(page.locator("thead th").nth(index));
+        const input = await inputs.nth(index).boundingBox();
+        const groupCenter = (title.x + icon.x + icon.width) / 2;
+        expect(Math.abs(groupCenter - (input.x + input.width / 2)), `column ${index}`).toBeLessThanOrEqual(1);
+      }
+    });
+
+    test("the sort icon stays through the whole click cycle", async ({ page }) => {
+      await initSurvey(page, framework, sortJson());
+      const priceHeader = page.locator("thead th").nth(1);
+      for (const state of ["desc", "asc", "none"]) {
+        await priceHeader.locator("button").click();
+        await leaveHeaders(page);
+        await expect(priceHeader.locator(`.sd-table__header-sort--${state}`)).toHaveCSS("opacity", "1");
+      }
+    });
+
+    test("a column with allowSort: false has no button and no sort icon", async ({ page }) => {
+      await initSurvey(page, framework, sortJson({
+        columns: [
+          { name: "product", cellType: "text", allowSort: false },
+          { name: "price", cellType: "text", inputType: "number" },
+        ],
+      }));
+      const productHeader = page.locator("thead th").nth(0);
+      await expect(page.locator("thead th").nth(1).locator(".sd-table__header-sort--none")).toHaveCount(1);
+      await expect(productHeader.locator("button")).toHaveCount(0);
+      await expect(productHeader.locator(".sd-table__header-sort")).toHaveCount(0);
+    });
+
+    test("in view mode the title and the sort icon start at the inline start of the cell, and sorting stays", async ({ page }) => {
+      await initSurvey(page, framework, Object.assign(sortJson(), { readOnly: true, readOnlyMode: "view" }));
+      await leaveHeaders(page);
+      const priceHeader = page.locator("thead th").nth(1);
+      await expect(priceHeader.locator("button")).toHaveCount(1);
+      const boxes = await headerBoxes(priceHeader);
+      const paddingStart = await priceHeader.locator("button").evaluate((el) => parseFloat(getComputedStyle(el).paddingInlineStart));
+      expect(Math.abs(boxes.title.x - (boxes.button.x + paddingStart)), "the group starts at the content start").toBeLessThan(0.5);
+      expectIconAfterTitle(boxes);
+
+      await priceHeader.locator("button").click();
+      await expect(priceHeader).toHaveAttribute("aria-sort", "descending");
+    });
+
+    test("in view mode the title of the first column starts where the text of its cells does", async ({ page }) => {
+      await initSurvey(page, framework, Object.assign(sortJson(), { readOnly: true, readOnlyMode: "view" }));
+      await leaveHeaders(page);
+      const { title } = await headerBoxes(page.locator("thead th").nth(0));
+      const textStart = await page.locator(".sd-table__row .sd-table__cell").first()
+        .evaluate((el) => el.getBoundingClientRect().left + parseFloat(getComputedStyle(el).paddingInlineStart));
+      expect(Math.abs(title.x - textStart)).toBeLessThan(0.5);
+    });
+
+    test("a mobile layout has no sort icon", async ({ page }) => {
+      await page.setViewportSize({ width: 420, height: 900 });
+      await initSurvey(page, framework, sortJson());
+      await expect(page.locator(".sd-table__row input[type=number]")).toHaveCount(3);
+      await expect(page.locator(".sd-table__header-sort")).toHaveCount(0);
     });
   });
 });

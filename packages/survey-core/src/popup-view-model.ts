@@ -277,13 +277,14 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   private focusContainer() {
     if (!this.container) return;
     const popup = (<HTMLElement>this.container.querySelector(this.popupSelector));
-    popup?.focus();
+    // preventScroll: moving an ancestor to reveal the popup scrolls the survey and dismisses the menu.
+    popup?.focus({ preventScroll: true });
   }
   private focusFirstInput() {
     setTimeout(() => {
       if (!this.container) return;
       var el = this.container.querySelector(this.model.focusFirstInputSelector || FOCUS_INPUT_SELECTOR);
-      if (!!el) (<HTMLElement>el).focus();
+      if (!!el) (<HTMLElement>el).focus({ preventScroll: true });
       else this.focusContainer();
     }, 100);
   }

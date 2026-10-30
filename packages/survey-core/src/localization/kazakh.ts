@@ -55,6 +55,8 @@ export var kazakhStrings = {
   sortAddNewText: "Жаңа қосу",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Сұрыптау деңгейіне жылжытыңыз {0}",
   // "Complete"
   completeText: "Дайын",
   // "Preview"

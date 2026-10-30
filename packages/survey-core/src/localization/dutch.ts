@@ -55,6 +55,8 @@ export var dutchSurveyStrings = {
   sortAddNewText: "Voeg Nieuw toe",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Plaats op niveau {0}",
   // "Complete"
   completeText: "Verzenden",
   // "Preview"

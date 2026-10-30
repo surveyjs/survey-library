@@ -55,6 +55,8 @@ export var koreanStrings = {
   sortAddNewText: "새 항목 추가하기",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "이동 정렬 레벨 {0}",
   // "Complete"
   completeText: "완료",
   // "Preview"

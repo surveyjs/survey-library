@@ -55,6 +55,8 @@ export var danishSurveyStrings = {
   sortAddNewText: "Tilføj nyt",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Flyt sorteringsniveau {0}",
   // "Complete"
   completeText: "Færdig",
   // "Preview"

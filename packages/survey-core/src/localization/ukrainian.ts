@@ -55,6 +55,8 @@ export var ukrainianSurveyStrings = {
   sortAddNewText: "Додати нове",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Перемістити сортування на рівні {0}",
   // "Complete"
   completeText: "Завершити",
   // "Preview"

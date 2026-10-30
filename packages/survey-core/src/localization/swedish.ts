@@ -55,6 +55,8 @@ export var swedishSurveyStrings = {
   sortAddNewText: "Lägg till Nytt",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Flytta sorteringsnivå {0}",
   // "Complete"
   completeText: "Slutför",
   // "Preview"

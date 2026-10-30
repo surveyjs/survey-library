@@ -55,6 +55,8 @@ export var persianSurveyStrings = {
   sortAddNewText: "افزودن جدید",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "سطح مرتب سازی حرکت {0}",
   // "Complete"
   completeText: "تکمیل",
   // "Preview"

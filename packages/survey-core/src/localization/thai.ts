@@ -55,6 +55,8 @@ export var thaiStrings = {
   sortAddNewText: "เพิ่มใหม่",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "ย้ายระดับการจัดเรียง{0}",
   // "Complete"
   completeText: "สำเร็จ",
   // "Preview"

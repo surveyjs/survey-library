@@ -1176,6 +1176,27 @@ frameworks.forEach((framework) => {
       await listItem(page, "Price").click();
       expect(await prices(page)).toEqual(["30", "20", "10"]);
     });
+
+    test("the default bar offers a detail panel question: a pick sorts the rows and the opened panel shows the value", async ({ page }) => {
+      await page.setViewportSize({ width: 1024, height: 768 });
+      await initSurvey(page, framework, barJson({
+        showSortBar: "auto",
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "qty", title: "Quantity", inputType: "number" }],
+        defaultValue: [
+          { product: "b", price: 20, qty: 5 },
+          { product: "a", price: 30, qty: 30 },
+          { product: "c", price: 10, qty: 10 },
+        ],
+      }));
+      await expect(headerBar(page)).toBeVisible();
+      await fieldButton(page).click();
+      await listItem(page, "Quantity").click();
+      expect(await prices(page)).toEqual(["30", "10", "20"]);
+      await expect(directionButton(page).locator(".sd-action__title")).toHaveText("High - Low");
+      await page.locator(".sd-table__cell--detail-button").first().click();
+      await expect(page.locator(".sd-table__cell--detail-panel input[type=number]")).toHaveValue("30");
+    });
     // Several levels: four rows whose product order inside a category differs from the stored order.
     const levelsJson = (extra?: any): any => barJson(Object.assign({
       columns: [

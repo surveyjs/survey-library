@@ -1955,6 +1955,24 @@ describe("Records sort: the items Creator's property grid edits", () => {
     q.getColumnByName("a").title = "A";
     expect(fields(), "#3").toEqual([{ field: "a", title: "A" }, { field: "b", title: "b" }, { field: "n", title: "Number" }, { field: "c", title: "Gamma" }]);
   });
+  test("getDesignSortFields: the matrix lists the detail questions after the columns, and an invisible column keeps its place", () => {
+    const survey = new SurveyModel({ elements: [{ type: "matrixdynamic", name: "q", allowSort: false, detailPanelMode: "underRow",
+      columns: [
+        { name: "a", title: "Alpha", cellType: "text" },
+        { name: "b", cellType: "text", visible: false }
+      ],
+      detailElements: [
+        { type: "text", name: "n", title: "Number", inputType: "number" },
+        { type: "text", name: "b", title: "Same key" },
+        { type: "panel", name: "box", elements: [{ type: "text", name: "c", title: "Nested {row.a}" }] },
+        { type: "expression", name: "e", expression: "1" }
+      ] }] });
+    const q = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+    expect(q.getDesignSortFields()).toEqual([{ field: "a", title: "Alpha", dataType: "any" }, { field: "b", title: "b", dataType: "any" },
+      { field: "n", title: "Number", dataType: "number" }, { field: "c", title: "Nested", dataType: "any" }]);
+    q.detailPanelMode = "none";
+    expect(q.getDesignSortFields().map((f: any) => f.field), "#2").toEqual(["a", "b"]);
+  });
   test("getDesignSortFields: the dynamic panel offers its template's value-sortable questions once each", () => {
     const survey = new SurveyModel({ elements: [{ type: "paneldynamic", name: "q", templateElements: [
       { type: "text", name: "a", title: "Alpha" },

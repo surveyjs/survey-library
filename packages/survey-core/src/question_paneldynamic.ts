@@ -211,12 +211,12 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
     this.template.selectedElementInDesign = this;
 
     this.template.addElementCallback = (element) => {
-      this.addOnPropertyChangedCallback(<SurveyElement><any>element);
+      this.watchRecordTemplateElement(<SurveyElement><any>element);
       this.rebuildPanels();
       this.updateRecordsBar();
     };
     this.template.removeElementCallback = (element) => {
-      this.removeOnPropertyChangedCallback(<SurveyElement><any>element);
+      this.unwatchRecordTemplateElement(<SurveyElement><any>element);
       this.rebuildPanels();
       this.updateRecordsBar();
     };
@@ -257,7 +257,7 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   }
   public dispose(): void {
     super.dispose();
-    this.template.elements.forEach((element: IElement): void => { this.removeOnPropertyChangedCallback(<SurveyElement><any>element); });
+    this.template.elements.forEach((element: IElement): void => { this.unwatchRecordTemplateElement(<SurveyElement><any>element); });
     this.templateValue.dispose();
   }
   /* The panels go with the question, before the list: the ones kept for a later dispose (still animated
@@ -403,8 +403,8 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   protected getFields(): Array<IDynamicDataField> {
     return this.getFieldsOfQuestions(this.template.questions);
   }
-  protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
-    return this.getTemplateSortFieldCandidates(this.template);
+  protected getRecordSortTemplate(): PanelModelBase {
+    return this.template;
   }
   protected refreshRenderedPage(): void {
     this.updateRenderedPanels();
@@ -615,45 +615,17 @@ export class QuestionPanelDynamicModel extends QuestionRecordsModel {
   private assignOnPropertyChangedToTemplate() {
     var elements = this.template.elements;
     for (var i = 0; i < elements.length; i++) {
-      this.addOnPropertyChangedCallback(<SurveyElement><any>elements[i]);
+      this.watchRecordTemplateElement(<SurveyElement><any>elements[i]);
     }
   }
-  /* One handler for every template element, so that the element is subscribed once however often the
-     panels are built (assignOnPropertyChangedToTemplate): onPropertyChanged.add skips a callback it
-     holds. It is removed when the element leaves the template, and with the question. */
-  private onTemplateElementPropertyChangedHandler = (element: any, options: any): void => {
-    this.onTemplateElementPropertyChanged(element, options);
-  };
-  private onNestedTemplateElementAdded = (element: IElement): void => {
-    this.addOnPropertyChangedCallback(<SurveyElement><any>element);
-    this.updateRecordsBar();
-  };
-  private onNestedTemplateElementRemoved = (element: IElement): void => {
-    this.removeOnPropertyChangedCallback(<SurveyElement><any>element);
-    this.updateRecordsBar();
-  };
-  private addOnPropertyChangedCallback(element: SurveyElement) {
+  protected onRecordTemplateElementWatched(element: SurveyElement): void {
     if (element.isQuestion) {
       (<Question>element).setParentQuestion(this);
     }
-    element.onPropertyChanged.add(this.onTemplateElementPropertyChangedHandler);
-    if (element.isPanel) {
-      (<PanelModel>element).addElementCallback = this.onNestedTemplateElementAdded;
-      (<PanelModel>element).removeElementCallback = this.onNestedTemplateElementRemoved;
-    }
   }
-  private removeOnPropertyChangedCallback(element: SurveyElement): void {
-    element.onPropertyChanged.remove(this.onTemplateElementPropertyChangedHandler);
-    if (element.isPanel) {
-      const panel = <PanelModel>element;
-      if (panel.addElementCallback === this.onNestedTemplateElementAdded) panel.addElementCallback = undefined;
-      if (panel.removeElementCallback === this.onNestedTemplateElementRemoved) panel.removeElementCallback = undefined;
-      panel.elements.forEach((el: IElement): void => { this.removeOnPropertyChangedCallback(<SurveyElement><any>el); });
-    }
-  }
-  private onTemplateElementPropertyChanged(element: any, options: any) {
+  protected onTemplateElementPropertyChanged(element: any, options: any): void {
     // Before the return below: the sort bar offers the template questions without any panel too.
-    this.updateRecordsBar();
+    super.onTemplateElementPropertyChanged(element, options);
     if (this.isLoadingFromJson || this.useTemplatePanel || this.panelsCore.length == 0)
       return;
     var property = Serializer.findProperty(element.getType(), options.name);

@@ -1,5 +1,5 @@
 import { Base } from "./base";
-import { IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
+import { IElement, IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
 import { INestedElementInfo, IVerifyDataContext, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext, getNestedElementQuestions } from "./question";
@@ -41,6 +41,7 @@ import { IRecordRemoval, IRecordTarget, IRecordTargetResolverOwner, RecordTarget
 import { IQuestionRecordsBarOwner, IRecordsBarCssClasses, QuestionRecordsBar } from "./question_records_bar";
 import { IRecordsSortField } from "./records/records-sort-bar";
 import type { PanelModelBase } from "./panel";
+import type { SurveyElement } from "./survey-element";
 import type { QuestionExpressionModel } from "./question_expression";
 import { ExpressionRunner } from "./expressions/expressionRunner";
 
@@ -372,8 +373,8 @@ export abstract class QuestionRecordsModel extends Question {
   private getQuestionsSharingValue(name: string): Array<IQuestion> {
     return this.survey.getQuestionsByValueName(name) || [];
   }
-  /* The record fields the template questions of a dynamic panel or the column questions of a matrix
-     contribute to the list: one per question, under its value name, and one more for a comment,
+  /* The record fields the template questions of a dynamic panel, or the column and detail panel questions
+     of a matrix, contribute to the list: one per question, under its value name, and one more for a comment,
      which is stored under an ordinary key of the same record. A question with an "other" item and no
      comment stores the other text under the same comment key (storeOthersAsComment): a string field,
      declared after the others. */
@@ -2414,7 +2415,7 @@ export abstract class QuestionRecordsModel extends Question {
     return this.allowSort === true;
   }
   /* Whether the rendered column headers sort. The dynamic panel has no headers, so its sort bar is the only
-     sort UI; the matrix's showSortBar "auto" shows the bar only while this is false. */
+     sort UI; the matrix's showSortBar "auto" shows the bar while this is false or a detail field is offered. */
   public get canSortByHeaders(): boolean { return false; }
   /* A survey expression over the record values - the same language as visibleIf, with the record
      fields as its variables. A record that does not satisfy it has no object; the question value
@@ -2472,9 +2473,10 @@ export abstract class QuestionRecordsModel extends Question {
     return toCssClasses(super.getCssHeader(cssClasses), this.sortBarLocation === "header" && cssClasses.headerWithSortBar);
   }
   /* The fields the sort bar offers, in the order the question shows them: the sortable columns of a
-     matrix, the value-sortable template questions of a dynamic panel. Computed on every read from the
-     columns or the template, which notify the bar through updateRecordsBar(). The data type is the
-     one the list registered (getFields), so the bar and the list agree. */
+     matrix and then the questions of its detail panel, the value-sortable template questions of a
+     dynamic panel. Computed on every read from the columns or the template, which notify the bar
+     through updateRecordsBar(). The data type is the one the list registered (getFields), so the bar
+     and the list agree. */
   protected get sortFields(): Array<IRecordsSortField> {
     return this.toSortFields(this.getSortFieldCandidates());
   }
@@ -2488,7 +2490,13 @@ export abstract class QuestionRecordsModel extends Question {
     return res;
   }
   protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
-    return [];
+    const template = this.getRecordSortTemplate();
+    return !!template ? this.getTemplateSortFieldCandidates(template) : [];
+  }
+  /* The panel whose questions fill a record and are offered by the sort bar: the template of a dynamic
+     panel, the detail panel of a matrix. */
+  protected getRecordSortTemplate(): PanelModelBase {
+    return undefined;
   }
   /* The fields a designer can sort by (getDesignSortFields): every field whose values sort, whatever allowSort
      and a column's allowSort say - they gate the respondent, not sortCriteria. The dynamic panel offers what its
@@ -2500,13 +2508,54 @@ export abstract class QuestionRecordsModel extends Question {
      the same record), under the value name the list knows it by (getFieldsOfQuestions). A question
      hidden in the template is left out; one a visibleIf hides in some records is not: the sort covers
      those records too. */
-  protected getTemplateSortFieldCandidates(template: PanelModelBase): Array<{ field: string, title: string }> {
+  private getTemplateSortFieldCandidates(template: PanelModelBase): Array<{ field: string, title: string }> {
     const res: Array<{ field: string, title: string }> = [];
     template.questions.forEach((q: Question): void => {
-      if (!q.isValueSortable || !isVisibleInTemplate(q, template)) return;
-      res.push({ field: q.getValueName(), title: getTemplateQuestionSortTitle(q) });
+      if (!this.isTemplateQuestionSortable(q) || !isVisibleInTemplate(q, template)) return;
+      res.push({ field: q.getValueName(), title: getTemplateQuestionSortTitle(q, this) });
     });
     return res;
+  }
+  protected isTemplateQuestionSortable(q: Question): boolean {
+    return q.isValueSortable;
+  }
+  /* The watch of a record template. One handler for every template element, so that an element is
+     subscribed once however often it is walked: onPropertyChanged.add skips a callback it holds. A
+     panel brings its elements, and its later ones through the nested callbacks. It ends when the
+     element leaves the template, and with the question. */
+  private onTemplateElementPropertyChangedHandler = (element: any, options: any): void => {
+    this.onTemplateElementPropertyChanged(element, options);
+  };
+  private onNestedTemplateElementAdded = (element: IElement): void => {
+    this.watchRecordTemplateElement(<SurveyElement><any>element);
+    this.updateRecordsBar();
+  };
+  private onNestedTemplateElementRemoved = (element: IElement): void => {
+    this.unwatchRecordTemplateElement(<SurveyElement><any>element);
+    this.updateRecordsBar();
+  };
+  protected watchRecordTemplateElement(element: SurveyElement): void {
+    this.onRecordTemplateElementWatched(element);
+    element.onPropertyChanged.add(this.onTemplateElementPropertyChangedHandler);
+    if (element.isPanel) {
+      const panel = <PanelModelBase><any>element;
+      panel.addElementCallback = this.onNestedTemplateElementAdded;
+      panel.removeElementCallback = this.onNestedTemplateElementRemoved;
+      panel.elements.forEach((el: IElement): void => { this.watchRecordTemplateElement(<SurveyElement><any>el); });
+    }
+  }
+  protected unwatchRecordTemplateElement(element: SurveyElement): void {
+    element.onPropertyChanged.remove(this.onTemplateElementPropertyChangedHandler);
+    if (element.isPanel) {
+      const panel = <PanelModelBase><any>element;
+      if (panel.addElementCallback === this.onNestedTemplateElementAdded) panel.addElementCallback = undefined;
+      if (panel.removeElementCallback === this.onNestedTemplateElementRemoved) panel.removeElementCallback = undefined;
+      panel.elements.forEach((el: IElement): void => { this.unwatchRecordTemplateElement(<SurveyElement><any>el); });
+    }
+  }
+  protected onRecordTemplateElementWatched(element: SurveyElement): void { }
+  protected onTemplateElementPropertyChanged(element: any, options: any): void {
+    this.updateRecordsBar();
   }
   // A locale change changes no sort and no property; the bar's texts and the field titles follow it.
   public locStrsChanged(): void {
@@ -4487,9 +4536,12 @@ function isVisibleInTemplate(q: Question, template: PanelModelBase): boolean {
 }
 /* The title the sort bar shows for a template question. The template belongs to no record, so the
    record piping ({panel.x}, {panelIndex}, {row.x}, {rowIndex}) has nothing to resolve: the unprocessed
-   title is taken with every placeholder stripped, and the name when nothing is left. */
-function getTemplateQuestionSortTitle(q: Question): string {
-  const res = (q.locTitle.pureText || "").replace(/\{[^}]*\}/g, "").replace(/\s+/g, " ").trim();
+   title is taken with every placeholder stripped, and the name when nothing is left. The title is read
+   in the owner's locale: the detail panel of a matrix belongs to no survey, so its questions have none. */
+function getTemplateQuestionSortTitle(q: Question, owner: ILocalizableOwner): string {
+  const title = new LocalizableString(owner);
+  title.sharedData = q.locTitle;
+  const res = (title.pureText || "").replace(/\{[^}]*\}/g, "").replace(/\s+/g, " ").trim();
   return res || q.name;
 }
 /* The count properties of a type with a record count, named after its entity: rowCount, minRowCount,

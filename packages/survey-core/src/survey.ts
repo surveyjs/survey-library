@@ -9290,7 +9290,9 @@ export class SurveyModel extends SurveyElementCore
     return containerLayoutElements;
   }
   public processPopupVisiblityChanged(question: Question, popup: PopupModel<any>, visible: boolean): void {
-    if (visible) {
+    // An overlay is centered on the screen, not anchored to its trigger, so a scroll of the
+    // survey (a layout shift, a scrollbar appearing) must not dismiss it. Anchored menus still close.
+    if (visible && popup.displayMode !== "overlay") {
       this.onScrollCallback = () => {
         popup.hide();
       };

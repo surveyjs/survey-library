@@ -18882,6 +18882,18 @@ describe("Survey", () => {
     expect(model["onScrollCallback"]).toBeFalsy();
     model.onScroll();
   });
+  test("SurveyModel: overlay dropdown stays open when the survey scrolls", (): any => {
+    _setIsTouch(true);
+    const model = new SurveyModel({ elements: [{ type: "dropdown", name: "q1", choices: ["Item1", "Item2", "Item3"] }] });
+    const question = <QuestionDropdownModel>model.getAllQuestions()[0];
+    question.dropdownListModel.popupModel.toggleVisibility();
+    expect(question.dropdownListModel.popupModel.displayMode).toBe("overlay");
+    expect(model["onScrollCallback"]).toBeFalsy();
+    expect(question.dropdownListModel.popupModel.isVisible).toBeTruthy();
+    model.onScroll();
+    expect(question.dropdownListModel.popupModel.isVisible).toBeTruthy();
+    _setIsTouch(false);
+  });
   test("Do not create dropdownListModel for disposed questions", (assert): any => {
     const survey = new SurveyModel({ elements: [
       { type: "dropdown", name: "q1", choices: ["Item1", "Item2", "Item3"] },

@@ -2,6 +2,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { median, mad } from "../stats.ts";
+import { fixtureOfId } from "../scenario.ts";
 import type { ResultFile, ResultEntry } from "./result.ts";
 import { readResult } from "./result.ts";
 import { readEnv } from "./env.ts";
@@ -93,7 +94,7 @@ export function buildBaseline(results: Array<ResultFile>, options: BaselineOptio
   const rerecord: Array<string> = [];
   for (const id of ids) {
     const runs = results.map((r: ResultFile) => ({ r: r, e: r.results.filter((e: ResultEntry) => e.id === id)[0] })).filter((x: any) => !!x.e);
-    const fixtureKey = id.split("/").slice(0, id.indexOf("extra/") === 0 ? 2 : 1).join("/");
+    const fixtureKey = fixtureOfId(id);
     const hashes = new Set(runs.map((x: any) => JSON.stringify([x.e.rev, (x.r.fixtures[fixtureKey] || {}).hash, (x.r.fixtures[fixtureKey] || {}).dataHash, x.e.jsonErrors])));
     if (hashes.size > 1) refuse(id + ": mixed fixture hashes, revs or jsonErrors across the runs");
     // Drop a run whose calibration was > 1.15x the fastest one: against the median of the others, a majority of slow

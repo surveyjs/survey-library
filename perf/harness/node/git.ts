@@ -12,12 +12,3 @@ export function headCommit(cwd: string): string | null {
     return null;
   }
 }
-
-// True when the working tree differs from HEAD: a local run of uncommitted perf code.
-export function isDirty(cwd: string): boolean {
-  try {
-    return git(cwd, ["status", "--porcelain", "--untracked-files=no"]).length > 0;
-  } catch(e) {
-    return false;
-  }
-}

@@ -12,6 +12,7 @@ import { missingRequirement } from "../harness/scenario.ts";
 import type { ResultEntry } from "../harness/node/result.ts";
 import { resolveCoreDir } from "../harness/node/build.ts";
 import { readEnv } from "../harness/node/env.ts";
+import { CALIBRATION_ONLY } from "../harness/ids.ts";
 
 // One scenario in this fresh process: `node --expose-gc perf/core/scenario-process.ts <id>`. It prints one JSON
 // line on stdout, { type: "entry" | "skipped" | "failed", ... }, and nothing on stderr.
@@ -21,7 +22,18 @@ const id = process.argv[2];
 let printed: any;
 const print = (line: any): void => { printed = line; };
 
+// The calibration-only spacer (PERF_ONLY=calibration): calibration samples for about 3 s, no survey-core.
+function calibrationOnly(): void {
+  const now = (): number => performance.now();
+  const samples: Array<number> = [];
+  const start = now();
+  while(samples.length < 5 || now() - start < 3000) samples.push(calibrateOnce(now));
+  const sorted = samples.slice().sort((a: number, b: number) => a - b);
+  print({ type: "calibration", median: Math.round(sorted[sorted.length >> 1] * 100) / 100, samples: samples.length });
+}
+
 async function main(): Promise<void> {
+  if (id === CALIBRATION_ONLY) return calibrationOnly();
   const env = readEnv();
   const core = resolveCoreDir();
   const scenario = scenarioById(id);

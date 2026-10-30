@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { splitOnly } from "../harness/ids.ts";
+import { splitOnly, isCalibrationOnly } from "../harness/ids.ts";
 import { fixtureOfId } from "../harness/scenario.ts";
 import { getFixture } from "../fixtures/index.ts";
 import { readEnv } from "../harness/node/env.ts";
@@ -23,11 +23,14 @@ export default class PerfReporter {
   private written = false;
   private unrun: Array<string> = [];
   private setupError: string | undefined;
+  private calibrationOnly = false;
 
   constructor() {
     const suite = suiteOf();
     const env = readEnv();
-    const split = splitOnly(env.only, suite);
+    // PERF_ONLY=calibration (the rerun spacer) writes no result file.
+    this.calibrationOnly = isCalibrationOnly(env.only);
+    const split = this.calibrationOnly ? { run: [], notInSuite: [] } : splitOnly(env.only, suite);
     this.ids = split.run;
     const core = resolveCoreDir();
     const uiDir = uiDirOf(suite);
@@ -60,12 +63,13 @@ export default class PerfReporter {
 
   private write(): void {
     // playwright test --list runs nothing: no result file.
-    if (this.written || process.argv.indexOf("--list") > -1) return;
+    if (this.written || this.calibrationOnly || process.argv.indexOf("--list") > -1) return;
     this.written = true;
     writeJsonAtomic(this.file, this.result);
   }
 
   onTestEnd(test: any, result: any): void {
+    if (this.calibrationOnly) return;
     const id = test.title;
     const browserInfo = result.attachments.filter((a: any) => a.name === "perf-browser")[0];
     if (browserInfo)this.result.machine = machineInfo({ chromium: JSON.parse(browserInfo.body.toString()).chromium, extra: readEnv().machineExtra });
@@ -111,6 +115,10 @@ export default class PerfReporter {
   }
 
   onEnd(result: any): void {
+    if (this.calibrationOnly) {
+      console.log(this.result.suite + ": calibration only, " + (result ? result.status : "?") + ", no result file");
+      return;
+    }
     const unrun = this.ids.filter((id: string) => !this.done.has(id)).concat(this.unrun.filter((id: string) => this.done.has(id) === false));
     const notRun = Array.from(new Set(unrun));
     if (notRun.length > 0)this.result.incomplete = { reason: "killed", unrun: notRun };

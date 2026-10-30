@@ -10,6 +10,7 @@ import { readRatchet, referenceOf } from "./reference.ts";
 import type { KnownState } from "./known.ts";
 import { readKnown, knownEntry, emptyKnown } from "./known.ts";
 import { median } from "../stats.ts";
+import { fixtureOfId } from "../scenario.ts";
 import { baselineFile, newestBaseline } from "./state.ts";
 import { readEnv } from "./env.ts";
 
@@ -83,9 +84,7 @@ export function minDeltaOf(suite: string): number {
   return suite === "core" ? 2 : 8;
 }
 
-function fixtureKeyOf(id: string): string {
-  return id.split("/").slice(0, id.indexOf("extra/") === 0 ? 2 : 1).join("/");
-}
+const fixtureKeyOf = fixtureOfId;
 
 function judgeCounters(entry: ResultEntry, ref: Reference | undefined, base: Baseline["scenarios"][string] | undefined): Array<CounterVerdict> {
   const res: Array<CounterVerdict> = [];
@@ -265,7 +264,11 @@ export function finalize(first: Comparison, input: CompareInput, reruns: Array<R
       return Object.assign(out, { verdict: runs.every((x: ScenarioVerdict) => x.verdict === "improved") ? "improved" as Verdict : "ok" as Verdict,
         judgedOk: true, okAgainstFrozen: runs.every((x: ScenarioVerdict) => x.okAgainstFrozen) });
     }
-    return Object.assign(out, { verdict: "ok" as Verdict, reason: "not confirmed by the reruns" });
+    // Not confirmed: like a slow first run, it is judged on its two clean reruns (median, lastOkCommit, the ratchet, a fixed
+    // known.json entry); the suspect median stays as firstMedian.
+    const m = median(out.rerunMedians!);
+    return Object.assign(out, { verdict: "ok" as Verdict, reason: "not confirmed by the reruns", firstMedian: v.median, median: m,
+      change: v.reference ? m / v.reference - 1 : out.change, judgedOk: true, okAgainstFrozen: runs.every((x: ScenarioVerdict) => x.okAgainstFrozen) });
   });
   // The cap: when the top suspects are confirmed, every suspect of the suite is a whole-suite regression.
   const candidates = verdicts.filter((v: ScenarioVerdict) => v.tags.indexOf("whole-suite-candidate") > -1);

@@ -1,8 +1,8 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import type { ChildProcess } from "node:child_process";
-import { splitOnly } from "../harness/ids.ts";
+import { splitOnly, isCalibrationOnly, CALIBRATION_ONLY } from "../harness/ids.ts";
 import { fixtureOfId } from "../harness/scenario.ts";
 import { getFixture } from "../fixtures/index.ts";
 import { getExtraFixtures } from "../fixtures/extra.ts";
@@ -33,6 +33,14 @@ if (!env.coreDir) {
   checkBuildExists([mainFile, german]);
   const version = JSON.parse(fs.readFileSync(path.join(core.dir, "package.json"), "utf8")).version;
   console.log("PERF_CORE_DIR " + core.dir + ": survey-core " + version + ", built " + new Date(fs.statSync(mainFile).mtimeMs).toISOString());
+}
+
+// PERF_ONLY=calibration: the spacer between two reruns of a single suspect, a fresh process that only calibrates.
+if (isCalibrationOnly(env.only)) {
+  const res = spawnSync(process.execPath, ["--expose-gc", processScript, CALIBRATION_ONLY], { cwd: runnerRoot, env: process.env, encoding: "utf8" });
+  const line = String(res.stdout || "").trim().split("\n").filter((l: string) => l.charAt(0) === "{").pop();
+  console.log("core: calibration only: " + (line || "no result") + (res.stderr ? " " + String(res.stderr).trim().substring(0, 500) : ""));
+  process.exit(line && line.indexOf("\"calibration\"") > -1 && !res.stderr ? 0 : 1);
 }
 
 const split = splitOnly(env.only, "core");

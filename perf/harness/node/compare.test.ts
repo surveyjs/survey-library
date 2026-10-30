@@ -126,6 +126,12 @@ describe("compare: the verdict table", () => {
     expect(verdictOf(f, "calculations/load/model").rerunMedians).toEqual([131, 129]);
     expect(verdictOf(f, "large/load/model").verdict).toBe("unconfirmed");
     expect(verdictOf(f, "expressions/load/model").verdict).toBe("ok");
+    // RF-F10: judged on the reruns, so the state treats it as an ok night with the reruns' median.
+    expect(verdictOf(f, "expressions/load/model")).toMatchObject({ median: 120.5, firstMedian: 140, judgedOk: true });
+    const known = emptyKnown();
+    applyNight(known, "core", f.verdicts, "c9", "2026-10-29");
+    expect(known.lastOk.core["expressions/load/model"]).toBe("c9");
+    expect(known.lastOk.core["calculations/load/model"]).toBeUndefined();
     const other = result([entry("calculations/load/model", 130)], { build: { core: { dir: "/other", version: "1", commit: "t2", mtime: "m" }, deps: {} } });
     expect(() => finalize(c, input, [other, r2])).toThrow(/different build/);
   });

@@ -2,8 +2,8 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { writeJsonAtomic } from "./result.ts";
 
-// The state directory (D15, PERF_STATE_DIR): baselines/, history/, known.json, last-nightly.json, locks/. Every
-// write is atomic (a temp file, then a rename).
+// The state directory (D15, PERF_STATE_DIR): baselines/, history/, known.json, last-nightly.json (the lock is run.sh's
+// run.lock). Every write is atomic (a temp file, then a rename).
 export function baselinesDir(stateDir: string): string {
   return path.join(stateDir, "baselines");
 }
@@ -43,12 +43,16 @@ export function canonical(value: any): any {
   return res;
 }
 
-// The newest baseline of a suite with any machine key: counters are machine-independent (D22).
-export function newestBaseline(stateDir: string, suite: string): string | undefined {
+// The current baselines of a suite, one per machine key (no ratchet, no kept old copy), newest first.
+export function baselineFiles(stateDir: string, suite: string): Array<string> {
   const dir = baselinesDir(stateDir);
-  if (!fs.existsSync(dir)) return undefined;
+  if (!fs.existsSync(dir)) return [];
   const files = fs.readdirSync(dir).filter((f: string) => f.indexOf(suite + ".") === 0 && /^[^.]+\.[a-z0-9.-]+\.json$/.test(f) &&
     !/\.ratchet\.json$/.test(f) && !/\.\d{8}T\d{6}Z\.json$/.test(f));
-  if (files.length === 0) return undefined;
-  return files.map((f: string) => path.join(dir, f)).sort((a: string, b: string) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs)[0];
+  return files.map((f: string) => path.join(dir, f)).sort((a: string, b: string) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs);
+}
+
+// The newest baseline of a suite with any machine key: counters are machine-independent (D22).
+export function newestBaseline(stateDir: string, suite: string): string | undefined {
+  return baselineFiles(stateDir, suite)[0];
 }

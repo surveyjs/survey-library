@@ -1,6 +1,6 @@
 import { test, chromium } from "@playwright/test";
 import type { Browser, BrowserContext, Page } from "@playwright/test";
-import { splitOnly } from "../harness/ids.ts";
+import { splitOnly, isCalibrationOnly } from "../harness/ids.ts";
 import { scenarioById } from "../scenarios/index.ts";
 import { getFixture } from "../fixtures/index.ts";
 import { readEnv } from "../harness/node/env.ts";
@@ -15,7 +15,9 @@ import { suiteOf, resolveUrl, uiPackage } from "./paths.ts";
 // host fails at once (B01).
 const suite = suiteOf();
 const env = readEnv();
-const split = splitOnly(env.only, suite);
+// PERF_ONLY=calibration: only the "calibration" test, the spacer between two reruns of a single suspect.
+const calibrationOnly = isCalibrationOnly(env.only);
+const split = calibrationOnly ? { run: [], notInSuite: [] } : splitOnly(env.only, suite);
 const pageUrl = "http://perf.local/page/" + uiPackage[suite].page;
 const loadOptions = { samples: 7, maxMs: 8000, minSamples: 5 };
 let browser: Browser;
@@ -134,7 +136,26 @@ async function runLoad(id: string, fixture: any): Promise<any> {
   return { entry: entryOf(id, r, res.samples, res.phases) };
 }
 
+if (calibrationOnly) {
+  test("calibration", async() => {
+    const { context, page } = await openPage();
+    try {
+      const samples = await page.evaluate(() => {
+        const P = (window as any).PerfPage;
+        const res: Array<number> = [];
+        const start = performance.now();
+        while(res.length < 5 || performance.now() - start < 3000) res.push(P.calibrate());
+        return res;
+      });
+      console.log("calibration only: median " + Math.round(median(samples) * 100) / 100 + " ms, " + samples.length + " samples");
+    } finally {
+      await context.close();
+    }
+  });
+}
+
 test("environment", async({ browserName }, testInfo: any) => {
+  test.skip(calibrationOnly, "calibration only");
   const { context, page } = await openPage();
   try {
     const probe = await page.evaluate(() => (window as any).PerfPage.nextPageProbe());

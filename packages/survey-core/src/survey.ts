@@ -98,6 +98,7 @@ import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
 import { createBaseThemeStyle, createBoxShadowResetVariables, areBaseThemeVariablesInDocument, ensureBaseThemeStyles } from "./utils/base-theme-init";
+import { registerRecordsSortDialogSurvey } from "./records/records-sort-dialog";
 import { IConfirmDialogOptions, PopupModel } from "./popup";
 import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
@@ -9860,3 +9861,5 @@ const progressBarLocationProp = Serializer.findProperty("survey", "progressBarLo
 progressBarLocationProp.dependsOn = ["progressBarType", "headerView"];
 Serializer.findProperty("survey", "progressBarType").addDependedProperty("progressBarLocation");
 Serializer.findProperty("survey", "headerView").addDependedProperty("progressBarLocation");
+// The sort dialog of a records question shows a survey of its own.
+registerRecordsSortDialogSurvey((): SurveyModel => new SurveyModel());

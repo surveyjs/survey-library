@@ -40,9 +40,6 @@ import { IRecordCleanupRunnerOwner, RecordCleanupRunner } from "./records/record
 import { IRecordRemoval, IRecordTarget, IRecordTargetResolverOwner, RecordTargetResolver } from "./records/records-target-resolver";
 import { IQuestionRecordsBarOwner, IRecordsBarCssClasses, QuestionRecordsBar } from "./question_records_bar";
 import { IRecordsSortField } from "./records/records-sort-bar";
-import { RecordsSortDialogModel, showRecordsSortDialog } from "./records/records-sort-dialog";
-import { getLocaleString } from "./surveyStrings";
-import type { PopupBaseViewModel } from "./popup-view-model";
 import type { PanelModelBase } from "./panel";
 import type { QuestionExpressionModel } from "./question_expression";
 import { ExpressionRunner } from "./expressions/expressionRunner";
@@ -52,16 +49,6 @@ import { ExpressionRunner } from "./expressions/expressionRunner";
 export type NestedWalkItem = QuestionRecordItem | PanelModelBase;
 import type { ItemValue } from "./itemvalue";
 import type { ISurveyOldValueReads } from "./interfaces/survey-callbacks";
-
-// What Creator passes to QuestionRecordsModel.showSortDialog.
-export interface IRecordsDesignSortDialogOptions {
-  // Apply with a changed draft: the caller writes sortCriteria (Creator does it for undo/redo).
-  onApply: (criteria: Array<ISortCriterion>) => void;
-  // Where the modal is placed; the survey's root element when omitted.
-  rootElement?: HTMLElement;
-  // The locale of the dialog's own texts for as long as it is open; the question's locale when omitted.
-  locale?: string;
-}
 
 export interface IDynamicDataRecordUniqueness {
   // The record keys whose values have to be unique; empty when none has to be.
@@ -2592,8 +2579,7 @@ export abstract class QuestionRecordsModel extends Question {
       getCssClasses: (): IRecordsBarCssClasses => {
         const css = question.cssClasses;
         return { root: css.recordsBar, pagerPage: css.pagerPage, pagerTotal: css.pagerTotal,
-          sortBar: css.sortBar, sortDropdown: css.sortDropdown, sortLabel: css.sortLabel, sortLevel: css.sortLevel,
-          sortDialog: css.sortDialog, sortDialogRow: css.sortDialogRow };
+          sortBar: css.sortBar, sortDropdown: css.sortDropdown, sortLabel: css.sortLabel, sortLevel: css.sortLevel };
       },
       createActionContainer: <T extends ActionContainer>(container?: T): T => {
         return !!container ? question.initActionContainer(container) : <T>question.createActionContainer();
@@ -2602,83 +2588,9 @@ export abstract class QuestionRecordsModel extends Question {
     };
   }
   /* The fields a designer can sort by, computed on every call: Creator's property grid offers them as the choices
-     of a sortCriteria item's field (SortCriterion.getFieldChoices), and the designer's dialog (showSortDialog)
-     offers the same ones, so the two never disagree. */
+     of a sortCriteria item's field (SortCriterion.getFieldChoices). */
   public getDesignSortFields(): Array<IRecordsSortField> {
     return this.toSortFields(this.getDesignSortFieldCandidates());
-  }
-  /* Creator's entry to the "Sort by" dialog, an alternative to editing the sortCriteria items in place in the
-     property grid (each item reports this question's survey, so an edit is an undo step). Not for respondents.
-     The dialog offers every value-sortable field (getDesignSortFieldCandidates) and as many rows as fields:
-     allowSort, a column's allowSort and maxSortLevel limit the respondent only. Its Apply neither sorts nor
-     validates the page: a changed draft goes to options.onApply. The dialog reads its texts again on every
-     change, so options.locale holds for its whole life. A second call closes the dialog of the first, and so does
-     the question's dispose(). Returns the modal, so the caller can wait for its onHide; undefined without
-     settings.showDialog. Design mode does not matter: the dialog does not read it. */
-  public showSortDialog(options: IRecordsDesignSortDialogOptions): PopupBaseViewModel {
-    this.closeDesignSortDialog();
-    if (!settings.showDialog) return undefined;
-    const owner = this.createDesignSortDialogOwner(options);
-    const fields = owner.sortFields;
-    const dialog = new RecordsSortDialogModel(owner, {
-      shownField: fields.length > 0 ? fields[0].field : undefined,
-      sortByUser: (criteria: Array<ISortCriterion>): boolean => {
-        options.onApply(criteria);
-        return true;
-      },
-      onApplied: (): void => { }
-    });
-    this.designSortDialog = dialog;
-    const popup = showRecordsSortDialog(dialog, owner, (): void => { this.onDesignSortDialogClosed(dialog); });
-    if (!popup) {
-      this.onDesignSortDialogClosed(dialog);
-    }
-    return popup;
-  }
-  private designSortDialog: RecordsSortDialogModel;
-  private onDesignSortDialogClosed(dialog: RecordsSortDialogModel): void {
-    if (this.designSortDialog !== dialog) return;
-    this.designSortDialog = undefined;
-    dialog.dispose();
-  }
-  // The bar owns the respondent's dialog (RecordsSortBar.closeDialog); the question owns the designer's.
-  private closeDesignSortDialog(): void {
-    const dialog = this.designSortDialog;
-    if (!dialog) return;
-    this.designSortDialog = undefined;
-    dialog.close();
-    dialog.dispose();
-  }
-  /* The bar's owner with the designer's fields, a row per field, no waiting state (the designer's Apply reads
-     no page) and, with options.locale, the dialog's own locale for its texts and lists. */
-  private createDesignSortDialogOwner(options: IRecordsDesignSortDialogOptions): IQuestionRecordsBarOwner {
-    const question = this;
-    const locale = options.locale;
-    const fields = (): Array<IRecordsSortField> => question.getDesignSortFields();
-    const owner: IQuestionRecordsBarOwner = Object.create(this.createRecordsBarOwner());
-    Object.defineProperties(owner, {
-      sortFields: { get: fields },
-      maxSortLevel: { get: (): number => Math.max(1, fields().length) },
-      isDataLoading: { value: false },
-      isPageMovePending: { value: false }
-    });
-    owner.getRootElement = (): HTMLElement => options.rootElement || question.survey?.rootElement;
-    if (!!locale) {
-      owner.getLocalizationString = (strName: string): string => getLocaleString(strName, locale);
-      owner.getLocalizationFormatString = (strName: string, ...args: any[]): string => {
-        const str: any = getLocaleString(strName, locale);
-        return !!str && !!str.format ? str.format(...args) : "";
-      };
-      const locOwner: ILocalizableOwner = {
-        getLocale: (): string => locale,
-        getMarkdownHtml: (text: string, name: string, item?: any): string => question.getMarkdownHtml(text, name, item),
-        getProcessedText: (text: string): string => question.getProcessedText(text),
-        getRenderer: (name: string): string => question.getRenderer(name),
-        getRendererContext: (locStr: LocalizableString): any => question.getRendererContext(locStr)
-      };
-      owner.getLocOwner = (): ILocalizableOwner => locOwner;
-    }
-    return owner;
   }
   /* The type's pager rule: the renderers draw the pager under the records while it is true. The bar
      mirrors it (QuestionRecordsBar.showPager). */
@@ -3537,7 +3449,6 @@ export abstract class QuestionRecordsModel extends Question {
       this.recordsBarValue.dispose();
       this.recordsBarValue = undefined;
     }
-    this.closeDesignSortDialog();
     if (!!this._dataList) {
       this._dataList.dispose();
     }
@@ -4537,7 +4448,7 @@ export function removeRecordCleanupSkipped(json: any, names: Array<string>): any
    sortCriteria shows there too, whatever allowSort says - a designer's initial sort applies without
    letting respondents re-sort. Creator edits its items in place, a row per item with field and direction
    (SortCriterion: the survey and the field choices); uniqueProperty marks field as the column whose
-   values must not repeat. The "Sort by" dialog (showSortDialog) is the other way to edit it.
+   values must not repeat.
    filterExpression stays hidden and only loads from and saves to JSON.
    sortCriteria is an array of sortcriterion objects (the shape of calculatedValues); an element that
    is a plain string is not a criterion and has no shorthand.

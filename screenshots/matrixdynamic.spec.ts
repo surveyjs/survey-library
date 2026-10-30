@@ -672,7 +672,7 @@ frameworks.forEach(framework => {
       await page.goto(`${url}${framework}`);
     });
     // The design's frame: a long title and five sortable columns.
-    const moreJson = (sortCriteria: Array<any>): any => ({
+    const moreJson = (sortCriteria: Array<any>, maxSortLevel: number = 6): any => ({
       showQuestionNumbers: false,
       elements: [{
         type: "matrixdynamic",
@@ -680,7 +680,7 @@ frameworks.forEach(framework => {
         title: "Health Product - Long Title for Example",
         allowSort: true,
         showSortBar: "always",
-        maxSortLevel: 6,
+        maxSortLevel: maxSortLevel,
         rowCount: 0,
         sortCriteria: sortCriteria,
         defaultValue: [
@@ -709,20 +709,37 @@ frameworks.forEach(framework => {
       await page.mouse.move(0, 0);
       await compareScreenshot(page, ".sd-question", "matrixdynamic-sort-bar-more-desktop.png");
     });
-    // The dialog with five rows, as in the design: two levels and three rows added with Add New, which stays.
-    test("Matrixdynamic sort dialog with five rows", async ({ page }) => {
+    // The dialog with five rows, as in the design: two levels and three rows added with Add New, disabled at maxSortLevel 5.
+    const openDialogWithFiveRows = async (page) => {
       await page.setViewportSize({ width: 1000, height: 800 });
-      await initSurvey(page, framework, moreJson([{ field: "product", direction: "asc" }, { field: "category", direction: "asc" }]));
+      await initSurvey(page, framework, moreJson([{ field: "product", direction: "asc" }, { field: "category", direction: "asc" }], 5));
       await page.evaluate(() => { (window as any).survey.getQuestionByName("matrix").recordsBar.sortActions.getActionById("sv-sort-more").action(); });
       const dialog = page.locator(".sv-popup--records-sort");
+      await expect(dialog).toBeVisible();
+      await dialog.evaluate((el: HTMLElement) => Promise.all(el.getAnimations({ subtree: true }).map((item: Animation) => item.finished)));
       for (let i = 0; i < 3; i++) {
         await dialog.getByRole("button", { name: "Add New", exact: true }).click();
       }
       await expect(dialog.locator(".sd-sort-dialog__row")).toHaveCount(5);
-      await expect(dialog.getByRole("button", { name: "Add New", exact: true })).toBeVisible();
+      await expect(dialog.getByRole("button", { name: "Add New", exact: true })).toBeDisabled();
+      // The last Add New moves the focus to row 5 field.
+      await expect(dialog.locator(".sd-sort-dialog__row").nth(4).getByRole("combobox").first()).toBeFocused();
       await resetFocusToBody(page);
       await page.mouse.move(0, 0);
+      return dialog;
+    };
+    test("Matrixdynamic sort dialog with five rows", async ({ page }) => {
+      await openDialogWithFiveRows(page);
       await compareScreenshot(page, ".sv-popup--records-sort .sv-popup__container", "matrixdynamic-sort-dialog.png");
+    });
+    // Row 3 dragged up by its handle: the copy that follows the pointer and the place the row leaves.
+    test("Matrixdynamic sort dialog, a row during a drag", async ({ page }) => {
+      const dialog = await openDialogWithFiveRows(page);
+      const rows = dialog.locator(".sd-sort-dialog__row");
+      await doDrag({ page, element: rows.nth(2).locator(".sd-drag-element__svg"), target: rows.nth(1), options: { targetPosition: { x: 12, y: 10 } } });
+      await expect(page.locator(".sv-matrixdynamic-dragged-row")).toBeVisible();
+      await compareScreenshot(page, ".sv-popup--records-sort .sv-popup__container", "matrixdynamic-sort-dialog-drag.png");
+      await page.mouse.up();
     });
   });
 });

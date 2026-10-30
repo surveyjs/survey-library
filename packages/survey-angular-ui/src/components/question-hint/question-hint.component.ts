@@ -1,7 +1,8 @@
 import { Component, Input } from "@angular/core";
 import { Question, KeyboardHintModel } from "survey-core";
-import { BaseAngular } from "../../base-angular";
 
+// A plain component: the question's own element re-checks this view on every change.
+// A subscribed BaseAngular would disable the question's rerender event when *ngIf removes it.
 @Component({
   selector: "sv-ng-question-hint",
   templateUrl: "./question-hint.component.html",
@@ -9,12 +10,12 @@ import { BaseAngular } from "../../base-angular";
   // keeps a line box under the question, which shifts the presets layout.
   styles: [":host { display: contents; }"]
 })
-export class QuestionHintComponent extends BaseAngular<Question> {
+export class QuestionHintComponent {
   @Input() question!: Question;
-  protected getModel(): Question {
-    return this.question;
-  }
   get keyboardHintModel(): KeyboardHintModel {
     return this.question.getKeyboardHintModel();
+  }
+  trackByIndex(index: number): number {
+    return index;
   }
 }

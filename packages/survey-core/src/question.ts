@@ -32,6 +32,7 @@ import { isAnimationEnabled } from "./utils/reduced-motion";
 import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choices";
 import { Scope, ValueScope } from "./utils/scope";
 import { IKeyboardHintData, KeyboardHintModel } from "./keyboard-hints";
+import { IsTouch } from "./utils/devices";
 
 export const readOnlyViewEmptyText = "\u2014";
 
@@ -3588,10 +3589,12 @@ export class Question extends SurveyElement<Question>
     const hints = this.canShowKeyboardHints() ? this.getKeyboardHintsCore() : [];
     return new KeyboardHintModel(this, hints);
   }
-  protected canShowKeyboardHints(): boolean {
-    const survey = this.survey as SurveyModel;
-    if (!survey || this.isDesignMode || this.isReadOnly || this.inMatrixMode) return false;
-    return this.showKeyboardHints ?? survey.showKeyboardHints === true;
+  // The renderers mount the hint row on this, and the row stays outside the collapsible content.
+  // With a single input on screen the inner question owns the keys, so the outer question yields.
+  public canShowKeyboardHints(): boolean {
+    const survey = this.survey;
+    if (!survey || !(this.showKeyboardHints ?? survey.showKeyboardHints === true)) return false;
+    return !IsTouch && !this.isDesignMode && !this.isReadOnly && !this.inMatrixMode && !this.isCollapsed && !this.singleInputQuestion;
   }
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
     return [];

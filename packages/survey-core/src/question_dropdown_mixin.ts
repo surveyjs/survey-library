@@ -58,7 +58,12 @@ export function questionDropdownMixin<TBase extends Constructor<QuestionSelectBa
       super.processPopupVisiblilityChanged(popupModel, visible);
       // The Enter hint swaps with the popup. The hint row rerenders only when it reads
       // a stored question property, so the popup state is kept on the question.
-      this.setPropertyValue("isPopupVisible", visible);
+      // Without a row the value is kept for a row that appears later, but nothing rerenders for it.
+      if (this.canShowKeyboardHints()) {
+        this.setPropertyValue("isPopupVisible", visible);
+      } else {
+        this.setPropertyValueDirectly("isPopupVisible", visible, true);
+      }
     }
     public get isPopupVisible(): boolean {
       return this.getPropertyValue("isPopupVisible", false);

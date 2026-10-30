@@ -1,5 +1,7 @@
-<div *ngIf="keyboardHintModel.hasItems()" [class]="keyboardHintModel.cssClasses.keyboardHintContainer" aria-hidden="true">
-  <span *ngFor="let hint of keyboardHintModel.items" [class]="keyboardHintModel.cssClasses.keyboardHintItem">
-    <span *ngFor="let part of hint.parts" [class]="part.className">{{ part.text }}</span>
-  </span>
-</div>
+<ng-container *ngIf="keyboardHintModel as hintModel">
+  <div *ngIf="hintModel.hasItems()" [class]="hintModel.cssClasses.keyboardHintContainer" aria-hidden="true">
+    <span *ngFor="let hint of hintModel.items; trackBy: trackByIndex" [class]="hintModel.cssClasses.keyboardHintItem">
+      <span *ngFor="let part of hint.parts; trackBy: trackByIndex" [class]="part.className">{{ part.text }}</span>
+    </span>
+  </div>
+</ng-container>

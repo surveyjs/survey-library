@@ -174,7 +174,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
             {errorsBelowQuestion}
           </div>
         </div>
-        <QuestionHint question={question} />
+        {question.canShowKeyboardHints() ? <QuestionHint question={question} /> : null}
       </>
     );
   }

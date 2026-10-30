@@ -446,3 +446,119 @@ test("long text hints shift+enter and enter", () => {
   expect(hints({ type: "comment", defaultValue: "a" }, { autoAdvanceEnabled: true })).toEqual([]);
   _setIsTouch(false);
 });
+
+test("a touch device has no hint row", () => {
+  const autoAdvance = { autoAdvanceEnabled: true };
+  const questions = [
+    { type: "radiogroup", choices: ["a", "b"] },
+    { type: "checkbox", choices: ["a", "b"] },
+    { type: "dropdown", choices: ["a", "b"] },
+    { type: "text" }
+  ];
+  questions.forEach(question => {
+    expect(hints(question, autoAdvance).length, question.type).toBeGreaterThan(0);
+  });
+  _setIsTouch(true);
+  questions.forEach(question => {
+    expect(hints(question, autoAdvance), question.type).toEqual([]);
+  });
+});
+
+test("a collapsed question has no hint row until it is expanded", () => {
+  const survey = new SurveyModel({
+    showKeyboardHints: true,
+    elements: [{ type: "radiogroup", name: "q", choices: ["a", "b"], state: "collapsed" }]
+  });
+  const q = survey.getQuestionByName("q") as Question;
+  expect(q.canShowKeyboardHints()).toBe(false);
+  expect(shown(q)).toEqual([]);
+  q.expand();
+  expect(q.canShowKeyboardHints()).toBe(true);
+  expect(shown(q).length).toBe(1);
+});
+
+test("a dropdown with hints off keeps the popup state without notifying anyone", () => {
+  ["dropdown", "tagbox"].forEach(type => {
+    const survey = new SurveyModel({ elements: [{ type: type, name: "q", choices: ["a", "b"] }] });
+    const q = survey.getQuestionByName("q") as any;
+    const popup = q.dropdownListModel.popupModel;
+    // The first close resets the keyboard preview state, which has nothing to do with hints.
+    popup.show();
+    popup.hide();
+    const changes: string[] = [];
+    q.onPropertyChanged.add((_sender: Question, options: { name: string }) => changes.push(options.name));
+    q.addOnPropertyValueChangedCallback((_sender: Question, options: { name: string }) => changes.push(options.name));
+    expect(q.canShowKeyboardHints(), type).toBe(false);
+    popup.show();
+    expect(q.isPopupVisible, type + " opened").toBe(true);
+    popup.hide();
+    expect(q.isPopupVisible, type + " closed").toBe(false);
+    expect(changes, type).toEqual([]);
+  });
+});
+
+test("the popup state stays correct when the row disappears or returns around a popup change", () => {
+  const survey = new SurveyModel({
+    showKeyboardHints: true,
+    autoAdvanceEnabled: true,
+    elements: [
+      { type: "dropdown", name: "q", choices: ["a", "b"] },
+      { type: "text", name: "next" }
+    ]
+  });
+  const q = survey.getQuestionByName("q") as any;
+  q.dropdownListModel.popupModel.show();
+  survey.showKeyboardHints = false;
+  q.dropdownListModel.popupModel.hide();
+  expect(q.isPopupVisible).toBe(false);
+  survey.showKeyboardHints = true;
+  q.readOnly = true;
+  q.dropdownListModel.popupModel.show();
+  q.readOnly = false;
+  expect(shown(q)[3].text).toBe("to select");
+});
+
+test("inputPerPage multipletext leaves the row to the input on screen", () => {
+  const survey = new SurveyModel({
+    showKeyboardHints: true,
+    autoAdvanceEnabled: true,
+    questionsOnPageMode: "inputPerPage",
+    elements: [
+      { type: "multipletext", name: "q", items: [{ name: "a" }, { name: "b" }] },
+      { type: "text", name: "next" }
+    ]
+  });
+  const q = survey.getQuestionByName("q") as Question;
+  expect(q.singleInputQuestion.name).toBe("a");
+  expect(q.canShowKeyboardHints()).toBe(false);
+  expect(shown(q)).toEqual([]);
+  expect(q.singleInputQuestion.canShowKeyboardHints()).toBe(true);
+  expect(shown(q.singleInputQuestion).length).toBe(1);
+});
+
+test("inputPerPage select question keeps its row at its own step and yields it at a nested step", () => {
+  [
+    { type: "radiogroup", value: "item" },
+    { type: "checkbox", value: ["item"] }
+  ].forEach(({ type, value }) => {
+    const survey = new SurveyModel({
+      showKeyboardHints: true,
+      autoAdvanceEnabled: true,
+      questionsOnPageMode: "inputPerPage",
+      elements: [
+        { type: type, name: "q", choices: [{ value: "item", elements: [{ type: "text", name: "nested" }] }] },
+        { type: "text", name: "next" }
+      ]
+    });
+    const q = survey.getQuestionByName("q") as Question;
+    q.value = value;
+    expect(q.singleInputQuestion, type).toBeUndefined();
+    expect(q.canShowKeyboardHints(), type + " own step").toBe(true);
+    expect(shown(q).length, type + " own step").toBeGreaterThan(0);
+    survey.performNext();
+    expect(q.singleInputQuestion.name, type).toBe("nested");
+    expect(q.canShowKeyboardHints(), type + " nested step").toBe(false);
+    expect(shown(q), type + " nested step").toEqual([]);
+    expect(q.singleInputQuestion.canShowKeyboardHints(), type + " nested input").toBe(true);
+  });
+});

@@ -114,7 +114,7 @@ export class QuestionCommentModel extends QuestionTextBase {
   }
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
     const survey = this.survey as SurveyModel;
-    if (survey.autoAdvanceEnabled !== true || IsTouch) return [];
+    if (survey.autoAdvanceEnabled !== true) return [];
     const rows: IKeyboardHintData[] = [];
     if (this.acceptCarriageReturn) {
       rows.push(keyboardHint(this, "keyboardHintNewLineText", ["shiftEnter"]));

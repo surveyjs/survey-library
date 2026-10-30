@@ -50,6 +50,7 @@ export interface ResultFile {
   incomplete: { reason: "timeout" | "killed", unrun: Array<string> } | null;
   build: { core: BuildPart, ui?: BuildPart, deps: DepsInfo };
   machine: MachineInfo;
+  // null here; the caller may fill it in (CONTRACT.md: the perf server records the host load there).
   environment: any;
   fixtures: { [key: string]: { hash: string, dataHash?: string, options: any } };
   skipped: Array<{ id: string, reason: string }>;
@@ -88,16 +89,4 @@ export function writeJsonAtomic(file: string, value: any): void {
   const tmp = file + "." + process.pid + ".tmp";
   fs.writeFileSync(tmp, JSON.stringify(value, null, 2) + "\n");
   fs.renameSync(tmp, file);
-}
-
-export function readResult(file: string): ResultFile {
-  return JSON.parse(fs.readFileSync(file, "utf8"));
-}
-
-// nightly.ts writes the environment block after the suite (05).
-export function annotate(file: string, environment: any): ResultFile {
-  const result = readResult(file);
-  result.environment = environment;
-  writeJsonAtomic(file, result);
-  return result;
 }

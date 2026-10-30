@@ -4,9 +4,7 @@ import { QuestionMatrixDropdownModelBase, QuestionMatrixDropdownRenderedTable } 
 
 @Component({
   selector: "sv-ng-matrix-table",
-  templateUrl: "./matrixtable.component.html",
-  // The host is a custom element around the table wrapper. Left as inline, it keeps a line box under the table.
-  styles: [":host { display: contents; }"]
+  templateUrl: "./matrixtable.component.html"
 })
 export class MatrixTableComponent extends BaseAngular<QuestionMatrixDropdownRenderedTable> {
   @Input() question!: QuestionMatrixDropdownModelBase;

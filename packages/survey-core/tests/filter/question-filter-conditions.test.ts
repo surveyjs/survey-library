@@ -1,9 +1,9 @@
 import { describe, test, expect } from "vitest";
-import { createSurvey, createBound } from "./filter-test-helpers";
+import { createSurvey, createBound, createFilter } from "./filter-test-helpers";
 import { SurveyModel } from "../../src/survey";
 import { QuestionFilterModel } from "../../src/question_filter";
 import { QuestionMatrixDynamicModel } from "../../src/question_matrixdynamic";
-import { getFilterFieldOperators, getFilterValueEditorJson } from "../../src/filter/filter-conditions";
+import { getFilterFieldDefaultOperator, getFilterFieldOperators, getFilterValueEditorJson } from "../../src/filter/filter-conditions";
 
 const presets = [
   { name: "adults", expression: "{age} > 18 and {country} = 'de'" },
@@ -497,6 +497,32 @@ describe("QuestionFilterModel: saving after the field list changed", () => {
     expect(q.ownConditions === undefined, "#2").toBe(true);
     expect(survey.uiState.questions["f1"].filter.items, "#3: the saved conditions are the ones that were saved")
       .toEqual({ de: { conditions: [{ field: "country", operator: "equal", value: "fr" }] } });
+  });
+});
+
+describe("QuestionFilterModel: a field whose value is a number or a date", () => {
+  test("a text column with a number or a date input offers no contains, a plain text column still does", () => {
+    const survey = new SurveyModel({ elements: [
+      { type: "matrixdynamic", name: "m", columns: [
+        { name: "name", cellType: "text" },
+        { name: "stock", cellType: "text", inputType: "number" },
+        { name: "shipped", cellType: "text", inputType: "date" }] },
+      { type: "filter", name: "f1", source: "m" }] });
+    const q = <QuestionFilterModel>survey.getQuestionByName("f1");
+    ["stock", "shipped"].forEach((name: string): void => {
+      expect(q.getFieldOperators(name), name).toEqual(["empty", "notempty", "equal", "notequal",
+        "greater", "less", "greaterorequal", "lessorequal"]);
+    });
+    expect(q.getFieldOperators("name"), "name").toContain("contains");
+  });
+  test("the control's own number field refuses contains and keeps equal as its default", () => {
+    const q = createFilter();
+    expect(q.getFieldOperators("age"), "#1").not.toContain("notcontains");
+    expect(getFilterFieldDefaultOperator(q.getFieldByName("age")), "#2").toBe("equal");
+    q.setFieldCondition("age", "contains", "1");
+    expect(q.getFieldCondition("age"), "#3: refused").toBe(undefined);
+    q.setFieldCondition("age", "greater", "18");
+    expect(q.getFieldCondition("age"), "#4").toEqual({ field: "age", operator: "greater", value: 18 });
   });
 });
 

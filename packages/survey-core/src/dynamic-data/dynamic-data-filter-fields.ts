@@ -24,7 +24,8 @@ export interface IDynamicDataFilterField {
   choices?: Array<ItemValue>;
   // True when the field authored no fieldType/cellType of its own and runs on the fallback text
   // question: fieldType still names the resolved editor ("text"), so operator narrowing needs its
-  // own signal to tell "authored text" from "defaulted to text". undefined = not typeless.
+  // own signal to tell "authored text" from "defaulted to text" - a typeless boolean loses the
+  // ordering operators its text editor would take. undefined = not typeless.
   isTypeless?: boolean;
   // Whether the field appears in the Filter Control's fast (single-field) mode. undefined = shown,
   // the same as true; only a standalone FilterField ever sets it, a bound field never opts out.

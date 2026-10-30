@@ -87,19 +87,22 @@ export function getFilterFieldDefaultOperator(field: IDynamicDataFilterField): s
   return operators.indexOf(res) > -1 ? res : operators[0];
 }
 
-// The operators a typeless field never offers, on top of whatever its (always "text") editor type
-// already excludes. A field with no authored fieldType edits as plain text - contains/notcontains
-// make sense there - but the value is really a number, a date or a boolean underneath, and the
-// respondent's raw text answer to "contains" would rarely be what they mean by it. A boolean also
-// loses the ordering operators: "true" and "false" have no order a text comparison could honor.
-function narrowTypelessOperators(names: Array<string>, valueType: string): Array<string> {
+// contains/notcontains read the value as text. A field whose value is a number, a date or a boolean
+// does not offer them, whatever editor type it has: a text question with a number or a date input
+// takes them by the editor's type, but "the stock contains 1" is rarely what a respondent means, and
+// a data source that filters on the server may refuse it on a number at all. Creator's condition
+// editor still offers them there; the Filter Control does not, on purpose.
+function narrowTextOperators(names: Array<string>, valueType: string): Array<string> {
   if (valueType !== "number" && valueType !== "date" && valueType !== "boolean") return names;
-  let res = names.filter((op: string): boolean => op !== "contains" && op !== "notcontains");
-  if (valueType === "boolean") {
-    res = res.filter((op: string): boolean =>
-      op !== "less" && op !== "greater" && op !== "lessorequal" && op !== "greaterorequal");
-  }
-  return res;
+  return names.filter((op: string): boolean => op !== "contains" && op !== "notcontains");
+}
+// A typeless boolean field also loses the ordering operators: its editor is always "text", which
+// takes them, but "true" and "false" have no order a text comparison could honor. An authored
+// boolean question never takes them in the first place.
+function narrowTypelessOperators(names: Array<string>, valueType: string): Array<string> {
+  if (valueType !== "boolean") return names;
+  return names.filter((op: string): boolean =>
+    op !== "less" && op !== "greater" && op !== "lessorequal" && op !== "greaterorequal");
 }
 
 // The condition operators a field's value editor takes, in the order editors have always listed
@@ -115,6 +118,7 @@ function narrowTypelessOperators(names: Array<string>, valueType: string): Array
 export function getFilterFieldOperators(field: IDynamicDataFilterField): Array<string> {
   const qType = getFilterValueEditorJson(field, getConditionDefaultOperator(field.fieldType)).type;
   let names = getConditionOperatorNames().filter((op: string): boolean => isConditionOperatorEnabled(qType, op));
+  names = narrowTextOperators(names, field.valueType);
   if (field.isTypeless) {
     names = narrowTypelessOperators(names, field.valueType);
   }

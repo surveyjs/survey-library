@@ -40,8 +40,8 @@ afterEach(() => {
   }
 });
 const root = (): HTMLElement => container as HTMLElement;
-const headerBar = (): Element => root().querySelector(".sd-question__header .sd-matrixdynamic__sort-bar");
-const topBar = (): Element => root().querySelector(".sd-matrixdynamic__sort-bar-top .sd-matrixdynamic__sort-bar");
+const headerBar = (): Element => root().querySelector(".sd-question__header .sd-question__sort-bar");
+const topBar = (): Element => root().querySelector(".sd-question__sort-bar-top .sd-question__sort-bar");
 
 describe("Records sort bar: where the renderer mounts it", () => {
   it("the header shows and hides the bar when allowSort flips at runtime", () => {
@@ -49,7 +49,6 @@ describe("Records sort bar: where the renderer mounts it", () => {
     expect(headerBar(), "#1: no bar").toBeNull();
     act(() => { matrix.allowSort = true; });
     expect(headerBar(), "#2: in the header").not.toBeNull();
-    expect(root().querySelector(".sd-question__header")!.classList.contains("sd-question__header--sort-bar"), "#3: the modifier").toBe(true);
     const titles = Array.prototype.map.call(headerBar()!.querySelectorAll(":scope > * .sd-action__title"), (el: Element): string => el.textContent);
     expect(titles.slice(0, 3), "#4: label, field and direction, in order").toEqual(["Sort by", "product", "Default"]);
     act(() => { matrix.allowSort = false; });

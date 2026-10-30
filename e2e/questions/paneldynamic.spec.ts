@@ -856,7 +856,7 @@ frameworks.forEach((framework) => {
       });
       const priceInput = page.locator(".sd-paneldynamic__panel-wrapper input[type=number]").first();
       await expect(priceInput).toHaveValue("20");
-      await expect(page.locator(".sd-question__header .sd-paneldynamic__sort-bar")).toBeVisible();
+      await expect(page.locator(".sd-question__header .sd-question__sort-bar")).toBeVisible();
       await page.getByRole("button", { name: /^Sort field/ }).click();
       await page.locator(".sv-popup__container").filter({ visible: true }).getByRole("menuitemradio", { name: "Price", exact: true }).click();
       await expect(priceInput).toHaveValue("30");

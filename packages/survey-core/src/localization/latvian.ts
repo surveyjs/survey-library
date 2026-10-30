@@ -53,7 +53,8 @@ export var latvianSurveyStrings = {
   sortMoreAriaLabel: "Rādīt visdažādākos līmeņus",
   // [Auto-translated] "Add New"
   sortAddNewText: "Pievienot jaunu",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Move sort level {0}",
   // "Complete"
   completeText: "Iesniegt",
   // "Preview"

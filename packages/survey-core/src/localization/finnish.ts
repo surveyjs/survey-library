@@ -53,7 +53,8 @@ export var finnishSurveyStrings = {
   sortMoreAriaLabel: "Näytä kaikki lajittelutasot",
   // [Auto-translated] "Add New"
   sortAddNewText: "Lisää uusi",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Liikkeiden lajittelutaso {0}",
   // "Complete"
   completeText: "Valmis",
   // "Preview"

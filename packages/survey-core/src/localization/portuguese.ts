@@ -53,7 +53,8 @@ export var portugueseSurveyStrings = {
   sortMoreAriaLabel: "Mostrar todos os níveis de tipo",
   // [Auto-translated] "Add New"
   sortAddNewText: "Adicionar Novo",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Nível de ordenação de movimentos {0}",
   // "Complete"
   completeText: "Finalizar",
   // "Preview"

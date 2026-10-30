@@ -53,7 +53,8 @@ export var indonesianStrings = {
   sortMoreAriaLabel: "Tampilkan semua tingkat pengurutan",
   // [Auto-translated] "Add New"
   sortAddNewText: "Tambah Baru",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Pindahkan level urut {0}",
   // "Complete"
   completeText: "Selesai",
   // "Preview"

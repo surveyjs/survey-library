@@ -53,7 +53,8 @@ export var georgianSurveyStrings = {
   sortMoreAriaLabel: "ყველა დალაგების დონის ჩვენება",
   // [Auto-translated] "Add New"
   sortAddNewText: "ახლის დამატება",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "დალაგების დონის {0} გადატანა",
   // "Complete"
   completeText: "დასრულება",
   // [Auto-translated] "Preview"

@@ -53,7 +53,8 @@ export var slovenianStrings = {
   sortMoreAriaLabel: "Pokaži vse stopnje sortiranja",
   // [Auto-translated] "Add New"
   sortAddNewText: "Dodaj novo",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Premik sort nivo {0}",
   // "Complete"
   completeText: "Zaključi",
   // "Preview"

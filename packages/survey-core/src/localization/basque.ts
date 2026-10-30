@@ -53,7 +53,8 @@ export var basqueSurveyStrings = {
   sortMoreAriaLabel: "Mota maila guztiak erakutsi",
   // [Auto-translated] "Add New"
   sortAddNewText: "Gehitu Berria",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Mugimendu ordenatze maila {0}",
   // "Complete"
   completeText: "Bukatu",
   // "Preview"

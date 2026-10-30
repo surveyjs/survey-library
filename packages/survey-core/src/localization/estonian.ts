@@ -53,7 +53,8 @@ export var estonianSurveyStrings = {
   sortMoreAriaLabel: "Näita kõiki sorteerimistasemeid",
   // [Auto-translated] "Add New"
   sortAddNewText: "Lisa uus",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Liigutuste sorteerimise tase {0}",
   // "Complete"
   completeText: "Lõpeta",
   // "Preview"

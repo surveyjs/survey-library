@@ -53,7 +53,8 @@ export var hindiStrings = {
   sortMoreAriaLabel: "सभी सॉर्ट स्तर दिखाएं",
   // [Auto-translated] "Add New"
   sortAddNewText: "नया जोड़ें",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "सॉर्ट स्तर {0} ले जाएँ",
   // "Complete"
   completeText: "पूरा",
   // "Preview"

@@ -53,7 +53,8 @@ export var arabicSurveyStrings = {
   sortMoreAriaLabel: "عرض جميع مستويات الترتيب",
   // [Auto-translated] "Add New"
   sortAddNewText: "إضافة جديد",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "الانتقال في ترتيب {0}",
   // "Complete"
   completeText: "إرسال البيانات",
   // "Preview"

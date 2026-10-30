@@ -53,7 +53,8 @@ export var vietnameseSurveyStrings = {
   sortMoreAriaLabel: "Hiển thị tất cả các cấp độ sắp xếp",
   // [Auto-translated] "Add New"
   sortAddNewText: "Thêm mới",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Di chuyển mức sắp xếp {0}",
   // "Complete"
   completeText: "Hoàn thành",
   // "Preview"

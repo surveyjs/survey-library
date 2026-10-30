@@ -53,7 +53,8 @@ export var simplifiedChineseSurveyStrings = {
   sortMoreAriaLabel: "显示各种级别",
   // [Auto-translated] "Add New"
   sortAddNewText: "添加新",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "移动排序等级{0}",
   // "Complete"
   completeText: "提交问卷",
   // "Preview"

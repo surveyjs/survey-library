@@ -55,7 +55,8 @@ export var haitianCreoleStrings = {
   sortMoreAriaLabel: "Montre tout nivo sòt",
   // [Auto-translated] "Add New"
   sortAddNewText: "Ajoute nouvo",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Deplase sòt nivo {0}",
   // "Complete"
   completeText: "Ranpli",
   // [Auto-translated] "Preview"

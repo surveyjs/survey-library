@@ -53,7 +53,8 @@ export var italianSurveyStrings = {
   sortMoreAriaLabel: "Mostra tutti i livelli di sortaggio",
   // [Auto-translated] "Add New"
   sortAddNewText: "Aggiungi nuovi",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Livello di ordinamento {0}",
   // "Complete"
   completeText: "Salva",
   // "Preview"

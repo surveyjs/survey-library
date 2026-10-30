@@ -53,7 +53,8 @@ export var urduSurveyStrings = {
   sortMoreAriaLabel: "تمام سورت لیولز دکھائیں",
   // [Auto-translated] "Add New"
   sortAddNewText: "نیا شامل کریں",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "موو سورت لیول {0}",
   // "Complete"
   completeText: "مکمل",
   // "Preview"

@@ -53,7 +53,8 @@ export var hebrewSurveyStrings = {
   sortMoreAriaLabel: "הצג את כל רמות המיון",
   // [Auto-translated] "Add New"
   sortAddNewText: "הוסף חדש",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "מיון מהלך ברמת {0}",
   // "Complete"
   completeText: "סיום",
   // "Preview"

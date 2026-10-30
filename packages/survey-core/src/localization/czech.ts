@@ -53,7 +53,8 @@ export var czechSurveyStrings = {
   sortMoreAriaLabel: "Zobrazit všechny úrovně sortování",
   // [Auto-translated] "Add New"
   sortAddNewText: "Přidat nové",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Přesun třídění úrovně {0}",
   // "Complete"
   completeText: "Dokončit",
   // "Preview"

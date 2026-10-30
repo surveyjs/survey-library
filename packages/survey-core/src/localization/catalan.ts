@@ -53,7 +53,8 @@ export var catalanSurveyStrings = {
   sortMoreAriaLabel: "Mostra tots els nivells de tipus",
   // [Auto-translated] "Add New"
   sortAddNewText: "Afegeix nou",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Nivell d'ordenació de moviment {0}",
   // "Complete"
   completeText: "Complet",
   // [Auto-translated] "Preview"

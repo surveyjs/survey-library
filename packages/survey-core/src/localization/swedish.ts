@@ -53,7 +53,8 @@ export var swedishSurveyStrings = {
   sortMoreAriaLabel: "Visa alla sorteringsnivåer",
   // [Auto-translated] "Add New"
   sortAddNewText: "Lägg till Nytt",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Flytta sorteringsnivå {0}",
   // "Complete"
   completeText: "Slutför",
   // "Preview"

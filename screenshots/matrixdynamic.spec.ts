@@ -698,11 +698,11 @@ frameworks.forEach(framework => {
         ]
       }]
     });
-    const headerBar = (page) => page.locator(".sd-question__header .sd-matrixdynamic__sort-bar");
+    const headerBar = (page) => page.locator(".sd-question__header .sd-question__sort-bar");
     const moreButton = (page) => page.getByRole("button", { name: "Show all sort levels", exact: true });
     // Three levels at 1280px: the third one is behind "...", which takes the place of "+" after a separator.
     test("Matrixdynamic sort bar with \"...\", desktop", async ({ page }) => {
-      await page.setViewportSize({ width: 1280, height: 600 });
+      await page.setViewportSize({ width: 1000, height: 600 });
       await initSurvey(page, framework, moreJson([{ field: "product", direction: "asc" }, { field: "category", direction: "asc" }, { field: "price", direction: "asc" }]));
       await expect(moreButton(page)).toBeVisible();
       await expect(headerBar(page)).not.toHaveAttribute("style", /opacity/);

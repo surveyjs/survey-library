@@ -53,7 +53,8 @@ export var norwegianSurveyStrings = {
   sortMoreAriaLabel: "Vis alle sorteringsnivåer",
   // [Auto-translated] "Add New"
   sortAddNewText: "Legg til nytt",
-  // [Auto-translated] "—"
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Flytt sorteringsnivå {0}",
   // "Complete"
   completeText: "Fullfør",
   // "Preview"

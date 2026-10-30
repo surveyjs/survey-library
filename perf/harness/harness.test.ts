@@ -1,5 +1,7 @@
 import { describe, test, expect } from "vitest";
 import { spawnSync } from "node:child_process";
+import * as fs from "node:fs";
+import * as os from "node:os";
 import * as path from "node:path";
 import * as Survey from "survey-core";
 import { median, min, max, mad, p75, summarize } from "./stats.ts";
@@ -12,6 +14,7 @@ import { defineScenarios, fixtureOfId, missingRequirement } from "./scenario.ts"
 import { allScenarios } from "../scenarios/index.ts";
 import { runnerRoot } from "./node/build.ts";
 import { machineKey, slug } from "./node/machine.ts";
+import { dependencyInfo } from "./node/deps.ts";
 import { parseOnly } from "./node/env.ts";
 
 describe("stats", () => {
@@ -121,6 +124,32 @@ describe("machine", () => {
       chromium: "140.0.7339.16", extra: "surveyjs-perf:1.60.0-abc1234 2-5" });
     expect(key).toBe("linux-6-amd-ryzen-9-7950x-16-core-processor-32c-node24-chromium140-surveyjs-perf-1.60.0-abc1234-2-5");
     expect(key).toMatch(/^[a-z0-9.-]+$/);
+  });
+});
+
+describe("deps", () => {
+  test("the fingerprint lists external packages only: no own version, no linked survey-core", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "perf-deps-"));
+    const pkg = (at: string, name: string, version: string): void => {
+      fs.mkdirSync(at, { recursive: true });
+      fs.writeFileSync(path.join(at, "package.json"), JSON.stringify({ name: name, version: version }));
+    };
+    pkg(dir, "survey-react-ui", "3.2.3");
+    pkg(path.join(dir, "node_modules", "rollup"), "rollup", "4.34.8");
+    pkg(path.join(dir, "node_modules", "@types", "node"), "@types/node", "7.0.4");
+    const build = path.join(dir, "core-build");
+    pkg(build, "survey-core", "3.2.3");
+    fs.symlinkSync(build, path.join(dir, "node_modules", "survey-core"), "junction");
+    const a = dependencyInfo([dir]);
+    expect(a.versions).toEqual({ rollup: "4.34.8" });
+    // The release bump: the package's own version and the linked build's.
+    pkg(dir, "survey-react-ui", "3.2.4");
+    pkg(build, "survey-core", "3.2.4");
+    expect(dependencyInfo([dir]).fingerprint).toBe(a.fingerprint);
+    pkg(path.join(dir, "node_modules", "rollup"), "rollup", "4.35.0");
+    expect(dependencyInfo([dir]).fingerprint).not.toBe(a.fingerprint);
+    expect(dependencyInfo([]).fingerprint).toBeNull();
+    fs.rmSync(dir, { recursive: true, force: true });
   });
 });
 

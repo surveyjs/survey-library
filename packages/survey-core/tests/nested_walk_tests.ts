@@ -553,7 +553,7 @@ const expectedReach: { [walk: string]: { reached: Array<string>, builds?: Array<
   },
   // stop at first: the first input of the first visible row or item. the rest: their own input.
   "getFirstInputElementId": {
-    reached: ["md.cell", "mx.cell", "pd.item"]
+    reached: ["md.cell", "mx.cell", "pd.item", "mt.editor"]
   },
   // only a custom question focuses a nested question; the others focus their own input.
   "focus": {

@@ -55,6 +55,8 @@ export var russianSurveyStrings = {
   sortAddNewText: "Добавить новое",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Переместить сортировку на уровне {0}",
   // "Complete"
   completeText: "Готово",
   // "Preview"

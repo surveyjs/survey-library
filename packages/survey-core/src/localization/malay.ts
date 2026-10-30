@@ -55,6 +55,8 @@ export var malaySurveyStrings = {
   sortAddNewText: "Tambah Baru",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Pindahkan tahap susun {0}",
   // "Complete"
   completeText: "Selesai",
   // "Preview"

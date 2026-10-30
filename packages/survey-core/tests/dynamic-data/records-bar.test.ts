@@ -72,11 +72,11 @@ describe("Records bar: the object", () => {
     const itemClasses = { pagerPage: "sd-pager__page", pagerTotal: "sd-pager__total", sortDropdown: "sd-sort-bar__dropdown", sortLabel: "sd-sort-bar__label",
       sortLevel: "sd-sort-bar__level" };
     expect(createPanel(5).recordsBar.cssClasses, "#1").toEqual(Object.assign({
-      root: "sd-question__records-bar sd-pager", sortBar: "sd-paneldynamic__sort-bar" }, itemClasses));
+      root: "sd-question__records-bar sd-pager", sortBar: "sd-sort-bar sd-question__sort-bar" }, itemClasses));
     expect(createMatrix(5).recordsBar.cssClasses, "#2").toEqual(Object.assign({
-      root: "sd-question__records-bar sd-pager", sortBar: "sd-matrixdynamic__sort-bar" }, itemClasses));
+      root: "sd-question__records-bar sd-pager", sortBar: "sd-sort-bar sd-question__sort-bar" }, itemClasses));
     expect(createFixedMatrix().recordsBar.cssClasses, "#3").toEqual(Object.assign({
-      root: "sd-question__records-bar sd-pager", sortBar: "sd-matrixdropdown__sort-bar" }, itemClasses));
+      root: "sd-question__records-bar sd-pager", sortBar: "sd-sort-bar sd-question__sort-bar" }, itemClasses));
   });
 });
 

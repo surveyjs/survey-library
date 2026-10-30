@@ -55,6 +55,8 @@ export var frenchSurveyStrings = {
   sortAddNewText: "Ajouter du nouveau",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Niveau de tri {0}",
   // "Complete"
   completeText: "Terminer",
   // "Preview"

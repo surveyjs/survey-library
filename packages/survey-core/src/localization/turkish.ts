@@ -55,6 +55,8 @@ export var turkishSurveyStrings = {
   sortAddNewText: "Yeni Ekle",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Taşınma sıralaması seviyesi {0}",
   // "Complete"
   completeText: "Tamamla",
   // "Preview"

@@ -55,6 +55,8 @@ export var philippinesStrings = {
   sortAddNewText: "Magdagdag ng Bago",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Ilipat ang sort level {0}",
   // "Complete"
   completeText: "Kumpleto",
   // "Preview"

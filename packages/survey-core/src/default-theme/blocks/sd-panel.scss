@@ -17,6 +17,7 @@
   --sd-panel-header-padding-inline: var(--sjs2-layout-component-panel-header-padding-left)
     var(--sjs2-layout-component-panel-header-padding-right);
   --sd-panel-header-gap-vertical: var(--sjs2-layout-component-panel-header-gap-vertical);
+  --sd-panel-header-gap-horizontal: var(--sjs2-layout-component-panel-header-gap-horizontal);
   --sd-panel-header-border-bottom: none;
 
   //title
@@ -133,6 +134,9 @@
   padding-block: var(--sd-panel-title-padding-block);
   padding-inline: var(--sd-panel-title-padding-inline);
   color: var(--sd-panel-title-color);
+  .sd-action-title-bar {
+    min-width: calc(var(--sd-panel-header-gap-horizontal) + var(--sjs2-size-x500));
+  }
 }
 
 .sd-panel__title-expandable-svg {

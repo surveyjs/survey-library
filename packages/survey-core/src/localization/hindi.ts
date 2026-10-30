@@ -55,6 +55,8 @@ export var hindiStrings = {
   sortAddNewText: "नया जोड़ें",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "सॉर्ट स्तर {0} ले जाएँ",
   // "Complete"
   completeText: "पूरा",
   // "Preview"

@@ -55,6 +55,8 @@ export var georgianSurveyStrings = {
   sortAddNewText: "ახლის დამატება",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "დალაგების დონის {0} გადატანა",
   // "Complete"
   completeText: "დასრულება",
   // [Auto-translated] "Preview"

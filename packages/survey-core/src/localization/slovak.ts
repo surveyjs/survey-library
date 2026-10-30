@@ -55,6 +55,8 @@ export var slovakSurveyStrings = {
   sortAddNewText: "Pridať nové",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Presunúť triedenie úrovne {0}",
   // "Complete"
   completeText: "Dokončené",
   // "Preview"

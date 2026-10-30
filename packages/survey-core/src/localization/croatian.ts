@@ -55,6 +55,8 @@ export var croatianStrings = {
   sortAddNewText: "Dodaj novo",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Premještaj sortiranje razine {0}",
   // "Complete"
   completeText: "Kompletan",
   // "Preview"

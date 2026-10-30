@@ -55,6 +55,8 @@ export var lithuaniaSurveyStrings = {
   sortAddNewText: "Pridėti naują",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Move sort level {0}",
   // "Complete"
   completeText: "Baigti",
   // "Preview"

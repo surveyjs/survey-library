@@ -55,6 +55,8 @@ export var vietnameseSurveyStrings = {
   sortAddNewText: "Thêm mới",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "Di chuyển mức sắp xếp {0}",
   // "Complete"
   completeText: "Hoàn thành",
   // "Preview"

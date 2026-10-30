@@ -55,6 +55,8 @@ export var traditionalChineseSurveyStrings = {
   sortAddNewText: "新增",
   // [Auto-translated] "—"
   sortNoDirectionText: "—",
+  // [Auto-translated] "Move sort level {0}"
+  sortMoveLevelAriaLabel: "移動排序等級{0}",
   // "Complete"
   completeText: "提交問卷",
   // [Auto-translated] "Preview"

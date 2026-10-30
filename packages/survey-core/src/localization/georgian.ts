@@ -54,7 +54,6 @@ export var georgianSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "ახლის დამატება",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "დასრულება",
   // [Auto-translated] "Preview"

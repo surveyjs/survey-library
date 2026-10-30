@@ -54,7 +54,6 @@ export var turkishSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Yeni Ekle",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Tamamla",
   // "Preview"

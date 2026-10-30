@@ -54,7 +54,6 @@ export var frenchSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Ajouter du nouveau",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Terminer",
   // "Preview"

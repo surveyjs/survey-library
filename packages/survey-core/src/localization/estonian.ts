@@ -54,7 +54,6 @@ export var estonianSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Lisa uus",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Lõpeta",
   // "Preview"

@@ -54,7 +54,6 @@ export var japaneseSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "新しい追加",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "完了",
   // "Preview"

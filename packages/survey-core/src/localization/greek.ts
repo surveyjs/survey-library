@@ -54,7 +54,6 @@ export var greekSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Προσθήκη νέου",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Ολοκλήρωση",
   // "Preview"

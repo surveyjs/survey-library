@@ -54,7 +54,6 @@ export var italianSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Aggiungi nuovi",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Salva",
   // "Preview"

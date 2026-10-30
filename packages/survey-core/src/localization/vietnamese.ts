@@ -54,7 +54,6 @@ export var vietnameseSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Thêm mới",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Hoàn thành",
   // "Preview"

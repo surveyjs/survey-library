@@ -54,7 +54,6 @@ export var danishSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Tilføj nyt",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Færdig",
   // "Preview"

@@ -54,7 +54,6 @@ export var basqueSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Gehitu Berria",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Bukatu",
   // "Preview"

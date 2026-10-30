@@ -54,7 +54,6 @@ export var malaySurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Tambah Baru",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Selesai",
   // "Preview"

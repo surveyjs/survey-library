@@ -54,7 +54,6 @@ export var macedonianSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Додај ново",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Заврши",
   // "Preview"

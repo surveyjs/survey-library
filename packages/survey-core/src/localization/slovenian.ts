@@ -54,7 +54,6 @@ export var slovenianStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Dodaj novo",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Zaključi",
   // "Preview"

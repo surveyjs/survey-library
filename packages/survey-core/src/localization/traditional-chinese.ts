@@ -54,7 +54,6 @@ export var traditionalChineseSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "新增",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "提交問卷",
   // [Auto-translated] "Preview"

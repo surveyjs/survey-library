@@ -54,7 +54,6 @@ export var koreanStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "새 항목 추가하기",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "완료",
   // "Preview"

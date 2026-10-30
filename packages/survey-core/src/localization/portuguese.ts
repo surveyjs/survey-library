@@ -54,7 +54,6 @@ export var portugueseSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Adicionar Novo",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Finalizar",
   // "Preview"

@@ -54,7 +54,6 @@ export var welshSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Ychwanegu Newydd",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Cwblhau",
   // "Preview"

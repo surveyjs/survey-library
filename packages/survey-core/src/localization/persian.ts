@@ -54,7 +54,6 @@ export var persianSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "افزودن جدید",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "تکمیل",
   // "Preview"

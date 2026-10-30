@@ -54,7 +54,6 @@ export var icelandicSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Bættu við Nýju",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Lokið",
   // "Preview"

@@ -54,7 +54,6 @@ export var catalanSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Afegeix nou",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Complet",
   // [Auto-translated] "Preview"

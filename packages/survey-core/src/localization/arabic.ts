@@ -54,7 +54,6 @@ export var arabicSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "إضافة جديد",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "إرسال البيانات",
   // "Preview"

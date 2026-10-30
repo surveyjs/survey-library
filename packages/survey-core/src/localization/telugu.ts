@@ -54,7 +54,6 @@ export var teluguStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "క్రొత్తదాన్ని జోడించండి",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "పూర్తి చేయండి",
   // "Preview"

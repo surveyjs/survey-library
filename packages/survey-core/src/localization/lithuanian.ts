@@ -54,7 +54,6 @@ export var lithuaniaSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Pridėti naują",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Baigti",
   // "Preview"

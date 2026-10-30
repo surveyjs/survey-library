@@ -54,7 +54,6 @@ export var polishSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Dodaj Nowe",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Gotowe",
   // "Preview"

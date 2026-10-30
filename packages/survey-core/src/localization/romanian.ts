@@ -54,7 +54,6 @@ export var romanianSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Adaugă noutăți",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Finalizare",
   // "Preview"

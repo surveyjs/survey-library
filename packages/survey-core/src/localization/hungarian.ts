@@ -54,7 +54,6 @@ export var hungarianSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Add hozzá az újat",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Kész",
   // "Preview"

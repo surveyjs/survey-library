@@ -56,7 +56,6 @@ export var haitianCreoleStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Ajoute nouvo",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Ranpli",
   // [Auto-translated] "Preview"

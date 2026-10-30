@@ -54,7 +54,6 @@ export var slovakSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Pridať nové",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Dokončené",
   // "Preview"

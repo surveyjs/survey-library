@@ -54,7 +54,6 @@ export var hebrewSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "הוסף חדש",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "סיום",
   // "Preview"

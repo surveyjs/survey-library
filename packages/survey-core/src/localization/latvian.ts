@@ -54,7 +54,6 @@ export var latvianSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Pievienot jaunu",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Iesniegt",
   // "Preview"

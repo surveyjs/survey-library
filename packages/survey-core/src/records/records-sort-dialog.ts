@@ -7,7 +7,7 @@ import type { SurveyModel } from "../survey";
 import type { Question } from "../question";
 import type { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
 import type { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
-import type { GetMatrixRowActionsEvent, MatrixCellValueChangedEvent } from "../survey-events-api";
+import type { GetMatrixRowActionsEvent, MatrixCellValueChangedEvent, MatrixAllowRemoveRowEvent } from "../survey-events-api";
 import { createBoxShadowResetVariables } from "../utils/base-theme-init";
 import { focusElement } from "../utils/focus-utils";
 import { getActiveElement } from "../utils/dom-utils";
@@ -38,8 +38,10 @@ const matrixName = "levels";
 const numberColumn = "number";
 const fieldColumn = "field";
 const directionColumn = "direction";
-// The direction value of a row that does not sort: Default in the first row, the dash in a later one.
+// The direction value of a row that does not sort: Default.
 const noSortValue = "none";
+// Default is the first row's only: every row has the choice, and this hides it in the later ones.
+const noSortVisibleIf = "{rowIndex} = 1";
 // The inner matrix's rows get this class too: the drag shortcut is a copy of a row placed outside the dialog.
 const dialogRowClass = "sd-sort-dialog__row";
 
@@ -48,12 +50,13 @@ interface ISortDialogLevel {
   direction: string;
 }
 
-/* The "Sort by" dialog that "..." opens: every level of the sort as a row (SD03), a draft that sorts nothing
-   until Apply (SD04). The content is a survey with one dynamic matrix, shown through the "survey" component
-   that every renderer registers: a row per level with the matrix's drag handle, the level's number, a field
-   dropdown, a direction dropdown and the matrix's remove button. A row that does not sort (Default in the
-   first row, the dash in a later one) is left out by Apply (SD05). A field is in one row at most (SD07). The
-   footer's Add New and Apply are the modal's. */
+/* The "Sort by" dialog that "..." opens: the sort bar with its levels in rows (SD03). What a level can or cannot
+   do in the bar, a row can or cannot do here; the one difference is that the dialog is a draft, which sorts
+   nothing until Apply (SD04). The content is a survey with one dynamic matrix, shown through the "survey"
+   component that every renderer registers: a row per level with the matrix's drag handle, the level's number,
+   a field dropdown, a direction dropdown and, after the first row, the matrix's remove button. A row other
+   than the first always has a direction, and a Default row is always alone: Apply then clears the sort. A field
+   is in one row at most (SD07). The footer's Add New and Apply are the modal's. */
 export class RecordsSortDialogModel extends Base {
   private surveyValue: SurveyModel;
   private matrix: QuestionMatrixDynamicModel;
@@ -80,13 +83,9 @@ export class RecordsSortDialogModel extends Base {
   public get survey(): SurveyModel {
     return this.surveyValue;
   }
-  // Add New is enabled while the draft has fewer than maxSortLevel rows and an offered field no row has.
+  // Add New is enabled while the first row sorts, the draft has fewer than maxSortLevel rows and an offered field no row has.
   public get canAddRow(): boolean {
     return this.getPropertyValue("canAddRow", false);
-  }
-  // The single row has no enabled remove button.
-  public get canRemoveRow(): boolean {
-    return this.getPropertyValue("canRemoveRow", false);
   }
   // No sort can be made while a page is read or a page move waits for its validators.
   public get canApply(): boolean {
@@ -99,30 +98,30 @@ export class RecordsSortDialogModel extends Base {
     return this.getLevels().filter((level: ISortDialogLevel): boolean => level.direction === "asc" || level.direction === "desc")
       .map((level: ISortDialogLevel): ISortCriterion => ({ field: level.field, direction: <SortDirection>level.direction }));
   }
-  /* Adds a row with the first offered field that no row has and no direction (SD05). The focus stays on
-     Add New; when the new row disables it, the focus moves to the new row's field (the table is rendered again). */
+  /* Adds a row with the first offered field that no row has, in its type's first direction, as "+" does in the
+     bar. The focus stays on Add New; when the new row disables it, the focus moves to the new row's field (the
+     table is rendered again). */
   public addRow(): void {
     const free = this.getFreeField();
     if (!this.canAddRow || !free || !this.matrix) return;
     const hadFocus = !!this.addAction && isFocusInsideOrIdle(this.owner, this.addAction);
-    this.matrix.addRowByIndex({ [fieldColumn]: free.field, [directionColumn]: noSortValue }, this.matrix.rowCount);
+    this.matrix.addRowByIndex({ [fieldColumn]: free.field, [directionColumn]: getFirstSortDirection(free.dataType) }, this.matrix.rowCount);
     this.update();
     if (hadFocus && !this.canAddRow) {
       // Unless the respondent has gone on meanwhile: the focus is still on the disabled Add New or on nothing.
       this.focusField(this.matrix.visibleRows.length - 1, (): boolean => !!this.addAction && isFocusInsideOrIdle(this.owner, this.addAction));
     }
   }
-  /* Takes a row out of the draft; the single row is not removed. The focus moves to the field of the row
-     before; a removed first row sends it to the new first row's field. */
+  // Takes a row out of the draft; the first row is not removed, as in the bar. The focus moves to the field of the row before.
   public removeRow(index: number): void {
     const matrix = this.matrix;
-    if (!matrix || !this.canRemoveRow || index < 0 || index >= matrix.visibleRows.length) return;
+    if (!matrix || index < 1 || index >= matrix.visibleRows.length) return;
     const hadFocus = this.isFocusInsideOrIdle();
     matrix.removeRow(index, false);
     this.update();
     if (hadFocus) {
       // The focused remove button left with its row: the focus is on nothing until it moves.
-      this.focusField(Math.max(0, index - 1), (): boolean => this.isFocusIdle());
+      this.focusField(index - 1, (): boolean => this.isFocusIdle());
     }
   }
   /* Apply: the rows that have a direction become the sort, through the bar's validated sort. A draft equal
@@ -150,8 +149,8 @@ export class RecordsSortDialogModel extends Base {
       this.matrix.visibleRows.forEach((row: MatrixDropdownRowModelBase, index: number): void => {
         this.updateRow(row, index, levels, fields);
       });
-      this.setPropertyValue("canAddRow", levels.length < this.owner.maxSortLevel && !!this.getFreeField());
-      this.setPropertyValue("canRemoveRow", levels.length > 1);
+      const isFirstRowSorting = levels.length > 0 && levels[0].direction !== noSortValue;
+      this.setPropertyValue("canAddRow", isFirstRowSorting && levels.length < this.owner.maxSortLevel && !!this.getFreeField());
       this.updateFooter();
     } finally {
       this.isUpdating = false;
@@ -234,6 +233,8 @@ export class RecordsSortDialogModel extends Base {
     });
     this.surveyValue = survey;
     this.matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName(matrixName);
+    // The first row has no remove button, as level 1 in the bar: it is out of the Tab order, and its cell stays empty.
+    survey.onMatrixRenderRemoveButton.add((_: SurveyModel, options: MatrixAllowRemoveRowEvent): void => { options.allow = options.rowIndex > 0; });
     survey.onGetMatrixRowActions.add((_: SurveyModel, options: GetMatrixRowActionsEvent): void => { this.onGetRowActions(options); });
     survey.onMatrixCellValueChanged.add((_: SurveyModel, options: MatrixCellValueChangedEvent): void => { this.onCellValueChanged(options); });
     // A move changes the matrix value only; the field and direction cells raise no cell event then.
@@ -266,8 +267,8 @@ export class RecordsSortDialogModel extends Base {
     return !!row ? row.getQuestionByName(column) : undefined;
   }
   /* The handle's and the remove button's names follow the row's position (getRowNumber, which the matrix gives
-     its handle) and the locale. The remove button removes through the dialog, which moves the focus itself, and is
-     disabled on the single row; the remove column stays (minRowCount 0). */
+     its handle) and the locale. The remove button removes through the dialog, which moves the focus itself; the
+     remove column stays with a single row (minRowCount 0). */
   private onGetRowActions(options: GetMatrixRowActionsEvent): void {
     const owner = this.owner;
     const actions = <Array<Action>>options.actions;
@@ -287,23 +288,30 @@ export class RecordsSortDialogModel extends Base {
       // The title is the matrix's own localizable string: the label goes to the tooltip and the accessible name.
       remove.ariaLabel = <any>new ComputedUpdater(() => getLabel("sortRemoveLevelText"));
       remove.tooltip = <any>new ComputedUpdater(() => getLabel("sortRemoveLevelText"));
-      remove.enabled = <any>new ComputedUpdater(() => this.canRemoveRow);
       remove.action = (): void => { this.removeRow(this.matrix.visibleRows.indexOf(row)); };
       // Grey as the handle (the design's quaternary neutral button), not the alert style of the matrix's remove button.
       remove.appearance = Object.assign({}, remove.appearance, { style: "neutral" });
     }
   }
-  // A field pick keeps the row's state: a row that sorts takes the new field's first direction, a row that does not stays so.
+  /* As in the bar: Default clears the whole sort, so the later rows leave the draft, and a field pick takes the
+     new field's first direction, in a Default row too. */
   private onCellValueChanged(options: MatrixCellValueChangedEvent): void {
-    if (this.isWritingValue || options.columnName !== fieldColumn || !options.value) return;
+    if (this.isWritingValue || !options.value) return;
+    if (options.columnName === directionColumn && options.value === noSortValue) {
+      for (let i = this.matrix.visibleRows.length - 1; i > 0; i--) {
+        this.matrix.removeRow(i, false);
+      }
+      return;
+    }
+    if (options.columnName !== fieldColumn) return;
     const direction = options.getCellQuestion(directionColumn);
-    if (!direction || direction.value === noSortValue || !direction.value) return;
+    if (!direction || !direction.value) return;
     const dataType = getShownSortField(this.owner, this.owner.sortFields, options.value).dataType;
     direction.value = getFirstSortDirection(dataType);
   }
   /* A row by its position: the field list without the other rows' fields (and the fallback item of a field the
-     owner does not offer), the direction list with Default in the first row and the dash in a later one, and
-     the labels of its dropdowns. */
+     owner does not offer), the direction list, where Default is hidden after the first row, and the labels of
+     its dropdowns. */
   private updateRow(row: MatrixDropdownRowModelBase, index: number, levels: Array<ISortDialogLevel>, fields: Array<IRecordsSortField>): void {
     const owner = this.owner;
     const level = levels[index];
@@ -319,8 +327,7 @@ export class RecordsSortDialogModel extends Base {
     this.setChoices(fieldQuestion, fieldChoices);
     this.setCellLabel(fieldQuestion, index === 0 ? owner.getLocalizationString("sortFieldAriaLabel") : owner.getLocalizationFormatString("sortLevelFieldAriaLabel", index + 1));
 
-    const noSortText = index === 0 ? owner.getLocalizationString("sortDefaultText") : owner.getLocalizationString("sortNoDirectionText");
-    const directionChoices: Array<any> = [{ value: noSortValue, text: noSortText }];
+    const directionChoices: Array<any> = [{ value: noSortValue, text: owner.getLocalizationString("sortDefaultText"), visibleIf: noSortVisibleIf }];
     getSortDirectionItems(shown.dataType).forEach((item: ISortDirectionItem): void => {
       directionChoices.push({ value: item.direction, text: owner.getLocalizationString(item.locStringName) });
     });
@@ -331,7 +338,7 @@ export class RecordsSortDialogModel extends Base {
   // Choices are set only when what they show changed, so an open list keeps its items.
   private setChoices(question: any, choices: Array<any>): void {
     if (!question) return;
-    const current = JSON.stringify(question.choices.map((item: any): any => ({ value: item.value, text: item.text })));
+    const current = JSON.stringify(question.choices.map((item: any): any => ({ value: item.value, text: item.text, visibleIf: item.visibleIf || undefined })));
     if (current !== JSON.stringify(choices)) {
       question.choices = choices;
     }

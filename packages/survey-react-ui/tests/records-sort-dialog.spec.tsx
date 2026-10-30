@@ -65,7 +65,7 @@ describe("Records sort dialog", () => {
     expect([!!surveyRoot, surveyRoot.classList.contains("sd-theme-root"), (surveyRoot as HTMLElement).style.getPropertyValue("--sd-mobile-width")], "#2: the dialog's survey")
       .toEqual([true, false, "0px"]);
     const rows = rowsOf(dialog);
-    expect(rows.map(labelsOf), "#3").toEqual([["Move sort level 1", "Sort field", "Sort order", "Remove sort level 1"],
+    expect(rows.map(labelsOf), "#3: row 1 has no remove button").toEqual([["Move sort level 1", "Sort field", "Sort order"],
       ["Move sort level 2", "Sort field 2", "Sort order 2", "Remove sort level 2"]]);
     expect(rows.map((row: Element): string => (row.querySelector(".sd-expression") as Element).textContent), "#4: the numbers").toEqual(["1", "2"]);
     expect(dialog.querySelectorAll("thead").length, "#5: no header").toBe(0);
@@ -74,17 +74,17 @@ describe("Records sort dialog", () => {
       (el: Element): string => el.textContent);
     expect(footer, "#7: Add New, then Apply").toEqual(["Add New", "Apply"]);
   });
-  it("a removed row leaves the dialog and the single row's remove button is disabled; Add New adds a row and is disabled at the limit", () => {
+  it("a removed row leaves the dialog and row 1 has no remove button; Add New adds a row and is disabled at the limit", () => {
     const matrix = render({ sortCriteria: [{ field: "product", direction: "asc" }, { field: "price", direction: "desc" }] });
     const dialog = openDialog(matrix);
     act(() => { removeButton(rowsOf(dialog)[1]).click(); });
     expect(rowsOf(dialog).length, "#1").toBe(1);
-    expect(removeButton(rowsOf(dialog)[0]).disabled, "#2: the remove column stays, disabled").toBe(true);
+    expect(removeButton(rowsOf(dialog)[0]), "#2: the single row has no remove button").toBeNull();
     const addNew = (): HTMLButtonElement => Array.prototype.filter.call(root().querySelectorAll(".sv-popup--records-sort .sv-popup__body-footer button"),
       (el: Element): boolean => el.textContent === "Add New")[0] as HTMLButtonElement;
     act(() => { addNew().click(); });
     act(() => { addNew().click(); });
     expect(rowsOf(dialog).length, "#3").toBe(3);
-    expect([addNew().disabled, removeButton(rowsOf(dialog)[0]).disabled], "#4: Add New is disabled at maxSortLevel rows, not hidden").toEqual([true, false]);
+    expect([addNew().disabled, removeButton(rowsOf(dialog)[0]), removeButton(rowsOf(dialog)[1]).disabled], "#4: Add New is disabled at maxSortLevel rows, not hidden").toEqual([true, null, false]);
   });
 });

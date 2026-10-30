@@ -54,7 +54,6 @@ export var norwegianSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Legg til nytt",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Fullfør",
   // "Preview"

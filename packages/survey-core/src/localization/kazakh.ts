@@ -54,7 +54,6 @@ export var kazakhStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Жаңа қосу",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Дайын",
   // "Preview"

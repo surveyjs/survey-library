@@ -54,7 +54,6 @@ export var swedishSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Lägg till Nytt",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Slutför",
   // "Preview"

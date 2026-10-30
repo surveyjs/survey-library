@@ -54,7 +54,6 @@ export var philippinesStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Magdagdag ng Bago",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Kumpleto",
   // "Preview"

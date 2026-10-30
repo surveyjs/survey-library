@@ -709,7 +709,7 @@ frameworks.forEach(framework => {
       await page.mouse.move(0, 0);
       await compareScreenshot(page, ".sd-question", "matrixdynamic-sort-bar-more-desktop.png");
     });
-    // The dialog with five rows, as in the design: two levels and three rows added with Add New, disabled at maxSortLevel 5.
+    // The dialog with five rows: two levels and three rows added with Add New, each in its field's first direction; Add New is disabled at maxSortLevel 5.
     const openDialogWithFiveRows = async (page) => {
       await page.setViewportSize({ width: 1000, height: 800 });
       await initSurvey(page, framework, moreJson([{ field: "product", direction: "asc" }, { field: "category", direction: "asc" }], 5));

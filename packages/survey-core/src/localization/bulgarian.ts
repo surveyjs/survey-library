@@ -54,7 +54,6 @@ export var bulgarianStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Добави ново",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Край",
   // "Preview"

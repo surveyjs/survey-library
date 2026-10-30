@@ -54,7 +54,6 @@ export var urduSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "نیا شامل کریں",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "مکمل",
   // "Preview"

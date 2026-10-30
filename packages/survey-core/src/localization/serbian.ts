@@ -54,7 +54,6 @@ export var serbianStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Dodaj novi",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Završi",
   // "Preview"

@@ -54,7 +54,6 @@ export var ukrainianSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Додати нове",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Завершити",
   // "Preview"

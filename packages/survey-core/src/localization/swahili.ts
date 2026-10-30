@@ -54,7 +54,6 @@ export var swahiliStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Ongeza mpya",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Kamili",
   // "Preview"

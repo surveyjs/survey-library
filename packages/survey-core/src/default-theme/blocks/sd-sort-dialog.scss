@@ -105,8 +105,13 @@
 
   /* The two dropdowns share the width that is left. The cells are counted "of .sd-table__cell": Angular puts
      a hidden component element before each cell of a row. */
-  & > .sd-table__cell:not(.sd-table__cell--actions):not(:nth-child(2 of .sd-table__cell)) {
+  & > .sd-table__cell:not(.sd-table__cell--actions):not(.sd-table__cell--empty):not(:nth-child(2 of .sd-table__cell)) {
     flex: 1 1 0;
+  }
+
+  // Row 1 has no remove button: its empty cell keeps the width of the button's cell, so the dropdowns of all rows line up.
+  & > .sd-table__cell--empty {
+    width: var(--sjs2-spacing-x550);
   }
 
   /* The number: the text centered in x125, then x100 (Figma 6528:26858), in the default strong text of

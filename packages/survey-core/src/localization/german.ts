@@ -54,7 +54,6 @@ export var germanSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Neue hinzufügen",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Abschließen",
   // "Preview"

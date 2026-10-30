@@ -54,7 +54,6 @@ export var spanishSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Añadir Nuevo",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Completar",
   // "Preview"

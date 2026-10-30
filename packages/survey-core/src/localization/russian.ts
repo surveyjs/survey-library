@@ -54,7 +54,6 @@ export var russianSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Добавить новое",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Готово",
   // "Preview"

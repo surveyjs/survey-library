@@ -54,7 +54,6 @@ export var hindiStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "नया जोड़ें",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "पूरा",
   // "Preview"

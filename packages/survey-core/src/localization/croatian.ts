@@ -54,7 +54,6 @@ export var croatianStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Dodaj novo",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Kompletan",
   // "Preview"

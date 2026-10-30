@@ -54,7 +54,6 @@ export var czechSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Přidat nové",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Dokončit",
   // "Preview"

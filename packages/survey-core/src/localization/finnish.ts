@@ -54,7 +54,6 @@ export var finnishSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Lisää uusi",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Valmis",
   // "Preview"

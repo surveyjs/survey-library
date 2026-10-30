@@ -54,7 +54,6 @@ export var thaiStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "เพิ่มใหม่",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "สำเร็จ",
   // "Preview"

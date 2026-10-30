@@ -54,7 +54,6 @@ export var dutchSurveyStrings = {
   // [Auto-translated] "Add New"
   sortAddNewText: "Voeg Nieuw toe",
   // [Auto-translated] "—"
-  sortNoDirectionText: "—",
   // "Complete"
   completeText: "Verzenden",
   // "Preview"

@@ -485,6 +485,23 @@ export class QuestionMultipleTextModel extends Question
     return false;
   }
   public get isContainer(): boolean { return true; }
+  private getFirstEditor(onError: boolean): Question {
+    const items = this.items;
+    for (let i = 0; i < items.length; i++) {
+      const editor = items[i].editor;
+      if (!editor || !editor.isVisible || editor.isReadOnly) continue;
+      if (!onError || editor.currentErrorCount > 0) return editor;
+    }
+    return null;
+  }
+  protected getFirstInputElementId(): string | (() => HTMLElement) {
+    const editor = this.getFirstEditor(false);
+    return editor ? editor.inputId : super.getFirstInputElementId();
+  }
+  protected getFirstErrorInputElementId(): string | (() => HTMLElement) {
+    const editor = this.getFirstEditor(true);
+    return editor ? editor.inputId : super.getFirstErrorInputElementId();
+  }
   onSurveyLoad() {
     this.editorsOnSurveyLoad();
     super.onSurveyLoad();

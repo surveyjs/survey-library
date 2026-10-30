@@ -291,7 +291,7 @@ export function finalize(first: Comparison, input: CompareInput, reruns: Array<R
 }
 
 const pct = (v: number | undefined): string => (v === undefined || !isFinite(v) ? "" : (v >= 0 ? "+" : "") + (v * 100).toFixed(1) + "%");
-const cell = (s: string): string => s.replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
+const cell = (s: string): string => s.replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
 const ms = (v: number | undefined): string => (v === undefined || isNaN(v) ? "" : String(Math.round(v * 100) / 100));
 
 export function markdownTable(c: Comparison): string {

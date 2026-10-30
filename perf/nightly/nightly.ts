@@ -773,7 +773,7 @@ async function onDemandBisect(ctx: Ctx): Promise<number> {
   // The reference comes from this machine's baseline: the key of this process, with any Chromium major for a browser
   // suite (its version is known only once Playwright runs); the newest such file.
   const key = machineInfo({ chromium: suite === "core" ? null : "0", extra: process.env.PERF_MACHINE_EXTRA }).key;
-  const keyPattern = new RegExp("^" + key.replace(/[.]/g, "\\.").replace("chromium0", "chromium\\d+") + "$");
+  const keyPattern = new RegExp("^" + key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace("chromium0", "chromium\\d+") + "$");
   const bf = baselineFiles(ctx.state, suite).filter((f: string) => keyPattern.test(path.basename(f).substring(suite.length + 1).replace(/\.json$/, "")))[0];
   const b = bf ? readBaseline(bf) : undefined;
   const s = b ? b.scenarios[id] : undefined;

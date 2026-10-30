@@ -7,7 +7,7 @@ import type { SurveyModel } from "../survey";
 import type { Question } from "../question";
 import type { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
 import type { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
-import type { GetMatrixRowActionsEvent, MatrixCellValueChangedEvent, MatrixAllowRemoveRowEvent } from "../survey-events-api";
+import type { GetMatrixRowActionsEvent, MatrixAllowRemoveRowEvent, MatrixCellValueChangedEvent, MatrixCellValueChangingEvent } from "../survey-events-api";
 import { createBoxShadowResetVariables } from "../utils/base-theme-init";
 import { focusElement } from "../utils/focus-utils";
 import { getActiveElement } from "../utils/dom-utils";
@@ -236,6 +236,8 @@ export class RecordsSortDialogModel extends Base {
     // The first row has no remove button, as level 1 in the bar: it is out of the Tab order, and its cell stays empty.
     survey.onMatrixRenderRemoveButton.add((_: SurveyModel, options: MatrixAllowRemoveRowEvent): void => { options.allow = options.rowIndex > 0; });
     survey.onGetMatrixRowActions.add((_: SurveyModel, options: GetMatrixRowActionsEvent): void => { this.onGetRowActions(options); });
+    // Delete and Backspace clear a dropdown that has no search input, whatever allowClear says: a row keeps its field and direction.
+    survey.onMatrixCellValueChanging.add((_: SurveyModel, options: MatrixCellValueChangingEvent): void => { if (!options.value) options.value = options.oldValue; });
     survey.onMatrixCellValueChanged.add((_: SurveyModel, options: MatrixCellValueChangedEvent): void => { this.onCellValueChanged(options); });
     // A move changes the matrix value only; the field and direction cells raise no cell event then.
     survey.onValueChanged.add((): void => { this.update(); });

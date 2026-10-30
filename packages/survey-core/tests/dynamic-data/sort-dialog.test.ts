@@ -275,7 +275,7 @@ describe("Sort dialog: the rows", () => {
       .toEqual(["Sort field", "Sort order", [1, 2, 3]]);
     expect([fieldOf(open, 0).allowClear, fieldOf(open, 0).searchEnabled, directionOf(open, 0).allowClear], "#10").toEqual([false, false, false]);
   });
-  test("with nothing sorted it opens with one row: the shown field and no direction", () => {
+  test("with nothing sorted it opens with one row: the shown field and Default", () => {
     const matrix = createMatrix();
     const open = openDialog(matrix);
     expect(rowsOf(open), "#1: the single row has no remove button").toEqual([["Product", "Default", false]]);
@@ -520,6 +520,18 @@ describe("Sort dialog: numbers and moves", () => {
     expect(hasRemoveButtons(open), "#8: an add").toEqual([false, true]);
     expect([numberOf(open, 0), numberOf(open, 1), rowAction(open, 0, "drag-drop").ariaLabel, labelOf(fieldOf(open, 0))], "#9").toEqual([1, 2, "Move sort level 1", "Sort field"]);
   });
+  test("a mouse drop rebuilds the table: row 1 has no remove button, and the lists and labels follow the position", () => {
+    const matrix = createMatrix();
+    matrix.sort(threeLevels);
+    const open = openDialog(matrix);
+    const table = open.levels.renderedTable;
+    open.levels.moveRowByIndex(2, 0);
+    open.levels.clearOnDrop();
+    expect(open.levels.renderedTable === table, "#1").toBe(false);
+    expect(rowsOf(open), "#2").toEqual([["Price", "Low - High", false], ["Product", "Alphabet, A - Z", true], ["Category", "Alphabet, Z - A", true]]);
+    expect([titlesOf(directionOf(open, 0)), titlesOf(directionOf(open, 1))], "#3").toEqual([["Default", "High - Low", "Low - High"], ["Alphabet, A - Z", "Alphabet, Z - A"]]);
+    expect([rowAction(open, 0, "drag-drop").ariaLabel, rowAction(open, 2, "remove-row").ariaLabel], "#4").toEqual(["Move sort level 1", "Remove sort level 3"]);
+  });
   test("Add New is disabled at maxSortLevel rows and with no free field, and enabled again after a removal", () => {
     const matrix = createMatrix({ maxSortLevel: 2 });
     matrix.sort([{ field: "product", direction: "asc" }]);
@@ -585,6 +597,32 @@ describe("Sort dialog: the bar's rules", () => {
       apply(open.popup);
       expect(sortOf(viaDialog), step.name).toEqual(sortOf(viaBar));
     });
+  });
+});
+
+describe("Sort dialog: Delete and Backspace", () => {
+  const press = (question: QuestionDropdownModel, keyCode: number): void => {
+    question.dropdownListModel.keyHandler(<any>{ keyCode: keyCode, which: keyCode, preventDefault: () => { }, stopPropagation: () => { } });
+  };
+  test("they clear no dropdown of a row: a row keeps its field and direction, and Apply sorts by every row", () => {
+    const matrix = createMatrix();
+    matrix.sort(threeLevels);
+    const open = openDialog(matrix);
+    const rows = rowsOf(open);
+    [46, 8].forEach((keyCode: number): void => {
+      press(directionOf(open, 1), keyCode);
+      press(directionOf(open, 0), keyCode);
+      press(fieldOf(open, 2), keyCode);
+      expect(rowsOf(open), "#1: key " + keyCode).toEqual(rows);
+    });
+    apply(open.popup);
+    expect(sortOf(matrix), "#2").toEqual(threeLevels);
+  });
+  test("Add New stays disabled after Delete on a Default row", () => {
+    const matrix = createMatrix();
+    const open = openDialog(matrix);
+    press(directionOf(open, 0), 46);
+    expect([rowsOf(open), addNew(open.popup).enabled], "#1").toEqual([[["Product", "Default", false]], false]);
   });
 });
 
@@ -723,6 +761,7 @@ describe("Sort dialog: the locale", () => {
       .toEqual(["Order", "New level", "Use", "All levels", "All levels"]);
     expect(rowsOf(open), "#2").toEqual([["Product", "A first", false], ["Category", "A first", true]]);
     expect(titlesOf(directionOf(open, 0))[0], "#3").toBe("Stored");
+    expect(titlesOf(directionOf(open, 1)), "#3a: a later row's new list has no Default").toEqual(["A first", "Alphabet, Z - A"]);
     expect([open.survey.locale, rowAction(open, 1, "drag-drop").ariaLabel, labelOf(fieldOf(open, 1))], "#4: the matrix's texts").toEqual([testLocale, "Drag 2", "Key 2"]);
     matrix.survey.locale = "";
     expect([popup.title, open.survey.locale, rowAction(open, 1, "drag-drop").ariaLabel], "#5").toEqual(["Sort by", "", "Move sort level 2"]);

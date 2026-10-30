@@ -109,9 +109,16 @@
     flex: 1 1 0;
   }
 
-  // Row 1 has no remove button: its empty cell keeps the width of the button's cell, so the dropdowns of all rows line up.
-  & > .sd-table__cell--empty {
-    width: var(--sjs2-spacing-x550);
+  /* Row 1 has no remove button: its empty cell is as wide as the button's cell, so the dropdowns of all rows line
+     up. The width is the cell's own: the action group's padding, the small button's padding and its icon. A theme
+     can change each of them, and the button's cell has the same minimum because a theme can make its icon smaller. */
+  & > .sd-table__cell--empty,
+  & > .sd-table__cell--actions:last-of-type {
+    min-width: calc(
+      var(--sjs2-layout-component-matrix-action-group-right-padding-left) +
+      2 * var(--sjs2-layout-component-action-small-box-padding-horizontal) +
+      var(--sjs2-line-height-x300)
+    );
   }
 
   /* The number: the text centered in x125, then x100 (Figma 6528:26858), in the default strong text of

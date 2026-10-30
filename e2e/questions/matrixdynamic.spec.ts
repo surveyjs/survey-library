@@ -1722,6 +1722,17 @@ frameworks.forEach((framework) => {
       await expect(levelDirection(page, 1).locator(".sd-action__title")).toHaveText("Default");
     });
 
+    test("Delete and Backspace clear no dropdown of a row", async ({ page }) => {
+      await initSurvey(page, framework, moreJson());
+      await openDialog(page);
+      const rows = await rowsShown(page);
+      await rowDirection(page, 2).focus();
+      await page.keyboard.press("Delete");
+      await rowField(page, 1).focus();
+      await page.keyboard.press("Backspace");
+      expect(await rowsShown(page)).toEqual(rows);
+    });
+
     test("the dropdowns of row 1 and row 2 have the same edges, and a single row keeps that width", async ({ page }) => {
       await initSurvey(page, framework, moreJson());
       await openDialog(page);

@@ -1,8 +1,9 @@
 import { ISortCriterion, IDynamicDataSource, IDynamicDataSourceCapabilities } from "./dynamic-data-interfaces";
 
-// The parts of the view the read state decides by (DynamicDataView). It only reads them.
+// The parts of the view the read state decides by (DynamicDataView). It only reads them. Either filter
+// slot - the authored one or a Filter Control's - is a filter.
 export interface IDynamicDataReadStateView {
-  readonly filter: string;
+  readonly hasFilter: boolean;
   readonly sort: Array<ISortCriterion>;
 }
 
@@ -70,7 +71,7 @@ export class DynamicDataReadState {
      requests; isPagedBySource decides how the window that is in force is read. */
   public get isReadPagedBySource(): boolean {
     const caps = this.capabilities;
-    return caps.paging && (caps.filtering || !this.view.filter) && (caps.sorting || this.view.sort.length === 0);
+    return caps.paging && (caps.filtering || !this.view.hasFilter) && (caps.sorting || this.view.sort.length === 0);
   }
   /* A change of the view or of the page is answered by a read of the source: the source pages it, or
      a paging source owes the whole storage that a view part it cannot run is run over - the window in

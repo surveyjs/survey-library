@@ -6,6 +6,7 @@ import { ISortCriterionOwner, SortCriterion } from "./records-sort-criterion";
 import { getFirstSortDirection } from "./records-sort-directions";
 import { Scope } from "../utils/scope";
 import { ISurvey } from "../base-interfaces";
+import { combineFilterExpressions } from "../dynamic-data/dynamic-data-filter";
 
 /* The question side of the list's paging, sorting and filtering. The behaviour lives here and the
    questions keep the thin public accessors. Its owner is a private object of the question
@@ -23,7 +24,12 @@ import { ISurvey } from "../base-interfaces";
    The sort and the filter are serialized (sortCriteria / filterExpression), so their hash entries are
    not a pure mirror: while an authored value has not been handed to the list yet - during a load, and
    for as long as the question is in design mode - the hash is the truth and the list is the one
-   that lags behind. isViewPending says which direction the next sync runs in. */
+   that lags behind. isViewPending says which direction the next sync runs in.
+
+   A Filter Control does not write the authored expression: it has an entrance of its own,
+   setControlFilter(key, expression), whose values go to the list's second filter slot and are never
+   serialized, never mirrored and never mixed with filterExpression. The key is the control's, so
+   several controls on one question do not overwrite each other. The list ANDs its two slots. */
 /* The keys the paging state is kept under in the owner's property hash: the paging helper writes them
    (isPageMovePending is the page validation's), and the question reads them back. */
 export const pagingStateKeys = {
@@ -286,10 +292,17 @@ export class RecordsPagingController implements ISortCriterionOwner {
     const list = this.list;
     const filter = this.filterExpression;
     const sort = this.currentSort;
-    // One setView and not the two setters: with a paging source each of them is a read of its own,
-    // and the authored view has to cost one request.
-    if (list.filter !== filter || !isSameSort(list.sort, normalizeSort(sort))) {
-      this.runViewPush((): void => { list.setView(filter, sort); });
+    const controlFilter = this.getCombinedControlFilter();
+    /* A slot the list refused - one it cannot run and no read carries - reset itself to "" and must
+       not be handed the same text again, so what says whether there is something new to push is
+       pushedControlFilter and not list.controlFilter; with nothing new, the list keeps the slot it
+       ended up with. */
+    const newControlFilter = this.pushedControlFilter !== controlFilter ? controlFilter : list.controlFilter;
+    this.pushedControlFilter = controlFilter;
+    // One setView and not the three setters: with a paging source each of them is a read of its
+    // own, and the authored view has to cost one request.
+    if (list.filter !== filter || list.controlFilter !== newControlFilter || !isSameSort(list.sort, normalizeSort(sort))) {
+      this.runViewPush((): void => { list.setView(filter, sort, newControlFilter); });
     }
     this.mirrorListView();
   }
@@ -303,8 +316,9 @@ export class RecordsPagingController implements ISortCriterionOwner {
   // In design mode the list holds no sort and no filter: what is authored stays in the hash.
   private clearListView(): void {
     const list = this.list;
-    if (!list.filter && list.sort.length === 0) return;
-    this.runViewPush((): void => { list.setView("", []); });
+    this.pushedControlFilter = "";
+    if (!list.filter && !list.controlFilter && list.sort.length === 0) return;
+    this.runViewPush((): void => { list.setView("", [], ""); });
   }
   /* setView runs user code - onError for a filter it cannot run, the owner's rebuild on the reset -
      and a flag that a throw left set would make every later syncState skip the view: the hash would
@@ -527,6 +541,76 @@ export class RecordsPagingController implements ISortCriterionOwner {
     // A filter the list cannot run locally is reported through its onError and reset to "": the
     // mirror takes what the list ended up with, not what was assigned.
     this.syncState();
+  }
+  /* The filters the controls bound to this question set, by key. The authored filterExpression is
+     not one of them and never passes through here: it has its own property, its own setter, its own
+     serialization and its own slot in the list. Two doors, two stores, all the way down. */
+  private controlFilters: { [index: string]: string } = {};
+  private controlFilterKeys: Array<string> = [];
+  /* The last value handed to the list. A slot the list refuses - one it cannot run and no read
+     carries, see DynamicDataView - resets itself to "", so comparing with list.controlFilter would
+     hand the same broken text over - and report it - on every sync.
+     The authored slot does not need this: its mirror writes the "" back into the hash, so there is
+     nothing left to re-push. It starts - and goes back to - "", which is what an untouched control
+     slot holds: the setter raises a reset even when the value did not change, and every reset costs
+     a full rebuild of the rows/panels. */
+  private pushedControlFilter: string = "";
+
+  public getControlFilter(key: string): string { return this.controlFilters[key] || ""; }
+  public getControlFilterKeys(): Array<string> { return this.controlFilterKeys.slice(); }
+  // How many records the list would show with this control's filter replaced by expression - a
+  // filter the control has not applied yet. The other controls' filters stay, combined in their
+  // order as in getCombinedControlFilter; a control with no filter yet comes last. Unknown while the
+  // controller, not the list, holds the view (the question loads or is in design mode).
+  public countControlFilter(key: string, expression: string): Promise<number | undefined> {
+    if (!this.canPushToList) return Promise.resolve(undefined);
+    const keys = this.controlFilterKeys.indexOf(key) > -1 ? this.controlFilterKeys : this.controlFilterKeys.concat([key]);
+    const combined = keys.reduce((res: string, k: string): string =>
+      combineFilterExpressions(res, k === key ? expression : this.controlFilters[k]), "");
+    return this.list.countControlFilter(combined);
+  }
+  public setControlFilter(key: string, expression: string): void {
+    if (!key) return;
+    const newValue = !!expression ? expression : "";
+    if (this.getControlFilter(key) === newValue) return;
+    const index = this.controlFilterKeys.indexOf(key);
+    if (!newValue) {
+      delete this.controlFilters[key];
+      if (index > -1) {
+        this.controlFilterKeys.splice(index, 1);
+      }
+    } else {
+      if (index < 0) {
+        this.controlFilterKeys.push(key);
+      }
+      this.controlFilters[key] = newValue;
+    }
+    if (!this.canPushToList) {
+      // The controller is the truth while the question loads and for as long as it is in design
+      // mode; the slot waits for the flush, exactly as the authored expression always has.
+      this.isViewPending = true;
+      return;
+    }
+    // A view left pending (the question has just loaded or left design mode) goes first, as with
+    // filterExpression: it carries this slot too.
+    this.flushPendingView();
+    this.pushControlFilter();
+    this.syncState();
+  }
+  // One question may carry more than one control and the list has one control slot, so the filters
+  // are combined here. combineFilterExpressions does the bracketing: how filter expressions are
+  // joined has one owner in this feature.
+  private getCombinedControlFilter(): string {
+    return this.controlFilterKeys.reduce((res: string, key: string): string =>
+      combineFilterExpressions(res, this.controlFilters[key]), "");
+  }
+  private pushControlFilter(): void {
+    const combined = this.getCombinedControlFilter();
+    if (this.pushedControlFilter === combined) return;
+    // A new filter replaces the page from code, as filterExpression does.
+    this.cancelPendingPageMove();
+    this.pushedControlFilter = combined;
+    this.list.controlFilter = combined;
   }
   /* Re-decides which records are shown. The view of a source that pages travels in the read request
      and the source decides the membership of the window itself - the window IS the answer - so

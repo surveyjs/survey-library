@@ -8,6 +8,7 @@ import {
 } from "./dynamic-data-interfaces";
 import { DynamicDataSourceChannel, IDynamicDataChannelHost, IDynamicDataPushInfo } from "./dynamic-data-channel";
 import { getChangedFields, isRecordValueChanged, toReadResult } from "./dynamic-data-records";
+import { applyFilters, combineFilterExpressions, createFilterRunner } from "./dynamic-data-filter";
 import { IPendingInsert, getOwnedFields, getUpdatePayload, mergeInsertAnswer } from "./dynamic-data-pending-insert";
 import { DynamicDataCount, IDynamicDataWindowAnswer } from "./dynamic-data-count";
 import { ArrayDynamicDataSource, isLocalSource, LocalDynamicDataSource } from "./dynamic-data-sources";
@@ -64,7 +65,7 @@ export class DynamicDataList {
     getRecordCount: (): number => this.recordCount,
     getRecords: (): Array<any> => this.records,
     getFields: (): Array<IDynamicDataField> => this.getFields(),
-    getLocalFilterRunner: (): ConditionRunner => this.isWindowWholeStorage ? this.view.filterRunner : undefined,
+    getLocalFilterRunners: (): Array<ConditionRunner> => this.isWindowWholeStorage ? this.view.filterRunners : [],
     getLocalSort: (): Array<ISortCriterion> => this.isWindowWholeStorage ? this.view.sort : [],
     isMembershipFrozen: (): boolean => this.isViewFrozenOnEdit && this.hasLocalViews
   });
@@ -803,17 +804,27 @@ export class DynamicDataList {
   public set filter(v: string) {
     this.setView(v, this.view.sort);
   }
+  /* The filter a Filter Control sets, next to the authored one (see DynamicDataView): the list ANDs
+     the two, and a control filters without touching the expression the question serializes. */
+  public get controlFilter(): string {
+    return this.view.controlFilter;
+  }
+  public set controlFilter(v: string) {
+    this.setView(this.view.filter, this.view.sort, v);
+  }
   /* Assigns the filter and the sort together and reads ONCE: with a paging source the view travels
      inside the read request, so two assignments would be two requests, the second superseding the
      first. It is what the two setters are made of - and what a question that has both authored
-     hands over on its first sync. */
-  public setView(filter: string, sort: Array<ISortCriterion>): void {
+     hands over on its first sync. controlFilter is the control slot; left out, the slot keeps what
+     the list already holds. */
+  public setView(filter: string, sort: Array<ISortCriterion>, controlFilter?: string): void {
     const newFilter = !!filter ? filter : "";
+    const newControlFilter = controlFilter === undefined ? this.view.controlFilter : (controlFilter || "");
     this.membership.clearTouched();
     /* The page reset belongs to the filter: a different membership makes the page the respondent is
        on meaningless, while a sort keeps the same records and only reorders them. An assignment of
-       the filter it already has changes neither. */
-    if (this.view.setView(newFilter, sort)) {
+       the filter it already has changes neither. Either slot counts - both of them filter. */
+    if (this.view.setView(newFilter, sort, newControlFilter)) {
       this.setPageIndexInternal(0, false);
       // Another filter is another set of records: what the old one reached says nothing about it.
       this.storageCount.forgetReach();
@@ -846,6 +857,42 @@ export class DynamicDataList {
   }
   public set sort(v: Array<ISortCriterion>) {
     this.setView(this.view.filter, v);
+  }
+  /* How many records the authored filter and this control filter would leave, without applying it:
+     the number a Filter Control shows before its edits are applied. Nothing in the view changes and
+     nothing is reported - a count that cannot be had is undefined:
+     - a source that pages and filters is asked once for the total of a one-record window. The read
+       goes to the source directly and not through the channel: the channel keeps one read in flight
+       and would drop the list's own;
+     - records held here as the whole storage (a source that does not page, or a paging one read whole
+       for a view it cannot run) are counted here, exactly;
+     - a paging source that cannot filter, while it holds only a page, and a source that sends no
+       total: unknown. */
+  public countControlFilter(controlFilter: string): Promise<number | undefined> {
+    if (!this._source || this.isDisposed) return Promise.resolve(undefined);
+    if (!this.readState.mayFilterLocally) return this.countAtSource(combineFilterExpressions(this.view.filter, controlFilter));
+    if (!this.isWindowCommitted || !this.isWindowWholeStorage) return Promise.resolve(undefined);
+    let runner: ConditionRunner;
+    try {
+      runner = createFilterRunner(controlFilter);
+    } catch(e) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(applyFilters(this.records, [this.view.filterRunner, runner], this.getFields()).length);
+  }
+  private countAtSource(filter: string): Promise<number | undefined> {
+    return new Promise((resolve: (count: number | undefined) => void): void => {
+      const answer = (data: any): void => {
+        const total = toReadResult(data).total;
+        resolve(typeof total === "number" ? total : undefined);
+      };
+      try {
+        Promise.resolve(this._source.read({ skip: 0, take: 1, filter: filter, sort: [] }))
+          .then(answer, (): void => { resolve(undefined); });
+      } catch(e) {
+        resolve(undefined);
+      }
+    });
   }
   public dispose(): void {
     this.isDisposed = true;
@@ -1039,7 +1086,7 @@ export class DynamicDataList {
       this.view.ensureWholeStorageFilterRunner(this.readState);
       return { skip: 0, take: 0, filter: "", sort: [] };
     }
-    return { skip: skip, take: take, filter: this.view.filter, sort: this.view.sort.slice() };
+    return { skip: skip, take: take, filter: this.view.sourceFilter, sort: this.view.sort.slice() };
   }
   // The previous window stays in force, and so does the page it was read for: a retry that failed
   // has changed nothing. The failed read owns the loading state it inherited.
@@ -1075,8 +1122,8 @@ export class DynamicDataList {
          page instead (getReadRange takes its skip from it). No pageChanged here: until the retry commits,
          the question shows the window in force together with the page it was read for. */
       const answer: IDynamicDataWindowAnswer = { result: result, skip: skip, take: take, length: records.length };
-      if (this.storageCount.stepBackPastEnd(answer, this._pageIndex, this._pageSize, this.view.filter)) return false;
-      const retryPageIndex = this.storageCount.commitWindow(answer, this.view.filter);
+      if (this.storageCount.stepBackPastEnd(answer, this._pageIndex, this._pageSize, this.view.sourceFilter)) return false;
+      const retryPageIndex = this.storageCount.commitWindow(answer, this.view.sourceFilter);
       if (retryPageIndex !== undefined) {
         this.setPageIndexInternal(retryPageIndex, false);
       }

@@ -1,0 +1,400 @@
+@use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
+
+// The Filter Control: an optional search row (the box and the Filters button), then the quick filters
+// row - the chips, wrapping or cut to one row with "Show More", and Clear All at its right end.
+.sd-filter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sjs2-spacing-x200);
+}
+
+.sd-filter__search-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sjs2-spacing-x100);
+}
+
+.sd-filter__search {
+  flex: 1 1 auto;
+  min-width: 0;
+
+  // The small input's height: 40px as in the mockup, where a text question's box is 48px. The
+  // horizontal padding stays the text question's, so the text starts where the mockup's does.
+  .sd-formbox__input {
+    min-height: calc(1lh + var(--sjs2-layout-component-input-small-content-padding-vertical) * 2);
+    padding-top: var(--sjs2-layout-component-input-small-content-padding-vertical);
+    padding-bottom: var(--sjs2-layout-component-input-small-content-padding-vertical);
+  }
+}
+
+.sd-filter__search-icon {
+  flex: 0 0 auto;
+  width: var(--sjs2-size-x300);
+  height: var(--sjs2-size-x300);
+
+  use {
+    fill: var(--sjs2-color-fg-basic-secondary);
+  }
+}
+
+.sd-filter__chips-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sjs2-spacing-x100);
+
+  // The chips, Show More and Clear All are small actions with the x-small text and icons: 12px text
+  // in a 32px chip, as in the mockup (a small action's text is the default size, 40px in all).
+  .sd-action {
+    --sd-action-title-font-size: var(--sjs2-typography-font-size-component-action-x-small-content);
+    --sd-action-title-line-height: var(--sjs2-typography-line-height-component-action-x-small-content);
+    --sd-action-icon-size: var(--sjs2-line-height-x200);
+  }
+}
+
+.sd-filter__chips {
+  // A chip the collapsed row does not show is positioned against this box (see --overflow).
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+
+  .sd-action-bar {
+    --sd-action-bar-gap: var(--sjs2-spacing-x100);
+    flex-wrap: wrap;
+    white-space: nowrap;
+  }
+}
+
+// Out of the flow and invisible, but still laid out: FilterChipsLayout reads its width.
+.sd-filter__chip--overflow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.sd-filter__chip-marker {
+  flex: 0 0 auto;
+  width: var(--sjs2-size-x200);
+  height: var(--sjs2-size-x200);
+
+  use {
+    fill: var(--sd-action-icon-color);
+  }
+}
+
+.sd-filter__show-more .sd-action__title {
+  text-decoration: none;
+}
+
+.sd-filter__clear {
+  flex: 0 0 auto;
+}
+
+// On a phone the chips stay in one row that scrolls sideways.
+.sd-filter--mobile .sd-filter__chips .sd-action-bar {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// The advanced dialog's editor survey: no page gutter and no framed card per field - inside a dialog
+// that is only empty space. A field's title is a plain label over its operator and value.
+.sd-filter-editor {
+  min-width: calc(40 * var(--sjs2-base-unit-size));
+
+  .sd-page__content {
+    padding: 0;
+  }
+
+  .sd-panel.sd-element--with-frame {
+    box-shadow: none;
+    background: transparent;
+    border-radius: 0;
+  }
+
+  .sd-panel {
+    --sd-panel-header-border-bottom: none;
+    --sd-panel-header-padding-inline: 0;
+    --sd-panel-title-padding-inline: 0;
+  }
+
+  .sd-panel__content {
+    padding: 0;
+  }
+}
+
+// A badge's popup: an optional search box, the title row with its link, the list or the operator and
+// value, and Apply.
+.sd-filter-popup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sjs2-spacing-x100);
+  box-sizing: border-box;
+  min-width: calc(40 * var(--sjs2-base-unit-size));
+  padding: var(--sjs2-spacing-x100);
+
+  .sd-filter-editor {
+    min-width: 0;
+  }
+}
+
+// A popup with a list, cut to the screen (the popup gives its container a height), scrolls the list
+// alone: the search box, the title row and Apply stay in sight. The list scrolls in its own box
+// (sv-list); the popup and its body only hand it the height the rest leaves. The operator and value
+// are left as they are: they are short, and when they do not fit, the whole popup scrolls.
+.sd-filter-popup:has(> .sd-filter-popup__body > .sv-list__container) {
+  flex: 1 1 auto;
+  min-height: 0;
+
+  .sd-filter-popup__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+}
+
+.sd-filter-popup__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sjs2-spacing-x100);
+  padding: 0 var(--sjs2-spacing-x150);
+}
+
+.sd-filter-popup__title {
+  @include sjs2--typography--default;
+  color: var(--sjs2-color-fg-basic-secondary);
+}
+
+.sd-filter-popup__search {
+  display: flex;
+  align-items: center;
+  gap: var(--sjs2-spacing-x100);
+  padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
+  border-radius: var(--sjs2-radius-component-drop-item);
+  background: var(--sjs2-color-bg-basic-secondary);
+}
+
+.sd-filter-popup__search-icon {
+  flex: 0 0 auto;
+  width: var(--sjs2-size-x300);
+  height: var(--sjs2-size-x300);
+
+  use {
+    fill: var(--sjs2-color-fg-basic-secondary);
+  }
+}
+
+.sd-filter-popup__search-input {
+  @include sjs2--typography--default;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--sjs2-color-fg-basic-primary);
+}
+
+.sd-filter-popup__body {
+  // A checkbox list shows its state with the checkbox, not with a selected row.
+  .sv-list__item--selected .sv-list__item-body:has(.sd-filter-popup__item) {
+    background: transparent;
+    color: var(--sjs2-color-fg-basic-primary);
+  }
+}
+
+.sd-filter-popup__item {
+  display: flex;
+  align-items: center;
+  gap: var(--sjs2-spacing-x150);
+  width: 100%;
+}
+
+.sd-filter-popup__check {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--sjs2-size-x300);
+  height: var(--sjs2-size-x300);
+  border-radius: var(--sjs2-radius-x050);
+  background: var(--sjs2-color-bg-basic-secondary);
+
+  use {
+    fill: var(--sjs2-color-fg-brand-on-primary);
+  }
+}
+
+.sd-filter-popup__check--checked {
+  background: var(--sjs2-color-bg-brand-primary);
+}
+
+.sd-filter-popup__item-text {
+  @include sjs2--typography--default;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sd-filter-popup__item-remove {
+  display: flex;
+  flex: 0 0 auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  use {
+    fill: var(--sjs2-color-fg-basic-secondary);
+  }
+}
+
+.sd-filter-popup__footer .sd-action-bar {
+  width: 100%;
+}
+
+.sd-filter-popup__footer .sd-action-bar__item {
+  flex: 1 1 auto;
+}
+
+.sd-filter-popup__footer .sd-action {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+// The Filters dialog (FilterModal): the search box, the presets and every field, above the dialog's
+// own footer with Clear All and the main button. 580px wide; on a phone it covers the screen.
+.sd-filter-modal > .sv-popup__container > .sv-popup__body-content {
+  box-sizing: border-box;
+  width: calc(72.5 * var(--sjs2-base-unit-size));
+  max-width: 100%;
+}
+
+.sd-filter-modal--mobile {
+  padding: 0;
+
+  // The popup gives the container an inline width and height (auto), which a width of 100% does not
+  // beat: it is stretched over the screen as the flex item it is, however little the dialog holds.
+  & > .sv-popup__container {
+    flex: 1 1 auto;
+    align-self: stretch;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+  }
+
+  & > .sv-popup__container > .sv-popup__body-content {
+    width: 100%;
+    min-width: 0;
+    max-height: 100%;
+  }
+}
+
+.sd-filter-modal__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sjs2-spacing-x300);
+  // Room for a focused action's ring at the bottom - see the scrolling area below.
+  padding-bottom: var(--sjs2-border-width-a11y);
+}
+
+// The dialogs scroll in the popup's .sv-popup__scrolling-content, which leaves 2px around them for a
+// focused action's ring; the theme's ring is 4px (--sjs2-border-width-a11y). The sides get room for
+// all of it the way the popup gives its 2px: padding taken back by a negative margin. The bottom gets
+// it from the content: the area's own end padding is not scrolled to - what overflows is the content,
+// out of the popup's .sv-popup__content, not the area's child.
+.sd-filter-modal > .sv-popup__container .sv-popup__scrolling-content {
+  padding: var(--sjs2-border-width-a11y);
+  margin: calc(-1 * var(--sjs2-border-width-a11y));
+}
+
+.sd-filter-modal__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sjs2-spacing-x200);
+}
+
+.sd-filter-modal__section .sd-action-bar {
+  --sd-action-bar-gap: var(--sjs2-spacing-x100);
+  flex-wrap: wrap;
+}
+
+.sd-filter-modal__section-title {
+  @include sjs2--typography--default-strong;
+  color: var(--sjs2-color-fg-basic-primary);
+}
+
+// The presets' title with the pencil that opens Edit Presets at its right end.
+.sd-filter-modal__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sjs2-spacing-x100);
+}
+
+// The fields as in the mockup: a field's title right above its editor, 40px rows of checkboxes and
+// 16px between an operator and its value. A field's "Show More" is one more row under its list, a
+// link that starts where the checkboxes do.
+.sd-filter-modal__editor {
+  --sjs2-layout-component-panel-content-area-gap-horizontal: var(--sjs2-spacing-x200);
+  --sjs2-layout-component-labeled-group-box-gap-vertical: var(--sjs2-spacing-x200);
+
+  .sd-panel {
+    --sd-panel-header-padding-block: 0 var(--sjs2-spacing-x200);
+  }
+
+  .sd-panel__footer {
+    margin: 0;
+    padding: 0;
+
+    .sd-action {
+      --sd-action-title-padding: 0;
+      padding-inline: 0;
+    }
+  }
+}
+
+// Add New Preset and Edit Presets (FilterPresetDialog): the presets' tabs, the form with the title and
+// Contains, the fields' editors in a frame and the preset's actions, above the dialog's own Cancel and
+// Apply. As wide as the Filters dialog, which they open over.
+.sd-filter-preset-dialog__content {
+  gap: var(--sjs2-spacing-x400);
+}
+
+// The selected tab is the dark one.
+.sd-filter-preset-dialog__tabs .sd-action-bar {
+  --sd-action-bar-gap: var(--sjs2-spacing-x150);
+  flex-wrap: wrap;
+}
+
+// A field's dropdown under another, 16px apart, and "+ Add" under them as in the mockup.
+.sd-filter-preset-dialog__form {
+  --sjs2-layout-component-panel-content-area-gap-vertical: var(--sjs2-spacing-x200);
+
+  .sd-panel {
+    --sd-panel-header-padding-block: 0 var(--sjs2-spacing-x200);
+  }
+
+  .sd-panel__footer {
+    margin: 0;
+    padding: var(--sjs2-spacing-x200) 0 0;
+  }
+}
+
+.sd-filter-preset-dialog__fields {
+  padding: var(--sjs2-spacing-x300) var(--sjs2-spacing-x500);
+  border: 1px solid var(--sjs2-color-border-basic-secondary);
+  border-radius: var(--sjs2-radius-x150);
+}

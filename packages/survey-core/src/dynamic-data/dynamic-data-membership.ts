@@ -1,5 +1,5 @@
 import { ConditionRunner } from "../conditions/conditionRunner";
-import { applyFilter, applySort } from "./dynamic-data-filter";
+import { applyFilters, applySort } from "./dynamic-data-filter";
 import { createIndexes } from "./dynamic-data-records";
 import { IDynamicDataField, ISortCriterion } from "./dynamic-data-interfaces";
 import { insertRemap, moveRemap, removeRemap } from "./dynamic-data-record-remap";
@@ -13,9 +13,9 @@ export interface IDynamicDataMembershipHost {
   // The records, read only when a filter or a sort has to look at them, and once per decision.
   getRecords(): Array<any>;
   getFields(): Array<IDynamicDataField>;
-  // The filter and the sort the list runs over the records it holds: undefined / empty when there is
-  // none, or when the source runs it.
-  getLocalFilterRunner(): ConditionRunner;
+  // The filters and the sort the list runs over the records it holds: empty when there are none, or
+  // when the source runs them. A filter per slot of the view, the authored one first.
+  getLocalFilterRunners(): Array<ConditionRunner>;
   getLocalSort(): Array<ISortCriterion>;
   // The owner materializes an object per record (isViewFrozenOnEdit) and the list has a local view.
   isMembershipFrozen(): boolean;
@@ -181,14 +181,14 @@ export class DynamicDataMembership {
     this.alignHiddenFlags(recordCount);
     let created = this.getFrozenCreatedIndexes(recordCount);
     if (!created) {
-      const filterRunner = this.host.getLocalFilterRunner();
+      const filterRunners = this.host.getLocalFilterRunners();
       const sort = this.host.getLocalSort();
-      const needFilter = !!filterRunner;
+      const needFilter = filterRunners.length > 0;
       const needSort = sort.length > 0;
       // Read once, and only when the filter or the sort has to look at the records.
       const records = needFilter || needSort ? this.host.getRecords() : undefined;
       const fields = needFilter || needSort ? this.host.getFields() : undefined;
-      created = needFilter ? applyFilter(records, filterRunner, fields) : createIndexes(recordCount);
+      created = needFilter ? applyFilters(records, filterRunners, fields) : createIndexes(recordCount);
       if (needSort) {
         created = applySort(records, sort, fields, created);
       }

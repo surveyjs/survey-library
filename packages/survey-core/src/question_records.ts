@@ -15,7 +15,7 @@ import { SurveyError } from "./survey-error";
 import { KeyDuplicationError } from "./error";
 import {
   DynamicDataErrorOperation, DynamicDataFieldType, DynamicDataSourceMethod, IDynamicDataField, IDynamicDataListChange, IDynamicDataOwner,
-  ISortCriterion, IDynamicDataSource, SortDirection
+  ISortCriterion, IDynamicDataSource, SortDirection, IDynamicDataFilterSource
 } from "./dynamic-data/dynamic-data-interfaces";
 // For its side effect: the "sortcriterion" serializer class, which sortCriteria loads its items with.
 import "./records/records-sort-criterion";
@@ -24,6 +24,7 @@ import { RecordsPageValidation, IRecordsPageValidationOwner, RecordsPageValidati
 import { createIndexes } from "./dynamic-data/dynamic-data-records";
 import { RecordsPagingController, IRecordsPageState, IRecordsPagingOwner, pagingStateKeys } from "./records/records-paging";
 import { getReplacedRecordsRemap } from "./dynamic-data/dynamic-data-record-remap";
+import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
 import {
   IRecordIndexFollower, RecordIndexEvent, RecordRemap, createLazyRemap, getRecordListChangeEvent, isRecordListChange, toKnownRemap
 } from "./records/records-index-followers";
@@ -123,7 +124,7 @@ function getRecordNumberOf(item: QuestionRecordItem): number {
  * A base class for questions whose answers contain collections of records. Manages shared data, paging, and validation behavior.
  * @since 3.2.2
  */
-export abstract class QuestionRecordsModel extends Question {
+export abstract class QuestionRecordsModel extends Question implements IDynamicDataFilterSource {
   private _dataList: DynamicDataList;
   private _paging: RecordsPagingController;
   private _pageValidation: RecordsPageValidation;
@@ -2424,6 +2425,21 @@ export abstract class QuestionRecordsModel extends Question {
      layer. */
   public get filterExpression(): string { return this.paging.filterExpression; }
   public set filterExpression(val: string) { this.paging.filterExpression = val; }
+  /* The entrance a Filter Control bound to this question writes through. It is not filterExpression
+     and never touches it: the authored expression is what this question serializes, and a control
+     must be able to filter without overwriting it. The key is the control's own, so two controls do
+     not overwrite each other, and "" removes the filter that control had set. Control filters are
+     runtime state and are not serialized. */
+  public setControlFilter(key: string, expression: string): void { this.paging.setControlFilter(key, expression); }
+  public getControlFilter(key: string): string { return this.paging.getControlFilter(key); }
+  // How many records would be shown if the control with this key filtered by expression instead of
+  // what it filters by now; undefined when it cannot be known. Nothing is applied.
+  public getControlFilterCount(key: string, expression: string): Promise<number | undefined> {
+    return this.paging.countControlFilter(key, expression);
+  }
+  // The fields a Filter Control offers for the records: the matrix columns, the panel template's
+  // questions. A records question with no fields of its own offers none.
+  public getFilterFields(): Array<IDynamicDataFilterField> { return []; }
   public refreshView(): void { this.paging.refreshView(); }
   /* The bar the renderers show: the pager under the records and the sort bar in the header. Created on
      its first read; the question keeps it current through updateRecordsBar(). */

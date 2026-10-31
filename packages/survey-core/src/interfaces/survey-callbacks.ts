@@ -139,6 +139,14 @@ export interface ISurveyDynamicDataWrites {
 export interface ISurveyOldValueReads {
   isQuestionOldValueRead(question: IQuestion): boolean;
 }
+// The Filter Control reports every end-user change of its own UI state here, so the survey can raise
+// onUIStateChanged with the "filter" reason and a host that persists uiState knows it has to save.
+export interface ISurveyFilterCallbacks {
+  filterStateChanged(question: IQuestion): void;
+  // The composed expression of a Filter Control, raised after the source question has already been
+  // re-filtered with it. sourceQuestion is undefined for a control that is bound to nothing.
+  filterChanged(question: IQuestion, filterExpression: string, sourceQuestion: IQuestion): void;
+}
 export interface ISurveyChoiceCallbacks {
   storeOthersAsComment: boolean;
   /**

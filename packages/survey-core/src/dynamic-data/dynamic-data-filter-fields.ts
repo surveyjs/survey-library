@@ -1,0 +1,65 @@
+import { Question, QuestionValueType } from "../question";
+import { LocalizableString } from "../localizablestring";
+import { ItemValue } from "../itemvalue";
+
+// What a Filter Control needs to know about one field of a Dynamic Matrix or a Dynamic Panel. It is
+// not an IDynamicDataField: that one describes a record key the list sorts and compares by, this one
+// describes a field a human filters by, and the two do not have the same key space - a field of a
+// value that is a record of its own is named by the dotted path the expression language reads it
+// with, which is not a key of the record.
+export interface IDynamicDataFilterField {
+  name: string;
+  // The variable the expression names: "{valueName} > 10". It is the key the cell or the question
+  // writes, and a dotted path for a nested field.
+  valueName: string;
+  locTitle: LocalizableString;
+  valueType: QuestionValueType;
+  // The question type that supplies the value editor, the way cellType does for a matrix cell.
+  fieldType: string;
+  // The question the editor is cloned from. It belongs to the source and is never stored.
+  templateQuestion: Question;
+  // The choices a respondent sees for this field when they are not the template question's own: a
+  // select column with no choices shows the matrix's in its cells, and only the cells receive them.
+  // undefined = the template question's visibleChoices.
+  choices?: Array<ItemValue>;
+  // True when the field authored no fieldType/cellType of its own and runs on the fallback text
+  // question: fieldType still names the resolved editor ("text"), so operator narrowing needs its
+  // own signal to tell "authored text" from "defaulted to text" - a typeless boolean loses the
+  // ordering operators its text editor would take. undefined = not typeless.
+  isTypeless?: boolean;
+  // Whether the field appears in the Filter Control's fast (single-field) mode. undefined = shown,
+  // the same as true; only a standalone FilterField ever sets it, a bound field never opts out.
+  showInFastMode?: boolean;
+  // The operators the author allows for the field (filterOperators of the question, the column or the
+  // standalone field), in the order a condition editor lists them. undefined or [] = every operator
+  // the field's value editor takes.
+  operators?: Array<string>;
+}
+// The fields a Filter Control offers for a set of questions. A question whose value is a record of
+// its own - Multiple Textboxes, a composite question - is not a field: its children are, under the
+// dotted path the expression language reads them with ({address.city}). A question whose value is a
+// table of its own - a nested Dynamic Matrix or Dynamic Panel, a Dropdown Matrix - is neither, and is
+// skipped whole.
+export function getFilterFieldsForQuestions(questions: Array<Question>): Array<IDynamicDataFilterField> {
+  const res = new Array<IDynamicDataFilterField>();
+  (questions || []).forEach((question: Question): void => { collectFilterFields(res, question, ""); });
+  return res;
+}
+// The one rule, shared by both sources: a matrix column that is not a field of its own walks into
+// its cell question the same way. valuePrefix is the dotted path already walked, "" at the top.
+export function collectFilterFields(res: Array<IDynamicDataFilterField>, question: Question, valuePrefix: string): void {
+  if (!question || !question.allowFiltering) return;
+  const valueName = valuePrefix + question.getValueName();
+  if (question.isFilterable) {
+    res.push({
+      name: question.name, valueName: valueName, locTitle: question.locTitle,
+      valueType: question.getValueType(), fieldType: question.getType(), templateQuestion: question,
+      operators: question.filterOperators
+    });
+    return;
+  }
+  if (!question.hasNestedFilterFields) return;
+  question.getNestedQuestions(false, false).forEach((nested: Question): void => {
+    collectFilterFields(res, nested, valueName + ".");
+  });
+}

@@ -11,6 +11,7 @@ import { getCurrecyCodes } from "./question_expression";
 import { settings } from "./settings";
 import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
+import { IDynamicDataFilterField } from "./dynamic-data/dynamic-data-filter-fields";
 
 export interface IMatrixColumnOwner extends ILocalizableOwner {
   hasChoices(): boolean;
@@ -564,11 +565,48 @@ export class MatrixDropdownColumn extends Base
     const matrix = this.colOwner;
     return !!matrix && matrix.allowSort === true && this.allowSort && this.isValueSortable;
   }
+  /* Opts this column out of the Filter Control, the way allowSort opts it out of the header-click
+     sort. A cell type that stores no value a filter can compare - a file to upload - says so
+     through the cell question itself and the property does not apply. */
+  @property({ defaultValue: true }) allowFiltering: boolean;
+  /* Mirrors question.filterOperators for a cell, and shadows it the way allowFiltering does: the
+     column is the only authority, see the registration below. */
+  @property() filterOperators: Array<string>;
+  public get isFilterable(): boolean {
+    const q = this.templateQuestion;
+    return !!q && q.isFilterable && this.allowFiltering;
+  }
   /* The record key this column sorts by, which is the key the cell writes and not the column name:
      a column with a valueName shares the key with the question it is bound to. It is the same name
      QuestionMatrixDynamicModel.getFields() registers with the data list. */
   public get sortField(): string {
     return this.templateQuestion?.getValueName() || this.name;
+  }
+  public getFilterField(): IDynamicDataFilterField {
+    if (!this.isFilterable) return undefined;
+    const q = this.templateQuestion;
+    return {
+      name: this.name,
+      // The record key the cell writes, which is not the column name when the column is bound
+      // through valueName. The same key getFields() registers with the data list.
+      valueName: this.sortField,
+      locTitle: this.locTitle,
+      valueType: q.getValueType(),
+      // The resolved type and not this.cellType: "default" means "whatever the matrix says".
+      fieldType: q.getType(),
+      templateQuestion: q,
+      choices: this.getMatrixChoicesForFilter(),
+      operators: this.filterOperators
+    };
+  }
+  // The rule onUpdateSelectBaseCellQuestion applies to every cell: a select cell with no choices and
+  // no choicesByUrl of its own shows the matrix's. It is applied to the cells only, never to the
+  // template question, and copying them there would serialize them into the column.
+  private getMatrixChoicesForFilter(): Array<ItemValue> {
+    const q: any = this.templateQuestion;
+    if (!q || q.isChoicesUrlEmpty !== true || (Array.isArray(q.choices) && q.choices.length > 0)) return undefined;
+    const matrixChoices: Array<ItemValue> = !!this.colOwner ? (<any>this.colOwner).choices : undefined;
+    return Array.isArray(matrixChoices) && matrixChoices.length > 0 ? matrixChoices : undefined;
   }
   /**
    * Specifies whether to create an individual column for each choice option. Applies only to columns of `"checkbox"` or `"radiogroup"` [`cellType`](#cellType).
@@ -1050,6 +1088,26 @@ Serializer.addClass(
       name: "allowSort:boolean", default: true,
       visibleIf: (obj: any): boolean => !!obj && !!obj.colOwner && obj.colOwner.getType() === "matrixdynamic" && obj.colOwner.allowSort === true
     },
+    // Mirrors question.allowFiltering for a cell: the column's own property SHADOWS the cell
+    // question's. It deliberately does NOT forward into it - do not copy isRequired here, that one
+    // forwards through an onSet (see its @property above). The column is the only authority:
+    // updateTemplateQuestion() recreates the cell question whenever cellType changes and a
+    // forwarded value would not survive it, so the composite path (question_matrixdynamic.ts,
+    // getFilterFields) asks column.allowFiltering and not the cell question's copy of it.
+    // dependsOn re-asks the grid when the cell type changes, because the cell type is what decides
+    // whether a column can be filtered at all.
+    // Because the cell question carries a property of the same name, getOriginalByProperty hands
+    // visibleIf the cell question instead of the column, so read the capability off whichever of
+    // the two arrives. Never off column.isFilterable: it folds in allowFiltering itself and would
+    // hide the switch the moment it is turned off.
+    { name: "allowFiltering:boolean", default: true, dependsOn: "cellType",
+      visibleIf: (obj: any): boolean => {
+        const q = !!obj && !!obj.templateQuestion ? obj.templateQuestion : obj;
+        return !!q && !!q.isFilterable;
+      } },
+    // The column's own, for the same reason as allowFiltering above: a cell question's copy would
+    // not survive a cellType change. Hidden like question.filterOperators.
+    { name: "filterOperators:string[]", visible: false },
     { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
   ],
   function () {

@@ -835,6 +835,12 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   public get hasPlainInput(): boolean {
     return !!this.contentQuestion ? this.contentQuestion.hasPlainInput : super.hasPlainInput;
   }
+  public get isFilterable(): boolean {
+    return !!this.contentQuestion ? this.contentQuestion.isFilterable : super.isFilterable;
+  }
+  public get hasNestedFilterFields(): boolean {
+    return !!this.contentQuestion ? this.contentQuestion.hasNestedFilterFields : super.hasNestedFilterFields;
+  }
   /* The wrapped question decides: a wrapped signaturepad, html or image reports a string value type
      while it excludes itself. */
   public get isValueSortable(): boolean {

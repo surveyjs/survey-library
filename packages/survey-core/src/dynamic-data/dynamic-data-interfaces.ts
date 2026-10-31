@@ -1,3 +1,4 @@
+import type { IDynamicDataFilterField } from "./dynamic-data-filter-fields";
 import type { ISurvey } from "../interfaces/survey-interfaces";
 
 // The data-source contract for DynamicDataList. A source has one read, read(request), and declares
@@ -24,7 +25,12 @@ import type { ISurvey } from "../interfaces/survey-interfaces";
 //     capabilities: { paging: true, filtering: true, sorting: true },
 //     //   request.skip   the first record to return, in the source's filtered and sorted order
 //     //   request.take   how many; 0 means "everything from skip"
-//     //   request.filter the expression text of question.filterExpression, "" for no filter
+//     //   request.filter the expression text of question.filterExpression, "" for no filter. When a
+//     //                  Filter Control filters the question too, it is the authored expression
+//     //                  and the control's combined, each one bracketed:
+//     //                  "({country} = 'de') and ({price} > 10)". Parse it (see below), never
+//     //                  pattern-match it - and expect more requests: every change a control
+//     //                  commits is one.
 //     //   request.sort   { field, direction } descriptors, applied in array order, [] for none
 //     // The answer is { records, total?, hasMore? }. "total" is the number of records the filter
 //     // matches; leave it out when counting them is expensive - the list then learns the end from
@@ -222,4 +228,15 @@ export interface IDynamicDataOwner {
   /* The survey of the question the list belongs to: the asynchronous writes of the lists in one
      survey that share a source object are ordered (DynamicDataSourceChannel.getForeignWrites). */
   getSurvey?(): ISurvey;
+}
+
+// What a question that can be filtered by a Filter Control answers. The records questions implement
+// it; the control never imports them and asks by capability.
+export interface IDynamicDataFilterSource {
+  getFilterFields(): Array<IDynamicDataFilterField>;
+  setControlFilter(key: string, expression: string): void;
+  getControlFilter(key: string): string;
+  // Optional: how many records there would be if this control filtered by expression - before the
+  // control applies it. undefined (or no method) when the count cannot be known.
+  getControlFilterCount?(key: string, expression: string): Promise<number | undefined>;
 }

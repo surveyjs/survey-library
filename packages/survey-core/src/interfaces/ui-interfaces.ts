@@ -12,11 +12,66 @@ export interface IScrollElementToTopOptions {
   onScolledCallback?: () => void;
 }
 
+// One row of a Filter Control's own conditions (as opposed to a preset FilterItem's expression
+// text): a field, an operator and the value the operator needs. field is the field's valueName,
+// the same key the built expression names the field by ({valueName} operator value).
+export interface IFilterCondition {
+  field: string;
+  operator: string;
+  value?: any;
+}
+// The state of a Filter Control that the Filters dialog edits and applies as one: the preset it has
+// on while it is as it was (conditions undefined - the preset's own text applies), or the conditions
+// that apply instead, and the search text.
+export interface IFilterState {
+  activeItemName: string;
+  conditions?: Array<IFilterCondition>;
+  searchString: string;
+}
+// One preset's change in the Edit Presets dialog, applied with the others as one change: deleted,
+// or reset to what the JSON authored and then given a new title and conditions - each optional.
+export interface IFilterItemEdit {
+  name: string;
+  title?: string;
+  conditions?: Array<IFilterCondition>;
+  isReset?: boolean;
+  isDeleted?: boolean;
+}
+// A preset the respondent added, as uiState keeps it: its conditions and not its expression text,
+// as with saved presets.
+export interface IFilterUserItemState {
+  name: string;
+  title: string;
+  conditions: Array<IFilterCondition>;
+}
+// The end-user state of a Filter Control. Only what the respondent changed is kept here: what the
+// JSON authored is already in the JSON and is restored by loading it.
+export interface IFilterElementUIState {
+  // The name of the applied item. "" means the respondent switched the default item off, which is
+  // not the same as "not stored" - the restore has to be able to say that.
+  activeItemName?: string;
+  searchString?: string;
+  searchFields?: Array<string>;
+  // The respondent's unsaved edits - the full set, not a diff against the preset. Stored only when
+  // there are any: over an active preset only when they change it ([] = its conditions were
+  // cleared), with no preset only when not empty.
+  conditions?: Array<IFilterCondition>;
+  // Authored presets the respondent changed, by name: the conditions saved into one (Save in single
+  // mode, the Edit Presets dialog) and the title given to one. Kept as conditions and not as
+  // expression text: the preset's expression is rebuilt from them on restore, with nothing to parse
+  // back.
+  items?: { [name: string]: { conditions?: Array<IFilterCondition>, title?: string } };
+  // The presets the respondent added, in their order.
+  userItems?: Array<IFilterUserItemState>;
+  // The authored presets the respondent deleted, by name.
+  deletedItems?: Array<string>;
+}
 export interface IElementUIState {
   collapsed?: boolean;
   activePanelIndex?: number; // For Dynamic panel only, current Tab index
   // MERGE(V3): keep `shown`; master (V2) names this progress flag `passed`. Keep V3 on merge.
   shown?: boolean; // For Page only, indicates that the respondent has already seen the page (progress state)
+  filter?: IFilterElementUIState; // For the Filter Control only
 }
 export interface ISurveyUIState {
   pages?: { [key:string]: IElementUIState };

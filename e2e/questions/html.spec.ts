@@ -1,4 +1,4 @@
-import { frameworks, url, setOptions, initSurvey, test, expect } from "../helper";
+import { frameworks, url, setOptions, initSurvey, test, expect, getButtonByText } from "../helper";
 
 const title = "html question";
 
@@ -52,6 +52,37 @@ frameworks.forEach((framework) => {
       await page.locator("input[type=text]").fill("John");
       await page.keyboard.press("Tab");
       await expect(page.locator("span").filter({ hasText: "John" })).toBeVisible();
+    });
+  });
+
+  test.describe(`${framework} HTML font inheritance`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+    });
+
+    [false, true].forEach((completedPage) => {
+      test(`HTML font inheritance ${completedPage ? "completed page" : "question"}`, async ({ page }) => {
+        const html = "<div style='font-weight:700'>" +
+          "<span id='inherit-span'>Span</span><div id='inherit-div'>Div</div>" +
+          "<p id='inherit-p'>Paragraph</p>" +
+          "<table><tbody><tr><td id='inherit-td'>Cell</td></tr></tbody></table>" +
+          "<span id='override-weight' style='font-weight:300'>Override</span></div>" +
+          "<h2 id='heading-parent'><span id='heading-child'>Heading</span></h2>" +
+          "<p id='default-weight'>Default paragraph</p>";
+        await initSurvey(page, framework, {
+          elements: [{ type: "html", name: "inheritance", html }],
+          completedHtml: html
+        });
+        if (completedPage) {
+          await getButtonByText(page, "Complete").click();
+        }
+        for (const tag of ["span", "div", "p", "td"]) {
+          await expect(page.locator(`#inherit-${tag}`)).toHaveCSS("font-weight", "700");
+        }
+        await expect(page.locator("#override-weight")).toHaveCSS("font-weight", "300");
+        await expect(page.locator("#default-weight")).toHaveCSS("font-weight", "400");
+        await expect(page.locator("#heading-child")).toHaveCSS("font-weight", "700");
+      });
     });
   });
 });

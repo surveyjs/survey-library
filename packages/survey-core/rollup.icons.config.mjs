@@ -28,7 +28,7 @@ function generateIconsModule(importBase) {
 
 export default () => {
   return [
-    ...[["iconsV1", "./src/images-v1"], ["iconsV2", "./src/images-v2"]].map(([name, path]) => {
+    ...[["iconsV2", "./src/images-v2"]].map(([name, path]) => {
       return {
         input: { [`${name}`]: `virtual:${ name }` },
         output: [{
@@ -67,7 +67,7 @@ export default () => {
         ],
       };
     }),
-    ...[["iconsV1", "./src/images-v1"], ["iconsV2", "./src/images-v2"]].map(([name, path]) => {
+    ...[["iconsV2", "./src/images-v2"]].map(([name, path]) => {
       return {
         input: { [`${name}`]: `virtual:${ name }` },
         output: [{

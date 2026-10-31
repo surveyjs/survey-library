@@ -126,6 +126,15 @@ module.exports = {
       }
     },
     {
+      // The perf tests (perf/): Node scripts that print, and TypeScript that Node runs directly, where a type-only
+      // import written as a value import fails at link time.
+      files: ["perf/**"],
+      rules: {
+        "no-console": "off",
+        "@typescript-eslint/consistent-type-imports": "error"
+      }
+    },
+    {
       files: ["packages/**/*.ts", "packages/**/*.tsx", "**.spec.ts"],
       rules: {
         "surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom": [

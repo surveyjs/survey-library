@@ -1,0 +1,16 @@
+# /etc/systemd/system/perf-nightly.service (perf/README.md): set the user and the state directory.
+# The env file is /etc/surveyjs-perf/perf.env (PERF_ENV_FILE), outside the state directory.
+[Unit]
+Description=survey-library nightly performance run
+Wants=network-online.target docker.service
+After=network-online.target docker.service
+
+[Service]
+Type=oneshot
+User=perf
+Group=perf
+Environment=PERF_STATE_DIR=/srv/surveyjs-perf
+ExecStart=/usr/local/lib/surveyjs-perf/run.sh --nightly
+TimeoutStartSec=5h
+TimeoutStopSec=90
+KillMode=mixed

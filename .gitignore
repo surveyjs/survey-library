@@ -63,3 +63,5 @@ packages/survey-core/test_output.txt
 packages/survey-core/prompts/
 packages/survey-core/promts/
 packages/survey-core/docs/
+perf/results/
+perf/react19/node_modules/

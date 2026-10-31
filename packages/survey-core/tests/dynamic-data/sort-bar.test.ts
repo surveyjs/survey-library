@@ -12,6 +12,8 @@ import { Action } from "../../src/actions/action";
 import { ListModel } from "../../src/list";
 import { ActionContainer } from "../../src/actions/container";
 import { Serializer } from "../../src/jsonobject";
+import { DynamicDataList } from "../../src/dynamic-data/dynamic-data-list";
+import { ComponentCollection } from "../../src/question_custom";
 
 const productColumns = [
   { name: "product", title: "Product", cellType: "text" },
@@ -844,5 +846,342 @@ describe("Sort bar: several levels", () => {
       .toEqual(["icon-delete-16x16", false, ["sd-action--neutral", "sd-action--quaternary", "sd-action--x-small", "sd-action--border"]]);
     expect([addAction(matrix).hasTitle, addAction(matrix).getActionBarItemCss().split(" ").filter((name: string): boolean => name.indexOf("sd-action--") === 0)], "#2")
       .toEqual([false, ["sd-action--neutral", "sd-action--tertiary", "sd-action--x-small", "sd-action--border"]]);
+  });
+});
+
+const detailElements = [
+  { type: "text", name: "qty", title: "Quantity", inputType: "number" },
+  { type: "text", name: "added", title: "Added", inputType: "date" },
+  { type: "text", name: "note", title: "Note" }
+];
+const detailRows = [
+  { product: "b", qty: 5, added: "2024-02-01", note: "y" },
+  { product: "a", qty: 30, added: "2024-03-01", note: "x" },
+  { product: "c", qty: 10, added: "2024-01-01", note: "z" }
+];
+function createDetailMatrix(json?: any, rows?: Array<any>): QuestionMatrixDynamicModel {
+  const survey = new SurveyModel({ elements: [Object.assign({
+    type: "matrixdynamic", name: "matrix", title: "Products", rowCount: 0, allowSort: true, showSortBar: "always", detailPanelMode: "underRow",
+    columns: [{ name: "product", title: "Product", cellType: "text" }], detailElements: detailElements
+  }, json)] });
+  survey.data = { matrix: (rows || detailRows).map((row: any): any => Object.assign({}, row)) };
+  return <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+}
+function createDetailMatrixDropdown(json?: any): QuestionMatrixDropdownModel {
+  const survey = new SurveyModel({ elements: [Object.assign({
+    type: "matrixdropdown", name: "matrix", allowSort: true, showSortBar: "always", detailPanelMode: "underRow", rows: ["r1", "r2", "r3"],
+    columns: [{ name: "product", title: "Product", cellType: "text" }], detailElements: detailElements
+  }, json)] });
+  survey.data = { matrix: { r1: detailRows[0], r2: detailRows[1], r3: detailRows[2] } };
+  return <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+}
+const productsOf = (matrix: any): Array<any> => matrix.visibleRows.map((row: any): any => row.getQuestionByName("product").value);
+
+describe("Sort bar: the fields of the detail panel", () => {
+  test("the bar lists the columns, then the detail questions, with their titles", () => {
+    const matrix = createDetailMatrix();
+    expect(titlesOf(fieldList(matrix))).toEqual(["Product", "Quantity", "Added", "Note"]);
+  });
+  test("a number, a date and a text detail question get their type's direction labels", () => {
+    const matrix = createDetailMatrix();
+    pickField(matrix, "Quantity");
+    expect(titlesOf(directionList(matrix)), "#1: number").toEqual(["Default", "High - Low", "Low - High"]);
+    pickField(matrix, "Added");
+    expect(titlesOf(directionList(matrix)), "#2: date").toEqual(["Default", "Newest first", "Oldest first"]);
+    pickField(matrix, "Note");
+    expect(titlesOf(directionList(matrix)), "#3: text").toEqual(["Default", "Alphabet, A - Z", "Alphabet, Z - A"]);
+  });
+  test("a pick of a detail field sorts the rows of a dynamic matrix, with and without pageSize", () => {
+    const matrix = createDetailMatrix();
+    pickField(matrix, "Quantity");
+    expect(sortOf(matrix), "#1").toEqual([{ field: "qty", direction: "desc" }]);
+    expect(productsOf(matrix), "#2").toEqual(["a", "c", "b"]);
+    const paged = createDetailMatrix({ pageSize: 2 });
+    pickField(paged, "Quantity");
+    expect(productsOf(paged), "#3").toEqual(["a", "c"]);
+    paged.nextPage();
+    expect(productsOf(paged), "#4").toEqual(["b"]);
+  });
+  test("a pick of a detail field sorts the rows of a matrixdropdown, with and without pageSize", () => {
+    const matrix = createDetailMatrixDropdown();
+    pickField(matrix, "Quantity");
+    expect(productsOf(matrix), "#1").toEqual(["a", "c", "b"]);
+    const paged = createDetailMatrixDropdown({ pageSize: 2 });
+    pickField(paged, "Quantity");
+    expect(productsOf(paged), "#2").toEqual(["a", "c"]);
+  });
+  test("a sort from code on a detail field uses the field's type, not the raw values", () => {
+    const rows = [{ product: "a", added: "1/5/2024", qty: 1 }, { product: "b", added: "12/1/2023", qty: 2 }];
+    const matrix = createDetailMatrix({}, rows);
+    matrix.sort([{ field: "added", direction: "asc" }]);
+    expect(productsOf(matrix), "#1: as dates; as text \"1/5/2024\" comes first").toEqual(["b", "a"]);
+    matrix.sort([]);
+    matrix.toggleSort("qty");
+    expect(sortOf(matrix), "#2: the first direction of a number").toEqual([{ field: "qty", direction: "desc" }]);
+  });
+  test("a question in a nested panel is offered; a hidden question or panel is not; a visibleIf does not hide it", () => {
+    const matrix = createDetailMatrix({ detailElements: [
+      { type: "panel", name: "box", elements: [
+        { type: "text", name: "inner", title: "Inner" },
+        { type: "panel", name: "deep", elements: [{ type: "text", name: "deepest", title: "Deepest" }] }
+      ] },
+      { type: "text", name: "hidden", title: "Hidden", visible: false },
+      { type: "panel", name: "hiddenBox", visible: false, elements: [{ type: "text", name: "inHidden", title: "In hidden" }] },
+      { type: "text", name: "conditional", title: "Conditional", visibleIf: "{row.product} = 'a'" }
+    ] });
+    expect(titlesOf(fieldList(matrix))).toEqual(["Product", "Inner", "Deepest", "Conditional"]);
+  });
+  test("a row placeholder leaves the title of a detail question; a title that leaves nothing shows the name", () => {
+    const matrix = createDetailMatrix({ detailElements: [
+      { type: "text", name: "qty", title: "Quantity of {row.product}" },
+      { type: "text", name: "note", title: "{row.product}" }
+    ] });
+    expect(titlesOf(fieldList(matrix))).toEqual(["Product", "Quantity of", "note"]);
+  });
+  test("a checkbox, an html element and an expression of the detail panel are not offered", () => {
+    const matrix = createDetailMatrix({ detailElements: [
+      { type: "checkbox", name: "tags", choices: ["x", "y"] },
+      { type: "html", name: "info", html: "<b>text</b>" },
+      { type: "expression", name: "total", expression: "1 + 1" },
+      { type: "text", name: "note", title: "Note" }
+    ] });
+    expect(titlesOf(fieldList(matrix))).toEqual(["Product", "Note"]);
+  });
+  test("a detail question that shares a key with a column adds nothing: the column's visibility and allowSort decide", () => {
+    const hidden = createDetailMatrix({
+      columns: [{ name: "product", title: "Product", cellType: "text" }, { name: "qty", title: "Hidden column", cellType: "text", visible: false }]
+    });
+    expect(titlesOf(fieldList(hidden)), "#1: a hidden column").toEqual(["Product", "Added", "Note"]);
+    const opted = createDetailMatrix({
+      columns: [{ name: "product", title: "Product", cellType: "text" }, { name: "qty", title: "Opted out", cellType: "text", allowSort: false }]
+    });
+    expect(titlesOf(fieldList(opted)), "#2: a column with allowSort false").toEqual(["Product", "Added", "Note"]);
+    const shared = createDetailMatrix({
+      columns: [{ name: "product", title: "Product", cellType: "text" }, { name: "qty", title: "Column", cellType: "text", inputType: "date" }]
+    });
+    expect(titlesOf(fieldList(shared)), "#3: the column's title").toEqual(["Product", "Column", "Added", "Note"]);
+    expect(shared.getSortFieldDataType("qty"), "#4: the column's type").toBe("date");
+  });
+  test("detailPanelMode \"none\" offers nothing of detailElements, and switching the mode updates the bar", () => {
+    const matrix = createDetailMatrix({ detailPanelMode: "none" });
+    expect(titlesOf(fieldList(matrix)), "#1").toEqual(["Product"]);
+    matrix.detailPanelMode = "underRow";
+    expect(titlesOf(fieldList(matrix)), "#2").toEqual(["Product", "Quantity", "Added", "Note"]);
+    matrix.detailPanelMode = "none";
+    expect(titlesOf(fieldList(matrix)), "#3").toEqual(["Product"]);
+  });
+  test("reading the offered fields builds no detail panel for a matrix without one", () => {
+    const matrix = createMatrix();
+    expect(titlesOf(fieldList(matrix)).length, "#1").toBe(4);
+    expect(matrix.getSortFieldDataType("price"), "#2").toBe("number");
+    expect(matrix.getDesignSortFields().length, "#3").toBe(4);
+    expect(matrix.isSortBarVisible, "#4").toBe(true);
+    expect((<any>matrix).detailPanelValue, "#5").toBeFalsy();
+  });
+  test("the detail template in code: adding, hiding, retitling and removing a question updates the bar", () => {
+    const matrix = createDetailMatrix({ detailElements: [{ type: "text", name: "qty", title: "Quantity" }] });
+    const list = (): Array<string> => titlesOf(fieldList(matrix));
+    const template = matrix.detailPanel;
+    const question = template.addNewQuestion("text", "added");
+    expect(list(), "#1").toEqual(["Product", "Quantity", "added"]);
+    question.title = "Added";
+    expect(list(), "#2").toEqual(["Product", "Quantity", "Added"]);
+    question.visible = false;
+    expect(list(), "#3").toEqual(["Product", "Quantity"]);
+    question.visible = true;
+    expect(list(), "#4").toEqual(["Product", "Quantity", "Added"]);
+    template.removeElement(question);
+    expect(list(), "#5").toEqual(["Product", "Quantity"]);
+    const update = vi.spyOn(<any>matrix, "updateRecordsBar");
+    question.title = "Gone";
+    expect(update, "#6: a question that left the template is not watched").not.toHaveBeenCalled();
+    update.mockRestore();
+  });
+  test("the detail template in code: a nested panel and a panel added with its children update the bar", () => {
+    const matrix = createDetailMatrix({ detailElements: [{ type: "panel", name: "box", elements: [{ type: "text", name: "inner", title: "Inner" }] }] });
+    const list = (): Array<string> => titlesOf(fieldList(matrix));
+    const box = <PanelModel>matrix.detailPanel.getElementByName("box");
+    const nested = box.addNewQuestion("text", "nested");
+    expect(list(), "#1").toEqual(["Product", "Inner", "nested"]);
+    nested.title = "Nested";
+    expect(list(), "#2").toEqual(["Product", "Inner", "Nested"]);
+    nested.visible = false;
+    expect(list(), "#3").toEqual(["Product", "Inner"]);
+    nested.visible = true;
+    expect(list(), "#4").toEqual(["Product", "Inner", "Nested"]);
+    box.removeElement(nested);
+    expect(list(), "#5").toEqual(["Product", "Inner"]);
+    const added = new PanelModel("added");
+    const child = added.addNewQuestion("text", "child");
+    matrix.detailPanel.addElement(added);
+    expect(list(), "#6").toEqual(["Product", "Inner", "child"]);
+    child.title = "Child";
+    expect(list(), "#7").toEqual(["Product", "Inner", "Child"]);
+    added.visible = false;
+    expect(list(), "#8").toEqual(["Product", "Inner"]);
+  });
+  test("the title of a detail field follows the survey locale", () => {
+    const matrix = createDetailMatrix({ maxSortLevel: 2, detailElements: [
+      { type: "text", name: "qty", title: { default: "Quantity", de: "Menge", pt: "Qtd" }, inputType: "number" }
+    ] });
+    const survey = <SurveyModel>matrix.survey;
+    matrix.sort([{ field: "qty", direction: "desc" }, { field: "product", direction: "asc" }]);
+    survey.locale = "de";
+    expect(titlesOf(fieldList(matrix)), "#1: the bar").toEqual(["Menge"]);
+    expect(matrix.getDesignSortFields().map((item: any): string => item.title), "#2: the design list").toEqual(["Product", "Menge"]);
+    expect(header(matrix, "product").sortDescription.indexOf("Menge") > -1, "#3: the description").toBe(true);
+    survey.locale = "pt-br";
+    expect(matrix.getDesignSortFields()[1].title, "#4: a dialect falls back to its language").toBe("Qtd");
+    survey.locale = "fr";
+    expect(matrix.getDesignSortFields()[1].title, "#5: a language without a text falls back to the default").toBe("Quantity");
+    survey.locale = "";
+    expect(titlesOf(fieldList(matrix)), "#6: back").toEqual(["Quantity"]);
+    expect(matrix.toJSON().detailElements[0].title, "#7: nothing is stored on the template").toEqual({ default: "Quantity", de: "Menge", pt: "Qtd" });
+  });
+  test("a custom question that wraps an expression is not offered; one that wraps an input is", () => {
+    ComponentCollection.Instance.add(<any>{ name: "testcalc", questionJSON: { type: "expression", expression: "1 + 1" } });
+    ComponentCollection.Instance.add(<any>{ name: "testinput", questionJSON: { type: "text" } });
+    try {
+      const matrix = createDetailMatrix({ detailElements: [{ type: "testcalc", name: "calc" }, { type: "testinput", name: "wrapped", title: "Wrapped" }] });
+      expect(titlesOf(fieldList(matrix))).toEqual(["Product", "Wrapped"]);
+    } finally {
+      ComponentCollection.Instance.clear();
+    }
+  });
+  test("a row's detail panel is not watched: only the template holds the handlers", () => {
+    const matrix = createDetailMatrix({ detailElements: [{ type: "panel", name: "box", elements: [{ type: "text", name: "inner", title: "Inner" }] }] });
+    const row = matrix.visibleRows[0];
+    row.showDetailPanel();
+    const box = <PanelModel>row.detailPanel.getElementByName("box");
+    expect([row.detailPanel.addElementCallback, box.addElementCallback], "#1").toEqual([undefined, undefined]);
+    expect(!!(<PanelModel>matrix.detailPanel.getElementByName("box")).addElementCallback, "#2").toBe(true);
+  });
+  test("disposing the matrix stops the watch of its detail template", () => {
+    const matrix = createDetailMatrix({ detailElements: [{ type: "panel", name: "box", elements: [{ type: "text", name: "inner", title: "Inner" }] }] });
+    const template = matrix.detailPanel;
+    const box = <PanelModel>template.getElementByName("box");
+    // Base.dispose clears the events anyway: a spy on remove tells the watch's own clean-up from that.
+    const removes = [template, box, template.getQuestionByName("inner")].map((el: any): any => vi.spyOn(el.onPropertyChanged, "remove"));
+    matrix.dispose();
+    expect(removes.map((spy: any): number => spy.mock.calls.length), "#1").toEqual([1, 1, 1]);
+    expect([template.addElementCallback, template.removeElementCallback, box.addElementCallback, box.removeElementCallback], "#2")
+      .toEqual([undefined, undefined, undefined, undefined]);
+  });
+  test("a row that never opened its panel sorts by the value in its record, and the sort builds no detail panel", () => {
+    const matrix = createDetailMatrix();
+    const create = vi.spyOn(matrix, "createRowDetailPanel");
+    matrix.sort([{ field: "qty", direction: "asc" }]);
+    expect(productsOf(matrix), "#1").toEqual(["b", "c", "a"]);
+    expect(matrix.visibleRows.map((row: any): boolean => !!row.detailPanel), "#2").toEqual([false, false, false]);
+    expect(create, "#3").not.toHaveBeenCalled();
+    create.mockRestore();
+  });
+  test("an edit of the sorted detail field in an open panel keeps the row and the panel; refreshView() moves the row", () => {
+    const matrix = createDetailMatrix();
+    matrix.sort([{ field: "qty", direction: "asc" }]);
+    const row = matrix.visibleRows[0];
+    row.showDetailPanel();
+    row.detailPanel.getQuestionByName("qty").value = 50;
+    expect(productsOf(matrix), "#1").toEqual(["b", "c", "a"]);
+    expect(row.isDetailPanelShowing, "#2").toBe(true);
+    matrix.refreshView();
+    expect(productsOf(matrix), "#3").toEqual(["c", "a", "b"]);
+  });
+  test("a defaultValue the record does not store sorts as empty, and by its value once an edit in the row stored it", () => {
+    const rows = [{ product: "a", qty: 1 }, { product: "b" }, { product: "c", qty: 9 }];
+    const matrix = createDetailMatrix({ detailElements: [
+      { type: "text", name: "qty", title: "Quantity", inputType: "number", defaultValue: 5 },
+      { type: "text", name: "note", title: "Note" }
+    ] }, rows);
+    matrix.sort([{ field: "qty", direction: "desc" }]);
+    expect(productsOf(matrix), "#1: empty goes last").toEqual(["c", "a", "b"]);
+    const row = matrix.visibleRows[2];
+    row.showDetailPanel();
+    row.detailPanel.getQuestionByName("note").value = "x";
+    matrix.refreshView();
+    expect(productsOf(matrix), "#2: 5 sits between 9 and 1").toEqual(["c", "b", "a"]);
+  });
+  test("sortCriteria from JSON on a detail field: the rows, the bar's level and the title after load, and one setView", () => {
+    const setView = vi.spyOn(DynamicDataList.prototype, "setView");
+    const matrix = createDetailMatrix({ sortCriteria: [{ field: "qty", direction: "desc" }] });
+    expect(productsOf(matrix), "#1").toEqual(["a", "c", "b"]);
+    expect(shown(matrix), "#2").toEqual(["Quantity", "High - Low", "Quantity", "High - Low"]);
+    expect(titlesOf(fieldList(matrix)), "#3: listed once, no fallback item").toEqual(["Product", "Quantity", "Added", "Note"]);
+    expect(setView.mock.calls.length, "#4").toBe(1);
+    setView.mockRestore();
+  });
+  test("sortDescription with a detail level first: the title and the type's direction; no aria-sort; the column keeps rank 2", () => {
+    const matrix = createDetailMatrix({ maxSortLevel: 2 });
+    matrix.sort([{ field: "qty", direction: "desc" }, { field: "product", direction: "asc" }]);
+    const cell = header(matrix, "product");
+    expect(cell.sortDescription, "#1").toBe("Sorted by Quantity (High - Low), then by Product (Alphabet, A - Z)");
+    expect(cell.ariaSort, "#2").toBeUndefined();
+    expect(cell.sortRank, "#3").toBe(2);
+    matrix.sort([{ field: "added", direction: "asc" }]);
+    expect(header(matrix, "product").sortDescription, "#4: a date level").toBe("Sorted by Added (Oldest first)");
+  });
+  test("multi-level: the second level's list leaves out the detail field the first level took", () => {
+    const matrix = createDetailMatrix({ maxSortLevel: 2 });
+    pickField(matrix, "Quantity");
+    addLevel(matrix);
+    expect(titlesOf(getList(matrix, "sv-sort-field-2")), "#1").toEqual(["Product", "Added", "Note"]);
+    expect(getAction(matrix, "sv-sort-field-2").title, "#2: the new level takes the first free field").toBe("Product");
+    expect(titlesOf(fieldList(matrix)), "#3: and the first level's list leaves it out").toEqual(["Quantity", "Added", "Note"]);
+  });
+});
+describe("Sort bar: showSortBar \"auto\" with detail fields", () => {
+  test("a detail field shows the bar next to sortable headers: the headers cannot reach it", () => {
+    const matrix = createDetailMatrix({ showSortBar: "auto" });
+    expect([matrix.canSortByHeaders, matrix.isSortBarVisible], "#1").toEqual([true, true]);
+    expect(placement(matrix), "#2").toEqual([true, true, "header"]);
+    expect(header(matrix, "product").isSortable, "#3: the headers still sort").toBe(true);
+  });
+  test("no bar while no detail field is offered: mode none, every question hidden, a key a column has, allowSort false", () => {
+    const hidden = [false, false, "none"];
+    expect(placement(createDetailMatrix({ showSortBar: "auto", detailPanelMode: "none" })), "#1").toEqual(hidden);
+    expect(placement(createDetailMatrix({ showSortBar: "auto", detailElements: [{ type: "text", name: "qty", visible: false }] })), "#2").toEqual(hidden);
+    expect(placement(createDetailMatrix({ showSortBar: "auto", detailElements: [{ type: "text", name: "product" }] })), "#3").toEqual(hidden);
+    expect(placement(createDetailMatrix({ showSortBar: "auto", detailElements: [{ type: "expression", name: "total", expression: "1" }] })), "#4").toEqual(hidden);
+    expect(placement(createDetailMatrix({ showSortBar: "auto", allowSort: false })), "#5").toEqual(hidden);
+  });
+  test("the bar follows the template and the mode at runtime", () => {
+    const matrix = createDetailMatrix({ showSortBar: "auto", detailElements: [] });
+    expect(placement(matrix), "#1").toEqual([false, false, "none"]);
+    const question = matrix.detailPanel.addNewQuestion("text", "qty");
+    expect(placement(matrix), "#2: added").toEqual([true, true, "header"]);
+    question.visible = false;
+    expect(placement(matrix), "#3: hidden").toEqual([false, false, "none"]);
+    question.visible = true;
+    matrix.detailPanelMode = "none";
+    expect(placement(matrix), "#4: mode none").toEqual([false, false, "none"]);
+    matrix.detailPanelMode = "underRowSingle";
+    expect(placement(matrix), "#5: mode back").toEqual([true, true, "header"]);
+  });
+});
+describe("Sort bar: the watch of a dynamic panel's template", () => {
+  test("a panel with children added to the template in code is watched", () => {
+    const panel = createPanel({ templateElements: [{ type: "text", name: "a", title: "Alpha" }] });
+    const list = (): Array<string> => titlesOf(fieldList(panel));
+    const added = new PanelModel("added");
+    const child = added.addNewQuestion("text", "child");
+    panel.template.addElement(added);
+    expect(list(), "#1").toEqual(["Alpha", "child"]);
+    child.title = "Child";
+    expect(list(), "#2: the child is watched").toEqual(["Alpha", "Child"]);
+    const nested = added.addNewQuestion("text", "nested");
+    expect(list(), "#3: and so is the panel").toEqual(["Alpha", "Child", "nested"]);
+    expect(nested.parentQuestion === panel && child.parentQuestion === panel, "#4").toBe(true);
+    panel.template.removeElement(added);
+    expect(list(), "#5").toEqual(["Alpha"]);
+    child.title = "Gone";
+    expect(added.addElementCallback, "#6").toBeUndefined();
+  });
+  test("disposing the dynamic panel stops the watch of its template, nested elements included", () => {
+    const panel = createPanel({ templateElements: [{ type: "panel", name: "box", elements: [{ type: "text", name: "inner", title: "Inner" }] }] });
+    const box = <PanelModel>panel.template.getElementByName("box");
+    const removes = [box, panel.template.getQuestionByName("inner")].map((el: any): any => vi.spyOn(el.onPropertyChanged, "remove"));
+    panel.dispose();
+    expect(removes.map((spy: any): number => spy.mock.calls.length), "#1").toEqual([1, 1]);
+    expect([box.addElementCallback, box.removeElementCallback], "#2").toEqual([undefined, undefined]);
   });
 });

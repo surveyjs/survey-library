@@ -10,7 +10,7 @@ import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { FunctionFactory } from "./functionsfactory";
-import { PanelModel } from "./panel";
+import { PanelModel, PanelModelBase } from "./panel";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
@@ -1115,8 +1115,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       this.updateColumnsAndRows();
       this.updateRecordsBar();
     }
-    // The sort bar's inputs of the matrix: its opt-in and the header row it replaces (isSortBarVisible).
-    if (name === "showSortBar" || name === "showHeader" || name === "transposeData") {
+    // The sort bar's inputs of the matrix: its opt-in, the header row it replaces (isSortBarVisible) and the detail panel it offers.
+    if (name === "showSortBar" || name === "showHeader" || name === "transposeData" || name === "detailPanelMode") {
       this.updateRecordsBar();
     }
     const clearRowsProps = ["placeholder", "columnColCount", "rowTitleWidth", "choices"];
@@ -1200,18 +1200,35 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
    */
   @property() columnsVisibleIf: string;
   protected onColumnsChanged(): void { }
-  /* The columns the sort bar offers: the visible columns a header click sorts by (column.isSortable),
-     in column order, under the key the cell writes. A column hidden on the current page is offered:
-     the sort covers every record. The questions of the detail panel are not offered. */
+  /* The fields the sort bar offers: the visible columns a header click sorts by (column.isSortable),
+     in column order, under the key the cell writes, then the questions of the detail panel. A column
+     hidden on the current page is offered: the sort covers every record. */
   protected getSortFieldCandidates(): Array<{ field: string, title: string }> {
     return this.columns.filter((column: MatrixDropdownColumn): boolean => column.visible && column.isSortable)
-      .map((column: MatrixDropdownColumn): { field: string, title: string } => ({ field: column.sortField, title: column.title }));
+      .map((column: MatrixDropdownColumn): { field: string, title: string } => ({ field: column.sortField, title: column.title }))
+      .concat(this.getDetailSortFieldCandidates());
   }
   /* The designer's sort fields (getDesignSortFields) are every column whose values sort, an invisible one included: the column still
      holds a value in every row, so a designer can order the rows by a key the respondent does not see. */
   protected getDesignSortFieldCandidates(): Array<{ field: string, title: string }> {
     return this.columns.filter((column: MatrixDropdownColumn): boolean => column.isValueSortable)
-      .map((column: MatrixDropdownColumn): { field: string, title: string } => ({ field: column.sortField, title: column.title }));
+      .map((column: MatrixDropdownColumn): { field: string, title: string } => ({ field: column.sortField, title: column.title }))
+      .concat(this.getDetailSortFieldCandidates());
+  }
+  /* A key a column uses belongs to the column, hidden or with allowSort: false too: its settings decide,
+     and a detail question bound to that key adds nothing. */
+  private getDetailSortFieldCandidates(): Array<{ field: string, title: string }> {
+    const columnFields = this.columns.map((column: MatrixDropdownColumn): string => column.sortField);
+    return super.getSortFieldCandidates().filter((item: { field: string, title: string }): boolean => columnFields.indexOf(item.field) < 0);
+  }
+  /* Only a row that was opened and then edited holds an expression's value, so a sort would depend on the rows the
+     respondent touched. A custom question that wraps an expression has its component's type. */
+  protected isTemplateQuestionSortable(q: Question): boolean {
+    return super.isTemplateQuestionSortable(q) && ((<any>q).contentQuestion || q).getType() !== "expression";
+  }
+  // Without a detail panel mode nothing reads detailPanel, which would build a panel for a matrix that has none.
+  protected getRecordSortTemplate(): PanelModelBase {
+    return this.detailPanelMode !== "none" ? this.detailPanel : undefined;
   }
   // The points where the visible rows may have changed; the fixed matrix hides itself without rows
   // (hideIfRowsEmpty).
@@ -1301,6 +1318,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
     this.disposeTotalRow();
     this.renderedTableHost.dispose();
     if (!!this.detailPanelValue) {
+      this.unwatchRecordTemplateElement(this.detailPanelValue);
       this.detailPanelValue.dispose();
     }
   }
@@ -1441,8 +1459,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
   public set showSortBar(val: "auto" | "always") {
     this.setPropertyValue("showSortBar", val === "always" || <any>val === true ? "always" : "auto");
   }
+  // The headers cannot reach a detail field, so an offered one shows the bar under "auto" too.
   public get isSortBarVisible(): boolean {
-    return this.allowSort === true && (this.showSortBar === "always" || !this.canSortByHeaders);
+    if (this.allowSort !== true) return false;
+    return this.showSortBar === "always" || !this.canSortByHeaders || this.getDetailSortFieldCandidates().length > 0;
   }
   /**
    * Enables case-sensitive comparison in columns with the `isUnique` property set to `true`.
@@ -1501,6 +1521,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         pnl.allowAdaptiveActions = adActions;
       }
       this.detailPanelValue = pnl;
+      // Here and not in createNewDetailPanel: the rows' panels go through that one too, and they are not watched.
+      this.watchRecordTemplateElement(pnl);
     }
     return this.detailPanelValue;
   }
@@ -1969,7 +1991,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
       const question = this.columns[i].templateQuestion;
       if (!!question && question.getValueName() === key) return question;
     }
-    return this.detailPanelMode !== "none" ? <Question>this.detailPanel.getQuestionByValueName(key) || undefined : undefined;
+    return <Question>this.getRecordSortTemplate()?.getQuestionByValueName(key) || undefined;
   }
   // QuestionRecordsModel hook of updateRecordsExpressionFields: the cell questions of the expression columns.
   protected getRecordExpressionQuestions(): Array<QuestionExpressionModel> {
@@ -2739,7 +2761,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionRecordsModel implem
         questions.push(column.templateQuestion);
       }
     });
-    return this.getFieldsOfQuestions(questions);
+    // The columns first: a key they share with the detail panel keeps the column's type.
+    const template = this.getRecordSortTemplate();
+    return this.getFieldsOfQuestions(!!template ? questions.concat(template.questions) : questions);
   }
   protected refreshRenderedPage(): void {
     this.resetRenderedTable();

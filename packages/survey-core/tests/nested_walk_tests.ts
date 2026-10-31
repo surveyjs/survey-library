@@ -2,6 +2,8 @@ import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
 import { PanelModel } from "../src/panel";
 import { ComponentCollection } from "../src/question_custom";
+import { SurveyElement } from "../src/survey-element";
+import { tryFocusPage } from "../src/surveyToc";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 // One marker question in every child slot a container question owns.
@@ -553,7 +555,7 @@ const expectedReach: { [walk: string]: { reached: Array<string>, builds?: Array<
   },
   // stop at first: the first input of the first visible row or item. the rest: their own input.
   "getFirstInputElementId": {
-    reached: ["md.cell", "mx.cell", "pd.item", "mt.editor"]
+    reached: ["md.cell", "mx.cell", "pd.item", "mt.editor", "cp.content"]
   },
   // only a custom question focuses a nested question; the others focus their own input.
   "focus": {
@@ -935,5 +937,343 @@ describe("setIsMobile reaches every nested question that exists", () => {
     expectMobile(cells, true, "mobile");
     survey.setIsMobile(false);
     expectMobile(cells, false, "desktop");
+  });
+});
+
+describe("The first question to focus and its input id", () => {
+  const firstId = (question: any): any => question.getFirstInputElementId();
+  const firstErrorId = (question: any): any => question.getFirstErrorInputElementId();
+
+  test("a matrix skips the cells of a row rowsVisibleIf hides", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdropdown", name: "m", rowsVisibleIf: "{item} != 'r1'", rows: ["r1", "r2"],
+        columns: [{ name: "c1", cellType: "text" }]
+      }]
+    });
+    const matrix: any = survey.getQuestionByName("m");
+    const visibleCell = matrix.visibleRows[0].cells[0].question;
+    expect(matrix.getFirstQuestionToFocus(false)?.id).toBe(visibleCell.id);
+    expect(firstId(matrix)).toBe(visibleCell.inputId);
+  });
+  test("a matrix skips a cell without an input", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdynamic", name: "m", rowCount: 1,
+        columns: [{ name: "c1", cellType: "expression", expression: "1" }, { name: "c2", cellType: "text" }]
+      }]
+    });
+    const matrix: any = survey.getQuestionByName("m");
+    const cells = matrix.visibleRows[0].cells;
+    expect(matrix.getFirstQuestionToFocus(false)?.id).toBe(cells[1].question.id);
+  });
+  test("a matrix skips a read-only cell", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdynamic", name: "m", rowCount: 1,
+        columns: [{ name: "c1", cellType: "text", readOnly: true }, { name: "c2", cellType: "text" }]
+      }]
+    });
+    const matrix: any = survey.getQuestionByName("m");
+    const cells = matrix.visibleRows[0].cells;
+    expect(matrix.getFirstQuestionToFocus(false)?.id).toBe(cells[1].question.id);
+  });
+  test("a matrix skips a cell of a hidden column", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdynamic", name: "m", rowCount: 1,
+        columns: [{ name: "c1", cellType: "text", visibleIf: "{row.c2} = 'a'" }, { name: "c2", cellType: "text" }]
+      }]
+    });
+    const matrix: any = survey.getQuestionByName("m");
+    const cells = matrix.visibleRows[0].cells;
+    expect(matrix.getFirstQuestionToFocus(false)?.id).toBe(cells[1].question.id);
+  });
+  test("a matrix without an editable cell gives the page's next question", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdynamic", name: "m", rowCount: 1, readOnly: true, columns: [{ name: "c1", cellType: "text" }] },
+        { type: "text", name: "q2" }
+      ]
+    });
+    (<any>survey.getQuestionByName("m")).visibleRows;
+    expect(survey.currentPage.getFirstQuestionToFocus(false).name).toBe("q2");
+  });
+  test("a matrix does not focus the total row", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdynamic", name: "m", rowCount: 1,
+        columns: [{ name: "c1", cellType: "text", readOnly: true, totalType: "count" }]
+      }]
+    });
+    const matrix: any = survey.getQuestionByName("m");
+    matrix.visibleRows;
+    expect(matrix.getFirstQuestionToFocus(false)?.id).toBeUndefined();
+  });
+  test("a container gives the first input of a nested question, not its question id", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "c1", cellType: "radiogroup", choices: [1, 2] }] },
+        { type: "paneldynamic", name: "pd", panelCount: 1, templateElements: [{ type: "radiogroup", name: "r", choices: [1, 2] }] }
+      ]
+    });
+    const matrix: any = survey.getQuestionByName("m");
+    const pd: any = survey.getQuestionByName("pd");
+    const cell = matrix.visibleRows[0].cells[0].question;
+    expect(firstId(matrix), "matrix").toBe(cell.inputId + "_0");
+    expect(firstId(pd), "dynamic panel").toBe(pd.panels[0].questions[0].inputId + "_0");
+  });
+  test("a multiple text in a dynamic panel gives the input of its editor", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "pd", panelCount: 1, templateElements: [{ type: "multipletext", name: "mt", items: [{ name: "i1" }] }] }]
+    });
+    const pd: any = survey.getQuestionByName("pd");
+    expect(firstId(pd)).toBe(pd.panels[0].questions[0].items[0].editor.inputId);
+  });
+  test("a multiple text gives the editor with an error to its page", () => {
+    const focused = vi.spyOn(SurveyElement, "FocusElement").mockReturnValue(true);
+    const survey = new SurveyModel({
+      elements: [{ type: "multipletext", name: "mt", items: [{ name: "i1" }, { name: "i2", isRequired: true }] }]
+    });
+    const mt: any = survey.getQuestionByName("mt");
+    survey.validate(true);
+    focused.mockClear();
+    survey.currentPage.focusFirstErrorQuestion();
+    expect(survey.currentPage.getFirstQuestionToFocus(true)?.id).toBe(mt.items[1].editor.id);
+    expect(focused.mock.calls[0][0]).toBe(mt.items[1].editor.inputId);
+  });
+  test("a composite gives its content, an error in a nested panel included", () => {
+    const survey = new SurveyModel({ elements: [{ type: "nwcomposite", name: "cp" }] });
+    const cp: any = survey.getQuestionByName("cp");
+    const inner = cp.contentPanel.getQuestionByName("cpInner");
+    const nested = cp.contentPanel.getQuestionByName("cpNested");
+    nested.isRequired = true;
+    expect(survey.currentPage.getFirstQuestionToFocus(false)?.id, "first").toBe(inner.id);
+    expect(firstId(cp), "first id").toBe(inner.inputId);
+    survey.validate(true);
+    expect(survey.currentPage.getFirstQuestionToFocus(true)?.id, "error").toBe(nested.id);
+    expect(firstErrorId(cp), "error id").toBe(nested.inputId);
+  });
+  test("a custom question stays the one the focus goes to", () => {
+    const survey = new SurveyModel({ elements: [{ type: "nwcustom", name: "cu" }] });
+    const cu: any = survey.getQuestionByName("cu");
+    expect(survey.currentPage.getFirstQuestionToFocus(false)?.id).toBe(cu.id);
+  });
+  test("an error in a shown detail panel is focused, a detail panel that is not shown is not walked", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "matrixdynamic", name: "m", rowCount: 1, detailPanelMode: "underRow",
+        columns: [{ name: "c1", cellType: "text" }],
+        detailElements: [{ type: "text", name: "d1", isRequired: true }]
+      }]
+    });
+    const matrix: any = survey.getQuestionByName("m");
+    const row = matrix.visibleRows[0];
+    row.showDetailPanel();
+    survey.validate(true);
+    const detailQuestion = row.detailPanel.questions[0];
+    expect(survey.currentPage.getFirstQuestionToFocus(true)?.id, "shown").toBe(detailQuestion.id);
+    expect(firstErrorId(matrix), "shown: id").toBe(detailQuestion.inputId);
+    row.hideDetailPanel();
+    expect(survey.currentPage.getFirstQuestionToFocus(true)?.id, "hidden").toBeUndefined();
+  });
+  test("a select question gives itself first and an error of a shown choice panel after it", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "radiogroup", name: "r", defaultValue: 1,
+        choices: [{ value: 1, elements: [{ type: "text", name: "inner", isRequired: true }] }, { value: 2, elements: [{ type: "text", name: "other" }] }]
+      }]
+    });
+    const radio: any = survey.getQuestionByName("r");
+    const inner = survey.getQuestionByName("inner");
+    expect(survey.currentPage.getFirstQuestionToFocus(false)?.id, "no error").toBe(radio.id);
+    expect(firstId(radio), "no error: id").toBe(radio.inputId + "_0");
+    survey.validate(true);
+    expect(survey.currentPage.getFirstQuestionToFocus(true)?.id, "error").toBe(inner.id);
+    expect(firstErrorId(radio), "error: id").toBe(inner.inputId);
+  });
+  test("a dynamic panel gives the add button when it has nothing else to focus", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "pd", isRequired: true, templateElements: [{ type: "text", name: "q1" }] }]
+    });
+    const pd: any = survey.getQuestionByName("pd");
+    expect(pd.getFirstQuestionToFocus(false)?.id, "first").toBe(pd.id);
+    expect(typeof firstId(pd), "first: the add button").toBe("function");
+    survey.validate(true);
+    expect(pd.getFirstQuestionToFocus(true)?.id, "error").toBe(pd.id);
+    expect(typeof firstErrorId(pd), "error: the add button").toBe("function");
+  });
+  test("the TOC expands the panel around a nested question it focuses", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "panel", name: "p1", state: "collapsed", elements: [{ type: "multipletext", name: "mt", items: [{ name: "i1" }] }] },
+        { type: "panel", name: "p2", state: "collapsed", elements: [{ type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "c1", cellType: "text" }] }] }
+      ]
+    });
+    const p1 = <PanelModel>survey.getPanelByName("p1");
+    tryFocusPage(survey, p1);
+    expect(p1.isCollapsed, "multiple text").toBe(false);
+    const p2 = <PanelModel>survey.getPanelByName("p2");
+    (<any>survey.getQuestionByName("m")).visibleRows;
+    tryFocusPage(survey, p2);
+    expect(p2.isCollapsed, "matrix").toBe(false);
+  });
+});
+
+describe("The walk stops at the first true a visitor gives", () => {
+  beforeEach(() => {
+    ComponentCollection.Instance.add(<any>{ name: "stopCp", elementsJSON: [{ type: "text", name: "cq" }] });
+    ComponentCollection.Instance.add(<any>{ name: "stopCu", questionJSON: { type: "text" } });
+  });
+  function createStopSurvey(): SurveyModel {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic", name: "matrix", rowCount: 2, detailPanelMode: "underRow",
+          columns: [{ name: "c1", cellType: "text", totalType: "count" }, { name: "c2", cellType: "text" }],
+          detailElements: [{ type: "text", name: "d1" }]
+        },
+        { type: "multipletext", name: "mt", items: [{ name: "i1" }, { name: "i2" }] },
+        { type: "paneldynamic", name: "pd", panelCount: 2, templateElements: [{ type: "text", name: "t1" }] },
+        { type: "checkbox", name: "select", choices: [{ value: 1, elements: [{ type: "text", name: "n1" }] }, { value: 2, elements: [{ type: "text", name: "n2" }] }] },
+        { type: "stopCp", name: "composite" },
+        { type: "stopCu", name: "custom" }
+      ]
+    });
+    const matrix: any = survey.getQuestionByName("matrix");
+    matrix.visibleRows.forEach((row: any) => row.ensureDetailPanel());
+    return survey;
+  }
+  ["matrix", "mt", "pd", "select", "composite", "custom"].forEach(name => {
+    test(name + " visits nothing after it", () => {
+      const q: any = createStopSurvey().getQuestionByName(name);
+      if (name === "select") q.value = [1, 2];
+      [false, true].forEach(visibleOnly => {
+        const options = { build: "none", visibleOnly: visibleOnly };
+        let count = 0;
+        q.forEachNestedElement(() => { count++; }, options);
+        expect(count > 0, "there is something to walk").toBe(true);
+        for (let stopAt = 1; stopAt <= count; stopAt++) {
+          let visited = 0;
+          q.forEachNestedElement(() => ++visited === stopAt, options);
+          expect(visited, "visibleOnly " + visibleOnly + ": stop at " + stopAt + " of " + count).toBe(stopAt);
+        }
+      });
+    });
+  });
+});
+
+describe("containsErrors of a question that holds nested elements", () => {
+  beforeEach(() => {
+    ComponentCollection.Instance.add(<any>{
+      name: "errorCp",
+      elementsJSON: [{ type: "panel", name: "inner", elements: [{ type: "text", name: "cq", isRequired: true }] }]
+    });
+    ComponentCollection.Instance.add(<any>{ name: "errorCu", questionJSON: { type: "text", isRequired: true } });
+  });
+  function checkErrorComesAndGoes(survey: SurveyModel, name: string, getNested: (q: any) => Question): void {
+    survey.validationEnabled = true;
+    const q: any = survey.getQuestionByName(name);
+    const nested = getNested(q);
+    expect(survey.validate(true), "invalid").toBe(false);
+    expect(nested.containsErrors, "nested").toBe(true);
+    expect(q.containsErrors, "reported").toBe(true);
+    nested.value = "a";
+    expect(nested.containsErrors, "nested is fixed").toBe(false);
+    expect(q.containsErrors, "fixed").toBe(false);
+  }
+  test("a composite reports a question of its content panel", () => {
+    const survey = new SurveyModel({ checkErrorsMode: "onValueChanged", elements: [{ type: "errorCp", name: "q" }] });
+    checkErrorComesAndGoes(survey, "q", q => q.contentPanel.questions[0]);
+  });
+  test("a custom question reports its content question", () => {
+    const survey = new SurveyModel({ elements: [{ type: "errorCu", name: "q" }] });
+    checkErrorComesAndGoes(survey, "q", q => q.contentQuestion);
+  });
+  test("a select question reports a question of a choice panel", () => {
+    const survey = new SurveyModel({ elements: [{ type: "checkbox", name: "q", choices: [{ value: 1, elements: [{ type: "text", name: "n1", isRequired: true }] }, 2] }] });
+    survey.setValue("q", [1]);
+    checkErrorComesAndGoes(survey, "q", () => <Question>survey.getQuestionByName("n1"));
+  });
+  test("a matrix reports a question of a detail panel", () => {
+    const survey = new SurveyModel({
+      checkErrorsMode: "onValueChanged",
+      elements: [{
+        type: "matrixdynamic", name: "q", rowCount: 1, detailPanelMode: "underRow",
+        columns: [{ name: "c1", cellType: "text" }],
+        detailElements: [{ type: "text", name: "d1", isRequired: true }]
+      }]
+    });
+    const row = (<any>survey.getQuestionByName("q")).visibleRows[0];
+    row.showDetailPanel();
+    checkErrorComesAndGoes(survey, "q", () => row.detailPanel.questions[0]);
+  });
+  test("a matrix, a multiple text and a dynamic panel report what they did", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdynamic", name: "m", rowCount: 1, columns: [{ name: "c1", cellType: "text", isRequired: true }] },
+        { type: "multipletext", name: "mt", items: [{ name: "i1", isRequired: true }] },
+        { type: "paneldynamic", name: "pd", panelCount: 1, templateElements: [{ type: "text", name: "t1", isRequired: true }] }
+      ]
+    });
+    checkErrorComesAndGoes(survey, "m", q => q.visibleRows[0].cells[0].question);
+    checkErrorComesAndGoes(survey, "mt", q => q.items[0].editor);
+    checkErrorComesAndGoes(survey, "pd", q => q.panels[0].questions[0]);
+  });
+  test("the panels around a fixed question follow it", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "panel", name: "outer", elements: [{ type: "panel", name: "p", elements: [{ type: "text", name: "q", isRequired: true }] }] }]
+    });
+    survey.validate(true);
+    const outer = <PanelModel>survey.getPanelByName("outer");
+    expect(outer.containsErrors, "reported").toBe(true);
+    survey.setValue("q", "a");
+    expect(outer.containsErrors, "fixed").toBe(false);
+  });
+  test("a hidden dynamic panel no longer counts: what it holds is stale", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "hide" },
+        { type: "paneldynamic", name: "pd", panelCount: 1, templateVisibleIf: "{hide} empty", templateElements: [{ type: "text", name: "t1", isRequired: true }] }
+      ]
+    });
+    const pd: any = survey.getQuestionByName("pd");
+    survey.validate(true);
+    expect(pd.containsErrors, "shown").toBe(true);
+    survey.setValue("hide", "a");
+    survey.validate(true);
+    expect(pd.containsErrors, "hidden").toBe(false);
+  });
+  test("a hidden matrix row no longer counts: what it holds is stale", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "hide" },
+        {
+          type: "matrixdropdown", name: "m", rows: [{ value: "r1", visibleIf: "{hide} empty" }, "r2"],
+          columns: [{ name: "c1", cellType: "text", isRequired: true }]
+        }
+      ]
+    });
+    const m: any = survey.getQuestionByName("m");
+    const cell = m.visibleRows[0].cells[0].question;
+    m.visibleRows[1].cells[0].question.value = "a";
+    survey.validate(true);
+    expect(cell.containsErrors, "the cell").toBe(true);
+    expect(m.containsErrors, "shown").toBe(true);
+    survey.setValue("hide", "a");
+    survey.validate(true);
+    expect(cell.isVisible, "the cell itself stays visible").toBe(true);
+    expect(cell.containsErrors, "the cell keeps what it had").toBe(true);
+    expect(m.containsErrors, "hidden").toBe(false);
+  });
+  test("a matrix is asked once by a validation without errors, not once per cell", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "m", rowCount: 3, columns: [{ name: "c1", cellType: "text" }, { name: "c2", cellType: "text" }] }]
+    });
+    const m: any = survey.getQuestionByName("m");
+    m.visibleRows;
+    const spy = vi.spyOn(m, "getContainsErrors");
+    survey.validate(true);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 });

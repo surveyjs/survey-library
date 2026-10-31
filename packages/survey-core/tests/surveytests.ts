@@ -11571,7 +11571,7 @@ describe("Survey", () => {
       question4: { q1_m1: 1 },
       question5: { row1: { col1: 1 } },
     };
-    expect(panelDynamic.containsErrors, "contains errros is not updated yet").toBe(true);
+    expect(panelDynamic.containsErrors, "follows its fixed questions").toBe(false);
     expect(survey.isCurrentPageHasErrors, "The page has no errors").toBe(false);
     expect(panelDynamic.containsErrors, "Dynamic panel contains no errros").toBe(false);
     expect(panel.containsErrors, "panel contains no errors").toBe(false);

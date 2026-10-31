@@ -2,7 +2,7 @@ import { Base } from "./base";
 import { IPlainDataOptions, IProgressInfo, IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
-import { INestedElementInfo, IVerifyDataContext, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext, getNestedElementQuestions } from "./question";
+import { INestedElementInfo, IVerifyDataContext, NestedElementVisit, NestedWalkBuild, Question, QuestionItemValueGetterContext, QuestionValueGetterContext, ValidationContext, findInNestedWalk, getNestedElementQuestions } from "./question";
 import { ActionContainer } from "./actions/container";
 import { settings } from "./settings";
 import { isFocusInsideOrIdle } from "./utils/focus-utils";
@@ -47,6 +47,8 @@ import { ExpressionRunner } from "./expressions/expressionRunner";
 /* An item of the nested walk of a records question: a matrix row, or a dynamic panel's panel - not its
    QuestionPanelDynamicItem: in design mode the panel shown is the template, which has none. */
 export type NestedWalkItem = QuestionRecordItem | PanelModelBase;
+// Answers true to stop the walk, as a NestedElementVisit does.
+export type NestedWalkItemVisit = (item: NestedWalkItem, position: number, visible: boolean) => boolean | void;
 import type { ItemValue } from "./itemvalue";
 import type { ISurveyOldValueReads } from "./interfaces/survey-callbacks";
 
@@ -1184,18 +1186,17 @@ export abstract class QuestionRecordsModel extends Question {
     return Math.min(this.pageSize, maxPageSize);
   }
   // The nested elements of the rows or panels a build mode reads, item by item.
-  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
-    this.forEachNestedWalkItem(build, (item: NestedWalkItem, position: number, visible: boolean): void => {
-      this.forEachNestedElementOfItem(item, position, visible, build, visit);
-    });
+  protected forEachNestedElementCore(visit: NestedElementVisit, build: NestedWalkBuild): boolean | void {
+    return this.forEachNestedWalkItem(build, (item: NestedWalkItem, position: number, visible: boolean): boolean | void =>
+      this.forEachNestedElementOfItem(item, position, visible, build, visit));
   }
   /* The items a build mode reads, each with its position in the list of created items - never an index
      in a visible-only list, so that the segment of the record it holds can be computed - and whether the
      question shows it. */
-  protected forEachNestedWalkItem(build: NestedWalkBuild, func: (item: NestedWalkItem, position: number, visible: boolean) => void): void { }
+  protected forEachNestedWalkItem(build: NestedWalkBuild, func: NestedWalkItemVisit): boolean | void { }
   // The nested elements of one item at a position in the list of created items.
   protected forEachNestedElementOfItem(item: NestedWalkItem, position: number, visible: boolean,
-    build: NestedWalkBuild, visit: (info: INestedElementInfo) => void): void { }
+    build: NestedWalkBuild, visit: NestedElementVisit): boolean | void { }
   protected isListedAsNestedQuestion(includeItSelf: boolean): boolean {
     return includeItSelf;
   }
@@ -3776,10 +3777,9 @@ export abstract class QuestionRecordsModel extends Question {
      read-only (Question.focus refuses a read-only one). position: as forEachNestedWalkItem gives it. */
   protected focusNewRecord(item: NestedWalkItem, position: number, visible: boolean): void {
     if (!item) return;
-    let res: Question = null;
-    this.forEachNestedElementOfItem(item, position, visible, "none", (info: INestedElementInfo): void => {
-      if (!!res || !this.isNestedElementShown(item, info)) return;
-      res = getNestedElementQuestions(info).filter(q => q.isVisible && q.isParentVisible && q.hasInput && !q.isReadOnly)[0] || null;
+    const res = findInNestedWalk((visit: NestedElementVisit): void => { this.forEachNestedElementOfItem(item, position, visible, "none", visit); }, (info: INestedElementInfo): Question => {
+      if (!this.isNestedElementShown(item, info)) return null;
+      return getNestedElementQuestions(info).filter(q => q.isVisible && q.isParentVisible && q.hasInput && !q.isReadOnly)[0];
     });
     if (!!res) {
       res.focus();
@@ -3788,6 +3788,12 @@ export abstract class QuestionRecordsModel extends Question {
   // Does the question render a nested element of an item? The default: whenever it shows the item.
   protected isNestedElementShown(item: NestedWalkItem, info: INestedElementInfo): boolean {
     return info.visible;
+  }
+  // Item by item: a detail panel is shown by its row, and the total row is outside the items.
+  protected forEachNestedElementToFocus(visit: NestedElementVisit): void {
+    this.forEachNestedWalkItem("none", (item: NestedWalkItem, position: number, visible: boolean): boolean | void =>
+      this.forEachNestedElementOfItem(item, position, visible, "none", (info: INestedElementInfo): boolean | void =>
+        this.isNestedElementShown(item, info) && visit(info)));
   }
   /* The question defines which records exist and in what order (the rows of the fixed matrix) when its
      own source has no insert: the list it creates refuses to insert, remove or move one. */

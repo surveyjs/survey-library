@@ -14,22 +14,9 @@ import type { ILayoutElementModel, ISurveyLayoutElement, LayoutElementContainer 
 export function tryFocusPage(survey: SurveyModel, panel: PanelModelBase): boolean {
   if (survey.isDesignMode) return true;
   const firstQuestion = panel.getFirstQuestionToFocus(false, true);
-  expandAllParentPanels(firstQuestion);
+  firstQuestion?.expandAllParents();
   panel.focusFirstQuestion();
   return true;
-}
-
-function expandAllParentPanels(question: Question): void {
-  let parent = question && question.parent;
-  while(parent && parent.getType() !== "page") {
-    if (parent.isPanel) {
-      const panel = parent as PanelModelBase;
-      if (panel.isCollapsed) {
-        panel.expand();
-      }
-    }
-    parent = parent.parent;
-  }
 }
 
 function getPage(question: Question): PageModel {

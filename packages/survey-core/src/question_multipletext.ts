@@ -11,7 +11,7 @@ import {
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
-import { Question, IConditionObject, ValidationContext, QuestionValueType, IVerifyDataContext, INestedElementInfo, NestedWalkBuild } from "./question";
+import { Question, IConditionObject, ValidationContext, QuestionValueType, IVerifyDataContext, INestedElementInfo, INestedWalkOptions, NestedElementVisit, NestedWalkBuild, findInNestedWalk } from "./question";
 import { QuestionTextModel, isMinMaxType } from "./question_text";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -71,6 +71,8 @@ export class MultipleTextEditorModel extends QuestionTextModel {
  *
  * [View Demo](https://surveyjs.io/form-library/examples/multiple-text-box-question/ (linkStyle))
  */
+const allEditors: INestedWalkOptions = { build: "none", visibleOnly: false };
+
 export class MultipleTextItemModel extends Base
   implements IValidatorOwner, ISurveyData, ISurveyImpl {
   private editorValue: MultipleTextEditorModel;
@@ -485,22 +487,8 @@ export class QuestionMultipleTextModel extends Question
     return false;
   }
   public get isContainer(): boolean { return true; }
-  private getFirstEditor(onError: boolean): Question {
-    const items = this.items;
-    for (let i = 0; i < items.length; i++) {
-      const editor = items[i].editor;
-      if (!editor || !editor.isVisible || editor.isReadOnly) continue;
-      if (!onError || editor.currentErrorCount > 0) return editor;
-    }
-    return null;
-  }
-  protected getFirstInputElementId(): string | (() => HTMLElement) {
-    const editor = this.getFirstEditor(false);
-    return editor ? editor.inputId : super.getFirstInputElementId();
-  }
-  protected getFirstErrorInputElementId(): string | (() => HTMLElement) {
-    const editor = this.getFirstEditor(true);
-    return editor ? editor.inputId : super.getFirstErrorInputElementId();
+  public getFirstQuestionToFocus(withError: boolean): Question {
+    return this.getFirstNestedQuestionToFocus(withError) || super.getFirstQuestionToFocus(withError);
   }
   onSurveyLoad() {
     this.editorsOnSurveyLoad();
@@ -654,8 +642,8 @@ export class QuestionMultipleTextModel extends Question
     super.dispose();
     this.items.forEach(item => item.editor.dispose());
   }
-  protected forEachNestedElementCore(visit: (info: INestedElementInfo) => void, build: NestedWalkBuild): void {
-    this.items.forEach(item => visit({ element: item.editor, role: "editor", segment: undefined, location: "nested", visible: true }));
+  protected forEachNestedElementCore(visit: NestedElementVisit, build: NestedWalkBuild): boolean | void {
+    return this.items.some(item => visit({ element: item.editor, role: "editor", segment: undefined, location: "nested", visible: true }));
   }
   protected hasValueKey(key: string): boolean {
     return !!this.getItemByName(key);
@@ -770,11 +758,9 @@ export class QuestionMultipleTextModel extends Question
     this.items.forEach(item => item.editor.runCondition(properties));
   }
   protected getIsRunningValidators(): boolean {
-    if (super.getIsRunningValidators()) return true;
-    for (var i = 0; i < this.items.length; i++) {
-      if (this.items[i].editor.isRunningValidators) return true;
-    }
-    return false;
+    return super.getIsRunningValidators() || !!findInNestedWalk(
+      (visit: NestedElementVisit): void => this.forEachNestedElement(visit, allEditors),
+      (info: INestedElementInfo): boolean => (<Question>info.element).isRunningValidators);
   }
   protected validateElementCore(context: ValidationContext): boolean {
     let res = true;
@@ -786,29 +772,13 @@ export class QuestionMultipleTextModel extends Question
     return super.validateElementCore(context) && res;
   }
   public getAllErrors(): Array<SurveyError> {
-    var result = super.getAllErrors();
-    for (var i = 0; i < this.items.length; i++) {
-      var errors = this.items[i].editor.getAllErrors();
-      if (errors && errors.length > 0) {
-        result = result.concat(errors);
-      }
-    }
-    return result;
+    const res = super.getAllErrors();
+    this.forEachNestedElement(info => { res.push(...(<Question>info.element).getAllErrors()); }, allEditors);
+    return res;
   }
   public clearErrors() {
     super.clearErrors();
-    for (var i = 0; i < this.items.length; i++) {
-      this.items[i].editor.clearErrors();
-    }
-  }
-  protected getContainsErrors(): boolean {
-    var res = super.getContainsErrors();
-    if (res) return res;
-    var items = this.items;
-    for (var i = 0; i < items.length; i++) {
-      if (items[i].editor.containsErrors) return true;
-    }
-    return false;
+    this.forEachNestedElement(info => (<Question>info.element).clearErrors(), allEditors);
   }
   protected getIsAnswered(): boolean {
     if (!super.getIsAnswered()) return false;

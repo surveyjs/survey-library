@@ -1,4 +1,5 @@
 import { Serializer } from "./jsonobject";
+import { advanceKeyboardHints, IKeyboardHintData, KeyboardHintKey } from "./keyboard-hints";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
@@ -161,6 +162,13 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
   @property({ localizable: { defaultStr: true } }) placeholder: string;
   public getType(): string {
     return "tagbox";
+  }
+  protected getClosedKeyboardHints(): IKeyboardHintData[] {
+    return advanceKeyboardHints(this);
+  }
+  // With an input in the control, Space types into it.
+  protected getSelectHintKeys(): KeyboardHintKey[] {
+    return this.dropdownRenderState.inputAvailable ? ["enter"] : ["space", "enter"];
   }
   public supportMultipleComment(item: ItemValue): boolean { return this.isOtherValue(item.value); }
   public get a11yInputAriaRole(): string | null {

@@ -2217,6 +2217,86 @@ frameworks.forEach((framework) => {
       expect(await filterInputString.inputValue()).toBe("");
       expect(await page.locator(".sd-dropdown__input").innerText()).toBe("Item 2");
     });
+
+    [true, false].forEach((searchEnabled) => {
+      test(`touch: a long list opens with the selected item in view, search ${searchEnabled ? "on" : "off"}`, async ({ page }) => {
+        await page.evaluate(() => {
+          window["Survey"]._setIsTouch(true);
+        });
+        await page.setViewportSize({ width: 750, height: 900 });
+        await initSurvey(page, framework, {
+          elements: [{
+            type: "dropdown",
+            name: "q1",
+            searchEnabled: searchEnabled,
+            defaultValue: "item80",
+            choices: Array.from({ length: 100 }, (_, i) => `item${i + 1}`)
+          }]
+        });
+        await page.locator(".sd-dropdown").click();
+        await expect(page.locator(".sd-selectlist__item--selected")).toBeInViewport();
+      });
+    });
+
+    test("keyboard: a long list opens with the selected item in view", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [{
+          type: "dropdown",
+          name: "q1",
+          searchEnabled: false,
+          defaultValue: "item80",
+          choices: Array.from({ length: 100 }, (_, i) => `item${i + 1}`)
+        }]
+      });
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("ArrowDown");
+      await expect(page.getByRole("option", { name: "item80", exact: true })).toBeInViewport();
+    });
+
+    ["dropdown", "tagbox"].forEach((type) => {
+      test(`${type}: opening keeps the height of a hint row that has no room to spare`, async ({ page }) => {
+        await initSurvey(page, framework, {
+          showKeyboardHints: true,
+          elements: [{ type: type, name: "q1", choices: ["item1", "item2", "item3"] }]
+        });
+        const hintRow = page.locator(".sd-question__keyboard-hints");
+        const selectHint = hintRow.getByText("to select");
+        await expect(selectHint).toBeHidden();
+        // Narrow the row to the always visible chips, so anything wider wraps at every viewport and font.
+        await hintRow.evaluate((row: HTMLElement) => {
+          const lastChip = row.children[2].getBoundingClientRect();
+          row.style.width = `${Math.ceil(lastChip.right - row.getBoundingClientRect().left)}px`;
+        });
+        const closedHeight = await hintRow.evaluate((row) => row.getBoundingClientRect().height);
+        await page.locator(".sd-dropdown").click();
+        await expect(selectHint).toBeVisible();
+        expect(await hintRow.evaluate((row) => row.getBoundingClientRect().height)).toBe(closedHeight);
+      });
+    });
+
+    test("tagbox: opening keeps the height of a hint row that wraps only the closed chip", async ({ page }) => {
+      await initSurvey(page, framework, {
+        showKeyboardHints: true,
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "tagbox", name: "q1", choices: ["item1", "item2", "item3"] }] },
+          { elements: [{ type: "text", name: "q2" }] }
+        ]
+      });
+      const hintRow = page.locator(".sd-question__keyboard-hints");
+      const closedHint = hintRow.getByText("to continue");
+      const selectHint = hintRow.getByText("to select");
+      await expect(closedHint).toBeVisible();
+      // One pixel short of "to continue" wraps it. "to select" is narrower, so sharing a slot with it would unwrap the row.
+      await hintRow.evaluate((row: HTMLElement) => {
+        const closedChip = row.children[3].getBoundingClientRect();
+        row.style.width = `${Math.floor(closedChip.right - row.getBoundingClientRect().left) - 1}px`;
+      });
+      const closedHeight = await hintRow.evaluate((row) => row.getBoundingClientRect().height);
+      await page.locator(".sd-dropdown").click();
+      await expect(selectHint).toBeVisible();
+      expect(await hintRow.evaluate((row) => row.getBoundingClientRect().height)).toBe(closedHeight);
+    });
   });
 });
 

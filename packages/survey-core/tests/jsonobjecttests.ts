@@ -3511,7 +3511,7 @@ describe("toJSON skips empty properties", () => {
     expect(text.keys, "text: keys").toEqual(("allowClear autocomplete clearIfInvisible colSpan correctAnswer dataList defaultValue defaultValueExpression " +
       "descriptionLocation enableIf errorLocation indent inputSize inputTextAlignment inputType isRequired maskSettings maskType max maxLength " +
       "maxValueExpression maxWidth min minValueExpression minWidth name randomize randomizeCategory readOnly readOnlyMode renderAs requiredIf resetValueIf " +
-      "setValueExpression setValueIf showCommentArea showNumber startWithNewLine state step textUpdateMode titleLocation " +
+      "setValueExpression setValueIf showCommentArea showKeyboardHints showNumber startWithNewLine state step textUpdateMode titleLocation " +
       "useDisplayValuesInDynamicTexts validators valueName visible visibleIf width").split(" "));
     // The checkbox has no choice elements, so elements is stored in the hash and isSerializableFunc drops it before the empty check
     const checkbox = getReadKeys("q2");
@@ -3520,7 +3520,7 @@ describe("toJSON skips empty properties", () => {
       "choicesByUrl choicesEnableIf choicesFromQuestion choicesFromQuestionMode choicesOrder choicesVisibleIf clearIfInvisible colCount colSpan " +
       "correctAnswer defaultValue defaultValueExpression descriptionLocation enableIf errorLocation hideIfChoicesEmpty indent isRequired " +
       "itemComponent maxSelectedChoices maxWidth minSelectedChoices minWidth name randomize randomizeCategory readOnly readOnlyMode renderAs requiredIf " +
-      "resetValueIf separateSpecialChoices setValueExpression setValueIf showCommentArea showDontKnowItem showNoneItem showNumber showOtherItem " +
+      "resetValueIf separateSpecialChoices setValueExpression setValueIf showCommentArea showDontKnowItem showKeyboardHints showNoneItem showNumber showOtherItem " +
       "showRefuseItem showSelectAllItem startWithNewLine state storeOthersAsComment titleLocation useDisplayValuesInDynamicTexts validators " +
       "valueName valuePropertyName visible visibleIf width").split(" "));
   });

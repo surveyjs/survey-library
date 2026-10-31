@@ -42,4 +42,5 @@
       <div *ngIf="model.showErrorsBelowQuestion && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
     </div>
   </div>
+  <sv-ng-question-hint *ngIf="model.canShowKeyboardHints()" [question]="model"></sv-ng-question-hint>
 </ng-template>

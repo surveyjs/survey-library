@@ -31,6 +31,8 @@ import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 import { isAnimationEnabled } from "./utils/reduced-motion";
 import { ArrayValueChoices, IArrayValueChoice } from "./utils/array-value-choices";
 import { Scope, ValueScope } from "./utils/scope";
+import { IKeyboardHintData, KeyboardHintModel } from "./keyboard-hints";
+import { IsTouch } from "./utils/devices";
 
 export const readOnlyViewEmptyText = "\u2014";
 
@@ -3630,6 +3632,25 @@ export class Question extends SurveyElement<Question>
   public supportAutoAdvance(): boolean {
     return false;
   }
+  @property() showKeyboardHints: boolean | undefined;
+  public getKeyboardHintModel(): KeyboardHintModel {
+    const hints = this.canShowKeyboardHints() ? this.getKeyboardHintsCore() : [];
+    return new KeyboardHintModel(this, hints);
+  }
+  // The renderers mount the hint row on this, and the row stays outside the collapsible content.
+  // With a single input on screen the inner question owns the keys, so the outer question yields.
+  public canShowKeyboardHints(): boolean {
+    const survey = this.survey;
+    if (!survey || !(this.showKeyboardHints ?? survey.showKeyboardHints === true)) return false;
+    return !IsTouch && !this.isDesignMode && !this.isReadOnly && !this.inMatrixMode && !this.isCollapsed && !this.singleInputQuestion;
+  }
+  // Answers from the question's own settings: survey state and responsive rendering must not hide the property.
+  public supportsKeyboardHints(): boolean {
+    return false;
+  }
+  protected getKeyboardHintsCore(): IKeyboardHintData[] {
+    return [];
+  }
   // Set only while Enter commits the current value. tryGoNextPageAutomatic runs on every
   // value change, so multi-value questions stay opted out until this flag is raised.
   private autoAdvanceRequestScope = new Scope();
@@ -3639,18 +3660,25 @@ export class Question extends SurveyElement<Question>
     if (!event || (event.key !== "Enter" && event.keyCode !== 13)) return false;
     if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey || event.isComposing || event.keyCode === 229 || event.defaultPrevented) return false;
     if (this.isDesignMode || this.isInputReadOnly) return false;
-    const survey = this.survey as SurveyModel;
-    return !!survey && survey.autoAdvanceEnabled === true;
+    return this.isSurveyAutoAdvanceEnabled;
   }
   protected canCommitAutoAdvanceOnEnter(event: any): boolean {
     return this.isAutoAdvanceEnter(event) && !this.isEmpty();
   }
+  protected get isSurveyAutoAdvanceEnabled(): boolean {
+    return (this.survey as SurveyModel)?.autoAdvanceEnabled === true;
+  }
+  // getQuestionByValueName only sees top-level questions. A nested question with the same
+  // name must not advance on behalf of that other question.
+  protected get isAutoAdvanceOwner(): boolean {
+    return (this.survey as SurveyModel)?.getQuestionByValueName(this.getValueName()) === this;
+  }
+  public canAdvanceOnEnter(): boolean {
+    return this.isSurveyAutoAdvanceEnabled && this.isAutoAdvanceOwner;
+  }
   protected requestAutoAdvance(): boolean {
-    const survey = this.survey as SurveyModel;
-    // getQuestionByValueName only sees top-level questions. A nested question with the same
-    // name must not advance on behalf of that other question.
-    if (!survey || survey.getQuestionByValueName(this.getValueName()) !== this) return false;
-    return this.autoAdvanceRequestScope.run(() => survey.tryGoNextPageAutomaticCore(this.getValueName()));
+    if (!this.isAutoAdvanceOwner) return false;
+    return this.autoAdvanceRequestScope.run(() => (this.survey as SurveyModel).tryGoNextPageAutomaticCore(this.getValueName()));
   }
   protected commitAutoAdvance(event?: any): void {
     if (event?.preventDefault) event.preventDefault();
@@ -4228,6 +4256,11 @@ Serializer.addClass("question", [
   { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
   { name: "randomize:boolean", default: true, visible: false, locationInTable: "detail" },
   { name: "randomizeCategory:string", visible: false, locationInTable: "detail" },
+  {
+    name: "showKeyboardHints:boolean",
+    defaultFunc: () => undefined,
+    visibleIf: (obj: any): boolean => !!obj.supportsKeyboardHints && obj.supportsKeyboardHints() && !obj.isContentElement
+  },
   { name: "allowClear:boolean" },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

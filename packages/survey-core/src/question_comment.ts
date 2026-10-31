@@ -1,4 +1,5 @@
 import { Serializer } from "./jsonobject";
+import { keyboardHint, advanceKeyboardHints, IKeyboardHintData } from "./keyboard-hints";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionTextBase } from "./question_textbase";
@@ -109,6 +110,17 @@ export class QuestionCommentModel extends QuestionTextBase {
   }
   supportAutoAdvance(): boolean {
     return this.isAutoAdvanceRequested === true;
+  }
+  public supportsKeyboardHints(): boolean {
+    return true;
+  }
+  protected getKeyboardHintsCore(): IKeyboardHintData[] {
+    if (!this.canAdvanceOnEnter()) return [];
+    const hints: IKeyboardHintData[] = [];
+    if (this.acceptCarriageReturn) {
+      hints.push(keyboardHint(this, "keyboardHintNewLineText", ["shiftEnter"]));
+    }
+    return hints.concat(advanceKeyboardHints(this));
   }
   // IsTouch means an on-screen keyboard. question.isMobile follows layout width, so a narrow desktop window must keep Enter.
   protected isAutoAdvanceEnter(event: any): boolean {

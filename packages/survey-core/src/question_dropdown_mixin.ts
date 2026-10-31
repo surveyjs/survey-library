@@ -3,6 +3,7 @@ import type { PopupModel } from "./popup";
 import type { EventBase } from "./event";
 import type { ItemValue } from "./itemvalue";
 import { QuestionSelectBase } from "./question_baseselect";
+import { keyboardHint, IKeyboardHintData, KeyboardHintKey } from "./keyboard-hints";
 import { LocalizableString } from "./localizablestring";
 import { dropdownQuestionMixin, IDropdownQuestion } from "./dropdownRenderState";
 
@@ -11,6 +12,7 @@ type Constructor<T = {}> = new (...args: any[]) => T;
 export interface IQuestionDropdownMixin extends IDropdownQuestion {
   readonly popupModel: PopupModel;
   readonly showClearButton: boolean;
+  readonly isPopupVisible: boolean;
   onOpenedCallBack(): void;
   setIsChoicesLoading(value: boolean): void;
   dispose(): void;
@@ -52,6 +54,42 @@ export function questionDropdownMixin<TBase extends Constructor<QuestionSelectBa
     }
 
     protected updateCustomChoices(value: any, items: Array<ItemValue>): void { }
+
+    public processPopupVisiblilityChanged(popupModel: PopupModel, visible: boolean): void {
+      super.processPopupVisiblilityChanged(popupModel, visible);
+      // The Enter hint swaps with the popup. The hint row rerenders only when it reads
+      // a stored question property, so the popup state is kept on the question.
+      // Without a row the value is kept for a row that appears later, but nothing rerenders for it.
+      if (this.canShowKeyboardHints()) {
+        this.setPropertyValue("isPopupVisible", visible);
+      } else {
+        this.setPropertyValueDirectly("isPopupVisible", visible, true);
+      }
+    }
+    public get isPopupVisible(): boolean {
+      return this.getPropertyValue("isPopupVisible", false);
+    }
+
+    public supportsKeyboardHints(): boolean {
+      return true;
+    }
+    // Each state keeps the other's slot hidden, so that opening the popup does not resize the row.
+    protected getKeyboardHintsCore(): IKeyboardHintData[] {
+      const isPopupVisible = this.isPopupVisible;
+      return [
+        keyboardHint(this, "keyboardHintOpenText", ["arrowDown"]),
+        keyboardHint(this, "keyboardHintNavigateText", ["arrowsVertical"]),
+        keyboardHint(this, "keyboardHintCloseText", ["esc"]),
+        ...this.getClosedKeyboardHints().map(hint => ({ ...hint, visible: !isPopupVisible })),
+        keyboardHint(this, "keyboardHintSelectText", this.getSelectHintKeys(), isPopupVisible && !this.dropdownListModelValue?.isEnterClearingValue)
+      ];
+    }
+    protected getClosedKeyboardHints(): IKeyboardHintData[] {
+      return [];
+    }
+    protected getSelectHintKeys(): KeyboardHintKey[] {
+      return ["enter"];
+    }
 
     public onOpenedCallBack(): void {
       this.onOpened.fire(this, { question: this, choices: this.choices });

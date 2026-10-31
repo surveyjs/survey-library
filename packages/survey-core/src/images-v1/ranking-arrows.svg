@@ -1,9 +1,0 @@
-<svg
-  width="10"
-  height="24"
-  viewBox="0 0 10 24"
-  xmlns="http://www.w3.org/2000/svg"
->
-  <path d="M10 5L5 0L0 5H4V9H6V5H10Z" />
-  <path d="M6 19V15H4V19H0L5 24L10 19H6Z" />
-</svg>

@@ -28,7 +28,6 @@ export default defineConfig({
       "react-dom/test-utils": resolve(__dirname, "./node_modules/preact/test-utils"),
       "react-dom": resolve(__dirname, "./node_modules/preact/compat"),
       "react": resolve(__dirname, "./node_modules/preact/compat"),
-      "survey-core/icons/iconsV1": resolve(__dirname, "./node_modules/survey-core/icons/iconsV1"),
       "survey-core/icons/iconsV2": resolve(__dirname, "./node_modules/survey-core/icons/iconsV2"),
     },
   },

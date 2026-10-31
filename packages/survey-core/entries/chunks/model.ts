@@ -57,6 +57,9 @@ export {
 export { ItemValue } from "../../src/itemvalue";
 export {
   Base,
+  PropertyAccessTracker,
+  IPropertyAccessListener,
+  IPropertyAccessTracker,
   ArrayChanges,
   ComputedUpdater,
   IPropertyValueChangedEvent,

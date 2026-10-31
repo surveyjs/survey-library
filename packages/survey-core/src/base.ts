@@ -252,6 +252,58 @@ export class ComputedUpdater<T = any> {
   }
 }
 
+export interface IPropertyAccessListener {
+  onPropertyAccessed(model: Base, propertyName: string): void;
+}
+
+export interface IPropertyAccessTracker {
+  startTracking(): void;
+  stopTracking(): void;
+  unsubscribe(): void;
+  subscribe(): void;
+}
+
+export class PropertyAccessTracker implements IPropertyAccessListener, IPropertyAccessTracker {
+  private trackedProperties: Map<Base, Set<string>> = new Map();
+  private prevListener: IPropertyAccessListener;
+  constructor(private onTrackedPropertyChanged: (model: Base, options: IPropertyArrayValueChangedEvent) => void) {}
+  private onPropertyChanged = (model: Base, options: IPropertyArrayValueChangedEvent) => {
+    if (!PropertyAccessTracker.isTracking && this.trackedProperties.get(model)?.has(options.name)) {
+      this.onTrackedPropertyChanged(model, options);
+    }
+  };
+  private static get isTracking() {
+    return !!Base.currentPropertyAccessListener;
+  }
+  public onPropertyAccessed(model: Base, propertyName: string) {
+    if (!this.trackedProperties.has(model)) {
+      this.trackedProperties.set(model, new Set());
+    }
+    this.trackedProperties.get(model).add(propertyName);
+  }
+  public startTracking() {
+    this.prevListener = Base.currentPropertyAccessListener;
+    Base.currentPropertyAccessListener = this;
+    this.unsubscribe();
+    this.trackedProperties.clear();
+  }
+  public stopTracking() {
+    Base.currentPropertyAccessListener = this.prevListener;
+  }
+  public subscribe() {
+    for (const model of this.trackedProperties.keys()) {
+      model.addOnArrayChangedCallback(this.onPropertyChanged);
+      model.addOnPropertyValueChangedCallback(this.onPropertyChanged);
+    }
+  }
+  public unsubscribe() {
+    for (const model of this.trackedProperties.keys()) {
+      model.removeOnPropertyValueChangedCallback(this.onPropertyChanged);
+      model.removeOnArrayChangedCallback(this.onPropertyChanged);
+    }
+  }
+}
+
 /**
  * A base class for all SurveyJS objects.
  */
@@ -265,6 +317,7 @@ export class Base implements IObjectValueContext {
     }
     return Base.defaultIdGeneratorValue;
   }
+  public static currentPropertyAccessListener: IPropertyAccessListener;
   private static currentDependencis: Dependencies = undefined;
   public static finishCollectDependencies(): Dependencies {
     const deps = Base.currentDependencis;
@@ -342,7 +395,9 @@ export class Base implements IObjectValueContext {
     if (!this.propChangeHandlers) return undefined;
     const res = new Array<IPropChangeHandler>();
     this.propChangeHandlers.forEach(handlers => {
-      handlers.forEach(entry => res.push({ name: entry.name, func: entry.func, key: entry.key }));
+      handlers.forEach(entry => {
+        res.push({ name: entry.name, func: entry.func, key: entry.key });
+      });
     });
     return res;
   }
@@ -874,6 +929,9 @@ export class Base implements IObjectValueContext {
     // Test for a running collection first: isLoadingFromJson walks up to the survey on every read
     if (Base.currentDependencis !== undefined && !this.isLoadingFromJson) {
       Base.collectDependency(this, name);
+    }
+    if (Base.currentPropertyAccessListener) {
+      Base.currentPropertyAccessListener.onPropertyAccessed(this, name);
     }
     if (this.getPropertyValueCoreHandler)
       return this.getPropertyValueCoreHandler(propertiesHash, name);

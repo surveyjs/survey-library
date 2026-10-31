@@ -2553,7 +2553,10 @@ export class SurveyModel extends SurveyElementCore
     return this.getPropertyValue("titleIsEmpty", undefined, () => this.locTitle.isEmpty);
   }
   public get renderedHasTitle(): boolean {
-    if (this.isDesignMode) return this.isPropertyVisible("title");
+    if (this.isDesignMode) {
+      const show = this.isPropertyVisible("title");
+      return show && this.titleIsEmpty ? this.getShowEmptyPlaceholder(this, "title", show) : show;
+    }
     return !this.titleIsEmpty && this.showTitle;
   }
   public get renderedHasDescription(): boolean {
@@ -2571,7 +2574,10 @@ export class SurveyModel extends SurveyElementCore
     return this.renderedHasTitle;
   }
   public get renderedHasLogo(): boolean {
-    if (this.isDesignMode) return this.isPropertyVisible("logo");
+    if (this.isDesignMode) {
+      const show = this.isPropertyVisible("logo");
+      return show && !this.logo ? this.getShowEmptyPlaceholder(this, "logo", show) : show;
+    }
     return this.hasLogo;
   }
   public get renderedHasHeader(): boolean {
@@ -2619,7 +2625,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   public get isMobile() {
-    return this._isMobile && !this.isDesignMode;
+    return this._isMobile && (!this.isDesignMode || !!this.liveLayoutInDesignMode);
   }
   protected isLogoImageChoosen() {
     return this.locLogo.renderedHtml;
@@ -2943,6 +2949,21 @@ export class SurveyModel extends SurveyElementCore
   @property({ localizable: { defaultStr: true } }) editText: string;
 
   public beforeShowInplaceDescriptionEditorCallback: (element: Base, show: boolean) => boolean;
+  // Survey Creator's inline layout: decides whether design mode shows the placeholder of an empty survey or
+  // page title ("title") or an empty survey logo ("logo"). Called only when the value is empty.
+  public beforeShowEmptyPlaceholderCallback: (element: Base, propertyName: string, show: boolean) => boolean;
+  public getShowEmptyPlaceholder(element: Base, propertyName: string, show: boolean): boolean {
+    if (!this.beforeShowEmptyPlaceholderCallback) return show;
+    return this.beforeShowEmptyPlaceholderCallback(element, propertyName, show);
+  }
+  // Survey Creator's inline layout: a design-mode survey keeps the runner's question and panel frames and can
+  // become mobile, so the design surface lays out like the live survey.
+  @property({ onSet: (val: boolean, target: SurveyModel) => { target.onLiveLayoutInDesignModeChanged(); } }) liveLayoutInDesignMode: boolean;
+  private onLiveLayoutInDesignModeChanged(): void {
+    this.updateCss();
+    this.getAllQuestions(false, true, true).forEach(q => { q.setIsMobile(this._isMobile); q.onDesignModeChanged(); });
+    this.updateElementCss(true);
+  }
   getElementTitleTagName(element: Base, tagName: string): string {
     if (this.onGetTitleTagName.isEmpty) return tagName;
     const options: GetTitleTagNameEvent = { element: element, tagName: tagName };

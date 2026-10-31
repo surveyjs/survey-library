@@ -527,7 +527,7 @@ export class Question extends SurveyElement<Question>
     this.setIsMobile((<SurveyModel>this.survey)._isMobile);
   }
   public setIsMobile(val: boolean): void {
-    const newVal = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
+    const newVal = val && (this.allowMobileInDesignMode() || !this.isDesignMode || !!(<any>this.survey)?.liveLayoutInDesignMode);
     this.isMobile = newVal;
     // Forwards the received value, not newVal: each nested question applies its own design-mode rule.
     this.forEachNestedElement(info => getNestedElementQuestions(info).forEach(q => q.setIsMobile(val)), { build: "none", visibleOnly: false });

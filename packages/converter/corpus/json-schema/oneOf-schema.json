@@ -1,0 +1,75 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+      "address": {
+        "type": "object",
+        "properties": {
+          "street_address": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "street_address",
+          "city",
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "user": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "mail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "mail"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string"
+      },
+      "addressOrUser": {
+        "oneOf": [
+          {
+            "$ref": "#/definitions/address"
+          },
+          {
+            "$ref": "#/definitions/user"
+          }
+        ]
+      }
+    },
+    "required": [
+      "name"
+    ]
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Control",
+        "scope": "#/properties/name"
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/addressOrUser"
+      }
+    ]
+  }
+}

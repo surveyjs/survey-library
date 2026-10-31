@@ -1,0 +1,126 @@
+{
+  "type": "form",
+  "owner": "5e05a6b7549cdc2ece30c6b0",
+  "components": [
+    {
+      "title": "Page 1",
+      "label": "Page 1",
+      "type": "panel",
+      "key": "page1",
+      "scrollToTop": true,
+      "breadcrumb": "none",
+      "components": [
+        {
+          "label": "Text Area",
+          "autoExpand": false,
+          "tableView": true,
+          "key": "textArea3",
+          "type": "textarea",
+          "input": true
+        },
+        {
+          "label": "Text Area",
+          "autoExpand": false,
+          "tableView": true,
+          "key": "textArea6",
+          "type": "textarea",
+          "input": true
+        },
+        {
+          "label": "Text Area",
+          "autoExpand": false,
+          "tableView": true,
+          "key": "textArea5",
+          "type": "textarea",
+          "input": true
+        },
+        {
+          "label": "Text Area",
+          "autoExpand": false,
+          "tableView": true,
+          "key": "textArea4",
+          "type": "textarea",
+          "input": true
+        },
+        {
+          "breadcrumbClickable": true,
+          "buttonSettings": {
+            "previous": true,
+            "cancel": true,
+            "next": true
+          },
+          "collapsible": false,
+          "key": "panel",
+          "type": "panel",
+          "label": "Panel",
+          "input": false,
+          "tableView": false,
+          "components": [
+            {
+              "label": "Text Area",
+              "autoExpand": false,
+              "tableView": true,
+              "key": "textArea7",
+              "type": "textarea",
+              "input": true
+            }
+          ]
+        }
+      ],
+      "input": false,
+      "tableView": false
+    },
+    {
+      "title": "Page 2",
+      "label": "Page 2",
+      "type": "panel",
+      "key": "page2",
+      "scrollToTop": true,
+      "components": [
+        {
+          "label": "Text Area",
+          "autoExpand": false,
+          "tableView": true,
+          "key": "textArea",
+          "type": "textarea",
+          "input": true
+        },
+        {
+          "label": "Text Area",
+          "autoExpand": false,
+          "tableView": true,
+          "key": "textArea1",
+          "type": "textarea",
+          "input": true
+        },
+        {
+          "label": "Text Field",
+          "tableView": true,
+          "key": "textField",
+          "type": "textfield",
+          "input": true
+        },
+        {
+          "label": "Text Area",
+          "autoExpand": false,
+          "tableView": true,
+          "key": "textArea2",
+          "type": "textarea",
+          "input": true
+        },
+        {
+          "label": "Checkbox",
+          "tableView": false,
+          "key": "checkbox",
+          "type": "checkbox",
+          "input": true
+        }
+      ],
+      "input": false,
+      "tableView": false
+    }
+  ],
+  "title": "Simple Wizard",
+  "display": "wizard",
+  "name": "simpleWizard"
+}

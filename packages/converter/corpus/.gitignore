@@ -1,0 +1,5 @@
+# Per-run refresh artifact — regenerated every `corpus:refresh`, not reviewed.
+# The scraped snapshots, _manifest.json and fidelity-baseline.json ARE committed
+# (the per-push score gate runs against them and the refresh diff needs a prior
+# state to compare); only this transient alert dump is ignored.
+.alerts.json

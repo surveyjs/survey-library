@@ -1,0 +1,39 @@
+{
+  "schema": {
+    "type": "object",
+    "title": "Applicant",
+    "properties": {
+      "firstName": { "type": "string", "title": "First name" },
+      "lastName": { "type": "string", "title": "Last name" },
+      "gender": { "type": "string", "title": "Gender", "enum": ["male", "female", "other"] },
+      "nationality": { "type": "string", "title": "Nationality", "enum": ["ee", "us", "de"] },
+      "skills": {
+        "type": "array",
+        "title": "Skills",
+        "items": { "type": "string", "enum": ["js", "ts", "go"] }
+      }
+    },
+    "required": ["firstName"]
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Group",
+        "label": "Name",
+        "elements": [
+          {
+            "type": "HorizontalLayout",
+            "elements": [
+              { "type": "Control", "scope": "#/properties/firstName" },
+              { "type": "Control", "scope": "#/properties/lastName" }
+            ]
+          }
+        ]
+      },
+      { "type": "Control", "scope": "#/properties/gender", "options": { "format": "radio" } },
+      { "type": "Control", "scope": "#/properties/nationality" },
+      { "type": "Control", "scope": "#/properties/skills", "options": { "multi": true, "unknownOpt": true } }
+    ]
+  }
+}

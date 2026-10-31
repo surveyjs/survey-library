@@ -1,0 +1,31 @@
+{
+  "type": "object",
+  "definitions": {
+    "import": {
+      "title": "Import",
+      "type": "object",
+      "properties": {
+        "eClass": {
+          "const": "http://my_schema/1.0.0#//Import"
+        },
+        "document": {
+          "type": "string"
+        },
+        "package": {
+          "type": "string"
+        },
+        "prefix": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "properties": {
+    "import": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/import"
+      }
+    }
+  }
+}

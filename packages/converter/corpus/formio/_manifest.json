@@ -1,0 +1,34 @@
+{
+  "source": "formio",
+  "files": [
+    "disableSubmitButton.json",
+    "example-form.json",
+    "nested-conditionally-hidden.json",
+    "nestedDataWithModalViewAndLayoutComponents.json",
+    "nestedFormWithConditionals.json",
+    "nestedModalWizard.json",
+    "wizardWithHighPages.json"
+  ],
+  "tokens": [
+    "type:button",
+    "type:checkbox",
+    "type:columns",
+    "type:content",
+    "type:datagrid",
+    "type:editgrid",
+    "type:email",
+    "type:file",
+    "type:form",
+    "type:number",
+    "type:panel",
+    "type:phoneNumber",
+    "type:signature",
+    "type:survey",
+    "type:textarea",
+    "type:textfield"
+  ],
+  "unhandled": [
+    "type:form",
+    "type:survey"
+  ]
+}

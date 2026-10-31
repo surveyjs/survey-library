@@ -1,0 +1,46 @@
+{
+  "components": [
+    {
+      "label": "Text Field",
+      "allowMultipleMasks": false,
+      "showWordCount": false,
+      "showCharCount": false,
+      "tableView": true,
+      "alwaysEnabled": false,
+      "type": "textfield",
+      "input": true,
+      "key": "textField2",
+      "widget": {
+        "type": ""
+      }
+    },
+    {
+      "label": "Checkbox",
+      "shortcut": "",
+      "mask": false,
+      "tableView": true,
+      "alwaysEnabled": false,
+      "type": "checkbox",
+      "input": true,
+      "key": "checkbox2"
+    },
+    {
+      "label": "",
+      "mask": false,
+      "tableView": true,
+      "alwaysEnabled": false,
+      "type": "form",
+      "key": "form",
+      "src": "https://examples.form.io/example",
+      "input": true,
+      "submit": true,
+      "conditional": {
+        "show": true,
+        "when": "checkbox2",
+        "eq": "true",
+        "json": ""
+      },
+      "customConditional": ""
+    }
+  ]
+}

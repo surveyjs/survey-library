@@ -1,0 +1,97 @@
+{
+  "type": "form",
+  "owner": "5e05a6b7549cdc2ece30c6b0",
+  "components": [
+    {
+      "label": "Text Field",
+      "tableView": true,
+      "key": "textField",
+      "type": "textfield",
+      "input": true
+    },
+    {
+      "label": "Form",
+      "tableView": true,
+      "modalEdit": true,
+      "key": "form",
+      "type": "form",
+      "input": true,
+      "components": [
+        {
+          "title": "Page 1",
+          "label": "Page 1",
+          "type": "panel",
+          "key": "page1",
+          "components": [
+            {
+              "label": "Text Field",
+              "tableView": true,
+              "key": "textField",
+              "type": "textfield",
+              "input": true
+            }
+          ],
+          "input": false,
+          "tableView": false
+        },
+        {
+          "title": "Page 2",
+          "label": "Page 2",
+          "type": "panel",
+          "key": "page2",
+          "components": [
+            {
+              "label": "Text Area",
+              "autoExpand": false,
+              "tableView": true,
+              "key": "textArea",
+              "type": "textarea",
+              "input": true
+            }
+          ],
+          "input": false,
+          "tableView": false
+        },
+        {
+          "title": "Page 3",
+          "label": "Page 3",
+          "type": "panel",
+          "key": "page3",
+          "components": [
+            {
+              "label": "Edit Grid",
+              "tableView": false,
+              "rowDrafts": false,
+              "key": "editGrid",
+              "type": "editgrid",
+              "input": true,
+              "components": [
+                {
+                  "label": "Text Field",
+                  "tableView": true,
+                  "key": "textField",
+                  "type": "textfield",
+                  "input": true
+                }
+              ]
+            }
+          ],
+          "input": false,
+          "tableView": false
+        }
+      ],
+      "display": "wizard"
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ],
+  "title": "FJS-756: Parent",
+  "display": "form",
+  "name": "fjs756Parent"
+}

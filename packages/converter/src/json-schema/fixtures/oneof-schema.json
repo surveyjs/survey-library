@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "title": "Payment",
+  "properties": {
+    "amount": { "type": "number", "title": "Amount" },
+    "method": {
+      "type": "object",
+      "title": "Payment method",
+      "oneOf": [
+        {
+          "title": "Credit card",
+          "properties": {
+            "kind": { "type": "string", "const": "card", "title": "Kind" },
+            "cardNumber": { "type": "string", "title": "Card number" },
+            "cvv": { "type": "string", "title": "CVV" }
+          }
+        },
+        {
+          "title": "Bank transfer",
+          "properties": {
+            "kind": { "type": "string", "const": "bank", "title": "Kind" },
+            "iban": { "type": "string", "title": "IBAN" }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "coloursOrNumbers": {
+        "oneOf": [
+          {
+            "$ref": "#/definitions/colours"
+          },
+          {
+            "$ref": "#/definitions/numbers"
+          },
+          {
+            "$ref": "#/definitions/shapes"
+          }
+        ]
+      }
+    },
+    "definitions": {
+      "colours": {
+        "title": "Colours",
+        "type": "string",
+        "enum": [
+          "Red",
+          "Green",
+          "Blue"
+        ]
+      },
+      "numbers": {
+        "title": "Numbers",
+        "type": "string",
+        "enum": [
+          "One",
+          "Two",
+          "Three"
+        ]
+      },
+      "shapes": {
+        "title": "Shapes",
+        "type": "string",
+        "enum": [
+          "Circle",
+          "Triangle",
+          "Square"
+        ]
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Control",
+        "scope": "#/properties/name"
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/addressOrUser"
+      }
+    ]
+  }
+}

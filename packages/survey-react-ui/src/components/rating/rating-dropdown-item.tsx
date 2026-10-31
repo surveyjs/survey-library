@@ -13,7 +13,7 @@ export class RatingDropdownItem extends SurveyElementBase<IRatingItemProps, any>
   getStateElement() {
     return this.item;
   }
-  render(): React.JSX.Element | null {
+  protected renderElement(): React.JSX.Element | null {
     if (!this.item) return null;
     const item = this.props.item;
     const description = this.renderDescription(item);

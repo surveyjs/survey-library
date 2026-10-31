@@ -26,7 +26,7 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
     return this.getCss();
   }
   protected getPanelFromProps(props: any): PanelModelBase {
-    return this.props.element || this.props.question;
+    return props.element || props.question;
   }
   public get panelBase(): PanelModelBase {
     return this.getPanelFromProps(this.props);

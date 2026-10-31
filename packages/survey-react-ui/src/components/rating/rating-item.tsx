@@ -34,7 +34,7 @@ export class RatingItemBase extends SurveyElementBase<IRatingItemProps, any> {
   }
 }
 export class RatingItem extends RatingItemBase {
-  render(): React.JSX.Element | null {
+  protected renderElement(): React.JSX.Element | null {
     var itemText = this.renderLocString(this.item.locText);
     return (
       <label
@@ -57,9 +57,6 @@ export class RatingItem extends RatingItemBase {
         <span className={this.question.cssClasses.itemText} data-text={this.item.text}>{itemText}</span>
       </label>
     );
-  }
-  componentDidMount() {
-    super.componentDidMount();
   }
 }
 

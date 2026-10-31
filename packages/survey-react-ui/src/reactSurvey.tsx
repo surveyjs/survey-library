@@ -178,7 +178,7 @@ export class Survey extends SurveyElementBase<any, any>
       style.maxWidth = this.survey.renderedWidth;
     }
     return (
-      <div className={this.survey.bodyContainerCss}>
+      <div key={this.key} className={this.survey.bodyContainerCss}>
         <ComponentsContainer survey={this.survey} container={"left"}></ComponentsContainer>
         <div className="sv-components-column sv-components-column--expandable">
           <ComponentsContainer survey={this.survey} container={"center"}></ComponentsContainer>
@@ -263,18 +263,15 @@ export class Survey extends SurveyElementBase<any, any>
       }
     }
   }
-
+  private key = 0;
   protected setSurveyEvents() {
-    var self = this;
-
-    this.survey.renderCallback = function () {
-      var counter =
-        !!self.state && !!self.state.modelChanged ? self.state.modelChanged : 0;
-      self.setState({ modelChanged: counter + 1 });
+    this.survey.renderCallback = () => {
+      this.key++;
+      this.forceUpdate();
     };
     this.survey.onPartialSend.add((sender) => {
-      if (!!self.state) {
-        self.setState(self.state);
+      if (!!this.state) {
+        this.setState(this.state);
       }
     });
   }

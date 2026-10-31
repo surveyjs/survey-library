@@ -12,7 +12,7 @@ export class SurveyProgressToc extends SurveyNavigationBase {
     const tocModel = this.props.model;
     tocModel.updateStickyTOCSize(this.survey.rootElement);
   }
-  render(): React.JSX.Element {
+  renderElement(): React.JSX.Element {
     const tocModel = this.props.model;
     let content: React.JSX.Element;
     if (tocModel.isMobile) {

@@ -19,6 +19,7 @@ export class SurveyActionBarItemDropdown extends SurveyActionBarItem {
     );
   }
   componentDidMount(): void {
+    super.componentDidMount();
     this.viewModel = new ActionDropdownViewModel(this.item);
   }
   componentWillUnmount(): void {

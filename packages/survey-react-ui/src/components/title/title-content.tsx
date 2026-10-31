@@ -2,7 +2,7 @@ import * as React from "react";
 import { SurveyElementCore, ITitleOwner } from "survey-core";
 import { SurveyElementBase } from "../../reactquestion_element";
 
-export class TitleContent extends React.Component<any, any> {
+export class TitleContent extends SurveyElementBase<any, any> {
   constructor(props: any) {
     super(props);
   }
@@ -14,7 +14,7 @@ export class TitleContent extends React.Component<any, any> {
   private get element(): SurveyElementCore {
     return this.props.element;
   }
-  render(): React.JSX.Element {
+  renderElement(): React.JSX.Element {
     if (this.element.isTitleRenderedAsString)
       return SurveyElementBase.renderLocString(this.element.locRenderedTitle);
     var spans = this.renderTitleSpans(this.element.getTitleOwner(), this.cssClasses);

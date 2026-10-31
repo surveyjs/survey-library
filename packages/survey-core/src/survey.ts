@@ -8136,29 +8136,14 @@ export class SurveyModel extends SurveyElementCore
     const question = <Question>this.getQuestionByValueName(name);
     if (!question || (!!question && (!question.visible || !question.supportAutoAdvance()))) return false;
     if (!question.validate(false) && !question.supportGoNextPageError()) return false;
-    let scheduled = false;
-    if (!!this.currentSingleElement) {
-      const curQuestion = this.currentSingleElement;
-      const goNextQuestion = () => {
-        if (curQuestion !== this.currentSingleElement) return;
-        if (!this.isLastElement) {
-          this.performNext();
-        } else {
-          if (this.autoAdvanceAllowComplete) {
-            this.tryCompleteOrShowPreview();
-          }
-        }
-      };
-      surveyTimerFunctions.safeTimeOut(goNextQuestion, settings.autoAdvanceDelay);
-      scheduled = true;
-    }
+    if (!!this.currentSingleElement) return this.tryGoNextSingleElementAutomatic(question);
     var questions = this.getCurrentPageQuestions();
-    if (questions.indexOf(question) < 0) return scheduled;
+    if (questions.indexOf(question) < 0) return false;
     for (var i = 0; i < questions.length; i++) {
-      if (questions[i].hasInput && questions[i].isEmpty()) return scheduled;
+      if (questions[i].hasInput && questions[i].isEmpty()) return false;
     }
-    if (this.isLastPage && (this.autoAdvanceEnabled !== true || !this.autoAdvanceAllowComplete)) return scheduled;
-    if (!this.validateActivePage(false)) return scheduled;
+    if (this.isLastPage && (this.autoAdvanceEnabled !== true || !this.autoAdvanceAllowComplete)) return false;
+    if (!this.validateActivePage(false)) return false;
     const curPage = this.currentPage;
     const goNextPage = () => {
       if (curPage !== this.currentPage) return;
@@ -8169,6 +8154,32 @@ export class SurveyModel extends SurveyElementCore
       }
     };
     surveyTimerFunctions.safeTimeOut(goNextPage, settings.autoAdvanceDelay);
+    return true;
+  }
+  private tryGoNextSingleElementAutomatic(question: Question): boolean {
+    const element: any = this.currentSingleElement;
+    const questions: Array<Question> = element.isPanel ? element.visibleQuestions : [element];
+    // The value's first holder may be off screen: a shared valueName, or a nested inputPerPage step.
+    const isOnScreen = (q: Question) => questions.indexOf(q) > -1 || q === element.singleInputQuestion;
+    if (!this.getQuestionsByValueName(question.getValueName()).some(isOnScreen)) return false;
+    // A question as the element has no empty check: multipletext and inputPerPage decide through supportAutoAdvance.
+    if (element.isPanel) {
+      for (let i = 0; i < questions.length; i++) {
+        if (questions[i].hasInput && questions[i].isEmpty()) return false;
+      }
+    }
+    if (this.isLastElement && !this.autoAdvanceAllowComplete) return false;
+    const goNextQuestion = () => {
+      if (element !== this.currentSingleElement) return;
+      if (!this.isLastElement) {
+        this.performNext();
+      } else {
+        if (this.autoAdvanceAllowComplete) {
+          this.tryCompleteOrShowPreview();
+        }
+      }
+    };
+    surveyTimerFunctions.safeTimeOut(goNextQuestion, settings.autoAdvanceDelay);
     return true;
   }
   private tryCompleteOrShowPreview(): void {

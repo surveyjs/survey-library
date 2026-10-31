@@ -3,6 +3,7 @@ import type { PopupModel } from "./popup";
 import type { EventBase } from "./event";
 import type { ItemValue } from "./itemvalue";
 import { QuestionSelectBase } from "./question_baseselect";
+import { keyboardHint, IKeyboardHintData, KeyboardHintKey } from "./keyboard-hints";
 import { LocalizableString } from "./localizablestring";
 import { dropdownQuestionMixin, IDropdownQuestion } from "./dropdownRenderState";
 
@@ -67,6 +68,24 @@ export function questionDropdownMixin<TBase extends Constructor<QuestionSelectBa
     }
     public get isPopupVisible(): boolean {
       return this.getPropertyValue("isPopupVisible", false);
+    }
+
+    // Each state keeps the other's slot hidden, so that opening the popup does not resize the row.
+    protected getKeyboardHintsCore(): IKeyboardHintData[] {
+      const isPopupVisible = this.isPopupVisible;
+      return [
+        keyboardHint(this, "keyboardHintOpenText", ["arrowDown"]),
+        keyboardHint(this, "keyboardHintNavigateText", ["arrowsVertical"]),
+        keyboardHint(this, "keyboardHintCloseText", ["esc"]),
+        ...this.getClosedKeyboardHints().map(hint => ({ ...hint, visible: !isPopupVisible })),
+        keyboardHint(this, "keyboardHintSelectText", this.getSelectHintKeys(), isPopupVisible && !this.dropdownListModelValue?.isEnterClearingValue)
+      ];
+    }
+    protected getClosedKeyboardHints(): IKeyboardHintData[] {
+      return [];
+    }
+    protected getSelectHintKeys(): KeyboardHintKey[] {
+      return ["enter"];
     }
 
     public onOpenedCallBack(): void {

@@ -2273,6 +2273,30 @@ frameworks.forEach((framework) => {
         expect(await hintRow.evaluate((row) => row.getBoundingClientRect().height)).toBe(closedHeight);
       });
     });
+
+    test("tagbox: opening keeps the height of a hint row that wraps only the closed chip", async ({ page }) => {
+      await initSurvey(page, framework, {
+        showKeyboardHints: true,
+        autoAdvanceEnabled: true,
+        pages: [
+          { elements: [{ type: "tagbox", name: "q1", choices: ["item1", "item2", "item3"] }] },
+          { elements: [{ type: "text", name: "q2" }] }
+        ]
+      });
+      const hintRow = page.locator(".sd-question__keyboard-hints");
+      const closedHint = hintRow.getByText("to continue");
+      const selectHint = hintRow.getByText("to select");
+      await expect(closedHint).toBeVisible();
+      // One pixel short of "to continue" wraps it. "to select" is narrower, so sharing a slot with it would unwrap the row.
+      await hintRow.evaluate((row: HTMLElement) => {
+        const closedChip = row.children[3].getBoundingClientRect();
+        row.style.width = `${Math.floor(closedChip.right - row.getBoundingClientRect().left) - 1}px`;
+      });
+      const closedHeight = await hintRow.evaluate((row) => row.getBoundingClientRect().height);
+      await page.locator(".sd-dropdown").click();
+      await expect(selectHint).toBeVisible();
+      expect(await hintRow.evaluate((row) => row.getBoundingClientRect().height)).toBe(closedHeight);
+    });
   });
 });
 

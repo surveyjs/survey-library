@@ -3608,18 +3608,25 @@ export class Question extends SurveyElement<Question>
     if (!event || (event.key !== "Enter" && event.keyCode !== 13)) return false;
     if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey || event.isComposing || event.keyCode === 229 || event.defaultPrevented) return false;
     if (this.isDesignMode || this.isInputReadOnly) return false;
-    const survey = this.survey as SurveyModel;
-    return !!survey && survey.autoAdvanceEnabled === true;
+    return this.isSurveyAutoAdvanceEnabled;
   }
   protected canCommitAutoAdvanceOnEnter(event: any): boolean {
     return this.isAutoAdvanceEnter(event) && !this.isEmpty();
   }
+  protected get isSurveyAutoAdvanceEnabled(): boolean {
+    return (this.survey as SurveyModel)?.autoAdvanceEnabled === true;
+  }
+  // getQuestionByValueName only sees top-level questions. A nested question with the same
+  // name must not advance on behalf of that other question.
+  protected get isAutoAdvanceOwner(): boolean {
+    return (this.survey as SurveyModel)?.getQuestionByValueName(this.getValueName()) === this;
+  }
+  public canAdvanceOnEnter(): boolean {
+    return this.isSurveyAutoAdvanceEnabled && this.isAutoAdvanceOwner;
+  }
   protected requestAutoAdvance(): boolean {
-    const survey = this.survey as SurveyModel;
-    // getQuestionByValueName only sees top-level questions. A nested question with the same
-    // name must not advance on behalf of that other question.
-    if (!survey || survey.getQuestionByValueName(this.getValueName()) !== this) return false;
-    return this.autoAdvanceRequestScope.run(() => survey.tryGoNextPageAutomaticCore(this.getValueName()));
+    if (!this.isAutoAdvanceOwner) return false;
+    return this.autoAdvanceRequestScope.run(() => (this.survey as SurveyModel).tryGoNextPageAutomaticCore(this.getValueName()));
   }
   protected commitAutoAdvance(event?: any): void {
     if (event?.preventDefault) event.preventDefault();

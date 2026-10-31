@@ -13,8 +13,7 @@ import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
 import { Question, IConditionObject, ValidationContext, QuestionValueType, IVerifyDataContext, INestedElementInfo, NestedWalkBuild } from "./question";
 import { QuestionTextModel, isMinMaxType } from "./question_text";
-import { keyboardHint, keyboardHintAdvanceLocName, IKeyboardHintData } from "./keyboard-hints";
-import { SurveyModel } from "./survey";
+import { advanceKeyboardHints, IKeyboardHintData } from "./keyboard-hints";
 import { JsonObject, Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
@@ -56,6 +55,10 @@ export interface IMultipleTextData extends ILocalizableOwner, IPanel {
 }
 
 export class MultipleTextEditorModel extends QuestionTextModel {
+  // The survey finds the multiple text question by value name, and never its inputs.
+  public canAdvanceOnEnter(): boolean {
+    return !!this.parentQuestion && this.parentQuestion.canAdvanceOnEnter();
+  }
   public get a11y_input_ariaLabel(): string {
     return this.locTitle.renderedHtml;
   }
@@ -667,9 +670,7 @@ export class QuestionMultipleTextModel extends Question
     return true;
   }
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
-    const survey = this.survey as SurveyModel;
-    if (survey.autoAdvanceEnabled !== true) return [];
-    return [keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"])];
+    return advanceKeyboardHints(this);
   }
   /**
    * The number of columns used to arrange input items. Accepts the following values: 1, 2, 3, 4, 5.

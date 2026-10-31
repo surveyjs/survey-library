@@ -1,6 +1,5 @@
 import { QuestionFactory } from "./questionfactory";
-import { keyboardHint, keyboardHintAdvanceLocName, IKeyboardHintData } from "./keyboard-hints";
-import { SurveyModel } from "./survey";
+import { advanceKeyboardHints, IKeyboardHintData } from "./keyboard-hints";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { LocalizableString, LocalizableStrings } from "./localizablestring";
@@ -726,9 +725,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return !this.getIsInputTextUpdate() && !this.isDateInputType;
   }
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
-    const survey = this.survey as SurveyModel;
-    if (!this.supportAutoAdvance() || survey.autoAdvanceEnabled !== true) return [];
-    return [keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"])];
+    return this.supportAutoAdvance() ? advanceKeyboardHints(this) : [];
   }
   public supportGoNextPageError(): boolean {
     return !this.isDateInputType;

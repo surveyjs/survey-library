@@ -1,10 +1,11 @@
-import { afterEach, expect, test } from "vitest";
+import { afterEach, expect, test, vi } from "vitest";
 import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { Serializer } from "../src/jsonobject";
 import { getLocaleString } from "../src/surveyStrings";
 import { _setIsTouch } from "../src/utils/devices";
+import { settings } from "../src/settings";
 import "../src/localization/german";
 
 const arrows = "↑↓←→"; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
@@ -263,11 +264,9 @@ const dropdownSet = [
   row("to close", [esc])
 ];
 
-test("dropdown swaps enter to select with enter to continue", () => {
+test("dropdown shows enter only while the popup is open, because a closed dropdown does not advance", () => {
   expect(hints({ type: "dropdown", choices: ["a", "b"] })).toEqual(dropdownSet);
-  expect(hints({ type: "dropdown", choices: ["a", "b"] }, { autoAdvanceEnabled: true })).toEqual(
-    dropdownSet.concat([row("to submit", [enter])])
-  );
+  expect(hints({ type: "dropdown", choices: ["a", "b"] }, { autoAdvanceEnabled: true })).toEqual(dropdownSet);
   const survey = new SurveyModel({
     showKeyboardHints: true,
     autoAdvanceEnabled: true,
@@ -277,7 +276,7 @@ test("dropdown swaps enter to select with enter to continue", () => {
     ]
   });
   const q = survey.getQuestionByName("q") as any;
-  const closed = dropdownSet.concat([row("to continue", [enter])]);
+  const closed = dropdownSet;
   const open = dropdownSet.concat([row("to select", [enter])]);
   const popupChanges: boolean[] = [];
   q.addOnPropertyValueChangedCallback((_sender: Question, options: { name: string, newValue: boolean }) => {
@@ -286,6 +285,7 @@ test("dropdown swaps enter to select with enter to continue", () => {
   expect(shown(q)).toEqual(closed);
   q.value = "a";
   expect(shown(q)).toEqual(closed);
+  q.dropdownListModel.onFocus(null);
   q.dropdownListModel.popupModel.show();
   expect(shown(q)).toEqual(open);
   q.clearValue();
@@ -300,10 +300,10 @@ test("dropdown swaps enter to select with enter to continue", () => {
     autoAdvanceEnabled: true,
     elements: [{ type: "dropdown", name: "q", choices: ["a", "b"] }]
   }).getQuestionByName("q") as Question;
-  expect(shown(last).map(row => row.text)).toEqual(["to open", "to navigate", "to close", "to submit"]);
+  expect(shown(last).map(row => row.text)).toEqual(["to open", "to navigate", "to close"]);
 });
 
-test("tagbox swaps space or enter to select with enter to continue", () => {
+test("tagbox swaps enter to continue with space or enter to select", () => {
   const choices = ["a", "b"];
   expect(hints({ type: "tagbox", choices: choices }).map(row => row.text)).toEqual([
     "to open", "to navigate", "to close"
@@ -314,9 +314,9 @@ test("tagbox swaps space or enter to select with enter to continue", () => {
   const survey = new SurveyModel({
     showKeyboardHints: true,
     autoAdvanceEnabled: true,
-    elements: [
-      { type: "tagbox", name: "q", choices: choices },
-      { type: "text", name: "next" }
+    pages: [
+      { elements: [{ type: "tagbox", name: "q", choices: choices, searchEnabled: false }] },
+      { elements: [{ type: "text", name: "next" }] }
     ]
   });
   const q = survey.getQuestionByName("q") as any;
@@ -325,7 +325,7 @@ test("tagbox swaps space or enter to select with enter to continue", () => {
   expect(shown(q).map(row => row.text)).toEqual(["to open", "to navigate", "to close", "to continue"]);
   q.dropdownListModel.popupModel.show();
   expect(shown(q).map(row => row.text)).toEqual(["to open", "to navigate", "to close", "to select"]);
-  const select = q.getKeyboardHintModel().items[3];
+  const select = q.getKeyboardHintModel().items[4];
   expect(rowOf(select)).toEqual(row("to select", [space, enter]));
   expect(select.parts.map(part => part.text)).toEqual([space, "or", enter, "to select"]);
   expect(select.parts.map(part => part.className)).toEqual(["sd-item__shortcut-key", "sd-question__keyboard-hint-or", "sd-item__shortcut-key", "sd-question__keyboard-hint-text"]);
@@ -401,11 +401,14 @@ test("ranking hints follow select-to-rank and auto-advance", () => {
   expect(filledRank[filledRank.length - 1].text).toBe("to submit");
 });
 
+const defaultAutoAdvanceDelay = settings.autoAdvanceDelay;
+
 afterEach(() => {
   _setIsTouch(false);
+  settings.autoAdvanceDelay = defaultAutoAdvanceDelay;
 });
 
-test("enter says to continue while another question follows", () => {
+test("enter says to continue before the last page and to submit on it", () => {
   const survey = new SurveyModel({
     showKeyboardHints: true,
     autoAdvanceEnabled: true,
@@ -415,6 +418,7 @@ test("enter says to continue while another question follows", () => {
     ]
   });
   expect(shown(survey.getQuestionByName("first") as Question)[0].text).toBe("to continue");
+  survey.nextPage();
   expect(shown(survey.getQuestionByName("last") as Question)[0].text).toBe("to submit");
 });
 
@@ -427,9 +431,9 @@ test("multiple text hints enter the same way as single-line text", () => {
   const survey = new SurveyModel({
     showKeyboardHints: true,
     autoAdvanceEnabled: true,
-    elements: [
-      { type: "multipletext", name: "q", items: items },
-      { type: "text", name: "next" }
+    pages: [
+      { elements: [{ type: "multipletext", name: "q", items: items }] },
+      { elements: [{ type: "text", name: "next" }] }
     ]
   });
   expect(shown(survey.getQuestionByName("q") as Question)[0].text).toBe("to continue");
@@ -594,4 +598,335 @@ test("inputPerPage select question keeps its row at its own step and yields it a
     expect(shown(q), type + " nested step").toEqual([]);
     expect(q.singleInputQuestion.canShowKeyboardHints(), type + " nested input").toBe(true);
   });
+});
+
+function enterChip(question: Question): string | undefined {
+  return shown(question).filter(hint => hint.keys.indexOf(enter) > -1)[0]?.text;
+}
+
+test("every question on a page gets the same enter label", () => {
+  const survey = new SurveyModel({
+    showKeyboardHints: true,
+    autoAdvanceEnabled: true,
+    pages: [
+      { elements: [{ type: "text", name: "a" }, { type: "text", name: "b" }] },
+      { elements: [{ type: "text", name: "c" }, { type: "text", name: "d" }] }
+    ]
+  });
+  const label = (name: string) => enterChip(survey.getQuestionByName(name) as Question);
+  expect(label("a")).toBe("to continue");
+  expect(label("b")).toBe("to continue");
+  survey.nextPage();
+  expect(label("c")).toBe("to submit");
+  expect(label("d")).toBe("to submit");
+});
+
+test("questionPerPage: the enter label follows the question on screen", () => {
+  const survey = new SurveyModel({
+    showKeyboardHints: true,
+    autoAdvanceEnabled: true,
+    questionsOnPageMode: "questionPerPage",
+    elements: [{ type: "text", name: "a" }, { type: "text", name: "b" }]
+  });
+  expect(enterChip(survey.getQuestionByName("a") as Question)).toBe("to continue");
+  survey.performNext();
+  expect(enterChip(survey.getQuestionByName("b") as Question)).toBe("to submit");
+});
+
+test("inputPerPage: the enter label follows the input on screen and the last input submits", () => {
+  const survey = new SurveyModel({
+    showKeyboardHints: true,
+    autoAdvanceEnabled: true,
+    questionsOnPageMode: "inputPerPage",
+    elements: [
+      { type: "text", name: "first" },
+      { type: "multipletext", name: "q", items: [{ name: "a" }, { name: "b" }] }
+    ]
+  });
+  const q = survey.getQuestionByName("q") as Question;
+  expect(enterChip(survey.getQuestionByName("first") as Question)).toBe("to continue");
+  survey.performNext();
+  expect(q.singleInputQuestion.name).toBe("a");
+  expect(enterChip(q.singleInputQuestion)).toBe("to continue");
+  survey.performNext();
+  expect(q.singleInputQuestion.name).toBe("b");
+  expect(enterChip(q.singleInputQuestion)).toBe("to submit");
+});
+
+test("a question in a dynamic panel has no enter chip and keeps its other chips", () => {
+  const survey = new SurveyModel({
+    showKeyboardHints: true,
+    autoAdvanceEnabled: true,
+    elements: [{
+      type: "paneldynamic", name: "pd", panelCount: 1,
+      templateElements: [
+        { type: "radiogroup", name: "radio", choices: ["a", "b"] },
+        { type: "checkbox", name: "check", choices: ["a", "b"] },
+        { type: "dropdown", name: "drop", choices: ["a", "b"] },
+        { type: "comment", name: "comment" }
+      ]
+    }]
+  });
+  const panel = (survey.getQuestionByName("pd") as any).panels[0];
+  expect(shown(panel.getQuestionByName("radio"))).toEqual([row("to select", [arrows])]);
+  expect(shown(panel.getQuestionByName("check")).map(row => row.text)).toEqual(["to next option", "to toggle"]);
+  expect(shown(panel.getQuestionByName("drop"))).toEqual(dropdownSet);
+  // Enter in a nested long text stays a line break, so Shift+Enter would mean nothing.
+  expect(shown(panel.getQuestionByName("comment"))).toEqual([]);
+});
+
+test("a question on the start page has no enter chip", () => {
+  const survey = new SurveyModel({
+    showKeyboardHints: true,
+    autoAdvanceEnabled: true,
+    firstPageIsStartPage: true,
+    pages: [
+      { elements: [{ type: "text", name: "start" }] },
+      { elements: [{ type: "text", name: "a" }] }
+    ]
+  });
+  expect(enterChip(survey.getQuestionByName("start") as Question)).toBeUndefined();
+  survey.start();
+  expect(enterChip(survey.getQuestionByName("a") as Question)).toBe("to submit");
+});
+
+test("autoAdvanceAllowComplete false removes the enter chip on the last page only", () => {
+  const survey = new SurveyModel({
+    showKeyboardHints: true,
+    autoAdvanceEnabled: true,
+    autoAdvanceAllowComplete: false,
+    pages: [
+      { elements: [{ type: "text", name: "a" }] },
+      { elements: [{ type: "text", name: "b" }] }
+    ]
+  });
+  expect(enterChip(survey.getQuestionByName("a") as Question)).toBe("to continue");
+  survey.nextPage();
+  expect(enterChip(survey.getQuestionByName("b") as Question)).toBeUndefined();
+});
+
+test("showPreviewBeforeComplete says to continue on the last page", () => {
+  expect(hints({ type: "text" }, { autoAdvanceEnabled: true, showPreviewBeforeComplete: true })).toEqual([
+    row("to continue", [enter])
+  ]);
+});
+
+test("rating has an enter chip unless it renders as a dropdown", () => {
+  const rateValues = [1, 2, 3];
+  expect(hints({ type: "rating", rateValues: rateValues }, { autoAdvanceEnabled: true })).toEqual([
+    row("to submit", [enter])
+  ]);
+  expect(hints({ type: "rating", rateValues: rateValues, displayMode: "dropdown" }, { autoAdvanceEnabled: true })).toEqual([]);
+});
+
+const keyDown = { keyCode: 40, preventDefault: () => { }, stopPropagation: () => { } };
+function enterKey(target: any = {}): any {
+  return { key: "Enter", keyCode: 13, which: 13, target: target, preventDefault: () => { }, stopPropagation: () => { } };
+}
+
+test("an open dropdown hides the enter chip while enter would clear the value", () => {
+  const survey = new SurveyModel({
+    showKeyboardHints: true,
+    elements: [{ type: "dropdown", name: "q", choices: ["a", "b"], defaultValue: "a" }]
+  });
+  const q = survey.getQuestionByName("q") as any;
+  const model = q.dropdownListModel;
+  model.onFocus(null);
+  model.keyHandler(keyDown);
+  expect(enterChip(q)).toBe("to select");
+  const changes: string[] = [];
+  q.onPropertyChanged.add((_sender: Question, options: { name: string }) => changes.push(options.name));
+  model.inputStringRendered = "";
+  expect(changes).toContain("inputHasValue");
+  expect(enterChip(q)).toBeUndefined();
+  expect(q.getKeyboardHintModel().items.length).toBe(4);
+  model.keyHandler(enterKey());
+  expect(q.value).toBeUndefined();
+});
+
+test("an open dropdown keeps the enter chip while a typed text or the selected item is in the input", () => {
+  const survey = new SurveyModel({
+    showKeyboardHints: true,
+    elements: [{ type: "dropdown", name: "q", choices: ["a", "b"], defaultValue: "a" }]
+  });
+  const q = survey.getQuestionByName("q") as any;
+  const model = q.dropdownListModel;
+  model.onFocus(null);
+  model.keyHandler(keyDown);
+  model.inputStringRendered = "b";
+  expect(enterChip(q)).toBe("to select");
+});
+
+test("an open dropdown with search off keeps the enter chip, and enter keeps the value", () => {
+  const survey = new SurveyModel({
+    showKeyboardHints: true,
+    elements: [{ type: "dropdown", name: "q", choices: ["a", "b"], defaultValue: "a", searchEnabled: false }]
+  });
+  const q = survey.getQuestionByName("q") as any;
+  const model = q.dropdownListModel;
+  model.popupModel.show();
+  expect(enterChip(q)).toBe("to select");
+  model.keyHandler(enterKey());
+  expect(q.value).toBe("a");
+});
+
+test("tagbox offers space only when the input does not take it", () => {
+  const selectKeys = (question: any) => {
+    const survey = new SurveyModel({
+      showKeyboardHints: true,
+      elements: [Object.assign({ type: "tagbox", name: "q", choices: ["a", "b"] }, question)]
+    });
+    const q = survey.getQuestionByName("q") as any;
+    const beforeModel = q.getKeyboardHintModel().items.slice(-1)[0];
+    expect(q.dropdownListModelValue).toBeUndefined();
+    q.dropdownListModel.popupModel.show();
+    expect(rowOf(q.getKeyboardHintModel().items.slice(-1)[0]).keys).toEqual(rowOf(beforeModel).keys);
+    return rowOf(beforeModel).keys;
+  };
+  expect(selectKeys({})).toEqual([enter]);
+  expect(selectKeys({ searchEnabled: false })).toEqual([space, enter]);
+  expect(selectKeys({ searchEnabled: false, allowCustomChoices: true })).toEqual([enter]);
+});
+
+test("a tagbox keeps both enter slots, so opening it does not resize the row", () => {
+  const survey = new SurveyModel({
+    showKeyboardHints: true,
+    autoAdvanceEnabled: true,
+    pages: [
+      { elements: [{ type: "tagbox", name: "q", choices: ["a", "b"] }] },
+      { elements: [{ type: "text", name: "next" }] }
+    ]
+  });
+  const q = survey.getQuestionByName("q") as any;
+  const slots = () => q.getKeyboardHintModel().items.slice(3).map(item => ({
+    text: rowOf(item).text, hidden: item.className.includes(hiddenClass)
+  }));
+  expect(slots()).toEqual([{ text: "to continue", hidden: false }, { text: "to select", hidden: true }]);
+  q.dropdownListModel.popupModel.show();
+  expect(slots()).toEqual([{ text: "to continue", hidden: true }, { text: "to select", hidden: false }]);
+});
+
+test("building hints does not walk the survey", () => {
+  const survey = new SurveyModel({
+    showKeyboardHints: true,
+    autoAdvanceEnabled: true,
+    elements: [
+      { type: "text", name: "text" },
+      { type: "comment", name: "comment" },
+      { type: "radiogroup", name: "radio", choices: ["a", "b"] },
+      { type: "checkbox", name: "check", choices: ["a", "b"] },
+      { type: "dropdown", name: "drop", choices: ["a", "b"] },
+      { type: "tagbox", name: "tag", choices: ["a", "b"] },
+      { type: "rating", name: "rate" },
+      { type: "ranking", name: "rank", choices: ["a", "b"] },
+      { type: "boolean", name: "bool", displayMode: "checkbox" },
+      { type: "multipletext", name: "multi", items: [{ name: "a" }] }
+    ]
+  });
+  const questions = survey.getAllQuestions();
+  const walk = vi.spyOn(survey, "getAllQuestions");
+  questions.forEach(question => question.getKeyboardHintModel());
+  expect(walk).not.toHaveBeenCalled();
+});
+
+// Each page is filled, so nothing holds Enter back: the chip has to match what the handler does.
+test("the enter chip says what the real key handler does", () => {
+  settings.autoAdvanceDelay = 0;
+  const onPages = (element: any, extra: any = {}, pagesAfter = 1) => {
+    const pages: any[] = [{ elements: [Object.assign({ name: "q" }, element)] }];
+    if (pagesAfter > 0) pages.push({ elements: [{ type: "text", name: "next" }] });
+    const survey = new SurveyModel(Object.assign({ showKeyboardHints: true, autoAdvanceEnabled: true, pages: pages }, extra));
+    return { survey: survey, q: survey.getQuestionByName("q") as any };
+  };
+  const pressText = (q: any) => q.onKeyUp(enterKey({ value: "typed" }));
+  const pressRadio = (q: any) => q.onKeyDown(enterKey());
+  const pressList = (q: any) => q.dropdownListModel.keyHandler(enterKey());
+  const cases: Array<{ name: string, element: any, value?: any, press: (q: any) => void }> = [
+    { name: "text", element: { type: "text" }, press: pressText },
+    { name: "radiogroup", element: { type: "radiogroup", choices: ["a", "b"] }, value: "a", press: pressRadio },
+    { name: "tagbox", element: { type: "tagbox", choices: ["a", "b"] }, value: ["a"], press: pressList }
+  ];
+  cases.forEach(({ name, element, value, press }) => {
+    const before = onPages(element);
+    before.q.value = value;
+    expect(enterChip(before.q), name).toBe("to continue");
+    press(before.q);
+    expect(before.survey.currentPageNo, name).toBe(1);
+
+    const last = onPages(element, {}, 0);
+    last.q.value = value;
+    expect(enterChip(last.q), name).toBe("to submit");
+    press(last.q);
+    expect(last.survey.state, name).toBe("completed");
+
+    const noComplete = onPages(element, { autoAdvanceAllowComplete: false }, 0);
+    noComplete.q.value = value;
+    expect(enterChip(noComplete.q), name).toBeUndefined();
+    press(noComplete.q);
+    expect(noComplete.survey.state, name).toBe("running");
+
+    const preview = onPages(element, { showPreviewBeforeComplete: true }, 0);
+    preview.q.value = value;
+    expect(enterChip(preview.q), name).toBe("to continue");
+    press(preview.q);
+    expect(preview.survey.state, name).toBe("preview");
+  });
+
+  const closed = onPages({ type: "dropdown", choices: ["a", "b"], defaultValue: "a" });
+  expect(enterChip(closed.q)).toBeUndefined();
+  pressList(closed.q);
+  expect(closed.survey.currentPageNo).toBe(0);
+
+  const open = onPages({ type: "dropdown", choices: ["a", "b"] });
+  open.q.dropdownListModel.onFocus(null);
+  open.q.dropdownListModel.keyHandler(keyDown);
+  expect(enterChip(open.q)).toBe("to select");
+  pressList(open.q);
+  expect(open.q.value).toBe("a");
+
+  const nested = new SurveyModel({
+    showKeyboardHints: true,
+    autoAdvanceEnabled: true,
+    pages: [
+      { elements: [{ type: "paneldynamic", name: "pd", panelCount: 1, templateElements: [{ type: "radiogroup", name: "q", choices: ["a", "b"] }] }] },
+      { elements: [{ type: "text", name: "next" }] }
+    ]
+  });
+  const inner = (nested.getQuestionByName("pd") as any).panels[0].getQuestionByName("q");
+  inner.value = "a";
+  expect(enterChip(inner)).toBeUndefined();
+  pressRadio(inner);
+  expect(nested.currentPageNo).toBe(0);
+});
+
+// Multiple text holds Enter back until all its items are filled, so the items start filled.
+test("inputPerPage: enter on a filled multiple text input does what its chip says", () => {
+  settings.autoAdvanceDelay = 0;
+  const multipleText = { type: "multipletext", name: "q", items: [{ name: "a" }, { name: "b" }], defaultValue: { a: "1", b: "2" } };
+  const survey = new SurveyModel({
+    showKeyboardHints: true,
+    autoAdvanceEnabled: true,
+    questionsOnPageMode: "inputPerPage",
+    elements: [multipleText, { type: "text", name: "next" }]
+  });
+  const q = survey.getQuestionByName("q") as any;
+  const press = (question: any, value: string) => question.singleInputQuestion.onKeyUp(enterKey({ value: value }));
+  expect(enterChip(q.singleInputQuestion)).toBe("to continue");
+  press(q, "3");
+  expect(q.singleInputQuestion.name).toBe("b");
+  expect(enterChip(q.singleInputQuestion)).toBe("to continue");
+  press(q, "4");
+  expect(survey.currentSingleQuestion.name).toBe("next");
+
+  const lastSurvey = new SurveyModel({
+    showKeyboardHints: true,
+    autoAdvanceEnabled: true,
+    questionsOnPageMode: "inputPerPage",
+    elements: [multipleText]
+  });
+  const last = lastSurvey.getQuestionByName("q") as any;
+  lastSurvey.performNext();
+  expect(enterChip(last.singleInputQuestion)).toBe("to submit");
+  press(last, "4");
+  expect(lastSurvey.state).toBe("completed");
 });

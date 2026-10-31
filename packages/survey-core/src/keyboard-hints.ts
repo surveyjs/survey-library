@@ -67,32 +67,25 @@ export function keyboardHint(owner: { getLocalizationString(name: string): strin
   return { text: owner.getLocalizationString(textLocName), keyLabels: hintKeys.map(hintKey => keyboardHintLabels[hintKey]), visible: visible };
 }
 
-export function keyboardHintAdvanceLocName(question: Question): string {
+// Enter navigation is page-based, so the chip reads the survey's stored page state and never walks the questions.
+export function advanceKeyboardHints(question: Question): IKeyboardHintData[] {
+  if (!question.canAdvanceOnEnter()) return [];
   const survey = question.survey as SurveyModel;
-  if (!survey) return "keyboardHintSubmitText";
-  const questions = survey.getAllQuestions(true);
-  const index = questions.indexOf(question);
-  if (index >= 0 && index < questions.length - 1) return "keyboardHintContinueText";
-  return "keyboardHintSubmitText";
+  if (question.page !== survey.currentPage) return [];
+  if (!survey.isLastPage) return [keyboardHint(question, "keyboardHintContinueText", ["enter"])];
+  if (!survey.autoAdvanceAllowComplete) return [];
+  const locName = survey.showPreviewBeforeComplete ? "keyboardHintContinueText" : "keyboardHintSubmitText";
+  return [keyboardHint(question, locName, ["enter"])];
 }
 
 export function singleChoiceKeyboardHints(question: Question): IKeyboardHintData[] {
-  const survey = question.survey as SurveyModel;
-  const hints = [keyboardHint(question, "keyboardHintSelectText", ["arrowsAll"])];
-  if (survey.autoAdvanceEnabled === true) {
-    hints.push(keyboardHint(question, keyboardHintAdvanceLocName(question), ["enter"]));
-  }
-  return hints;
+  return [keyboardHint(question, "keyboardHintSelectText", ["arrowsAll"]), ...advanceKeyboardHints(question)];
 }
 
 export function multiChoiceKeyboardHints(question: Question): IKeyboardHintData[] {
-  const survey = question.survey as SurveyModel;
-  const hints = [
+  return [
     keyboardHint(question, "keyboardHintNextItemText", ["tab"]),
-    keyboardHint(question, "keyboardHintToggleText", ["space"])
+    keyboardHint(question, "keyboardHintToggleText", ["space"]),
+    ...advanceKeyboardHints(question)
   ];
-  if (survey.autoAdvanceEnabled === true) {
-    hints.push(keyboardHint(question, keyboardHintAdvanceLocName(question), ["enter"]));
-  }
-  return hints;
 }

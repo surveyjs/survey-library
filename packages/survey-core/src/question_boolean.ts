@@ -2,8 +2,7 @@ import { QuestionFactory } from "./questionfactory";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { Question, QuestionValueType, getScalarValueType, IVerifyDataContext } from "./question";
-import { keyboardHint, keyboardHintAdvanceLocName, IKeyboardHintData } from "./keyboard-hints";
-import { SurveyModel } from "./survey";
+import { keyboardHint, advanceKeyboardHints, IKeyboardHintData } from "./keyboard-hints";
 import { ItemValue } from "./itemvalue";
 import type { ISelectQuestion } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
@@ -48,14 +47,9 @@ export class QuestionBooleanModel extends Question implements ISelectQuestion {
     }
   }
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
-    const survey = this.survey as SurveyModel;
     const displayMode = this.displayMode;
     if (displayMode === "checkbox") {
-      const rows = [keyboardHint(this, "keyboardHintToggleText", ["space"])];
-      if (survey.autoAdvanceEnabled === true) {
-        rows.push(keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"]));
-      }
-      return rows;
+      return [keyboardHint(this, "keyboardHintToggleText", ["space"]), ...advanceKeyboardHints(this)];
     }
     if (displayMode !== "segmented" && displayMode !== "radio" && displayMode !== "switch") return [];
     return [keyboardHint(this, "keyboardHintSelectText", ["arrowsAll"])];

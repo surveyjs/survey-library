@@ -1,6 +1,5 @@
 import { Serializer } from "./jsonobject";
-import { keyboardHint, keyboardHintAdvanceLocName, IKeyboardHintData } from "./keyboard-hints";
-import { SurveyModel } from "./survey";
+import { keyboardHint, advanceKeyboardHints, IKeyboardHintData } from "./keyboard-hints";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionTextBase } from "./question_textbase";
@@ -113,14 +112,12 @@ export class QuestionCommentModel extends QuestionTextBase {
     return this.isAutoAdvanceRequested === true;
   }
   protected getKeyboardHintsCore(): IKeyboardHintData[] {
-    const survey = this.survey as SurveyModel;
-    if (survey.autoAdvanceEnabled !== true) return [];
+    if (!this.canAdvanceOnEnter()) return [];
     const rows: IKeyboardHintData[] = [];
     if (this.acceptCarriageReturn) {
       rows.push(keyboardHint(this, "keyboardHintNewLineText", ["shiftEnter"]));
     }
-    rows.push(keyboardHint(this, keyboardHintAdvanceLocName(this), ["enter"]));
-    return rows;
+    return rows.concat(advanceKeyboardHints(this));
   }
   // IsTouch means an on-screen keyboard. question.isMobile follows layout width, so a narrow desktop window must keep Enter.
   protected isAutoAdvanceEnter(event: any): boolean {

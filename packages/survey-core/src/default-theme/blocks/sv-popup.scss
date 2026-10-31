@@ -55,6 +55,7 @@ sv-popup {
 
 .sv-popup__close-button {
   position: absolute;
+  z-index: 1;
   top: var(--sjs2-spacing-x200);
   right: var(--sjs2-spacing-x200);
   padding: var(--sjs2-spacing-x100);

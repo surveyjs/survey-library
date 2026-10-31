@@ -58,7 +58,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-empty.png");
     });
 
-    // The sortable headers: an unsorted column under the pointer (the quiet sort icon), an ascending
+    // The sortable headers: an unsorted column at rest (the quiet sort icon after the title), an ascending
     // and a descending column (arrows in the hovered chip).
     test("Matrixdynamic sortable headers", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
@@ -85,7 +85,6 @@ frameworks.forEach(framework => {
         }]
       });
       await resetFocusToBody(page);
-      await page.locator("thead th").nth(0).hover();
       await compareScreenshot(page, page.locator(".sd-question--matrixdynamic thead"), "matrixdynamic-sortable-headers.png");
     });
 

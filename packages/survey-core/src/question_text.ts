@@ -290,7 +290,7 @@ export class QuestionTextModel extends QuestionTextBase {
       // With saveMaskedValue a string value is already masked: masking it again misreads its separators
       // ("1.234,56" becomes "1,23" for a comma decimal separator). A raw value still has to be masked.
       if (this.maskSettings.saveMaskedValue && typeof value === "string") return value;
-      return this.maskInstance.getMaskedValue(value);
+      return this.maskSettings.getMaskedValueForDisplay(value);
     }
     return super.getDisplayValueCore(keysAsText, value);
   }
@@ -463,8 +463,10 @@ export class QuestionTextModel extends QuestionTextBase {
     }
   }
   public getFilteredValue(): any {
-    return this.getExpressionValue(this.value);
+    if (!this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue) return this.maskSettings.getUnmaskedSavedValue(this.value);
+    return this.value;
   }
+  // Converts a value that is not this question's own: a record's value through a column's template.
   getExpressionValue(val: any): any {
     if (!this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue)
       return this.maskInstance.getUnmaskedValue(val);
@@ -486,6 +488,9 @@ export class QuestionTextModel extends QuestionTextBase {
   protected convertToCorrectValue(val: any): any {
     if (val !== undefined && val !== null && val !== "" && !this.maskTypeIsEmpty) {
       if (this.maskSettings.saveMaskedValue) {
+        // The text the question holds comes back from a write of a neighbour during a locale change. It
+        // is still in the format the mask holds: reading it in the new one would move that format.
+        if (typeof val === "string" && val === this.value) return val;
         const preserved = this.tryPreserveMaskedStringValue(val);
         if (preserved !== undefined) return preserved;
         return this.maskInstance.getMaskedValue(val);

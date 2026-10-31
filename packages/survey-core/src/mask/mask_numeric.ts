@@ -394,8 +394,7 @@ export class InputMaskNumeric extends InputMaskBase {
     const enteredNumber = !!prev && !!state && !!state.enteredText
       ? this.parseNumber(this.getLocaleChangeInput(state.enteredText), prev.decimal, prev.thousands) : undefined;
     // a masked value is stored as text in the previous locale's format
-    const savedNumber = !!prev && !!state && !!state.value
-      ? this.getNumberUnmaskedValue(this.getLocaleChangeInput(state.value), prev.decimal, prev.thousands) : undefined;
+    const savedNumber = !!prev && !!state && !!state.value ? this.getTextNumber(state.value, prev) : undefined;
     super.localeChanged();
     // Only the rendered text is locale dependent - a stored number is not - but the empty mask
     // and every displayed value change. Notify the owner question and the input element adapter
@@ -415,6 +414,20 @@ export class InputMaskNumeric extends InputMaskBase {
   }
   public getUnmaskedValue(src: string): any {
     return this.getNumberUnmaskedValue(src);
+  }
+  private getTextNumber(src: string, text: { decimal: string, thousands: string }): number | undefined {
+    return this.getNumberUnmaskedValue(this.getLocaleChangeInput(src), text.decimal, text.thousands);
+  }
+  public getUnmaskedSavedValue(src: string): any {
+    const text = this.textSeparators;
+    if (!text || text.decimal === this.decimalSeparator && text.thousands === this.thousandsSeparator) return this.getUnmaskedValue(src);
+    return this.getTextNumber(src, text);
+  }
+  public getMaskedValueForDisplay(src: any): string {
+    const text = this.textSeparators;
+    const result = super.getMaskedValueForDisplay(src);
+    this.textSeparators = text;
+    return result;
   }
   public processInput(args: ITextInputParams): IMaskedInputResult {
     const result = { value: args.prevValue, caretPosition: args.selectionEnd, cancelPreventDefault: false };

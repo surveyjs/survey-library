@@ -47,6 +47,17 @@ export class InputMaskBase extends Base implements IInputMask {
     this.clearFormatValueCache();
   }
 
+  // The unmasked value of the saved text of the owner question. A locale dependent mask reads it in
+  // the format the text is in, which is not yet the new locale's during a locale change.
+  public getUnmaskedSavedValue(src: string): any {
+    return this.getUnmaskedValue(src);
+  }
+  // The masked text of a value for a reader, such as a piped title. A locale dependent mask does not
+  // take it for the text of the owner question.
+  public getMaskedValueForDisplay(src: any): string {
+    return this.getMaskedValue(src);
+  }
+
   public getSurvey(live: boolean = false): ISurvey {
     return this.owner?.getSurvey();
   }

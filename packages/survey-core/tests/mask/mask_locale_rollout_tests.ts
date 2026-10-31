@@ -274,6 +274,202 @@ describe("Numeric mask: locale rollout", () => {
   });
 });
 
+/* A question converts its saved value from the format the text is in. A read during the change, which
+   a condition or a piped title makes for a question that has not converted yet, must not replace that
+   format with the new locale's: the question would parse "2,222.22" as 2.22 and lose digits. */
+describe("A saved masked value survives reads during a locale change", () => {
+  afterEach(() => {
+    surveyLocalization.currentLocale = "";
+  });
+
+  const numeric = { maskType: "numeric", maskSettings: { saveMaskedValue: true, precision: 2 } };
+  // The locale's own symbol and pattern: the affixes differ between the locales, not only the separators.
+  const currency = { maskType: "currency", maskSettings: { saveMaskedValue: true, precision: 2 } };
+  const numberFormats = { en: ["1,111.11", "2,222.22"], de: ["1.111,11", "2.222,22"] };
+  const euro = "\u20AC";
+  const currencyFormats = { en: ["$1,111.11", "$2,222.22"], de: ["1.111,11 " + euro, "2.222,22 " + euro] };
+  const maskCases: Array<[string, any, { en: Array<string>, de: Array<string> }]> = [["numeric", numeric, numberFormats], ["currency", currency, currencyFormats]];
+  const values = (survey: SurveyModel, ...names: Array<string>): Array<any> => names.map(name => survey.getValue(name));
+
+  test.each(maskCases)("%s: a condition reads the question that has not converted yet", (_, mask, formats) => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", ...mask },
+        { type: "text", name: "q2", ...mask },
+        { type: "text", name: "q3", visibleIf: "{q1} notempty and {q2} notempty" }
+      ]
+    });
+    survey.data = { q1: formats.en[0], q2: formats.en[1] };
+    survey.locale = "de";
+    expect(values(survey, "q1", "q2")).toEqual(formats.de);
+    survey.locale = "";
+    expect(values(survey, "q1", "q2"), "back").toEqual(formats.en);
+  });
+
+  // A symbol that holds the decimal separator must leave as an affix: the number parser would misread it.
+  test("a piped title leaves the affixes of the text, which the question removes", () => {
+    const survey = new SurveyModel({
+      regionalFormat: { currencySymbol: "Rs." },
+      elements: [{ type: "text", name: "q1", title: "Sum: {q1}", ...currency }]
+    });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    survey.data = { q1: "Rs.2,222.22" };
+    q.locTitle.textOrHtml;
+    q.locTitle.onChanged = () => { q.locTitle.textOrHtml; };
+    survey.locale = "de";
+    expect(q.value).toBe("2.222,22 Rs.");
+  });
+
+  test("a condition never sees a number misread during the change", () => {
+    const survey = new SurveyModel({
+      clearInvisibleValues: "onHidden",
+      elements: [
+        { type: "text", name: "q1", ...numeric },
+        { type: "text", name: "q2", ...numeric },
+        { type: "text", name: "q3", visibleIf: "{q1} > 0 and {q2} > 100" }
+      ]
+    });
+    survey.data = { q1: "1,111.11", q2: "2,222.22", q3: "kept" };
+    survey.locale = "de";
+    expect(survey.getValue("q3")).toBe("kept");
+  });
+
+  test.each(maskCases)("%s: a piped title reads the only masked question", (_, mask, formats) => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", title: "Sum: {q1}", ...mask }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    survey.data = { q1: formats.en[1] };
+    expect(q.locTitle.textOrHtml).toBe("Sum: " + formats.en[1]);
+    q.locTitle.onChanged = () => { q.locTitle.textOrHtml; };
+    survey.locale = "de";
+    expect(q.value).toBe(formats.de[1]);
+    expect(q.locTitle.textOrHtml).toBe("Sum: " + formats.de[1]);
+  });
+
+  test("a value typed after a change converts back", () => {
+    const survey = new SurveyModel({ locale: "de", elements: [{ type: "text", name: "q1", ...numeric }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    q.inputValue = "9.876,54";
+    expect(q.value).toBe("9.876,54");
+    survey.locale = "";
+    expect(q.value).toBe("9,876.54");
+  });
+
+  test("a survey that starts in the second locale reads and converts its nested values", () => {
+    const survey = new SurveyModel({
+      locale: "de",
+      elements: [
+        { type: "matrixdynamic", name: "m", rowCount: 0, columns: [{ name: "c", cellType: "text", ...numeric }, { name: "sum", cellType: "expression", expression: "{row.c} + 1" }] },
+        { type: "paneldynamic", name: "p", templateElements: [{ type: "text", name: "t", ...numeric }] },
+        { type: "text", name: "calc", visibleIf: "{m[0].c} > 1000 and {p[0].t} > 1000" }
+      ]
+    });
+    survey.data = { m: [{ c: "1.234,56" }], p: [{ t: "1.234,56" }], calc: "kept" };
+    const matrix = <any>survey.getQuestionByName("m");
+    const cell = matrix.visibleRows[0].cells[0].question;
+    const panelQuestion = (<any>survey.getQuestionByName("p")).panels[0].getQuestionByName("t");
+    expect(matrix.visibleRows[0].cells[1].question.value, "the expression reads the number").toBe(1235.56);
+    survey.locale = "";
+    expect(cell.value, "the cell").toBe("1,234.56");
+    expect(panelQuestion.value, "the panel's question").toBe("1,234.56");
+    expect(survey.getQuestionByName("calc").isVisible, "the condition reads both numbers").toBe(true);
+  });
+
+  test.each(maskCases)("%s: an item of a multiple text gets the text it holds back from the first item's write", (_, mask, formats) => {
+    const survey = new SurveyModel({
+      elements: [{ type: "multipletext", name: "mt", items: [{ name: "a", ...mask }, { name: "b", ...mask }] }]
+    });
+    survey.data = { mt: { a: formats.en[0], b: formats.en[1] } };
+    survey.locale = "de";
+    expect(survey.getValue("mt")).toEqual({ a: formats.de[0], b: formats.de[1] });
+    survey.locale = "";
+    expect(survey.getValue("mt"), "back").toEqual({ a: formats.en[0], b: formats.en[1] });
+  });
+
+  test("a handler merges the text a question that has not converted holds", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", ...numeric }, { type: "text", name: "q2", ...numeric }] });
+    survey.data = { q1: "1,111.11", q2: "2,222.22" };
+    survey.onValueChanged.add((sender, options) => {
+      if (options.name === "q1") sender.mergeData({ q2: "2,222.22" });
+    });
+    survey.locale = "de";
+    expect(survey.getValue("q2")).toBe("2.222,22");
+  });
+
+  test("a matrix cell's write gives a shared record back to a panel that has not converted", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdynamic", name: "m", valueName: "shared", rowCount: 0, columns: [{ name: "c", cellType: "text", ...numeric }] },
+        { type: "paneldynamic", name: "p", valueName: "shared", templateElements: [{ type: "text", name: "c", ...numeric }, { type: "text", name: "d", ...numeric }] }
+      ]
+    });
+    survey.data = { shared: [{ c: "1,111.11", d: "2,222.22" }] };
+    (<any>survey.getQuestionByName("m")).visibleRows;
+    (<any>survey.getQuestionByName("p")).panels;
+    survey.locale = "de";
+    expect(survey.getValue("shared")).toEqual([{ c: "1.111,11", d: "2.222,22" }]);
+  });
+
+  // A symbol that holds the decimal separator shows whether a read removes the affixes the text has.
+  const symbolCurrency = { regionalFormat: { currencySymbol: "Rs." } };
+  test("a nested question reads and converts text with a symbol it gets after it is created", () => {
+    const survey = new SurveyModel({
+      locale: "ja",
+      ...symbolCurrency,
+      elements: [{ type: "paneldynamic", name: "p", templateElements: [{ type: "text", name: "t", ...currency }] }]
+    });
+    survey.data = { p: [{ t: "Rs.2,222.22" }] };
+    const q = (<any>survey.getQuestionByName("p")).panels[0].getQuestionByName("t");
+    expect(q.getFilteredValue(), "the read").toBe(2222.22);
+    survey.locale = "de";
+    expect(q.value, "the conversion").toBe("2.222,22 Rs.");
+  });
+
+  test("a read follows a symbol that changes without a locale change", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", ...currency }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    survey.data = { q1: "$1,000.00" };
+    (<InputMaskCurrency>q.maskSettings).currencySymbol = "Rs.";
+    q.value = "Rs.2,000.00";
+    expect(q.getFilteredValue()).toBe(2000);
+  });
+
+  test("outside a locale change a read goes through getUnmaskedValue, which a mask may override", () => {
+    class ScaledMask extends InputMaskNumeric {
+      public getUnmaskedValue(src: string): any { return super.getUnmaskedValue(src) * 100; }
+    }
+    const mask = new ScaledMask();
+    mask.getMaskedValue(12.5);
+    expect(mask.getUnmaskedSavedValue("12.5")).toBe(1250);
+  });
+
+  test("the cells of a matrix with a total keep their digits", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "m", rowCount: 0, columns: [{ name: "c", cellType: "text", totalType: "sum", ...numeric }] }]
+    });
+    survey.data = { m: [{ c: "1,111.11" }, { c: "2,222.22" }] };
+    const matrix = <any>survey.getQuestionByName("m");
+    matrix.visibleRows;
+    survey.locale = "de";
+    expect(survey.getValue("m")).toEqual([{ c: "1.111,11" }, { c: "2.222,22" }]);
+    expect(matrix.generatedTotalRow.cells[0].question.value, "the sum").toBe(3333.33);
+  });
+
+  test("a mask that has not produced a text reads in its current format", () => {
+    expect(new InputMaskNumeric().getUnmaskedSavedValue("1,234.56")).toBe(1234.56);
+  });
+
+  test("a read does not move the format of a value the question has not converted", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", ...numeric }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    survey.data = { q1: "2,222.22" };
+    surveyLocalization.currentLocale = "de";
+    expect(q.getFilteredValue(), "the number the text holds").toBe(2222.22);
+    expect(q.displayValue, "the value shown in a read").toBe("2,222.22");
+    q.localeChanged();
+    expect(q.value).toBe("2.222,22");
+  });
+});
+
 describe("Currency mask: locale rollout", () => {
   afterEach(() => {
     surveyLocalization.currentLocale = "";

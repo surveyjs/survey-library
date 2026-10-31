@@ -363,9 +363,18 @@ export class InputMaskCurrency extends InputMaskNumeric {
     return this.wrapText(result);
   }
   public getUnmaskedValue(src: string): any {
+    // Reading a text in the current format makes it the format of the text, as parseNumber() does for
+    // the separators: a text that was written after the mask's last wrapText() is not in the old affixes.
+    this.textAffixes = this.getRenderedAffixes();
     // the symbol is arbitrary author text - it may contain the decimal separator, a digit or a
     // minus sign - so it is removed as boundary text instead of being left to the number parser
-    return super.getUnmaskedValue(this.unwrapText(src));
+    return super.getUnmaskedValue(this.unwrapText(src, this.textAffixes));
+  }
+  public getMaskedValueForDisplay(src: any): string {
+    const affixes = this.textAffixes;
+    const result = super.getMaskedValueForDisplay(src);
+    this.textAffixes = affixes;
+    return result;
   }
   public isValueOutOfRange(src: string): boolean {
     return super.isValueOutOfRange(this.unwrapText(src));
